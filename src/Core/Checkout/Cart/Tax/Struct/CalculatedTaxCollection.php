@@ -4,8 +4,19 @@ namespace Shopware\Core\Checkout\Cart\Tax\Struct;
 
 use Shopware\Core\Framework\Struct\Collection;
 
+/**
+ * @method void               set(string $key, CalculatedTax $entity)
+ * @method CalculatedTax[]    getIterator()
+ * @method CalculatedTax[]    getElements()
+ * @method CalculatedTax|null get(string $key)
+ * @method CalculatedTax|null first()
+ * @method CalculatedTax|null last()
+ */
 class CalculatedTaxCollection extends Collection
 {
+    /**
+     * @param CalculatedTax $calculatedTax
+     */
     public function add($calculatedTax): void
     {
         $this->set($this->getKey($calculatedTax), $calculatedTax);
@@ -19,17 +30,6 @@ class CalculatedTaxCollection extends Collection
     public function exists(CalculatedTax $calculatedTax): bool
     {
         return $this->has($this->getKey($calculatedTax));
-    }
-
-    public function get($key): ? CalculatedTax
-    {
-        $key = (string) $key;
-
-        if ($this->has($key)) {
-            return $this->elements[$key];
-        }
-
-        return null;
     }
 
     /**

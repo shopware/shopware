@@ -7,6 +7,15 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\System\Country\Aggregate\CountryState\CountryStateCollection;
 use Shopware\Core\System\Country\CountryCollection;
 
+/**
+ * @method void                       add(CustomerAddressEntity $entity)
+ * @method void                       set(string $key, CustomerAddressEntity $entity)
+ * @method CustomerAddressEntity[]    getIterator()
+ * @method CustomerAddressEntity[]    getElements()
+ * @method CustomerAddressEntity|null get(string $key)
+ * @method CustomerAddressEntity|null first()
+ * @method CustomerAddressEntity|null last()
+ */
 class CustomerAddressCollection extends EntityCollection
 {
     public function getCustomerIds(): array

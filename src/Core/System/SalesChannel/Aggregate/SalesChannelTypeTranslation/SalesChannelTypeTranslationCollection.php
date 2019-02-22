@@ -4,6 +4,15 @@ namespace Shopware\Core\System\SalesChannel\Aggregate\SalesChannelTypeTranslatio
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
+/**
+ * @method void                                   add(SalesChannelTypeTranslationEntity $entity)
+ * @method void                                   set(string $key, SalesChannelTypeTranslationEntity $entity)
+ * @method SalesChannelTypeTranslationEntity[]    getIterator()
+ * @method SalesChannelTypeTranslationEntity[]    getElements()
+ * @method SalesChannelTypeTranslationEntity|null get(string $key)
+ * @method SalesChannelTypeTranslationEntity|null first()
+ * @method SalesChannelTypeTranslationEntity|null last()
+ */
 class SalesChannelTypeTranslationCollection extends EntityCollection
 {
     public function getSalesChannelTypeIds(): array

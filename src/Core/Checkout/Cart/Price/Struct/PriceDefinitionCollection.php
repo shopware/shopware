@@ -4,6 +4,15 @@ namespace Shopware\Core\Checkout\Cart\Price\Struct;
 
 use Shopware\Core\Framework\Struct\Collection;
 
+/**
+ * @method void                          add(PriceDefinitionInterface $entity)
+ * @method void                          set(string $key, PriceDefinitionInterface $entity)
+ * @method PriceDefinitionInterface[]    getIterator()
+ * @method PriceDefinitionInterface[]    getElements()
+ * @method PriceDefinitionInterface|null get(string $key)
+ * @method PriceDefinitionInterface|null first()
+ * @method PriceDefinitionInterface|null last()
+ */
 class PriceDefinitionCollection extends Collection
 {
     public function get($key): ? PriceDefinitionInterface

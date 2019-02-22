@@ -5,6 +5,15 @@ namespace Shopware\Core\Framework\Pricing;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
+/**
+ * @method void                 add(PriceRuleEntity $entity)
+ * @method void                 set(string $key, PriceRuleEntity $entity)
+ * @method PriceRuleEntity[]    getIterator()
+ * @method PriceRuleEntity[]    getElements()
+ * @method PriceRuleEntity|null get(string $key)
+ * @method PriceRuleEntity|null first()
+ * @method PriceRuleEntity|null last()
+ */
 class PriceRuleCollection extends EntityCollection
 {
     public function getCurrencyIds(): array

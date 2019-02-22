@@ -5,6 +5,15 @@ namespace Shopware\Core\Framework\Version\Aggregate\VersionCommitData;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 
+/**
+ * @method void                         add(VersionCommitDataEntity $entity)
+ * @method void                         set(string $key, VersionCommitDataEntity $entity)
+ * @method VersionCommitDataEntity[]    getIterator()
+ * @method VersionCommitDataEntity[]    getElements()
+ * @method VersionCommitDataEntity|null get(string $key)
+ * @method VersionCommitDataEntity|null first()
+ * @method VersionCommitDataEntity|null last()
+ */
 class VersionCommitDataCollection extends EntityCollection
 {
     public function filterByEntity(string $definition): self

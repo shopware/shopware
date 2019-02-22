@@ -4,6 +4,15 @@ namespace Shopware\Core\Checkout\Payment;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
+/**
+ * @method void                     add(PaymentMethodEntity $entity)
+ * @method void                     set(string $key, PaymentMethodEntity $entity)
+ * @method PaymentMethodEntity[]    getIterator()
+ * @method PaymentMethodEntity[]    getElements()
+ * @method PaymentMethodEntity|null get(string $key)
+ * @method PaymentMethodEntity|null first()
+ * @method PaymentMethodEntity|null last()
+ */
 class PaymentMethodCollection extends EntityCollection
 {
     public function getPluginIds(): array

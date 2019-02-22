@@ -4,6 +4,15 @@ namespace Shopware\Core\Content\Navigation\Aggregate\NavigationTranslation;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
+/**
+ * @method void                             add(NavigationTranslationEntity $entity)
+ * @method void                             set(string $key, NavigationTranslationEntity $entity)
+ * @method NavigationTranslationEntity[]    getIterator()
+ * @method NavigationTranslationEntity[]    getElements()
+ * @method NavigationTranslationEntity|null get(string $key)
+ * @method NavigationTranslationEntity|null first()
+ * @method NavigationTranslationEntity|null last()
+ */
 class NavigationTranslationCollection extends EntityCollection
 {
     public function getNavigationIds(): array

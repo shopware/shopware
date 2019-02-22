@@ -4,6 +4,14 @@ namespace Shopware\Core\Checkout\Cart\Error;
 
 use Shopware\Core\Framework\Struct\Collection;
 
+/**
+ * @method void       set(string $key, Error $entity)
+ * @method Error[]    getIterator()
+ * @method Error[]    getElements()
+ * @method Error|null get(string $key)
+ * @method Error|null first()
+ * @method Error|null last()
+ */
 class ErrorCollection extends Collection
 {
     /**
@@ -16,8 +24,7 @@ class ErrorCollection extends Collection
 
     public function blockOrder(): bool
     {
-        /** @var Error $error */
-        foreach ($this->elements as $error) {
+        foreach ($this->getIterator() as $error) {
             if ($error->blockOrder()) {
                 return true;
             }
@@ -28,8 +35,7 @@ class ErrorCollection extends Collection
 
     public function hasLevel(int $errorLevel): bool
     {
-        /** @var Error $element */
-        foreach ($this->elements as $element) {
+        foreach ($this->getIterator() as $element) {
             if ($element->getLevel() === $errorLevel) {
                 return true;
             }

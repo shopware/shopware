@@ -5,6 +5,15 @@ namespace Shopware\Core\Content\Category;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Util\AfterSort;
 
+/**
+ * @method void                add(CategoryEntity $entity)
+ * @method void                set(string $key, CategoryEntity $entity)
+ * @method CategoryEntity[]    getIterator()
+ * @method CategoryEntity[]    getElements()
+ * @method CategoryEntity|null get(string $key)
+ * @method CategoryEntity|null first()
+ * @method CategoryEntity|null last()
+ */
 class CategoryCollection extends EntityCollection
 {
     public function getParentIds(): array

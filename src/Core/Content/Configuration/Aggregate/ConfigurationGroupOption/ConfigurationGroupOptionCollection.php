@@ -6,6 +6,15 @@ use Shopware\Core\Content\Configuration\ConfigurationGroupCollection;
 use Shopware\Core\Content\Configuration\ConfigurationGroupEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
+/**
+ * @method void                                add(ConfigurationGroupOptionEntity $entity)
+ * @method void                                set(string $key, ConfigurationGroupOptionEntity $entity)
+ * @method ConfigurationGroupOptionEntity[]    getIterator()
+ * @method ConfigurationGroupOptionEntity[]    getElements()
+ * @method ConfigurationGroupOptionEntity|null get(string $key)
+ * @method ConfigurationGroupOptionEntity|null first()
+ * @method ConfigurationGroupOptionEntity|null last()
+ */
 class ConfigurationGroupOptionCollection extends EntityCollection
 {
     public function getConfigurationGroupIds(): array
@@ -49,8 +58,7 @@ class ConfigurationGroupOptionCollection extends EntityCollection
     {
         $groups = new ConfigurationGroupCollection();
 
-        /** @var ConfigurationGroupOptionEntity $element */
-        foreach ($this->elements as $element) {
+        foreach ($this->getIterator() as $element) {
             if ($groups->has($element->getGroupId())) {
                 $group = $groups->get($element->getGroupId());
             } else {

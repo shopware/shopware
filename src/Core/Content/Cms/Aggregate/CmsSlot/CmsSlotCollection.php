@@ -4,6 +4,13 @@ namespace Shopware\Core\Content\Cms\Aggregate\CmsSlot;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
+/**
+ * @method CmsSlotEntity[]    getIterator()
+ * @method CmsSlotEntity[]    getElements()
+ * @method CmsSlotEntity|null get(string $key)
+ * @method CmsSlotEntity|null first()
+ * @method CmsSlotEntity|null last()
+ */
 class CmsSlotCollection extends EntityCollection
 {
     /**
@@ -50,8 +57,7 @@ class CmsSlotCollection extends EntityCollection
             return;
         }
 
-        /** @var CmsSlotEntity $element */
-        foreach ($this->elements as $element) {
+        foreach ($this->getIterator() as $element) {
             $this->slotCache[$element->getSlot()] = $element;
         }
     }

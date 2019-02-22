@@ -5,6 +5,14 @@ namespace Shopware\Core\Framework\Snippet\Files;
 use Shopware\Core\Framework\Exception\InvalidSnippetFileException;
 use Shopware\Core\Framework\Struct\Collection;
 
+/**
+ * @method void                      set(string $key, SnippetFileInterface $entity)
+ * @method SnippetFileInterface[]    getIterator()
+ * @method SnippetFileInterface[]    getElements()
+ * @method SnippetFileInterface|null get(string $key)
+ * @method SnippetFileInterface|null first()
+ * @method SnippetFileInterface|null last()
+ */
 class SnippetFileCollection extends Collection
 {
     /**
@@ -79,8 +87,7 @@ class SnippetFileCollection extends Collection
     {
         $list = [];
 
-        /** @var SnippetFileInterface $element */
-        foreach ($this->elements as $element) {
+        foreach ($this->getIterator() as $element) {
             $list[$element->getIso()][] = $element;
         }
 

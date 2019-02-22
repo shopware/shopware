@@ -34,7 +34,7 @@ class EntityCollection extends Collection
     {
         $filtered = [];
 
-        foreach ($this->elements as $key => $struct) {
+        foreach ($this->getIterator() as $key => $struct) {
             if ($struct->get($property) !== $value) {
                 continue;
             }

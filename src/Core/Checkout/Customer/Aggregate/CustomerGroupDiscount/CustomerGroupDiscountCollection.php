@@ -4,6 +4,15 @@ namespace Shopware\Core\Checkout\Customer\Aggregate\CustomerGroupDiscount;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
+/**
+ * @method void                             add(CustomerGroupDiscountEntity $entity)
+ * @method void                             set(string $key, CustomerGroupDiscountEntity $entity)
+ * @method CustomerGroupDiscountEntity[]    getIterator()
+ * @method CustomerGroupDiscountEntity[]    getElements()
+ * @method CustomerGroupDiscountEntity|null get(string $key)
+ * @method CustomerGroupDiscountEntity|null first()
+ * @method CustomerGroupDiscountEntity|null last()
+ */
 class CustomerGroupDiscountCollection extends EntityCollection
 {
     public function getCustomerGroupIds(): array
@@ -24,8 +33,7 @@ class CustomerGroupDiscountCollection extends EntityCollection
     {
         $discount = null;
 
-        /** @var CustomerGroupDiscountEntity $discountData */
-        foreach ($this->elements as $discountData) {
+        foreach ($this->getIterator() as $discountData) {
             if ($discountData->getMinimumCartAmount() > $totalPrice) {
                 break;
             }

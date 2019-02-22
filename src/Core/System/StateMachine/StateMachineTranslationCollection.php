@@ -4,6 +4,15 @@ namespace Shopware\Core\System\StateMachine;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
+/**
+ * @method void                               add(StateMachineTranslationEntity $entity)
+ * @method void                               set(string $key, StateMachineTranslationEntity $entity)
+ * @method StateMachineTranslationEntity[]    getIterator()
+ * @method StateMachineTranslationEntity[]    getElements()
+ * @method StateMachineTranslationEntity|null get(string $key)
+ * @method StateMachineTranslationEntity|null first()
+ * @method StateMachineTranslationEntity|null last()
+ */
 class StateMachineTranslationCollection extends EntityCollection
 {
     public function getLanguageIds(): array

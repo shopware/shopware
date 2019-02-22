@@ -6,6 +6,15 @@ use Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupOption\Confi
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\System\Tax\TaxCollection;
 
+/**
+ * @method void                      add(ProductServiceEntity $entity)
+ * @method void                      set(string $key, ProductServiceEntity $entity)
+ * @method ProductServiceEntity[]    getIterator()
+ * @method ProductServiceEntity[]    getElements()
+ * @method ProductServiceEntity|null get(string $key)
+ * @method ProductServiceEntity|null first()
+ * @method ProductServiceEntity|null last()
+ */
 class ProductServiceCollection extends EntityCollection
 {
     public function getProductIds(): array

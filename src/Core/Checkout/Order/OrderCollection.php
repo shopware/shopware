@@ -9,6 +9,15 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\System\Currency\CurrencyCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 
+/**
+ * @method void             add(OrderEntity $entity)
+ * @method void             set(string $key, OrderEntity $entity)
+ * @method OrderEntity[]    getIterator()
+ * @method OrderEntity[]    getElements()
+ * @method OrderEntity|null get(string $key)
+ * @method OrderEntity|null first()
+ * @method OrderEntity|null last()
+ */
 class OrderCollection extends EntityCollection
 {
     public function getOrderCustomerIds(): array

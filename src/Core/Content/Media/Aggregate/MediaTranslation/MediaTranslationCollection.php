@@ -4,6 +4,15 @@ namespace Shopware\Core\Content\Media\Aggregate\MediaTranslation;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
+/**
+ * @method void                        add(MediaTranslationEntity $entity)
+ * @method void                        set(string $key, MediaTranslationEntity $entity)
+ * @method MediaTranslationEntity[]    getIterator()
+ * @method MediaTranslationEntity[]    getElements()
+ * @method MediaTranslationEntity|null get(string $key)
+ * @method MediaTranslationEntity|null first()
+ * @method MediaTranslationEntity|null last()
+ */
 class MediaTranslationCollection extends EntityCollection
 {
     public function getMediaIds(): array

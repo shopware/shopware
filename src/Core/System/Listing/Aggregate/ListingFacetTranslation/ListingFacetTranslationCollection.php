@@ -4,6 +4,15 @@ namespace Shopware\Core\System\Listing\Aggregate\ListingFacetTranslation;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
+/**
+ * @method void                               add(ListingFacetTranslationEntity $entity)
+ * @method void                               set(string $key, ListingFacetTranslationEntity $entity)
+ * @method ListingFacetTranslationEntity[]    getIterator()
+ * @method ListingFacetTranslationEntity[]    getElements()
+ * @method ListingFacetTranslationEntity|null get(string $key)
+ * @method ListingFacetTranslationEntity|null first()
+ * @method ListingFacetTranslationEntity|null last()
+ */
 class ListingFacetTranslationCollection extends EntityCollection
 {
     public function getListingFacetIds(): array

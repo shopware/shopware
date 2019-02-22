@@ -10,13 +10,17 @@ use Shopware\Core\Framework\Pricing\PriceCollection;
 use Shopware\Core\System\Tax\TaxCollection;
 use Shopware\Core\System\Unit\UnitCollection;
 
+/**
+ * @method void               add(ProductEntity $entity)
+ * @method void               set(string $key, ProductEntity $entity)
+ * @method ProductEntity[]    getIterator()
+ * @method ProductEntity[]    getElements()
+ * @method ProductEntity|null get(string $key)
+ * @method ProductEntity|null first()
+ * @method ProductEntity|null last()
+ */
 class ProductCollection extends EntityCollection
 {
-    public function first(): ProductEntity
-    {
-        return parent::first();
-    }
-
     public function getParentIds(): array
     {
         return $this->fmap(function (ProductEntity $product) {
@@ -104,8 +108,7 @@ class ProductCollection extends EntityCollection
     {
         $ids = [[]];
 
-        /** @var ProductEntity $element */
-        foreach ($this->elements as $element) {
+        foreach ($this->getIterator() as $element) {
             $ids[] = $element->getPriceRules()->getIds();
         }
 
@@ -116,8 +119,7 @@ class ProductCollection extends EntityCollection
     {
         $rules = [[]];
 
-        /** @var ProductEntity $element */
-        foreach ($this->elements as $element) {
+        foreach ($this->getIterator() as $element) {
             $rules[] = $element->getPriceRules();
         }
 

@@ -141,8 +141,7 @@ class StateMachineRegistry
 
         $currentStateJson = null;
 
-        /** @var StateMachineStateEntity $place */
-        foreach ($stateMachine->getStates()->getElements() as $place) {
+        foreach ($stateMachine->getStates() as $place) {
             if ($place->getTechnicalName() === $fromStateName) {
                 $currentStateJson = [
                     'name' => $place->getName(),

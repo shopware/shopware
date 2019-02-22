@@ -4,6 +4,15 @@ namespace Shopware\Core\System\Locale\Aggregate\LocaleTranslation;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
+/**
+ * @method void                         add(LocaleTranslationEntity $entity)
+ * @method void                         set(string $key, LocaleTranslationEntity $entity)
+ * @method LocaleTranslationEntity[]    getIterator()
+ * @method LocaleTranslationEntity[]    getElements()
+ * @method LocaleTranslationEntity|null get(string $key)
+ * @method LocaleTranslationEntity|null first()
+ * @method LocaleTranslationEntity|null last()
+ */
 class LocaleTranslationCollection extends EntityCollection
 {
     public function getLocaleIds(): array

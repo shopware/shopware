@@ -5,6 +5,15 @@ namespace Shopware\Core\Content\Product\Aggregate\ProductMedia;
 use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
+/**
+ * @method void                    add(ProductMediaEntity $entity)
+ * @method void                    set(string $key, ProductMediaEntity $entity)
+ * @method ProductMediaEntity[]    getIterator()
+ * @method ProductMediaEntity[]    getElements()
+ * @method ProductMediaEntity|null get(string $key)
+ * @method ProductMediaEntity|null first()
+ * @method ProductMediaEntity|null last()
+ */
 class ProductMediaCollection extends EntityCollection
 {
     public function getProductIds(): array

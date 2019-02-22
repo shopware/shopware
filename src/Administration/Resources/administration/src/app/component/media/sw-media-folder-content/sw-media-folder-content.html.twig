@@ -1,7 +1,7 @@
 {% block sw_media_folder_content %}
     <div class="sw-media-folder-content">
         {% block sw_media_folder_content_folder_listing %}
-            <ul v-if="subFolders.length" class="sw-media-folder-content__folder-listing">
+            <ul v-if="subFolders.length > 0 || parentFolder !== null" class="sw-media-folder-content__folder-listing">
                 {% block sw_media_folder_content_list_item %}
 
                     <li v-if="parentFolder !== null" class="sw-media-folder-content__list-item">

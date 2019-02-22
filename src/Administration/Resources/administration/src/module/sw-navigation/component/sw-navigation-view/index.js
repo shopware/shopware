@@ -56,7 +56,6 @@ Component.register('sw-navigation-view', {
                 this.navigation.setLocalData({
                     slotConfig: {}
                 });
-                console.log('init global');
             }
 
             if (this.navigation.cmsPageId) {

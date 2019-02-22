@@ -61,8 +61,26 @@ export default {
         mediaStore() {
             return State.getStore('media');
         },
+
         targetFolderId() {
             return this.targetFolder ? this.targetFolder.id : null;
+        },
+
+        rootFolderName() {
+            return this.$tc('sw-media.index.rootFolderName');
+        },
+
+        isMoveDisabled() {
+            return this.startFolderId === this.targetFolderId;
+        },
+
+        startFolderId() {
+            const firstItem = this.itemsToMove[0];
+            if (firstItem.entityName === 'media') {
+                return firstItem.mediaFolderId;
+            }
+
+            return firstItem.parentId;
         }
     },
 
@@ -79,8 +97,15 @@ export default {
 
     methods: {
         onMountedComponent() {
-            this.displayFolder = { id: '', name: 'Medien' };
-            this.targetFolder = { id: '', name: 'Medien' };
+            this.displayFolder = { id: null, name: this.rootFolderName };
+            this.targetFolder = { id: null, name: this.rootFolderName };
+
+            if (this.startFolderId) {
+                this.mediaFolderStore.getByIdAsync(this.startFolderId).then((folder) => {
+                    this.displayFolder = folder;
+                    this.targetFolder = folder;
+                });
+            }
         },
 
         closeMoveModal() {
@@ -94,10 +119,10 @@ export default {
         },
 
         updateParentFolder(child) {
-            if (child.id === '') {
+            if (child.id === null) {
                 this.parentFolder = null;
             } else if (child.parentId === null) {
-                this.parentFolder = { id: '', name: 'Medien' };
+                this.parentFolder = { id: null, name: this.rootFolderName };
             } else {
                 this.mediaFolderStore.getByIdAsync(child.parentId).then((parent) => {
                     this.parentFolder = parent;
@@ -115,7 +140,7 @@ export default {
                 return;
             }
 
-            if (folder.id === '' || folder.childCount > 0) {
+            if (folder.id === null || folder.childCount > 0) {
                 this.displayFolder = folder;
             }
         },

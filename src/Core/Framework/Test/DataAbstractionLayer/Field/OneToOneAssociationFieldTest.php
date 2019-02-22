@@ -195,7 +195,7 @@ DROP TABLE IF EXISTS `root_sub_many`;
             'sub' => [
                 'id' => $id2,
                 'name' => 'sub 1',
-                'many' => [
+                'manies' => [
                     ['id' => $id3, 'name' => 'many 1'],
                     ['id' => $id4, 'name' => 'many 2'],
                 ],
@@ -223,7 +223,7 @@ DROP TABLE IF EXISTS `root_sub_many`;
         $sub = $this->subRepository->search($criteria, $context)->first();
         static::assertInstanceOf(ArrayEntity::class, $sub->get('root'));
 
-        $many = $sub->get('many');
+        $many = $sub->get('manies');
         static::assertInstanceOf(EntityCollection::class, $many);
         static::assertCount(2, $many);
 

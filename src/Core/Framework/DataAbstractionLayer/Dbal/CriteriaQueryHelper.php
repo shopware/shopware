@@ -45,10 +45,13 @@ trait CriteriaQueryHelper
 
     protected function addFilters(SqlQueryParser $parser, string $definition, Criteria $criteria, QueryBuilder $query, Context $context): void
     {
-        $filters = new MultiFilter(array_merge(
-            $criteria->getFilters(),
-            $criteria->getPostFilters()
-        ));
+        $filters = new MultiFilter(
+            MultiFilter::CONNECTION_AND,
+            array_merge(
+                $criteria->getFilters(),
+                $criteria->getPostFilters()
+            )
+        );
 
         $parsed = $parser->parse($filters, $definition, $context);
 

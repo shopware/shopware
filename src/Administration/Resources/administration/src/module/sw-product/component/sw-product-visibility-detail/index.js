@@ -33,7 +33,9 @@ Component.register('sw-product-visibility-detail', {
 
         onPageChange(params) {
             const offset = (params.page - 1) * params.limit;
-            const all = Object.values(this.visibilities.store);
+            const all = Object.values(this.visibilities.store).filter((item) => {
+                return !item.isDeleted;
+            });
             this.total = all.length;
 
             this.items = all.slice(offset, offset + params.limit);

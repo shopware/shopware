@@ -1,4 +1,5 @@
 import { Component } from 'src/core/shopware';
+import StoreLoader from 'src/core/helper/store-loader.helper';
 import template from './sw-product-visibility-select.html.twig';
 
 Component.extend('sw-product-visibility-select', 'sw-select', {
@@ -12,7 +13,8 @@ Component.extend('sw-product-visibility-select', 'sw-select', {
                 associations: { salesChannel: {} }
             };
 
-            this.associationStore.getAll(params).then((items) => {
+            const loader = new StoreLoader();
+            loader.loadAll(this.associationStore, params).then((items) => {
                 this.selections = items;
                 this.isLoadingSelections = false;
             });

@@ -147,45 +147,6 @@ export default class EntityStore {
     }
 
     /**
-     * Allows to load all records of this store. The records are loaded inside a queue to prevent server overloads
-     *
-     * @param {Object} params
-     * @param {Boolean} keepAssociations
-     * @param languageId
-     * @return {Promise}
-     */
-    getAll(params, keepAssociations = false, languageId = '') {
-        params = params || {};
-
-        this.isLoading = true;
-
-        this.store = {};
-
-        if (!params.limit) {
-            params.limit = 25;
-        }
-
-        return new Promise((resolve) => {
-            this.loadQueue(params, 1, keepAssociations, languageId, resolve);
-        });
-    }
-
-    loadQueue(params, page, keepAssociations = false, languageId = '', promise) {
-        params.page = page;
-
-        this.getList(params, keepAssociations, languageId).then((response) => {
-            const length = Object.keys(this.store).length;
-
-            if (length < response.total || response.items.length > 0) {
-                this.loadQueue(params, page + 1, keepAssociations, languageId, promise);
-            } else {
-                // resolve promise, all data loaded
-                promise(Object.values(this.store));
-            }
-        });
-    }
-
-    /**
      * Get the language store
      *
      * @memberOf module:core/data/EntityStore

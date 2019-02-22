@@ -101,6 +101,7 @@ class ProductVisibilityEntityTest extends TestCase
 
         $criteria->addFilter(
             new MultiFilter(
+                MultiFilter::CONNECTION_AND,
                 [
                     new RangeFilter('product.visibilities.visibility', [
                         RangeFilter::GTE => ProductVisibilityDefinition::VISIBILITY_LINK,

@@ -16,13 +16,13 @@ class Migration1550493827ProductVisibility extends MigrationStep
     {
         $connection->executeUpdate('
 CREATE TABLE `product_visibility` (
-  `id` binary(16) NOT NULL,
-  `product_id` binary(16) NOT NULL,
-  `product_version_id` binary(16) NOT NULL,
-  `sales_channel_id` binary(16) NOT NULL,
+  `id` BINARY(16) NOT NULL,
+  `product_id` BINARY(16) NOT NULL,
+  `product_version_id` BINARY(16) NOT NULL,
+  `sales_channel_id` BINARY(16) NOT NULL,
   `visibility` INT(11) NOT NULL,
-  `created_at` datetime(3) NOT NULL,
-  `updated_at` datetime(3) DEFAULT NULL,
+  `created_at` DATETIME(3) NOT NULL,
+  `updated_at` DATETIME(3) NULL,
   PRIMARY KEY (`id`),
   KEY `idx.product_visibility.product_id` (`product_id`,`product_version_id`),
   KEY `idx.product_visibility.sales_channel_id` (`sales_channel_id`),

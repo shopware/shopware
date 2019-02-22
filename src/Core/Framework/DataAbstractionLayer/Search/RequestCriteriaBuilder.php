@@ -212,7 +212,7 @@ class RequestCriteriaBuilder
             $queries[] = new EqualsFilter($this->buildFieldName($definition, $field), $value);
         }
 
-        return new MultiFilter($queries);
+        return new MultiFilter(MultiFilter::CONNECTION_AND, $queries);
     }
 
     private function setPage(array $payload, Criteria $criteria, SearchRequestException $searchRequestException): void

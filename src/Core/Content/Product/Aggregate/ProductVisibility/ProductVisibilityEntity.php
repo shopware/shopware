@@ -5,6 +5,7 @@ namespace Shopware\Core\Content\Product\Aggregate\ProductVisibility;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
+use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 
 class ProductVisibilityEntity extends Entity
 {
@@ -41,7 +42,7 @@ class ProductVisibilityEntity extends Entity
     protected $product;
 
     /**
-     * @var ProductEntity|null
+     * @var SalesChannelEntity|null
      */
     protected $salesChannel;
 
@@ -85,12 +86,12 @@ class ProductVisibilityEntity extends Entity
         $this->product = $product;
     }
 
-    public function getSalesChannel(): ?ProductEntity
+    public function getSalesChannel(): ?SalesChannelEntity
     {
         return $this->salesChannel;
     }
 
-    public function setSalesChannel(ProductEntity $salesChannel): void
+    public function setSalesChannel(SalesChannelEntity $salesChannel): void
     {
         $this->salesChannel = $salesChannel;
     }

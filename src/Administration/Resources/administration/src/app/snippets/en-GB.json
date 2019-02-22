@@ -642,7 +642,7 @@
       "columnAll": "Visible everywhere",
       "columnSearchOnly": "Only visible in search",
       "columnLinkOnly": "Hidden",
-      "linkAdvancedVisibility": "Open advanced visibility",
+      "linkAdvancedVisibility": "Configure advanced visibility",
       "labelVisibility": "Visibility",
       "closeModal": "Apply"
     },

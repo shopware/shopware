@@ -112,14 +112,17 @@ class StorefrontProductRepository
         }
 
         $criteria->addFilter(
-            new MultiFilter([
-                new RangeFilter(
-                    'product.visibilities.visibility', [RangeFilter::GTE => ProductVisibilityDefinition::VISIBILITY_LINK]
-                ),
-                new EqualsFilter(
-                    'product.visibilities.salesChannelId', $context->getSalesChannel()->getId()
-                ),
-            ])
+            new MultiFilter(
+                MultiFilter::CONNECTION_AND,
+                [
+                    new RangeFilter(
+                        'product.visibilities.visibility', [RangeFilter::GTE => ProductVisibilityDefinition::VISIBILITY_LINK]
+                    ),
+                    new EqualsFilter(
+                        'product.visibilities.salesChannelId', $context->getSalesChannel()->getId()
+                    ),
+                ]
+            )
         );
     }
 }

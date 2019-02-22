@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Test\Api\Serializer;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Media\Aggregate\MediaFolder\MediaFolderDefinition;
 use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Product\ProductDefinition;
@@ -171,6 +172,15 @@ class JsonApiEncoderTest extends TestCase
         $expected = include __DIR__ . '/fixtures/testCollectionWithToOneRelationshipExpectation.php';
 
         $actual = $this->encoder->encode(MediaDefinition::class, $collection, '/api');
+        static::assertEquals($expected, json_decode($actual, true));
+    }
+
+    public function testEncodeStructWithSelfReference(): void
+    {
+        $collection = include __DIR__ . '/fixtures/testCollectionWithSelfReference.php';
+        $expected = include __DIR__ . '/fixtures/testCollectionWithSelfReferenceExpectation.php';
+
+        $actual = $this->encoder->encode(MediaFolderDefinition::class, $collection, '/api');
         static::assertEquals($expected, json_decode($actual, true));
     }
 

@@ -156,7 +156,7 @@ class ThumbnailServiceTest extends TestCase
         );
     }
 
-    public function testDeleteThumbnails_withSavedThumbnails(): void
+    public function testDeleteThumbnailsWithSavedThumbnails(): void
     {
         $mediaId = Uuid::uuid4()->getHex();
         $mediaExtension = 'png';

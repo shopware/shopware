@@ -64,7 +64,7 @@ class SnippetFileCollectionTest extends TestCase
         static::assertSame([], $result_empty_two);
     }
 
-    public function testGetBaseFileByIso_expectException(): void
+    public function testGetBaseFileByIsoExpectException(): void
     {
         $collection = $this->getCollection();
 

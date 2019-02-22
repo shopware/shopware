@@ -58,7 +58,7 @@ class MigrationRuntimeTest extends TestCase
         );
     }
 
-    public function test_it_works_with_a_single_migration(): void
+    public function testItWorksWithASingleMigration(): void
     {
         $migrations = $this->getMigrations();
         static::assertNull($migrations[0]['update']);
@@ -78,7 +78,7 @@ class MigrationRuntimeTest extends TestCase
         static::assertNull($migrations[1]['update_destructive']);
     }
 
-    public function test_it_works_with_multiple_migrations(): void
+    public function testItWorksWithMultipleMigrations(): void
     {
         $migrations = $this->getMigrations();
         static::assertNull($migrations[0]['update']);
@@ -98,7 +98,7 @@ class MigrationRuntimeTest extends TestCase
         static::assertNull($migrations[1]['update_destructive']);
     }
 
-    public function test_it_skips_already_executed_migrations(): void
+    public function testItSkipsAlreadyExecutedMigrations(): void
     {
         $migrations = $this->getMigrations();
         static::assertNull($migrations[0]['update']);
@@ -132,7 +132,7 @@ class MigrationRuntimeTest extends TestCase
         static::assertNull($migrations[1]['update_destructive']);
     }
 
-    public function test_no_destructive_if_no_none_destructive(): void
+    public function testNoDestructiveIfNoNoneDestructive(): void
     {
         $migrations = $this->getMigrations();
         static::assertNull($migrations[0]['update']);
@@ -152,7 +152,7 @@ class MigrationRuntimeTest extends TestCase
         static::assertNull($migrations[1]['update_destructive']);
     }
 
-    public function test_destructive_if_one_none_destructive(): void
+    public function testDestructiveIfOneNoneDestructive(): void
     {
         $migrations = $this->getMigrations();
         static::assertNull($migrations[0]['update']);
@@ -183,7 +183,7 @@ class MigrationRuntimeTest extends TestCase
         static::assertNull($migrations[1]['update_destructive']);
     }
 
-    public function test_destructive_if_multiple_none_destructive(): void
+    public function testDestructiveIfMultipleNoneDestructive(): void
     {
         $migrations = $this->getMigrations();
         static::assertNull($migrations[0]['update']);
@@ -214,7 +214,7 @@ class MigrationRuntimeTest extends TestCase
         static::assertNotNull($migrations[1]['update_destructive']);
     }
 
-    public function test_timestamp_cap(): void
+    public function testTimestampCap(): void
     {
         $migrations = $this->getMigrations();
         static::assertNull($migrations[0]['update']);
@@ -234,7 +234,7 @@ class MigrationRuntimeTest extends TestCase
         static::assertNull($migrations[1]['update_destructive']);
     }
 
-    public function test_exception_handling(): void
+    public function testExceptionHandling(): void
     {
         $this->collector->addDirectory(
             __DIR__ . '/_test_migrations_valid_run_time_exceptions',
@@ -258,7 +258,7 @@ class MigrationRuntimeTest extends TestCase
         static::assertNull($migrations[3]['update']);
     }
 
-    public function test_exception_handling_destructive(): void
+    public function testExceptionHandlingDestructive(): void
     {
         $this->collector->addDirectory(
             __DIR__ . '/_test_migrations_valid_run_time_exceptions',

@@ -18,21 +18,21 @@ class ConfigReaderTest extends TestCase
         $this->configReader = new ConfigReader();
     }
 
-    public function test_ConfigReader_with_valid_config(): void
+    public function testConfigReaderWithValidConfig(): void
     {
         $actualConfig = $this->configReader->read(__DIR__ . '/_fixtures/valid_config.xml');
 
         static::assertSame($this->getExpectedConfig(), $actualConfig);
     }
 
-    public function test_ConfigReader_with_invalid_path(): void
+    public function testConfigReaderWithInvalidPath(): void
     {
         $this->expectException(XmlParsingException::class);
 
         $this->configReader->read(__DIR__ . '/config.xml');
     }
 
-    public function test_ConfigReader_with_invalid_config(): void
+    public function testConfigReaderWithInvalidConfig(): void
     {
         $this->expectException(XmlParsingException::class);
 

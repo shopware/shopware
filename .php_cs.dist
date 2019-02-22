@@ -24,6 +24,8 @@ return PhpCsFixer\Config::create()
         'declare_strict_types' => true,
         // use native phpunit methods
         'php_unit_construct' => true,
+        // Enforce camel case for PHPUnit test methods
+        'php_unit_method_casing' => ['case' => 'camel_case'],
         'yoda_style' => ['equal' => false, 'identical' => false, 'less_and_greater' => false],
         'php_unit_test_case_static_method_calls' => true,
     ])

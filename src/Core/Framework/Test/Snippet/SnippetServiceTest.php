@@ -76,7 +76,7 @@ class SnippetServiceTest extends TestCase
         static::assertSame(Defaults::LOCALE_DE_DE_ISO, $result_de_DE);
     }
 
-    public function testGetDefaultLocale_expect_en_GB(): void
+    public function testGetDefaultLocaleExpectEnGB(): void
     {
         $method = ReflectionHelper::getMethod(SnippetService::class, 'getDefaultLocale');
         $result = $method->invoke($this->getSnippetService());

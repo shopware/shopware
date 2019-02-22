@@ -8,7 +8,7 @@ use Symfony\Component\Finder\SplFileInfo;
 
 class ClassNamespaceTest extends TestCase
 {
-    public function test_all_production_files_are_namespaced_correctly(): void
+    public function testAllProductionFilesAreNamespacedCorrectly(): void
     {
         $basePath = __DIR__ . '/../../../';
         $basePathParts = explode('/', $basePath);

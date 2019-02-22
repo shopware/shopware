@@ -8,7 +8,7 @@ class FilesystemBehaviourTest extends TestCase
 {
     use FilesystemBehaviour;
 
-    public function test_writtenFilesGetDeleted(): void
+    public function testWrittenFilesGetDeleted(): void
     {
         $this->getPublicFilesystem()
             ->put('testFile', 'testContent');
@@ -18,9 +18,9 @@ class FilesystemBehaviourTest extends TestCase
     }
 
     /**
-     * @depends test_writtenFilesGetDeleted
+     * @depends testWrittenFilesGetDeleted
      */
-    public function test_fileSystemIsEmptyOnNextTest(): void
+    public function testFileSystemIsEmptyOnNextTest(): void
     {
         static::assertEmpty($this->getPublicFilesystem()->listContents());
     }

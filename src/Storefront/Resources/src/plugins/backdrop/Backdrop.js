@@ -1,5 +1,5 @@
-const SELECTOR_CLS = "modal-backdrop";
-const BODY_CLS = "modal-open";
+const SELECTOR_CLASS = "modal-backdrop";
+const BODY_CLASS = "modal-open";
 
 class BackdropSingleton {
 
@@ -22,7 +22,7 @@ class BackdropSingleton {
     open() {
         // avoid multiple backdrops
         if (this._exists()) return;
-        document.body.classList.add(BODY_CLS);
+        document.body.classList.add(BODY_CLASS);
         document.body.insertAdjacentHTML('beforeend', this._getTemplate());
     }
 
@@ -30,9 +30,9 @@ class BackdropSingleton {
      * Removes all existing backdrops
      */
     close() {
-        let backdrops = document.body.querySelectorAll(`.${SELECTOR_CLS}`);
+        let backdrops = document.body.querySelectorAll(`.${SELECTOR_CLASS}`);
         backdrops.forEach(backdrop => backdrop.remove());
-        document.body.classList.remove(BODY_CLS);
+        document.body.classList.remove(BODY_CLASS);
     }
 
     /**
@@ -41,7 +41,7 @@ class BackdropSingleton {
      * @private
      */
     _exists() {
-        return (document.querySelectorAll(`.${SELECTOR_CLS}`).length > 0);
+        return (document.querySelectorAll(`.${SELECTOR_CLASS}`).length > 0);
     }
 
     /**
@@ -50,7 +50,7 @@ class BackdropSingleton {
      * @private
      */
     _getTemplate() {
-        return `<div class="${SELECTOR_CLS}"></div>`;
+        return `<div class="${SELECTOR_CLASS}"></div>`;
     }
 }
 
@@ -81,7 +81,7 @@ export default class Backdrop {
      * Expose constant
      * @returns {string}
      */
-    static SELECTOR_CLS() {
-        return SELECTOR_CLS;
+    static SELECTOR_CLASS() {
+        return SELECTOR_CLASS;
     }
 }

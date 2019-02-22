@@ -1,4 +1,4 @@
-const SELECTOR_CLS = "spinner-border";
+const SELECTOR_CLASS = "spinner-border";
 
 export default class LoadingIndicator {
 
@@ -24,7 +24,7 @@ export default class LoadingIndicator {
      * Removes all existing loading indicators inside the parent
      */
     remove() {
-        let indicators = this.parent.querySelectorAll(`.${SELECTOR_CLS}`);
+        let indicators = this.parent.querySelectorAll(`.${SELECTOR_CLASS}`);
         indicators.forEach(indicator => indicator.remove());
     }
 
@@ -34,7 +34,7 @@ export default class LoadingIndicator {
      * @protected
      */
     exists() {
-        return (this.parent.querySelectorAll(`.${SELECTOR_CLS}`).length > 0);
+        return (this.parent.querySelectorAll(`.${SELECTOR_CLASS}`).length > 0);
     }
 
     /**
@@ -53,7 +53,7 @@ export default class LoadingIndicator {
      * @protected
      */
     getTemplate() {
-        return `<div class="${SELECTOR_CLS}" role="status">
+        return `<div class="${SELECTOR_CLASS}" role="status">
                     <span class="sr-only">Loading...</span>
                 </div>`;
     }

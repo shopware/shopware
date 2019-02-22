@@ -46,7 +46,7 @@ class DumpSchemaCommand extends Command
 
         if ($formatType === 'simple') {
             $definitionContents = $this->definitionService->getSchema();
-        } elseif ($formatType == 'openapi3') {
+        } elseif ($formatType === 'openapi3') {
             $definitionContents = $this->definitionService->generate();
         } else {
             throw new InvalidArgumentException('Invalid "format-type" given. Aborting.');

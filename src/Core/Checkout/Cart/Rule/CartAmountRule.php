@@ -73,14 +73,14 @@ class CartAmountRule extends Rule
             case self::OPERATOR_EQ:
 
                 return new Match(
-                    $cartAmount == $this->amount,
+                    $cartAmount === $this->amount,
                     ['Total price is not equal']
                 );
 
             case self::OPERATOR_NEQ:
 
                 return new Match(
-                    $cartAmount != $this->amount,
+                    $cartAmount !== $this->amount,
                     ['Total price is equal']
                 );
 

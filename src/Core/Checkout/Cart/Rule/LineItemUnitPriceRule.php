@@ -73,14 +73,14 @@ class LineItemUnitPriceRule extends Rule
             case self::OPERATOR_EQ:
 
                 return new Match(
-                    $unitPrice == $this->amount,
+                    $unitPrice === $this->amount,
                     ['LineItem unit price is not equal']
                 );
 
             case self::OPERATOR_NEQ:
 
                 return new Match(
-                    $unitPrice != $this->amount,
+                    $unitPrice !== $this->amount,
                     ['LineItem unit price is equal']
                 );
 

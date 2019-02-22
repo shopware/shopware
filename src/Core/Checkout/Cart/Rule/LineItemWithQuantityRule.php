@@ -83,13 +83,13 @@ class LineItemWithQuantityRule extends Rule
 
                 case self::OPERATOR_EQ:
                     return new Match(
-                        $quantity == $this->quantity,
+                        $quantity === $this->quantity,
                         ['LineItem quantity does not match']
                     );
 
                 case self::OPERATOR_NEQ:
                     return new Match(
-                        $quantity != $this->quantity,
+                        $quantity !== $this->quantity,
                         ['LineItem quantity is equal']
                     );
 

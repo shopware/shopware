@@ -21,6 +21,7 @@ return PhpCsFixer\Config::create()
         'array_syntax' => ['syntax' => 'short'],
         // Removes @param and @return tags that don't provide any useful information.
         'no_superfluous_phpdoc_tags' => true,
+        // add declare strict type to every file
         'declare_strict_types' => true,
         // use native phpunit methods
         'php_unit_construct' => true,
@@ -28,6 +29,8 @@ return PhpCsFixer\Config::create()
         'php_unit_method_casing' => ['case' => 'camel_case'],
         'yoda_style' => ['equal' => false, 'identical' => false, 'less_and_greater' => false],
         'php_unit_test_case_static_method_calls' => true,
+        // comparisons should always be strict
+        'strict_comparison' => true,
     ])
     ->setFinder($finder)
 ;

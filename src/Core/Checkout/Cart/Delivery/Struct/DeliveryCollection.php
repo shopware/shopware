@@ -37,10 +37,10 @@ class DeliveryCollection extends Collection
     public function getDelivery(DeliveryDate $deliveryDate, ShippingLocation $location): ? Delivery
     {
         foreach ($this->getIterator() as $delivery) {
-            if ($delivery->getDeliveryDate()->getEarliest() != $deliveryDate->getEarliest()) {
+            if ($delivery->getDeliveryDate()->getEarliest() !== $deliveryDate->getEarliest()) {
                 continue;
             }
-            if ($delivery->getDeliveryDate()->getLatest() != $deliveryDate->getLatest()) {
+            if ($delivery->getDeliveryDate()->getLatest() !== $deliveryDate->getLatest()) {
                 continue;
             }
 

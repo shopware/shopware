@@ -70,10 +70,13 @@ Component.register('sw-media-quickinfo-usage', {
             this.products = [];
             this.item.getAssociation('productMedia').getList({
                 page: 1,
-                limit: 50
+                limit: 50,
+                associations: {
+                    product: {}
+                }
             }).then((response) => {
                 this.products = response.items.map((productMedia) => {
-                    return this.productStore.getById(productMedia.productId);
+                    return productMedia.product;
                 });
                 this.isLoading = false;
             });
@@ -91,7 +94,7 @@ Component.register('sw-media-quickinfo-usage', {
 
         getProductUsage(product) {
             return {
-                name: product.name,
+                name: product.meta.viewData.name,
                 tooltip: this.$tc('sw-media.sidebar.usage.tooltipFoundInProducts'),
                 link: {
                     name: 'sw.product.detail',
@@ -103,7 +106,7 @@ Component.register('sw-media-quickinfo-usage', {
 
         getManufacturerUsage(manufacturer) {
             return {
-                name: manufacturer.name,
+                name: manufacturer.meta.viewData.name,
                 tooltip: this.$tc('sw-media.sidebar.usage.tooltipFoundInManufacturers'),
                 link: {
                     name: 'sw.manufacturer.detail',

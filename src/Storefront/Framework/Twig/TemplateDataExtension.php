@@ -42,7 +42,12 @@ class TemplateDataExtension extends Twig_Extension implements Twig_Extension_Glo
             'shopware' => [
                 'config' => array_merge(
                     $this->getDefaultConfiguration(),
-                    []
+                    [
+                        'shopName' => 'Shopware Storefront',
+                        'seo' => [
+                            'descriptionMaxLength' => 150,
+                        ],
+                    ]
                 ),
                 'theme' => $this->getThemeConfig(),
             ],
@@ -63,12 +68,29 @@ class TemplateDataExtension extends Twig_Extension implements Twig_Extension_Glo
         $themeConfig = array_merge(
             $themeConfig,
             [
-                'desktopLogo' => 'bundles/storefront/src/img/logos/logo--tablet.png',
-                'tabletLandscapeLogo' => 'bundles/storefront/src/img/logos/logo--tablet.png',
-                'tabletLogo' => 'bundles/storefront/src/img/logos/logo--tablet.png',
-                'mobileLogo' => 'bundles/storefront/src/img/logos/logo--mobile.png',
-                'ajaxVariantSwitch' => true,
-                'offcanvasCart' => true,
+                'color' => [
+                    'primary' => '#007bff',
+                ],
+                'logo' => [
+                    'favicon' => 'favicon.ico',
+                    'appleTouch' => 'apple-touch-icon.png',
+                    'androidTouch' => 'android-touch-icon.png',
+                    'desktop' => 'media/logos/logo-desktop.png',
+                    'tabletLandscape' => 'media/logos/logo-tablet.png',
+                    'tablet' => 'media/logos/logo-tablet.png',
+                    'mobile' => 'media/logos/logo-mobile.png',
+                ],
+                'general' => [
+                    'ajaxVariantSwitch' => true,
+                    'offcanvasCart' => true,
+                ],
+                'breakpoint' => [
+                    'xs' => '0',
+                    'sm' => '576',
+                    'md' => '768',
+                    'lg' => '992',
+                    'xl' => '1200',
+                ],
             ]
         );
 
@@ -79,6 +101,7 @@ class TemplateDataExtension extends Twig_Extension implements Twig_Extension_Glo
     {
         return [
             'showBirthdayField' => true,
+            'metaIsFamilyFriendly' => true,
         ];
     }
 

@@ -20,6 +20,9 @@ Component.register('sw-customer-detail-order', {
 
     data() {
         return {
+            offset: 0,
+            limit: 10,
+            paginationSteps: [10, 25, 50, 75, 100],
             orders: []
         };
     },
@@ -54,6 +57,12 @@ Component.register('sw-customer-detail-order', {
         },
 
         getList() {
+            this.loadOrders();
+        },
+
+        onPageChange(data) {
+            this.page = data.page;
+            this.limit = data.limit;
             this.loadOrders();
         }
     }

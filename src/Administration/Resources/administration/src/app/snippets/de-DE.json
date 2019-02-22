@@ -423,6 +423,9 @@
     }
   },
   "sw-customer": {
+    "notification": {
+      "requiredFields": "Bitte fülle alle Pflichtfelder aus."
+    },
     "general": {
       "mainMenuItemGeneral": "Kunden",
       "mainMenuItemList": "Übersicht",

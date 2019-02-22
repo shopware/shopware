@@ -8,7 +8,8 @@ Component.register('sw-customer-detail-addresses', {
     template,
 
     mixins: [
-        Mixin.getByName('listing')
+        Mixin.getByName('listing'),
+        Mixin.getByName('notification')
     ],
 
     inject: ['customerAddressService'],
@@ -30,12 +31,15 @@ Component.register('sw-customer-detail-addresses', {
 
     data() {
         return {
+            isLoading: false,
+            offset: 0,
+            limit: 10,
+            paginationSteps: [10, 25, 50, 75, 100],
             showAddAddressModal: false,
             showEditAddressModal: false,
             showDeleteAddressModal: false,
             currentAddress: null,
-            addresses: [],
-            isLoading: false
+            addresses: []
         };
     },
 
@@ -49,8 +53,10 @@ Component.register('sw-customer-detail-addresses', {
         getList() {
             this.isLoading = true;
             const params = this.getListingParams();
+            params.limit = 10;
 
             this.customerAddressStore.getList(params).then((response) => {
+                this.total = response.total;
                 this.addresses = response.items;
             }).finally(() => {
                 this.isLoading = false;
@@ -76,6 +82,10 @@ Component.register('sw-customer-detail-addresses', {
             }
 
             if (!this.isValidAddress(this.currentAddress)) {
+                this.createNotificationError({
+                    title: this.$tc('global.notification.notificationSaveErrorTitle'),
+                    message: this.$tc('sw-customer.notification.requiredFields')
+                });
                 return;
             }
 
@@ -83,6 +93,7 @@ Component.register('sw-customer-detail-addresses', {
 
             if (typeof address === 'undefined') {
                 this.customer.addresses.push(this.currentAddress);
+                this.addresses.push(this.currentAddress);
             } else {
                 Object.assign(address, this.currentAddress);
             }
@@ -102,6 +113,14 @@ Component.register('sw-customer-detail-addresses', {
         },
 
         onCloseAddressModal() {
+            if (this.hasOwnProperty('defaultShippingAddressId')) {
+                this.customer.defaultShippingAddressId = this.defaultShippingAddressId;
+            }
+
+            if (this.hasOwnProperty('defaultBillingAddressId')) {
+                this.customer.defaultBillingAddressId = this.defaultBillingAddressId;
+            }
+
             this.currentAddress = null;
         },
 
@@ -143,12 +162,10 @@ Component.register('sw-customer-detail-addresses', {
 
         onChangeDefaultBillingAddress(billingAddressId) {
             this.customer.defaultBillingAddressId = billingAddressId;
-            this.customer.save();
         },
 
         onChangeDefaultShippingAddress(shippingAddressId) {
             this.customer.defaultShippingAddressId = shippingAddressId;
-            this.customer.save();
         },
 
         onDuplicateAddress(addressId) {
@@ -157,8 +174,32 @@ Component.register('sw-customer-detail-addresses', {
             });
         },
 
+        onChangeDefaultAddress(data) {
+            if (!data.value) {
+                return;
+            }
+
+            const preFix = this.createPrefix(data.name, '-address');
+            const name = `default${preFix}AddressId`;
+
+            this[name] = this.customer[name];
+            this.customer[name] = data.id;
+        },
+
         onChange(term) {
             this.term = term;
+            this.getList();
+        },
+
+        createPrefix(string, replace) {
+            const preFix = string.replace(replace, '');
+
+            return `${preFix.charAt(0).toUpperCase()}${preFix.slice(1)}`;
+        },
+
+        onPageChange(data) {
+            this.page = data.page;
+            this.limit = data.limit;
             this.getList();
         }
     }

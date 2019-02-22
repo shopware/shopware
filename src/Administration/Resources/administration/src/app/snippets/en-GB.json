@@ -423,6 +423,9 @@
     }
   },
   "sw-customer": {
+      "notification": {
+        "requiredFields": "Please fill in all required fields."
+      },
     "general": {
       "mainMenuItemGeneral": "Customers",
       "mainMenuItemList": "Overview",

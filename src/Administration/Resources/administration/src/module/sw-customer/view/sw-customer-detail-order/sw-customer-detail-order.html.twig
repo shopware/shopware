@@ -72,6 +72,19 @@
                             {% endblock %}
                         </template>
                     {% endblock %}
+
+                    {% block sw_customer_detail_addresses_grid_pagination %}
+                    <sw-pagination slot="pagination"
+                                   :offset="offset"
+                                   :limit="limit"
+                                   :total="total"
+                                   :total-visible="7"
+                                   :page="page"
+                                   :steps="paginationSteps"
+                                   @page-change="onPageChange">
+                    </sw-pagination>
+                    {% endblock %}
+
                 </sw-grid>
             </template>
         {% endblock %}

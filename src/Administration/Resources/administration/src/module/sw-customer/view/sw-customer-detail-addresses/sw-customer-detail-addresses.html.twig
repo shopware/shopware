@@ -26,7 +26,9 @@
 
                         {% block sw_customer_detail_addresses_add_modal_address_form %}
                             <sw-customer-address-form :address="currentAddress"
-                                                      :countries="countries">
+                                                      :countries="countries"
+                                                      :customer="customer"
+                                                      @change-default-address="onChangeDefaultAddress">
                             </sw-customer-address-form>
                         {% endblock %}
 
@@ -55,6 +57,7 @@
                              :selectable="false"
                              :sortDirection="sortDirection"
                              @sort-column="onSortColumn">
+
                         {% block sw_customer_detail_addresses_grid_slots %}
                             <template slot="columns" slot-scope="{ item }">
                                 {% block sw_customer_detail_addresses_grid_columns_default_shipping_address %}
@@ -91,16 +94,18 @@
                                     </sw-grid-column>
                                 {% endblock %}
 
-                                {% block sw_customer_detail_addresses_grid_columns_company %}
-                                    <sw-grid-column flex="minmax(120px, 1fr)"
-                                                    :label="$tc('sw-customer.detailAddresses.columnCompany')"
-                                                    dataIndex="company"
-                                                    truncate
-                                                    sortable>
-                                        {% block sw_customer_detail_addresses_grid_columns_company_label %}
-                                            {{ item.company }}
-                                        {% endblock %}
-                                    </sw-grid-column>
+                                {% block sw_customer_detail_addresses_grid_columns_last_name %}
+                                <sw-grid-column flex="minmax(120px, 1fr)"
+                                                :label="$tc('sw-customer.detailAddresses.columnLastName')"
+                                                dataIndex="lastName"
+                                                truncate
+                                                sortable>
+                                    {% block sw_customer_detail_addresses_grid_columns_last_name_label %}
+                                        <a @click="onEditAddress(item.id)">
+                                            {{ item.lastName }}
+                                        </a>
+                                    {% endblock %}
+                                </sw-grid-column>
                                 {% endblock %}
 
                                 {% block sw_customer_detail_addresses_grid_columns_first_name %}
@@ -115,14 +120,14 @@
                                     </sw-grid-column>
                                 {% endblock %}
 
-                                {% block sw_customer_detail_addresses_grid_columns_last_name %}
+                                {% block sw_customer_detail_addresses_grid_columns_company %}
                                     <sw-grid-column flex="minmax(120px, 1fr)"
-                                                    :label="$tc('sw-customer.detailAddresses.columnLastName')"
-                                                    dataIndex="lastName"
+                                                    :label="$tc('sw-customer.detailAddresses.columnCompany')"
+                                                    dataIndex="company"
                                                     truncate
                                                     sortable>
-                                        {% block sw_customer_detail_addresses_grid_columns_last_name_label %}
-                                            {{ item.lastName }}
+                                        {% block sw_customer_detail_addresses_grid_columns_company_label %}
+                                            {{ item.company }}
                                         {% endblock %}
                                     </sw-grid-column>
                                 {% endblock %}
@@ -245,6 +250,18 @@
                                 {% endblock %}
 
                             </template>
+                        {% endblock %}
+
+                        {% block sw_customer_detail_addresses_grid_pagination %}
+                            <sw-pagination slot="pagination"
+                                           :offset="offset"
+                                           :limit="limit"
+                                           :total="total"
+                                           :total-visible="7"
+                                           :page="page"
+                                           :steps="paginationSteps"
+                                           @page-change="onPageChange">
+                            </sw-pagination>
                         {% endblock %}
                     </sw-grid>
                 {% endblock %}

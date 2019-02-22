@@ -22,6 +22,8 @@ return PhpCsFixer\Config::create()
         // Removes @param and @return tags that don't provide any useful information.
         'no_superfluous_phpdoc_tags' => true,
         'declare_strict_types' => true,
+        // use native phpunit methods
+        'php_unit_construct' => true,
         'yoda_style' => ['equal' => false, 'identical' => false, 'less_and_greater' => false],
         'php_unit_test_case_static_method_calls' => true,
     ])

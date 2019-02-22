@@ -106,7 +106,7 @@ class SyncControllerTest extends TestCase
         static::assertSame(Response::HTTP_OK, $this->getClient()->getResponse()->getStatusCode());
 
         $responseData = json_decode($this->getClient()->getResponse()->getContent(), true);
-        static::assertEquals(false, $responseData['data']['attributes']['active']);
+        static::assertFalse($responseData['data']['attributes']['active']);
 
         $this->getClient()->request('DELETE', '/api/v' . PlatformRequest::API_VERSION . '/product/' . $id);
         static::assertSame(Response::HTTP_NO_CONTENT, $this->getClient()->getResponse()->getStatusCode());

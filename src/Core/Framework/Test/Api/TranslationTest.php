@@ -436,7 +436,7 @@ class TranslationTest extends TestCase
         $this->getClient()->request('GET', $baseResource . '/' . $id, [], [], [$headerName => $langId]);
         $response = $this->getClient()->getResponse();
         $responseData = json_decode($response->getContent(), true);
-        static::assertEquals(null, $responseData['data']['attributes']['name']);
+        static::assertNull($responseData['data']['attributes']['name']);
     }
 
     public function testDeleteSystemLanguageViolation(): void

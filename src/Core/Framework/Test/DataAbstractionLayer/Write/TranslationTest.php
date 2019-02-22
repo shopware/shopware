@@ -695,7 +695,7 @@ class TranslationTest extends TestCase
 
         /** @var CmsSlotEntity $slot */
         $slot = $searchResult->getEntities()->get($page['blocks'][0]['slots'][2]['id']);
-        static::assertEquals(null, $slot->getConfig());
+        static::assertNull($slot->getConfig());
     }
 
     public function testJsonFieldWithDifferentLanguages(): void
@@ -759,7 +759,7 @@ class TranslationTest extends TestCase
 
         /** @var CmsSlotEntity $slot */
         $slot = $searchResult->getEntities()->get($page['blocks'][0]['slots'][2]['id']);
-        static::assertEquals(null, $slot->getConfig());
+        static::assertNull($slot->getConfig());
 
         // validate german translations
 
@@ -776,7 +776,7 @@ class TranslationTest extends TestCase
 
         /** @var CmsSlotEntity $slot */
         $slot = $searchResult->getEntities()->get($page['blocks'][0]['slots'][2]['id']);
-        static::assertEquals(null, $slot->getConfig());
+        static::assertNull($slot->getConfig());
     }
 
     private function addLanguage($id, $rootLanguageId = null): void

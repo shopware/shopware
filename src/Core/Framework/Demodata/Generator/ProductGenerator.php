@@ -83,11 +83,17 @@ class ProductGenerator implements DemodataGeneratorInterface
      */
     private $connection;
 
+    /**
+     * @var EntityRepositoryInterface
+     */
+    private $folderRepository;
+
     public function __construct(
         EntityWriterInterface $writer,
         EntityRepositoryInterface $defaultFolderRepository,
         EntityRepositoryInterface $taxRepository,
         EntityRepositoryInterface $productRepository,
+        EntityRepositoryInterface $folderRepository,
         FileSaver $fileSaver,
         FileNameProvider $fileNameProvider,
         VariantGenerator $variantGenerator,
@@ -97,6 +103,7 @@ class ProductGenerator implements DemodataGeneratorInterface
         $this->defaultFolderRepository = $defaultFolderRepository;
         $this->taxRepository = $taxRepository;
         $this->productRepository = $productRepository;
+        $this->folderRepository = $folderRepository;
         $this->fileSaver = $fileSaver;
         $this->fileNameProvider = $fileNameProvider;
         $this->variantGenerator = $variantGenerator;
@@ -317,16 +324,13 @@ class ProductGenerator implements DemodataGeneratorInterface
             }
 
             $mediaFolderId = Uuid::uuid4()->getHex();
-            $this->defaultFolderRepository->upsert([
+            $this->folderRepository->upsert([
                 [
-                    'id' => $defaultFolder->getId(),
-                    'folder' => [
-                        'id' => $mediaFolderId,
-                        'defaultFolderId' => $defaultFolder->getId(),
-                        'name' => 'Product Media',
-                        'useParentConfiguration' => false,
-                        'configuration' => [],
-                    ],
+                    'id' => $mediaFolderId,
+                    'defaultFolderId' => $defaultFolder->getId(),
+                    'name' => 'Product Media',
+                    'useParentConfiguration' => false,
+                    'configuration' => [],
                 ],
             ], $context->getContext());
 

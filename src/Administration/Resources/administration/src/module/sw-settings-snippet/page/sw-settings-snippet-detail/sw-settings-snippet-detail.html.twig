@@ -52,7 +52,7 @@
                                                   :placeholder="$tc('sw-settings-snippet.detail.labelNamePlaceholder')"
                                                   v-model="translationKey"
                                                   @focus="onFocus"
-                                                  @blur="onBlurTranslationKeyChange"
+                                                  @input="onChange"
                                                   :disabled="!(isCreate || isCustomState)"
                                                   :errorMessage="invalidKeyErrorMessage">
                                         </sw-field>
@@ -71,6 +71,7 @@
                                                   v-model="snippet.value"
                                                   :class="`sw-settings-snippet-detail__translation-field--${index}`"
                                                   :disabled="isCreate"
+                                                  @input="onChange"
                                                   :key="snippet.setId"
                                                   :label="$tc('sw-settings-snippet.detail.labelContent', 0, { name: sets[snippet.setId].name })"
                                                   :placeholder="snippet.origin || $tc('sw-settings-snippet.general.placeholderValue')">

@@ -33,6 +33,7 @@ return PhpCsFixer\Config::create()
         'strict_comparison' => true,
         // functions should be used with $strict param set to true
         'strict_param' => true,
+        'array_indentation' => true
     ])
     ->setFinder($finder)
 ;

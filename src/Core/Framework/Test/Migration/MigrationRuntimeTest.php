@@ -42,7 +42,7 @@ class MigrationRuntimeTest extends TestCase
         $this->runner = $container->get(MigrationRuntime::class);
 
         $this->collector = new MigrationCollection([
-                'Shopware\Core\Framework\Test\Migration\_test_migrations_valid_run_time' => __DIR__ . '/_test_migrations_valid_run_time',
+            'Shopware\Core\Framework\Test\Migration\_test_migrations_valid_run_time' => __DIR__ . '/_test_migrations_valid_run_time',
         ]);
         $this->loader = new MigrationCollectionLoader($this->connection, $this->collector);
 

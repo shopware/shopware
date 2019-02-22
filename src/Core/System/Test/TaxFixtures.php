@@ -21,24 +21,24 @@ trait TaxFixtures
     {
         $this->taxFixtures = [
             'NineteenPercentTax' => [
-                    'id' => Uuid::uuid4()->getHex(),
-                    'name' => 'NineteenPercentTax',
-                    'taxRate' => 19,
-                ],
+                'id' => Uuid::uuid4()->getHex(),
+                'name' => 'NineteenPercentTax',
+                'taxRate' => 19,
+            ],
             'NineteenPercentTaxWithAreaRule' => [
-                    'id' => Uuid::uuid4()->getHex(),
-                    'name' => 'foo tax',
-                    'taxRate' => 20,
-                    'areaRules' => [
-                            [
-                                'id' => Uuid::uuid4()->getHex(),
-                                'taxRate' => 99,
-                                'active' => true,
-                                'name' => 'required',
-                                'customerGroupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
-                            ],
-                        ],
+                'id' => Uuid::uuid4()->getHex(),
+                'name' => 'foo tax',
+                'taxRate' => 20,
+                'areaRules' => [
+                    [
+                        'id' => Uuid::uuid4()->getHex(),
+                        'taxRate' => 99,
+                        'active' => true,
+                        'name' => 'required',
+                        'customerGroupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
+                    ],
                 ],
+            ],
         ];
     }
 

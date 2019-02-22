@@ -755,8 +755,8 @@ class TranslationTest extends TestCase
 
         $actualErrors = array_map(function ($error) {
             $e = [
-               'code' => $error['code'],
-               'status' => $error['status'],
+                'code' => $error['code'],
+                'status' => $error['status'],
             ];
             if (isset($error['source'])) {
                 $e['source'] = $error['source'];

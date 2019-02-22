@@ -38,14 +38,14 @@ class MediaRepositoryDecoratorTest extends TestCase
         $mediaId = Uuid::uuid4()->getHex();
 
         $this->mediaRepository->create([
-                [
-                    'id' => $mediaId,
-                    'name' => 'test media',
-                    'mimeType' => 'image/png',
-                    'fileExtension' => 'png',
-                    'fileName' => $mediaId . '-' . (new \DateTime())->getTimestamp(),
-                ],
+            [
+                'id' => $mediaId,
+                'name' => 'test media',
+                'mimeType' => 'image/png',
+                'fileExtension' => 'png',
+                'fileName' => $mediaId . '-' . (new \DateTime())->getTimestamp(),
             ],
+        ],
             $this->context
         );
         $media = $this->mediaRepository->search(new Criteria([$mediaId]), $this->context)->get($mediaId);

@@ -39,21 +39,21 @@ class FileNameValidatorTest extends TestCase
     public function ntfsInternals(): array
     {
         return [
-          ['$Mft'],
-          ['$MftMirr'],
-          ['$LogFile'],
-          ['$Volume'],
-          ['$AttrDef'],
-          ['$Bitmap'],
-          ['$Boot'],
-          ['$BadClus'],
-          ['$Secure'],
-          ['$Upcase'],
-          ['$Extend'],
-          ['$Quota'],
-          ['$ObjId'],
-          ['$Reparse'],
-      ];
+            ['$Mft'],
+            ['$MftMirr'],
+            ['$LogFile'],
+            ['$Volume'],
+            ['$AttrDef'],
+            ['$Bitmap'],
+            ['$Boot'],
+            ['$BadClus'],
+            ['$Secure'],
+            ['$Upcase'],
+            ['$Extend'],
+            ['$Quota'],
+            ['$ObjId'],
+            ['$Reparse'],
+        ];
     }
 
     public function controlCharacters(): array

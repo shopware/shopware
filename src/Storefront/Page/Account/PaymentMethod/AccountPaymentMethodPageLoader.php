@@ -43,6 +43,10 @@ class AccountPaymentMethodPageLoader implements PageLoaderInterface
         $page = AccountPaymentMethodPage::createFrom($page);
 
         $customer = $context->getCustomer();
+
+//        if ($customer === null) {
+//            throw new CustomerNotLoggedInException();
+//        }
         if ($customer !== null) {
             $page->setCustomer($customer);
         }

@@ -1,0 +1,43 @@
+<?php declare(strict_types=1);
+
+namespace Shopware\Storefront\Test\Page\Checkout;
+
+use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Routing\InternalRequest;
+use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Storefront\Framework\Page\PageLoaderInterface;
+use Shopware\Storefront\Page\Checkout\Config\CheckoutConfigPage;
+use Shopware\Storefront\Page\Checkout\Config\CheckoutConfigPageLoadedEvent;
+use Shopware\Storefront\Page\Checkout\Config\CheckoutConfigPageLoader;
+use Shopware\Storefront\Test\Page\StorefrontPageTestBehaviour;
+
+class ConfigPageTest extends TestCase
+{
+    use IntegrationTestBehaviour,
+        StorefrontPageTestBehaviour;
+
+    public function testItloadsTheRequestedACustomer(): void
+    {
+        $request = new InternalRequest(['search' => 'foo']);
+        $context = $this->createCheckoutContextWithNavigation();
+
+        /** @var CheckoutConfigPageLoadedEvent $event */
+        $event = null;
+        $this->catchEvent(CheckoutConfigPageLoadedEvent::NAME, $event);
+
+        $page = $this->getPageLoader()->load($request, $context);
+
+        static::assertInstanceOf(CheckoutConfigPage::class, $page);
+        static::assertSame(3, $page->getPaymentMethods()->count());
+        static::assertSame(2, $page->getShippingMethods()->count());
+        self::assertPageEvent(CheckoutConfigPageLoadedEvent::class, $event, $context, $request, $page);
+    }
+
+    /**
+     * @return CheckoutConfigPageLoader
+     */
+    protected function getPageLoader(): PageLoaderInterface
+    {
+        return $this->getContainer()->get(CheckoutConfigPageLoader::class);
+    }
+}

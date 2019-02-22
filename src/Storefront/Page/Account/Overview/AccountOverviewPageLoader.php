@@ -35,6 +35,10 @@ class AccountOverviewPageLoader implements PageLoaderInterface
         $page = AccountOverviewPage::createFrom($page);
 
         $customer = $context->getCustomer();
+
+//        if ($customer === null) {
+//            throw new CustomerNotLoggedInException();
+//        }
         if ($customer !== null) {
             $page->setCustomer($customer);
         }

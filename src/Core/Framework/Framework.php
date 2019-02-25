@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\ExtensionRegistry;
+use Shopware\Core\Framework\DependencyInjection\CompilerPass\ActionEventCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\DefinitionRegistryCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\ExtensionCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\FeatureFlagCompilerPass;
@@ -45,6 +46,7 @@ class Framework extends Bundle
         $loader->load('attribute.xml');
         $loader->load('data-abstraction-layer.xml');
         $loader->load('demodata.xml');
+        $loader->load('event.xml');
         $loader->load('filesystem.xml');
         $loader->load('message-queue.xml');
         $loader->load('plugin.xml');
@@ -57,6 +59,7 @@ class Framework extends Bundle
         $container->addCompilerPass(new ExtensionCompilerPass());
         $container->addCompilerPass(new DefinitionRegistryCompilerPass());
         $container->addCompilerPass(new MigrationCompilerPass(), PassConfig::TYPE_AFTER_REMOVING);
+        $container->addCompilerPass(new ActionEventCompilerPass());
     }
 
     public function boot(): void

@@ -40,11 +40,6 @@
             <argument>%shopware.slug.config%</argument>
         </service>
 
-        <!--Event Listener -->
-        <service id="Shopware\Core\Framework\Event\NestedEventDispatcher" decorates="event_dispatcher">
-            <argument type="service" id="Shopware\Core\Framework\Event\NestedEventDispatcher.inner"/>
-        </service>
-
         <service id="Shopware\Core\Framework\Command\DemodataCommand">
             <tag name="console.command"/>
             <argument type="service" id="Shopware\Core\Framework\Demodata\DemodataService"/>

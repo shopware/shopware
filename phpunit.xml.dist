@@ -46,6 +46,7 @@
         <testsuite name="framework">
             <directory>src/Core/Framework/Test/Attribute</directory>
             <directory>src/Core/Framework/Test/Command</directory>
+            <directory>src/Core/Framework/Test/Event</directory>
             <directory>src/Core/Framework/Test/FeatureFlag</directory>
             <directory>src/Core/Framework/Test/MessageQueue</directory>
             <directory>src/Core/Framework/Test/Migration</directory>

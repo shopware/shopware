@@ -5,7 +5,6 @@ namespace Shopware\Core\Content\Media\Subscriber;
 use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailEntity;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Media\MediaEvents;
-use Shopware\Core\Content\Media\Metadata\Metadata;
 use Shopware\Core\Content\Media\Metadata\MetadataLoader;
 use Shopware\Core\Content\Media\Metadata\Type\NoMetadata;
 use Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface;

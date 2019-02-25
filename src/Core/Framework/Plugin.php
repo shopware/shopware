@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework;
 
+use Shopware\Core\Framework\Event\ActionEventRegistry;
 use Shopware\Core\Framework\Filesystem\PrefixFilesystem;
 use Shopware\Core\Framework\Plugin\Context\ActivateContext;
 use Shopware\Core\Framework\Plugin\Context\DeactivateContext;
@@ -74,6 +75,7 @@ abstract class Plugin extends Bundle
         $this->registerFilesystem($container, 'private');
         $this->registerFilesystem($container, 'public');
         $this->registerMigrationPath($container);
+        $this->registerEvents($container);
     }
 
     public function configureRoutes(RouteCollectionBuilder $routes, string $environment): void
@@ -96,6 +98,17 @@ abstract class Plugin extends Bundle
     public function getContainerPrefix(): string
     {
         return (new CamelCaseToSnakeCaseNameConverter())->normalize($this->getName());
+    }
+
+    public function getActionEvents(): array
+    {
+        return [];
+    }
+
+    private function registerEvents(ContainerBuilder $container): void
+    {
+        $definition = $container->getDefinition(ActionEventRegistry::class);
+        $definition->addMethodCall('add', $this->getActionEvents());
     }
 
     private function registerFilesystem(ContainerBuilder $container, string $key): void

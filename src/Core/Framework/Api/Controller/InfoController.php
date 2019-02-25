@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\Api\Controller;
 
 use Shopware\Core\Framework\Api\ApiDefinition\DefinitionService;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi3Generator;
+use Shopware\Core\Framework\Event\ActionEventRegistry;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -22,10 +23,16 @@ class InfoController extends AbstractController
      */
     private $params;
 
-    public function __construct(DefinitionService $definitionService, ParameterBagInterface $params)
+    /**
+     * @var ActionEventRegistry
+     */
+    private $actionEventRegistry;
+
+    public function __construct(DefinitionService $definitionService, ParameterBagInterface $params, ActionEventRegistry $actionEventRegistry)
     {
         $this->definitionService = $definitionService;
         $this->params = $params;
+        $this->actionEventRegistry = $actionEventRegistry;
     }
 
     /**
@@ -71,5 +78,17 @@ class InfoController extends AbstractController
                 'pollInterval' => $this->params->get('shopware.admin_worker.poll_interval'),
             ],
         ]);
+    }
+
+    /**
+     * @Route("/api/v{version}/_info/events.json", name="api.info.events", methods={"GET"})
+     */
+    public function events(): JsonResponse
+    {
+        $data = [
+            'events' => $this->actionEventRegistry->getEvents(),
+        ];
+
+        return $this->json($data);
     }
 }

@@ -9,6 +9,7 @@ use Shopware\Core\Checkout\Context\CheckoutContextPersister;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressCollection;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
+use Shopware\Core\Checkout\Customer\Event\CustomerLoginEvent;
 use Shopware\Core\Checkout\Exception\AddressNotFoundException;
 use Shopware\Core\Checkout\Exception\BadCredentialsException;
 use Shopware\Core\Checkout\Exception\CustomerNotFoundException;
@@ -20,6 +21,7 @@ use Shopware\Core\Framework\Exception\InvalidUuidException;
 use Shopware\Core\Framework\Routing\InternalRequest;
 use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\System\Country\CountryCollection;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
 
 class AccountService
@@ -44,16 +46,23 @@ class AccountService
      */
     private $contextPersister;
 
+    /**
+     * @var EventDispatcherInterface
+     */
+    private $eventDispatcher;
+
     public function __construct(
         EntityRepositoryInterface $countryRepository,
         EntityRepositoryInterface $customerAddressRepository,
         EntityRepositoryInterface $customerRepository,
-        CheckoutContextPersister $contextPersister
+        CheckoutContextPersister $contextPersister,
+        EventDispatcherInterface $eventDispatcher
     ) {
         $this->countryRepository = $countryRepository;
         $this->customerAddressRepository = $customerAddressRepository;
         $this->customerRepository = $customerRepository;
         $this->contextPersister = $contextPersister;
+        $this->eventDispatcher = $eventDispatcher;
     }
 
     /**
@@ -388,6 +397,9 @@ class AccountService
                 'shippingAddressId' => null,
             ]
         );
+
+        $event = new CustomerLoginEvent($context->getContext(), $user);
+        $this->eventDispatcher->dispatch($event->getName(), $event);
 
         return $context->getToken();
     }

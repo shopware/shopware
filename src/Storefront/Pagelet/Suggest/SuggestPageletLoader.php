@@ -3,6 +3,7 @@
 namespace Shopware\Storefront\Pagelet\Suggest;
 
 use Shopware\Core\Checkout\CheckoutContext;
+use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Framework\Routing\InternalRequest;
 use Shopware\Storefront\Framework\Page\PageLoaderInterface;
 use Shopware\Storefront\Pagelet\Listing\ListingPageletLoader;
@@ -29,6 +30,8 @@ class SuggestPageletLoader implements PageLoaderInterface
 
     public function load(InternalRequest $request, CheckoutContext $context): SuggestPagelet
     {
+        $request->addParam('product-min-visibility', ProductVisibilityDefinition::VISIBILITY_SEARCH);
+
         $page = new SuggestPagelet(
             $this->listingPageletLoader->load($request, $context),
             $request->requireGet(SearchTermSubscriber::TERM_PARAMETER)

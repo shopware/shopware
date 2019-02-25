@@ -76,6 +76,11 @@ class Criteria extends Struct
      */
     protected $ids;
 
+    /**
+     * @var array
+     */
+    protected $states = [];
+
     public function __construct(array $ids = [])
     {
         if (\count($ids) > \count(array_filter($ids))) {
@@ -301,6 +306,16 @@ class Criteria extends Struct
     public function setIds(array $ids): void
     {
         $this->ids = $ids;
+    }
+
+    public function addState(string $state): void
+    {
+        $this->states[$state] = true;
+    }
+
+    public function hasState(string $state): bool
+    {
+        return isset($this->states[$state]);
     }
 
     private function collectFields(array $parts): array

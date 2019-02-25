@@ -3,6 +3,7 @@
 namespace Shopware\Storefront\Page\Product;
 
 use Shopware\Core\Checkout\CheckoutContext;
+use Shopware\Core\Content\Product\Exception\ProductNotFoundException;
 use Shopware\Core\Content\Product\Storefront\StorefrontProductRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Routing\InternalRequest;
@@ -49,6 +50,10 @@ class ProductPageLoader implements PageLoaderInterface
 
         $product = $this->productRepository->read($criteria, $context)
             ->get($productId);
+
+        if (!$product) {
+            throw new ProductNotFoundException($productId);
+        }
 
         $page->setProduct($product);
 

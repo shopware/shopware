@@ -17,6 +17,7 @@ use Shopware\Core\Content\Product\Aggregate\ProductPriceRule\ProductPriceRuleCol
 use Shopware\Core\Content\Product\Aggregate\ProductPriceRule\ProductPriceRuleEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductService\ProductServiceCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductTranslation\ProductTranslationCollection;
+use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityCollection;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
@@ -354,6 +355,11 @@ class ProductEntity extends Entity
      * @var array|null
      */
     protected $attributes;
+
+    /**
+     * @var ProductVisibilityCollection|null
+     */
+    protected $visibilities;
 
     public function __construct()
     {
@@ -1116,5 +1122,15 @@ class ProductEntity extends Entity
     public function setAttributes(?array $attributes): void
     {
         $this->attributes = $attributes;
+    }
+
+    public function getVisibilities(): ?ProductVisibilityCollection
+    {
+        return $this->visibilities;
+    }
+
+    public function setVisibilities(ProductVisibilityCollection $visibilities): void
+    {
+        $this->visibilities = $visibilities;
     }
 }

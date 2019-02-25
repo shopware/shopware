@@ -635,6 +635,16 @@
     }
   },
   "sw-product": {
+    "visibility": {
+      "textHeadline": "Sichtbarkeit je Verkaufskanal festlegen",
+      "placeholderVisibility": "Tippe, um Verkaufskanäle zu suchen...",
+      "columnAll": "Überall sichtbar",
+      "columnSearchOnly": "Nur in der Suche sichtbar",
+      "columnLinkOnly": "Versteckt",
+      "linkAdvancedVisibility": "Erweitere Sichtbarkeit konfigurieren",
+      "labelVisibility": "Sichtbarkeit",
+      "closeModal": "Übernehmen"
+    },
     "general": {
       "mainMenuItemGeneral": "Produkte",
       "mainMenuItemList": "Übersicht",

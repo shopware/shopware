@@ -403,9 +403,10 @@ class FileSaver
             [
                 new EqualsFilter('fileName', $destination),
                 new EqualsFilter('fileExtension', $fileExtension),
-                new NotFilter(NotFilter::CONNECTION_AND, [
-                    new EqualsFilter('id', $media->getId()),
-                ]),
+                new NotFilter(
+                    NotFilter::CONNECTION_AND,
+                    [new EqualsFilter('id', $media->getId())]
+                ),
             ]
         ));
 

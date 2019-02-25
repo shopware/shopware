@@ -4,15 +4,20 @@ namespace Shopware\Core\Content\Product\Storefront;
 
 use Shopware\Core\Checkout\Cart\Price\QuantityPriceCalculator;
 use Shopware\Core\Checkout\CheckoutContext;
+use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
 
 class StorefrontProductRepository
 {
+    public const VISIBILITY_FILTERED = 'product-visibility';
+
     /**
      * @var EntityRepositoryInterface
      */
@@ -31,6 +36,8 @@ class StorefrontProductRepository
 
     public function read(Criteria $criteria, CheckoutContext $context): ProductCollection
     {
+        $this->addActiveFilters($criteria, $context);
+
         /** @var ProductCollection $basics */
         $basics = $this->productRepository
             ->search($criteria, $context->getContext())
@@ -41,7 +48,7 @@ class StorefrontProductRepository
 
     public function search(Criteria $criteria, CheckoutContext $context): EntitySearchResult
     {
-        $criteria->addFilter(new EqualsFilter('product.active', true));
+        $this->addActiveFilters($criteria, $context);
 
         $basics = $this->productRepository->search($criteria, $context->getContext());
 
@@ -94,5 +101,28 @@ class StorefrontProductRepository
         $priceDefinition = $product->getPriceDefinition();
         $price = $this->priceCalculator->calculate($priceDefinition, $context);
         $product->setCalculatedPrice($price);
+    }
+
+    private function addActiveFilters(Criteria $criteria, CheckoutContext $context): void
+    {
+        $criteria->addFilter(new EqualsFilter('product.active', true));
+
+        if ($criteria->hasState(self::VISIBILITY_FILTERED)) {
+            return;
+        }
+
+        $criteria->addFilter(
+            new MultiFilter(
+                MultiFilter::CONNECTION_AND,
+                [
+                    new RangeFilter(
+                        'product.visibilities.visibility', [RangeFilter::GTE => ProductVisibilityDefinition::VISIBILITY_LINK]
+                    ),
+                    new EqualsFilter(
+                        'product.visibilities.salesChannelId', $context->getSalesChannel()->getId()
+                    ),
+                ]
+            )
+        );
     }
 }

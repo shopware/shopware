@@ -3,6 +3,7 @@
 namespace Shopware\Storefront\Page\Listing;
 
 use Shopware\Core\Checkout\CheckoutContext;
+use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Framework\Routing\InternalRequest;
 use Shopware\Storefront\Framework\Page\PageLoaderInterface;
 use Shopware\Storefront\Framework\Page\PageWithHeaderLoader;
@@ -41,6 +42,8 @@ class ListingPageLoader implements PageLoaderInterface
         $page = $this->genericLoader->load($request, $context);
 
         $page = ListingPage::createFrom($page);
+
+        $request->addParam(ListingPageletLoader::PRODUCT_VISIBILITY, ProductVisibilityDefinition::VISIBILITY_ALL);
 
         $page->setListing($this->listingPageletLoader->load($request, $context));
 

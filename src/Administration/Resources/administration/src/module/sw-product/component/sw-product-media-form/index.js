@@ -5,8 +5,6 @@ import './sw-product-media-form.scss';
 Component.register('sw-product-media-form', {
     template,
 
-    inject: ['mediaService', 'mediaUploadService'],
-
     mixins: [
         Mixin.getByName('notification')
     ],

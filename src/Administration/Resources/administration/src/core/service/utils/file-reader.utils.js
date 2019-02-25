@@ -13,6 +13,31 @@ function registerPromiseOnFileReader(fileReader, resolve, reject) {
     };
 }
 
+function splitFileNameAndExtension(completeFileName) {
+    const fileParts = completeFileName.split('.');
+
+    // no dot in filename
+    if (fileParts.length === 1) {
+        return {
+            extension: '',
+            fileName: completeFileName
+        };
+    }
+
+    // hidden file without extension
+    if (fileParts.length === 2 && !fileParts[0]) {
+        return {
+            extension: '',
+            fileName: completeFileName
+        };
+    }
+
+    return {
+        extension: fileParts.pop(),
+        fileName: fileParts.join('.')
+    };
+}
+
 function readFileAsArrayBuffer(inputFile) {
     const fReader = new FileReader();
 
@@ -43,8 +68,35 @@ function readFileAsText(inputFile) {
     });
 }
 
+/**
+ * @function getNameAndExtensionFromFile
+ * @param { File } fileHandle
+ * @returns {*} = { extension, fileName }
+ */
+function getNameAndExtensionFromFile(fileHandle) {
+    return splitFileNameAndExtension(fileHandle.name);
+}
+
+/**
+* @function getNameAnExtensionFromUrl
+* @param { URL } urlObject
+* @returns {*} = { extension, fileName }
+*/
+function getNameAnExtensionFromUrl(urlObject) {
+    let ref = urlObject.href.split('/').pop();
+
+    const indexOfQueryIndicator = ref.indexOf('?');
+    if (indexOfQueryIndicator > 0) {
+        ref = ref.substring(0, indexOfQueryIndicator);
+    }
+
+    return splitFileNameAndExtension(ref);
+}
+
 export default {
     readFileAsArrayBuffer,
     readFileAsDataURL,
-    readFileAsText
+    readFileAsText,
+    getNameAndExtensionFromFile,
+    getNameAnExtensionFromUrl
 };

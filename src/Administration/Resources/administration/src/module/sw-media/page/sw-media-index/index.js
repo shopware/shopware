@@ -17,7 +17,8 @@ Component.register('sw-media-index', {
             isLoading: false,
             selectedItems: [],
             uploads: [],
-            term: this.$route.query ? this.$route.query.searchTerm : ''
+            term: this.$route.query ? this.$route.query.searchTerm : '',
+            uploadTag: 'upload-tag-sw-media-index'
         };
     },
 
@@ -79,28 +80,27 @@ Component.register('sw-media-index', {
             this.$root.$off('search', this.onSearch);
         },
 
-        onUploadsAdded({ uploadTag, data }) {
+        onUploadsAdded({ data }) {
             data.forEach((upload) => {
-                upload.entity.isLoading = true;
-                this.uploads.push(upload.entity);
+                const loadedEntity = this.mediaItemStore.getById(upload.targetId);
+                this.uploads.push(loadedEntity);
             });
 
-            this.mediaItemStore.sync().then(() => {
-                this.uploadStore.runUploads(uploadTag);
+            this.uploadStore.runUploads(this.uploadTag);
+        },
+
+        onUploadFinished({ targetId }) {
+            this.mediaItemStore.getByIdAsync(targetId).then((updatedItem) => {
+                this.uploads = this.uploads.filter((upload) => {
+                    return upload.id !== updatedItem.id;
+                });
+                this.$refs.mediaLibrary.injectItem(updatedItem);
             });
         },
 
-        onUploadFinished(mediaItem) {
-            mediaItem.isLoading = false;
+        onUploadFailed({ targetId }) {
             this.uploads = this.uploads.filter((upload) => {
-                return upload.id !== mediaItem.id;
-            });
-            this.$refs.mediaLibrary.injectItem(mediaItem);
-        },
-
-        onUploadFailed(mediaItem) {
-            this.uploads = this.uploads.filter((upload) => {
-                return mediaItem !== upload;
+                return targetId !== upload.id;
             });
         },
 

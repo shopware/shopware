@@ -108,13 +108,12 @@ Component.register('sw-media-modal-duplicate-media', {
                 this.existingMedia = response.items[0];
             });
 
-            this.mediaService.provideName(this.item.fileName, this.item.fileExtension)
-                .then((response) => {
-                    this.newName = response.fileName;
-                    if (this.selectedOption === 'Rename') {
-                        this.item.fileName = this.newName;
-                    }
-                });
+            this.mediaService.provideName(this.item.fileName, this.item.fileExtension).then((response) => {
+                this.newName = response.fileName;
+                if (this.selectedOption === 'Rename') {
+                    this.item.fileName = this.newName;
+                }
+            });
         },
 
         closeModal() {

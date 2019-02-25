@@ -105,25 +105,15 @@ class FileSaver
         Context $context
     ): void {
         $currentMedia = null;
-        try {
-            $currentMedia = $this->findMediaById($mediaId, $context);
-            $destination = $this->validateFileName($destination);
-            $this->ensureFileNameIsUnique(
-                $currentMedia,
-                $destination,
-                $mediaFile->getFileExtension(),
-                $context
-            );
-        } catch (DuplicatedMediaFileNameException
-            | EmptyMediaFilenameException
-            | IllegalFileNameException $e
-        ) {
-            if ($currentMedia !== null && !$currentMedia->hasFile()) {
-                $this->mediaRepository->delete([['id' => $currentMedia->getId()]], $context);
-            }
 
-            throw $e;
-        }
+        $currentMedia = $this->findMediaById($mediaId, $context);
+        $destination = $this->validateFileName($destination);
+        $this->ensureFileNameIsUnique(
+            $currentMedia,
+            $destination,
+            $mediaFile->getFileExtension(),
+            $context
+        );
 
         $this->removeOldMediaData($currentMedia, $context);
 

@@ -27,15 +27,12 @@ export default {
 
     data() {
         return {
-            uploadTag: null
+            uploadTag: null,
+            isUploadDataSet: false
         };
     },
 
     computed: {
-        isUploadDataSet() {
-            return this.uploadTag !== null;
-        },
-
         uploadStore() {
             return State.getStore('upload');
         },
@@ -46,10 +43,8 @@ export default {
     },
 
     methods: {
-        onNewUpload({ uploadTag }) {
-            if (uploadTag) {
-                this.uploadTag = uploadTag;
-            }
+        onNewUpload() {
+            this.isUploadDataSet = true;
         },
 
         emitCloseReplaceModal() {
@@ -66,7 +61,7 @@ export default {
             );
 
             this.itemToReplace.isLoading = true;
-            this.uploadStore.runUploads(this.uploadTag).then(() => {
+            this.uploadStore.runUploads(this.itemToReplace.id).then(() => {
                 this.mediaItemStore.getByIdAsync(this.itemToReplace.id).then(() => {
                     this.createNotificationSuccess({
                         title: notificationSuccessTitle,

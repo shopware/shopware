@@ -146,18 +146,5 @@
                        @change="onFileInputChange"/>
             </form>
         {% endblock %}
-
-        {% block sw_media_duplicated_media_modal %}
-            <sw-media-modal-duplicate-media
-                v-if="showDuplicatedMediaModal"
-                :item="errorFiles[0].entity"
-                :additionalErrorCount="errorFiles.length - 1"
-                :defaultOption="getDefaultDuplicateMediaOption()"
-                :saveSelection="getDefaultDuplicateSaveSelection()"
-                @sw-media-modal-duplicate-media-abort="abortDuplicateMedia"
-                @sw-media-modal-duplicate-media-close="cancelDuplicateMedia"
-                @sw-media-modal-duplicate-media-resolve="retryUpload">
-            </sw-media-modal-duplicate-media>
-        {% endblock %}
     </div>
 {% endblock %}

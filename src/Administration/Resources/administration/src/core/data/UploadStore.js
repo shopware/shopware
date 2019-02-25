@@ -1,106 +1,145 @@
 /**
  * @module core/data/UploadStore
  */
-import noop from 'lodash/noop';
 import remove from 'lodash/remove';
 import UploadTask from 'src/core/helper/uploadTask.helper';
+import { debug, fileReader } from 'src/core/service/util.service';
+
+const UploadEvents = {
+    UPLOAD_ADDED: 'sw-media-upload-added',
+    UPLOAD_FINISHED: 'sw-media-upload-finished',
+    UPLOAD_FAILED: 'sw-media-upload-failed'
+};
 
 class UploadStore {
-    constructor() {
+    constructor(mediaService) {
         this.tags = new Map();
-        this.callbacks = new Map();
+        this.uploads = [];
+        this.$listeners = new Map();
+        this.mediaService = mediaService;
     }
 
-    isTagMissing(tag) {
+    /*
+     * Event dispatching
+     */
+    addListener(key, callback) {
+        if (this.$listeners.has(key)) {
+            debug.warn('UploadStore', `Overriding existing listener for key ${key}.`);
+        }
+        this.$listeners.set(key, callback);
+    }
+
+    removeListener(key) {
+        this.$listeners.delete(key);
+    }
+
+    _notifyListeners(event) {
+        this.$listeners.forEach((callback) => {
+            callback(event);
+        });
+    }
+
+    _createUploadEvent(action, uploadTag, payload) {
+        return { action, uploadTag, payload };
+    }
+
+    /*
+     * store functionality
+     */
+    _isTagMissing(tag) {
         return !this.tags.has(tag);
     }
 
-    callbackOnUploadFinished(tag, callback) {
-        if (!this.callbacks.has(tag)) {
-            this.callbacks.set(tag, []);
-        }
-
-        this.callbacks.get(tag).push(callback);
+    addUpload(uploadTag, uploadData) {
+        this.addUploads(uploadTag, [uploadData]);
     }
 
-    addUpload(tag, uploadFunction) {
-        if (this.isTagMissing(tag)) {
-            this.tags.set(tag, []);
-        }
+    addUploads(uploadTag, uploadCollection) {
+        uploadCollection.forEach((uploadData) => {
+            this.uploads.push(new UploadTask({ uploadTag, ...uploadData }));
+        });
 
-        const task = new UploadTask(uploadFunction);
-
-        this.tags.get(tag).push(task);
-
-        return task;
+        this._notifyListeners(this._createUploadEvent(
+            UploadEvents.UPLOAD_ADDED,
+            uploadTag,
+            { data: uploadCollection }
+        ));
     }
 
     removeUpload(id) {
-        this.tags.forEach((taskCollection, tag) => {
-            remove(taskCollection, (task) => {
-                return task.id === id;
-            });
-
-            if (taskCollection.length === 0) {
-                this.tags.delete(tag);
-            }
+        remove(this.uploads, (upload) => {
+            return upload.id === id;
         });
     }
 
-    removeByTag(tag) {
-        if (this.isTagMissing(tag)) {
-            return;
-        }
-        this.tags.delete(tag);
+    removeByTag(uploadTag) {
+        remove(this.uploads, (upload) => {
+            return upload.uploadTag === uploadTag;
+        });
     }
 
-    runUploads(tag, callback = noop) {
-        if (this.isTagMissing(tag)) {
+    runUploads(tag) {
+        const affectedUploads = this.uploads.filter((upload) => {
+            return upload.uploadTag === tag;
+        });
+
+        if (affectedUploads.length === 0) {
             return Promise.resolve();
         }
 
-        return Promise.all(this.tags.get(tag).map((task) => {
-            return task.start().then(() => {
-                callback.apply(null, [this.getRunningTaskCount(tag)]);
+        return Promise.all(affectedUploads.map((task) => {
+            if (task.running) {
+                return Promise.resolve();
+            }
+
+            task.running = true;
+            return this._startUpload(task).then(() => {
+                this.removeUpload(task.id);
+                task.running = false;
+                this._notifyListeners(this._createUploadEvent(
+                    UploadEvents.UPLOAD_FINISHED,
+                    tag,
+                    { targetId: task.targetId }
+                ));
+            }).catch((cause) => {
+                this.removeUpload(task.id);
+                task.error = cause;
+                task.running = false;
+                this._notifyListeners(this._createUploadEvent(
+                    UploadEvents.UPLOAD_FAILED,
+                    tag,
+                    task
+                ));
             });
-        })).then(() => {
-            this.tags.delete(tag);
-            this.runCallbacks(tag);
-        }).catch(() => {
-            this.tags.delete(tag);
-            this.runCallbacks(tag);
-        });
+        }));
     }
 
-    getRunningTaskCount(tag) {
-        if (this.isTagMissing(tag)) {
-            return 0;
-        }
-        return this.tags.get(tag).reduce((total, task) => {
-            return task.running ? total + 1 : total;
-        }, 0);
-    }
-
-    getPendingTaskCount(tag) {
-        if (this.isTagMissing(tag)) {
-            return 0;
-        }
-        return this.tags.get(tag).reduce((total, task) => {
-            const isPending = !task.running && !task.resolved;
-            return isPending ? total + 1 : total;
-        }, 0);
-    }
-
-    runCallbacks(tag) {
-        const callbacks = this.callbacks.get(tag);
-        if (callbacks) {
-            callbacks.forEach((callback) => {
-                callback();
+    _startUpload(task) {
+        if (task.src instanceof File) {
+            return fileReader.readAsArrayBuffer(task.src).then((buffer) => {
+                return this.mediaService.uploadMediaById(
+                    task.targetId,
+                    task.src.type,
+                    buffer,
+                    task.extension,
+                    task.fileName
+                ).then(() => {
+                    this.removeUpload(task.id);
+                });
             });
-
-            this.callbacks.delete(tag);
         }
+
+        if (task.src instanceof URL) {
+            return this.mediaService.uploadMediaFromUrl(
+                task.targetId,
+                task.src.href,
+                task.extension,
+                task.fileName
+            );
+        }
+
+        return Promise.reject(new Error('src of upload must either be instaceof File or URL'));
     }
 }
 
-export default UploadStore;
+export { UploadStore as default, UploadEvents };

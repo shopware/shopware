@@ -25,6 +25,13 @@ class IndexerRegistry implements IndexerInterface, EventSubscriberInterface
      */
     private $indexer;
 
+    /**
+     * Internal working state to prevent endless loop if an indexer fires the EntityWrittenContainerEvent
+     *
+     * @var bool
+     */
+    private $working = false;
+
     public function __construct(iterable $indexer)
     {
         $this->indexer = $indexer;
@@ -41,15 +48,27 @@ class IndexerRegistry implements IndexerInterface, EventSubscriberInterface
 
     public function index(DateTime $timestamp): void
     {
+        if ($this->working) {
+            return;
+        }
+
+        $this->working = true;
         foreach ($this->indexer as $indexer) {
             $indexer->index($timestamp);
         }
+        $this->working = false;
     }
 
     public function refresh(EntityWrittenContainerEvent $event): void
     {
+        if ($this->working) {
+            return;
+        }
+
+        $this->working = true;
         foreach ($this->indexer as $indexer) {
             $indexer->refresh($event);
         }
+        $this->working = false;
     }
 }

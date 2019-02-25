@@ -32,9 +32,9 @@ module.exports = {
             .waitForElementNotPresent('.sw-field__select-load-placeholder')
             .waitForElementNotPresent(page.elements.loader);
 
-        browser.expect.element('.sw-select-option:last-child').to.have.text.that.equals('Deutsch');
+        browser.expect.element('.sw-select-option:nth-of-type(1)').to.have.text.that.equals('Deutsch');
         browser
-            .click('.sw-select-option:last-child')
+            .click('.sw-select-option:nth-of-type(1)')
             .waitForElementNotPresent('.sw-field__select-load-placeholder');
 
         if (global.flags.isActive('next1207')) {

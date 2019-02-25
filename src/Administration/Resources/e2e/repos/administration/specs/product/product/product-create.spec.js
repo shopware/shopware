@@ -67,7 +67,7 @@ module.exports = {
             .expect.element(page.elements.productListName).to.have.text.that.contains('Marci Darci');
 
         browser
-            .clickContextMenuItem('.sw_product_list__edit-action', page.elements.contextMenuButton, `${page.elements.gridRow}--0`)
+            .clickContextMenuItem('.sw-product-list__edit-action', page.elements.contextMenuButton, `${page.elements.gridRow}--0`)
             .expect.element('.ql-editor').to.have.text.that.equals('My very first description');
 
         browser

@@ -1,7 +1,13 @@
 const settingsPage = require('administration/page-objects/module/sw-settings.page-object.js');
+const productPage = require('administration/page-objects/module/sw-product.page-object.js');
 
 module.exports = {
-    '@tags': ['settings', 'language-create', 'language', 'create'],
+    '@tags': ['settings', 'language-create', 'translation', 'language', 'create'],
+    before: (browser, done) => {
+        global.ProductFixtureService.setProductFixture().then(() => {
+            done();
+        });
+    },
     'open language module': (browser) => {
         browser
             .openMainMenuEntry({
@@ -44,6 +50,20 @@ module.exports = {
         browser
             .click(page.elements.smartBarBack)
             .expect.element(`${page.elements.gridRow}--2 ${page.elements.languageColumnName}`).to.have.text.that.contains('Philippine English');
+    },
+    'check if language can be selected as translation': (browser) => {
+        const page = productPage(browser);
+
+        browser
+            .openMainMenuEntry({
+                targetPath: '#/sw/product/index',
+                mainMenuId: 'sw-product'
+            })
+            .clickContextMenuItem('.sw-product-list__edit-action', page.elements.contextMenuButton, `${page.elements.gridRow}--0`);
+        page.changeTranslation('Product name', 'Philippine English', 3);
+
+        browser.expect.element('.sw-language-info').to.have.text.that.contains(`"Product name" displayed in the language "Philippine English", which inherits from "English".`);
+
     },
     after: (browser) => {
         browser.end();

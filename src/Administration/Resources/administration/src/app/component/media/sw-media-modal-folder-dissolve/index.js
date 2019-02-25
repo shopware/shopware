@@ -36,21 +36,8 @@ export default {
 
         dissolveSelection() {
             const dissolvePromises = [];
-            const notificationTitleSuccess = this.$tc(
-                'global.sw-media-modal-folder-dissolve.notification.successOverall.title'
-            );
-            const notificationMessageSuccess = this.$tc(
-                'global.sw-media-modal-folder-dissolve.notification.successOverall.message'
-            );
-            const notificationTitleError = this.$tc(
-                'global.sw-media-modal-folder-dissolve.notification.errorOverall.title'
-            );
-            const notificationMessageError = this.$tc(
-                'global.sw-media-modal-folder-dissolve.notification.errorOverall.message'
-            );
 
             this.itemsToDissolve.forEach((item) => {
-                const messages = this._getNotificationMessages(item);
                 item.isLoading = true;
 
                 dissolvePromises.push(
@@ -58,15 +45,23 @@ export default {
                         item.isLoading = false;
                         item.remove();
                         this.createNotificationSuccess({
-                            title: this.$tc('global.sw-media-modal-folder-dissolve.notification.successSingle.title'),
-                            message: messages.successMessage
+                            title: this.$root.$tc('global.sw-media-modal-folder-dissolve.notification.successSingle.title'),
+                            message: this.$root.$tc(
+                                'global.sw-media-modal-folder-dissolve.notification.successSingle.message',
+                                1,
+                                { folderName: item.name }
+                            )
                         });
                         return item.id;
                     }).catch(() => {
                         item.isLoading = false;
                         this.createNotificationError({
-                            title: this.$tc('global.sw-media-modal-folder-dissolve.notification.errorSingle.title'),
-                            message: messages.errorMessage
+                            title: this.$root.$tc('global.sw-media-modal-folder-dissolve.notification.errorSingle.title'),
+                            message: this.$root.$tc(
+                                'global.sw-media-modal-folder-dissolve.notification.errorSingle.message',
+                                1,
+                                { folderName: item.name }
+                            )
                         });
                     })
                 );
@@ -77,35 +72,28 @@ export default {
                 Promise.all(dissolvePromises).then((ids) => {
                     if (dissolvePromises.length > 1) {
                         this.createNotificationSuccess({
-                            title: notificationTitleSuccess,
-                            message: notificationMessageSuccess
+                            title: this.$root.$tc(
+                                'global.sw-media-modal-folder-dissolve.notification.successOverall.title'
+                            ),
+                            message: this.$root.$tc(
+                                'global.sw-media-modal-folder-dissolve.notification.successOverall.message'
+                            )
                         });
                     }
                     return ids;
                 }).catch(() => {
                     if (dissolvePromises.length > 1) {
                         this.createNotificationError({
-                            title: notificationTitleError,
-                            message: notificationMessageError
+                            title: this.$root.$tc(
+                                'global.sw-media-modal-folder-dissolve.notification.errorOverall.title'
+                            ),
+                            message: this.$root.$tc(
+                                'global.sw-media-modal-folder-dissolve.notification.errorOverall.message'
+                            )
                         });
                     }
                 })
             );
-        },
-
-        _getNotificationMessages(item) {
-            return {
-                successMessage: this.$tc(
-                    'global.sw-media-modal-folder-dissolve.notification.successSingle.message',
-                    1,
-                    { folderName: item.name }
-                ),
-                errorMessage: this.$tc(
-                    'global.sw-media-modal-folder-dissolve.notification.errorSingle.message',
-                    1,
-                    { folderName: item.name }
-                )
-            };
         }
     }
 };

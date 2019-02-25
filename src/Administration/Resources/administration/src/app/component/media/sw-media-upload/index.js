@@ -422,38 +422,31 @@ export default {
         },
 
         buildFileUpload(file, mediaEntity, fileName = '') {
-            const successTitle = this.$tc('global.sw-media-upload.notification.success.title');
-            const successMessage = this.$tc('global.sw-media-upload.notification.success.message');
-            const failureTitle = this.$tc('global.sw-media-upload.notification.failure.title');
-            const failureMessage = this.$tc('global.sw-media-upload.notification.failure.message');
-
             return () => {
                 return this.mediaUploadService.uploadFileToMedia(file, mediaEntity, fileName).then(() => {
-                    this.notifyMediaUpload(mediaEntity, successTitle, successMessage);
+                    this.notifyMediaUpload(mediaEntity);
                 }).catch((error) => {
-                    this.handleError(error, mediaEntity, failureTitle, failureMessage, file);
+                    this.handleError(error, mediaEntity, file);
                 });
             };
         },
 
         buildUrlUpload(url, fileExtension, mediaEntity, fileName = '') {
-            const successTitle = this.$tc('global.sw-media-upload.notification.success.title');
-            const successMessage = this.$tc('global.sw-media-upload.notification.success.message');
-            const failureTitle = this.$tc('global.sw-media-upload.notification.failure.title');
-            const failureMessage = this.$tc('global.sw-media-upload.notification.failure.message');
-
             return () => {
                 return this.mediaUploadService.uploadUrlToMedia(url, mediaEntity, fileExtension, fileName).then(() => {
-                    this.notifyMediaUpload(mediaEntity, successTitle, successMessage);
+                    this.notifyMediaUpload(mediaEntity);
                 }).catch((error) => {
-                    return this.handleError(error, mediaEntity, failureTitle, failureMessage, url);
+                    return this.handleError(error, mediaEntity, url);
                 });
             };
         },
 
-        notifyMediaUpload(mediaEntity, title, message) {
+        notifyMediaUpload(mediaEntity) {
             this.mediaItemStore.getByIdAsync(mediaEntity.id).then((media) => {
-                this.createNotificationSuccess({ title, message });
+                this.createNotificationSuccess({
+                    title: this.$root.$tc('global.sw-media-upload.notification.success.title'),
+                    message: this.$root.$tc('global.sw-media-upload.notification.success.message')
+                });
                 this.$emit('sw-media-upload-media-upload-success', media);
             });
         },
@@ -461,11 +454,23 @@ export default {
         /*
          * Handling for duplicated file names
          */
-        handleError(error, mediaEntity, title, message, src) {
+        handleError(error, mediaEntity, src) {
             if (this.hasDuplicateMediaError(error)) {
                 this.handleDuplicateMediaError(mediaEntity, src);
+            } else if (this.hasIllegalFilenameError(error)) {
+                this.createNotificationError({
+                    title: this.$root.$tc('global.sw-media-upload.notification.illegalFilename.title'),
+                    message: this.$root.$tc(
+                        'global.sw-media-upload.notification.illegalFilename.message',
+                        0,
+                        { fileName: mediaEntity.fileName }
+                    )
+                });
             } else {
-                this.createNotificationError({ title, message });
+                this.createNotificationError({
+                    title: this.$root.$tc('global.sw-media-upload.notification.failure.title'),
+                    message: this.$root.$tc('global.sw-media-upload.notification.failure.message')
+                });
             }
 
             this.$emit('sw-media-upload-media-upload-failure', mediaEntity);
@@ -500,6 +505,12 @@ export default {
         hasDuplicateMediaError(error) {
             return error.response.data.errors.some((err) => {
                 return err.code === 'DUPLICATED_MEDIA_FILE_NAME_EXCEPTION';
+            });
+        },
+
+        hasIllegalFilenameError(error) {
+            return error.response.data.errors.some((err) => {
+                return err.code === 'ILLEGAL_FILE_NAME_EXCEPTION';
             });
         },
 

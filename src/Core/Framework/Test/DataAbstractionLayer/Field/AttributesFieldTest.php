@@ -900,6 +900,94 @@ class AttributesFieldTest extends TestCase
         static::assertEquals(['foo' => 'bar', 'child' => 'value'], $child->getViewData()->get('attributes'));
     }
 
+    public function testAttributeObject(): void
+    {
+        $this->addAttributes(['object' => AttributeTypes::STRING]);
+
+        $id = Uuid::uuid4()->getHex();
+        $object = new \stdClass();
+        $object->foo = 'bar';
+
+        $entities = [
+            ['id' => $id, 'attributes' => ['object' => $object]],
+        ];
+
+        $repo = $this->getTestRepository();
+        $repo->create($entities, Context::createDefaultContext());
+        $first = $repo->search(new Criteria([$id]), Context::createDefaultContext())->first();
+
+        static::assertNotEmpty($first);
+        static::assertEquals(['object' => ['foo' => 'bar']], $first->get('attributes'));
+
+        $object->foo = 'baz';
+        $patch = [
+            'id' => $id,
+            'attributes' => ['object' => $object],
+        ];
+
+        $repo->update([$patch], Context::createDefaultContext());
+        $first = $repo->search(new Criteria([$id]), Context::createDefaultContext())->first();
+
+        static::assertNotEmpty($first);
+        static::assertEquals(['object' => ['foo' => 'baz']], $first->get('attributes'));
+    }
+
+    public function testAttributeAssoc(): void
+    {
+        $this->addAttributes(['assoc' => AttributeTypes::STRING]);
+
+        $id = Uuid::uuid4()->getHex();
+        $entities = [
+            ['id' => $id, 'attributes' => ['assoc' => ['foo' => 'bar']]],
+        ];
+
+        $repo = $this->getTestRepository();
+        $repo->create($entities, Context::createDefaultContext());
+        $first = $repo->search(new Criteria([$id]), Context::createDefaultContext())->first();
+
+        static::assertNotEmpty($first);
+        static::assertEquals(['assoc' => ['foo' => 'bar']], $first->get('attributes'));
+
+        $patch = [
+            'id' => $id,
+            'attributes' => ['assoc' => ['foo' => 'baz']],
+        ];
+
+        $repo->update([$patch], Context::createDefaultContext());
+        $first = $repo->search(new Criteria([$id]), Context::createDefaultContext())->first();
+
+        static::assertNotEmpty($first);
+        static::assertEquals(['assoc' => ['foo' => 'baz']], $first->get('attributes'));
+    }
+
+    public function testAttributeArray(): void
+    {
+        $this->addAttributes(['array' => AttributeTypes::STRING]);
+
+        $id = Uuid::uuid4()->getHex();
+        $entities = [
+            ['id' => $id, 'attributes' => ['array' => ['foo', 'bar']]],
+        ];
+
+        $repo = $this->getTestRepository();
+        $repo->create($entities, Context::createDefaultContext());
+        $first = $repo->search(new Criteria([$id]), Context::createDefaultContext())->first();
+
+        static::assertNotEmpty($first);
+        static::assertEquals(['array' => ['foo', 'bar']], $first->get('attributes'));
+
+        $patch = [
+            'id' => $id,
+            'attributes' => ['array' => ['bar', 'baz']],
+        ];
+
+        $repo->update([$patch], Context::createDefaultContext());
+        $first = $repo->search(new Criteria([$id]), Context::createDefaultContext())->first();
+
+        static::assertNotEmpty($first);
+        static::assertEquals(['array' => ['bar', 'baz']], $first->get('attributes'));
+    }
+
     private function addAttributes(array $attributeTypes): void
     {
         $attributeRepo = $this->getContainer()->get('attribute.repository');

@@ -40,28 +40,31 @@ export default {
 
         deleteSelection() {
             const deletePromises = [];
-            const notificationTitleSuccess = this.$tc('global.sw-media-modal-delete.notification.successOverall.title');
-            const notificationMessageSuccess = this.$tc('global.sw-media-modal-delete.notification.successOverall.message');
-            const notificationTitleError = this.$tc('global.sw-media-modal-delete.notification.errorOverall.title');
-            const notificationMessageError = this.$tc('global.sw-media-modal-delete.notification.errorOverall.message');
 
             this.itemsToDelete.forEach((item) => {
-                const messages = this._getNotificationMessages(item);
                 item.isLoading = true;
 
                 deletePromises.push(
                     item.delete(true).then(() => {
                         item.isLoading = false;
                         this.createNotificationSuccess({
-                            title: messages.successTitle,
-                            message: messages.successMessage
+                            title: this.$root.$tc('global.sw-media-modal-delete.notification.successSingle.title'),
+                            message: this.$root.$tc(
+                                'global.sw-media-modal-delete.notification.successSingle.message',
+                                1,
+                                { mediaName: this.mediaNameFilter(item) }
+                            )
                         });
                         return item.id;
                     }).catch(() => {
                         item.isLoading = false;
                         this.createNotificationError({
-                            title: messages.errorTitle,
-                            message: messages.errorMessage
+                            title: this.$root.$tc('global.sw-media-modal-delete.notification.errorSingle.title'),
+                            message: this.$root.$tc(
+                                'global.sw-media-modal-delete.notification.errorSingle.message',
+                                1,
+                                { mediaName: this.mediaNameFilter(item) }
+                            )
                         });
                     })
                 );
@@ -71,34 +74,17 @@ export default {
                 'sw-media-modal-delete-items-deleted',
                 Promise.all(deletePromises).then((ids) => {
                     this.createNotificationSuccess({
-                        title: notificationTitleSuccess,
-                        message: notificationMessageSuccess
+                        title: this.$root.$tc('global.sw-media-modal-delete.notification.successOverall.title'),
+                        message: this.$root.$tc('global.sw-media-modal-delete.notification.successOverall.message')
                     });
                     return ids;
                 }).catch(() => {
                     this.createNotificationError({
-                        title: notificationTitleError,
-                        message: notificationMessageError
+                        title: this.$root.$tc('global.sw-media-modal-delete.notification.errorOverall.title'),
+                        message: this.$root.$tc('global.sw-media-modal-delete.notification.errorOverall.message')
                     });
                 })
             );
-        },
-
-        _getNotificationMessages(item) {
-            return {
-                successMessage: this.$tc(
-                    'global.sw-media-modal-delete.notification.successSingle.message',
-                    1,
-                    { mediaName: this.mediaNameFilter(item) }
-                ),
-                successTitle: this.$tc('global.sw-media-modal-delete.notification.successSingle.title'),
-                errorMessage: this.$tc(
-                    'global.sw-media-modal-delete.notification.errorSingle.message',
-                    1,
-                    { mediaName: this.mediaNameFilter(item) }
-                ),
-                errorTitle: this.$tc('global.sw-media-modal-delete.notification.errorSingle.title')
-            };
         }
     }
 };

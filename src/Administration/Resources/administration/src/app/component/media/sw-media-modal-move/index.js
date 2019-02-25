@@ -122,30 +122,33 @@ export default {
 
         moveSelection() {
             const movePromises = [];
-            const NotificationTitleSuccess = this.$tc('global.sw-media-modal-move.notification.successOverall.title');
-            const NotificationMessageSuccess = this.$tc('global.sw-media-modal-move.notification.successOverall.message');
-            const NotificationTitleError = this.$tc('global.sw-media-modal-move.notification.errorOverall.title');
-            const NotificationMessageError = this.$tc('global.sw-media-modal-move.notification.errorOverall.message');
 
             this.itemsToMove.filter((item) => {
                 return item.entityName === 'media_folder';
             }).forEach((item) => {
-                const messages = this._getNotificationMessages(item);
                 item.isLoading = true;
                 item.parentId = this.targetFolder.id || null;
                 movePromises.push(
                     item.save().then(() => {
                         item.isLoading = false;
                         this.createNotificationSuccess({
-                            title: messages.successTitle,
-                            message: messages.successMessage
+                            title: this.$root.$tc('global.sw-media-modal-move.notification.successSingle.title'),
+                            message: this.$root.$tc(
+                                'global.sw-media-modal-move.notification.successSingle.message',
+                                1,
+                                { mediaName: this.mediaNameFilter(item) }
+                            )
                         });
                         return item.id;
                     }).catch(() => {
                         item.isLoading = false;
                         this.createNotificationError({
-                            title: messages.errorTitle,
-                            message: messages.errorMessage
+                            title: this.$root.$tc('global.sw-media-modal-move.notification.errorSingle.title'),
+                            message: this.$root.$tc(
+                                'global.sw-media-modal-move.notification.errorSingle.message',
+                                1,
+                                { mediaName: this.mediaNameFilter(item) }
+                            )
                         });
                     })
                 );
@@ -162,34 +165,17 @@ export default {
                 'sw-media-modal-move-items-moved',
                 Promise.all(movePromises).then((ids) => {
                     this.createNotificationSuccess({
-                        title: NotificationTitleSuccess,
-                        message: NotificationMessageSuccess
+                        title: this.$root.$tc('global.sw-media-modal-move.notification.successOverall.title'),
+                        message: this.$root.$tc('global.sw-media-modal-move.notification.successOverall.message')
                     });
                     return ids;
                 }).catch(() => {
                     this.createNotificationError({
-                        title: NotificationTitleError,
-                        message: NotificationMessageError
+                        title: this.$root.$tc('global.sw-media-modal-move.notification.errorOverall.title'),
+                        message: this.$root.$tc('global.sw-media-modal-move.notification.errorOverall.message')
                     });
                 })
             );
-        },
-
-        _getNotificationMessages(item) {
-            return {
-                successTitle: this.$tc('global.sw-media-modal-move.notification.successSingle.title'),
-                successMessage: this.$tc(
-                    'global.sw-media-modal-move.notification.successSingle.message',
-                    1,
-                    { mediaName: this.mediaNameFilter(item) }
-                ),
-                errorTitle: this.$tc('global.sw-media-modal-move.notification.errorSingle.title'),
-                errorMessage: this.$tc(
-                    'global.sw-media-modal-move.notification.errorSingle.message',
-                    1,
-                    { mediaName: this.mediaNameFilter(item) }
-                )
-            };
         }
     }
 };

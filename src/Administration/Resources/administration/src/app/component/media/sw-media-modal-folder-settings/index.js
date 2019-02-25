@@ -190,19 +190,6 @@ export default {
         },
 
         onClickSave() {
-            const notificationTitleSuccess = this.$tc(
-                'global.sw-media-modal-folder-settings.notification.success.title'
-            );
-            const notificationMessageSuccess = this.$tc(
-                'global.sw-media-modal-folder-settings.notification.success.message'
-            );
-            const notificationTitleError = this.$tc(
-                'global.sw-media-modal-folder-settings.notification.error.title'
-            );
-            const notificationMessageError = this.$tc(
-                'global.sw-media-modal-folder-settings.notification.error.message'
-            );
-
             this.folder.configuration.id = this.configuration.id;
 
             // if the config is created all properties that are null won't be sent to the server
@@ -228,14 +215,22 @@ export default {
                         }
                     });
                     this.createNotificationSuccess({
-                        title: notificationTitleSuccess,
-                        message: notificationMessageSuccess
+                        title: this.$root.$tc(
+                            'global.sw-media-modal-folder-settings.notification.success.title'
+                        ),
+                        message: this.$root.$tc(
+                            'global.sw-media-modal-folder-settings.notification.success.message'
+                        )
                     });
                 })
                 .catch(() => {
                     this.createNotificationError({
-                        title: notificationTitleError,
-                        message: notificationMessageError
+                        title: this.$root.$tc(
+                            'global.sw-media-modal-folder-settings.notification.error.title'
+                        ),
+                        message: this.$root.$tc(
+                            'global.sw-media-modal-folder-settings.notification.error.message'
+                        )
                     });
                 });
 

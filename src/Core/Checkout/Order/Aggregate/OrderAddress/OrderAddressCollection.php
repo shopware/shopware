@@ -6,6 +6,15 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\System\Country\Aggregate\CountryState\CountryStateCollection;
 use Shopware\Core\System\Country\CountryCollection;
 
+/**
+ * @method void                    add(OrderAddressEntity $entity)
+ * @method void                    set(string $key, OrderAddressEntity $entity)
+ * @method OrderAddressEntity[]    getIterator()
+ * @method OrderAddressEntity[]    getElements()
+ * @method OrderAddressEntity|null get(string $key)
+ * @method OrderAddressEntity|null first()
+ * @method OrderAddressEntity|null last()
+ */
 class OrderAddressCollection extends EntityCollection
 {
     public function getCountryIds(): array

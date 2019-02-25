@@ -4,6 +4,15 @@ namespace Shopware\Core\Content\Product\Aggregate\ProductPriceRule;
 
 use Shopware\Core\Framework\Pricing\PriceRuleCollection;
 
+/**
+ * @method void                        add(ProductPriceRuleEntity $entity)
+ * @method void                        set(string $key, ProductPriceRuleEntity $entity)
+ * @method ProductPriceRuleEntity[]    getIterator()
+ * @method ProductPriceRuleEntity[]    getElements()
+ * @method ProductPriceRuleEntity|null get(string $key)
+ * @method ProductPriceRuleEntity|null first()
+ * @method ProductPriceRuleEntity|null last()
+ */
 class ProductPriceRuleCollection extends PriceRuleCollection
 {
     public function getProductIds(): array
@@ -29,8 +38,7 @@ class ProductPriceRuleCollection extends PriceRuleCollection
 
     public function getQuantityPrice(int $quantity): ProductPriceRuleEntity
     {
-        /** @var ProductPriceRuleEntity $price */
-        foreach ($this->elements as $price) {
+        foreach ($this->getIterator() as $price) {
             $end = $price->getQuantityEnd() ?? $quantity + 1;
 
             if ($price->getQuantityStart() <= $quantity && $end >= $quantity) {

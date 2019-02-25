@@ -6,9 +6,17 @@ use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Framework\Struct\Collection;
 
+/**
+ * @method void                 add(CalculatedPrice $entity)
+ * @method void                 set(string $key, CalculatedPrice $entity)
+ * @method CalculatedPrice[]    getIterator()
+ * @method CalculatedPrice[]    getElements()
+ * @method CalculatedPrice|null first()
+ * @method CalculatedPrice|null last()
+ */
 class PriceCollection extends Collection
 {
-    public function get($key): ? CalculatedPrice
+    public function get($key): ?CalculatedPrice
     {
         $key = (int) $key;
 
@@ -23,8 +31,7 @@ class PriceCollection extends Collection
     {
         $rules = new TaxRuleCollection([]);
 
-        /** @var CalculatedPrice $price */
-        foreach ($this->elements as $price) {
+        foreach ($this->getIterator() as $price) {
             $rules = $rules->merge($price->getTaxRules());
         }
 
@@ -45,8 +52,7 @@ class PriceCollection extends Collection
     {
         $taxes = new CalculatedTaxCollection([]);
 
-        /** @var CalculatedPrice $price */
-        foreach ($this->elements as $price) {
+        foreach ($this->getIterator() as $price) {
             $taxes = $taxes->merge($price->getCalculatedTaxes());
         }
 

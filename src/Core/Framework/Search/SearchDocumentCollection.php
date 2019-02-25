@@ -4,6 +4,15 @@ namespace Shopware\Core\Framework\Search;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
+/**
+ * @method void                      add(SearchDocumentEntity $entity)
+ * @method void                      set(string $key, SearchDocumentEntity $entity)
+ * @method SearchDocumentEntity[]    getIterator()
+ * @method SearchDocumentEntity[]    getElements()
+ * @method SearchDocumentEntity|null get(string $key)
+ * @method SearchDocumentEntity|null first()
+ * @method SearchDocumentEntity|null last()
+ */
 class SearchDocumentCollection extends EntityCollection
 {
     public function getLanguageIds(): array

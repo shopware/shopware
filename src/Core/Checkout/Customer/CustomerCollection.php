@@ -8,6 +8,15 @@ use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 
+/**
+ * @method void                add(CustomerEntity $entity)
+ * @method void                set(string $key, CustomerEntity $entity)
+ * @method CustomerEntity[]    getIterator()
+ * @method CustomerEntity[]    getElements()
+ * @method CustomerEntity|null get(string $key)
+ * @method CustomerEntity|null first()
+ * @method CustomerEntity|null last()
+ */
 class CustomerCollection extends EntityCollection
 {
     public function getGroupIds(): array

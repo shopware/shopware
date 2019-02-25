@@ -4,6 +4,15 @@ namespace Shopware\Core\Checkout\Order\Aggregate\OrderTransaction;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
+/**
+ * @method void                        add(OrderTransactionEntity $entity)
+ * @method void                        set(string $key, OrderTransactionEntity $entity)
+ * @method OrderTransactionEntity[]    getIterator()
+ * @method OrderTransactionEntity[]    getElements()
+ * @method OrderTransactionEntity|null get(string $key)
+ * @method OrderTransactionEntity|null first()
+ * @method OrderTransactionEntity|null last()
+ */
 class OrderTransactionCollection extends EntityCollection
 {
     public function filterByState(string $state): self

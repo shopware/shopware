@@ -4,6 +4,15 @@ namespace Shopware\Core\System\User;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
+/**
+ * @method void            add(UserEntity $entity)
+ * @method void            set(string $key, UserEntity $entity)
+ * @method UserEntity[]    getIterator()
+ * @method UserEntity[]    getElements()
+ * @method UserEntity|null get(string $key)
+ * @method UserEntity|null first()
+ * @method UserEntity|null last()
+ */
 class UserCollection extends EntityCollection
 {
     public function getLocaleIds(): array

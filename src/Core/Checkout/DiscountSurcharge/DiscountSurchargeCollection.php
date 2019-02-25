@@ -4,6 +4,15 @@ namespace Shopware\Core\Checkout\DiscountSurcharge;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
+/**
+ * @method void                         add(DiscountSurchargeEntity $entity)
+ * @method void                         set(string $key, DiscountSurchargeEntity $entity)
+ * @method DiscountSurchargeEntity[]    getIterator()
+ * @method DiscountSurchargeEntity[]    getElements()
+ * @method DiscountSurchargeEntity|null get(string $key)
+ * @method DiscountSurchargeEntity|null first()
+ * @method DiscountSurchargeEntity|null last()
+ */
 class DiscountSurchargeCollection extends EntityCollection
 {
     public function getRuleIds(): array

@@ -4,6 +4,15 @@ namespace Shopware\Core\Content\Media;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
+/**
+ * @method void             add(MediaEntity $entity)
+ * @method void             set(string $key, MediaEntity $entity)
+ * @method MediaEntity[]    getIterator()
+ * @method MediaEntity[]    getElements()
+ * @method MediaEntity|null get(string $key)
+ * @method MediaEntity|null first()
+ * @method MediaEntity|null last()
+ */
 class MediaCollection extends EntityCollection
 {
     public function getUserIds(): array

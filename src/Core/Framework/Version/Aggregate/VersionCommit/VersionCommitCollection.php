@@ -4,6 +4,15 @@ namespace Shopware\Core\Framework\Version\Aggregate\VersionCommit;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
+/**
+ * @method void                     add(VersionCommitEntity $entity)
+ * @method void                     set(string $key, VersionCommitEntity $entity)
+ * @method VersionCommitEntity[]    getIterator()
+ * @method VersionCommitEntity[]    getElements()
+ * @method VersionCommitEntity|null get(string $key)
+ * @method VersionCommitEntity|null first()
+ * @method VersionCommitEntity|null last()
+ */
 class VersionCommitCollection extends EntityCollection
 {
     public function getUserIds(): array

@@ -4,6 +4,15 @@ namespace Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
+/**
+ * @method void                          add(SalesChannelDomainEntity $entity)
+ * @method void                          set(string $key, SalesChannelDomainEntity $entity)
+ * @method SalesChannelDomainEntity[]    getIterator()
+ * @method SalesChannelDomainEntity[]    getElements()
+ * @method SalesChannelDomainEntity|null get(string $key)
+ * @method SalesChannelDomainEntity|null first()
+ * @method SalesChannelDomainEntity|null last()
+ */
 class SalesChannelDomainCollection extends EntityCollection
 {
     protected function getExpectedClass(): string

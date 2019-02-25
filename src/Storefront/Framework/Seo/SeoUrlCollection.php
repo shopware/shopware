@@ -4,6 +4,15 @@ namespace Shopware\Storefront\Framework\Seo;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
+/**
+ * @method void              add(SeoUrlEntity $entity)
+ * @method void              set(string $key, SeoUrlEntity $entity)
+ * @method SeoUrlEntity[]    getIterator()
+ * @method SeoUrlEntity[]    getElements()
+ * @method SeoUrlEntity|null get(string $key)
+ * @method SeoUrlEntity|null first()
+ * @method SeoUrlEntity|null last()
+ */
 class SeoUrlCollection extends EntityCollection
 {
     public function getApplicationIds(): array
@@ -22,8 +31,7 @@ class SeoUrlCollection extends EntityCollection
 
     public function getByPathInfo(string $pathInfo): ?SeoUrlEntity
     {
-        /** @var SeoUrlEntity $element */
-        foreach ($this->elements as $element) {
+        foreach ($this->getIterator() as $element) {
             if ($element->getPathInfo() === $pathInfo) {
                 return $element;
             }
@@ -34,8 +42,7 @@ class SeoUrlCollection extends EntityCollection
 
     public function getBySeoPathInfo(string $seoPathInfo): ?SeoUrlEntity
     {
-        /** @var SeoUrlEntity $element */
-        foreach ($this->elements as $element) {
+        foreach ($this->getIterator() as $element) {
             if ($element->getSeoPathInfo() === $seoPathInfo) {
                 return $element;
             }
@@ -53,8 +60,7 @@ class SeoUrlCollection extends EntityCollection
 
     public function hasForeignKey(string $name, string $foreignKey): bool
     {
-        /** @var SeoUrlEntity $element */
-        foreach ($this->elements as $element) {
+        foreach ($this->getIterator() as $element) {
             if ($element->getForeignKey() === $foreignKey && $element->getName() === $name) {
                 return true;
             }
@@ -65,8 +71,7 @@ class SeoUrlCollection extends EntityCollection
 
     public function hasPathInfo(string $pathInfo): bool
     {
-        /** @var SeoUrlEntity $element */
-        foreach ($this->elements as $element) {
+        foreach ($this->getIterator() as $element) {
             if ($element->getPathInfo() === $pathInfo) {
                 return true;
             }

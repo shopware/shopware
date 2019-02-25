@@ -4,6 +4,15 @@ namespace Shopware\Core\Framework\Attribute;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
+/**
+ * @method void                 add(AttributeEntity $entity)
+ * @method void                 set(string $key, AttributeEntity $entity)
+ * @method AttributeEntity[]    getIterator()
+ * @method AttributeEntity[]    getElements()
+ * @method AttributeEntity|null get(string $key)
+ * @method AttributeEntity|null first()
+ * @method AttributeEntity|null last()
+ */
 class AttributeCollection extends EntityCollection
 {
     public function filterByType(string $type): self

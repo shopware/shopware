@@ -7,6 +7,15 @@ use Shopware\Core\System\Currency\CurrencyCollection;
 use Shopware\Core\System\Language\LanguageCollection;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelType\SalesChannelTypeCollection;
 
+/**
+ * @method void                    add(SalesChannelEntity $entity)
+ * @method void                    set(string $key, SalesChannelEntity $entity)
+ * @method SalesChannelEntity[]    getIterator()
+ * @method SalesChannelEntity[]    getElements()
+ * @method SalesChannelEntity|null get(string $key)
+ * @method SalesChannelEntity|null first()
+ * @method SalesChannelEntity|null last()
+ */
 class SalesChannelCollection extends EntityCollection
 {
     public function getLanguageIds(): array

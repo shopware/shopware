@@ -4,6 +4,15 @@ namespace Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupTransl
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
+/**
+ * @method void                                     add(ConfigurationGroupTranslationEntity $entity)
+ * @method void                                     set(string $key, ConfigurationGroupTranslationEntity $entity)
+ * @method ConfigurationGroupTranslationEntity[]    getIterator()
+ * @method ConfigurationGroupTranslationEntity[]    getElements()
+ * @method ConfigurationGroupTranslationEntity|null get(string $key)
+ * @method ConfigurationGroupTranslationEntity|null first()
+ * @method ConfigurationGroupTranslationEntity|null last()
+ */
 class ConfigurationGroupTranslationCollection extends EntityCollection
 {
     public function getConfigurationGroupIds(): array

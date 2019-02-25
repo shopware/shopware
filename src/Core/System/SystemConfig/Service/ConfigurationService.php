@@ -9,7 +9,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\System\SystemConfig\Exception\BundleNotFoundException;
 use Shopware\Core\System\SystemConfig\Helper\ConfigReader;
 use Shopware\Core\System\SystemConfig\SystemConfigCollection;
-use Shopware\Core\System\SystemConfig\SystemConfigEntity;
 use Symfony\Component\HttpKernel\Bundle\BundleInterface;
 use Symfony\Component\HttpKernel\KernelInterface;
 
@@ -68,8 +67,7 @@ class ConfigurationService
         $systemConfigCollection = $this->getSystemConfigCollection($namespace, $salesChannelId, $context);
 
         $configValues = [];
-        /** @var SystemConfigEntity $systemConfig */
-        foreach ($systemConfigCollection->getElements() as $systemConfig) {
+        foreach ($systemConfigCollection as $systemConfig) {
             $configValues[$systemConfig->getConfigurationKey()] = $systemConfig->getConfigurationValue();
         }
 

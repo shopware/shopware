@@ -4,6 +4,15 @@ namespace Shopware\Core\System\Listing\Aggregate\ListingSortingTranslation;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
+/**
+ * @method void                                 add(ListingSortingTranslationEntity $entity)
+ * @method void                                 set(string $key, ListingSortingTranslationEntity $entity)
+ * @method ListingSortingTranslationEntity[]    getIterator()
+ * @method ListingSortingTranslationEntity[]    getElements()
+ * @method ListingSortingTranslationEntity|null get(string $key)
+ * @method ListingSortingTranslationEntity|null first()
+ * @method ListingSortingTranslationEntity|null last()
+ */
 class ListingSortingTranslationCollection extends EntityCollection
 {
     public function getListingSortingIds(): array

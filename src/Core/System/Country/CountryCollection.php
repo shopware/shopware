@@ -4,6 +4,15 @@ namespace Shopware\Core\System\Country;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
+/**
+ * @method void               add(CountryEntity $entity)
+ * @method void               set(string $key, CountryEntity $entity)
+ * @method CountryEntity[]    getIterator()
+ * @method CountryEntity[]    getElements()
+ * @method CountryEntity|null get(string $key)
+ * @method CountryEntity|null first()
+ * @method CountryEntity|null last()
+ */
 class CountryCollection extends EntityCollection
 {
     public function getTaxfreeForVatIds(): array
@@ -24,8 +33,7 @@ class CountryCollection extends EntityCollection
     {
         $this->sortByPositionAndName();
 
-        /** @var CountryEntity $country */
-        foreach ($this->elements as $country) {
+        foreach ($this->getIterator() as $country) {
             if ($country->getStates()) {
                 $country->getStates()->sortByPositionAndName();
             }

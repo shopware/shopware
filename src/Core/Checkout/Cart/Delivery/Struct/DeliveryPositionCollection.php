@@ -7,8 +7,18 @@ use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Checkout\Cart\Price\Struct\PriceCollection;
 use Shopware\Core\Framework\Struct\Collection;
 
+/**
+ * @method void                  set(string $key, DeliveryPosition $entity)
+ * @method DeliveryPosition[]    getIterator()
+ * @method DeliveryPosition[]    getElements()
+ * @method DeliveryPosition|null first()
+ * @method DeliveryPosition|null last()
+ */
 class DeliveryPositionCollection extends Collection
 {
+    /**
+     * @param DeliveryPosition $deliveryPosition
+     */
     public function add($deliveryPosition): void
     {
         $key = $this->getKey($deliveryPosition);
@@ -20,7 +30,7 @@ class DeliveryPositionCollection extends Collection
         return $this->has($this->getKey($deliveryPosition));
     }
 
-    public function get($identifier): ? DeliveryPosition
+    public function get($identifier): ?DeliveryPosition
     {
         if ($this->has($identifier)) {
             return $this->elements[$identifier];

@@ -7,6 +7,15 @@ use Shopware\Core\Content\Configuration\ConfigurationGroupCollection;
 use Shopware\Core\Content\Configuration\ConfigurationGroupEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
+/**
+ * @method void                           add(ProductConfiguratorEntity $entity)
+ * @method void                           set(string $key, ProductConfiguratorEntity $entity)
+ * @method ProductConfiguratorEntity[]    getIterator()
+ * @method ProductConfiguratorEntity[]    getElements()
+ * @method ProductConfiguratorEntity|null get(string $key)
+ * @method ProductConfiguratorEntity|null first()
+ * @method ProductConfiguratorEntity|null last()
+ */
 class ProductConfiguratorCollection extends EntityCollection
 {
     public function getProductIds(): array
@@ -50,8 +59,7 @@ class ProductConfiguratorCollection extends EntityCollection
     {
         $groups = new ConfigurationGroupCollection();
 
-        /** @var ProductConfiguratorEntity $element */
-        foreach ($this->elements as $element) {
+        foreach ($this->getIterator() as $element) {
             if ($groups->has($element->getOption()->getGroupId())) {
                 $group = $groups->get($element->getOption()->getGroupId());
             } else {
@@ -74,8 +82,7 @@ class ProductConfiguratorCollection extends EntityCollection
 
     public function getByOptionId(string $optionId): ?ProductConfiguratorEntity
     {
-        /** @var ProductConfiguratorEntity $element */
-        foreach ($this->elements as $element) {
+        foreach ($this->getIterator() as $element) {
             if ($element->getOptionId() === $optionId) {
                 return $element;
             }

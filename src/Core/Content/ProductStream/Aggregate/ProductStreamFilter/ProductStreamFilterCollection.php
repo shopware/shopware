@@ -4,6 +4,15 @@ namespace Shopware\Core\Content\ProductStream\Aggregate\ProductStreamFilter;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
+/**
+ * @method void                           add(ProductStreamFilterEntity $entity)
+ * @method void                           set(string $key, ProductStreamFilterEntity $entity)
+ * @method ProductStreamFilterEntity[]    getIterator()
+ * @method ProductStreamFilterEntity[]    getElements()
+ * @method ProductStreamFilterEntity|null get(string $key)
+ * @method ProductStreamFilterEntity|null first()
+ * @method ProductStreamFilterEntity|null last()
+ */
 class ProductStreamFilterCollection extends EntityCollection
 {
     protected function getExpectedClass(): string

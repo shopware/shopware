@@ -5,14 +5,22 @@ namespace Shopware\Core\Checkout\Shipping;
 use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodPrice\ShippingMethodPriceCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
+/**
+ * @method void                      add(ShippingMethodEntity $entity)
+ * @method void                      set(string $key, ShippingMethodEntity $entity)
+ * @method ShippingMethodEntity[]    getIterator()
+ * @method ShippingMethodEntity[]    getElements()
+ * @method ShippingMethodEntity|null get(string $key)
+ * @method ShippingMethodEntity|null first()
+ * @method ShippingMethodEntity|null last()
+ */
 class ShippingMethodCollection extends EntityCollection
 {
     public function getPriceIds(): array
     {
         $ids = [[]];
 
-        /** @var ShippingMethodEntity $element */
-        foreach ($this->elements as $element) {
+        foreach ($this->getIterator() as $element) {
             $ids[] = $element->getPrices()->getIds();
         }
 
@@ -23,8 +31,7 @@ class ShippingMethodCollection extends EntityCollection
     {
         $prices = [[]];
 
-        /** @var ShippingMethodEntity $element */
-        foreach ($this->elements as $element) {
+        foreach ($this->getIterator() as $element) {
             $prices[] = $element->getPrices();
         }
 

@@ -4,6 +4,13 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation;
 
 use Shopware\Core\Framework\Struct\Collection;
 
+/**
+ * @method void                   set(string $key, AggregationResult $entity)
+ * @method AggregationResult[]    getIterator()
+ * @method AggregationResult[]    getElements()
+ * @method AggregationResult|null first()
+ * @method AggregationResult|null last()
+ */
 class AggregationResultCollection extends Collection
 {
     /**

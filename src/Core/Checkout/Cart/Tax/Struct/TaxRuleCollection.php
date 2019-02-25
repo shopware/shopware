@@ -4,6 +4,13 @@ namespace Shopware\Core\Checkout\Cart\Tax\Struct;
 
 use Shopware\Core\Framework\Struct\Collection;
 
+/**
+ * @method void         set(string $key, TaxRule $entity)
+ * @method TaxRule[]    getIterator()
+ * @method TaxRule[]    getElements()
+ * @method TaxRule|null first()
+ * @method TaxRule|null last()
+ */
 class TaxRuleCollection extends Collection
 {
     public function add($taxRule): void

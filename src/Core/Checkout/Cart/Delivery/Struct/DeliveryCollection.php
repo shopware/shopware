@@ -7,6 +7,15 @@ use Shopware\Core\Checkout\Cart\Price\Struct\PriceCollection;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressCollection;
 use Shopware\Core\Framework\Struct\Collection;
 
+/**
+ * @method void          add(Delivery $entity)
+ * @method void          set(string $key, Delivery $entity)
+ * @method Delivery[]    getIterator()
+ * @method Delivery[]    getElements()
+ * @method Delivery|null get(string $key)
+ * @method Delivery|null first()
+ * @method Delivery|null last()
+ */
 class DeliveryCollection extends Collection
 {
     /**
@@ -27,8 +36,7 @@ class DeliveryCollection extends Collection
 
     public function getDelivery(DeliveryDate $deliveryDate, ShippingLocation $location): ? Delivery
     {
-        /** @var Delivery $delivery */
-        foreach ($this->elements as $delivery) {
+        foreach ($this->getIterator() as $delivery) {
             if ($delivery->getDeliveryDate()->getEarliest() != $deliveryDate->getEarliest()) {
                 continue;
             }
@@ -53,8 +61,7 @@ class DeliveryCollection extends Collection
      */
     public function contains(LineItem $item): bool
     {
-        /** @var Delivery $delivery */
-        foreach ($this->elements as $delivery) {
+        foreach ($this->getIterator() as $delivery) {
             if ($delivery->getPositions()->has($item->getKey())) {
                 return true;
             }
@@ -75,8 +82,7 @@ class DeliveryCollection extends Collection
     public function getAddresses(): CustomerAddressCollection
     {
         $addresses = new CustomerAddressCollection();
-        /** @var Delivery $delivery */
-        foreach ($this->elements as $delivery) {
+        foreach ($this->getIterator() as $delivery) {
             $address = $delivery->getLocation()->getAddress();
             if ($address !== null) {
                 $addresses->add($delivery->getLocation()->getAddress());

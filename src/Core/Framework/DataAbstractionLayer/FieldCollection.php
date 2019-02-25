@@ -7,6 +7,13 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldAware\StorageAware;
 use Shopware\Core\Framework\Struct\Collection;
 
+/**
+ * @method void       set(string $key, Field $entity)
+ * @method Field[]    getIterator()
+ * @method Field[]    getElements()
+ * @method Field|null first()
+ * @method Field|null last()
+ */
 class FieldCollection extends Collection
 {
     /**

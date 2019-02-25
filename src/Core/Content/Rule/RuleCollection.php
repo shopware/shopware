@@ -7,6 +7,15 @@ use Shopware\Core\Checkout\Cart\Rule\CartRuleScope;
 use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
+/**
+ * @method void            add(RuleEntity $entity)
+ * @method void            set(string $key, RuleEntity $entity)
+ * @method RuleEntity[]    getIterator()
+ * @method RuleEntity[]    getElements()
+ * @method RuleEntity|null get(string $key)
+ * @method RuleEntity|null first()
+ * @method RuleEntity|null last()
+ */
 class RuleCollection extends EntityCollection
 {
     public function filterMatchingRules(Cart $cart, CheckoutContext $context)

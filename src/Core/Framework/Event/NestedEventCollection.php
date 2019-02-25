@@ -4,14 +4,22 @@ namespace Shopware\Core\Framework\Event;
 
 use Shopware\Core\Framework\Struct\Collection;
 
+/**
+ * @method void             add(NestedEvent $entity)
+ * @method void             set(string $key, NestedEvent $entity)
+ * @method NestedEvent[]    getIterator()
+ * @method NestedEvent[]    getElements()
+ * @method NestedEvent|null get(string $key)
+ * @method NestedEvent|null first()
+ * @method NestedEvent|null last()
+ */
 class NestedEventCollection extends Collection
 {
     public function getFlatEventList(): self
     {
         $events = [];
 
-        /** @var NestedEvent $event */
-        foreach ($this->elements as $event) {
+        foreach ($this->getIterator() as $event) {
             foreach ($event->getFlatEventList() as $item) {
                 $events[] = $item;
             }

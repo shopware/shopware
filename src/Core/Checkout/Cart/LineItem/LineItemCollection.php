@@ -6,6 +6,13 @@ use Shopware\Core\Checkout\Cart\Exception\MixedLineItemTypeException;
 use Shopware\Core\Checkout\Cart\Price\Struct\PriceCollection;
 use Shopware\Core\Framework\Struct\Collection;
 
+/**
+ * @method LineItem[]    getIterator()
+ * @method LineItem[]    getElements()
+ * @method LineItem|null get(string $key)
+ * @method LineItem|null first()
+ * @method LineItem|null last()
+ */
 class LineItemCollection extends Collection
 {
     /**

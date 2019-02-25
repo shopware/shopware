@@ -5,6 +5,15 @@ namespace Shopware\Core\Checkout\Order\Aggregate\OrderDeliveryPosition;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
+/**
+ * @method void                             add(OrderDeliveryPositionEntity $entity)
+ * @method void                             set(string $key, OrderDeliveryPositionEntity $entity)
+ * @method OrderDeliveryPositionEntity[]    getIterator()
+ * @method OrderDeliveryPositionEntity[]    getElements()
+ * @method OrderDeliveryPositionEntity|null get(string $key)
+ * @method OrderDeliveryPositionEntity|null first()
+ * @method OrderDeliveryPositionEntity|null last()
+ */
 class OrderDeliveryPositionCollection extends EntityCollection
 {
     public function getOrderDeliveryIds(): array

@@ -26,8 +26,7 @@ Module.register('sw-order', {
     routes: {
         index: {
             components: {
-                default: 'sw-order-list',
-                sidebar: 'sw-order-sidebar'
+                default: 'sw-order-list'
             },
             path: 'index'
         },

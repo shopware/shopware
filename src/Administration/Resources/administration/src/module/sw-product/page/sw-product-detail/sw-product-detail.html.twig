@@ -32,7 +32,7 @@
         {% endblock %}
 
         {% block sw_product_detail_content %}
-            <sw-card-view slot="content" sidebar>
+            <sw-card-view slot="content">
 
                 {% block sw_product_detail_content_language_info %}
                     <sw-language-info
@@ -73,16 +73,21 @@
                     </router-view>
                 {% endblock %}
 
-                <template slot="card-view-sidebar">
-                    <sw-sidebar-media-item ref="mediaSidebarItem">
-                        <template slot="context-menu-items" slot-scope="media">
-                            <sw-context-menu-item @click="onAddItemToProduct(media.mediaItem)">
-                                {{ $tc('sw-product.detailBase.labelContextMenuAddToProduct') }}
-                            </sw-context-menu-item>
-                        </template>
-                    </sw-sidebar-media-item>
-                </template>
+
             </sw-card-view>
         {% endblock %}
+
+        <template slot="sidebar">
+            <sw-sidebar :propagateWidth="true">
+                <sw-sidebar-media-item ref="mediaSidebarItem">
+                    <template slot="context-menu-items" slot-scope="media">
+                        <sw-context-menu-item @click="onAddItemToProduct(media.mediaItem)">
+                            {{ $tc('sw-product.detailBase.labelContextMenuAddToProduct') }}
+                        </sw-context-menu-item>
+                    </template>
+                </sw-sidebar-media-item>
+            </sw-sidebar>
+        </template>
+
     </sw-page>
 {% endblock %}

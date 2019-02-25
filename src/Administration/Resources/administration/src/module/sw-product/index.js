@@ -25,8 +25,7 @@ Module.register('sw-product', {
     routes: {
         index: {
             components: {
-                default: 'sw-product-list',
-                sidebar: 'sw-product-sidebar'
+                default: 'sw-product-list'
             },
             path: 'index'
         },

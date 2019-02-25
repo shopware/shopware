@@ -19,21 +19,5 @@ import './sw-card-view.scss';
  */
 export default {
     name: 'sw-card-view',
-    template,
-
-    props: {
-        sidebar: {
-            type: Boolean,
-            required: false,
-            default: false
-        }
-    },
-
-    computed: {
-        cardViewClasses() {
-            return {
-                'has--sidebar': this.sidebar
-            };
-        }
-    }
+    template
 };

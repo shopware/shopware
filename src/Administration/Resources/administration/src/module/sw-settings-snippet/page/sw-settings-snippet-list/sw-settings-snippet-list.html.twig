@@ -54,7 +54,6 @@
                                  :items="grid"
                                  :header="!!grid.length"
                                  :isFullpage="true"
-                                 :sidebar="true"
                                  @sort-column="onSortColumn"
                                  :sortDirection="sortDirection"
                                  :sortBy="sortBy"
@@ -227,22 +226,25 @@
                                     {% endblock %}
                                 </template>
 
-                                <template slot="sidebar">
-                                    {% block sw_settings_snippet_list_grid_sidebar %}
-                                        <sw-settings-snippet-sidebar
-                                                @change="onChange"
-                                                @sw-sidebar-collaps-refresh-grid="getList"
-                                                @sw-sidebar-close="onSidebarClose"
-                                                :filterItems="filterItems"
-                                                :authorFilters="authorFilters">
-                                        </sw-settings-snippet-sidebar>
-                                    {% endblock %}
-                                </template>
+
                             {% endblock %}
                         </sw-grid>
                     {% endblock %}
                 </div>
             </template>
+
+            <template slot="sidebar">
+                {% block sw_settings_snippet_list_grid_sidebar %}
+                    <sw-settings-snippet-sidebar
+                            @change="onChange"
+                            @sw-sidebar-collaps-refresh-grid="getList"
+                            @sw-sidebar-close="onSidebarClose"
+                            :filterItems="filterItems"
+                            :authorFilters="authorFilters">
+                    </sw-settings-snippet-sidebar>
+                {% endblock %}
+            </template>
+
         {% endblock %}
     </sw-page>
 {% endblock %}

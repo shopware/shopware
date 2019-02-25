@@ -1,75 +1,73 @@
 {% block sw_settings_snippet_grid_sidebar %}
-    <div class="sw-snippet-settings__sidebar">
-        <sw-sidebar>
-            {% block sw_settings_snippet_grid_sidebar_refresh %}
-                <sw-sidebar-item
-                        icon="default-arrow-360-left"
-                        :title="$tc('sw-product.list.titleSidebarItemRefresh')"
-                        @click="onRefresh">
-                </sw-sidebar-item>
-            {% endblock %}
+    <sw-sidebar class="sw-snippet-settings__sidebar">
+        {% block sw_settings_snippet_grid_sidebar_refresh %}
+            <sw-sidebar-item
+                    icon="default-arrow-360-left"
+                    :title="$tc('sw-product.list.titleSidebarItemRefresh')"
+                    @click="onRefresh">
+            </sw-sidebar-item>
+        {% endblock %}
 
-            {% block sw_settings_snippet_grid_sidebar_filter %}
-                <sw-sidebar-item
-                        ref="filterSideBar"
-                        icon="default-action-filter"
-                        title="Filtern"
-                        @sw-sidebar-item-close-content="closeContent"
-                        @click="closeContent">
+        {% block sw_settings_snippet_grid_sidebar_filter %}
+            <sw-sidebar-item
+                    ref="filterSideBar"
+                    icon="default-action-filter"
+                    title="Filtern"
+                    @sw-sidebar-item-close-content="closeContent"
+                    @click="closeContent">
 
-                    {% block sw_settings_snippet_grid_sidebar_filter_only_empty %}
-                        <sw-settings-snippet-boolean-filter-item
-                                name="emptySnippets"
-                                group="emptySnippets"
-                                type="small"
-                                :label="$tc('sw-settings-snippet.filter.showOnlyEmpty')"
-                                @change="onChange">
-                        </sw-settings-snippet-boolean-filter-item>
-                    {% endblock %}
+                {% block sw_settings_snippet_grid_sidebar_filter_only_empty %}
+                    <sw-settings-snippet-boolean-filter-item
+                            name="emptySnippets"
+                            group="emptySnippets"
+                            type="small"
+                            :label="$tc('sw-settings-snippet.filter.showOnlyEmpty')"
+                            @change="onChange">
+                    </sw-settings-snippet-boolean-filter-item>
+                {% endblock %}
 
-                    {% block sw_settings_snippet_grid_sidebar_filter_custom %}
-                        <sw-settings-snippet-boolean-filter-item
-                                name="customSnippets"
-                                group="customSnippets"
-                                type="small"
-                                :label="$tc('sw-settings-snippet.list.textSidebarCustomItems')"
-                                @change="onChange">
-                        </sw-settings-snippet-boolean-filter-item>
-                    {% endblock %}
+                {% block sw_settings_snippet_grid_sidebar_filter_custom %}
+                    <sw-settings-snippet-boolean-filter-item
+                            name="customSnippets"
+                            group="customSnippets"
+                            type="small"
+                            :label="$tc('sw-settings-snippet.list.textSidebarCustomItems')"
+                            @change="onChange">
+                    </sw-settings-snippet-boolean-filter-item>
+                {% endblock %}
 
-                    {% block sw_settings_snippet_grid_sidebar_filter_author %}
-                        <sw-sidebar-collapse>
-                            <template slot="header">{{ $tc('sw-settings-snippet.filter.author') }}</template>
-                            <template slot="content">
-                                <div v-for="(item, index) in authorFilters">
-                                    <sw-settings-snippet-boolean-filter-item
-                                            :name="item"
-                                            group="authorFilter"
-                                            :label="item"
-                                            @change="onChange">
-                                    </sw-settings-snippet-boolean-filter-item>
-                                </div>
-                            </template>
-                        </sw-sidebar-collapse>
-                    {% endblock %}
+                {% block sw_settings_snippet_grid_sidebar_filter_author %}
+                    <sw-sidebar-collapse>
+                        <template slot="header">{{ $tc('sw-settings-snippet.filter.author') }}</template>
+                        <template slot="content">
+                            <div v-for="(item, index) in authorFilters">
+                                <sw-settings-snippet-boolean-filter-item
+                                        :name="item"
+                                        group="authorFilter"
+                                        :label="item"
+                                        @change="onChange">
+                                </sw-settings-snippet-boolean-filter-item>
+                            </div>
+                        </template>
+                    </sw-sidebar-collapse>
+                {% endblock %}
 
-                    {% block sw_settings_snippet_grid_sidebar_filter_more %}
-                        <sw-sidebar-collapse>
-                            <template slot="header">{{ $tc('sw-settings-snippet.filter.more') }}</template>
-                            <template slot="content">
-                                <div v-for="(item, index) in filterItems">
-                                    <sw-settings-snippet-boolean-filter-item
-                                            :name="item"
-                                            group="namespaceFilters"
-                                            :label="item"
-                                            @change="onChange">
-                                    </sw-settings-snippet-boolean-filter-item>
-                                </div>
-                            </template>
-                        </sw-sidebar-collapse>
-                    {% endblock %}
-                </sw-sidebar-item>
-            {% endblock %}
-        </sw-sidebar>
-    </div>
+                {% block sw_settings_snippet_grid_sidebar_filter_more %}
+                    <sw-sidebar-collapse>
+                        <template slot="header">{{ $tc('sw-settings-snippet.filter.more') }}</template>
+                        <template slot="content">
+                            <div v-for="(item, index) in filterItems">
+                                <sw-settings-snippet-boolean-filter-item
+                                        :name="item"
+                                        group="namespaceFilters"
+                                        :label="item"
+                                        @change="onChange">
+                                </sw-settings-snippet-boolean-filter-item>
+                            </div>
+                        </template>
+                    </sw-sidebar-collapse>
+                {% endblock %}
+            </sw-sidebar-item>
+        {% endblock %}
+    </sw-sidebar>
 {% endblock %}

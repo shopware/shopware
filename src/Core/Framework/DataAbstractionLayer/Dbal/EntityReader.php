@@ -128,13 +128,14 @@ class EntityReader implements EntityReaderInterface
         }
 
         /** @var EntityDefinition $reference */
-        $associations = $fields->filter(function ($field) {
-            return $field instanceof ManyToOneAssociationField || $field instanceof OneToOneAssociationField;
-        });
-
-        /** @var ManyToOneAssociationField[]|OneToOneAssociationField[] $associations */
+        $associations = $fields->filterInstance(ManyToOneAssociationField::class);
         foreach ($associations as $association) {
-            $this->loadToOne($definition, $association, $context, $collection);
+            $this->loadManyToOne($definition, $association, $context, $collection);
+        }
+
+        $associations = $fields->filterInstance(OneToOneAssociationField::class);
+        foreach ($associations as $association) {
+            $this->loadOneToOne($definition, $association, $context, $collection);
         }
 
         /** @var OneToManyAssociationField[] $associations */
@@ -335,19 +336,8 @@ class EntityReader implements EntityReaderInterface
         return $query->execute()->fetchAll();
     }
 
-    private function loadToOne(string $definition, AssociationInterface $association, Context $context, EntityCollection $collection): void
+    private function loadManyToOne(string $definition, ManyToOneAssociationField $association, Context $context, EntityCollection $collection): void
     {
-        if (!$association instanceof ManyToOneAssociationField && !$association instanceof OneToOneAssociationField) {
-            throw new \InvalidArgumentException(
-                sprintf(
-                    'Expected class of %s or %s got %s',
-                    ManyToOneAssociationField::class,
-                    OneToOneAssociationField::class,
-                    get_class($association)
-                )
-            );
-        }
-
         $reference = $association->getReferenceClass();
 
         $fields = $reference::getFields()->filterBasic();
@@ -362,11 +352,11 @@ class EntityReader implements EntityReaderInterface
         });
 
         $ids = array_filter($ids);
-
         $referenceClass = $association->getReferenceClass();
 
         /** @var string|EntityDefinition $definition */
         $collectionClass = $referenceClass::getCollectionClass();
+
         $data = $this->_read(
             new Criteria($ids),
             $referenceClass,
@@ -1091,5 +1081,95 @@ class EntityReader implements EntityReaderInterface
         }
 
         return $fields;
+    }
+
+    private function loadOneToOne(string $definition, OneToOneAssociationField $association, Context $context, EntityCollection $collection)
+    {
+        $reference = $association->getReferenceClass();
+
+        $fields = $reference::getFields()->filterBasic();
+        if (!$this->shouldBeLoadedDelayed($reference, $fields)) {
+            return;
+        }
+
+        /** @var string|EntityDefinition $definition */
+        $field = $definition::getFields()->getByStorageName($association->getStorageName());
+
+        //check if the association is the owning side
+        $ids = $collection->map(function (Entity $entity) use ($field) {
+            return $entity->getViewData()->get($field->getPropertyName());
+        });
+
+        $ids = array_filter($ids);
+
+        $fkField = $field;
+
+        /** @var OneToOneAssociationField $field */
+        if ($field instanceof FkField) {
+            $criteria = new Criteria($ids);
+        } else {
+            /** @var FkField $field */
+            $fkField = $reference::getFields()->getByStorageName($association->getReferenceField());
+
+            $criteria = new Criteria();
+            $criteria->addFilter(
+                new EqualsAnyFilter(
+                    $reference::getEntityName() . '.' . $fkField->getPropertyName(),
+                    $ids
+                )
+            );
+        }
+
+        $referenceClass = $association->getReferenceClass();
+
+        /** @var string|EntityDefinition $definition */
+        $collectionClass = $referenceClass::getCollectionClass();
+
+        $data = $this->_read(
+            $criteria,
+            $referenceClass,
+            $context,
+            $referenceClass::getEntityClass(),
+            new $collectionClass(),
+            $referenceClass::getFields()->filterBasic()
+        );
+
+        /** @var Entity $struct */
+        foreach ($collection as $struct) {
+            /** @var string $id */
+            $id = $struct->getViewData()->get($field->getPropertyName());
+
+            if (!$id) {
+                continue;
+            }
+
+            //owning side? the id is used as collection key
+            if ($field instanceof FkField) {
+                $record = $data->get($id);
+            } else {
+                //otherwise the collection is indexed with an unknown identifier and we have to filter by the foreign key property
+                $record = $data->filterByProperty($fkField->getPropertyName(), $id)
+                    ->first();
+            }
+
+            $owner = $struct->get($field->getPropertyName());
+
+            //if the "association.owner" property is filled, the many to one association owner is the current entity
+            if ($owner !== null || !$association->is(Inherited::class)) {
+                if ($field->is(Extension::class)) {
+                    $struct->addExtension($association->getPropertyName(), $record);
+                } else {
+                    $struct->assign([$association->getPropertyName() => $record]);
+                }
+            }
+
+            //otherwise the one to one association belongs to the parent and we only assign data to the resolve inherited viewData struct
+            if ($association->is(Extension::class)) {
+                $struct->getViewData()->addExtension($association->getPropertyName(), $record);
+                continue;
+            }
+
+            $struct->getViewData()->assign([$association->getPropertyName() => $record]);
+        }
     }
 }

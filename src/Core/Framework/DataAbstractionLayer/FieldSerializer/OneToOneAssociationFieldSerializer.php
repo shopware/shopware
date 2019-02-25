@@ -6,7 +6,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Exception\DecodeByHydratorExcep
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidSerializerFieldException;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
@@ -46,9 +45,7 @@ class OneToOneAssociationFieldSerializer implements FieldSerializerInterface
             throw new MalformatDataException($parameters->getPath(), 'Expected array');
         }
 
-        $keyField = $parameters->getDefinition()::getFields()->getByStorageName(
-            $field->getStorageName()
-        );
+        $keyField = $parameters->getDefinition()::getFields()->getByStorageName($field->getStorageName());
 
         //owning side?
         if ($keyField instanceof FkField) {
@@ -59,7 +56,7 @@ class OneToOneAssociationFieldSerializer implements FieldSerializerInterface
             return;
         }
 
-        /* @var ManyToOneAssociationField $field */
+        /* @var OneToOneAssociationField $field */
         $id = $parameters->getContext()->get($parameters->getDefinition(), $field->getStorageName());
 
         $value = $data->getValue();
@@ -67,6 +64,10 @@ class OneToOneAssociationFieldSerializer implements FieldSerializerInterface
         if (!\is_array($value)) {
             throw new MalformatDataException($parameters->getPath() . '/' . $data->getKey(), 'Value must be an array.');
         }
+
+        $keyField = $field->getReferenceClass()::getFields()->getByStorageName(
+            $field->getReferenceField()
+        );
 
         $value[$keyField->getPropertyName()] = $id;
 

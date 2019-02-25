@@ -123,12 +123,13 @@ DROP TABLE IF EXISTS `root_sub_many`;
     public function testWriteRootOverSub()
     {
         $id = Uuid::uuid4()->getHex();
+        $id2 = Uuid::uuid4()->getHex();
 
         $data = [
             'id' => $id,
             'name' => 'root 1',
             'root' => [
-                'id' => $id,
+                'id' => $id2,
                 'name' => 'sub 1',
             ],
         ];
@@ -142,7 +143,7 @@ DROP TABLE IF EXISTS `root_sub_many`;
         $rootEvent = $event->getEventByDefinition(RootDefinition::class);
         static::assertInstanceOf(EntityWrittenEvent::class, $rootEvent);
         static::assertCount(1, $rootEvent->getWriteResults());
-        static::assertSame([$id], $rootEvent->getIds());
+        static::assertSame([$id2], $rootEvent->getIds());
 
         $subEvent = $event->getEventByDefinition(SubDefinition::class);
         static::assertInstanceOf(EntityWrittenEvent::class, $subEvent);
@@ -153,9 +154,10 @@ DROP TABLE IF EXISTS `root_sub_many`;
     public function testWriteSubOverRoot(): void
     {
         $id = Uuid::uuid4()->getHex();
+        $id2 = Uuid::uuid4()->getHex();
 
         $data = [
-            'id' => $id,
+            'id' => $id2,
             'name' => 'root 1',
             'sub' => [
                 'id' => $id,
@@ -172,7 +174,7 @@ DROP TABLE IF EXISTS `root_sub_many`;
         $rootEvent = $event->getEventByDefinition(RootDefinition::class);
         static::assertInstanceOf(EntityWrittenEvent::class, $rootEvent);
         static::assertCount(1, $rootEvent->getWriteResults());
-        static::assertSame([$id], $rootEvent->getIds());
+        static::assertSame([$id2], $rootEvent->getIds());
 
         $subEvent = $event->getEventByDefinition(SubDefinition::class);
         static::assertInstanceOf(EntityWrittenEvent::class, $subEvent);
@@ -184,16 +186,18 @@ DROP TABLE IF EXISTS `root_sub_many`;
     {
         $id = Uuid::uuid4()->getHex();
         $id2 = Uuid::uuid4()->getHex();
+        $id3 = Uuid::uuid4()->getHex();
+        $id4 = Uuid::uuid4()->getHex();
 
         $data = [
             'id' => $id,
             'name' => 'root 1',
             'sub' => [
-                'id' => $id,
+                'id' => $id2,
                 'name' => 'sub 1',
                 'many' => [
-                    ['id' => $id, 'name' => 'many 1'],
-                    ['id' => $id2, 'name' => 'many 2'],
+                    ['id' => $id3, 'name' => 'many 1'],
+                    ['id' => $id4, 'name' => 'many 2'],
                 ],
             ],
         ];
@@ -213,7 +217,7 @@ DROP TABLE IF EXISTS `root_sub_many`;
         static::assertSame('sub 1', $sub->get('name'));
         static::assertSame($id, $sub->get('rootId'));
 
-        $criteria = new Criteria([$id]);
+        $criteria = new Criteria([$id2]);
         $criteria->addAssociation('root_sub.root');
 
         $sub = $this->subRepository->search($criteria, $context)->first();
@@ -224,8 +228,8 @@ DROP TABLE IF EXISTS `root_sub_many`;
         static::assertCount(2, $many);
 
         /** @var EntityCollection $many */
-        static::assertTrue($many->has($id));
-        static::assertTrue($many->has($id2));
+        static::assertTrue($many->has($id3));
+        static::assertTrue($many->has($id4));
     }
 
     public function testSearch(): void

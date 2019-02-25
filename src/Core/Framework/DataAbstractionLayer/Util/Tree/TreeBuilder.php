@@ -8,9 +8,6 @@ use Shopware\Core\Framework\Exception\InvalidParameterException;
 class TreeBuilder
 {
     /**
-     * @param string|null      $parentId
-     * @param EntityCollection $entities
-     *
      * @throws InvalidParameterException
      *
      * @return TreeItem[]

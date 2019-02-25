@@ -138,9 +138,6 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
         return $openapi;
     }
 
-    /**
-     * @return array
-     */
     public function getSchema(): array
     {
         $schemaDefinitions = [];
@@ -332,8 +329,6 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
 
     /**
      * @param string|EntityDefinition $definition
-     *
-     * @return array
      */
     private function getSchemaByDefinition(string $definition): array
     {
@@ -384,7 +379,7 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
 
             /** @var WriteProtected|null $writeProtectedFlag */
             $writeProtectedFlag = $field->getFlag(WriteProtected::class);
-            if (\in_array($field->getPropertyName(), ['createdAt', 'updatedAt']) || ($writeProtectedFlag && !$writeProtectedFlag->isAllowed(SourceContext::ORIGIN_API))) {
+            if (\in_array($field->getPropertyName(), ['createdAt', 'updatedAt'], true) || ($writeProtectedFlag && !$writeProtectedFlag->isAllowed(SourceContext::ORIGIN_API))) {
                 $attr['readOnly'] = true;
             }
 
@@ -479,10 +474,7 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
     }
 
     /**
-     * @param array                   $openapi
      * @param string|EntityDefinition $definition
-     *
-     * @return array
      */
     private function addPathActions(array $openapi, string $definition): array
     {
@@ -698,9 +690,6 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
 
     /**
      * @param ManyToManyAssociationField|OneToManyAssociationField|AssociationInterface $field
-     * @param string                                                                    $basePath
-     *
-     * @return array
      */
     private function createToManyLinkage(AssociationInterface $field, string $basePath): array
     {
@@ -775,9 +764,6 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
 
     /**
      * @param string|EntityDefinition $definition
-     * @param string                  $rootPath
-     *
-     * @return string
      */
     private function getResourceUri(string $definition, string $rootPath = '/'): string
     {
@@ -1082,8 +1068,6 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
 
     /**
      * @param Field[] $extensions
-     *
-     * @return array
      */
     private function getExtensions(array $extensions, string $path): array
     {

@@ -27,9 +27,6 @@ class AmountCalculatorTest extends TestCase
 {
     /**
      * @dataProvider calculateAmountWithGrossPricesProvider
-     *
-     * @param CartPrice       $expected
-     * @param PriceCollection $prices
      */
     public function testCalculateAmountWithGrossPrices(CartPrice $expected, PriceCollection $prices): void
     {
@@ -61,9 +58,6 @@ class AmountCalculatorTest extends TestCase
 
     /**
      * @dataProvider calculateAmountWithNetPricesProvider
-     *
-     * @param CartPrice       $expected
-     * @param PriceCollection $prices
      */
     public function testCalculateAmountWithNetPrices(CartPrice $expected, PriceCollection $prices): void
     {
@@ -96,9 +90,6 @@ class AmountCalculatorTest extends TestCase
 
     /**
      * @dataProvider calculateAmountForNetDeliveriesProvider
-     *
-     * @param CartPrice       $expected
-     * @param PriceCollection $prices
      */
     public function testCalculateAmountForNetDeliveries(CartPrice $expected, PriceCollection $prices): void
     {
@@ -182,9 +173,6 @@ class AmountCalculatorTest extends TestCase
         ];
     }
 
-    /**
-     * @return array
-     */
     public function calculateAmountWithNetPricesProvider(): array
     {
         $highTax = new TaxRuleCollection([new TaxRule(19)]);
@@ -311,9 +299,6 @@ class AmountCalculatorTest extends TestCase
         ];
     }
 
-    /**
-     * @return array
-     */
     public function calculateAmountWithGrossPricesProvider(): array
     {
         $highTax = new TaxRuleCollection([new TaxRule(19)]);

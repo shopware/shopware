@@ -52,7 +52,7 @@ class Random
 
         $listLen = mb_strlen($charlist, '8bit');
 
-        if ($listLen == 1) {
+        if ($listLen === 1) {
             return str_repeat($charlist, $length);
         }
 

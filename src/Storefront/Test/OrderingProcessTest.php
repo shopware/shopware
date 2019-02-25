@@ -122,7 +122,7 @@ class OrderingProcessTest extends TestCase
 
         $content = json_decode($response->getContent(), true);
 
-        static::assertEquals(true, $content['success']);
+        static::assertTrue($content['success']);
     }
 
     private function changeProductQuantity(string $id, int $quantity): void
@@ -136,7 +136,7 @@ class OrderingProcessTest extends TestCase
         $response = $this->getStorefrontClient()->getResponse();
         $content = json_decode($response->getContent(), true);
 
-        static::assertEquals(true, $content['success']);
+        static::assertTrue($content['success']);
     }
 
     private function removeProductFromCart(string $id): void
@@ -149,7 +149,7 @@ class OrderingProcessTest extends TestCase
         $response = $this->getStorefrontClient()->getResponse();
         $content = json_decode($response->getContent(), true);
 
-        static::assertEquals(true, $content['success']);
+        static::assertTrue($content['success']);
     }
 
     private function createCustomer($email, $password): string

@@ -57,7 +57,7 @@ class ExtensionHelper
             $properties = $this->propertyInfoExtractor->getProperties(get_class($object));
 
             foreach ($properties as $property) {
-                if (in_array($property, self::IGNORED_PROPERTIES)) {
+                if (in_array($property, self::IGNORED_PROPERTIES, true)) {
                     continue;
                 }
                 try {

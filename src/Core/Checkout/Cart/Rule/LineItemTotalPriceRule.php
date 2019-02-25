@@ -42,6 +42,8 @@ class LineItemTotalPriceRule extends Rule
 
         $lineItem = $scope->getLineItem();
 
+        $this->amount = (float) $this->amount;
+
         switch ($this->operator) {
             case self::OPERATOR_GTE:
                 return new Match(
@@ -69,13 +71,13 @@ class LineItemTotalPriceRule extends Rule
 
             case self::OPERATOR_EQ:
                 return new Match(
-                    $lineItem->getPrice()->getTotalPrice() == $this->amount,
+                    $lineItem->getPrice()->getTotalPrice() === $this->amount,
                     ['LineItem total price is not equal']
                 );
 
             case self::OPERATOR_NEQ:
                 return new Match(
-                    $lineItem->getPrice()->getTotalPrice() != $this->amount,
+                    $lineItem->getPrice()->getTotalPrice() !== $this->amount,
                     ['LineItem total price is equal']
                 );
 

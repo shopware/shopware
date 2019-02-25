@@ -26,10 +26,6 @@ class PriceCalculatorTest extends TestCase
 {
     /**
      * @dataProvider priceCalculationWithGrossPricesProvider
-     *
-     * @param PriceRounding           $priceRounding
-     * @param CalculatedPrice         $expected
-     * @param QuantityPriceDefinition $priceDefinition
      */
     public function testPriceCalculationWithGrossPrices(
         PriceRounding $priceRounding,
@@ -57,9 +53,6 @@ class PriceCalculatorTest extends TestCase
 
     /**
      * @dataProvider netPrices
-     *
-     * @param CalculatedPrice         $expected
-     * @param QuantityPriceDefinition $priceDefinition
      */
     public function testNetPrices(
         CalculatedPrice $expected,
@@ -89,9 +82,6 @@ class PriceCalculatorTest extends TestCase
 
     /**
      * @dataProvider netDeliveryPrices
-     *
-     * @param CalculatedPrice         $expected
-     * @param QuantityPriceDefinition $priceDefinition
      */
     public function testNetDeliveries(
         CalculatedPrice $expected,

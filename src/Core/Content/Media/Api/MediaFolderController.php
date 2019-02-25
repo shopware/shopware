@@ -22,8 +22,6 @@ class MediaFolderController extends AbstractController
 
     /**
      * @Route("/api/v{version}/_action/media-folder/{folderId}/dissolve", name="api.action.media-folder.dissolve", methods={"POST"})
-     *
-     * @return Response
      */
     public function dissolve(string $folderId, Context $context): Response
     {

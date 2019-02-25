@@ -48,7 +48,7 @@ class MigrationControllerTest extends TestCase
         );
     }
 
-    public function test_add_migrations_action_call(): void
+    public function testAddMigrationsActionCall(): void
     {
         $client = $this->getClient();
 
@@ -59,7 +59,7 @@ class MigrationControllerTest extends TestCase
         static::assertSame(json_encode(['message' => 'migrations added to the database']), $client->getResponse()->getContent());
     }
 
-    public function test_migrate_action_call(): void
+    public function testMigrateActionCall(): void
     {
         $client = $this->getClient();
 
@@ -72,7 +72,7 @@ class MigrationControllerTest extends TestCase
         static::assertSame(json_encode(['message' => 'Migrations executed']), $client->getResponse()->getContent());
     }
 
-    public function test_migrate_destructive_action_call(): void
+    public function testMigrateDestructiveActionCall(): void
     {
         $client = $this->getClient();
 
@@ -85,7 +85,7 @@ class MigrationControllerTest extends TestCase
         static::assertSame(json_encode(['message' => 'Migrations executed']), $client->getResponse()->getContent());
     }
 
-    public function test_controller_add_Migrations(): void
+    public function testControllerAddMigrations(): void
     {
         static::assertSame(0, $this->getMigrationCount());
 
@@ -96,7 +96,7 @@ class MigrationControllerTest extends TestCase
         static::assertSame(2, $this->getMigrationCount());
     }
 
-    public function test_controller_migrate_migration_exception(): void
+    public function testControllerMigrateMigrationException(): void
     {
         static::assertSame(0, $this->getMigrationCount(true));
 
@@ -115,7 +115,7 @@ class MigrationControllerTest extends TestCase
         static::assertSame(3, $this->getMigrationCount(true));
     }
 
-    public function test_controller_migrate_migration_destructive(): void
+    public function testControllerMigrateMigrationDestructive(): void
     {
         static::assertSame(0, $this->getMigrationCount(true, true));
 
@@ -140,7 +140,7 @@ class MigrationControllerTest extends TestCase
         static::assertSame(2, $this->getMigrationCount(true, true));
     }
 
-    public function test_controller_migrate(): void
+    public function testControllerMigrate(): void
     {
         static::assertSame(0, $this->getMigrationCount(true));
 

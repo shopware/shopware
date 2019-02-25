@@ -24,11 +24,6 @@ class NavigationPageController extends StorefrontController
 
     /**
      * @Route("/navigation/{navigationId}", name="frontend.navigation.page", options={"seo"=true}, methods={"GET"})
-     *
-     * @param CheckoutContext $context
-     * @param InternalRequest $request
-     *
-     * @return Response
      */
     public function index(CheckoutContext $context, InternalRequest $request): Response
     {

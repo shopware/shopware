@@ -11,8 +11,6 @@ class AccessKeyController extends AbstractController
 {
     /**
      * @Route("/api/v{version}/_action/access-key/intergration", name="api.action.access-key.integration", methods={"GET"})
-     *
-     * @return JsonResponse
      */
     public function generateIntegrationKey(): JsonResponse
     {
@@ -24,8 +22,6 @@ class AccessKeyController extends AbstractController
 
     /**
      * @Route("/api/v{version}/_action/access-key/user", name="api.action.access-key.user", methods={"GET"})
-     *
-     * @return JsonResponse
      */
     public function generateUserKey(): JsonResponse
     {
@@ -37,8 +33,6 @@ class AccessKeyController extends AbstractController
 
     /**
      * @Route("/api/v{version}/_action/access-key/sales-channel", name="api.action.access-key.sales-channel", methods={"GET"})
-     *
-     * @return JsonResponse
      */
     public function generateSalesChannelKey(): JsonResponse
     {

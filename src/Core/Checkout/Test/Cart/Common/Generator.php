@@ -155,8 +155,6 @@ class Generator extends TestCase
 
     /**
      * @param QuantityPriceDefinition[] $priceDefinitions indexed by product number
-     *
-     * @return ProductGateway
      */
     public function createProductPriceGateway($priceDefinitions): ProductGateway
     {

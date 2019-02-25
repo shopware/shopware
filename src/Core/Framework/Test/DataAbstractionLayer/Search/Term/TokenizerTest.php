@@ -9,9 +9,6 @@ class TokenizerTest extends TestCase
 {
     /**
      * @dataProvider cases
-     *
-     * @param string $term
-     * @param array  $expected
      */
     public function testInterpreter(string $term, array $expected): void
     {

@@ -269,8 +269,6 @@ class EntityAggregator implements EntityAggregatorInterface
     }
 
     /**
-     * @param Criteria $criteria
-     *
      * @return string[]
      */
     private function getFilterFields(Criteria $criteria): array

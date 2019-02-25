@@ -50,9 +50,6 @@ class PluginTranslationEntity extends TranslationEntity
      */
     protected $attributes;
 
-    /**
-     * @return string
-     */
     public function getPluginId(): string
     {
         return $this->pluginId;

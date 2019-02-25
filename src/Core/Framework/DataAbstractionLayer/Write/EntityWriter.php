@@ -6,6 +6,7 @@ use Shopware\Core\Framework\Api\Exception\IncompletePrimaryKeyException;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityForeignKeyResolver;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
+use Shopware\Core\Framework\DataAbstractionLayer\Exception\ImpossibleWriteOrderException;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
@@ -99,13 +100,10 @@ class EntityWriter implements EntityWriterInterface
     /**
      * @param EntityDefinition|string $definition
      * @param array[]                 $ids
-     * @param WriteContext            $writeContext
      *
      * @throws RestrictDeleteViolationException
      * @throws IncompletePrimaryKeyException
-     * @throws \Shopware\Core\Framework\DataAbstractionLayer\Exception\ImpossibleWriteOrderException
-     *
-     * @return DeleteResult
+     * @throws ImpossibleWriteOrderException
      */
     public function delete(string $definition, array $ids, WriteContext $writeContext): DeleteResult
     {

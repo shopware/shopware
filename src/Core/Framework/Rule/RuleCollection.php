@@ -36,8 +36,6 @@ class RuleCollection extends Collection
     }
 
     /**
-     * @param string $class
-     *
      * @return Collection|RuleCollection
      */
     public function filterInstance(string $class): Collection

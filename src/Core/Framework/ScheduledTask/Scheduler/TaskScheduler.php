@@ -100,7 +100,7 @@ class TaskScheduler
     {
         $taskClass = $taskEntity->getScheduledTaskClass();
 
-        if (!in_array(ScheduledTaskInterface::class, class_implements($taskClass))) {
+        if (!in_array(ScheduledTaskInterface::class, class_implements($taskClass), true)) {
             throw new \RuntimeException(sprintf(
                 'Tried to schedule "%s", but class does not implement ScheduledTaskInterface',
                 $taskClass

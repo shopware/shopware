@@ -52,11 +52,6 @@ class AmountCalculator
     /**
      * Calculates the amount for a new delivery.
      * `CalculatedPrice::price` and `CalculatedPrice::netPrice` are equals and taxes are empty.
-     *
-     * @param PriceCollection $prices
-     * @param PriceCollection $shippingCosts
-     *
-     * @return CartPrice
      */
     private function calculateNetDeliveryAmount(PriceCollection $prices, PriceCollection $shippingCosts): CartPrice
     {
@@ -79,12 +74,6 @@ class AmountCalculator
      * `CalculatedPrice::netPrice` contains the summed gross prices minus amount of calculated taxes.
      * `CalculatedPrice::price` contains the summed gross prices
      * Calculated taxes are based on the gross prices
-     *
-     * @param PriceCollection $prices
-     * @param PriceCollection $shippingCosts
-     * @param CheckoutContext $context
-     *
-     * @return CartPrice
      */
     private function calculateGrossAmount(PriceCollection $prices, PriceCollection $shippingCosts, CheckoutContext $context): CartPrice
     {
@@ -114,12 +103,6 @@ class AmountCalculator
      * `CalculatedPrice::netPrice` contains the summed net prices.
      * `CalculatedPrice::price` contains the summed net prices plus amount of calculated taxes
      * Calculated taxes are based on the net prices
-     *
-     * @param PriceCollection $prices
-     * @param PriceCollection $shippingCosts
-     * @param CheckoutContext $context
-     *
-     * @return CartPrice
      */
     private function calculateNetAmount(PriceCollection $prices, PriceCollection $shippingCosts, CheckoutContext $context): CartPrice
     {

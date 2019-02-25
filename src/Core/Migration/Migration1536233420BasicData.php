@@ -120,7 +120,7 @@ class Migration1536233420BasicData extends MigrationStep
         $languageDe = Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM_DE);
 
         foreach ($localeData as $locale) {
-            if (\in_array($locale['locale'], ['en_GB', 'de_DE'])) {
+            if (\in_array($locale['locale'], ['en_GB', 'de_DE'], true)) {
                 continue;
             }
 

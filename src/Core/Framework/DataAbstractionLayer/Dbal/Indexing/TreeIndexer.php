@@ -264,7 +264,7 @@ class TreeIndexer implements IndexerInterface
         $fields = $definition::getFields()
             ->filterInstance(TreePathField::class)
             ->reduce(function (array $fields, TreePathField $field) {
-                if (!in_array($field->getPathField(), $fields)) {
+                if (!in_array($field->getPathField(), $fields, true)) {
                     $fields[] = $field->getPathField();
                 }
 

@@ -269,7 +269,7 @@ class RequestCriteriaBuilder
             return;
         }
 
-        if (!empty($this->allowedLimits) && !\in_array($limit, $this->allowedLimits)) {
+        if (!empty($this->allowedLimits) && !\in_array($limit, $this->allowedLimits, true)) {
             $searchRequestException->add(new DisallowedLimitQueryException($this->allowedLimits, $limit), '/limit');
 
             return;

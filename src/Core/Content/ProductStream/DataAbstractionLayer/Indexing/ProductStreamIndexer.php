@@ -200,7 +200,7 @@ class ProductStreamIndexer implements IndexerInterface
 
         json_decode($string);
 
-        return json_last_error() == JSON_ERROR_NONE;
+        return json_last_error() === JSON_ERROR_NONE;
     }
 
     private function createIterator(Context $context): RepositoryIterator
@@ -210,6 +210,6 @@ class ProductStreamIndexer implements IndexerInterface
 
     private function isMultiFilter(string $type): bool
     {
-        return in_array($type, ['multi', 'not']);
+        return in_array($type, ['multi', 'not'], true);
     }
 }

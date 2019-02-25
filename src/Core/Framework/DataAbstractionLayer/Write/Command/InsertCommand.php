@@ -54,9 +54,6 @@ class InsertCommand implements WriteCommandInterface
         return $this->primaryKey;
     }
 
-    /**
-     * @return EntityExistence
-     */
     public function getEntityExistence(): EntityExistence
     {
         return $this->existence;

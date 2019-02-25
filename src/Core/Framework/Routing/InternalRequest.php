@@ -144,12 +144,7 @@ class InternalRequest
     }
 
     /**
-     * @param string $key
-     * @param array  $values
-     *
      * @throws MissingParameterException
-     *
-     * @return mixed
      */
     private function _get(string $key, array $values)
     {

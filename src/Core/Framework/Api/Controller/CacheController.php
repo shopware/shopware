@@ -31,8 +31,6 @@ class CacheController extends AbstractController
 
     /**
      * @Route("/api/v{version}/_action/cache", name="api.action.cache.delete", methods={"DELETE"})
-     *
-     * @return JsonResponse
      */
     public function clearCache(): JsonResponse
     {
@@ -44,11 +42,7 @@ class CacheController extends AbstractController
     /**
      * @Route("/api/v{version}/_action/cache/item", name="api.action.cache.delete-items", methods={"DELETE"})
      *
-     * @param Request $request
-     *
      * @throws InvalidParameterException
-     *
-     * @return JsonResponse
      */
     public function deleteCacheItems(Request $request): JsonResponse
     {
@@ -79,8 +73,6 @@ class CacheController extends AbstractController
      * @Route("/api/v{version}/_action/cache/tag", name="api.action.cache.invalidate-tags", methods={"DELETE"})
      *
      * @throws InvalidParameterException
-     *
-     * @return JsonResponse
      */
     public function invalidateTags(Request $request): JsonResponse
     {

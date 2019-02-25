@@ -23,12 +23,8 @@ class PercentagePriceCalculatorTest extends TestCase
 {
     /**
      * @dataProvider calculatePercentagePriceOfGrossPricesProvider
-     *
-     * @param float           $percentage
-     * @param CalculatedPrice $expected
-     * @param PriceCollection $prices
      */
-    public function testCalculatePercentagePriceOfGrossPrices($percentage, CalculatedPrice $expected, PriceCollection $prices): void
+    public function testCalculatePercentagePriceOfGrossPrices(float $percentage, CalculatedPrice $expected, PriceCollection $prices): void
     {
         $rounding = new PriceRounding(2);
 

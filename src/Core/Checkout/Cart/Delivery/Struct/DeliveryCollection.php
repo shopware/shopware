@@ -37,10 +37,11 @@ class DeliveryCollection extends Collection
     public function getDelivery(DeliveryDate $deliveryDate, ShippingLocation $location): ? Delivery
     {
         foreach ($this->getIterator() as $delivery) {
-            if ($delivery->getDeliveryDate()->getEarliest() != $deliveryDate->getEarliest()) {
+            if ($delivery->getDeliveryDate()->getEarliest()->format('Y-m-d') !== $deliveryDate->getEarliest()->format('Y-m-d')) {
                 continue;
             }
-            if ($delivery->getDeliveryDate()->getLatest() != $deliveryDate->getLatest()) {
+
+            if ($delivery->getDeliveryDate()->getLatest()->format('Y-m-d') !== $deliveryDate->getLatest()->format('Y-m-d')) {
                 continue;
             }
 
@@ -54,11 +55,6 @@ class DeliveryCollection extends Collection
         return null;
     }
 
-    /**
-     * @param LineItem $item
-     *
-     * @return bool
-     */
     public function contains(LineItem $item): bool
     {
         foreach ($this->getIterator() as $delivery) {

@@ -13,13 +13,8 @@ class TaxCalculatorTest extends TestCase
 {
     /**
      * @dataProvider netPricesToGross
-     *
-     * @param float         $expected
-     * @param PriceRounding $rounding
-     * @param TaxRule       $taxRule
-     * @param float         $net
      */
-    public function testCalculateGrossPriceOfNetPrice($expected, PriceRounding $rounding, TaxRule $taxRule, $net): void
+    public function testCalculateGrossPriceOfNetPrice(float $expected, PriceRounding $rounding, TaxRule $taxRule, float $net): void
     {
         $calculator = new TaxCalculator(
             $rounding,
@@ -34,9 +29,6 @@ class TaxCalculatorTest extends TestCase
         );
     }
 
-    /**
-     * @return array
-     */
     public function netPricesToGross(): array
     {
         return [

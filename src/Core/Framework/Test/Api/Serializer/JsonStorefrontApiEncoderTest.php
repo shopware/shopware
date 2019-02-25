@@ -37,8 +37,6 @@ class JsonStorefrontApiEncoderTest extends TestCase
     /**
      * @dataProvider emptyInputProvider
      *
-     * @param mixed $input
-     *
      * @throws UnsupportedEncoderInputException
      */
     public function testEncodeWithEmptyInput($input): void

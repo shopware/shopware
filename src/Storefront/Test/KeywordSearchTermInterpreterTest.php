@@ -34,9 +34,6 @@ class KeywordSearchTermInterpreterTest extends TestCase
 
     /**
      * @dataProvider cases
-     *
-     * @param string $term
-     * @param array  $expected
      */
     public function testMatching(string $term, array $expected): void
     {

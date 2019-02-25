@@ -41,6 +41,9 @@ class LineItemUnitPriceRule extends Rule
         }
 
         $unitPrice = $scope->getLineItem()->getPrice()->getUnitPrice();
+
+        $this->amount = (float) $this->amount;
+
         switch ($this->operator) {
             case self::OPERATOR_GTE:
 
@@ -73,14 +76,14 @@ class LineItemUnitPriceRule extends Rule
             case self::OPERATOR_EQ:
 
                 return new Match(
-                    $unitPrice == $this->amount,
+                    $unitPrice === $this->amount,
                     ['LineItem unit price is not equal']
                 );
 
             case self::OPERATOR_NEQ:
 
                 return new Match(
-                    $unitPrice != $this->amount,
+                    $unitPrice !== $this->amount,
                     ['LineItem unit price is equal']
                 );
 

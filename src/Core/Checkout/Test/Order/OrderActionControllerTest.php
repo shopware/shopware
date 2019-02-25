@@ -203,7 +203,7 @@ class OrderActionControllerTest extends TestCase
                     'zipcode' => '48624',
                     'city' => 'Schöppingen',
                     'countryId' => Defaults::COUNTRY,
-                 ],
+                ],
             ],
             'lineItems' => [],
             'deliveries' => [],

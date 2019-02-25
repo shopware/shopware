@@ -46,7 +46,7 @@ class MigrationCollectorTest extends TestCase
         );
     }
 
-    public function test_it_loads_the_valid_migrations(): void
+    public function testItLoadsTheValidMigrations(): void
     {
         $this->collector->addDirectory(__DIR__ . '/_test_migrations_valid', 'Shopware\Core\Framework\Test\Migration\_test_migrations_valid');
         $this->loader->syncMigrationCollection(self::MIGRATION_IDENTIFIER);
@@ -68,7 +68,7 @@ class MigrationCollectorTest extends TestCase
         static::assertEquals(2, $migrationsObjects[1]->getCreationTimestamp());
     }
 
-    public function test_it_gets_correct_migration_timestamps(): void
+    public function testItGetsCorrectMigrationTimestamps(): void
     {
         $this->collector->addDirectory(__DIR__ . '/_test_migrations_valid', 'Shopware\Core\Framework\Test\Migration\_test_migrations_valid');
         $migrations = $this->collector->getActiveMigrationTimestamps();

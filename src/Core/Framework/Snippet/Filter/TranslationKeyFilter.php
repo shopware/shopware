@@ -24,7 +24,7 @@ class TranslationKeyFilter extends AbstractFilter implements SnippetFilterInterf
         $result = [];
         foreach ($snippets as $setId => $set) {
             foreach ($set['snippets'] as $translationKey => $snippet) {
-                if (!in_array($translationKey, $requestFilterValue)) {
+                if (!in_array($translationKey, $requestFilterValue, true)) {
                     continue;
                 }
                 $result[$setId]['snippets'][$translationKey] = $snippet;

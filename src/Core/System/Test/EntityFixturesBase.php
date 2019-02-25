@@ -41,9 +41,6 @@ trait EntityFixturesBase
             ->get($fixtureName . '.repository');
     }
 
-    /**
-     * @return Entity
-     */
     public function createFixture(string $fixtureName, array $fixtureData, EntityRepositoryInterface $repository): Entity
     {
         self::ensureATransactionIsActive();

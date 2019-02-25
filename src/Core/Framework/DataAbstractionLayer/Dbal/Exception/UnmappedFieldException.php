@@ -10,10 +10,7 @@ use Throwable;
 class UnmappedFieldException extends ShopwareHttpException
 {
     /**
-     * @param string                  $field
      * @param string|EntityDefinition $definition
-     * @param int                     $code
-     * @param Throwable               $previous
      */
     public function __construct(string $field, string $definition, int $code = 0, Throwable $previous = null)
     {

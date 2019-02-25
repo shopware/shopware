@@ -33,8 +33,6 @@ class SlotDataResolver
 
     /**
      * @param SlotTypeDataResolverInterface[] $resolvers
-     * @param array                           $repositories
-     * @param ContainerInterface              $container
      */
     public function __construct(iterable $resolvers, array $repositories, ContainerInterface $container)
     {
@@ -101,8 +99,7 @@ class SlotDataResolver
     }
 
     /**
-     * @param string[][]      $directReads
-     * @param CheckoutContext $context
+     * @param string[][] $directReads
      *
      * @throws InconsistentCriteriaIdsException
      *
@@ -152,8 +149,6 @@ class SlotDataResolver
 
     /**
      * @param CriteriaCollection[] $criteriaCollections
-     *
-     * @return array
      */
     private function optimizeCriteriaObjects(array $criteriaCollections): array
     {
@@ -231,8 +226,6 @@ class SlotDataResolver
 
     /**
      * @param string|EntityDefinition $definition
-     *
-     * @return EntityRepositoryInterface
      */
     private function getApiRepository(string $definition): EntityRepositoryInterface
     {
@@ -268,10 +261,8 @@ class SlotDataResolver
     }
 
     /**
-     * @param SlotDataResolveResult $result
-     * @param CmsSlotEntity         $slot
-     * @param CriteriaCollection[]  $criteriaObjects
-     * @param EntitySearchResult[]  $searchResults
+     * @param CriteriaCollection[] $criteriaObjects
+     * @param EntitySearchResult[] $searchResults
      */
     private function mapSearchResults(SlotDataResolveResult $result, CmsSlotEntity $slot, array $criteriaObjects, array $searchResults): void
     {
@@ -292,10 +283,8 @@ class SlotDataResolver
     }
 
     /**
-     * @param SlotDataResolveResult $result
-     * @param CmsSlotEntity         $slot
-     * @param CriteriaCollection[]  $criteriaObjects
-     * @param EntitySearchResult[]  $entities
+     * @param CriteriaCollection[] $criteriaObjects
+     * @param EntitySearchResult[] $entities
      */
     private function mapEntities(SlotDataResolveResult $result, CmsSlotEntity $slot, array $criteriaObjects, array $entities): void
     {

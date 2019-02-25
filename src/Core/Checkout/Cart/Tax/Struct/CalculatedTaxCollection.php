@@ -34,8 +34,6 @@ class CalculatedTaxCollection extends Collection
 
     /**
      * Returns the total calculated tax for this item
-     *
-     * @return float
      */
     public function getAmount(): float
     {

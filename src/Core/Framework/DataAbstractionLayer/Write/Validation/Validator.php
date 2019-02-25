@@ -20,17 +20,12 @@ class Validator
      */
     private $data = [];
 
-    /**
-     * @param ValidatorInterface $validator
-     */
     public function __construct(ValidatorInterface $validator)
     {
         $this->validator = $validator;
     }
 
     /**
-     * @param string       $propertyName
-     * @param mixed        $propertyValue
      * @param Constraint[] $constraints
      */
     public function addConstraint(string $propertyName, $propertyValue, array $constraints): void
@@ -42,9 +37,6 @@ class Validator
         ];
     }
 
-    /**
-     * @return ConstraintViolationListInterface
-     */
     public function getViolations(): ConstraintViolationListInterface
     {
         $violationList = new ConstraintViolationList();

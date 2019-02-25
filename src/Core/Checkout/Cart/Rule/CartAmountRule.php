@@ -41,6 +41,8 @@ class CartAmountRule extends Rule
         }
         $cartAmount = $scope->getCart()->getPrice()->getTotalPrice();
 
+        $this->amount = (float) $this->amount;
+
         switch ($this->operator) {
             case self::OPERATOR_GTE:
 
@@ -73,14 +75,14 @@ class CartAmountRule extends Rule
             case self::OPERATOR_EQ:
 
                 return new Match(
-                    $cartAmount == $this->amount,
+                    $cartAmount === $this->amount,
                     ['Total price is not equal']
                 );
 
             case self::OPERATOR_NEQ:
 
                 return new Match(
-                    $cartAmount != $this->amount,
+                    $cartAmount !== $this->amount,
                     ['Total price is equal']
                 );
 

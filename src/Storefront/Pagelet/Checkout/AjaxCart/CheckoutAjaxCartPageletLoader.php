@@ -27,12 +27,7 @@ class CheckoutAjaxCartPageletLoader implements PageLoaderInterface
     }
 
     /**
-     * @param InternalRequest $request
-     * @param CheckoutContext $context
-     *
      * @throws \Shopware\Core\Checkout\Cart\Exception\CartTokenNotFoundException
-     *
-     * @return CheckoutAjaxCartPagelet
      */
     public function load(InternalRequest $request, CheckoutContext $context): CheckoutAjaxCartPagelet
     {

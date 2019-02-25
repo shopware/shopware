@@ -49,7 +49,7 @@ class BillingCountryRule extends Rule
                 );
             case self::OPERATOR_NEQ:
                 return new Match(
-                    $id == null || !\in_array($id, $this->countryIds, true),
+                    !\in_array($id, $this->countryIds, true),
                     ['Billing country matched']
                 );
             default:

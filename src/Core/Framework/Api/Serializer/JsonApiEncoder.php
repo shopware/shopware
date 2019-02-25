@@ -27,12 +27,8 @@ class JsonApiEncoder
     /**
      * @param string|EntityDefinition      $definition
      * @param EntityCollection|Entity|null $data
-     * @param string                       $baseUrl
-     * @param array                        $metaData
      *
      * @throws UnsupportedEncoderInputException
-     *
-     * @return string
      */
     public function encode(string $definition, $data, string $baseUrl, array $metaData = []): string
     {
@@ -51,10 +47,7 @@ class JsonApiEncoder
     }
 
     /**
-     * @param Entity                  $entity
      * @param string|EntityDefinition $definition
-     * @param JsonApiEncodingResult   $result
-     * @param bool                    $isRelationship
      */
     protected function serializeEntity(Entity $entity, string $definition, JsonApiEncodingResult $result, bool $isRelationship = false): void
     {
@@ -124,9 +117,7 @@ class JsonApiEncoder
     }
 
     /**
-     * @param string                       $definition
      * @param EntityCollection|Entity|null $data
-     * @param JsonApiEncodingResult        $result
      */
     private function encodeData(string $definition, $data, JsonApiEncodingResult $result): void
     {
@@ -147,8 +138,6 @@ class JsonApiEncoder
 
     /**
      * @param string|EntityDefinition $definition
-     *
-     * @return Record
      */
     private function createSerializedEntity(string $definition): Record
     {

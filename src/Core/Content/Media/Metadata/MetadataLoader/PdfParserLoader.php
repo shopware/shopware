@@ -16,11 +16,6 @@ class PdfParserLoader implements MetadataLoaderInterface
      */
     private $pdfParser;
 
-    /**
-     * @param string $filePath
-     *
-     * @return array
-     */
     public function extractMetadata(string $filePath): array
     {
         if (!$this->isAllowedToHandle($filePath)) {
@@ -74,9 +69,6 @@ class PdfParserLoader implements MetadataLoaderInterface
         return $isPdf && !$isTooLarge;
     }
 
-    /**
-     * @return Parser
-     */
     private function getPdfParser(): Parser
     {
         if (!$this->pdfParser) {

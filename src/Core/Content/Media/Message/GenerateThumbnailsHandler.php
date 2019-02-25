@@ -46,9 +46,9 @@ class GenerateThumbnailsHandler extends AbstractMessageHandler
     public static function getHandledMessages(): iterable
     {
         return [
-                GenerateThumbnailsMessage::class,
-                UpdateThumbnailsMessage::class,
-            ];
+            GenerateThumbnailsMessage::class,
+            UpdateThumbnailsMessage::class,
+        ];
     }
 
     private function getMediaEntities(GenerateThumbnailsMessage $msg, Context $context): MediaCollection

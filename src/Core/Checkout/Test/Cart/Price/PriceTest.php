@@ -12,10 +12,6 @@ class PriceTest extends TestCase
 {
     /**
      * @dataProvider addCases
-     *
-     * @param CalculatedPrice $a
-     * @param CalculatedPrice $b
-     * @param CalculatedPrice $expected
      */
     public function testAdd(CalculatedPrice $a, CalculatedPrice $b, CalculatedPrice $expected): void
     {
@@ -31,10 +27,6 @@ class PriceTest extends TestCase
 
     /**
      * @dataProvider subCases
-     *
-     * @param CalculatedPrice $a
-     * @param CalculatedPrice $b
-     * @param CalculatedPrice $expected
      */
     public function testSub(CalculatedPrice $a, CalculatedPrice $b, CalculatedPrice $expected): void
     {

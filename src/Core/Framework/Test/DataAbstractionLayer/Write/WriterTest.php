@@ -716,9 +716,6 @@ class WriterTest extends TestCase
         );
     }
 
-    /**
-     * @return WriteContext
-     */
     protected function createWriteContext(): WriteContext
     {
         $context = WriteContext::createFromContext(Context::createDefaultContext());

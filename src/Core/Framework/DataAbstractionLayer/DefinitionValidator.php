@@ -172,15 +172,13 @@ class DefinitionValidator
 
     /**
      * @param Table[] $tables
-     *
-     * @return array
      */
     private function findNotRegisteredTables(array $tables): array
     {
         $violations = [];
 
         foreach ($tables as $table) {
-            if (\in_array($table->getName(), self::$tablesWithoutDefinition)) {
+            if (\in_array($table->getName(), self::$tablesWithoutDefinition, true)) {
                 continue;
             }
             try {
@@ -198,15 +196,13 @@ class DefinitionValidator
 
     /**
      * @param Table[] $tables
-     *
-     * @return array
      */
     private function checkNaming(array $tables): array
     {
         $fkViolations = [];
 
         foreach ($tables as $table) {
-            if (\in_array($table->getName(), self::$tablesWithoutDefinition)) {
+            if (\in_array($table->getName(), self::$tablesWithoutDefinition, true)) {
                 continue;
             }
 
@@ -254,7 +250,7 @@ class DefinitionValidator
                 continue;
             }
 
-            if (\in_array($property->getName(), ['id', 'extensions'])) {
+            if (\in_array($property->getName(), ['id', 'extensions'], true)) {
                 continue;
             }
 
@@ -436,7 +432,7 @@ class DefinitionValidator
         $translatedFields = array_keys($translationDefinition::getFields()->filter(function (Field $f) {
             return !$f->is(PrimaryKey::class)
                 && !$f instanceof AssociationInterface
-                && !in_array($f->getPropertyName(), ['createdAt', 'updatedAt']);
+                && !in_array($f->getPropertyName(), ['createdAt', 'updatedAt'], true);
         })->getElements());
 
         $violations = [];
@@ -672,8 +668,6 @@ class DefinitionValidator
 
     /**
      * @param string|EntityDefinition $definition
-     *
-     * @return array
      */
     private function validateSchema(string $definition): array
     {
@@ -718,7 +712,7 @@ class DefinitionValidator
         }
 
         $propName = $association->getPropertyName();
-        if (substr($propName, -1) === 's' || \in_array($propName, self::$pluralExceptions)) {
+        if (substr($propName, -1) === 's' || \in_array($propName, self::$pluralExceptions, true)) {
             return [];
         }
 
@@ -733,12 +727,12 @@ class DefinitionValidator
         }
 
         return [$definition => [
-                sprintf(
-                    'Association %s.%s does not end with a \'s\'.',
-                    $definition::getEntityName(),
-                    $association->getPropertyName()
-                ),
-            ],
+            sprintf(
+                'Association %s.%s does not end with a \'s\'.',
+                $definition::getEntityName(),
+                $association->getPropertyName()
+            ),
+        ],
         ];
     }
 
@@ -759,7 +753,7 @@ class DefinitionValidator
         }
         $prop = $association->getPropertyName();
 
-        if (\in_array(strtolower($prop), self::$ignoredInPrefixCheck)) {
+        if (\in_array(strtolower($prop), self::$ignoredInPrefixCheck, true)) {
             return [];
         }
 
@@ -782,14 +776,14 @@ class DefinitionValidator
 
         if (stripos($prop, $ref) === false && stripos($prop, $refPlural) === false) {
             $ret = [$definition => [
-                    sprintf(
-                        'Association %s.%s does not contain reference class name `%s` or `%s`.',
-                        $definition::getEntityName(),
-                        $association->getPropertyName(),
-                        $ref,
-                        $refPlural
-                    ),
-                ],
+                sprintf(
+                    'Association %s.%s does not contain reference class name `%s` or `%s`.',
+                    $definition::getEntityName(),
+                    $association->getPropertyName(),
+                    $ref,
+                    $refPlural
+                ),
+            ],
             ];
 
             return $ret;
@@ -821,7 +815,7 @@ class DefinitionValidator
                 continue;
             }
 
-            if (\in_array($field->getPropertyName(), self::$customPrefixedNames)) {
+            if (\in_array($field->getPropertyName(), self::$customPrefixedNames, true)) {
                 continue;
             }
 

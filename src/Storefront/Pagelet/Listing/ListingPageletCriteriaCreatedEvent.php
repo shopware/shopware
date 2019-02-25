@@ -54,9 +54,6 @@ class ListingPageletCriteriaCreatedEvent extends NestedEvent
         return $this->criteria;
     }
 
-    /**
-     * @return InternalRequest
-     */
     public function getRequest(): InternalRequest
     {
         return $this->request;

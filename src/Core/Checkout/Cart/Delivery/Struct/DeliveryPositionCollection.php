@@ -90,11 +90,6 @@ class DeliveryPositionCollection extends Collection
         return DeliveryPosition::class;
     }
 
-    /**
-     * @param DeliveryPosition $element
-     *
-     * @return string
-     */
     protected function getKey(DeliveryPosition $element): string
     {
         return $element->getIdentifier();

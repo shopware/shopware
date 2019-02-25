@@ -7,8 +7,6 @@ trait SortArrayByKeysTrait
     /**
      * @param int[]|string[] $sortedKeys
      * @param array          $indexedArray - indexed with keys
-     *
-     * @return array
      */
     protected function sortIndexedArrayByKeys(array $sortedKeys, array $indexedArray): array
     {

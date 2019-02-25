@@ -25,8 +25,6 @@ class SearchPageController extends StorefrontController
 
     /**
      * @Route("/search", name="frontend.search.page", options={"seo"=false}, methods={"GET"})
-     *
-     * @return Response
      */
     public function index(CheckoutContext $context, InternalRequest $request): Response
     {

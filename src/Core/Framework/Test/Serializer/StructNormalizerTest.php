@@ -108,7 +108,6 @@ class StructNormalizerTest extends TestCase
     }
 
     /**
-     * @param mixed $input
      * @dataProvider denormalizeShouldReturnNonArraysProvider
      */
     public function testDenormalizeShouldReturnNonArrays($input): void

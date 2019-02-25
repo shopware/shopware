@@ -59,33 +59,21 @@ class PaymentTransactionStruct extends Struct
         $this->paymentMethodId = $paymentMethodId;
     }
 
-    /**
-     * @return string
-     */
     public function getTransactionId(): string
     {
         return $this->transactionId;
     }
 
-    /**
-     * @return OrderEntity
-     */
     public function getOrder(): OrderEntity
     {
         return $this->order;
     }
 
-    /**
-     * @return CalculatedPrice
-     */
     public function getAmount(): CalculatedPrice
     {
         return $this->amount;
     }
 
-    /**
-     * @return string
-     */
     public function getReturnUrl(): string
     {
         return $this->returnUrl;

@@ -25,7 +25,7 @@ class CustomFilter extends AbstractFilter implements SnippetFilterInterface
         $result = [];
         foreach ($snippets as $setId => $set) {
             foreach ($set['snippets'] as $translationKey => $snippet) {
-                if (!in_array($snippet['author'], $authors)) {
+                if (!in_array($snippet['author'], $authors, true)) {
                     continue;
                 }
                 $result[$setId]['snippets'][$translationKey] = $snippet;

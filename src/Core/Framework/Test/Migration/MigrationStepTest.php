@@ -19,7 +19,7 @@ class MigrationStepTest extends TestCase
         $this->removeMigrationFromTable(new MigrationWithBackwardTrigger());
     }
 
-    public function test_update_AddATrigger(): void
+    public function testUpdateAddATrigger(): void
     {
         $connection = $this->getContainer()->get(Connection::class);
 
@@ -30,7 +30,7 @@ class MigrationStepTest extends TestCase
         $this->removeTrigger(MigrationWithForwardTrigger::TRIGGER_NAME);
     }
 
-    public function test_update_ForwardTrigger_isExecutedIfMigrationIsNotActive(): void
+    public function testUpdateForwardTriggerIsExecutedIfMigrationIsNotActive(): void
     {
         $connection = $this->getContainer()->get(Connection::class);
         $connection->executeUpdate('SET @MIGRATION_1_IS_ACTIVE = NULL');
@@ -53,7 +53,7 @@ class MigrationStepTest extends TestCase
         $this->removeTrigger(MigrationWithForwardTrigger::TRIGGER_NAME);
     }
 
-    public function test_update_ForwardTriggerIsSkipped_IfMigrationIsActive(): void
+    public function testUpdateForwardTriggerIsSkippedIfMigrationIsActive(): void
     {
         $connection = $this->getContainer()->get(Connection::class);
         $connection->executeUpdate('SET @MIGRATION_1_IS_ACTIVE = TRUE');
@@ -76,7 +76,7 @@ class MigrationStepTest extends TestCase
         $this->removeTrigger(MigrationWithForwardTrigger::TRIGGER_NAME);
     }
 
-    public function test_update_BackwardTrigger_IsSkippedIfMigrationIsNotActive(): void
+    public function testUpdateBackwardTriggerIsSkippedIfMigrationIsNotActive(): void
     {
         $connection = $this->getContainer()->get(Connection::class);
         $connection->executeUpdate('SET @MIGRATION_2_IS_ACTIVE = NULL');
@@ -99,7 +99,7 @@ class MigrationStepTest extends TestCase
         $this->removeTrigger(MigrationWithBackwardTrigger::TRIGGER_NAME);
     }
 
-    public function test_update_BackwardTrigger_isExecutedIfMigrationIsActive(): void
+    public function testUpdateBackwardTriggerIsExecutedIfMigrationIsActive(): void
     {
         $connection = $this->getContainer()->get(Connection::class);
         $connection->executeUpdate('SET @MIGRATION_2_IS_ACTIVE = TRUE');

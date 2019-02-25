@@ -11,10 +11,6 @@ class PrefixFilesystem extends AbstractFilesystem
      */
     private $prefix;
 
-    /**
-     * @param FilesystemInterface $filesystem
-     * @param string              $prefix
-     */
     public function __construct(FilesystemInterface $filesystem, string $prefix)
     {
         parent::__construct($filesystem);
@@ -46,11 +42,6 @@ class PrefixFilesystem extends AbstractFilesystem
         return $this->prefix . $path;
     }
 
-    /**
-     * @param string $prefix
-     *
-     * @return string
-     */
     private function normalizePrefix(string $prefix): string
     {
         return trim($prefix, '/') . '/';

@@ -138,7 +138,7 @@ class SnippetService implements SnippetServiceInterface
         foreach ($snippetFiles as $files) {
             foreach ($this->getSnippetsFromFiles($files, '') as $namespace => $value) {
                 $region = explode('.', $namespace)[0];
-                if (in_array($region, $result)) {
+                if (in_array($region, $result, true)) {
                     continue;
                 }
 
@@ -148,7 +148,7 @@ class SnippetService implements SnippetServiceInterface
 
         foreach ($dbSnippets as $snippet) {
             $region = explode('.', $snippet->getTranslationKey())[0];
-            if (in_array($region, $result)) {
+            if (in_array($region, $result, true)) {
                 continue;
             }
 
@@ -168,14 +168,14 @@ class SnippetService implements SnippetServiceInterface
         $result = $this->snippetRepository->aggregate($criteria, $context)->getAggregations()->get('distinct_author')->getResult();
 
         foreach ($files as $file) {
-            if (in_array($file['author'], $authors)) {
+            if (in_array($file['author'], $authors, true)) {
                 continue;
             }
             $authors[] = $file['author'];
         }
 
         foreach ($result as $author) {
-            if (in_array($author, $authors)) {
+            if (in_array($author, $authors, true)) {
                 continue;
             }
             $authors[] = $author;
@@ -362,7 +362,7 @@ class SnippetService implements SnippetServiceInterface
         $authors = [];
         foreach ($fileSnippets as $snippets) {
             foreach ($snippets['snippets'] as $snippet) {
-                if (in_array($snippet['author'], $authors)) {
+                if (in_array($snippet['author'], $authors, true)) {
                     continue;
                 }
 

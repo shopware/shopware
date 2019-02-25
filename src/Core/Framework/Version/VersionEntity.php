@@ -37,17 +37,11 @@ class VersionEntity extends Entity
         $this->commits = new VersionCommitCollection();
     }
 
-    /**
-     * @return VersionCommitCollection
-     */
     public function getCommits(): VersionCommitCollection
     {
         return $this->commits;
     }
 
-    /**
-     * @param VersionCommitCollection $commits
-     */
     public function setCommits(VersionCommitCollection $commits): void
     {
         $this->commits = $commits;

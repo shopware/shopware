@@ -16,10 +16,6 @@ class Match extends Struct
      */
     private $messages;
 
-    /**
-     * @param bool  $match
-     * @param array $messages
-     */
     public function __construct(bool $match, array $messages = [])
     {
         $this->match = $match;

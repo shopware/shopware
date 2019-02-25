@@ -194,14 +194,9 @@ class AccountService
     }
 
     /**
-     * @param InternalRequest $request
-     * @param CheckoutContext $context
-     *
      * @throws AddressNotFoundException
      * @throws CustomerNotLoggedInException
      * @throws InvalidUuidException
-     *
-     * @return string
      */
     public function saveAddress(InternalRequest $request, CheckoutContext $context): string
     {

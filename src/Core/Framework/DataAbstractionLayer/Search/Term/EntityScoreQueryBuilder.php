@@ -17,11 +17,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\SearchRanking;
 class EntityScoreQueryBuilder
 {
     /**
-     * @param SearchPattern $term
-     * @param string        $definition
-     * @param string        $root
-     * @param float         $multiplier
-     *
      * @return ScoreQuery[]
      */
     public function buildScoreQueries(SearchPattern $term, string $definition, string $root, float $multiplier = 1.0): array

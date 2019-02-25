@@ -69,7 +69,7 @@ class TreeIndexerTest extends TestCase
 
         $categories = $this->categoryRepository->search(new Criteria([$categoryA, $categoryB, $categoryC, $categoryD]), $this->context);
 
-        static::assertEquals(null, $categories->get($categoryA)->getPath());
+        static::assertNull($categories->get($categoryA)->getPath());
         static::assertEquals("|${categoryA}|", $categories->get($categoryB)->getPath());
         static::assertEquals("|${categoryA}|", $categories->get($categoryC)->getPath());
         static::assertEquals("|${categoryA}|${categoryC}|", $categories->get($categoryD)->getPath());
@@ -93,7 +93,7 @@ class TreeIndexerTest extends TestCase
 
         $categories = $this->categoryRepository->search(new Criteria([$categoryA, $categoryB, $categoryC, $categoryD]), $this->context);
 
-        static::assertEquals(null, $categories->get($categoryA)->getPath());
+        static::assertNull($categories->get($categoryA)->getPath());
         static::assertEquals("|${categoryA}|", $categories->get($categoryB)->getPath());
         static::assertEquals("|${categoryA}|", $categories->get($categoryC)->getPath());
         static::assertEquals("|${categoryA}|", $categories->get($categoryD)->getPath());
@@ -125,7 +125,7 @@ class TreeIndexerTest extends TestCase
             $this->context
         );
 
-        static::assertEquals(null, $categories->get($categoryA)->getPath());
+        static::assertNull($categories->get($categoryA)->getPath());
         static::assertEquals("|${categoryA}|", $categories->get($categoryB)->getPath());
         static::assertEquals("|${categoryA}|${categoryB}|", $categories->get($categoryC)->getPath());
         static::assertEquals("|${categoryA}|", $categories->get($categoryD)->getPath());
@@ -164,7 +164,7 @@ class TreeIndexerTest extends TestCase
             $this->context
         );
 
-        static::assertEquals(null, $categories->get($categoryA)->getPath());
+        static::assertNull($categories->get($categoryA)->getPath());
         static::assertEquals("|${categoryA}|", $categories->get($categoryB)->getPath());
         static::assertEquals("|${categoryA}|", $categories->get($categoryC)->getPath());
         static::assertEquals("|${categoryA}|${categoryC}|", $categories->get($categoryD)->getPath());
@@ -194,7 +194,7 @@ class TreeIndexerTest extends TestCase
 
         $categories = $this->categoryRepository->search(new Criteria([$categoryA, $categoryB, $categoryC, $categoryD]), $this->context);
 
-        static::assertEquals(null, $categories->get($categoryA)->getPath());
+        static::assertNull($categories->get($categoryA)->getPath());
         static::assertEquals("|${categoryA}|", $categories->get($categoryB)->getPath());
         static::assertEquals("|${categoryA}|", $categories->get($categoryC)->getPath());
         static::assertEquals("|${categoryA}|${categoryC}|", $categories->get($categoryD)->getPath());
@@ -274,7 +274,7 @@ class TreeIndexerTest extends TestCase
 
         $categories = $this->categoryRepository->search(new Criteria([$categoryA, $categoryB, $categoryC, $categoryD]), $this->context);
 
-        static::assertEquals(null, $categories->get($categoryA)->getPath());
+        static::assertNull($categories->get($categoryA)->getPath());
         static::assertEquals("|${categoryA}|", $categories->get($categoryB)->getPath());
         static::assertEquals("|${categoryA}|", $categories->get($categoryC)->getPath());
         static::assertEquals("|${categoryA}|${categoryC}|", $categories->get($categoryD)->getPath());

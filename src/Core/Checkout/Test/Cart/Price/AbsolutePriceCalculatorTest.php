@@ -23,10 +23,6 @@ class AbsolutePriceCalculatorTest extends TestCase
 {
     /**
      * @dataProvider calculateAbsolutePriceOfGrossPricesProvider
-     *
-     * @param float           $price
-     * @param CalculatedPrice $expected
-     * @param PriceCollection $prices
      */
     public function testCalculateAbsolutePriceOfGrossPrices(
         float $price,

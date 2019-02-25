@@ -58,9 +58,6 @@ class TemplateDataExtension extends Twig_Extension implements Twig_Extension_Glo
         ];
     }
 
-    /**
-     * @return array
-     */
     protected function getThemeConfig(): array
     {
         $themeConfig = [];

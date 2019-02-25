@@ -173,9 +173,6 @@ class JsonApiDecoder implements DecoderInterface
         return $collection;
     }
 
-    /**
-     * @param mixed $resource
-     */
     private function validateResourceIdentifier($resource): void
     {
         if (\is_array($resource) && array_key_exists('type', $resource) && array_key_exists('id', $resource)) {

@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Checkout\Test\Document\DocumentType;
 
-use Exception;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartBehaviorContext;
@@ -75,12 +74,6 @@ class InvoiceServiceTest extends TestCase
         $order = $this->getOrderById($orderId);
 
         $documentContext = new DocumentContext();
-        /**
-         * Vorschlag: $d = DocumentContextFactory::create() // default values
-         * $d = documentService->decorate($d)
-         * $d = myAwesomeService->decorate($d)
-         */
-
         $context = Context::createDefaultContext();
 
         $processedTemplate = $invoiceService->generateFromTemplate(
@@ -98,7 +91,7 @@ class InvoiceServiceTest extends TestCase
      * @throws InvalidPayloadException
      * @throws InvalidQuantityException
      * @throws MixedLineItemTypeException
-     * @throws Exception
+     * @throws \Exception
      */
     private function generateDemoCart(int $lineItemCount): Cart
     {
@@ -141,7 +134,7 @@ class InvoiceServiceTest extends TestCase
         $orderIds = $events->getEventByDefinition(OrderDefinition::class)->getIds();
 
         if (count($orderIds) !== 1) {
-            self::fail('Order could not be persisted');
+            static::fail('Order could not be persisted');
         }
 
         return $orderIds[0];
@@ -213,8 +206,6 @@ class InvoiceServiceTest extends TestCase
     }
 
     /**
-     * @param string $orderId
-     *
      * @throws InconsistentCriteriaIdsException
      *
      * @return mixed|null
@@ -225,7 +216,7 @@ class InvoiceServiceTest extends TestCase
             ->addAssociation('lineItems')
             ->addAssociation('transactions');
         $order = $this->getContainer()->get('order.repository')->search($criteria, $this->context)->get($orderId);
-        self::assertNotNull($orderId);
+        static::assertNotNull($orderId);
 
         return $order;
     }

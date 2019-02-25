@@ -1,8 +1,7 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Checkout\Test\Document\DocumentType;
+namespace Shopware\Core\Checkout\Test\Document;
 
-use Exception;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartBehaviorContext;
@@ -21,19 +20,20 @@ use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Context\CheckoutContextFactory;
 use Shopware\Core\Checkout\Context\CheckoutContextService;
-use Shopware\Core\Checkout\Document\DocumentContext;
-use Shopware\Core\Checkout\Document\DocumentType\DeliveryNoteService;
-use Shopware\Core\Checkout\Document\Generator\PdfGenerator;
+use Shopware\Core\Checkout\Document\DocumentConfiguration;
+use Shopware\Core\Checkout\Document\DocumentEntity;
+use Shopware\Core\Checkout\Document\DocumentGenerator\DocumentTypes;
+use Shopware\Core\Checkout\Document\DocumentService;
+use Shopware\Core\Checkout\Document\FileGenerator\FileTypes;
 use Shopware\Core\Checkout\Order\OrderDefinition;
-use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
+use Smalot\PdfParser\Parser;
 
-class DeliveryNoteServiceTest extends TestCase
+class DocumentServiceTest extends TestCase
 {
     use KernelTestBehaviour;
 
@@ -66,36 +66,108 @@ class DeliveryNoteServiceTest extends TestCase
         );
     }
 
-    public function testGenerateFromTemplate()
+    public function testCreateDeliveryNotePdf(): void
     {
-        $deliveryNoteService = $this->getContainer()->get(DeliveryNoteService::class);
-        $pdfGenerator = $this->getContainer()->get(PdfGenerator::class);
+        $documentService = $this->getContainer()->get(DocumentService::class);
 
         $cart = $this->generateDemoCart(75);
         $orderId = $this->persistCart($cart);
-        /** @var OrderEntity $order */
-        $order = $this->getOrderById($orderId);
 
-        $documentContext = new DocumentContext();
-        $documentContext->setDisplayPrices(false);
-        $context = Context::createDefaultContext();
-
-        $processedTemplate = $deliveryNoteService->generateFromTemplate(
-            $order,
-            $documentContext,
-            $context
+        $documentId = $documentService->create(
+            $orderId,
+            DocumentTypes::DELIVERY_NOTE,
+            FileTypes::PDF,
+            new DocumentConfiguration(),
+            $this->context
         );
 
-        file_put_contents('/app/src/test_delivery.html', $processedTemplate);
+        static::assertTrue(Uuid::isValid($documentId));
 
-        file_put_contents('/app/src/test2_test_delivery.pdf', $pdfGenerator->generateAsString($processedTemplate));
+        $documentRepository = $this->getContainer()->get('document.repository');
+        /** @var DocumentEntity $document */
+        $document = $documentRepository->search(new Criteria([$documentId]), $this->context)->get($documentId);
+
+        static::assertNotNull($document);
+        static::assertSame($orderId, $document->getOrderId());
+        static::assertNotSame(Defaults::LIVE_VERSION, $document->getOrderVersionId());
+        static::assertSame(DocumentTypes::DELIVERY_NOTE, $document->getType());
+        static::assertSame(FileTypes::PDF, $document->getFileType());
+    }
+
+    public function testGetDeliveryNotePdfDocumentById(): void
+    {
+        $documentService = $this->getContainer()->get(DocumentService::class);
+
+        $cart = $this->generateDemoCart(75);
+        $orderId = $this->persistCart($cart);
+
+        $documentId = $documentService->create(
+            $orderId,
+            DocumentTypes::DELIVERY_NOTE,
+            FileTypes::PDF,
+            new DocumentConfiguration(),
+            $this->context
+        );
+
+        $document = $documentService->getDocumentById($documentId, $this->context);
+
+        $parser = new Parser();
+        @$parsedDocument = $parser->parseContent($document);
+
+        static::assertStringContainsString($cart->getLineItems()->first()->getLabel(), $parsedDocument->getText());
+    }
+
+    public function testGetInvoicePdfDocumentById(): void
+    {
+        $documentService = $this->getContainer()->get(DocumentService::class);
+
+        $cart = $this->generateDemoCart(75);
+        $orderId = $this->persistCart($cart);
+
+        $documentId = $documentService->create(
+            $orderId,
+            DocumentTypes::INVOICE,
+            FileTypes::PDF,
+            new DocumentConfiguration(),
+            $this->context
+        );
+
+        $document = $documentService->getDocumentById($documentId, $this->context);
+
+        file_put_contents('/tmp/test123.pdf', $document);
+
+        $parser = new Parser();
+        @$parsedDocument = $parser->parseContent($document);
+
+        static::assertStringContainsString($cart->getLineItems()->first()->getLabel(), $parsedDocument->getText());
+    }
+
+    public function testGetDeliveryNoteDocumentByOrder(): void
+    {
+        $documentService = $this->getContainer()->get(DocumentService::class);
+
+        $cart = $this->generateDemoCart(75);
+        $orderId = $this->persistCart($cart);
+
+        $document = $documentService->getDocumentByOrder(
+            $orderId,
+            DocumentTypes::DELIVERY_NOTE,
+            FileTypes::PDF,
+            new DocumentConfiguration(),
+            $this->context
+        );
+
+        $parser = new Parser();
+        @$parsedDocument = $parser->parseContent($document);
+
+        static::assertStringContainsString($cart->getLineItems()->first()->getLabel(), $parsedDocument->getText());
     }
 
     /**
      * @throws InvalidPayloadException
      * @throws InvalidQuantityException
      * @throws MixedLineItemTypeException
-     * @throws Exception
+     * @throws \Exception
      */
     private function generateDemoCart(int $lineItemCount): Cart
     {
@@ -115,8 +187,6 @@ class DeliveryNoteServiceTest extends TestCase
             $taxes = [7, 19, 22];
             $taxRate = $taxes[array_rand($taxes)];
             shuffle($keywords);
-            //$name = ucfirst(implode($keywords, ' ') . ' product');
-            //$name = str_repeat('A',$i+1);
             $name = str_repeat(ucfirst(implode($keywords, ' ') . ' product'), ($i % 4) + 1);
             $cart->add(
                 (new LineItem((string) $i, 'product_' . $i, $quantity))
@@ -208,24 +278,5 @@ class DeliveryNoteServiceTest extends TestCase
         $repository->create([$data], $this->context);
 
         return $shippingMethodId;
-    }
-
-    /**
-     * @param string $orderId
-     *
-     * @throws InconsistentCriteriaIdsException
-     *
-     * @return mixed|null
-     */
-    private function getOrderById(string $orderId)
-    {
-        $criteria = (new Criteria([$orderId]))
-            ->addAssociation('lineItems')
-            ->addAssociation('transactions')
-            ->addAssociation('deliveries');
-        $order = $this->getContainer()->get('order.repository')->search($criteria, $this->context)->get($orderId);
-        static::assertNotNull($orderId);
-
-        return $order;
     }
 }

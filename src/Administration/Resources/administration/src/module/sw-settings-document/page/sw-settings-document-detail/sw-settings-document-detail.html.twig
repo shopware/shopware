@@ -1,0 +1,96 @@
+{% block sw_settings_document_detail %}
+    <sw-page class="sw-settings-document-detail">
+
+        {% block sw_settings_document_detail_header %}
+            <template slot="smart-bar-header">
+                <h2 v-if="documentConfig.name">{{ documentConfig.name }}</h2>
+                <h2 v-else>{{ $tc('sw-settings-document.detail.textHeadline') }}</h2>
+            </template>
+        {% endblock %}
+
+        {% block sw_settings_document_detail_actions %}
+            <template slot="smart-bar-actions">
+                {% block sw_settings_document_detail_actions_abort %}
+                    <sw-button :disabled="documentConfig.isLoading" :routerLink="{ name: 'sw.settings.document.index' }">
+                        {{ $tc('sw-settings-document.detail.buttonCancel') }}
+                    </sw-button>
+                {% endblock %}
+
+                {% block sw_settings_document_detail_actions_save %}
+                    <sw-button class="sw-settings-document-detail__save-action" variant="primary" :disabled="documentConfig.isLoading" @click.prevent="onSave">
+                        {{ $tc('sw-settings-document.detail.buttonSave') }}
+                    </sw-button>
+                {% endblock %}
+            </template>
+        {% endblock %}
+
+        {% block sw_settings_document_detail_content %}
+            <sw-card-view slot="content">
+                {% block sw_settings_document_detail_content_card %}
+                    <sw-card :title="$tc('sw-settings-document.detail.configCard')">
+                        <sw-container columns="repeat(auto-fit, minmax(250px, 1fr)" gap="0px 30px">
+                            {% block sw_settings_document_detail_content_field_name %}
+                            <div class="sw-settings-document-detail__field_name">
+                                <sw-field type="text"
+                                          :label="$tc('sw-settings-document.detail.labelName')"
+                                          :placeholder="$tc('sw-settings-document.detail.placeholderName')"
+                                          validation="required"
+                                          v-model="documentConfig.name">
+                                </sw-field>
+                            </div>
+                            {% endblock %}
+                            {% block sw_configuration_option_list_grid_column_media %}
+                            <sw-grid-column dataIndex="mediaId" flex="250px" align="stretch" :label="$tc('sw-configuration.detail.labelOptionMedia')" class="media-column">
+                                <sw-media-field v-model="documentConfig.logoId">
+                                </sw-media-field>
+                            </sw-grid-column>
+                            {% endblock %}
+                            {% block sw_attribute_set_renderer_card_tabs_content %}
+                                    <template v-for="attribute in attributeSet.attributes">
+                                        {% block sw_attribute_set_renderer_card_form_renderer %}
+                                        <sw-form-field-renderer
+                                                v-bind="attribute"
+                                                v-model="documentConfig.config[attribute.name]">
+                                        </sw-form-field-renderer>
+                                        {% endblock %}
+                                    </template>
+
+                            {% endblock %}
+                        </sw-container>
+                    </sw-card>
+                {% endblock %}
+                {% block sw_settings_document_detail_assignment_card %}
+                    <sw-card :title="$tc('sw-settings-document.detail.assignmentCard')">
+                        <sw-container columns="repeat(auto-fit, minmax(100%, 1fr)" gap="0px 30px">
+                            {% block sw_document_detail_base_general_input_type %}
+                                <sw-select :store="documentTypeStore"
+                                           v-model="documentConfig.type.id"
+                                           v-if="documentConfig.type"
+                                           id="documentConfigTypes"
+                                           displayName="name"
+                                           :label="$tc('sw-settings-document.detail.labelType')"
+                                           class="sw-settings-document-detail__select-type"
+                                           :showSearch="false"
+                                           @input="onChangeType">
+                                </sw-select>
+                            {% endblock %}
+                            {% block sw_document_detail_base_general_input_sales_channel %}
+                                <sw-select :store="salesChannelStore"
+                                        multi
+                                        v-model="documentConfig.salesChannels"
+                                        :associationStore="salesChannelAssociationStore"
+                                        id="documentSalesChannel"
+                                        :label="$tc('sw-settings-document.detail.labelSalesChannel')"
+                                        class="sw-document-detail__select-type"
+                                        v-if="documentConfig.id"
+                                        :showSearch="false"
+                                        validation="required">
+                            </sw-select>
+                            {% endblock %}
+                        </sw-container>
+                    </sw-card>
+                {% endblock %}
+            </sw-card-view>
+        {% endblock %}
+    </sw-page>
+{% endblock %}

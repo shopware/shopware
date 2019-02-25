@@ -33,6 +33,11 @@ class CalculatedTax extends Struct
         return $this->tax;
     }
 
+    public function setTax(float $tax): void
+    {
+        $this->tax = $tax;
+    }
+
     public function getTaxRate(): float
     {
         return $this->taxRate;

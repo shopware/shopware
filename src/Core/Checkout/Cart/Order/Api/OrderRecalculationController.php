@@ -32,9 +32,8 @@ class OrderRecalculationController extends AbstractController
      */
     protected $recalculationService;
 
-    public function __construct(
-        RecalculationService $recalculationService
-    ) {
+    public function __construct(RecalculationService $recalculationService)
+    {
         $this->recalculationService = $recalculationService;
     }
 

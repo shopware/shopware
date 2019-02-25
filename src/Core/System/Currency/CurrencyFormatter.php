@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\System\Currency;
 
-use NumberFormatter;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
@@ -47,13 +46,13 @@ class CurrencyFormatter
         float $price,
         string $locale,
         string $currency,
-        int $format = NumberFormatter::CURRENCY,
+        int $format = \NumberFormatter::CURRENCY,
         ?string $pattern = null
     ): ?string {
         if ($pattern === null) {
-            $numberFormatter = new NumberFormatter($locale, $format);
+            $numberFormatter = new \NumberFormatter($locale, $format);
         } else {
-            $numberFormatter = new NumberFormatter($locale, $format, $pattern);
+            $numberFormatter = new \NumberFormatter($locale, $format, $pattern);
         }
 
         return $numberFormatter->formatCurrency($price, $currency);

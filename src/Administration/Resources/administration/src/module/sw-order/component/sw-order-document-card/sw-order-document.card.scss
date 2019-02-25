@@ -1,0 +1,8 @@
+@import "~scss/variables";
+
+$sw-label-color-text: $color-gutenberg;
+
+.sw-document-download-button {
+  text-decoration: none;
+  color: $sw-label-color-text;
+}

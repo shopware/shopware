@@ -214,6 +214,12 @@
             <tag name="twig.extension"/>
         </service>
 
+        <service id="Shopware\Core\Framework\Twig\Filter\CurrencyFilter">
+            <argument type="service" id="Shopware\Core\System\Currency\CurrencyFormatter"/>
+            <tag name="twig.extension"/>
+        </service>
+
+
         <service id="Shopware\Core\Framework\Twig\StringTemplateRenderer">
         </service>
 

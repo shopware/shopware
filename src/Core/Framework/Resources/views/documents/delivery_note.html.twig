@@ -7,11 +7,21 @@
 
 
 {% block document_title_tag %}
-    {% trans with {'deliveryNoteNumber': orderDelivery.id} %}document.deliveryNoteNumber{% endtrans %}
+    {% trans with {'%deliveryNoteNumber%': config.custom.deliveryNoteNumber, '%invoiceNumber%': config.custom.invoiceNumber} %}document.deliveryNoteHeadline{% endtrans %}
 {% endblock %}
 
 {% block document_headline %}
-    <h1>{% trans with {'%deliveryNoteNumber%': orderDelivery.id} %}document.deliveryNoteNumber{% endtrans %}</h1>
+    <h1>{% trans with {'%deliveryNoteNumber%': config.custom.deliveryNoteNumber, '%orderNumber%': order.orderNumber} %}document.deliveryNoteHeadline{% endtrans %}</h1>
+{% endblock %}
+
+{% block document_side_info %}
+    <table>
+        <tr><td>{% trans with {'%customerNumber%': customer.customerNumber} %}document.customerNumber{% endtrans %}</td></tr>
+        <tr><td>{% trans with {'%orderNumber%': order.orderNumber | truncate(10)} %}document.orderNumber{% endtrans %}</td></tr>
+        <tr><td>{% trans with {'%date%': document.custom.deliveryNoteDate|date('d.m.Y')} %}document.date{% endtrans %}</td></tr>
+        <tr><td>{% trans with {'%orderDate%': order.date|date('d.m.Y')} %}document.orderDate{% endtrans %}</td></tr>
+        <tr><td>{% trans with {'%deliveryDate%': document.custom.deliveryDate|date('d.m.Y')} %}document.deliveryDate{% endtrans %}</td></tr>
+    </table><br/>
 {% endblock %}
 
 {% block document_sum %}

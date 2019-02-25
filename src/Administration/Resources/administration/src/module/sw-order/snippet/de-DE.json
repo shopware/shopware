@@ -112,6 +112,31 @@
       "headlineErrorStateChange":"Fehler",
       "labelErrorStateChange":"Beim setzen des Status ist ein Fehler aufgetreten. Zusätzliche Informationen:",
       "labelErrorNoAction":"Kein neuer Zustand gewählt."
+    },
+    "documentCard": {
+      "searchBarPlaceholder": "Suche nach Belegen",
+      "cardTitle": "Belege",
+      "labelDate": "Datum",
+      "labelNumber": "Nummer",
+      "labelType": "Typ",
+      "labelSent": "Gesendet",
+      "labelAmount": "Betrag",
+      "labelDownloadPdf": "Als PDF herunterladen"
+    },
+    "documentModal": {
+      "labelDocumentDate": "Datum",
+      "labelDeliveryDate": "Lieferdatum",
+      "labelDocumentNumber": "Nummer",
+      "labelDocumentStornoNumber": "Stornonummer",
+      "labelInvoiceNumber": "Rechnungsnummer",
+      "selectInvoiceNumber": "Rechnungsnummer wählen",
+      "labelDeliveryNoteNumber": "Lieferscheinnummer",
+      "labelDocumentComment": "Kommentar",
+      "labelCreateDownloadPdf": "Erstellen und als PDF herunterladen",
+      "labelCreateSend": "Beleg erstellen und senden",
+      "labelCreate": "Beleg erstellen",
+      "labelCancel": "Schließen",
+      "labelPreview": "Vorschau"
     }
   }
 }

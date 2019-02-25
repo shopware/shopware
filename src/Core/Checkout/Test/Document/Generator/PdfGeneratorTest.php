@@ -17,6 +17,6 @@ class PdfGeneratorTest extends TestCase
         $start = microtime(true);
         file_put_contents('/tmp/test.pdf', $pdfGenerator->generate($template));
         $total = microtime(true) - $start;
-        print(sprintf('Execution of "" took %f', $total));
+        echo sprintf('Execution of "" took %f', $total);
     }
 }

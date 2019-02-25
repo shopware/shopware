@@ -6,7 +6,6 @@ use Shopware\Core\Framework\Struct\Struct;
 
 class DocumentContext extends Struct
 {
-
     /**
      * @var bool
      */
@@ -55,6 +54,7 @@ class DocumentContext extends Struct
     public function setDisplayPrices(bool $displayPrices): DocumentContext
     {
         $this->displayPrices = $displayPrices;
+
         return $this;
     }
 
@@ -66,6 +66,7 @@ class DocumentContext extends Struct
     public function setLogoPath(?string $logoPath): DocumentContext
     {
         $this->logoPath = $logoPath;
+
         return $this;
     }
 
@@ -77,6 +78,7 @@ class DocumentContext extends Struct
     public function setDisplayFooter(bool $displayFooter): DocumentContext
     {
         $this->displayFooter = $displayFooter;
+
         return $this;
     }
 
@@ -88,6 +90,7 @@ class DocumentContext extends Struct
     public function setDisplayHeader(bool $displayHeader): DocumentContext
     {
         $this->displayHeader = $displayHeader;
+
         return $this;
     }
 
@@ -99,6 +102,7 @@ class DocumentContext extends Struct
     public function setDisplayLineItems(bool $displayLineItems): DocumentContext
     {
         $this->displayLineItems = $displayLineItems;
+
         return $this;
     }
 
@@ -110,10 +114,9 @@ class DocumentContext extends Struct
     public function setDisplayLineItemPosition(bool $displayLineItemPosition): DocumentContext
     {
         $this->displayLineItemPosition = $displayLineItemPosition;
+
         return $this;
     }
-
-
 
     public function shouldDisplayPageCount(): bool
     {
@@ -123,6 +126,7 @@ class DocumentContext extends Struct
     public function setDisplayPageCount(bool $displayPageCount): DocumentContext
     {
         $this->displayPageCount = $displayPageCount;
+
         return $this;
     }
 
@@ -134,8 +138,7 @@ class DocumentContext extends Struct
     public function setTitle(?string $title): DocumentContext
     {
         $this->title = $title;
+
         return $this;
-
     }
-
 }

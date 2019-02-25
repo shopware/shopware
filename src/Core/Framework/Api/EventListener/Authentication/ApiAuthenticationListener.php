@@ -39,6 +39,8 @@ class ApiAuthenticationListener implements EventSubscriberInterface
         '/api/v1/_action/user/user-recovery',
         '/api/v1/_action/user/user-recovery/hash',
         '/api/v1/_action/user/user-recovery/password',
+        // todo create custom public listener?
+        '/api/v1/_action/document/',
     ];
 
     /**

@@ -42,7 +42,7 @@
             <sw-card :title="$tc('sw-order.detailBase.cardTitleLineItems')"
                 v-if="hasAssociations"
                 :isLoading="isLoading"
-                class = "sw-order-detail-base__line-item-grid-card">
+                class="sw-order-detail-base__line-item-grid-card">
                 {% block sw_order_detail_base_line_items_card_rows %}
                     <sw-container isLoading="isLoading"
                             slot="grid"
@@ -127,7 +127,13 @@
                 :delivery="currentOrder.deliveries[0]">
             </sw-order-delivery-metadata>
         {% endblock %}
-
+        {% block sw_order_detail_base_document_grid %}
+            <sw-order-document-card v-if="hasAssociations && next1046"
+                                    class="sw-order-detail-base__document-grid"
+                                    :order="currentOrder"
+                                    :isLoading="isLoading">
+            </sw-order-document-card>
+        {% endblock %}
         {% block sw_order_detail_attribute_sets %}
             <sw-card :title="$tc('sw-settings-attribute.general.mainMenuItemGeneral')"
                      v-if="next754 && attributeSets.length > 0"

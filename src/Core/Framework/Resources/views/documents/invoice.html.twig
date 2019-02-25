@@ -1,10 +1,7 @@
 {% sw_extends '@Shopware/documents/base.html.twig' %}
 
-{% block document_title_tag %}
-    {% trans with {'invoiceNumber': order.id} %}document.invoiceNumber{% endtrans %}
-{% endblock %}
+{% block document_title_tag %}{% trans with {'%invoiceNumber%': config.custom.invoiceNumber} %}document.invoiceHeadline{% endtrans %}{% endblock %}
 
 {% block document_headline %}
-    <h1>{% trans with {'%invoiceNumber%': order.id} %}document.invoiceNumber{% endtrans %}</h1>
+    <h1>{% trans with {'%invoiceNumber%': config.custom.invoiceNumber} %}document.invoiceHeadline{% endtrans %}</h1>
 {% endblock %}
-

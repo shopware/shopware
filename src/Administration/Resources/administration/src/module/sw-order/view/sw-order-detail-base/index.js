@@ -49,6 +49,9 @@ Component.register('sw-order-detail-base', {
         sortedCalculatedTaxes() {
             return this.sortByTaxRate(this.currentOrder.price.calculatedTaxes);
         },
+        documentStore() {
+            return this.currentOrder.getAssociation('documents');
+        },
         transactionOptionPlaceholder() {
             if (this.isLoading) return null;
 
@@ -124,7 +127,7 @@ Component.register('sw-order-detail-base', {
                 { page: 1, limit: 50, versionId: this.currentOrder.versionId }
             );
 
-            const delivieries = this.currentOrder.getAssociation('deliveries').getList(
+            const deliveries = this.currentOrder.getAssociation('deliveries').getList(
                 { page: 1, limit: 50, versionId: this.currentOrder.versionId }
             );
 
@@ -132,7 +135,11 @@ Component.register('sw-order-detail-base', {
                 { page: 1, limit: 50, versionId: this.currentOrder.versionId }
             );
 
-            return Promise.all([addresses, delivieries, transactions]).then(() => {
+            const documents = this.currentOrder.getAssociation('documents').getList(
+                { page: 1, limit: 50, versionId: this.currentOrder.versionId }
+            );
+
+            return Promise.all([addresses, deliveries, transactions, documents]).then(() => {
                 this.isLoading = false;
                 this.hasAssociations = true;
                 return Promise.resolve();

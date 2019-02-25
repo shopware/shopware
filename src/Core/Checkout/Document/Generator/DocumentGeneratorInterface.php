@@ -7,5 +7,4 @@ interface DocumentGeneratorInterface
     public function generateAsString(string $html): string;
 
     public function generateAsStream(string $html): void;
-
 }

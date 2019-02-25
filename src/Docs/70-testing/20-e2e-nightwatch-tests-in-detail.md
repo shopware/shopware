@@ -26,6 +26,7 @@ e2e
 │   ├── administration // repo for administration-based tests
 │   │   ├── custom-commands
 │   │   ├── page-objects
+│   │   │   └── module
 │   │   ├── specs // Files which contain the actual test suites
 │   │   │   ├── admin-menu
 │   │   │   ├── customer
@@ -213,9 +214,8 @@ commands we created until now. For further information about how to write those 
 | fillGlobalSearchField   | (value, clearField = false)        |Uses the global search input field in the Administration for finding a product or other entity.|
 | fillSelectField   | (selector, value)        | Finds a form field in the Administration using the provided label. The method uses a CSS selector to find the element on the page, clears the value (if configured) and sets the provided value in the field. |
 | fillSwSelectComponent   | (value, clearField = false)        |Uses the global search input field in the Administration for finding a product or other entity.|
-| openMainMenuEntry   | (mainMenuPath, menuTitle, subMenuItemPath = null, subMenuTitle = null)       | Finds and opens a main menu entry in the Shopware Administration menu. It is possible to provide a sub menu item name to open sub menu entries.|
+| openMainMenuEntry   | (openMainMenuEntryOptions)       | Finds and opens a main menu entry in the Shopware Administration menu. It is possible to provide a sub menu item name to open sub menu entries.|
 | tickCheckbox   | (selector, value)        | Finds a form field in the Administration using the provided selector. The method uses that selector to find the element on the page and ticks it. |
-| waitForText   | (text, exactMatch = false, timeout = 5000)        | Tries to find an element with the provided text. When the element isn't present in the defined timeout, an error will be triggered. |
 
 ## Page Objects
 
@@ -235,7 +235,6 @@ class OurOwnPageObject {
         // Definition of elements which can be found in the module often
         this.elements = {
             columnName = 'sw-product-list__column-product-name'
-        };
         };
     }
 
@@ -322,7 +321,7 @@ In the `common/helper/`-folder, a service called `cliOutputHelper.js`can be foun
 set customised log entries in your tests. By now, you can use following log messages:
 
 ```javascript
-global.logger.title('Title'); // ### title
+global.logger.title('Title'); // ### Title
 global.logger.success('It was successful!'); // • ✓ It was successful!
 global.logger.error('Oops, something went wrong.'); // • ✖ Oops, something went wrong.
 global.logger.log('Some boring information'); // Some boring information

@@ -17,7 +17,7 @@ The test suite is independent from the administration and has its own `package.j
 suite needs to be installed as well:
 
 ```bash
-./psh.phar administration:e2e-install
+./psh.phar e2e:init
 ```
 
 ## Running tests
@@ -25,21 +25,21 @@ suite needs to be installed as well:
 After the installation of the dependencies, tests can be executed using PSH:
 
 ```bash
-./psh.phar administration:e2e
+./psh.phar e2e:run
 ```
 
 ### Additional parameters
 It's possible to add additional Nightwatch.js parameters using the PSH parameter `--NIGHTWATCH_PARAMS`. 
 
 ```bash
-./psh.phar administration:e2e --NIGHTWATCH_PARAMS="--tag sales-channel"
+./psh.phar e2e:run --NIGHTWATCH_PARAMS="--tag sales-channel"
 ```
 
 ### Run a different repo
 Running a different repository is as simple as providing an additional PSH parameter.
 
 ```bash
-./psh.phar administration:e2e --NIGHTWATCH_ENV="installer"
+./psh.phar e2e:run --NIGHTWATCH_ENV="installer"
 ```
 
 ## Structure
@@ -92,5 +92,8 @@ Nightwatch.js will be started in headless mode. If you want to watch what Nightw
 parameter `NIGHTWATCH_HEADLESS`:
 
 ```bash
-./psh.phar administration:e2e --NIGHTWATCH_HEADLESS="false"
+./psh.phar e2e:run --NIGHTWATCH_HEADLESS="false"
 ```
+
+## Further documentation
+You can find a detailed documentation about the E2E test suite in the official [Shopware docs](https://docs.shopware.com/en/shopware-platform-en/testing).

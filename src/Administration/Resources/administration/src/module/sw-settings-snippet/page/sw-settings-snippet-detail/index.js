@@ -1,4 +1,5 @@
 import { Component, State, Mixin } from 'src/core/shopware';
+import utils from 'src/core/service/util.service';
 import template from './sw-settings-snippet-detail.html.twig';
 
 Component.register('sw-settings-snippet-detail', {
@@ -51,7 +52,7 @@ Component.register('sw-settings-snippet-detail', {
             if (this.isInvalidKey) {
                 return this.$tc(
                     'sw-settings-snippet.detail.messageKeyExists',
-                    (this.translationKey !== null) + 1,
+                    (this.translationKey !== null && this.translationKey.trim().length > 0) + 1,
                     {
                         key: this.translationKey
                     }
@@ -74,7 +75,7 @@ Component.register('sw-settings-snippet-detail', {
             });
 
             if (!this.$route.params.key && !this.isCreate) {
-                this.onNewKeyRedirect();
+                this.onNewKeyRedirect(true);
             }
             this.translationKey = this.$route.params.key || '';
             this.snippetSetStore.getList({ sortBy: 'name', sortDirection: 'ASC' }).then((response) => {
@@ -162,7 +163,7 @@ Component.register('sw-settings-snippet-detail', {
             });
 
             Promise.all(responses).then(() => {
-                this.onNewKeyRedirect();
+                this.onNewKeyRedirect(true);
                 this.createNotificationSuccess({
                     title: this.$tc('sw-settings-snippet.detail.titleSaveSuccess'),
                     message: this.$tc(
@@ -185,44 +186,23 @@ Component.register('sw-settings-snippet-detail', {
             });
         },
 
-        onFocus() {
-            this.isSavable = false;
-        },
-
         onChange() {
             this.isSavable = false;
 
-            if (this.timeout) {
-                clearTimeout(this.timeout);
-            }
-
-            this.timeout = setTimeout(this.doChange, 500);
-        },
-
-        doChange() {
             if (!this.translationKey || this.translationKey.trim().length <= 0) {
                 this.isInvalidKey = true;
                 return;
             }
-
-            this.isSavable = this.isSaveable();
-            if (!this.isSavable) {
-                return;
-            }
-
-            this.translationKey = this.translationKey.trim();
-            this.translationKey = this.translationKey.charAt(0).toLowerCase() + this.translationKey.slice(1);
             this.isInvalidKey = false;
-            this.isLoading = true;
 
-            if (this.translationKey === this.$route.params.key) {
-                this.isLoading = false;
-                return;
-            }
+            this.doChange();
+        },
 
+        doChange: utils.debounce(function executeChange() {
+            this.isLoading = false;
             this.getCustomList().then((response) => {
                 if (!response.total || Object.keys(response.data)[0] === this.translationKeyOrigin) {
-                    this.onNewKeyRedirect();
+                    this.isSavable = this.isSaveable();
                     return;
                 }
 
@@ -231,15 +211,27 @@ Component.register('sw-settings-snippet-detail', {
             }).finally(() => {
                 this.isLoading = false;
             });
-        },
 
-        onNewKeyRedirect() {
+            if (!this.isSavable) {
+                return;
+            }
+
+            this.translationKey = this.translationKey.trim().toLowerCase();
+        }, 500),
+
+        onNewKeyRedirect(isNewOrigin = false) {
+            const params = {
+                key: this.translationKey
+            };
+
+            if (isNewOrigin) {
+                params.origin = this.translationKey;
+            }
+
             this.isCreate = false;
             this.$router.push({
                 name: 'sw.settings.snippet.detail',
-                params: {
-                    key: this.translationKey
-                },
+                params: params,
                 query: {
                     ids: this.queryIds,
                     page: this.page,
@@ -270,7 +262,7 @@ Component.register('sw-settings-snippet-detail', {
                     return;
                 }
 
-                if (this.translationKey !== this.translationKeyOrigin) {
+                if (this.translationKey.trim() !== this.translationKeyOrigin) {
                     count += 1;
                 }
 

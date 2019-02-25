@@ -1166,8 +1166,8 @@
       "textSnippetList": "Textbausteine von \"{setName}\" | Textbausteine",
       "titleDeleteSuccess": "Erfolg",
       "titleSaveError": "Fehler",
-      "resetErrorMessage": "Der Textbaustein \"{key}\" konnte nicht zurückgesetzt werden.",
-      "resetSuccessMessage": "Der Textbaustein \"{key}\" wurde erfolgreich auf \"{value}\" zurückgesetzt.",
+      "resetErrorMessage": "Der Textbaustein \"{key}\" konnte nicht zurückgesetzt werden. | Der Textbaustein \"{key}\" konnte nicht gelöscht werden.",
+      "resetSuccessMessage": "Der Textbaustein \"{key}\" wurde erfolgreich auf \"{value}\" zurückgesetzt. | Der Textbaustein \"{key}\" wurde gelöscht.",
       "titleSaveSuccess": "Erfolg",
       "titleSidebarCustomItems": "Eigene Textbausteine",
       "titleSidebarItemRefresh": "Aktualisieren"

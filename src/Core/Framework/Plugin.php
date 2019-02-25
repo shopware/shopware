@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Framework;
 
-use Shopware\Core\Framework\Event\ActionEventRegistry;
+use Shopware\Core\Framework\Event\BusinessEventRegistry;
 use Shopware\Core\Framework\Filesystem\PrefixFilesystem;
 use Shopware\Core\Framework\Plugin\Context\ActivateContext;
 use Shopware\Core\Framework\Plugin\Context\DeactivateContext;
@@ -107,7 +107,7 @@ abstract class Plugin extends Bundle
 
     private function registerEvents(ContainerBuilder $container): void
     {
-        $definition = $container->getDefinition(ActionEventRegistry::class);
+        $definition = $container->getDefinition(BusinessEventRegistry::class);
         $definition->addMethodCall('add', $this->getActionEvents());
     }
 

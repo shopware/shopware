@@ -3,12 +3,12 @@
 namespace Shopware\Core\Framework\Test\Event;
 
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Event\ActionEventInterface;
+use Shopware\Core\Framework\Event\BusinessEventInterface;
 use Symfony\Component\EventDispatcher\Event;
 
-class TestActionEvent extends Event implements ActionEventInterface
+class TestBusinessEvent extends Event implements BusinessEventInterface
 {
-    public const EVENT_NAME = 'test.action_event';
+    public const EVENT_NAME = 'test.business_event';
 
     /**
      * @var string

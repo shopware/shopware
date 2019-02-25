@@ -4,7 +4,7 @@ namespace Shopware\Core\Framework\Api\Controller;
 
 use Shopware\Core\Framework\Api\ApiDefinition\DefinitionService;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi3Generator;
-use Shopware\Core\Framework\Event\ActionEventRegistry;
+use Shopware\Core\Framework\Event\BusinessEventRegistry;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -24,11 +24,11 @@ class InfoController extends AbstractController
     private $params;
 
     /**
-     * @var ActionEventRegistry
+     * @var BusinessEventRegistry
      */
     private $actionEventRegistry;
 
-    public function __construct(DefinitionService $definitionService, ParameterBagInterface $params, ActionEventRegistry $actionEventRegistry)
+    public function __construct(DefinitionService $definitionService, ParameterBagInterface $params, BusinessEventRegistry $actionEventRegistry)
     {
         $this->definitionService = $definitionService;
         $this->params = $params;

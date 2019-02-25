@@ -6,11 +6,17 @@
 
     <services>
 
-        <service id="Shopware\Core\Framework\Event\ActionEventRegistry" public="true" />
+        <service id="Shopware\Core\Framework\Event\EventAction\EventActionDefinition">
+            <tag name="shopware.entity.definition" entity="event_action" />
+        </service>
+
+        <service id="Shopware\Core\Framework\Event\BusinessEventRegistry" public="true" />
 
         <!--Event Listener -->
-        <service id="Shopware\Core\Framework\Event\ActionEventDispatcher" decorates="event_dispatcher" decoration-priority="10">
-            <argument type="service" id="Shopware\Core\Framework\Event\ActionEventDispatcher.inner" />
+        <service id="Shopware\Core\Framework\Event\BusinessEventDispatcher" decorates="event_dispatcher" decoration-priority="10">
+            <argument type="service" id="Shopware\Core\Framework\Event\BusinessEventDispatcher.inner" />
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface" />
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface" />
         </service>
 
         <service id="Shopware\Core\Framework\Event\NestedEventDispatcher" decorates="event_dispatcher">

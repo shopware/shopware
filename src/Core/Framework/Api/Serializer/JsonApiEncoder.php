@@ -66,7 +66,7 @@ class JsonApiEncoder
 
         $self = $result->getBaseUrl() . '/' . $this->camelCaseToSnailCase($definition::getEntityName()) . '/' . $entity->getUniqueIdentifier();
 
-        $serialized = $this->createSerializedEntity($definition);
+        $serialized = clone $this->createSerializedEntity($definition);
         $serialized->addLink('self', $self);
         $serialized->merge($entity);
 

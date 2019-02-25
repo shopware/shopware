@@ -561,7 +561,7 @@
       "tabGeneral": "Allgemein",
       "tabAddresses": "Adressen",
       "titleSaveSuccess": "Erfolg",
-      "messageSaveSuccess": "Der Kunde {name} wurde erfolgreich gespeichert."
+      "messageSaveSuccess": "Der Kunde \"{name}\" wurde erfolgreich gespeichert."
     }
   },
   "sw-category": {
@@ -782,7 +782,7 @@
       "contextMenuDelete": "Löschen",
       "contextMenuDuplicate": "Duplizieren",
       "modalTitleDelete": "Hersteller löschen",
-      "textDeleteConfirm": "Bist Du sicher, dass Du den Hersteller {name} löschen möchtest?",
+      "textDeleteConfirm": "Bist Du sicher, dass Du den Hersteller \"{name}\" löschen möchtest?",
       "buttonCancel": "Abbrechen",
       "buttonDelete": "Löschen",
       "titleSidebarItemRefresh": "Aktualisieren"
@@ -800,7 +800,7 @@
       "placeholderDescription": "Gib eine Herstellerbeschreibung ein...",
       "placeholderLink": "Gib die Herstellerwebseite ein...",
       "titleSaveSuccess": "Erfolg",
-      "messageSaveSuccess": "Der Hersteller {name} wurde erfolgreich gespeichert.",
+      "messageSaveSuccess": "Der Hersteller \"{name}\" wurde erfolgreich gespeichert.",
       "labelLogo": "Logo",
       "labelUseAsLogo": "Als Logo nutzen"
     }
@@ -934,7 +934,7 @@
     },
     "detail": {
       "titleSaveSuccess": "Erfolg",
-      "messageSaveSuccess": "Der Verkaufskanal {name} wurde erfolgreich gespeichert.",
+      "messageSaveSuccess": "Der Verkaufskanal \"{name}\" wurde erfolgreich gespeichert.",
       "buttonSave": "Speichern",
       "buttonCreateNewApiKeys": "API Zugangsdaten neu generieren",
       "tabBase": "Allgemein",
@@ -1074,7 +1074,7 @@
     },
     "list": {
       "textHeadline": "Währungen",
-      "textDeleteConfirm": "Bist Du sicher, dass Du die Währung {name} löschen möchtest?",
+      "textDeleteConfirm": "Bist Du sicher, dass Du die Währung \"{name}\" löschen möchtest?",
       "columnName": "Name",
       "columnShortName": "Kurzname",
       "columnSymbol": "Symbol",
@@ -1083,7 +1083,7 @@
       "contextMenuEdit": "Bearbeiten",
       "modalTitleDelete": "Währung löschen",
       "titleDeleteSuccess": "Erfolg",
-      "messageDeleteSuccess": "Die Währung {name} wurde erfolgreich gelöscht.",
+      "messageDeleteSuccess": "Die Währung \"{name}\" wurde erfolgreich gelöscht.",
       "buttonCancel": "Abbrechen",
       "buttonDelete": "Löschen"
     },
@@ -1091,7 +1091,7 @@
       "textHeadline": "Neue Währung",
       "titleCard": "Einstellungen",
       "titleSaveSuccess": "Erfolg",
-      "messageSaveSuccess": "Die Währung {name} wurde erfolgreich gespeichert.",
+      "messageSaveSuccess": "Die Währung \"{name}\" wurde erfolgreich gespeichert.",
       "labelName": "Name",
       "labelShortName": "Kurzname",
       "labelSymbol": "Symbol",
@@ -1258,14 +1258,14 @@
     },
     "list": {
       "textHeadline": "Steuern",
-      "textDeleteConfirm": "Bist Du sicher, dass Du die Steuer {name} löschen möchtest?",
+      "textDeleteConfirm": "Bist Du sicher, dass Du die Steuer \"{name}\" löschen möchtest?",
       "columnName": "Name",
       "columnTaxRate": "Steuersatz",
       "buttonAddTax": "Steuer anlegen",
       "contextMenuEdit": "Bearbeiten",
       "modalTitleDelete": "Steuer löschen",
       "titleDeleteSuccess": "Erfolg",
-      "messageDeleteSuccess": "Die Steuer {name} wurde erfolgreich gelöscht.",
+      "messageDeleteSuccess": "Die Steuer \"{name}\" wurde erfolgreich gelöscht.",
       "buttonCancel": "Abbrechen",
       "buttonDelete": "Löschen"
     },
@@ -1273,7 +1273,7 @@
       "textHeadline": "Neue Steuer",
       "titleCard": "Einstellungen",
       "titleSaveSuccess": "Erfolg",
-      "messageSaveSuccess": "Die Steuer {name} wurde erfolgreich gespeichert.",
+      "messageSaveSuccess": "Die Steuer \"{name}\" wurde erfolgreich gespeichert.",
       "labelName": "Name",
       "labelTaxRate": "Steuersatz",
       "placeholderName": "Namen eingeben...",
@@ -1289,7 +1289,7 @@
     },
     "list": {
       "textHeadline": "Sprachen",
-      "textDeleteConfirm": "Bist Du sicher, dass Du die Sprache {name} löschen möchtest?",
+      "textDeleteConfirm": "Bist Du sicher, dass Du die Sprache \"{name}\" löschen möchtest?",
       "columnName": "Name",
       "columnLocaleName": "Lokalisierung",
       "columnIsoCode": "ISO-Code ",
@@ -1299,7 +1299,7 @@
       "contextMenuEdit": "Bearbeiten",
       "modalTitleDelete": "Sprache löschen",
       "titleDeleteSuccess": "Erfolg",
-      "messageDeleteSuccess": "Die Sprache {name} wurde erfolgreich gelöscht.",
+      "messageDeleteSuccess": "Die Sprache \"{name}\" wurde erfolgreich gelöscht.",
       "buttonCancel": "Abbrechen",
       "buttonDelete": "Löschen",
       "titleSidebarFilter": "Filter",
@@ -1311,7 +1311,7 @@
       "textHeadline": "Neue Sprache",
       "titleCard": "Einstellungen",
       "titleSaveSuccess": "Erfolg",
-      "messageSaveSuccess": "Die Sprache {name} wurde erfolgreich gespeichert.",
+      "messageSaveSuccess": "Die Sprache \"{name}\" wurde erfolgreich gespeichert.",
       "labelName": "Name",
       "labelLocale": "Lokalisierung",
       "labelParent": "Erben von",
@@ -1337,7 +1337,7 @@
     },
     "list": {
       "textHeadline": "Zahlungsarten",
-      "textDeleteConfirm": "Bist Du sicher, dass Du die Zahlungsart {name} löschen möchtest?",
+      "textDeleteConfirm": "Bist Du sicher, dass Du die Zahlungsart \"{name}\" löschen möchtest?",
       "columnName": "Name",
       "columnDescription": "Beschreibung",
       "columnActive": "Aktiv",
@@ -1345,7 +1345,7 @@
       "contextMenuEdit": "Bearbeiten",
       "modalTitleDelete": "Zahlungsart löschen",
       "titleDeleteSuccess": "Erfolg",
-      "messageDeleteSuccess": "Die Zahlungsart {name} wurde erfolgreich gelöscht.",
+      "messageDeleteSuccess": "Die Zahlungsart \"{name}\" wurde erfolgreich gelöscht.",
       "buttonCancel": "Abbrechen",
       "buttonDelete": "Löschen"
     },
@@ -1353,7 +1353,7 @@
       "textHeadline": "Neue Zahlungsart",
       "titleCard": "Einstellungen",
       "titleSaveSuccess": "Erfolg",
-      "messageSaveSuccess": "Die Zahlungsart {name} wurde erfolgreich gespeichert.",
+      "messageSaveSuccess": "Die Zahlungsart \"{name}\" wurde erfolgreich gespeichert.",
       "labelName": "Name",
       "labelTechnicalName": "Technischer Name",
       "labelActive": "Aktiv",
@@ -1375,7 +1375,7 @@
     },
     "list": {
       "textHeadline": "Versandarten",
-      "textDeleteConfirm": "Bist Du sicher, dass du die Versandart {name} löschen möchtest?",
+      "textDeleteConfirm": "Bist Du sicher, dass du die Versandart \"{name}\" löschen möchtest?",
       "columnName": "Name",
       "columnActive": "Aktiv",
       "columnShippingfree": "Versandkostenfrei",
@@ -1383,7 +1383,7 @@
       "contextMenuEdit": "Bearbeiten",
       "modalTitleDelete": "Versandart löschen",
       "titleDeleteSuccess": "Erfolg",
-      "messageDeleteSuccess": "Die Versandart {name} wurde erfolgreich gelöscht.",
+      "messageDeleteSuccess": "Die Versandart \"{name}\" wurde erfolgreich gelöscht.",
       "buttonCancel": "Abbrechen",
       "buttonDelete": "Löschen"
     },
@@ -1391,7 +1391,7 @@
       "textHeadline": "Neue Versandart",
       "titleCard": "Einstellungen",
       "titleSaveSuccess": "Erfolg",
-      "messageSaveSuccess": "Die Versandart {name} wurde erfolgreich gespeichert.",
+      "messageSaveSuccess": "Die Versandart \"{name}\" wurde erfolgreich gespeichert.",
       "labelName": "Name",
       "labelActive": "Aktiv",
       "labelBindShippingfree": "Versandkostenfrei",
@@ -1407,14 +1407,14 @@
     },
     "list": {
       "textHeadline": "Länder",
-      "textDeleteConfirm": "Bist Du sicher, dass Du dieses Land {name} löschen möchtest?",
+      "textDeleteConfirm": "Bist Du sicher, dass Du dieses Land \"{name}\" löschen möchtest?",
       "columnName": "Name",
       "columnActive": "Aktiv",
       "buttonAddCountry": "Land anlegen",
       "contextMenuEdit": "Bearbeiten",
       "modalTitleDelete": "Land löschen",
       "titleDeleteSuccess": "Erfolg",
-      "messageDeleteSuccess": "Das Land {name} wurde erfolgreich gelöscht.",
+      "messageDeleteSuccess": "Das Land \"{name}\" wurde erfolgreich gelöscht.",
       "buttonCancel": "Abbrechen",
       "buttonDelete": "Löschen"
     },
@@ -1422,7 +1422,7 @@
       "textHeadline": "Neues Land",
       "titleCard": "Einstellungen",
       "titleSaveSuccess": "Erfolg",
-      "messageSaveSuccess": "Das Land {name} wurde erfolgreich gespeichert.",
+      "messageSaveSuccess": "Das Land \"{name}\" wurde erfolgreich gespeichert.",
       "labelName": "Name",
       "labelActive": "Aktiv",
       "placeholderName": "Namen eingeben...",
@@ -1593,7 +1593,7 @@
     }
   },
   "sw-config-form-renderer": {
-    "placeholder": "Bitte {name} ausfüllen...",
+    "placeholder": "Bitte \"{name}\" ausfüllen...",
     "option": "Für die Sprache \"{locale}\" wurde kein Label gesetzt...",
     "configLoadErrorMessage": "Beim Laden der Konfiguration ist ein Fehler aufgetreten: | Beim Laden der Konfiguration sind Fehler aufgetreten:",
     "configLoadErrorTitle": "Fehler beim Laden der Konfiguration!"

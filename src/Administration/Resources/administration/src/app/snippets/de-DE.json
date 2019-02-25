@@ -215,6 +215,10 @@
         "failure": {
           "title": "Fehler",
           "message": "Fehler beim Hochladen."
+        },
+        "illegalFilename": {
+          "title": "Ungültiger Dateiname",
+          "message": "Der Dateiname \"{fileName}\" enthält ungültige Sonderzeichen."
         }
       },
       "caption": "Dateien zum Hochladen hierhin ziehen"

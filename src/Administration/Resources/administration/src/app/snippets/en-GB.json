@@ -215,6 +215,10 @@
         "failure": {
           "title": "Error",
           "message": "Error while uploading file."
+        },
+        "illegalFilename": {
+          "title": "Invalid Filename",
+          "message": "The filename \"{fileName}\" contains invalid characters."
         }
       },
       "caption": "Drag files here to upload them"

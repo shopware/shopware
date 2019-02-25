@@ -1,0 +1,14 @@
+{
+  "swag-attribute-type-radio": {
+    "labelOption": "Option {count}",
+    "labelLabel": "Label",
+    "labelDeleteOption": "Löschen",
+    "labelValue": "Value",
+    "buttonAddOption": "Option hinzufügen"
+  },
+  "sw-settings-attribute": {
+    "types": {
+      "swagRadio": "Radio-Auswahl"
+    }
+  }
+}

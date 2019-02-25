@@ -2250,12 +2250,10 @@ export interface NightwatchCustomCommands {
      * Usage:
      * ```
      * .openMainMenuEntry({
-     *          targetPath: '#/sw/settings/index',
-     *          targetTitle: 'Settings',
-     *          index: 6,
-     *          : '#/sw/settings/country/index',
-     *          subtargetTitle: 'Countries'
-     * });
+     *          targetPath: '#/sw/manufacturer/index',
+     *          mainMenuId: 'sw-product',
+     *          subMenuId: 'sw-manufacturer'
+     *      })
      * ```
      *
      * @param {Object} obj

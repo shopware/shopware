@@ -12,13 +12,9 @@ export default {
         item: {
             type: Object,
             required: true,
-            default: {}
-        },
-
-        active: {
-            type: Boolean,
-            required: false,
-            default: false
+            default() {
+                return {};
+            }
         },
 
         draggedItem: {
@@ -30,7 +26,8 @@ export default {
 
     data() {
         return {
-            opened: false,
+            opened: this.item.initialOpened,
+            active: this.item.active,
             selected: false,
             isLeaf: false,
             isLoading: false,
@@ -44,7 +41,17 @@ export default {
         };
     },
 
+    watch: {
+        activeElementId(newId) {
+            this.active = newId === this.item.id;
+        }
+    },
+
     computed: {
+        activeElementId() {
+            return this.$route.params.id || null;
+        },
+
         isDragging() {
             if (this.draggedItem === null) {
                 return false;
@@ -79,10 +86,20 @@ export default {
         this.updatedComponent();
     },
 
+    mounted() {
+        this.mountedComponent();
+    },
+
     methods: {
         updatedComponent() {
             if (this.item.children.length > 0) {
                 this.isLoading = false;
+            }
+        },
+
+        mountedComponent() {
+            if (this.item.active) {
+                this.$el.querySelector('.sw-tree-item.is--active input').focus();
             }
         },
 

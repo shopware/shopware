@@ -5,6 +5,7 @@
         :sortable="true"
         :searchable="false"
         :createFirstItem="addFirstCategory"
+        :openedTreeById="openedTreeById"
         @sw-tree-on-drag-end="onUpdatePositions"
         @getTreeItems="getChildren">
 
@@ -29,6 +30,8 @@
                     v-for="(item, index) in treeItems"
                     :key="item.id"
                     :item="item"
+                    :active="item.active"
+                    :ref="`treeItem.${item.id}`"
                     :sortable="true"
                     :draggedItem="draggedItem"
                     @itemChecked="checkItem">
@@ -52,7 +55,6 @@
                                 <template v-else>
                                     <router-link class="tree-link" :to="{ name: 'sw.category.detail', params: { id: item.id }}">
                                         <span class="sw-tree-item__label">{{ item.data.name || item.data.meta.viewData.name }}</span>
-                                        <span class="sw-tree-item__child-count" v-if="item.childCount > 0">{{ item.childCount }}</span>
                                     </router-link>
                                 </template>
                             {% endblock %}

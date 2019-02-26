@@ -1,0 +1,18 @@
+@import "~scss/variables";
+
+$sw-customer-detail-base-color-text: $color-gutenberg;
+
+.sw-customer-base-info {
+    color: $sw-customer-detail-base-color-text;
+    font-size: 14px;
+
+    .sw-customer-base-info-columns {
+        dt {
+            padding: 21px 4px 4px 4px;
+        }
+
+        dd {
+            padding: 4px;
+        }
+    }
+}

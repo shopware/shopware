@@ -13,6 +13,9 @@
       "textShopwareAdmin": "Shopware administration",
       "textProjectName": "Admin prototype"
     },
+    "sw-address": {
+        "edit": "Edit"
+    },
     "sw-field": {
       "notification": {
         "notificationCopySuccessTitle": "Success",
@@ -437,6 +440,14 @@
       "descriptionTextModule": "Manage customers here.",
       "placeholderSearchBar": "Search customers"
     },
+    "card": {
+      "placeholderSalutation": "Salutation",
+      "placeholderTitle": "Title",
+      "placeholderFirstName": "First name",
+      "placeholderLastName": "Last name",
+      "placeholderCompany": "Company",
+      "placeholderEmail": "Email"
+    },
     "list": {
       "textCustomers": "Customers",
       "textCustomersTotal": "No customer | One customer | {count} customers",
@@ -486,9 +497,11 @@
       "labelBirthday": "Date of birth",
       "labelLastLogin": "Last login",
       "labelLanguage": "Language",
-      "labelOrders": "Orders",
+      "labelOrders": "Order amount",
       "labelTurnover": "Turnover",
-      "labelPaymentFailures": "Payment failures",
+      "labelDefaultPayment": "Default payment method",
+      "labelActive": "Account status",
+      "contentActive": "Active | Inactive",
       "emptyTextLogin": "No login yet",
       "emptyTextBirthday": "No information"
     },
@@ -557,10 +570,13 @@
     "detail": {
       "buttonSave": "Save",
       "buttonCancel": "Cancel",
+      "buttonEdit": "Edit",
       "headlineNewCustomer": "New customer",
       "tabGeneral": "General",
       "tabAddresses": "Addresses",
+      "titleSaveError": "Error",
       "titleSaveSuccess": "Success",
+      "messageSaveError": "Customer could not be saved.",
       "messageSaveSuccess": "Customer \"{name}\" has been saved successfully."
     }
   },

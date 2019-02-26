@@ -13,6 +13,9 @@
       "textShopwareAdmin": "Shopware Administration",
       "textProjectName": "Admin Prototype"
     },
+    "sw-address": {
+        "edit": "Bearbeiten"
+    },
     "sw-field": {
       "notification": {
         "notificationCopySuccessTitle": "Erfolg",
@@ -437,6 +440,14 @@
       "descriptionTextModule": "Verwaltung von Kunden.",
       "placeholderSearchBar": "Durchsuchen aller Kunden"
     },
+    "card": {
+      "placeholderSalutation": "Anrede",
+      "placeholderTitle": "Titel",
+      "placeholderFirstName": "Vorname",
+      "placeholderLastName": "Nachname",
+      "placeholderCompany": "Firma",
+      "placeholderEmail": "E-Mail"
+    },
     "list": {
       "textCustomers": "Kunden",
       "textCustomersTotal": "Kein Kunde | Ein Kunde | {count} Kunden",
@@ -486,9 +497,11 @@
       "labelBirthday": "Geburtsdatum",
       "labelLastLogin": "Letzter Login",
       "labelLanguage": "Sprache",
-      "labelOrders": "Bestellungen",
+      "labelOrders": "Anzahl Bestellungen",
       "labelTurnover": "Umsatz",
-      "labelPaymentFailures": "Zahlungsausfälle",
+      "labelDefaultPayment": "Standardzahlungsart",
+      "labelActive": "Kontostatus",
+      "contentActive": "Aktiv | Inaktiv",
       "emptyTextLogin": "noch kein Login",
       "emptyTextBirthday": "keine Angabe"
     },
@@ -557,10 +570,13 @@
     "detail": {
       "buttonSave": "Speichern",
       "buttonCancel": "Abbrechen",
+      "buttonEdit": "Bearbeiten",
       "headlineNewCustomer": "Neuer Kunde",
       "tabGeneral": "Allgemein",
       "tabAddresses": "Adressen",
+      "titleSaveError": "Fehler",
       "titleSaveSuccess": "Erfolg",
+      "messageSaveError": "Der Kunde konnte nicht gespeichert werden.",
       "messageSaveSuccess": "Der Kunde \"{name}\" wurde erfolgreich gespeichert."
     }
   },

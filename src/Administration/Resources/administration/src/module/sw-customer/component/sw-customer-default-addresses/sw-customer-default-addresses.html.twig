@@ -5,7 +5,8 @@
             <sw-card-section v-if="customer.defaultShippingAddress.id" divider="right">
                 {% block sw_customer_default_addresses_shipping_postal %}
                     <sw-address :address="customer.defaultShippingAddress"
-                                :headline="$tc('sw-customer.detailBase.titleDefaultShippingAddress')">
+                                :headline="$tc('sw-customer.detailBase.titleDefaultShippingAddress')"
+                                :showEditButton="customerEditMode">
                     </sw-address>
                 {% endblock %}
             </sw-card-section>
@@ -15,7 +16,8 @@
             <sw-card-section v-if="customer.defaultBillingAddress.id">
                 {% block sw_customer_default_addresses_billing_postal %}
                     <sw-address :address="customer.defaultBillingAddress"
-                                :headline="$tc('sw-customer.detailBase.titleDefaultBillingAddress')">
+                                :headline="$tc('sw-customer.detailBase.titleDefaultBillingAddress')"
+                                :showEditButton="customerEditMode">
                     </sw-address>
                 {% endblock %}
             </sw-card-section>

@@ -5,6 +5,12 @@ import './sw-customer-detail-base.scss';
 Component.register('sw-customer-detail-base', {
     template,
 
+    data() {
+        return {
+            createMode: false
+        };
+    },
+
     props: {
         customer: {
             type: Object,
@@ -36,6 +42,13 @@ Component.register('sw-customer-detail-base', {
             }
         },
         paymentMethods: {
+            type: Array,
+            required: true,
+            default() {
+                return [];
+            }
+        },
+        languages: {
             type: Array,
             required: true,
             default() {

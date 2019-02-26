@@ -42,6 +42,18 @@ export default {
             required: false,
             default: false
         },
+        size: {
+            type: String,
+            required: false,
+            default: 'default',
+            validValues: ['default', 'small'],
+            validator(value) {
+                if (!value.length) {
+                    return true;
+                }
+                return ['default', 'small'].includes(value);
+            }
+        },
         errorMessage: {
             type: String,
             required: false,
@@ -197,9 +209,14 @@ export default {
             return `sw-field--${this.type}`;
         },
 
+        sizeFieldClass() {
+            return `sw-field--${this.size}`;
+        },
+
         fieldClasses() {
             return [
                 this.typeFieldClass,
+                this.sizeFieldClass,
                 {
                     'has--error': !!this.hasErrorCls,
                     'has--suffix': !!this.copyAble || !!this.containSuffix,

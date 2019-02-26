@@ -8,25 +8,31 @@
 
         {% block sw_customer_detail_actions %}
             <template slot="smart-bar-actions">
-                {% block sw_customer_detail_actions_cancel_editing %}
-                    <sw-button v-if="customerEditMode && !isCreateCustomer"
+                {% block sw_customer_detail_actions_edit %}
+                    <sw-button v-if="!customerEditMode && !createMode"
+                               variant="primary"
                                :disabled="customer.isLoading"
-                               @click.prevent="onDisableCustomerEditMode">
-                        {{ $tc('sw-customer.detail.buttonCancel') }}
+                               @click.prevent="onActivateCustomerEditMode">
+                        {{ $tc('sw-customer.detail.buttonEdit') }}
                     </sw-button>
                 {% endblock %}
 
-                {% block sw_customer_detail_actions_cancel %}
-                    <sw-button v-else :disabled="customer.isLoading" :routerLink="{ name: 'sw.customer.index' }">
-                        {{ $tc('sw-customer.detail.buttonCancel') }}
-                    </sw-button>
-                {% endblock %}
+                <span v-else>
+                    {% block sw_customer_detail_actions_cancel %}
+                        <sw-button :disabled="customer.isLoading" @click="onAbortButtonClick">
+                            {{ $tc('sw-customer.detail.buttonCancel') }}
+                        </sw-button>
+                    {% endblock %}
 
-                {% block sw_customer_detail_actions_save %}
-                    <sw-button variant="primary" :disabled="customer.isLoading" @click.prevent="onSave">
-                        {{ $tc('sw-customer.detail.buttonSave') }}
-                    </sw-button>
-                {% endblock %}
+                    {% block sw_customer_detail_actions_save %}
+                        <sw-button :disabled="customer.isLoading"
+                                   variant="primary"
+                                   @click.prevent="onSave"
+                                   @click="onAbortButtonClick">
+                            {{ $tc('sw-customer.detail.buttonSave') }}
+                        </sw-button>
+                    {% endblock %}
+                </span>
             </template>
         {% endblock %}
 
@@ -66,6 +72,7 @@
                                  :paymentMethods="paymentMethods"
                                  :countries="countries"
                                  :customerEditMode="customerEditMode"
+                                 :languages="languages"
                                  @activateCustomerEditMode="onActivateCustomerEditMode">
                     </router-view>
                 {% endblock %}

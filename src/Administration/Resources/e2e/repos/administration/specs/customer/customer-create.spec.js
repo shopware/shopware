@@ -48,6 +48,7 @@ module.exports = {
             .waitForElementNotPresent('.sw-field--address-countryId .sw-field__select-load-placeholder')
             .fillSelectField('select[name="sw-field--address-countryId"]', 'Germany');
     },
+    '@disabled': true,
     'save new customer and verify data': (browser) => {
         const page = customerPage(browser);
 

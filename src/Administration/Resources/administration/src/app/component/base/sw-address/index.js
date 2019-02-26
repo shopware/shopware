@@ -40,10 +40,17 @@ export default {
                 };
             }
         },
+
         headline: {
             type: String,
             required: false,
             default: ''
+        },
+
+        showEditButton: {
+            type: Boolean,
+            required: false,
+            default: false
         }
     },
 

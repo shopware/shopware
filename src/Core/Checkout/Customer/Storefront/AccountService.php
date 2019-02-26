@@ -334,6 +334,7 @@ class AccountService
         $data = [
             'id' => $customerId,
             'salesChannelId' => $context->getSalesChannel()->getId(),
+            'languageId' => $context->getContext()->getLanguageId(),
             'groupId' => $context->getCurrentCustomerGroup()->getId(),
             'defaultPaymentMethodId' => $context->getPaymentMethod()->getId(),
             'customerNumber' => '123',

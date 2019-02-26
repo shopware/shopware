@@ -1,0 +1,38 @@
+@import "~scss/variables";
+
+$sw-customer-color-mail-to-link: $color-shopware-blue;
+
+.sw-customer-card {
+
+    .sw-customer-card__metadata {
+        padding-top: 17px;
+    }
+
+    .sw-customer-card__metadata-customer-name {
+        font-weight: 600;
+        font-size: 18px;
+        margin-bottom: 1px;
+    }
+
+    .sw-customer-card__metadata-item {
+        margin-bottom: 8px;
+        font-size: 14px;
+
+        .sw-customer-card-email-link {
+            color: $sw-customer-color-mail-to-link;
+            text-decoration: none;
+        }
+    }
+
+    .sw-customer-card__actions {
+        padding-top: 10px;
+
+        .sw-button {
+            margin-right: 6px;
+
+            &:last-of-type {
+                margin-right: 0;
+            }
+        }
+    }
+}

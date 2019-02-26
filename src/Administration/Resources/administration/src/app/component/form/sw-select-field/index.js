@@ -8,7 +8,7 @@ import template from './sw-select-field.html.twig';
  * @component-example
  * <sw-select-field placeholder="placeholder goes here..." :label="label"
      v-model="model">
-     <slot">
+     <slot>
         <option v-for="operator in operators" :value="operator.id">
         {{ option.label }}
         </option>

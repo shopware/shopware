@@ -1,52 +1,166 @@
 {% block sw_customer_base_info %}
-    <sw-container class="sw-customer-base-info" columns="repeat(auto-fit, minmax(250px, 1fr)" gap="0px 30px">
+    <sw-container class="sw-customer-base-info" columns="repeat(auto-fit, minmax(250px, 1fr)" gap="0px 15px">
         {% block sw_customer_base_info_metadata %}
-            <sw-description-list>
-                {% block sw_customer_base_metadata_customer_number %}
-                    <dt>{{ $tc('sw-customer.baseInfo.labelCustomerNumber') }}</dt>
-                    <dd class="sw-customer-base__label-customer-number">{{ customer.customerNumber }}</dd>
-                {% endblock %}
+            {% block sw_customer_base_info_metadata_left %}
+                <div class="sw-customer-base-info-columns">
+                    {% block sw_customer_base_metadata_customer_group %}
+                        <sw-description-list>
+                            {% block sw_customer_base_metadata_customer_group_label %}
+                                <dt class="sw-customer-base-info__label">{{ $tc('sw-customer.baseInfo.labelCustomerGroup') }}</dt>
+                            {% endblock %}
 
-                {% block sw_customer_base_metadata_customer_group %}
-                    <dt>{{ $tc('sw-customer.baseInfo.labelCustomerGroup') }}</dt>
-                    <dd class="sw-customer-base__label-customer-group">{{ customer.group.name }}</dd>
-                {% endblock %}
+                            {% block sw_customer_base_metadata_customer_group_content %}
+                                <dd v-if="!customerEditMode">
+                                    {{ customer.group.name }}
+                                </dd>
+                            {% endblock %}
 
-                {% block sw_customer_base_metadata_birthday %}
-                    <dt>{{ $tc('sw-customer.baseInfo.labelBirthday') }}</dt>
-                    <dd>
-                        {{ customer.birthday ? customer.birthday : $tc('sw-customer.baseInfo.emptyTextBirthday') }}
-                    </dd>
-                {% endblock %}
+                            {% block sw_customer_base_metadata_customer_group_editor %}
+                                <dd v-else>
+                                    <sw-select-field v-model="customer.groupId" size="small">
+                                        <option v-for="group in customerGroups" :key="group.id" :value="group.id">
+                                            {{ group.name }}
+                                        </option>
+                                    </sw-select-field>
+                                </dd>
+                            {% endblock %}
+                        </sw-description-list>
+                    {% endblock %}
 
-                {% block sw_customer_base_metadata_last_login %}
-                    <dt>{{ $tc('sw-customer.baseInfo.labelLastLogin') }}</dt>
-                    <dd>
-                        {{ customer.lastLogin ? customer.lastLogin : $tc('sw-customer.baseInfo.emptyTextLogin') }}
-                    </dd>
-                {% endblock %}
-            </sw-description-list>
-            <sw-description-list>
-                {% block sw_customer_base_metadata_language %}
-                    <dt>{{ $tc('sw-customer.baseInfo.labelLanguage') }}</dt>
-                    <dd>Deutsch</dd>
-                {% endblock %}
+                    {% block sw_customer_base_metadata_default_payment %}
+                        <sw-description-list>
+                            {% block sw_customer_base_metadata_default_payment_label %}
+                                <dt class="sw-customer-base-info__label">{{ $tc('sw-customer.baseInfo.labelDefaultPayment') }}</dt>
+                            {% endblock %}
 
-                {% block sw_customer_base_metadata_orders %}
-                    <dt>{{ $tc('sw-customer.baseInfo.labelOrders') }}</dt>
-                    <dd>{{ customer.orderCustomers.length }}</dd>
-                {% endblock %}
+                            {% block sw_customer_base_metadata_default_payment_content %}
+                                <dd v-if="!customerEditMode">
+                                   {{ customer.defaultPaymentMethod.name }}
+                                </dd>
+                            {% endblock %}
 
-                {% block sw_customer_base_metadata_turnover %}
-                    <dt>{{ $tc('sw-customer.baseInfo.labelTurnover') }}</dt>
-                    <dd>0</dd>
-                {% endblock %}
+                            {% block sw_customer_base_metadata_default_payment_editor %}
+                                <dd v-else>
+                                    <sw-select-field v-model="customer.defaultPaymentMethodId" size="small">
+                                        <option v-for="method in paymentMethods" :value="method.id">
+                                            {{ method.name }}
+                                        </option>
+                                    </sw-select-field>
+                                </dd>
+                            {% endblock %}
+                        </sw-description-list>
+                    {% endblock %}
 
-                {% block sw_customer_base_metadata_payment_failures %}
-                    <dt>{{ $tc('sw-customer.baseInfo.labelPaymentFailures') }}</dt>
-                    <dd>0</dd>
-                {% endblock %}
-            </sw-description-list>
+                    {% block sw_customer_base_metadata_active %}
+                        <sw-description-list>
+                            {% block sw_customer_base_metadata_active_label %}
+                                <dt class="sw-customer-base-info__label">{{ $tc('sw-customer.baseInfo.labelActive') }}</dt>
+                            {% endblock %}
+
+                            {% block sw_customer_base_metadata_active_content %}
+                                <dd v-if="!customerEditMode">
+                                    {{ $tc('sw-customer.baseInfo.contentActive', customer.active) }}
+                                </dd>
+                            {% endblock %}
+
+                            {% block sw_customer_base_metadata_active_editor %}
+                                <dd v-else>
+                                    <sw-checkbox-field v-model="customer.active"
+                                                       class="sw-customer-base-info__checkbox-field"
+                                                       :label="$tc('sw-customer.baseInfo.contentActive', customer.active)"
+                                                       size="small">
+                                    </sw-checkbox-field>
+                                </dd>
+                            {% endblock %}
+                        </sw-description-list>
+                    {% endblock %}
+
+                    {% block sw_customer_base_metadata_language %}
+                        <sw-description-list>
+                            {% block sw_customer_base_metadata_language_label %}
+                                <dt class="sw-customer-base-info__label">{{ $tc('sw-customer.baseInfo.labelLanguage') }}</dt>
+                            {% endblock %}
+
+                            {% block sw_customer_base_metadata_language_content %}
+                                <dd v-if="!customerEditMode">
+                                    {{ customer.language.name }}
+                                </dd>
+                            {% endblock %}
+
+                            {% block sw_customer_base_metadata_language_editor %}
+                                <dd v-else>
+                                    <sw-select-field v-model="customer.languageId" size="small">
+                                        <option v-for="language in languages" :value="language.id">
+                                            {{ language.name }}
+                                        </option>
+                                    </sw-select-field>
+                                </dd>
+                            {% endblock %}
+                        </sw-description-list>
+                    {% endblock %}
+
+                    {% block sw_customer_base_metadata_birthday %}
+                        <sw-description-list>
+                            {% block sw_customer_base_metadata_birthday_label %}
+                                <dt class="sw-customer-base-info__label">{{ $tc('sw-customer.baseInfo.labelBirthday') }}</dt>
+                            {% endblock %}
+
+                            {% block sw_customer_base_metadata_birthday_content %}
+                                <dd v-if="!customerEditMode">
+                                    <template v-if="customer.birthday">
+                                        {{ customer.birthday | date }}
+                                    </template>
+                                    <template v-else>
+                                        {{ $tc('sw-customer.baseInfo.emptyTextBirthday') }}
+                                    </template>
+                                </dd>
+                            {% endblock %}
+
+                            {% block sw_custoemr_base_metadata_birthday_editor %}
+                                <dd v-else>
+                                    <sw-datepicker type="date" v-model="customer.birthday" slot="inline-edit" size="small"></sw-datepicker>
+                                </dd>
+                            {% endblock %}
+                        </sw-description-list>
+                    {% endblock %}
+                </div>
+            {% endblock %}
+
+            {% block sw_customer_base_info_metadata_right %}
+                <div class="sw-customer-base-info-columns">
+                    {% block sw_customer_base_metadata_customer_number %}
+                        <sw-description-list>
+                            <dt class="sw-customer-base-info__label">{{ $tc('sw-customer.baseInfo.labelCustomerNumber') }}</dt>
+                            <dd class="sw-customer-base__label-customer-number">
+                                {{ customer.customerNumber }}
+                            </dd>
+                        </sw-description-list>
+                    {% endblock %}
+
+                    {% block sw_customer_base_metadata_last_login %}
+                        <sw-description-list>
+                            <dt class="sw-customer-base-info__label">{{ $tc('sw-customer.baseInfo.labelLastLogin') }}</dt>
+                            <dd>
+                                {{ customer.lastLogin ? customer.lastLogin : $tc('sw-customer.baseInfo.emptyTextLogin') }}
+                            </dd>
+                        </sw-description-list>
+                    {% endblock %}
+
+                    {% block sw_customer_base_metadata_turnover %}
+                        <sw-description-list>
+                            <dt class="sw-customer-base-info__label">{{ $tc('sw-customer.baseInfo.labelTurnover') }}</dt>
+                            <dd>0</dd>
+                        </sw-description-list>
+                    {% endblock %}
+
+                    {% block sw_customer_base_metadata_orders %}
+                        <sw-description-list>
+                            <dt class="sw-customer-base-info__label">{{ $tc('sw-customer.baseInfo.labelOrders') }}</dt>
+                            <dd>{{ customer.orderCustomers.length }}</dd>
+                        </sw-description-list>
+                    {% endblock %}
+                </div>
+            {% endblock %}
         {% endblock %}
     </sw-container>
 {% endblock %}

@@ -75,7 +75,7 @@ Component.register('sw-settings-snippet-detail', {
             });
 
             if (!this.$route.params.key && !this.isCreate) {
-                this.onNewKeyRedirect(true);
+                this.onNewKeyRedirect();
             }
             this.translationKey = this.$route.params.key || '';
             this.snippetSetStore.getList({ sortBy: 'name', sortDirection: 'ASC' }).then((response) => {

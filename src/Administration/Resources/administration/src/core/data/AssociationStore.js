@@ -1,4 +1,5 @@
 import { types, string } from 'src/core/service/util.service';
+import { hasOwnProperty, deepCopyObject } from 'src/core/service/utils/object.utils';
 import EntityStore from './EntityStore';
 
 /**
@@ -112,5 +113,17 @@ export default class AssociationStore extends EntityStore {
             entity: `${this.parentEntity.getEntityName()}_${this.getEntityName()}`,
             payload: deletionPayload
         }];
+    }
+
+    add(entity) {
+        if (!hasOwnProperty(entity, 'id')) {
+            return false;
+        }
+
+        const newEntity = this.create(entity.id);
+        newEntity.setData(deepCopyObject(entity));
+        newEntity.isLocal = true;
+
+        return true;
     }
 }

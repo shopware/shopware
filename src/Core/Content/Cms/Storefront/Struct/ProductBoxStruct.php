@@ -2,10 +2,10 @@
 
 namespace Shopware\Core\Content\Cms\Storefront\Struct;
 
-use Shopware\Core\Content\Cms\Aggregate\CmsSlot\CmsSlotEntity;
 use Shopware\Core\Content\Product\Storefront\StorefrontProductEntity;
+use Shopware\Core\Framework\Struct\Struct;
 
-class ProductBoxStruct extends CmsSlotEntity
+class ProductBoxStruct extends Struct
 {
     /**
      * @var StorefrontProductEntity

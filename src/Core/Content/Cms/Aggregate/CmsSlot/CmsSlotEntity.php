@@ -6,6 +6,7 @@ use Shopware\Core\Content\Cms\Aggregate\CmsBlock\CmsBlockEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
+use Shopware\Core\Framework\Struct\Struct;
 
 class CmsSlotEntity extends Entity
 {
@@ -55,6 +56,11 @@ class CmsSlotEntity extends Entity
      * @var array|null
      */
     protected $attributes;
+
+    /**
+     * @var Struct|null
+     */
+    protected $data;
 
     public function getType(): string
     {
@@ -144,5 +150,15 @@ class CmsSlotEntity extends Entity
     public function setAttributes(?array $attributes): void
     {
         $this->attributes = $attributes;
+    }
+
+    public function getData(): ?Struct
+    {
+        return $this->data;
+    }
+
+    public function setData(Struct $data): void
+    {
+        $this->data = $data;
     }
 }

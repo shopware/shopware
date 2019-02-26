@@ -10,7 +10,7 @@ abstract class AbstractMessageHandler implements MessageSubscriberInterface
     /**
      * @throws MessageFailedException
      */
-    public function __invoke(object $message): void
+    public function __invoke($message): void
     {
         try {
             $this->handle($message);
@@ -21,7 +21,7 @@ abstract class AbstractMessageHandler implements MessageSubscriberInterface
         }
     }
 
-    abstract public function handle(object $message): void;
+    abstract public function handle($message): void;
 
     abstract public static function getHandledMessages(): iterable;
 }

@@ -24,7 +24,7 @@ abstract class ScheduledTaskHandler extends AbstractMessageHandler
     /**
      * @param ScheduledTaskInterface $task
      */
-    public function handle(object $task): void
+    public function handle($task): void
     {
         /** @var ScheduledTaskEntity|null $taskEntity */
         $taskEntity = $this->scheduledTaskRepository

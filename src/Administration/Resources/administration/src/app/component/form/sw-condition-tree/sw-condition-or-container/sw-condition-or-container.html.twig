@@ -4,7 +4,8 @@
             <div class="sw-condition-or-container__condition-content">
                 {% block sw_condition_container_children %}
                     <div v-for="(child, index) in sortedChildren"
-                         :key="index">
+                         :key="index"
+                         :class="'sw-condition-container__or-child--' + index">
                         {% block sw_condition_container_children_spacer %}
                             <div v-if="index"
                                  class="condition-content__spacer--or">

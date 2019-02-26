@@ -1,0 +1,9 @@
+.modal-backdrop {
+    > .spinner-border {
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        margin-left: -1rem;
+        margin-top: -1rem;
+    }
+}

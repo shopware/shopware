@@ -596,6 +596,7 @@
       "contextMenuEdit": "Bearbeiten",
       "contextMenuDelete": "Löschen",
       "messageEmpty": "Noch keine Integrationen vorhanden",
+      "sublineEmpty": "Das Modul für die Verwaltung von Integrationen.",
       "permissions": "Berechtigungen",
       "writeAccess": "Schreiben",
       "readAccess": "Lesen",

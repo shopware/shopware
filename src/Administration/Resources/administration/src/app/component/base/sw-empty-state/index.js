@@ -13,6 +13,11 @@ export default {
             type: String,
             default: '',
             required: true
+        },
+        subline: {
+            type: String,
+            default: '',
+            required: false
         }
     },
 
@@ -22,7 +27,7 @@ export default {
         },
 
         moduleDescription() {
-            return this.$route.meta.$module.description;
+            return this.subline || this.$route.meta.$module.description;
         },
 
         moduleIcon() {

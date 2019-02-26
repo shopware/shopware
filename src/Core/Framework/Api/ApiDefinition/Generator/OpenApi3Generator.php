@@ -100,7 +100,7 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
             ],
         ];
 
-        $elements = $this->registry->getElements();
+        $elements = $this->registry->getDefinitions();
 
         ksort($elements);
 
@@ -141,7 +141,7 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
     public function getSchema(): array
     {
         $schemaDefinitions = [];
-        $elements = $this->registry->getElements();
+        $elements = $this->registry->getDefinitions();
 
         ksort($elements);
 

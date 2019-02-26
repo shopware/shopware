@@ -36,7 +36,7 @@ class ApiRouteLoader extends Loader
         // '/{uuid}/{entity-name}' pairs followed by an optional slash
         $listSuffix = '(\/[0-9a-f]{32}\/[a-zA-Z-]+)*\/?$';
 
-        $elements = $this->definitionRegistry->getElements();
+        $elements = $this->definitionRegistry->getDefinitions();
         usort($elements, function ($a, $b) {
             /* @var string|EntityDefinition $a */
             /* @var string|EntityDefinition $b */

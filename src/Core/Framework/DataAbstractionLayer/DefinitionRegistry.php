@@ -3,6 +3,8 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\DefinitionNotFoundException;
+use Shopware\Core\Framework\DataAbstractionLayer\Exception\RepositoryNotFoundException;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Contains all registered entity definitions.
@@ -12,19 +14,27 @@ class DefinitionRegistry
     /**
      * @var string[]
      */
-    protected $elements = [];
-
-    public function __construct(array $elements)
-    {
-        $this->elements = $elements;
-    }
+    private $definitions = [];
 
     /**
-     * @param string|EntityDefinition $definition
+     * @var string[]
      */
-    public function add(string $definition): void
+    private $repositories = [];
+
+    /**
+     * @var ContainerInterface
+     */
+    private $container;
+
+    public function __construct(array $elements, ContainerInterface $container)
     {
-        $this->elements[$definition::getEntityName()] = $definition;
+        /** @var EntityDefinition|string $definition */
+        foreach ($elements as $definition => $repository) {
+            $this->definitions[$definition::getEntityName()] = $definition;
+            $this->repositories[$definition::getEntityName()] = $repository;
+        }
+
+        $this->container = $container;
     }
 
     /**
@@ -32,39 +42,32 @@ class DefinitionRegistry
      *
      * @return string|EntityDefinition
      */
-    public function get(string $entity): string
+    public function get(string $entityName): string
     {
-        if (isset($this->elements[$entity])) {
-            return $this->elements[$entity];
+        if (isset($this->definitions[$entityName])) {
+            return $this->definitions[$entityName];
         }
 
-        throw new DefinitionNotFoundException($entity);
+        throw new DefinitionNotFoundException($entityName);
     }
 
-    public function getByClass(string $class): ?string
+    public function getRepository(string $entityName): EntityRepositoryInterface
     {
-        foreach ($this->elements as $element) {
-            if ($element === $class) {
-                return $element;
-            }
+        if (isset($this->repositories[$entityName]) && $this->container->has($this->repositories[$entityName])) {
+            /** @var EntityRepositoryInterface $repository */
+            $repository = $this->container->get($this->repositories[$entityName]);
+
+            return $repository;
         }
 
-        return null;
-    }
-
-    /**
-     * @param string|EntityDefinition $definition
-     */
-    public function remove(string $definition): void
-    {
-        unset($this->elements[$definition::getEntityName()]);
+        throw new RepositoryNotFoundException($entityName);
     }
 
     /**
      * @return EntityDefinition[]|string[]
      */
-    public function getElements(): array
+    public function getDefinitions(): array
     {
-        return $this->elements;
+        return $this->definitions;
     }
 }

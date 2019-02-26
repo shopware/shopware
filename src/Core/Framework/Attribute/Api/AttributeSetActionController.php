@@ -27,7 +27,7 @@ class AttributeSetActionController extends AbstractController
      */
     public function getAvailableRelations(): JsonResponse
     {
-        $definitions = $this->definitionRegistry->getElements();
+        $definitions = $this->definitionRegistry->getDefinitions();
 
         $entityNames = [];
         /** @var string|EntityDefinition $definition */

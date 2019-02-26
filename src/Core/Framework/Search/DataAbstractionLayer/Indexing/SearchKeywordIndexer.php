@@ -11,7 +11,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelpe
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Indexing\IndexerInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
@@ -24,7 +23,6 @@ use Shopware\Core\Framework\Search\Util\SearchAnalyzerRegistry;
 use Shopware\Core\Framework\SourceContext;
 use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\System\Language\LanguageEntity;
-use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class SearchKeywordIndexer implements IndexerInterface
@@ -62,15 +60,14 @@ class SearchKeywordIndexer implements IndexerInterface
      * @var DefinitionRegistry
      */
     private $registry;
-
     /**
-     * @var ContainerInterface
+     * @var DefinitionRegistry
      */
-    private $container;
+    private $definitionRegistry;
 
     public function __construct(
         Connection $connection,
-        ContainerInterface $container,
+        DefinitionRegistry $definitionRegistry,
         DefinitionRegistry $registry,
         EventDispatcherInterface $eventDispatcher,
         SearchAnalyzerRegistry $analyzerRegistry,
@@ -82,8 +79,8 @@ class SearchKeywordIndexer implements IndexerInterface
         $this->analyzerRegistry = $analyzerRegistry;
         $this->indexTableOperator = $indexTableOperator;
         $this->languageRepository = $languageRepository;
-        $this->container = $container;
         $this->registry = $registry;
+        $this->definitionRegistry = $definitionRegistry;
     }
 
     public function index(\DateTime $timestamp): void
@@ -165,7 +162,7 @@ class SearchKeywordIndexer implements IndexerInterface
 
     private function indexContext(Context $context, \DateTime $timestamp): void
     {
-        foreach ($this->registry->getElements() as $definition) {
+        foreach ($this->registry->getDefinitions() as $definition) {
             /** @var string|EntityDefinition $definition */
             if (!$definition::useKeywordSearch()) {
                 continue;
@@ -226,8 +223,7 @@ class SearchKeywordIndexer implements IndexerInterface
     private function indexEntities(string $definition, Context $context, array $ids, string $table, string $documentTable): void
     {
         /** @var EntityDefinition $definition */
-        /** @var EntityRepository $repository */
-        $repository = $this->container->get($definition::getEntityName() . '.repository');
+        $repository = $this->definitionRegistry->getRepository($definition::getEntityName());
 
         $entities = $repository->search(new Criteria($ids), $context);
 

@@ -101,7 +101,7 @@
 
         <service id="Shopware\Core\Framework\Search\DataAbstractionLayer\Indexing\SearchKeywordIndexer">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
-            <argument type="service" id="service_container"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionRegistry"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionRegistry"/>
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\Framework\Search\Util\SearchAnalyzerRegistry"/>
@@ -123,6 +123,7 @@
         <!-- EntityDefinition[] -->
         <service id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionRegistry">
             <argument type="collection"/>
+            <argument type="service" id="service_container"/>
         </service>
 
         <service class="Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityReader" id="Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface">
@@ -318,7 +319,6 @@
 
         <service id="Shopware\Core\Framework\Command\DataAbstractionLayerValidateCommand">
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionValidator"/>
-            <argument type="service" id="service_container"/>
             <tag name="console.command"/>
         </service>
 

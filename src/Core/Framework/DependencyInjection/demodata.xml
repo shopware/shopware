@@ -94,11 +94,7 @@
         <service id="Shopware\Core\Framework\Demodata\Generator\AttributeGenerator">
             <argument type="service" id="attribute_set.repository"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
-
-            <call method="setContainer">
-                <argument type="service" id="service_container" />
-            </call>
-
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionRegistry"/>
             <tag name="shopware.demodata_generator" />
         </service>
 

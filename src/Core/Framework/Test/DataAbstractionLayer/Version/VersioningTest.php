@@ -26,15 +26,9 @@ use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\DefinitionRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\CalculatedPriceField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
-use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\CountAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\CountAggregationResult;
@@ -45,8 +39,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\EntityAggregatorInterfac
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\VersionManager;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\PrimaryKey;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\Required;
 use Shopware\Core\Framework\Rule\Container\AndRule;
 use Shopware\Core\Framework\Struct\ArrayEntity;
 use Shopware\Core\Framework\Struct\Uuid;
@@ -326,8 +318,6 @@ class VersioningTest extends TestCase
         static::assertEquals(500.20, $versionPrice->getUnitPrice());
         static::assertEquals(500.30, $versionPrice->getTotalPrice());
         static::assertEquals(7.00, $versionPrice->getCalculatedTaxes()->getAmount());
-
-        $this->getContainer()->get(DefinitionRegistry::class)->add(CalculatedPriceFieldTestDefinition::class);
 
         $repository->merge($versionId, $context);
 
@@ -1768,42 +1758,5 @@ class VersioningTest extends TestCase
         }, $data);
 
         return $data;
-    }
-}
-
-class CalculatedPriceFieldTestDefinition extends EntityDefinition
-{
-    public static function getCreateTable(): string
-    {
-        return '
-DROP TABLE IF EXISTS calculated_price_field_test;  
-CREATE TABLE `calculated_price_field_test` (
-  `id` binary(16) NOT NULL,
-  `version_id` binary(16) NOT NULL,
-  `calculated_price` longtext COLLATE utf8mb4_unicode_ci NOT NULL,
-  PRIMARY KEY (`id`, `version_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
-        ';
-    }
-
-    public static function dropTable(): string
-    {
-        return '
-            DROP TABLE IF EXISTS calculated_price_field_test;   
-        ';
-    }
-
-    public static function getEntityName(): string
-    {
-        return 'calculated_price_field_test';
-    }
-
-    protected static function defineFields(): FieldCollection
-    {
-        return new FieldCollection([
-            (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
-            new VersionField(),
-            (new CalculatedPriceField('calculated_price', 'price'))->addFlags(new Required()),
-        ]);
     }
 }

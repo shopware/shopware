@@ -5,7 +5,6 @@ namespace Shopware\Core\Framework\Api\Controller;
 use RuntimeException;
 use Shopware\Core\Framework\Api\Exception\NoEntityClonedException;
 use Shopware\Core\Framework\Api\Exception\ResourceNotFoundException;
-use Shopware\Core\Framework\Api\Exception\UnknownRepositoryVersionException;
 use Shopware\Core\Framework\Api\OAuth\Scope\WriteScope;
 use Shopware\Core\Framework\Api\Response\ResponseFactoryInterface;
 use Shopware\Core\Framework\Api\Response\Type\Api\JsonType;
@@ -105,16 +104,15 @@ class ApiController extends AbstractController
      *     "version"="\d+", "entity"="[a-zA-Z-]+", "id"="[0-9a-f]{32}"
      * })
      *
-     * @throws UnknownRepositoryVersionException
      * @throws DefinitionNotFoundException
      */
-    public function clone(Request $request, Context $context, string $entity, string $id): JsonResponse
+    public function clone(Context $context, string $entity, string $id): JsonResponse
     {
         $entity = $this->urlToSnakeCase($entity);
 
         $definition = $this->definitionRegistry->get($entity);
 
-        $eventContainer = $this->getRepository($definition, $request)->clone($id, $context);
+        $eventContainer = $this->definitionRegistry->getRepository($definition::getEntityName())->clone($id, $context);
         $event = $eventContainer->getEventByDefinition($definition);
         if (!$event) {
             throw new NoEntityClonedException($entity, $id);
@@ -133,7 +131,6 @@ class ApiController extends AbstractController
      *
      * @throws InvalidUuidException
      * @throws InvalidVersionNameException
-     * @throws UnknownRepositoryVersionException
      */
     public function createVersion(Request $request, Context $context, string $entity, string $id): Response
     {
@@ -154,7 +151,7 @@ class ApiController extends AbstractController
             throw new NotFoundHttpException($e->getMessage(), $e);
         }
 
-        $versionId = $this->getRepository($entityDefinition, $request)->createVersion($id, $context, $versionName, $versionId);
+        $versionId = $this->definitionRegistry->getRepository($entityDefinition::getEntityName())->createVersion($id, $context, $versionName, $versionId);
 
         return new JsonResponse([
             'version_id' => $versionId,
@@ -170,16 +167,15 @@ class ApiController extends AbstractController
      * })
      *
      * @throws InvalidUuidException
-     * @throws UnknownRepositoryVersionException
      */
-    public function mergeVersion(Request $request, Context $context, string $entity, string $versionId): JsonResponse
+    public function mergeVersion(Context $context, string $entity, string $versionId): JsonResponse
     {
         if (!Uuid::isValid($versionId)) {
             throw new InvalidUuidException($versionId);
         }
 
         $entityDefinition = $this->getEntityDefinition($entity);
-        $repository = $this->getRepository($entityDefinition, $request);
+        $repository = $this->definitionRegistry->getRepository($entityDefinition::getEntityName());
         $repository->merge($versionId, $context);
 
         return new JsonResponse(null, Response::HTTP_NO_CONTENT);
@@ -198,7 +194,7 @@ class ApiController extends AbstractController
         array_shift($associations);
 
         if (empty($associations)) {
-            $repository = $this->getRepository($definition, $request);
+            $repository = $this->definitionRegistry->getRepository($definition::getEntityName());
         } else {
             /** @var EntityDefinition $definition */
             $field = $this->getAssociation($definition::getFields(), $associations);
@@ -208,7 +204,7 @@ class ApiController extends AbstractController
                 $definition = $field->getReferenceDefinition();
             }
 
-            $repository = $this->getRepository($definition, $request);
+            $repository = $this->definitionRegistry->getRepository($definition::getEntityName());
         }
 
         $entity = $repository->search(new Criteria([$id]), $context)->get($id);
@@ -274,7 +270,7 @@ class ApiController extends AbstractController
             //first api level call /product/{id}
             $definition = $first['definition'];
 
-            $this->doDelete($request, $context, $definition, ['id' => $id]);
+            $this->doDelete($context, $definition, ['id' => $id]);
 
             return $responseFactory->createRedirectResponse($definition, $id, $request, $context);
         }
@@ -292,7 +288,7 @@ class ApiController extends AbstractController
 
         // DELETE api/product/{id}/manufacturer/{id}
         if ($association instanceof ManyToOneAssociationField || $association instanceof OneToOneAssociationField) {
-            $this->doDelete($request, $context, $definition, ['id' => $id]);
+            $this->doDelete($context, $definition, ['id' => $id]);
 
             return $responseFactory->createRedirectResponse($definition, $id, $request, $context);
         }
@@ -312,7 +308,7 @@ class ApiController extends AbstractController
                 $reference->getPropertyName() => $id,
             ];
 
-            $this->doDelete($request, $context, $definition, $mapping);
+            $this->doDelete($context, $definition, $mapping);
 
             return $responseFactory->createRedirectResponse($definition, $id, $request, $context);
         }
@@ -329,13 +325,13 @@ class ApiController extends AbstractController
                 $refLanguagePropName => $id,
             ];
 
-            $this->doDelete($request, $context, $definition, $mapping);
+            $this->doDelete($context, $definition, $mapping);
 
             return $responseFactory->createRedirectResponse($definition, $id, $request, $context);
         }
 
         if ($association instanceof OneToManyAssociationField) {
-            $this->doDelete($request, $context, $definition, ['id' => $id]);
+            $this->doDelete($context, $definition, ['id' => $id]);
 
             return $responseFactory->createRedirectResponse($definition, $id, $request, $context);
         }
@@ -356,7 +352,7 @@ class ApiController extends AbstractController
             throw new NotFoundHttpException('The requested entity does not exist.');
         }
 
-        $repository = $this->getRepository($definition, $request);
+        $repository = $this->definitionRegistry->getRepository($definition::getEntityName());
 
         $criteria = new Criteria();
         if (empty($pathSegments)) {
@@ -445,7 +441,7 @@ class ApiController extends AbstractController
             );
         }
 
-        $repository = $this->getRepository($definition, $request);
+        $repository = $this->definitionRegistry->getRepository($definition::getEntityName());
 
         return $repository->search($criteria, $context);
     }
@@ -509,7 +505,7 @@ class ApiController extends AbstractController
         if (\count($pathSegments) === 0) {
             $definition = $first['definition'];
 
-            $repository = $this->getRepository($definition, $request);
+            $repository = $this->definitionRegistry->getRepository($definition::getEntityName());
 
             $events = $this->executeWriteOperation($repository, $payload, $context, $type);
             $event = $events->getEventByDefinition($definition);
@@ -546,7 +542,7 @@ class ApiController extends AbstractController
 
             $payload[$foreignKey->getPropertyName()] = $parent['value'];
 
-            $repository = $this->getRepository($definition, $request);
+            $repository = $this->definitionRegistry->getRepository($definition::getEntityName());
             $events = $this->executeWriteOperation($repository, $payload, $context, $type);
 
             if ($noContent) {
@@ -555,7 +551,7 @@ class ApiController extends AbstractController
 
             $event = $events->getEventByDefinition($definition);
 
-            $repository = $this->getRepository($definition, $request);
+            $repository = $this->definitionRegistry->getRepository($definition::getEntityName());
 
             $entities = $repository->search(new Criteria($event->getIds()), $context);
 
@@ -563,7 +559,7 @@ class ApiController extends AbstractController
         }
 
         if ($association instanceof ManyToOneAssociationField || $association instanceof OneToOneAssociationField) {
-            $repository = $this->getRepository($definition, $request);
+            $repository = $this->definitionRegistry->getRepository($definition::getEntityName());
             $events = $this->executeWriteOperation($repository, $payload, $context, $type);
             $event = $events->getEventByDefinition($definition);
 
@@ -577,7 +573,7 @@ class ApiController extends AbstractController
                 $foreignKey->getPropertyName() => $entityId,
             ];
 
-            $repository = $this->getRepository($parentDefinition, $request);
+            $repository = $this->definitionRegistry->getRepository($parentDefinition::getEntityName());
             $repository->update([$payload], $context);
 
             if ($noContent) {
@@ -593,17 +589,17 @@ class ApiController extends AbstractController
         /** @var EntityDefinition|string $reference */
         $reference = $association->getReferenceDefinition();
 
-        $repository = $this->getRepository($reference, $request);
+        $repository = $this->definitionRegistry->getRepository($reference::getEntityName());
         $events = $this->executeWriteOperation($repository, $payload, $context, $type);
         $event = $events->getEventByDefinition($reference);
 
-        $repository = $this->getRepository($reference, $request);
+        $repository = $this->definitionRegistry->getRepository($reference::getEntityName());
 
         $entities = $repository->search(new Criteria($event->getIds()), $context);
 
         $entity = $entities->first();
 
-        $repository = $this->getRepository($parentDefinition, $request);
+        $repository = $this->definitionRegistry->getRepository($parentDefinition::getEntityName());
 
         $payload = [
             'id' => $parent['value'],
@@ -778,14 +774,9 @@ class ApiController extends AbstractController
      * @throws ResourceNotFoundException
      * @throws NotFoundHttpException
      */
-    private function doDelete(Request $request, Context $context, string $definition, array $primaryKey): void
+    private function doDelete(Context $context, string $definition, array $primaryKey): void
     {
-        try {
-            $repository = $this->getRepository($definition, $request);
-        } catch (UnknownRepositoryVersionException $e) {
-            throw new NotFoundHttpException($e->getMessage(), $e);
-        }
-
+        $repository = $this->definitionRegistry->getRepository($definition::getEntityName());
         $deleteEvent = $repository->delete([$primaryKey], $context);
 
         if (empty($deleteEvent->getErrors())) {
@@ -793,25 +784,6 @@ class ApiController extends AbstractController
         }
 
         throw new ResourceNotFoundException($definition::getEntityName(), $primaryKey);
-    }
-
-    /**
-     * @param string|EntityDefinition $definition
-     *
-     * @throws UnknownRepositoryVersionException
-     */
-    private function getRepository(string $definition, Request $request): EntityRepositoryInterface
-    {
-        $repositoryClass = $definition::getEntityName() . '.repository';
-
-        if ($this->has($repositoryClass) === false) {
-            throw new UnknownRepositoryVersionException($definition::getEntityName(), (int) $request->get('version'));
-        }
-
-        /** @var EntityRepositoryInterface $repo */
-        $repo = $this->get($definition::getEntityName() . '.repository');
-
-        return $repo;
     }
 
     private function hasScope(Request $request, string $scopeIdentifier): bool

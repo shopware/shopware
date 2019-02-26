@@ -7,11 +7,11 @@ use Doctrine\DBAL\FetchMode;
 use Faker\Generator;
 use Shopware\Core\Framework\Attribute\AttributeSetDefinition;
 use Shopware\Core\Framework\Attribute\AttributeTypes;
+use Shopware\Core\Framework\DataAbstractionLayer\DefinitionRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\Demodata\DemodataContext;
 use Shopware\Core\Framework\Demodata\DemodataGeneratorInterface;
 use Shopware\Core\Framework\Struct\Uuid;
-use Symfony\Component\DependencyInjection\Container;
 
 class AttributeGenerator implements DemodataGeneratorInterface
 {
@@ -21,26 +21,22 @@ class AttributeGenerator implements DemodataGeneratorInterface
     private $attributeSetRepository;
 
     /**
-     * @var Container
-     */
-    private $container;
-
-    /**
      * @var Connection
      */
     private $connection;
 
     private $attributeSets = [];
 
-    public function __construct(EntityRepositoryInterface $attributeSetRepository, Connection $connection)
+    /**
+     * @var DefinitionRegistry
+     */
+    private $definitionRegistry;
+
+    public function __construct(EntityRepositoryInterface $attributeSetRepository, Connection $connection, DefinitionRegistry $definitionRegistry)
     {
         $this->attributeSetRepository = $attributeSetRepository;
         $this->connection = $connection;
-    }
-
-    public function setContainer(Container $container): void
-    {
-        $this->container = $container;
+        $this->definitionRegistry = $definitionRegistry;
     }
 
     public function getDefinition(): string
@@ -212,11 +208,7 @@ class AttributeGenerator implements DemodataGeneratorInterface
 
     private function generateAttributeValues($entityName, $count, array $attributes, DemodataContext $context): void
     {
-        /** @var EntityRepositoryInterface|null $repo */
-        $repo = $this->container->get($entityName . '.repository');
-        if (!$repo) {
-            throw new \InvalidArgumentException(sprintf('Repository for entity name `%s` not found!', $entityName));
-        }
+        $repo = $this->definitionRegistry->getRepository($entityName);
 
         $ids = $this->connection->executeQuery(
             sprintf('SELECT LOWER(HEX(id)) FROM `%s` ORDER BY rand() LIMIT %s', $entityName, $count)

@@ -54,7 +54,7 @@ class InheritanceIndexer implements IndexerInterface
     {
         $context = Context::createDefaultContext();
 
-        foreach ($this->registry->getElements() as $definition) {
+        foreach ($this->registry->getDefinitions() as $definition) {
             /** @var string|EntityDefinition $definition */
             if (!$definition::isInheritanceAware()) {
                 continue;

@@ -7,7 +7,6 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
-use Symfony\Component\DependencyInjection\ContainerInterface;
 
 class DataAbstractionLayerValidateCommand extends Command
 {
@@ -16,16 +15,10 @@ class DataAbstractionLayerValidateCommand extends Command
      */
     private $validator;
 
-    /**
-     * @var ContainerInterface
-     */
-    private $container;
-
-    public function __construct(DefinitionValidator $validator, ContainerInterface $container)
+    public function __construct(DefinitionValidator $validator)
     {
         parent::__construct();
         $this->validator = $validator;
-        $this->container = $container;
     }
 
     protected function configure(): void
@@ -52,7 +45,7 @@ class DataAbstractionLayerValidateCommand extends Command
 
     protected function runNotices(SymfonyStyle $io): int
     {
-        $notices = $this->validator->getNotices($this->container);
+        $notices = $this->validator->getNotices();
 
         $count = 0;
         foreach ($notices as $definition => $matches) {

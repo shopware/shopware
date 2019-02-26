@@ -3,7 +3,7 @@
         class="sw-select-option"
         :class="componentClasses"
         @mouseenter="onMouseEnter($event)"
-        @click="onClicked($event)">
+        @click.stop="onClicked($event)">
         {% block sw_select_option_item_text_holder %}
             <span class="sw-select-option__result-item-text">
                  {% block sw_select_option_item_text %}

@@ -42,6 +42,10 @@ $sw-media-modal-non-grid-margin: 0 24px;
         margin: $sw-media-modal-non-grid-margin 16px;
     }
 
+    .sw-media-modal__upload-media-grid--compact {
+        margin: $sw-media-modal-non-grid-margin;
+    }
+
     .sw-media-modal__breadcrumbs-and-search--compact {
         margin: $sw-media-modal-non-grid-margin;
     }

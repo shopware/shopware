@@ -74,7 +74,8 @@
                                             {% endblock %}
 
                                             {% block sw_media_modal_uploaded_items %}
-                                                <sw-media-grid presentation="medium-preview">
+                                                <sw-media-grid :presentation="compact ? 'list-preview' : 'medium-preview'"
+                                                               :class="{'sw-media-modal__upload-media-grid--compact': compact }">
                                                     <sw-media-media-item
                                                         v-for="upload in uploads"
                                                         :key="`sw-media-modal-upload-${upload.id}`"
@@ -82,7 +83,8 @@
                                                         :showContextMenuButton="false"
                                                         :showSelectionIndicator="true"
                                                         :selected="true"
-                                                        :editable="false">
+                                                        :editable="false"
+                                                        :isList="compact">
                                                     </sw-media-media-item>
                                                 </sw-media-grid>
                                             {% endblock %}

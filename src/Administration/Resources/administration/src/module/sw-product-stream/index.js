@@ -2,6 +2,7 @@ import { Module } from 'src/core/shopware';
 import './page/sw-product-stream-list';
 import './page/sw-product-stream-detail';
 import './page/sw-product-stream-create';
+import './component/sw-product-stream-modal-preview';
 import { NEXT739 } from 'src/flag/feature_next739';
 import './component/sw-product-stream-filter';
 

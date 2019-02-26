@@ -1603,7 +1603,13 @@
       "titleFilter": "Filter",
       "titleResult": "Product stream",
       "titleSaveSuccess": "Success",
-      "messageSaveSuccess": "The product stream \"{name}\" has been saved successfully."
+      "messageSaveSuccess": "The product stream \"{name}\" has been saved successfully.",
+      "buttonOpenPreview": "Preview"
+    },
+    "previewModal": {
+      "title": "Preview",
+      "empty": "No products found.",
+      "close": "close"
     }
   },
   "sw-config-form-renderer": {

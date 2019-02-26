@@ -23,7 +23,6 @@ class ProfilePageTest extends TestCase
 
     public function testLoginRequirement(): void
     {
-        static::markTestSkipped('Not working as expected');
         $this->assertLoginRequirement();
     }
 

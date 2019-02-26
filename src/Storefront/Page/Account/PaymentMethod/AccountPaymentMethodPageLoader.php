@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Page\Account\PaymentMethod;
 
+use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Framework\Routing\InternalRequest;
 use Shopware\Storefront\Framework\Page\PageLoaderInterface;
@@ -44,12 +45,10 @@ class AccountPaymentMethodPageLoader implements PageLoaderInterface
 
         $customer = $context->getCustomer();
 
-//        if ($customer === null) {
-//            throw new CustomerNotLoggedInException();
-//        }
-        if ($customer !== null) {
-            $page->setCustomer($customer);
+        if ($customer === null) {
+            throw new CustomerNotLoggedInException();
         }
+        $page->setCustomer($customer);
 
         $page->setPaymentMethods(
             $this->accountPaymentMethodPageletLoader->load($request, $context)

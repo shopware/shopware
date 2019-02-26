@@ -23,11 +23,10 @@ class PaymentMethodPageTest extends TestCase
 
     public function testLoginRequirement(): void
     {
-        static::markTestSkipped('Not working as expected');
         $this->assertLoginRequirement();
     }
 
-    public function testItloadsTheRequestedACustomer(): void
+    public function testItlLoadsTheRequestedCustomersData(): void
     {
         $request = new InternalRequest(['search' => 'foo']);
         $context = $this->createCheckoutContextWithLoggedInCustomerAndWithNavigation();

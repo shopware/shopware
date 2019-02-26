@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Page\Account\Overview;
 
+use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Framework\Routing\InternalRequest;
 use Shopware\Storefront\Framework\Page\PageLoaderInterface;
@@ -36,12 +37,10 @@ class AccountOverviewPageLoader implements PageLoaderInterface
 
         $customer = $context->getCustomer();
 
-//        if ($customer === null) {
-//            throw new CustomerNotLoggedInException();
-//        }
-        if ($customer !== null) {
-            $page->setCustomer($customer);
+        if ($customer === null) {
+            throw new CustomerNotLoggedInException();
         }
+        $page->setCustomer($customer);
 
         $this->eventDispatcher->dispatch(
             AccountOverviewPageLoadedEvent::NAME,

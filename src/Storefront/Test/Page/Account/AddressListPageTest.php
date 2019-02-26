@@ -23,7 +23,6 @@ class AddressListPageTest extends TestCase
 
     public function testLoginRequirement(): void
     {
-        static::markTestSkipped('Not working as expected');
         $this->assertLoginRequirement();
     }
 
@@ -40,7 +39,7 @@ class AddressListPageTest extends TestCase
 
         static::assertInstanceOf(AccountAddressListPage::class, $page);
         static::assertSame(1, $page->getAddresses()->count());
-        self::assertPageEvent(AccountAddressListPageLoadedEvent::class, $event, $context, $request, $page);
+        static::assertPageEvent(AccountAddressListPageLoadedEvent::class, $event, $context, $request, $page);
     }
 
     /**

@@ -24,14 +24,15 @@
                         <sw-container columns="repeat(auto-fit, minmax(250px, 1fr)" gap="0 30px">
                             {% block sw_profile_index_info_card_name_field %}
                                 <sw-text-field :label="$tc('sw-profile.index.labelNameField')"
-                                               v-model="user.name">
+                                               v-model="user.name"
+                                               :disabled="isDisabled">
                                 </sw-text-field>
                             {% endblock %}
 
                             {% block sw_profile_index_info_card_username_field %}
                                 <sw-text-field :label="$tc('sw-profile.index.labelUsernameField')"
                                                v-model="user.username"
-                                               disabled>
+                                               :disabled="isDisabled">
                                 </sw-text-field>
                             {% endblock %}
                         </sw-container>

@@ -26,9 +26,9 @@ class OrderPageTest extends TestCase
         $this->assertLoginRequirement();
     }
 
-    public function testItloadsTheRequestedACustomer(): void
+    public function testItLoadsOrders(): void
     {
-        $request = new InternalRequest(['search' => 'foo']);
+        $request = new InternalRequest();
         $context = $this->createCheckoutContextWithLoggedInCustomerAndWithNavigation();
 
         /** @var AccountOrderPageLoadedEvent $event */
@@ -38,7 +38,7 @@ class OrderPageTest extends TestCase
         $page = $this->getPageLoader()->load($request, $context);
 
         static::assertInstanceOf(AccountOrderPage::class, $page);
-        static::assertEquals(0, $page->getOrders()->count());
+        static::assertSame(0, $page->getOrders()->count());
         self::assertPageEvent(AccountOrderPageLoadedEvent::class, $event, $context, $request, $page);
     }
 

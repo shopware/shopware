@@ -42,8 +42,8 @@ class SearchPageTest extends TestCase
         $page = $this->getPageLoader()->load($request, $context);
 
         static::assertInstanceOf(SearchPage::class, $page);
-        static::assertEmpty($page->getListing()); //@todo should this be null, but empty collection?
-        static::assertEquals('foo', $page->getSearchTerm());
+        static::assertEmpty($page->getListing());
+        static::assertSame('foo', $page->getSearchTerm());
         self::assertPageEvent(SearchPageLoadedEvent::class, $homePageLoadedEvent, $context, $request, $page);
     }
 

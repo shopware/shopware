@@ -21,7 +21,7 @@ class AddressPageTest extends TestCase
         $this->assertFailsWithoutNavigation();
     }
 
-    public function testItloadsTheRequestedACustomerWithoutAddress(): void
+    public function testItLoadsAddressesAndCountriesForACustomer(): void
     {
         $context = $this->createCheckoutContextWithLoggedInCustomerAndWithNavigation();
         $request = new InternalRequest();
@@ -38,7 +38,7 @@ class AddressPageTest extends TestCase
         self::assertPageEvent(AccountAddressPageLoadedEvent::class, $event, $context, $request, $page);
     }
 
-    public function testItloadsTheRequestedACustomer(): void
+    public function testItFiltersByAnAddressId(): void
     {
         $context = $this->createCheckoutContextWithLoggedInCustomerAndWithNavigation();
         $request = new InternalRequest(['addressId' => $context->getCustomer()->getActiveBillingAddress()->getId()]);

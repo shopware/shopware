@@ -26,9 +26,9 @@ class OverviewPageTest extends TestCase
         $this->assertLoginRequirement();
     }
 
-    public function testItloadsTheRequestedACustomer(): void
+    public function testItLoadsTheOverview(): void
     {
-        $request = new InternalRequest(['search' => 'foo']);
+        $request = new InternalRequest();
         $context = $this->createCheckoutContextWithLoggedInCustomerAndWithNavigation();
 
         /** @var AccountOverviewPageLoadedEvent $event */
@@ -38,7 +38,7 @@ class OverviewPageTest extends TestCase
         $page = $this->getPageLoader()->load($request, $context);
 
         static::assertInstanceOf(AccountOverviewPage::class, $page);
-        static::assertEquals('Max', $page->getCustomer()->getFirstName());
+        static::assertSame('Max', $page->getCustomer()->getFirstName());
         self::assertPageEvent(AccountOverviewPageLoadedEvent::class, $event, $context, $request, $page);
     }
 

@@ -26,7 +26,7 @@ class AddressListPageTest extends TestCase
         $this->assertLoginRequirement();
     }
 
-    public function testItloadsTheRequestedACustomer(): void
+    public function testItLoadsAnAddresseslist(): void
     {
         $context = $this->createCheckoutContextWithLoggedInCustomerAndWithNavigation();
         $request = new InternalRequest(['addressId' => $context->getCustomer()->getActiveBillingAddress()->getId()]);

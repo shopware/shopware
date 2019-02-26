@@ -26,9 +26,9 @@ class ProfilePageTest extends TestCase
         $this->assertLoginRequirement();
     }
 
-    public function testItloadsTheRequestedACustomer(): void
+    public function testItLoadsTheProfilePage(): void
     {
-        $request = new InternalRequest(['search' => 'foo']);
+        $request = new InternalRequest();
         $context = $this->createCheckoutContextWithLoggedInCustomerAndWithNavigation();
 
         /** @var AccountProfilePageLoadedEvent $event */
@@ -38,7 +38,7 @@ class ProfilePageTest extends TestCase
         $page = $this->getPageLoader()->load($request, $context);
 
         static::assertInstanceOf(AccountProfilePage::class, $page);
-        static::assertEquals('Max', $page->getCustomer()->getFirstName());
+        static::assertSame('Max', $page->getCustomer()->getFirstName());
         self::assertPageEvent(AccountProfilePageLoadedEvent::class, $event, $context, $request, $page);
     }
 

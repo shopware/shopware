@@ -21,9 +21,9 @@ class ConfirmPageTest extends TestCase
         $this->assertFailsWithoutNavigation();
     }
 
-    public function testItloadsTheRequestedACustomer(): void
+    public function testItLoadsTheConfirmPage(): void
     {
-        $request = new InternalRequest(['search' => 'foo']);
+        $request = new InternalRequest();
         $context = $this->createCheckoutContextWithNavigation();
 
         /** @var CheckoutConfirmPageLoadedEvent $event */

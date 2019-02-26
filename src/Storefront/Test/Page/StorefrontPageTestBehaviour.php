@@ -204,9 +204,6 @@ trait StorefrontPageTestBehaviour
         return $this->createContext($data, []);
     }
 
-    /**
-     * @todo memory leak
-     */
     protected function catchEvent(string $eventName, &$eventResult): void
     {
         $this->getContainer()->get('event_dispatcher')->addListener($eventName, function ($event) use (&$eventResult) {

@@ -28,7 +28,7 @@ class PaymentMethodPageTest extends TestCase
 
     public function testItlLoadsTheRequestedCustomersData(): void
     {
-        $request = new InternalRequest(['search' => 'foo']);
+        $request = new InternalRequest();
         $context = $this->createCheckoutContextWithLoggedInCustomerAndWithNavigation();
 
         /** @var AccountPaymentMethodPageLoadedEvent $event */
@@ -38,8 +38,8 @@ class PaymentMethodPageTest extends TestCase
         $page = $this->getPageLoader()->load($request, $context);
 
         static::assertInstanceOf(AccountPaymentMethodPage::class, $page);
-        static::assertEquals('Max', $page->getCustomer()->getFirstName());
-        static::assertEquals(4, $page->getPaymentMethods()->count());
+        static::assertSame('Max', $page->getCustomer()->getFirstName());
+        static::assertSame(4, $page->getPaymentMethods()->count());
         self::assertPageEvent(AccountPaymentMethodPageLoadedEvent::class, $event, $context, $request, $page);
     }
 

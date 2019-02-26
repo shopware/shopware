@@ -21,9 +21,9 @@ class CartPageTest extends TestCase
         $this->assertFailsWithoutNavigation();
     }
 
-    public function testItloadsTheRequestedACustomer(): void
+    public function testItLoadsTheCart(): void
     {
-        $request = new InternalRequest(['search' => 'foo']);
+        $request = new InternalRequest();
         $context = $this->createCheckoutContextWithNavigation();
 
         /** @var CheckoutCartPageLoadedEvent $event */

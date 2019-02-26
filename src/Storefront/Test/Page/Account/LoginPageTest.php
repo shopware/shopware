@@ -21,7 +21,7 @@ class LoginPageTest extends TestCase
         $this->assertFailsWithoutNavigation();
     }
 
-    public function testItloadsTheRequestedACustomer(): void
+    public function testItLoadsWithACustomer(): void
     {
         $request = new InternalRequest();
         $context = $this->createCheckoutContextWithLoggedInCustomerAndWithNavigation();
@@ -33,7 +33,7 @@ class LoginPageTest extends TestCase
         $page = $this->getPageLoader()->load($request, $context);
 
         static::assertInstanceOf(AccountLoginPage::class, $page);
-        static::assertEquals(34, $page->getCountries()->count());
+        static::assertSame(34, $page->getCountries()->count());
         self::assertPageEvent(AccountLoginPageLoadedEvent::class, $event, $context, $request, $page);
     }
 
@@ -44,7 +44,7 @@ class LoginPageTest extends TestCase
         $context = $this->createCheckoutContextWithNavigation();
         $page = $this->getPageLoader()->load($request, $context);
 
-        static::assertEquals(34, $page->getCountries()->count());
+        static::assertSame(34, $page->getCountries()->count());
     }
 
     /**

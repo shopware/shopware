@@ -5,7 +5,7 @@ namespace Shopware\Core\Framework;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\ExtensionRegistry;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\ActionEventCompilerPass;
-use Shopware\Core\Framework\DependencyInjection\CompilerPass\DefinitionRegistryCompilerPass;
+use Shopware\Core\Framework\DependencyInjection\CompilerPass\EntityCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\ExtensionCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\FeatureFlagCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\FrameworkExtension;
@@ -57,7 +57,7 @@ class Framework extends Bundle
 
         $container->addCompilerPass(new FeatureFlagCompilerPass(), PassConfig::TYPE_BEFORE_OPTIMIZATION);
         $container->addCompilerPass(new ExtensionCompilerPass());
-        $container->addCompilerPass(new DefinitionRegistryCompilerPass());
+        $container->addCompilerPass(new EntityCompilerPass());
         $container->addCompilerPass(new MigrationCompilerPass(), PassConfig::TYPE_AFTER_REMOVING);
         $container->addCompilerPass(new ActionEventCompilerPass());
     }

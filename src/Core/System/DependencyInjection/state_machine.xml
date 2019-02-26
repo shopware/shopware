@@ -5,6 +5,17 @@
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
 
     <services>
+        <!-- deprecated -->
+        <service alias="Shopware\Core\System\StateMachine\StateMachineRegistry" id="Shopware\Core\Framework\StateMachine\StateMachineRegistry" />
+
+        <service id="Shopware\Core\System\StateMachine\StateMachineRegistry">
+            <argument type="service" id="state_machine.repository" />
+            <argument type="service" id="state_machine_history.repository" />
+        </service>
+        <service id="Shopware\Core\System\Command\WorkflowDumpCommand">
+            <argument type="service" id="Shopware\Core\System\StateMachine\StateMachineRegistry"/>
+            <tag name="console.command"/>
+        </service>
         <service id="Shopware\Core\System\StateMachine\StateMachineDefinition">
             <tag name="shopware.entity.definition" entity="state_machine"/>
         </service>

@@ -20,7 +20,7 @@ export default {
         selectedId: {
             type: String,
             required: false,
-            default: ''
+            default: null
         }
     },
 
@@ -58,7 +58,7 @@ export default {
             this.mediaFolderStore.getList({
                 limit: 50,
                 sortBy: 'name',
-                criteria: CriteriaFactory.equals('media_folder.parentId', parentId || null),
+                criteria: CriteriaFactory.equals('media_folder.parentId', parentId),
                 associations: {
                     children: {
                         page: 1,
@@ -75,7 +75,7 @@ export default {
         },
 
         fetchParentFolder(folderId) {
-            if (folderId !== '' && folderId !== null) {
+            if (folderId !== null) {
                 this.mediaFolderStore.getByIdAsync(folderId).then((folder) => {
                     this.updateParentFolder(folder);
                 });
@@ -85,10 +85,10 @@ export default {
         },
 
         updateParentFolder(child) {
-            if (child.id === '') {
+            if (child.id === null) {
                 this.parentFolder = null;
             } else if (child.parentId === null) {
-                this.parentFolder = { id: '', name: 'Medien' };
+                this.parentFolder = { id: null, name: this.$tc('sw-media.index.rootFolderName') };
             } else {
                 this.mediaFolderStore.getByIdAsync(child.parentId).then((parent) => {
                     this.parentFolder = parent;

@@ -62,7 +62,8 @@
                     <sw-button class="sw-media-modal-move__confirm"
                                @click="moveSelection"
                                size="small"
-                               variant="primary">
+                               variant="primary"
+                               :disabled="isMoveDisabled">
                         {{ $tc('global.sw-media-modal-move.buttonMove') }}
                     </sw-button>
                 {% endblock %}

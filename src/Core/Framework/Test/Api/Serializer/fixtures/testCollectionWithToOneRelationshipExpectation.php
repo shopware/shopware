@@ -78,6 +78,12 @@ return [
                         'related' => '/api/media/3e352be2d85846dd97529c0f6b544870/configuration-group-options',
                     ],
                 ],
+                'avatarUser' => [
+                    'data' => null,
+                    'links' => [
+                        'related' => '/api/media/3e352be2d85846dd97529c0f6b544870/avatar-user',
+                    ],
+                ],
             ],
             'meta' => null,
         ],
@@ -154,6 +160,12 @@ return [
                         'related' => '/api/media/f1ad1d0c02454a40abf250f764d16248/configuration-group-options',
                     ],
                 ],
+                'avatarUser' => [
+                    'data' => null,
+                    'links' => [
+                        'related' => '/api/media/f1ad1d0c02454a40abf250f764d16248/avatar-user',
+                    ],
+                ],
             ],
             'links' => [
                 'self' => '/api/media/f1ad1d0c02454a40abf250f764d16248',
@@ -178,6 +190,7 @@ return [
                 'attributes' => null,
                 'createdAt' => '2018-01-15T08:01:16+00:00',
                 'updatedAt' => null,
+                'avatarId' => null,
             ],
             'links' => [
                 'self' => '/api/user/6f51622eb3814c75ae0263cece27ce72',
@@ -205,6 +218,12 @@ return [
                     'data' => [],
                     'links' => [
                         'related' => '/api/user/6f51622eb3814c75ae0263cece27ce72/state-machine-history-entries',
+                    ],
+                ],
+                'avatarMedia' => [
+                    'data' => null,
+                    'links' => [
+                        'related' => '/api/user/6f51622eb3814c75ae0263cece27ce72/avatar-media',
                     ],
                 ],
             ],

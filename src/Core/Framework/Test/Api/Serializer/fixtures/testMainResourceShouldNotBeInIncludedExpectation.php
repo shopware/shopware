@@ -17,6 +17,7 @@ return [
             'createdAt' => '2018-01-15T08:01:16+00:00',
             'updatedAt' => null,
             'attributes' => null,
+            'avatarId' => null,
         ],
         'links' => [
             'self' => '/api/user/f343a3c119cf42a7841aa0ac5094908c',
@@ -49,6 +50,12 @@ return [
                 'data' => [],
                 'links' => [
                     'related' => '/api/user/f343a3c119cf42a7841aa0ac5094908c/state-machine-history-entries',
+                ],
+            ],
+            'avatarMedia' => [
+                'data' => null,
+                'links' => [
+                    'related' => '/api/user/f343a3c119cf42a7841aa0ac5094908c/avatar-media',
                 ],
             ],
         ],
@@ -127,6 +134,12 @@ return [
                     'data' => [],
                     'links' => [
                         'related' => '/api/media/3e352be2d85846dd97529c0f6b544870/configuration-group-options',
+                    ],
+                ],
+                'avatarUser' => [
+                    'data' => null,
+                    'links' => [
+                        'related' => '/api/media/3e352be2d85846dd97529c0f6b544870/avatar-user',
                     ],
                 ],
             ],

@@ -49,17 +49,20 @@
                     <sw-card class="sw-profile__card"
                              :title="$tc('sw-profile.index.titleImageCard')"
                              :isLoading="user.isLoading">
-                        <div class="sw-profile-index__user-image">
-                            {% block sw_profile_index_image_card_gravatar_image %}
-                                <img :src="gravatarImage" class="sw-profile-index__user-image-gravatar">
-                            {% endblock %}
-
-                            {% block sw_profile_index_image_card_info %}
-                                <div class="sw-profile-index__user-image-info"
-                                     v-html="$tc('sw-profile.index.textImageInfo')">
-                                </div>
-                            {% endblock %}
-                        </div>
+                        {% block sw_profile_index_image_card_image %}
+                            <sw-media-upload
+                                :source="avatarMediaItem"
+                                class="sw-profile-index__user-image-upload"
+                                :allowMultiSelect="false"
+                                variant="regular"
+                                :label="$tc('sw-profile.index.labelUploadAvatar')"
+                                :defaultFolder="user.entityName"
+                                @sw-media-upload-new-uploads-added="onUploadAdded"
+                                @sw-media-upload-media-upload-success="setMediaItem"
+                                @sw-media-upload-open-sidebar="openMediaSidebar"
+                                @sw-media-upload-remove-image="onUnlinkAvatar">
+                            </sw-media-upload>
+                        {% endblock %}
                     </sw-card>
                 {% endblock %}
 
@@ -92,5 +95,21 @@
                 {% endblock %}
             {% endblock %}
         </sw-card-view>
+
+        {% block sw_profile_index_sidebar %}
+            <template slot="sidebar">
+                <sw-sidebar :propagateWidth="true">
+                    <sw-sidebar-media-item ref="mediaSidebarItem"
+                                           :isParentLoading="isUserLoading"
+                                           :additionalSearchCriteria="userMediaCriteria">
+                        <template slot="context-menu-items" slot-scope="media">
+                            <sw-context-menu-item @click="setMediaItem(media.mediaItem)">
+                                {{ $tc('sw-profile.index.labelUseAsAvatar') }}
+                            </sw-context-menu-item>
+                        </template>
+                    </sw-sidebar-media-item>
+                </sw-sidebar>
+            </template>
+        {% endblock %}
     </sw-page>
 {% endblock %}

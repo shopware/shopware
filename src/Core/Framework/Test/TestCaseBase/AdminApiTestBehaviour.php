@@ -2,10 +2,14 @@
 
 namespace Shopware\Core\Framework\Test\TestCaseBase;
 
+use DateTime;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DBALException;
+use Exception;
 use PHPUnit\Framework\TestCase;
+use RuntimeException;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Exception\InvalidUuidException;
 use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\PlatformRequest;
 use Symfony\Bundle\FrameworkBundle\Client;
@@ -43,7 +47,8 @@ trait AdminApiTestBehaviour
                 ['usernames' => $this->apiUsernames],
                 ['usernames' => Connection::PARAM_STR_ARRAY]
             );
-        } catch (\Exception $ex) {
+            $connection->executeQuery('DELETE FROM media');
+        } catch (Exception $ex) {
             //nth
         }
 
@@ -98,8 +103,8 @@ trait AdminApiTestBehaviour
     }
 
     /**
-     * @throws \Shopware\Core\Framework\Exception\InvalidUuidException
-     * @throws \RuntimeException
+     * @throws InvalidUuidException
+     * @throws RuntimeException
      * @throws DBALException
      */
     public function authorizeClient(Client $client): void
@@ -109,15 +114,27 @@ trait AdminApiTestBehaviour
 
         /** @var Connection $connection */
         $connection = $client->getContainer()->get(Connection::class);
+        $userId = Uuid::uuid4()->getBytes();
+        $avatarId = Uuid::uuid4()->getBytes();
+
+        $connection->insert('media', [
+            'id' => $avatarId,
+            'mime_type' => 'image/png',
+            'file_size' => 1024,
+            'uploaded_at' => (new DateTime())->format(Defaults::DATE_FORMAT),
+            'created_at' => (new DateTime())->format(Defaults::DATE_FORMAT),
+        ]);
+
         $connection->insert('user', [
-            'id' => Uuid::uuid4()->getBytes(),
+            'id' => $userId,
             'name' => $username,
             'email' => 'admin@example.com',
             'username' => $username,
             'password' => password_hash($password, PASSWORD_BCRYPT),
             'locale_id' => Uuid::fromStringToBytes(Defaults::LOCALE_SYSTEM),
             'active' => 1,
-            'created_at' => (new \DateTime())->format(Defaults::DATE_FORMAT),
+            'avatar_id' => $avatarId,
+            'created_at' => (new DateTime())->format(Defaults::DATE_FORMAT),
         ]);
 
         $this->apiUsernames[] = $username;
@@ -134,14 +151,14 @@ trait AdminApiTestBehaviour
         $data = json_decode($client->getResponse()->getContent(), true);
 
         if (!array_key_exists('access_token', $data)) {
-            throw new \RuntimeException(
+            throw new RuntimeException(
                 'No token returned from API: ' . ($data['errors'][0]['detail'] ?? 'unknown error' . print_r($data, true))
             );
         }
 
         if (!array_key_exists('refresh_token', $data)) {
-            throw new \RuntimeException(
-                $data, 'No refresh_token returned from API: ' . ($data['errors'][0]['detail'] ?? 'unknown error')
+            throw new RuntimeException(
+                'No refresh_token returned from API: ' . ($data['errors'][0]['detail'] ?? 'unknown error')
             );
         }
 

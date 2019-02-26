@@ -65,20 +65,33 @@ export default {
 
         userName() {
             return this.user.name;
+        },
+
+        avatarUrl() {
+            if (this.user.avatarMedia) {
+                return this.user.avatarMedia.url;
+            }
+
+            return null;
+        },
+
+        firstName() {
+            if (this.user.name) {
+                return this.user.name.split(' ')[0];
+            }
+            return '';
+        },
+
+        lastName() {
+            if (this.user.name) {
+                return this.user.name.split(' ')[1];
+            }
+            return '';
         }
     },
 
     created() {
-        this.collapseMenuOnSmallViewports();
-
-        this.userService.getUser().then((response) => {
-            this.userProfile = response.data;
-            this.user = this.userStore.getById(this.userProfile.id);
-        });
-
-        this.$root.$on('toggleOffCanvas', (state) => {
-            this.isOffCanvasShown = state;
-        });
+        this.createdComponent();
     },
 
     mounted() {
@@ -95,6 +108,19 @@ export default {
     },
 
     methods: {
+        createdComponent() {
+            this.collapseMenuOnSmallViewports();
+
+            this.userService.getUser().then((response) => {
+                this.userProfile = response.data;
+                this.user = this.userStore.getById(this.userProfile.id);
+            });
+
+            this.$root.$on('toggleOffCanvas', (state) => {
+                this.isOffCanvasShown = state;
+            });
+        },
+
         openSubMenu(entry, currentTarget) {
             this.subMenuOpen = !this.subMenuOpen;
 

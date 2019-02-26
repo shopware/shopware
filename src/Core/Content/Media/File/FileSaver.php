@@ -2,6 +2,8 @@
 
 namespace Shopware\Core\Content\Media\File;
 
+use DateTime;
+use Exception;
 use function Flag\next1309;
 use League\Flysystem\FileExistsException;
 use League\Flysystem\FileNotFoundException;
@@ -114,8 +116,7 @@ class FileSaver
                 $mediaFile->getFileExtension(),
                 $context
             );
-        } catch (
-            DuplicatedMediaFileNameException |
+        } catch (DuplicatedMediaFileNameException |
             EmptyMediaFilenameException |
             IllegalFileNameException $e
         ) {
@@ -194,14 +195,14 @@ class FileSaver
     {
         $updatedMedia = clone $currentMedia;
         $updatedMedia->setFileName($destination);
-        $updatedMedia->setUploadedAt(new \DateTime());
+        $updatedMedia->setUploadedAt(new DateTime());
 
         try {
             $renamedFiles = $this->renameFile(
                 $this->urlGenerator->getRelativeMediaUrl($currentMedia),
                 $this->urlGenerator->getRelativeMediaUrl($updatedMedia)
             );
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             throw new CouldNotRenameFileException($currentMedia->getId(), $currentMedia->getFileName());
         }
 
@@ -211,7 +212,7 @@ class FileSaver
                     $renamedFiles,
                     $this->renameThumbnail($thumbnail, $currentMedia, $updatedMedia)
                 );
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 $this->rollbackRenameAction($currentMedia, $renamedFiles);
             }
         }
@@ -226,7 +227,7 @@ class FileSaver
             $context->scope(SourceContext::ORIGIN_SYSTEM, function (Context $context) use ($updateData) {
                 $this->mediaRepository->update([$updateData], $context);
             });
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->rollbackRenameAction($currentMedia, $renamedFiles);
         }
     }
@@ -296,13 +297,14 @@ class FileSaver
     ): MediaEntity {
         $data = [
             'id' => $media->getId(),
+            'userId' => $context->getSourceContext()->getUserId(),
             'mimeType' => $mediaFile->getMimeType(),
             'fileExtension' => $mediaFile->getFileExtension(),
             'fileSize' => $mediaFile->getFileSize(),
             'fileName' => $destination,
             'metaDataRaw' => serialize($metadata),
             'mediaTypeRaw' => serialize($mediaType),
-            'uploadedAt' => new \DateTime(),
+            'uploadedAt' => new DateTime(),
         ];
 
         $context->scope(SourceContext::ORIGIN_SYSTEM, function (Context $context) use ($data) {
@@ -410,10 +412,8 @@ class FileSaver
             ]
         ));
 
-        $search = $this->mediaRepository->search($criteria, $context);
-
         /** @var MediaCollection $mediaCollection */
-        $mediaCollection = $search->getEntities();
+        $mediaCollection = $this->mediaRepository->search($criteria, $context)->getEntities();
 
         return $mediaCollection;
     }

@@ -12,17 +12,24 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
 class DeleteNotUsedMediaServiceTest extends TestCase
 {
-    use IntegrationTestBehaviour, MediaFixtures;
+    use IntegrationTestBehaviour,
+        MediaFixtures;
 
     private const FIXTURE_FILE = __DIR__ . '/fixtures/shopware-logo.png';
 
-    /** @var DeleteNotUsedMediaService */
+    /**
+     * @var DeleteNotUsedMediaService
+     */
     private $deleteMediaService;
 
-    /** @var MediaRepositoryDecorator */
+    /**
+     * @var MediaRepositoryDecorator
+     */
     private $mediaRepo;
 
-    /** @var Context */
+    /**
+     * @var Context
+     */
     private $context;
 
     protected function setUp(): void
@@ -77,7 +84,8 @@ class DeleteNotUsedMediaServiceTest extends TestCase
                 $png->getId(),
                 $withProduct->getId(),
                 $withManufacturer->getId(),
-            ]), $this->context
+            ]),
+            $this->context
         );
 
         static::assertNull($result->get($txt->getId()));

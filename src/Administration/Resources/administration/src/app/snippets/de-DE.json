@@ -1479,13 +1479,14 @@
       "labelOldPassword": "Altes Passwort",
       "labelNewPasswordField": "Neues Passwort",
       "labelNewPasswordConfirmField": "Passwort bestätigen",
-      "textImageInfo": "Wir benutzen das <a href=\"https://gravatar.com/\" target=\"_blank\">Gravatar</a> Profilbild, das für Deine E-Mail Addresse hinterlegt ist.",
       "notificationPasswordErrorTitle": "Fehler",
       "notificationPasswordErrorMessage": "Die eingegebenen Passwörter stimmen nicht überein.",
       "notificationOldPasswordErrorMessage": "Bitte gib Dein aktuelles Passwort korrekt ein.",
       "notificationInvalidEmailErrorMessage": "Bitte gib eine valide E-Mail Adresse ein.",
       "notificationSaveSuccessTitle": "Erfolg",
-      "notificationSaveSuccessMessage": "Deine Profilinformationen wurden erfolgreich gespeichert."
+      "notificationSaveSuccessMessage": "Deine Profilinformationen wurden erfolgreich gespeichert.",
+      "labelUploadAvatar": "Lade ein Profilbild hoch",
+      "labelUseAsAvatar": "Als Profilbild nutzen"
     }
   },
   "sw-error": {

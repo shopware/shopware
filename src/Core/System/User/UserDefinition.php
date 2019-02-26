@@ -13,6 +13,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IntField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\PasswordField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\UpdatedAtField;
@@ -46,6 +47,7 @@ class UserDefinition extends EntityDefinition
         return new FieldCollection([
             (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
             (new FkField('locale_id', 'localeId', LocaleDefinition::class))->addFlags(new Required()),
+            new FkField('avatar_id', 'avatarId', MediaDefinition::class),
             (new StringField('username', 'username'))->addFlags(new Required(), new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
             (new PasswordField('password', 'password'))->addFlags(new Required()),
             (new StringField('name', 'name'))->addFlags(new Required(), new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
@@ -58,6 +60,7 @@ class UserDefinition extends EntityDefinition
             new CreatedAtField(),
             new UpdatedAtField(),
             new ManyToOneAssociationField('locale', 'locale_id', LocaleDefinition::class, false),
+            new OneToOneAssociationField('avatarMedia', 'avatar_id', 'id', MediaDefinition::class, true),
             new OneToManyAssociationField('media', MediaDefinition::class, 'user_id', false, 'id'),
             new OneToManyAssociationField('accessKeys', UserAccessKeyDefinition::class, 'user_id', false, 'id'),
             new OneToManyAssociationField('stateMachineHistoryEntries', StateMachineHistoryDefinition::class, 'user_id', false, 'id'),

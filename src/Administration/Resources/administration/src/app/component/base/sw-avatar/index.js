@@ -1,18 +1,17 @@
-import { md5 } from 'src/core/service/utils/format.utils';
 import template from './sw-avatar.html.twig';
 import './sw-avatar.scss';
 
 /**
- * @description The component helps adding a properly formatted gravatar, custom user image or initials to the
- * administration.
+ * @description The component helps adding a custom user image or initials to the administration.
  * @status ready
  * @example-type static
  * @component-example
- * <sw-avatar color="#dd4800" size="48px" :user="{
- *     firstName: 'John',
- *     lastName: 'Doe',
- *     useGravatar: false
- * }"></sw-avatar>
+ * <sw-avatar color="#dd4800"
+ *            size="48px"
+ *            firstName="John"
+ *            lastName="Doe"
+ *            :imageUrl="getImageUrl">
+ * </sw-avatar>
  */
 export default {
     name: 'sw-avatar',
@@ -28,20 +27,19 @@ export default {
             type: String,
             required: false
         },
-        user: {
-            type: Object,
+        firstName: {
+            type: String,
             required: false,
-            default() {
-                return {
-                    firstName: '',
-                    lastName: ''
-                };
-            }
+            default: ''
         },
-        useGravatar: {
-            type: Boolean,
+        lastName: {
+            type: String,
             required: false,
-            default: false
+            default: ''
+        },
+        imageUrl: {
+            type: String,
+            required: false
         }
     },
 
@@ -63,14 +61,8 @@ export default {
         },
 
         avatarInitials() {
-            const user = this.user;
-
-            if (!user.firstName && !user.lastName) {
-                return '';
-            }
-
-            const firstNameLetter = user.firstName ? user.firstName[0] : '';
-            const lastNameLetter = user.lastName ? user.lastName[0] : '';
+            const firstNameLetter = this.firstName ? this.firstName[0] : '';
+            const lastNameLetter = this.lastName ? this.lastName[0] : '';
 
             return firstNameLetter + lastNameLetter;
         },
@@ -82,17 +74,9 @@ export default {
             };
         },
 
-        userImage() {
-            if (this.useGravatar && this.user && this.user.email) {
-                return this.getGravatarUserImage();
-            }
-
-            return '';
-        },
-
         avatarImage() {
             return {
-                'background-image': `url(${this.userImage})`
+                'background-image': `url(${this.imageUrl})`
             };
         },
 
@@ -117,10 +101,6 @@ export default {
 
             this.fontSize = Math.round(avatarSize * 0.4);
             this.lineHeight = Math.round(avatarSize * 0.98);
-        },
-
-        getGravatarUserImage() {
-            return `https://www.gravatar.com/avatar/${md5(this.user.email)}?s=100`;
         }
     }
 };

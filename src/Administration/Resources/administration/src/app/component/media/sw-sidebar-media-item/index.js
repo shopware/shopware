@@ -6,10 +6,12 @@ import './sw-sidebar-media-item.scss';
 /**
  * @status ready
  * @description The <u>sw-sidebar-media-item</u> component is used everywhere you need media objects outside of the media
- * manager.
+ * manager. Use the additional properties to filter the shown media.
+ * Just pass a object created by the CriteriaFactory.
  * @example-type code-only
  * @component-example
- * <sw-sidebar-media-item>
+ * <sw-sidebar-media-item :useAdditionalSearchCriteria="true"
+ *                        :additionalSearchCriteria="getCriteria">
  *    <template slot="context-menu-items" slot-scope="media">
  *       <sw-context-menu-item @click="onAddItemToProduct(media.mediaItem)">
  *          Lorem ipsum dolor sit amet
@@ -24,6 +26,16 @@ export default {
     props: {
         initialFolderId: {
             type: String,
+            required: false,
+            default: null
+        },
+        isParentLoading: {
+            type: Boolean,
+            required: false,
+            default: false
+        },
+        additionalSearchCriteria: {
+            type: Object,
             required: false,
             default: null
         }
@@ -68,6 +80,10 @@ export default {
 
         mediaFolderId() {
             this.initializeContent();
+        },
+
+        isParentLoading() {
+            this.getList();
         }
     },
 
@@ -124,6 +140,10 @@ export default {
         },
 
         getList() {
+            if (this.isParentLoading === true) {
+                return null;
+            }
+
             this.isLoading = true;
 
             const params = this.getListingParams();
@@ -138,10 +158,18 @@ export default {
         },
 
         getListingParams() {
+            const searchCriteria = [
+                CriteriaFactory.equals('mediaFolderId', this.mediaFolderId)
+            ];
+
+            if (this.additionalSearchCriteria) {
+                searchCriteria.push(this.additionalSearchCriteria);
+            }
+
             const params = {
                 limit: this.limit,
                 page: this.page,
-                criteria: CriteriaFactory.equals('mediaFolderId', this.mediaFolderId)
+                criteria: CriteriaFactory.multi('and', ...searchCriteria)
             };
 
             if (this.term) {

@@ -13,7 +13,7 @@ class DummyHandler extends AbstractMessageHandler
      */
     private $exceptionToThrow;
 
-    public function handle(object $message): void
+    public function handle($message): void
     {
         $this->lastMessage = $message;
 

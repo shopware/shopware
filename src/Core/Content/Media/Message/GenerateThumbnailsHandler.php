@@ -30,7 +30,7 @@ class GenerateThumbnailsHandler extends AbstractMessageHandler
     /**
      * @param GenerateThumbnailsMessage|UpdateThumbnailsMessage $msg
      */
-    public function handle(object $msg): void
+    public function handle($msg): void
     {
         $context = $msg->readContext();
 

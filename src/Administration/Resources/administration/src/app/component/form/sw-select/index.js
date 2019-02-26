@@ -105,6 +105,11 @@ export default {
             type: Boolean,
             required: false,
             default: false
+        },
+        sortField: {
+            type: String,
+            required: false,
+            default: null
         }
     },
 
@@ -237,13 +242,17 @@ export default {
             this.isLoading = true;
             this.results = [];
 
-            this.store.getList({
+            const params = {
                 page: 1,
                 limit: this.previewResultsLimit,
-                sortBy: 'name',
-                sortDirection: 'ASC',
                 criteria: this.criteria
-            }).then((response) => {
+            };
+            if (this.sortField) {
+                params.sortBy = this.sortField;
+                params.sortDirection = 'ASC';
+            }
+
+            this.store.getList(params).then((response) => {
                 // Abort if a search is done atm
                 if (this.searchTerm !== '') {
                     return;

@@ -10,6 +10,7 @@ use Shopware\Storefront\Page\Account\PaymentMethod\AccountPaymentMethodPage;
 use Shopware\Storefront\Page\Account\PaymentMethod\AccountPaymentMethodPageLoadedEvent;
 use Shopware\Storefront\Page\Account\PaymentMethod\AccountPaymentMethodPageLoader;
 use Shopware\Storefront\Test\Page\StorefrontPageTestBehaviour;
+use Shopware\Storefront\Test\Page\StorefrontPageTestConstants;
 
 class PaymentMethodPageTest extends TestCase
 {
@@ -38,8 +39,8 @@ class PaymentMethodPageTest extends TestCase
         $page = $this->getPageLoader()->load($request, $context);
 
         static::assertInstanceOf(AccountPaymentMethodPage::class, $page);
-        static::assertSame('Max', $page->getCustomer()->getFirstName());
-        static::assertSame(4, $page->getPaymentMethods()->count());
+        static::assertSame(StorefrontPageTestConstants::CUSTOMER_FIRSTNAME, $page->getCustomer()->getFirstName());
+        static::assertSame(StorefrontPageTestConstants::PAYMENT_METHOD_COUNT, $page->getPaymentMethods()->count());
         self::assertPageEvent(AccountPaymentMethodPageLoadedEvent::class, $event, $context, $request, $page);
     }
 

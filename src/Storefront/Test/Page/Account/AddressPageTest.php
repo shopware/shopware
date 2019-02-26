@@ -10,6 +10,7 @@ use Shopware\Storefront\Page\Account\Address\AccountAddressPage;
 use Shopware\Storefront\Page\Account\Address\AccountAddressPageLoadedEvent;
 use Shopware\Storefront\Page\Account\Address\AccountAddressPageLoader;
 use Shopware\Storefront\Test\Page\StorefrontPageTestBehaviour;
+use Shopware\Storefront\Test\Page\StorefrontPageTestConstants;
 
 class AddressPageTest extends TestCase
 {
@@ -33,7 +34,7 @@ class AddressPageTest extends TestCase
         $page = $this->getPageLoader()->load($request, $context);
 
         static::assertInstanceOf(AccountAddressPage::class, $page);
-        static::assertSame(34, $page->getCountries()->count());
+        static::assertSame(StorefrontPageTestConstants::COUNTRY_COUNT, $page->getCountries()->count());
         static::assertNull($page->getAddress());
         self::assertPageEvent(AccountAddressPageLoadedEvent::class, $event, $context, $request, $page);
     }
@@ -50,7 +51,7 @@ class AddressPageTest extends TestCase
         $page = $this->getPageLoader()->load($request, $context);
 
         static::assertInstanceOf(AccountAddressPage::class, $page);
-        static::assertSame(34, $page->getCountries()->count());
+        static::assertSame(StorefrontPageTestConstants::COUNTRY_COUNT, $page->getCountries()->count());
         static::assertNotNull($page->getAddress());
         self::assertPageEvent(AccountAddressPageLoadedEvent::class, $event, $context, $request, $page);
     }

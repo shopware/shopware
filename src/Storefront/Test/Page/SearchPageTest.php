@@ -15,6 +15,8 @@ class SearchPageTest extends TestCase
     use IntegrationTestBehaviour,
         StorefrontPageTestBehaviour;
 
+    const TEST_TERM = 'foo';
+
     public function testItThrowsWithoutNavigation(): void
     {
         $this->assertFailsWithoutNavigation();
@@ -33,7 +35,7 @@ class SearchPageTest extends TestCase
     public function testItDoesSearch(): void
     {
         /** @var PageLoaderInterface $page */
-        $request = new InternalRequest(['search' => 'foo']);
+        $request = new InternalRequest(['search' => self::TEST_TERM]);
         $context = $this->createCheckoutContextWithNavigation();
         /** @var SearchPageLoadedEvent $homePageLoadedEvent */
         $homePageLoadedEvent = null;
@@ -43,7 +45,7 @@ class SearchPageTest extends TestCase
 
         static::assertInstanceOf(SearchPage::class, $page);
         static::assertEmpty($page->getListing());
-        static::assertSame('foo', $page->getSearchTerm());
+        static::assertSame(self::TEST_TERM, $page->getSearchTerm());
         self::assertPageEvent(SearchPageLoadedEvent::class, $homePageLoadedEvent, $context, $request, $page);
     }
 

@@ -10,6 +10,7 @@ use Shopware\Storefront\Page\Account\Login\AccountLoginPage;
 use Shopware\Storefront\Page\Account\Login\AccountLoginPageLoadedEvent;
 use Shopware\Storefront\Page\Account\Login\AccountLoginPageLoader;
 use Shopware\Storefront\Test\Page\StorefrontPageTestBehaviour;
+use Shopware\Storefront\Test\Page\StorefrontPageTestConstants;
 
 class LoginPageTest extends TestCase
 {
@@ -33,7 +34,7 @@ class LoginPageTest extends TestCase
         $page = $this->getPageLoader()->load($request, $context);
 
         static::assertInstanceOf(AccountLoginPage::class, $page);
-        static::assertSame(34, $page->getCountries()->count());
+        static::assertSame(StorefrontPageTestConstants::COUNTRY_COUNT, $page->getCountries()->count());
         self::assertPageEvent(AccountLoginPageLoadedEvent::class, $event, $context, $request, $page);
     }
 

@@ -10,6 +10,7 @@ use Shopware\Storefront\Page\Checkout\Config\CheckoutConfigPage;
 use Shopware\Storefront\Page\Checkout\Config\CheckoutConfigPageLoadedEvent;
 use Shopware\Storefront\Page\Checkout\Config\CheckoutConfigPageLoader;
 use Shopware\Storefront\Test\Page\StorefrontPageTestBehaviour;
+use Shopware\Storefront\Test\Page\StorefrontPageTestConstants;
 
 class ConfigPageTest extends TestCase
 {
@@ -28,8 +29,8 @@ class ConfigPageTest extends TestCase
         $page = $this->getPageLoader()->load($request, $context);
 
         static::assertInstanceOf(CheckoutConfigPage::class, $page);
-        static::assertSame(3, $page->getPaymentMethods()->count());
-        static::assertSame(2, $page->getShippingMethods()->count());
+        static::assertSame(StorefrontPageTestConstants::PAYMENT_METHOD_COUNT, $page->getPaymentMethods()->count());
+        static::assertSame(StorefrontPageTestConstants::SHIPPING_METHOD_COUNT, $page->getShippingMethods()->count());
         self::assertPageEvent(CheckoutConfigPageLoadedEvent::class, $event, $context, $request, $page);
     }
 

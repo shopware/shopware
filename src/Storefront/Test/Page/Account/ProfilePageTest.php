@@ -10,6 +10,7 @@ use Shopware\Storefront\Page\Account\Profile\AccountProfilePage;
 use Shopware\Storefront\Page\Account\Profile\AccountProfilePageLoadedEvent;
 use Shopware\Storefront\Page\Account\Profile\AccountProfilePageLoader;
 use Shopware\Storefront\Test\Page\StorefrontPageTestBehaviour;
+use Shopware\Storefront\Test\Page\StorefrontPageTestConstants;
 
 class ProfilePageTest extends TestCase
 {
@@ -38,7 +39,7 @@ class ProfilePageTest extends TestCase
         $page = $this->getPageLoader()->load($request, $context);
 
         static::assertInstanceOf(AccountProfilePage::class, $page);
-        static::assertSame('Max', $page->getCustomer()->getFirstName());
+        static::assertSame(StorefrontPageTestConstants::CUSTOMER_FIRSTNAME, $page->getCustomer()->getFirstName());
         self::assertPageEvent(AccountProfilePageLoadedEvent::class, $event, $context, $request, $page);
     }
 

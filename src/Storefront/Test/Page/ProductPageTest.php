@@ -67,7 +67,7 @@ class ProductPageTest extends TestCase
         $page = $this->getPageLoader()->load($request, $context);
 
         static::assertInstanceOf(ProductPage::class, $page);
-        static::assertSame('test', $page->getProduct()->getName());
+        static::assertSame(StorefrontPageTestConstants::PRODUCT_NAME, $page->getProduct()->getName());
         self::assertPageEvent(ProductPageLoadedEvent::class, $event, $context, $request, $page);
     }
 

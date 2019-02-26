@@ -98,7 +98,7 @@ trait StorefrontPageTestBehaviour
 
         $data = [
             'id' => $id,
-            'name' => 'test',
+            'name' => StorefrontPageTestConstants::PRODUCT_NAME,
             'price' => ['gross' => 15, 'net' => 10],
             'manufacturer' => ['name' => 'test'],
             'tax' => ['name' => 'test', 'taxRate' => 15],
@@ -233,11 +233,7 @@ trait StorefrontPageTestBehaviour
                     'country' => ['name' => 'Germany'],
                 ],
                 'defaultBillingAddressId' => $addressId,
-                'defaultPaymentMethod' => [
-                    'name' => 'Invoice',
-                    'additionalDescription' => 'Default payment method',
-                    'technicalName' => Uuid::uuid4()->getHex(),
-                ],
+                'defaultPaymentMethodId' => Defaults::PAYMENT_METHOD_DEBIT,
                 'groupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
                 'email' => 'foo@bar.de',
                 'password' => 'password',

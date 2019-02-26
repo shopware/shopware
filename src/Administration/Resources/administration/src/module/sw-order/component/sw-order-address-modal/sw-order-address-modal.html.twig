@@ -2,16 +2,16 @@
     <sw-modal :title="$tc('sw-order.addressSelection.modalTitleEditAddress')"
               @closeModal="onClose">
         {% block sw_order_address_modal_content %}
-            <sw-tabs class= "sw-order-address-modal" defaultItem = "edit">
+            <sw-tabs class= "sw-order-address-modal" defaultItem = "edit" @newActiveItem="onNewActiveItem">
                 <template slot-scope="{ active }">
                 {% block sw_order_address_modal_tabs %}
                     {% block sw_order_address_modal_tab_edit_address %}
-                        <sw-tabs-item name="edit" :active="active">
+                        <sw-tabs-item name="edit" :activeTab="active">
                             {{ $tc('sw-order.addressSelection.headlineTabEditAddress') }}
                         </sw-tabs-item>
                     {%  endblock %}
                     {% block sw_order_address_modal_tab_select_address %}
-                        <sw-tabs-item name="addresses" :active="active">
+                        <sw-tabs-item name="addresses" :activeTab="active">
                             {{ $tc('sw-order.addressSelection.headlineTabSelectAddress') }}
                         </sw-tabs-item>
                     {% endblock %}
@@ -23,7 +23,7 @@
                         <div v-if="active==='edit'">
                             {% block sw_order_address_modal_tabs_content_edit_address %}
                                 <sw-customer-address-form :address="address"
-                                                          :customer="customer"
+                                                          :customer="orderCustomer"
                                                           :countries="countries">
                                 </sw-customer-address-form>
                             {% endblock %}
@@ -32,7 +32,7 @@
                             {% block sw_order_address_modal_tabs_content_select_address %}
                                 <sw-button v-for="(address, index) in availableAddresses" :key="address.id"
                                         block
-                                        class="sw-order-address-modal__entry"
+                                        :class="addressButtonClasses(address.id)"
                                         @click="onExistingAddressSelected(address)">
                                     {{ address.company }} <br>
                                     {{ address.salutation}} {{ address.firstName }} {{ address.lastName }}<br>

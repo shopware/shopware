@@ -15,18 +15,6 @@
 
                 </sw-field>
             {% endblock %}
-
-            {% block sw_order_saveable_field_input_select %}
-                <sw-select v-else
-                           ref="edit-field"
-                           :id="value.id"
-                           :value="value.id"
-                           :placeholder="placeholder"
-                           :store="selectStore"
-                           class="sw-order-detail-base__select-inline">
-
-                </sw-select>
-            {% endblock %}
         {% endblock %}
 
         {% block sw_order_saveable_field_actions %}
@@ -49,7 +37,7 @@
         {% endblock %}
     </sw-container>
     <div v-else
-        @dblclick="onDoubleClick">
+        @click="onClick">
         {% block w_order_saveable_field_content %}
 
             <div :class="textClasses">{{ displayValue() }}</div>

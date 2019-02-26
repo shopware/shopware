@@ -1,12 +1,11 @@
 import { Component, State } from 'src/core/shopware';
 import { format } from 'src/core/service/util.service';
-import CriteriaFactory from 'src/core/factory/criteria.factory';
-import template from './sw-order-detail-base.html.twig';
 import './sw-order-detail-base.scss';
-import ApiService from '../../../../core/service/api.service';
+import ApiService from 'src/core/service/api.service';
 
-import EntityStore from './../../../../core/data/EntityStore';
-import EntityProxy from './../../../../core/data/EntityProxy';
+import EntityStore from 'src/core/data/EntityStore';
+import EntityProxy from 'src/core/data/EntityProxy';
+import template from './sw-order-detail-base.html.twig';
 
 
 Component.register('sw-order-detail-base', {
@@ -24,10 +23,6 @@ Component.register('sw-order-detail-base', {
     data() {
         return {
             isLoading: true,
-            isHoveringBillingAddress: false,
-            isHoveringShippingAddress: false,
-            isShowingVersionExistsWarning: false,
-            isShowingVersionEditedByDifferentUserWarning: false,
             isEditing: false,
             isDisplayingLeavePageWarning: false,
             hasAssociations: false,
@@ -127,13 +122,6 @@ Component.register('sw-order-detail-base', {
     methods: {
         createdComponent() {
             this.isLoading = true;
-            this.getLastVersion().then((commit) => {
-                if (commit !== null) {
-                    this.lastVersionId = commit.versionId;
-                    this.isShowingVersionExistsWarning = this.lastVersionId !== null;
-                    this.isShowingVersionEditedByDifferentUserWarning = !this.isUserOwnerOfVersion(commit);
-                }
-            });
 
             this.countryStore.getList({ page: 1, limit: 100, sortBy: 'name' }).then((response) => {
                 this.countries = response.items;
@@ -292,14 +280,23 @@ Component.register('sw-order-detail-base', {
             });
         },
         onEditBillingAddress() {
-            this.addressBeingEdited = this.billingAddress;
+            if (this.isEditing) {
+                this.addressBeingEdited = this.billingAddress;
+            }
         },
         onEditDeliveryAddress() {
-            this.addressBeingEdited = this.currentOrder.deliveries[0].shippingOrderAddress;
+            if (this.isEditing) {
+                this.addressBeingEdited = this.currentOrder.deliveries[0].shippingOrderAddress;
+            }
         },
         onAddNewDeliveryAddress() {
+            if (!this.isEditing) {
+                return;
+            }
+
             this.orderAddressStore.getByIdAsync(
                 this.currentOrder.deliveries[0].shippingOrderAddress.id,
+                '',
                 this.currentOrder.versionId
             )
                 .then(() => {
@@ -333,45 +330,6 @@ Component.register('sw-order-detail-base', {
         onCustomerPhoneNumberEdited(number) {
             this.billingAddress.phoneNumber = number;
             this.saveAndReloadVersionedOrder();
-        },
-        onPaymentMethodEdited(method) {
-            this.currentOrder.paymentMethodId = method.id;
-            this.saveAndReloadVersionedOrder();
-        },
-        onLoadLastVersion() {
-            if (this.lastVersionId !== null) {
-                this.isShowingVersionExistsWarning = false;
-                this.reloadVersionedOrder(this.lastVersionId);
-                this.isEditing = true;
-            }
-        },
-        getLastVersion() {
-            const criteria = CriteriaFactory.multi('AND',
-                CriteriaFactory.equals('version_commit.data.entityName', 'order'),
-                CriteriaFactory.contains('version_commit.data.entityId.id', this.order.id),
-                CriteriaFactory.not('and',
-                    CriteriaFactory.contains('version_commit.data.entityId.versionId', this.liveVersionId)));
-
-            return this.versionCommitService.getList({
-                limit: 1,
-                page: 1,
-                sortBy: 'version_commit.createdAt',
-                sortDirection: 'DESC',
-                criteria: criteria
-            }).then((entries) => {
-                // check whether a version for this entity id exists. If there is any, check if it is merged already
-                if (entries.data.length !== 0 && !entries.data[0].isMerge) {
-                    return entries.data[0];
-                }
-                return null;
-            });
-        },
-        isUserOwnerOfVersion(versionCommit) {
-            return this.userService.getUser().then((user) => {
-                return user.data.id === versionCommit.userId;
-            }).catch(() => {
-                return true;
-            });
         }
     }
 });

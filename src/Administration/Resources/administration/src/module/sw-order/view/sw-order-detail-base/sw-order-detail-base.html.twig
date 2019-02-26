@@ -20,30 +20,6 @@
             </sw-order-leave-page-modal>
         {% endblock %}
 
-        {% block sw_order_detail_base_existing_version_warning %}
-            <sw-alert v-if="isShowingVersionExistsWarning"
-                      variant="warning"
-                      :showIcon="true"
-                      :closable="true"
-                      class="sw-order-detail-base__version-notification"
-                      @swAlertClose="isShowingVersionExistsWarning = false">
-
-                {{ $tc('sw-order.detailBase.labelOrderVersionAlreadyExists') }}
-                <span v-if="isShowingVersionEditedByDifferentUserWarning">
-                    {% block sw_order_detail_base_existing_version_edited_by_other_user_warning %}
-                        {{ $tc('sw-order.detailBase.labelOrderVersionEditedByOtherUser') }}
-                    {% endblock %}
-                </span>
-                {% block w_order_detail_base_load_existing_version_button %}
-                    <sw-button class="sw-order-detail-base__continue-work-alert"
-                               size="small"
-                               @click="onLoadLastVersion">
-                        {{ $tc('sw-order.detailBase.buttonContinueOnVersionedOrder') }}
-                    </sw-button>
-                {% endblock %}
-            </sw-alert>
-        {% endblock %}
-
         {% block sw_order_detail_base_order_overview %}
             <sw-user-card :title="$tc('sw-order.detailBase.cardTitleDetails')"
                           :user="currentOrder.orderCustomer"
@@ -88,31 +64,30 @@
                                     {% block sw_order_detail_base_order_overview_email %}
                                         <dt>{{ $tc('sw-order.detailBase.labelCustomerEmail') }}</dt>
                                         <dd>
-                                            <sw-order-saveable-field type="text"
-                                                                     :editable="isEditing"
-                                                                     :value="currentOrder.orderCustomer.email"
-                                                                     :truncateable="true"
-                                                                     @valueChanged="onCustomerEmailEdited">
-                                            </sw-order-saveable-field>
+                                            <sw-order-inline-field :displayValue="currentOrder.orderCustomer.email"
+                                                :value="currentOrder.orderCustomer.email"
+                                                :editable="isEditing"
+                                                @input="onCustomerEmailEdited"
+                                                class="sw-order-inline-field__truncateable">
+
+                                            </sw-order-inline-field>
                                         </dd>
                                     {% endblock %}
 
                                     {% block sw_order_detail_base_order_overview_billing_address %}
-                                        <span @mouseover="isHoveringBillingAddress = true" @mouseleave="isHoveringBillingAddress = false">
-                                            <dt>
-                                                {{ $tc('sw-order.detailBase.headlineBillingAddress') }}
-                                                <sw-button v-show="isHoveringBillingAddress && isEditing"
-                                                           class="sw-order-detail-base__address-edit-button"
-                                                           size="small"
-                                                           @click="onEditBillingAddress">
-                                                    {{ $tc('sw-order.detailBase.buttonEditAddress') }}
-                                                </sw-button>
-                                            </dt>
-                                            <dd>
-                                                <sw-address :address="billingAddress" >
-                                                </sw-address>
-                                            </dd>
-                                        </span>
+                                        <dt>
+                                            {{ $tc('sw-order.detailBase.headlineBillingAddress') }}
+                                            <sw-button v-show="isEditing"
+                                                       class="sw-order-detail-base__address-edit-button"
+                                                       size="small"
+                                                       @click="onEditBillingAddress">
+                                                {{ $tc('sw-order.detailBase.buttonEditAddress') }}
+                                            </sw-button>
+                                        </dt>
+                                        <dd @click="onEditBillingAddress">
+                                            <sw-address :address="billingAddress" >
+                                            </sw-address>
+                                        </dd>
                                     {% endblock %}
 
                                     {% block sw_order_detail_base_order_overview_left_column_slot %}
@@ -126,52 +101,47 @@
                                     {% block sw_order_detail_base_order_overview_phone_number %}
                                         <dt>{{ $tc('sw-order.detailBase.labelCustomerPhoneNumber') }}</dt>
                                         <dd>
-                                            <sw-order-saveable-field type="text"
-                                                                     :editable="isEditing"
-                                                                     :value="billingAddress.phoneNumber"
-                                                                     :placeholder="$tc('sw-order.detailBase.labelNoPhoneNumber')"
-                                                                     @valueChanged="onCustomerPhoneNumberEdited">
-                                            </sw-order-saveable-field>
+                                            <sw-order-inline-field :displayValue="billingAddress.phoneNumber? billingAddress.phoneNumber : $tc('sw-order.detailBase.labelNoPhoneNumber')"
+                                                :value="billingAddress.phoneNumber"
+                                                :editable="isEditing"
+                                                @input="onCustomerPhoneNumberEdited"
+                                                class="sw-order-inline-field__truncateable">
+                                            </sw-order-inline-field>
                                         </dd>
                                     {% endblock %}
 
                                     {% block sw_order_detail_base_order_overview_shipping_address %}
-                                        <span @mouseover="isHoveringShippingAddress = true" @mouseleave="isHoveringShippingAddress = false">
-                                            <dt>
-                                                {{ $tc('sw-order.detailBase.headlineDeliveryAddress') }}
-                                                <sw-button v-show="isHoveringShippingAddress &&
-                                                                hasDifferentBillingAndShippingAddress && isEditing"
-                                                           class="sw-order-detail-base__address-edit-button"
+                                        <dt>
+                                            {{ $tc('sw-order.detailBase.headlineDeliveryAddress') }}
+                                            <sw-button v-show="hasDifferentBillingAndShippingAddress && isEditing"
+                                                       class="sw-order-detail-base__address-edit-button"
+                                                       size="small"
+                                                       @click="onEditDeliveryAddress">
+                                                {{ $tc('sw-order.detailBase.buttonEditAddress') }}
+                                            </sw-button>
+
+                                        </dt>
+                                        <dd v-if="!hasDifferentBillingAndShippingAddress && hasDeliveries">
+                                            <span style="padding-bottom: 30px">
+                                                {{ $tc('sw-order.detailBase.labelSameDeliveryAndBillingAddress') }}
+                                            </span>
+
+                                            <sw-button v-show="!hasDifferentBillingAndShippingAddress &&
+                                                               isEditing"
+                                                           class="sw-order-detail-base__address-add-button"
                                                            size="small"
-                                                           @click="onEditDeliveryAddress">
-                                                    {{ $tc('sw-order.detailBase.buttonEditAddress') }}
-                                                </sw-button>
-
-                                            </dt>
-                                            <dd>
-
-                                                <span v-if="!hasDifferentBillingAndShippingAddress && hasDeliveries">
-                                                    <span style="padding-bottom: 30px">
-                                                        {{ $tc('sw-order.detailBase.labelSameDeliveryAndBillingAddress') }}
-                                                    </span>
-
-                                                    <sw-button v-show="isHoveringShippingAddress &&
-                                                                       !hasDifferentBillingAndShippingAddress &&
-                                                                       isEditing"
-                                                                   class="sw-order-detail-base__address-add-button"
-                                                                   size="small"
-                                                                   block
-                                                               @click="onAddNewDeliveryAddress">
-                                                        {{ $tc('sw-order.detailBase.buttonAddDeliveryAddress') }}
-                                                    </sw-button>
-                                                </span>
-
-                                                <sw-address v-else-if="hasDeliveries" :address="currentOrder.deliveries[0].shippingOrderAddress">
-                                                </sw-address>
-
-                                                <span v-else>{{ $tc('sw-order.detailBase.labelNoDeliveriesYet') }} </span>
-                                            </dd>
-                                        </span>
+                                                           block
+                                                       @click="onAddNewDeliveryAddress">
+                                                {{ $tc('sw-order.detailBase.buttonAddDeliveryAddress') }}
+                                            </sw-button>
+                                        </dd>
+                                        <dd v-else-if="hasDeliveries" @click="onEditDeliveryAddress">
+                                            <sw-address :address="currentOrder.deliveries[0].shippingOrderAddress">
+                                            </sw-address>
+                                        </dd>
+                                        <dd v-else>
+                                            {{ $tc('sw-order.detailBase.labelNoDeliveriesYet') }}
+                                        </dd>
                                     {% endblock %}
 
                                     {% block sw_order_detail_base_order_overview_right_column_slot %}
@@ -231,15 +201,7 @@
 
                                     {% block sw_order_detail_base_secondary_info_payment %}
                                         <dt>{{ $tc('sw-order.detailBase.labelPaymentMethod') }}</dt>
-                                        <dd>
-                                            <sw-order-saveable-field type="select"
-                                                                     :editable="isEditing"
-                                                                     :value="currentOrder.paymentMethod"
-                                                                     :selectStore="paymentMethodStore"
-                                                                     @valueChanged="onPaymentMethodEdited">
-                                            </sw-order-saveable-field>
-
-                                        </dd>
+                                        <dd>{{ currentOrder.paymentMethod.meta.viewData.name }}</dd>
                                     {% endblock %}
 
                                     {% block sw_order_detail_base_secondary_info_delivery %}

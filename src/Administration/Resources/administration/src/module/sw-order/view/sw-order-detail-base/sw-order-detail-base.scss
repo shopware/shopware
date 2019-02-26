@@ -1,4 +1,5 @@
 @import "~scss/variables";
+@import "~scss/mixins";
 
 $sw-order-detail-base-link : $color-shopware-blue;
 $sw-order-detail-base-select-status-payment: #EDF8FF;
@@ -15,7 +16,6 @@ $sw-order-detail-base-select-status-delivery-link: #23BE2F;
     .sw-order-detail-base__summary-vertical
     {
       line-height: 15px;
-
       dt,
       dd {
         padding: 4px;
@@ -58,7 +58,8 @@ $sw-order-detail-base-select-status-delivery-link: #23BE2F;
     .sw-order-detail-base__summary-data {
         grid-area: summary;
         font-size: 15px;
-
+        display: grid;
+        
         dt,
         dd {
             line-height: 49px;
@@ -106,6 +107,11 @@ $sw-order-detail-base-select-status-delivery-link: #23BE2F;
 
     .sw-order-detail-base__version-notification {
         max-width: 800px;
+    }
+
+    .sw-order-inline-field__truncateable {
+      @include truncate();
+      width:300px;
     }
 
 

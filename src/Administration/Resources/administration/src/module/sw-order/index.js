@@ -12,6 +12,7 @@ import './component/sw-order-leave-page-modal';
 import './component/sw-order-state-history-card';
 import './component/sw-order-state-history-card-entry';
 import './component/sw-order-state-select';
+import './component/sw-order-inline-field';
 
 import deDE from './snippet/de_DE.json';
 import enGB from './snippet/en_GB.json';

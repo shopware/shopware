@@ -9,7 +9,7 @@ class CustomerPageObject extends GeneralPageObject {
             ...this.elements, ...{
                 customerForm: '.sw-customer-base-form',
                 customerMailInput: 'input[name=sw-field--customer-email]',
-                customerMetaData: '.sw-user-card__metadata',
+                customerMetaData: '.sw-customer-card__metadata',
                 customerSaveAction: '.smart-bar__actions button.sw-button--primary',
                 columnName: '.sw-customer-list__column-customer-name'
             }

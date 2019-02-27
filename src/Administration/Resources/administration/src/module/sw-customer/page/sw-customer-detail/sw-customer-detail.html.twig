@@ -10,6 +10,7 @@
             <template slot="smart-bar-actions">
                 {% block sw_customer_detail_actions_edit %}
                     <sw-button v-if="!customerEditMode && !createMode"
+                               class="sw-customer-detail__open-edit-mode-action"
                                variant="primary"
                                :disabled="customer.isLoading"
                                @click.prevent="onActivateCustomerEditMode">

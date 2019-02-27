@@ -34,7 +34,7 @@
                             {% endblock %}
 
                             {% block sw_customer_base_metadata_default_payment_content %}
-                                <dd v-if="!customerEditMode">
+                                <dd v-if="!customerEditMode" class="sw-customer-base__label-default-payment-method">
                                    {{ customer.defaultPaymentMethod.name }}
                                 </dd>
                             {% endblock %}
@@ -58,7 +58,7 @@
                             {% endblock %}
 
                             {% block sw_customer_base_metadata_active_content %}
-                                <dd v-if="!customerEditMode">
+                                <dd v-if="!customerEditMode" class="sw-customer-base__label-is-active">
                                     {{ $tc('sw-customer.baseInfo.contentActive', customer.active) }}
                                 </dd>
                             {% endblock %}

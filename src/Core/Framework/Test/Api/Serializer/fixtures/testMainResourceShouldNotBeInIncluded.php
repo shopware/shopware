@@ -15,8 +15,8 @@ $user->setUsername('user1');
 $user->setActive(true);
 $user->setEmail('user1@shop.de');
 $user->setFailedLogins(0);
-$user->setLastLogin(date_create_from_format(\DateTime::ATOM, '2018-01-15T08:01:16+00:00'));
-$user->setCreatedAt(date_create_from_format(\DateTime::ATOM, '2018-01-15T08:01:16+00:00'));
+$user->setLastLogin(new \DateTime('2018-01-15T08:01:16+00:00'));
+$user->setCreatedAt(new \DateTime('2018-01-15T08:01:16+00:00'));
 
 $media = new MediaEntity();
 $media->setId('3e352be2d85846dd97529c0f6b544870');
@@ -25,8 +25,8 @@ $media->setUserId($userId);
 $media->setMimeType('image/jpg');
 $media->setFileExtension('jpg');
 $media->setFileSize(18921);
-$media->setCreatedAt(date_create_from_format(\DateTime::ATOM, '2012-08-15T00:00:00+00:00'));
-$media->setUpdatedAt(date_create_from_format(\DateTime::ATOM, '2017-11-21T11:25:34+00:00'));
+$media->setCreatedAt(new \DateTime('2012-08-15T00:00:00+00:00'));
+$media->setUpdatedAt(new \DateTime('2017-11-21T11:25:34+00:00'));
 $media->setTitle('Lagerkorn-5,0klein');
 
 $mediaCollection->add($media);

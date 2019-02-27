@@ -58,7 +58,7 @@ class JsonApiEncoderTest extends TestCase
 
         $struct->setAlt('A media object description');
 
-        $struct->setCreatedAt(date_create_from_format(DateTime::ATOM, '2018-01-15T08:01:16+00:00'));
+        $struct->setCreatedAt(new DateTime('2018-01-15T08:01:16+00:00'));
 
         $expected = [
             'data' => [

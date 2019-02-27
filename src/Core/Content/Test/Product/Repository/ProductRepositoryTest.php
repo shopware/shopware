@@ -1453,7 +1453,7 @@ class ProductRepositoryTest extends TestCase
 
         $data = [
             'id' => $id,
-            'name' => 'Test product service: ' . (new DateTime())->format(DateTime::ATOM),
+            'name' => 'Test product service: ' . (new DateTime())->format(Defaults::DATE_FORMAT),
             'tax' => ['name' => 'test', 'taxRate' => 15],
             'price' => ['gross' => 10, 'net' => 9],
             'manufacturer' => ['name' => 'test'],

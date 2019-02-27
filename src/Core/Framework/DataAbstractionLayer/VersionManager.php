@@ -151,7 +151,7 @@ class VersionManager
             $versionData['name'] = $name;
         } else {
             /* @var EntityDefinition|string $definition */
-            $versionData['name'] = $definition::getEntityName() . (new \DateTime())->format(\DateTime::ATOM);
+            $versionData['name'] = $definition::getEntityName() . (new \DateTime())->format(Defaults::DATE_FORMAT);
         }
 
         $this->entityWriter->upsert(VersionDefinition::class, [$versionData], $context);
@@ -254,7 +254,7 @@ class VersionManager
                 'integrationId' => $data->getIntegrationId(),
                 'entityName' => $data->getEntityName(),
                 'action' => $data->getAction(),
-                'createdAt' => (new \DateTime())->format(\DateTime::ATOM),
+                'createdAt' => (new \DateTime())->format(Defaults::DATE_FORMAT),
             ];
         }, $allChanges);
 
@@ -265,7 +265,7 @@ class VersionManager
             'integrationId' => $sourceContext->getIntegrationId(),
             'userId' => $sourceContext->getUserId(),
             'isMerge' => true,
-            'message' => 'merge commit ' . (new \DateTime())->format(\DateTime::ATOM),
+            'message' => 'merge commit ' . (new \DateTime())->format(Defaults::DATE_FORMAT),
         ];
 
         $this->entityWriter->insert(VersionCommitDefinition::class, [$commit], $writeContext);

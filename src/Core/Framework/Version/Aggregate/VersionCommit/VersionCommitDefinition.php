@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Version\Aggregate\VersionCommit;
 
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CreatedAtField;
@@ -47,7 +48,7 @@ class VersionCommitDefinition extends EntityDefinition
     {
         return [
             'name' => 'auto-save',
-            'createdAt' => date(\DateTime::ATOM),
+            'createdAt' => date(Defaults::DATE_FORMAT),
         ];
     }
 

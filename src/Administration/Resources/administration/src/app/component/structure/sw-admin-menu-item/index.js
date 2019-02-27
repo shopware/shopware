@@ -73,7 +73,7 @@ export default {
                 compareTo = this.$route.meta.$module.navigation[0].parent;
             }
 
-            return compareTo ? compareTo.replace('-', '.').indexOf(path.replace('.index', '')) === 0 : false;
+            return compareTo ? compareTo.replace(/-/g, '.').indexOf(path.replace(/\.index/g, '')) === 0 : false;
         }
     }
 };

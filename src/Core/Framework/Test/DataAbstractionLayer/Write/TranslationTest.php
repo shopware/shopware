@@ -76,6 +76,7 @@ class TranslationTest extends TestCase
         $data = [
             'factor' => 1,
             'symbol' => '$',
+            'decimalPrecision' => 2,
             'translations' => [
                 'en_GB' => [
                     'name' => 'US Dollar',
@@ -106,6 +107,7 @@ class TranslationTest extends TestCase
 
         $data = [
             'factor' => 1,
+            'decimalPrecision' => 2,
             'symbol' => '$',
             'translations' => [
                 [
@@ -138,6 +140,7 @@ class TranslationTest extends TestCase
 
         $data = [
             'factor' => 1,
+            'decimalPrecision' => 2,
             'symbol' => '$',
             'translations' => [
                 'en_GB' => [
@@ -172,6 +175,7 @@ class TranslationTest extends TestCase
 
         $data = [
             'factor' => 1,
+            'decimalPrecision' => 2,
             'symbol' => '$',
             'translations' => [
                 'en_GB' => [
@@ -230,6 +234,7 @@ class TranslationTest extends TestCase
 
         $data = [
             'factor' => 1,
+            'decimalPrecision' => 2,
             'symbol' => '$',
             'translations' => [
                 'en_GB' => [
@@ -283,6 +288,7 @@ class TranslationTest extends TestCase
         $data = [
             'factor' => 1,
             'symbol' => '$',
+            'decimalPrecision' => 2,
             'translations' => [
                 'en_GB' => [
                     'name' => $englishName,
@@ -325,6 +331,7 @@ class TranslationTest extends TestCase
         $data = [
             'factor' => 1,
             'symbol' => '$',
+            'decimalPrecision' => 2,
             'translations' => [
                 Defaults::LANGUAGE_SYSTEM => [
                     'name' => 'default',

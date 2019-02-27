@@ -125,6 +125,7 @@ class StorefrontCheckoutControllerTest extends TestCase
         $yen = [
             'id' => Uuid::uuid4()->getHex(),
             'symbol' => '¥',
+            'decimalPrecision' => 2,
             'factor' => 131.06,
             'shortName' => 'Yen',
             'name' => 'japanese Yen',

@@ -12,8 +12,8 @@ class PriceRoundingTest extends TestCase
      */
     public function testWithValidNumbers(float $price, float $expected, int $precision): void
     {
-        $rounding = new PriceRounding($precision);
-        static::assertEquals($expected, $rounding->round($price));
+        $rounding = new PriceRounding();
+        static::assertEquals($expected, $rounding->round($price, $precision));
     }
 
     public function getCases(): array

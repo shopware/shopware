@@ -75,7 +75,7 @@ class OrderPersisterTest extends TestCase
         $cart = new Cart('A', 'a-b-c');
         $cart->add(
             (new LineItem('test', 'test'))
-                ->setPriceDefinition(new AbsolutePriceDefinition(1))
+                ->setPriceDefinition(new AbsolutePriceDefinition(1, 2))
         );
 
         $processedCart = $this->cartProcessor->process($cart, Generator::createCheckoutContext(), new CartBehaviorContext());

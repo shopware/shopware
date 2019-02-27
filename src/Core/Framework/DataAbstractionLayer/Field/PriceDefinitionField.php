@@ -13,6 +13,7 @@ class PriceDefinitionField extends JsonField
             (new FloatField('price', 'price'))->setFlags(new Required()),
             (new JsonField('taxRules', 'taxRules'))->setFlags(new Required()),
             (new IntField('quantity', 'quantity'))->setFlags(new Required()),
+            (new IntField('precision', 'precision'))->setFlags(new Required()),
             (new BoolField('isCalculated', 'isCalculated'))->setFlags(new Required()),
         ];
 

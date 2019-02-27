@@ -42,12 +42,13 @@ class NetPriceCalculator
         $unitPrice = $this->getUnitPrice($definition);
 
         $price = $this->priceRounding->round(
-            $unitPrice * $definition->getQuantity()
+            $unitPrice * $definition->getQuantity(),
+            $definition->getPrecision()
         );
 
         $taxRules = $definition->getTaxRules();
 
-        $calculatedTaxes = $this->taxCalculator->calculateNetTaxes($price, $definition->getTaxRules());
+        $calculatedTaxes = $this->taxCalculator->calculateNetTaxes($price, $definition->getPrecision(), $definition->getTaxRules());
 
         return new CalculatedPrice($unitPrice, $price, $calculatedTaxes, $taxRules, $definition->getQuantity());
     }
@@ -59,6 +60,9 @@ class NetPriceCalculator
             return $definition->getPrice();
         }
 
-        return $this->priceRounding->round($definition->getPrice());
+        return $this->priceRounding->round(
+            $definition->getPrice(),
+            $definition->getPrecision()
+        );
     }
 }

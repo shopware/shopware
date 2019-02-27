@@ -48,7 +48,8 @@ class ApiRequestContextResolver implements RequestContextResolverInterface
             $params['currencyId'],
             $languageIdChain,
             $params['versionId'] ?? Defaults::LIVE_VERSION,
-            $params['currencyFactory']
+            $params['currencyFactory'],
+            $params['currencyPrecision']
         );
 
         $request->attributes->set(PlatformRequest::ATTRIBUTE_CONTEXT_OBJECT, $context);
@@ -61,6 +62,7 @@ class ApiRequestContextResolver implements RequestContextResolverInterface
             'languageId' => Defaults::LANGUAGE_SYSTEM,
             'systemFallbackLanguageId' => Defaults::LANGUAGE_SYSTEM,
             'currencyFactory' => 1.0,
+            'currencyPrecision' => 2,
             'versionId' => $master->headers->get(PlatformRequest::HEADER_VERSION_ID),
         ];
 

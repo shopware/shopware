@@ -16,6 +16,7 @@ use Shopware\Core\Checkout\Cart\Tax\TaxCalculator;
 use Shopware\Core\Checkout\Cart\Tax\TaxDetector;
 use Shopware\Core\Checkout\Cart\Tax\TaxRuleCalculator;
 use Shopware\Core\Checkout\CheckoutContext;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 
 class TaxAmountCalculatorTest extends TestCase
@@ -31,11 +32,14 @@ class TaxAmountCalculatorTest extends TestCase
         $context = $this->createMock(CheckoutContext::class);
         $context->method('getSalesChannel')->willReturn($shop);
 
+        $context->method('getContext')
+            ->willReturn(Context::createDefaultContext());
+
         $taxAmountCalculator = new TaxAmountCalculator(
             new PercentageTaxRuleBuilder(),
             new TaxCalculator(
-                new PriceRounding(2),
-                new TaxRuleCalculator(new PriceRounding(2))
+                new PriceRounding(),
+                new TaxRuleCalculator(new PriceRounding())
             ),
             $taxDetector
         );

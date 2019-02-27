@@ -129,6 +129,7 @@ class DeliveryBuilder
         $definition = new QuantityPriceDefinition(
             $item->getPrice()->getUnitPrice(),
             $item->getPrice()->getTaxRules(),
+            $context->getContext()->getCurrencyPrecision(),
             $quantity,
             true
         );

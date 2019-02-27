@@ -59,6 +59,7 @@ class Generator extends TestCase
         $currency = $currency ?: (new CurrencyEntity())->assign([
             'id' => '4c8eba11bd3546d786afbed481a6e665',
             'factor' => 1,
+            'decimalPrecision' => 2,
         ]);
 
         $currency->setFactor(1);

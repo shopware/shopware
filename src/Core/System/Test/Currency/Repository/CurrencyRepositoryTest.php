@@ -41,8 +41,8 @@ class CurrencyRepositoryTest extends TestCase
         $recordB = Uuid::uuid4()->getHex();
 
         $records = [
-            ['id' => $recordA, 'name' => 'match', 'shortName' => 'test', 'factor' => 1, 'symbol' => 'A'],
-            ['id' => $recordB, 'name' => 'not', 'shortName' => 'match', 'factor' => 1, 'symbol' => 'A'],
+            ['id' => $recordA, 'decimalPrecision' => 2, 'name' => 'match', 'shortName' => 'test', 'factor' => 1, 'symbol' => 'A'],
+            ['id' => $recordB, 'decimalPrecision' => 2, 'name' => 'not', 'shortName' => 'match', 'factor' => 1, 'symbol' => 'A'],
         ];
 
         $this->repository->create($records, Context::createDefaultContext());

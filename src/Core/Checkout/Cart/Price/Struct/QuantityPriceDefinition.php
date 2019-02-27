@@ -28,9 +28,15 @@ class QuantityPriceDefinition extends Struct implements PriceDefinitionInterface
      */
     protected $isCalculated;
 
+    /**
+     * @var int
+     */
+    protected $precision;
+
     public function __construct(
         float $price,
         TaxRuleCollection $taxRules,
+        int $precision,
         int $quantity = 1,
         bool $isCalculated = false
     ) {
@@ -38,6 +44,7 @@ class QuantityPriceDefinition extends Struct implements PriceDefinitionInterface
         $this->taxRules = $taxRules;
         $this->quantity = $quantity;
         $this->isCalculated = $isCalculated;
+        $this->precision = $precision;
     }
 
     public static function fromArray(array $data): self
@@ -55,6 +62,7 @@ class QuantityPriceDefinition extends Struct implements PriceDefinitionInterface
         return new self(
             (float) $data['price'],
             new TaxRuleCollection($taxRules),
+            (int) $data['precision'],
             (int) $data['quantity'],
             (bool) $data['isCalculated']
         );
@@ -83,5 +91,15 @@ class QuantityPriceDefinition extends Struct implements PriceDefinitionInterface
     public function setQuantity(int $quantity): void
     {
         $this->quantity = $quantity;
+    }
+
+    public function getPrecision(): int
+    {
+        return $this->precision;
+    }
+
+    public function setPrecision(int $precision): void
+    {
+        $this->precision = $precision;
     }
 }

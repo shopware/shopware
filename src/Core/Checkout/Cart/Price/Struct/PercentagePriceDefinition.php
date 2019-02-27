@@ -19,10 +19,16 @@ class PercentagePriceDefinition extends Struct implements PriceDefinitionInterfa
      */
     protected $filter;
 
-    public function __construct(float $percentage, ?Rule $filter = null)
+    /**
+     * @var int
+     */
+    protected $precision;
+
+    public function __construct(float $percentage, int $precision, ?Rule $filter = null)
     {
         $this->percentage = $percentage;
         $this->filter = $filter;
+        $this->precision = $precision;
     }
 
     public function getPercentage(): float
@@ -33,5 +39,10 @@ class PercentagePriceDefinition extends Struct implements PriceDefinitionInterfa
     public function getFilter(): ?Rule
     {
         return $this->filter;
+    }
+
+    public function getPrecision(): int
+    {
+        return $this->precision;
     }
 }

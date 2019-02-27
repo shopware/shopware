@@ -144,7 +144,7 @@ class EnrichmentTest extends TestCase
         $cart->add(
             (new LineItem('A', 'product'))
                 ->setPayload(['id' => $id])
-                ->setPriceDefinition(new QuantityPriceDefinition(1, new TaxRuleCollection()))
+                ->setPriceDefinition(new QuantityPriceDefinition(1, new TaxRuleCollection(), 2))
                 ->setDescription('Do not override')
                 ->setCover(
                     (new MediaEntity())->assign([

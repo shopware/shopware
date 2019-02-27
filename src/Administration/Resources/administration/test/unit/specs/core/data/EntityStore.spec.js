@@ -70,6 +70,7 @@ describe('core/data/EntityStore.js', () => {
         const entity = store.create();
         entity.factor = 6844.41;
         entity.symbol = 'Ƀ';
+        entity.decimalPrecision = 2;
         entity.shortName = 'BTC';
         entity.name = 'Bitcoin';
 
@@ -97,6 +98,7 @@ describe('core/data/EntityStore.js', () => {
         // Create a new entry
         const entity = new EntityProxy('currency', serviceContainer.currencyService);
         entity.factor = 6844.41;
+        entity.decimalPrecision = 2;
         entity.symbol = 'Ƀ';
         entity.shortName = 'BTC';
         entity.name = 'Bitcoin';
@@ -127,6 +129,7 @@ describe('core/data/EntityStore.js', () => {
         // Create a new entry
         const entity = store.create();
         entity.factor = 6844.41;
+        entity.decimalPrecision = 2;
         entity.symbol = 'Ƀ';
         entity.shortName = 'BTC';
         entity.name = 'Bitcoin';
@@ -165,6 +168,7 @@ describe('core/data/EntityStore.js', () => {
         const entity = store.create();
         entity.factor = 6844.41;
         entity.symbol = 'Ƀ';
+        entity.decimalPrecision = 2;
         entity.shortName = 'BTC';
         entity.name = 'Bitcoin';
 
@@ -275,6 +279,7 @@ describe('core/data/EntityStore.js', () => {
 
         const entity = store.create();
         entity.factor = 6844.41;
+        entity.decimalPrecision = 2;
         entity.symbol = 'Ƀ';
         entity.shortName = 'BTC';
         entity.name = 'Bitcoin';
@@ -294,6 +299,7 @@ describe('core/data/EntityStore.js', () => {
         const entity = new EntityProxy('currency', 'currencyService');
         entity.setLocalData({
             factor: 6844.41,
+            decimalPrecision: 2,
             symbol: 'Ƀ',
             shortName: 'BTC',
             name: 'Bitcoin'

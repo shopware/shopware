@@ -171,7 +171,17 @@ class CheckoutContextFactory implements CheckoutContextFactoryInterface
         //detect active delivery method, at first checkout scope, at least shop default method
         $delivery = $this->getShippingMethod($options, $context, $salesChannel);
 
-        $context = new CheckoutContext(
+        $context = new Context(
+            $context->getSourceContext(),
+            [],
+            $currency->getId(),
+            $context->getLanguageIdChain(),
+            $context->getVersionId(),
+            $currency->getFactor(),
+            $currency->getDecimalPrecision()
+        );
+
+        $checkoutContext = new CheckoutContext(
             $context,
             $token,
             $salesChannel,
@@ -186,9 +196,9 @@ class CheckoutContextFactory implements CheckoutContextFactoryInterface
             []
         );
 
-        $context->setTaxState($this->taxDetector->getTaxState($context));
+        $checkoutContext->setTaxState($this->taxDetector->getTaxState($checkoutContext));
 
-        return $context;
+        return $checkoutContext;
     }
 
     private function getPaymentMethod(array $options, Context $context, SalesChannelEntity $salesChannel, ?CustomerEntity $customer): PaymentMethodEntity
@@ -230,6 +240,7 @@ class CheckoutContextFactory implements CheckoutContextFactoryInterface
           sales_channel.language_id as sales_channel_default_language_id,
           sales_channel.currency_id as sales_channel_currency_id,
           currency.factor as sales_channel_currency_factor,
+          currency.decimal_precision as sales_channel_currency_decimal_precision,
           GROUP_CONCAT(LOWER(HEX(sales_channel_language.language_id))) as sales_channel_language_ids
         FROM sales_channel
             INNER JOIN currency 
@@ -261,7 +272,8 @@ class CheckoutContextFactory implements CheckoutContextFactoryInterface
             Uuid::fromBytesToHex($data['sales_channel_currency_id']),
             $languageChain,
             Defaults::LIVE_VERSION,
-            (float) $data['sales_channel_currency_factor']
+            (float) $data['sales_channel_currency_factor'],
+            (int) $data['sales_channel_currency_decimal_precision']
         );
     }
 

@@ -27,33 +27,33 @@ class TaxCalculator
         $this->calculator = $calculator;
     }
 
-    public function calculateGross(float $netPrice, TaxRuleCollection $rules): float
+    public function calculateGross(float $netPrice, int $precision, TaxRuleCollection $rules): float
     {
-        $taxes = $this->calculateNetTaxes($netPrice, $rules);
+        $taxes = $this->calculateNetTaxes($netPrice, $precision, $rules);
         $gross = $netPrice + $taxes->getAmount();
 
-        return $this->rounding->round($gross);
+        return $this->rounding->round($gross, $precision);
     }
 
-    public function calculateGrossTaxes(float $price, TaxRuleCollection $rules): CalculatedTaxCollection
+    public function calculateGrossTaxes(float $price, int $precision, TaxRuleCollection $rules): CalculatedTaxCollection
     {
         return new CalculatedTaxCollection(
             $rules->map(
-                function (TaxRule $rule) use ($price) {
+                function (TaxRule $rule) use ($price, $precision) {
                     return $this->calculator
-                        ->calculateTaxFromGrossPrice($price, $rule);
+                        ->calculateTaxFromGrossPrice($price, $precision, $rule);
                 }
             )
         );
     }
 
-    public function calculateNetTaxes(float $price, TaxRuleCollection $rules): CalculatedTaxCollection
+    public function calculateNetTaxes(float $price, int $precision, TaxRuleCollection $rules): CalculatedTaxCollection
     {
         return new CalculatedTaxCollection(
             $rules->map(
-                function (TaxRule $rule) use ($price) {
+                function (TaxRule $rule) use ($price, $precision) {
                     return $this->calculator
-                        ->calculateTaxFromNetPrice($price, $rule);
+                        ->calculateTaxFromNetPrice($price, $precision, $rule);
                 }
             )
         );

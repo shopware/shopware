@@ -33,6 +33,11 @@ class Context extends Struct
     protected $currencyFactor;
 
     /**
+     * @var int
+     */
+    protected $currencyPrecision;
+
+    /**
      * @var array
      */
     protected $rules;
@@ -43,7 +48,8 @@ class Context extends Struct
         string $currencyId = Defaults::CURRENCY,
         array $languageIdChain = [Defaults::LANGUAGE_SYSTEM],
         string $versionId = Defaults::LIVE_VERSION,
-        float $currencyFactor = 1.0
+        float $currencyFactor = 1.0,
+        int $currencyPrecision = 2
     ) {
         $this->sourceContext = $sourceContext;
         $this->rules = $rules;
@@ -56,6 +62,7 @@ class Context extends Struct
             throw new \InvalidArgumentException('Argument languageIdChain must not be empty');
         }
         $this->languageIdChain = array_keys(array_flip(array_filter($languageIdChain)));
+        $this->currencyPrecision = $currencyPrecision;
     }
 
     public static function createDefaultContext(): self
@@ -106,7 +113,8 @@ class Context extends Struct
             $this->currencyId,
             $this->languageIdChain,
             $versionId,
-            $this->currencyFactor
+            $this->currencyFactor,
+            $this->currencyPrecision
         );
 
         foreach ($this->getExtensions() as $key => $extension) {
@@ -124,5 +132,10 @@ class Context extends Struct
         $callback($this);
 
         $this->sourceContext->setOrigin($currentScope);
+    }
+
+    public function getCurrencyPrecision(): int
+    {
+        return $this->currencyPrecision;
     }
 }

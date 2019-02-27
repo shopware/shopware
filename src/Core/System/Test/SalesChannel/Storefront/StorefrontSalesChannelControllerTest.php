@@ -187,6 +187,7 @@ class StorefrontSalesChannelControllerTest extends TestCase
             'id' => Uuid::uuid4()->getHex(),
             'isDefault' => false,
             'factor' => 1.23,
+            'decimalPrecision' => 2,
             'symbol' => 'USD',
             'placedInFront' => false,
             'position' => 10,

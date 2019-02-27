@@ -1667,7 +1667,7 @@ class VersioningTest extends TestCase
             (new LineItem('test', 'test'))
                 ->setLabel('test')
                 ->setGood(true)
-                ->setPriceDefinition(new QuantityPriceDefinition(10, new TaxRuleCollection()))
+                ->setPriceDefinition(new QuantityPriceDefinition(10, new TaxRuleCollection(), 2))
         );
 
         $customerId = $this->createCustomer();

@@ -1,16 +1,16 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\Test\StateMachine;
+namespace Shopware\Core\System\Test\StateMachine;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
-use Shopware\Core\Framework\StateMachine\StateMachineNotFoundException;
-use Shopware\Core\Framework\StateMachine\StateMachineRegistry;
-use Shopware\Core\Framework\StateMachine\StateMachineWithoutInitialStateException;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
+use Shopware\Core\System\StateMachine\Exception\StateMachineNotFoundException;
+use Shopware\Core\System\StateMachine\Exception\StateMachineWithoutInitialStateException;
+use Shopware\Core\System\StateMachine\StateMachineRegistry;
 
 class StateMachineRegistryTest extends TestCase
 {
@@ -52,11 +52,18 @@ class StateMachineRegistryTest extends TestCase
     private $stateMachineRegistry;
 
     /**
-     * @var RepositoryInterface
+     * @var EntityRepositoryInterface
      */
     private $stateMachineRepository;
 
+    /**
+     * @var string
+     */
     private $stateMachineWithoutInitialId;
+
+    /**
+     * @var string
+     */
     private $stateMachineWithoutInitialName;
 
     protected function setUp(): void

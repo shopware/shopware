@@ -41,13 +41,13 @@
         <service id="Shopware\Core\Checkout\Cart\Order\OrderConverter">
             <argument type="service" id="customer.repository"/>
             <argument type="service" id="Shopware\Core\Checkout\Context\CheckoutContextFactory"/>
-            <argument type="service" id="Shopware\Core\Framework\StateMachine\StateMachineRegistry"/>
+            <argument type="service" id="Shopware\Core\System\StateMachine\StateMachineRegistry"/>
             <argument type="service" id="event_dispatcher"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Order\OrderActionController" public="true">
             <argument type="service" id="order.repository"/>
-            <argument type="service" id="Shopware\Core\Framework\StateMachine\StateMachineRegistry"/>
+            <argument type="service" id="Shopware\Core\System\StateMachine\StateMachineRegistry"/>
             <call method="setContainer">
                 <argument type="service" id="service_container" />
             </call>
@@ -55,7 +55,7 @@
 
         <service id="Shopware\Core\Checkout\Order\OrderDeliveryActionController" public="true">
             <argument type="service" id="order_delivery.repository"/>
-            <argument type="service" id="Shopware\Core\Framework\StateMachine\StateMachineRegistry"/>
+            <argument type="service" id="Shopware\Core\System\StateMachine\StateMachineRegistry"/>
             <call method="setContainer">
                 <argument type="service" id="service_container" />
             </call>
@@ -63,7 +63,7 @@
 
         <service id="Shopware\Core\Checkout\Order\OrderTransactionActionController" public="true">
             <argument type="service" id="order_transaction.repository"/>
-            <argument type="service" id="Shopware\Core\Framework\StateMachine\StateMachineRegistry"/>
+            <argument type="service" id="Shopware\Core\System\StateMachine\StateMachineRegistry"/>
             <call method="setContainer">
                 <argument type="service" id="service_container" />
             </call>

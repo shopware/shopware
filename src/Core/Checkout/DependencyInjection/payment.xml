@@ -46,31 +46,31 @@
         <service id="Shopware\Core\Checkout\Payment\Cart\PaymentHandler\PrePayment">
             <tag name="payment.method"/>
             <argument type="service" id="order_transaction.repository"/>
-            <argument type="service" id="Shopware\Core\Framework\StateMachine\StateMachineRegistry"/>
+            <argument type="service" id="Shopware\Core\System\StateMachine\StateMachineRegistry"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Payment\Cart\PaymentHandler\DebitPayment">
             <tag name="payment.method"/>
             <argument type="service" id="order_transaction.repository"/>
-            <argument type="service" id="Shopware\Core\Framework\StateMachine\StateMachineRegistry"/>
+            <argument type="service" id="Shopware\Core\System\StateMachine\StateMachineRegistry"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Payment\Cart\PaymentHandler\CashPayment">
             <tag name="payment.method"/>
             <argument type="service" id="order_transaction.repository"/>
-            <argument type="service" id="Shopware\Core\Framework\StateMachine\StateMachineRegistry"/>
+            <argument type="service" id="Shopware\Core\System\StateMachine\StateMachineRegistry"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Payment\Cart\PaymentHandler\InvoicePayment">
             <tag name="payment.method"/>
             <argument type="service" id="order_transaction.repository"/>
-            <argument type="service" id="Shopware\Core\Framework\StateMachine\StateMachineRegistry"/>
+            <argument type="service" id="Shopware\Core\System\StateMachine\StateMachineRegistry"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Payment\Cart\PaymentHandler\SEPAPayment">
             <tag name="payment.method"/>
             <argument type="service" id="order_transaction.repository"/>
-            <argument type="service" id="Shopware\Core\Framework\StateMachine\StateMachineRegistry"/>
+            <argument type="service" id="Shopware\Core\System\StateMachine\StateMachineRegistry"/>
         </service>
     </services>
 </container>

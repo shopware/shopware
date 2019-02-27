@@ -243,16 +243,6 @@
             </call>
         </service>
 
-        <service id="Shopware\Core\Framework\StateMachine\StateMachineRegistry">
-            <argument type="service" id="state_machine.repository" />
-            <argument type="service" id="state_machine_history.repository" />
-        </service>
-
-        <service id="Shopware\Core\Framework\Command\WorkflowDumpCommand">
-            <argument type="service" id="Shopware\Core\Framework\StateMachine\StateMachineRegistry"/>
-            <tag name="console.command"/>
-        </service>
-
         <!-- Feature Flags -->
         <service id="Shopware\Core\Framework\FeatureFlag\FeatureFlagGenerator"/>
     </services>

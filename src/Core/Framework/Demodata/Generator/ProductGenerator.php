@@ -11,6 +11,7 @@ use Shopware\Core\Content\Media\File\FileNameProvider;
 use Shopware\Core\Content\Media\File\FileSaver;
 use Shopware\Core\Content\Media\File\MediaFile;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerDefinition;
+use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\Util\VariantGenerator;
 use Shopware\Core\Content\Rule\RuleDefinition;
@@ -151,6 +152,8 @@ class ProductGenerator implements DemodataGeneratorInterface
             $mediaFolderId = $this->getOrCreateDefaultFolder($context);
         }
 
+        $visibilities = $this->buildVisibilities();
+
         $taxes = $this->getTaxes($context->getContext());
         $properties = $this->getProperties();
 
@@ -159,6 +162,7 @@ class ProductGenerator implements DemodataGeneratorInterface
         $payload = [];
         for ($i = 0; $i < $count; ++$i) {
             $product = $this->createSimpleProduct($context, $taxes);
+            $product['visibilities'] = $visibilities;
 
             if ($withMedia) {
                 $imagePath = $this->getRandomImage($context, $product['name']);
@@ -565,5 +569,14 @@ class ProductGenerator implements DemodataGeneratorInterface
         $options = $this->connection->fetchAll('SELECT LOWER(HEX(id)) as id FROM configuration_group_option LIMIT 5000');
 
         return array_column($options, 'id');
+    }
+
+    private function buildVisibilities()
+    {
+        $ids = $this->connection->fetchAll('SELECT LOWER(HEX(id)) as id FROM sales_channel LIMIT 100');
+
+        return array_map(function ($id) {
+            return ['salesChannelId' => $id['id'], 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL];
+        }, $ids);
     }
 }

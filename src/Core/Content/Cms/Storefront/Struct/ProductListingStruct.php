@@ -2,10 +2,10 @@
 
 namespace Shopware\Core\Content\Cms\Storefront\Struct;
 
-use Shopware\Core\Content\Cms\Aggregate\CmsSlot\CmsSlotEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\Struct\Struct;
 
-class ProductListingStruct extends CmsSlotEntity
+class ProductListingStruct extends Struct
 {
     /**
      * @var EntitySearchResult

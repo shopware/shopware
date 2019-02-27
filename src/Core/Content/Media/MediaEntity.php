@@ -428,4 +428,12 @@ class MediaEntity extends Entity
     {
         $this->attributes = $attributes;
     }
+
+    public function jsonSerialize(): array
+    {
+        $data = parent::jsonSerialize();
+        unset($data['metaDataRaw'], $data['mediaTypeRaw']);
+
+        return $data;
+    }
 }

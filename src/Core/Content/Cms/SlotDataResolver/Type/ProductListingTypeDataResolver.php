@@ -31,11 +31,11 @@ class ProductListingTypeDataResolver implements SlotTypeDataResolverInterface
         return $collection;
     }
 
-    public function enrich(CmsSlotEntity $slot, InternalRequest $request, CheckoutContext $context, SlotDataResolveResult $result): CmsSlotEntity
+    public function enrich(CmsSlotEntity $slot, InternalRequest $request, CheckoutContext $context, SlotDataResolveResult $result): void
     {
-        $slot = ProductListingStruct::createFrom($slot);
-        $slot->setSearchResult($result->get('listing'));
+        $data = new ProductListingStruct();
+        $data->setSearchResult($result->get('listing'));
 
-        return $slot;
+        $slot->setData($data);
     }
 }

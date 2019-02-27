@@ -36,25 +36,25 @@ class ProductBoxTypeDataResolver implements SlotTypeDataResolverInterface
         return $criteriaCollection;
     }
 
-    public function enrich(CmsSlotEntity $slot, InternalRequest $request, CheckoutContext $context, SlotDataResolveResult $result): CmsSlotEntity
+    public function enrich(CmsSlotEntity $slot, InternalRequest $request, CheckoutContext $context, SlotDataResolveResult $result): void
     {
+        $productBox = new ProductBoxStruct();
+        $slot->setData($productBox);
+
         $config = $slot->getConfig();
-        $productBox = ProductBoxStruct::createFrom($slot);
 
         $searchResult = $result->get('product');
         if (!$searchResult) {
-            return $productBox;
+            return;
         }
 
         /** @var StorefrontProductEntity|null $product */
         $product = $searchResult->get($config['productId']);
         if (!$product) {
-            return $productBox;
+            return;
         }
 
         $productBox->setProduct($product);
         $productBox->setProductId($config['productId']);
-
-        return $productBox;
     }
 }

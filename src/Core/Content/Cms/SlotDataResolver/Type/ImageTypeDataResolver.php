@@ -36,26 +36,24 @@ class ImageTypeDataResolver implements SlotTypeDataResolverInterface
         return $criteriaCollection;
     }
 
-    public function enrich(CmsSlotEntity $slot, InternalRequest $request, CheckoutContext $context, SlotDataResolveResult $result): CmsSlotEntity
+    public function enrich(CmsSlotEntity $slot, InternalRequest $request, CheckoutContext $context, SlotDataResolveResult $result): void
     {
-        $slot = ImageStruct::createFrom($slot);
-
         $config = $slot->getConfig();
+        $image = new ImageStruct();
+        $slot->setData($image);
 
         if (isset($config['url'])) {
-            $slot->setUrl($config['url']);
+            $image->setUrl($config['url']);
         }
 
         if (isset($config['mediaId'])) {
-            $this->addMediaEntity($slot, $result, $config['mediaId']);
+            $this->addMediaEntity($image, $result, $config['mediaId']);
         }
-
-        return $slot;
     }
 
-    private function addMediaEntity(ImageStruct $slot, SlotDataResolveResult $result, string $mediaId): void
+    private function addMediaEntity(ImageStruct $image, SlotDataResolveResult $result, string $mediaId): void
     {
-        $slot->setMediaId($mediaId);
+        $image->setMediaId($mediaId);
 
         $searchResult = $result->get('media');
         if (!$searchResult) {
@@ -68,6 +66,6 @@ class ImageTypeDataResolver implements SlotTypeDataResolverInterface
             return;
         }
 
-        $slot->setMedia($media);
+        $image->setMedia($media);
     }
 }

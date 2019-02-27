@@ -89,7 +89,7 @@ class SlotDataResolver
             $this->mapSearchResults($result, $slot, $slotCriteriaList, $searchResults);
             $this->mapEntities($result, $slot, $slotCriteriaList, $entities);
 
-            $slot = $resolver->enrich($slot, $request, $context, $result);
+            $resolver->enrich($slot, $request, $context, $result);
 
             // replace with return value from enrich(), because it's allowed to change the entity type
             $slots->set($slotId, $slot);

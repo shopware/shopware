@@ -8,6 +8,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CreatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
@@ -15,8 +16,10 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationFi
 use Shopware\Core\Framework\DataAbstractionLayer\Field\UpdatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\Deferred;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\Required;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\WriteProtected;
 
 class CmsSlotDefinition extends EntityDefinition
 {
@@ -51,6 +54,8 @@ class CmsSlotDefinition extends EntityDefinition
 
             new TranslatedField('config'),
             new TranslatedField('attributes'),
+
+            (new JsonField('data', 'data'))->addFlags(new Deferred(), new WriteProtected()),
 
             (new FkField('cms_block_id', 'blockId', CmsBlockDefinition::class))->addFlags(new Required()),
             new ManyToOneAssociationField('block', 'cms_block_id', CmsBlockDefinition::class, false),

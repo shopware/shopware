@@ -47,5 +47,15 @@
         <service id="Shopware\Core\Content\Cms\SlotDataResolver\Type\ImageTypeDataResolver">
             <tag name="shopware.cms.data_resolver" />
         </service>
+
+        <service id="Shopware\Core\Content\Cms\Storefront\CmsPageController" public="true">
+            <argument type="service" id="Shopware\Core\Content\Cms\Storefront\StorefrontCmsPageRepository" />
+            <argument type="service" id="Shopware\Core\Content\Cms\SlotDataResolver\SlotDataResolver" />
+            <call method="setContainer">
+                <argument type="service" id="service_container" />
+            </call>
+        </service>
+
+
     </services>
 </container>

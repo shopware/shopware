@@ -1,0 +1,80 @@
+// Bootstrap
+
+// Color system
+$gray-100: #f8f8fa; // ~ 'sw5 gray-light'
+$gray-200: #f5f5f8; // ~ 'sw5 gray'
+$gray-300: #dadae5; // ~ 'sw5 gray-dark'
+$gray-600: #5f7285; // ~ 'sw5 brand-secondary'
+$gray-800: #3f4c58; // ~ 'sw5 brand-secondary-dark'
+
+$red: #e74c3c;
+$yellow: #f1c40f;
+$green: #2ecc71;
+$cyan: #4aa3df;
+
+$primary: #d9400b;
+$border-color: $gray-300;
+$headings-color: $gray-800;
+
+// Body
+$body-color: $gray-600;
+$body-bg: #e9e9f0;
+
+// Typography
+$font-family-base: 'Open Sans', 'Helvetica Neue', Helvetica, Arial, 'Lucida Grande', sans-serif;
+$font-size-base: 0.875rem;
+$font-size-lg: 1rem;
+$font-size-sm: 0.75rem;
+$font-weight-normal: 500;
+
+$h1-font-size: 26px;
+$h2-font-size: 21px;
+$h3-font-size: 18px;
+$h4-font-size: 16px;
+$h5-font-size: 14px;
+$h6-font-size: 12px;
+
+$headings-font-weight: 700;
+$headings-font-family: $font-family-base;
+
+// Buttons + Forms
+$input-btn-padding-y: 0.5625rem;
+$input-btn-padding-x: 0.5625rem;
+
+// Buttons
+$btn-padding-y: 2px;
+$btn-padding-x: 12px;
+$btn-line-height: 34px;
+
+$btn-padding-y-sm: 2px;
+$btn-padding-x-sm: 12px;
+$btn-font-size-sm: 14px;
+$btn-line-height-sm: 30px;
+
+$btn-padding-y-lg: 2px;
+$btn-padding-x-lg: 12px;
+$btn-font-size-lg: 14px;
+$btn-line-height-lg: 38px;
+
+// Forms
+$input-color: #8798a9;
+$input-border-color: $gray-300;
+$custom-select-indicator-color: $input-color;
+
+// Badges
+$badge-font-size: 12px;
+
+// Spinners
+$spinner-width: 26px;
+$spinner-border-width: 2px;
+
+// Modals
+$modal-header-padding-y: 10px;
+$modal-header-padding-x: 10px;
+
+// Shopware
+$primary-light: saturate(lighten($primary, 12%), 5%);
+$success-light: saturate(lighten($green, 12%), 5%);
+$warning-light: saturate(lighten($yellow, 12%), 5%);
+$info-light: saturate(lighten($cyan, 12%), 5%);
+$danger-light: saturate(lighten($red, 12%), 5%);

@@ -1,0 +1,23 @@
+/*
+Typography
+==============================================
+Custom styling for bootstrap typography.
+
+https://getbootstrap.com/docs/4.3/content/typography/
+*/
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+.h1,
+.h2,
+.h3,
+.h4,
+.h5,
+.h6 {
+    line-height: 26px;
+    margin-bottom: 10px;
+}

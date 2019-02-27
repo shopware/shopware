@@ -2,7 +2,7 @@ module.exports = {
     "extends": "stylelint-config-sass-guidelines",
     "rules": {
         "indentation": 4,
-        "max-nesting-depth": 2,
+        "max-nesting-depth": 3,
         "order/properties-alphabetical-order": null,
         "selector-no-qualifying-type": [
             true, {

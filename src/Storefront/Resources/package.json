@@ -27,6 +27,7 @@
     "css-loader": "2.1.0",
     "eslint": "5.12.1",
     "eslint-loader": "2.1.1",
+    "file-loader": "^3.0.1",
     "friendly-errors-webpack-plugin": "1.7.0",
     "mini-css-extract-plugin": "0.5.0",
     "node-sass": "4.11.0",
@@ -50,6 +51,7 @@
     "@babel/polyfill": "7.2.5",
     "bootstrap": "4.3.1",
     "jquery": "3.3.1",
+    "open-sans-fontface": "^1.4.0",
     "popper.js": "1.14.7"
   }
 }

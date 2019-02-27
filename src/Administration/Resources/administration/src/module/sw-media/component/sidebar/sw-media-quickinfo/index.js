@@ -1,5 +1,6 @@
 import { Component, Mixin, State } from 'src/core/shopware';
 import { format } from 'src/core/service/util.service';
+import CriteriaFactory from 'src/core/factory/criteria.factory';
 import domUtils from 'src/core/service/utils/dom.utils';
 import template from './sw-media-quickinfo.html.twig';
 import './sw-media-quickinfo.scss';
@@ -31,6 +32,12 @@ Component.register('sw-media-quickinfo', {
         }
     },
 
+    data() {
+        return {
+            attributeSets: []
+        };
+    },
+
     computed: {
         mediaStore() {
             return State.getStore('media');
@@ -47,10 +54,33 @@ Component.register('sw-media-quickinfo', {
         createdAt() {
             const date = this.item.uploadedAt || this.item.createdAt;
             return format.date(date);
+        },
+        attributeSetStore() {
+            return State.getStore('attribute_set');
         }
     },
 
+    created() {
+        this.createdComponent();
+    },
+
     methods: {
+        createdComponent() {
+            this.attributeSetStore.getList({
+                page: 1,
+                limit: 100,
+                criteria: CriteriaFactory.equals('relations.entityName', 'media'),
+                associations: {
+                    attributes: {
+                        limit: 100,
+                        sort: 'attribute.config.attributePosition'
+                    }
+                }
+            }, true).then((response) => {
+                this.attributeSets = response.items;
+            });
+        },
+
         copyLinkToClipboard() {
             if (this.item) {
                 domUtils.copyToClipboard(this.item.url);

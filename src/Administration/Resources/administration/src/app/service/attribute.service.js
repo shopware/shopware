@@ -87,15 +87,11 @@ export default function createAttributeService() {
 
     const $entityNameStore = [
         'product',
-        'product_variation',
         'product_manufacturer',
-        'cms_page',
-        'category',
         'customer',
         'customer_address',
         'order',
         'sales_channel',
-        'product_stream',
         'media'
     ];
 

@@ -1,4 +1,5 @@
 import { Component, Mixin, State } from 'src/core/shopware';
+import CriteriaFactory from 'src/core/factory/criteria.factory';
 import template from './sw-sales-channel-detail.html.twig';
 
 Component.register('sw-sales-channel-detail', {
@@ -14,7 +15,8 @@ Component.register('sw-sales-channel-detail', {
     data() {
         return {
             salesChannel: {},
-            isLoading: false
+            isLoading: false,
+            attributeSets: []
         };
     },
     computed: {
@@ -29,6 +31,9 @@ Component.register('sw-sales-channel-detail', {
         },
         isStoreFront() {
             return this.salesChannel.typeId === '8a243080f92e4c719546314b577cf82b';
+        },
+        attributeSetStore() {
+            return State.getStore('attribute_set');
         }
     },
 
@@ -53,6 +58,20 @@ Component.register('sw-sales-channel-detail', {
 
         loadEntityData() {
             this.salesChannel = this.salesChannelStore.getById(this.$route.params.id);
+
+            this.attributeSetStore.getList({
+                page: 1,
+                limit: 100,
+                criteria: CriteriaFactory.equals('relations.entityName', 'sales_channel'),
+                associations: {
+                    attributes: {
+                        limit: 100,
+                        sort: 'attribute.config.attributePosition'
+                    }
+                }
+            }, true).then((response) => {
+                this.attributeSets = response.items;
+            });
         },
 
         onSave() {

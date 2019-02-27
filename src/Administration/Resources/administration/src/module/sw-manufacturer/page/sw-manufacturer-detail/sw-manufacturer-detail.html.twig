@@ -95,8 +95,13 @@
                 </sw-card>
             {% endblock %}
 
-
-
+            {% block sw_manufacturer_detail_attribute_sets %}
+                <sw-attribute-set-renderer
+                        v-if="next754"
+                        :entity="manufacturer"
+                        :sets="attributeSets">
+                </sw-attribute-set-renderer>
+            {% endblock %}
         </sw-card-view>
     {% endblock %}
 

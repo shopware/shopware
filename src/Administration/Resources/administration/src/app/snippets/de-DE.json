@@ -1908,6 +1908,11 @@
       "messageSaveSuccess": "Der E-mail Header/Footer \"{name}\" wurde erfolgreich gespeichert."
     }
   },
+  "sw-attribute-set-renderer": {
+    "general":{
+      "labelButtonSave": "Speichern"
+    }
+  },
   "locale": {
     "de-DE": "Deutsch",
     "en-GB": "Englisch"

@@ -230,5 +230,12 @@
 
             </sw-card>
         {% endblock %}
+        {% block sw_sales_channel_detail_attribute_sets %}
+            <sw-attribute-set-renderer
+                v-if="next754"
+                :entity="salesChannel"
+                :sets="attributeSets">
+            </sw-attribute-set-renderer>
+        {% endblock %}
     </div>
 {% endblock %}

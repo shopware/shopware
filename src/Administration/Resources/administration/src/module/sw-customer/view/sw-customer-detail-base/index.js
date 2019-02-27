@@ -69,6 +69,10 @@ Component.register('sw-customer-detail-base', {
                 return [];
             }
         },
+        customerAttributeSets: {
+            type: Array,
+            required: true
+        },
         isLoading: {
             type: Boolean,
             required: false,

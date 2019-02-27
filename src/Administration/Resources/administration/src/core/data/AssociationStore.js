@@ -121,7 +121,7 @@ export default class AssociationStore extends EntityStore {
         }
 
         const newEntity = this.create(entity.id);
-        newEntity.setData(deepCopyObject(entity));
+        newEntity.setLocalData(deepCopyObject(entity));
         newEntity.isLocal = true;
 
         return true;

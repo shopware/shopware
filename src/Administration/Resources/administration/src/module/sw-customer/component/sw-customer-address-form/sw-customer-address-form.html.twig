@@ -128,5 +128,14 @@
                       :label="$tc('sw-customer.detailAddresses.contextMenuDefaultBillingAddress')">
             </sw-field>
         {% endblock %}
+
+        {% block sw_customer_address_form_attribute_sets %}
+            <sw-attribute-set-renderer
+                    v-if="next754"
+                    :entity="address"
+                    variant="modal"
+                    :sets="attributeSets">
+            </sw-attribute-set-renderer>
+        {% endblock %}
     </div>
 {% endblock %}

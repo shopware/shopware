@@ -183,7 +183,7 @@ class AttributeGenerator implements DemodataGeneratorInterface
             return ['id' => Uuid::uuid4()->getHex(), 'entityName' => $rel];
         }, $relationNames);
 
-        $attributeCount = random_int(1, 30);
+        $attributeCount = random_int(1, 5);
         $attributes = [];
 
         $setName = $context->getFaker()->unique()->category;

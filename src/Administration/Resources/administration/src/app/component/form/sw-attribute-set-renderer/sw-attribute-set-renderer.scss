@@ -1,5 +1,16 @@
 .sw-attribute-set-renderer {
+	.sw-attribute-set-renderer__sw-card .sw-card__content {
+		min-height: 400px;
+	}
 	.sw-select {
 		margin-bottom: 22px;
+	}
+
+	.sw-attribute-set-renderer__card-tabs .sw-tabs-item__minimal {
+		line-height: 44px;
+	}
+
+	.sw-attribute-set-renderer__modal-tabs .sw-tabs-item__minimal {
+		line-height: 38px;
 	}
 }

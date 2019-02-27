@@ -1912,6 +1912,11 @@
       "messageSaveSuccess": "The email header/footer \"{name}\" has been saved successfully."
     }
   },
+  "sw-attribute-set-renderer": {
+    "general":{
+      "labelButtonSave": "Save"
+    }
+  },
   "locale": {
     "de-DE": "German",
     "en-GB": "English"

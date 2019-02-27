@@ -1,17 +1,113 @@
 {% block sw_attribute_set_renderer %}
     <div class="sw-attribute-set-renderer">
-        {% block sw_attribute_set_renderer_card %}
-            <sw-card
-                    v-for="set in sets"
-                    :key="set.id"
-                    :title="getInlineSnippet(set.config.label) || set.name">
-                <template v-for="attribute in set.attributes">
-                    {% block sw_attribute_set_renderer_card_form_renderer %}
-                        <sw-form-field-renderer v-bind="attribute" v-model="entity.attributes[attribute.name]">
-                        </sw-form-field-renderer>
-                    {% endblock %}
+        <template v-if="sets.length > 0">
+            {% block sw_attribute_set_renderer_card %}
+                <sw-card
+                        v-if="variant === 'card'"
+                        class="sw-attribute-set-renderer__sw-card"
+                        :title="$tc('sw-settings-attribute.general.mainMenuItemGeneral')">
+                    <sw-tabs
+                            class="sw-attribute-set-renderer__card-tabs"
+                            variant="minimal"
+                            :defaultItem="sets[0].name">
+                        {% block sw_attribute_set_renderer_card_tabs %}
+                            <template slot-scope="{ active }">
+                                <sw-tabs-item
+                                        v-for="set in sets"
+                                        :key="`sw-tab--${set.id}`"
+                                        variant="minimal"
+                                        :name="set.name"
+                                        :active="active">
+                                    {{ getInlineSnippet(set.config.label) || set.name }}
+                                </sw-tabs-item>
+                            </template>
+                        {% endblock %}
+
+                        {% block sw_attribute_set_renderer_card_tabs_content %}
+                            <template slot="content" slot-scope="{ active }">
+                                <div
+                                        v-for="set in sets"
+                                        v-show="active === set.name">
+                                    <template v-for="attribute in set.attributes">
+                                        {% block sw_attribute_set_renderer_card_form_renderer %}
+                                            <sw-form-field-renderer
+                                                    v-bind="attribute"
+                                                    v-model="entity.attributes[attribute.name]">
+                                            </sw-form-field-renderer>
+                                        {% endblock %}
+                                    </template>
+                                </div>
+                            </template>
+                        {% endblock %}
+                    </sw-tabs>
+                </sw-card>
+            {% endblock %}
+
+            {% block sw_attribute_set_renderer_modal %}
+                <template v-if="variant === 'modal'">
+                    <sw-tabs
+                            class="sw-attribute-set-renderer__modal-tabs"
+                            variant="minimal"
+                            :defaultItem="sets[0].name">
+                        {% block sw_attribute_set_renderer_modal_tabs %}
+                            <template slot-scope="{ active }">
+                                <sw-tabs-item
+                                        v-for="set in sets"
+                                        :key="`sw-tab--${set.id}`"
+                                        variant="minimal"
+                                        :name="set.name"
+                                        :active="active">
+                                    {{ getInlineSnippet(set.config.label) || set.name }}
+                                </sw-tabs-item>
+                            </template>
+                        {% endblock %}
+
+                        {% block sw_attribute_set_renderer_modal_tabs_content %}
+                            <template slot="content" slot-scope="{ active }">
+                                <div
+                                        v-for="set in sets"
+                                        v-show="active === set.name">
+                                    <template v-for="attribute in set.attributes">
+                                        {% block sw_attribute_set_renderer_modal_form_renderer %}
+                                            <sw-form-field-renderer
+                                                    v-bind="attribute"
+                                                    v-model="entity.attributes[attribute.name]">
+                                            </sw-form-field-renderer>
+                                        {% endblock %}
+                                    </template>
+                                </div>
+                            </template>
+                        {% endblock %}
+                    </sw-tabs>
                 </template>
-            </sw-card>
-        {% endblock %}
+            {% endblock %}
+
+            {% block sw_attribute_set_renderer_media %}
+                <sw-media-collapse
+                        v-else-if="variant === 'media-sidebar'"
+                        v-for="set in sets"
+                        :key="`sw-media-collapse--${set.id}`"
+                        :expandOnLoading="false"
+                        :title="getInlineSnippet(set.config.label) || set.name">
+                    <template slot="content">
+                        <template v-for="attribute in set.attributes">
+                            {% block sw_attribute_set_renderer_media_form_renderer %}
+                                <sw-form-field-renderer v-bind="attribute"
+                                                        v-model="entity.attributes[attribute.name]">
+                                </sw-form-field-renderer>
+                            {% endblock %}
+                        </template>
+                        {% block sw_attribute_set_renderer_media_button_save %}
+                            <sw-button
+                                    variant="primary"
+                                    size="small"
+                                    @click="$emit('sw-attribute-set-renderer-save')">
+                                {{ $tc('sw-attribute-set-renderer.general.labelButtonSave') }}
+                            </sw-button>
+                        {% endblock %}
+                    </template>
+                </sw-media-collapse>
+            {% endblock %}
+        </template>
     </div>
 {% endblock %}

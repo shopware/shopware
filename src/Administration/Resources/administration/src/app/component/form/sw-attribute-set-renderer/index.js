@@ -18,6 +18,15 @@ export default {
         Mixin.getByName('sw-inline-snippet')
     ],
 
+    // Grant access to some variables to the child form render components
+    provide() {
+        return {
+            getEntity: this.entity,
+            getAttributeSet: this.set,
+            getAttributeSetVariant: this.variant
+        };
+    },
+
     props: {
         sets: {
             type: Array,
@@ -26,13 +35,19 @@ export default {
         entity: {
             type: Object,
             required: true
+        },
+        variant: {
+            type: String,
+            required: false,
+            default: 'card',
+            validValues: ['card', 'modal', 'media-sidebar'],
+            validator(value) {
+                if (!value.length) {
+                    return true;
+                }
+                return ['card', 'modal', 'media-sidebar'].includes(value);
+            }
         }
-    },
-
-    data() {
-        return {
-            test: {}
-        };
     },
 
     watch: {

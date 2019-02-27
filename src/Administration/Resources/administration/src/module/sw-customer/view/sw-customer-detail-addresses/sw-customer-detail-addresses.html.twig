@@ -31,6 +31,7 @@
                             <sw-customer-address-form :address="currentAddress"
                                                       :countries="countries"
                                                       :customer="customer"
+                                                      :attributeSets="customerAddressAttributeSets"
                                                       @change-default-address="onChangeDefaultAddress">
                             </sw-customer-address-form>
                         {% endblock %}

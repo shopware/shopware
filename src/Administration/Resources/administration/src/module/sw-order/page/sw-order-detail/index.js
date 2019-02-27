@@ -1,4 +1,5 @@
 import { Component, State, Mixin } from 'src/core/shopware';
+import CriteriaFactory from 'src/core/factory/criteria.factory';
 import template from './sw-order-detail.html.twig';
 import './sw-order-detail.scss';
 
@@ -11,12 +12,17 @@ Component.register('sw-order-detail', {
         return {
             order: {},
             orderId: null,
-            isEditing: false
+            isEditing: false,
+            attributeSets: []
         };
     },
     computed: {
         orderStore() {
             return State.getStore('order');
+        },
+
+        attributeSetStore() {
+            return State.getStore('attribute_set');
         }
     },
     watch: {
@@ -35,6 +41,20 @@ Component.register('sw-order-detail', {
 
         loadEntityData() {
             this.order = this.orderStore.getById(this.orderId);
+
+            this.attributeSetStore.getList({
+                page: 1,
+                limit: 100,
+                criteria: CriteriaFactory.equals('relations.entityName', 'order'),
+                associations: {
+                    attributes: {
+                        limit: 100,
+                        sort: 'attribute.config.attributePosition'
+                    }
+                }
+            }, true).then((response) => {
+                this.attributeSets = response.items;
+            });
         },
         onChangeLanguage() {
             this.$refs.baseComponent.changeLanguage();

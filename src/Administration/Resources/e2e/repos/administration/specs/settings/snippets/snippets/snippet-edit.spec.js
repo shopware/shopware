@@ -44,6 +44,9 @@ module.exports = {
 
         browser
             .fillField('.sw-settings-snippet-detail__translation-field--1 input[name=sw-field--snippet-value]', 'Mine yours theirs', true)
+            .expect.element('.sw-snippet-detail__save-action').to.be.enabled;
+
+        browser
             .click('.sw-snippet-detail__save-action')
             .waitForElementNotPresent(page.elements.loader)
             .checkNotification(`Snippet for "${global.SnippetFixtureService.snippetFixture.translationKey}" has been saved successfully.`);

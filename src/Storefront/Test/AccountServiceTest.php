@@ -46,6 +46,7 @@ class AccountServiceTest extends TestCase
         $customer = $this->accountService->getCustomerByEmail($request->requirePost('email'), $this->checkoutContext);
         static::assertEquals($request->requirePost('lastName'), $customer->getLastName());
         static::assertNotEquals($request->requirePost('password'), $customer->getPassword());
+        static::assertNotEmpty($customer->getCustomerNumber());
     }
 
     public function testCreateWithExistingCustomer(): void

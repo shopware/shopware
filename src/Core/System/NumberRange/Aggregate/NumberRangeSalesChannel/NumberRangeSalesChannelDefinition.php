@@ -3,11 +3,11 @@
 namespace Shopware\Core\System\NumberRange\Aggregate\NumberRangeSalesChannel;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\MappingEntityDefinition;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\PrimaryKey;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\Required;
 use Shopware\Core\System\NumberRange\NumberRangeDefinition;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 

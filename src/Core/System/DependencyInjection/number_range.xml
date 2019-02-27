@@ -17,8 +17,8 @@
             <tag name="shopware.entity.definition" entity="number_range_state"/>
         </service>
 
-        <service id="Shopware\Core\System\NumberRange\Aggregate\NumberRangeEntity\NumberRangeEntityDefinition">
-            <tag name="shopware.entity.definition" entity="number_range_entity"/>
+        <service id="Shopware\Core\System\NumberRange\Aggregate\NumberRangeType\NumberRangeTypeDefinition">
+            <tag name="shopware.entity.definition" entity="number_range_type"/>
         </service>
 
         <!-- Value Generator -->

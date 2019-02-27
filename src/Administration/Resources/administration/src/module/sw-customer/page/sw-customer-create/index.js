@@ -5,6 +5,7 @@ import template from './sw-customer-create.html.twig';
 Component.extend('sw-customer-create', 'sw-customer-detail', {
     template,
 
+    inject: ['numberRangeService'],
     beforeRouteEnter(to, from, next) {
         if (to.name.includes('sw.customer.create') && !to.params.id) {
             to.params.id = utils.createId();
@@ -12,6 +13,19 @@ Component.extend('sw-customer-create', 'sw-customer-detail', {
 
         next();
     },
+
+    data() {
+        return {
+            customerNumberPreview: ''
+        };
+    },
+
+    provide() {
+        return {
+            swCustomerCreateOnChangeSalesChannel: this.onChangeSalesChannel
+        };
+    },
+
 
     methods: {
         createdComponent() {
@@ -33,8 +47,24 @@ Component.extend('sw-customer-create', 'sw-customer-detail', {
         },
 
         onSave() {
-            this.$super.onSave().then(() => {
-                this.$router.push({ name: 'sw.customer.detail', params: { id: this.customer.id } });
+            if (this.customerNumberPreview === this.customer.customerNumber) {
+                this.numberRangeService.reserve('customer', this.customer.salesChannelId).then((response) => {
+                    this.customer.customerNumber = response.number;
+                    this.$super.onSave().then(() => {
+                        this.$router.push({ name: 'sw.customer.detail', params: { id: this.customer.id } });
+                    });
+                });
+            } else {
+                this.$super.onSave().then(() => {
+                    this.$router.push({ name: 'sw.customer.detail', params: { id: this.customer.id } });
+                });
+            }
+        },
+
+        onChangeSalesChannel(salesChannelId) {
+            this.numberRangeService.reserve('customer', salesChannelId, true).then((response) => {
+                this.customerNumberPreview = response.number;
+                this.customer.customerNumber = response.number;
             });
         }
     }

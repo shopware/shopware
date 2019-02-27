@@ -46,7 +46,7 @@
                           v-model="customer.groupId">
                     {% block sw_customer_base_form_customer_group_field_options %}
                         <option v-for="customerGroup in customerGroups" :key="customerGroup.id" :value="customerGroup.id">
-                            {{ customerGroup.name }}
+                            {{ customerGroup.meta.viewData.name }}
                         </option>
                     {% endblock %}
                 </sw-field>
@@ -56,10 +56,11 @@
                 <sw-field type="select"
                           :label="$tc('sw-customer.baseForm.labelSalesChannel')"
                           :placeholder="$tc('sw-customer.baseForm.placeholderSalesChannel')"
+                          @change="swCustomerCreateOnChangeSalesChannel"
                           v-model="customer.salesChannelId">
                     {% block sw_customer_base_form_sales_channel_field_options %}
                         <option v-for="salesChannel in salesChannels" :key="salesChannel.id" :value="salesChannel.id">
-                            {{ salesChannel.name }}
+                            {{ salesChannel.meta.viewData.name }}
                         </option>
                     {% endblock %}
                 </sw-field>
@@ -72,7 +73,7 @@
                           v-model="customer.defaultPaymentMethodId">
                     {% block sw_customer_base_form_payment_method_field_options %}
                         <option v-for="paymentMethod in paymentMethods" :key="paymentMethod.id" :value="paymentMethod.id">
-                            {{ paymentMethod.name }}
+                            {{ paymentMethod.meta.viewData.name }}
                         </option>
                     {% endblock %}
                 </sw-field>

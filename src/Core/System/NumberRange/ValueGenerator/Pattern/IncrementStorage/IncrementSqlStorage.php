@@ -50,4 +50,23 @@ class IncrementSqlStorage implements IncrementStorageInterface
 
         return (string) $nextNumber;
     }
+
+    public function getNext(NumberRangeEntity $configuration, $incrementBy = 1): string
+    {
+        $stmt = $this->connection->executeQuery(
+            'SELECT `last_value` FROM `number_range_state` WHERE number_range_id = :id FOR UPDATE',
+            [
+                'id' => Uuid::fromHexToBytes($configuration->getId()),
+            ]
+        );
+        $lastNumber = $stmt->fetchColumn();
+
+        if ($lastNumber === false) {
+            $nextNumber = $configuration->getStart();
+        } else {
+            $nextNumber = $lastNumber + $incrementBy;
+        }
+
+        return (string) $nextNumber;
+    }
 }

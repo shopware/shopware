@@ -23,12 +23,12 @@ Mixin.register('sw-settings-list', {
             return State.getStore(this.entityName);
         },
         titleSaveSuccess() {
-            return this.$tc(`sw-settings-${this.entityName}.list.titleDeleteSuccess`);
+            return this.$tc(`sw-settings-${this.entityName.replace(/[_]/g, '-')}.list.titleDeleteSuccess`);
         },
         messageSaveSuccess() {
             if (this.deleteEntity) {
                 return this.$tc(
-                    `sw-settings-${this.entityName}.list.messageDeleteSuccess`,
+                    `sw-settings-${this.entityName.replace(/[_]/g, '-')}.list.messageDeleteSuccess`,
                     0,
                     { name: this.deleteEntity.meta.viewData.name }
                 );

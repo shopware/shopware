@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Field;
 
-class NumberRangeValueField extends StringField
+class NumberRangeField extends StringField
 {
     public function __construct(string $storageName, string $propertyName, int $maxLength = 64)
     {

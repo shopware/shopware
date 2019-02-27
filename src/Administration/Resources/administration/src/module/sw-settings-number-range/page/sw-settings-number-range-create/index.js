@@ -1,0 +1,34 @@
+import { Component } from 'src/core/shopware';
+import utils from 'src/core/service/util.service';
+
+Component.extend('sw-settings-number-range-create', 'sw-settings-number-range-detail', {
+
+    beforeRouteEnter(to, from, next) {
+        if (to.name.includes('sw.settings.number.range.create') && !to.params.id) {
+            to.params.id = utils.createId();
+        }
+
+        next();
+    },
+
+    methods: {
+        createdComponent() {
+            if (this.$route.params.id) {
+                this.numberRange = this.numberRangeStore.create(this.$route.params.id);
+            } else {
+                this.numberRange = this.numberRangeStore.create();
+            }
+
+            this.$super.createdComponent();
+            this.getPreview();
+            this.splitPattern();
+            this.numberRange.isLoading = false;
+        },
+
+        onSave() {
+            this.$super.onSave().then(() => {
+                this.$router.push({ name: 'sw.settings.number.range.detail', params: { id: this.numberRange.id } });
+            });
+        }
+    }
+});

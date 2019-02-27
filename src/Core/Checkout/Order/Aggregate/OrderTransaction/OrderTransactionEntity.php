@@ -21,11 +21,6 @@ class OrderTransactionEntity extends Entity
     /**
      * @var string
      */
-    protected $orderTransactionNumber;
-
-    /**
-     * @var string
-     */
     protected $paymentMethodId;
 
     /**
@@ -181,15 +176,5 @@ class OrderTransactionEntity extends Entity
     public function setAttributes(?array $attributes): void
     {
         $this->attributes = $attributes;
-    }
-
-    public function getOrderTransactionNumber(): string
-    {
-        return $this->orderTransactionNumber;
-    }
-
-    public function setOrderTransactionNumber(string $orderTransactionNumber): void
-    {
-        $this->orderTransactionNumber = $orderTransactionNumber;
     }
 }

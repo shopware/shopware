@@ -4,8 +4,8 @@ namespace Shopware\Core\System\NumberRange;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
-use Shopware\Core\System\NumberRange\Aggregate\NumberRangeEntity\NumberRangeEntityEntity;
 use Shopware\Core\System\NumberRange\Aggregate\NumberRangeState\NumberRangeStateEntity;
+use Shopware\Core\System\NumberRange\Aggregate\NumberRangeType\NumberRangeTypeEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 
 class NumberRangeEntity extends Entity
@@ -15,7 +15,7 @@ class NumberRangeEntity extends Entity
     /**
      * @var string|null
      */
-    protected $entityId;
+    protected $typeId;
 
     /**
      * @var string|null
@@ -38,19 +38,19 @@ class NumberRangeEntity extends Entity
     protected $start;
 
     /**
-     * @var \DateTime|null
+     * @var \DateTimeInterface|null
      */
     protected $createdAt;
 
     /**
-     * @var \DateTime|null
+     * @var \DateTimeInterface|null
      */
     protected $updatedAt;
 
     /**
-     * @var NumberRangeEntityEntity|null
+     * @var NumberRangeTypeEntity|null
      */
-    protected $entity;
+    protected $type;
 
     /**
      * @var SalesChannelCollection|null
@@ -82,34 +82,24 @@ class NumberRangeEntity extends Entity
         $this->description = $description;
     }
 
-    public function getCreatedAt(): ?\DateTime
+    public function getCreatedAt(): ?\DateTimeInterface
     {
         return $this->createdAt;
     }
 
-    public function setCreatedAt(\DateTime $createdAt): void
+    public function setCreatedAt(\DateTimeInterface $createdAt): void
     {
         $this->createdAt = $createdAt;
     }
 
-    public function getUpdatedAt(): ?\DateTime
+    public function getUpdatedAt(): ?\DateTimeInterface
     {
         return $this->updatedAt;
     }
 
-    public function setUpdatedAt(\DateTime $updatedAt): void
+    public function setUpdatedAt(\DateTimeInterface $updatedAt): void
     {
         $this->updatedAt = $updatedAt;
-    }
-
-    public function getSalesChannel(): ?SalesChannelCollection
-    {
-        return $this->salesChannels;
-    }
-
-    public function setSalesChannel(?SalesChannelCollection $salesChannels): void
-    {
-        $this->salesChannels = $salesChannels;
     }
 
     public function getPattern(): ?string
@@ -132,14 +122,14 @@ class NumberRangeEntity extends Entity
         $this->start = $start;
     }
 
-    public function getEntity(): ?NumberRangeEntityEntity
+    public function getType(): ?NumberRangeTypeEntity
     {
-        return $this->entity;
+        return $this->type;
     }
 
-    public function setEntity(?NumberRangeEntityEntity $entity): void
+    public function setType(?NumberRangeTypeEntity $type): void
     {
-        $this->entity = $entity;
+        $this->type = $type;
     }
 
     public function getState(): ?NumberRangeStateEntity
@@ -152,14 +142,14 @@ class NumberRangeEntity extends Entity
         $this->state = $state;
     }
 
-    public function getEntityId(): ?string
+    public function getTypeId(): ?string
     {
-        return $this->entityId;
+        return $this->typeId;
     }
 
-    public function setEntityId(?string $entityId): void
+    public function setTypeId(?string $typeId): void
     {
-        $this->entityId = $entityId;
+        $this->typeId = $typeId;
     }
 
     public function getSalesChannels(): ?SalesChannelCollection

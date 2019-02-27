@@ -6,5 +6,13 @@ use Shopware\Core\Framework\Context;
 
 interface NumberRangeValueGeneratorInterface
 {
-    public function getValue(string $definition, Context $context, ?string $salesChannelId): string;
+    /**
+     * generates a new Value while taking Care of States, Events and Connectors
+     */
+    public function getValue(string $type, Context $context, ?string $salesChannelId, ?bool $preview = false): string;
+
+    /**
+     * generates a preview for a given pattern and start
+     */
+    public function previewPattern(string $definition, string $pattern, int $start): string;
 }

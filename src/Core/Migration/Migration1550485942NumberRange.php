@@ -19,7 +19,7 @@ class Migration1550485942NumberRange extends MigrationStep
         $sql = <<<SQL
             CREATE TABLE `number_range` (
               `id` BINARY(16) NOT NULL,
-              `entity_id` BINARY(16) NOT NULL,
+              `type_id` BINARY(16) NOT NULL,
               `name` VARCHAR(64) NOT NULL,
               `description` VARCHAR(255) NULL,
               `pattern` VARCHAR(255) NOT NULL,
@@ -27,7 +27,7 @@ class Migration1550485942NumberRange extends MigrationStep
               `created_at` DATETIME(3) NOT NULL,
               `updated_at` DATETIME(3) NULL,
               PRIMARY KEY (`id`),
-              UNIQUE (`name`)
+              UNIQUE `uniq.name` (`name`)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 SQL;
         $connection->executeQuery($sql);
@@ -36,7 +36,7 @@ SQL;
             CREATE TABLE `number_range_sales_channel` (
               `number_range_id` BINARY(16) NOT NULL,
               `sales_channel_id` BINARY(16) NULL,
-              UNIQUE (`number_range_id`, `sales_channel_id`),
+              UNIQUE `uniq.numer_range_id__sales_channel_id` (`number_range_id`, `sales_channel_id`),
               CONSTRAINT `fk.number_range_sales_channel.number_range_id`
                 FOREIGN KEY (number_range_id) REFERENCES `number_range` (id) ON DELETE CASCADE ON UPDATE CASCADE,
               CONSTRAINT `fk.number_range_sales_channel.sales_channel_id`
@@ -57,12 +57,12 @@ SQL;
         $connection->executeQuery($sql);
 
         $sql = <<<SQL
-            CREATE TABLE `number_range_entity` (
+            CREATE TABLE `number_range_type` (
               `id` BINARY(16) NOT NULL,
-              `entity_name` VARCHAR(64) NOT NULL,
+              `type_name` VARCHAR(64) NOT NULL,
               `global` TINYINT(1) NOT NULL,
               PRIMARY KEY (`id`),
-              INDEX `idx.entity_name` (`entity_name`)
+              INDEX `idx.type_name` (`type_name`)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 SQL;
 
@@ -89,16 +89,25 @@ SQL;
 SQL;
         $connection->executeQuery($sql);
 
-        $sql = <<<SQL
-            ALTER TABLE `order_transaction` 
-            ADD COLUMN `order_transaction_number` VARCHAR(64) NULL AFTER `order_id`;
- 
-SQL;
-        $connection->executeQuery($sql);
+        foreach (Defaults::NUMBER_RANGE_TYPES as $typeName => $numberRangeType) {
+            $connection->insert(
+                'number_range_type',
+                ['id' => Uuid::fromHexToBytes($numberRangeType['id']), 'type_name' => $typeName, 'global' => $numberRangeType['global']]
+            );
+        }
 
-        foreach (DEFAULTS::NUMBER_RANGE_ENTITIES as $entityName => $numberRangeEntity) {
-            $entityId = Uuid::uuid4()->getBytes();
-            $connection->insert('number_range_entity', ['id' => $entityId, 'entity_name' => $entityName, 'global' => $numberRangeEntity['global']]);
+        foreach (Defaults::NUMBER_RANGES as $typeName => $numberRange) {
+            $connection->insert(
+                'number_range',
+                [
+                    'id' => Uuid::fromHexToBytes($numberRange['id']),
+                    'name' => $numberRange['name'],
+                    'type_id' => Uuid::fromHexToBytes($numberRange['typeId']),
+                    'pattern' => $numberRange['pattern'],
+                    'start' => $numberRange['start'],
+                    'created_at' => (new \DateTime())->format(Defaults::DATE_FORMAT),
+                ]
+            );
         }
     }
 

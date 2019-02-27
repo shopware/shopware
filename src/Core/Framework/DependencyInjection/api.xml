@@ -38,7 +38,6 @@
         </service>
 
         <service id="Shopware\Core\System\NumberRange\NumberRangeController" public="true">
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionRegistry"/>
             <argument type="service" id="Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInterface" />
         </service>
 

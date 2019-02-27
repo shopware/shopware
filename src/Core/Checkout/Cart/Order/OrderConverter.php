@@ -25,6 +25,7 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDeliveryPosition\OrderDeliveryPositionEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemEntity;
 use Shopware\Core\Checkout\Order\Exception\DeliveryWithoutAddressException;
+use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Util\Transformer\AddressTransformer;
 use Shopware\Core\Checkout\Util\Transformer\CartTransformer;
@@ -38,6 +39,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Struct\Uuid;
+use Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInterface;
 use Shopware\Core\System\StateMachine\StateMachineRegistry;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
@@ -71,16 +73,23 @@ class OrderConverter
      */
     private $stateMachineRegistry;
 
+    /**
+     * @var NumberRangeValueGeneratorInterface
+     */
+    private $numberRangeValueGenerator;
+
     public function __construct(
         EntityRepositoryInterface $customerRepository,
         CheckoutContextFactory $checkoutContextFactory,
         StateMachineRegistry $stateMachineRegistry,
-        EventDispatcherInterface $eventDispatcher
+        EventDispatcherInterface $eventDispatcher,
+        NumberRangeValueGeneratorInterface $numberRangeValueGenerator
     ) {
         $this->customerRepository = $customerRepository;
         $this->checkoutContextFactory = $checkoutContextFactory;
         $this->stateMachineRegistry = $stateMachineRegistry;
         $this->eventDispatcher = $eventDispatcher;
+        $this->numberRangeValueGenerator = $numberRangeValueGenerator;
     }
 
     /**
@@ -145,6 +154,10 @@ class OrderConverter
         if ($idStruct !== null) {
             $data['id'] = $idStruct->getId();
         }
+
+        $data['orderNumber'] = $this->numberRangeValueGenerator->getValue(
+            OrderDefinition::getEntityName(), $context->getContext(), $context->getSalesChannel()->getId()
+        );
 
         $event = new CartConvertedEvent($cart, $data, $context, $conversionContext);
 

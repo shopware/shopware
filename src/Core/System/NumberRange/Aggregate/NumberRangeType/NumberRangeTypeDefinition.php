@@ -1,33 +1,33 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\System\NumberRange\Aggregate\NumberRangeEntity;
+namespace Shopware\Core\System\NumberRange\Aggregate\NumberRangeType;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\RestrictDelete;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\PrimaryKey;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\Required;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\RestrictDelete;
 use Shopware\Core\System\NumberRange\NumberRangeDefinition;
 
-class NumberRangeEntityDefinition extends EntityDefinition
+class NumberRangeTypeDefinition extends EntityDefinition
 {
     public static function getEntityName(): string
     {
-        return 'number_range_entity';
+        return 'number_range_type';
     }
 
     public static function getCollectionClass(): string
     {
-        return NumberRangeEntityCollection::class;
+        return NumberRangeTypeCollection::class;
     }
 
     public static function getEntityClass(): string
     {
-        return NumberRangeEntityEntity::class;
+        return NumberRangeTypeEntity::class;
     }
 
     public static function getParentDefinitionClass(): string
@@ -39,10 +39,10 @@ class NumberRangeEntityDefinition extends EntityDefinition
     {
         return new FieldCollection([
             (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
-            (new StringField('entity_name', 'entityName'))->addFlags(new Required()),
+            (new StringField('type_name', 'typeName'))->addFlags(new Required()),
             (new BoolField('global', 'global'))->addFlags(new Required()),
 
-            (new OneToManyAssociationField('numberRanges', NumberRangeDefinition::class, 'entity_id', false))->addFlags(new RestrictDelete()),
+            (new OneToManyAssociationField('numberRanges', NumberRangeDefinition::class, 'type_id', false))->addFlags(new RestrictDelete()),
         ]);
     }
 }

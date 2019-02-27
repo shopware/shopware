@@ -5,7 +5,7 @@ namespace Shopware\Core\System\Event;
 class NumberRangeEvents
 {
     /**
-     * @Event("Shopware\Core\System\NumberRange\NumberRangeGeneratedEvent")
+     * @Event("Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeGeneratedEvent")
      */
     public const NUMBER_RANGE_GENERATED = 'number_range.generated';
 }

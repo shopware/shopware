@@ -1,0 +1,52 @@
+{
+  "sw-settings-number-range": {
+    "general": {
+      "mainMenuItemGeneral": "Nummernkreise",
+      "placeholderSearchBar": "Nummernkreise durchsuchen"
+    },
+    "list": {
+      "textHeadline": "Nummernkreise",
+      "textDeleteConfirm": "Bist Du sicher, dass Du den Nummernkreis \"{name}\" löschen möchtest?",
+      "columnName": "Name",
+      "columnUsedIn": "Verwendet in:",
+      "columnAssignment": "Zuweisung",
+      "buttonAddNumberRange": "Nummernkreis anlegen",
+      "contextMenuEdit": "Bearbeiten",
+      "modalTitleDelete": "Nummernkreis löschen",
+      "titleDeleteSuccess": "Erfolg",
+      "messageDeleteSuccess": "Nummernkreis \"{name}\" wurde erfolgreich gelöscht.",
+      "buttonCancel": "Abbrechen",
+      "buttonDelete": "Löschen",
+      "global": "Global"
+    },
+    "detail": {
+      "textHeadline": "Neuer Nummernkreis",
+      "configCard": "Einstellungen",
+      "assignmentCard": "Zuweisung",
+      "titleSaveSuccess": "Erfolg",
+      "messageSaveSuccess": "Nummernkreis \"{name}\" wurde erfolgreich gespeichert.",
+      "labelName": "Name",
+      "labelDescription": "Beschreibung",
+      "labelPrefix": "Präfix",
+      "labelSuffix": "Suffix",
+      "labelPattern": "Pattern",
+      "labelStart": "Startnummer",
+      "labelCurrentNumber": "Aktuelle Nummer",
+      "labelPreview": "Vorschau",
+      "labelAdvanced": "Erweitert",
+      "labelType": "Typ",
+      "labelSalesChannel": "Verkaufskanal",
+      "placeholderName": "Namen eingeben...",
+      "placeholderDescription": "Beschreibung eingeben...",
+      "placeholderPrefix": "Präfix eingeben...",
+      "placeholderSuffix": "Suffix eingeben...",
+      "placeholderPattern": "Pattern eingeben: \"prefix_{n}_suffix\"",
+      "placeholderStart": "Startnumner eingeben...",
+      "placeholderPleaseSelect": "Bitte wählen...",
+      "placeholderSimpleModeImpossible": "Einfacher Modus nicht möglich",
+      "buttonCancel": "Abbrechen",
+      "buttonSave": "Speichern",
+      "helpTextAdvancedField": "Wechsle zur erweiterten Pattern Definition.<br/>Verfügbare Pattern:<br/>&#x007B;n&#x007D;: Inkrement - Eine inkrementierende Zahl.<br/>&#x007B;date&#x007D;: Datum - Das Datum im internationalen Format.<br/>&#x007B;date_ymd&#x007D;: formatiertes Datum - Das Datum mit vorgegebenem Format"
+    }
+  }
+}

@@ -1,19 +1,19 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\System\NumberRange\Aggregate\NumberRangeEntity;
+namespace Shopware\Core\System\NumberRange\Aggregate\NumberRangeType;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\System\NumberRange\NumberRangeCollection;
 
-class NumberRangeEntityEntity extends Entity
+class NumberRangeTypeEntity extends Entity
 {
     use EntityIdTrait;
 
     /**
      * @var string
      */
-    protected $entityName;
+    protected $typeName;
 
     /**
      * @var bool
@@ -25,17 +25,17 @@ class NumberRangeEntityEntity extends Entity
      */
     protected $numberRanges;
 
-    public function getEntityName(): string
+    public function getTypeName(): string
     {
-        return $this->entityName;
+        return $this->typeName;
     }
 
-    public function setEntityName(string $entityName): void
+    public function setTypeName(string $typeName): void
     {
-        $this->entityName = $entityName;
+        $this->typeName = $typeName;
     }
 
-    public function isGlobal(): bool
+    public function getGlobal(): bool
     {
         return $this->global;
     }

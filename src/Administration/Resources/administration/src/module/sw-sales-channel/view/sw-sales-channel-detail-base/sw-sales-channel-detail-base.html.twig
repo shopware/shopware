@@ -30,7 +30,6 @@
                                validation="required"
                                :associationStore="paymentMethodAssociationStore"
                                :store="paymentMethodStore"
-                               entityName="paymentMethod"
                                :defaultItemId="salesChannel.paymentMethodId"
                                @default_changed="changeDefaultPaymentMethod">
                     </sw-select>
@@ -44,7 +43,6 @@
                                validation="required"
                                :associationStore="shippingMethodAssociationStore"
                                :store="shippingMethodStore"
-                               entityName="shippingMethod"
                                :defaultItemId="salesChannel.shippingMethodId"
                                @default_changed="changeDefaultShippingMethod">
                     </sw-select>
@@ -58,7 +56,6 @@
                                validation="required"
                                :associationStore="countryAssociationStore"
                                :store="countryStore"
-                               entityName="country"
                                :defaultItemId="salesChannel.countryId"
                                @default_changed="changeDefaultCountry">
                     </sw-select>
@@ -72,7 +69,6 @@
                                validation="required"
                                :associationStore="currencyAssociationStore"
                                :store="currencyStore"
-                               entityName="currency"
                                :defaultItemId="salesChannel.currencyId"
                                @default_changed="changeDefaultCurrency"
                                v-if="!next1387 || !isStoreFront">
@@ -87,7 +83,6 @@
                                validation="required"
                                :associationStore="languageAssociationStore"
                                :store="languageStore"
-                               entityName="language"
                                :defaultItemId="salesChannel.languageId"
                                @default_changed="changeDefaultLanguage"
                                v-if="!next1387 || !isStoreFront">

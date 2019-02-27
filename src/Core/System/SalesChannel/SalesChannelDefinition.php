@@ -32,6 +32,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\System\Country\CountryDefinition;
 use Shopware\Core\System\Currency\CurrencyDefinition;
 use Shopware\Core\System\Language\LanguageDefinition;
+use Shopware\Core\System\NumberRange\Aggregate\NumberRangeSalesChannel\NumberRangeSalesChannelDefinition;
+use Shopware\Core\System\NumberRange\NumberRangeDefinition;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelCountry\SalesChannelCountryDefinition;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelCurrency\SalesChannelCurrencyDefinition;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainDefinition;
@@ -74,6 +76,7 @@ class SalesChannelDefinition extends EntityDefinition
             (new FkField('mail_header_footer_id', 'mailHeaderFooterId', MailHeaderFooterDefinition::class)),
             (new StringField('type', 'type'))->addFlags(new Required()),
             new TranslatedField('name'),
+            new StringField('short_name', 'shortName'),
             (new StringField('access_key', 'accessKey'))->addFlags(new Required()),
             new JsonField('configuration', 'configuration'),
             new BoolField('active', 'active'),
@@ -101,6 +104,7 @@ class SalesChannelDefinition extends EntityDefinition
             (new OneToManyAssociationField('productVisibilities', ProductVisibilityDefinition::class, 'sales_channel_id', false))->addFlags(new CascadeDelete()),
             new ManyToOneAssociationField('mailHeaderFooter', 'mail_header_footer_id', MailHeaderFooterDefinition::class, true),
             new ManyToManyAssociationField('mailTemplates', MailTemplateDefinition::class, MailTemplateSalesChannelDefinition::class, false, 'sales_channel_id', 'mail_template_id'),
+            new ManyToManyAssociationField('numberRanges', NumberRangeDefinition::class, NumberRangeSalesChannelDefinition::class, false, 'sales_channel_id', 'number_range_id'),
         ]);
     }
 }

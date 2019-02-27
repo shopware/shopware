@@ -11,7 +11,7 @@ interface ValueGeneratorPatternInterface
      * to modify the result in a pattern specific way. Returns only the part of the pattern it is responsible for and
      * don't even know the whole pattern
      */
-    public function resolve(NumberRangeEntity $configuration, ?array $args = null): string;
+    public function resolve(NumberRangeEntity $configuration, ?array $args = null, ?bool $preview = false): string;
 
     /**
      * returns the ID of the Pattern

@@ -20,6 +20,7 @@ use Shopware\Core\System\Currency\CurrencyCollection;
 use Shopware\Core\System\Currency\CurrencyEntity;
 use Shopware\Core\System\Language\LanguageCollection;
 use Shopware\Core\System\Language\LanguageEntity;
+use Shopware\Core\System\NumberRange\NumberRangeCollection;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainCollection;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelTranslation\SalesChannelTranslationCollection;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelType\SalesChannelTypeEntity;
@@ -68,6 +69,11 @@ class SalesChannelEntity extends Entity
      * @var string|null
      */
     protected $name;
+
+    /**
+     * @var string|null
+     */
+    protected $shortName;
 
     /**
      * @var string
@@ -205,6 +211,11 @@ class SalesChannelEntity extends Entity
     protected $mailHeaderFooterId;
 
     /**
+     * @var NumberRangeCollection|null
+     */
+    protected $numberRanges;
+
+    /**
      * @var MailHeaderFooterEntity|null
      */
     protected $mailHeaderFooter;
@@ -287,6 +298,16 @@ class SalesChannelEntity extends Entity
     public function setName(?string $name): void
     {
         $this->name = $name;
+    }
+
+    public function getShortName(): ?string
+    {
+        return $this->shortName;
+    }
+
+    public function setShortName(?string $shortName): void
+    {
+        $this->shortName = $shortName;
     }
 
     public function getAccessKey(): string
@@ -567,5 +588,15 @@ class SalesChannelEntity extends Entity
     public function setMailTemplates(MailTemplateCollection $mailTemplates): void
     {
         $this->mailTemplates = $mailTemplates;
+    }
+
+    public function getNumberRanges(): ?NumberRangeCollection
+    {
+        return $this->numberRanges;
+    }
+
+    public function setNumberRanges(?NumberRangeCollection $numberRanges): void
+    {
+        $this->numberRanges = $numberRanges;
     }
 }

@@ -3,13 +3,14 @@
 namespace Shopware\Core\System\NumberRange\ValueGenerator;
 
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\NumberRange\NoConfigurationException;
+use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\System\Event\NumberRangeEvents;
+use Shopware\Core\System\NumberRange\Aggregate\NumberRangeType\NumberRangeTypeEntity;
 use Shopware\Core\System\NumberRange\NumberRangeDefinition;
 use Shopware\Core\System\NumberRange\NumberRangeEntity;
 use Shopware\Core\System\NumberRange\ValueGenerator\Pattern\ValueGeneratorPatternRegistry;
@@ -21,11 +22,6 @@ class NumberRangeValueGenerator implements NumberRangeValueGeneratorInterface
      * @var NumberRangeEntity
      */
     protected $configuration;
-
-    /**
-     * @var string
-     */
-    protected $configurationDefinitionClass;
 
     /**
      * @var ValueGeneratorPatternRegistry
@@ -52,18 +48,24 @@ class NumberRangeValueGenerator implements NumberRangeValueGeneratorInterface
         $this->eventDispatcher = $eventDispatcher;
     }
 
-    /**
-     * generates a new Value while taking Care of States, Events and Connectors
-     */
-    public function getValue(string $definition, Context $context, ?string $salesChannelId): string
+    public function getValue(string $type, Context $context, ?string $salesChannelId, ?bool $preview = false): string
     {
-        $this->readConfiguration($definition, $context, $salesChannelId);
+        $this->readConfiguration($type, $context, $salesChannelId);
 
         $parsedPattern = $this->parsePattern($this->configuration->getPattern());
 
-        $generatedValue = $this->generate($parsedPattern);
+        $generatedValue = $this->generate($parsedPattern, $preview);
 
         return $this->endEvent($generatedValue);
+    }
+
+    public function previewPattern(string $definition, string $pattern, int $start): string
+    {
+        $this->createPreviewConfiguration($definition, $pattern, $start);
+
+        $parsedPattern = $this->parsePattern($this->configuration->getPattern());
+
+        return $this->generate($parsedPattern, true);
     }
 
     protected function parsePattern($pattern): ?array
@@ -75,7 +77,6 @@ class NumberRangeValueGenerator implements NumberRangeValueGeneratorInterface
 
     protected function readConfiguration(string $definition, Context $context, ?string $salesChannelId): void
     {
-        /** @var EntityDefinition $definition */
         $criteria = new Criteria();
         $criteria->addFilter(
             new MultiFilter(
@@ -84,13 +85,19 @@ class NumberRangeValueGenerator implements NumberRangeValueGeneratorInterface
                     new MultiFilter(
                         MultiFilter::CONNECTION_AND, [
                             new EqualsFilter('number_range.salesChannels.id', $salesChannelId),
-                            new EqualsFilter('number_range.entity.entityName', $definition::getEntityName()),
+                            new EqualsFilter('number_range.type.typeName', $definition),
                         ]
                     ),
                     new MultiFilter(
                         MultiFilter::CONNECTION_AND, [
-                            new EqualsFilter('number_range.entity.global', 1),
-                            new EqualsFilter('number_range.entity.entityName', $definition::getEntityName()),
+                            new EqualsFilter('number_range.type.global', 1),
+                            new EqualsFilter('number_range.type.typeName', $definition),
+                        ]
+                    ),
+                    new MultiFilter(
+                        MultiFilter::CONNECTION_AND, [
+                            new EqualsFilter('number_range.salesChannels.id', null),
+                            new EqualsFilter('number_range.type.typeName', $definition),
                         ]
                     ),
                 ]
@@ -105,8 +112,23 @@ class NumberRangeValueGenerator implements NumberRangeValueGeneratorInterface
         if ($configurationCollection->count() === 1) {
             $this->configuration = $configurationCollection->first();
         } else {
-            throw new NoConfigurationException($definition::getEntityName(), $salesChannelId);
+            throw new NoConfigurationException($definition, $salesChannelId);
         }
+    }
+
+    protected function createPreviewConfiguration(string $definition, string $pattern, int $start): void
+    {
+        $entity = new NumberRangeTypeEntity();
+        $entity->setTypeName($definition);
+        $entity->setGlobal(true);
+        $this->configuration = new NumberRangeEntity();
+        $this->configuration->setId(Uuid::uuid4()->getHex());
+        $this->configuration->setName('preview');
+        $this->configuration->setType($entity);
+        $this->configuration->setCreatedAt(new \DateTime());
+        $this->configuration->setUpdatedAt(new \DateTime());
+        $this->configuration->setPattern($pattern);
+        $this->configuration->setStart($start);
     }
 
     protected function endEvent($generatedValue): string
@@ -120,7 +142,7 @@ class NumberRangeValueGenerator implements NumberRangeValueGeneratorInterface
         return $generatedEvent->getGeneratedValue();
     }
 
-    private function generate(?array $parsedPattern): string
+    private function generate(?array $parsedPattern, ?bool $preview = false): string
     {
         $generated = '';
         $startPattern = false;
@@ -138,7 +160,7 @@ class NumberRangeValueGenerator implements NumberRangeValueGeneratorInterface
                 $pattern = array_shift($patternArg);
                 $patternResolver = $this->valueGeneratorPatternRegistry->getPatternResolver($pattern);
                 if ($patternResolver) {
-                    $generated .= $patternResolver->resolve($this->configuration, $patternArg);
+                    $generated .= $patternResolver->resolve($this->configuration, $patternArg, $preview);
                 } else {
                     // throw warning...
                     $generated .= $patternPart;

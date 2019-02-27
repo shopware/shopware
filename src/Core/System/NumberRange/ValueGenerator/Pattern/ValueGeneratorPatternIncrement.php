@@ -22,8 +22,12 @@ class ValueGeneratorPatternIncrement implements ValueGeneratorPatternInterface
         return 'n';
     }
 
-    public function resolve(NumberRangeEntity $configuration, ?array $args = null): string
+    public function resolve(NumberRangeEntity $configuration, ?array $args = null, ?bool $preview = false): string
     {
+        if ($preview === true) {
+            return $this->incrementConnector->getNext($configuration, $incrementBy = 1);
+        }
+
         return $this->incrementConnector->pullState($configuration, $incrementBy = 1);
     }
 }

@@ -17,6 +17,12 @@ Component.register('sw-media-folder-info', {
             validator(value) {
                 return value.entityName === 'media_folder';
             }
+        },
+
+        editable: {
+            type: Boolean,
+            required: false,
+            default: false
         }
     },
 

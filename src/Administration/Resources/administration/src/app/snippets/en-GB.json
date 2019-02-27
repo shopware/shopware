@@ -1084,6 +1084,13 @@
       "labelPresentationMedium": "Regular preview",
       "labelPresentationLarge": "Large preview",
       "labelPresentationList": "List"
+    },
+    "sw-media-modal": {
+      "titleModal": "Choose media",
+      "labelTabItemLibrary": "Media Library",
+      "labelTabItemUpload": "Upload files",
+      "labelButtonCancel": "Cancel",
+      "labelButtonSaveSelection": "Add media"
     }
   },
   "sw-settings": {

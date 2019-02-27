@@ -4,8 +4,10 @@ $sw-simple-search-field-search-icon-color: $color-gutenberg;
 
 .sw-simple-search-field {
     position: relative;
+    margin-bottom: 8px;
 
     .sw-simple-search-field__input {
+        margin-bottom: 0;
         input {
             padding: 0 20px 0 44px;
             height: 32px;

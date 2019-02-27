@@ -62,6 +62,11 @@ $sw-tabs-item-font-family:                 $font-family-default;
             color: $sw-tabs-item-color-minimal-text-active;
         }
 
+        &:disabled {
+            color: $sw-tabs-item-color-minimal-text;;
+            cursor: not-allowed;
+        }
+
         &.router-link-active,
         &.is--active {
             border-bottom-color: $sw-tabs-item-color-minimal-border-active;

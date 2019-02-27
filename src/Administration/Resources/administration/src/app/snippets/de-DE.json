@@ -1083,6 +1083,13 @@
       "labelPresentationMedium": "Normale Vorschau",
       "labelPresentationLarge": "Große Vorschau",
       "labelPresentationList": "Liste"
+    },
+    "sw-media-modal": {
+      "titleModal": "Medien auswählen",
+      "labelTabItemLibrary": "Bibliothek",
+      "labelTabItemUpload": "Dateien hochladen",
+      "labelButtonCancel": "Abbrechen",
+      "labelButtonSaveSelection": "Medien hinzufügen"
     }
   },
   "sw-settings": {

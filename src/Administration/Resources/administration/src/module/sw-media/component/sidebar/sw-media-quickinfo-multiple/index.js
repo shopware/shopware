@@ -14,6 +14,12 @@ Component.register('sw-media-quickinfo-multiple', {
         items: {
             required: true,
             type: Array
+        },
+
+        editable: {
+            type: Boolean,
+            required: false,
+            default: false
         }
     },
 

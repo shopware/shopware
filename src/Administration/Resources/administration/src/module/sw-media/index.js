@@ -13,6 +13,7 @@ import './component/sidebar/sw-media-quickinfo-multiple';
 import './component/sw-media-display-options';
 import './component/sw-media-breadcrumbs';
 import './component/sw-media-library';
+import './component/sw-media-modal';
 
 Module.register('sw-media', {
     type: 'core',

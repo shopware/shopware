@@ -61,7 +61,7 @@ Component.register('sw-settings-snippet-list', {
             });
 
             this.isLoading = true;
-            this.queryIds = this.$route.query.ids;
+            this.queryIds = Array.isArray(this.$route.query.ids) ? this.$route.query.ids : [this.$route.query.ids];
             const criteria = CriteriaFactory.equalsAny('id', this.queryIds);
 
             this.snippetService.getFilter().then((response) => {
@@ -218,7 +218,7 @@ Component.register('sw-settings-snippet-list', {
         },
 
         onReset(item) {
-            const ids = this.$route.query.ids;
+            const ids = Array.isArray(this.$route.query.ids) ? this.$route.query.ids : [this.$route.query.ids];
             const criteria = CriteriaFactory.equalsAny('id', ids);
             this.isLoading = true;
 

@@ -48,7 +48,6 @@ module.exports = {
             .waitForElementNotPresent('.sw-field--address-countryId .sw-field__select-load-placeholder')
             .fillSelectField('select[name="sw-field--address-countryId"]', 'Germany');
     },
-    '@disabled': true,
     'save new customer and verify data': (browser) => {
         const page = customerPage(browser);
 
@@ -58,10 +57,9 @@ module.exports = {
             .waitForElementNotPresent('.sw-card__content .sw-customer-base-form .sw-loader')
             .waitForElementNotPresent('.sw-card__content .sw-customer-address-form .sw-loader')
             .waitForElementVisible(page.elements.customerMetaData)
-            .assert.containsText(`${page.elements.customerMetaData}-user-name`, 'Mr Pep Eroni')
-            .assert.containsText(`${page.elements.customerMetaData}-item`, 'test@example.com')
+            .assert.containsText(`${page.elements.customerMetaData}-customer-name`, 'Mr Pep Eroni')
+            .assert.containsText('.sw-customer-card-email-link', 'test@example.com')
             .assert.containsText('.sw-customer-base__label-customer-number', 'cn-1234321')
-            .assert.containsText('.sw-customer-base__label-customer-group', 'Standard customer group')
             .assert.containsText('.sw-address__location', '48624');
     },
     'go back to listing und verify data there': (browser) => {

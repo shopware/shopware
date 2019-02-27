@@ -10,10 +10,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\QueueTestBehaviour;
 
 class MediaRepositoryDecoratorTest extends TestCase
 {
-    use IntegrationTestBehaviour;
+    use IntegrationTestBehaviour, QueueTestBehaviour;
 
     private const FIXTURE_FILE = __DIR__ . '/../fixtures/shopware-logo.png';
 
@@ -57,6 +58,8 @@ class MediaRepositoryDecoratorTest extends TestCase
 
         $this->mediaRepository->delete([['id' => $mediaId]], $this->context);
 
+        $this->runWorker();
+
         static::assertFalse($this->getPublicFilesystem()->has($mediaPath));
     }
 
@@ -93,6 +96,8 @@ class MediaRepositoryDecoratorTest extends TestCase
         $this->getPublicFilesystem()->putStream($thumbnailPath, fopen(self::FIXTURE_FILE, 'rb'));
 
         $this->mediaRepository->delete([['id' => $mediaId]], $this->context);
+
+        $this->runWorker();
 
         static::assertFalse($this->getPublicFilesystem()->has($mediaPath));
         static::assertFalse($this->getPublicFilesystem()->has($thumbnailPath));
@@ -144,6 +149,8 @@ class MediaRepositoryDecoratorTest extends TestCase
 
         $this->mediaRepository->delete([['id' => $firstId]], $this->context);
 
+        $this->runWorker();
+
         static::assertFalse($this->getPublicFilesystem()->has($firstPath));
         static::assertTrue($this->getPublicFilesystem()->has($secondPath));
     }
@@ -153,6 +160,8 @@ class MediaRepositoryDecoratorTest extends TestCase
         $firstId = Uuid::uuid4()->getHex();
 
         $event = $this->mediaRepository->delete([['id' => $firstId]], $this->context);
+
+        $this->runWorker();
 
         static::assertNull($event->getEventByDefinition(MediaDefinition::class));
     }
@@ -172,6 +181,8 @@ class MediaRepositoryDecoratorTest extends TestCase
         );
 
         $event = $this->mediaRepository->delete([['id' => $firstId]], $this->context);
+
+        $this->runWorker();
 
         static::assertCount(1, $event->getEventByDefinition(MediaDefinition::class)->getIds());
         static::assertEquals($firstId, $event->getEventByDefinition(MediaDefinition::class)->getIds()[0]);
@@ -195,6 +206,8 @@ class MediaRepositoryDecoratorTest extends TestCase
         );
 
         $event = $this->mediaRepository->delete([['id' => $firstId]], $this->context);
+
+        $this->runWorker();
 
         static::assertCount(1, $event->getEventByDefinition(MediaDefinition::class)->getIds());
         static::assertEquals($firstId, $event->getEventByDefinition(MediaDefinition::class)->getIds()[0]);

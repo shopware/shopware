@@ -21,7 +21,7 @@ class DeleteFileHandler extends AbstractMessageHandler
     /**
      * @param DeleteFileMessage $message
      */
-    public function handle(object $message): void
+    public function handle($message): void
     {
         foreach ($message->getFiles() as $file) {
             try {

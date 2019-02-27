@@ -19,11 +19,13 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\QueueTestBehaviour;
 
 class ThumbnailServiceTest extends TestCase
 {
     use IntegrationTestBehaviour,
-        MediaFixtures;
+        MediaFixtures,
+        QueueTestBehaviour;
 
     /**
      * @var UrlGeneratorInterface
@@ -72,6 +74,8 @@ class ThumbnailServiceTest extends TestCase
             $media,
             $this->context
         );
+
+        $this->runWorker();
 
         $searchCriteria = new Criteria();
         $searchCriteria->setLimit(1);
@@ -205,6 +209,8 @@ class ThumbnailServiceTest extends TestCase
         }
 
         $this->thumbnailService->deleteThumbnails($media, $this->context);
+
+        $this->runWorker();
 
         // refresh entity
         $media = $this->mediaRepository->search(new Criteria([$mediaId]), $this->context)->get($mediaId);

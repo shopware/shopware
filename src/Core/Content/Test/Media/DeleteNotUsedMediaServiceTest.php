@@ -9,11 +9,11 @@ use Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\QueueTestBehaviour;
 
 class DeleteNotUsedMediaServiceTest extends TestCase
 {
-    use IntegrationTestBehaviour,
-        MediaFixtures;
+    use IntegrationTestBehaviour, MediaFixtures, QueueTestBehaviour;
 
     private const FIXTURE_FILE = __DIR__ . '/fixtures/shopware-logo.png';
 
@@ -77,6 +77,7 @@ class DeleteNotUsedMediaServiceTest extends TestCase
         $this->getPublicFilesystem()->putStream($fourthPath, fopen(self::FIXTURE_FILE, 'rb'));
 
         $this->deleteMediaService->deleteNotUsedMedia($this->context);
+        $this->runWorker();
 
         $result = $this->mediaRepo->search(
             new Criteria([

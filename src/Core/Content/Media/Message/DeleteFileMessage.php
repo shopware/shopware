@@ -9,11 +9,6 @@ class DeleteFileMessage
      */
     private $files = [];
 
-    /**
-     * @var string
-     */
-    private $contextData;
-
     public function getFiles(): array
     {
         return $this->files;

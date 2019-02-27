@@ -10,10 +10,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\QueueTestBehaviour;
 
 class MediaThumbnailRepositoryTest extends TestCase
 {
-    use IntegrationTestBehaviour;
+    use IntegrationTestBehaviour, QueueTestBehaviour;
 
     private const FIXTURE_FILE = __DIR__ . '/../fixtures/shopware-logo.png';
 
@@ -48,6 +49,7 @@ class MediaThumbnailRepositoryTest extends TestCase
 
         $thumbnailIds = $this->thumbnailRepository->searchIds(new Criteria(), $this->context);
         $this->thumbnailRepository->delete($thumbnailIds->getIds(), $this->context);
+        $this->runWorker();
 
         static::assertFalse($this->getPublicFilesystem()->has($thumbnailPath));
     }
@@ -59,6 +61,7 @@ class MediaThumbnailRepositoryTest extends TestCase
         $thumbnailPath = $this->createThumbnailFile($media);
 
         $this->thumbnailRepository->delete($media->getThumbnails()->getIds(), $this->context);
+        $this->runWorker();
 
         static::assertFalse($this->getPublicFilesystem()->has($thumbnailPath));
     }

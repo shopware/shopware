@@ -14,7 +14,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
-class CmsPageController extends AbstractController
+class StorefrontCmsPageController extends AbstractController
 {
     /**
      * @var StorefrontCmsPageRepository

@@ -48,7 +48,7 @@
             <tag name="shopware.cms.data_resolver" />
         </service>
 
-        <service id="Shopware\Core\Content\Cms\Storefront\CmsPageController" public="true">
+        <service id="Shopware\Core\Content\Cms\Storefront\StorefrontCmsPageController" public="true">
             <argument type="service" id="Shopware\Core\Content\Cms\Storefront\StorefrontCmsPageRepository" />
             <argument type="service" id="Shopware\Core\Content\Cms\SlotDataResolver\SlotDataResolver" />
             <call method="setContainer">

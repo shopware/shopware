@@ -43,14 +43,27 @@ export default {
         this.createdComponent();
     },
 
+    destroyed() {
+        this.destroyedComponent();
+    },
+
     methods: {
         createdComponent() {
             this.registerEvents();
         },
 
+        destroyedComponent() {
+            this.removeEvents();
+        },
+
         registerEvents() {
             this.$parent.$on('sw-select-active-item-index', this.checkActiveState);
             this.$parent.$on('sw-select-on-keyup-enter', this.selectOptionOnEnter);
+        },
+
+        removeEvents() {
+            this.$parent.$off('sw-select-active-item-index', this.checkActiveState);
+            this.$parent.$off('sw-select-on-keyup-enter', this.selectOptionOnEnter);
         },
 
         emitActiveResultPosition(originalDomEvent, index) {

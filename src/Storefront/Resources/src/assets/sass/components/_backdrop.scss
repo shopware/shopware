@@ -1,4 +1,11 @@
 .modal-backdrop {
+    opacity: 0;
+    transition: opacity 0.45s cubic-bezier(0.3, 0, 0.15, 1), visibility 0.45s linear;
+
+    &--open {
+        opacity: 1;
+    }
+
     > .spinner-border {
         position: absolute;
         left: 50%;

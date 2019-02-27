@@ -1,0 +1,23 @@
+.off-canvas {
+    z-index: $off-canvas-zindex;
+    width: 280px;
+    height: 100%;
+    background: $white;
+    position: fixed;
+    top: 0;
+    transition: all 0.45s cubic-bezier(0.3, 0, 0.15, 1);
+
+    &--left {
+        transform: translateX(-100%);
+        left: 0;
+    }
+
+    &--right {
+        transform: translateX(100%);
+        right: 0;
+    }
+
+    &--open {
+        transform: translateX(0) !important;
+    }
+}

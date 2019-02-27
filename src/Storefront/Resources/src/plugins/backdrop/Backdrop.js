@@ -1,5 +1,13 @@
+import DeviceDetection from "../../helper/DeviceDetection";
+
 const SELECTOR_CLASS = "modal-backdrop";
-const BODY_CLASS = "modal-open";
+const BACKDROP_OPEN_CLASS = "modal-backdrop--open";
+const NO_SCROLL_CLASS = "no--scroll";
+const REMOVE_BACKDROP_DELAY = 350;
+
+export const BACKDROP_EVENT = {
+    ON_CLICK: 'backdrop/onclick'
+};
 
 class BackdropSingleton {
 
@@ -11,28 +19,76 @@ class BackdropSingleton {
         if (!BackdropSingleton.instance) {
             BackdropSingleton.instance = this;
         }
-
         return BackdropSingleton.instance;
     }
 
     /**
-     * Inserts a backdrop to document.body and sets a class to the body
-     * itself to override default scrolling behavior
+     * Insert a backdrop to document.body and set a class
+     * to the body to override default scrolling behaviour
      */
     open() {
         // avoid multiple backdrops
-        if (this._exists()) return;
-        document.body.classList.add(BODY_CLASS);
+        this._removeExistingBackdrops();
+
         document.body.insertAdjacentHTML('beforeend', this._getTemplate());
+        let backdrop = document.body.lastChild;
+
+        // override body scroll behaviour
+        document.documentElement.classList.add(NO_SCROLL_CLASS);
+
+        // add open class afterwards to make any css animation effects possible
+        setTimeout(function() {
+            backdrop.classList.add(BACKDROP_OPEN_CLASS);
+        }, 1);
+
+        this._dispatchEvents();
     }
 
     /**
-     * Removes all existing backdrops
+     * Close backdrop
+     * @param {number} delay
      */
-    close() {
-        let backdrops = document.body.querySelectorAll(`.${SELECTOR_CLASS}`);
-        backdrops.forEach(backdrop => backdrop.remove());
-        document.body.classList.remove(BODY_CLASS);
+    close(delay = REMOVE_BACKDROP_DELAY) {
+        // remove open class to make any css animation effects possible
+        this._getBackdrops().forEach(backdrop => backdrop.classList.remove(BACKDROP_OPEN_CLASS));
+
+        // wait before removing backdrop to let css animation effects take place
+        setTimeout(this._removeExistingBackdrops.bind(this), delay);
+
+        // remove body scroll behaviour override
+        document.documentElement.classList.remove(NO_SCROLL_CLASS);
+    }
+
+    /**
+     * Dispatch events
+     * @private
+     */
+    _dispatchEvents() {
+        let event = (DeviceDetection.isTouchDevice()) ? 'touchstart' : 'click';
+
+        document.addEventListener(event, function(e) {
+            if (e.target.classList.contains(SELECTOR_CLASS)) {
+                document.dispatchEvent(new Event(BACKDROP_EVENT.ON_CLICK));
+            }
+        });
+    }
+
+    /**
+     * Determine list of existing backdrops
+     * @returns {NodeListOf<Element>}
+     * @private
+     */
+    _getBackdrops() {
+        return document.querySelectorAll(`.${SELECTOR_CLASS}`);
+    }
+
+    /**
+     * Remove all existing backdrops from DOM
+     * @private
+     */
+    _removeExistingBackdrops() {
+        if (this._exists() === false) return;
+        this._getBackdrops().forEach(backdrop => backdrop.remove());
     }
 
     /**
@@ -72,9 +128,10 @@ export default class Backdrop {
 
     /**
      * Close the Backdrop
+     * @param {number} delay
      */
-    static close() {
-        instance.close();
+    static close(delay = REMOVE_BACKDROP_DELAY) {
+        instance.close(delay);
     }
 
     /**

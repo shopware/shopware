@@ -75,14 +75,35 @@ export default {
         },
 
         avatarImage() {
+            if (!this.imageUrl) {
+                return '';
+            }
+
             return {
                 'background-image': `url(${this.imageUrl})`
             };
         },
 
         avatarColor() {
+            if (this.color.length) {
+                return {
+                    'background-color': this.color
+                };
+            }
+
+            const colorArray = [
+                '#C75233',
+                '#C78933',
+                '#D6CEAA',
+                '#79B5AC',
+                '#5E2F46'
+            ];
+
+            const nameLength = this.firstName.length + this.lastName.length;
+            const color = colorArray[nameLength % colorArray.length];
+
             return {
-                'background-color': this.color
+                'background-color': color
             };
         }
     },

@@ -13,8 +13,8 @@
                                 {% block sw_customer_card_avatar %}
                                     <sw-avatar :color="moduleColor"
                                                size="80px"
-                                               :user="customer"
-                                               :isLoading="isLoading">
+                                               :firstName="customer.firstName"
+                                               :lastName="customer.lastName">
                                     </sw-avatar>
                                 {% endblock %}
 

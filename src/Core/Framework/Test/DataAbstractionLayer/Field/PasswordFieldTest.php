@@ -28,21 +28,15 @@ class PasswordFieldTest extends TestCase
      */
     private $field;
 
-    protected function setUp(): void
-    {
-        $this->field = new PasswordField('password', 'password');
-        $this->field->setConstraintBuilder($this->getContainer()->get(ConstraintBuilder::class));
-        $this->field->setValidator($this->getContainer()->get('validator'));
-    }
-
     public function testGetStorage(): void
     {
-        static::assertEquals('password', $this->field->getStorageName());
+        $field = new PasswordField('password', 'password');
+        static::assertEquals('password', $field->getStorageName());
     }
 
     public function testNullableField(): void
     {
-        $field = $this->field;
+        $field = new PasswordField('password', 'password');
         $existence = new EntityExistence(UserDefinition::class, [], false, false, false, []);
         $kvPair = new KeyValuePair('password', null, true);
 
@@ -65,7 +59,7 @@ class PasswordFieldTest extends TestCase
 
     public function testEncoding(): void
     {
-        $field = $this->field;
+        $field = new PasswordField('password', 'password');
         $existence = new EntityExistence(UserDefinition::class, [], false, false, false, []);
         $kvPair = new KeyValuePair('password', 'shopware', true);
 
@@ -89,7 +83,7 @@ class PasswordFieldTest extends TestCase
 
     public function testValueIsRequiredOnInsert(): void
     {
-        $field = clone $this->field;
+        $field = new PasswordField('password', 'password');
         $field->addFlags(new Required());
 
         $existence = new EntityExistence(UserDefinition::class, [], false, false, false, []);
@@ -118,7 +112,7 @@ class PasswordFieldTest extends TestCase
 
     public function testValueIsRequiredOnUpdate(): void
     {
-        $field = clone $this->field;
+        $field = new PasswordField('password', 'password');
         $field->addFlags(new Required());
 
         $existence = new EntityExistence(UserDefinition::class, [], true, false, false, []);

@@ -3,7 +3,6 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer\Field;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldAware\StorageAware;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\IdGenerator\RamseyGenerator;
 
 class IdField extends Field implements StorageAware
 {
@@ -12,15 +11,9 @@ class IdField extends Field implements StorageAware
      */
     protected $storageName;
 
-    /**
-     * @var string
-     */
-    protected $generatorClass;
-
-    public function __construct(string $storageName, string $propertyName, string $generatorClass = RamseyGenerator::class)
+    public function __construct(string $storageName, string $propertyName)
     {
         $this->storageName = $storageName;
-        $this->generatorClass = $generatorClass;
         parent::__construct($propertyName);
     }
 

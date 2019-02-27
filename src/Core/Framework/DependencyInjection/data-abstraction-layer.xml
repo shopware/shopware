@@ -150,7 +150,6 @@
 
         <service id="Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriter">
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Write\WriteCommandExtractor"/>
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Write\FieldAware\DefaultExtender"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityForeignKeyResolver"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface"/>
             <tag name="shopware.traceable" label="entity.writer"/>
@@ -171,48 +170,8 @@
 
         <service id="Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\ConstraintBuilder"/>
 
-        <service id="Shopware\Core\Framework\DataAbstractionLayer\Write\FieldAware\DefaultExtender">
-            <argument type="service" id="validator"/>
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\ConstraintBuilder"/>
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Write\IdGenerator\GeneratorRegistry"/>
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Write\Filter\FilterRegistry"/>
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Write\ValueTransformer\ValueTransformerRegistry"/>
-        </service>
-
         <service id="Shopware\Core\Framework\DataAbstractionLayer\Search\Parser\SqlQueryParser">
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper"/>
-        </service>
-
-        <!-- Value transformer -->
-        <service id="Shopware\Core\Framework\DataAbstractionLayer\Write\ValueTransformer\ValueTransformerRegistry">
-            <argument type="tagged" tag="shopware.api.entity.write.value_transformer"/>
-        </service>
-
-        <service id="Shopware\Core\Framework\DataAbstractionLayer\Write\ValueTransformer\ValueTransformerDate">
-            <tag name="shopware.api.entity.write.value_transformer"/>
-        </service>
-
-        <service id="Shopware\Core\Framework\DataAbstractionLayer\Write\ValueTransformer\ValueTransformerBoolean">
-            <tag name="shopware.api.entity.write.value_transformer"/>
-        </service>
-
-        <!-- Filter -->
-        <service id="Shopware\Core\Framework\DataAbstractionLayer\Write\Filter\FilterRegistry">
-            <argument type="tagged" tag="shopware.api.entity.write.filter"/>
-        </service>
-
-        <service id="Shopware\Core\Framework\DataAbstractionLayer\Write\Filter\HtmlFilter">
-            <tag name="shopware.api.entity.write.filter"/>
-        </service>
-
-        <!-- ID GENERATOR -->
-        <service id="Shopware\Core\Framework\DataAbstractionLayer\Write\IdGenerator\GeneratorRegistry">
-            <argument type="tagged" tag="shopware.api.entity.write.id_generator"/>
-        </service>
-
-
-        <service id="Shopware\Core\Framework\DataAbstractionLayer\Write\IdGenerator\RamseyGenerator">
-            <tag name="shopware.api.entity.write.id_generator"/>
         </service>
 
         <service id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityForeignKeyResolver">

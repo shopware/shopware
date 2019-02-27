@@ -28,7 +28,13 @@ module.exports = {
             .clickContextMenuItem('.sw-rule-list__rule-edit-action', page.elements.contextMenuButton)
             .expect.element(page.elements.smartBarHeader).to.have.text.that.contains(global.AdminFixtureService.basicFixture.name);
 
-        page.createBasicSelectCondition('currency', 'Is one of', `.sw-condition-container__or-child--0`, 'Euro');
+        page.createBasicSelectCondition({
+            type: 'currency',
+            operator: 'Is none of',
+            ruleSelector: `${page.elements.conditionOrContainer}--0`,
+            value: 'Euro',
+            isMulti: true
+        });
 
         browser
             .fillField('input[name=sw-field--rule-name]', 'Ediths rule', true)

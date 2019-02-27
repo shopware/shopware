@@ -1,7 +1,7 @@
 const settingsPage = require('administration/page-objects/module/sw-settings.page-object.js');
 
 module.exports = {
-    '@tags': ['settings', 'snippet-set-delete', 'snippets', 'snippet-set', 'delete'],
+    '@tags': ['settings', 'snippet-set-edit', 'snippets', 'snippet-set', 'edit'],
     '@disabled': !global.flags.isActive('next717'),
     before: (browser, done) => {
         global.AdminFixtureService.create('snippet-set').then(() => {
@@ -30,7 +30,7 @@ module.exports = {
 
         browser
             .click(`${page.elements.modal}__footer button${page.elements.primaryButton}`)
-            .checkNotification('Snippet set has been deleteced successfully.')
+            .checkNotification('Snippet set has been deleted successfully.')
             .waitForElementNotPresent(page.elements.loader);
     },
     'verify deletion': (browser) => {

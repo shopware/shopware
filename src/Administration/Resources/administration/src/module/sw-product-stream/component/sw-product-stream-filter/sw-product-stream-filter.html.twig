@@ -29,7 +29,21 @@
                      class="field--multi field--main"
                      @input="updateTaggedValue">
     </sw-tagged-field>
-    {# TODO Add type for range filter, wait for design #}
+    <sw-field
+            v-if="condition.type == 'range'"
+            type="number"
+            class="field--main has--arrow"
+            v-model="condition.parameters.lte"
+            :placeholder="$tc('global.sw-condition.operator.greaterThanEquals')">
+    </sw-field>
+    <sw-field
+            v-if="condition.type == 'range'"
+            type="number"
+            class="field--main"
+            v-model="condition.parameters.gte"
+            :placeholder="$tc('global.sw-condition.operator.lowerThanEquals')">
+    </sw-field>
+
     <sw-field v-else
               type="text"
               class="field--main"

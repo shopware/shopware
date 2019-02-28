@@ -1099,7 +1099,8 @@
     },
     "mediaLibrary": {
       "labelButtonLoadMore": "Load more",
-      "descriptionEmptyState": "No media uploaded yet"
+      "titleEmptyState": "No media items yet",
+      "descriptionEmptyState": "Manage media items here."
     },
     "sorting": {
       "labelSort": "Sort by:",

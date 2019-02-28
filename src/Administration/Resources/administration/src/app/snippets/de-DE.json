@@ -1095,7 +1095,8 @@
     },
     "mediaLibrary": {
       "labelButtonLoadMore": "Weitere laden",
-      "descriptionEmptyState": "Noch keine Medien hochgeladen."
+      "titleEmptyState": "Noch keine Medien vorhanden",
+      "descriptionEmptyState": "Verwaltung von Medien."
     },
     "sorting": {
       "labelSort": "Sortiere nach:",

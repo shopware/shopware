@@ -67,7 +67,7 @@ Component.register('sw-customer-base-info', {
 
             this.orderStore.getList({ page: 1, limit: 1, aggregations, criteria }).then((response) => {
                 this.orderCount = response.total;
-                this.orderAmount = response.aggregations.orderAmount.sum;
+                this.orderAmount = response.aggregations.orderAmount[0].sum;
             });
         },
 

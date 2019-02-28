@@ -98,4 +98,36 @@ class AggregationParserTest extends TestCase
         static::assertEquals('avg', $avgAggregation->getName());
         static::assertEquals('product.stock', $avgAggregation->getField());
     }
+
+    public function testBuildAggregationsWithGroupBy(): void
+    {
+        $criteria = new Criteria();
+        $exception = new SearchRequestException();
+        AggregationParser::buildAggregations(
+            ProductDefinition::class,
+            [
+                'aggregations' => [
+                    [
+                        'name' => 'max',
+                        'type' => 'max',
+                        'field' => 'tax.taxRate',
+                        'groupByFields' => [
+                            'product.tax.name',
+                            'product.tax.id',
+                        ],
+                    ],
+                ],
+            ],
+            $criteria,
+            $exception
+        );
+        static::assertCount(0, $exception->getErrors());
+        static::assertCount(1, $criteria->getAggregations());
+
+        $maxAggregation = $criteria->getAggregation('max');
+        static::assertInstanceOf(MaxAggregation::class, $maxAggregation);
+        static::assertEquals('max', $maxAggregation->getName());
+        static::assertEquals('product.tax.taxRate', $maxAggregation->getField());
+        static::assertEquals(['product.tax.name', 'product.tax.id'], $maxAggregation->getGroupByFields());
+    }
 }

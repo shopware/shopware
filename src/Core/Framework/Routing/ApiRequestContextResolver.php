@@ -11,7 +11,7 @@ use Shopware\Core\Framework\Routing\Exception\LanguageNotFoundException;
 use Shopware\Core\Framework\SourceContext;
 use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\PlatformRequest;
-use Shopware\Storefront\StorefrontRequest;
+use Shopware\Core\StorefrontRequest;
 use Symfony\Component\HttpFoundation\Request;
 
 class ApiRequestContextResolver implements RequestContextResolverInterface

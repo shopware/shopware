@@ -14,7 +14,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
 use Shopware\Core\Framework\Test\Translation\_fixtures\SnippetFile_UnitTest;
 use Shopware\Core\Framework\Translation\Translator;
-use Shopware\Storefront\StorefrontRequest;
+use Shopware\Core\StorefrontRequest;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 

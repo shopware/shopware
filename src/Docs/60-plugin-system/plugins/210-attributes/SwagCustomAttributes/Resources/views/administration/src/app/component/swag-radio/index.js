@@ -9,6 +9,9 @@ Component.register('swag-radio', {
     // Helps to get the correct value for the actual administration language - provides the getInlineSnippet()-function
     mixins: ['sw-inline-snippet'],
 
+    // Getting access to the entity, attribute set and attribute set variant
+    inject: ['getEntity', 'getAttributeSetVariant', 'getAttributeSet'],
+
     props: {
         // Passed from the attribute config
         label: {
@@ -41,6 +44,11 @@ Component.register('swag-radio', {
         id() {
             return `swag-radio--${this.utilsId}`;
         }
+    },
+
+    created() {
+        // Access to the entity
+        console.log('Entity : ', this.getEntity);
     },
 
     methods: {

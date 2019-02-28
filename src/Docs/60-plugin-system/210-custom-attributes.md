@@ -6,10 +6,10 @@ Before starting you should read
 and you should know how to 
 [create a plugin](../10-administration/01-administration-start-development.md#create-your-first-plugin).
 ## Intro
-In the administration it is possible to define attribute sets that will be shown in the configuration of defined entities. Every attribute set can have several attributes assigned to it. There are some attribute types which are delivered with the administration, for example string fields, number fields, select fields and other commonly used types. For third party developers there is also the possibility to add attribute types. This documentation will show how types are added to the administration with all small example.
+In the administration it is possible to define attribute sets that will be shown in the configuration of defined entities. Every attribute set can have several attributes assigned to it. There are some built-in attribute types, for example string fields, number fields, select fields and other commonly used types. For third party developers there is also the possibility to add attribute types. This documentation will show how types are added to the administration with a small example.
 
 ## Add new attribute types to the administration
-At first we need to let the administration know about our new type. For this we have a attribute service which holds all possible types. Types can be added or overridden with the `upsertType`-function. Here is an example decorator for a new attribute type:
+At first we need to let the administration know about our new type. For this we have an attribute service which holds all possible types. Types can be added or overridden with the `upsertType`-function. Here is an example decorator for a new attribute type:
 
 `attribute-data-provider.js`
 ```js
@@ -29,12 +29,12 @@ Application.addServiceProviderDecorator('attributeDataProviderService', (attribu
     return attributeService;
 });
 ```
-Possible configuration options:
+Available configuration options:
 
 | property | required | description |
 |---|---|---|
 | configRenderComponent | true | Component for creating the configuration. This component will be rendered when the user selects the new "swagRadio" type. For this example it adds the possibility to add radio options and a label for the type |
-| type | true | This is the data type of the attribute written to the database. Some possible types are `string`, `int`, `datetime`, `float`, `bool`. It is also possible to add own data types. Have a look at the %%% ADD CHAPTER HERE %%% |
+| type | true | This is the data type of the attribute written to the database. Some available types are `string`, `int`, `datetime`, `float`, `bool`. It is also possible to add own data types. Have a look at the %%% ADD CHAPTER HERE %%% to add new types |
 | config | false | The config holds all of the configuration which will be passed to the component that renders the type in the administration. If a `componentName` is not specified, the renderer tries to guess a suitable component based on the type. The `variant` property will be passed to the `swag-radio`-component as property as an example. Note the corresponding property in the `swag-radio`-component shown below. |
 
 ## Implement the config render component
@@ -72,7 +72,7 @@ Component.register('swag-attribute-type-radio', {
     },
 
     computed: {
-        // Check if the set is translatable, else only provide a input for the fallback locale
+        // Check if the set is translatable, else only provide an input for the fallback locale
         locales() {
             if (this.set.config.hasOwnProperty('translated') && this.set.config.translated === true) {
                 return Object.keys(this.$root.$i18n.messages);
@@ -88,7 +88,7 @@ Component.register('swag-attribute-type-radio', {
 
     methods: {
         createdComponent() {
-            // If no options set, initialise the component with two options
+            // If options is not set, initialise the component with two options
             if (!this.currentAttribute.config.hasOwnProperty('options')) {
                 // We need the $set function for nested objects to enable vue reactivity for the property
                 this.$set(this.currentAttribute.config, 'options', []);
@@ -167,12 +167,12 @@ This is the corresponding template:
     </sw-button>
 </div>
 ```
-This would render the following config form:
+This will render the following config form:
 
 ![Swag Radio Config](./img/210-swag-radio-config.png)
 
 ## Implement the component for rendering the new type in the administration
-The next step is to create the component which be rendered on the entity detail pages. For radio button example this is a very basic component.
+The next step is to create the component which will be rendered on the entity detail pages. The radio button is a very basic example component.
 
 `swag-radio/index.js`
 ```js
@@ -186,6 +186,9 @@ Component.register('swag-radio', {
 
     // Helps to get the correct value for the actual administration language - provides the getInlineSnippet()-function
     mixins: ['sw-inline-snippet'],
+    
+    // Getting access to the entity, attribute set and attribute set variant
+    inject: ['getEntity', 'getAttributeSetVariant', 'getAttributeSet'],
 
     props: {
         // Passed from the attribute config

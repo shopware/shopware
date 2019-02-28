@@ -20,7 +20,10 @@ Component.extend('sw-product-stream-filter', 'sw-condition-base', {
             value: null,
             typeCriteria: null,
             fieldPath: [],
-            negatedCondition: null
+            negatedCondition: null,
+            operatorCriteria: {},
+            fieldPath: [],
+            typeStore: {}
         };
     },
 
@@ -99,6 +102,9 @@ Component.extend('sw-product-stream-filter', 'sw-condition-base', {
                 .filter((fieldObject, index) => !(index === 0 && fieldObject.name === 'product'))
                 .map(fieldObject => fieldObject.name)
                 .join('.');
+        },
+        types(newValue) {
+            this.typeStore = new LocalStore(Object.values(newValue), 'type');
         }
     },
 
@@ -114,6 +120,7 @@ Component.extend('sw-product-stream-filter', 'sw-condition-base', {
             return new LocalStore(this.types, 'type');
         },
         createdComponent() {
+            this.typeStore = new LocalStore(Object.values(this.types), 'type');
             this.locateConditionTreeComponent();
             this.fields.push({ name: 'product', entity: 'product', type: 'object' });
             this.mapValues();

@@ -370,6 +370,10 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
                 continue;
             }
 
+            if ($field instanceof TranslatedField && $definition::getTranslationDefinitionClass()) {
+                $field = $definition::getTranslationDefinitionClass()::getFields()->get($field->getPropertyName());
+            }
+
             if ($field instanceof JsonField) {
                 $attributes[$field->getPropertyName()] = $this->resolveJsonField($field);
                 continue;

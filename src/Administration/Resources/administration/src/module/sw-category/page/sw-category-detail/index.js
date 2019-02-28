@@ -94,6 +94,11 @@ Component.register('sw-category-detail', {
 
         setCategory() {
             const categoryId = this.$route.params.id;
+            this.isLoading = true;
+
+            if (this.category) {
+                this.category.discardChanges();
+            }
 
             if (this.$route.params.id) {
                 this.getCategory(categoryId).then(response => {
@@ -103,7 +108,7 @@ Component.register('sw-category-detail', {
                     this.isLoading = false;
                 });
             } else {
-                this.isLoading = true;
+                this.isLoading = false;
                 this.category = null;
                 this.mediaItem = null;
             }
@@ -115,6 +120,11 @@ Component.register('sw-category-detail', {
 
         onSaveCategories() {
             return this.categoryStore.sync();
+        },
+
+        cancelEdit() {
+            this.category.discardChanges();
+            this.resetCategory();
         },
 
         resetCategory() {

@@ -14,7 +14,7 @@
             display: block;
         }
         .sw-page__content.has--side-content {
-            grid-template-columns: 1fr;
+            grid-template-columns: 1fr auto;
 
             .sw-page__side-content {
                 display: none;

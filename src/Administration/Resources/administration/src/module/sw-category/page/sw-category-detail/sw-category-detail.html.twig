@@ -21,7 +21,7 @@
         <template slot="smart-bar-actions">
             <template v-if="category">
                 {% block sw_category_smart_bar_abort %}
-                    <sw-button :disabled="isLoading" @click="resetCategory">
+                    <sw-button :disabled="isLoading" @click="cancelEdit">
                         {{ $tc('sw-product.detail.buttonCancel') }}
                     </sw-button>
                 {% endblock %}
@@ -46,34 +46,37 @@
             {% endblock %}
         </template>
 
-        <template slot="content">
-            {% block sw_category_content %}
-                <sw-category-view v-if="!isMobileViewport && category || isMobileViewport && category"
-                    ref="categoryView"
-                    :category="category"
-                    :mediaItem="mediaItem"
-                    :isLoading="isLoading"
-                    @sw-category-view-open-sidebar="openSidebar"
-                    @sw-category-view-on-set-media="setMediaItem"
-                    @sw-category-view-on-upload-media="onUploadAdded"
-                    @sw-category-view-on-remove-media="onUnlinkLogo"
-                ></sw-category-view>
-            {% endblock %}
+        {% block sw_category_content %}
+            <template slot="content">
+                {% block sw_category_content_view %}
+                    <sw-category-view v-if="!isMobileViewport && category || isMobileViewport && category"
+                        ref="categoryView"
+                        :category="category"
+                        :mediaItem="mediaItem"
+                        :isLoading="isLoading"
+                        @sw-category-view-open-sidebar="openSidebar"
+                        @sw-category-view-on-set-media="setMediaItem"
+                        @sw-category-view-on-upload-media="onUploadAdded"
+                        @sw-category-view-on-remove-media="onUnlinkLogo"
+                    ></sw-category-view>
+                {% endblock %}
+                {% block sw_category_content_loader %}
+                    <sw-loader v-if="!categories"></sw-loader>
+                {% endblock %}
+            </template>
+        {% endblock %}
 
-            {% block sw_category_loader %}
-                <sw-loader v-if="!categories"></sw-loader>
-            {% endblock %}
-        </template>
-
-        <sw-sidebar slot="sidebar">
-            <sw-sidebar-media-item ref="mediaSidebarItem">
-                <template slot="context-menu-items" slot-scope="media">
-                    <sw-context-menu-item @click="setMediaItem(media.mediaItem)">
-                        {{ $tc('sw-category.general.useAsLogo') }}
-                    </sw-context-menu-item>
-                </template>
-            </sw-sidebar-media-item>
-        </sw-sidebar>
+        {% block sw_category_sidebar %}
+            <sw-sidebar slot="sidebar">
+                <sw-sidebar-media-item ref="mediaSidebarItem">
+                    <template slot="context-menu-items" slot-scope="media">
+                        <sw-context-menu-item @click="setMediaItem(media.mediaItem)">
+                            {{ $tc('sw-category.general.useAsLogo') }}
+                        </sw-context-menu-item>
+                    </template>
+                </sw-sidebar-media-item>
+            </sw-sidebar>
+        {% endblock %}
 
     </sw-page>
 {% endblock %}

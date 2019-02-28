@@ -8,7 +8,7 @@
 
     &.is--mobile {
         .sw-page__content.has--side-content {
-            grid-template-columns: 1fr;
+            grid-template-columns: 1fr auto;
         }
         .sw-page__main-content {
             display: none;

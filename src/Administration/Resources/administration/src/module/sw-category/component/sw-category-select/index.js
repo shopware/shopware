@@ -11,7 +11,6 @@ Component.extend('sw-category-select', 'sw-select', {
             this.toggleSelection(item);
         },
 
-        // @todo implement this
         isInSelections() {
             return false;
         },

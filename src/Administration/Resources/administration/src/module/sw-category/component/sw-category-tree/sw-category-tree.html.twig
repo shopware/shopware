@@ -102,7 +102,7 @@
                                             </sw-context-menu-item>
                                         {% endblock %}
                                         {% block sw_category_tree_items_actions_delete %}
-                                            <sw-context-menu-item variant="danger" @click="onDeleteCategory(item)">
+                                            <sw-context-menu-item variant="danger" @click="onDeleteCategory(item.id)">
                                                 {{ $tc('sw-category.general.actions.delete') }}
                                             </sw-context-menu-item>
                                         {% endblock %}

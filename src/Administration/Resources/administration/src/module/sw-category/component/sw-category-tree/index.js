@@ -67,11 +67,11 @@ Component.register('sw-category-tree', {
             this.$emit('sw-category-on-refresh');
         },
 
-        onDeleteCategory(item) {
-            const category = this.categoryStore.getById(item.id);
+        onDeleteCategory(itemId) {
+            const category = this.categoryStore.getById(itemId);
             category.delete(true).then(() => {
                 this.refreshCategories();
-                if (item.id === this.activeCategoryId) {
+                if (itemId === this.activeCategoryId) {
                     this.$emit('sw-category-on-reset-details');
                 }
             });
@@ -253,19 +253,14 @@ Component.register('sw-category-tree', {
             this.addCategoryPosition = null;
         },
 
+        // @todo
         batchDelete() {
-            Object.values(this.checkedCategories).forEach((itemId) => {
-                const category = this.categoryStore.getById(itemId);
-                category.delete(true);
-                if (itemId === this.activeCategoryId) {
-                    this.$emit('sw-category-on-reset-details');
-                }
-                return true;
-            });
-
-            this.checkedCategories = {};
-            this.checkedCategoriesCount = 0;
-            this.saveCategories();
+            // Object.values(this.checkedCategories).forEach((itemId) => {
+            //     this.onDeleteCategory(itemId);
+            // });
+            // this.checkedCategories = {};
+            // this.checkedCategoriesCount = 0;
+            // this.saveCategories();
         },
 
         deleteSelectedCategories() {

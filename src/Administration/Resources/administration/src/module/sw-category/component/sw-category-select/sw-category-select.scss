@@ -10,11 +10,16 @@
         padding: 0;
         border: none;
         height: 43px;
+
+        .sw-icon {
+            display: none;
+        }
     }
 
     .sw-select__input-single {
         border: none;
         font-size: 14px;
         background: #FFF;
+        padding: 8px 16px;
     }
 }

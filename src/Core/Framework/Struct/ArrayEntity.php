@@ -77,8 +77,7 @@ class ArrayEntity extends Entity implements \ArrayAccess
             '_class' => \get_class($this),
         ];
 
-        $vars = $this->data;
-        foreach ($vars as $property => $value) {
+        foreach ($this->data as $property => $value) {
             if ($value instanceof \DateTime) {
                 $value = $value->format(\DateTime::ATOM);
             }

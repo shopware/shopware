@@ -14,7 +14,7 @@ class Migration2 extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        throw new \Exception('update');
+        throw new \RuntimeException('update');
     }
 
     public function updateDestructive(Connection $connection): void

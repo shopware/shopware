@@ -3,7 +3,6 @@
 namespace Shopware\Core\Framework\Test\Plugin;
 
 use Composer\IO\NullIO;
-use DateTime;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
@@ -124,7 +123,7 @@ class PluginLifecycleServiceTest extends TestCase
 
     public function testInstallPluginAlreadyInstalled(): void
     {
-        $installedAt = (new DateTime())->format(Defaults::DATE_FORMAT);
+        $installedAt = (new \DateTime())->format(Defaults::DATE_FORMAT);
         $this->createPlugin($this->pluginRepo, $this->context, \SwagTest\SwagTest::PLUGIN_VERSION, $installedAt);
 
         /** @var PluginEntity $plugin */

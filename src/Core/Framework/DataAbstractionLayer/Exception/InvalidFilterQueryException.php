@@ -4,7 +4,6 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Exception;
 
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
-use Throwable;
 
 class InvalidFilterQueryException extends ShopwareHttpException
 {
@@ -13,7 +12,7 @@ class InvalidFilterQueryException extends ShopwareHttpException
      */
     private $path;
 
-    public function __construct(string $message, string $path = '', int $code = 0, Throwable $previous = null)
+    public function __construct(string $message, string $path = '', int $code = 0, \Throwable $previous = null)
     {
         $this->path = $path;
 

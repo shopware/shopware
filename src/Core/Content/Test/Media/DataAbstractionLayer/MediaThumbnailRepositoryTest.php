@@ -87,8 +87,7 @@ class MediaThumbnailRepositoryTest extends TestCase
 
     private function createThumbnailFile(MediaEntity $media)
     {
-        $urlGenerator = $this->getContainer()->get(UrlGeneratorInterface::class);
-        $thumbnailPath = $urlGenerator->getRelativeThumbnailUrl(
+        $thumbnailPath = $this->getContainer()->get(UrlGeneratorInterface::class)->getRelativeThumbnailUrl(
             $media,
             100,
             200,

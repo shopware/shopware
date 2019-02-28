@@ -21,8 +21,6 @@ class ConstraintBuilder
 
     /**
      * Set prop must not be blank (required)
-     *
-     * @return $this
      */
     public function isNotBlank(): self
     {
@@ -31,9 +29,6 @@ class ConstraintBuilder
         return $this;
     }
 
-    /**
-     * @return $this
-     */
     public function isBool(): self
     {
         $this->addConstraint(new Type('bool'));
@@ -41,9 +36,6 @@ class ConstraintBuilder
         return $this;
     }
 
-    /**
-     * @return $this
-     */
     public function isString(): self
     {
         $this->addConstraint(new Type('string'));
@@ -51,9 +43,6 @@ class ConstraintBuilder
         return $this;
     }
 
-    /**
-     * @return $this
-     */
     public function isNumeric(): self
     {
         $this->addConstraint(new Type('numeric'));
@@ -61,9 +50,6 @@ class ConstraintBuilder
         return $this;
     }
 
-    /**
-     * @return $this
-     */
     public function isFloat(): self
     {
         $this->addConstraint(new Type('numeric'));
@@ -71,9 +57,6 @@ class ConstraintBuilder
         return $this;
     }
 
-    /**
-     * @return $this
-     */
     public function isLengthLessThanOrEqual(int $maxLength): self
     {
         $this->addConstraint(new Length(['max' => $maxLength]));
@@ -81,9 +64,6 @@ class ConstraintBuilder
         return $this;
     }
 
-    /**
-     * @return ConstraintBuilder
-     */
     public function isGreaterThanOrEqual(int $value): self
     {
         $this->addConstraint(new GreaterThanOrEqual($value));
@@ -91,9 +71,6 @@ class ConstraintBuilder
         return $this;
     }
 
-    /**
-     * @return ConstraintBuilder
-     */
     public function isLessThanOrEqual(int $value): self
     {
         $this->addConstraint(new LessThanOrEqual($value));
@@ -101,9 +78,6 @@ class ConstraintBuilder
         return $this;
     }
 
-    /**
-     * @return $this
-     */
     public function isDate(): self
     {
         $this->addConstraint(new Type(\DateTimeInterface::class));
@@ -111,9 +85,6 @@ class ConstraintBuilder
         return $this;
     }
 
-    /**
-     * @return $this
-     */
     public function isInt(): self
     {
         $this->addConstraint(new Type('int'));
@@ -123,8 +94,6 @@ class ConstraintBuilder
 
     /**
      * Set prop must be email
-     *
-     * @return $this
      */
     public function isEmail(): self
     {
@@ -135,8 +104,6 @@ class ConstraintBuilder
 
     /**
      * Set prop must be blank
-     *
-     * @return $this
      */
     public function isBlank(): self
     {
@@ -147,9 +114,6 @@ class ConstraintBuilder
 
     /**
      * Set prop must be in array
-     *
-     *
-     * @return $this
      */
     public function isInArray(array $values): self
     {
@@ -160,8 +124,6 @@ class ConstraintBuilder
 
     /**
      * Set prop must be an array
-     *
-     * @return $this
      */
     public function isArray(): self
     {
@@ -170,9 +132,6 @@ class ConstraintBuilder
         return $this;
     }
 
-    /**
-     * @return ConstraintBuilder
-     */
     public function addConstraint(Constraint $constraint): self
     {
         $this->constraints[] = $constraint;

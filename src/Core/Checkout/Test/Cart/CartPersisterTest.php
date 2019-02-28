@@ -89,7 +89,8 @@ class CartPersisterTest extends TestCase
                     'token' => 'existing',
                     'name' => 'shopware',
                     'errors' => new ErrorCollection(),
-                ]));
+                ])
+            );
 
         $persister = new CartPersister($connection, $this->serializer);
         $cart = $persister->load('existing', Generator::createCheckoutContext());

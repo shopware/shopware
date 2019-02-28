@@ -2,8 +2,6 @@
 
 namespace Shopware\Core\System\SystemConfig\Helper;
 
-use DOMDocument;
-use DOMElement;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Util\XmlReader;
 use Shopware\Core\System\SystemConfig\Exception\BundleConfigNotFoundException;
@@ -33,16 +31,16 @@ class ConfigReader extends XmlReader
     /**
      * This method is the main entry point to parse a xml file.
      */
-    protected function parseFile(DOMDocument $xml): array
+    protected function parseFile(\DOMDocument $xml): array
     {
         return $this->getCardDefinitions($xml);
     }
 
-    private function getCardDefinitions(DOMDocument $xml): array
+    private function getCardDefinitions(\DOMDocument $xml): array
     {
         $cardDefinitions = [];
 
-        /** @var DOMElement $element */
+        /** @var \DOMElement $element */
         foreach ($xml->getElementsByTagName('card') as $element) {
             $cardDefinitions[] = [
                 'title' => $this->getCardTitles($element),
@@ -53,10 +51,10 @@ class ConfigReader extends XmlReader
         return $cardDefinitions;
     }
 
-    private function getCardTitles(DOMElement $element): array
+    private function getCardTitles(\DOMElement $element): array
     {
         $titles = [];
-        /** @var DOMElement $title */
+        /** @var \DOMElement $title */
         foreach ($element->getElementsByTagName('title') as $title) {
             $titles[$this->getLocaleCodeFromElement($title)] = $title->nodeValue;
         }
@@ -64,11 +62,11 @@ class ConfigReader extends XmlReader
         return $titles;
     }
 
-    private function getSwFieldDefinitions(DOMElement $xml): array
+    private function getSwFieldDefinitions(\DOMElement $xml): array
     {
         $swFieldDefinitions = [];
         $count = 0;
-        /** @var DOMElement $element */
+        /** @var \DOMElement $element */
         foreach ($xml->getElementsByTagName('input-field') as $element) {
             $swFieldDefinitions[$count] = $this->swFieldDefinitionToArray($element);
             $swFieldDefinitions[$count]['value'] = null;
@@ -78,10 +76,10 @@ class ConfigReader extends XmlReader
         return $swFieldDefinitions;
     }
 
-    private function swFieldDefinitionToArray(DOMElement $swField): array
+    private function swFieldDefinitionToArray(\DOMElement $swField): array
     {
         $swFieldType = $swField->getAttribute('type') ?: 'text';
-        /** @var DOMElement[] $options */
+        /** @var \DOMElement[] $options */
         $options = self::getAllChildren($swField);
         $swFieldArray = [
             'type' => $swFieldType,
@@ -109,11 +107,11 @@ class ConfigReader extends XmlReader
         return $swFieldArray;
     }
 
-    private function optionsToArray(DOMElement $element): array
+    private function optionsToArray(\DOMElement $element): array
     {
         $options = [];
 
-        /** @var DOMElement $option */
+        /** @var \DOMElement $option */
         foreach ($element->getElementsByTagName('option') as $option) {
             $options[] = [
                 'value' => $option->getElementsByTagName('value')->item(0)->nodeValue,
@@ -124,11 +122,11 @@ class ConfigReader extends XmlReader
         return $options;
     }
 
-    private function getOptionLabels(DOMElement $option): array
+    private function getOptionLabels(\DOMElement $option): array
     {
         $optionLabels = [];
 
-        /** @var DOMElement $label */
+        /** @var \DOMElement $label */
         foreach ($option->getElementsByTagName('label') as $label) {
             $optionLabels[$this->getLocaleCodeFromElement($label)] = $label->nodeValue;
         }
@@ -136,22 +134,22 @@ class ConfigReader extends XmlReader
         return $optionLabels;
     }
 
-    private function getLocaleCodeFromElement(DOMElement $element): string
+    private function getLocaleCodeFromElement(\DOMElement $element): string
     {
         return $element->getAttribute('lang') ?: Defaults::LOCALE_EN_GB_ISO;
     }
 
-    private function isTranslateAbleOption(DOMElement $option): bool
+    private function isTranslateAbleOption(\DOMElement $option): bool
     {
         return \in_array($option->localName, ['label', 'placeholder', 'helpText'], true);
     }
 
-    private function isBoolOption(DOMElement $option): bool
+    private function isBoolOption(\DOMElement $option): bool
     {
         return \in_array($option->localName, ['copyable', 'disabled'], true);
     }
 
-    private function elementIsOptions(DOMElement $option): bool
+    private function elementIsOptions(\DOMElement $option): bool
     {
         return $option->localName === 'options';
     }

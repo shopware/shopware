@@ -4,7 +4,6 @@ namespace Shopware\Core\Framework\Api\Exception;
 
 use Shopware\Core\Framework\ShopwareException;
 use Symfony\Component\Serializer\Exception\MappingException;
-use Throwable;
 
 class MissingValueException extends MappingException implements ShopwareException
 {
@@ -16,7 +15,7 @@ class MissingValueException extends MappingException implements ShopwareExceptio
     /**
      * {@inheritdoc}
      */
-    public function __construct(string $fieldName, int $code = 0, Throwable $previous = null)
+    public function __construct(string $fieldName, int $code = 0, \Throwable $previous = null)
     {
         $this->fieldName = $fieldName;
 

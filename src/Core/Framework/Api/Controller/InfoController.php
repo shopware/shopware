@@ -39,10 +39,8 @@ class InfoController extends AbstractController
      * @Route("/api/v{version}/_info/openapi3.json", name="api.info.openapi3", methods={"GET"})
      *
      * @throws \Exception
-     *
-     * @return JsonResponse|Response
      */
-    public function info()
+    public function info(): JsonResponse
     {
         $data = $this->definitionService->generate(OpenApi3Generator::FORMAT);
 

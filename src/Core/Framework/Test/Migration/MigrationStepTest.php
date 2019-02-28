@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Test\Migration;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\FetchMode;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Framework\Test\Migration\_test_trigger_with_trigger_\MigrationWithBackwardTrigger;
@@ -153,8 +154,10 @@ class MigrationStepTest extends TestCase
 
     private function assertTriggerExists($name): void
     {
-        $connection = $this->getContainer()->get(Connection::class);
-        $trigger = $connection->executeQuery(sprintf('SHOW TRIGGERS WHERE `Trigger` =  \'%s\'', $name))->fetch(\PDO::FETCH_COLUMN);
+        $trigger = $this->getContainer()->get(Connection::class)->executeQuery(
+            sprintf('SHOW TRIGGERS WHERE `Trigger` =  \'%s\'', $name)
+        )->fetch(FetchMode::COLUMN);
+
         static::assertEquals($name, $trigger);
     }
 }

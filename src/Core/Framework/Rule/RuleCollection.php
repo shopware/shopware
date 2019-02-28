@@ -35,10 +35,7 @@ class RuleCollection extends Collection
         $this->classes = [];
     }
 
-    /**
-     * @return Collection|RuleCollection
-     */
-    public function filterInstance(string $class): Collection
+    public function filterInstance(string $class): RuleCollection
     {
         return new self(
             array_filter(

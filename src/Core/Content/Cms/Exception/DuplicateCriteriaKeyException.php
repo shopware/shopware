@@ -3,11 +3,10 @@
 namespace Shopware\Core\Content\Cms\Exception;
 
 use Shopware\Core\Framework\ShopwareHttpException;
-use Throwable;
 
 class DuplicateCriteriaKeyException extends ShopwareHttpException
 {
-    public function __construct(string $key, int $code = 0, Throwable $previous = null)
+    public function __construct(string $key, int $code = 0, \Throwable $previous = null)
     {
         $message = sprintf('The key "%s" is duplicated in the criteria collection.', $key);
 

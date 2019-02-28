@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer;
 
-use Generator;
 use Ramsey\Uuid\Uuid;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\DecodeByHydratorException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidSerializerFieldException;
@@ -37,7 +36,7 @@ class ManyToOneAssociationFieldSerializer implements FieldSerializerInterface
         EntityExistence $existence,
         KeyValuePair $data,
         WriteParameterBag $parameters
-    ): Generator {
+    ): \Generator {
         if (!$field instanceof ManyToOneAssociationField) {
             throw new InvalidSerializerFieldException(ManyToOneAssociationField::class, $field);
         }

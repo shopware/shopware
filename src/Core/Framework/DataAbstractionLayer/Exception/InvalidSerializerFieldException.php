@@ -6,7 +6,6 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Exception;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
-use Throwable;
 
 class InvalidSerializerFieldException extends ShopwareHttpException
 {
@@ -20,7 +19,7 @@ class InvalidSerializerFieldException extends ShopwareHttpException
      */
     private $field;
 
-    public function __construct(string $expectedClass, Field $field, int $code = 0, Throwable $previous = null)
+    public function __construct(string $expectedClass, Field $field, int $code = 0, \Throwable $previous = null)
     {
         $message = sprintf('Expected field of type %s got %s', $expectedClass, \get_class($field));
 

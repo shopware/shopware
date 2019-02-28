@@ -3,8 +3,6 @@ declare(strict_types=1);
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer;
 
-use DateTime;
-use Generator;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidSerializerFieldException;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\DateField;
@@ -45,7 +43,7 @@ class DateFieldSerializer implements FieldSerializerInterface
         EntityExistence $existence,
         KeyValuePair $data,
         WriteParameterBag $parameters
-    ): Generator {
+    ): \Generator {
         if (!$field instanceof DateField) {
             throw new InvalidSerializerFieldException(DateField::class, $field);
         }
@@ -53,11 +51,11 @@ class DateFieldSerializer implements FieldSerializerInterface
         $value = $data->getValue();
 
         if (\is_string($value)) {
-            $value = new DateTime($value);
+            $value = new \DateTime($value);
         }
 
         if (is_array($value) && array_key_exists('date', $value)) {
-            $value = new DateTime($value['date']);
+            $value = new \DateTime($value['date']);
         }
 
         /** @var DateField $field */
@@ -78,8 +76,8 @@ class DateFieldSerializer implements FieldSerializerInterface
         yield $field->getStorageName() => $value->format(Defaults::DATE_FORMAT);
     }
 
-    public function decode(Field $field, $value): ?DateTime
+    public function decode(Field $field, $value): ?\DateTime
     {
-        return $value === null ? null : new DateTime($value);
+        return $value === null ? null : new \DateTime($value);
     }
 }

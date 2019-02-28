@@ -9,8 +9,6 @@ use function Shopware\Core\Framework\Test\FeatureFlag\_fixture\ifNextFix101;
 use function Shopware\Core\Framework\Test\FeatureFlag\_fixture\ifNextFix101Call;
 use function Shopware\Core\Framework\Test\FeatureFlag\_fixture\nextFix102;
 use Shopware\Core\Framework\Twig\FeatureFlagExtension;
-use Twig_Environment;
-use Twig_Loader_Filesystem;
 
 class FeatureTest extends TestCase
 {
@@ -116,8 +114,8 @@ class FeatureTest extends TestCase
     {
         FeatureConfig::registerFlag('nextFix101', __METHOD__);
 
-        $loader = new Twig_Loader_Filesystem(__DIR__ . '/_fixture/');
-        $twig = new Twig_Environment($loader, [
+        $loader = new \Twig_Loader_Filesystem(__DIR__ . '/_fixture/');
+        $twig = new \Twig_Environment($loader, [
             'cache' => false,
         ]);
         $twig->addExtension(new FeatureFlagExtension());
@@ -130,8 +128,8 @@ class FeatureTest extends TestCase
 
     public function testTwigFeatureFlagNotRegistered(): void
     {
-        $loader = new Twig_Loader_Filesystem(__DIR__ . '/_fixture/');
-        $twig = new Twig_Environment($loader, [
+        $loader = new \Twig_Loader_Filesystem(__DIR__ . '/_fixture/');
+        $twig = new \Twig_Environment($loader, [
             'cache' => false,
         ]);
         $twig->addExtension(new FeatureFlagExtension());

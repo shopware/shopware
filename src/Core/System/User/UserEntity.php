@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\System\User;
 
-use DateTime;
 use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
@@ -47,7 +46,7 @@ class UserEntity extends Entity
     protected $email;
 
     /**
-     * @var DateTime|null
+     * @var \DateTime|null
      */
     protected $lastLogin;
 
@@ -62,17 +61,17 @@ class UserEntity extends Entity
     protected $failedLogins;
 
     /**
-     * @var DateTime|null
+     * @var \DateTime|null
      */
     protected $lockedUntil;
 
     /**
-     * @var DateTime|null
+     * @var \DateTime|null
      */
     protected $createdAt;
 
     /**
-     * @var DateTime|null
+     * @var \DateTime|null
      */
     protected $updatedAt;
 
@@ -181,12 +180,12 @@ class UserEntity extends Entity
         $this->email = $email;
     }
 
-    public function getLastLogin(): ?DateTime
+    public function getLastLogin(): ?\DateTime
     {
         return $this->lastLogin;
     }
 
-    public function setLastLogin(?DateTime $lastLogin): void
+    public function setLastLogin(?\DateTime $lastLogin): void
     {
         $this->lastLogin = $lastLogin;
     }
@@ -211,32 +210,32 @@ class UserEntity extends Entity
         $this->failedLogins = $failedLogins;
     }
 
-    public function getLockedUntil(): ?DateTime
+    public function getLockedUntil(): ?\DateTime
     {
         return $this->lockedUntil;
     }
 
-    public function setLockedUntil(?DateTime $lockedUntil): void
+    public function setLockedUntil(?\DateTime $lockedUntil): void
     {
         $this->lockedUntil = $lockedUntil;
     }
 
-    public function getCreatedAt(): ?DateTime
+    public function getCreatedAt(): ?\DateTime
     {
         return $this->createdAt;
     }
 
-    public function setCreatedAt(DateTime $createdAt): void
+    public function setCreatedAt(\DateTime $createdAt): void
     {
         $this->createdAt = $createdAt;
     }
 
-    public function getUpdatedAt(): ?DateTime
+    public function getUpdatedAt(): ?\DateTime
     {
         return $this->updatedAt;
     }
 
-    public function setUpdatedAt(DateTime $updatedAt): void
+    public function setUpdatedAt(\DateTime $updatedAt): void
     {
         $this->updatedAt = $updatedAt;
     }

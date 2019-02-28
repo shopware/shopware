@@ -4,13 +4,12 @@ namespace Shopware\Core\Framework\Exception;
 
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
-use Throwable;
 
 class MethodNotOverriddenException extends ShopwareHttpException
 {
     protected $code = 'METHOD-NOT-OVERRIDDEN';
 
-    public function __construct(string $method, string $class, int $code = 0, Throwable $previous = null)
+    public function __construct(string $method, string $class, int $code = 0, \Throwable $previous = null)
     {
         $message = sprintf('The %s method of %s requires to be overridden', $method, $class);
 

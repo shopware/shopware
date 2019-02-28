@@ -37,21 +37,21 @@ class MediaRepositoryDecoratorTest extends TestCase
     {
         $mediaId = Uuid::uuid4()->getHex();
 
-        $this->mediaRepository->create([
+        $this->mediaRepository->create(
             [
-                'id' => $mediaId,
-                'name' => 'test media',
-                'mimeType' => 'image/png',
-                'fileExtension' => 'png',
-                'fileName' => $mediaId . '-' . (new \DateTime())->getTimestamp(),
+                [
+                    'id' => $mediaId,
+                    'name' => 'test media',
+                    'mimeType' => 'image/png',
+                    'fileExtension' => 'png',
+                    'fileName' => $mediaId . '-' . (new \DateTime())->getTimestamp(),
+                ],
             ],
-        ],
             $this->context
         );
         $media = $this->mediaRepository->search(new Criteria([$mediaId]), $this->context)->get($mediaId);
 
-        $urlGenerator = $this->getContainer()->get(UrlGeneratorInterface::class);
-        $mediaPath = $urlGenerator->getRelativeMediaUrl($media);
+        $mediaPath = $this->getContainer()->get(UrlGeneratorInterface::class)->getRelativeMediaUrl($media);
 
         $this->getPublicFilesystem()->putStream($mediaPath, fopen(self::FIXTURE_FILE, 'rb'));
 
@@ -64,22 +64,23 @@ class MediaRepositoryDecoratorTest extends TestCase
     {
         $mediaId = Uuid::uuid4()->getHex();
 
-        $this->mediaRepository->create([
+        $this->mediaRepository->create(
             [
-                'id' => $mediaId,
-                'name' => 'test media',
-                'mimeType' => 'image/png',
-                'fileExtension' => 'png',
-                'fileName' => $mediaId . '-' . (new \DateTime())->getTimestamp(),
-                'thumbnails' => [
-                    [
-                        'width' => 100,
-                        'height' => 200,
-                        'highDpi' => true,
+                [
+                    'id' => $mediaId,
+                    'name' => 'test media',
+                    'mimeType' => 'image/png',
+                    'fileExtension' => 'png',
+                    'fileName' => $mediaId . '-' . (new \DateTime())->getTimestamp(),
+                    'thumbnails' => [
+                        [
+                            'width' => 100,
+                            'height' => 200,
+                            'highDpi' => true,
+                        ],
                     ],
                 ],
             ],
-        ],
             $this->context
         );
         $media = $this->mediaRepository->search(new Criteria([$mediaId]), $this->context)->get($mediaId);
@@ -102,22 +103,23 @@ class MediaRepositoryDecoratorTest extends TestCase
         $firstId = Uuid::uuid4()->getHex();
         $secondId = Uuid::uuid4()->getHex();
 
-        $this->mediaRepository->create([
+        $this->mediaRepository->create(
             [
-                'id' => $firstId,
-                'name' => 'test media',
-                'mimeType' => 'image/png',
-                'fileExtension' => 'png',
-                'fileName' => $firstId . '-' . (new \DateTime())->getTimestamp(),
+                [
+                    'id' => $firstId,
+                    'name' => 'test media',
+                    'mimeType' => 'image/png',
+                    'fileExtension' => 'png',
+                    'fileName' => $firstId . '-' . (new \DateTime())->getTimestamp(),
+                ],
+                [
+                    'id' => $secondId,
+                    'name' => 'test media',
+                    'mimeType' => 'image/png',
+                    'fileExtension' => 'png',
+                    'fileName' => $secondId . '-' . (new \DateTime())->getTimestamp(),
+                ],
             ],
-            [
-                'id' => $secondId,
-                'name' => 'test media',
-                'mimeType' => 'image/png',
-                'fileExtension' => 'png',
-                'fileName' => $secondId . '-' . (new \DateTime())->getTimestamp(),
-            ],
-        ],
             $this->context
         );
 
@@ -159,12 +161,13 @@ class MediaRepositoryDecoratorTest extends TestCase
     {
         $firstId = Uuid::uuid4()->getHex();
 
-        $this->mediaRepository->create([
+        $this->mediaRepository->create(
             [
-                'id' => $firstId,
-                'name' => 'test media',
+                [
+                    'id' => $firstId,
+                    'name' => 'test media',
+                ],
             ],
-        ],
             $this->context
         );
 
@@ -178,15 +181,16 @@ class MediaRepositoryDecoratorTest extends TestCase
     {
         $firstId = Uuid::uuid4()->getHex();
 
-        $this->mediaRepository->create([
+        $this->mediaRepository->create(
             [
-                'id' => $firstId,
-                'name' => 'test media',
-                'mimeType' => 'image/png',
-                'fileExtension' => 'png',
-                'fileName' => $firstId . '-' . (new \DateTime())->getTimestamp(),
+                [
+                    'id' => $firstId,
+                    'name' => 'test media',
+                    'mimeType' => 'image/png',
+                    'fileExtension' => 'png',
+                    'fileName' => $firstId . '-' . (new \DateTime())->getTimestamp(),
+                ],
             ],
-        ],
             $this->context
         );
 

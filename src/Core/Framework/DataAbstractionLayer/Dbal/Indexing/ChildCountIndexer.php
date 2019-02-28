@@ -239,7 +239,7 @@ class ChildCountIndexer implements IndexerInterface
     private function validateTableName(string $tableName): void
     {
         if (!preg_match('/^[a-zA-Z_][a-zA-Z0-9_]*$/', $tableName)) {
-            throw new \Exception(sprintf('Invalid table name %s', $tableName));
+            throw new \RuntimeException(sprintf('Invalid table name %s', $tableName));
         }
     }
 }

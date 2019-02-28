@@ -4,7 +4,6 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Exception;
 
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
-use Throwable;
 
 class SearchRequestException extends ShopwareHttpException
 {
@@ -13,14 +12,14 @@ class SearchRequestException extends ShopwareHttpException
      */
     private $exceptions;
 
-    public function __construct(iterable $exceptions = [], int $code = 0, Throwable $previous = null)
+    public function __construct(iterable $exceptions = [], int $code = 0, \Throwable $previous = null)
     {
         $this->exceptions = $exceptions;
 
         parent::__construct(sprintf('Mapping failed, got %s failure(s).', \count($exceptions)), $code, $previous);
     }
 
-    public function add(\Exception $exception, string $pointer): void
+    public function add(\Throwable $exception, string $pointer): void
     {
         $this->exceptions[$pointer][] = $exception;
     }
@@ -42,7 +41,7 @@ class SearchRequestException extends ShopwareHttpException
     public function getErrors(bool $withTrace = false): \Generator
     {
         foreach ($this->exceptions as $pointer => $innerExceptions) {
-            /** @var \Exception $exception */
+            /** @var \Throwable $exception */
             foreach ($innerExceptions as $exception) {
                 $error = [
                     'code' => (string) $exception->getCode(),

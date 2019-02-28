@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\Test\Api\Serializer;
 
-use DateTime;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\Aggregate\MediaFolder\MediaFolderDefinition;
 use Shopware\Core\Content\Media\MediaDefinition;
@@ -32,7 +31,7 @@ class JsonApiEncoderTest extends TestCase
             ['string'],
             [1],
             [false],
-            [new DateTime()],
+            [new \DateTime()],
             [1.1],
         ];
     }
@@ -58,7 +57,7 @@ class JsonApiEncoderTest extends TestCase
 
         $struct->setAlt('A media object description');
 
-        $struct->setCreatedAt(new DateTime('2018-01-15T08:01:16+00:00'));
+        $struct->setCreatedAt(new \DateTime('2018-01-15T08:01:16+00:00'));
 
         $expected = [
             'data' => [

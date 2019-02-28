@@ -4,7 +4,6 @@ namespace Shopware\Core\Checkout\Cart\Exception;
 
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
-use Throwable;
 
 class OrderNotFoundException extends ShopwareHttpException
 {
@@ -15,7 +14,7 @@ class OrderNotFoundException extends ShopwareHttpException
      */
     private $orderId;
 
-    public function __construct(string $orderId, $code = 0, Throwable $previous = null)
+    public function __construct(string $orderId, $code = 0, \Throwable $previous = null)
     {
         $message = sprintf('Order with id "%s" not found', $orderId);
         parent::__construct($message, $code, $previous);

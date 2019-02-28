@@ -3,7 +3,6 @@ declare(strict_types=1);
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer;
 
-use Generator;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidSerializerFieldException;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\LongTextField;
@@ -43,7 +42,7 @@ class LongTextFieldSerializer implements FieldSerializerInterface
         EntityExistence $existence,
         KeyValuePair $data,
         WriteParameterBag $parameters
-    ): Generator {
+    ): \Generator {
         if (!$field instanceof LongTextField) {
             throw new InvalidSerializerFieldException(LongTextField::class, $field);
         }

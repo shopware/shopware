@@ -18,7 +18,13 @@ class CommandQueueValidator implements WriteCommandValidatorInterface
     {
         foreach ($validators as $validator) {
             if (!$validator instanceof WriteCommandValidatorInterface) {
-                throw new \InvalidArgumentException(sprintf('Validator \'%s\'is not an instance of %s', \get_class($validator), WriteCommandValidatorInterface::class));
+                throw new \InvalidArgumentException(
+                    sprintf(
+                        'Validator \'%s\'is not an instance of %s',
+                        \get_class($validator),
+                        WriteCommandValidatorInterface::class
+                    )
+                );
             }
             $this->validators[] = $validator;
         }

@@ -17,7 +17,6 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\Messenger\MessageBusInterface;
-use UnexpectedValueException;
 
 class GenerateThumbnailsCommand extends Command
 {
@@ -136,7 +135,7 @@ class GenerateThumbnailsCommand extends Command
         $rawInput = $input->getOption('batch-size');
 
         if (!is_numeric($rawInput)) {
-            throw new UnexpectedValueException('Batch size must be numeric');
+            throw new \UnexpectedValueException('Batch size must be numeric');
         }
 
         return (int) $rawInput;
@@ -155,7 +154,7 @@ class GenerateThumbnailsCommand extends Command
         $searchResult = $this->mediaFolderRepository->search($criteria, $context);
 
         if ($searchResult->getTotal() === 0) {
-            throw new UnexpectedValueException(
+            throw new \UnexpectedValueException(
                 sprintf(
                     'Could not find a folder with the name: "%s"',
                     $rawInput

@@ -27,8 +27,6 @@ class UserRepository implements UserRepositoryInterface
      * @param string $username
      * @param string $password
      * @param string $grantType The grant type used
-     *
-     * @return ?UserEntityInterface
      */
     public function getUserEntityByUserCredentials(
         $username,

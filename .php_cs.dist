@@ -1,7 +1,7 @@
 <?php declare(strict_types=1);
 
-$dir = $vendorDir = \dirname(__DIR__);
-while (!file_exists($dir . '/composer.json')) {
+$dir = $vendorDir = __DIR__;
+while (!file_exists($dir . '/composer.json') || !is_dir($dir . '/vendor')) {
     if ($dir === \dirname($dir)) {
         break;
     }
@@ -51,5 +51,6 @@ return Config::create()
         'array_indentation' => true,
         Fixer\NoUselessCommentFixer::name() => true,
         Fixer\PhpdocNoSuperfluousParamFixer::name() => true,
+        Fixer\NoImportFromGlobalNamespaceFixer::name() => true,
     ])
     ->setFinder($finder);

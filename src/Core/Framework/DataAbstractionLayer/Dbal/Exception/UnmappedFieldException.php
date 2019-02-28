@@ -5,14 +5,13 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Dbal\Exception;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
-use Throwable;
 
 class UnmappedFieldException extends ShopwareHttpException
 {
     /**
      * @param string|EntityDefinition $definition
      */
-    public function __construct(string $field, string $definition, int $code = 0, Throwable $previous = null)
+    public function __construct(string $field, string $definition, int $code = 0, \Throwable $previous = null)
     {
         $fieldParts = explode('.', $field);
         $name = array_pop($fieldParts);

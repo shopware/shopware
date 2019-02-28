@@ -309,7 +309,7 @@ class VersionManager
         $detail = $this->entityReader->read($definition, $criteria, $context->getContext())->first();
 
         if ($detail === null) {
-            throw new \Exception(sprintf('Cannot create new version. %s by id (%s) not found.', $definition::getEntityName(), $id));
+            throw new \RuntimeException(sprintf('Cannot create new version. %s by id (%s) not found.', $definition::getEntityName(), $id));
         }
 
         $data = json_decode($this->serializer->serialize($detail, 'json'), true);

@@ -65,9 +65,9 @@ class MediaFolderConfigIndexer implements IndexerInterface
 
     public function refresh(EntityWrittenContainerEvent $event): void
     {
-        $event = $event->getEventByDefinition(MediaFolderDefinition::class);
-        if ($event) {
-            $this->updateConfigOnRefresh($event);
+        $entityWrittenEvent = $event->getEventByDefinition(MediaFolderDefinition::class);
+        if ($entityWrittenEvent) {
+            $this->updateConfigOnRefresh($entityWrittenEvent);
         }
     }
 

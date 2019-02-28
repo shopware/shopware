@@ -4,13 +4,12 @@ namespace Shopware\Core\System\StateMachine\Exception;
 
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
-use Throwable;
 
 class StateMachineWithoutInitialStateException extends ShopwareHttpException
 {
     protected $code = 'STATE-MACHINE-WITHOUT-INITIAL-STATE';
 
-    public function __construct(string $stateMachineName, int $code = 0, Throwable $previous = null)
+    public function __construct(string $stateMachineName, int $code = 0, \Throwable $previous = null)
     {
         $message = sprintf('The StateMachine named "%s" has no initial state.', $stateMachineName);
 

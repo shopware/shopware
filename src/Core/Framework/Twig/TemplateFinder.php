@@ -3,7 +3,6 @@
 namespace Shopware\Core\Framework\Twig;
 
 use Symfony\Component\HttpKernel\Bundle\BundleInterface;
-use Twig_Loader_Filesystem;
 
 class TemplateFinder
 {
@@ -13,7 +12,7 @@ class TemplateFinder
     private $directories;
 
     /**
-     * @var Twig_Loader_Filesystem
+     * @var \Twig_Loader_Filesystem
      */
     private $loader;
 
@@ -22,7 +21,7 @@ class TemplateFinder
      */
     private $queue = [];
 
-    public function __construct(Twig_Loader_Filesystem $loader)
+    public function __construct(\Twig_Loader_Filesystem $loader)
     {
         $this->loader = $loader;
 

@@ -20,8 +20,11 @@ class MessageFailedException extends \RuntimeException
         $this->handlerClass = $handlerClass;
 
         parent::__construct(
-            sprintf('The handler "%s" threw a "%s" for message "%s"',
-                $handlerClass, get_class($previous), get_class($originalMessage)
+            sprintf(
+                'The handler "%s" threw a "%s" for message "%s"',
+                $handlerClass,
+                get_class($previous),
+                get_class($originalMessage)
             ),
             0,
             $previous

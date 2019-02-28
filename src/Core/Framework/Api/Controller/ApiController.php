@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\Api\Controller;
 
-use RuntimeException;
 use Shopware\Core\Framework\Api\Exception\NoEntityClonedException;
 use Shopware\Core\Framework\Api\Exception\ResourceNotFoundException;
 use Shopware\Core\Framework\Api\OAuth\Scope\WriteScope;
@@ -336,7 +335,7 @@ class ApiController extends AbstractController
             return $responseFactory->createRedirectResponse($definition, $id, $request, $context);
         }
 
-        throw new RuntimeException(sprintf('Unsupported association for field %s', $association->getPropertyName()));
+        throw new \RuntimeException(sprintf('Unsupported association for field %s', $association->getPropertyName()));
     }
 
     private function fetchListing(Request $request, Context $context, string $entityName, string $path): EntitySearchResult
@@ -631,7 +630,7 @@ class ApiController extends AbstractController
             return $repository->update([$payload], $context);
         }
 
-        throw new RuntimeException('Unsupported write operation.');
+        throw new \RuntimeException('Unsupported write operation.');
     }
 
     private function getAssociation(FieldCollection $fields, array $keys): AssociationInterface

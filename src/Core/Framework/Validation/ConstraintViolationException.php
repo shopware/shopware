@@ -5,7 +5,6 @@ namespace Shopware\Core\Framework\Validation;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException\WriteFieldException;
 use Symfony\Component\Validator\ConstraintViolationInterface;
 use Symfony\Component\Validator\ConstraintViolationListInterface;
-use Throwable;
 
 class ConstraintViolationException extends WriteFieldException implements ConstraintViolationExceptionInterface
 {
@@ -24,7 +23,7 @@ class ConstraintViolationException extends WriteFieldException implements Constr
      */
     private $concern;
 
-    public function __construct(ConstraintViolationListInterface $constraintViolationList, string $path = '', $code = 0, Throwable $previous = null, string $concern = '')
+    public function __construct(ConstraintViolationListInterface $constraintViolationList, string $path = '', $code = 0, \Throwable $previous = null, string $concern = '')
     {
         parent::__construct(
             sprintf('Caught %s constraint violation errors.', $constraintViolationList->count()),

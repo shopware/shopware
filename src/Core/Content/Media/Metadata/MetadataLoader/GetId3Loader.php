@@ -2,8 +2,6 @@
 
 namespace Shopware\Core\Content\Media\Metadata\MetadataLoader;
 
-use getID3;
-use getid3_exception;
 use Shopware\Core\Content\Media\Exception\CanNotLoadMetadataException;
 use Shopware\Core\Content\Media\Metadata\Type\ImageMetadata;
 use Shopware\Core\Content\Media\Metadata\Type\MetadataType;
@@ -12,7 +10,7 @@ use Shopware\Core\Content\Media\Metadata\Type\VideoMetadata;
 class GetId3Loader implements MetadataLoaderInterface
 {
     /**
-     * @var getID3|null
+     * @var \getID3|null
      */
     private $getId3;
 
@@ -21,7 +19,7 @@ class GetId3Loader implements MetadataLoaderInterface
         try {
             $metadata = $this->getGetId3()
                 ->analyze($filePath);
-        } catch (getid3_exception $e) {
+        } catch (\getid3_exception $e) {
             throw new CanNotLoadMetadataException('Unable to use getId3 in this environment', 0, $e);
         }
 
@@ -50,12 +48,12 @@ class GetId3Loader implements MetadataLoaderInterface
     }
 
     /**
-     * @throws getid3_exception
+     * @throws \getid3_exception
      */
-    private function getGetId3(): getID3
+    private function getGetId3(): \getID3
     {
         if (!$this->getId3) {
-            $this->getId3 = new getID3();
+            $this->getId3 = new \getID3();
         }
 
         return $this->getId3;

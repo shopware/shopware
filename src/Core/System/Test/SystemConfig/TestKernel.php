@@ -5,7 +5,6 @@ namespace Shopware\Core\System\Test\SystemConfig;
 require_once __DIR__ . '/_fixtures/SwagExampleTest/SwagExampleTest.php';
 require_once __DIR__ . '/_fixtures/SwagInvalidTest/SwagInvalidTest.php';
 
-use ReflectionClass;
 use Shopware\Core\Kernel;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
@@ -19,7 +18,7 @@ class TestKernel extends Kernel
     public function getProjectDir(): string
     {
         if ($this->projectDir === null) {
-            $r = new ReflectionClass($_SERVER['KERNEL_CLASS']);
+            $r = new \ReflectionClass($_SERVER['KERNEL_CLASS']);
             $dir = $rootDir = \dirname($r->getFileName());
             while (!file_exists($dir . '/composer.json')) {
                 if ($dir === \dirname($dir)) {

@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Dbal\Indexing;
 
-use DateTime;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
@@ -46,7 +45,7 @@ class IndexerRegistry implements IndexerInterface, EventSubscriberInterface
         ];
     }
 
-    public function index(DateTime $timestamp): void
+    public function index(\DateTime $timestamp): void
     {
         if ($this->working) {
             return;

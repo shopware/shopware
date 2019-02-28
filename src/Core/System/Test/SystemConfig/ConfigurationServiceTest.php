@@ -82,12 +82,20 @@ class ConfigurationServiceTest extends TestCase
     public function testThatBundleWithoutConfigThrowsException(): void
     {
         $this->expectException(BundleConfigNotFoundException::class);
-        $this->configurationService->getConfiguration(\SwagInvalidTest\SwagInvalidTest::PLUGIN_NAME, $this->context, '20080911ffff4fffafffffff19830531');
+        $this->configurationService->getConfiguration(
+            \SwagInvalidTest\SwagInvalidTest::PLUGIN_NAME,
+            $this->context,
+            '20080911ffff4fffafffffff19830531'
+        );
     }
 
     public function testGetConfigurationFromBundleWithoutExistingValues(): void
     {
-        $actualConfig = $this->configurationService->getConfiguration(\SwagExampleTest\SwagExampleTest::PLUGIN_NAME, $this->context, '20080911ffff4fffafffffff19830531');
+        $actualConfig = $this->configurationService->getConfiguration(
+            \SwagExampleTest\SwagExampleTest::PLUGIN_NAME,
+            $this->context,
+            '20080911ffff4fffafffffff19830531'
+        );
 
         static::assertSame($this->getConfigWithoutValues(), $actualConfig);
     }
@@ -98,7 +106,8 @@ class ConfigurationServiceTest extends TestCase
 
         $method = ReflectionHelper::getMethod(ConfigurationService::class, 'patchValuesIntoConfig');
 
-        $actualConfig = $method->invoke($this->configurationService,
+        $actualConfig = $method->invoke(
+            $this->configurationService,
             $this->getConfigWithoutValues(),
             \SwagExampleTest\SwagExampleTest::PLUGIN_NAME,
             '20080911ffff4fffafffffff19830531',

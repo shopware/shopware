@@ -6,7 +6,6 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Exception;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
-use Throwable;
 
 class WriteNotSupportedException extends ShopwareHttpException
 {
@@ -15,7 +14,7 @@ class WriteNotSupportedException extends ShopwareHttpException
      */
     private $field;
 
-    public function __construct(Field $field, int $code = 0, Throwable $previous = null)
+    public function __construct(Field $field, int $code = 0, \Throwable $previous = null)
     {
         $message = sprintf('Writing to ReadOnly field %s is not supported', \get_class($field));
 

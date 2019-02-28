@@ -4,13 +4,12 @@ namespace Shopware\Core\Framework\Routing\Exception;
 
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
-use Throwable;
 
 class SalesChannelNotFoundException extends ShopwareHttpException
 {
     protected $code = 'SALES-CHANNEL-NOT-FOUND';
 
-    public function __construct(int $code = 0, Throwable $previous = null)
+    public function __construct(int $code = 0, \Throwable $previous = null)
     {
         $message = 'The sales channel was not found.';
 

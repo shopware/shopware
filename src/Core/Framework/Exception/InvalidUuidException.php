@@ -4,13 +4,12 @@ namespace Shopware\Core\Framework\Exception;
 
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
-use Throwable;
 
 class InvalidUuidException extends ShopwareHttpException
 {
     protected $code = 'INVALID-UUID';
 
-    public function __construct(string $uuid, $code = 0, Throwable $previous = null)
+    public function __construct(string $uuid, $code = 0, \Throwable $previous = null)
     {
         $message = sprintf('Value is not a valid UUID: %s', $uuid);
 

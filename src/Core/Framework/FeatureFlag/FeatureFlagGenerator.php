@@ -9,7 +9,6 @@ class FeatureFlagGenerator
 
 namespace %s {
 
-    use Closure;
     use PHPUnit\Framework\TestCase;
     use Shopware\Core\Framework\FeatureFlag\FeatureConfig;
 
@@ -20,7 +19,7 @@ namespace %s {
         return FeatureConfig::isActive('%s');
     }
 
-    function if%s(Closure $closure): void
+    function if%s(\Closure $closure): void
     {
         %s() && $closure();
     }
@@ -31,7 +30,7 @@ namespace %s {
             $this->{$methodName}(...$arguments);
         };
 
-        if%s(Closure::bind($closure, $object, $object));
+        if%s(\Closure::bind($closure, $object, $object));
     }
 
     function skipTest%s(TestCase $test): void

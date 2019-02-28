@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\Command;
 
-use InvalidArgumentException;
 use Shopware\Core\Framework\Api\ApiDefinition\DefinitionService;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -49,7 +48,7 @@ class DumpSchemaCommand extends Command
         } elseif ($formatType === 'openapi3') {
             $definitionContents = $this->definitionService->generate();
         } else {
-            throw new InvalidArgumentException('Invalid "format-type" given. Aborting.');
+            throw new \InvalidArgumentException('Invalid "format-type" given. Aborting.');
         }
 
         $jsonFlags = $input->getOption('pretty') ? JSON_PRETTY_PRINT : 0;

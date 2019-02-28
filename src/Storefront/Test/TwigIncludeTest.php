@@ -7,8 +7,6 @@ use Shopware\Core\Framework\Test\TestCaseBase\StorefrontFunctionalTestBehaviour;
 use Shopware\Core\Framework\Twig\InheritanceExtension;
 use Shopware\Core\Framework\Twig\TemplateFinder;
 use Shopware\Storefront\Test\fixtures\BundleFixture;
-use Twig_Environment;
-use Twig_Loader_Filesystem;
 
 class TwigIncludeTest extends TestCase
 {
@@ -22,9 +20,9 @@ class TwigIncludeTest extends TestCase
      */
     public function testMultipleInheritance(): void
     {
-        $loader = new Twig_Loader_Filesystem(__DIR__ . '/fixtures/Storefront/Resources/views');
+        $loader = new \Twig_Loader_Filesystem(__DIR__ . '/fixtures/Storefront/Resources/views');
         $loader->addPath(__DIR__ . '/fixtures/Storefront/Resources/views', 'Storefront');
-        $twig = new Twig_Environment($loader, [
+        $twig = new \Twig_Environment($loader, [
             'cache' => false,
         ]);
         $templateFinder = new TemplateFinder($loader);
@@ -46,9 +44,9 @@ class TwigIncludeTest extends TestCase
      */
     public function testIncludeWithVars(): void
     {
-        $loader = new Twig_Loader_Filesystem(__DIR__ . '/fixtures/Storefront/Resources/views');
+        $loader = new \Twig_Loader_Filesystem(__DIR__ . '/fixtures/Storefront/Resources/views');
         $loader->addPath(__DIR__ . '/fixtures/Storefront/Resources/views', 'Storefront');
-        $twig = new Twig_Environment($loader, [
+        $twig = new \Twig_Environment($loader, [
             'cache' => false,
         ]);
         $templateFinder = new TemplateFinder($loader);
@@ -70,9 +68,9 @@ class TwigIncludeTest extends TestCase
      */
     public function testIncludeWithVarsOnly(): void
     {
-        $loader = new Twig_Loader_Filesystem(__DIR__ . '/fixtures/Storefront/Resources/views');
+        $loader = new \Twig_Loader_Filesystem(__DIR__ . '/fixtures/Storefront/Resources/views');
         $loader->addPath(__DIR__ . '/fixtures/Storefront/Resources/views', 'Storefront');
-        $twig = new Twig_Environment($loader, [
+        $twig = new \Twig_Environment($loader, [
             'cache' => false,
         ]);
         $templateFinder = new TemplateFinder($loader);
@@ -94,9 +92,9 @@ class TwigIncludeTest extends TestCase
      */
     public function testIncludeTemplatenameExpression(): void
     {
-        $loader = new Twig_Loader_Filesystem(__DIR__ . '/fixtures/Storefront/Resources/views');
+        $loader = new \Twig_Loader_Filesystem(__DIR__ . '/fixtures/Storefront/Resources/views');
         $loader->addPath(__DIR__ . '/fixtures/Storefront/Resources/views', 'Storefront');
-        $twig = new Twig_Environment($loader, [
+        $twig = new \Twig_Environment($loader, [
             'cache' => false,
         ]);
         $templateFinder = new TemplateFinder($loader);
@@ -118,9 +116,9 @@ class TwigIncludeTest extends TestCase
      */
     public function testIncludeIgnoreMissing(): void
     {
-        $loader = new Twig_Loader_Filesystem(__DIR__ . '/fixtures/Storefront/Resources/views');
+        $loader = new \Twig_Loader_Filesystem(__DIR__ . '/fixtures/Storefront/Resources/views');
         $loader->addPath(__DIR__ . '/fixtures/Storefront/Resources/views', 'Storefront');
-        $twig = new Twig_Environment($loader, [
+        $twig = new \Twig_Environment($loader, [
             'cache' => false,
         ]);
         $templateFinder = new TemplateFinder($loader);

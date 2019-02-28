@@ -4,13 +4,12 @@ namespace Shopware\Core\Content\Media\Exception;
 
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
-use Throwable;
 
 class EmptyMediaFilenameException extends ShopwareHttpException
 {
     protected $code = 'EMPTY_MEDIA_FILE_EXCEPTION';
 
-    public function __construct(int $code = 0, Throwable $previous = null)
+    public function __construct(int $code = 0, \Throwable $previous = null)
     {
         parent::__construct('A valid Filename must be provided', $code, $previous);
     }

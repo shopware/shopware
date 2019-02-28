@@ -2,6 +2,8 @@
 
 namespace Shopware\Core\Checkout\Cart\LineItem;
 
+use Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException;
+use Shopware\Core\Checkout\Cart\Exception\LineItemNotStackableException;
 use Shopware\Core\Checkout\Cart\Exception\MixedLineItemTypeException;
 use Shopware\Core\Checkout\Cart\Price\Struct\PriceCollection;
 use Shopware\Core\Framework\Struct\Collection;
@@ -19,8 +21,8 @@ class LineItemCollection extends Collection
      * @param LineItem $lineItem
      *
      * @throws MixedLineItemTypeException
-     * @throws \Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException
-     * @throws \Shopware\Core\Checkout\Cart\Exception\LineItemNotStackableException
+     * @throws InvalidQuantityException
+     * @throws LineItemNotStackableException
      */
     public function add($lineItem): void
     {

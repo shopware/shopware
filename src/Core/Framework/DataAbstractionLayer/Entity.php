@@ -60,9 +60,6 @@ class Entity extends Struct
         return $this->viewData;
     }
 
-    /**
-     * @param static $viewData
-     */
     public function setViewData(self $viewData): void
     {
         $this->viewData = $viewData;

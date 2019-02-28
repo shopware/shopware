@@ -718,9 +718,7 @@ class WriterTest extends TestCase
 
     protected function createWriteContext(): WriteContext
     {
-        $context = WriteContext::createFromContext(Context::createDefaultContext());
-
-        return $context;
+        return WriteContext::createFromContext(Context::createDefaultContext());
     }
 
     protected function insertEmptyProduct(): void

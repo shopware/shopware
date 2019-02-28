@@ -82,9 +82,6 @@ class CartPersister implements CartPersisterInterface
         $this->connection->insert('cart', $data);
     }
 
-    /**
-     * @throws InvalidUuidException
-     */
     public function delete(string $token, CheckoutContext $context): void
     {
         $this->connection->executeUpdate(

@@ -174,8 +174,6 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
 
     /**
      * @param string|EntityDefinition $definition
-     *
-     * @return FkField
      */
     private function getParentField(string $definition): ?FkField
     {

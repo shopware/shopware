@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\Rule;
 
-use DateTime;
 use Symfony\Component\Validator\Constraints\DateTime as DateTimeConstraint;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Type;
@@ -10,12 +9,12 @@ use Symfony\Component\Validator\Constraints\Type;
 class DateRangeRule extends Rule
 {
     /**
-     * @var DateTime|null
+     * @var \DateTime|null
      */
     protected $fromDate;
 
     /**
-     * @var DateTime|null
+     * @var \DateTime|null
      */
     protected $toDate;
 
@@ -31,7 +30,7 @@ class DateRangeRule extends Rule
 
     public function match(RuleScope $scope): Match
     {
-        $now = new DateTime();
+        $now = new \DateTime();
 
         if (!$this->useTime) {
             $now->setTime(0, 0);

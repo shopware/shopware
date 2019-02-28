@@ -4,8 +4,6 @@ namespace Shopware\Core\Framework\Twig\TokenParser;
 
 use Shopware\Core\Framework\Twig\Node\SwInclude;
 use Shopware\Core\Framework\Twig\TemplateFinder;
-use Twig_Node_Include;
-use Twig_Token;
 
 final class IncludeTokenParser extends \Twig_TokenParser
 {
@@ -19,7 +17,7 @@ final class IncludeTokenParser extends \Twig_TokenParser
         $this->finder = $finder;
     }
 
-    public function parse(Twig_Token $token)
+    public function parse(\Twig_Token $token)
     {
         $expr = $this->parser->getExpressionParser()->parseExpression();
 
@@ -39,7 +37,7 @@ final class IncludeTokenParser extends \Twig_TokenParser
             return new SwInclude($expr, $variables, $only, $ignoreMissing, $token->getLine(), $this->getTag());
         }
 
-        return new Twig_Node_Include($expr, $variables, $only, $ignoreMissing, $token->getLine(), $this->getTag());
+        return new \Twig_Node_Include($expr, $variables, $only, $ignoreMissing, $token->getLine(), $this->getTag());
     }
 
     public function getTag(): string
@@ -52,23 +50,23 @@ final class IncludeTokenParser extends \Twig_TokenParser
         $stream = $this->parser->getStream();
 
         $ignoreMissing = false;
-        if ($stream->nextIf(Twig_Token::NAME_TYPE, 'ignore')) {
-            $stream->expect(Twig_Token::NAME_TYPE, 'missing');
+        if ($stream->nextIf(\Twig_Token::NAME_TYPE, 'ignore')) {
+            $stream->expect(\Twig_Token::NAME_TYPE, 'missing');
 
             $ignoreMissing = true;
         }
 
         $variables = null;
-        if ($stream->nextIf(Twig_Token::NAME_TYPE, 'with')) {
+        if ($stream->nextIf(\Twig_Token::NAME_TYPE, 'with')) {
             $variables = $this->parser->getExpressionParser()->parseExpression();
         }
 
         $only = false;
-        if ($stream->nextIf(Twig_Token::NAME_TYPE, 'only')) {
+        if ($stream->nextIf(\Twig_Token::NAME_TYPE, 'only')) {
             $only = true;
         }
 
-        $stream->expect(Twig_Token::BLOCK_END_TYPE);
+        $stream->expect(\Twig_Token::BLOCK_END_TYPE);
 
         return [$variables, $only, $ignoreMissing];
     }

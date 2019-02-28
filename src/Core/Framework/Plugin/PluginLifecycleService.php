@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\Plugin;
 
-use DateTime;
 use Doctrine\DBAL\Connection;
 use function Flag\next1797;
 use Shopware\Core\Defaults;
@@ -158,7 +157,7 @@ class PluginLifecycleService
             $plugin->setVersion($updateVersion);
             $pluginData['upgradeVersion'] = null;
             $plugin->setUpgradeVersion(null);
-            $upgradeDate = new DateTime();
+            $upgradeDate = new \DateTime();
             $pluginData['upgradedAt'] = $upgradeDate->format(Defaults::DATE_FORMAT);
             $plugin->setUpgradedAt($upgradeDate);
         }
@@ -172,7 +171,7 @@ class PluginLifecycleService
 
         $this->runMigrations($pluginBaseClass);
 
-        $installDate = new DateTime();
+        $installDate = new \DateTime();
         $pluginData['installedAt'] = $installDate->format(Defaults::DATE_FORMAT);
         $plugin->setInstalledAt($installDate);
 
@@ -274,7 +273,7 @@ class PluginLifecycleService
         $this->runMigrations($pluginBaseClass);
 
         $updateVersion = $updateContext->getUpdatePluginVersion();
-        $updateDate = new DateTime();
+        $updateDate = new \DateTime();
         $this->updatePluginData(
             [
                 'id' => $plugin->getId(),

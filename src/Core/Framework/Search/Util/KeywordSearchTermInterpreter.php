@@ -66,26 +66,6 @@ class KeywordSearchTermInterpreter implements KeywordSearchTermInterpreterInterf
         return $pattern;
     }
 
-    private function permute($arg): array
-    {
-        $array = \is_string($arg) ? str_split($arg) : $arg;
-
-        if (\count($array) === 1) {
-            return $array;
-        }
-
-        $result = [];
-        foreach ($array as $key => $item) {
-            $nested = $this->permute(array_diff_key($array, [$key => $item]));
-
-            foreach ($nested as $p) {
-                $result[] = $item . ' ' . $p;
-            }
-        }
-
-        return $result;
-    }
-
     private function slop(array $tokens): array
     {
         $slops = [
@@ -109,12 +89,7 @@ class KeywordSearchTermInterpreter implements KeywordSearchTermInterpreterInterf
                 for ($i2 = 1; $i2 <= $slopSize; ++$i2) {
                     $placeholder = '';
                     for ($i3 = 1; $i3 <= $slopSize + 1; ++$i3) {
-                        $slops['normal'][] =
-                            \substr($token, 0, $i) .
-                            $placeholder .
-                            \substr($token, $i + $i2)
-                            . '%'
-                        ;
+                        $slops['normal'][] = \substr($token, 0, $i) . $placeholder . \substr($token, $i + $i2) . '%';
                         $placeholder .= '_';
                     }
                 }
@@ -125,12 +100,7 @@ class KeywordSearchTermInterpreter implements KeywordSearchTermInterpreterInterf
                 for ($i2 = 1; $i2 <= $slopSize; ++$i2) {
                     $placeholder = '';
                     for ($i3 = 1; $i3 <= $slopSize + 1; ++$i3) {
-                        $slops['reversed'][] =
-                            \substr($token, 0, $i) .
-                            $placeholder .
-                            \substr($token, $i + $i2)
-                            . '%'
-                        ;
+                        $slops['reversed'][] = \substr($token, 0, $i) . $placeholder . \substr($token, $i + $i2) . '%';
                         $placeholder .= '_';
                     }
                 }

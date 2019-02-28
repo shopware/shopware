@@ -34,12 +34,12 @@ class MigrationControllerTest extends TestCase
 
         $directories = $container->getParameter('migration.directories');
 
-        $directories['Shopware\Core\Framework\Test\Migration\_test_migrations_valid'] =
-            __DIR__ . '/../../Migration/_test_migrations_valid';
+        $directories['Shopware\Core\Framework\Test\Migration\_test_migrations_valid']
+            = __DIR__ . '/../../Migration/_test_migrations_valid';
 
         if ($exceptions) {
-            $directories['Shopware\Core\Framework\Test\Migration\_test_migrations_valid_run_time_exceptions'] =
-            __DIR__ . '/../../Migration/_test_migrations_valid_run_time_exceptions';
+            $directories['Shopware\Core\Framework\Test\Migration\_test_migrations_valid_run_time_exceptions']
+            = __DIR__ . '/../../Migration/_test_migrations_valid_run_time_exceptions';
         }
 
         return new MigrationController(

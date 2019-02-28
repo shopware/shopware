@@ -139,21 +139,18 @@ class EntityForeignKeyResolver
         foreach ($cascades as $cascade) {
             $alias = $root . '.' . $cascade->getPropertyName();
 
-            /*
-             * `EntityTranslationDefinitions` dont have an id column. We need to construct one by combining the entity id and the language id.
-             */
+            // `EntityTranslationDefinitions` dont have an id column. We need to construct one by combining the entity id and the language id.
             if ($cascade instanceof TranslationsAssociationField) {
                 $this->queryHelper->resolveField($cascade, $definition, $root, $query, $context);
                 $entityColumnName = $cascade->getReferenceField();
                 $languageColumnName = $cascade->getLanguageField();
 
                 $query->addSelect(
-                    'GROUP_CONCAT(DISTINCT CONCAT(' .
-                        'HEX(' . EntityDefinitionQueryHelper::escape($alias) . '.`' . $entityColumnName . '`),' .
-                        '"-",' .
-                        'HEX(' . EntityDefinitionQueryHelper::escape($alias) . '.`' . $languageColumnName . '`)' .
-                    ')' .
-                    ' SEPARATOR \'||\')  as ' . EntityDefinitionQueryHelper::escape($alias)
+                    'GROUP_CONCAT(DISTINCT CONCAT('
+                        . 'HEX(' . EntityDefinitionQueryHelper::escape($alias) . '.`' . $entityColumnName . '`),"-",'
+                        . 'HEX(' . EntityDefinitionQueryHelper::escape($alias) . '.`' . $languageColumnName . '`)'
+                    . ')'
+                    . ' SEPARATOR \'||\')  as ' . EntityDefinitionQueryHelper::escape($alias)
                 );
                 continue;
             }
@@ -162,9 +159,9 @@ class EntityForeignKeyResolver
                 $this->queryHelper->resolveField($cascade, $definition, $root, $query, $context);
 
                 $query->addSelect(
-                    'GROUP_CONCAT(DISTINCT HEX(' .
-                    EntityDefinitionQueryHelper::escape($alias) . '.`id`)' .
-                    ' SEPARATOR \'||\')  as ' . EntityDefinitionQueryHelper::escape($alias)
+                    'GROUP_CONCAT(DISTINCT HEX('
+                    . EntityDefinitionQueryHelper::escape($alias) . '.`id`)'
+                    . ' SEPARATOR \'||\')  as ' . EntityDefinitionQueryHelper::escape($alias)
                 );
                 continue;
             }
@@ -175,9 +172,9 @@ class EntityForeignKeyResolver
                 $this->queryHelper->resolveField($cascade, $definition, $root, $query, $context);
 
                 $query->addSelect(
-                    'GROUP_CONCAT(DISTINCT HEX(' .
-                    EntityDefinitionQueryHelper::escape($mappingAlias) . '.' . $cascade->getMappingReferenceColumn() .
-                    ') SEPARATOR \'||\')  as ' . EntityDefinitionQueryHelper::escape($alias)
+                    'GROUP_CONCAT(DISTINCT HEX('
+                    . EntityDefinitionQueryHelper::escape($mappingAlias) . '.' . $cascade->getMappingReferenceColumn()
+                    . ') SEPARATOR \'||\')  as ' . EntityDefinitionQueryHelper::escape($alias)
                 );
                 continue;
             }
@@ -186,9 +183,10 @@ class EntityForeignKeyResolver
                 $this->queryHelper->resolveField($cascade, $definition, $root, $query, $context);
 
                 $query->addSelect(
-                    'GROUP_CONCAT(DISTINCT HEX(' .
-                    EntityDefinitionQueryHelper::escape($alias) . '.' . EntityDefinitionQueryHelper::escape($cascade->getReferenceField()) . ')' .
-                    ' SEPARATOR \'||\')  as ' . EntityDefinitionQueryHelper::escape($alias)
+                    'GROUP_CONCAT(DISTINCT HEX('
+                    . EntityDefinitionQueryHelper::escape($alias) . '.'
+                    . EntityDefinitionQueryHelper::escape($cascade->getReferenceField()) . ')'
+                    . ' SEPARATOR \'||\')  as ' . EntityDefinitionQueryHelper::escape($alias)
                 );
             }
 

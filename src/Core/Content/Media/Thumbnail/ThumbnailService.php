@@ -116,8 +116,8 @@ class ThumbnailService
 
         foreach ($tobBeCreatedSizes as $thumbnailSize) {
             foreach ($toBeDeletedThumbnails as $thumbnail) {
-                if ($thumbnail->getWidth() === $thumbnailSize->getWidth() &&
-                    $thumbnail->getHeight() === $thumbnailSize->getHeight()
+                if ($thumbnail->getWidth() === $thumbnailSize->getWidth()
+                    && $thumbnail->getHeight() === $thumbnailSize->getHeight()
                 ) {
                     $toBeDeletedThumbnails->remove($thumbnail->getId());
                     $tobBeCreatedSizes->remove($thumbnailSize->getId());
@@ -340,14 +340,9 @@ class ThumbnailService
 
     private function thumbnailsAreGeneratable(MediaEntity $media): bool
     {
-        if ($media->getMediaType() instanceof ImageType &&
-            !$media->getMediaType()->is(ImageType::VECTOR_GRAPHIC) &&
-            !$media->getMediaType()->is(ImageType::ANIMATED)
-        ) {
-            return true;
-        }
-
-        return false;
+        return $media->getMediaType() instanceof ImageType
+            && !$media->getMediaType()->is(ImageType::VECTOR_GRAPHIC)
+            && !$media->getMediaType()->is(ImageType::ANIMATED);
     }
 
     private function deleteAssociatedThumbnails(MediaEntity $media, Context $context): void

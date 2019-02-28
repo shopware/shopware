@@ -209,12 +209,9 @@ abstract class EntityDefinition
 
     public static function isTreeAware(): bool
     {
-        return
-            static::isParentAware() &&
-            (static::getFields()->filterInstance(TreePathField::class)->count() > 0 ||
-            static::getFields()->filterInstance(TreeLevelField::class)->count() > 0)
-
-        ;
+        return static::isParentAware()
+            && (static::getFields()->filterInstance(TreePathField::class)->count() > 0
+                || static::getFields()->filterInstance(TreeLevelField::class)->count() > 0);
     }
 
     abstract protected static function defineFields(): FieldCollection;

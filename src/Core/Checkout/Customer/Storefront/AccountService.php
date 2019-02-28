@@ -67,7 +67,7 @@ class AccountService
     }
 
     /**
-     * @throws \Shopware\Core\Checkout\Exception\CustomerNotFoundException
+     * @throws CustomerNotFoundException
      * @throws BadCredentialsException
      */
     public function getCustomerByLogin(string $email, string $password, CheckoutContext $context): CustomerEntity
@@ -82,7 +82,7 @@ class AccountService
     }
 
     /**
-     * @throws \Shopware\Core\Checkout\Exception\CustomerNotFoundException
+     * @throws CustomerNotFoundException
      */
     public function getCustomerByEmail(string $email, CheckoutContext $context, bool $includeGuest = false): CustomerEntity
     {
@@ -156,7 +156,7 @@ class AccountService
     }
 
     /**
-     * @throws \Shopware\Core\Checkout\Exception\AddressNotFoundException
+     * @throws AddressNotFoundException
      * @throws InvalidUuidException
      */
     public function getAddressById(string $addressId, CheckoutContext $context): CustomerAddressEntity
@@ -238,7 +238,7 @@ class AccountService
     /**
      * @throws CustomerNotLoggedInException
      * @throws InvalidUuidException
-     * @throws \Shopware\Core\Checkout\Exception\AddressNotFoundException
+     * @throws AddressNotFoundException
      */
     public function deleteAddress(string $addressId, CheckoutContext $context): void
     {
@@ -250,7 +250,7 @@ class AccountService
     /**
      * @throws CustomerNotLoggedInException
      * @throws InvalidUuidException
-     * @throws \Shopware\Core\Checkout\Exception\AddressNotFoundException
+     * @throws AddressNotFoundException
      */
     public function setDefaultBillingAddress(string $addressId, CheckoutContext $context): void
     {
@@ -267,7 +267,7 @@ class AccountService
     /**
      * @throws CustomerNotLoggedInException
      * @throws InvalidUuidException
-     * @throws \Shopware\Core\Checkout\Exception\AddressNotFoundException
+     * @throws AddressNotFoundException
      */
     public function setDefaultShippingAddress(string $addressId, CheckoutContext $context): void
     {
@@ -367,7 +367,7 @@ class AccountService
     }
 
     /**
-     * @throws \Shopware\Core\Checkout\Exception\BadCredentialsException
+     * @throws BadCredentialsException
      * @throws UnauthorizedHttpException
      */
     public function login(InternalRequest $request, CheckoutContext $context): string
@@ -439,7 +439,7 @@ class AccountService
     }
 
     /**
-     * @throws \Shopware\Core\Checkout\Exception\AddressNotFoundException
+     * @throws AddressNotFoundException
      * @throws InvalidUuidException
      */
     private function validateAddressId(string $addressId, CheckoutContext $context): CustomerAddressEntity
@@ -464,9 +464,7 @@ class AccountService
         $birthdayMonth = $request->optionalPost('birthdayMonth');
         $birthdayYear = $request->optionalPost('birthdayYear');
 
-        if (!$birthdayDay ||
-            !$birthdayMonth ||
-            !$birthdayYear) {
+        if (!$birthdayDay || !$birthdayMonth || !$birthdayYear) {
             return null;
         }
 

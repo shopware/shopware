@@ -90,8 +90,8 @@ class GenerateThumbnailsHandlerTest extends TestCase
         static::assertEquals(2, $media->getThumbnails()->count());
 
         $filteredThumbnails = $media->getThumbnails()->filter(function (MediaThumbnailEntity $thumbnail) {
-            return ($thumbnail->getWidth() === 300 && $thumbnail->getHeight() === 300) ||
-                ($thumbnail->getWidth() === 150 && $thumbnail->getHeight() === 150);
+            return ($thumbnail->getWidth() === 300 && $thumbnail->getHeight() === 300)
+                || ($thumbnail->getWidth() === 150 && $thumbnail->getHeight() === 150);
         });
 
         static::assertEquals(2, $filteredThumbnails->count());
@@ -136,8 +136,8 @@ class GenerateThumbnailsHandlerTest extends TestCase
         static::assertEquals(2, $media->getThumbnails()->count());
 
         $filteredThumbnails = $media->getThumbnails()->filter(function (MediaThumbnailEntity $thumbnail) {
-            return ($thumbnail->getWidth() === 300 && $thumbnail->getHeight() === 300) ||
-                ($thumbnail->getWidth() === 150 && $thumbnail->getHeight() === 150);
+            return ($thumbnail->getWidth() === 300 && $thumbnail->getHeight() === 300)
+                || ($thumbnail->getWidth() === 150 && $thumbnail->getHeight() === 150);
         });
 
         static::assertEquals(2, $filteredThumbnails->count());

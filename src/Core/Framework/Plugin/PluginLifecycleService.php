@@ -406,8 +406,8 @@ class PluginLifecycleService
 
     private function runMigrations(Plugin $pluginBaseClass): void
     {
-        $migrationPath = $pluginBaseClass->getPath() .
-            str_replace(
+        $migrationPath = $pluginBaseClass->getPath()
+            . str_replace(
                 $pluginBaseClass->getNamespace(),
                 '',
                 str_replace('\\', '/', $pluginBaseClass->getMigrationNamespace())

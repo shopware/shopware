@@ -231,12 +231,10 @@ class EntityDefinitionQueryHelper
         $useVersionFallback = (
             // only applies for versioned entities
             $definition::isVersionAware()
-            &&
             // only add live fallback if the current version isn't the live version
-            $context->getVersionId() !== Defaults::LIVE_VERSION
-            &&
+            && $context->getVersionId() !== Defaults::LIVE_VERSION
             // sub entities have no live fallback
-            $definition::getParentDefinitionClass() === null
+            && $definition::getParentDefinitionClass() === null
         );
 
         if ($useVersionFallback) {
@@ -399,9 +397,8 @@ class EntityDefinitionQueryHelper
 
             foreach ($chain as $tableAccessor) {
                 $query->addSelect(
-                    self::escape($tableAccessor['alias']) . '.' . self::escape($field->getStorageName())
-                    . ' as ' .
-                    self::escape($tableAccessor['alias'] . '.' . $field->getPropertyName())
+                    self::escape($tableAccessor['alias']) . '.' . self::escape($field->getStorageName()) . ' as '
+                    . self::escape($tableAccessor['alias'] . '.' . $field->getPropertyName())
                 );
             }
         }
@@ -420,9 +417,8 @@ class EntityDefinitionQueryHelper
 
             //add selection for resolved parent-child and language inheritance
             $query->addSelect(
-                $this->getTranslationFieldSelectExpr($field, $chain)
-                . ' as ' .
-                self::escape($root . '.' . $field->getPropertyName())
+                $this->getTranslationFieldSelectExpr($field, $chain) . ' as '
+                . self::escape($root . '.' . $field->getPropertyName())
             );
         }
     }

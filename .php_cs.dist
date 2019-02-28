@@ -52,5 +52,6 @@ return Config::create()
         Fixer\NoUselessCommentFixer::name() => true,
         Fixer\PhpdocNoSuperfluousParamFixer::name() => true,
         Fixer\NoImportFromGlobalNamespaceFixer::name() => true,
+        Fixer\OperatorLinebreakFixer::name() => true,
     ])
     ->setFinder($finder);

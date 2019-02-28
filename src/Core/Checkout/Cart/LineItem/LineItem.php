@@ -243,8 +243,8 @@ class LineItem extends Struct
      */
     public function setPayloadValue(string $key, $value): self
     {
-        if (!is_string($key) || strlen($key) > self::PAYLOAD_LIMIT ||
-            !is_scalar($value) || strlen((string) $value) > self::PAYLOAD_LIMIT
+        if (!is_string($key) || strlen($key) > self::PAYLOAD_LIMIT
+            || !is_scalar($value) || strlen((string) $value) > self::PAYLOAD_LIMIT
         ) {
             throw new InvalidPayloadException($key, $this->getKey());
         }

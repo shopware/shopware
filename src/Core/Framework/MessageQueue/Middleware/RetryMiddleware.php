@@ -109,10 +109,10 @@ class RetryMiddleware implements MiddlewareInterface
 
     private function isExceptionEqual(DeadMessageEntity $deadMessage, \Throwable $e): bool
     {
-        return $deadMessage->getException() === get_class($e) &&
-            $deadMessage->getExceptionMessage() === $e->getMessage() &&
-            $deadMessage->getExceptionFile() === $e->getFile() &&
-            $deadMessage->getExceptionLine() === $e->getLine();
+        return $deadMessage->getException() === get_class($e)
+            && $deadMessage->getExceptionMessage() === $e->getMessage()
+            && $deadMessage->getExceptionFile() === $e->getFile()
+            && $deadMessage->getExceptionLine() === $e->getLine();
     }
 
     private function incrementErrorCount(DeadMessageEntity $deadMessage): void

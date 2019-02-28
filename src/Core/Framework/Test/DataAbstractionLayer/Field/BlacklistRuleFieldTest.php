@@ -9,6 +9,7 @@ use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\ValueAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -629,6 +630,7 @@ class BlacklistRuleFieldTest extends TestCase
         $criteria->addFilter(new EqualsFilter('product_manufacturer.id', $manufacturerId));
         $criteria->addAggregation(new ValueAggregation('product_manufacturer.products.id', 'products'));
 
+        /** @var EntityRepositoryInterface $manufacturerRepository */
         $manufacturerRepository = $this->getContainer()->get('product_manufacturer.repository');
         $context = $this->createContextWithRules();
         $result = $manufacturerRepository->aggregate($criteria, $context)->getAggregations()->get('products');
@@ -706,6 +708,7 @@ class BlacklistRuleFieldTest extends TestCase
         $criteria->addFilter(new EqualsFilter('category.id', $categoryId));
         $criteria->addAggregation(new ValueAggregation('category.products.id', 'products'));
 
+        /** @var EntityRepositoryInterface $categoryRepository */
         $categoryRepository = $this->getContainer()->get('category.repository');
         $context = $this->createContextWithRules();
         $result = $categoryRepository->aggregate($criteria, $context)->getAggregations()->get('products');

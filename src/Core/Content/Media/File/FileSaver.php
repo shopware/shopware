@@ -114,9 +114,9 @@ class FileSaver
                 $mediaFile->getFileExtension(),
                 $context
             );
-        } catch (DuplicatedMediaFileNameException |
-            EmptyMediaFilenameException |
-            IllegalFileNameException $e
+        } catch (DuplicatedMediaFileNameException
+            | EmptyMediaFilenameException
+            | IllegalFileNameException $e
         ) {
             if ($currentMedia !== null && !$currentMedia->hasFile()) {
                 $this->mediaRepository->delete([['id' => $currentMedia->getId()]], $context);

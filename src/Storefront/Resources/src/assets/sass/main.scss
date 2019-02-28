@@ -1,6 +1,44 @@
+/*
+ * The file organization follows the 7-1 pattern architecture
+ * https://sass-guidelin.es/#the-7-1-pattern
+ *
+ * Variables, Mixins, Functions
+ * ---------------------------- */
 @import 'abstracts/variables';
+
+/*
+ * Theme Variables
+ * ---------- */
+@import 'themes/shopware/abstracts/variables';
+
+/*
+* Vendors
+* ------- */
 @import 'vendors/bootstrap';
 
+/*
+ * Base stuff
+ * ---------- */
 @import 'base/base';
+
+/*
+ * Layout-related sections
+ * ----------------------- */
+@import 'layout/header';
+@import 'layout/footer';
+@import 'layout/navigation';
+
+/*
+ * Components
+ * ---------- */
 @import 'components/backdrop';
 @import 'components/off-canvas';
+
+/*
+ * Page-specific styles
+ * -------------------- */
+
+/*
+ * Themes
+ * ---------- */
+@import 'themes/shopware/main';

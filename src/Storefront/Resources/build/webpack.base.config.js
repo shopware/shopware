@@ -1,9 +1,11 @@
 const webpack = require('webpack');
-const {resolve} = require('path');
 const WebpackBar = require('webpackbar');
 const StyleLintPlugin = require('stylelint-webpack-plugin');
-const buildDirectory = resolve(process.env.PROJECT_ROOT, 'public');
+const {resolve} = require('path');
 const config = require('../config');
+const buildDirectory = resolve(process.env.PROJECT_ROOT, 'public');
+
+const publicPath = `${process.env.APP_URL}${(process.env.ENV === 'watch') ? `:${config.devServerPort}` : ''}/`;
 
 /**
  * -------------------------------------------------------
@@ -32,7 +34,7 @@ const entries = {
 const output = {
     path: buildDirectory,
     filename: 'js/main.bundle.js',
-    publicPath: `${process.env.APP_URL}${(process.env.ENV === 'watch') ? `:${config.devServerPort}` : ''}/`
+    publicPath: publicPath
 };
 
 /**
@@ -64,7 +66,8 @@ const modules = {
                     loader: 'file-loader',
                     options: {
                         name: '[name].[ext]',
-                        outputPath: 'fonts/'
+                        outputPath: 'css/fonts',
+                        publicPath: '/css/fonts'
                     }
                 }
             ]

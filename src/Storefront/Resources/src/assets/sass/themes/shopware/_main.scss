@@ -1,0 +1,43 @@
+/*
+ * The file organization follows the 7-1 pattern architecture
+ * https://sass-guidelin.es/#the-7-1-pattern
+ *
+ * Vendors
+ * ------- */
+@import 'vendors/open-sans-fontface';
+
+/*
+ * Variables, Mixins, Functions
+ * ---------------------------- */
+@import 'abstracts/mixins/gradient';
+
+/*
+ * Base stuff
+ * ---------- */
+@import 'base/base';
+@import 'base/typography';
+
+/*
+ * Layout-related sections
+ * ----------------------- */
+@import 'layout/header';
+@import 'layout/footer';
+@import 'layout/grid';
+@import 'layout/navigation';
+
+/*
+ * Components
+ * ---------- */
+@import 'components/alert';
+@import 'components/badge';
+@import 'components/button';
+@import 'components/card';
+@import 'components/custom-select';
+@import 'components/form';
+@import 'components/modal';
+@import 'components/spinner';
+@import 'components/tab-menu';
+
+/*
+ * Page-specific styles
+ * -------------------- */

@@ -1,2 +1,16 @@
 {
+    "general": {
+        "homeLink": "Home",
+        "menuLink": "Menu"
+    },
+    "meta": {
+        "xmlLang": "en-GB",
+        "author": "",
+        "copyrightHolder": "",
+        "copyrightYear": "",
+        "keywordsDefault": "",
+        "descriptionDefault": "",
+        "revisit": "15 days",
+        "robots": "index,follow"
+    }
 }

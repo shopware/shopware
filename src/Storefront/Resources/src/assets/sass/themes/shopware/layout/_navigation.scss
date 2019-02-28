@@ -1,0 +1,43 @@
+/*
+Main navigation
+==============================================
+Custom styling for bootstrap navbar.
+
+https://getbootstrap.com/docs/4.3/components/navbar/
+*/
+
+.nav-main {
+    background: $white;
+    border-bottom: 1px solid $primary;
+    font-size: $font-size-lg;
+
+    .navbar {
+        padding: 0;
+        background: none;
+    }
+}
+
+@include media-breakpoint-up(md) {
+    .nav-main {
+        .navbar-nav .nav-link {
+            border-top-left-radius: $border-radius;
+            border-top-right-radius: $border-radius;
+            color: $gray-600;
+            text-align: center;
+
+            &.active {
+                @include primary-gradient();
+                font-weight: $font-weight-bold;
+            }
+
+            &:hover {
+                background: $gray-800;
+            }
+
+            &:hover,
+            &.active {
+                color: $white;
+            }
+        }
+    }
+}

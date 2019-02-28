@@ -13,8 +13,8 @@ $user->setUsername('user1');
 $user->setActive(true);
 $user->setEmail('user1@shop.de');
 $user->setFailedLogins(0);
-$user->setLastLogin(date_create_from_format(\DateTime::ATOM, '2018-01-15T08:01:16+00:00'));
-$user->setCreatedAt(date_create_from_format(\DateTime::ATOM, '2018-01-15T08:01:16+00:00'));
+$user->setLastLogin(new \DateTime('2018-01-15T08:01:16+00:00'));
+$user->setCreatedAt(new \DateTime('2018-01-15T08:01:16+00:00'));
 
 $media = new MediaEntity();
 $media->setId('548faa1f7846436c85944f4aea792d96');
@@ -23,8 +23,8 @@ $media->setMimeType('image/jpg');
 $media->setFileExtension('jpg');
 $media->setFileSize(93889);
 $media->setTitle('2');
-$media->setCreatedAt(date_create_from_format(\DateTime::ATOM, '2012-08-31T00:00:00+00:00'));
-$media->setUpdatedAt(date_create_from_format(\DateTime::ATOM, '2017-11-21T11:25:34+00:00'));
+$media->setCreatedAt(new \DateTime('2012-08-31T00:00:00+00:00'));
+$media->setUpdatedAt(new \DateTime('2017-11-21T11:25:34+00:00'));
 $media->setUser($user);
 
 return $media;

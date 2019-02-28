@@ -42,7 +42,7 @@ class VersionDefinition extends EntityDefinition
     {
         return [
             'name' => sprintf('Draft (%s)', date(Defaults::DATE_FORMAT)),
-            'createdAt' => date(\DateTime::ATOM),
+            'createdAt' => date(Defaults::DATE_FORMAT),
         ];
     }
 

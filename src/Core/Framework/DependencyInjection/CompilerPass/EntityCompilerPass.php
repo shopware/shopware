@@ -27,8 +27,8 @@ class EntityCompilerPass implements CompilerPassInterface
         $classes = [];
         $services = array_keys($container->findTaggedServiceIds('shopware.entity.definition'));
 
+        /** @var string|EntityDefinition $serviceId */
         foreach ($services as $serviceId) {
-            /** @var string|EntityDefinition $serviceId */
             $service = $container->getDefinition($serviceId);
             $entity = $serviceId::getEntityName();
 

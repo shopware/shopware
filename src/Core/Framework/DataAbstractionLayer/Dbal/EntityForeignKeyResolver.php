@@ -280,7 +280,6 @@ class EntityForeignKeyResolver
                     continue;
                 }
 
-                /** @var AssociationInterface|Field $field */
                 $class = $field->getReferenceClass();
 
                 if (!array_key_exists($class, $restrictions)) {

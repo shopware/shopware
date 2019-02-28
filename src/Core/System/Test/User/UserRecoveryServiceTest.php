@@ -69,9 +69,6 @@ class UserRecoveryServiceTest extends TestCase
     {
         $this->createRecovery(static::VALID_EMAIL);
 
-        /**
-         * @var UserRecoveryEntity
-         */
         $userRecovery = $this->userRecoveryRepo->search(new Criteria(), $this->context)->first();
         static::assertInstanceOf(UserRecoveryEntity::class, $userRecovery);
     }
@@ -80,9 +77,6 @@ class UserRecoveryServiceTest extends TestCase
     {
         $this->createRecovery('foo@bar.com');
 
-        /**
-         * @var UserRecoveryEntity
-         */
         $userRecovery = $this->userRecoveryRepo->search(new Criteria(), $this->context)->first();
         static::assertNull($userRecovery);
     }
@@ -92,9 +86,6 @@ class UserRecoveryServiceTest extends TestCase
      */
     public function testCheckHash(\DateInterval $timeInterval, string $hash, bool $expectedResult): void
     {
-        /**
-         * @var UserEntity
-         */
         $user = $this->userRepo->search(new Criteria(), $this->context)->first();
 
         static::assertInstanceOf(UserEntity::class, $user);

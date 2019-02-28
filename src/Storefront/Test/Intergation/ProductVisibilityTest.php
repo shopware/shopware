@@ -15,7 +15,6 @@ use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Storefront\Page\Listing\ListingPage;
 use Shopware\Storefront\Page\Listing\ListingPageLoader;
-use Shopware\Storefront\Page\Product\ProductPage;
 use Shopware\Storefront\Page\Product\ProductPageLoader;
 use Shopware\Storefront\Page\Search\SearchPage;
 use Shopware\Storefront\Page\Search\SearchPageLoader;
@@ -156,7 +155,6 @@ class ProductVisibilityTest extends TestCase
 
             $request = new InternalRequest([], [], ['productId' => $case['productId']]);
 
-            /** @var ProductPage $page */
             $e = null;
             try {
                 $page = $this->productPageLoader->load($request, $checkoutContext);

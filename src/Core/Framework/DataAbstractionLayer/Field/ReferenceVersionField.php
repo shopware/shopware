@@ -12,9 +12,11 @@ class ReferenceVersionField extends FkField
      */
     protected $versionReference;
 
+    /**
+     * @param string|EntityDefinition $definition
+     */
     public function __construct(string $definition, ?string $storageName = null)
     {
-        /** @var string|EntityDefinition $definition */
         $entity = $definition::getEntityName();
         $storageName = $storageName ?? $entity . '_version_id';
 

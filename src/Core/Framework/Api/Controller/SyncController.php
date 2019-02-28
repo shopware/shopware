@@ -50,7 +50,6 @@ class SyncController extends AbstractController
 
             switch ($action) {
                 case self::ACTION_DELETE:
-                    /** @var EntityWrittenEvent $event */
                     $generic = $repository->delete($operation['payload'], $context);
 
                     $errors = array_merge($errors, $generic->getErrors());
@@ -59,15 +58,13 @@ class SyncController extends AbstractController
 
                 case self::ACTION_UPSERT:
                     try {
-                        /** @var EntityWrittenEvent $event */
                         $generic = $repository->upsert(
                             $operation['payload'],
                             $context
                         );
 
-                        $events = $generic->getEvents();
-
-                        foreach ($events as $event) {
+                        /** @var EntityWrittenEvent $event */
+                        foreach ($generic->getEvents() as $event) {
                             /** @var string $eventDefinition */
                             $eventDefinition = $event->getDefinition();
 

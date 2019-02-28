@@ -11,15 +11,16 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\ScoreQuery;
 
 trait CriteriaQueryHelper
 {
+    /**
+     * @param string|EntityDefinition $definition
+     */
     protected function buildQueryByCriteria(QueryBuilder $query, EntityDefinitionQueryHelper $queryHelper, SqlQueryParser $parser, string $definition, Criteria $criteria, Context $context): QueryBuilder
     {
-        /** @var EntityDefinition $definition */
         $table = $definition::getEntityName();
 
         $query = $queryHelper->getBaseQuery($query, $definition, $context);
 
         if ($definition::isInheritanceAware()) {
-            /** @var EntityDefinition|string $definition */
             $parent = $definition::getFields()->get('parent');
             $queryHelper->resolveField($parent, $definition, $definition::getEntityName(), $query, $context);
         }
@@ -65,9 +66,11 @@ trait CriteriaQueryHelper
         }
     }
 
+    /**
+     * @param string|EntityDefinition $definition
+     */
     protected function addQueries(SqlQueryParser $parser, string $definition, Criteria $criteria, QueryBuilder $query, Context $context): void
     {
-        /** @var string|EntityDefinition $definition */
         $queries = $parser->parseRanking(
             $criteria->getQueries(),
             $definition,
@@ -120,9 +123,11 @@ trait CriteriaQueryHelper
         }
     }
 
+    /**
+     * @param string|EntityDefinition $definition
+     */
     protected function addGroupBy(EntityDefinitionQueryHelper $queryHelper, string $definition, Criteria $criteria, QueryBuilder $query, Context $context): void
     {
-        /** @var string|EntityDefinition $definition */
         $table = $definition::getEntityName();
 
         if (!$query->hasState(EntityDefinitionQueryHelper::HAS_TO_MANY_JOIN)) {

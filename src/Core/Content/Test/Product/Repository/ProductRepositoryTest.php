@@ -1309,9 +1309,9 @@ class ProductRepositoryTest extends TestCase
 
         $criteria = new Criteria([$id]);
         $criteria->addAssociation('datasheet');
+        /** @var ProductEntity $product */
         $product = $this->repository->search($criteria, Context::createDefaultContext())->get($id);
 
-        /** @var ProductEntity $product */
         $sheet = $product->getDatasheet();
 
         static::assertCount(2, $sheet);
@@ -1360,9 +1360,9 @@ class ProductRepositoryTest extends TestCase
 
         $criteria = new Criteria([$id]);
         $criteria->addAssociation('variations');
+        /** @var ProductEntity $product */
         $product = $this->repository->search($criteria, Context::createDefaultContext())->get($id);
 
-        /** @var ProductEntity $product */
         $sheet = $product->getVariations();
 
         static::assertCount(2, $sheet);
@@ -1419,9 +1419,9 @@ class ProductRepositoryTest extends TestCase
 
         $criteria = new Criteria([$id]);
         $criteria->addAssociation('configurators');
+        /** @var ProductEntity $product */
         $product = $this->repository->search($criteria, Context::createDefaultContext())->get($id);
 
-        /** @var ProductEntity $product */
         $configurators = $product->getConfigurators();
 
         static::assertCount(2, $configurators);
@@ -1483,9 +1483,9 @@ class ProductRepositoryTest extends TestCase
 
         $criteria = new Criteria([$id]);
         $criteria->addAssociation('services');
+        /** @var ProductEntity $product */
         $product = $this->repository->search($criteria, Context::createDefaultContext())->get($id);
 
-        /** @var ProductEntity $product */
         $services = $product->getServices();
 
         static::assertCount(2, $services);

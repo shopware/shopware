@@ -19,7 +19,7 @@ use Shopware\Core\Framework\Struct\ArrayEntity;
 abstract class EntityDefinition
 {
     /**
-     * @var (FieldCollection|null)[]
+     * @var FieldCollection[]|null[]
      */
     protected static $fields = [];
 
@@ -34,7 +34,7 @@ abstract class EntityDefinition
     protected static $extensions = [];
 
     /**
-     * @var (string|null)[]
+     * @var string[]|null[]
      */
     protected static $translationDefinitions = [];
 

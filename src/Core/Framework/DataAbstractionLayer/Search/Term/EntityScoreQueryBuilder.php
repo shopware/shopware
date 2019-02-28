@@ -37,7 +37,6 @@ class EntityScoreQueryBuilder
                 $ranking = $flag->getRanking() * $multiplier;
             }
 
-            /** @var SearchRanking $flag */
             $select = $root . '.' . $field->getPropertyName();
 
             if ($field instanceof ManyToManyAssociationField) {
@@ -82,9 +81,11 @@ class EntityScoreQueryBuilder
         return $queries;
     }
 
+    /**
+     * @param string|EntityDefinition $definition
+     */
     private function getQueryFields(string $definition): FieldCollection
     {
-        /** @var EntityDefinition $definition */
         /** @var FieldCollection $fields */
         $fields = $definition::getFields()->filterByFlag(SearchRanking::class);
 

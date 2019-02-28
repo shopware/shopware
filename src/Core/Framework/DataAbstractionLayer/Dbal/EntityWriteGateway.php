@@ -12,6 +12,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\DeleteCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\InsertCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\JsonUpdateCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\UpdateCommand;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommandInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommandQueue;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface;
@@ -62,9 +63,10 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
             // throws exception on violation and then aborts/rollbacks this transaction
             $this->commandQueueValidator->preValidate($commands, $context);
 
+            /** @var WriteCommandInterface $command */
             foreach ($commands as $command) {
-                $definition = $command->getDefinition();
                 /** @var string|EntityDefinition $definition */
+                $definition = $command->getDefinition();
                 $table = $definition::getEntityName();
 
                 if ($command instanceof DeleteCommand) {
@@ -276,9 +278,11 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
         return array_replace_recursive($database, $state);
     }
 
+    /**
+     * @param string|EntityDefinition $definition
+     */
     private function fetchFromDatabase(string $definition, array $primaryKey): array
     {
-        /** @var string|EntityDefinition $definition */
         $query = $this->connection->createQueryBuilder();
         $query->from(EntityDefinitionQueryHelper::escape($definition::getEntityName()));
 

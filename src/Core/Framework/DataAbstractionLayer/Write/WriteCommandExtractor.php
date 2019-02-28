@@ -155,9 +155,11 @@ class WriteCommandExtractor
         return $stack->getResultAsArray();
     }
 
+    /**
+     * @param string|EntityDefinition $definition
+     */
     private function integrateDefaults(string $definition, array $rawData, EntityExistence $existence): array
     {
-        /** @var EntityDefinition $definition */
         $defaults = $definition::getDefaults($existence);
 
         foreach ($defaults as $key => $value) {

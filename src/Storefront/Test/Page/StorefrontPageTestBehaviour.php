@@ -46,7 +46,6 @@ trait StorefrontPageTestBehaviour
 
     protected function assertFailsWithoutNavigation(): void
     {
-        /** @var PageLoaderInterface $page */
         $request = new InternalRequest();
         $context = $this->createCheckoutContext();
 
@@ -56,7 +55,6 @@ trait StorefrontPageTestBehaviour
 
     protected function assertLoginRequirement(array $queryParams = []): void
     {
-        /** @var PageLoaderInterface $page */
         $request = new InternalRequest($queryParams);
         $context = $this->createCheckoutContextWithNavigation();
         $this->expectException(CustomerNotLoggedInException::class);

@@ -137,6 +137,9 @@ class VersionManager
         return $deleteEvent;
     }
 
+    /**
+     * @param string|EntityDefinition $definition
+     */
     public function createVersion(string $definition, string $id, WriteContext $context, ?string $name = null, ?string $versionId = null): string
     {
         $primaryKey = [
@@ -150,13 +153,11 @@ class VersionManager
         if ($name) {
             $versionData['name'] = $name;
         } else {
-            /* @var EntityDefinition|string $definition */
             $versionData['name'] = $definition::getEntityName() . (new \DateTime())->format(Defaults::DATE_FORMAT);
         }
 
         $this->entityWriter->upsert(VersionDefinition::class, [$versionData], $context);
 
-        /** @var EntityDefinition|string $definition */
         $affected = $this->clone($definition, $primaryKey['id'], $primaryKey['id'], $versionId, $context);
 
         $versionContext = $context->createWithVersionId($versionId);
@@ -302,7 +303,6 @@ class VersionManager
         string $versionId,
         WriteContext $context
     ): array {
-        /** @var string|EntityDefinition $definition */
         $criteria = new Criteria([$id]);
         $this->addCloneAssociations($definition, $criteria);
 
@@ -325,12 +325,14 @@ class VersionManager
         return $this->entityWriter->insert($definition, [$data], $versionContext);
     }
 
+    /**
+     * @param string|EntityDefinition $definition
+     */
     private function filterPropertiesForClone(string $definition, array $data, bool $keepIds, string $cloneId, string $cloneDefinition, Context $context): array
     {
         $extensions = [];
         $payload = [];
 
-        /** @var string|EntityDefinition $definition */
         $fields = $definition::getFields();
 
         /** @var Field $field */
@@ -487,8 +489,8 @@ class VersionManager
         $commands = [$insert];
 
         foreach ($writtenEvents as $definition => $items) {
-            $definition = (string) $definition;
             /** @var EntityDefinition|string $definition */
+            $definition = (string) $definition;
             $entityName = $definition::getEntityName();
 
             if (!$definition::isVersionAware()) {
@@ -543,9 +545,11 @@ class VersionManager
         $this->entityWriteGateway->execute($commands, $writeContext);
     }
 
+    /**
+     * @param string|EntityDefinition $definition
+     */
     private function addVersionToPayload(array $payload, string $definition, string $versionId): array
     {
-        /** @var string|EntityDefinition $definition */
         $fields = $definition::getFields()->filter(function (Field $field) {
             return $field instanceof VersionField || $field instanceof ReferenceVersionField;
         });
@@ -580,18 +584,20 @@ class VersionManager
         return $nestedItem;
     }
 
+    /**
+     * @param string|EntityDefinition $definition
+     */
     private function addCloneAssociations(string $definition, Criteria $criteria, int $childCounter = 1): void
     {
         //add all cascade delete associations
-        /** @var string|EntityDefinition $definition */
         $cascades = $definition::getFields()->filterByFlag(CascadeDelete::class);
 
+        /** @var AssociationInterface $cascade */
         foreach ($cascades as $cascade) {
             $nested = new Criteria();
 
             $criteria->addAssociation($definition::getEntityName() . '.' . $cascade->getPropertyName(), $nested);
 
-            /** @var AssociationInterface $cascade */
             if ($cascade instanceof ManyToManyAssociationField) {
                 continue;
             }
@@ -601,7 +607,6 @@ class VersionManager
                 continue;
             }
 
-            /** @var OneToManyAssociationField $cascade */
             $reference = $cascade->getReferenceClass();
 
             $childrenAware = $reference::isChildrenAware();

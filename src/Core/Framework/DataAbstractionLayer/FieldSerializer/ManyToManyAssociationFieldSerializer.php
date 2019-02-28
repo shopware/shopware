@@ -50,7 +50,6 @@ class ManyToManyAssociationFieldSerializer implements FieldSerializerInterface
             throw new MalformatDataException($parameters->getPath() . '/' . $key, 'Value must be an array.');
         }
 
-        /** @var ManyToManyAssociationField $field */
         $mappingAssociation = $this->getMappingAssociation($field);
 
         foreach ($value as $keyValue => $subresources) {
@@ -122,7 +121,6 @@ class ManyToManyAssociationFieldSerializer implements FieldSerializerInterface
                 ]
             ]
         */
-        /** @var ManyToOneAssociationField $association */
         $fk = $field->getReferenceClass()::getFields()->getByStorageName(
             $association->getStorageName()
         );

@@ -99,9 +99,11 @@ class InheritanceIndexer implements IndexerInterface
         }
     }
 
+    /**
+     * @param string|EntityDefinition $definition
+     */
     private function update(string $definition, array $ids, Context $context): void
     {
-        /** @var string|EntityDefinition $definition */
         $inherited = $definition::getFields()->filter(function (Field $field) {
             return $field->is(Inherited::class) && $field instanceof AssociationInterface;
         });
@@ -186,13 +188,15 @@ class InheritanceIndexer implements IndexerInterface
         }
     }
 
+    /**
+     * @param string|EntityDefinition $definition
+     */
     private function updateToOneAssociations(
         string $definition,
         array $ids,
         FieldCollection $associations,
         Context $context
     ): void {
-        /** @var string|EntityDefinition $definition */
         $bytes = array_map(function ($id) {
             return Uuid::fromHexToBytes($id);
         }, $ids);
@@ -255,9 +259,11 @@ class InheritanceIndexer implements IndexerInterface
         }
     }
 
+    /**
+     * @param string|EntityDefinition $definition
+     */
     private function createIterator(string $definition): IterableQuery
     {
-        /** @var string|EntityDefinition $definition */
         $entity = $definition::getEntityName();
 
         $escaped = EntityDefinitionQueryHelper::escape($entity);

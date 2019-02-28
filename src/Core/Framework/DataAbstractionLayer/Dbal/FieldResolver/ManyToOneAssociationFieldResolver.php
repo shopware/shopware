@@ -55,19 +55,27 @@ class ManyToOneAssociationFieldResolver implements FieldResolverInterface
         return true;
     }
 
-    private function join(string $definition, string $root, AssociationInterface $field, QueryBuilder $query, Context $context, EntityDefinitionQueryHelper $queryHelper): void
-    {
+    /**
+     * @param EntityDefinition|string                                                 $definition
+     * @param AssociationInterface|ManyToOneAssociationField|OneToOneAssociationField $field
+     */
+    private function join(
+        string $definition,
+        string $root,
+        AssociationInterface $field,
+        QueryBuilder $query,
+        Context $context,
+        EntityDefinitionQueryHelper $queryHelper
+    ): void {
         if (!$field instanceof ManyToOneAssociationField && !$field instanceof OneToOneAssociationField) {
             return;
         }
 
-        /** @var ManyToOneAssociationField|OneToOneAssociationField $field */
+        /** @var EntityDefinition|string $reference */
         $reference = $field->getReferenceClass();
 
-        /** @var EntityDefinition|string $reference */
         $table = $reference::getEntityName();
 
-        /** @var EntityDefinition|string $definition */
         $alias = $root . '.' . $field->getPropertyName();
 
         $versionAware = ($definition::isVersionAware() && $reference::isVersionAware());
@@ -172,7 +180,6 @@ class ManyToOneAssociationFieldResolver implements FieldResolverInterface
 
     private function createSubVersionQuery(AssociationInterface $field, QueryBuilder $query, Context $context, EntityDefinitionQueryHelper $queryHelper): QueryBuilder
     {
-        /** @var OneToOneAssociationField|ManyToOneAssociationField $field */
         $subRoot = $field->getReferenceClass()::getEntityName();
 
         $versionQuery = new QueryBuilder($query->getConnection());

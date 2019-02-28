@@ -130,9 +130,11 @@ class ChildCountIndexer implements IndexerInterface
         $this->updateChildCount($event->getDefinition(), $parentIds, $event->getDefinition()::isVersionAware(), $context);
     }
 
+    /**
+     * @param string|EntityDefinition $definition
+     */
     private function updateChildCount(string $definition, array $parentIds, bool $versionAware, Context $context): void
     {
-        /** @var string|EntityDefinition $definition */
         $entityName = $definition::getEntityName();
         if (empty($parentIds)) {
             return;

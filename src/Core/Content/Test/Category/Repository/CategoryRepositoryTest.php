@@ -72,7 +72,6 @@ class CategoryRepositoryTest extends TestCase
 
         static::assertInstanceOf(EntityWrittenContainerEvent::class, $result);
 
-        /** @var EntityWrittenContainerEvent $result */
         $event = $result->getEventByDefinition(CategoryDefinition::class);
 
         static::assertInstanceOf(EntityDeletedEvent::class, $event);

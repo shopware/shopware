@@ -86,9 +86,11 @@ class WriteCommandQueue
         return $order;
     }
 
+    /**
+     * @param string|EntityDefinition $definition
+     */
     public function hasDependencies(string $definition, array $commands): array
     {
-        /** @var string|EntityDefinition $definition */
         $fields = $definition::getFields()
             ->filter(function (Field $field) {
                 if ($field instanceof ManyToOneAssociationField) {

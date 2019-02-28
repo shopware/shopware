@@ -22,11 +22,13 @@ use Shopware\Core\System\Language\LanguageDefinition;
 class EntityCacheKeyGenerator
 {
     /**
-     * Generates a unique entity cache key. Considers a provided criteria with additional loaded associations and different context states.
+     * Generates a unique entity cache key.
+     * Considers a provided criteria with additional loaded associations and different context states.
+     *
+     * @param string|EntityDefinition $definition
      */
     public function getEntityContextCacheKey(string $id, string $definition, Context $context, ?Criteria $criteria = null): string
     {
-        /** @var string|EntityDefinition $definition */
         $keys = [$definition::getEntityName(), $id, $this->getContextHash($context)];
 
         if ($criteria && \count($criteria->getAssociations()) > 0) {
@@ -37,11 +39,13 @@ class EntityCacheKeyGenerator
     }
 
     /**
-     * Generates a cache key for a criteria inside the read process. Considers different associations and context states.
+     * Generates a cache key for a criteria inside the read process.
+     * Considers different associations and context states.
+     *
+     * @param string|EntityDefinition $definition
      */
     public function getReadCriteriaCacheKey(string $definition, Criteria $criteria, Context $context): string
     {
-        /** @var string|EntityDefinition $definition */
         $keys = [$definition::getEntityName(), $this->getReadCriteriaHash($criteria), $this->getContextHash($context)];
 
         return md5(implode('-', $keys));
@@ -49,10 +53,11 @@ class EntityCacheKeyGenerator
 
     /**
      * Generates a unique cache key for a search result.
+     *
+     * @param string|EntityDefinition $definition
      */
     public function getSearchCacheKey(string $definition, Criteria $criteria, Context $context): string
     {
-        /** @var string|EntityDefinition $definition */
         $keys = [$definition::getEntityName(), $this->getCriteriaHash($criteria), $this->getContextHash($context)];
 
         return md5(implode('-', $keys));
@@ -60,10 +65,11 @@ class EntityCacheKeyGenerator
 
     /**
      * Generates the unique cache key for the provided aggregation. Used as cache key for cached aggregation results.
+     *
+     * @param string|EntityDefinition $definition
      */
     public function getAggregationCacheKey(Aggregation $aggregation, string $definition, Criteria $criteria, Context $context): string
     {
-        /** @var string|EntityDefinition $definition */
         $keys = [
             md5(json_encode($aggregation)),
             $definition::getEntityName(),
@@ -76,10 +82,11 @@ class EntityCacheKeyGenerator
 
     /**
      * Defines the tag for a single entity. Used for invalidation if this entity is written
+     *
+     * @param string|EntityDefinition $definition
      */
     public function getEntityTag(string $id, string $definition): string
     {
-        /** @var string|EntityDefinition $definition */
         $keys = [$definition::getEntityName(), $id];
 
         return implode('-', $keys);
@@ -87,18 +94,15 @@ class EntityCacheKeyGenerator
 
     /**
      * Calculates all relevant cache tags for a search requests. Considers all accessed fields of the criteria.
+     *
+     * @param string|EntityDefinition $definition
      */
     public function getSearchTags(string $definition, Criteria $criteria): array
     {
-        /** @var string|EntityDefinition $definition */
         $tags = [$definition::getEntityName() . '.id'];
 
-        $fields = $criteria->getSearchQueryFields();
-
-        foreach ($fields as $accessor) {
-            $associations = $this->getFieldsOfAccessor($definition, $accessor);
-
-            foreach ($associations as $association) {
+        foreach ($criteria->getSearchQueryFields() as $accessor) {
+            foreach ($this->getFieldsOfAccessor($definition, $accessor) as $association) {
                 $tags[] = $association;
             }
         }
@@ -108,19 +112,18 @@ class EntityCacheKeyGenerator
 
     /**
      * Calculates all cache tags for the provided aggregation. Considers the criteria filters and queries.
+     *
+     * @param string|EntityDefinition $definition
      */
     public function getAggregationTags(string $definition, Criteria $criteria, Aggregation $aggregation): array
     {
-        /** @var string|EntityDefinition $definition */
         $tags = [$definition::getEntityName() . '.id'];
 
         $fields = $criteria->getAggregationQueryFields();
         $fields = array_merge($fields, $aggregation->getFields());
 
         foreach ($fields as $accessor) {
-            $associations = $this->getFieldsOfAccessor($definition, $accessor);
-
-            foreach ($associations as $association) {
+            foreach ($this->getFieldsOfAccessor($definition, $accessor) as $association) {
                 $tags[] = $association;
             }
         }
@@ -130,10 +133,11 @@ class EntityCacheKeyGenerator
 
     /**
      * Calculates all tags for a single entity. Considers the language chain, context states and loaded associations
+     *
+     * @param string|EntityDefinition $definition
      */
     public function getAssociatedTags(string $definition, Entity $entity, Context $context): array
     {
-        /** @var string|EntityDefinition $definition */
         $associations = $definition::getFields()->filterInstance(AssociationInterface::class);
 
         $keys = [$this->getEntityTag($entity->getUniqueIdentifier(), $definition)];
@@ -195,8 +199,6 @@ class EntityCacheKeyGenerator
                         $keys[] = $key;
                     }
                 }
-
-                continue;
             }
         }
 
@@ -213,10 +215,12 @@ class EntityCacheKeyGenerator
         ]));
     }
 
+    /**
+     * @param string|EntityDefinition $definition
+     */
     private function getFieldsOfAccessor(string $definition, string $accessor): array
     {
         $parts = explode('.', $accessor);
-        /** @var string|EntityDefinition $definition */
         $fields = $definition::getFields();
 
         $associations = [];

@@ -44,7 +44,6 @@ class FkFieldSerializer implements FieldSerializerInterface
             throw new InvalidSerializerFieldException(FkField::class, $field);
         }
 
-        /** @var FkField $field */
         $value = $data->getValue();
 
         if ($this->shouldUseContext($field, $data)) {

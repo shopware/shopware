@@ -116,7 +116,6 @@ class AttributeSetRepositoryTest extends TestCase
 
         $result = $repo->search(new Criteria([$id2]), Context::createDefaultContext());
 
-        /** @var AttributeSetEntity $attribute */
         $attributeSet = $result->first();
         static::assertNotNull($attributeSet);
 

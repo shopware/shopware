@@ -40,7 +40,6 @@ class LoginPageTest extends TestCase
 
     public function itLoadsWithoutACustomer(): void
     {
-        /** @var PageLoaderInterface $page */
         $request = new InternalRequest();
         $context = $this->createCheckoutContextWithNavigation();
         $page = $this->getPageLoader()->load($request, $context);

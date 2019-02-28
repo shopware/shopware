@@ -50,8 +50,8 @@ class DeleteNotUsedMediaService
     protected function createFilterForNotUsedMedia(Context $context): Criteria
     {
         $criteria = new Criteria();
-        /** @var MediaDefaultFolderCollection $defaultFolders */
         $iterator = new RepositoryIterator($this->defaultFolderRepo, $context);
+        /** @var MediaDefaultFolderCollection $defaultFolders */
         while ($defaultFolders = $iterator->fetch()) {
             foreach ($defaultFolders as $defaultFolder) {
                 foreach ($defaultFolder->getAssociationFields() as $associationField) {

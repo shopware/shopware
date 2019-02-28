@@ -13,7 +13,6 @@ class MigrationNameAndTimestampTest extends TestCase
 
     public function testMigrationNameAndTimestamp(): void
     {
-        /** @var MigrationCollection $migrationCollection */
         $migrations = $this->getContainer()->get(MigrationCollection::class)->getMigrationCollection();
 
         /** @var MigrationStep $migration */

@@ -64,6 +64,9 @@ class RequestCriteriaBuilder
         return $this->allowedLimits;
     }
 
+    /**
+     * @param string|EntityDefinition $definition
+     */
     private function fromArray(array $payload, Criteria $criteria, string $definition, Context $context): Criteria
     {
         $searchException = new SearchRequestException();
@@ -119,7 +122,6 @@ class RequestCriteriaBuilder
             foreach ($payload['associations'] as $propertyName => $association) {
                 $nested = new Criteria();
 
-                /** @var string|EntityDefinition $definition */
                 $field = $definition::getFields()->get($propertyName);
 
                 if (!$field instanceof AssociationInterface) {
@@ -354,9 +356,11 @@ class RequestCriteriaBuilder
         }
     }
 
+    /**
+     * @param string|EntityDefinition $definition
+     */
     private function buildFieldName(string $definition, string $fieldName): string
     {
-        /** @var EntityDefinition $definition */
         $prefix = $definition::getEntityName() . '.';
 
         if (strpos($fieldName, $prefix) === false) {

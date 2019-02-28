@@ -84,15 +84,16 @@ class EntityAggregator implements EntityAggregatorInterface
         return new AggregatorResult($aggregations, $context, $criteria);
     }
 
+    /**
+     * @param string|EntityDefinition $definition
+     */
     private function createAggregationQuery(Aggregation $aggregation, string $definition, Criteria $criteria, Context $context): QueryBuilder
     {
-        /** @var EntityDefinition $definition */
         $table = $definition::getEntityName();
 
         $query = $this->queryHelper->getBaseQuery(new QueryBuilder($this->connection), $definition, $context);
 
         if ($definition::isInheritanceAware()) {
-            /** @var EntityDefinition|string $definition */
             $parent = $definition::getFields()->get('parent');
             $this->queryHelper->resolveField($parent, $definition, $definition::getEntityName(), $query, $context);
         }
@@ -109,7 +110,6 @@ class EntityAggregator implements EntityAggregatorInterface
         }
 
         if ($definition::isInheritanceAware()) {
-            /** @var EntityDefinition|string $definition */
             $parent = $definition::getFields()->get('parent');
             $this->queryHelper->resolveField($parent, $definition, $table, $query, $context);
         }
@@ -124,7 +124,6 @@ class EntityAggregator implements EntityAggregatorInterface
         }
 
         foreach ($aggregation->getGroupByFields() as $groupByField) {
-            /** @var EntityDefinition|string $definition */
             $accessor = $this->queryHelper->getFieldAccessor(
                 $groupByField,
                 $definition,
@@ -139,9 +138,11 @@ class EntityAggregator implements EntityAggregatorInterface
         return $query;
     }
 
+    /**
+     * @param string|EntityDefinition $definition
+     */
     private function getAggregationResult(string $definition, QueryBuilder $query, Aggregation $aggregation, Context $context): AggregationResult
     {
-        /** @var EntityDefinition|string $definition */
         $accessor = $this->queryHelper->getFieldAccessor(
             $aggregation->getField(),
             $definition,

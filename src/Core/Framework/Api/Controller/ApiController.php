@@ -195,7 +195,6 @@ class ApiController extends AbstractController
         if (empty($associations)) {
             $repository = $this->definitionRegistry->getRepository($definition::getEntityName());
         } else {
-            /** @var EntityDefinition $definition */
             $field = $this->getAssociation($definition::getFields(), $associations);
 
             $definition = $field->getReferenceClass();
@@ -584,9 +583,11 @@ class ApiController extends AbstractController
             return $responseFactory->createDetailResponse($entities->first(), $definition, $request, $context, $appendLocationHeader);
         }
 
-        /** @var ManyToManyAssociationField $association */
+        /** @var ManyToManyAssociationField $manyToManyAssociation */
+        $manyToManyAssociation = $association;
+
         /** @var EntityDefinition|string $reference */
-        $reference = $association->getReferenceDefinition();
+        $reference = $manyToManyAssociation->getReferenceDefinition();
 
         $repository = $this->definitionRegistry->getRepository($reference::getEntityName());
         $events = $this->executeWriteOperation($repository, $payload, $context, $type);
@@ -602,7 +603,7 @@ class ApiController extends AbstractController
 
         $payload = [
             'id' => $parent['value'],
-            $association->getPropertyName() => [
+            $manyToManyAssociation->getPropertyName() => [
                 ['id' => $entity->getId()],
             ],
         ];

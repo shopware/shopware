@@ -33,8 +33,16 @@ class StatsAggregation extends Struct implements Aggregation
      */
     protected $sum;
 
-    public function __construct(string $field, string $name, bool $count = true, bool $avg = true, bool $sum = true, bool $min = true, bool $max = true)
-    {
+    public function __construct(
+        string $field,
+        string $name,
+        bool $count = true,
+        bool $avg = true,
+        bool $sum = true,
+        bool $min = true,
+        bool $max = true,
+        string ...$groupByFields
+    ) {
         $this->field = $field;
         $this->name = $name;
         $this->count = $count;
@@ -42,6 +50,7 @@ class StatsAggregation extends Struct implements Aggregation
         $this->min = $min;
         $this->max = $max;
         $this->sum = $sum;
+        $this->groupByFields = $groupByFields;
     }
 
     public function fetchCount(): bool

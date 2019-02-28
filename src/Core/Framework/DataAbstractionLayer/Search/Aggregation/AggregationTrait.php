@@ -14,6 +14,11 @@ trait AggregationTrait
      */
     protected $name;
 
+    /**
+     * @var string[]
+     */
+    protected $groupByFields = [];
+
     public function getField(): string
     {
         return $this->field;
@@ -27,5 +32,10 @@ trait AggregationTrait
     public function getName(): string
     {
         return $this->name;
+    }
+
+    public function getGroupByFields(): array
+    {
+        return $this->groupByFields;
     }
 }

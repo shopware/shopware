@@ -4,19 +4,35 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation;
 
 use Shopware\Core\Framework\Struct\Struct;
 
-abstract class AggregationResult extends Struct
+class AggregationResult extends Struct
 {
     /**
      * @var Aggregation
      */
     private $aggregation;
 
-    public function __construct(Aggregation $aggregation)
+    /**
+     * @var array
+     */
+    private $result;
+
+    public function __construct(Aggregation $aggregation, array $result)
     {
         $this->aggregation = $aggregation;
+        $this->result = $result;
     }
 
-    abstract public function getResult(): array;
+    public function getResult(): array
+    {
+        return $this->result;
+    }
+
+    public function getResultByKey(?array $key): array
+    {
+        $key = \array_search($key, array_column($this->result, 'key'), true);
+
+        return $this->result[$key];
+    }
 
     public function getName(): string
     {

@@ -9,4 +9,9 @@ interface Aggregation extends CriteriaPartInterface
     public function getField(): string;
 
     public function getName(): string;
+
+    /**
+     * @return string[]
+     */
+    public function getGroupByFields(): array;
 }

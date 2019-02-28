@@ -296,14 +296,10 @@ class StorefrontCategoryControllerTest extends TestCase
             return $a['key'] <=> $b['key'];
         });
 
-        static::assertEquals(
-            [
-                ['key' => 'A', 'count' => '2'],
-                ['key' => 'B', 'count' => '1'],
-                ['key' => 'C', 'count' => '1'],
-            ],
-            $content['aggregations']['category-names']
-        );
+        $values = $content['aggregations']['category-names'][0]['values'];
+        static::assertContains(['key' => 'A', 'count' => '2'], $values);
+        static::assertContains(['key' => 'B', 'count' => '1'], $values);
+        static::assertContains(['key' => 'C', 'count' => '1'], $values);
     }
 
     public function testDetailWithNoneExistingCategory(): void

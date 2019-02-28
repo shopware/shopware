@@ -8,9 +8,10 @@ class ValueCountAggregation extends Struct implements Aggregation
 {
     use AggregationTrait;
 
-    public function __construct(string $field, string $name)
+    public function __construct(string $field, string $name, string ...$groupByFields)
     {
         $this->field = $field;
         $this->name = $name;
+        $this->groupByFields = $groupByFields;
     }
 }

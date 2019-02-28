@@ -12,11 +12,10 @@ use Shopware\Core\Framework\DataAbstractionLayer\Cache\CachedEntityAggregator;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityAggregator;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\AggregationResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\AggregationResultCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\EntityAggregation;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\EntityAggregationResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\StatsAggregation;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\StatsAggregationResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregatorResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Struct\Uuid;
@@ -72,15 +71,25 @@ class CachedEntityAggregatorTest extends TestCase
                 new AggregatorResult(
                     new AggregationResultCollection(
                         [
-                            new EntityAggregationResult(
+                            new AggregationResult(
                                 $datasheetAggregation,
-                                new EntityCollection([$configGroupEntity])
+                                [
+                                    [
+                                        'key' => null,
+                                        'values' => new EntityCollection([$configGroupEntity]),
+                                    ],
+                                ]
                             ),
-                            new EntityAggregationResult(
+                            new AggregationResult(
                                 $manufacturerAggregation,
-                                new EntityCollection([$manufacturerEntity])
+                                [
+                                    [
+                                        'key' => null,
+                                        'values' => new EntityCollection([$manufacturerEntity]),
+                                    ],
+                                ]
                             ),
-                            new StatsAggregationResult($priceAggregation),
+                            new AggregationResult($priceAggregation, []),
                         ]
                     ),
                     $context,
@@ -140,32 +149,35 @@ class CachedEntityAggregatorTest extends TestCase
                         return new AggregatorResult(
                             new AggregationResultCollection(
                                 [
-                                    new EntityAggregationResult(
+                                    new AggregationResult(
                                         new EntityAggregation(
                                             'product.datasheet.id',
                                             ConfigurationGroupOptionDefinition::class,
                                             'datasheet'
                                         ),
-                                        new EntityCollection(
+                                        [
                                             [
-                                                $configGroupEntity,
-                                            ]
-                                        )
+                                                'key' => null,
+                                                'values' => new EntityCollection([$configGroupEntity]),
+                                            ],
+                                        ]
                                     ),
-                                    new EntityAggregationResult(
+                                    new AggregationResult(
                                         new EntityAggregation(
                                             'product.manufacturer.id',
                                             ProductManufacturerDefinition::class,
                                             'manufacturer'
                                         ),
-                                        new EntityCollection(
+                                        [
                                             [
-                                                $manufacturerEntity,
-                                            ]
-                                        )
+                                                'key' => null,
+                                                'values' => new EntityCollection([$manufacturerEntity]),
+                                            ],
+                                        ]
                                     ),
-                                    new StatsAggregationResult(
-                                        new StatsAggregation('product.listingPrices', 'price', false)
+                                    new AggregationResult(
+                                        new StatsAggregation('product.listingPrices', 'price', false),
+                                        []
                                     ),
                                 ]
                             ),
@@ -177,8 +189,9 @@ class CachedEntityAggregatorTest extends TestCase
                     return new AggregatorResult(
                         new AggregationResultCollection(
                             [
-                                new StatsAggregationResult(
-                                    new StatsAggregation('product.tax', 'tax', false)
+                                new AggregationResult(
+                                    new StatsAggregation('product.tax', 'tax', false),
+                                    []
                                 ),
                             ]
                         ),
@@ -239,15 +252,25 @@ class CachedEntityAggregatorTest extends TestCase
                 new AggregatorResult(
                     new AggregationResultCollection(
                         [
-                            new EntityAggregationResult(
+                            new AggregationResult(
                                 $datasheetAggregation,
-                                new EntityCollection([$configGroupEntity])
+                                [
+                                    [
+                                        'key' => null,
+                                        'values' => new EntityCollection([$configGroupEntity]),
+                                    ],
+                                ]
                             ),
-                            new EntityAggregationResult(
+                            new AggregationResult(
                                 $manufacturerAggregation,
-                                new EntityCollection([$manufacturerEntity])
+                                [
+                                    [
+                                        'key' => null,
+                                        'values' => new EntityCollection([$manufacturerEntity]),
+                                    ],
+                                ]
                             ),
-                            new StatsAggregationResult($priceAggregation),
+                            new AggregationResult($priceAggregation, []),
                         ]
                     ),
                     $context,

@@ -13,11 +13,12 @@ class EntityAggregation extends Struct implements Aggregation
      */
     private $definition;
 
-    public function __construct(string $field, string $definition, string $name)
+    public function __construct(string $field, string $definition, string $name, string ...$groupByFields)
     {
         $this->field = $field;
         $this->name = $name;
         $this->definition = $definition;
+        $this->groupByFields = $groupByFields;
     }
 
     public function getDefinition(): string

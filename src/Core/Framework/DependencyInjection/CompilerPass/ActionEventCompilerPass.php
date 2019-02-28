@@ -2,8 +2,8 @@
 
 namespace Shopware\Core\Framework\DependencyInjection\CompilerPass;
 
-use Shopware\Core\Framework\Event\ActionEventRegistry;
-use Shopware\Core\Framework\Event\ActionEvents;
+use Shopware\Core\Framework\Event\BusinessEventRegistry;
+use Shopware\Core\Framework\Event\BusinessEvents;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 
@@ -11,10 +11,10 @@ class ActionEventCompilerPass implements CompilerPassInterface
 {
     public function process(ContainerBuilder $container)
     {
-        $reflectionClass = new \ReflectionClass(ActionEvents::class);
+        $reflectionClass = new \ReflectionClass(BusinessEvents::class);
         $constants = array_values($reflectionClass->getConstants());
 
-        $definition = $container->getDefinition(ActionEventRegistry::class);
+        $definition = $container->getDefinition(BusinessEventRegistry::class);
         $definition->addMethodCall('add', $constants);
     }
 }

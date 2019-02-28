@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Framework\Event;
 
-class ActionEventRegistry
+class BusinessEventRegistry
 {
     /**
      * @var bool[]

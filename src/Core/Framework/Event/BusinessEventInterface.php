@@ -5,6 +5,6 @@ namespace Shopware\Core\Framework\Event;
 /**
  * Tag for events that can be used in the action/action system
  */
-interface ActionEventInterface extends ShopwareEvent
+interface BusinessEventInterface extends ShopwareEvent
 {
 }

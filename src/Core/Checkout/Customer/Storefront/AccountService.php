@@ -10,6 +10,7 @@ use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressCol
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Event\CustomerLoginEvent;
+use Shopware\Core\Checkout\Customer\Event\CustomerLogoutEvent;
 use Shopware\Core\Checkout\Exception\AddressNotFoundException;
 use Shopware\Core\Checkout\Exception\BadCredentialsException;
 use Shopware\Core\Checkout\Exception\CustomerNotFoundException;
@@ -410,6 +411,9 @@ class AccountService
                 'shippingAddressId' => null,
             ]
         );
+
+        $event = new CustomerLogoutEvent($context->getContext(), $context->getCustomer());
+        $this->eventDispatcher->dispatch($event->getName(), $event);
     }
 
     private function validateRegistrationRequest(InternalRequest $request, CheckoutContext $context): void

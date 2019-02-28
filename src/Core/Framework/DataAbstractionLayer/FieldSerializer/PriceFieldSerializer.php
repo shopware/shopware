@@ -25,6 +25,9 @@ class PriceFieldSerializer extends JsonFieldSerializer
         $value = $data->getValue();
 
         unset($value['extensions']);
+        if (!empty($value) && !isset($value['linked']) && !$existence->exists()) {
+            $value['linked'] = false; // set default
+        }
 
         $data = new KeyValuePair($data->getKey(), $value, $data->isRaw());
 

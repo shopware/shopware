@@ -2,9 +2,7 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer;
 
-use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Attribute\AttributeServiceInterface;
-use Shopware\Core\Framework\Attribute\AttributeTypes;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidSerializerFieldException;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AttributesField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
@@ -43,21 +41,31 @@ class AttributesFieldSerializer extends JsonFieldSerializer
             throw new InvalidSerializerFieldException(AttributesField::class, $field);
         }
 
-        // encode null and [] as null / delete attributes
-        if (empty($data->getValue())) {
+        $attributes = $data->getValue();
+
+        /** @var AttributesField $field */
+        if ($this->requiresValidation($field, $existence, $attributes, $parameters)) {
+            $constraints = $this->getConstraints($parameters);
+
+            $this->validate($this->validator, $constraints, $data->getKey(), $attributes, $parameters->getPath());
+        }
+
+        if ($attributes === null) {
             yield $data->getKey() => null;
 
             return;
         }
 
-        $encoded = [];
-        foreach ($data->getValue() as $attributeName => $value) {
-            $type = $this->attributeService->getAttributeType($attributeName);
-            if (!$type) {
-                continue;
-            }
-            $encoded[$attributeName] = $this->encodeAttribute($type, $value);
+        if (empty($attributes)) {
+            yield $data->getKey() => '{}';
+
+            return;
         }
+
+        // set fields dynamically
+        $field->setPropertyMapping($this->getFields(array_keys($attributes)));
+        $encoded = $this->validateMapping($field, $attributes, $parameters);
+
         if (empty($encoded)) {
             return;
         }
@@ -68,31 +76,7 @@ class AttributesFieldSerializer extends JsonFieldSerializer
             return;
         }
 
-        // entity does not exist: simply encode
-        $kvPair = new KeyValuePair($data->getKey(), $encoded, $data->isRaw());
-        yield from parent::encode($field, $existence, $kvPair, $parameters);
-    }
-
-    public function decode(Field $field, $attributes)
-    {
-        if ($attributes === null) {
-            return null;
-        }
-
-        if (!is_array($attributes)) {
-            $attributes = parent::decode($field, $attributes);
-        }
-
-        $decoded = [];
-        foreach ($attributes as $attributeName => $value) {
-            $type = $this->attributeService->getAttributeType($attributeName);
-            if (!$type) {
-                continue;
-            }
-            $decoded[$attributeName] = $this->decodeAttribute($type, $value);
-        }
-
-        return $decoded;
+        yield $field->getStorageName() => parent::encodeJson($encoded);
     }
 
     public function getFieldClass(): string
@@ -100,52 +84,13 @@ class AttributesFieldSerializer extends JsonFieldSerializer
         return AttributesField::class;
     }
 
-    private function encodeAttribute(string $type, $value)
+    private function getFields(array $attributeNames): array
     {
-        if ($value === null) {
-            return null;
+        $fields = [];
+        foreach ($attributeNames as $attributeName) {
+            $fields[] = $this->attributeService->getAttributeField($attributeName);
         }
 
-        switch ($type) {
-            case AttributeTypes::BOOL:
-                return (bool) $value;
-            case AttributeTypes::DATETIME:
-                if ($value instanceof \DateTime) {
-                    return $value->format(Defaults::DATE_FORMAT);
-                }
-
-                if (is_string($value)) {
-                    return (new \DateTime($value))->format(Defaults::DATE_FORMAT);
-                }
-
-                return null;
-            case AttributeTypes::INT:
-                return (int) $value;
-            case AttributeTypes::FLOAT:
-                return (float) $value;
-            case AttributeTypes::STRING:
-            default:
-                return $value;
-        }
-    }
-
-    private function decodeAttribute(string $type, $value)
-    {
-        if ($value === null) {
-            return null;
-        }
-
-        switch ($type) {
-            case AttributeTypes::BOOL:
-                return (bool) $value;
-            case AttributeTypes::INT:
-                return (int) $value;
-            case AttributeTypes::FLOAT:
-                return (float) $value;
-            case AttributeTypes::DATETIME:
-            case AttributeTypes::STRING:
-            default:
-                return $value;
-        }
+        return $fields;
     }
 }

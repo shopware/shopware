@@ -4,6 +4,14 @@ namespace Shopware\Core\Framework\Attribute;
 
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\DateField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\FloatField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\IntField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\LongTextField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\LongTextWithHtmlField;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
@@ -15,18 +23,46 @@ class AttributeService implements AttributeServiceInterface, EventSubscriberInte
     private $attributeRepository;
 
     /**
-     * @var string[]|null
+     * @var AttributeEntity[]|null
      */
-    private $attributeTypeMap;
+    private $attributes;
 
     public function __construct(EntityRepositoryInterface $attributeRepository)
     {
         $this->attributeRepository = $attributeRepository;
     }
 
-    public function getAttributeType(string $attributeName): ?string
+    public function getAttributeField(string $attributeName): Field
     {
-        return $this->getAttributeTypeMap()[$attributeName] ?? null;
+        /** @var AttributeEntity|null $attribute */
+        $attribute = $this->getAttributes()[$attributeName];
+        if (!$attribute) {
+            return new JsonField($attributeName, $attributeName);
+        }
+
+        switch ($attribute->getType()) {
+            case AttributeTypes::INT:
+                return new IntField($attributeName, $attributeName);
+
+            case AttributeTypes::FLOAT:
+                return new FloatField($attributeName, $attributeName);
+
+            case AttributeTypes::BOOL:
+                return new BoolField($attributeName, $attributeName);
+
+            case AttributeTypes::DATETIME:
+                return new DateField($attributeName, $attributeName);
+
+            case AttributeTypes::TEXT:
+                return new LongTextField($attributeName, $attributeName);
+
+            case AttributeTypes::HTML:
+                return new LongTextWithHtmlField($attributeName, $attributeName);
+
+            case AttributeTypes::JSON:
+            default:
+                return new JsonField($attributeName, $attributeName);
+        }
     }
 
     public static function getSubscribedEvents(): array
@@ -42,23 +78,26 @@ class AttributeService implements AttributeServiceInterface, EventSubscriberInte
      */
     public function invalidateCache(): void
     {
-        $this->attributeTypeMap = null;
+        $this->attributes = null;
     }
 
-    private function getAttributeTypeMap(): array
+    /**
+     * @return AttributeEntity[]
+     */
+    private function getAttributes(): array
     {
-        if ($this->attributeTypeMap !== null) {
-            return $this->attributeTypeMap;
+        if ($this->attributes !== null) {
+            return $this->attributes;
         }
 
-        $this->attributeTypeMap = [];
+        $this->attributes = [];
         // attributes should not be context dependent
         $result = $this->attributeRepository->search(new Criteria(), Context::createDefaultContext());
         /** @var AttributeEntity $attribute */
         foreach ($result as $attribute) {
-            $this->attributeTypeMap[$attribute->getName()] = $attribute->getType();
+            $this->attributes[$attribute->getName()] = $attribute;
         }
 
-        return $this->attributeTypeMap;
+        return $this->attributes;
     }
 }

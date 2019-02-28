@@ -69,14 +69,14 @@ class JsonFieldSerializer implements FieldSerializerInterface
         $value = $data->getValue();
 
         /** @var JsonField $field */
-        if ($this->requiresValidation($field, $existence, $data->getValue(), $parameters)) {
+        if ($this->requiresValidation($field, $existence, $value, $parameters)) {
             $constraints = $this->getConstraints($parameters);
 
-            $this->validate($this->validator, $constraints, $data->getKey(), $data->getValue(), $parameters->getPath());
+            $this->validate($this->validator, $constraints, $data->getKey(), $value, $parameters->getPath());
         }
 
-        if (!empty($field->getPropertyMapping()) && $data->getValue() !== null) {
-            $value = $this->validateMapping($field, $data->getValue(), $parameters);
+        if ($value !== null && !empty($field->getPropertyMapping())) {
+            $value = $this->validateMapping($field, $value, $parameters);
         }
 
         if ($value !== null) {

@@ -5,8 +5,10 @@ namespace Shopware\Core\Framework\Attribute;
 class AttributeTypes
 {
     public const BOOL = 'bool';
+    public const DATETIME = 'datetime';
     public const FLOAT = 'float';
     public const INT = 'int';
-    public const STRING = 'string';
-    public const DATETIME = 'datetime';
+    public const JSON = 'json';
+    public const TEXT = 'text';
+    public const HTML = 'html';
 }

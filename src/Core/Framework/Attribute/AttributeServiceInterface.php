@@ -2,7 +2,9 @@
 
 namespace Shopware\Core\Framework\Attribute;
 
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
+
 interface AttributeServiceInterface
 {
-    public function getAttributeType(string $attributeName): ?string;
+    public function getAttributeField(string $attributeName): Field;
 }

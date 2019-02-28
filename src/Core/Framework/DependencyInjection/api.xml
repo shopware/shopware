@@ -38,14 +38,13 @@
         </service>
 
         <service id="Shopware\Core\Framework\Search\CompositeEntitySearcher">
-            <argument type="service" id="service_container"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionRegistry"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\SearchBuilder"/>
             <argument type="service" id="version_commit_data.repository"/>
         </service>
 
         <service id="Shopware\Core\Framework\Api\Controller\SyncController" public="true">
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionRegistry"/>
-            <argument type="service" id="service_container"/>
             <argument type="service" id="serializer"/>
             <call method="setContainer">
                 <argument type="service" id="service_container"/>

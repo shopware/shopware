@@ -4,11 +4,9 @@ namespace Shopware\Core\Framework\Api\Controller;
 
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionRegistry;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException\WriteStackException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
@@ -22,17 +20,16 @@ class SyncController extends AbstractController
     /**
      * @var DefinitionRegistry
      */
-    protected $registry;
+    protected $definitionRegistry;
 
     /**
      * @var Serializer
      */
     private $serializer;
 
-    public function __construct(DefinitionRegistry $registry, ContainerInterface $container, Serializer $serializer)
+    public function __construct(DefinitionRegistry $definitionRegistry, Serializer $serializer)
     {
-        $this->registry = $registry;
-        $this->container = $container;
+        $this->definitionRegistry = $definitionRegistry;
         $this->serializer = $serializer;
     }
 
@@ -49,10 +46,7 @@ class SyncController extends AbstractController
             $action = $operation['action'];
             $entity = $operation['entity'];
 
-            $definition = $this->registry->get($entity);
-
-            /** @var EntityRepositoryInterface $repository */
-            $repository = $this->container->get($definition::getEntityName() . '.repository');
+            $repository = $this->definitionRegistry->getRepository($entity);
 
             switch ($action) {
                 case self::ACTION_DELETE:

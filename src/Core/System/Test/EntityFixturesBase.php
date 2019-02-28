@@ -5,6 +5,7 @@ namespace Shopware\Core\System\Test;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\DefinitionRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -36,9 +37,13 @@ trait EntityFixturesBase
     {
         self::ensureATransactionIsActive();
 
-        return KernelLifecycleManager::getKernel()
-            ->getContainer()
-            ->get($fixtureName . '.repository');
+        $container = KernelLifecycleManager::getKernel()->getContainer();
+
+        if ($container->has('test.service_container')) {
+            $container = $container->get('test.service_container');
+        }
+
+        return $container->get(DefinitionRegistry::class)->getRepository($fixtureName);
     }
 
     public function createFixture(string $fixtureName, array $fixtureData, EntityRepositoryInterface $repository): Entity

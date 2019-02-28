@@ -12,6 +12,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\VersionManager;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
+use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
 use Symfony\Component\DependencyInjection\Reference;
 
 class EntityCompilerPass implements CompilerPassInterface
@@ -23,43 +24,38 @@ class EntityCompilerPass implements CompilerPassInterface
 
     private function collectDefinitions(ContainerBuilder $container): void
     {
-        $services = $container->findTaggedServiceIds('shopware.entity.definition');
         $classes = [];
-        foreach ($services as $serviceId => $attributes) {
+        $services = array_keys($container->findTaggedServiceIds('shopware.entity.definition'));
+
+        foreach ($services as $serviceId) {
+            /** @var string|EntityDefinition $serviceId */
             $service = $container->getDefinition($serviceId);
-
-            $entity = $this->getEntity($service->getClass());
-
-            $classes[$entity] = $service->getClass();
+            $entity = $serviceId::getEntityName();
 
             $repositoryId = $entity . '.repository';
+            try {
+                $container->getDefinition($repositoryId);
+            } catch (ServiceNotFoundException $exception) {
+                $repository = new Definition(
+                    EntityRepository::class,
+                    [
+                        $service->getClass(),
+                        new Reference(EntityReaderInterface::class),
+                        new Reference(VersionManager::class),
+                        new Reference(EntitySearcherInterface::class),
+                        new Reference(EntityAggregatorInterface::class),
+                        new Reference('event_dispatcher'),
+                    ]
+                );
+                $repository->setPublic(true);
 
-            if ($container->has($repositoryId)) {
-                continue;
+                $container->setDefinition($repositoryId, $repository);
             }
 
-            $repository = new Definition(EntityRepository::class, [
-                $service->getClass(),
-                new Reference(EntityReaderInterface::class),
-                new Reference(VersionManager::class),
-                new Reference(EntitySearcherInterface::class),
-                new Reference(EntityAggregatorInterface::class),
-                new Reference('event_dispatcher'),
-            ]);
-            $repository->setPublic(true);
-
-            $container->setDefinition($repositoryId, $repository);
+            $classes[$serviceId] = $repositoryId;
         }
 
         $registry = $container->getDefinition(DefinitionRegistry::class);
         $registry->replaceArgument(0, $classes);
-    }
-
-    private function getEntity(string $class): string
-    {
-        /** @var string|EntityDefinition $instance */
-        $instance = new $class();
-
-        return $instance::getEntityName();
     }
 }

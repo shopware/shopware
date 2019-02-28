@@ -7,6 +7,7 @@ use Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi3Generator;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionRegistry;
 use Shopware\Core\Framework\Test\Api\ApiDefinition\EntityDefinition\SimpleDefinition;
 use Shopware\Core\Framework\Test\TestCaseBase\AssertArraySubsetBehaviour;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 class OpenApi3GeneratorTest extends TestCase
 {
@@ -26,7 +27,8 @@ class OpenApi3GeneratorTest extends TestCase
     {
         parent::__construct();
 
-        $definitionRegistry = new DefinitionRegistry([SimpleDefinition::class]);
+        $containerMock = $this->createMock(ContainerInterface::class);
+        $definitionRegistry = new DefinitionRegistry([SimpleDefinition::class => 'simple.repository'], $containerMock);
         $openApiGenerator = new OpenApi3Generator($definitionRegistry);
         $this->schema = $openApiGenerator->getSchema();
         $this->entityName = SimpleDefinition::getEntityName();

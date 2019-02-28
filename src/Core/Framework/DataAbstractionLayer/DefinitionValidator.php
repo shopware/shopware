@@ -27,7 +27,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\Extension;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\Inherited;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\PrimaryKey;
 use Shopware\Core\Framework\Struct\ArrayEntity;
-use Symfony\Component\DependencyInjection\ContainerInterface;
 
 class DefinitionValidator
 {
@@ -90,11 +89,11 @@ class DefinitionValidator
         $violations = [];
 
         /** @var string|EntityDefinition $definition */
-        foreach ($this->registry->getElements() as $definition) {
+        foreach ($this->registry->getDefinitions() as $definition) {
             $violations[$definition] = [];
         }
 
-        foreach ($this->registry->getElements() as $definition) {
+        foreach ($this->registry->getDefinitions() as $definition) {
             $instance = new $definition();
 
             $struct = ArrayEntity::class;
@@ -125,21 +124,16 @@ class DefinitionValidator
         return $violations;
     }
 
-    public function getNotices(ContainerInterface $container): array
+    public function getNotices(): array
     {
         $notices = [];
         /** @var string $definition */
-        foreach ($this->registry->getElements() as $definition) {
+        foreach ($this->registry->getDefinitions() as $definition) {
             $notices[$definition] = [];
         }
 
-        foreach ($this->registry->getElements() as $definition) {
+        foreach ($this->registry->getDefinitions() as $definition) {
             $instance = new $definition();
-
-            $entityName = $definition::getEntityName();
-            if (!$container->has($entityName . '.repository')) {
-                $notices[$definition][] = sprintf('Missing repository for entity %s ', $definition);
-            }
 
             if ($instance instanceof MappingEntityDefinition) {
                 continue;

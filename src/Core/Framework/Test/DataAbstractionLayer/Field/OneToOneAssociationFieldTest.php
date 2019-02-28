@@ -5,7 +5,6 @@ namespace Shopware\Core\Framework\Test\DataAbstractionLayer\Field;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\DefinitionRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
@@ -23,7 +22,6 @@ use Shopware\Core\Framework\Struct\ArrayEntity;
 use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\RootDefinition;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\SubDefinition;
-use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\SubManyDefinition;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
 class OneToOneAssociationFieldTest extends TestCase
@@ -100,18 +98,11 @@ ADD FOREIGN KEY (`root_id`, `root_version_id`) REFERENCES `root` (`id`, `version
 ALTER TABLE `root_sub_many`
 ADD FOREIGN KEY (`root_sub_id`, `root_sub_version_id`) REFERENCES `root_sub` (`id`, `version_id`) ON DELETE RESTRICT ON UPDATE NO ACTION;
         ');
-
-        $this->getContainer()->get(DefinitionRegistry::class)->add(RootDefinition::class);
-        $this->getContainer()->get(DefinitionRegistry::class)->add(SubDefinition::class);
-        $this->getContainer()->get(DefinitionRegistry::class)->add(SubManyDefinition::class);
     }
 
     protected function tearDown(): void
     {
         parent::tearDown();
-        $this->getContainer()->get(DefinitionRegistry::class)->remove(RootDefinition::class);
-        $this->getContainer()->get(DefinitionRegistry::class)->remove(SubDefinition::class);
-        $this->getContainer()->get(DefinitionRegistry::class)->remove(SubManyDefinition::class);
 
         $this->connection->executeUpdate('
 DROP TABLE IF EXISTS `root`;

@@ -67,7 +67,7 @@ class ChildCountIndexer implements IndexerInterface
         $context = Context::createDefaultContext();
 
         /** @var EntityDefinition|string $definition */
-        foreach ($this->definitionRegistry->getElements() as $definition) {
+        foreach ($this->definitionRegistry->getDefinitions() as $definition) {
             if (!$definition::isChildrenAware() || !$definition::isChildCountAware()) {
                 continue;
             }

@@ -5,6 +5,7 @@ namespace Shopware\Core\Content\Cms\SlotDataResolver;
 use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Content\Cms\Aggregate\CmsSlot\CmsSlotCollection;
 use Shopware\Core\Content\Cms\Aggregate\CmsSlot\CmsSlotEntity;
+use Shopware\Core\Framework\DataAbstractionLayer\DefinitionRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
@@ -12,7 +13,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaI
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Routing\InternalRequest;
-use Symfony\Component\DependencyInjection\ContainerInterface;
 
 class SlotDataResolver
 {
@@ -27,16 +27,16 @@ class SlotDataResolver
     private $repositories;
 
     /**
-     * @var ContainerInterface
+     * @var DefinitionRegistry
      */
-    private $container;
+    private $definitionRegistry;
 
     /**
      * @param SlotTypeDataResolverInterface[] $resolvers
      */
-    public function __construct(iterable $resolvers, array $repositories, ContainerInterface $container)
+    public function __construct(iterable $resolvers, array $repositories, DefinitionRegistry $definitionRegistry)
     {
-        $this->container = $container;
+        $this->definitionRegistry = $definitionRegistry;
 
         foreach ($repositories as $entityName => $repository) {
             $this->repositories[$entityName] = $repository;
@@ -229,10 +229,7 @@ class SlotDataResolver
      */
     private function getApiRepository(string $definition): EntityRepositoryInterface
     {
-        /** @var EntityRepositoryInterface $repository */
-        $repository = $this->container->get($definition::getEntityName() . '.repository');
-
-        return $repository;
+        return $this->definitionRegistry->getRepository($definition::getEntityName());
     }
 
     /**

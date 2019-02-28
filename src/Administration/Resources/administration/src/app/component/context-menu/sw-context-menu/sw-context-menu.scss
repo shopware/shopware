@@ -47,6 +47,8 @@ $sw-context-menu-z-index:                $z-index-context-menu;
 
             &:first-child {
                 border-top: 0 none;
+                padding-top: 5px;
+                margin-top: 0;
             }
         }
     }

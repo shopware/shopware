@@ -51,7 +51,6 @@ Component.register('sw-category-detail', {
     watch: {
         '$route.params.id'() {
             this.setCategory();
-            console.log(this.category);
         }
     },
 
@@ -119,7 +118,7 @@ Component.register('sw-category-detail', {
         },
 
         resetCategory() {
-            // this.$router.push({ name: 'sw.category.index' });
+            this.$router.push({ name: 'sw.category.index' });
             this.isLoading = true;
             this.category = null;
             this.mediaItem = null;
@@ -143,6 +142,10 @@ Component.register('sw-category-detail', {
             }).finally(() => {
                 this.isLoading = false;
             });
+        },
+
+        openSidebar() {
+            this.$refs.mediaSidebarItem.openContent();
         },
 
         setMediaItem(mediaEntity) {

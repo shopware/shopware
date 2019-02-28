@@ -2,7 +2,6 @@
 $sw-category-tree-border-color: $color-steam-cloud;
 $sw-category-tree-delete-color: $color-crimson;
 
-
 .sw-category-tree.sw-tree {
     background: $color-white;
     height: 100%;
@@ -16,7 +15,6 @@ $sw-category-tree-delete-color: $color-crimson;
         border-bottom: 1px solid $sw-category-tree-border-color;
         height: 64px;
         width: 100%;
-
     }
 
     .sw-category-tree-actions__headline {

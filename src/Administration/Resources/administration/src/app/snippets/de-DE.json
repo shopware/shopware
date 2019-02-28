@@ -631,7 +631,9 @@
       "treeHeadline": "Kategoriestruktur",
       "treeHeadSelected": "{count} selektiert",
       "productAssignmentHeadline": "Produktzuweisung",
+
       "actions": {
+          "actionsDisabledInLanguage": "Kategorien können nur in der Standardsprache erstellt werden",
           "createSub": "Neue Subkategorie",
           "createBefore": "Neue Kategorie davor",
           "createAfter": "Neue Kategorie danach",

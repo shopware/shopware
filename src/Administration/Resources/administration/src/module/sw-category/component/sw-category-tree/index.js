@@ -114,6 +114,10 @@ Component.register('sw-category-tree', {
         },
 
         addSubcategory(item) {
+            if (!this.checkDefaultLanguage()) {
+                return;
+            }
+
             if (!item || !item.data || !item.data.id || this.currentEditCategory !== null) {
                 return;
             }
@@ -191,6 +195,10 @@ Component.register('sw-category-tree', {
             newCategory.childCount = childCount;
 
             return newCategory;
+        },
+
+        checkDefaultLanguage() {
+            return this.languageStore.getCurrentId() === this.languageStore.systemLanguageId;
         },
 
         getItemById(itemId) {

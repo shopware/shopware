@@ -67,49 +67,24 @@ Component.register('sw-category-view', {
         getList() {
             this.isLoadingProducts = true;
             const params = this.getListingParams();
-            // this.resetAssignedProducts();
 
             return this.categoryProductStore.getList(params).then(response => {
                 this.total = response.total;
                 this.products = response.items;
                 this.isLoadingProducts = false;
-                // this.buildGridArray();
+                this.buildGridArray();
                 return this.products;
             });
         },
-
-        // getList() {
-        //     this.isLoading = true;
-        //     const params = this.getListingParams();
-
-        //     this.items = [];
-
-        //     return this.store.getList(params).then((response) => {
-        //         this.total = response.total;
-        //         this.items = response.items;
-        //         this.isLoading = false;
-
-        //         return this.items;
-        //     });
-        // },
 
         onChangeLanguage() {
             this.getList();
         },
 
         buildGridArray() {
-            this.products = this.products;
-            // console.log(this.products.filter(product => product.isLocal === true));
-            // this.products = this.products.filter(value => value.isLocal === false);
-            // console.log(this.products);
-            // console.log(this.getNewItems());
-            // this.products.splice(0, 0, ...this.getNewItems());
+            this.products = this.products.filter(value => value.isLocal === false);
+            this.products.splice(0, 0, ...this.getNewItems());
         },
-
-        // resetAssignedProducts() {
-        //     this.isLoadingProducts = false;
-        //     this.products = [];
-        // },
 
         getNewItems() {
             const newProducts = [];
@@ -131,6 +106,10 @@ Component.register('sw-category-view', {
 
         removeMediaItem(mediaItem) {
             this.$emit('sw-category-view-on-remove-media', mediaItem);
+        },
+
+        openMediaSidebar() {
+            this.$emit('sw-category-view-open-sidebar');
         },
 
         onViewProduct(productId) {
@@ -157,7 +136,6 @@ Component.register('sw-category-view', {
             }
 
             this.buildGridArray();
-            return true;
         },
 
         selectionChanged() {

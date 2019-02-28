@@ -634,7 +634,9 @@
       "treeHeadline": "Category structure",
       "treeHeadSelected": "{count} selected",
       "productAssignmentHeadline": "Product assignment",
+
       "actions": {
+        "actionsDisabledInLanguage": "Categories can only be created in the default language",
         "createSub": "New subcategory",
         "createBefore": "New category before",
         "createAfter": "New category after",

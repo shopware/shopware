@@ -28,6 +28,10 @@ Component.register('sw-profile-index', {
     },
 
     computed: {
+        isDisabled() {
+            return true; // TODO use ACL here with NEXT-1653
+        },
+
         userStore() {
             return State.getStore('user');
         },

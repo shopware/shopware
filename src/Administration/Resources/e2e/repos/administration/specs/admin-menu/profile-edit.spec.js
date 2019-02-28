@@ -12,29 +12,28 @@ module.exports = {
             .expect.element(page.elements.smartBarHeader).to.have.text.that.equals('Your profile');
 
         browser
-            .fillField('input[name=sw-field--user-name]', 'Super Richie', true)
+            .fillField('input[name=sw-field--user-email]', 'test@test.de', true)
             .click(page.elements.primaryButton)
-            .checkNotification('Profile information has been saved successfully.')
-            .expect.element('.sw-admin-menu__user-name').to.have.text.that.equals('Super Richie');
+            .checkNotification('Profile information has been saved successfully.');
     },
     'log out': (browser) => {
         const page = loginPage(browser);
-        page.logout('Super Richie');
+        page.logout();
     },
     'log in user with updated credentials': (browser) => {
         const page = loginPage(browser);
         page.login('admin', 'shopware');
     },
-    'verify login with new credentials': (browser) => {
+    'verify changed data': (browser) => {
         const page = loginPage(browser);
-        page.verifyLogin('Super Richie');
-    },
-    'verify other changed data': (browser) => {
+
         browser
             .waitForElementVisible('.sw-dashboard-index__content')
-            .clickUserActionMenu('Super Richie')
+            .clickUserActionMenu('admin')
             .click('.sw-admin-menu__profile-item')
-            .expect.element('input[name=sw-field--user-name]').to.have.value.that.equals('Super Richie');
+            .expect.element(page.elements.smartBarHeader).to.have.text.that.equals('Your profile');
+        browser
+            .expect.element('input[name=sw-field--user-email]').to.have.value.that.equals('test@test.de');
     },
     after: (browser) => {
         browser.end();

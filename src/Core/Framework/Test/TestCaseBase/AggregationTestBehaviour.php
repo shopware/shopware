@@ -58,7 +58,7 @@ trait AggregationTestBehaviour
                 'name' => 'product 1',
                 'price' => ['gross' => 10, 'net' => 9],
                 'tax' => ['name' => 'test', 'taxRate' => 10],
-                'manufacturer' => ['name' => 'test'],
+                'manufacturer' => ['name' => 'manufacturer1'],
                 'categories' => [
                     ['id' => $category1],
                     ['id' => $category3],
@@ -68,7 +68,7 @@ trait AggregationTestBehaviour
                 'name' => 'product 2',
                 'price' => ['gross' => 20, 'net' => 19],
                 'tax' => ['name' => 'test', 'taxRate' => 10],
-                'manufacturer' => ['name' => 'test'],
+                'manufacturer' => ['name' => 'manufacturer2'],
                 'categories' => [
                     ['id' => $category1],
                     ['id' => $category2],
@@ -78,7 +78,7 @@ trait AggregationTestBehaviour
                 'name' => 'product 3',
                 'price' => ['gross' => 50, 'net' => 49],
                 'tax' => ['name' => 'test', 'taxRate' => 10],
-                'manufacturer' => ['name' => 'test'],
+                'manufacturer' => ['name' => 'manufacturer1'],
                 'categories' => [
                     ['id' => $category2],
                 ],
@@ -87,7 +87,7 @@ trait AggregationTestBehaviour
                 'name' => 'product 4',
                 'price' => ['gross' => 10, 'net' => 9],
                 'tax' => ['name' => 'test', 'taxRate' => 10],
-                'manufacturer' => ['name' => 'test'],
+                'manufacturer' => ['name' => 'manufacturer2'],
                 'categories' => [
                     ['id' => $category1],
                     ['id' => $category4],
@@ -97,7 +97,7 @@ trait AggregationTestBehaviour
                 'name' => 'product 5',
                 'price' => ['gross' => 90, 'net' => 99],
                 'tax' => ['name' => 'test', 'taxRate' => 10],
-                'manufacturer' => ['name' => 'test'],
+                'manufacturer' => ['name' => 'manufacturer3'],
                 'categories' => [
                     ['id' => $category2],
                     ['id' => $category3],
@@ -107,7 +107,7 @@ trait AggregationTestBehaviour
                 'name' => 'product 6',
                 'price' => ['gross' => 50, 'net' => 49],
                 'tax' => ['name' => 'test', 'taxRate' => 10],
-                'manufacturer' => ['name' => 'test'],
+                'manufacturer' => ['name' => 'manufacturer2'],
                 'categories' => [
                     ['id' => $category3],
                 ],
@@ -116,7 +116,7 @@ trait AggregationTestBehaviour
                 'name' => 'product 6',
                 'price' => ['gross' => 20, 'net' => 19],
                 'tax' => ['name' => 'test', 'taxRate' => 10],
-                'manufacturer' => ['name' => 'test'],
+                'manufacturer' => ['name' => 'manufacturer1'],
                 'categories' => [
                     ['id' => $category4],
                 ],

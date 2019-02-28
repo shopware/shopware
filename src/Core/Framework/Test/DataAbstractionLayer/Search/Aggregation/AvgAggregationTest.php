@@ -55,4 +55,60 @@ class AvgAggregationTest extends TestCase
         static::assertEquals(50, $priceAgg->getResultByKey(['product.categories.name' => 'cat3'])['avg']);
         static::assertEquals(15, $priceAgg->getResultByKey(['product.categories.name' => 'cat4'])['avg']);
     }
+
+    public function testAvgAggregationWithMultipleGroupBy(): void
+    {
+        $context = Context::createDefaultContext();
+        $this->setupGroupByFixtures($context);
+
+        $criteria = new Criteria();
+        $criteria->addAggregation(new AvgAggregation('product.price.gross', 'price_agg', 'product.categories.name', 'product.manufacturer.name'));
+
+        $productRepository = $this->getContainer()->get('product.repository');
+        $result = $productRepository->aggregate($criteria, $context);
+
+        /** @var AggregationResult $priceAgg */
+        $priceAgg = $result->getAggregations()->get('price_agg');
+        static::assertCount(10, $priceAgg->getResult());
+        static::assertEquals(10, $priceAgg->getResultByKey([
+            'product.categories.name' => 'cat1',
+            'product.manufacturer.name' => 'manufacturer1',
+        ])['avg']);
+        static::assertEquals(15, $priceAgg->getResultByKey([
+            'product.categories.name' => 'cat1',
+            'product.manufacturer.name' => 'manufacturer2',
+        ])['avg']);
+        static::assertEquals(50, $priceAgg->getResultByKey([
+            'product.categories.name' => 'cat2',
+            'product.manufacturer.name' => 'manufacturer1',
+        ])['avg']);
+        static::assertEquals(20, $priceAgg->getResultByKey([
+            'product.categories.name' => 'cat2',
+            'product.manufacturer.name' => 'manufacturer2',
+        ])['avg']);
+        static::assertEquals(90, $priceAgg->getResultByKey([
+            'product.categories.name' => 'cat2',
+            'product.manufacturer.name' => 'manufacturer3',
+        ])['avg']);
+        static::assertEquals(10, $priceAgg->getResultByKey([
+            'product.categories.name' => 'cat3',
+            'product.manufacturer.name' => 'manufacturer1',
+        ])['avg']);
+        static::assertEquals(50, $priceAgg->getResultByKey([
+            'product.categories.name' => 'cat3',
+            'product.manufacturer.name' => 'manufacturer2',
+        ])['avg']);
+        static::assertEquals(90, $priceAgg->getResultByKey([
+            'product.categories.name' => 'cat3',
+            'product.manufacturer.name' => 'manufacturer3',
+        ])['avg']);
+        static::assertEquals(20, $priceAgg->getResultByKey([
+            'product.categories.name' => 'cat4',
+            'product.manufacturer.name' => 'manufacturer1',
+        ])['avg']);
+        static::assertEquals(10, $priceAgg->getResultByKey([
+            'product.categories.name' => 'cat4',
+            'product.manufacturer.name' => 'manufacturer2',
+        ])['avg']);
+    }
 }

@@ -133,7 +133,7 @@ class EntityAggregator implements EntityAggregatorInterface
             );
 
             $query->addSelect(sprintf('%s as `%s`', $accessor, $groupByField));
-            $query->groupBy($accessor);
+            $query->addGroupBy($accessor);
         }
 
         return $query;

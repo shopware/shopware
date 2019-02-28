@@ -82,11 +82,20 @@ export default function createConditionService() {
         ]
     };
 
-    const moduleTypes = [
-        'dispatch',
-        'payment',
-        'price'
-    ];
+    const moduleTypes = {
+        dispatch: {
+            id: 'dispatch',
+            name: 'sw-settings-rule.detail.types.dispatch'
+        },
+        payment: {
+            id: 'payment',
+            name: 'sw-settings-rule.detail.types.payment'
+        },
+        price: {
+            id: 'price',
+            name: 'sw-settings-rule.detail.types.price'
+        }
+    };
 
     return {
         getByType,
@@ -94,7 +103,7 @@ export default function createConditionService() {
         getConditions,
         operatorSets,
         operators,
-        moduleTypes,
+        getModuleTypes,
         getOperatorSet,
         getPlaceholder
     };
@@ -111,44 +120,27 @@ export default function createConditionService() {
     function getOperatorSet(operatorSetName, translateCallback) {
         const operatorSet = this.operatorSets[operatorSetName];
 
-        if (translateCallback) {
-            operatorSet.forEach(operator => translateCallback(operator));
-        }
-
-        return operatorSet;
+        return translateData(operatorSet, translateCallback);
     }
 
-    function getConditions(translateCallback, modules) {
-        // return defaults only if no modules are set
-        if (modules.length === 0) {
-            const conditions = Object.values($store).filter((condition) => {
-                return !condition.modules;
-            });
-            return translateConditions(conditions, translateCallback);
-        }
+    function getModuleTypes(translateCallback) {
+        const values = Object.values(moduleTypes);
 
-        const conditions = Object.values($store).filter((condition) => {
-            // always include object that have no modules property set
-            if (!condition.modules) {
-                return true;
-            }
-
-            // include objects that fit the modules parameter
-            return condition.modules.some((storeModule) => {
-                return modules.includes(storeModule);
-            });
-        });
-
-        return translateConditions(conditions, translateCallback);
+        return translateData(values, translateCallback);
     }
 
-    function translateConditions(conditions, translateCallback) {
+    function getConditions(translateCallback) {
+        const values = Object.values($store);
+
+        return translateData(values, translateCallback);
+    }
+
+    function translateData(values, translateCallback) {
         if (translateCallback) {
-            conditions.forEach((condition) => {
-                translateCallback(condition);
-            });
+            values.forEach(value => translateCallback(value));
         }
-        return conditions;
+
+        return values;
     }
 
     function getPlaceholder() {

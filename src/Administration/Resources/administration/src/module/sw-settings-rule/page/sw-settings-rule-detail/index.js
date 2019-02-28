@@ -18,8 +18,18 @@ Component.register('sw-settings-rule-detail', {
         return {
             rule: {},
             nestedConditions: {},
+            moduleTypeStore: new LocalStore(this.ruleConditionDataProviderService.getModuleTypes((moduleType) => {
+                moduleType.name = this.$tc(moduleType.name);
+            }), 'id'),
             treeConfig: {
-                conditionStore: {},
+                conditionStore: new LocalStore(this.ruleConditionDataProviderService.getConditions((condition) => {
+                    condition.meta = {
+                        viewData: {
+                            label: this.$tc(condition.label),
+                            type: this.$tc(condition.label)
+                        }
+                    };
+                }), 'type'),
                 entityName: 'rule',
                 conditionIdentifier: 'conditions',
                 childName: 'children',
@@ -50,48 +60,15 @@ Component.register('sw-settings-rule-detail', {
     computed: {
         ruleStore() {
             return State.getStore('rule');
-        },
-        moduleTypeStore() {
-            const moduleTypes = this.ruleConditionDataProviderService.moduleTypes;
-            const modules = [];
-            moduleTypes.forEach((type) => {
-                const moduleName = this.$tc(`sw-settings-rule.detail.types.${type}`);
-                modules.push({
-                    id: type,
-                    name: moduleName
-                });
-            });
-
-            return new LocalStore(modules, 'id');
-        }
-    },
-
-    watch: {
-        'rule.moduleTypes': {
-            immediate: true,
-            deep: true,
-            handler() {
-                if (!this.rule.moduleTypes || (this.rule.moduleTypes && !this.rule.moduleTypes.types)) {
-                    this.rule.moduleTypes = { types: [] };
-                }
-
-                this.treeConfig.conditionStore = new LocalStore(
-                    this.ruleConditionDataProviderService.getConditions((condition) => {
-                        condition.meta = {
-                            viewData: {
-                                label: this.$tc(condition.label),
-                                type: this.$tc(condition.label)
-                            }
-                        };
-                    }, this.rule.moduleTypes.types),
-                    'type'
-                );
-            }
         }
     },
 
     created() {
         this.createdComponent();
+    },
+
+    mounted() {
+        this.mountedComponent();
     },
 
     methods: {
@@ -101,6 +78,12 @@ Component.register('sw-settings-rule-detail', {
             }
 
             this.rule = this.ruleStore.getById(this.$route.params.id);
+        },
+
+        mountedComponent() {
+            if (!this.rule.moduleTypes || (this.rule.moduleTypes && !this.rule.moduleTypes.types)) {
+                this.rule.moduleTypes = { types: [] };
+            }
         },
 
         onSave() {

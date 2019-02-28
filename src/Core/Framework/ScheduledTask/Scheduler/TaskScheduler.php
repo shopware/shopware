@@ -4,8 +4,8 @@ namespace Shopware\Core\Framework\ScheduledTask\Scheduler;
 
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\AggregationResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\MinAggregation;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\MinAggregationResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
@@ -59,25 +59,25 @@ class TaskScheduler
     public function getNextExecutionTime(): ?\DateTime
     {
         $criteria = $this->buildCriteriaForNextScheduledTask();
-        /** @var MinAggregationResult $aggregation */
+        /** @var AggregationResult $aggregation */
         $aggregation = $this->scheduledTaskRepository
             ->aggregate($criteria, Context::createDefaultContext())
             ->getAggregations()
             ->get('nextExecutionTime');
 
-        return $aggregation->getMin();
+        return $aggregation->getResult()[0]['min'];
     }
 
     public function getMinRunInterval(): ?int
     {
         $criteria = $this->buildCriteriaForMinRunInterval();
-        /** @var MinAggregationResult $aggregation */
+        /** @var AggregationResult $aggregation */
         $aggregation = $this->scheduledTaskRepository
             ->aggregate($criteria, Context::createDefaultContext())
             ->getAggregations()
             ->get('runInterval');
 
-        return $aggregation->getMin();
+        return $aggregation->getResult()[0]['min'];
     }
 
     private function buildCriteriaForAllScheduledTask(): Criteria

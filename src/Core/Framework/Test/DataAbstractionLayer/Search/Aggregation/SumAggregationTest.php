@@ -2,36 +2,17 @@
 
 namespace Shopware\Core\Framework\Test\DataAbstractionLayer\Search\Aggregation;
 
-use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\AggregationResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\SumAggregation;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\SumAggregationResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Test\TestCaseBase\AggregationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
 class SumAggregationTest extends TestCase
 {
-    use IntegrationTestBehaviour;
-
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $taxRepository;
-
-    /**
-     * @var Connection
-     */
-    private $connection;
-
-    protected function setUp(): void
-    {
-        $this->connection = $this->getContainer()->get(Connection::class);
-        $this->taxRepository = $this->getContainer()->get('tax.repository');
-
-        $this->connection->executeUpdate('DELETE FROM tax');
-    }
+    use IntegrationTestBehaviour, AggregationTestBehaviour;
 
     public function testSumAggregation(): void
     {
@@ -41,27 +22,37 @@ class SumAggregationTest extends TestCase
         $criteria = new Criteria();
         $criteria->addAggregation(new SumAggregation('taxRate', 'rate_agg'));
 
-        $result = $this->taxRepository->aggregate($criteria, $context);
+        $taxRepository = $this->getContainer()->get('tax.repository');
+        $result = $taxRepository->aggregate($criteria, $context);
 
-        /** @var SumAggregationResult $rateAgg */
+        /** @var AggregationResult $rateAgg */
         $rateAgg = $result->getAggregations()->get('rate_agg');
         static::assertNotNull($rateAgg);
-        static::assertEquals(295, $rateAgg->getSum());
-        static::assertEquals(['sum' => 295], $rateAgg->getResult());
+        static::assertEquals([
+            [
+                'key' => null,
+                'sum' => 260,
+            ],
+        ], $rateAgg->getResult());
     }
 
-    private function setupFixtures(Context $context): void
+    public function testSumAggregationWithGroupBy(): void
     {
-        $payload = [
-            ['name' => 'Tax rate #1', 'taxRate' => 10],
-            ['name' => 'Tax rate #2', 'taxRate' => 20],
-            ['name' => 'Tax rate #3', 'taxRate' => 30],
-            ['name' => 'Tax rate #4', 'taxRate' => 40],
-            ['name' => 'Tax rate #5', 'taxRate' => 50],
-            ['name' => 'Tax rate #6', 'taxRate' => 55],
-            ['name' => 'Tax rate #7', 'taxRate' => 90],
-        ];
+        $context = Context::createDefaultContext();
+        $this->setupGroupByFixtures($context);
 
-        $this->taxRepository->create($payload, $context);
+        $criteria = new Criteria();
+        $criteria->addAggregation(new SumAggregation('product.price.gross', 'sum_agg', 'product.categories.name'));
+
+        $productRepository = $this->getContainer()->get('product.repository');
+        $result = $productRepository->aggregate($criteria, $context);
+
+        /** @var AggregationResult $sumAgg */
+        $sumAgg = $result->getAggregations()->get('sum_agg');
+        static::assertCount(4, $sumAgg->getResult());
+        static::assertEquals(40, $sumAgg->getResultByKey(['product.categories.name' => 'cat1'])['sum']);
+        static::assertEquals(160, $sumAgg->getResultByKey(['product.categories.name' => 'cat2'])['sum']);
+        static::assertEquals(150, $sumAgg->getResultByKey(['product.categories.name' => 'cat3'])['sum']);
+        static::assertEquals(30, $sumAgg->getResultByKey(['product.categories.name' => 'cat4'])['sum']);
     }
 }

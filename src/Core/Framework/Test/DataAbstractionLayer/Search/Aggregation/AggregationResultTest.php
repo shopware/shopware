@@ -3,9 +3,9 @@
 namespace Shopware\Core\Framework\Test\DataAbstractionLayer\Search\Aggregation;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\AggregationResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\AggregationResultCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\CountAggregation;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\CountAggregationResult;
 
 class AggregationResultTest extends TestCase
 {
@@ -19,7 +19,7 @@ class AggregationResultTest extends TestCase
     public function testCollectionGetExistingAggregationResult(): void
     {
         $aggregation = new CountAggregation('field', 'foo');
-        $aggregationResult = new CountAggregationResult($aggregation, 1);
+        $aggregationResult = new AggregationResult($aggregation, []);
 
         $collection = new AggregationResultCollection();
         $collection->add($aggregationResult);
@@ -31,7 +31,7 @@ class AggregationResultTest extends TestCase
     public function testCollectionGetExistingAggregationResultWithNonEmptyCollection(): void
     {
         $aggregation = new CountAggregation('field', 'foo');
-        $aggregationResult = new CountAggregationResult($aggregation, 1);
+        $aggregationResult = new AggregationResult($aggregation, []);
 
         $collection = new AggregationResultCollection();
         $collection->add($aggregationResult);
@@ -44,7 +44,7 @@ class AggregationResultTest extends TestCase
     public function testResultReturnsAggregationData(): void
     {
         $aggregation = new CountAggregation('field', 'foo');
-        $aggregationResult = new CountAggregationResult($aggregation, 1);
+        $aggregationResult = new AggregationResult($aggregation, []);
 
         static::assertSame($aggregation, $aggregationResult->getAggregation());
         static::assertSame($aggregation->getName(), $aggregationResult->getName());

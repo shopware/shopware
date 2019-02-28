@@ -165,7 +165,7 @@ class SnippetService implements SnippetServiceInterface
 
         $criteria = new Criteria();
         $criteria->addAggregation(new ValueAggregation('author', 'distinct_author'));
-        $result = $this->snippetRepository->aggregate($criteria, $context)->getAggregations()->get('distinct_author')->getResult();
+        $result = $this->snippetRepository->aggregate($criteria, $context)->getAggregations()->get('distinct_author')->getResultByKey(null)['values'];
 
         foreach ($files as $file) {
             if (in_array($file['author'], $authors, true)) {

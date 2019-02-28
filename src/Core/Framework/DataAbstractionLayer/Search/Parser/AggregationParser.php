@@ -48,38 +48,45 @@ class AggregationParser
                 continue;
             }
 
+            $groupByFields = $aggregation['groupByFields'] ?? [];
+
+            if (!\is_array($groupByFields)) {
+                $searchRequestException->add(new InvalidAggregationQueryException('The "groupByFields" should contain an array of fields.'), '/aggregations/' . $index);
+                continue;
+            }
+
             $field = static::buildFieldName($definition, $aggregation['field']);
             switch ($type) {
                 case 'avg':
-                    $criteria->addAggregation(new AvgAggregation($field, $name));
+                    $criteria->addAggregation(new AvgAggregation($field, $name, ...array_values($groupByFields)));
                     break;
 
                 case 'value':
-                    $criteria->addAggregation(new ValueAggregation($field, $name));
+                    $criteria->addAggregation(new ValueAggregation($field, $name, ...array_values($groupByFields)));
                     break;
 
                 case 'count':
-                    $criteria->addAggregation(new CountAggregation($field, $name));
+                    $criteria->addAggregation(new CountAggregation($field, $name, ...array_values($groupByFields)));
                     break;
 
                 case 'max':
-                    $criteria->addAggregation(new MaxAggregation($field, $name));
+                    $criteria->addAggregation(new MaxAggregation($field, $name, ...array_values($groupByFields)));
                     break;
 
                 case 'min':
-                    $criteria->addAggregation(new MinAggregation($field, $name));
+                    $criteria->addAggregation(new MinAggregation($field, $name, ...array_values($groupByFields)));
                     break;
 
                 case 'stats':
-                    $criteria->addAggregation(new StatsAggregation($field, $name));
+                    $criteria->addAggregation(new StatsAggregation($field, $name, ...array_values($groupByFields)));
                     break;
 
                 case 'sum':
-                    $criteria->addAggregation(new SumAggregation($field, $name));
+                    $criteria->addAggregation(new SumAggregation($field, $name, ...array_values($groupByFields)));
                     break;
 
                 case 'value_count':
-                    $criteria->addAggregation(new ValueCountAggregation($field, $name));
+                    $criteria->addAggregation(new ValueCountAggregation($field, $name, ...array_values($groupByFields)));
                     break;
 
                 default:

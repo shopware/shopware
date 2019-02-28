@@ -2,36 +2,17 @@
 
 namespace Shopware\Core\Framework\Test\DataAbstractionLayer\Search\Aggregation;
 
-use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\AggregationResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\MaxAggregation;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\MaxAggregationResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Test\TestCaseBase\AggregationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
 class MaxAggregationTest extends TestCase
 {
-    use IntegrationTestBehaviour;
-
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $taxRepository;
-
-    /**
-     * @var Connection
-     */
-    private $connection;
-
-    protected function setUp(): void
-    {
-        $this->connection = $this->getContainer()->get(Connection::class);
-        $this->taxRepository = $this->getContainer()->get('tax.repository');
-
-        $this->connection->executeUpdate('DELETE FROM tax');
-    }
+    use IntegrationTestBehaviour, AggregationTestBehaviour;
 
     public function testMaxAggregation(): void
     {
@@ -41,13 +22,18 @@ class MaxAggregationTest extends TestCase
         $criteria = new Criteria();
         $criteria->addAggregation(new MaxAggregation('taxRate', 'rate_agg'));
 
-        $result = $this->taxRepository->aggregate($criteria, $context);
+        $taxRepository = $this->getContainer()->get('tax.repository');
+        $result = $taxRepository->aggregate($criteria, $context);
 
-        /** @var MaxAggregationResult $rateAgg */
+        /** @var AggregationResult $rateAgg */
         $rateAgg = $result->getAggregations()->get('rate_agg');
         static::assertNotNull($rateAgg);
-        static::assertEquals(90, $rateAgg->getMax());
-        static::assertEquals(['max' => 90], $rateAgg->getResult());
+        static::assertEquals([
+            [
+                'key' => null,
+                'max' => 90,
+            ],
+        ], $rateAgg->getResult());
     }
 
     public function testMaxAggregationWorksOnDateFields(): void
@@ -58,26 +44,32 @@ class MaxAggregationTest extends TestCase
         $criteria = new Criteria();
         $criteria->addAggregation(new MaxAggregation('createdAt', 'created_agg'));
 
-        $result = $this->taxRepository->aggregate($criteria, $context);
+        $taxRepository = $this->getContainer()->get('tax.repository');
+        $result = $taxRepository->aggregate($criteria, $context);
 
-        /** @var MaxAggregationResult $createdAgg */
+        /** @var AggregationResult $createdAgg */
         $createdAgg = $result->getAggregations()->get('created_agg');
         static::assertNotNull($createdAgg);
-        static::assertInstanceOf(\DateTime::class, $createdAgg->getMax());
+        static::assertInstanceOf(\DateTime::class, $createdAgg->getResult()[0]['max']);
     }
 
-    private function setupFixtures(Context $context): void
+    public function testMaxAggregationWithGroupBy(): void
     {
-        $payload = [
-            ['name' => 'Tax rate #1', 'taxRate' => 10],
-            ['name' => 'Tax rate #2', 'taxRate' => 20],
-            ['name' => 'Tax rate #3', 'taxRate' => 30],
-            ['name' => 'Tax rate #4', 'taxRate' => 40],
-            ['name' => 'Tax rate #5', 'taxRate' => 50],
-            ['name' => 'Tax rate #6', 'taxRate' => 55],
-            ['name' => 'Tax rate #7', 'taxRate' => 90],
-        ];
+        $context = Context::createDefaultContext();
+        $this->setupGroupByFixtures($context);
 
-        $this->taxRepository->create($payload, $context);
+        $criteria = new Criteria();
+        $criteria->addAggregation(new MaxAggregation('product.price.gross', 'max_agg', 'product.categories.name'));
+
+        $productRepository = $this->getContainer()->get('product.repository');
+        $result = $productRepository->aggregate($criteria, $context);
+
+        /** @var AggregationResult $maxAgg */
+        $maxAgg = $result->getAggregations()->get('max_agg');
+        static::assertCount(4, $maxAgg->getResult());
+        static::assertEquals(20, $maxAgg->getResultByKey(['product.categories.name' => 'cat1'])['max']);
+        static::assertEquals(90, $maxAgg->getResultByKey(['product.categories.name' => 'cat2'])['max']);
+        static::assertEquals(90, $maxAgg->getResultByKey(['product.categories.name' => 'cat3'])['max']);
+        static::assertEquals(20, $maxAgg->getResultByKey(['product.categories.name' => 'cat4'])['max']);
     }
 }

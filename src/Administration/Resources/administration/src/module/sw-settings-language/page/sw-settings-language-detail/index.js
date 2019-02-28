@@ -47,9 +47,11 @@ Component.register('sw-settings-language-detail', {
             this.languageStore.getList({
                 page: 1,
                 limit: 1,
-                aggregations: { usedLocales: { value_count: { field: 'language.locale.code' } } }
+                aggregations: {
+                    usedLocales: { name: 'usedLocales', type: 'value_count', field: 'language.locale.code' }
+                }
             }).then((response) => {
-                this.usedLocales = response.aggregations.usedLocales;
+                this.usedLocales = response.aggregations.usedLocales[0].values;
             });
         },
 

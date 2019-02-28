@@ -17,6 +17,8 @@ class ConsumeMessagesControllerTest extends TestCase
         $client->request('POST', $url, ['receiver' => 'default']);
 
         static::assertSame(200, $client->getResponse()->getStatusCode());
-        static::assertSame(json_encode(['handledMessages' => 0]), $client->getResponse()->getContent());
+        $response = json_decode($client->getResponse()->getContent(), true);
+        static::assertArrayHasKey('handledMessages', $response);
+        static::assertIsInt($response['handledMessages']);
     }
 }

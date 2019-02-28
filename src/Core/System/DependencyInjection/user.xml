@@ -17,6 +17,16 @@
         <service id="Shopware\Core\System\User\Aggregate\UserAccessKey\UserAccessKeyDefinition">
             <tag name="shopware.entity.definition" entity="user_access_key"/>
         </service>
+
+        <service id="Shopware\Core\System\User\Aggregate\UserRecovery\UserRecoveryDefinition">
+            <tag name="shopware.entity.definition" entity="user_recovery"/>
+        </service>
+
+        <service id="Shopware\Core\System\UserRecovery\UserRecoveryService">
+            <argument type="service" id="user_recovery.repository"/>
+            <argument type="service" id="user.repository"/>
+            <argument type="service" id="router"/>
+        </service>
     </services>
 </container>                
                 

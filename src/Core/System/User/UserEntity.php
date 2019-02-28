@@ -10,6 +10,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\System\Locale\LocaleEntity;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineHistory\StateMachineHistoryCollection;
 use Shopware\Core\System\User\Aggregate\UserAccessKey\UserAccessKeyCollection;
+use Shopware\Core\System\User\Aggregate\UserRecovery\UserRecoveryEntity;
 
 class UserEntity extends Entity
 {
@@ -99,6 +100,11 @@ class UserEntity extends Entity
      * @var StateMachineHistoryCollection|null
      */
     protected $stateMachineHistoryEntries;
+
+    /**
+     * @var UserRecoveryEntity|null
+     */
+    protected $recoveryUser;
 
     /**
      * @var array|null
@@ -283,5 +289,15 @@ class UserEntity extends Entity
     public function setAttributes(?array $attributes): void
     {
         $this->attributes = $attributes;
+    }
+
+    public function getRecoveryUser(): ?UserRecoveryEntity
+    {
+        return $this->recoveryUser;
+    }
+
+    public function setRecoveryUser(UserRecoveryEntity $recoveryUser): void
+    {
+        $this->recoveryUser = $recoveryUser;
     }
 }

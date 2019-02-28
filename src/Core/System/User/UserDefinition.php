@@ -24,6 +24,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\SearchRanking;
 use Shopware\Core\System\Locale\LocaleDefinition;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineHistory\StateMachineHistoryDefinition;
 use Shopware\Core\System\User\Aggregate\UserAccessKey\UserAccessKeyDefinition;
+use Shopware\Core\System\User\Aggregate\UserRecovery\UserRecoveryDefinition;
 
 class UserDefinition extends EntityDefinition
 {
@@ -64,6 +65,7 @@ class UserDefinition extends EntityDefinition
             new OneToManyAssociationField('media', MediaDefinition::class, 'user_id', false, 'id'),
             new OneToManyAssociationField('accessKeys', UserAccessKeyDefinition::class, 'user_id', false, 'id'),
             new OneToManyAssociationField('stateMachineHistoryEntries', StateMachineHistoryDefinition::class, 'user_id', false, 'id'),
+            new OneToOneAssociationField('recoveryUser', 'id', 'user_id', UserRecoveryDefinition::class, false),
         ]);
     }
 }

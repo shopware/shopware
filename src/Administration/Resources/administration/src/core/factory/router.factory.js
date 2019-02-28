@@ -71,6 +71,9 @@ export default function createRouter(Router, View, moduleFactory, LoginService) 
             const loggedIn = LoginService.isLoggedIn();
             const tokenHandler = new RefreshTokenHelper();
             const newTabBlacklist = ['/', '/login'];
+            const loginWhitelist = [
+                '/login', '/login/info', '/login/recovery'
+            ];
 
             if (to.meta && to.meta.forceRoute === true) {
                 return next();
@@ -84,12 +87,20 @@ export default function createRouter(Router, View, moduleFactory, LoginService) 
             }
 
             // The login route will be called and the user is not logged in, let him see the login.
-            if ((to.name === 'login' || to.path === '/login') && !loggedIn) {
+            if ((to.name === 'login' ||
+                loginWhitelist.includes(to.path) ||
+                to.path.startsWith('/login/user-recovery/'))
+                && !loggedIn
+            ) {
                 return next();
             }
 
             // The login route will be called and the user is logged in, redirect to the dashboard.
-            if ((to.name === 'login' || to.path === '/login') && loggedIn) {
+            if ((to.name === 'login' ||
+                loginWhitelist.includes(to.path) ||
+                to.path.startsWith('/login/user-recovery/'))
+                && loggedIn
+            ) {
                 return next({ name: 'core' });
             }
 

@@ -420,8 +420,36 @@
       "messageInvalidRefreshToken": "Der angegebene Refresh-Token ist invalide.",
       "messageAccessDenied": "Der Zugriff wurde verweigert.",
       "messageInvalidGrant": "Der Grant-Type oder der Refresh-Token sind invalide.",
-      "messageGeneralRequestError": "Der Request an \"{url}\" ist fehlgeschlagen."
-    }
+      "messageGeneralRequestError": "Der Request an \"{url}\" ist fehlgeschlagen.",
+      "forgottenPasswordLink": "Passwort vergessen?"
+    },
+      "recovery" : {
+        "info": {
+          "headline": "Zurück zum Login",
+          "info": "Wenn Du eine gültige E-Mail-Adresse angegeben hast, erhältst Du Deine E-Mail zur Passwort-Wiederherstellung innerhalb weniger Minuten.",
+          "warning": "Bitte beachte, dass der Wiederherstellungs-Link nur für die nächsten 2 Stunden gültig ist."
+        },
+        "recovery": {
+          "headline": "Passwort-Wiederherstellung",
+          "newPasswordField": {
+            "label": "Gib Dein neues Passwort ein"
+          },
+          "passwordConfirmField": {
+            "label": "Wiederhole Dein neues Passwort"
+          },
+          "submit": {
+            "label": "Passwort aktualisieren"
+          },
+          "errorMessage": "Dein Wiederherstellungs-Link ist ungültig oder abgelaufen!"
+        },
+          "headline": "Passwort-Wiederherstellung",
+          "text": "Gib die E-Mail-Adresse ein, die mit Deinem Konto verknüpft ist.",
+          "email": {
+              "label": "E-Mail-Adresse:",
+              "placeholder": "du@beispiel.de"
+          },
+          "submit": "Wiederherstellungsmail senden"
+      }
   },
   "sw-dashboard": {
     "general": {
@@ -1481,7 +1509,7 @@
       "titleInfoCard": "Profilinformationen",
       "titleImageCard": "Profilbild",
       "titlePasswordCard": "Passwort",
-      "labelNameField": "Name",
+      "labelNameField": "Anzeige Name",
       "labelUsernameField": "Benutzername",
       "labelEmailField": "E-Mail",
       "labelOldPassword": "Altes Passwort",

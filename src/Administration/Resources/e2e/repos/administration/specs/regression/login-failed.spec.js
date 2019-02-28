@@ -12,7 +12,7 @@ module.exports = {
         browser.clearValue('input[name=sw-field--authStore-username]');
     },
     'view login screen': (browser) => {
-        browser.expect.element('.sw-login__form-headline').to.have.text.that.contains('Log in to your Shopware store');
+        browser.expect.element('.sw-login__content-headline').to.have.text.that.contains('Log in to your Shopware store');
         browser.assert.urlContains('#/login');
     },
     'attempt to open the Administration without logging in': (browser) => {

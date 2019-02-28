@@ -25,5 +25,9 @@
         <service id="Shopware\Administration\Controller\SystemConfigController" public="true">
             <argument type="service" id="Shopware\Core\System\SystemConfig\Service\ConfigurationService"/>
         </service>
+
+        <service id="Shopware\Administration\Controller\UserRecoveryController" public="true">
+            <argument type="service" id="Shopware\Core\System\UserRecovery\UserRecoveryService"/>
+        </service>
     </services>
 </container>

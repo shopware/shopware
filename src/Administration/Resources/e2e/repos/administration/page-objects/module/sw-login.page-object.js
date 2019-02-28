@@ -5,8 +5,9 @@ class LoginPageObject extends GeneralPageObject {
         super(browser);
 
         this.elements = {
-            ...this.elements, ...{
-                loginForm: '.sw-login__form',
+            ...this.elements,
+            ...{
+                loginForm: '.sw-login__content',
                 usernameField: 'input[name=sw-field--authStore-username]',
                 passwordField: 'input[name=sw-field--authStore-password]',
                 submitButton: '.sw-login__login-action'

@@ -149,14 +149,14 @@
                     {% block sw_customer_base_metadata_turnover %}
                         <sw-description-list>
                             <dt class="sw-customer-base-info__label">{{ $tc('sw-customer.baseInfo.labelTurnover') }}</dt>
-                            <dd>0</dd>
+                            <dd>{{ orderAmount|currency }}</dd>
                         </sw-description-list>
                     {% endblock %}
 
                     {% block sw_customer_base_metadata_orders %}
                         <sw-description-list>
                             <dt class="sw-customer-base-info__label">{{ $tc('sw-customer.baseInfo.labelOrders') }}</dt>
-                            <dd>{{ customer.orderCustomers.length }}</dd>
+                            <dd>{{ orderCount }}</dd>
                         </sw-description-list>
                     {% endblock %}
                 </div>

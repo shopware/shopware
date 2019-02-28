@@ -15,7 +15,7 @@ export default {
 
     props: {
         value: {
-            type: String,
+            type: [String, Number],
             required: false,
             default: ''
         },
@@ -30,6 +30,12 @@ export default {
             type: Boolean,
             required: false,
             default: false
+        },
+
+        item: {
+            type: Object,
+            required: false,
+            default: null
         }
     },
 
@@ -59,10 +65,12 @@ export default {
     methods: {
         removeActionButtons() {
             this.isEditing = false;
+            this.$emit('isEditing', false);
         },
 
         onStartEditing() {
             this.isEditing = true;
+            this.$emit('isEditing', true);
         },
 
         onBlurField({ relatedTarget }) {
@@ -86,12 +94,12 @@ export default {
         onCancelSubmit() {
             this.$emit('cancelSubmit');
             this.cancelSubmit();
-            this.isEditing = false;
+            this.removeActionButtons();
         },
 
         submitValue() {
             if (this.draft !== this.value) {
-                this.$emit('input', this.draft, this.event);
+                this.$emit('input', this.draft, this.event, this.item);
             }
         },
 
@@ -99,13 +107,13 @@ export default {
             this.event = 'key';
             this.submitValue();
             target.blur();
-            this.isEditing = false;
+            this.removeActionButtons();
         },
 
         onSubmitValue() {
             this.event = 'click';
             this.submitValue();
-            this.isEditing = false;
+            this.removeActionButtons();
         }
     }
 };

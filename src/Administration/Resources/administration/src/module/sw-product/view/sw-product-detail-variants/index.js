@@ -9,7 +9,8 @@ Component.register('sw-product-detail-variants', {
 
     data() {
         return {
-            languageId: null
+            languageId: null,
+            variantListHasContent: false
         };
     },
 
@@ -18,11 +19,6 @@ Component.register('sw-product-detail-variants', {
             type: Object,
             required: true,
             default: {}
-        },
-        isLoading: {
-            type: Boolean,
-            required: false,
-            default: false
         }
     },
 
@@ -34,7 +30,10 @@ Component.register('sw-product-detail-variants', {
 
     methods: {
         updateVariations() {
-            this.$refs.generatedVariants.updateVariants();
+            this.$refs.generatedVariants.getList();
+        },
+        updateVariantListHasContent(variantList) {
+            this.variantListHasContent = variantList.length > 0;
         }
     }
 });

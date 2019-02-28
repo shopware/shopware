@@ -124,6 +124,7 @@ Component.register('sw-product-detail', {
         },
 
         onSave() {
+            // todo: add functionality for saving the variant changes
             const productName = this.product.name || this.product.meta.viewData.name;
             const titleSaveSuccess = this.$tc('sw-product.detail.titleSaveSuccess');
             const messageSaveSuccess = this.$tc('sw-product.detail.messageSaveSuccess', 0, { name: productName });

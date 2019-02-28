@@ -99,6 +99,8 @@ Component.register('sw-product-list', {
                 this.products = response.items;
                 this.isLoading = false;
 
+                console.log('Produkte aktualisiert:', this.products);
+
                 return this.products;
             });
         },

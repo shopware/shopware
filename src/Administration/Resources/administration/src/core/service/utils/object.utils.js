@@ -1,4 +1,5 @@
 import objectMerge from 'lodash/merge';
+import _findKey from 'lodash/findKey';
 import type from 'src/core/service/utils/types.utils';
 
 /**
@@ -16,6 +17,11 @@ export default {
  * Lodash import for object merges.
  */
 export const merge = objectMerge;
+
+/**
+ * Lodash import for findKey.
+ */
+export const findKey = _findKey;
 
 /**
  * Shorthand method for `Object.prototype.hasOwnProperty`

@@ -1,16 +1,159 @@
 {% block sw_product_variants_generated_variants %}
-    <div class="sw-product-detail-variants__generated-variants">
-        <h1>Works</h1>
-        <ul>
-            <li v-for="variationElements in variantList">
-                <ul>
-                    <li v-for="variationElement in variationElements.meta.viewData.variations.elements">{{ variationElement.name }}</li>
-                </ul>
-                <ul>
-                    <li>--</li>
-                </ul>
-            </li>
-            {#<li v-for="variant in variantList">{{ variant.meta.viewData.variations.elements name }}</li>#}
-        </ul>
+    <div class="sw-product-variants-generated-variants">
+
+        <div class="sw-configuration-option-list__toolbar">
+            <sw-container columns="1fr 32px minmax(100px, 150px)" gap="0 10px">
+
+                    <sw-simple-search-field
+                            @searchTermChanged="onSearch"
+                            v-model="term"
+                    ></sw-simple-search-field>
+
+                    <sw-button size="small" square>
+                        <sw-icon name="default-basic-stack-line"></sw-icon>
+                    </sw-button>
+
+                    <sw-button>
+                        Liste filtern
+                        <sw-icon name="default-action-filter"></sw-icon>
+                    </sw-button>
+
+            </sw-container>
+        </div>
+
+        <sw-grid
+                class="sw-product-variants-generated-variants__grid"
+                :items="variantList"
+                :isFullpage="false"
+                table
+                selectable
+        >
+
+            <template slot="columns" slot-scope="{ item }">
+
+                <sw-grid-column dataIndex="variants" truncate flex="minmax(550px, 1fr)" label="Variante">
+                    <template v-if="item.meta.viewData.variations">
+                        <span v-for="singleVariation in item.meta.viewData.variations.elements">
+                            {{ singleVariation.name }} |
+                        </span>
+                    </template>
+
+                </sw-grid-column>
+
+                <sw-grid-column dataIndex="price" truncate flex="minmax(150px, 1fr)" label="Preis" :class="fieldPriceClasses" class="sw-product-variants-generated-variants__grid--priceField">
+                    <sw-confirm-field
+                            compact
+                            placeholder="Preis Brutto"
+                            :value="item.price.gross"
+                            :item="item"
+                            @isEditing="isPriceEditing"
+                            @input="onSubmitPriceGross"
+                    >
+                    </sw-confirm-field>
+                    <sw-confirm-field
+                            compact
+                            placeholder="Preis Netto"
+                            :value="item.price.net"
+                            :item="item"
+                            @isEditing="isPriceEditing"
+                            @input="onSubmitPriceNet"
+                    >
+                    </sw-confirm-field>
+
+
+                    {#<sw-price-field#}
+                            {#:price="item.price"#}
+                            {# todo: tax is 'null' #}
+                            {#:taxRate="item.tax"#}
+                            {# todo: currency need to be set #}
+                            {#:currency="{symbol: '€'}"#}
+                            {#validation="required">#}
+                    {#</sw-price-field>#}
+
+                </sw-grid-column>
+
+                <sw-grid-column dataIndex="product-number" truncate flex="minmax(130px, 1fr)" label="Produktnummer">
+                    <sw-field type="text" placeholder="SW123a" size="small"/>
+                </sw-grid-column>
+
+                <sw-grid-column dataIndex="stock" truncate flex="minmax(130px, 1fr)" label="Lagerbestand">
+                    <sw-confirm-field
+                            compact
+                            placeholder="Lagerbestand"
+                            :value="item.stock"
+                            :item="item"
+                            @input="onSubmitStock"
+                    >
+                    </sw-confirm-field>
+                </sw-grid-column>
+
+                <sw-grid-column flex="minmax(60px, 60px)" align="center" label="...">
+
+                    <sw-context-button>
+
+                        <sw-context-menu-item v-if="item.isDeleted" disabled>
+                            Bearbeiten (deaktiviert)
+                        </sw-context-menu-item>
+
+                        <sw-context-menu-item v-else @click="onOptionEdit(item)">
+                            Bearbeiten
+                        </sw-context-menu-item>
+
+                        <sw-context-menu-item v-if="item.isDeleted" variant="success" @click="onOptionResetDelete(item)">
+                            Löschen zurücksetzen
+                        </sw-context-menu-item>
+
+                        <sw-context-menu-item v-else variant="danger" @click="onOptionDelete(item)">
+                            Löschen
+                        </sw-context-menu-item>
+
+                    </sw-context-button>
+
+                </sw-grid-column>
+
+                <sw-modal v-if="showDeleteModal === item.id"
+                          @closeModal="onCloseDeleteModal"
+                          title="Variante"
+                          variant="small">
+
+                    <p class="sw-product-variants-generated-variants__modal--confirm-delete-text">
+                        Möchtest du die Variante löschen?
+                    </p>
+
+                    <template slot="modal-footer">
+                        <sw-button @click="onCloseDeleteModal"
+                                   size="small"
+                                   :disabled="modalLoading">
+                            Abbrechen
+                        </sw-button>
+
+                        <sw-button @click="onConfirmDelete(item)"
+                                   variant="primary"
+                                   size="small"
+                                   :disabled="modalLoading">
+                            Löschen
+                        </sw-button>
+                    </template>
+
+                </sw-modal>
+
+            </template>
+
+            <template slot="pagination">
+
+                    <sw-pagination :page="page"
+                                   :limit="limit"
+                                   :total="total"
+                                   :total-visible="7"
+                                   @page-change="onPageChange"
+                                   :steps="[5, 10, 25, 50, 100, 500]" >
+                    </sw-pagination>
+
+            </template>
+
+        </sw-grid>
+
+        <sw-loader v-show="isLoading"></sw-loader>
+
     </div>
 {% endblock %}

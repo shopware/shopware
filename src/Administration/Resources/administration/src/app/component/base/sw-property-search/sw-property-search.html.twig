@@ -1,6 +1,8 @@
 {% block sw_property_search %}
     <div class="sw-property-search" :class="swPropertySearchClasses">
 
+        {% block sw_property_search_inner_before %}{% endblock %}
+
         {% block sw_property_search_field %}
             <div class="sw-property-search__toolbar">
                 <slot name="toolbar">
@@ -61,9 +63,9 @@
 
                         {% block sw_property_search_tree_option_grid %}
                             <sw-grid class="sw-property-search__tree-selection__option_grid"
-                                        :header="true"
+                                        :header="false"
                                         ref="optionGrid"
-                                        :allSelectable="true"
+                                        :allSelectable="false"
                                         :items="groupOptions"
                                         :isFullpage="false"
                                         table
@@ -124,5 +126,8 @@
                 {% endblock %}
             </div>
         {% endblock %}
+
+        {% block sw_property_search_inner_after %}{% endblock %}
+
     </div>
 {% endblock %}

@@ -114,7 +114,7 @@ class ProductDefinition extends EntityDefinition
 
             //not inherited fields
             new BoolField('active', 'active'),
-            new IntField('stock', 'stock'),
+            (new IntField('stock', 'stock'))->addFlags(new Required()),
             new CreatedAtField(),
             new UpdatedAtField(),
 

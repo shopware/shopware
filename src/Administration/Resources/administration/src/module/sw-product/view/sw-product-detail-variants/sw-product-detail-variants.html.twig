@@ -5,6 +5,7 @@
                 :options="configuratorStore"
                 :overlay="false"
                 :collapsible="false"
+                {#@onButtonClick="generateVariants"#}
                 @variationsGenerated="updateVariations">
         </sw-product-variants-configurator-selection>
     </sw-card>
@@ -12,9 +13,23 @@
     <sw-card class="sw-card__generated-variants" :title="$tc('sw-product.variant.generatedVariantsCardTitle')">
 
         <sw-product-variants-generated-variants
-                :product="product"
-                ref="generatedVariants">
+            v-show="variantListHasContent"
+            :product="product"
+            ref="generatedVariants"
+            @variantListUpdated="updateVariantListHasContent"
+        >
         </sw-product-variants-generated-variants>
+
+        <template v-if="!variantListHasContent">
+
+            <div class="sw-card__generated-variants__emptyState">
+                <img :src="'/administration/static/img/empty-states/media-empty-state.svg' | asset" alt="Bla">
+                <div class="sw-card__generated-variants__emptyState--label">
+                    Für dieses Produkt existieren noch keine Varianten.
+                </div>
+            </div>
+
+        </template>
 
     </sw-card>
 </div>

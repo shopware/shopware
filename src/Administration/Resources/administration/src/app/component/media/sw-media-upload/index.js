@@ -447,6 +447,7 @@ export default {
                     title: this.$root.$tc('global.sw-media-upload.notification.success.title'),
                     message: this.$root.$tc('global.sw-media-upload.notification.success.message')
                 });
+                this.preview = null;
                 this.$emit('sw-media-upload-media-upload-success', media);
             });
         },

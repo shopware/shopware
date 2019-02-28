@@ -226,7 +226,8 @@
                             {% endblock %}
                             {% block sw_product_list_empty_state %}
                                 <sw-empty-state v-if="!isLoading && !total"
-                                                :title="$tc('sw-integration.list.messageEmpty')">
+                                                :title="$tc('sw-integration.list.messageEmpty')"
+                                                :subline="$tc('sw-integration.list.sublineEmpty')">
                                 </sw-empty-state>
                             {% endblock %}
                         {% endblock %}

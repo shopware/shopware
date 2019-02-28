@@ -1640,7 +1640,10 @@
         "equals": "Gleich",
         "equalsAny": "Einer von",
         "contains": "Enthält",
-        "range": "Reichweite"
+        "notEquals": "Ungleich",
+        "notEqualsAny": "Keiner von",
+        "notContains": "Enthält nicht",
+        "range": "Zwischen"
       }
     },
     "detail": {

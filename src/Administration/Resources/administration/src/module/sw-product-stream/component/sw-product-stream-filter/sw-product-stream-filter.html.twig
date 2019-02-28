@@ -14,39 +14,37 @@
     </sw-select>
 
     <sw-select :store="getTypeStore()"
-               v-model="condition.type"
+               v-if="typeCriteria"
+               v-model="type"
                :id="createId()"
                itemValueKey="type"
                displayName="name"
-               :criteria="operatorCriteria"
+               :criteria="typeCriteria"
                :required="true"
                class="field--select has--arrow"
                @input="selectType">
     </sw-select>
 
-    <sw-tagged-field v-if="condition.type == 'equalsAny'"
+    <sw-tagged-field v-if="isEqualsAny(actualCondition.type)"
                      v-model="multiValues"
                      class="field--multi field--main"
                      @input="updateTaggedValue">
     </sw-tagged-field>
-    <sw-field
-            v-if="condition.type == 'range'"
-            type="number"
-            class="field--main has--arrow"
-            v-model="condition.parameters.lte"
-            :placeholder="$tc('global.sw-condition.operator.greaterThanEquals')">
-    </sw-field>
-    <sw-field
-            v-if="condition.type == 'range'"
-            type="number"
-            class="field--main"
-            v-model="condition.parameters.gte"
-            :placeholder="$tc('global.sw-condition.operator.lowerThanEquals')">
-    </sw-field>
-
+    <template v-else-if="actualCondition.type == 'range'">
+        <sw-field type="number"
+                  class="field--main has--arrow"
+                  v-model="condition.parameters.lte"
+                  :placeholder="$tc('global.sw-condition.operator.greaterThanEquals')">
+        </sw-field>
+        <sw-field type="number"
+                  class="field--main"
+                  v-model="condition.parameters.gte"
+                  :placeholder="$tc('global.sw-condition.operator.lowerThanEquals')">
+        </sw-field>
+    </template>
     <sw-field v-else
               type="text"
               class="field--main"
-              v-model="condition.value">
+              v-model="actualCondition.value">
     </sw-field>
 {% endblock %}

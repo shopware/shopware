@@ -106,6 +106,14 @@ class QueryStringParser
                     'field' => $query->getField(),
                     'value' => $query->getValue(),
                 ];
+            case $query instanceof NotFilter:
+                return [
+                    'type' => 'not',
+                    'queries' => array_map(function (Filter $nested) {
+                        return self::toArray($nested);
+                    }, $query->getQueries()),
+                    'operator' => $query->getOperator(),
+                ];
             case $query instanceof MultiFilter:
                 return [
                     'type' => 'multi',
@@ -119,14 +127,6 @@ class QueryStringParser
                     'type' => 'contains',
                     'field' => $query->getField(),
                     'value' => $query->getValue(),
-                ];
-            case $query instanceof NotFilter:
-                return [
-                    'type' => 'not',
-                    'queries' => array_map(function (Filter $nested) {
-                        return self::toArray($nested);
-                    }, $query->getQueries()),
-                    'operator' => $query->getOperator(),
                 ];
             case $query instanceof RangeFilter:
                 return [

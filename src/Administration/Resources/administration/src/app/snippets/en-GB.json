@@ -1644,6 +1644,9 @@
         "equals": "equals",
         "equalsAny": "equals any",
         "contains": "contains",
+        "notEquals": "not equals",
+        "notEqualsAny": "equals none",
+        "notContains": "not contains",
         "range": "range"
       }
     },

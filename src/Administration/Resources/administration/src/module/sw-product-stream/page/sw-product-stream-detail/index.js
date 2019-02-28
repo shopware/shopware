@@ -39,7 +39,8 @@ Component.register('sw-product-stream-detail', {
                     if (condition.type.toLowerCase() === this.andContainer.type) {
                         component = 'sw-condition-and-container';
 
-                        if (condition.operator.toLowerCase() === this.orContainer.operator.toLowerCase()) {
+                        if (condition.operator
+                            && condition.operator.toLowerCase() === this.orContainer.operator.toLowerCase()) {
                             component = 'sw-condition-or-container';
                         }
                     }
@@ -55,7 +56,9 @@ Component.register('sw-product-stream-detail', {
                         && condition.operator.toLowerCase() === this.orContainer.operator.toLowerCase();
                 },
                 isPlaceholder(condition) {
-                    return condition.field === 'product' && !(condition.value || Object.keys(condition.parameters).length);
+                    return (!condition.field || condition.field === 'product')
+                        && (!condition.type || condition.type === 'equals')
+                        && !(condition.value || Object.keys(condition.parameters).length);
                 }
             },
             showModalPreview: false
@@ -138,7 +141,11 @@ Component.register('sw-product-stream-detail', {
                 'global.notification.notificationSaveErrorMessage', 0, { entityName: productStreamName }
             );
 
+            const deletions = this.createDeletionQueue();
+
             return this.productStream.save().then(() => {
+                this.syncDeletions(deletions);
+
                 this.createNotificationSuccess({
                     title: titleSaveSuccess,
                     message: messageSaveSuccess
@@ -161,6 +168,29 @@ Component.register('sw-product-stream-detail', {
                     resolve();
                 });
             });
+        },
+
+        createDeletionQueue() {
+            if (!this.filterAssociations.store) {
+                return [];
+            }
+
+            const deletions = Object.values(this.filterAssociations.store).filter(entity => {
+                return entity.isDeleted && entity.type === 'not';
+            });
+
+            deletions.forEach(deletion => this.filterAssociations.remove(deletion));
+
+            return deletions;
+        },
+
+        syncDeletions(deletions) {
+            if (!deletions.length) {
+                return;
+            }
+
+            deletions.forEach(deletion => this.productStreamFilterStore.add(deletion));
+            this.productStreamFilterStore.sync(true);
         }
     }
 });

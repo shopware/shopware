@@ -1,0 +1,43 @@
+{% block sw_login_login %}
+    <form class="sw-login-login" @submit.prevent="loginUserWithPassword">
+        {% block sw_login_login_form_headline %}
+            <h2 class="sw-login__content-headline">{{ $tc('sw-login.index.headlineForm') }}</h2>
+        {% endblock %}
+
+        {% block sw_login_login_user_field %}
+            <sw-text-field
+                    :class="{ 'has--error' : loginError }"
+                    v-model="authStore.username"
+                    :label="$tc('sw-login.index.labelUsername')"
+                    :placeholder="$tc('sw-login.index.placeholderUsername')"
+                    ref="swLoginUsernameField">
+            </sw-text-field>
+        {% endblock %}
+
+        {% block sw_login_login_password_field %}
+            <sw-password-field
+                    :class="{ 'has--error' : loginError }"
+                    v-model="authStore.password"
+                    :label="$tc('sw-login.index.labelPassword')"
+                    :placeholder="$tc('sw-login.index.placeholderPassword')"
+                    ref="swLoginPasswordField">
+            </sw-password-field>
+        {% endblock %}
+
+        {% block sw_login_login_submit %}
+            <div class="sw-login__submit">
+                {% block sw_login_login_forgot_password %}
+                    <router-link :to="{ name: 'sw.login.index.recovery' }" class="sw-login__forgot-password-action">
+                        {{ $tc('sw-login.index.forgottenPasswordLink') }}
+                    </router-link>
+                {% endblock %}
+
+                {% block sw_login_login_submit_button %}
+                    <sw-button class="sw-login__login-action" variant="primary" @submit="loginUserWithPassword">
+                        {{ $tc('sw-login.index.buttonLogin') }}
+                    </sw-button>
+                {% endblock %}
+            </div>
+        {% endblock %}
+    </form>
+{% endblock %}

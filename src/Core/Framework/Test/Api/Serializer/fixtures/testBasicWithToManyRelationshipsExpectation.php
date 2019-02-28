@@ -52,6 +52,12 @@ return [
                     'related' => '/api/user/6f51622eb3814c75ae0263cece27ce72/state-machine-history-entries',
                 ],
             ],
+            'recoveryUser' => [
+                'data' => null,
+                'links' => [
+                    'related' => '/api/user/6f51622eb3814c75ae0263cece27ce72/recovery-user',
+                ],
+            ],
             'avatarMedia' => [
                 'data' => null,
                 'links' => [

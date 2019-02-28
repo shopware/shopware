@@ -24,7 +24,8 @@ Component.register('sw-customer-detail', {
             countries: [],
             addresses: [],
             paymentMethods: [],
-            languages: []
+            languages: [],
+            language: {}
         };
     },
 
@@ -47,6 +48,10 @@ Component.register('sw-customer-detail', {
 
         customerAddressStore() {
             return this.customer.getAssociation('addresses');
+        },
+
+        languageStore() {
+            return State.getStore('language');
         },
 
         paymentMethodStore() {
@@ -88,41 +93,59 @@ Component.register('sw-customer-detail', {
 
     methods: {
         createdComponent() {
+            this.isLoading = true;
             if (this.$route.params.id) {
                 this.customerId = this.$route.params.id;
-                this.customer = this.customerStore.getById(this.customerId);
 
-                this.customerAddressStore.getList({
-                    limit: 10,
-                    page: 1
-                });
-
-                this.salesChannelStore.getList({ page: 1, limit: 100 }).then((response) => {
-                    response.items.forEach((salesChannel) => {
-                        if (salesChannel.id === this.customer.salesChannelId) {
-                            salesChannel.getAssociation('languages').getList({ page: 1, limit: 100 });
-                            this.languages = salesChannel.languages;
-                        }
+                if (this.createMode) {
+                    this.customer = this.customerStore.getById(this.customerId);
+                    this.initializeFurtherComponents();
+                } else {
+                    this.customerStore.getByIdAsync(this.customerId).then((customer) => {
+                        this.customer = customer;
+                        this.initializeFurtherComponents();
                     });
-                    this.salesChannels = response.items;
-                });
-
-                this.customerGroupStore.getList({ page: 1, limit: 100 }).then((response) => {
-                    this.customerGroups = response.items;
-                });
-
-                this.countryStore.getList({ page: 1, limit: 100, sortBy: 'name' }).then((response) => {
-                    this.countries = response.items;
-                });
-
-                this.paymentMethodStore.getList({ page: 1, limit: 100 }).then((response) => {
-                    this.paymentMethods = response.items;
-                });
+                }
             }
 
             if (this.$route.params.edit === 'edit') {
                 this.customerEditMode = true;
             }
+        },
+
+        initializeFurtherComponents() {
+            this.isLoading = false;
+            this.customerAddressStore.getList({
+                limit: 10,
+                page: 1
+            });
+
+            this.languageStore.getByIdAsync(this.customer.languageId).then((language) => {
+                this.language = language;
+                this.isLoading = false;
+            });
+
+            this.salesChannelStore.getList({ page: 1, limit: 100 }).then((response) => {
+                response.items.forEach((salesChannel) => {
+                    if (salesChannel.id === this.customer.salesChannelId) {
+                        salesChannel.getAssociation('languages').getList({ page: 1, limit: 100 });
+                        this.languages = salesChannel.languages;
+                    }
+                });
+                this.salesChannels = response.items;
+            });
+
+            this.customerGroupStore.getList({ page: 1, limit: 100 }).then((response) => {
+                this.customerGroups = response.items;
+            });
+
+            this.countryStore.getList({ page: 1, limit: 100, sortBy: 'name' }).then((response) => {
+                this.countries = response.items;
+            });
+
+            this.paymentMethodStore.getList({ page: 1, limit: 100 }).then((response) => {
+                this.paymentMethods = response.items;
+            });
         },
 
         onSave() {
@@ -155,6 +178,7 @@ Component.register('sw-customer-detail', {
             this.discardChanges();
             if (this.createMode === true) {
                 this.$router.push({ name: 'sw.customer.index' });
+                this.isLoading = false;
             }
             this.customerEditMode = false;
         },

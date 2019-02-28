@@ -55,12 +55,24 @@ Component.register('sw-customer-detail-base', {
                 return [];
             }
         },
+        language: {
+            type: Object,
+            required: true,
+            default() {
+                return {};
+            }
+        },
         countries: {
             type: Array,
             required: true,
             default() {
                 return [];
             }
+        },
+        isLoading: {
+            type: Boolean,
+            required: false,
+            default: false
         }
     },
 

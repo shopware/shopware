@@ -35,6 +35,7 @@ const allEvents = [
  *      :datepickerConfig="myDatepickerConfig"
  *      v-model="myDate"
  *      label="SW-Field Date"
+ *      size="default"
  *      @on-change="myOnChangeEventHandlingMethod">
  * </sw-datepicker>
  */
@@ -106,6 +107,7 @@ export default {
         fieldClasses() {
             return [
                 `sw-field--${this.dateType}`,
+                `sw-field--${this.size}`,
                 {
                     'has--error': !!this.hasErrorCls,
                     'has--suffix': true,

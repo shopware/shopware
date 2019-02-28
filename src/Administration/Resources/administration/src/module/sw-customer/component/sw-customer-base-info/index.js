@@ -33,9 +33,21 @@ Component.register('sw-customer-base-info', {
                 return [];
             }
         },
+        language: {
+            type: Object,
+            required: true,
+            default() {
+                return {};
+            }
+        },
         customerEditMode: {
             type: Boolean,
             required: true,
+            default: false
+        },
+        isLoading: {
+            type: Boolean,
+            required: false,
             default: false
         }
     },
@@ -63,7 +75,7 @@ Component.register('sw-customer-base-info', {
                 orderAmount: { name: 'orderAmount', type: 'sum', field: 'amountTotal' }
             };
 
-            const criteria = CriteriaFactory.equals('order.orderCustomer.customerId', this.customer.id);
+            const criteria = CriteriaFactory.equals('order.orderCustomer.customerId', this.$route.params.id);
 
             this.orderStore.getList({ page: 1, limit: 1, aggregations, criteria }).then((response) => {
                 this.orderCount = response.total;

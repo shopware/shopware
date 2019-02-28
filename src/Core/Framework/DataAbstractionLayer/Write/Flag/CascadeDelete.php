@@ -2,9 +2,11 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Write\Flag;
 
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\CascadeDelete as FieldFlagCascadeDelete;
+
 /**
- * In case the referenced association data will be deleted, the related data will be deleted too
+ * @deprecated use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\CascadeDelete instead
  */
-class CascadeDelete extends Flag
+class CascadeDelete extends FieldFlagCascadeDelete
 {
 }

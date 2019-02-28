@@ -2,9 +2,11 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Write\Flag;
 
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Internal as FieldFlagInternal;
+
 /**
- * Defines that the data of this field will not be delivered by the API
+ * @deprecated use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Internal instead
  */
-class Internal extends Flag
+class Internal extends FieldFlagInternal
 {
 }

@@ -7,8 +7,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelpe
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\QueryBuilder;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Inherited;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\SearchKeywordAssociationField;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\Inherited;
 
 class SearchKeywordAssociationFieldResolver implements FieldResolverInterface
 {

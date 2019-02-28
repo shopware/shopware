@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Field;
 
-use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\Inherited;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Inherited;
 
 class BlacklistRuleField extends ListField
 {

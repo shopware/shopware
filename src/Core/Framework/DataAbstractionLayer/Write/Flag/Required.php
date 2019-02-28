@@ -2,6 +2,11 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Write\Flag;
 
-class Required extends Flag
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required as FieldFlagRequired;
+
+/**
+ * @deprecated use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required instead
+ */
+class Required extends FieldFlagRequired
 {
 }

@@ -2,9 +2,11 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Write\Flag;
 
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Inherited as FieldFlagInherited;
+
 /**
- * Defines that the data of this field can be inherited by the parent record
+ * @deprecated use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Inherited instead
  */
-class Inherited extends Flag
+class Inherited extends FieldFlagInherited
 {
 }

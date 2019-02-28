@@ -2,9 +2,11 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Write\Flag;
 
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\RestrictDelete as FieldFlagRestrictDelete;
+
 /**
- * Associated data with this flag, restricts the delete of the entity in case that a record with the primary key exists.
+ * @deprecated use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\RestrictDelete instead
  */
-class RestrictDelete extends Flag
+class RestrictDelete extends FieldFlagRestrictDelete
 {
 }

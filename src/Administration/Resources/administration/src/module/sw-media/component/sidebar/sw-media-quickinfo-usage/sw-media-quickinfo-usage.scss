@@ -32,8 +32,8 @@ $sw-media-quickinfo-usage-hover-background: #E3F3FF;
         display: grid;
         grid-template-columns: 50px max-content;
         grid-auto-rows: 32px;
-
         border-radius: 3px;
+        overflow: hidden;
 
         &:hover {
             cursor: pointer;

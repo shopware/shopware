@@ -1,4 +1,5 @@
 import template from './sw-avatar.html.twig';
+import colors from './colors';
 import './sw-avatar.scss';
 
 /**
@@ -91,16 +92,8 @@ export default {
                 };
             }
 
-            const colorArray = [
-                '#C75233',
-                '#C78933',
-                '#D6CEAA',
-                '#79B5AC',
-                '#5E2F46'
-            ];
-
             const nameLength = this.firstName.length + this.lastName.length;
-            const color = colorArray[nameLength % colorArray.length];
+            const color = colors[nameLength % colors.length];
 
             return {
                 'background-color': color

@@ -2,7 +2,7 @@
 
 namespace Shopware\Storefront\Test\Page;
 
-interface StorefrontPageTestConstants
+final class StorefrontPageTestConstants
 {
     public const CUSTOMER_FIRSTNAME = 'Max';
 
@@ -13,4 +13,8 @@ interface StorefrontPageTestConstants
     public const SHIPPING_METHOD_COUNT = 2;
 
     public const COUNTRY_COUNT = 34;
+
+    private function __construct()
+    {
+    }
 }

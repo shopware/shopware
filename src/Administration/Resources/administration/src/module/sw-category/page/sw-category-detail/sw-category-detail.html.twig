@@ -63,7 +63,12 @@
                 {% block sw_category_content_loader %}
                     <sw-loader v-if="!categories"></sw-loader>
                 {% endblock %}
+
+                {% block sw_category_content_empty %}
+                    <sw-empty-state v-if="!category" title="Keine Kategorie ausgewählt"></sw-empty-state>
+                {% endblock %}
             </template>
+
         {% endblock %}
 
         {% block sw_category_sidebar %}

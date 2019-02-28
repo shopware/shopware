@@ -24,6 +24,10 @@ Component.extend('sw-category-select', 'sw-select', {
         },
 
         getResults() {
+            if (this.searchTerm.length < 3) {
+                return;
+            }
+
             const params = {
                 page: 1,
                 limit: 25,

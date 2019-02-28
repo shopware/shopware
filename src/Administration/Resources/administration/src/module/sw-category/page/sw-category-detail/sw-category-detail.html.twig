@@ -19,11 +19,18 @@
         </template>
 
         <template slot="smart-bar-actions">
-            {% block sw_category_smart_bar_actions %}
-                <sw-button v-if="category" variant="primary" @click.prevent="onSave">
-                    {{ $tc('sw-category.general.buttonSafeCategory') }}
-                </sw-button>
-            {% endblock %}
+            <template v-if="category">
+                {% block sw_category_smart_bar_abort %}
+                    <sw-button :disabled="isLoading" @click="resetCategory">
+                        {{ $tc('sw-product.detail.buttonCancel') }}
+                    </sw-button>
+                {% endblock %}
+                {% block sw_category_smart_bar_save %}
+                    <sw-button v-if="category" variant="primary" @click.prevent="onSave">
+                        {{ $tc('sw-category.general.buttonSafeCategory') }}
+                    </sw-button>
+                {% endblock %}
+            </template>
         </template>
 
         <template slot="side-content">

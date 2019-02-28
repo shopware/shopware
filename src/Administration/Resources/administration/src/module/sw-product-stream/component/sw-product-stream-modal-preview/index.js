@@ -10,9 +10,8 @@ Component.register('sw-product-stream-modal-preview', {
         Mixin.getByName('listing')
     ],
     props: {
-        productFilters: {
-            type: Array,
-            required: true
+        productFilter: {
+            type: Object
         }
     },
     data() {
@@ -77,13 +76,13 @@ Component.register('sw-product-stream-modal-preview', {
             });
         },
         buildCriteria() {
-            if (this.productFilters.length) {
-                this.criteria = this.buildMultiFilter('OR', this.productFilters);
+            if (this.productFilter) {
+                this.criteria = this.handleFilter(this.productFilter);
             }
         },
         handleFilter(filter) {
-            if (filter.type === 'multi') {
-                return this.buildMultiFilter(filter.operator, filter.queries);
+            if (filter.type === 'multi' || filter.type === 'not') {
+                return this.buildMultiFilter(filter.operator, filter.queries, filter.type);
             }
             if (filter.type === 'range') {
                 return CriteriaFactory.range(filter.field, filter.parameters);
@@ -99,8 +98,8 @@ Component.register('sw-product-stream-modal-preview', {
             }
             return null;
         },
-        buildMultiFilter(operator, filters) {
-            if (!operator || filters.length === 0) {
+        buildMultiFilter(operator, filters, type) {
+            if ((!operator && type !== 'not') || filters.length === 0) {
                 return null;
             }
             const handledFilters = [];
@@ -111,6 +110,9 @@ Component.register('sw-product-stream-modal-preview', {
                 }
                 handledFilters.push(handledFilter);
             });
+            if (type === 'not') {
+                return CriteriaFactory.not(operator || 'AND', ...handledFilters);
+            }
             return CriteriaFactory.multi(operator, ...handledFilters);
         },
         closeModal() {

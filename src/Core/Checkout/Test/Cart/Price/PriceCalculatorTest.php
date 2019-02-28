@@ -19,9 +19,6 @@ use Shopware\Core\Checkout\Cart\Tax\TaxRuleCalculator;
 use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Test\Cart\Common\Generator;
 
-/**
- * Class PriceCalculatorTest
- */
 class PriceCalculatorTest extends TestCase
 {
     /**

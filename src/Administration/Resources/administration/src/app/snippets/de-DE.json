@@ -715,6 +715,11 @@
       "labelVisibility": "Sichtbarkeit",
       "closeModal": "Übernehmen"
     },
+    "variant": {
+      "generateVariantsButton": "Varianten generieren",
+      "configuratorCardTitle": "Varianten generieren",
+      "generatedVariantsCardTitle": "Generierte Varianten"
+    },
     "general": {
       "mainMenuItemGeneral": "Produkte",
       "mainMenuItemList": "Übersicht",

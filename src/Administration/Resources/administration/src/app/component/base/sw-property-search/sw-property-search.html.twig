@@ -10,7 +10,9 @@
                         </slot>
                     </div>
 
-                    <slot name="toolbar-items"></slot>
+                    <slot name="toolbar-items">
+                        {% block sw_property_toolbar_items %}{% endblock %}
+                    </slot>
                 </slot>
             </div>
         {% endblock %}

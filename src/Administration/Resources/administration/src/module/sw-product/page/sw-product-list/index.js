@@ -1,4 +1,5 @@
 import { Component, Mixin, State } from 'src/core/shopware';
+import CriteriaFactory from 'src/core/factory/criteria.factory';
 import template from './sw-product-list.twig';
 import './sw-product-list.scss';
 
@@ -88,6 +89,8 @@ Component.register('sw-product-list', {
         getList() {
             this.isLoading = true;
             const params = this.getListingParams();
+
+            params.criteria = CriteriaFactory.equals('product.parentId', null);
 
             this.products = [];
 

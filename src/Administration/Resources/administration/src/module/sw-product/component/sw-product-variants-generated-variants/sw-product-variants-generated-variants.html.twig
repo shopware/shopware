@@ -1,0 +1,16 @@
+{% block sw_product_variants_generated_variants %}
+    <div class="sw-product-detail-variants__generated-variants">
+        <h1>Works</h1>
+        <ul>
+            <li v-for="variationElements in variantList">
+                <ul>
+                    <li v-for="variationElement in variationElements.meta.viewData.variations.elements">{{ variationElement.name }}</li>
+                </ul>
+                <ul>
+                    <li>--</li>
+                </ul>
+            </li>
+            {#<li v-for="variant in variantList">{{ variant.meta.viewData.variations.elements name }}</li>#}
+        </ul>
+    </div>
+{% endblock %}

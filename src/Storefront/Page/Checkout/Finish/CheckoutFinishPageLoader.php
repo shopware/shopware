@@ -9,9 +9,8 @@ use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\Exception\InvalidParameterException;
+use Shopware\Core\Framework\Exception\InvalidUuidException;
 use Shopware\Core\Framework\Routing\InternalRequest;
-use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Storefront\Framework\Page\PageLoaderInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
@@ -54,9 +53,6 @@ class CheckoutFinishPageLoader implements PageLoaderInterface
     private function getOrder(InternalRequest $request, CheckoutContext $context): OrderEntity
     {
         $orderId = $request->requireGet('orderId');
-        if (!Uuid::isValid($orderId)) {
-            throw new InvalidParameterException('orderId');
-        }
 
         $customer = $context->getCustomer();
         if ($customer === null) {
@@ -67,7 +63,11 @@ class CheckoutFinishPageLoader implements PageLoaderInterface
         $criteria->addFilter(new EqualsFilter('order.orderCustomer.customerId', $customer->getId()));
         $criteria->addFilter(new EqualsFilter('order.id', $orderId));
 
-        $searchResult = $this->orderRepository->search($criteria, $context->getContext());
+        try {
+            $searchResult = $this->orderRepository->search($criteria, $context->getContext());
+        } catch (InvalidUuidException $e) {
+            throw new OrderNotFoundException($orderId, 0, $e);
+        }
 
         if ($searchResult->count() !== 1) {
             throw new OrderNotFoundException($orderId);

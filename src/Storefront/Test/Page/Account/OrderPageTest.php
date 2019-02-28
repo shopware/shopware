@@ -1,0 +1,52 @@
+<?php declare(strict_types=1);
+
+namespace Shopware\Storefront\Test\Page\Account;
+
+use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Routing\InternalRequest;
+use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Storefront\Framework\Page\PageLoaderInterface;
+use Shopware\Storefront\Page\Account\Order\AccountOrderPage;
+use Shopware\Storefront\Page\Account\Order\AccountOrderPageLoadedEvent;
+use Shopware\Storefront\Page\Account\Order\AccountOrderPageLoader;
+use Shopware\Storefront\Test\Page\StorefrontPageTestBehaviour;
+
+class OrderPageTest extends TestCase
+{
+    use IntegrationTestBehaviour,
+        StorefrontPageTestBehaviour;
+
+    public function testItThrowsWithoutNavigation(): void
+    {
+        $this->assertFailsWithoutNavigation();
+    }
+
+    public function testLoginRequirement(): void
+    {
+        $this->assertLoginRequirement();
+    }
+
+    public function testItLoadsOrders(): void
+    {
+        $request = new InternalRequest();
+        $context = $this->createCheckoutContextWithLoggedInCustomerAndWithNavigation();
+
+        /** @var AccountOrderPageLoadedEvent $event */
+        $event = null;
+        $this->catchEvent(AccountOrderPageLoadedEvent::NAME, $event);
+
+        $page = $this->getPageLoader()->load($request, $context);
+
+        static::assertInstanceOf(AccountOrderPage::class, $page);
+        static::assertSame(0, $page->getOrders()->count());
+        self::assertPageEvent(AccountOrderPageLoadedEvent::class, $event, $context, $request, $page);
+    }
+
+    /**
+     * @return AccountOrderPageLoader
+     */
+    protected function getPageLoader(): PageLoaderInterface
+    {
+        return $this->getContainer()->get(AccountOrderPageLoader::class);
+    }
+}

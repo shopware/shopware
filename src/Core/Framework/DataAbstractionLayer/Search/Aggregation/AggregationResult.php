@@ -27,9 +27,13 @@ class AggregationResult extends Struct
         return $this->result;
     }
 
-    public function getResultByKey(?array $key): array
+    public function getResultByKey(?array $key): ?array
     {
         $key = \array_search($key, array_column($this->result, 'key'), true);
+
+        if ($key === false) {
+            return null;
+        }
 
         return $this->result[$key];
     }

@@ -51,4 +51,39 @@ class AggregationResultTest extends TestCase
         static::assertSame($aggregation->getField(), $aggregationResult->getField());
         static::assertSame($aggregation->getFields(), [$aggregationResult->getField()]);
     }
+
+    public function testResultByKey(): void
+    {
+        $aggregation = new CountAggregation('field', 'foo', 'foo.name');
+        $aggregationResult = new AggregationResult($aggregation, [
+            [
+                'key' => [
+                    'foo.name' => 'test',
+                ],
+                'count' => 12,
+            ],
+        ]);
+
+        static::assertEquals([
+            'key' => [
+                'foo.name' => 'test',
+            ],
+            'count' => 12,
+        ], $aggregationResult->getResultByKey(['foo.name' => 'test']));
+    }
+
+    public function testResultByKeyReturnsNull(): void
+    {
+        $aggregation = new CountAggregation('field', 'foo', 'foo.name');
+        $aggregationResult = new AggregationResult($aggregation, [
+            [
+                'key' => [
+                    'foo.name' => 'test',
+                ],
+                'count' => 12,
+            ],
+        ]);
+
+        static::assertNull($aggregationResult->getResultByKey(['foo.name' => 'notFound']));
+    }
 }

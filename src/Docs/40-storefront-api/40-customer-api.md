@@ -83,7 +83,7 @@ Include this token as a HTTP header for all future requests.
 
 ## Get a order overview
 
-**GET  /storefront-api/v1/customer/orders**
+**GET  /storefront-api/v1/customer/order**
 
 **Parameter:**
 
@@ -144,7 +144,7 @@ Include this token as a HTTP header for all future requests.
 
 ### Get customer addresses
 
-**GET /storefront-api/v1/customer/addresses**
+**GET /storefront-api/v1/customer/address**
 
 **Header:** x-sw-context-token is required
 

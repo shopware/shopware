@@ -178,6 +178,10 @@ $sw-condition-base-color-error: $color-crimson;
         }
     }
 
+    .field--switch {
+        @extend .sw-condition-base__base-field;
+    }
+
     .field--multi {
         @extend .sw-condition-base__base-field;
         height: auto;

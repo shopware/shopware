@@ -64,7 +64,7 @@ class ProductStreamGenerator implements DemodataGeneratorInterface
             $filters = [];
 
             for ($j = 0, $jMax = random_int(1, 5); $j < $jMax; ++$j) {
-                $filters[] = $pool[random_int(0, \count($pool) - 1)];
+                $filters[] = array_merge($pool[random_int(0, \count($pool) - 1)], ['position' => $j]);
             }
 
             $payload[] = [

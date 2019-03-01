@@ -4,21 +4,21 @@
                   name="useTime"
                   :label="$tc('global.sw-condition.condition.dateRangeRule.useTime')"
                   v-model="useTime"
-                  class="field field--switch has--arrow">
+                  class="field--switch has--arrow">
         </sw-field>
         <sw-field type="date"
                   :dateType="condition.value.useTime ? 'datetime' : 'date'"
                   name="fromDate"
                   :config="datepickerConfig"
                   v-model="fromDate"
-                  class="field field--main field--date field--from-date has--arrow">
+                  class="field--main field--date field--from-date has--arrow">
         </sw-field>
         <sw-field type="date"
                   :dateType="condition.value.useTime ? 'datetime' : 'date'"
                   name="toDate"
                   :config="datepickerConfig"
                   v-model="toDate"
-                  class="field field--main field--date field--to-date">
+                  class="field--main field--date field--to-date">
         </sw-field>
     {% endblock %}
 {% endblock %}

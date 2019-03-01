@@ -4,6 +4,9 @@
     <sw-card :title="$tc('sw-customer.detailBase.labelAddressesCard')"
              :isLoading="customer.isLoading"
              key="address">
-        <sw-customer-address-form :address="defaultAddress" :countries="countries"></sw-customer-address-form>
+        <sw-customer-address-form :address="defaultAddress"
+                                  :countries="countries"
+                                  :customer="customer">
+        </sw-customer-address-form>
     </sw-card>
 {% endblock %}

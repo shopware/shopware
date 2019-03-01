@@ -20,6 +20,7 @@ $finder = Finder::create()
     ->name('*.php');
 
 return Config::create()
+    ->setRiskyAllowed(true)
     ->setUsingCache(false)
     ->registerCustomFixers(new Fixers())
     ->setRules([

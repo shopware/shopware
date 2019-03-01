@@ -90,7 +90,7 @@
         "http-proxy-middleware": "0.19.1",
         "inject-loader": "4.0.1",
         "jsdoc": "3.5.5",
-        "karma": "3.1.4",
+        "karma": "4.0.1",
         "karma-chai": "0.1.0",
         "karma-chrome-launcher": "2.2.0",
         "karma-coverage": "1.1.2",

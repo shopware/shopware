@@ -15,6 +15,7 @@ module.exports = {
         const page = settingsPage(browser);
 
         browser
+            .waitForElementNotPresent(page.elements.loader)
             .click('.sw-settings-snippet-set-list__action-add')
             .waitForElementVisible(`${page.elements.gridRow}--0.is--inline-editing`)
             .fillField(`${page.elements.gridRow}--0 input[name=sw-field--item-name]`, 'Snip Snap')

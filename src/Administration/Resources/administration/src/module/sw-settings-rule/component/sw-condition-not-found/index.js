@@ -8,7 +8,7 @@ import './sw-condition-not-found.scss';
  * @status prototype
  * @example-type code-only
  * @component-example
- * <sw-condition-base :condition="condition"></sw-condition-and-container>
+ * <sw-condition-not-found :condition="condition"></sw-condition-not-found>
  */
 Component.extend('sw-condition-not-found', 'sw-condition-base', {
     template,

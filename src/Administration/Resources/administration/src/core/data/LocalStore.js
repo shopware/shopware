@@ -126,7 +126,12 @@ export default class LocalStore {
 
     create(id = utils.createId()) {
         return {
-            [this.propertyName]: id
+            [this.propertyName]: id,
+            meta: {
+                viewData: {
+                    [this.propertyName]: id
+                }
+            }
         };
     }
 

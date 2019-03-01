@@ -18,6 +18,9 @@ Component.register('sw-settings-rule-detail', {
         return {
             rule: {},
             nestedConditions: {},
+            moduleTypeStore: new LocalStore(this.ruleConditionDataProviderService.getModuleTypes((moduleType) => {
+                moduleType.name = this.$tc(moduleType.name);
+            }), 'id'),
             treeConfig: {
                 conditionStore: new LocalStore(this.ruleConditionDataProviderService.getConditions((condition) => {
                     condition.meta = {
@@ -41,7 +44,7 @@ Component.register('sw-settings-rule-detail', {
                 },
                 getComponent(condition) {
                     condition = this.conditionStore.getById(condition.type);
-                    if (!condition) {
+                    if (!condition.component) {
                         return 'sw-condition-not-found';
                     }
 
@@ -64,6 +67,10 @@ Component.register('sw-settings-rule-detail', {
         this.createdComponent();
     },
 
+    mounted() {
+        this.mountedComponent();
+    },
+
     methods: {
         createdComponent() {
             if (!this.$route.params.id) {
@@ -71,6 +78,12 @@ Component.register('sw-settings-rule-detail', {
             }
 
             this.rule = this.ruleStore.getById(this.$route.params.id);
+        },
+
+        mountedComponent() {
+            if (!this.rule.moduleTypes || (this.rule.moduleTypes && !this.rule.moduleTypes.types)) {
+                this.rule.moduleTypes = { types: [] };
+            }
         },
 
         onSave() {
@@ -86,7 +99,10 @@ Component.register('sw-settings-rule-detail', {
                 'sw-settings-rule.detail.messageSaveError', 0, { name: this.rule.name }
             );
 
-            // todo: this.rule.conditions = [this.nestedConditions]; check if needed
+            if (this.rule.moduleTypes && this.rule.moduleTypes.types.length === 0) {
+                this.rule.moduleTypes = null;
+            }
+
             this.removeOriginalConditionTypes(this.rule.conditions);
 
             return this.rule.save().then(() => {

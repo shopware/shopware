@@ -82,12 +82,28 @@ export default function createConditionService() {
         ]
     };
 
+    const moduleTypes = {
+        dispatch: {
+            id: 'dispatch',
+            name: 'sw-settings-rule.detail.types.dispatch'
+        },
+        payment: {
+            id: 'payment',
+            name: 'sw-settings-rule.detail.types.payment'
+        },
+        price: {
+            id: 'price',
+            name: 'sw-settings-rule.detail.types.price'
+        }
+    };
+
     return {
         getByType,
         addCondition,
         getConditions,
         operatorSets,
         operators,
+        getModuleTypes,
         getOperatorSet,
         getPlaceholder
     };
@@ -104,16 +120,22 @@ export default function createConditionService() {
     function getOperatorSet(operatorSetName, translateCallback) {
         const operatorSet = this.operatorSets[operatorSetName];
 
-        if (translateCallback) {
-            operatorSet.forEach(operator => translateCallback(operator));
-        }
+        return translateData(operatorSet, translateCallback);
+    }
 
-        return operatorSet;
+    function getModuleTypes(translateCallback) {
+        const values = Object.values(moduleTypes);
+
+        return translateData(values, translateCallback);
     }
 
     function getConditions(translateCallback) {
         const values = Object.values($store);
 
+        return translateData(values, translateCallback);
+    }
+
+    function translateData(values, translateCallback) {
         if (translateCallback) {
             values.forEach(value => translateCallback(value));
         }

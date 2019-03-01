@@ -1,4 +1,5 @@
 import { Component, State } from 'src/core/shopware';
+import CriteriaFactory from 'src/core/factory/criteria.factory';
 import template from './sw-product-detail-context-prices.html.twig';
 import './sw-product-detail-context-prices.scss';
 
@@ -32,6 +33,11 @@ Component.register('sw-product-detail-context-prices', {
         return {
             rules: [],
             totalRules: 0,
+            ruleFilter: CriteriaFactory.multi(
+                'OR',
+                CriteriaFactory.contains('rule.moduleTypes.types', 'price'),
+                CriteriaFactory.equals('rule.moduleTypes', null)
+            ),
             isLoadingRules: false
         };
     },
@@ -117,7 +123,11 @@ Component.register('sw-product-detail-context-prices', {
 
             this.isLoadingRules = true;
 
-            this.ruleStore.getList(0, 500).then((response) => {
+            this.ruleStore.getList({
+                page: 1,
+                limit: 500,
+                criteria: this.ruleFilter
+            }).then((response) => {
                 this.rules = response.items;
                 this.totalRules = response.total;
 

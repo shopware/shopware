@@ -53,6 +53,18 @@ export default {
             }
         },
 
+        menuVerticalAlign: {
+            type: String,
+            required: false,
+            default: 'bottom',
+            validator(value) {
+                if (!value.length) {
+                    return true;
+                }
+                return ['bottom', 'top'].includes(value);
+            }
+        },
+
         icon: {
             type: String,
             required: false,
@@ -102,7 +114,8 @@ export default {
 
         contextMenuClass() {
             return {
-                'is--left-align': this.menuAlign === 'left'
+                'is--left-align': this.menuAlign === 'left',
+                'is--dropup': this.menuVerticalAlign === 'top'
             };
         }
     },
@@ -136,6 +149,7 @@ export default {
             const secureOffset = 5;
 
             this.positionTop = boundingBox.top - secureOffset;
+
             if (this.menuAlign === 'left') {
                 this.positionLeft = boundingBox.left - secureOffset;
             } else {

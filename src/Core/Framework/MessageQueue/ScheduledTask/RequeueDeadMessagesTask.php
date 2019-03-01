@@ -2,25 +2,10 @@
 
 namespace Shopware\Core\Framework\MessageQueue\ScheduledTask;
 
-use Shopware\Core\Framework\ScheduledTask\ScheduledTaskInterface;
+use Shopware\Core\Framework\ScheduledTask\ScheduledTask;
 
-class RequeueDeadMessagesTask implements ScheduledTaskInterface
+class RequeueDeadMessagesTask extends ScheduledTask
 {
-    /**
-     * @var string
-     */
-    protected $taskId;
-
-    public function getTaskId(): string
-    {
-        return $this->taskId;
-    }
-
-    public function setTaskId(string $taskId): void
-    {
-        $this->taskId = $taskId;
-    }
-
     public static function getTaskName(): string
     {
         return 'requeue_dead_messages';

@@ -153,7 +153,7 @@ class TaskSchedulerTest extends TestCase
     {
         $this->expectException(\RuntimeException::class);
         $this->expectExceptionMessage(sprintf(
-            'Tried to schedule "%s", but class does not implement ScheduledTaskInterface',
+            'Tried to schedule "%s", but class does not extend ScheduledTask',
             TestMessage::class
         ));
         $this->connection->exec('DELETE FROM scheduled_task');

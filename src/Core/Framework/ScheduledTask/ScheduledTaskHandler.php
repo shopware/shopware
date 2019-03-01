@@ -22,7 +22,7 @@ abstract class ScheduledTaskHandler extends AbstractMessageHandler
     abstract public function run(): void;
 
     /**
-     * @param ScheduledTaskInterface $task
+     * @param ScheduledTask $task
      */
     public function handle($task): void
     {
@@ -48,7 +48,7 @@ abstract class ScheduledTaskHandler extends AbstractMessageHandler
         $this->rescheduleTask($task, $taskEntity);
     }
 
-    protected function markTaskRunning(ScheduledTaskInterface $task): void
+    protected function markTaskRunning(ScheduledTask $task): void
     {
         $this->scheduledTaskRepository->update([
             [
@@ -58,7 +58,7 @@ abstract class ScheduledTaskHandler extends AbstractMessageHandler
         ], Context::createDefaultContext());
     }
 
-    protected function markTaskFailed(ScheduledTaskInterface $task): void
+    protected function markTaskFailed(ScheduledTask $task): void
     {
         $this->scheduledTaskRepository->update([
             [
@@ -68,7 +68,7 @@ abstract class ScheduledTaskHandler extends AbstractMessageHandler
         ], Context::createDefaultContext());
     }
 
-    protected function rescheduleTask(ScheduledTaskInterface $task, ScheduledTaskEntity $taskEntity): void
+    protected function rescheduleTask(ScheduledTask $task, ScheduledTaskEntity $taskEntity): void
     {
         $now = new \DateTime();
         $this->scheduledTaskRepository->update([

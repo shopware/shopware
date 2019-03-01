@@ -10,9 +10,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
+use Shopware\Core\Framework\ScheduledTask\ScheduledTask;
 use Shopware\Core\Framework\ScheduledTask\ScheduledTaskDefinition;
 use Shopware\Core\Framework\ScheduledTask\ScheduledTaskEntity;
-use Shopware\Core\Framework\ScheduledTask\ScheduledTaskInterface;
 use Symfony\Component\Messenger\MessageBusInterface;
 
 class TaskScheduler
@@ -100,14 +100,14 @@ class TaskScheduler
     {
         $taskClass = $taskEntity->getScheduledTaskClass();
 
-        if (!in_array(ScheduledTaskInterface::class, class_implements($taskClass), true)) {
+        if (!\in_array(ScheduledTask::class, class_parents($taskClass), true)) {
             throw new \RuntimeException(sprintf(
-                'Tried to schedule "%s", but class does not implement ScheduledTaskInterface',
+                'Tried to schedule "%s", but class does not extend ScheduledTask',
                 $taskClass
             ));
         }
 
-        /** @var ScheduledTaskInterface $task */
+        /** @var ScheduledTask $task */
         $task = new $taskClass();
         $task->setTaskId($taskEntity->getId());
 

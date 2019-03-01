@@ -33,6 +33,9 @@ class LanguageAnalyzer implements SearchAnalyzerInterface
         return $this->analyzeEntity($definition, $entity, $context);
     }
 
+    /**
+     * @param string|EntityDefinition $definition
+     */
     private function analyzeEntity(string $definition, Entity $entity, Context $context, ?float $multiplier = null): array
     {
         $allowsRecursive = false;
@@ -44,7 +47,6 @@ class LanguageAnalyzer implements SearchAnalyzerInterface
 
         $tokens = [];
 
-        /** @var string|EntityDefinition $definition */
         $fields = $definition::getSearchFields();
 
         foreach ($fields as $field) {

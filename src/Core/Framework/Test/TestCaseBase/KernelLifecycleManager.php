@@ -47,8 +47,6 @@ class KernelLifecycleManager
 
     /**
      * Boots the Kernel for this test.
-     *
-     * @return KernelInterface A KernelInterface instance
      */
     public static function bootKernel(): KernelInterface
     {
@@ -64,8 +62,6 @@ class KernelLifecycleManager
     /**
      * @throws \RuntimeException
      * @throws \LogicException
-     *
-     * @return string The Kernel class name
      */
     private static function getKernelClass(): string
     {

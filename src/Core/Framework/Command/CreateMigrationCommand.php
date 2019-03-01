@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\Command;
 
-use InvalidArgumentException;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -50,7 +49,7 @@ class CreateMigrationCommand extends Command
         $name = $input->getOption('name') ?? '';
 
         if ($directory && !$namespace) {
-            throw new InvalidArgumentException('Please specify both dir and namespace or none.');
+            throw new \InvalidArgumentException('Please specify both dir and namespace or none.');
         }
 
         // Both dir and namespace were given
@@ -64,7 +63,7 @@ class CreateMigrationCommand extends Command
         if ($plugin) {
             $pluginPath = $this->pluginDir . '/' . $plugin . '/';
             if (!file_exists($pluginPath)) {
-                throw new InvalidArgumentException('Plugin "' . $plugin . '" does not exist.');
+                throw new \InvalidArgumentException('Plugin "' . $plugin . '" does not exist.');
             }
 
             if (!file_exists($pluginPath . 'Migration/')) {
@@ -88,14 +87,14 @@ class CreateMigrationCommand extends Command
     protected function createMigrationFile(string $name, OutputInterface $output, string $directory, string $namespace): void
     {
         if (!preg_match('/^[a-zA-Z0-9\_]*$/', $name)) {
-            throw new InvalidArgumentException('Migrationname contains forbidden characters!');
+            throw new \InvalidArgumentException('Migrationname contains forbidden characters!');
         }
 
         $timestamp = (new \DateTime())->getTimestamp();
         $path = rtrim($directory, '/') . '/Migration' . $timestamp . $name . '.php';
         $file = fopen($path, 'wb');
 
-        $template = file_get_contents(realpath(__DIR__ . '/../Migration/Template/MigrationTemplate.txt'));
+        $template = file_get_contents(dirname(__DIR__) . '/Migration/Template/MigrationTemplate.txt');
         $params = [
             '%%namespace%%' => $namespace,
             '%%timestamp%%' => $timestamp,

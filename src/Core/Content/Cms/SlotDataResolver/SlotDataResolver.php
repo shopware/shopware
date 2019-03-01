@@ -126,10 +126,7 @@ class SlotDataResolver
     {
         $searchResults = [];
 
-        /**
-         * @var string|EntityDefinition
-         * @var Criteria[]              $criteriaObjects
-         */
+        /** @var Criteria[] $criteriaObjects */
         foreach ($searches as $definition => $criteriaObjects) {
             foreach ($criteriaObjects as $criteriaHash => $criteria) {
                 $repository = $this->getStorefrontRepository($definition);

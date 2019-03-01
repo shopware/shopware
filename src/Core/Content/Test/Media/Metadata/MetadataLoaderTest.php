@@ -148,7 +148,7 @@ class MetadataLoaderTest extends TestCase
         );
     }
 
-    private function assertImageMetadata(Metadata $result, int $width = null, int $height = null): void
+    private function assertImageMetadata(Metadata $result, ?int $width = null, ?int $height = null): void
     {
         $type = $result->getType();
         static::assertInstanceOf(ImageMetadata::class, $type);
@@ -171,9 +171,9 @@ class MetadataLoaderTest extends TestCase
 
     private function assertDocumentMetadata(
         Metadata $result,
-        int $pages = null,
-        string $creator = null,
-        string $title = null
+        ?int $pages = null,
+        ?string $creator = null,
+        ?string $title = null
     ): void {
         $type = $result->getType();
         static::assertInstanceOf(DocumentMetadata::class, $type);

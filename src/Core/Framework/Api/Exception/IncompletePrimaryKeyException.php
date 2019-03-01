@@ -7,7 +7,7 @@ use Symfony\Component\HttpFoundation\Response;
 
 class IncompletePrimaryKeyException extends ShopwareHttpException
 {
-    public function __construct(array $primaryKeyFields, $code = 0, \Throwable $previous = null)
+    public function __construct(array $primaryKeyFields, $code = 0, ?\Throwable $previous = null)
     {
         $message = sprintf(
             'The primary key consists of %d fields. Please provide values for the following fields: %s',

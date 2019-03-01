@@ -48,13 +48,9 @@ class Validator
         foreach ($this->data as $assertion) {
             $fieldName = $assertion['name'];
             $value = $assertion['value'];
-            $constraints = $assertion['constraints'];
 
-            /**
-             * @var Constraint[]
-             * @var Constraint   $constraint
-             */
-            foreach ($constraints as $constraint) {
+            /** @var Constraint $constraint */
+            foreach ($assertion['constraints'] as $constraint) {
                 $violations = $this->validator->validate($value, $constraint);
 
                 /** @var ConstraintViolation $violation */

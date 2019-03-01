@@ -147,16 +147,10 @@ class ProductCollector implements CollectorInterface
 
     private function isSatisfied(LineItem $lineItem): bool
     {
-        return
-            ($lineItem->getPriceDefinition() || $lineItem->getPrice())
-            &&
-            $lineItem->getLabel() !== null
-            &&
-            $lineItem->getCover() !== null
-            &&
-            $lineItem->getDescription() !== null
-            &&
-            $lineItem->getDeliveryInformation() !== null
-        ;
+        return ($lineItem->getPriceDefinition() || $lineItem->getPrice())
+            && $lineItem->getLabel() !== null
+            && $lineItem->getCover() !== null
+            && $lineItem->getDescription() !== null
+            && $lineItem->getDeliveryInformation() !== null;
     }
 }

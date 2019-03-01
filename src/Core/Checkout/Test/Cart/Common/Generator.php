@@ -36,7 +36,7 @@ use Shopware\Core\System\Tax\TaxEntity;
 class Generator extends TestCase
 {
     public static function createCheckoutContext(
-        Context $baseContext = null,
+        ?Context $baseContext = null,
         $currentCustomerGroup = null,
         $fallbackCustomerGroup = null,
         $salesChannel = null,

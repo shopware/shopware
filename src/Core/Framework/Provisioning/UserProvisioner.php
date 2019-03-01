@@ -19,7 +19,7 @@ class UserProvisioner
         $this->connection = $connection;
     }
 
-    public function provision(string $username, string $password = null, array $additionalData = []): string
+    public function provision(string $username, ?string $password = null, array $additionalData = []): string
     {
         if ($this->userExists($username)) {
             throw new \RuntimeException(sprintf('User with username "%s" already exists.', $username));

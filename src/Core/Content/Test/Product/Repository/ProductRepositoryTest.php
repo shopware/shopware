@@ -2,9 +2,7 @@
 
 namespace Shopware\Core\Content\Test\Product\Repository;
 
-use DateTime;
 use Doctrine\DBAL\Connection;
-use Exception;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductPriceRule\ProductPriceRuleEntity;
@@ -586,7 +584,7 @@ class ProductRepositoryTest extends TestCase
         $e = null;
         try {
             $this->repository->upsert($data, Context::createDefaultContext());
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
         }
         static::assertInstanceOf(WriteStackException::class, $e);
 
@@ -667,7 +665,7 @@ class ProductRepositoryTest extends TestCase
         $e = null;
         try {
             $this->repository->upsert($data, Context::createDefaultContext());
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
         }
         static::assertInstanceOf(WriteStackException::class, $e);
 
@@ -1311,9 +1309,9 @@ class ProductRepositoryTest extends TestCase
 
         $criteria = new Criteria([$id]);
         $criteria->addAssociation('datasheet');
+        /** @var ProductEntity $product */
         $product = $this->repository->search($criteria, Context::createDefaultContext())->get($id);
 
-        /** @var ProductEntity $product */
         $sheet = $product->getDatasheet();
 
         static::assertCount(2, $sheet);
@@ -1362,9 +1360,9 @@ class ProductRepositoryTest extends TestCase
 
         $criteria = new Criteria([$id]);
         $criteria->addAssociation('variations');
+        /** @var ProductEntity $product */
         $product = $this->repository->search($criteria, Context::createDefaultContext())->get($id);
 
-        /** @var ProductEntity $product */
         $sheet = $product->getVariations();
 
         static::assertCount(2, $sheet);
@@ -1421,9 +1419,9 @@ class ProductRepositoryTest extends TestCase
 
         $criteria = new Criteria([$id]);
         $criteria->addAssociation('configurators');
+        /** @var ProductEntity $product */
         $product = $this->repository->search($criteria, Context::createDefaultContext())->get($id);
 
-        /** @var ProductEntity $product */
         $configurators = $product->getConfigurators();
 
         static::assertCount(2, $configurators);
@@ -1453,7 +1451,7 @@ class ProductRepositoryTest extends TestCase
 
         $data = [
             'id' => $id,
-            'name' => 'Test product service: ' . (new DateTime())->format(Defaults::DATE_FORMAT),
+            'name' => 'Test product service: ' . (new \DateTime())->format(Defaults::DATE_FORMAT),
             'tax' => ['name' => 'test', 'taxRate' => 15],
             'price' => ['gross' => 10, 'net' => 9],
             'manufacturer' => ['name' => 'test'],
@@ -1485,9 +1483,9 @@ class ProductRepositoryTest extends TestCase
 
         $criteria = new Criteria([$id]);
         $criteria->addAssociation('services');
+        /** @var ProductEntity $product */
         $product = $this->repository->search($criteria, Context::createDefaultContext())->get($id);
 
-        /** @var ProductEntity $product */
         $services = $product->getServices();
 
         static::assertCount(2, $services);

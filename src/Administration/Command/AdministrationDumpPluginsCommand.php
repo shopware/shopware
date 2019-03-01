@@ -2,7 +2,6 @@
 
 namespace Shopware\Administration\Command;
 
-use Exception;
 use Shopware\Core\Kernel;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -48,7 +47,7 @@ class AdministrationDumpPluginsCommand extends Command
             // First try to load the main.js
             try {
                 $indexFile = $this->kernel->locateResource('@' . $pluginName . '/Resources/views/administration/main.js');
-            } catch (Exception $e) {
+            } catch (\Exception $e) {
                 $indexFile = null;
             }
 
@@ -56,7 +55,7 @@ class AdministrationDumpPluginsCommand extends Command
                 // If we haven't found a javascript file, try to find a TypeScript file
                 try {
                     $indexFile = $this->kernel->locateResource('@' . $pluginName . '/Resources/views/administration/main.ts');
-                } catch (Exception $e) {
+                } catch (\Exception $e) {
                     continue;
                 }
             }
@@ -65,7 +64,7 @@ class AdministrationDumpPluginsCommand extends Command
 
             try {
                 $customWebPackConfig = $this->kernel->locateResource('@' . $pluginName . '/Resources/views/administration/build/webpack.config.js');
-            } catch (Exception $e) {
+            } catch (\Exception $e) {
                 $customWebPackConfig = false;
             }
 

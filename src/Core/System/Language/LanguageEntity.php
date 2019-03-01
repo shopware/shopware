@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\System\Language;
 
-use DateTime;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroupTranslation\CustomerGroupTranslationCollection;
 use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\DiscountSurcharge\Aggregate\DiscountSurchargeTranslation\DiscountSurchargeTranslationCollection;
@@ -63,12 +62,12 @@ class LanguageEntity extends Entity
     protected $name;
 
     /**
-     * @var DateTime|null
+     * @var \DateTime|null
      */
     protected $createdAt;
 
     /**
-     * @var DateTime|null
+     * @var \DateTime|null
      */
     protected $updatedAt;
 
@@ -312,22 +311,22 @@ class LanguageEntity extends Entity
         $this->name = $name;
     }
 
-    public function getCreatedAt(): ?DateTime
+    public function getCreatedAt(): ?\DateTime
     {
         return $this->createdAt;
     }
 
-    public function setCreatedAt(DateTime $createdAt): void
+    public function setCreatedAt(\DateTime $createdAt): void
     {
         $this->createdAt = $createdAt;
     }
 
-    public function getUpdatedAt(): ?DateTime
+    public function getUpdatedAt(): ?\DateTime
     {
         return $this->updatedAt;
     }
 
-    public function setUpdatedAt(DateTime $updatedAt): void
+    public function setUpdatedAt(\DateTime $updatedAt): void
     {
         $this->updatedAt = $updatedAt;
     }

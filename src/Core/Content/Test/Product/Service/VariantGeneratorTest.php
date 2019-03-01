@@ -164,6 +164,7 @@ class VariantGeneratorTest extends TestCase
 
         static::assertCount(4, $productWritten->getIds());
 
+        /** @var ProductCollection $variants */
         $variants = $this->repository
             ->search(new Criteria($productWritten->getIds()), $context)
             ->getEntities();
@@ -173,7 +174,6 @@ class VariantGeneratorTest extends TestCase
         $parent = $this->repository->search(new Criteria([$id]), $context)
             ->get($id);
 
-        /** @var ProductCollection $variants */
         /** @var ProductCollection $filtered */
         $filtered = $variants->filterByVariationIds([$redId, $bigId]);
         static::assertCount(1, $filtered);

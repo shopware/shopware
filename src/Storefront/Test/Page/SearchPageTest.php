@@ -24,7 +24,6 @@ class SearchPageTest extends TestCase
 
     public function testitRequiresSearchParam(): void
     {
-        /** @var PageLoaderInterface $page */
         $request = new InternalRequest();
         $context = $this->createCheckoutContextWithNavigation();
 
@@ -34,7 +33,6 @@ class SearchPageTest extends TestCase
 
     public function testItDoesSearch(): void
     {
-        /** @var PageLoaderInterface $page */
         $request = new InternalRequest(['search' => self::TEST_TERM]);
         $context = $this->createCheckoutContextWithNavigation();
         /** @var SearchPageLoadedEvent $homePageLoadedEvent */

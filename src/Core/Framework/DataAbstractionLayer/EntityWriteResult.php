@@ -25,8 +25,6 @@ class EntityWriteResult
     protected $existence;
 
     /**
-     * EntityWriteResult constructor
-     *
      * @param array|string $primaryKey
      */
     public function __construct($primaryKey, array $payload, ?EntityExistence $existence)

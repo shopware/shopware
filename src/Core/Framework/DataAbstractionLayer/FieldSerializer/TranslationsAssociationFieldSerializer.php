@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer;
 
-use Generator;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\DecodeByHydratorException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidSerializerFieldException;
@@ -40,7 +39,7 @@ class TranslationsAssociationFieldSerializer implements FieldSerializerInterface
         EntityExistence $existence,
         KeyValuePair $data,
         WriteParameterBag $parameters
-    ): Generator {
+    ): \Generator {
         if (!$field instanceof TranslationsAssociationField) {
             throw new InvalidSerializerFieldException(TranslationsAssociationField::class, $field);
         }
@@ -97,7 +96,7 @@ class TranslationsAssociationFieldSerializer implements FieldSerializerInterface
         KeyValuePair $data,
         WriteParameterBag $parameters,
         EntityExistence $existence
-    ): Generator {
+    ): \Generator {
         $key = $data->getKey();
         $value = $data->getValue();
 

@@ -137,12 +137,9 @@ class CheckoutRuleLoader
 
         return
             $previousLineItems->count() !== $currentLineItems->count()
-            ||
-            $previous->getPrice()->getTotalPrice() !== $current->getPrice()->getTotalPrice()
-            ||
-            $previousLineItems->getKeys() !== $currentLineItems->getKeys()
-            ||
-            $previousLineItems->getTypes() !== $currentLineItems->getTypes()
+            || $previous->getPrice()->getTotalPrice() !== $current->getPrice()->getTotalPrice()
+            || $previousLineItems->getKeys() !== $currentLineItems->getKeys()
+            || $previousLineItems->getTypes() !== $currentLineItems->getTypes()
         ;
     }
 }

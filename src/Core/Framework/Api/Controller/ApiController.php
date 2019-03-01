@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\Api\Controller;
 
-use RuntimeException;
 use Shopware\Core\Framework\Api\Exception\NoEntityClonedException;
 use Shopware\Core\Framework\Api\Exception\ResourceNotFoundException;
 use Shopware\Core\Framework\Api\OAuth\Scope\WriteScope;
@@ -196,7 +195,6 @@ class ApiController extends AbstractController
         if (empty($associations)) {
             $repository = $this->definitionRegistry->getRepository($definition::getEntityName());
         } else {
-            /** @var EntityDefinition $definition */
             $field = $this->getAssociation($definition::getFields(), $associations);
 
             $definition = $field->getReferenceClass();
@@ -336,7 +334,7 @@ class ApiController extends AbstractController
             return $responseFactory->createRedirectResponse($definition, $id, $request, $context);
         }
 
-        throw new RuntimeException(sprintf('Unsupported association for field %s', $association->getPropertyName()));
+        throw new \RuntimeException(sprintf('Unsupported association for field %s', $association->getPropertyName()));
     }
 
     private function fetchListing(Request $request, Context $context, string $entityName, string $path): EntitySearchResult
@@ -585,9 +583,11 @@ class ApiController extends AbstractController
             return $responseFactory->createDetailResponse($entities->first(), $definition, $request, $context, $appendLocationHeader);
         }
 
-        /** @var ManyToManyAssociationField $association */
+        /** @var ManyToManyAssociationField $manyToManyAssociation */
+        $manyToManyAssociation = $association;
+
         /** @var EntityDefinition|string $reference */
-        $reference = $association->getReferenceDefinition();
+        $reference = $manyToManyAssociation->getReferenceDefinition();
 
         $repository = $this->definitionRegistry->getRepository($reference::getEntityName());
         $events = $this->executeWriteOperation($repository, $payload, $context, $type);
@@ -603,7 +603,7 @@ class ApiController extends AbstractController
 
         $payload = [
             'id' => $parent['value'],
-            $association->getPropertyName() => [
+            $manyToManyAssociation->getPropertyName() => [
                 ['id' => $entity->getId()],
             ],
         ];
@@ -631,7 +631,7 @@ class ApiController extends AbstractController
             return $repository->update([$payload], $context);
         }
 
-        throw new RuntimeException('Unsupported write operation.');
+        throw new \RuntimeException('Unsupported write operation.');
     }
 
     private function getAssociation(FieldCollection $fields, array $keys): AssociationInterface

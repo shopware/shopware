@@ -92,6 +92,9 @@ class CachedEntityReader implements EntityReaderInterface
         return $collection;
     }
 
+    /**
+     * @param string|EntityDefinition $definition
+     */
     private function loadResultByIds(string $definition, Criteria $criteria, Context $context): EntityCollection
     {
         //generate cache key list for multi cache get
@@ -116,7 +119,6 @@ class CachedEntityReader implements EntityReaderInterface
             }
         }
 
-        /** @var string|EntityDefinition $definition */
         $collection = $definition::getCollectionClass();
 
         /* @var EntityCollection $collection */

@@ -15,7 +15,7 @@ interface EntityRepositoryInterface
 
     public function searchIds(Criteria $criteria, Context $context): IdSearchResult;
 
-    public function clone(string $id, Context $context, string $newId = null): EntityWrittenContainerEvent;
+    public function clone(string $id, Context $context, ?string $newId = null): EntityWrittenContainerEvent;
 
     public function search(Criteria $criteria, Context $context): EntitySearchResult;
 

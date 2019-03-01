@@ -5,9 +5,6 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common;
 use Doctrine\DBAL\Query\QueryBuilder;
 use Shopware\Core\Framework\Doctrine\FetchModeHelper;
 
-/**
- * Class LastIdQuery
- */
 class LastIdQuery implements IterableQuery
 {
     /**

@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\Util;
 
-use InvalidArgumentException;
 use Shopware\Core\Framework\Plugin\Exception\PluginNotFoundException;
 use Shopware\Core\Framework\Plugin\KernelPluginCollection;
 use Symfony\Component\Filesystem\Filesystem;
@@ -92,7 +91,7 @@ class AssetService implements AssetServiceInterface
     {
         try {
             $bundle = $this->kernel->getBundle($bundleName);
-        } catch (InvalidArgumentException $e) {
+        } catch (\InvalidArgumentException $e) {
             $bundle = $this->pluginCollection->get($bundleName);
         }
 

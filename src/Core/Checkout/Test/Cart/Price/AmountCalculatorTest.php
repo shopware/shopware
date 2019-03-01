@@ -20,9 +20,6 @@ use Shopware\Core\Checkout\Cart\Tax\TaxRuleCalculator;
 use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 
-/**
- * Class PriceCalculatorTest
- */
 class AmountCalculatorTest extends TestCase
 {
     /**

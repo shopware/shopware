@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Content\Media;
 
-use DateTime;
 use Shopware\Core\Content\Category\CategoryCollection;
 use Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupOption\ConfigurationGroupOptionCollection;
 use Shopware\Core\Content\Media\Aggregate\MediaFolder\MediaFolderEntity;
@@ -66,17 +65,17 @@ class MediaEntity extends Entity
     protected $mediaType;
 
     /**
-     * @var DateTime|null
+     * @var \DateTime|null
      */
     protected $createdAt;
 
     /**
-     * @var DateTime|null
+     * @var \DateTime|null
      */
     protected $updatedAt;
 
     /**
-     * @var DateTime|null
+     * @var \DateTime|null
      */
     protected $uploadedAt;
 
@@ -234,32 +233,32 @@ class MediaEntity extends Entity
         $this->mediaType = $mediaType;
     }
 
-    public function getCreatedAt(): ?DateTime
+    public function getCreatedAt(): ?\DateTime
     {
         return $this->createdAt;
     }
 
-    public function setCreatedAt(DateTime $createdAt): void
+    public function setCreatedAt(\DateTime $createdAt): void
     {
         $this->createdAt = $createdAt;
     }
 
-    public function getUpdatedAt(): ?DateTime
+    public function getUpdatedAt(): ?\DateTime
     {
         return $this->updatedAt;
     }
 
-    public function setUpdatedAt(DateTime $updatedAt): void
+    public function setUpdatedAt(\DateTime $updatedAt): void
     {
         $this->updatedAt = $updatedAt;
     }
 
-    public function getUploadedAt(): ?DateTime
+    public function getUploadedAt(): ?\DateTime
     {
         return $this->uploadedAt;
     }
 
-    public function setUploadedAt(?DateTime $uploadedAt): void
+    public function setUploadedAt(?\DateTime $uploadedAt): void
     {
         $this->uploadedAt = $uploadedAt;
     }

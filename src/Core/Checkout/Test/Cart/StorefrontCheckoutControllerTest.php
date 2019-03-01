@@ -650,7 +650,7 @@ class StorefrontCheckoutControllerTest extends TestCase
         ], $context);
     }
 
-    private function createCart(Client $client = null): Client
+    private function createCart(?Client $client = null): Client
     {
         $storefrontClient = $client;
         if ($client === null) {

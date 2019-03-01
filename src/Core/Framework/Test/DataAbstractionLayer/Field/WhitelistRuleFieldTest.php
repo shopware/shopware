@@ -7,7 +7,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\AggregationResult;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\ValueAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -29,9 +29,6 @@ class WhitelistRuleFieldTest extends TestCase
      */
     private $repository;
 
-    /**
-     * @throws \Doctrine\DBAL\DBALException
-     */
     protected function setUp(): void
     {
         $this->connection = $this->getContainer()->get(Connection::class);
@@ -565,7 +562,6 @@ class WhitelistRuleFieldTest extends TestCase
         $criteria->addFilter(new EqualsFilter('product.manufacturerId', $manufacturerId));
         $criteria->addAggregation(new ValueAggregation('product.ean', 'eans'));
 
-        /** @var AggregationResult $result */
         $context = $this->createContextWithRules();
         $result = $this->repository->aggregate($criteria, $context)->getAggregations()->get('eans');
         $values = $result->getResult()[0]['values'];
@@ -632,8 +628,8 @@ class WhitelistRuleFieldTest extends TestCase
         $criteria->addFilter(new EqualsFilter('product_manufacturer.id', $manufacturerId));
         $criteria->addAggregation(new ValueAggregation('product_manufacturer.products.id', 'products'));
 
+        /** @var EntityRepositoryInterface $manufacturerRepository */
         $manufacturerRepository = $this->getContainer()->get('product_manufacturer.repository');
-        /** @var AggregationResult $result */
         $context = $this->createContextWithRules();
         $result = $manufacturerRepository->aggregate($criteria, $context)->getAggregations()->get('products');
         $values = $result->getResult()[0]['values'];
@@ -710,8 +706,8 @@ class WhitelistRuleFieldTest extends TestCase
         $criteria->addFilter(new EqualsFilter('category.id', $categoryId));
         $criteria->addAggregation(new ValueAggregation('category.products.id', 'products'));
 
+        /** @var EntityRepositoryInterface $categoryRepository */
         $categoryRepository = $this->getContainer()->get('category.repository');
-        /** @var AggregationResult $result */
         $context = $this->createContextWithRules();
         $result = $categoryRepository->aggregate($criteria, $context)->getAggregations()->get('products');
         $values = $result->getResult()[0]['values'];

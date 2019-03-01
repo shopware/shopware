@@ -42,9 +42,11 @@ class EntityHydrator
         $this->fieldHandler = $fieldHandler;
     }
 
+    /**
+     * @param string|EntityDefinition $definition
+     */
     public function hydrate(string $entity, string $definition, array $rows, string $root, Context $context): array
     {
-        /** @var EntityDefinition|string $definition */
         $collection = [];
         $this->objects = [];
 
@@ -55,9 +57,11 @@ class EntityHydrator
         return $collection;
     }
 
+    /**
+     * @param string|EntityDefinition $definition
+     */
     private function hydrateEntity(Entity $entity, string $definition, array $row, string $root, Context $context): Entity
     {
-        /** @var EntityDefinition $definition */
         $fields = $definition::getFields();
 
         $identifier = $this->buildPrimaryKey($definition, $row, $root);
@@ -191,9 +195,11 @@ class EntityHydrator
         return $entity;
     }
 
+    /**
+     * @param string|EntityDefinition $definition
+     */
     private function mergeTranslatedAttributes(Entity $viewData, string $definition, EntityCollection $translations): void
     {
-        /** @var string|EntityDefinition $definition */
         $translationDefinition = $definition::getTranslationDefinitionClass();
         $translatedAttributeFields = $translationDefinition::getFields()->filterInstance(AttributesField::class);
 
@@ -241,9 +247,11 @@ class EntityHydrator
         return array_map('strtolower', array_filter($ids));
     }
 
+    /**
+     * @param string|EntityDefinition $definition
+     */
     private function hydrateTranslations(string $definition, string $root, array $row, Context $context): ?EntityCollection
     {
-        /** @var string|EntityDefinition $definition */
         $translationDefinition = $definition::getTranslationDefinitionClass();
 
         if ($translationDefinition === null) {
@@ -274,9 +282,11 @@ class EntityHydrator
         return $collection;
     }
 
+    /**
+     * @param string|EntityDefinition $definition
+     */
     private function buildPrimaryKey($definition, array $row, string $root): array
     {
-        /** @var string|EntityDefinition $definition */
         $primaryKeyFields = $definition::getPrimaryKeys();
         $primaryKey = [];
 
@@ -302,7 +312,6 @@ class EntityHydrator
             return null;
         }
 
-        /** @var EntityDefinition $reference */
         $structClass = $field->getReferenceClass()::getEntityClass();
 
         return $this->hydrateEntity(new $structClass(), $field->getReferenceClass(), $row, $root . '.' . $field->getPropertyName(), $context);

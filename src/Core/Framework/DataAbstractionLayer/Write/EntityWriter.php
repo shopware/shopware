@@ -376,7 +376,11 @@ class EntityWriter implements EntityWriterInterface
 
             if (!array_key_exists($primaryKey->getStorageName(), $command->getPrimaryKey())) {
                 throw new \RuntimeException(
-                    sprintf('Primary key field %s::%s not found in payload or command primary key', $command->getDefinition(), $primaryKey->getStorageName())
+                    sprintf(
+                        'Primary key field %s::%s not found in payload or command primary key',
+                        $command->getDefinition(),
+                        $primaryKey->getStorageName()
+                    )
                 );
             }
 

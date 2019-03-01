@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\Demodata\Generator;
 
-use Exception;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -42,7 +41,7 @@ class CustomerGenerator implements DemodataGeneratorInterface
 
         try {
             $this->createDefaultCustomer($context->getContext());
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             $context->getConsole()->warning('Could not create default customer: ' . $e->getMessage());
         }
     }

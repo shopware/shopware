@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\Test\Plugin\Requirement;
 
-use Exception;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Plugin\Requirement\Exception\RequirementStackException;
@@ -20,7 +19,7 @@ class ValidatorTest extends TestCase
 
         try {
             $this->createValidator()->validateRequirements($pluginBaseClass, Context::createDefaultContext(), 'test');
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             static::fail('This test should not throw an exception');
         }
         static::assertTrue(true);

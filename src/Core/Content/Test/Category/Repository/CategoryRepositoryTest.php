@@ -72,7 +72,6 @@ class CategoryRepositoryTest extends TestCase
 
         static::assertInstanceOf(EntityWrittenContainerEvent::class, $result);
 
-        /** @var EntityWrittenContainerEvent $result */
         $event = $result->getEventByDefinition(CategoryDefinition::class);
 
         static::assertInstanceOf(EntityDeletedEvent::class, $event);
@@ -214,10 +213,9 @@ class CategoryRepositoryTest extends TestCase
             $result->getIds()
         );
 
-        static::assertTrue(
+        static::assertGreaterThan(
+            $result->getDataFieldOfId($recordB, '_score'),
             $result->getDataFieldOfId($recordA, '_score')
-            >
-            $result->getDataFieldOfId($recordB, '_score')
         );
     }
 

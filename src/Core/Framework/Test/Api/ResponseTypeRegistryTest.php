@@ -4,7 +4,6 @@ namespace Shopware\Core\Framework\Test\Api;
 
 use PHPUnit\Framework\TestCase;
 use Ramsey\Uuid\Uuid;
-use ReflectionProperty;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Framework\Api\Response\ResponseFactoryInterface;
@@ -18,6 +17,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\StorefrontFunctionalTestBehaviour;
 use Shopware\Core\PlatformRequest;
 use Symfony\Component\HttpFoundation\ParameterBag;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\UnsupportedMediaTypeHttpException;
 
 class ResponseTypeRegistryTest extends TestCase
@@ -218,7 +218,7 @@ class ResponseTypeRegistryTest extends TestCase
         return new Context($sourceContext);
     }
 
-    private function getDetailResponse(Context $context, $id, $path, $version = '', $accept, $setLocationHeader): \Symfony\Component\HttpFoundation\Response
+    private function getDetailResponse(Context $context, $id, $path, $version = '', $accept, $setLocationHeader): Response
     {
         $category = $this->getTestCategory($id);
 
@@ -230,7 +230,7 @@ class ResponseTypeRegistryTest extends TestCase
         return $this->getFactory($request)->createDetailResponse($category, $definition, $request, $context, $setLocationHeader);
     }
 
-    private function getListResponse($context, $id, $path, $version = '', $accept): \Symfony\Component\HttpFoundation\Response
+    private function getListResponse($context, $id, $path, $version = '', $accept): Response
     {
         $category = $this->getTestCategory($id);
 
@@ -268,7 +268,7 @@ class ResponseTypeRegistryTest extends TestCase
 
     private function setRequestAttributeHack(Request $request, $key, $value): void
     {
-        $r = new ReflectionProperty(Request::class, 'attributes');
+        $r = new \ReflectionProperty(Request::class, 'attributes');
         $r->setAccessible(true);
         /** @var ParameterBag $attributes */
         $attributes = $r->getValue($request);

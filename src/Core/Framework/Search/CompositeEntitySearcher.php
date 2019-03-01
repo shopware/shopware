@@ -121,9 +121,9 @@ class CompositeEntitySearcher
         $results = [];
 
         foreach ($grouped as $definition => $rows) {
+            /** @var string|EntityDefinition $definition */
             $definition = (string) $definition;
 
-            /** @var EntityDefinition|string $definition */
             $name = $definition::getEntityName();
 
             try {
@@ -186,8 +186,8 @@ class CompositeEntitySearcher
         $results = [];
 
         //fetch best matches for defined definitions
+        /** @var string|EntityDefinition $definition */
         foreach ($definitions as $definition) {
-            /** @var string|EntityDefinition $definition */
             $criteria = new Criteria();
             $criteria->setLimit(15);
 

@@ -74,7 +74,7 @@ class OrderTransactionActionController extends AbstractController
         Context $context,
         ResponseFactoryInterface $responseFactory,
         string $transactionId,
-        string $transition = null
+        ?string $transition = null
     ): Response {
         $transaction = $this->getOrderTransaction($transactionId, $context);
 

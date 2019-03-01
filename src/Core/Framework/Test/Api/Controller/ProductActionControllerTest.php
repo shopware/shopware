@@ -68,9 +68,9 @@ class ProductActionControllerTest extends TestCase
 
         $criteria = new Criteria([$id]);
         $criteria->addAssociation('product.configurators');
+        /** @var ProductEntity $product */
         $product = $this->productRepository->search($criteria, $context)->get($id);
 
-        /** @var ProductEntity $product */
         $configurators = $product->getConfigurators();
 
         static::assertCount(2, $configurators);

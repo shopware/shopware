@@ -2,8 +2,6 @@
 
 namespace Shopware\Core\Framework\FeatureFlag;
 
-use RuntimeException;
-
 class FeatureConfig
 {
     private static $flags = [];
@@ -28,7 +26,7 @@ class FeatureConfig
     public static function isActive(string $flagName): bool
     {
         if (!isset(self::$flags[$flagName])) {
-            throw new RuntimeException(sprintf('Unable to retrieve flag %s, not registered', $flagName));
+            throw new \RuntimeException(sprintf('Unable to retrieve flag %s, not registered', $flagName));
         }
 
         return getenv(self::$flags[$flagName]) === '1';

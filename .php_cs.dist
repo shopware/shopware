@@ -1,12 +1,28 @@
-<?php
+<?php declare(strict_types=1);
 
-$finder = PhpCsFixer\Finder::create()
-    ->in(__DIR__.'/src')
-    ->name('*.php')
-;
+$dir = $vendorDir = __DIR__;
+while (!file_exists($dir . '/composer.json') || !is_dir($dir . '/vendor')) {
+    if ($dir === \dirname($dir)) {
+        break;
+    }
+    $dir = \dirname($dir);
+}
 
-return PhpCsFixer\Config::create()
+require $dir . '/vendor/autoload.php';
+
+use PhpCsFixer\Config;
+use PhpCsFixer\Finder;
+use PhpCsFixerCustomFixers\Fixer;
+use PhpCsFixerCustomFixers\Fixers;
+
+$finder = Finder::create()
+    ->in(__DIR__ . '/src')
+    ->name('*.php');
+
+return Config::create()
+    ->setRiskyAllowed(true)
     ->setUsingCache(false)
+    ->registerCustomFixers(new Fixers())
     ->setRules([
         '@PSR2' => true,
         '@Symfony' => true,
@@ -33,7 +49,13 @@ return PhpCsFixer\Config::create()
         'strict_comparison' => true,
         // functions should be used with $strict param set to true
         'strict_param' => true,
-        'array_indentation' => true
+        'array_indentation' => true,
+        Fixer\NoUselessCommentFixer::name() => true,
+        Fixer\PhpdocNoSuperfluousParamFixer::name() => true,
+        Fixer\NoImportFromGlobalNamespaceFixer::name() => true,
+        Fixer\OperatorLinebreakFixer::name() => true,
+        Fixer\PhpdocNoIncorrectVarAnnotationFixer::name() => true,
+        Fixer\NoUnneededConcatenationFixer::name() => true,
+        Fixer\NullableParamStyleFixer::name() => true,
     ])
-    ->setFinder($finder)
-;
+    ->setFinder($finder);

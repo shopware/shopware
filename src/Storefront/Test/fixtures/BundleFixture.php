@@ -37,7 +37,7 @@ class BundleFixture implements BundleInterface
     {
     }
 
-    public function setContainer(ContainerInterface $container = null): void
+    public function setContainer(?ContainerInterface $container = null): void
     {
     }
 

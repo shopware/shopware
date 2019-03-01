@@ -37,7 +37,7 @@ class BusinessEventDispatcher implements EventDispatcherInterface
         $this->reader = $reader;
     }
 
-    public function dispatch($eventName, Event $event = null)
+    public function dispatch($eventName, ?Event $event = null)
     {
         $event = $this->dispatcher->dispatch($eventName, $event);
 

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Test\Cms\Storefront;
 
+use Faker\Factory;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Context\CheckoutContextFactory;
@@ -69,7 +70,7 @@ class StorefrontCmsPageRepositoryTest extends TestCase
 
     private function createPage(): string
     {
-        $faker = \Faker\Factory::create();
+        $faker = Factory::create();
 
         $page = [
             'id' => Uuid::uuid4()->getHex(),

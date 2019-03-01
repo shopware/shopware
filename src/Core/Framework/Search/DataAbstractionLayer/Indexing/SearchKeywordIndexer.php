@@ -201,11 +201,13 @@ class SearchKeywordIndexer implements IndexerInterface
         }
     }
 
+    /**
+     * @param string|EntityDefinition $definition
+     */
     private function createIterator(string $definition): LastIdQuery
     {
         $query = $this->connection->createQueryBuilder();
 
-        /** @var string|EntityDefinition $definition */
         $escaped = EntityDefinitionQueryHelper::escape($definition::getEntityName());
 
         $query->select([$escaped . '.auto_increment', $escaped . '.id']);
@@ -220,9 +222,11 @@ class SearchKeywordIndexer implements IndexerInterface
         return new LastIdQuery($query);
     }
 
+    /**
+     * @param string|EntityDefinition $definition
+     */
     private function indexEntities(string $definition, Context $context, array $ids, string $table, string $documentTable): void
     {
-        /** @var EntityDefinition $definition */
         $repository = $this->definitionRegistry->getRepository($definition::getEntityName());
 
         $entities = $repository->search(new Criteria($ids), $context);
@@ -231,7 +235,6 @@ class SearchKeywordIndexer implements IndexerInterface
 
         $languageId = $this->connection->quote(Uuid::fromStringToBytes($context->getLanguageId()));
 
-        /** @var string|EntityDefinition $definition */
         $entityName = $this->connection->quote($definition::getEntityName());
 
         foreach ($entities as $entity) {

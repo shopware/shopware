@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\DependencyInjection\CompilerPass;
 
-use RuntimeException;
 use Shopware\Core\Framework\FeatureFlag\FeatureConfig;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -16,7 +15,7 @@ class FeatureFlagCompilerPass implements CompilerPassInterface
         foreach ($services as $serviceId => $tags) {
             foreach ($tags as $tag) {
                 if (!isset($tag['flag'])) {
-                    throw new RuntimeException('"flag" is a required field for "shopware.feature" tags');
+                    throw new \RuntimeException('"flag" is a required field for "shopware.feature" tags');
                 }
 
                 if (FeatureConfig::isActive($tag['flag'])) {

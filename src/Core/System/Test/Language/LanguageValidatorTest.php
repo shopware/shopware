@@ -43,7 +43,7 @@ class LanguageValidatorTest extends TestCase
      * *a +> b
      * *a *> c
      *
-     * Add child
+     * Associate child
      * a > c
      * *b +> c
      * +d +> c

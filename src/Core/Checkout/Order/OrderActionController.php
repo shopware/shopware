@@ -72,7 +72,7 @@ class OrderActionController extends AbstractController
         Context $context,
         ResponseFactoryInterface $responseFactory,
         string $orderId,
-        string $transition = null
+        ?string $transition = null
     ): Response {
         $order = $this->getOrder($orderId, $context);
 

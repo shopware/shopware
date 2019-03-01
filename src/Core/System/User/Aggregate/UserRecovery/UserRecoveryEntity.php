@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\System\User\Aggregate\UserRecovery;
 
-use DateTime;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\System\User\UserEntity;
@@ -27,7 +26,7 @@ class UserRecoveryEntity extends Entity
     protected $hash;
 
     /**
-     * @var DateTime
+     * @var \DateTime
      */
     protected $createdAt;
 
@@ -66,12 +65,12 @@ class UserRecoveryEntity extends Entity
         $this->hash = $hash;
     }
 
-    public function getCreatedAt(): DateTime
+    public function getCreatedAt(): \DateTime
     {
         return $this->createdAt;
     }
 
-    public function setCreatedAt(DateTime $createdAt): void
+    public function setCreatedAt(\DateTime $createdAt): void
     {
         $this->createdAt = $createdAt;
     }

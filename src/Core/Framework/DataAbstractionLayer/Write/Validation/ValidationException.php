@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Write\Validation;
 
-use Exception;
 use Shopware\Core\Framework\ShopwareException;
 use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\ConstraintViolationListInterface;
@@ -22,8 +21,8 @@ class ValidationException extends \InvalidArgumentException implements ShopwareE
     public function __construct(
         ConstraintViolationListInterface $violations,
         string $message,
-        int $code = null,
-        Exception $previous = null
+        ?int $code = null,
+        ?\Exception $previous = null
     ) {
         $readableViolationList = [];
 

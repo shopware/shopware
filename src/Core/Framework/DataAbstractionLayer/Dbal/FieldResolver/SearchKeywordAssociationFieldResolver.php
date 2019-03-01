@@ -12,6 +12,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\Inherited;
 
 class SearchKeywordAssociationFieldResolver implements FieldResolverInterface
 {
+    /**
+     * @param string|EntityDefinition $definition
+     */
     public function resolve(
         string $definition,
         string $root,
@@ -37,7 +40,6 @@ class SearchKeywordAssociationFieldResolver implements FieldResolverInterface
         }
         $query->addState($alias);
 
-        /** @var string|EntityDefinition $definition */
         $source = EntityDefinitionQueryHelper::escape($root) . '.' . EntityDefinitionQueryHelper::escape($field->getLocalField());
         if ($field->is(Inherited::class)) {
             $source = EntityDefinitionQueryHelper::escape($root) . '.' . EntityDefinitionQueryHelper::escape($field->getPropertyName());

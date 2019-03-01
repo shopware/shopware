@@ -83,7 +83,7 @@ class GenerateMediaTypesCommand extends Command
         }
 
         if (!is_numeric($batchSize)) {
-            throw new \Exception('BatchSize is not numeric');
+            throw new \RuntimeException('BatchSize is not numeric');
         }
 
         return (int) $batchSize;

@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\Plugin\Requirement\Exception;
 
-use Generator;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -44,7 +43,7 @@ class RequirementStackException extends ShopwareHttpException
         return $result;
     }
 
-    public function getErrors(bool $withTrace = false): Generator
+    public function getErrors(bool $withTrace = false): \Generator
     {
         foreach ($this->exceptions as $exception) {
             $error = [

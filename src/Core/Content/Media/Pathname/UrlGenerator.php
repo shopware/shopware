@@ -27,7 +27,7 @@ class UrlGenerator implements UrlGeneratorInterface
     public function __construct(
         PathnameStrategyInterface $strategy,
         RequestStack $requestStack,
-        string $baseUrl = null
+        ?string $baseUrl = null
     ) {
         $this->strategy = $strategy;
         $this->requestStack = $requestStack;

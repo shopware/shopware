@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Migration;
 
-use DateTime;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Migration\MigrationStep;
@@ -21,7 +20,7 @@ class Migration1551174535AddUserDefaultFolder extends MigrationStep
             'id' => Uuid::uuid4()->getBytes(),
             'association_fields' => '["avatarUser"]',
             'entity' => 'user',
-            'created_at' => (new DateTime())->format(Defaults::DATE_FORMAT),
+            'created_at' => (new \DateTime())->format(Defaults::DATE_FORMAT),
         ]);
     }
 

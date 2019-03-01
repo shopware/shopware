@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\Version\Aggregate\VersionCommit;
 
-use DateTime;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\Version\Aggregate\VersionCommitData\VersionCommitDataCollection;
@@ -23,7 +22,7 @@ class VersionCommitEntity extends Entity
     protected $message;
 
     /**
-     * @var DateTime
+     * @var \DateTime
      */
     protected $createdAt;
 
@@ -77,12 +76,12 @@ class VersionCommitEntity extends Entity
         $this->message = $message;
     }
 
-    public function getCreatedAt(): DateTime
+    public function getCreatedAt(): \DateTime
     {
         return $this->createdAt;
     }
 
-    public function setCreatedAt(DateTime $createdAt): void
+    public function setCreatedAt(\DateTime $createdAt): void
     {
         $this->createdAt = $createdAt;
     }

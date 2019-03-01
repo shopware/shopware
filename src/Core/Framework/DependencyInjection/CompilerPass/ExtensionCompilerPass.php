@@ -49,11 +49,9 @@ class ExtensionCompilerPass implements CompilerPassInterface
     /**
      * Finds all services with the given tag name and order them by their priority.
      *
-     * @param string $tagName
-     *
      * @return array[]
      */
-    private function findAndSortTaggedServices($tagName, ContainerBuilder $container): array
+    private function findAndSortTaggedServices(string $tagName, ContainerBuilder $container): array
     {
         $services = $container->findTaggedServiceIds($tagName);
 

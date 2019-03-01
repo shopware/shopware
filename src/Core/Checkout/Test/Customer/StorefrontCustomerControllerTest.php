@@ -69,7 +69,7 @@ class StorefrontCustomerControllerTest extends TestCase
     {
         $email = Uuid::uuid4()->getHex() . '@example.com';
         $password = 'shopware';
-        $customerId = $this->createCustomer($email, $password);
+        $customerId = $this->createCustomer($password, $email);
 
         $this->getStorefrontClient()->request('POST', '/storefront-api/v1/customer/login', [
             'username' => $email,
@@ -501,7 +501,7 @@ class StorefrontCustomerControllerTest extends TestCase
     private function createCustomerAndLogin(?string $email = null, string $password = 'shopware'): string
     {
         $email = $email ?? Uuid::uuid4()->getHex() . '@example.com';
-        $customerId = $this->createCustomer($email, $password);
+        $customerId = $this->createCustomer($password, $email);
 
         $this->getStorefrontClient()->request('POST', '/storefront-api/v1/customer/login', [
             'username' => $email,
@@ -511,7 +511,7 @@ class StorefrontCustomerControllerTest extends TestCase
         return $customerId;
     }
 
-    private function createCustomer(string $email = null, string $password): string
+    private function createCustomer(string $password, ?string $email = null): string
     {
         $customerId = Uuid::uuid4()->getHex();
         $addressId = Uuid::uuid4()->getHex();

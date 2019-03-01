@@ -9,7 +9,7 @@ class MediaNotFoundException extends ShopwareHttpException
 {
     public const CODE = 600000;
 
-    public function __construct(string $mediaId, int $code = self::CODE, \Throwable $previous = null)
+    public function __construct(string $mediaId, int $code = self::CODE, ?\Throwable $previous = null)
     {
         $message = sprintf('Media for id %s not found', $mediaId);
 

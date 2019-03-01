@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\Test\DataAbstractionLayer\Field;
 
-use DateTime;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
@@ -83,7 +82,7 @@ EOF;
         $entity = $entities->get($id);
 
         static::assertNotNull($entity->get('createdAt'));
-        static::assertInstanceOf(DateTime::class, $entity->get('createdAt'));
+        static::assertInstanceOf(\DateTime::class, $entity->get('createdAt'));
         static::assertNull($entity->get('updatedAt'));
     }
 
@@ -91,7 +90,7 @@ EOF;
     {
         $id = Uuid::uuid4()->getHex();
 
-        $date = new DateTime('2000-01-01 12:12:12.990');
+        $date = new \DateTime('2000-01-01 12:12:12.990');
 
         $data = [
             'id' => $id,
@@ -109,7 +108,7 @@ EOF;
         $entity = $entities->get($id);
 
         static::assertNotNull($entity->get('createdAt'));
-        static::assertInstanceOf(DateTime::class, $entity->get('createdAt'));
+        static::assertInstanceOf(\DateTime::class, $entity->get('createdAt'));
 
         static::assertEquals(
             $date->format(Defaults::DATE_FORMAT),
@@ -137,7 +136,7 @@ EOF;
         $entity = $entities->get($id);
 
         static::assertNotNull($entity->get('createdAt'));
-        static::assertInstanceOf(DateTime::class, $entity->get('createdAt'));
+        static::assertInstanceOf(\DateTime::class, $entity->get('createdAt'));
     }
 
     public function testUpdatedAtWillBeSetAutomatically(): void
@@ -200,7 +199,7 @@ EOF;
     {
         $id = Uuid::uuid4()->getHex();
 
-        $date = new DateTime('2012-01-01');
+        $date = new \DateTime('2012-01-01');
 
         $data = ['id' => $id, 'updatedAt' => $date];
 

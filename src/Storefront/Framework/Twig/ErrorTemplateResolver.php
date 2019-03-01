@@ -2,23 +2,21 @@
 
 namespace Shopware\Storefront\Framework\Twig;
 
-use Exception;
 use Symfony\Component\HttpFoundation\Request;
-use Twig_Environment;
 
 class ErrorTemplateResolver
 {
     /**
-     * @var Twig_Environment
+     * @var \Twig_Environment
      */
     protected $twig;
 
-    public function __construct(Twig_Environment $twig)
+    public function __construct(\Twig_Environment $twig)
     {
         $this->twig = $twig;
     }
 
-    public function resolve(Exception $exception, Request $request): ErrorTemplateStruct
+    public function resolve(\Exception $exception, Request $request): ErrorTemplateStruct
     {
         $template = '@Storefront/frontend/error/error';
 

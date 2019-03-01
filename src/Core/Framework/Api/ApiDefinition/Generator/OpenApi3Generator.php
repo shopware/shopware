@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\Api\ApiDefinition\Generator;
 
-use ReflectionClass;
 use Shopware\Core\Framework\Api\ApiDefinition\ApiDefinitionGeneratorInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
@@ -115,7 +114,7 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
 
             /* @var EntityDefinition $definition */
             try {
-                $class = new ReflectionClass($definition);
+                $class = new \ReflectionClass($definition);
                 if ($class->isSubclassOf(MappingEntityDefinition::class)) {
                     continue;
                 }

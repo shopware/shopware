@@ -28,7 +28,7 @@ class ListField extends JsonField
      */
     private $fieldType;
 
-    public function __construct(string $storageName, string $propertyName, string $fieldType = null)
+    public function __construct(string $storageName, string $propertyName, ?string $fieldType = null)
     {
         parent::__construct($storageName, $propertyName);
         $this->fieldType = $fieldType;

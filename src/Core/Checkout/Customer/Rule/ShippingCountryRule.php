@@ -37,7 +37,6 @@ class ShippingCountryRule extends Rule
             return new Match(false, ['Wrong scope']);
         }
 
-        /** @var CheckoutRuleScope $scope */
         $context = $scope->getCheckoutContext();
         switch ($this->operator) {
             case self::OPERATOR_EQ:

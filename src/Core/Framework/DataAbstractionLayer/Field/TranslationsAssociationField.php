@@ -23,19 +23,9 @@ class TranslationsAssociationField extends OneToManyAssociationField
         $this->addFlags(new CascadeDelete());
     }
 
-    public function getReferenceField(): string
-    {
-        return $this->referenceField;
-    }
-
     public function getLanguageField(): string
     {
         return 'language_id';
-    }
-
-    public function getLocalField(): string
-    {
-        return $this->localField;
     }
 
     public function getExtractPriority(): int

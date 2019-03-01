@@ -2,11 +2,11 @@
 
 namespace Shopware\Core\Framework\Util;
 
-/* This class is based on Rand.php of Component_ZendMath
+/** This class is based on Rand.php of Component_ZendMath
  *
  * @see      https://github.com/zendframework/zf2/blob/master/library/Zend/Math/Rand.php
  * @see      https://github.com/ircmaxell/RandomLib
-*/
+ */
 class Random
 {
     public static function getBytes(int $length): string
@@ -36,7 +36,7 @@ class Random
         return random_int($min, $max);
     }
 
-    public static function getString(int $length, string $charlist = null): string
+    public static function getString(int $length, ?string $charlist = null): string
     {
         if ($length < 1) {
             throw new \DomainException('Length should be >= 1');

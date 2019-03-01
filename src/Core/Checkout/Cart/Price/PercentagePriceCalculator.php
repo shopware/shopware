@@ -40,7 +40,7 @@ class PercentagePriceCalculator
      *
      * @param float $percentage 10.00 for 10%, -10.0 for -10%
      */
-    public function calculate($percentage, PriceCollection $prices, CheckoutContext $context): CalculatedPrice
+    public function calculate(float $percentage, PriceCollection $prices, CheckoutContext $context): CalculatedPrice
     {
         $price = $prices->sum();
 

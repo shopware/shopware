@@ -22,8 +22,6 @@ class CachedEntitySearcherTest extends TestCase
 
     /**
      * @dataProvider searchCases
-     *
-     * @throws \Psr\Cache\InvalidArgumentException
      */
     public function testCacheHits(Criteria $criteria, array $expectedTags): void
     {

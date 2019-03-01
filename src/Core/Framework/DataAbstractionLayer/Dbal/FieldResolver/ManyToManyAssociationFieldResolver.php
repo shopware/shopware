@@ -65,8 +65,7 @@ class ManyToManyAssociationFieldResolver implements FieldResolverInterface
             str_replace(
                 array_keys($parameters),
                 array_values($parameters),
-                '#source# = #alias#.#reference_column#' .
-                $versionJoinCondition
+                '#source# = #alias#.#reference_column#' . $versionJoinCondition
             )
         );
 
@@ -111,9 +110,7 @@ class ManyToManyAssociationFieldResolver implements FieldResolverInterface
             str_replace(
                 array_keys($parameters),
                 array_values($parameters),
-                '#mapping#.#source_column# = #alias#.#reference_column# ' .
-                $versionJoinCondition .
-                $ruleCondition
+                '#mapping#.#source_column# = #alias#.#reference_column# ' . $versionJoinCondition . $ruleCondition
             )
         );
 

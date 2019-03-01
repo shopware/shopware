@@ -19,7 +19,7 @@ use Shopware\Core\Framework\Struct\ArrayEntity;
 abstract class EntityDefinition
 {
     /**
-     * @var (FieldCollection|null)[]
+     * @var FieldCollection[]|null[]
      */
     protected static $fields = [];
 
@@ -34,7 +34,7 @@ abstract class EntityDefinition
     protected static $extensions = [];
 
     /**
-     * @var (string|null)[]
+     * @var string[]|null[]
      */
     protected static $translationDefinitions = [];
 
@@ -209,12 +209,9 @@ abstract class EntityDefinition
 
     public static function isTreeAware(): bool
     {
-        return
-            static::isParentAware() &&
-            (static::getFields()->filterInstance(TreePathField::class)->count() > 0 ||
-            static::getFields()->filterInstance(TreeLevelField::class)->count() > 0)
-
-        ;
+        return static::isParentAware()
+            && (static::getFields()->filterInstance(TreePathField::class)->count() > 0
+                || static::getFields()->filterInstance(TreeLevelField::class)->count() > 0);
     }
 
     abstract protected static function defineFields(): FieldCollection;

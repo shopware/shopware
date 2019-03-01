@@ -210,7 +210,7 @@ class Criteria extends Struct
         return $this;
     }
 
-    public function addAssociation(string $field, Criteria $criteria = null): self
+    public function addAssociation(string $field, ?Criteria $criteria = null): self
     {
         $this->associations[$field] = $criteria ?? new self();
 

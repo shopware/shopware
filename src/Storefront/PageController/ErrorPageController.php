@@ -2,7 +2,6 @@
 
 namespace Shopware\Storefront\PageController;
 
-use Exception;
 use Shopware\Storefront\Framework\Controller\StorefrontController;
 use Shopware\Storefront\Framework\Twig\ErrorTemplateResolver;
 use Symfony\Component\HttpFoundation\Request;
@@ -20,13 +19,13 @@ class ErrorPageController extends StorefrontController
         $this->errorTemplateResolver = $errorTemplateResolver;
     }
 
-    public function error(Exception $exception, Request $request): Response
+    public function error(\Exception $exception, Request $request): Response
     {
         try {
             $errorTemplate = $this->errorTemplateResolver->resolve($exception, $request);
 
             return $this->renderStorefront($errorTemplate->getTemplateName(), $errorTemplate->getArguments());
-        } catch (Exception $e) { //final Fallback
+        } catch (\Exception $e) { //final Fallback
             return $this->renderStorefront(
                 '@Storefront/page/error/index.html.twig',
                 ['exception' => $exception, 'followingException' => $e]

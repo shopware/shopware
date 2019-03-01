@@ -49,7 +49,7 @@ fi
 if [[ -n "$PHP_FILES" ]]
 then
     # fix code style and update the commit
-    bin/php-cs-fixer.phar fix --config=.php_cs.dist --quiet --allow-risky=yes -vv ${PHP_FILES}
+    bin/php-cs-fixer.phar fix --config=.php_cs.dist --quiet -vv ${PHP_FILES}
 fi
 
 if [[ -n "$JS_FILES" && -x src/Administration/Resources/administration/node_modules/.bin/eslint ]]
@@ -58,5 +58,3 @@ then
 fi
 
 git add ${JS_FILES} ${PHP_FILES}
-
-

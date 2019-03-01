@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\Test\TestCaseBase;
 
-use ArrayAccess;
 use PHPUnit\Framework\Assert;
 use PHPUnit\Framework\Constraint\ArraySubset;
 use PHPUnit\Util\InvalidArgumentHelper;
@@ -17,14 +16,14 @@ trait AssertArraySubsetBehaviour
      */
     public function silentAssertArraySubset($subset, $array, bool $checkForObjectIdentity = false, string $message = ''): void
     {
-        if (!(\is_array($subset) || $subset instanceof ArrayAccess)) {
+        if (!(\is_array($subset) || $subset instanceof \ArrayAccess)) {
             throw InvalidArgumentHelper::factory(
                 1,
                 'array or ArrayAccess'
             );
         }
 
-        if (!(\is_array($array) || $array instanceof ArrayAccess)) {
+        if (!(\is_array($array) || $array instanceof \ArrayAccess)) {
             throw InvalidArgumentHelper::factory(
                 2,
                 'array or ArrayAccess'

@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\Plugin;
 
-use Closure;
 use Shopware\Core\Framework\Plugin;
 
 class KernelPluginCollection
@@ -73,7 +72,7 @@ class KernelPluginCollection
         });
     }
 
-    public function filter(Closure $closure)
+    public function filter(\Closure $closure)
     {
         return new static(array_filter($this->bundles, $closure));
     }

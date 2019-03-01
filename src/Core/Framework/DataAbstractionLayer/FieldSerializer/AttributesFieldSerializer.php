@@ -112,7 +112,9 @@ class AttributesFieldSerializer extends JsonFieldSerializer
             case AttributeTypes::DATETIME:
                 if ($value instanceof \DateTime) {
                     return $value->format(Defaults::DATE_FORMAT);
-                } elseif (is_string($value)) {
+                }
+
+                if (is_string($value)) {
                     return (new \DateTime($value))->format(Defaults::DATE_FORMAT);
                 }
 

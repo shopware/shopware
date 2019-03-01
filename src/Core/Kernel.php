@@ -6,7 +6,6 @@ use Doctrine\DBAL\Configuration;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\FetchMode;
-use RuntimeException;
 use Shopware\Core\Framework\Framework;
 use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Framework\Plugin;
@@ -239,7 +238,7 @@ class Kernel extends HttpKernel
             $className = '\\' . $namespace . '\\' . $pluginName;
 
             if (!class_exists($className)) {
-                throw new RuntimeException(
+                throw new \RuntimeException(
                     sprintf('Unable to load class %s for plugin %s in file %s', $className, $pluginName, $pluginFile)
                 );
             }
@@ -248,7 +247,7 @@ class Kernel extends HttpKernel
             $plugin = new $className((bool) $pluginData['active'], $pluginPath);
 
             if (!$plugin instanceof Plugin) {
-                throw new RuntimeException(
+                throw new \RuntimeException(
                     sprintf('Class %s must extend %s in file %s', \get_class($plugin), Plugin::class, $pluginFile)
                 );
             }

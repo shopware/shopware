@@ -13,9 +13,7 @@ trait CreateFromTrait
             throw new \InvalidArgumentException($exception->getMessage());
         }
 
-        $vars = get_object_vars($object);
-
-        foreach ($vars as $property => $value) {
+        foreach (get_object_vars($object) as $property => $value) {
             $self->$property = $value;
         }
 

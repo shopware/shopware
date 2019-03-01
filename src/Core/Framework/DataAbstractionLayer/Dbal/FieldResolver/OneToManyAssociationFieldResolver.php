@@ -83,9 +83,7 @@ class OneToManyAssociationFieldResolver implements FieldResolverInterface
             str_replace(
                 array_keys($parameters),
                 array_values($parameters),
-                '#source# = #alias#.#reference_column#' .
-                $versionJoin .
-                $ruleCondition
+                '#source# = #alias#.#reference_column#' . $versionJoin . $ruleCondition
             )
         );
 

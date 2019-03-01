@@ -111,7 +111,6 @@ class OrderActionControllerTest extends TestCase
         static::assertEquals($orderId, $response['data']['id']);
 
         $stateId = $response['data']['relationships']['stateMachineState']['data']['id'] ?? null;
-        // $newStateTechnicalName = $response['data']['relationships']['stateMachineState']['data']['technicalName'];
         static::assertNotNull($stateId);
 
         $destinationStateTechnicalName = null;

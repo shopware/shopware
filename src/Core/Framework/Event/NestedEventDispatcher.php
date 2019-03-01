@@ -18,7 +18,7 @@ class NestedEventDispatcher implements NestedEventDispatcherInterface
         $this->dispatcher = $dispatcher;
     }
 
-    public function dispatch($eventName, Event $event = null): Event
+    public function dispatch($eventName, ?Event $event = null): Event
     {
         if ($event instanceof NestedEvent && $events = $event->getEvents()) {
             foreach ($events as $nested) {

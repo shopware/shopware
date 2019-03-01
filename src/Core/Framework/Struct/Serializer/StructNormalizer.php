@@ -2,8 +2,6 @@
 
 namespace Shopware\Core\Framework\Struct\Serializer;
 
-use DateTime;
-use ReflectionClass;
 use Shopware\Core\Framework\Struct\Struct;
 use Symfony\Component\Serializer\Encoder\JsonDecode;
 use Symfony\Component\Serializer\Encoder\JsonEncode;
@@ -16,7 +14,7 @@ class StructNormalizer implements DenormalizerInterface, NormalizerInterface
     /**
      * Internal cache property which contains created reflection classes
      *
-     * @var ReflectionClass[]
+     * @var \ReflectionClass[]
      */
     private $classes = [];
 
@@ -139,20 +137,20 @@ class StructNormalizer implements DenormalizerInterface, NormalizerInterface
         return $struct;
     }
 
-    private function getReflectionClass(string $class): ReflectionClass
+    private function getReflectionClass(string $class): \ReflectionClass
     {
         if (isset($this->classes[$class])) {
             return $this->classes[$class];
         }
 
-        return $this->classes[$class] = new ReflectionClass($class);
+        return $this->classes[$class] = new \ReflectionClass($class);
     }
 
-    private function createDate(string $date): ?DateTime
+    private function createDate(string $date): ?\DateTime
     {
-        $d = DateTime::createFromFormat(DateTime::ATOM, $date);
+        $d = \DateTime::createFromFormat(\DateTime::ATOM, $date);
 
-        if ($d && $d->format(DateTime::ATOM) === $date) {
+        if ($d && $d->format(\DateTime::ATOM) === $date) {
             return $d;
         }
 

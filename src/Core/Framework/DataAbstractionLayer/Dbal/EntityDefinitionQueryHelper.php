@@ -71,7 +71,6 @@ class EntityDefinitionQueryHelper
 
             if ($field instanceof TranslatedField) {
                 $source = $source::getTranslationDefinitionClass();
-                /** @var EntityDefinition|string $definition */
                 $fields = $source::getFields();
                 $accessorFields[] = $fields->get($part);
                 continue;
@@ -104,6 +103,8 @@ class EntityDefinitionQueryHelper
      *
      * fieldName => 'category.products.name'
      * Returns as well the above field definition
+     *
+     * @param string|EntityDefinition $definition
      */
     public function getField(string $fieldName, string $definition, string $root): ?Field
     {
@@ -114,7 +115,6 @@ class EntityDefinitionQueryHelper
             $fieldName = substr($fieldName, \strlen($prefix));
         }
 
-        /** @var EntityDefinition $definition */
         $fields = $definition::getFields();
 
         $isAssociation = strpos($fieldName, '.') !== false;
@@ -135,7 +135,6 @@ class EntityDefinitionQueryHelper
             return $field;
         }
 
-        /** @var AssociationInterface $field */
         $referenceClass = $field->getReferenceClass();
         if ($field instanceof ManyToManyAssociationField) {
             $referenceClass = $field->getReferenceDefinition();
@@ -164,6 +163,8 @@ class EntityDefinitionQueryHelper
      * root      => product
      * return    => COALESCE(`product.translation`.`name`,`product.parent.translation`.`name`)
      *
+     * @param string|EntityDefinition $definition
+     *
      * @throws UnmappedFieldException
      */
     public function getFieldAccessor(string $fieldName, string $definition, string $root, Context $context): string
@@ -177,7 +178,6 @@ class EntityDefinitionQueryHelper
             $fieldName = substr($fieldName, \strlen($prefix));
         }
 
-        /** @var EntityDefinition $definition */
         $fields = $definition::getFields();
         if ($fields->has($fieldName)) {
             $field = $fields->get($fieldName);
@@ -220,10 +220,11 @@ class EntityDefinitionQueryHelper
     /**
      * Creates the basic root query for the provided entity definition and application context.
      * It considers the current context version.
+     *
+     * @param string|EntityDefinition $definition
      */
     public function getBaseQuery(QueryBuilder $query, string $definition, Context $context): QueryBuilder
     {
-        /** @var string|EntityDefinition $definition */
         $table = $definition::getEntityName();
 
         $query->from(self::escape($table), self::escape($table));
@@ -231,12 +232,10 @@ class EntityDefinitionQueryHelper
         $useVersionFallback = (
             // only applies for versioned entities
             $definition::isVersionAware()
-            &&
             // only add live fallback if the current version isn't the live version
-            $context->getVersionId() !== Defaults::LIVE_VERSION
-            &&
+            && $context->getVersionId() !== Defaults::LIVE_VERSION
             // sub entities have no live fallback
-            $definition::getParentDefinitionClass() === null
+            && $definition::getParentDefinitionClass() === null
         );
 
         if ($useVersionFallback) {
@@ -318,6 +317,8 @@ class EntityDefinitionQueryHelper
     /**
      * Used for dynamic sql joins. In case that the given fieldName is unknown or event nested with multiple association
      * roots, the function can resolve each association part of the field name, even if one part of the fieldName contains a translation or event inherited data field.
+     *
+     * @param string|EntityDefinition $definition
      */
     public function resolveAccessor(string $fieldName, string $definition, string $root, QueryBuilder $query, Context $context): void
     {
@@ -331,7 +332,6 @@ class EntityDefinitionQueryHelper
             $fieldName = substr($fieldName, \strlen($prefix));
         }
 
-        /** @var EntityDefinition $definition */
         $fields = $definition::getFields();
 
         if (!$fields->has($fieldName)) {
@@ -381,10 +381,11 @@ class EntityDefinitionQueryHelper
      * Adds the full translation select part to the provided sql query.
      * Considers the parent-child inheritance and provided context language inheritance.
      * The raw parameter allows to skip the parent-child inheritance.
+     *
+     * @param string|EntityDefinition $definition
      */
     public function addTranslationSelect(string $root, string $definition, QueryBuilder $query, Context $context): void
     {
-        /** @var string|EntityDefinition $definition */
         /** @var string|EntityDefinition $translationDefinition */
         $translationDefinition = $definition::getTranslationDefinitionClass();
 
@@ -399,14 +400,12 @@ class EntityDefinitionQueryHelper
 
             foreach ($chain as $tableAccessor) {
                 $query->addSelect(
-                    self::escape($tableAccessor['alias']) . '.' . self::escape($field->getStorageName())
-                    . ' as ' .
-                    self::escape($tableAccessor['alias'] . '.' . $field->getPropertyName())
+                    self::escape($tableAccessor['alias']) . '.' . self::escape($field->getStorageName()) . ' as '
+                    . self::escape($tableAccessor['alias'] . '.' . $field->getPropertyName())
                 );
             }
         }
 
-        /** @var string|EntityDefinition $defintion */
         //rebuild translation chain with parent inheritance
         $chain = self::buildTranslationChain($root, $context, $definition::isInheritanceAware());
 
@@ -420,20 +419,20 @@ class EntityDefinitionQueryHelper
 
             //add selection for resolved parent-child and language inheritance
             $query->addSelect(
-                $this->getTranslationFieldSelectExpr($field, $chain)
-                . ' as ' .
-                self::escape($root . '.' . $field->getPropertyName())
+                $this->getTranslationFieldSelectExpr($field, $chain) . ' as '
+                . self::escape($root . '.' . $field->getPropertyName())
             );
         }
     }
 
+    /**
+     * @param string|EntityDefinition $definition
+     */
     public function joinVersion(QueryBuilder $query, string $definition, string $root, Context $context): void
     {
-        /** @var string|EntityDefinition $definition */
         $table = $definition::getEntityName();
 
-        $connection = $query->getConnection();
-        $versionQuery = $connection->createQueryBuilder();
+        $versionQuery = $query->getConnection()->createQueryBuilder();
         $versionQuery->select([
             'DISTINCT COALESCE(draft.`id`, live.`id`) as id',
             'COALESCE(draft.`version_id`, live.`version_id`) as version_id',
@@ -459,11 +458,12 @@ class EntityDefinitionQueryHelper
         );
     }
 
+    /**
+     * @param string|EntityDefinition $definition
+     */
     public static function getTranslatedField(string $definition, TranslatedField $translatedField): Field
     {
-        /** @var EntityDefinition|string $definition */
         $translationDefinition = $definition::getTranslationDefinitionClass();
-        /** @var EntityDefinition|string $translationDefinition */
         $field = $translationDefinition::getFields()->get($translatedField->getPropertyName());
         if ($field === null || !$field instanceof StorageAware || !$field instanceof Field) {
             throw new \RuntimeException(\sprintf('Missing translated storage aware property %s in %s', $translatedField->getPropertyName(), $translationDefinition));

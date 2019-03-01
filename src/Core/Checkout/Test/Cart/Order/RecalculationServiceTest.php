@@ -384,10 +384,11 @@ class RecalculationServiceTest extends TestCase
         static::assertSame(5.0, $newShippingCosts->getTotalPrice());
         static::assertSame(3, $newShippingCosts->getCalculatedTaxes()->count());
         static::assertEquals($shippingCosts->getTaxRules(), $newShippingCosts->getTaxRules());
-        static::assertEquals(5,
-            $newShippingCosts->getCalculatedTaxes()->get(5)->getPrice() +
-            $newShippingCosts->getCalculatedTaxes()->get(7)->getPrice() +
-            $newShippingCosts->getCalculatedTaxes()->get(19)->getPrice()
+        static::assertEquals(
+            5,
+            $newShippingCosts->getCalculatedTaxes()->get(5)->getPrice()
+            + $newShippingCosts->getCalculatedTaxes()->get(7)->getPrice()
+            + $newShippingCosts->getCalculatedTaxes()->get(19)->getPrice()
         );
     }
 

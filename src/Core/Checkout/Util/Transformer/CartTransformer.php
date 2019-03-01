@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Checkout\Util\Transformer;
 
-use DateTime;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Defaults;
@@ -15,7 +14,7 @@ class CartTransformer
         $currency = $context->getCurrency();
 
         return [
-            'date' => (new DateTime())->format(Defaults::DATE_FORMAT),
+            'date' => (new \DateTime())->format(Defaults::DATE_FORMAT),
             'price' => $cart->getPrice(),
             'shippingCosts' => $cart->getShippingCosts(),
             'stateId' => $stateId,

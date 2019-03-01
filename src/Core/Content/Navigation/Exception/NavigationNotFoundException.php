@@ -9,7 +9,7 @@ class NavigationNotFoundException extends ShopwareHttpException
 {
     public const CODE = 400000;
 
-    public function __construct(string $categoryId, int $code = self::CODE, \Throwable $previous = null)
+    public function __construct(string $categoryId, int $code = self::CODE, ?\Throwable $previous = null)
     {
         $message = sprintf('Navigation for id %s not found', $categoryId);
 

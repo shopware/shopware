@@ -69,10 +69,9 @@ class CountryStateRepositoryTest extends TestCase
             $result->getIds()
         );
 
-        static::assertTrue(
+        static::assertGreaterThan(
+            $result->getDataFieldOfId($recordB, '_score'),
             $result->getDataFieldOfId($recordA, '_score')
-            >
-            $result->getDataFieldOfId($recordB, '_score')
         );
     }
 }

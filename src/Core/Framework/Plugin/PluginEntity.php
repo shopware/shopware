@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\Plugin;
 
-use DateTime;
 use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
@@ -58,12 +57,12 @@ class PluginEntity extends Entity
     protected $upgradeVersion;
 
     /**
-     * @var DateTime|null
+     * @var \DateTime|null
      */
     protected $installedAt;
 
     /**
-     * @var DateTime|null
+     * @var \DateTime|null
      */
     protected $upgradedAt;
 
@@ -93,12 +92,12 @@ class PluginEntity extends Entity
     protected $changelog;
 
     /**
-     * @var DateTime|null
+     * @var \DateTime|null
      */
     protected $createdAt;
 
     /**
-     * @var DateTime|null
+     * @var \DateTime|null
      */
     protected $updatedAt;
 
@@ -207,22 +206,22 @@ class PluginEntity extends Entity
         $this->upgradeVersion = $upgradeVersion;
     }
 
-    public function getInstalledAt(): ?DateTime
+    public function getInstalledAt(): ?\DateTime
     {
         return $this->installedAt;
     }
 
-    public function setInstalledAt(?DateTime $installedAt): void
+    public function setInstalledAt(?\DateTime $installedAt): void
     {
         $this->installedAt = $installedAt;
     }
 
-    public function getUpgradedAt(): ?DateTime
+    public function getUpgradedAt(): ?\DateTime
     {
         return $this->upgradedAt;
     }
 
-    public function setUpgradedAt(DateTime $upgradedAt): void
+    public function setUpgradedAt(\DateTime $upgradedAt): void
     {
         $this->upgradedAt = $upgradedAt;
     }
@@ -277,22 +276,22 @@ class PluginEntity extends Entity
         $this->changelog = $changelog;
     }
 
-    public function getCreatedAt(): ?DateTime
+    public function getCreatedAt(): ?\DateTime
     {
         return $this->createdAt;
     }
 
-    public function setCreatedAt(DateTime $createdAt): void
+    public function setCreatedAt(\DateTime $createdAt): void
     {
         $this->createdAt = $createdAt;
     }
 
-    public function getUpdatedAt(): ?DateTime
+    public function getUpdatedAt(): ?\DateTime
     {
         return $this->updatedAt;
     }
 
-    public function setUpdatedAt(DateTime $updatedAt): void
+    public function setUpdatedAt(\DateTime $updatedAt): void
     {
         $this->updatedAt = $updatedAt;
     }

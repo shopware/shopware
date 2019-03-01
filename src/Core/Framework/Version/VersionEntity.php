@@ -29,9 +29,6 @@ class VersionEntity extends Entity
      */
     protected $commits;
 
-    /**
-     * VersionEntity constructor.
-     */
     public function __construct()
     {
         $this->commits = new VersionCommitCollection();

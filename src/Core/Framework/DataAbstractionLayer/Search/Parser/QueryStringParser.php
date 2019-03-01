@@ -145,9 +145,11 @@ class QueryStringParser
         }
     }
 
+    /**
+     * @param string|EntityDefinition $definition
+     */
     private static function buildFieldName(string $definition, string $fieldName): string
     {
-        /** @var EntityDefinition $definition */
         $prefix = $definition::getEntityName() . '.';
 
         if (strpos($fieldName, $prefix) === false) {

@@ -21,22 +21,21 @@ module.exports = {
 
         browser.expect.element(`${page.elements.gridRow}--0 a`).to.have.text.that.equals('A Set Name Snippet');
     },
-    'delete snippet': (browser) => {
+    'edit snippet': (browser) => {
         const page = settingsPage(browser);
 
         browser
-            .clickContextMenuItem('.sw-context-menu-item--danger', page.elements.contextMenuButton)
-            .expect.element(`${page.elements.modal} ${page.elements.modal}__body`).to.have.text.that.contains(`Are you sure you want to delete the snippet set "${global.AdminFixtureService.basicFixture.name}"?`);
-
-        browser
-            .click(`${page.elements.modal}__footer button${page.elements.primaryButton}`)
-            .checkNotification('Snippet set has been deleted successfully.')
-            .waitForElementNotPresent(page.elements.loader);
+            .waitForElementVisible(`${page.elements.gridRow}--0`)
+            .moveToElement(`${page.elements.gridRow}--0`, 5, 5).doubleClick()
+            .fillField(`${page.elements.gridRow}--0 input[name=sw-field--item-name]`, 'Nordfriesisch', true)
+            .waitForElementVisible(`${page.elements.gridRow}--0 ${page.elements.gridRowInlineEdit}`)
+            .click(`${page.elements.gridRow}--0 ${page.elements.gridRowInlineEdit}`)
+            .waitForElementNotPresent('.is--inline-editing');
     },
-    'verify deletion': (browser) => {
+    'verify change': (browser) => {
         const page = settingsPage(browser);
 
-        browser.expect.element(`${page.elements.gridRow}--0 a`).to.have.text.that.not.equals('A Set Name Snippet');
+        browser.expect.element(`${page.elements.gridRow}--0 a`).to.have.text.that.equals('Nordfriesisch');
     },
     after: (browser) => {
         browser.end();

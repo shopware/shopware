@@ -69,7 +69,8 @@ $sw-button-default-disabled-color:    $color-light-gray;
         color: lighten($sw-button-default-color-text, 30%);
     }
 
-    &.sw-button--square .sw-icon {
+    &.sw-button--square:not([disabled]) .sw-icon,
+    &.sw-button--square:not(.sw-button--disabled) .sw-icon {
         color: $sw-button-default-color-text;
     }
 

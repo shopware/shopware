@@ -16,11 +16,6 @@
         position: absolute;
         right: 20px;
         top: 122px;
-
-        // @todo
-        &:not([disabled]) {
-            border-color: $color-shopware-blue;
-        }
     }
 
     @media screen and (min-width: 1580px) {

@@ -54,5 +54,6 @@ return Config::create()
         Fixer\NoImportFromGlobalNamespaceFixer::name() => true,
         Fixer\OperatorLinebreakFixer::name() => true,
         Fixer\PhpdocNoIncorrectVarAnnotationFixer::name() => true,
+        Fixer\NoUnneededConcatenationFixer::name() => true,
     ])
     ->setFinder($finder);

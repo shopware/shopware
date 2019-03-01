@@ -220,7 +220,7 @@ class EntityAggregator implements EntityAggregatorInterface
     {
         $query->addSelect([
             $accessor . ' as `key`',
-            'COUNT(' . $accessor . ')' . ' as `count`',
+            'COUNT(' . $accessor . ') as `count`',
         ]);
         $query->addGroupBy($accessor);
 
@@ -249,19 +249,19 @@ class EntityAggregator implements EntityAggregatorInterface
     {
         $select = [];
         if ($aggregation->fetchCount()) {
-            $select[] = 'COUNT(' . $accessor . ')' . ' as `count`';
+            $select[] = 'COUNT(' . $accessor . ') as `count`';
         }
         if ($aggregation->fetchAvg()) {
-            $select[] = 'AVG(' . $accessor . ')' . ' as `avg`';
+            $select[] = 'AVG(' . $accessor . ') as `avg`';
         }
         if ($aggregation->fetchSum()) {
-            $select[] = 'SUM(' . $accessor . ')' . ' as `sum`';
+            $select[] = 'SUM(' . $accessor . ') as `sum`';
         }
         if ($aggregation->fetchMin()) {
-            $select[] = 'MIN(' . $accessor . ')' . ' as `min`';
+            $select[] = 'MIN(' . $accessor . ') as `min`';
         }
         if ($aggregation->fetchMax()) {
-            $select[] = 'MAX(' . $accessor . ')' . ' as `max`';
+            $select[] = 'MAX(' . $accessor . ') as `max`';
         }
 
         if (empty($select)) {

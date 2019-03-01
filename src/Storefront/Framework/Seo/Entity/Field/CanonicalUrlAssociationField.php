@@ -2,9 +2,9 @@
 
 namespace Shopware\Storefront\Framework\Seo\Entity\Field;
 
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Extension;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\WriteProtected;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\Extension;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\WriteProtected;
 use Shopware\Storefront\Framework\Seo\SeoUrlDefinition;
 
 class CanonicalUrlAssociationField extends ManyToOneAssociationField

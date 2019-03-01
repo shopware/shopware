@@ -6,9 +6,9 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\SearchRanking;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\SearchFilterInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\TokenizerInterface;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\SearchRanking;
 
 class LanguageAnalyzer implements SearchAnalyzerInterface
 {

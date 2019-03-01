@@ -4,10 +4,10 @@ namespace Shopware\Core\Content\Navigation\Aggregate\NavigationTranslation;
 
 use Shopware\Core\Content\Navigation\NavigationDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityTranslationDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\Required;
 
 class NavigationTranslationDefinition extends EntityTranslationDefinition
 {

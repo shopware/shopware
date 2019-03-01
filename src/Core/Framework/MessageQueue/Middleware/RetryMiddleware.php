@@ -10,7 +10,7 @@ use Shopware\Core\Framework\MessageQueue\DeadMessage\DeadMessageUpdater;
 use Shopware\Core\Framework\MessageQueue\Exception\MessageFailedException;
 use Shopware\Core\Framework\MessageQueue\Message\RetryMessage;
 use Shopware\Core\Framework\MessageQueue\Stamp\DecryptedStamp;
-use Shopware\Core\Framework\ScheduledTask\ScheduledTaskInterface;
+use Shopware\Core\Framework\ScheduledTask\ScheduledTask;
 use Shopware\Core\Framework\Struct\Uuid;
 use Symfony\Component\Messenger\Envelope;
 use Symfony\Component\Messenger\Middleware\MiddlewareInterface;
@@ -69,7 +69,7 @@ class RetryMiddleware implements MiddlewareInterface
     {
         $encrypted = count($envelope->all(DecryptedStamp::class)) > 0;
         $scheduledTaskId = null;
-        if ($envelope->getMessage() instanceof ScheduledTaskInterface) {
+        if ($envelope->getMessage() instanceof ScheduledTask) {
             $scheduledTaskId = $envelope->getMessage()->getTaskId();
         }
 

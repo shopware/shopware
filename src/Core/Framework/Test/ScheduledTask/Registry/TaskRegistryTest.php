@@ -91,7 +91,7 @@ class TaskRegistryTest extends TestCase
     {
         $this->expectException(\RuntimeException::class);
         $this->expectExceptionMessage(sprintf(
-            'Tried to register "%s" as scheduled task, but class does not implement ScheduledTaskInterface',
+            'Tried to register "%s" as scheduled task, but class does not extend ScheduledTask',
             TestMessage::class
         ));
         $registry = new TaskRegistry(

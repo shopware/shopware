@@ -12,8 +12,8 @@ use Shopware\Core\Framework\MessageQueue\Handler\RetryMessageHandler;
 use Shopware\Core\Framework\MessageQueue\Message\RetryMessage;
 use Shopware\Core\Framework\MessageQueue\Middleware\RetryMiddleware;
 use Shopware\Core\Framework\MessageQueue\Stamp\DecryptedStamp;
+use Shopware\Core\Framework\ScheduledTask\ScheduledTask;
 use Shopware\Core\Framework\ScheduledTask\ScheduledTaskDefinition;
-use Shopware\Core\Framework\ScheduledTask\ScheduledTaskInterface;
 use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Symfony\Component\Messenger\Envelope;
@@ -81,7 +81,7 @@ class RetryMiddlewareTest extends MiddlewareTestCase
     public function testMiddlewareSavesScheduledTask(): void
     {
         $taskId = Uuid::uuid4()->getHex();
-        $message = $this->createMock(ScheduledTaskInterface::class);
+        $message = $this->createMock(ScheduledTask::class);
         $message->method('getTaskId')
             ->willReturn($taskId);
         $envelope = new Envelope($message);

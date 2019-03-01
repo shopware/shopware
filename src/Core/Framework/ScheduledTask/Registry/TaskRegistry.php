@@ -6,10 +6,10 @@ use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\ScheduledTask\ScheduledTask;
 use Shopware\Core\Framework\ScheduledTask\ScheduledTaskCollection;
 use Shopware\Core\Framework\ScheduledTask\ScheduledTaskDefinition;
 use Shopware\Core\Framework\ScheduledTask\ScheduledTaskEntity;
-use Shopware\Core\Framework\ScheduledTask\ScheduledTaskInterface;
 
 class TaskRegistry
 {
@@ -49,11 +49,11 @@ class TaskRegistry
 
     private function insertNewTasks(ScheduledTaskCollection $alreadyRegisteredTasks): void
     {
-        /** @var ScheduledTaskInterface $task */
+        /** @var ScheduledTask $task */
         foreach ($this->tasks as $task) {
-            if (!$task instanceof ScheduledTaskInterface) {
+            if (!$task instanceof ScheduledTask) {
                 throw new \RuntimeException(sprintf(
-                    'Tried to register "%s" as scheduled task, but class does not implement ScheduledTaskInterface',
+                    'Tried to register "%s" as scheduled task, but class does not extend ScheduledTask',
                     get_class($task)
                 ));
             }
@@ -98,7 +98,7 @@ class TaskRegistry
 
     private function isAlreadyRegistered(
         ScheduledTaskCollection $alreadyScheduledTasks,
-        ScheduledTaskInterface $task
+        ScheduledTask $task
     ): bool {
         return count(
             $alreadyScheduledTasks

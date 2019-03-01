@@ -9,7 +9,7 @@ class MediaFolderNotFoundException extends ShopwareHttpException
 {
     protected $code = 'MEDIA_FOLDER_NOT_FOUND_EXCEPTION';
 
-    public function __construct(string $folderId, int $code = 0, \Throwable $previous = null)
+    public function __construct(string $folderId, int $code = 0, ?\Throwable $previous = null)
     {
         $message = sprintf(
             'Could not find media folder with id: "%s"',

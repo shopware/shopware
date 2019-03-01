@@ -9,7 +9,7 @@ class MissingLineItemPriceException extends ShopwareHttpException
 {
     protected $code = 'CART-MISSING-PRICE-DEFINITION';
 
-    public function __construct(string $identifier, int $code = 0, \Throwable $previous = null)
+    public function __construct(string $identifier, int $code = 0, ?\Throwable $previous = null)
     {
         $message = sprintf('Line item %s contains no price definition or already calculated price', $identifier);
 

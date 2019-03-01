@@ -8,7 +8,7 @@ class IllegalFileNameException extends ShopwareHttpException
 {
     protected $code = 'ILLEGAL_FILE_NAME_EXCEPTION';
 
-    public function __construct(string $filename, string $cause, int $code = 0, \Throwable $previous = null)
+    public function __construct(string $filename, string $cause, int $code = 0, ?\Throwable $previous = null)
     {
         $message = sprintf(
             'Provided filename "%s" ist not permitted: %s',

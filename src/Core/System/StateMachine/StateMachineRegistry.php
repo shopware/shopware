@@ -208,7 +208,7 @@ class StateMachineRegistry
         string $entityName,
         string $entityId,
         Context $context,
-        string $transitionName = null
+        ?string $transitionName = null
     ): StateMachineStateEntity {
         if (empty($transitionName)) {
             $transitions = $this->getAvailableTransitions($stateMachine->getTechnicalName(), $fromPlace->getTechnicalName(), $context);

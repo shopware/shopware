@@ -9,7 +9,7 @@ class CustomerNotLoggedInException extends ShopwareHttpException
 {
     protected $code = 'CUSTOMER-NOT-LOGGED-IN';
 
-    public function __construct($code = 0, \Throwable $previous = null)
+    public function __construct($code = 0, ?\Throwable $previous = null)
     {
         parent::__construct('Customer is not logged in', $code, $previous);
     }

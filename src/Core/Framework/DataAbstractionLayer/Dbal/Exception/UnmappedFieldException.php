@@ -11,7 +11,7 @@ class UnmappedFieldException extends ShopwareHttpException
     /**
      * @param string|EntityDefinition $definition
      */
-    public function __construct(string $field, string $definition, int $code = 0, \Throwable $previous = null)
+    public function __construct(string $field, string $definition, int $code = 0, ?\Throwable $previous = null)
     {
         $fieldParts = explode('.', $field);
         $name = array_pop($fieldParts);

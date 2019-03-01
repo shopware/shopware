@@ -9,7 +9,7 @@ class DeliveryWithoutAddressException extends ShopwareHttpException
 {
     protected $code = 'DELIVERY-WITHOUT-ADDRESS';
 
-    public function __construct($code = 0, \Throwable $previous = null)
+    public function __construct($code = 0, ?\Throwable $previous = null)
     {
         $message = 'Delivery contains no shipping address';
         parent::__construct($message, $code, $previous);

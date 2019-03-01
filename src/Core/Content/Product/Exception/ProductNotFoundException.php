@@ -9,7 +9,7 @@ class ProductNotFoundException extends ShopwareHttpException
 {
     protected $code = 'PRODUCT-NOT-FOUND';
 
-    public function __construct(string $productId, $code = 0, \Throwable $previous = null)
+    public function __construct(string $productId, $code = 0, ?\Throwable $previous = null)
     {
         $message = sprintf('Product for id %s not found', $productId);
         parent::__construct($message, $code, $previous);

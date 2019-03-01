@@ -12,7 +12,7 @@ class InvalidFilterQueryException extends ShopwareHttpException
      */
     private $path;
 
-    public function __construct(string $message, string $path = '', int $code = 0, \Throwable $previous = null)
+    public function __construct(string $message, string $path = '', int $code = 0, ?\Throwable $previous = null)
     {
         $this->path = $path;
 

@@ -9,7 +9,7 @@ class InvalidChildQuantityException extends ShopwareHttpException
 {
     protected $code = 'CART-INVALID-CHILD-QUANTITY';
 
-    public function __construct(int $childQuantity, int $parentQuantity, int $code = 0, \Throwable $previous = null)
+    public function __construct(int $childQuantity, int $parentQuantity, int $code = 0, ?\Throwable $previous = null)
     {
         $message = sprintf(
             'The quantity of a child "%s" must be a multiple of the parent quantity "%s"',

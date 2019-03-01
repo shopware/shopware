@@ -9,7 +9,7 @@ class InvalidFieldException extends ConstraintViolationException
 {
     private const CONCERN = 'validation-error';
 
-    public function __construct(ConstraintViolationListInterface $constraintViolationList, string $path, int $code = 0, \Throwable $previous = null)
+    public function __construct(ConstraintViolationListInterface $constraintViolationList, string $path, int $code = 0, ?\Throwable $previous = null)
     {
         parent::__construct($constraintViolationList, $path, $code, $previous, self::CONCERN);
     }

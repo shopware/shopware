@@ -9,7 +9,7 @@ class PayloadKeyNotFoundException extends ShopwareHttpException
 {
     protected $code = 'PAYLOAD-KEY-NOT-FOUND';
 
-    public function __construct(string $key, string $lineItemId, int $code = 0, \Throwable $previous = null)
+    public function __construct(string $key, string $lineItemId, int $code = 0, ?\Throwable $previous = null)
     {
         $message = sprintf('Payload key `%s` in line item `%s` not found', $key, $lineItemId);
 

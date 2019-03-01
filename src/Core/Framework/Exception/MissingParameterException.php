@@ -9,7 +9,7 @@ class MissingParameterException extends ShopwareHttpException
 {
     protected $code = 'MISSING-PARAMETER';
 
-    public function __construct(string $name, $code = 0, \Throwable $previous = null)
+    public function __construct(string $name, $code = 0, ?\Throwable $previous = null)
     {
         $message = sprintf('Parameter "%s" is missing', $name);
 

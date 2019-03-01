@@ -6,7 +6,7 @@ class MissingRequirementException extends RequirementException
 {
     protected $code = 'PLUGIN-REQUIREMENT-MISSING';
 
-    public function __construct(string $requirement, string $requiredVersion, int $code = 0, \Throwable $previous = null)
+    public function __construct(string $requirement, string $requiredVersion, int $code = 0, ?\Throwable $previous = null)
     {
         $message = sprintf('Required plugin/package "%s %s" is missing', $requirement, $requiredVersion);
 

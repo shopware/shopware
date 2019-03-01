@@ -9,7 +9,7 @@ class InvalidVersionNameException extends ShopwareHttpException
 {
     protected $code = 'INVALID-VERSION-NAME';
 
-    public function __construct($code = 0, \Throwable $previous = null)
+    public function __construct($code = 0, ?\Throwable $previous = null)
     {
         $message = sprintf('Invalid version name given. Only alphanumeric characters are allowed');
 

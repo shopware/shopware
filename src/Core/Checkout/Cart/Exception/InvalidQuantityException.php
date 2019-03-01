@@ -9,7 +9,7 @@ class InvalidQuantityException extends ShopwareHttpException
 {
     protected $code = 'CART-INVALID-QUANTITY';
 
-    public function __construct(int $quantity, int $code = 0, \Throwable $previous = null)
+    public function __construct(int $quantity, int $code = 0, ?\Throwable $previous = null)
     {
         $message = sprintf('The quantity must be a positive integer. Given: "%s" ', $quantity);
 

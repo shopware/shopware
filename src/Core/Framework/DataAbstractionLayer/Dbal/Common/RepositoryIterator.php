@@ -24,7 +24,7 @@ class RepositoryIterator
      */
     private $context;
 
-    public function __construct(EntityRepositoryInterface $repository, Context $context, Criteria $criteria = null)
+    public function __construct(EntityRepositoryInterface $repository, Context $context, ?Criteria $criteria = null)
     {
         if ($criteria === null) {
             $criteria = new Criteria();

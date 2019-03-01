@@ -182,7 +182,7 @@ class LanguageValidator implements WriteCommandValidatorInterface
         string $messageTemplate,
         array $parameters,
         $root = null,
-        string $propertyPath = null,
+        ?string $propertyPath = null,
         $invalidValue = null,
         $code = null
     ): ConstraintViolationInterface {

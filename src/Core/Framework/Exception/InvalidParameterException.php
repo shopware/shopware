@@ -9,7 +9,7 @@ class InvalidParameterException extends ShopwareHttpException
 {
     protected $code = 'INVALID-PARAMETER';
 
-    public function __construct(string $name, int $code = 0, \Throwable $previous = null)
+    public function __construct(string $name, int $code = 0, ?\Throwable $previous = null)
     {
         $message = sprintf('The parameter "%s" is invalid', $name);
 

@@ -9,7 +9,7 @@ class BadCredentialsException extends ShopwareHttpException
 {
     protected $code = 'AUTH-BAD_CREDENTIALS';
 
-    public function __construct(int $code = 0, \Throwable $previous = null)
+    public function __construct(int $code = 0, ?\Throwable $previous = null)
     {
         parent::__construct('Invalid username and/or password.', $code, $previous);
     }

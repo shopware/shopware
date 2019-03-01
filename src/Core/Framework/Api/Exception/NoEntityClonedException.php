@@ -10,7 +10,7 @@ class NoEntityClonedException extends MappingException implements ShopwareExcept
     /**
      * {@inheritdoc}
      */
-    public function __construct(string $entity, string $id, int $code = 0, \Throwable $previous = null)
+    public function __construct(string $entity, string $id, int $code = 0, ?\Throwable $previous = null)
     {
         $message = sprintf('Could not clone entity %s with id %s', $entity, $id);
 

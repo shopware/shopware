@@ -9,7 +9,7 @@ class CustomerNotFoundException extends ShopwareHttpException
 {
     protected $code = 'CUSTOMER-NOT_FOUND';
 
-    public function __construct(string $email, int $code = 0, \Throwable $previous = null)
+    public function __construct(string $email, int $code = 0, ?\Throwable $previous = null)
     {
         $message = sprintf('No matching customer for email "%s" was found.', $email);
 

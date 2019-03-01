@@ -9,7 +9,7 @@ class InvalidTransactionException extends ShopwareHttpException
 {
     protected $code = 'INVALID-TRANSACTION-ID';
 
-    public function __construct(string $transactionId, $code = 0, \Throwable $previous = null)
+    public function __construct(string $transactionId, $code = 0, ?\Throwable $previous = null)
     {
         $message = sprintf('The transaction with id %s is invalid or could not be found.', $transactionId);
 

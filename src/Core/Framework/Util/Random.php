@@ -36,7 +36,7 @@ class Random
         return random_int($min, $max);
     }
 
-    public static function getString(int $length, string $charlist = null): string
+    public static function getString(int $length, ?string $charlist = null): string
     {
         if ($length < 1) {
             throw new \DomainException('Length should be >= 1');

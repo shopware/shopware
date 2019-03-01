@@ -285,7 +285,7 @@ class TreeIndexerTest extends TestCase
         static::assertEquals(3, $categories->get($categoryD)->getLevel());
     }
 
-    private function createCategory(string $parentId = null): string
+    private function createCategory(?string $parentId = null): string
     {
         $id = Uuid::uuid4()->getHex();
         $data = [

@@ -9,7 +9,7 @@ class FileTypeNotSupportedException extends ShopwareHttpException
 {
     protected $code = 'FILE_TYPE_NOT_SUPPORTED_EXCEPTION';
 
-    public function __construct(string $mediaId, int $code = 0, \Throwable $previous = null)
+    public function __construct(string $mediaId, int $code = 0, ?\Throwable $previous = null)
     {
         $message = sprintf('The File for media object with id: %s is not supported for creating thumbnails.', $mediaId);
         parent::__construct($message, $code, $previous);

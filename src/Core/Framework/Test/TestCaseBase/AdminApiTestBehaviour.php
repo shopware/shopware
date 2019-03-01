@@ -54,7 +54,7 @@ trait AdminApiTestBehaviour
     }
 
     public function createClient(
-        KernelInterface $kernel = null,
+        ?KernelInterface $kernel = null,
         bool $enableReboot = false
     ): Client {
         if (!$kernel) {

@@ -15,7 +15,7 @@ class UnexpectedFieldException extends WriteFieldException
      */
     private $fieldName;
 
-    public function __construct(string $path, string $fieldName, $code = 0, \Throwable $previous = null)
+    public function __construct(string $path, string $fieldName, $code = 0, ?\Throwable $previous = null)
     {
         parent::__construct(
             sprintf('Unexpected field: %s', $fieldName),

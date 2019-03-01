@@ -9,7 +9,7 @@ class BundleNotFoundException extends ShopwareHttpException
 {
     protected $code = 'BUNDLE-NOT-FOUND';
 
-    public function __construct(string $bundleName, int $code = 0, \Throwable $previous = null)
+    public function __construct(string $bundleName, int $code = 0, ?\Throwable $previous = null)
     {
         $message = sprintf('Bundle by name "%s" not found', $bundleName);
 

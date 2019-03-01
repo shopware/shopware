@@ -27,7 +27,7 @@ class MigrationRuntime
         $this->logger = $logger;
     }
 
-    public function migrate(int $until = null, int $limit = null): \Generator
+    public function migrate(?int $until = null, ?int $limit = null): \Generator
     {
         $migrations = $this->getExecutableMigrations($until, $limit);
 
@@ -48,7 +48,7 @@ class MigrationRuntime
         }
     }
 
-    public function migrateDestructive(int $until = null, int $limit = null): \Generator
+    public function migrateDestructive(?int $until = null, ?int $limit = null): \Generator
     {
         $migrations = $this->getExecutableDestructiveMigrations($until, $limit);
 
@@ -69,7 +69,7 @@ class MigrationRuntime
         }
     }
 
-    public function getExecutableMigrations(int $until = null, int $limit = null): array
+    public function getExecutableMigrations(?int $until = null, ?int $limit = null): array
     {
         return $this->getExecutableMigrationsBaseQuery($until, $limit)
             ->andWhere('`update` IS NULL')
@@ -77,7 +77,7 @@ class MigrationRuntime
             ->fetchAll(FetchMode::COLUMN);
     }
 
-    public function getExecutableDestructiveMigrations(int $until = null, int $limit = null): array
+    public function getExecutableDestructiveMigrations(?int $until = null, ?int $limit = null): array
     {
         return $this->getExecutableMigrationsBaseQuery($until, $limit)
             ->andWhere('`update` IS NOT NULL')
@@ -86,7 +86,7 @@ class MigrationRuntime
             ->fetchAll(FetchMode::COLUMN);
     }
 
-    private function getExecutableMigrationsBaseQuery(int $until = null, int $limit = null): QueryBuilder
+    private function getExecutableMigrationsBaseQuery(?int $until = null, ?int $limit = null): QueryBuilder
     {
         $query = $this->connection->createQueryBuilder()
             ->select('`class`')

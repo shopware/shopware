@@ -16,7 +16,7 @@ class InvalidJsonFieldException extends WriteFieldException
      */
     private $path;
 
-    public function __construct(string $path, array $exceptions, $code = 0, \Throwable $previous = null)
+    public function __construct(string $path, array $exceptions, $code = 0, ?\Throwable $previous = null)
     {
         parent::__construct(
             sprintf('Caught %s validation errors.', \count($exceptions)),

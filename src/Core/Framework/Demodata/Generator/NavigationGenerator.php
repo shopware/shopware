@@ -103,7 +103,7 @@ class NavigationGenerator implements DemodataGeneratorInterface
         array $pageIds,
         Context $context,
         string $navigationParentId,
-        string $categoryParentId = null
+        ?string $categoryParentId = null
     ): array {
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('category.parentId', $categoryParentId));

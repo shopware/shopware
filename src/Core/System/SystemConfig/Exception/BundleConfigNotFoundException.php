@@ -8,7 +8,7 @@ class BundleConfigNotFoundException extends ShopwareHttpException
 {
     protected $code = 'BUNDLE-CONFIG-NOT-FOUND';
 
-    public function __construct(string $bundleName, int $code = 0, \Throwable $previous = null)
+    public function __construct(string $bundleName, int $code = 0, ?\Throwable $previous = null)
     {
         $message = sprintf('Could not find "Resources/config.xml" for bundle "%s"', $bundleName);
 

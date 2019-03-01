@@ -172,7 +172,7 @@ class EntityReader implements EntityReaderInterface
         string $root,
         QueryBuilder $query,
         FieldCollection $fields,
-        Criteria $criteria = null
+        ?Criteria $criteria = null
     ): void {
         $filtered = $fields->fmap(function (Field $field) {
             if ($field->is(Deferred::class)) {

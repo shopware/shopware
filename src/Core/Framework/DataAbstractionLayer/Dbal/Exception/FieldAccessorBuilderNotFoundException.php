@@ -6,7 +6,7 @@ use Shopware\Core\Framework\ShopwareHttpException;
 
 class FieldAccessorBuilderNotFoundException extends ShopwareHttpException
 {
-    public function __construct(string $field, int $code = 0, \Throwable $previous = null)
+    public function __construct(string $field, int $code = 0, ?\Throwable $previous = null)
     {
         $message = sprintf('The field accessor builder for field %s was not found.', $field);
 

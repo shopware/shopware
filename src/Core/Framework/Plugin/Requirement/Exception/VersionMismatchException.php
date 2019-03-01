@@ -11,7 +11,7 @@ class VersionMismatchException extends RequirementException
         string $requiredVersion,
         string $actualVersion,
         int $code = 0,
-        \Throwable $previous = null
+        ?\Throwable $previous = null
     ) {
         $message = sprintf(
             'Required plugin/package "%s %s" does not match installed version %s',

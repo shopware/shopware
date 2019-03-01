@@ -7,5 +7,5 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 interface NestedEventDispatcherInterface extends EventDispatcherInterface
 {
-    public function dispatch($eventName, Event $event = null): Event;
+    public function dispatch($eventName, ?Event $event = null): Event;
 }

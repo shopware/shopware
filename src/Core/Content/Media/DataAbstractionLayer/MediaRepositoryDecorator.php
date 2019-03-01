@@ -99,7 +99,7 @@ class MediaRepositoryDecorator implements EntityRepositoryInterface
         return $this->innerRepo->searchIds($criteria, $context);
     }
 
-    public function clone(string $id, Context $context, string $newId = null): EntityWrittenContainerEvent
+    public function clone(string $id, Context $context, ?string $newId = null): EntityWrittenContainerEvent
     {
         return $this->innerRepo->clone($id, $context, $newId);
     }

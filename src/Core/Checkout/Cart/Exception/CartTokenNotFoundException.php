@@ -13,7 +13,7 @@ class CartTokenNotFoundException extends ShopwareHttpException
      */
     private $token;
 
-    public function __construct(string $token, $code = 0, \Throwable $previous = null)
+    public function __construct(string $token, $code = 0, ?\Throwable $previous = null)
     {
         $message = sprintf('Cart with token %s not found', $token);
         parent::__construct($message, $code, $previous);

@@ -9,7 +9,7 @@ class StateMachineStateNotFoundException extends ShopwareHttpException
 {
     protected $code = 'STATE-MACHINE-STATE-NOT-FOUND';
 
-    public function __construct(string $stateMachineName, string $technicalPlaceName, int $code = 0, \Throwable $previous = null)
+    public function __construct(string $stateMachineName, string $technicalPlaceName, int $code = 0, ?\Throwable $previous = null)
     {
         $message = sprintf('The place "%s" for state machine named "%s" was not found.', $technicalPlaceName, $stateMachineName);
 

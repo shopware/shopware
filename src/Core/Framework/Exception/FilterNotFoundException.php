@@ -9,7 +9,7 @@ class FilterNotFoundException extends ShopwareHttpException
 {
     protected $code = 'FILTER-NOT-FOUND';
 
-    public function __construct(string $filterName, string $class, int $code = 0, \Throwable $previous = null)
+    public function __construct(string $filterName, string $class, int $code = 0, ?\Throwable $previous = null)
     {
         $message = sprintf('The %s filter was not found in %s', $filterName, $class);
 

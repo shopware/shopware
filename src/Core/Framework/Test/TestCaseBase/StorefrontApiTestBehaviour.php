@@ -85,7 +85,7 @@ trait StorefrontApiTestBehaviour
     }
 
     protected function createStorefrontClient(
-        KernelInterface $kernel = null,
+        ?KernelInterface $kernel = null,
         bool $enableReboot = false
     ): Client {
         if (!$kernel) {

@@ -7,7 +7,7 @@ use Symfony\Component\HttpFoundation\Response;
 
 class PageNotFoundException extends ShopwareHttpException
 {
-    public function __construct(string $pageId, int $code = 0, \Throwable $previous = null)
+    public function __construct(string $pageId, int $code = 0, ?\Throwable $previous = null)
     {
         $message = sprintf('Page with id %s was not found.', $pageId);
 

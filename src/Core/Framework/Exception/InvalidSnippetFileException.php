@@ -9,7 +9,7 @@ class InvalidSnippetFileException extends ShopwareHttpException
 {
     protected $code = 'INVALID-SNIPPET-FILE';
 
-    public function __construct(string $locale, int $code = 0, \Throwable $previous = null)
+    public function __construct(string $locale, int $code = 0, ?\Throwable $previous = null)
     {
         $message = sprintf('The base snippet file for locale %s is not registered', $locale);
 

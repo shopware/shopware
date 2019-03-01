@@ -258,7 +258,7 @@ abstract class AbstractFilesystem implements FilesystemInterface
     /**
      * {@inheritdoc}
      */
-    public function get($path, Handler $handler = null): Handler
+    public function get($path, ?Handler $handler = null): Handler
     {
         $path = $this->preparePath($path);
 

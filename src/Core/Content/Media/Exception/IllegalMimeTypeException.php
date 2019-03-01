@@ -9,7 +9,7 @@ class IllegalMimeTypeException extends ShopwareHttpException
 {
     protected $code = 'MIME_TYPE_NOT_FOUND_EXCEPTION';
 
-    public function __construct(string $mimeType, int $code = 0, \Throwable $previous = null)
+    public function __construct(string $mimeType, int $code = 0, ?\Throwable $previous = null)
     {
         parent::__construct("Mime-type '{$mimeType}' is not supported by this action", $code, $previous);
     }

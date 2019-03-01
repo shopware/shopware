@@ -196,7 +196,7 @@ class ChildCountIndexerTest extends TestCase
         static::assertEquals(0, $categories->get($categoryD)->getChildCount());
     }
 
-    private function createCategory(string $parentId = null): string
+    private function createCategory(?string $parentId = null): string
     {
         $id = Uuid::uuid4()->getHex();
         $data = [

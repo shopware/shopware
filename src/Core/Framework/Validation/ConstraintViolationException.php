@@ -23,7 +23,7 @@ class ConstraintViolationException extends WriteFieldException implements Constr
      */
     private $concern;
 
-    public function __construct(ConstraintViolationListInterface $constraintViolationList, string $path = '', $code = 0, \Throwable $previous = null, string $concern = '')
+    public function __construct(ConstraintViolationListInterface $constraintViolationList, string $path = '', $code = 0, ?\Throwable $previous = null, string $concern = '')
     {
         parent::__construct(
             sprintf('Caught %s constraint violation errors.', $constraintViolationList->count()),

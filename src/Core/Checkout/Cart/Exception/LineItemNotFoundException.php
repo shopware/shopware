@@ -9,7 +9,7 @@ class LineItemNotFoundException extends ShopwareHttpException
 {
     protected $code = 'CART-LINE-ITEM-NOT-FOUND';
 
-    public function __construct(string $identifier, int $code = 0, \Throwable $previous = null)
+    public function __construct(string $identifier, int $code = 0, ?\Throwable $previous = null)
     {
         $message = sprintf('Line item with identifier %s not found', $identifier);
 

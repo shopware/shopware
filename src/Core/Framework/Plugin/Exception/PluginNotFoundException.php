@@ -9,7 +9,7 @@ class PluginNotFoundException extends ShopwareHttpException
 {
     protected $code = 'PLUGIN-NOT-FOUND';
 
-    public function __construct(string $pluginName, int $code = 0, \Throwable $previous = null)
+    public function __construct(string $pluginName, int $code = 0, ?\Throwable $previous = null)
     {
         $message = sprintf('Plugin by name "%s" not found', $pluginName);
 

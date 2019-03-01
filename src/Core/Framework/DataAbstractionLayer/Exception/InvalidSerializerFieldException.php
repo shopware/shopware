@@ -19,7 +19,7 @@ class InvalidSerializerFieldException extends ShopwareHttpException
      */
     private $field;
 
-    public function __construct(string $expectedClass, Field $field, int $code = 0, \Throwable $previous = null)
+    public function __construct(string $expectedClass, Field $field, int $code = 0, ?\Throwable $previous = null)
     {
         $message = sprintf('Expected field of type %s got %s', $expectedClass, \get_class($field));
 

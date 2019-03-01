@@ -14,7 +14,7 @@ class OrderRecalculationException extends ShopwareHttpException
      */
     protected $orderId;
 
-    public function __construct(string $orderId, string $details, $code = 0, \Throwable $previous = null)
+    public function __construct(string $orderId, string $details, $code = 0, ?\Throwable $previous = null)
     {
         $message = sprintf('Order with id "%s" could not be recalculated. %s', $orderId, $details);
         parent::__construct($message, $code, $previous);

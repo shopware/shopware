@@ -8,7 +8,7 @@ class XmlElementNotFoundException extends ShopwareHttpException
 {
     protected $code = 'XML-ELEMENT-NOT-FOUND';
 
-    public function __construct(string $element, int $code = 0, \Throwable $previous = null)
+    public function __construct(string $element, int $code = 0, ?\Throwable $previous = null)
     {
         $message = sprintf('Unable to locate element with the name "%s".', $element);
 

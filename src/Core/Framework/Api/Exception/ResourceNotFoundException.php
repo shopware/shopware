@@ -9,7 +9,7 @@ class ResourceNotFoundException extends ShopwareHttpException
 {
     protected $code = 'REST-RESOURCE-4';
 
-    public function __construct(string $resourceType, array $primaryKey, \Throwable $previous = null, $code = 0)
+    public function __construct(string $resourceType, array $primaryKey, ?\Throwable $previous = null, $code = 0)
     {
         $resourceIds = [];
         foreach ($primaryKey as $key => $value) {

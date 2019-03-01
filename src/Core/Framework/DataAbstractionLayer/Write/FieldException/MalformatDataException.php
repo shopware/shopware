@@ -10,7 +10,7 @@ class MalformatDataException extends WriteFieldException
      */
     private $path;
 
-    public function __construct(string $path, $message, $code = 0, \Throwable $previous = null)
+    public function __construct(string $path, $message, $code = 0, ?\Throwable $previous = null)
     {
         parent::__construct($message, $code, $previous);
         $this->path = $path;

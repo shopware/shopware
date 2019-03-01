@@ -10,7 +10,7 @@ class MissingDataException extends MappingException implements ShopwareException
     /**
      * {@inheritdoc}
      */
-    public function __construct(iterable $fieldNames, int $code = 0, \Throwable $previous = null)
+    public function __construct(iterable $fieldNames, int $code = 0, ?\Throwable $previous = null)
     {
         $message = sprintf('Missing data for the following properties: %s', implode(', ', $fieldNames));
 

@@ -12,7 +12,7 @@ class SearchRequestException extends ShopwareHttpException
      */
     private $exceptions;
 
-    public function __construct(iterable $exceptions = [], int $code = 0, \Throwable $previous = null)
+    public function __construct(iterable $exceptions = [], int $code = 0, ?\Throwable $previous = null)
     {
         $this->exceptions = $exceptions;
 

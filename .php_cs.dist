@@ -55,5 +55,6 @@ return Config::create()
         Fixer\OperatorLinebreakFixer::name() => true,
         Fixer\PhpdocNoIncorrectVarAnnotationFixer::name() => true,
         Fixer\NoUnneededConcatenationFixer::name() => true,
+        Fixer\NullableParamStyleFixer::name() => true,
     ])
     ->setFinder($finder);

@@ -9,7 +9,7 @@ class LineItemNotStackableException extends ShopwareHttpException
 {
     protected $code = 'CART-LINE-ITEM-NOT-STACKABLE';
 
-    public function __construct(string $identifier, int $code = 0, \Throwable $previous = null)
+    public function __construct(string $identifier, int $code = 0, ?\Throwable $previous = null)
     {
         $message = sprintf('Line item with identifier %s is not stackable and the quantity cannot be changed', $identifier);
 

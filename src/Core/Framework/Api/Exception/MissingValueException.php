@@ -15,7 +15,7 @@ class MissingValueException extends MappingException implements ShopwareExceptio
     /**
      * {@inheritdoc}
      */
-    public function __construct(string $fieldName, int $code = 0, \Throwable $previous = null)
+    public function __construct(string $fieldName, int $code = 0, ?\Throwable $previous = null)
     {
         $this->fieldName = $fieldName;
 

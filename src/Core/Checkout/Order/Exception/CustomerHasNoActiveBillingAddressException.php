@@ -9,7 +9,7 @@ class CustomerHasNoActiveBillingAddressException extends ShopwareHttpException
 {
     protected $code = 'CUSTOMER-NO-ACTIVE-BILLING-ADDRESS';
 
-    public function __construct(string $customerId, $code = 0, \Throwable $previous = null)
+    public function __construct(string $customerId, $code = 0, ?\Throwable $previous = null)
     {
         $message = sprintf('Customer %s has no active billing address id', $customerId);
         parent::__construct($message, $code, $previous);

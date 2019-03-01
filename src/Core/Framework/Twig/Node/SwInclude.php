@@ -9,7 +9,7 @@ class SwInclude extends IncludeNode
 {
     public function __construct(
         \Twig_Node_Expression $expr,
-        \Twig_Node_Expression $variables = null,
+        ?\Twig_Node_Expression $variables = null,
         $only = false,
         $ignoreMissing = false,
         $lineno,

@@ -72,7 +72,7 @@ class OrderDeliveryActionController extends AbstractController
         Context $context,
         ResponseFactoryInterface $responseFactory,
         string $deliveryId,
-        string $transition = null
+        ?string $transition = null
     ): Response {
         $delivery = $this->getOrderDelivery($deliveryId, $context);
 

@@ -4,11 +4,11 @@ import template from './sw-condition-is-new-customer.html.twig';
 
 /**
  * @public
- * @description TODO: Add description
+ * @description Condition for the IsNewCustomerRule. This component must a be child of sw-condition-tree.
  * @status prototype
  * @example-type code-only
  * @component-example
- * <sw-condition-is-new-customer :condition="condition"></sw-condition-is-new-customer>
+ * <sw-condition-is-new-customer :condition="condition" :level="0"></sw-condition-is-new-customer>
  */
 Component.extend('sw-condition-is-new-customer', 'sw-condition-base', {
     template,

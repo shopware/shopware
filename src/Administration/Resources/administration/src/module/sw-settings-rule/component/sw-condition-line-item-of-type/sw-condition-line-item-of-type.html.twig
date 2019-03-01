@@ -1,17 +1,18 @@
-{% block sw_condition_fields %}
-    {% block sw_condition_fields_operator %}
+{% block sw_condition_base_fields %}
+    {% block sw_condition_line_item_of_type_field_operator %}
         <sw-condition-operator-select operatorSetName="string"
                                       v-model="condition.value.operator">
         </sw-condition-operator-select>
     {% endblock %}
-    {% block sw_condition_fields_value %}
-        <sw-field type="select"
-                  name="lineItemType"
-                  v-model="condition.value.lineItemType"
-                  class="field field--main field--select">
-            <option v-for="(lineItemType, identifier) in lineItemTypes" :value="identifier">
-                {{ $tc(lineItemType.label) }}
-            </option>
-        </sw-field>
+    {% block sw_condition_line_item_of_type_field_line_item_type %}
+        <sw-select :id="createId()"
+                   name="lineItemType"
+                   itemValueKey="value"
+                   displayName="label"
+                   :required="true"
+                   :store="lineItemTypeStore"
+                   v-model="condition.value.lineItemType"
+                   class="field--main">
+        </sw-select>
     {% endblock %}
 {% endblock %}

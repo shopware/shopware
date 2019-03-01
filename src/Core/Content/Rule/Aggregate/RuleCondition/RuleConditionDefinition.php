@@ -44,7 +44,7 @@ class RuleConditionDefinition extends EntityDefinition
     {
         return new FieldCollection([
             (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
-            (new StringField('type', 'type'))->addFlags(new Required()),
+            new StringField('type', 'type'),
             (new FkField('rule_id', 'ruleId', RuleDefinition::class))->addFlags(new Required()),
             new ParentFkField(self::class),
             new JsonField('value', 'value'),

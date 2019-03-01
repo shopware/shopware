@@ -1,14 +1,14 @@
-{% block sw_condition_fields %}
-    {% block sw_condition_fields_operator %}
+{% block sw_condition_base_fields %}
+    {% block sw_condition_line_item_total_price_field_operator %}
         <sw-condition-operator-select operatorSetName="number"
                                       v-model="condition.value.operator">
         </sw-condition-operator-select>
     {% endblock %}
-    {% block sw_condition_fields_value %}
+    {% block sw_condition_line_item_total_price_field_amount %}
         <sw-field type="number"
                   name="amount"
-                  step="0.01"
-                  class="field field--main"
+                  :step="0.01"
+                  class="field--main"
                   v-model="condition.value.amount">
         </sw-field>
     {% endblock %}

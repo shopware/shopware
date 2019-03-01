@@ -1,10 +1,10 @@
-{% block sw_condition_fields %}
-    {% block sw_condition_fields_value %}
+{% block sw_condition_base_fields %}
+    {% block sw_condition_not_found_field_error %}
         <sw-field type="text"
-                  class="field field--main field--error"
+                  class="field--main field--error"
                   :placeholder="$tc('global.sw-condition.condition.not-found.label')"
                   :disabled="true">
-            <template slot="suffix">
+            <template slot="suffix" slot-scope="slotProps">
                 <sw-help-text :text="errorMessage" :width="200" tooltipPosition="top">
                 </sw-help-text>
             </template>

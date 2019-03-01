@@ -1,12 +1,13 @@
-{% block sw_condition_fields %}
-    {% block sw_condition_fields_value %}
-        <sw-select name="operator"
+{% block sw_condition_base_fields %}
+    {% block sw_condition_different_addresses_field_is_different %}
+        <sw-select name="isDifferent"
                    :id="createId()"
                    itemValueKey="value"
                    displayName="label"
+                   :required="true"
                    :store="selectValues"
                    v-model="isDifferent"
-                   class="field--select field--main">
+                   class="field--main">
         </sw-select>
     {% endblock %}
 {% endblock %}

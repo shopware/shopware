@@ -1,50 +1,66 @@
-{% block sw_condition_field_condition %}
+{% block sw_condition_base_field_condition %}
 {% endblock %}
 
-{% block sw_condition_fields %}
-    <sw-select v-for="definition, index in definitions"
-               :key="index"
-               :store="getDefinitionStore(definition)"
-               v-model="fieldPath[index]"
-               itemValueKey="name"
-               :id="createId()"
-               class="field--condition"
-               :required="true"
-               @input="selectFilter(index, $event)">
-    </sw-select>
+{% block sw_condition_base_fields %}
+    {% block sw_product_stream_filter_field_select %}
+        <sw-select v-for="definition, index in definitions"
+                   :key="index"
+                   :store="getDefinitionStore(definition)"
+                   v-model="fieldPath[index]"
+                   itemValueKey="name"
+                   :id="createId()"
+                   class="field--condition"
+                   :required="true"
+                   @input="selectFilter(index, $event)">
+        </sw-select>
+    {% endblock %}
 
-    <sw-select :store="getTypeStore()"
-               v-if="typeCriteria"
-               v-model="type"
-               :id="createId()"
-               itemValueKey="type"
-               displayName="name"
-               :criteria="typeCriteria"
-               :required="true"
-               class="field--select has--arrow"
-               @input="selectType">
-    </sw-select>
+    {% block sw_product_stream_filter_type_select %}
+        <sw-select :store="getTypeStore()"
+                   v-if="typeCriteria"
+                   v-model="type"
+                   :id="createId()"
+                   itemValueKey="type"
+                   displayName="name"
+                   :criteria="typeCriteria"
+                   :required="true"
+                   class="has--arrow"
+                   @input="selectType">
+        </sw-select>
+    {% endblock %}
 
-    <sw-tagged-field v-if="isEqualsAny(actualCondition.type)"
-                     v-model="multiValues"
-                     class="field--multi field--main"
-                     @input="updateTaggedValue">
-    </sw-tagged-field>
-    <template v-else-if="actualCondition.type == 'range'">
-        <sw-field type="number"
-                  class="field--main has--arrow"
-                  v-model="condition.parameters.lte"
-                  :placeholder="$tc('global.sw-condition.operator.greaterThanEquals')">
-        </sw-field>
-        <sw-field type="number"
+    {% block sw_product_stream_filter_multi_value %}
+        <sw-tagged-field v-if="isEqualsAny(actualCondition.type)"
+                         v-model="multiValues"
+                         class="field--main"
+                         @input="updateTaggedValue">
+        </sw-tagged-field>
+    {% endblock %}
+
+    {% block sw_product_stream_filter_range_fields %}
+        <template v-else-if="actualCondition.type == 'range'">
+            {% block sw_product_stream_filter_range_field_gte %}
+                <sw-field type="number"
+                          class="field--main has--arrow"
+                          v-model="condition.parameters.gte"
+                          :placeholder="$tc('global.sw-condition.operator.greaterThanEquals')">
+                </sw-field>
+            {% endblock %}
+            {% block sw_product_stream_filter_range_field_lte %}
+                <sw-field type="number"
+                          class="field--main"
+                          v-model="condition.parameters.lte"
+                          :placeholder="$tc('global.sw-condition.operator.lowerThanEquals')">
+                </sw-field>
+            {% endblock %}
+        </template>
+    {% endblock %}
+
+    {% block sw_product_stream_filter_text_field %}
+        <sw-field v-else
+                  type="text"
                   class="field--main"
-                  v-model="condition.parameters.gte"
-                  :placeholder="$tc('global.sw-condition.operator.lowerThanEquals')">
+                  v-model="actualCondition.value">
         </sw-field>
-    </template>
-    <sw-field v-else
-              type="text"
-              class="field--main"
-              v-model="actualCondition.value">
-    </sw-field>
+    {% endblock %}
 {% endblock %}

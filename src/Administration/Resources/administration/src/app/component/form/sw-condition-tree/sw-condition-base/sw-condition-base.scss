@@ -34,7 +34,7 @@ $sw-condition-base-color-error: $color-crimson;
         margin-bottom: 0;
     }
 
-    .field--select {
+    .sw-select {
         @extend .sw-condition-base__base-field;
         width: 144px;
         border-top: 1px solid $sw-condition-base-color-border;
@@ -74,7 +74,7 @@ $sw-condition-base-color-error: $color-crimson;
     }
 
     .field--condition {
-        @extend .field--select;
+        @extend .sw-select;
         background: $sw-condition-base-color-primary;
         color: $sw-condition-base-color-primary-text;
         width: 168px;
@@ -157,7 +157,7 @@ $sw-condition-base-color-error: $color-crimson;
         }
     }
 
-    .field--date {
+    .sw-field--date, .sw-field--datetime {
         @extend .sw-condition-base__base-field;
         .sw-datepicker {
             width: 100%;
@@ -172,17 +172,14 @@ $sw-condition-base-color-error: $color-crimson;
         @extend .sw-condition-base__base-field;
         flex-grow: 1;
         flex-shrink: 1;
+        width: unset;
 
-        &:not(.field--select):not(.field--multi) {
+        &:not(.sw-select):not(.sw-select--multi):not(.sw-tagged-field) {
             padding-left: 20px;
         }
     }
 
-    .field--switch {
-        @extend .sw-condition-base__base-field;
-    }
-
-    .field--multi {
+    .sw-select--multi, .sw-tagged-field {
         @extend .sw-condition-base__base-field;
         height: auto;
         padding: 0;
@@ -256,10 +253,10 @@ $sw-condition-base-color-error: $color-crimson;
     }
 
     .sw-field--switch {
+        @extend .sw-condition-base__base-field;
+        width: 180px;
         padding-left: 20px;
         padding-top: 12px;
-        flex-shrink: 1;
-        flex-grow: 1;
     }
 
     .sw-select__inner {
@@ -324,7 +321,7 @@ $sw-condition-base-color-error: $color-crimson;
             }
         }
 
-        .field {
+        .sw-condition-base__base-field {
             border-top-color: $sw-condition-base-color-error;
             border-bottom-color: $sw-condition-base-color-error;
         }

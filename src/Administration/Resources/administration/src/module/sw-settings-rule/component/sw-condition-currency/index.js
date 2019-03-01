@@ -3,11 +3,11 @@ import template from './sw-condition-currency.html.twig';
 
 /**
  * @public
- * @description TODO: Add description
+ * @description Condition for the CurrencyRule. This component must a be child of sw-condition-tree.
  * @status prototype
  * @example-type code-only
  * @component-example
- * <sw-condition-currency :condition="condition"></sw-condition-currency>
+ * <sw-condition-currency :condition="condition" :level="0"></sw-condition-currency>
  */
 Component.extend('sw-condition-currency', 'sw-condition-base', {
     template,

@@ -12,6 +12,14 @@ export default {
         };
     },
 
+    provide() {
+        return {
+            conditionStore: this.conditionStore,
+            entityAssociationStore: () => this.entityAssociationStore,
+            config: this.config
+        };
+    },
+
     props: {
         entity: {
             type: Object,

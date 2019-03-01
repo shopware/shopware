@@ -10,12 +10,8 @@
  */
 export default function createConditionService() {
     const $store = {
-        placeholder: {
-            type: 'placeholder',
-            component: 'sw-condition-base',
-            label: 'global.sw-condition.condition.base'
-        }
     };
+
     const operators = {
         lowerThanEquals: {
             identifier: '<=',

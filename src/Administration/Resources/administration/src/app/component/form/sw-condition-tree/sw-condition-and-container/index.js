@@ -4,25 +4,40 @@ import './sw-condition-and-container.scss';
 
 /**
  * @public
- * @description TODO: Add description
+ * @description Contains some sw-base-conditions / sw-condition-and-container connected by and.
+ * This component must be a child of sw-condition-tree
  * @status prototype
  * @example-type code-only
  * @component-example
- * <sw-condition-and-container :condition="condition"></sw-condition-and-container>
+ * <sw-condition-and-container :condition="condition" :level="0"></sw-condition-and-container>
  */
 export default {
     name: 'sw-condition-and-container',
     template,
+
+    inject: ['config', 'entityAssociationStore'],
+
     mixins: [
         Mixin.getByName('validation'),
-        Mixin.getByName('notification'),
-        Mixin.getByName('condition')
+        Mixin.getByName('notification')
     ],
 
-    /**
-     * All additional passed attributes are bound explicit to the correct child element.
-     */
-    inheritAttrs: false,
+    props: {
+        condition: {
+            type: Object,
+            required: false,
+            default: null
+        },
+        level: {
+            type: Number,
+            required: true
+        },
+        parentDisabledDelete: {
+            type: Boolean,
+            required: false,
+            default: false
+        }
+    },
 
     computed: {
         containerRowClass() {
@@ -94,7 +109,7 @@ export default {
         },
         createCondition(conditionData, position) {
             const condition = Object.assign(
-                this.entityAssociationStore.create(),
+                this.entityAssociationStore().create(),
                 conditionData,
                 {
                     parentId: this.condition.id,

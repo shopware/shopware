@@ -61,7 +61,7 @@ export default class LocalStore {
                 const searchTerm = params.term.toLowerCase();
                 store = store.filter(value => {
                     return this.objectPropertiesContains(value, searchTerm)
-                        || String(value.meta.viewData[this.propertyName]).toLowerCase().includes(searchTerm);
+                        || this.objectPropertiesContains(value.meta.viewData, searchTerm);
                 });
             }
 

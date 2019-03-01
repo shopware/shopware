@@ -3,11 +3,11 @@ import template from './sw-condition-shipping-street.html.twig';
 
 /**
  * @public
- * @description TODO: Add description
+ * @description Condition for the ShippingStreetRule. This component must a be child of sw-condition-tree.
  * @status prototype
  * @example-type code-only
  * @component-example
- * <sw-condition-shipping-street :condition="condition"></sw-condition-shipping-street>
+ * <sw-condition-shipping-street :condition="condition" :level="0"></sw-condition-shipping-street>
  */
 Component.extend('sw-condition-shipping-street', 'sw-condition-base', {
     template,

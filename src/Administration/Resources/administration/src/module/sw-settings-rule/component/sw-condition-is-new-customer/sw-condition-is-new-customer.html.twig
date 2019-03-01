@@ -1,12 +1,13 @@
-{% block sw_condition_fields %}
-    {% block sw_condition_fields_value %}
+{% block sw_condition_base_fields %}
+    {% block sw_condition_is_new_customer_field_is_new %}
         <sw-select name="operator"
                    :id="createId()"
                    itemValueKey="value"
                    displayName="label"
                    :store="selectValues"
+                   :required="true"
                    v-model="isNew"
-                   class="field--select field--main">
+                   class="field--main">
         </sw-select>
     {% endblock %}
 {% endblock %}

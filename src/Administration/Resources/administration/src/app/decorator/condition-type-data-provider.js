@@ -116,13 +116,5 @@ Application.addServiceProviderDecorator('ruleConditionDataProviderService', (rul
         component: 'sw-condition-line-item-with-quantity',
         label: 'global.sw-condition.condition.lineItemWithQuantityRule'
     });
-    ruleConditionService.addCondition('andContainer', {
-        component: 'sw-condition-and-container',
-        label: 'global.sw-condition.condition.andRule'
-    });
-    ruleConditionService.addCondition('orContainer', {
-        component: 'sw-condition-or-container',
-        label: 'global.sw-condition.condition.orRule'
-    });
     return ruleConditionService;
 });

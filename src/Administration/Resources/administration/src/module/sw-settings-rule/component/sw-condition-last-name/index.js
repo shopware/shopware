@@ -3,11 +3,11 @@ import template from './sw-condition-last-name.html.twig';
 
 /**
  * @public
- * @description TODO: Add description
+ * @description Condition for the LastNameRule. This component must a be child of sw-condition-tree.
  * @status prototype
  * @example-type code-only
  * @component-example
- * <sw-condition-last-name :condition="condition"></sw-condition-last-name>
+ * <sw-condition-last-name :condition="condition" :level="0"></sw-condition-last-name>
  */
 Component.extend('sw-condition-last-name', 'sw-condition-base', {
     template,

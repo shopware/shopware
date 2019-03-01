@@ -5,7 +5,7 @@ import template from './sw-condition-operator-select.html.twig';
 
 /**
  * @public
- * @description TODO: Add description
+ * @description Provides the operator select for the sw-condition-base.
  * @status prototype
  * @example-type code-only
  * @component-example

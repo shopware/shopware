@@ -3,11 +3,11 @@ import template from './sw-condition-billing-street.html.twig';
 
 /**
  * @public
- * @description TODO: Add description
+ * @description Condition for the BillingStreetRule. This component must a be child of sw-condition-tree.
  * @status prototype
  * @example-type code-only
  * @component-example
- * <sw-condition-billing-street :condition="condition"></sw-condition-billing-street>
+ * <sw-condition-billing-street :condition="condition" :level="0"></sw-condition-billing-street>
  */
 Component.extend('sw-condition-billing-street', 'sw-condition-base', {
     template,

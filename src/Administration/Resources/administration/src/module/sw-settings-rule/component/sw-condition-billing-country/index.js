@@ -3,11 +3,11 @@ import template from './sw-condition-billing-country.html.twig';
 
 /**
  * @public
- * @description TODO: Add description
+ * @description Condition for the BillingCountryRule. This component must a be child of sw-condition-tree.
  * @status prototype
  * @example-type code-only
  * @component-example
- * <sw-condition-billing-country :condition="condition"></sw-condition-billing-country>
+ * <sw-condition-billing-country :condition="condition" :level="0"></sw-condition-billing-country>
  */
 Component.extend('sw-condition-billing-country', 'sw-condition-base', {
     template,
@@ -16,9 +16,6 @@ Component.extend('sw-condition-billing-country', 'sw-condition-base', {
     computed: {
         fieldNames() {
             return ['operator', 'countryIds'];
-        },
-        conditionClass() {
-            return 'sw-condition-billing-country';
         },
         defaultValues() {
             return {

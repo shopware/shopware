@@ -3,11 +3,11 @@ import template from './sw-condition-shipping-zip-code.html.twig';
 
 /**
  * @public
- * @description TODO: Add description
+ * @description Condition for the ShippingZipCodeRule. This component must a be child of sw-condition-tree.
  * @status prototype
  * @example-type code-only
  * @component-example
- * <sw-condition-shipping-zip-code :condition="condition"></sw-condition-shipping-zip-code>
+ * <sw-condition-shipping-zip-code :condition="condition" :level="0"></sw-condition-shipping-zip-code>
  */
 Component.extend('sw-condition-shipping-zip-code', 'sw-condition-base', {
     template,

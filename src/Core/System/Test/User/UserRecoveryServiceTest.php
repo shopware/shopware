@@ -90,7 +90,7 @@ class UserRecoveryServiceTest extends TestCase
     /**
      * @dataProvider dataProviderTestCheckHash
      */
-    public function testCheckHash(\DateTime $createdTime, string $hash, bool $expectedResult): void
+    public function testCheckHash(\DateInterval $timeInterval, string $hash, bool $expectedResult): void
     {
         /**
          * @var UserEntity
@@ -98,6 +98,8 @@ class UserRecoveryServiceTest extends TestCase
         $user = $this->userRepo->search(new Criteria(), $this->context)->first();
 
         static::assertInstanceOf(UserEntity::class, $user);
+
+        $createdTime = (new \DateTime())->sub($timeInterval);
 
         $userId = $user->getId();
         $creatData = [
@@ -115,32 +117,32 @@ class UserRecoveryServiceTest extends TestCase
     {
         return [
             [
-                new \DateTime(),
+                new \DateInterval('PT0H'),
                 Random::getAlphanumericString(32),
                 true,
             ],
             [
-                (new \DateTime())->sub(new \DateInterval('PT3H')),
+                new \DateInterval('PT3H'),
                 Random::getAlphanumericString(32),
                 false,
             ],
             [
-                (new \DateTime())->sub(new \DateInterval('PT1H')),
+                new \DateInterval('PT1H'),
                 Random::getAlphanumericString(32),
                 true,
             ],
             [
-                (new \DateTime())->sub(new \DateInterval('PT1H58M')),
+                new \DateInterval('PT1H58M'),
                 Random::getAlphanumericString(32),
                 true,
             ],
             [
-                (new \DateTime())->sub(new \DateInterval('PT2H')),
+                new \DateInterval('PT2H'),
                 Random::getAlphanumericString(32),
                 false,
             ],
             [
-                (new \DateTime())->sub(new \DateInterval('PT2H1M')),
+                new \DateInterval('PT2H1M'),
                 Random::getAlphanumericString(32),
                 false,
             ],

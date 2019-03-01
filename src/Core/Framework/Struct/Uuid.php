@@ -42,6 +42,7 @@ class Uuid
      */
     public static function fromStringToBytes(string $uuid): string
     {
+        $uuid = strtolower($uuid);
         if ($bin = @hex2bin(str_replace('-', '', $uuid))) {
             return $bin;
         }
@@ -54,6 +55,7 @@ class Uuid
      */
     public static function fromHexToBytes(string $hex): string
     {
+        $hex = strtolower($hex);
         if ($bin = @hex2bin($hex)) {
             return $bin;
         }

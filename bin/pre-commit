@@ -54,7 +54,7 @@ fi
 
 if [[ -n "$JS_FILES" && -x src/Administration/Resources/administration/node_modules/.bin/eslint ]]
 then
-    src/Administration/Resources/administration/node_modules/.bin/eslint --ext .js,.vue --fix ${JS_FILES}
+    src/Administration/Resources/administration/node_modules/.bin/eslint --config src/Administration/Resources/administration/.eslintrc.js --ext .js,.vue --fix ${JS_FILES}
 fi
 
 git add ${JS_FILES} ${PHP_FILES}

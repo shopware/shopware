@@ -9,7 +9,7 @@
                                         @sw-card-filter-term-change="onChange">
                             <template slot="filter">
                                 {% block sw_customer_detail_addresses_add_button %}
-                                    <sw-button @click="onCreateNewAddress" size="small">
+                                    <sw-button class="sw-customer-detail-addresses__add-address-action" @click="onCreateNewAddress" size="small">
                                         <sw-icon name="small-default-plus-circle" small></sw-icon>
                                         {{ $tc('sw-customer.detailAddresses.buttonAddAddress') }}
                                     </sw-button>

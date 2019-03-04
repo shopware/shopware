@@ -1,89 +1,40 @@
 @import "~scss/variables";
 
-$sw-tabs-item-color-border:                $color-steam-cloud;
-$sw-tabs-item-color-minimal-border-active: $color-shopware-blue;
-$sw-tabs-item-color-text:                  $color-kashmir;
-$sw-tabs-item-color-minimal-text:          #B3BFCC;
-$sw-tabs-item-color-minimal-text-active:   #52667A;
-$sw-tabs-item-color-text-active:           $color-shopware-blue;
-$sw-tabs-item-color-background:            $color-light-gray;
-$sw-tabs-item-color-background-active:     $color-white;
-$sw-tabs-item-border-radius:               $border-radius-default;
-$sw-tabs-item-font-size:                   14px;
-$sw-tabs-item-font-family:                 $font-family-default;
+$sw-side-navigation-item-link-color: $color-gutenberg;
+$sw-side-navigation-item-link-distance: 10px;
+$sw-side-navigation-item-color-disabled: $color-kashmir;
 
 .sw-tabs-item {
-    font-family: $sw-tabs-item-font-family;
-    font-size: $sw-tabs-item-font-size;
-    display: inline-block;
+    transition: 0.3s all ease-in-out;
+    padding: $sw-side-navigation-item-link-distance ($sw-side-navigation-item-link-distance * 1.75);
+    border-bottom: 2px solid lighten($sw-side-navigation-item-link-color, 45);
     text-decoration: none;
+    font-weight: 600;
+    white-space: nowrap;
+    color: lighten($sw-side-navigation-item-link-color, 30);
     cursor: pointer;
-    outline: none;
-    padding: 2px 28px;
-    margin: 4px 0;
-    line-height: 32px;
-    border: 1px solid transparent;
-    border-radius: $sw-tabs-item-border-radius;
-    background: none;
-    color: $sw-tabs-item-color-text;
+
+    &.sw-tabs-item--active {
+        color: $sw-side-navigation-item-link-color;
+    }
 
     &:hover {
-        border-color: $sw-tabs-item-color-border;
-        color: $sw-tabs-item-color-text-active;
-        background-color: $sw-tabs-item-color-background;
+        color: $sw-side-navigation-item-link-color;
     }
 
-    &.router-link-active,
-    &.is--active {
-        border-color: $sw-tabs-item-color-border;
-        color: $sw-tabs-item-color-text-active;
-        background-color: $sw-tabs-item-color-background-active;
+    &:disabled {
+        color: $sw-side-navigation-item-color-disabled;
+        cursor: not-allowed;
     }
+}
 
-    &:focus {
-        color: $sw-tabs-item-color-text-active;
-    }
+.sw-tabs--vertical .sw-tabs-item {
+    padding: $sw-side-navigation-item-link-distance;
+    border-bottom: 0px solid lighten($sw-side-navigation-item-link-color, 45);
+    border-left: 2px solid lighten($sw-side-navigation-item-link-color, 45);
+}
 
-    &:active {
-        background-color: $sw-tabs-item-color-background-active;
-        color: $sw-tabs-item-color-text-active;
-    }
-
-    &.sw-tabs-item__minimal {
-        border: none;
-        background: none;
-        line-height: 39px; //sw-tabs-item line-height + 2*padding + border
-        border-radius: 0;
-        border-bottom: 2px solid $sw-tabs-item-color-border;
-        color: $sw-tabs-item-color-minimal-text;
-        font-weight: 600;
-
-        &:hover {
-            color: $sw-tabs-item-color-minimal-text-active;
-        }
-
-        &:disabled {
-            color: $sw-tabs-item-color-minimal-text;;
-            cursor: not-allowed;
-        }
-
-        &.router-link-active,
-        &.is--active {
-            border-bottom-color: $sw-tabs-item-color-minimal-border-active;
-            color: $sw-tabs-item-color-minimal-text-active;
-        }
-
-        &:active {
-            border-bottom-color: $sw-tabs-item-color-minimal-border-active;
-            color: $sw-tabs-item-color-minimal-text-active;
-        }
-    }
-
-    &:first-child {
-        margin-left: 0;
-    }
-
-    &:last-child {
-        margin-right: 0;
-    }
+.sw-tabs--vertical.sw-tabs--align-right .sw-tabs-item{
+    border-left: 0px;
+    border-right: 2px solid lighten($sw-side-navigation-item-link-color, 45);
 }

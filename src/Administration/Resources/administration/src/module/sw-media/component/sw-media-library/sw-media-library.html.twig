@@ -24,7 +24,7 @@
                 {% block sw_media_library_empty_state %}
                     <sw-empty-state
                             v-if="!isLoading && selectableItems.length === 0"
-                            :title="$tc('sw-media.general.mainMenuItemGeneral')">
+                            :title="$tc('sw-media.mediaLibrary.titleEmptyState')">
                         <template slot="icon">
                             <sw-icon name="default-object-image" size="60px" color="#FFD700"></sw-icon>
                         </template>

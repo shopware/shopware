@@ -64,6 +64,12 @@ export default {
         }
     },
 
+    watch: {
+        '$route'() {
+            this.checkIfRouteMatchesLink();
+        }
+    },
+
     created() {
         this.$parent.$on('newActiveItem', this.checkIfActive);
         if (this.active) {
@@ -90,6 +96,14 @@ export default {
         },
         checkIfActive(item) {
             this.isActive = (item.$vnode === this.$vnode);
+        },
+        checkIfRouteMatchesLink() {
+            this.$nextTick().then(() => {
+                const routeIsActive = this.$el.classList.contains('router-link-active');
+                if (routeIsActive) {
+                    this.$parent.setActiveItem(this);
+                }
+            });
         }
     }
 };

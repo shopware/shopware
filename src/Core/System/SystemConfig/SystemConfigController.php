@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Administration\Controller;
+namespace Shopware\Core\System\SystemConfig;
 
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Exception\MissingParameterException;

@@ -61,10 +61,6 @@ module.exports = function (config) {
             '/api': {
                 target: `${process.env.APP_URL}/api`,
                 changeOrigin: true
-            },
-            '/admin': {
-                target: `${process.env.APP_URL}/admin`,
-                changeOrigin: true
             }
         }
     });

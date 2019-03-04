@@ -567,8 +567,8 @@
       "contextMenuEdit": "Bearbeiten",
       "contextMenuDelete": "Löschen",
       "contextMenuDuplicate": "Duplizieren",
-      "contextMenuDefaultShippingAddress": "Als Standard Lieferadresse festlegen",
-      "contextMenuDefaultBillingAddress": "Als Standard Rechnungsadresse festlegen"
+      "contextMenuDefaultShippingAddress": "Als Standard-Lieferadresse festlegen",
+      "contextMenuDefaultBillingAddress": "Als Standard-Rechnungsadresse festlegen"
     },
     "detailOrder": {
       "searchbarPlaceholder": "Suche nach Bestellungen",

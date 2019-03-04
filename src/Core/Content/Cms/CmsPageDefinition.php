@@ -11,6 +11,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\CascadeDelete;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
@@ -48,6 +49,10 @@ class CmsPageDefinition extends EntityDefinition
             new TranslatedField('name'),
             (new StringField('type', 'type'))->addFlags(new Required()),
             new StringField('entity', 'entity'),
+            new JsonField('config', 'config', [
+                new StringField('background_color', 'backgroundColor'),
+            ]),
+
             new TranslatedField('attributes'),
 
             (new OneToManyAssociationField('blocks', CmsBlockDefinition::class, 'cms_page_id', false))->addFlags(new CascadeDelete()),

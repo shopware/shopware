@@ -13,6 +13,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IntField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
@@ -43,6 +44,15 @@ class CmsBlockDefinition extends EntityDefinition
 
             (new IntField('position', 'position'))->addFlags(new Required()),
             (new StringField('type', 'type'))->addFlags(new Required()),
+
+            new JsonField('config', 'config', [
+                new StringField('sizingMode', 'sizingMode'),
+                new StringField('marginTop', 'marginTop'),
+                new StringField('marginBottom', 'marginBottom'),
+                new StringField('backgroundColor', 'backgroundColor'),
+                new StringField('backgroundMode', 'backgroundMode'),
+                new StringField('cssClass', 'cssClass'),
+            ]),
 
             (new FkField('cms_page_id', 'pageId', CmsPageDefinition::class))->addFlags(new Required()),
             new ManyToOneAssociationField('page', 'cms_page_id', CmsPageDefinition::class, false),

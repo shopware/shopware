@@ -43,6 +43,11 @@ class CmsPageEntity extends Entity
     protected $navigations;
 
     /**
+     * @var array|null
+     */
+    protected $config;
+
+    /**
      * @var \DateTime
      */
     protected $createdAt;
@@ -145,5 +150,15 @@ class CmsPageEntity extends Entity
     public function setNavigations(NavigationCollection $navigations): void
     {
         $this->navigations = $navigations;
+    }
+
+    public function getConfig(): ?array
+    {
+        return $this->config;
+    }
+
+    public function setConfig(array $config): void
+    {
+        $this->config = $config;
     }
 }

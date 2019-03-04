@@ -39,6 +39,11 @@ class CmsBlockEntity extends Entity
     /**
      * @var array|null
      */
+    protected $config;
+
+    /**
+     * @var array|null
+     */
     protected $attributes;
 
     /**
@@ -129,5 +134,15 @@ class CmsBlockEntity extends Entity
     public function setAttributes(?array $attributes): void
     {
         $this->attributes = $attributes;
+    }
+
+    public function getConfig(): ?array
+    {
+        return $this->config;
+    }
+
+    public function setConfig(array $config): void
+    {
+        $this->config = $config;
     }
 }

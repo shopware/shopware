@@ -10,7 +10,7 @@ import './sw-tabs-item.scss';
  * @component-example
  * <sw-tabs>
  *
- *     <sw-tabs-item :to="{ name: 'sw.explore.index' }">
+ *     <sw-tabs-item :route="{ name: 'sw.explore.index' }">
  *         Explore
  *     </sw-tabs-item>
  *
@@ -27,7 +27,6 @@ export default {
     inheritAttrs: false,
 
     props: {
-        // The property "route" is deprecated and will be removed in the future. Use the new "to" property.
         route: {
             type: [String, Object],
             required: false,

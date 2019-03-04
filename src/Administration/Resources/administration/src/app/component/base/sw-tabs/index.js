@@ -10,11 +10,11 @@ import './sw-tabs.scss';
  * @component-example
  * <sw-tabs>
  *
- *     <sw-tabs-item :to="{ name: 'sw.explore.index' }">
+ *     <sw-tabs-item :route="{ name: 'sw.explore.index' }">
  *         Explore
  *     </sw-tabs-item>
  *
- *     <sw-tabs-item href="https://www.shopware.com" native>
+ *     <sw-tabs-item href="https://www.shopware.com">
  *         My Plugins
  *     </sw-tabs-item>
  *

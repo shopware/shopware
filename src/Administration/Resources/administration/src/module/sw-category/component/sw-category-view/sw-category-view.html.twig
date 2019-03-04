@@ -13,6 +13,7 @@
                             name="categoryName"
                             class="sw-category__name"
                             v-model="category.name"
+                            validation="required"
                             :label="$tc('sw-category.general.categoryNameLabel')"
                             :placeholder="placeholder(category, 'name')">
                         </sw-field>
@@ -43,7 +44,7 @@
 
                 {% block sw_category_view_information_media %}
                     <sw-media-upload
-                        label="Anzeigebild"
+                        :label="$tc('sw-category.general.imageLabel')"
                         variant="regular"
                         :source="mediaItem"
                         :uploadTag="category.id"
@@ -67,7 +68,7 @@
                             :store="productStore"
                             :associationStore="categoryProductStore"
                             itemValueKey="id" id="productSelection"
-                            placeholder="Produkte durchsuchen und zuweisen..."
+                            :placeholder="$tc('sw-category.general.productAssignmentPlaceholder')"
                             @sw-category-select-on-select="onSelectProduct">
                         </sw-category-select>
                     </div>
@@ -91,22 +92,25 @@
                             table>
 
                             <template slot="columns" slot-scope="{ item }">
-                                <sw-grid-column flex="minmax(200px, 1fr)" label="Name">
+                                <sw-grid-column flex="minmax(200px, 1fr)" :label="$tc('sw-category.general.columnNameLabel')">
                                     <router-link :to="{ name: 'sw.product.detail', params: { id: item.id }}" target="_blank">
                                         {{ placeholder(item, 'name' ) }}
                                     </router-link>
                                 </sw-grid-column>
-                                <sw-grid-column flex="minmax(200px, 1fr)" label="Hersteller">
+                                <sw-grid-column flex="minmax(200px, 1fr)" :label="$tc('sw-category.general.columnManufacturerLabel')">
                                     {{ placeholder(item.manufacturer, 'name' ) }}
                                 </sw-grid-column>
 
                                 <sw-grid-column flex="70px" align="center">
                                     <sw-context-button>
                                         <sw-context-menu-item @click="onViewProduct(item.id)">
-                                            Details
+                                            {{ $tc('sw-category.general.productAssignmentActionDetails') }}
                                         </sw-context-menu-item>
                                         <sw-context-menu-item @click="onRemoveProduct(item)">
-                                            {{ item.isDeleted ? 'Undo' : 'Remove' }}
+                                            {{ item.isDeleted ?
+                                                $tc('sw-category.general.productAssignmentActionUndo') :
+                                                $tc('sw-category.general.productAssignmentActionRemove')
+                                            }}
                                         </sw-context-menu-item>
                                     </sw-context-button>
                                 </sw-grid-column>

@@ -65,7 +65,7 @@
                 {% endblock %}
 
                 {% block sw_category_content_empty %}
-                    <sw-empty-state v-if="!category" title="Keine Kategorie ausgewählt"></sw-empty-state>
+                    <sw-empty-state v-if="!category" :title="$tc('sw-category.general.emptyStateHeadline')"></sw-empty-state>
                 {% endblock %}
             </template>
 

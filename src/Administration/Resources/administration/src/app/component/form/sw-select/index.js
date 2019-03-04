@@ -364,7 +364,7 @@ export default {
             const swSelectEl = this.$refs.swSelect;
             const activeItem = swSelectEl.querySelector('.is--active');
             const itemHeight = swSelectEl.querySelector('.sw-select-option').offsetHeight;
-            const activeItemPosition = activeItem.offsetTop + itemHeight;
+            const activeItemPosition = activeItem ? activeItem.offsetTop + itemHeight : 0;
             const resultContainer = swSelectEl.querySelector('.sw-select__results');
             let resultContainerHeight = resultContainer.offsetHeight;
 

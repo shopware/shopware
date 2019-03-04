@@ -39,7 +39,6 @@
                                             <slot name="result_items" :item="item" :index="index">
                                                 <sw-select-option :noPreview="true" :index="index" :item="item">
                                                     {{ item.name  || item.meta.viewData.name }}
-                                                    {# {{ placeholder(item, 'name') }} #}
                                                 </sw-select-option>
                                             </slot>
                                         </template>
@@ -48,13 +47,8 @@
 
                                 {% block sw_select_results_empty %}
                                     <div v-if="results.length <= 0" class="sw-select__results-empty-message">
-                                        {% block sw_select_results_empty_icon %}
-                                            <sw-icon name="default-action-search" size="20px"></sw-icon>
-                                        {% endblock %}
-
                                         {% block sw_select_results_empty_text %}
-                                            Suche nach einem Produkt
-                                            {# {{ $tc('global.sw-select.messageNoResults', searchTerm, { term: searchTerm }) }} #}
+                                            {{ $tc('sw-category.general.productAssignmentEmptyText') }}
                                         {% endblock %}
                                     </div>
                                 {% endblock %}

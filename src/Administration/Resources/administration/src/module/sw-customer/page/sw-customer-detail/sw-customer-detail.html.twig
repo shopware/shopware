@@ -26,7 +26,8 @@
                     {% endblock %}
 
                     {% block sw_customer_detail_actions_save %}
-                        <sw-button :disabled="customer.isLoading"
+                        <sw-button class="sw-customer-detail__save-action"
+                                   :disabled="customer.isLoading"
                                    variant="primary"
                                    @click.prevent="onSave"
                                    @click="onAbortButtonClick">
@@ -49,7 +50,8 @@
                         {% endblock %}
 
                         {% block sw_customer_detail_content_tab_addresses %}
-                            <sw-tabs-item :route="{ name: 'sw.customer.detail.addresses', params: { id: $route.params.id } }"
+                            <sw-tabs-item class="sw-customer-detail__tab-addresses"
+                                          :route="{ name: 'sw.customer.detail.addresses', params: { id: $route.params.id } }"
                                           :title="$tc('sw-customer.detail.tabAddresses')">
                                 {{ $tc('sw-customer.detail.tabAddresses') }}
                             </sw-tabs-item>

@@ -120,7 +120,8 @@
         {% endblock %}
 
         {% block sw_customer_address_form_default_billing_address %}
-            <sw-field type="checkbox"
+            <sw-field class="sw-customer-address-form__set-default-billing-address-action"
+                      type="checkbox"
                       v-model="this.isDefaultBillingAddressId"
                       :disabled="this.isDefaultBillingAddressId"
                       @change="onChangeDefaultBillingAddress"

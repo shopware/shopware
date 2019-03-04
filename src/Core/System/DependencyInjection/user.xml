@@ -22,10 +22,14 @@
             <tag name="shopware.entity.definition" entity="user_recovery"/>
         </service>
 
-        <service id="Shopware\Core\System\UserRecovery\UserRecoveryService">
+        <service id="Shopware\Core\System\User\Recovery\UserRecoveryService">
             <argument type="service" id="user_recovery.repository"/>
             <argument type="service" id="user.repository"/>
             <argument type="service" id="router"/>
+        </service>
+
+        <service id="Shopware\Core\System\User\Recovery\UserRecoveryController" public="true">
+            <argument type="service" id="Shopware\Core\System\User\Recovery\UserRecoveryService"/>
         </service>
     </services>
 </container>                

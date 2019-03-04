@@ -2,20 +2,19 @@ import { Application } from 'src/core/shopware';
 import ApiService from '../api.service';
 
 /**
- * Custom gateway for the "user-recovery" routes
+ * Custom gateway for the "user/user-recovery" routes
  * @class
  * @extends ApiService
  */
 class UserRecoveryApiService extends ApiService {
-    constructor(httpClient, loginService, apiEndpoint = 'user-recovery') {
+    constructor(httpClient, loginService, apiEndpoint = 'user') {
         super(httpClient, loginService, apiEndpoint);
         this.name = 'userRecoveryService';
         this.contextService = Application.getContainer('init').contextService;
-        this.baseUrl = this.contextService.installationPath;
     }
 
     createRecovery(email) {
-        const apiRoute = '/admin/create-user-recovery';
+        const apiRoute = `/_action/${this.getApiBasePath()}/user-recovery`;
 
         return this.httpClient.post(
             apiRoute,
@@ -24,8 +23,7 @@ class UserRecoveryApiService extends ApiService {
             },
             {
                 params: {},
-                headers: this.getBasicHeaders(),
-                baseURL: this.baseUrl
+                headers: this.getBasicHeaders()
             }
         ).then((response) => {
             ApiService.handleResponse(response);
@@ -33,17 +31,13 @@ class UserRecoveryApiService extends ApiService {
     }
 
     checkHash(hash) {
-        const apiRoute = '/admin/check-user-recovery';
+        const apiRoute = `/_action/${this.getApiBasePath()}/user-recovery/hash`;
 
-        return this.httpClient.post(
+        return this.httpClient.get(
             apiRoute,
             {
-                hash: hash
-            },
-            {
-                params: {},
-                headers: this.getBasicHeaders(),
-                baseURL: this.baseUrl
+                params: { hash: hash },
+                headers: this.getBasicHeaders()
             }
         ).then((response) => {
             ApiService.handleResponse(response);
@@ -51,9 +45,9 @@ class UserRecoveryApiService extends ApiService {
     }
 
     updateUserPassword(hash, password, passwordConfirm) {
-        const apiRoute = '/admin/user-recovery';
+        const apiRoute = `/_action/${this.getApiBasePath()}/user-recovery/password`;
 
-        return this.httpClient.post(
+        return this.httpClient.patch(
             apiRoute,
             {
                 hash: hash,
@@ -62,8 +56,7 @@ class UserRecoveryApiService extends ApiService {
             },
             {
                 params: {},
-                headers: this.getBasicHeaders(),
-                baseURL: this.baseUrl
+                headers: this.getBasicHeaders()
             }
         ).then((response) => {
             ApiService.handleResponse(response);

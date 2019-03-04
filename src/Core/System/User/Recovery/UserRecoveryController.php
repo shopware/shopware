@@ -1,9 +1,8 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Administration\Controller;
+namespace Shopware\Core\System\User\Recovery;
 
 use Shopware\Core\Framework\Context;
-use Shopware\Core\System\UserRecovery\UserRecoveryService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -22,7 +21,7 @@ class UserRecoveryController extends AbstractController
     }
 
     /**
-     * @Route("/admin/create-user-recovery", name="recovery.create", methods={"POST"})
+     * @Route("/api/v{version}/_action/user/user-recovery", name="api.action.user.user-recovery", methods={"POST"})
      */
     public function createUserRecovery(Request $request, Context $context): Response
     {
@@ -33,11 +32,11 @@ class UserRecoveryController extends AbstractController
     }
 
     /**
-     * @Route("/admin/check-user-recovery", name="recovery.check", methods={"POST"})
+     * @Route("/api/v{version}/_action/user/user-recovery/hash", name="api.action.user.user-recovery.hash", methods={"GET"})
      */
     public function checkUserRecovery(Request $request, Context $context): Response
     {
-        $hash = $request->request->get('hash');
+        $hash = $request->query->get('hash');
 
         if ($this->userRecoveryService->checkHash($hash, $context)) {
             return new Response();
@@ -47,7 +46,7 @@ class UserRecoveryController extends AbstractController
     }
 
     /**
-     * @Route("/admin/user-recovery", name="recovery.recover", methods={"POST"})
+     * @Route("/api/v{version}/_action/user/user-recovery/password", name="api.action.user.user-recovery.password", methods={"PATCH"})
      */
     public function updateUserPassword(Request $request, Context $context): Response
     {

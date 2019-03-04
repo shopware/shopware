@@ -9,8 +9,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\System\User\Aggregate\UserRecovery\UserRecoveryEntity;
+use Shopware\Core\System\User\Recovery\UserRecoveryService;
 use Shopware\Core\System\User\UserEntity;
-use Shopware\Core\System\UserRecovery\UserRecoveryService;
 
 class UserRecoveryServiceTest extends TestCase
 {

@@ -16,10 +16,10 @@ Mixin.register('sw-inline-snippet', {
             if (!value) {
                 return '';
             }
-            if (value[this.swInlineSnippetLocale] && value[this.swInlineSnippetLocale] !== '') {
+            if (value[this.swInlineSnippetLocale]) {
                 return value[this.swInlineSnippetLocale];
             }
-            if (value[this.swInlineSnippetFallbackLocale] && value[this.swInlineSnippetFallbackLocale] !== '') {
+            if (value[this.swInlineSnippetFallbackLocale]) {
                 return value[this.swInlineSnippetFallbackLocale];
             }
             if (types.isObject(value)) {
@@ -27,7 +27,9 @@ Mixin.register('sw-inline-snippet', {
                     return value[key] !== '';
                 });
 
-                return value[locale];
+                if (locale !== undefined) {
+                    return value[locale];
+                }
             }
 
             return value;

@@ -51,11 +51,9 @@ Component.register('sw-attribute-list', {
         },
 
         hasExistingAttributes() {
-            const attributeCount = Object.values(this.attributeStore.store).filter((item) => {
+            return Object.values(this.attributeStore.store).some((item) => {
                 return !item.isLocal;
             });
-
-            return attributeCount.length > 0;
         },
 
         getList() {

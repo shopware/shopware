@@ -1525,7 +1525,8 @@
         "contextMenuEdit": "Edit",
         "buttonDelete": "Delete",
         "titleDeleteSuccess": "Success",
-        "messageDeleteSuccess": "The set \"{name}\" has been deleted successfully."
+        "messageDeleteSuccess": "The set \"{name}\" has been deleted successfully.",
+        "messageEmpty": "There are no attributes yet."
       },
       "detail": {
         "labelTechnicalName": "Technical name",

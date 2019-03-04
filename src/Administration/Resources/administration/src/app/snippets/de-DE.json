@@ -1521,7 +1521,8 @@
         "contextMenuEdit": "Bearbeiten",
         "buttonDelete": "Löschen",
         "titleDeleteSuccess": "Erfolg",
-        "messageDeleteSuccess": "Das Set \"{name}\" wurde erfolgreich gelöscht."
+        "messageDeleteSuccess": "Das Set \"{name}\" wurde erfolgreich gelöscht.",
+        "messageEmpty": "Noch keine Freitextfelder"
       },
       "detail": {
         "labelTechnicalName": "Technischer Name",

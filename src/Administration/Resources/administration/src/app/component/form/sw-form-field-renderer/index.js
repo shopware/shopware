@@ -184,8 +184,7 @@ export default {
             throw new Error(`sw-form-field-renderer - Component with name "${name}" not found`);
         },
         createBind() {
-            this.bind = this.$attrs;
-            this.bind = { ...this.bind, ...this.currentConfig };
+            this.bind = { ...this.$attrs, ...this.currentConfig };
 
             if (this.type && !this.bind.type) {
                 this.bind = { ...this.bind, ...{ type: this.type } };

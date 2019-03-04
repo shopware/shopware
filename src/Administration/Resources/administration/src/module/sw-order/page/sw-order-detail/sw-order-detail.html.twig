@@ -45,11 +45,13 @@
                 {% endblock %}
 
                 {% block sw_order_detail_attribute_sets %}
-                    <sw-attribute-set-renderer
-                            v-if="next754"
-                            :entity="order"
-                            :sets="attributeSets">
-                    </sw-attribute-set-renderer>
+                    <sw-card>
+                        <sw-attribute-set-renderer
+                                v-if="next754"
+                                :entity="order"
+                                :sets="attributeSets">
+                        </sw-attribute-set-renderer>
+                    </sw-card>
                 {% endblock %}
             </sw-card-view>
         {% endblock %}

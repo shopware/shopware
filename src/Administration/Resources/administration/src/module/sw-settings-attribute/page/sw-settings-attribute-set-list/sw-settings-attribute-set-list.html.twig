@@ -38,9 +38,10 @@
         {% block sw_settings_attribute_set_list_content %}
             <sw-card-view slot="content">
                 {% block sw_settings_attribute_set_list_content_inner %}
-                    <sw-card :isLoading="isLoading">
+                    <sw-card :isLoading="isLoading" class="sw-settings-attribute-set-list__card">
                         {% block sw_settings_attribute_set_list_grid %}
                             <sw-grid slot="grid"
+                                     v-show="total"
                                      class="sw-settings-attribute-set-list-grid"
                                      :selectable="false"
                                      :items="items"
@@ -95,9 +96,9 @@
                                                       :title="$tc('sw-settings-attribute.set.list.titleModalDelete')"
                                                       variant="small">
                                                 {% block sw_settings_attribute_set_list_grid_delete_modal_text %}
-                                                <p>
-                                                    {{ $tc('sw-settings-attribute.set.list.textDeleteConfirm', 0, { name: getInlineSnippet(item.config.label) }) }}
-                                                </p>
+                                                    <p>
+                                                        {{ $tc('sw-settings-attribute.set.list.textDeleteConfirm', 0, { name: getInlineSnippet(item.config.label) }) }}
+                                                    </p>
                                                 {% endblock %}
 
                                                 {% block sw_settings_attribute_set_list_grid_delete_modal_footer %}
@@ -133,6 +134,11 @@
                                     </sw-pagination>
                                 {% endblock %}
                             </sw-grid>
+                        {% endblock %}
+                        {% block sw_settings_attributes_set_list_empty_message %}
+                            <sw-empty-state v-if="!isLoading && !total"
+                                            :title="$tc('sw-settings-attribute.set.list.messageEmpty')">
+                            </sw-empty-state>
                         {% endblock %}
                     </sw-card>
                 {% endblock %}

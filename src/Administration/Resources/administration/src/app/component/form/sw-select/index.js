@@ -135,8 +135,7 @@ export default {
             isLoadingSelections: false,
             hasError: false,
             // for a single selection
-            singleSelection: {},
-            utilsId: utils.createId()
+            singleSelection: {}
         };
     },
 
@@ -151,7 +150,7 @@ export default {
             };
         },
         selectId() {
-            const id = (this.id) ? this.id : this.utilsId;
+            const id = (this.id) ? this.id : utils.createId();
             return `sw-select--${id}`;
         }
     },
@@ -185,6 +184,10 @@ export default {
     },
 
     methods: {
+        log() {
+            console.log('this : ', this);
+        },
+
         createdComponent() {
             this.selections = [];
             this.results = [];

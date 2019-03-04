@@ -1,0 +1,13 @@
+{% block sw_attribute_type_base %}
+    <div class="sw-attribute-type-base">
+        {% block sw_attribute_type_base_content %}
+            {% block sw_attribute_type_base_labels %}
+                <sw-attribute-translated-labels
+                        v-model="currentAttribute.config"
+                        :propertyNames="propertyNames"
+                        :locales="locales">
+                </sw-attribute-translated-labels>
+            {% endblock %}
+        {% endblock %}
+    </div>
+{% endblock %}

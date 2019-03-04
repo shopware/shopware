@@ -47,7 +47,7 @@
 
             {% block sw_attribute_detail_modal_render_component %}
                 <div v-if="currentAttribute.config.attributeType.length > 0">
-                    <component v-bind:is="getRenderComponentName()"
+                    <component v-bind:is="renderComponentName"
                             :currentAttribute="currentAttribute"
                             :set="set">
                     </component>

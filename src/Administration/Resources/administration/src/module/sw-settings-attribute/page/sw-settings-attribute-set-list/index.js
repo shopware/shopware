@@ -1,5 +1,6 @@
 import { Component, Mixin } from 'src/core/shopware';
 import template from './sw-settings-attribute-set-list.html.twig';
+import './sw-settings-attribute-set-list.scss';
 
 Component.register('sw-settings-attribute-set-list', {
     template,
@@ -19,12 +20,6 @@ Component.register('sw-settings-attribute-set-list', {
     },
 
     computed: {
-        locale() {
-            return this.$root.$i18n.locale;
-        },
-        fallbackLocale() {
-            return this.$root.$i18n.fallbackLocale;
-        },
         // Settings Listing mixin override
         titleSaveSuccess() {
             return this.$tc('sw-settings-attribute.set.list.titleDeleteSuccess');

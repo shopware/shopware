@@ -35,6 +35,9 @@ Component.register('sw-attribute-detail', {
         },
         canSave() {
             return this.currentAttribute.config.attributeType;
+        },
+        renderComponentName() {
+            return this.fieldTypes[this.currentAttribute.config.attributeType].configRenderComponent;
         }
     },
 
@@ -81,7 +84,6 @@ Component.register('sw-attribute-detail', {
             }
             this.$emit('cancel-attribute-edit', this.currentAttribute);
         },
-
         onSave() {
             this.applyTypeConfiguration();
             this.$emit('save-attribute-edit', this.currentAttribute);
@@ -96,9 +98,6 @@ Component.register('sw-attribute-detail', {
                 ...this.fieldTypes[attributeType].config,
                 ...this.currentAttribute.config
             };
-        },
-        getRenderComponentName() {
-            return this.fieldTypes[this.currentAttribute.config.attributeType].configRenderComponent;
         }
     }
 });

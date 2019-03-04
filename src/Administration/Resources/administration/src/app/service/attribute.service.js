@@ -1,3 +1,4 @@
+import remove from 'lodash/remove';
 /**
  * @module app/service/attribute
  */
@@ -10,7 +11,7 @@
  * @returns {Object}
  */
 export default function createAttributeService() {
-    let $typeStore = {
+    const $typeStore = {
         select: {
             configRenderComponent: 'sw-attribute-type-select',
             type: 'string',
@@ -28,7 +29,7 @@ export default function createAttributeService() {
             }
         },
         media: {
-            configRenderComponent: 'sw-attribute-type-media',
+            configRenderComponent: 'sw-attribute-type-base',
             type: 'string',
             config: {
                 componentName: 'sw-media-field'
@@ -76,7 +77,7 @@ export default function createAttributeService() {
             }
         },
         colorpicker: {
-            configRenderComponent: 'sw-attribute-type-colorpicker',
+            configRenderComponent: 'sw-attribute-type-base',
             type: 'string',
             config: {
                 componentName: 'sw-field',
@@ -109,7 +110,7 @@ export default function createAttributeService() {
     }
 
     function upsertType(name, configuration) {
-        $typeStore = { ...$typeStore, ...{ [name]: configuration } };
+        $typeStore[name] = { ...$typeStore[name], ...{ configuration } };
     }
 
     function getTypes() {
@@ -125,8 +126,6 @@ export default function createAttributeService() {
     }
 
     function removeEntityName(entityName) {
-        if ($entityNameStore.includes(entityName)) {
-            $entityNameStore.splice($entityNameStore.indexOf(entityName), 1);
-        }
+        remove($entityNameStore, (storeItem) => { return storeItem === entityName; });
     }
 }

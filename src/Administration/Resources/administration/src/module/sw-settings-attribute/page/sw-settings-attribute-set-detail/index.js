@@ -49,7 +49,7 @@ Component.register('sw-settings-attribute-set-detail', {
             // Remove all translations except for default locale(fallbackLanguage)
             // in case, the set is not translated
             if (!this.set.config.translated || this.set.config.translated === false) {
-                const fallbackLocale = this.$root.$i18n.fallbackLocale;
+                const fallbackLocale = this.swInlineSnippetFallbackLocale;
                 this.set.config.label = { [fallbackLocale]: this.set.config.label[fallbackLocale] };
             }
 

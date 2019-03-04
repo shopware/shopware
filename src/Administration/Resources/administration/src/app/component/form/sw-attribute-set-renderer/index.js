@@ -39,13 +39,13 @@ export default {
         variant: {
             type: String,
             required: false,
-            default: 'card',
-            validValues: ['card', 'modal', 'media-sidebar'],
+            default: 'tabs',
+            validValues: ['tabs', 'collapse'],
             validator(value) {
                 if (!value.length) {
                     return true;
                 }
-                return ['card', 'modal', 'media-sidebar'].includes(value);
+                return ['tabs', 'collapse'].includes(value);
             }
         }
     },

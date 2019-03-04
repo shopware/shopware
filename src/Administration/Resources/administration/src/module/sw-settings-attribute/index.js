@@ -8,13 +8,12 @@ import './component/sw-attribute-translated-labels';
 import './component/sw-attribute-set-detail-base';
 import './component/sw-attribute-list';
 import './component/sw-attribute-detail';
+import './component/sw-attribute-type-base';
 import './component/sw-attribute-type-select';
 import './component/sw-attribute-type-text';
-import './component/sw-attribute-type-media';
 import './component/sw-attribute-type-number';
 import './component/sw-attribute-type-date';
 import './component/sw-attribute-type-checkbox';
-import './component/sw-attribute-type-colorpicker';
 import './component/sw-attribute-type-text-editor';
 
 Module.register('sw-settings-attribute', {

@@ -1,7 +1,7 @@
 import { Component } from 'src/core/shopware';
-import template from './sw-attribute-type-media.html.twig';
+import template from './sw-attribute-type-base.html.twig';
 
-Component.register('sw-attribute-type-media', {
+Component.register('sw-attribute-type-base', {
     template,
 
     props: {

@@ -2,19 +2,8 @@ import { Component } from 'src/core/shopware';
 import template from './sw-attribute-type-select.html.twig';
 import './sw-attribute-type-select.scss';
 
-Component.register('sw-attribute-type-select', {
+Component.extend('sw-attribute-type-select', 'sw-attribute-type-base', {
     template,
-
-    props: {
-        currentAttribute: {
-            type: Object,
-            required: true
-        },
-        set: {
-            type: Object,
-            required: true
-        }
-    },
 
     data() {
         return {
@@ -24,16 +13,6 @@ Component.register('sw-attribute-type-select', {
                 helpText: this.$tc('sw-settings-attribute.attribute.detail.labelHelpText')
             }
         };
-    },
-
-    computed: {
-        locales() {
-            if (this.set.config.hasOwnProperty('translated') && this.set.config.translated === true) {
-                return Object.keys(this.$root.$i18n.messages);
-            }
-
-            return [this.$root.$i18n.fallbackLocale];
-        }
     },
 
     created() {

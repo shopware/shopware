@@ -18,7 +18,7 @@ new ParentAssociationField(self::class, false))->addFlags(new WriteOnly(),
 new OneToManyAssociationField('children', self::class, 'parent_id', false, 'id'))->addFlags(new CascadeDelete(),
 ```
 
-If all requirements are fulfilled, each field (even associations) can be flagged with `Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\Inherited`.
+If all requirements are fulfilled, each field (even associations) can be flagged with `Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Inherited`.
 In case that a field with this flag is not filled (IS NULL or Association are empty), the DataAbstractionLayer uses the parent row to solve the field value.
 
 The following examples shows a simple usage of such an inheritance:

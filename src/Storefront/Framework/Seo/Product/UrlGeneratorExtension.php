@@ -4,10 +4,10 @@ namespace Shopware\Storefront\Framework\Seo\Product;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityExtensionInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityLoadedEvent;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Deferred;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\WriteProtected;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\Deferred;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\WriteProtected;
 use Shopware\Storefront\Framework\Seo\SeoUrlDefinition;
 use Shopware\Storefront\Framework\Seo\SeoUrlEntity;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;

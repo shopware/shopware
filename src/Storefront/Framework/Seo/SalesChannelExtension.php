@@ -3,9 +3,9 @@
 namespace Shopware\Storefront\Framework\Seo;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityExtensionInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Extension;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\Extension;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 
 class SalesChannelExtension implements EntityExtensionInterface

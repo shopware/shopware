@@ -15,7 +15,7 @@ use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityExtensionInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\Extension;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Extension;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class PromotionExtension implements EntityExtensionInterface, EventSubscriberInterface

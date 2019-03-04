@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Field;
 
-use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\Required;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 
 class PriceField extends JsonField
 {

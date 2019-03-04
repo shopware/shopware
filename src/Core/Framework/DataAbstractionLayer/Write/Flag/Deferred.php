@@ -2,10 +2,11 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Write\Flag;
 
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Deferred as FieldFlagDeferred;
+
 /**
- * Defines that the data of the field will be loaded deferred by an event subscriber or other class.
- * Used in entity extensions for plugins or not directly fetchable associations.
+ * @deprecated use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Deferred instead
  */
-class Deferred extends Flag
+class Deferred extends FieldFlagDeferred
 {
 }

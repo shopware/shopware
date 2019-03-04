@@ -2,9 +2,9 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Field;
 
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Flag;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldAware\FieldExtenderCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Filter\FilterRegistry;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\Flag\Flag;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\IdGenerator\GeneratorRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\ConstraintBuilder;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\ValueTransformer\ValueTransformerRegistry;

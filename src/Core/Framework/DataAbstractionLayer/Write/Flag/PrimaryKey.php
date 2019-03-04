@@ -2,6 +2,11 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Write\Flag;
 
-class PrimaryKey extends Flag
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey as FieldFlagPrimaryKey;
+
+/**
+ * @deprecated use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey instead
+ */
+class PrimaryKey extends FieldFlagPrimaryKey
 {
 }

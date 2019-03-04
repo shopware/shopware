@@ -2,9 +2,11 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Write\Flag;
 
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Extension as FieldFlagExtension;
+
 /**
- * Defines that the data of this field is stored in an Entity::$extension and are not part of the struct itself.
+ * @deprecated use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Extension instead
  */
-class Extension extends Flag
+class Extension extends FieldFlagExtension
 {
 }

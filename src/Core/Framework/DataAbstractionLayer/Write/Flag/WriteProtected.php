@@ -2,27 +2,11 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Write\Flag;
 
-class WriteProtected extends Flag
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\WriteProtected as FieldFlagWriteProtected;
+
+/**
+ * @deprecated use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\WriteProtected instead
+ */
+class WriteProtected extends FieldFlagWriteProtected
 {
-    /**
-     * @var array[string]bool
-     */
-    private $allowedOrigins = [];
-
-    public function __construct(string ...$allowedOrigins)
-    {
-        foreach ($allowedOrigins as $origin) {
-            $this->allowedOrigins[$origin] = true;
-        }
-    }
-
-    public function getAllowedOrigins(): array
-    {
-        return array_keys($this->allowedOrigins);
-    }
-
-    public function isAllowed(string $origin): bool
-    {
-        return isset($this->allowedOrigins[$origin]);
-    }
 }

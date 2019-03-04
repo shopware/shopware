@@ -2,20 +2,11 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Write\Flag;
 
-class ReverseInherited extends Flag
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ReverseInherited as FieldFlagReverseInherited;
+
+/**
+ * @deprecated use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ReverseInherited instead
+ */
+class ReverseInherited extends FieldFlagReverseInherited
 {
-    /**
-     * @var string
-     */
-    protected $name;
-
-    public function __construct(string $name)
-    {
-        $this->name = $name;
-    }
-
-    public function getName(): string
-    {
-        return $this->name;
-    }
 }

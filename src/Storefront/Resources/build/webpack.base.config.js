@@ -1,8 +1,9 @@
 const webpack = require('webpack');
 const WebpackBar = require('webpackbar');
 const StyleLintPlugin = require('stylelint-webpack-plugin');
-const {resolve} = require('path');
+const { resolve } = require('path');
 const config = require('../config');
+
 const buildDirectory = resolve(process.env.PROJECT_ROOT, 'public');
 
 const publicPath = `${process.env.APP_URL}${(process.env.ENV === 'watch') ? `:${config.devServerPort}` : ''}/`;
@@ -110,7 +111,7 @@ module.exports = {
     devServer: devServer,
     devtool: 'inline-cheap-source-map',
     entry: entries,
-    mode: "development",
+    mode: 'development',
     module: modules,
     name: 'shopware-next-storefront',
     optimization: optimization,
@@ -122,5 +123,5 @@ module.exports = {
     stats: {
         colors: true
     },
-    target: 'web',
+    target: 'web'
 };

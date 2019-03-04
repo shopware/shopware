@@ -1,7 +1,7 @@
 [titleEn]: <>(Custom Attributes)
 [wikiUrl]: <>(../plugin-system/custom-attributes?category=shopware-platform-en/plugin-system)
 
-Before starting you should read 
+Before starting you should read [Attribute System](../80-framework/20-attribute.md) first, then
 [Creating a component](../10-administration/20-create-a-component.md) 
 and you should know how to 
 [create a plugin](../10-administration/01-administration-start-development.md#create-your-first-plugin).

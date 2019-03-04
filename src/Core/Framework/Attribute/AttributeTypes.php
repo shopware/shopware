@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Framework\Attribute;
 
-class AttributeTypes
+final class AttributeTypes
 {
     public const BOOL = 'bool';
     public const DATETIME = 'datetime';
@@ -11,4 +11,8 @@ class AttributeTypes
     public const JSON = 'json';
     public const TEXT = 'text';
     public const HTML = 'html';
+
+    private function __construct()
+    {
+    }
 }

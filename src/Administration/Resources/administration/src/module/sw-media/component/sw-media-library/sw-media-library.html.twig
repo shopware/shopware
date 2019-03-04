@@ -56,7 +56,7 @@
                             {% block sw_media_library_media_item_list %}
                                 <sw-media-entity-mapper
                                     v-for="(gridItem, index) in selectableItems"
-                                    :key="gridItem.entityName + '_' + gridItem.id"
+                                    :key="gridItem.getEntityName() + '_' + gridItem.id"
                                     :class="`sw-media-grid-item__item--${index}`"
                                     :item="gridItem"
                                     :selected="showItemSelected(gridItem)"

@@ -18,7 +18,7 @@ export default {
             required: true,
             type: Object,
             validator(value) {
-                return value.entityName === 'media_folder';
+                return value.getEntityName() === 'media_folder';
             }
         }
     },

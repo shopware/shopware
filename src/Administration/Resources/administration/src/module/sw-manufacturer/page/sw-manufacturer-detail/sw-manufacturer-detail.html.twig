@@ -75,7 +75,7 @@
                                 :allowMultiSelect="false"
                                 variant="regular"
                                 :label="$tc('sw-manufacturer.detail.labelLogo')"
-                                :defaultFolder="manufacturer.entityName"
+                                :defaultFolder="manufacturer.getEntityName()"
                                 @sw-media-upload-new-uploads-added="onUploadAdded"
                                 @sw-media-upload-media-upload-success="setMediaItem"
                                 @sw-media-upload-open-sidebar="openMediaSidebar"

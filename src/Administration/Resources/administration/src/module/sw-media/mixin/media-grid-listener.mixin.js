@@ -87,7 +87,7 @@ Mixin.register('media-grid-listener', {
         },
 
         _singleSelect(item) {
-            if (item.entityName === 'media_folder') {
+            if (item.getEntityName() === 'media_folder') {
                 this.navigateToFolder({ item });
             }
 

@@ -27,7 +27,7 @@ describe('core/data/EntityStore.js', () => {
         expect(store.apiService).to.be.an('object');
         expect(store.store).to.be.an('object');
         expect(store.isLoading).to.be.equal(false);
-        expect(store.entityName).to.be.equal('product');
+        expect(store.getEntityName()).to.be.equal('product');
     });
 
     it('should initialized an EntityStore using an instance of an api service', () => {
@@ -43,7 +43,7 @@ describe('core/data/EntityStore.js', () => {
         expect(store.apiService).to.be.an('object');
         expect(store.store).to.be.an('object');
         expect(store.isLoading).to.be.equal(false);
-        expect(store.entityName).to.be.equal('product');
+        expect(store.getEntityName()).to.be.equal('product');
     });
 
     it('should create a new entity in the store', () => {

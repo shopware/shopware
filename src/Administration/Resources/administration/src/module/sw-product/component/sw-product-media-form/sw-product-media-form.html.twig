@@ -6,7 +6,7 @@
                     :uploadTag="product.id"
                     :variant="'regular'"
                     :scrollTarget="$parent.$el"
-                    :defaultFolder="product.entityName"
+                    :defaultFolder="product.getEntityName()"
                     @sw-media-upload-media-upload-success="successfulUpload"
                     @sw-media-upload-new-uploads-added="onUploadsAdded"
                     @sw-media-upload-media-upload-failure="onUploadFailed"

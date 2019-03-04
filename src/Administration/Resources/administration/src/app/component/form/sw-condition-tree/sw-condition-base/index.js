@@ -95,7 +95,7 @@ export default {
 
             fieldNames.forEach(fieldName => {
                 const boundExpression =
-                    `${this.config.entityName}.${this.config.conditionIdentifier}.${this.condition.id}.${fieldName}`;
+                    `${this.config.getEntityName()}.${this.config.conditionIdentifier}.${this.condition.id}.${fieldName}`;
                 this.formErrors[fieldName] = this.errorStore.registerFormField(boundExpression);
             });
 

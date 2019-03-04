@@ -36,7 +36,7 @@ Component.register('sw-media-breadcrumbs', {
         },
 
         rootFolder() {
-            const root = new this.mediaFolderStore.EntityClass(this.mediaFolderStore.entityName, null, null, null);
+            const root = new this.mediaFolderStore.EntityClass(this.mediaFolderStore.getEntityName(), null, null, null);
             root.name = this.$tc('sw-media.index.rootFolderName');
 
             return root;

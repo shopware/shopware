@@ -102,7 +102,7 @@ Component.register('sw-media-library', {
         },
 
         rootFolder() {
-            const root = new this.mediaFolderStore.EntityClass(this.mediaFolderStore.entityName, null, null, null);
+            const root = new this.mediaFolderStore.EntityClass(this.mediaFolderStore.getEntityName(), null, null, null);
             root.name = this.$tc('sw-media.index.rootFolderName');
 
             return root;
@@ -269,7 +269,7 @@ Component.register('sw-media-library', {
         },
 
         injectItem(item) {
-            if (item.entityName === 'media') {
+            if (item.getEntityName() === 'media') {
                 this.injectMedia(item);
                 return;
             }

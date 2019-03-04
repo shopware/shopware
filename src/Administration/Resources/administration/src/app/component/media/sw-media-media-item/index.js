@@ -45,7 +45,7 @@ export default {
             type: Object,
             required: true,
             validator(value) {
-                return value.entityName === 'media';
+                return value.getEntityName() === 'media';
             }
         }
     },

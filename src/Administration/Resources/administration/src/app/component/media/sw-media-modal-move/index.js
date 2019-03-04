@@ -48,7 +48,7 @@ export default {
     computed: {
         mediaNameFilter() {
             return (media) => {
-                return media.entityName === 'media' ?
+                return media.getEntityName() === 'media' ?
                     `${media.fileName}.${media.fileExtension}` :
                     media.name;
             };
@@ -149,7 +149,7 @@ export default {
             const movePromises = [];
 
             this.itemsToMove.filter((item) => {
-                return item.entityName === 'media_folder';
+                return item.getEntityName() === 'media_folder';
             }).forEach((item) => {
                 item.isLoading = true;
                 item.parentId = this.targetFolder.id || null;
@@ -180,7 +180,7 @@ export default {
             });
 
             this.itemsToMove.filter((item) => {
-                return item.entityName === 'media';
+                return item.getEntityName() === 'media';
             }).forEach((item) => {
                 item.mediaFolderId = this.targetFolder.id || null;
             });

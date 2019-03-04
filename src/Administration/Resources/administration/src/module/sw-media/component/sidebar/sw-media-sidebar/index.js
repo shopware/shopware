@@ -11,7 +11,7 @@ Component.register('sw-media-sidebar', {
             type: Array,
             validator(value) {
                 const invalidElements = value.filter((element) => {
-                    return !['media', 'media_folder'].includes(element.entityName);
+                    return !['media', 'media_folder'].includes(element.getEntityName());
                 });
                 return invalidElements.length === 0;
             }
@@ -61,7 +61,7 @@ Component.register('sw-media-sidebar', {
 
         headLine() {
             if (this.isSingleFile) {
-                if (this.firstEntity.entityName === 'media') {
+                if (this.firstEntity.getEntityName() === 'media') {
                     return this.mediaNameFilter(this.firstEntity);
                 }
                 return this.firstEntity.name;

@@ -13,7 +13,6 @@ trait QueueTestBehaviour
     abstract public function getContainer(): ContainerInterface;
 
     /**
-     * @after
      * @before
      */
     public function clearQueue()
@@ -21,9 +20,20 @@ trait QueueTestBehaviour
         file_put_contents($this->getQueueFile(), '');
     }
 
+    /**
+     * @after
+     */
+    public function removeQueue()
+    {
+        unlink($this->getQueueFile());
+    }
+
     public function getQueueFile(): string
     {
-        return $this->getContainer()->get('enqueue.client.default.config')->getTransportOption('dsn') . '/messages';
+        $path = $this->getContainer()->get('enqueue.client.default.config')->getTransportOption('dsn');
+        $path = str_replace('file://', '', $path);
+
+        return $path . '/messages';
     }
 
     public function getBus(): MessageBusInterface

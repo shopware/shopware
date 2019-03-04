@@ -25,25 +25,16 @@ class RunUntilEmptyReceiver implements ReceiverInterface
 
     public function receive(callable $handler): void
     {
-        try {
-            $this->receiver->receive(function (?Envelope $envelope) use ($handler) {
-                $handler($envelope);
-                if (file_get_contents($this->queueFile) === '') {
-                    // workaround so the receiver can be restarted
-                    throw new StopReceiverException();
-                }
-            });
-        } catch (StopReceiverException $e) {
-            // do nothing
-        }
+        $this->receiver->receive(function (?Envelope $envelope) use ($handler) {
+            $handler($envelope);
+            if (file_get_contents($this->queueFile) === '') {
+                $this->stop();
+            }
+        });
     }
 
     public function stop(): void
     {
         $this->receiver->stop();
     }
-}
-
-class StopReceiverException extends \Exception
-{
 }

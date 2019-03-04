@@ -13,11 +13,12 @@ use Shopware\Core\Framework\ScheduledTask\ScheduledTaskEntity;
 use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\Framework\Test\MessageQueue\fixtures\TestMessage;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\QueueTestBehaviour;
 use Shopware\Core\PlatformRequest;
 
 class ScheduledTaskControllerTest extends TestCase
 {
-    use AdminFunctionalTestBehaviour;
+    use AdminFunctionalTestBehaviour, QueueTestBehaviour;
 
     public function testRunScheduledTasks()
     {

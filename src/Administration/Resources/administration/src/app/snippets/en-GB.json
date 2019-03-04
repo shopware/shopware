@@ -687,7 +687,7 @@
     "visibility": {
       "textHeadline": "Set visibility per sales channel",
       "placeholderVisibility": "Type to search for sales channels ...",
-      "columnAll": "Visible everywhere",
+      "columnAll": "Everywhere",
       "columnSearchOnly": "Only visible in search",
       "columnLinkOnly": "Hidden",
       "linkAdvancedVisibility": "Configure advanced visibility",

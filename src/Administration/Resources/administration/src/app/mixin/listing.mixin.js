@@ -33,6 +33,10 @@ Mixin.register('listing', {
     },
 
     created() {
+        if (this.disableRouteParams) {
+            this.getList();
+            return;
+        }
         const actualQueryParameters = this.$route.query;
 
         // When no route information are provided
@@ -49,6 +53,9 @@ Mixin.register('listing', {
     watch: {
         // Watch for changes in query parameters and update listing
         '$route'() {
+            if (this.disableRouteParams) {
+                return;
+            }
             const query = this.$route.query;
 
             if (types.isEmpty(query)) {
@@ -110,6 +117,15 @@ Mixin.register('listing', {
         },
 
         getListingParams() {
+            if (this.disableRouteParams) {
+                return {
+                    limit: this.limit,
+                    page: this.page,
+                    term: this.term,
+                    sortBy: this.sortBy,
+                    sortDirection: this.sortDirection
+                };
+            }
             // Get actual query parameter
             const query = this.$route.query;
 
@@ -154,6 +170,10 @@ Mixin.register('listing', {
         onPageChange(opts) {
             this.page = opts.page;
             this.limit = opts.limit;
+            if (this.disableRouteParams) {
+                this.getList();
+                return;
+            }
             this.updateRoute({
                 page: this.page
             });
@@ -161,6 +181,12 @@ Mixin.register('listing', {
 
         onSearch(value) {
             if (value.length === 0) value = undefined;
+
+            if (this.disableRouteParams) {
+                this.term = value;
+                this.page = 1;
+                this.getList();
+            }
 
             this.term = value;
             this.updateRoute({
@@ -176,6 +202,17 @@ Mixin.register('listing', {
         },
 
         onSortColumn(column) {
+            if (this.disableRouteParams) {
+                if (this.sortBy === column.dataIndex) {
+                    this.sortDirection = (this.sortDirection === 'ASC' ? 'DESC' : 'ASC');
+                } else {
+                    this.sortDirection = 'ASC';
+                    this.sortBy = column.dataIndex;
+                }
+                this.getList();
+                return;
+            }
+
             if (this.sortBy === column.dataIndex) {
                 this.updateRoute({
                     sortDirection: (this.sortDirection === 'ASC' ? 'DESC' : 'ASC')

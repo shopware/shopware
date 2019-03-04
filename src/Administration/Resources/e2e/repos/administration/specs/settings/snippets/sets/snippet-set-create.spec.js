@@ -1,7 +1,7 @@
 const settingsPage = require('administration/page-objects/module/sw-settings.page-object.js');
 
 module.exports = {
-    '@tags': ['settings','snippet-set-create', 'snippets', 'snippet-set', 'create'],
+    '@tags': ['settings', 'snippet-set-create', 'snippets', 'snippet-set', 'create'],
     '@disabled': !global.flags.isActive('next717'),
     'open snippet module': (browser) => {
         browser
@@ -22,7 +22,7 @@ module.exports = {
             .click(`${page.elements.gridRow}--0 ${page.elements.gridRowInlineEdit}`)
             .checkNotification('Snippet set "Snip Snap" has been saved successfully.');
     },
-    'go back to listing and verify tax': (browser) => {
+    'go back to listing and verify snippet set': (browser) => {
         const page = settingsPage(browser);
 
         browser

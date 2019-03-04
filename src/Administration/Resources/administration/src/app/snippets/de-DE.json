@@ -683,7 +683,7 @@
     "visibility": {
       "textHeadline": "Sichtbarkeit je Verkaufskanal festlegen",
       "placeholderVisibility": "Tippe, um Verkaufskanäle zu suchen...",
-      "columnAll": "Überall sichtbar",
+      "columnAll": "Überall",
       "columnSearchOnly": "Nur in der Suche sichtbar",
       "columnLinkOnly": "Versteckt",
       "linkAdvancedVisibility": "Erweitere Sichtbarkeit konfigurieren",

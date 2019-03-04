@@ -253,15 +253,7 @@ Component.register('sw-category-tree', {
             this.addCategoryPosition = null;
         },
 
-        // @todo
-        batchDelete() {
-            // Object.values(this.checkedCategories).forEach((itemId) => {
-            //     this.onDeleteCategory(itemId);
-            // });
-            // this.checkedCategories = {};
-            // this.checkedCategoriesCount = 0;
-            // this.saveCategories();
-        },
+        batchDelete() {},
 
         deleteSelectedCategories() {
             if (this.checkedCategories.length <= 0) {

@@ -132,7 +132,6 @@ export default {
                 `;
             }
 
-
             return `
                 transform: translate(${this.sliderMovement}px, 0) rotate(0deg);
                 width: ${this.sliderLength}px;

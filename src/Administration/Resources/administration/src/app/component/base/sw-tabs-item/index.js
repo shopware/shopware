@@ -56,12 +56,11 @@ export default {
     },
 
     mounted() {
-        if (this.$el.classList.contains('router-link-active')) {
-            this.isActive = true;
-        }
-        if (this.activeTab && this.activeTab === this.name) {
-            this.isActive = true;
-        }
+        this.updateActiveState();
+    },
+
+    beforeUpdate() {
+        this.updateActiveState();
     },
 
     watch: {
@@ -90,6 +89,13 @@ export default {
     },
 
     methods: {
+        updateActiveState() {
+            this.checkIfRouteMatchesLink();
+            if (this.activeTab && this.activeTab === this.name) {
+                this.isActive = true;
+            }
+        },
+
         clickEvent() {
             this.$parent.setActiveItem(this);
             this.$emit('click');

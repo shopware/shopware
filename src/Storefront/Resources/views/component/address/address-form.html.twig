@@ -1,0 +1,130 @@
+{% block component_address_form %}
+	{% block component_address_form_company %}
+		{#TODO: NEXT-1938 - company#}
+	{% endblock %}
+
+	{% block component_address_form_street %}
+		<div class="form-group">
+			{% block component_address_form_street_label %}
+				<label class="form-label" for="{{ type }}AddressStreet">
+					{{ "address.streetLabel"|trans }}
+				</label>
+			{% endblock %}
+
+			{% block component_address_form_street_input %}
+				<input type="text"
+				       class="form-control"
+				       id="{{ type }}AddressStreet"
+				       placeholder="{{ "address.streetPlaceholder"|trans }}{{ "account.required"|trans }}"
+				       name="{{ type }}Address.street"
+				       required="required">
+			{% endblock %}
+		</div>
+	{% endblock %}
+
+	{% block component_address_form_additional_field1 %}
+		{% if shopware.config.address.additionalField1 %}
+			<div class="form-group">
+				{% block component_address_form_additional_field1_label %}
+					<label class="form-label" for="{{ type }}AdditionalField1">
+						{{ "address.additionalField1Label"|trans }}
+					</label>
+				{% endblock %}
+
+				{% block component_address_form_additional_field1_input %}
+					<input type="text"
+					       class="form-control"
+					       id="{{ type }}AdditionalField1"
+					       placeholder="{{ "address.additionalField1Placeholder"|trans }}"
+					       name="{{ type }}Address.additionalAddressLine1">
+				{% endblock %}
+			</div>
+		{% endif %}
+	{% endblock %}
+
+	{% block component_address_form_additional_field2 %}
+		{% if shopware.config.address.additionalField2 %}
+			<div class="form-group">
+				{% block component_address_form_additional_field2_label %}
+					<label class="form-label" for="{{ type }}AdditionalField2">
+						{{ "address.additionalField2Label"|trans }}
+					</label>
+				{% endblock %}
+
+				{% block component_address_form_additional_field2_input %}
+					<input type="text"
+					       class="form-control"
+					       id="{{ type }}AdditionalField2"
+					       placeholder="{{ "address.additionalField2Placeholder"|trans }}"
+					       name="{{ type }}Address.additionalAddressLine2">
+				{% endblock %}
+			</div>
+		{% endif %}
+	{% endblock %}
+
+	{% block component_address_form_zipcode_city %}
+		<div class="form-row">
+			{% block component_address_form_zipcode %}
+				<div class="form-group col-md-4{% if not shopware.config.address.zipBeforeCity %} order-2{% endif %}">
+					{% block component_address_form_zipcode_label %}
+						<label class="form-label" for="{{ type }}AddressZipcode">
+							{{ "address.zipcodeLabel"|trans }}
+						</label>
+					{% endblock %}
+
+					{% block component_address_form_zipcode_input %}
+						<input type="text"
+						       class="form-control"
+						       id="{{ type }}AddressZipcode"
+						       placeholder="{{ "address.zipcodePlaceholder"|trans }}{{ "account.required"|trans }}"
+						       name="{{ type }}Address.zipcode"
+						       required="required">
+					{% endblock %}
+				</div>
+			{% endblock %}
+
+			{% block component_address_form_city %}
+				<div class="form-group col-md-8{% if not shopware.config.address.zipBeforeCity %} order-1{% endif %}">
+					{% block component_address_form_city_label %}
+						<label class="form-label" for="{{ type }}AddressCity">
+							{{ "address.cityLabel"|trans }}
+						</label>
+					{% endblock %}
+
+					{% block component_address_form_city_input %}
+						<input type="text"
+						       class="form-control"
+						       id="{{ type }}AddressCity"
+						       placeholder="{{ "address.cityPlaceholder"|trans }}{{ "account.required"|trans }}"
+						       name="{{ type }}Address.city"
+						       required="required">
+					{% endblock %}
+				</div>
+			{% endblock %}
+		</div>
+	{% endblock %}
+
+	{% block component_address_form_country %}
+		<div class="form-group">
+			{% block component_address_form_country_label %}
+				<label class="form-label" for="{{ type }}AddressCountry">
+					{{ "address.countryLabel"|trans }}
+				</label>
+			{% endblock %}
+
+			{% block component_address_form_country_select %}
+				<select class="custom-select"
+				        id="{{ type }}AddressCountry"
+				        name="{{ type }}Address.country">
+					{% for country in page.countries.elements %}
+						<option value="{{ country.id }}">
+							{{ country.name }}
+						</option>
+					{% endfor %}
+				</select>
+			{% endblock %}
+		</div>
+	{% endblock %}
+
+	{#TODO: NEXT-1930 - country states#}
+{% endblock %}

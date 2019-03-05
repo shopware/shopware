@@ -72,6 +72,10 @@ $spinner-border-width: 2px;
 $modal-header-padding-y: 10px;
 $modal-header-padding-x: 10px;
 
+// Breadcrumb
+$breadcrumb-bg: transparent;
+$breadcrumb-border-radius: 0;
+
 // Shopware
 $primary-light: saturate(lighten($primary, 12%), 5%);
 $success-light: saturate(lighten($green, 12%), 5%);

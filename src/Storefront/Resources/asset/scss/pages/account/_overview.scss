@@ -1,0 +1,17 @@
+.account-sidebar {
+    margin-bottom: 2rem;
+}
+
+.account-welcome {
+    margin-bottom: 2rem;
+}
+
+.account-card {
+    margin-bottom: 2rem;
+}
+
+@include media-breakpoint-up(md) {
+    .account-sidebar {
+        margin-bottom: 0;
+    }
+}

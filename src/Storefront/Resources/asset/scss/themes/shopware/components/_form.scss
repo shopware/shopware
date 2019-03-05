@@ -20,3 +20,8 @@ https://getbootstrap.com/docs/4.3/components/forms/
         color: $gray-600;
     }
 }
+
+/* custom form-label class for screenreaders only */
+.form-label {
+    @include sr-only;
+}

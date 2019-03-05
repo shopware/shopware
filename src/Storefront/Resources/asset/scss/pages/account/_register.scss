@@ -1,0 +1,37 @@
+.account-register {
+    padding: 0.5rem 0;
+}
+
+.login-card {
+    margin-bottom: 1rem;
+}
+
+.register-advantages {
+    display: none;
+}
+
+.register-advantages-header {
+    font-size: $h5-font-size;
+}
+
+.register-personal {
+    margin-bottom: 3rem;
+}
+
+.register-address {
+    margin-bottom: 3rem;
+}
+
+.register-required-info {
+    margin-bottom: 1rem;
+}
+
+@include media-breakpoint-up(lg) {
+    .account-register {
+        padding: 3rem 0;
+    }
+
+    .register-advantages {
+        display: block;
+    }
+}

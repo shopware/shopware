@@ -14,17 +14,32 @@
         {% block sw_plugin_manager_smart_bar_header_title %}
         <h2>
             {% block sw_plugin_manager_smart_bar_header_title_text %}
-            {{ $tc('sw-plugin.list.textPluginManager') }}
+                {{ $tc('sw-plugin.list.textPluginManager') }}
             {% endblock %}
         </h2>
         {% endblock %}
     </template>
     {% endblock %}
 
+    {% block sw_plugin_manager_smart_bar_actions %}
+    <template slot="smart-bar-actions">
+        {% block sw_plugin_manager_smart_bar_actions_slot %}
+
+        {% block sw_plugin_manager_smart_bar_actions_add %}
+        <sw-button variant="primary" target="_blank" link="https://store.shopware.com">
+            Zum Shopware Store
+        </sw-button>
+        {% endblock %}
+
+        {% endblock %}
+    </template>
+    {% endblock %}
+
     {% block sw_plugin_manager_content %}
     <sw-card-view slot="content">
+        <div class="plugin-manager-sidebar">
         {% block sw_plugin_manager_content_tabs %}
-        <sw-tabs variant="minimal">
+        <sw-tabs :isVertical="true" small>
             {% block sw_plugin_manager_content_tab_list %}
             <sw-tabs-item :route="{ name: 'sw.plugin.index.list' }"
                           :title="$tc('sw-plugin.general.tabList')"
@@ -52,6 +67,7 @@
         {% endblock %}
 
         <sw-plugin-store-login-status></sw-plugin-store-login-status>
+        </div>
 
         {% block sw_plugin_manager_content_view %}
         <router-view :searchTerm="searchTerm"></router-view>

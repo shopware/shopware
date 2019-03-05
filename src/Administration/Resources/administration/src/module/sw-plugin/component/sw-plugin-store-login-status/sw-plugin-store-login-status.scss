@@ -5,6 +5,8 @@
     .sw-plugin-store-login-status__name {
         font-weight: 600;
         font-size: 14px;
+        text-overflow: ellipsis;
+        white-space: nowrap;
     }
 
     .sw-plugin-store-login-status__email {

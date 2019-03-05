@@ -73,7 +73,11 @@ class AssetService implements AssetServiceInterface
 
     public function hasPluginIcon(string $pluginName): bool
     {
-        $bundle = $this->getBundle($pluginName);
+        try {
+            $bundle = $this->getBundle($pluginName);
+        } catch (PluginNotFoundException $e) {
+            return false;
+        }
         $pluginIcon = $bundle->getPath() . '/Resources/public/plugin.png';
 
         return is_file($pluginIcon);

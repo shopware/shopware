@@ -1,4 +1,4 @@
-<sw-modal class="sw-plugin-store-login" v-if="showModal" @closeModal="onCloseModal()" noHeader>
+<sw-modal class="sw-plugin-store-login" v-if="showModal" @closeModal="onCloseModal()" :showHeader="false">
     <div class="sw-plugin-store-login__close-button-container">
         <button class="sw-modal__close"
                 :title="$tc('global.sw-modal.labelClose')"

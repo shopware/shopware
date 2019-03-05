@@ -17,7 +17,7 @@ Module.register('sw-plugin', {
     description: 'sw-plugin.general.descriptionTextModule',
     version: '1.0.0',
     targetVersion: '1.0.0',
-    color: '#54d6ed',
+    color: '#9AA8B5',
     icon: 'default-object-plug',
     entity: 'plugin',
 
@@ -50,9 +50,10 @@ Module.register('sw-plugin', {
     navigation: [{
         id: 'sw-plugin',
         label: 'sw-plugin.general.mainMenuItemGeneral',
-        color: '#54d6ed',
+        color: '#9AA8B5',
         path: 'sw.plugin.index',
         icon: 'default-object-plug',
-        position: 9999
+        position: 9999,
+        parent: 'sw-settings'
     }]
 });

@@ -45,6 +45,9 @@ Component.register('sw-plugin-last-updates-grid', {
         },
 
         getLatestChangelog(plugin) {
+            if (plugin.changelog === null) {
+                return '';
+            }
             const json = JSON.stringify(plugin.changelog);
             const changelogs = JSON.parse(json);
 

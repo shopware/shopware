@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\MailTemplate\Service;
 
+use League\Flysystem\FilesystemInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\ConstraintBuilder;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
 use Symfony\Component\Validator\ConstraintViolationList;
@@ -14,9 +15,15 @@ class MessageFactory
      */
     private $validator;
 
-    public function __construct(ValidatorInterface $validator)
+    /**
+     * @var FilesystemInterface
+     */
+    private $filesystem;
+
+    public function __construct(ValidatorInterface $validator, FilesystemInterface $filesystem)
     {
         $this->validator = $validator;
+        $this->filesystem = $filesystem;
     }
 
     /**
@@ -24,7 +31,7 @@ class MessageFactory
      * @param array $recipients e.g. ['shopware@example.com' => 'Shopware AG', 'symfony@example.com' => 'Symfony']
      * @param array $contents   e.g. ['text/plain' => 'Foo', 'text/html' => '<h1>Bar</h1>']
      */
-    public function createMessage(string $subject, array $sender, array $recipients, array $contents): \Swift_Message
+    public function createMessage(string $subject, array $sender, array $recipients, array $contents, array $attachments): \Swift_Message
     {
         $this->assertValidAddresses(array_keys($recipients));
 
@@ -34,6 +41,15 @@ class MessageFactory
 
         foreach ($contents as $contentType => $data) {
             $message->addPart($data, $contentType);
+        }
+
+        foreach ($attachments as $url) {
+            $attachment = new \Swift_Attachment(
+                $this->filesystem->read($url),
+                basename($url),
+                $this->filesystem->getMimetype($url)
+            );
+            $message->attach($attachment);
         }
 
         return $message;

@@ -13,6 +13,31 @@
             </template>
         {% endblock %}
 
+        {% block sw_mail_template_list_smart_bar_actions %}
+        <template slot="smart-bar-actions">
+            <sw-button-group splitButton>
+                <sw-context-button>
+                    <sw-button slot="button" class="sw-mail-template__button-create" variant="primary">
+                        {{ $tc('sw-mail-template.list.buttonAdd') }}
+                        <sw-icon name="small-arrow-medium-down" size="16"></sw-icon>
+                    </sw-button>
+
+                    {% block sw_mail_template_list_smart_bar_actions_add %}
+                        <sw-context-menu-item :routerLink="{ name: 'sw.mail.template.create' }">
+                            {{ $tc('sw-mail-template.list.buttonAddMailTemplate') }}
+                        </sw-context-menu-item>
+                    {% endblock %}
+
+                    {% block sw_mail_header_footer_list_smart_bar_actions_add %}
+                        <sw-context-menu-item :routerLink="{ name: 'sw.mail.template.create_head_foot' }">
+                            {{ $tc('sw-mail-header-footer.list.buttonAddMailHeaderFooter') }}
+                        </sw-context-menu-item>
+                    {% endblock %}
+                </sw-context-button>
+            </sw-button-group>
+        </template>
+        {% endblock %}
+
         {% block sw_mail_template_list_content %}
             <sw-card-view slot="content">
                 {% block sw_mail_template_list_content_card %}

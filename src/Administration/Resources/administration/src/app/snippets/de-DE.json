@@ -398,6 +398,8 @@
       "customer_group": "Kundengruppe | Kundengruppen",
       "integration": "Integration | Integrationen",
       "language": "Sprache | Sprachen",
+      "mail_header_footer": "Header & Footer",
+      "mail_template": "E-Mail Vorlage | E-Mail Vorlagen",
       "media": "Medium | Medien",
       "media_default_folder": "Standardordner",
       "media_folder": "Ordner",
@@ -492,60 +494,6 @@
     "option": "Für die Sprache \"{locale}\" wurde kein Label gesetzt...",
     "configLoadErrorMessage": "Beim Laden der Konfiguration ist ein Fehler aufgetreten: | Beim Laden der Konfiguration sind Fehler aufgetreten:",
     "configLoadErrorTitle": "Fehler beim Laden der Konfiguration!"
-  },
-  "sw-mail-header-footer": {
-    "general": {
-      "mainMenuItemList": "Headers und Footers",
-      "placeholderSearchBar": "Suche nach Headers and Footers",
-      "mainMenuItemGeneral": "Headers & Footers"
-    },
-    "list": {
-      "textMailHeaderFooterOverview": "Headers undFooters",
-      "buttonAddMailHeaderFooter": "Header und Footer hinzufügen",
-      "columnName": "Name",
-      "columnDescription": "Beschreibung",
-      "columnSalesChannels": "Verkaufskanal",
-      "contextMenuDelete": "Löschen",
-      "contextMenuEdit": "Bearbeiten",
-      "contextMenuDuplicate": "Duplizieren",
-      "textDeleteConfirm": "Wollen Sie wirklich den E-Mail Header/Footer \"{name}\" löschen?",
-      "modalTitleDelete": "Header/Footer löschen",
-      "buttonCancel": "Abbrechen",
-      "buttonDelete": "Löschen",
-      "messageEmpty": "Noch keine Header und Footer",
-      "titleSidebarItemRefresh": "Aktualisieren"
-    },
-    "detail": {
-      "basic": {
-        "titleCard": "Informationen",
-        "labelName": "Name",
-        "labelDescription": "Beschreibung",
-        "labelSalesChannels": "Verkaufskanäle",
-        "placeholderName": "Geben Sie einen Namen ein",
-        "placeholderDescription": "Geben Sie eine Beschreibung ein",
-        "placeholderSalesChannels": "Wählen Sie zutreffende Verkaufskanäle"
-      },
-      "header": {
-        "titleCard": "Mail Header",
-        "labelPlain": "Plaintext",
-        "labelHtml": "HTML",
-        "placeholderPlain": "Geben Sein einen unformatierten Text für den E-mail Header an.",
-        "placeholderHtml": "Geben Sein einen formatierten Text für den E-mail Header an."
-      },
-      "footer": {
-        "titleCard": "Mail footer",
-        "labelPlain": "Plaintext",
-        "labelHtml": "HTML",
-        "placeholderPlain": "Geben Sein einen unformatierten Text für den E-mail Footer an.",
-        "placeholderHtml": "Geben Sein einen formatierten Text für den E-mail Footer an."
-      },
-      "buttonCancel": "Abbrechen",
-      "buttonSave": "Speichern",
-      "textHeadline": "Neuer E-mail Header/Footer",
-      "titleResult": "Email Header/Footer",
-      "titleSaveSuccess": "Erfolgreich",
-      "messageSaveSuccess": "Der E-mail Header/Footer \"{name}\" wurde erfolgreich gespeichert."
-    }
   },
   "sw-attribute-set-renderer": {
     "general":{

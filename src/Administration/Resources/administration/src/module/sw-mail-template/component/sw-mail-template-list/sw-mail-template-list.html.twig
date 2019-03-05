@@ -66,7 +66,7 @@
                                 {% endblock %}
 
                                 {% block sw_mail_template_list_grid_columns_actions_duplicate %}
-                                    <sw-context-menu-item :disabled="true" @click="onDuplicate(item.id)">
+                                    <sw-context-menu-item @click="onDuplicate(item.id)">
                                         {{ $tc('sw-mail-template.list.contextMenuDuplicate') }}
                                     </sw-context-menu-item>
                                 {% endblock %}
@@ -87,7 +87,7 @@
                                   variant="small">
                             {% block sw_mail_template_list_delete_modal_confirm_delete_text %}
                                 <p class="sw-mail-template-list__confirm-delete-text">
-                                    {{ $tc('sw-mail-template.list.textDeleteConfirm', 0, { name: item.name }) }}
+                                    {{ $tc('sw-mail-template.list.textDeleteConfirm', 0, { name: item.subject }) }}
                                 </p>
                             {% endblock %}
 

@@ -17,7 +17,7 @@ export default class LoadingIndicator {
      */
     create() {
         if (this.exists()) return;
-        this.parent.insertAdjacentHTML(this._getPosition(), this.getTemplate());
+        this.parent.insertAdjacentHTML(this._getPosition(), LoadingIndicator.getTemplate());
     }
 
     /**
@@ -50,9 +50,8 @@ export default class LoadingIndicator {
     /**
      * The loading indicators HTML template definition
      * @returns {string}
-     * @protected
      */
-    getTemplate() {
+    static getTemplate() {
         return `<div class="${SELECTOR_CLASS}" role="status">
                     <span class="sr-only">Loading...</span>
                 </div>`;

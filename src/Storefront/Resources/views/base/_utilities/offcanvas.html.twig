@@ -1,3 +1,8 @@
 {% block base_utilities_offcanvas %}
-
+    {% block base_utilities_offcanvas_close %}
+        <a href="#off-canvas-close" class="off-canvas-close">
+            {{ "checkout.continueShopping"|trans }}
+        </a>
+    {% endblock %}
+    {% block base_utilities_offcanvas_content %}{% endblock %}
 {% endblock %}

@@ -6,18 +6,34 @@
     position: fixed;
     top: 0;
     transition: all 0.45s cubic-bezier(0.3, 0, 0.15, 1);
+    overflow-y: auto;
 
-    &--left {
+    &.is--left {
         transform: translateX(-100%);
         left: 0;
     }
 
-    &--right {
+    &.is--right {
         transform: translateX(100%);
         right: 0;
     }
 
-    &--open {
+    &.is--open {
         transform: translateX(0) !important;
+    }
+
+    .off-canvas-close {
+        @extend .btn;
+        @extend .btn-block;
+        @extend .btn-dark;
+        border-radius: 0;
+    }
+
+    > .spinner-border {
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        margin-left: -1rem;
+        margin-top: -1rem;
     }
 }

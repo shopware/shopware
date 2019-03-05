@@ -1,0 +1,7 @@
+{# @TODO This is just an example on how the AJAX add to cart and the template will correspond to each other - REFACTOR #}
+<form action="{{ path('storefront-api.checkout.frontend.cart.product.add', {'version': 1, 'id': page.product.key}) }}"
+      data-add-to-cart="true">
+    <label for="quantity">Qty</label>
+    <input id="quantity" type="number" name="quantity" value="1">
+    <button>In den Warenkorb</button>
+</form>

@@ -184,10 +184,6 @@ export default {
     },
 
     methods: {
-        log() {
-            console.log('this : ', this);
-        },
-
         createdComponent() {
             this.selections = [];
             this.results = [];

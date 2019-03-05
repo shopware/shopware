@@ -40,7 +40,7 @@
             {% endblock %}
 
             {% block sw_attribute_set_renderer_media %}
-                <template v-else-if="variant === 'collapse'">
+                <template v-else-if="variant === 'media-collapse'">
                     <sw-media-collapse
                             v-for="set in sets"
                             v-if="set.attributes.length > 0"

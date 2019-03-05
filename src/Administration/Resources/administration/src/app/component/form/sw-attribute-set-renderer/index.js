@@ -40,12 +40,12 @@ export default {
             type: String,
             required: false,
             default: 'tabs',
-            validValues: ['tabs', 'collapse'],
+            validValues: ['tabs', 'media-collapse'],
             validator(value) {
                 if (!value.length) {
                     return true;
                 }
-                return ['tabs', 'collapse'].includes(value);
+                return ['tabs', 'media-collapse'].includes(value);
             }
         }
     },

@@ -11,7 +11,7 @@
          @keydown.down.prevent="navigateDownResults">
 
         {% block sw_select_label %}
-            <label v-if="getInlineSnippet(label)" @click="log()" :for="selectId" class="sw-select__label">
+            <label v-if="getInlineSnippet(label)" :for="selectId" class="sw-select__label">
                 {{ getInlineSnippet(label) }}
             </label>
         {% endblock %}

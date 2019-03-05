@@ -46,17 +46,23 @@ class LongTextWithHtmlFieldSerializer implements FieldSerializerInterface
         if (!$field instanceof LongTextWithHtmlField) {
             throw new InvalidSerializerFieldException(LongTextWithHtmlField::class, $field);
         }
-        if ($this->requiresValidation($field, $existence, $data->getValue(), $parameters)) {
+
+        $value = $data->getValue();
+        if ($value === '') {
+            $value = null;
+        }
+
+        if ($this->requiresValidation($field, $existence, $value, $parameters)) {
             $constraints = $this->constraintBuilder
                 ->isNotBlank()
                 ->isString()
                 ->getConstraints();
 
-            $this->validate($this->validator, $constraints, $data->getKey(), $data->getValue(), $parameters->getPath());
+            $this->validate($this->validator, $constraints, $data->getKey(), $value, $parameters->getPath());
         }
 
         /* @var LongTextWithHtmlField $field */
-        yield $field->getStorageName() => $data->getValue();
+        yield $field->getStorageName() => $value;
     }
 
     public function decode(Field $field, $value): ?string

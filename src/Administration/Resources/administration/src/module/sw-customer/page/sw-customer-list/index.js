@@ -6,6 +6,7 @@ Component.register('sw-customer-list', {
     template,
 
     mixins: [
+        Mixin.getByName('notification'),
         Mixin.getByName('listing')
     ],
 
@@ -27,15 +28,38 @@ Component.register('sw-customer-list', {
         onInlineEditSave(customer) {
             this.isLoading = true;
 
-            customer.save().then(() => {
-                this.isLoading = false;
+            return customer.save().then(() => {
+                this.createNotificationSuccess({
+                    title: this.$tc('sw-customer.detail.titleSaveSuccess'),
+                    message: this.$tc('sw-customer.detail.messageSaveSuccess', 0, { name: this.getFullName(customer) })
+                });
             }).catch(() => {
+                customer.discardChanges();
+
+                this.createNotificationError({
+                    title: this.$tc('sw-customer.detail.titleSaveError'),
+                    message: this.$tc('sw-customer.detail.messageSaveError')
+                });
+            }).finally(() => {
                 this.isLoading = false;
             });
         },
 
         onInlineEditCancel(customer) {
             customer.discardChanges();
+        },
+
+        getFullName(customer) {
+            if (!customer.salutation && !customer.title && !customer.firstName && !customer.lastName) {
+                return '';
+            }
+
+            const salutation = customer.salutation ? customer.salutation : '';
+            const title = customer.titel ? customer.title : '';
+            const firstName = customer.firstName ? customer.firstName : '';
+            const lastName = customer.lastName ? customer.lastName : '';
+
+            return `${salutation} ${title} ${firstName} ${lastName}`.trim();
         },
 
         getList() {

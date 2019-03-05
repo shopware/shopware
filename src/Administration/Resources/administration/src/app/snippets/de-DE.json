@@ -577,7 +577,10 @@
       "columnAmount": "Betrag",
       "columnOrderState": "Bestellstatus",
       "columnOrderDate": "Bestelldatum",
-      "columnContextOpenOrder": "Bestellung öffnen"
+      "columnContextOpenOrder": "Bestellung öffnen",
+      "emptyTitle": "Noch keine Bestellungen",
+      "emptySearchTitle": "Keine Suchergebnisse",
+      "emptySubline": "Kundenbestellungen"
     },
     "addressForm": {
       "labelCompany": "Firma",

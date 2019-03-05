@@ -64,15 +64,16 @@ Component.register('sw-customer-detail', {
         customerName() {
             const customer = this.customer;
 
-            if (!customer.salutation && !customer.firstName && !customer.lastName) {
+            if (!customer.salutation && !customer.title && !customer.firstName && !customer.lastName) {
                 return '';
             }
 
             const salutation = customer.salutation ? customer.salutation : '';
+            const title = customer.titel ? customer.title : '';
             const firstName = customer.firstName ? customer.firstName : '';
             const lastName = customer.lastName ? customer.lastName : '';
 
-            return `${salutation} ${firstName} ${lastName}`;
+            return `${salutation} ${title} ${firstName} ${lastName}`.trim();
         },
 
         isCreateCustomer() {
@@ -188,29 +189,22 @@ Component.register('sw-customer-detail', {
         },
 
         onSave() {
-            const customerName = this.customerName;
-            const titleSaveSuccess = this.$tc('sw-customer.detail.titleSaveSuccess');
-            const titleSaveError = this.$tc('sw-customer.detail.titleSaveError');
-            const messageSaveSuccess = this.$tc('sw-customer.detail.messageSaveSuccess', 0, { name: customerName });
-            const messageSaveError = this.$tc('sw-customer.detail.messageSaveError');
-
             if (!this.customer.birthday) {
                 this.customer.birthday = null;
             }
 
             return this.customer.save().then(() => {
                 this.createNotificationSuccess({
-                    title: titleSaveSuccess,
-                    message: messageSaveSuccess
+                    title: this.$tc('sw-customer.detail.titleSaveSuccess'),
+                    message: this.$tc('sw-customer.detail.messageSaveSuccess', 0, { name: this.customerName })
                 });
+                this.customerEditMode = false;
             }).catch((exception) => {
                 this.createNotificationError({
-                    title: titleSaveError,
-                    message: messageSaveError
+                    title: this.$tc('sw-customer.detail.titleSaveError'),
+                    message: this.$tc('sw-customer.detail.messageSaveError')
                 });
                 throw exception;
-            }).finally(() => {
-                this.customerEditMode = false;
             });
         },
 

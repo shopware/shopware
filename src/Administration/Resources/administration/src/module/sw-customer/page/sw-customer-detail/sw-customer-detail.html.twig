@@ -29,8 +29,7 @@
                         <sw-button class="sw-customer-detail__save-action"
                                    :disabled="customer.isLoading"
                                    variant="primary"
-                                   @click.prevent="onSave"
-                                   @click="onAbortButtonClick">
+                                   @click.prevent="onSave">
                             {{ $tc('sw-customer.detail.buttonSave') }}
                         </sw-button>
                     {% endblock %}

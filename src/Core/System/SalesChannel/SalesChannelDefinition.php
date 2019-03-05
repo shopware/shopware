@@ -6,6 +6,9 @@ use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Checkout\Payment\PaymentMethodDefinition;
 use Shopware\Core\Checkout\Shipping\ShippingMethodDefinition;
+use Shopware\Core\Content\MailTemplate\Aggregate\MailHeaderFooter\MailHeaderFooterDefinition;
+use Shopware\Core\Content\MailTemplate\Aggregate\MailTemplateSalesChannel\MailTemplateSalesChannelDefinition;
+use Shopware\Core\Content\MailTemplate\MailTemplateDefinition;
 use Shopware\Core\Content\Navigation\NavigationDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
@@ -68,6 +71,7 @@ class SalesChannelDefinition extends EntityDefinition
             (new FkField('country_id', 'countryId', CountryDefinition::class))->addFlags(new Required()),
             new FkField('navigation_id', 'navigationId', NavigationDefinition::class),
             new ReferenceVersionField(NavigationDefinition::class, 'navigation_version_id'),
+            (new FkField('mail_header_footer_id', 'mailHeaderFooterId', MailHeaderFooterDefinition::class)),
             (new StringField('type', 'type'))->addFlags(new Required()),
             new TranslatedField('name'),
             (new StringField('access_key', 'accessKey'))->addFlags(new Required()),
@@ -95,6 +99,8 @@ class SalesChannelDefinition extends EntityDefinition
             (new OneToManyAssociationField('systemConfigs', SystemConfigDefinition::class, 'sales_channel_id', false))->addFlags(new CascadeDelete()),
             new ManyToOneAssociationField('navigation', 'navigation_id', NavigationDefinition::class, false),
             (new OneToManyAssociationField('productVisibilities', ProductVisibilityDefinition::class, 'sales_channel_id', false))->addFlags(new CascadeDelete()),
+            new ManyToOneAssociationField('mailHeaderFooter', 'mail_header_footer_id', MailHeaderFooterDefinition::class, true),
+            new ManyToManyAssociationField('mailTemplates', MailTemplateDefinition::class, MailTemplateSalesChannelDefinition::class, false, 'sales_channel_id', 'mail_template_id'),
         ]);
     }
 }

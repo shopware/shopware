@@ -46,6 +46,7 @@ The field types below are available to build a definition.
 | `ParentFkField` | Short-hand for foreign key field `parentId` used in the parent/child concept |
 | `ChildCountField` | (Read-only) For saving the current count of children used in the parent/child concept |
 | `PasswordField` | For saving a hashed password |
+| `EmailField` | For saving email addresses |
 
 ## Standard types
 
@@ -427,3 +428,11 @@ The PasswordField is using the native `password_hash()` PHP method to hash it's 
 
 3. `$algorithm` is the algorithm used in the `password_hash()` method. Default: `PASSWORD_BCRYPT`
 4. `$hashOptions` is an array with options passed to the `password_hash()` method as second parameter.
+
+### EmailField
+
+```php
+new EmailField('email', 'email')
+```
+
+The EmailField uses Symfony's email validation in strict mode. For further details on validation please refer to [Symfony Documentation](https://symfony.com/doc/current/reference/constraints/Email.html).

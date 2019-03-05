@@ -10,6 +10,8 @@ use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodTranslation\Shipping
 use Shopware\Core\Content\Category\Aggregate\CategoryTranslation\CategoryTranslationCollection;
 use Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupOptionTranslation\ConfigurationGroupOptionTranslationCollection;
 use Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupTranslation\ConfigurationGroupTranslationCollection;
+use Shopware\Core\Content\MailTemplate\Aggregate\MailHeaderFooter\MailHeaderFooterCollection;
+use Shopware\Core\Content\MailTemplate\MailTemplateCollection;
 use Shopware\Core\Content\Media\Aggregate\MediaTranslation\MediaTranslationCollection;
 use Shopware\Core\Content\Navigation\Aggregate\NavigationTranslation\NavigationTranslationCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturerTranslation\ProductManufacturerTranslationCollection;
@@ -260,6 +262,26 @@ class LanguageEntity extends Entity
      * @var NavigationTranslationCollection|null
      */
     protected $navigationTranslations;
+
+    /**
+     * @var MailTemplateCollection|null
+     */
+    protected $mailTemplateTranslations;
+
+    /**
+     * @var MailHeaderFooterCollection|null
+     */
+    protected $mailHeaderFooterTranslations;
+
+    public function getMailHeaderFooterTranslations(): ?MailHeaderFooterCollection
+    {
+        return $this->mailHeaderFooterTranslations;
+    }
+
+    public function setMailHeaderFooterTranslations(?MailHeaderFooterCollection $mailHeaderFooterTranslations): void
+    {
+        $this->mailHeaderFooterTranslations = $mailHeaderFooterTranslations;
+    }
 
     public function getParentId(): ?string
     {
@@ -699,5 +721,15 @@ class LanguageEntity extends Entity
     public function setNavigationTranslations(NavigationTranslationCollection $navigationTranslations): void
     {
         $this->navigationTranslations = $navigationTranslations;
+    }
+
+    public function getMailTemplateTranslations(): ?MailTemplateCollection
+    {
+        return $this->mailTemplateTranslations;
+    }
+
+    public function setMailTemplateTranslations(?MailTemplateCollection $mailTemplateTranslations): void
+    {
+        $this->mailTemplateTranslations = $mailTemplateTranslations;
     }
 }

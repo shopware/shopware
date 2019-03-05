@@ -1696,5 +1696,123 @@
       },
       "newItemName": "Neuer Navigationspunkt"
     }
+  },
+  "sw-mail-template": {
+    "general": {
+      "mainMenuItemList": "Übersicht",
+      "mainMenuItemGeneral": "E-Mail Vorlagen",
+      "placeholderSearchBar": "Durchsuchen aller E-Mail Vorlagen",
+      "notificationTestMailErrorTitle": "Fehler",
+      "notificationTestMailSalesChannelErrorMessage": "Bitte wähle einen Verkaufskanal aus.",
+      "notificationTestMailErrorMessage": "Beim Versand der Test-Mail ist ein Fehler aufgetreten.",
+      "notificationTestMailSuccessTitle": "Erfolg",
+      "notificationTestMailSuccessMessage": "Die Test-Mail wurde erfolgreich versendet."
+    },
+    "list": {
+      "textMailTemplateOverview": "E-Mail Vorlagen",
+      "buttonAddMailTemplate": "E-Mail Vorlage hinzufügen",
+      "columnMailType": "Typ",
+      "columnDescription": "Beschreibung",
+      "columnSalesChannels": "Verkaufskanal",
+      "contextMenuDelete": "Löschen",
+      "contextMenuEdit": "Bearbeiten",
+      "contextMenuDuplicate": "Duplizieren",
+      "textDeleteConfirm": "Möchtest Du die E-Mail Vorlage \"{name}\" wirklich löschen?",
+      "modalTitleDelete": "E-Mail Vorlage löschen",
+      "buttonCancel": "Abbrechen",
+      "buttonDelete": "Löschen",
+      "messageEmpty": "Noch keine E-Mail Vorlagen",
+      "titleSidebarItemRefresh": "Aktualisieren"
+    },
+    "detail": {
+      "basic": {
+        "titleCard": "Informationen",
+        "labelMailType": "Typ",
+        "labelDescription": "Beschreibung",
+        "labelSalesChannels": "Verkaufskanal",
+        "placeholderMailType": "Wähle einen Typ...",
+        "placeholderDescription": "Gebe eine kurze Beschreibung an...",
+        "placeholderSalesChannels": "Wähle eine Zuweisung..."
+      },
+      "options": {
+        "titleCard": "Optionen",
+        "labelSenderMail": "Absender Mail",
+        "labelSenderName": "Absender Name",
+        "labelSubject": "Betreff",
+        "placeholderSenderMail": "example@shop.de",
+        "placeholderSenderName": "example@costumer.de",
+        "placeholderSubject": "Betreff eingeben..."
+      },
+      "mailText": {
+        "titleCard": "Mail Text",
+        "labelContentPlain": "Plaintext",
+        "labelContentHtml": "HTML",
+        "placeholderPlain": "Definiere einen Plaintext...",
+        "placeholderHtml": "Definiere einen HTML Text...",
+        "placeholderTestMail": "example@shop.de",
+        "buttonTestMail": "Testmail senden an"
+      },
+      "buttonCancel": "Abbrechen",
+      "buttonSave": "Speichern",
+      "textHeadline": "Neue E-Mail Vorlage",
+      "textHeadlineEdit": "E-Mail Vorlage bearbeiten",
+      "titleResult": "E-Mail Vorlagen",
+      "titleSaveSuccess": "Erfolg",
+      "messageSaveSuccess": "Die E-Mail Vorlage \"{name}\" wurde erfolgreich gespeichert."
+    }
+  },
+  "sw-mail-header-footer": {
+    "general": {
+      "mainMenuItemList": "Headers und Footers",
+      "placeholderSearchBar": "Suche nach Headers and Footers",
+      "mainMenuItemGeneral": "Headers & Footers"
+    },
+    "list": {
+      "textMailHeaderFooterOverview": "Headers undFooters",
+      "buttonAddMailHeaderFooter": "Header und Footer hinzufügen",
+      "columnName": "Name",
+      "columnDescription": "Beschreibung",
+      "columnSalesChannels": "Verkaufskanal",
+      "contextMenuDelete": "Löschen",
+      "contextMenuEdit": "Bearbeiten",
+      "contextMenuDuplicate": "Duplizieren",
+      "textDeleteConfirm": "Wollen Sie wirklich den E-Mail Header/Footer \"{name}\" löschen?",
+      "modalTitleDelete": "Header/Footer löschen",
+      "buttonCancel": "Abbrechen",
+      "buttonDelete": "Löschen",
+      "messageEmpty": "Noch keine Header und Footer",
+      "titleSidebarItemRefresh": "Aktualisieren"
+    },
+    "detail": {
+      "basic": {
+        "titleCard": "Informationen",
+        "labelName": "Name",
+        "labelDescription": "Beschreibung",
+        "labelSalesChannels": "Verkaufskanäle",
+        "placeholderName": "Geben Sie einen Namen ein",
+        "placeholderDescription": "Geben Sie eine Beschreibung ein",
+        "placeholderSalesChannels": "Wählen Sie zutreffende Verkaufskanäle"
+      },
+      "header": {
+        "titleCard": "Mail Header",
+        "labelPlain": "Plaintext",
+        "labelHtml": "HTML",
+        "placeholderPlain": "Geben Sein einen unformatierten Text für den E-mail Header an.",
+        "placeholderHtml": "Geben Sein einen formatierten Text für den E-mail Header an."
+      },
+      "footer": {
+        "titleCard": "Mail footer",
+        "labelPlain": "Plaintext",
+        "labelHtml": "HTML",
+        "placeholderPlain": "Geben Sein einen unformatierten Text für den E-mail Footer an.",
+        "placeholderHtml": "Geben Sein einen formatierten Text für den E-mail Footer an."
+      },
+      "buttonCancel": "Abbrechen",
+      "buttonSave": "Speichern",
+      "textHeadline": "Neuer E-mail Header/Footer",
+      "titleResult": "Email Header/Footer",
+      "titleSaveSuccess": "Erfolgreich",
+      "messageSaveSuccess": "Der E-mail Header/Footer \"{name}\" wurde erfolgreich gespeichert."
+    }
   }
 }

@@ -43,7 +43,7 @@ class Entity extends Struct
 
     public function get(string $property)
     {
-        if (!property_exists($this, $property)) {
+        if (!$this->has($property)) {
             throw new \InvalidArgumentException(
                 sprintf('Property %s do not exist in class %s', $property, \get_class($this))
             );
@@ -63,5 +63,10 @@ class Entity extends Struct
     public function setViewData(self $viewData): void
     {
         $this->viewData = $viewData;
+    }
+
+    public function has(string $property): bool
+    {
+        return property_exists($this, $property);
     }
 }

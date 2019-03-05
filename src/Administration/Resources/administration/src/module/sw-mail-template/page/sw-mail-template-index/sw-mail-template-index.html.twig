@@ -1,0 +1,26 @@
+{% block sw_mail_template_list %}
+    <sw-page class="sw-mail-template-list">
+
+        {% block sw_mail_template_list_smart_bar_header %}
+            <template slot="smart-bar-header">
+                {% block sw_mail_template_list_smart_bar_header_title %}
+                    <h2>
+                        {% block sw_mail_template_list_smart_bar_header_title_text %}
+                            {{ $tc('sw-mail-template.list.textMailTemplateOverview') }}
+                        {% endblock %}
+                    </h2>
+                {% endblock %}
+            </template>
+        {% endblock %}
+
+        {% block sw_mail_template_list_content %}
+            <sw-card-view slot="content">
+                {% block sw_mail_template_list_content_card %}
+                    <sw-mail-template-list />
+
+                    <sw-mail-header-footer-list />
+                {% endblock %}
+            </sw-card-view>
+        {% endblock %}
+    </sw-page>
+{% endblock %}

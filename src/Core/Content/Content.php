@@ -25,5 +25,6 @@ class Content extends Bundle
         $loader->load('product_stream.xml');
         $loader->load('configuration.xml');
         $loader->load('cms.xml');
+        $loader->load('mail_template.xml');
     }
 }

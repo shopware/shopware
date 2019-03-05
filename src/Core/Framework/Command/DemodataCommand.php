@@ -10,6 +10,8 @@ use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodPrice\ShippingMethod
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Cms\CmsPageDefinition;
 use Shopware\Core\Content\Configuration\ConfigurationGroupDefinition;
+use Shopware\Core\Content\MailTemplate\Aggregate\MailHeaderFooter\MailHeaderFooterDefinition;
+use Shopware\Core\Content\MailTemplate\MailTemplateDefinition;
 use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Content\Navigation\NavigationDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerDefinition;
@@ -60,6 +62,9 @@ class DemodataCommand extends Command
         if (next739()) {
             $this->addOption('product-streams', 'ps', InputOption::VALUE_REQUIRED, 'Product streams count', 10);
         }
+
+        $this->addOption('mail-template', 'mt', InputOption::VALUE_REQUIRED, 'Mail template count', 10);
+        $this->addOption('mail-header-footer', 'mhf', InputOption::VALUE_REQUIRED, 'Mail header/footer count', 3);
 
         $this->addOption('with-configurator', 'w', InputOption::VALUE_OPTIONAL, 'Enables configurator products', 0);
         $this->addOption('with-services', 'x', InputOption::VALUE_OPTIONAL, 'Enables services for products', 1);
@@ -116,6 +121,10 @@ class DemodataCommand extends Command
                 $this->getAttributeOptions($input)
             );
         }
+
+        $request->add(MailTemplateDefinition::class, (int) $input->getOption('mail-template'));
+
+        $request->add(MailHeaderFooterDefinition::class, (int) $input->getOption('mail-header-footer'));
 
         $demoContext = $this->demodataService->generate($request, $context, $io);
 

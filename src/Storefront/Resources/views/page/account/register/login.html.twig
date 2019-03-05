@@ -1,0 +1,74 @@
+{% block page_account_register_login_inner %}
+	<div class="card login-card">
+		<div class="card-body">
+			{% block page_account_register_login_header %}
+				<h2 class="card-title">
+					{{ "account.loginHeader"|trans }}
+				</h2>
+			{% endblock %}
+
+			{% block page_account_register_login_form %}
+				<form id="loginForm"
+				      class="login-form"
+				      action="{{ path('storefront-api.customer.login', {'version': 1}) }}"
+				      method="post">
+					{% block page_account_register_login_form_description %}
+						<p class="login-form-description">
+							{{ "account.loginFormDescription"|trans }}
+						</p>
+					{% endblock %}
+
+					{% block page_account_register_login_form_mail %}
+						<div class="form-group">
+							{% block page_account_register_login_form_mail_label %}
+								<label class="form-label" for="loginMail">
+									{{ "account.loginMailLabel"|trans }}
+								</label>
+							{% endblock %}
+
+							{% block page_account_register_login_form_mail_input %}
+								<input type="text"
+								       class="form-control"
+								       id="loginMail"
+								       placeholder="{{ "account.loginMailPlaceholder"|trans }}"
+								       name="username"
+								       required="required">
+							{% endblock %}
+						</div>
+					{% endblock %}
+
+					{% block page_account_register_login_form_password %}
+						<div class="form-group">
+							{% block page_account_register_login_form_password_label %}
+								<label class="form-label" for="loginPassword">
+									{{ "account.loginPasswordLabel"|trans }}
+								</label>
+							{% endblock %}
+
+							{% block page_account_register_login_form_password_input %}
+								<input type="password"
+								       class="form-control"
+								       id="loginPassword"
+								       placeholder="{{ "account.loginPasswordPlaceholder"|trans }}"
+								       name="password"
+								       required="required">
+							{% endblock %}
+						</div>
+					{% endblock %}
+
+					{% block page_account_register_login_password_lost %}
+						{#TODO: NEXT-1940 - password lost link#}
+					{% endblock %}
+
+					{% block page_account_register_login_submit %}
+						<div class="login-submit">
+							<button type="submit" class="btn btn-primary">
+								{{ "account.loginSubmit"|trans }}
+							</button>
+						</div>
+					{% endblock %}
+				</form>
+			{% endblock %}
+		</div>
+	</div>
+{% endblock %}

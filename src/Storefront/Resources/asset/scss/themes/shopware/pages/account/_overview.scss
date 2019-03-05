@@ -1,0 +1,36 @@
+.account-sidebar-header {
+    background: none;
+    color: $headings-color;
+    font-weight: $font-weight-bold;
+}
+
+.account-sidebar-item {
+    border: 0;
+
+    &.active {
+        color: $primary;
+        background: none;
+        font-weight: $font-weight-bold;
+    }
+
+    &:hover {
+        color: $primary;
+        background: none;
+    }
+}
+
+.account-welcome {
+    padding-top: 1rem;
+}
+
+.account-card {
+    .card-body {
+        display: flex;
+        flex-direction: column;
+    }
+}
+
+.account-card-actions {
+    align-items: flex-start;
+    margin-top: auto;
+}

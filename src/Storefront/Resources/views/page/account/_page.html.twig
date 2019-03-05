@@ -1,3 +1,23 @@
 {% sw_extends '@Storefront/base.html.twig' %}
 
-{% block base_content %}{% endblock %}
+{% block base_content %}
+	{% block page_account %}
+		<div class="account">
+			<div class="row">
+				{% block page_account_sidebar %}
+					<div class="col-md-3">
+						{% sw_include '@Storefront/page/account/sidebar.html.twig' %}
+					</div>
+				{% endblock %}
+
+				{% block page_account_main %}
+					<div class="col-md-9">
+						<div class="account-main">
+							{% block page_account_main_content %}{% endblock %}
+						</div>
+					</div>
+				{% endblock %}
+			</div>
+		</div>
+	{% endblock %}
+{% endblock %}

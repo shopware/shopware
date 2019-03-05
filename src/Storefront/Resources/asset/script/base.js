@@ -6,6 +6,8 @@ import jQuery from 'jquery';
 // Import styles
 import '../scss/base.scss';
 
+import './page/account/register.page';
+
 import HttpClient from './service/http-client.service';
 import CartMini from './plugin/cart-mini/cart-mini.plugin';
 import CartWidget from './plugin/actions/cart-widget.plugin';

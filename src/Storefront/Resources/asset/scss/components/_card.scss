@@ -8,7 +8,9 @@ https://getbootstrap.com/docs/4.3/components/card/
 
 .card {
     .card-title {
-        border-bottom: 1px solid $border-color;
-        padding-bottom: 10px;
+        color: $headings-color;
+        font-size: $h5-font-size;
+        font-weight: $headings-font-weight;
+        line-height: $headings-line-height;
     }
 }

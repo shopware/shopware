@@ -1,0 +1,120 @@
+{% sw_extends '@Storefront/base.html.twig' %}
+
+{% block base_head %}
+	{% sw_include '@Storefront/page/account/register/meta.html.twig' %}
+{% endblock %}
+
+{% block base_content %}
+	{% block page_account_register %}
+		<div class="account-register">
+			{% block page_account_register_inner %}
+				<div class="row">
+					{% block page_account_register_login_container %}
+						<div class="col-lg-4">
+							{% block page_account_register_login %}
+								{% sw_include '@Storefront/page/account/register/login.html.twig' %}
+							{% endblock %}
+
+							{% block page_account_register_advantages %}
+								<div class="register-advantages">
+									{% block page_account_register_advantages_title %}
+										<h2 class="register-advantages-header">
+											{{ "account.registerAdvantagesHeader"|trans }}
+										</h2>
+									{% endblock %}
+
+									{% block page_account_register_advantages_list %}
+										<ul>
+											{% block page_account_register_advantages_entry1 %}
+												<li>{{ "account.registerAdvantage1"|trans }}</li>
+											{% endblock %}
+
+											{% block page_account_register_advantages_entry2 %}
+												<li>{{ "account.registerAdvantage2"|trans }}</li>
+											{% endblock %}
+
+											{% block page_account_register_advantages_entry3 %}
+												<li>{{ "account.registerAdvantage3"|trans }}</li>
+											{% endblock %}
+
+											{% block page_account_register_advantages_entry4 %}
+												<li>{{ "account.registerAdvantage4"|trans }}</li>
+											{% endblock %}
+										</ul>
+									{% endblock %}
+								</div>
+							{% endblock %}
+						</div>
+					{% endblock %}
+
+					{% block page_account_register_container %}
+						<div class="col-lg-8">
+							<div class="card register-card">
+								<div class="card-body">
+									{% block page_account_register_form %}
+										<form id="registerForm"
+										      action="{{ path('storefront-api.customer.create', {'version': 1}) }}"
+										      class="register-form"
+										      method="post">
+											{% block page_account_register_personal %}
+												<div class="register-personal">
+													{% block page_account_register_personal_header %}
+														<h2 class="card-title">
+															{{ "account.registerPersonalHeader"|trans }}
+														</h2>
+													{% endblock %}
+
+													{% block page_account_register_personal_fields %}
+														{% sw_include '@Storefront/page/account/register/personal.html.twig' %}
+													{% endblock %}
+												</div>
+											{% endblock %}
+
+											{% block page_account_register_address %}
+												<div class="register-address">
+													{% block page_account_register_address_header %}
+														<h2 class="card-title">
+															{{ "account.registerAddressHeader"|trans }}
+														</h2>
+													{% endblock %}
+
+													{% block page_account_register_address_fields %}
+														{% sw_include '@Storefront/component/address/address-form.html.twig' with {'type': 'billing'} %}
+
+														{#TODO: NEXT-2077 - differentShippingAddress#}
+													{% endblock %}
+												</div>
+											{% endblock %}
+
+											{% block page_account_register_required_fields %}
+												<p class="register-required-info">
+													{{ "address.requiredFields"|trans }}
+												</p>
+											{% endblock %}
+
+											{% block page_account_register_captcha %}
+												{#TODO: NEXT-2002 - captcha#}
+											{% endblock %}
+
+											{% block page_account_register_privacy %}
+												{#TODO: NEXT-1951 - optins#}
+											{% endblock %}
+
+											{% block page_account_register_submit %}
+												<div class="register-submit">
+													<button type="submit" class="btn btn-primary">
+														{{ "account.registerSubmit"|trans }}
+													</button>
+												</div>
+											{% endblock %}
+										</form>
+									{% endblock %}
+								</div>
+							</div>
+						</div>
+					{% endblock %}
+				</div>
+			{% endblock %}
+		</div>
+	{% endblock %}
+{% endblock %}

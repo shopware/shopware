@@ -96,8 +96,17 @@ class TemplateDataExtension extends AbstractExtension implements GlobalsInterfac
     private function getDefaultConfiguration(): array
     {
         return [
-            'showBirthdayField' => true,
             'metaIsFamilyFriendly' => true,
+            'register' => [
+                'titleField' => true,
+                'minPasswordLength' => 8,
+                'birthdayField' => true,
+            ],
+            'address' => [
+                'additionalField1' => false,
+                'additionalField2' => false,
+                'zipBeforeCity' => true,
+            ],
         ];
     }
 

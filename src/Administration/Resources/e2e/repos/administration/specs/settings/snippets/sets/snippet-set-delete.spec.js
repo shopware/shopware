@@ -16,7 +16,7 @@ module.exports = {
                 subMenuId: 'sw-settings-snippet'
             });
     },
-    'verify snippet set to be edited': (browser) => {
+    'verify snippet set to be deleted': (browser) => {
         const page = settingsPage(browser);
 
         browser.expect.element(`${page.elements.gridRow}--0 a`).to.have.text.that.equals(global.AdminFixtureService.basicFixture.name);

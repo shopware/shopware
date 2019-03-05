@@ -47,10 +47,10 @@ module.exports = {
             .waitForElementNotPresent(page.elements.modal)
             .checkNotification(`Snippet "${global.SnippetFixtureService.snippetFixture.value}" has been reset to "" successfully.`);
     },
-    'verify changed snippet': (browser) => {
+    'verify deletion of snippet': (browser) => {
         const page = settingsPage(browser);
 
-        browser.waitForElementVisible(page.elements.emptyState);
+        browser.expect.element(`${page.elements.gridRow}--0`).to.have.text.that.not.contains('Mine yours theirs');
     },
     after: (browser) => {
         browser.end();

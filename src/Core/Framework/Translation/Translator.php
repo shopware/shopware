@@ -12,12 +12,16 @@ use Symfony\Component\Translation\Formatter\ChoiceMessageFormatterInterface;
 use Symfony\Component\Translation\Formatter\MessageFormatterInterface;
 use Symfony\Component\Translation\MessageCatalogueInterface;
 use Symfony\Component\Translation\TranslatorBagInterface;
-use Symfony\Component\Translation\TranslatorInterface;
+use Symfony\Component\Translation\TranslatorInterface as LegacyTranslatorInterface;
+use Symfony\Contracts\Translation\TranslatorInterface;
+use Symfony\Contracts\Translation\TranslatorTrait;
 
-class Translator implements TranslatorInterface, TranslatorBagInterface
+class Translator implements TranslatorInterface, TranslatorBagInterface, LegacyTranslatorInterface
 {
+    use TranslatorTrait;
+
     /**
-     * @var TranslatorInterface|TranslatorBagInterface
+     * @var TranslatorInterface|TranslatorBagInterface|LegacyTranslatorInterface
      */
     private $translator;
 

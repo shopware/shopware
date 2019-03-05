@@ -19,8 +19,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\JsonUpdateCommand
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\UpdateCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommandInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommandQueue;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldAware\DefaultExtender;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldAware\FieldExtenderCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldAware\StorageAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException\FieldExceptionStack;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\RestrictDeleteViolation;
@@ -35,11 +33,6 @@ use Shopware\Core\System\Language\LanguageLoaderInterface;
  */
 class EntityWriter implements EntityWriterInterface
 {
-    /**
-     * @var DefaultExtender
-     */
-    private $defaultExtender;
-
     /**
      * @var EntityForeignKeyResolver
      */
@@ -67,13 +60,11 @@ class EntityWriter implements EntityWriterInterface
 
     public function __construct(
         WriteCommandExtractor $writeResource,
-        DefaultExtender $defaultExtender,
         EntityForeignKeyResolver $foreignKeyResolver,
         EntityWriteGatewayInterface $gateway,
         FieldSerializerRegistry $fieldHandler,
         LanguageLoaderInterface $languageLoader
     ) {
-        $this->defaultExtender = $defaultExtender;
         $this->foreignKeyResolver = $foreignKeyResolver;
         $this->writeResource = $writeResource;
         $this->gateway = $gateway;
@@ -286,9 +277,6 @@ class EntityWriter implements EntityWriterInterface
         ?string $ensure = null
     ): array {
         $this->validateWriteInput($rawData);
-
-        $extender = new FieldExtenderCollection();
-        $extender->addExtender($this->defaultExtender);
 
         $commandQueue = new WriteCommandQueue();
         $exceptionStack = new FieldExceptionStack();

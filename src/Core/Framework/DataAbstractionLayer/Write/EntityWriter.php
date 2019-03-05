@@ -255,7 +255,12 @@ class EntityWriter implements EntityWriterInterface
                     $payload = $writeResults[$uniqueId]->getPayload();
                 }
 
-                $mergedPayload = array_merge($payload, [$command->getStorageName() => $command->getPayload()]);
+                $field = $command->getDefinition()::getFields()->getByStorageName($command->getStorageName());
+                $decodedPayload = $this->fieldHandler->decode(
+                    $field,
+                    json_encode($command->getPayload(), JSON_PRESERVE_ZERO_FRACTION)
+                );
+                $mergedPayload = array_merge($payload, [$command->getStorageName() => $decodedPayload]);
 
                 $writeResults[$uniqueId] = new EntityWriteResult(
                     $this->getCommandPrimaryKey($command, $primaryKeys),

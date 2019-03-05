@@ -35,7 +35,7 @@ class AttributeService implements AttributeServiceInterface, EventSubscriberInte
     public function getAttributeField(string $attributeName): Field
     {
         /** @var AttributeEntity|null $attribute */
-        $attribute = $this->getAttributes()[$attributeName];
+        $attribute = $this->getAttributes()[$attributeName] ?? null;
         if (!$attribute) {
             return new JsonField($attributeName, $attributeName);
         }

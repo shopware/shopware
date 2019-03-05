@@ -79,6 +79,20 @@ class AttributesFieldSerializer extends JsonFieldSerializer
         yield $field->getStorageName() => parent::encodeJson($encoded);
     }
 
+    public function decode(Field $field, $value)
+    {
+        if (!$field instanceof AttributesField) {
+            throw new InvalidSerializerFieldException(AttributesField::class, $field);
+        }
+
+        if ($value) {
+            // set fields dynamically
+            $field->setPropertyMapping($this->getFields(array_keys(json_decode($value, true))));
+        }
+
+        return parent::decode($field, $value);
+    }
+
     public function getFieldClass(): string
     {
         return AttributesField::class;

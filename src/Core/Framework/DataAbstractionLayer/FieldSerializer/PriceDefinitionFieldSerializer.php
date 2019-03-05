@@ -40,7 +40,7 @@ class PriceDefinitionFieldSerializer extends JsonFieldSerializer
             return null;
         }
 
-        $value = json_decode((string) $value, true);
+        $value = parent::decode($field, $value);
 
         return QuantityPriceDefinition::fromArray($value);
     }

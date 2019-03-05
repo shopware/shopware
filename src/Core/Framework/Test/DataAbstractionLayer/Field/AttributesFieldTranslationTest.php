@@ -253,14 +253,14 @@ class AttributesFieldTranslationTest extends TestCase
         /** @var Entity $first */
         $first = $result->first();
         static::assertArrayNotHasKey('system', $first->get('translatedAttributes'));
-        static::assertEquals(1, $first->get('translatedAttributes')['root']);
+        static::assertTrue($first->get('translatedAttributes')['root']);
         static::assertArrayNotHasKey('child', $first->get('translatedAttributes'));
         static::assertEquals(2, $first->get('translatedAttributes')['int']);
 
         /** @var Entity $viewData */
         $viewData = $first->getViewData();
         static::assertEquals(1.0, $viewData->get('translatedAttributes')['systemFloat']);
-        static::assertEquals(1, $viewData->get('translatedAttributes')['root']);
+        static::assertTrue($viewData->get('translatedAttributes')['root']);
         static::assertArrayNotHasKey('child', $viewData->get('translatedAttributes'));
         static::assertEquals(2, $viewData->get('translatedAttributes')['int']);
 
@@ -295,14 +295,14 @@ class AttributesFieldTranslationTest extends TestCase
         $first = $result->first();
         static::assertArrayNotHasKey('system', $first->get('translatedAttributes'));
         static::assertArrayNotHasKey('root', $first->get('translatedAttributes'));
-        static::assertEquals((new \DateTime($now))->format(Defaults::DATE_FORMAT), $first->get('translatedAttributes')['child']);
+        static::assertEquals(new \DateTime($now), $first->get('translatedAttributes')['child']);
         static::assertEquals(3, $first->get('translatedAttributes')['int']);
 
         /** @var Entity $viewData */
         $viewData = $first->getViewData();
         static::assertEquals(1.0, $viewData->get('translatedAttributes')['systemFloat']);
-        static::assertEquals(1, $viewData->get('translatedAttributes')['root']);
-        static::assertEquals((new \DateTime($now))->format(Defaults::DATE_FORMAT), $viewData->get('translatedAttributes')['child']);
+        static::assertTrue($viewData->get('translatedAttributes')['root']);
+        static::assertEquals(new \DateTime($now), $viewData->get('translatedAttributes')['child']);
         static::assertEquals(3, $viewData->get('translatedAttributes')['int']);
     }
 
@@ -476,14 +476,14 @@ class AttributesFieldTranslationTest extends TestCase
         $first = $result->first();
         static::assertArrayNotHasKey('system', $first->get('translatedAttributes'));
         static::assertArrayNotHasKey('root', $first->get('translatedAttributes'));
-        static::assertEquals((new \DateTime($now))->format(Defaults::DATE_FORMAT), $first->get('translatedAttributes')['sub']);
+        static::assertEquals(new \DateTime($now), $first->get('translatedAttributes')['sub']);
         static::assertEquals(3, $first->get('translatedAttributes')['int']);
 
         /** @var Entity $viewData */
         $viewData = $first->getViewData();
         static::assertEquals(1.0, $viewData->get('translatedAttributes')['systemFloat']);
         static::assertEquals(1, $viewData->get('translatedAttributes')['root']);
-        static::assertEquals((new \DateTime($now))->format(Defaults::DATE_FORMAT), $viewData->get('translatedAttributes')['sub']);
+        static::assertEquals(new \DateTime($now), $viewData->get('translatedAttributes')['sub']);
         static::assertEquals(3, $viewData->get('translatedAttributes')['int']);
         static::assertEquals('inherited attribute', $viewData->get('translatedAttributes')['parent']);
     }

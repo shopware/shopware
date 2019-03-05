@@ -39,7 +39,7 @@ class PriceFieldSerializer extends JsonFieldSerializer
         if ($value === null) {
             return null;
         }
-        $value = json_decode((string) $value, true);
+        $value = parent::decode($field, $value);
 
         return new Price($value['net'], $value['gross'], (bool) $value['linked']);
     }

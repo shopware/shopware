@@ -385,8 +385,8 @@ class AttributesFieldTest extends TestCase
         $first = $result->first();
         $last = $result->last();
 
-        static::assertEquals($laterDate->format(Defaults::DATE_FORMAT), $first->get('attributes')['datetime']);
-        static::assertEquals($earlierDate->format(Defaults::DATE_FORMAT), $last->get('attributes')['datetime']);
+        static::assertEquals($laterDate, $first->get('attributes')['datetime']);
+        static::assertEquals($earlierDate, $last->get('attributes')['datetime']);
 
         $criteria = new Criteria();
         $criteria->addSorting(new FieldSorting('attributes.datetime', FieldSorting::ASCENDING));
@@ -395,8 +395,8 @@ class AttributesFieldTest extends TestCase
 
         $first = $result->first();
         $last = $result->last();
-        static::assertEquals($earlierDate->format(Defaults::DATE_FORMAT), $first->get('attributes')['datetime']);
-        static::assertEquals($laterDate->format(Defaults::DATE_FORMAT), $last->get('attributes')['datetime']);
+        static::assertEquals($earlierDate, $first->get('attributes')['datetime']);
+        static::assertEquals($laterDate, $last->get('attributes')['datetime']);
     }
 
     public function testSortingDateTime(): void
@@ -430,20 +430,20 @@ class AttributesFieldTest extends TestCase
         $result = array_values($repo->search($criteria, Context::createDefaultContext())->getElements());
         static::assertCount(4, $result);
 
-        static::assertEquals($dateTimes[3]->format(Defaults::DATE_FORMAT), $result[0]->get('attributes')['datetime']);
-        static::assertEquals($dateTimes[2]->format(Defaults::DATE_FORMAT), $result[1]->get('attributes')['datetime']);
-        static::assertEquals($dateTimes[1]->format(Defaults::DATE_FORMAT), $result[2]->get('attributes')['datetime']);
-        static::assertEquals($dateTimes[0]->format(Defaults::DATE_FORMAT), $result[3]->get('attributes')['datetime']);
+        static::assertEquals($dateTimes[3], $result[0]->get('attributes')['datetime']);
+        static::assertEquals($dateTimes[2], $result[1]->get('attributes')['datetime']);
+        static::assertEquals($dateTimes[1], $result[2]->get('attributes')['datetime']);
+        static::assertEquals($dateTimes[0], $result[3]->get('attributes')['datetime']);
 
         $criteria = new Criteria();
         $criteria->addSorting(new FieldSorting('attributes.datetime', FieldSorting::ASCENDING));
         $result = array_values($repo->search($criteria, Context::createDefaultContext())->getElements());
         static::assertCount(4, $result);
 
-        static::assertEquals($dateTimes[0]->format(Defaults::DATE_FORMAT), $result[0]->get('attributes')['datetime']);
-        static::assertEquals($dateTimes[1]->format(Defaults::DATE_FORMAT), $result[1]->get('attributes')['datetime']);
-        static::assertEquals($dateTimes[2]->format(Defaults::DATE_FORMAT), $result[2]->get('attributes')['datetime']);
-        static::assertEquals($dateTimes[3]->format(Defaults::DATE_FORMAT), $result[3]->get('attributes')['datetime']);
+        static::assertEquals($dateTimes[0], $result[0]->get('attributes')['datetime']);
+        static::assertEquals($dateTimes[1], $result[1]->get('attributes')['datetime']);
+        static::assertEquals($dateTimes[2], $result[2]->get('attributes')['datetime']);
+        static::assertEquals($dateTimes[3], $result[3]->get('attributes')['datetime']);
     }
 
     public function testSortingString(): void
@@ -925,6 +925,52 @@ class AttributesFieldTest extends TestCase
 
         static::assertNotEmpty($first);
         static::assertEquals(['array' => ['bar', 'baz']], $first->get('attributes'));
+    }
+
+    public function testUpdateDecodedCorrectly(): void
+    {
+        $this->addAttributes(['bool' => AttributeTypes::BOOL]);
+
+        $a = Uuid::uuid4()->getHex();
+        $b = Uuid::uuid4()->getHex();
+
+        $entities = [
+            ['id' => $a, 'attributes' => ['bool' => true]],
+            ['id' => $b, 'attributes' => ['bool' => false]],
+        ];
+
+        $repo = $this->getTestRepository();
+        $repo->create($entities, Context::createDefaultContext());
+
+        $update = [
+            ['id' => $a, 'attributes' => ['bool' => false]],
+            ['id' => $b, 'attributes' => ['bool' => true]],
+        ];
+        $events = $repo->update($update, Context::createDefaultContext());
+        $event = $events->getEventByDefinition(AttributesTestDefinition::class);
+        $payloads = $event->getPayloads();
+        static::assertCount(2, $payloads);
+
+        static::assertIsBool($payloads[0]['attributes']['bool']);
+        static::assertIsBool($payloads[1]['attributes']['bool']);
+    }
+
+    public function testNestedJsonStringValue(): void
+    {
+        $this->addAttributes(['json' => AttributeTypes::JSON]);
+
+        $id = Uuid::uuid4()->getHex();
+        $entity = [
+            'id' => $id,
+            'attributes' => ['json' => 'string value'],
+        ];
+
+        $repo = $this->getTestRepository();
+        $result = $repo->create([$entity], Context::createDefaultContext());
+        $event = $result->getEventByDefinition(AttributesTestDefinition::class);
+        static::assertNotNull($event);
+        static::assertCount(1, $event->getPayloads());
+        static::assertEquals($entity, $event->getPayloads()[0]);
     }
 
     private function addAttributes(array $attributeTypes): void

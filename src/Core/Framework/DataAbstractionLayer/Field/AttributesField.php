@@ -9,7 +9,7 @@ class AttributesField extends JsonField
         parent::__construct($storageName, $propertyName);
     }
 
-    public function setPropertyMapping(array $propertyMapping = []): void
+    public function setPropertyMapping(array $propertyMapping): void
     {
         $this->propertyMapping = $propertyMapping;
     }

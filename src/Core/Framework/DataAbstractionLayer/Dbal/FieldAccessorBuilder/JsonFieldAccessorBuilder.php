@@ -34,12 +34,6 @@ class JsonFieldAccessorBuilder implements FieldAccessorBuilderInterface
             '',
             $accessor
         );
-        $fieldName = preg_replace(
-            '#^\.("([^"]*)"|([^.]*)).*#',
-            '$2$3',
-            $jsonPath
-        );
-
         $jsonValueExpr = sprintf(
             'JSON_EXTRACT(`%s`.`%s`, %s)',
             $root,
@@ -47,15 +41,8 @@ class JsonFieldAccessorBuilder implements FieldAccessorBuilderInterface
             $this->connection->quote('$' . $jsonPath)
         );
 
-        $embeddedField = null;
-        $mapping = $jsonField->getPropertyMapping();
-        foreach ($mapping as $field) {
-            if ($field->getPropertyName() === $fieldName) {
-                $embeddedField = $field;
-                break;
-            }
-        }
-        $accessor = $this->getFieldAccessor($embeddedField, $jsonValueExpr);
+        $embeddedField = $this->getField($jsonPath, $jsonField->getPropertyMapping());
+        $accessor = $this->getFieldAccessor($jsonValueExpr, $embeddedField);
 
         /*
          * Values extracted from json have distinct json types, that are different from normal value types.
@@ -66,7 +53,31 @@ class JsonFieldAccessorBuilder implements FieldAccessorBuilderInterface
         return sprintf('IF(JSON_TYPE(%s) != "NULL", %s, NULL)', $jsonValueExpr, $accessor);
     }
 
-    private function getFieldAccessor(?Field $field, string $jsonValueExpr): string
+    private function getField(string $path, array $fields): ?Field
+    {
+        $fieldName = preg_replace(
+            '#^\.("([^"]*)"|([^.]*)).*#',
+            '$2$3',
+            $path
+        );
+        $subPath = substr($path, strlen($fieldName) + 1);
+
+        foreach ($fields as $field) {
+            if ($field->getPropertyName() !== $fieldName) {
+                continue;
+            }
+
+            if ($field instanceof JsonField && !empty($field->getPropertyMapping())) {
+                return $this->getField($subPath, $field->getPropertyMapping());
+            }
+
+            return $field;
+        }
+
+        return null;
+    }
+
+    private function getFieldAccessor(string $jsonValueExpr, ?Field $field = null): string
     {
         if ($field instanceof IntField || $field instanceof FloatField) {
             return sprintf('JSON_UNQUOTE(%s) + 0.0', $jsonValueExpr);

@@ -9,7 +9,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Dbal\FieldAccessorBuilder\Field
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\FieldResolver\FieldResolverRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationInterface;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\AttributesField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Inherited;
@@ -390,7 +389,7 @@ class EntityDefinitionQueryHelper
         $translationDefinition = $definition::getTranslationDefinitionClass();
 
         $fields = $translationDefinition::getFields();
-        $chain = self::buildTranslationChain($root, $context, false);
+        $chain = self::buildTranslationChain($root, $context, $definition::isInheritanceAware());
 
         /** @var TranslatedField $field */
         foreach ($fields as $field) {
@@ -399,29 +398,22 @@ class EntityDefinitionQueryHelper
             }
 
             foreach ($chain as $tableAccessor) {
+                $name = $field->getPropertyName();
                 $query->addSelect(
                     self::escape($tableAccessor['alias']) . '.' . self::escape($field->getStorageName()) . ' as '
-                    . self::escape($tableAccessor['alias'] . '.' . $field->getPropertyName())
+                    . self::escape($tableAccessor['alias'] . '.' . $name)
                 );
             }
-        }
 
-        //rebuild translation chain with parent inheritance
-        $chain = self::buildTranslationChain($root, $context, $definition::isInheritanceAware());
-
-        /** @var StorageAware|Field $field */
-        foreach ($fields as $field) {
             //check if current field is a translated field of the origin definition
             $origin = $definition::getFields()->get($field->getPropertyName());
-            if (!$origin instanceof TranslatedField) {
-                continue;
+            if ($origin instanceof TranslatedField) {
+                //add selection for resolved parent-child and language inheritance
+                $query->addSelect(
+                    $this->getTranslationFieldSelectExpr($field, $chain) . ' as '
+                    . self::escape($root . '.' . $field->getPropertyName())
+                );
             }
-
-            //add selection for resolved parent-child and language inheritance
-            $query->addSelect(
-                $this->getTranslationFieldSelectExpr($field, $chain) . ' as '
-                . self::escape($root . '.' . $field->getPropertyName())
-            );
         }
     }
 
@@ -576,16 +568,7 @@ class EntityDefinitionQueryHelper
             $chainSelect[] = self::escape($part['alias']) . '.' . self::escape($field->getStorageName());
         }
 
-        if (!$field instanceof AttributesField) {
-            return sprintf('COALESCE(%s)', implode(',', $chainSelect));
-        }
-
-        $parts = [];
-        foreach ($chainSelect as $select) {
-            $parts[] = 'IFNULL(' . $select . ', "{}")';
-        }
-
-        return sprintf('JSON_MERGE(%s)', implode(',', array_reverse($parts)));
+        return sprintf('COALESCE(%s)', implode(',', $chainSelect));
     }
 
     private function getTranslationFieldAccessor(Field $field, string $accessor, array $chain, Context $context): string

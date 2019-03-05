@@ -8,7 +8,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationInterface;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\AttributesField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ChildrenAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
@@ -16,6 +15,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\CascadeDelete;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Deferred;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Extension;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Inherited;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
@@ -283,22 +283,13 @@ class EntityReader implements EntityReaderInterface
                 //contains the alias for the resolved field (eg. `product.name`)
                 $fieldAlias = EntityDefinitionQueryHelper::escape($root . '.' . $field->getPropertyName());
 
-                if ($field instanceof AttributesField) {
-                    //add selection for resolved parent-child inheritance field for attribute field
-                    $query->addSelect(sprintf(
-                        'IF(%s IS NULL, %s, IF(%s IS NULL, %s, JSON_MERGE(%s, %s))) as %s',
-                        $parentAccessor,
-                        $childAccessor,
-                        $childAccessor,
-                        $parentAccessor,
-                        $parentAccessor,
-                        $childAccessor,
-                        $fieldAlias
-                    ));
-                } else {
-                    //add selection for resolved parent-child inheritance field
-                    $query->addSelect(sprintf('COALESCE(%s, %s) as %s', $childAccessor, $parentAccessor, $fieldAlias));
+                if ($field instanceof JsonField) {
+                    // merged in hydrator
+                    $parentFieldAlias = EntityDefinitionQueryHelper::escape($root . '.' . $field->getPropertyName() . '.inherited');
+                    $query->addSelect(sprintf('%s as %s', $parentAccessor, $parentFieldAlias));
                 }
+                //add selection for resolved parent-child inheritance field
+                $query->addSelect(sprintf('COALESCE(%s, %s) as %s', $childAccessor, $parentAccessor, $fieldAlias));
 
                 //add selection for raw child value
                 $fieldAlias = EntityDefinitionQueryHelper::escape($root . '.' . $field->getPropertyName() . '.raw');

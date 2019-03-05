@@ -1549,7 +1549,9 @@
     "attribute": {
       "detail":{
         "titleNewAttribute": "New attribute",
-        "buttonApply": "Add",
+        "titleEditAttribute": "Edit attribute",
+        "buttonSaveApply": "Add",
+        "buttonEditApply": "Apply changes",
         "buttonCancel": "Cancel",
         "labelAttributeType": "Type",
         "labelRequired": "Required",

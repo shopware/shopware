@@ -1,7 +1,7 @@
 {% block sw_attribute_detail %}
     <sw-modal
             class="sw-attribute-detail"
-            :title="$tc('sw-settings-attribute.attribute.detail.titleNewAttribute')"
+            :title="modalTitle"
             @closeModal="onCancel">
         {% block sw_attribute_detail_modal %}
             <sw-container columns="1fr 1fr" gap="20px">
@@ -67,7 +67,7 @@
                                    size="small"
                                    :disabled="!canSave"
                                    @click="onSave">
-                            {{ $tc('sw-settings-attribute.attribute.detail.buttonApply') }}
+                            {{ labelSaveButton }}
                         </sw-button>
                     {% endblock %}
                 </template>

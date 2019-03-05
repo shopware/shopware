@@ -14,7 +14,7 @@
         {% endblock %}
 
         {% block sw_attribute_translated_labels_translated %}
-            <sw-tabs v-else-if="config" variant="minimal" :defaultItem="fallbackLocale">
+            <sw-tabs v-else variant="minimal" :defaultItem="fallbackLocale">
                 {% block sw_attribute_translated_labels_translated_tabs %}
                     <template slot-scope="{ active }">
                         <sw-tabs-item

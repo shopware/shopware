@@ -49,13 +49,13 @@
         {% endblock %}
 
         {% block sw_product_detail_attribute_sets %}
-        <sw-card :title="$tc('sw-settings-attribute.general.mainMenuItemGeneral')" :isLoading="product.isLoading">
-            <sw-attribute-set-renderer
-                    v-if="next754"
-                    :entity="product"
-                    :sets="attributeSets">
-            </sw-attribute-set-renderer>
-        </sw-card>
+            <sw-card :title="$tc('sw-settings-attribute.general.mainMenuItemGeneral')" :isLoading="product.isLoading">
+                <sw-attribute-set-renderer
+                        v-if="next754"
+                        :entity="product"
+                        :sets="attributeSets">
+                </sw-attribute-set-renderer>
+            </sw-card>
         {% endblock %}
     </div>
 {% endblock %}

@@ -1545,7 +1545,9 @@
     "attribute": {
       "detail":{
         "titleNewAttribute": "Neues Freitextfeld anlegen",
-        "buttonApply": "Hinzufügen",
+        "titleEditAttribute": "Freitextfeld bearbeiten",
+        "buttonSaveApply": "Hinzufügen",
+        "buttonEditApply": "Änderungen übernehmen",
         "buttonCancel": "Abbrechen",
         "labelAttributeType": "Typ",
         "labelRequired": "Pflichtfeld",

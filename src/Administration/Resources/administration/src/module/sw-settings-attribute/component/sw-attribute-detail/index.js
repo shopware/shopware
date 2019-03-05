@@ -38,6 +38,20 @@ Component.register('sw-attribute-detail', {
         },
         renderComponentName() {
             return this.fieldTypes[this.currentAttribute.config.attributeType].configRenderComponent;
+        },
+        modalTitle() {
+            if (this.currentAttribute.isLocal) {
+                return this.$tc('sw-settings-attribute.attribute.detail.titleNewAttribute');
+            }
+
+            return this.$tc('sw-settings-attribute.attribute.detail.titleEditAttribute');
+        },
+        labelSaveButton() {
+            if (this.currentAttribute.isLocal) {
+                return this.$tc('sw-settings-attribute.attribute.detail.buttonSaveApply');
+            }
+
+            return this.$tc('sw-settings-attribute.attribute.detail.buttonEditApply');
         }
     },
 

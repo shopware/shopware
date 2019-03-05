@@ -97,8 +97,8 @@ export default class AssociationStore extends EntityStore {
 
             if (entity.isDeleted) {
                 deletionPayload.push({
-                    [`${string.camelCase(this.entityName)}Id`]: id,
-                    [`${string.camelCase(this.parentEntity.entityName)}Id`]: this.parentEntity.id
+                    [`${string.camelCase(this.getEntityName())}Id`]: id,
+                    [`${string.camelCase(this.parentEntity.getEntityName())}Id`]: this.parentEntity.id
                 });
             }
         });
@@ -109,7 +109,7 @@ export default class AssociationStore extends EntityStore {
 
         return [{
             action: 'delete',
-            entity: `${this.parentEntity.entityName}_${this.entityName}`,
+            entity: `${this.parentEntity.getEntityName()}_${this.getEntityName()}`,
             payload: deletionPayload
         }];
     }

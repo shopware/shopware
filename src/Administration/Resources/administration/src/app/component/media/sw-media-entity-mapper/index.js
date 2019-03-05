@@ -8,7 +8,7 @@ export default {
                 media: 'sw-media-media-item',
                 media_folder: 'sw-media-folder-item'
             };
-            return entityMapping[context.props.item.entityName];
+            return entityMapping[context.props.item.getEntityName()];
         }
 
         Object.assign(context.data.attrs, context.props);
@@ -24,7 +24,7 @@ export default {
             type: Object,
             required: true,
             validator(value) {
-                return !!value.entityName;
+                return !!value.getEntityName();
             }
         }
     }

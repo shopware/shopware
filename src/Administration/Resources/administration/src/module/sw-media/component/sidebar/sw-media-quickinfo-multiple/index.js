@@ -42,13 +42,13 @@ Component.register('sw-media-quickinfo-multiple', {
 
         hasFolder() {
             return this.items.some((item) => {
-                return item.entityName === 'media_folder';
+                return item.getEntityName() === 'media_folder';
             });
         },
 
         hasMedia() {
             return this.items.some((item) => {
-                return item.entityName === 'media';
+                return item.getEntityName() === 'media';
             });
         }
     },

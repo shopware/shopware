@@ -1,7 +1,7 @@
 import { Filter } from 'src/core/shopware';
 
 Filter.register('thumbnailSize', (value) => {
-    if (!value || !(value.entityName === 'media_thumbnail_size')) {
+    if (!value || !(value.getEntityName() === 'media_thumbnail_size')) {
         return '';
     }
 

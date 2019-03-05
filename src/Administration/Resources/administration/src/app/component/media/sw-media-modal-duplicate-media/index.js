@@ -23,7 +23,7 @@ Component.register('sw-media-modal-duplicate-media', {
             required: true,
             type: Object,
             validator(value) {
-                return (value.entityName === 'media');
+                return (value.getEntityName() === 'media');
             }
         },
 

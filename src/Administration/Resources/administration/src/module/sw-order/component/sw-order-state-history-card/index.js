@@ -105,7 +105,7 @@ Component.register('sw-order-state-history-card', {
         getStateHistoryEntries(entity) {
             const criteria = CriteriaFactory.multi('AND',
                 CriteriaFactory.equals('state_machine_history.entityId.id', entity.id),
-                CriteriaFactory.contains('state_machine_history.entityName', entity.entityName));
+                CriteriaFactory.contains('state_machine_history.entityName', entity.getEntityName()));
 
             return this.stateMachineHistoryStore.getList({
                 limit: 50,

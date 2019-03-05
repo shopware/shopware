@@ -33,7 +33,7 @@ export default class EntityProxy {
         store = null
     ) {
         this.id = id;
-        this.entityName = entityName;
+        this._entityName = entityName;
 
         /**
          * The API service for operating CRUD operations for the entity.
@@ -481,7 +481,7 @@ export default class EntityProxy {
         this.errors.push(error);
 
         State.getStore('error').addError({
-            type: this.entityName,
+            type: this.getEntityName(),
             error
         });
     }
@@ -681,7 +681,7 @@ export default class EntityProxy {
      * @param {Object} schema
      * @return {Object}
      */
-    getChanges(a = this.original, b = this.draft, schema = Entity.getDefinition(this.entityName)) {
+    getChanges(a = this.original, b = this.draft, schema = Entity.getDefinition(this.getEntityName())) {
         const properties = schema.properties;
         const propertyList = Object.keys(properties);
         const blacklist = Entity.getPropertyBlacklist();
@@ -875,6 +875,16 @@ export default class EntityProxy {
     }
 
     /**
+     * Getter for the private entityName
+     *
+     * @memberOf module:core/data/EntityProxy
+     * @return {String}
+     */
+    getEntityName() {
+        return this._entityName;
+    }
+
+    /**
      * Properties which will be exposed with the entity which can be used for internal tasks.
      * These will not be included in the entity definition or the changeset.
      *
@@ -908,7 +918,7 @@ export default class EntityProxy {
      * @return {*}
      */
     get entitySchema() {
-        return Entity.getDefinition(this.entityName);
+        return Entity.getDefinition(this.getEntityName());
     }
 
     /**
@@ -918,7 +928,7 @@ export default class EntityProxy {
      * @return {*}
      */
     get requiredProperties() {
-        return Entity.getRequiredProperties(this.entityName);
+        return Entity.getRequiredProperties(this.getEntityName());
     }
 
     /**
@@ -928,7 +938,7 @@ export default class EntityProxy {
      * @return {*}
      */
     get translatableProperties() {
-        return Entity.getTranslatableProperties(this.entityName);
+        return Entity.getTranslatableProperties(this.getEntityName());
     }
 
     /**
@@ -938,7 +948,7 @@ export default class EntityProxy {
      * @return {*}
      */
     get associatedEntityPropNames() {
-        return Entity.getAssociatedProperties(this.entityName);
+        return Entity.getAssociatedProperties(this.getEntityName());
     }
 
     /**
@@ -967,6 +977,6 @@ export default class EntityProxy {
      * @return {String}
      */
     get kebabEntityName() {
-        return this.entityName.replace(/_/g, '-');
+        return this.getEntityName().replace(/_/g, '-');
     }
 }

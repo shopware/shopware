@@ -20,7 +20,7 @@ Component.register('sw-media-quickinfo', {
             required: true,
             type: Object,
             validator(value) {
-                return value.entityName === 'media';
+                return value.getEntityName() === 'media';
             }
         },
 

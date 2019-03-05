@@ -139,7 +139,7 @@ Component.register('sw-order-detail-base', {
                 this.countries = response.items;
             });
 
-            this.recalculationOrderStore = new EntityStore(this.order.entityName,
+            this.recalculationOrderStore = new EntityStore(this.order.getEntityName(),
                 this.orderService,
                 EntityProxy);
 

@@ -20,7 +20,7 @@ export default class EntityStore {
      * @param {EntityProxy} EntityClass
      */
     constructor(entityName, apiService, EntityClass) {
-        this.entityName = entityName;
+        this._entityName = entityName;
         this.EntityClass = EntityClass;
 
         if (types.isString(apiService)) {
@@ -169,7 +169,7 @@ export default class EntityStore {
         }
 
         this.store[id] = new this.EntityClass(
-            this.entityName,
+            this.getEntityName(),
             this.apiService,
             id,
             this
@@ -188,7 +188,7 @@ export default class EntityStore {
     duplicate(id, includeAssociations = false) {
         const newId = utils.createId();
 
-        this.store[newId] = new this.EntityClass(this.entityName, this.apiService, newId, this);
+        this.store[newId] = new this.EntityClass(this.getEntityName(), this.apiService, newId, this);
 
         if (this.hasId(id)) {
             const duplicateData = deepCopyObject(this.store[id].draft);
@@ -394,7 +394,7 @@ export default class EntityStore {
 
         return [{
             action: 'delete',
-            entity: this.entityName,
+            entity: this.getEntityName(),
             payload: deletionPayload
         }];
     }
@@ -432,7 +432,7 @@ export default class EntityStore {
         if (upsertPayload.length > 0) {
             upsertPayload = [{
                 action: 'upsert',
-                entity: this.entityName,
+                entity: this.getEntityName(),
                 payload: upsertPayload
             }];
         }
@@ -470,6 +470,16 @@ export default class EntityStore {
         });
 
         return updateQueue;
+    }
+
+    /**
+     * Getter for the private entityName
+     *
+     * @memberOf module:core/data/EntityStore
+     * @return {String}
+     */
+    getEntityName() {
+        return this._entityName;
     }
 
     /**

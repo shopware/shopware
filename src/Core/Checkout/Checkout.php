@@ -24,5 +24,6 @@ class Checkout extends Bundle
         $loader->load('cart.xml');
         $loader->load('discount_surcharge.xml');
         $loader->load('rule.xml');
+        $loader->load('promotion.xml');
     }
 }

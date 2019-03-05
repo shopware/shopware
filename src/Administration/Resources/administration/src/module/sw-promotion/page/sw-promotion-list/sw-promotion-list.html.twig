@@ -1,0 +1,162 @@
+{% block sw_promotion_list %}
+    <sw-page class="sw-promotion-list">
+
+        {% block sw_order_list_search_bar %}
+            <template slot="search-bar">
+                <sw-search-bar :placeholder="$tc('sw-promotion.list.placeholderSearchBar')"
+                               :searchType="$tc('sw-promotion.general.mainMenuItemGeneral')"
+                               @search="this.onSearch">
+                </sw-search-bar>
+            </template>
+        {% endblock %}
+
+        {% block sw_promotion_list_smart_bar_header %}
+            <template slot="smart-bar-header">
+                {% block sw_promotion_list_smart_bar_header_title %}
+                    <h2>
+                        {% block sw_promotion_list_smart_bar_header_title_text %}
+                            {{ $tc('sw-promotion.list.textPromotionOverview') }}
+                        {% endblock %}
+
+                        {% block sw_promotion_list_smart_bar_header_amount %}
+                            <span v-if="!isLoading" class="sw-page__smart-bar-amount">
+                            ({{ total }})
+                            </span>
+                        {% endblock %}
+                    </h2>
+                {% endblock %}
+            </template>
+        {% endblock %}
+
+        {% block sw_promotion_list_smart_bar_actions %}
+            <template slot="smart-bar-actions">
+                {% block sw_promotion_list_smart_bar_actions_add %}
+                    <sw-button :routerLink="{ name: 'sw.promotion.create' }" variant="primary">
+                        {{ $tc('sw-promotion.list.buttonAddPromotion') }}
+                    </sw-button>
+                {% endblock %}
+            </template>
+        {% endblock %}
+
+        {% block sw_promotion_list_language_switch %}
+            <sw-language-switch slot="language-switch" @on-change="onChangeLanguage"></sw-language-switch>
+        {% endblock %}
+
+        <template slot="content">
+            {% block sw_promotion_list_content %}
+                <div class="sw-promotion-list__content">
+                    {% block sw_promotion_list_grid %}
+                        <sw-data-grid :dataSource="promotions"
+                                      :columns="promotionColumns"
+                                      :showSelection="false"
+                                      :showSettings="true"
+                                      :fullPage="true"
+                                      :allowInlineEdit="true"
+                                      :sortBy="sortBy"
+                                      :sortDirection="sortDirection"
+                                      :isLoading="isLoading"
+                                      :allowColumnEdit="true"
+                                      identifier="sw-promotion-list"
+                                      @column-sort="onSortColumn"
+                                      @inline-edit-save="onInlineEditSave"
+                                      @inline-edit-cancel="onInlineEditCancel">
+
+                            {% block sw_promotion_list_grid_columns %}
+                                {% block sw_promotion_list_grid_columns_active %}
+                                    <template slot="column-active" slot-scope="{ item }">
+                                        <sw-icon v-if="item.active" name="small-default-checkmark-line-medium" small class="is--active"></sw-icon>
+                                        <sw-icon v-else name="small-default-x-line-medium" small class="is--inactive"></sw-icon>
+                                    </template>
+                                {% endblock %}
+
+
+                                {% block sw_promotion_list_grid_columns_actions %}
+                                    <template slot="actions" slot-scope="{ item }">
+                                        {% block sw_promotion_list_grid_columns_actions_edit %}
+                                            <sw-context-menu-item class="sw-promotion-list__edit-action" :routerLink="{ name: 'sw.promotion.detail', params: { id: item.id } }">
+                                                {{ $tc('sw-promotion.list.contextMenuEdit') }}
+                                            </sw-context-menu-item>
+                                        {% endblock %}
+
+                                        {% block sw_promotion_list_grid_columns_actions_duplicate %}
+                                            <sw-context-menu-item :disabled="true">
+                                                {{ $tc('sw-promotion.list.contextMenuDuplicate') }}
+                                            </sw-context-menu-item>
+                                        {% endblock %}
+
+                                        {% block sw_promotion_list_grid_columns_actions_delete %}
+                                            <sw-context-menu-item @click="onDeletePromotion(item.id)" variant="danger">
+                                                {{ $tc('sw-promotion.list.contextMenuDelete') }}
+                                            </sw-context-menu-item>
+                                        {% endblock %}
+                                    </template>
+                                {% endblock %}
+
+                                {% block sw_promotion_list_grid_action_modals %}
+                                    <template slot="action-modals" slot-scope="{ item }">
+
+                                        {% block sw_promotion_list_delete_modal %}
+                                            <sw-modal v-if="showDeleteModal === item.id"
+                                                      @closeModal="onCloseDeleteModal"
+                                                      :title="$tc('sw-promotion.list.modalTitleDelete')"
+                                                      variant="small">
+                                                {% block sw_promotion_list_delete_modal_confirm_delete_text %}
+                                                    <p class="sw-promotion-list__confirm-delete-text">
+                                                        {{ $tc('sw-promotion.list.textDeleteConfirm', 0, { name: item.meta.viewData.name }) }}
+                                                    </p>
+                                                {% endblock %}
+
+                                                {% block sw_promotion_list_delete_modal_footer %}
+                                                    <template slot="modal-footer">
+                                                        {% block sw_promotion_list_delete_modal_cancel %}
+                                                            <sw-button @click="onCloseDeleteModal" size="small">
+                                                                {{ $tc('sw-promotion.list.buttonCancel') }}
+                                                            </sw-button>
+                                                        {% endblock %}
+
+                                                        {% block sw_promotion_list_delete_modal_confirm %}
+                                                            <sw-button @click="onConfirmDelete(item.id)" variant="primary" size="small">
+                                                                {{ $tc('sw-promotion.list.buttonDelete') }}
+                                                            </sw-button>
+                                                        {% endblock %}
+                                                    </template>
+                                                {% endblock %}
+                                            </sw-modal>
+                                        {% endblock %}
+                                    </template>
+                                {% endblock %}
+                            {% endblock %}
+
+                            <template slot="pagination">
+                                {% block sw_promotion_list_grid_pagination %}
+                                    <sw-pagination :page="page"
+                                                   :limit="limit"
+                                                   :total="total"
+                                                   :total-visible="7"
+                                                   @page-change="onPageChange">
+                                    </sw-pagination>
+                                {% endblock %}
+                            </template>
+                        </sw-data-grid>
+                    {% endblock %}
+
+                    {% block sw_promotion_list_empty_state %}
+                        <sw-empty-state v-if="!isLoading && !total" :title="$tc('sw-promotion.list.messageEmpty')"></sw-empty-state>
+                    {% endblock %}
+                </div>
+            {% endblock %}
+        </template>
+
+        {% block sw_promotion_list_sidebar %}
+            <sw-sidebar slot="sidebar">
+                {% block sw_promotion_list_sidebar_refresh %}
+                    <sw-sidebar-item
+                            icon="default-arrow-360-left"
+                            :title="$tc('sw-promotion.list.titleSidebarItemRefresh')"
+                            @click="onRefresh">
+                    </sw-sidebar-item>
+                {% endblock %}
+            </sw-sidebar>
+        {% endblock %}
+    </sw-page>
+{% endblock %}

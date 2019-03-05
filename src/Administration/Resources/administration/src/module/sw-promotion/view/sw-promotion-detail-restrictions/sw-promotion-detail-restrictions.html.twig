@@ -1,0 +1,27 @@
+{% block sw_promotion_detail_restrictions %}
+    <div class="sw-promotion-detail-restrictions">
+        {% block sw_promotion_detail_restrictions_persona_rule_card %}
+            <sw-card :title="$tc('sw-promotion.detailRestrictions.cardTitlePersonaRules')" :isLoading="promotion.isLoading">
+                {% block sw_promotion_detail_restrictions_persona_rule_form %}
+                    <sw-promotion-persona-form :promotion="promotion"></sw-promotion-persona-form>
+                {% endblock %}
+            </sw-card>
+        {% endblock %}
+
+        {% block sw_promotion_detail_restrictions_scope_rule_card %}
+            <sw-card :title="$tc('sw-promotion.detailRestrictions.cardTitleScopeRules')" :isLoading="promotion.isLoading">
+                    {% block sw_promotion_detail_restrictions_scope_rule_form %}
+                    <sw-promotion-scope-form :promotion="promotion"></sw-promotion-scope-form>
+                {% endblock %}
+            </sw-card>
+        {% endblock %}
+
+        {% block sw_promotion_detail_restrictions_discount_rule_card %}
+            <sw-card :title="$tc('sw-promotion.detailRestrictions.cardTitleDiscountRules')" :isLoading="promotion.isLoading">
+                    {% block sw_promotion_detail_restrictions_discount_rule_form %}
+                    <sw-promotion-discount-form :promotion="promotion"></sw-promotion-discount-form>
+                {% endblock %}
+            </sw-card>
+        {% endblock %}
+    </div>
+{% endblock %}

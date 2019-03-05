@@ -1,0 +1,57 @@
+{% block sw_promotion_scope_form %}
+    <div class="promotion-scope-form">
+        <b>{{ $tc('sw-promotion.scopeForm.descriptionTitleScope') }}</b>
+        <p>
+            {{ $tc('sw-promotion.scopeForm.descriptionTextScope') }}
+            <router-link :to="{ name: 'sw.settings.rule.index' }">
+                {{ $tc('sw-promotion.scopeForm.ruleModuleLink') }}
+            </router-link>
+        </p>
+
+        {% block sw_promotion_settings_form_scope_rule_id_field %}
+            <sw-select
+                    id="rule"
+                    class="sw-product-detail__select-visibility"
+                    :store="ruleStore"
+                    :value="promotion.scopeRuleId"
+                    @input="onScopeRuleChange($event, promotion.scopeRuleId)"
+                    :label="$tc('sw-promotion.scopeForm.labelScopeRule')">
+                <template slot="result_items" slot-scope="{ item, index }">
+                    <sw-select-option
+                            :index="index"
+                            :item="item">
+                        {{ item.name }}
+                    </sw-select-option>
+                </template>
+            </sw-select>
+        {% endblock %}
+
+        {% block sw_promotion_settings_form_category_field %}
+            <sw-select id="rule" :store="categoryStore"
+                       class="sw-product-detail__select-visibility"
+                       :label="$tc('sw-promotion.scopeForm.labelCategory')">
+                <template slot="result_items" slot-scope="{ item, index }">
+                    <sw-select-option
+                            :index="index"
+                            :item="item">
+                        {{ item.name }}
+                    </sw-select-option>
+                </template>
+            </sw-select>
+        {% endblock %}
+
+        {% block sw_promotion_settings_form_product_field %}
+            <sw-select id="rule" :store="productStore"
+                       class="sw-product-detail__select-visibility"
+                       :label="$tc('sw-promotion.scopeForm.labelProduct')">
+                <template slot="result_items" slot-scope="{ item, index }">
+                    <sw-select-option
+                            :index="index"
+                            :item="item">
+                        {{ item.name }}
+                    </sw-select-option>
+                </template>
+            </sw-select>
+        {% endblock %}
+    </div>
+{% endblock %}

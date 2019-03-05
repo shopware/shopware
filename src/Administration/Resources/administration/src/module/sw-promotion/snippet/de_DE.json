@@ -1,0 +1,107 @@
+{
+    "sw-promotion": {
+        "basicForm": {
+            "labelActive": "Aktiv",
+            "labelPriority": "Priorität",
+            "labelRedeemable": "Anzahl",
+            "labelTitle": "Titel",
+            "labelValidFrom": "gültig ab",
+            "labelValidUntil": "gültig bis",
+            "placeholderName": "Gib den Titel der Promotion an ..."
+        },
+
+        "codeForm": {
+            "codeType": {
+                "no_code": "automatisch aktivieren",
+                "standard": "über Code aktivieren",
+                "individual": "über individuellen Code aktivieren"
+            },
+            "placeholderCode": "Gib den Code der Promotion an ...",
+            "placeholderCodeType": "Codetyp wählen ...",
+            "labelCode": "Code",
+            "labelCodeType": "Code Typ",
+            "labelIndividualCodeLink": "Individuelle Aktionscodes verwalten"
+        },
+
+        "detail": {
+            "buttonCancel": "Abbrechen",
+            "buttonSave": "Speichern",
+            "tabGeneral": "Allgemein",
+            "tabRebate": "Rabatt",
+            "tabRestrictions": "Einschränkungen",
+            "textHeadline": "neue Promotion",
+            "titleSaveSuccess": "Erfolg",
+            "messageSaveSuccess": "Die Promotion {name} wurde erfolgreich gespeichert."
+        },
+
+        "detailBase": {
+            "cardTitleCode": "Aktionscodes",
+            "cardTitlePromotionInfo": "Basis Informationen"
+        },
+
+        "detailRebate": {
+            "cardTitleRebate": "Rabatt"
+        },
+
+        "detailRestrictions": {
+            "cardTitleDiscountRules": "Bestellung",
+            "cardTitlePersonaRules": "Kunden",
+            "cardTitleScopeRules": "Warenkorb"
+        },
+
+        "discountForm": {
+            "descriptionTextDiscount": "Bavaria ipsum dolor sit amet hallelujah sog i, luja Biazelt wos mei Meidromml oa wolln Biazelt, woaß? Etza Milli Sauakraud, Engelgwand Watschnbaam a bissal liberalitas Bavariae zünftig Schmankal heid gfoids ma sagrisch guad.",
+            "descriptionTitleDiscount": "Bestimme welche Eigenschaften eine Bestellung zusätzlich für diese Rabattaktion aufweisen muss",
+            "labelDiscountRule": "Discount Regel",
+            "ruleModuleLink": "Regelmodul öffnen"
+        },
+
+        "general": {
+            "descriptionModule": "Promotions",
+            "mainMenuItemGeneral": "Promotions",
+            "mainMenuItemList": "Übersicht"
+        },
+
+        "list": {
+            "buttonAddPromotion": "Promotion anlegen",
+            "buttonCancel": "Abbrechen",
+            "buttonDelete": "Löschen",
+            "columnActive": "Aktiv",
+            "columnName": "Name",
+            "columnValidFrom": "Aktiv von:",
+            "columnValidUntil": "Aktiv bis:",
+            "contextMenuDelete": "Löschen",
+            "contextMenuDuplicate": "Duplizieren",
+            "contextMenuEdit": "Bearbeiten",
+            "messageEmpty": "Noch keine Promotions",
+            "modalTitleDelete": "Promotion löschen",
+            "placeholderSearchBar": "Durchsuchen aller Promotions",
+            "textDeleteConfirm": "Möchtest Du die Promotion \"{name}\" wirklich löschen?",
+            "textPromotionOverview": "Promotions",
+            "titleSidebarItemRefresh": "Aktualisieren"
+        },
+
+        "personaForm": {
+            "descriptionTextPersona": "Nutze Regeln aus dem Regelmodul, um die Zielgruppe dieser Marketingaktion einzugrenzen. Ohne eine Eingrenzung haben alle deine Kunden Zugriff auf diese Aktion.",
+            "descriptionTitlePersona": "Bestimme welche Kunden von dieser Rabattaktion profitieren",
+            "labelCustomer": "Spezifischen Kunden zuweisen",
+            "labelPersonaRule": "Kundenregeln",
+            "ruleModuleLink": "Regelmodul öffnen"
+        },
+
+        "rebateForm": {
+            "labelPercental": "prozentual",
+            "labelValue": "Wert",
+            "placeholderValue": "Gib den Wert der Promotion an..."
+        },
+
+        "scopeForm": {
+            "descriptionTextScope": "Nutze Regeln aus dem Regelmodul, um die Aktionswarenkörbe dieser Marketingaktion zu definieren.\n            Ohne eine Eingrenzung wird die Aktion auf alle Warenkörbe angewendet.",
+            "descriptionTitleScope": "Welche Warenkörbe sind von dieser Rabattaktion betroffen?",
+            "labelCategory": "Kategorie",
+            "labelProduct": "Produkt",
+            "labelScopeRule": "Scope Regel",
+            "ruleModuleLink": "Regelmodul öffnen"
+        }
+    }
+}

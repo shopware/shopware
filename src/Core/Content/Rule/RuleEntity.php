@@ -4,6 +4,7 @@ namespace Shopware\Core\Content\Rule;
 
 use Shopware\Core\Checkout\DiscountSurcharge\DiscountSurchargeCollection;
 use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
+use Shopware\Core\Checkout\Promotion\PromotionCollection;
 use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodPriceRule\ShippingMethodPriceRuleCollection;
 use Shopware\Core\Checkout\Shipping\ShippingMethodCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductPriceRule\ProductPriceRuleCollection;
@@ -90,6 +91,21 @@ class RuleEntity extends Entity
      * @var ShippingMethodPriceRuleCollection|null
      */
     protected $shippingMethodPriceRules;
+
+    /**
+     * @var PromotionCollection|null
+     */
+    protected $personaRuleReferencingPromotions;
+
+    /**
+     * @var PromotionCollection|null
+     */
+    protected $scopeRuleReferencingPromotions;
+
+    /**
+     * @var PromotionCollection|null
+     */
+    protected $discountRuleReferencingPromotions;
 
     public function getName(): string
     {
@@ -239,5 +255,35 @@ class RuleEntity extends Entity
     public function setShippingMethodPriceRules(?ShippingMethodPriceRuleCollection $shippingMethodPriceRules): void
     {
         $this->shippingMethodPriceRules = $shippingMethodPriceRules;
+    }
+
+    public function getPersonaRuleReferencingPromotions(): ?PromotionCollection
+    {
+        return $this->personaRuleReferencingPromotions;
+    }
+
+    public function setPersonaRuleReferencingPromotions(PromotionCollection $personaRuleReferencingPromotions): void
+    {
+        $this->personaRuleReferencingPromotions = $personaRuleReferencingPromotions;
+    }
+
+    public function getScopeRuleReferencingPromotions(): ?PromotionCollection
+    {
+        return $this->scopeRuleReferencingPromotions;
+    }
+
+    public function setScopeRuleReferencingPromotions(PromotionCollection $scopeRuleReferencingPromotions): void
+    {
+        $this->scopeRuleReferencingPromotions = $scopeRuleReferencingPromotions;
+    }
+
+    public function getDiscountRuleReferencingPromotions(): ?PromotionCollection
+    {
+        return $this->discountRuleReferencingPromotions;
+    }
+
+    public function setDiscountRuleReferencingPromotions(PromotionCollection $discountRuleReferencingPromotions): void
+    {
+        $this->discountRuleReferencingPromotions = $discountRuleReferencingPromotions;
     }
 }

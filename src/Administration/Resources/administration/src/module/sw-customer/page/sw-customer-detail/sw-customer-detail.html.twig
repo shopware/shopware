@@ -12,7 +12,7 @@
                     <sw-button v-if="!customerEditMode && !createMode"
                                class="sw-customer-detail__open-edit-mode-action"
                                variant="primary"
-                               :disabled="customer.isLoading"
+                               :disabled="customer.isLoading || isOrderPage"
                                @click.prevent="onActivateCustomerEditMode">
                         {{ $tc('sw-customer.detail.buttonEdit') }}
                     </sw-button>

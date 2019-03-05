@@ -28,6 +28,10 @@ Component.register('sw-customer-detail-addresses', {
             default() {
                 return [];
             }
+        },
+        customerEditMode: {
+            type: Boolean,
+            required: true
         }
     },
 
@@ -53,6 +57,10 @@ Component.register('sw-customer-detail-addresses', {
 
     methods: {
         getList() {
+            if (!this.customer.id) {
+                this.$router.push({ name: 'sw.customer.detail.base', params: { id: this.$route.params.id } });
+                return;
+            }
             this.isLoading = true;
             const params = this.getListingParams();
             params.limit = 10;

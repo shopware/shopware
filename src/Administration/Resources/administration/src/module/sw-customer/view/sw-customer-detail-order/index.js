@@ -28,7 +28,7 @@ Component.register('sw-customer-detail-order', {
     },
 
     created() {
-        this.loadOrders();
+        this.getList();
     },
 
     computed: {
@@ -53,17 +53,21 @@ Component.register('sw-customer-detail-order', {
 
         onChange(term) {
             this.term = term;
-            this.loadOrders();
+            this.getList();
         },
 
         getList() {
+            if (!this.customer.id) {
+                this.$router.push({ name: 'sw.customer.detail.base', params: { id: this.$route.params.id } });
+                return;
+            }
             this.loadOrders();
         },
 
         onPageChange(data) {
             this.page = data.page;
             this.limit = data.limit;
-            this.loadOrders();
+            this.getList();
         }
     }
 });

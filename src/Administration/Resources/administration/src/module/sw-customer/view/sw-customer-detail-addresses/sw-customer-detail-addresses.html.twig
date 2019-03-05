@@ -9,7 +9,10 @@
                                         @sw-card-filter-term-change="onChange">
                             <template slot="filter">
                                 {% block sw_customer_detail_addresses_add_button %}
-                                    <sw-button class="sw-customer-detail-addresses__add-address-action" @click="onCreateNewAddress" size="small">
+                                    <sw-button class="sw-customer-detail-addresses__add-address-action"
+                                               :disabled="!customerEditMode"
+                                               size="small"
+                                               @click="onCreateNewAddress">
                                         <sw-icon name="small-default-plus-circle" small></sw-icon>
                                         {{ $tc('sw-customer.detailAddresses.buttonAddAddress') }}
                                     </sw-button>
@@ -68,6 +71,7 @@
                                                     align="center">
                                         {% block sw_customer_detail_addresses_grid_columns_default_shipping_address_radio %}
                                             <sw-field type="radio"
+                                                      :disabled="!customerEditMode"
                                                       v-model="customer.defaultShippingAddressId"
                                                       name="defaultShippingAddress"
                                                       @change="onChangeDefaultShippingAddress"
@@ -85,6 +89,7 @@
                                                     align="center">
                                         {% block sw_customer_detail_addresses_grid_columns_default_billing_address_radio %}
                                             <sw-field type="radio"
+                                                      :disabled="!customerEditMode"
                                                       v-model="customer.defaultBillingAddressId"
                                                       name="defaultBillingAddress"
                                                       @change="onChangeDefaultBillingAddress"
@@ -177,27 +182,31 @@
                                             <sw-context-button :menuWidth="parseInt(290)">
 
                                                 {% block sw_customer_detail_addresses_grid_columns_actions_edit %}
-                                                    <sw-context-menu-item @click="onEditAddress(item.id)">
+                                                    <sw-context-menu-item @click="onEditAddress(item.id)"
+                                                                          :disabled="!customerEditMode">
                                                         {{ $tc('sw-customer.detailAddresses.contextMenuEdit') }}
                                                     </sw-context-menu-item>
                                                 {% endblock %}
 
                                                 {% block sw_customer_detail_addresses_grid_columns_actions_duplicate %}
-                                                <sw-context-menu-item @click="onDuplicateAddress(item.id)">
-                                                    {{ $tc('sw-customer.detailAddresses.contextMenuDuplicate') }}
-                                                </sw-context-menu-item>
+                                                    <sw-context-menu-item @click="onDuplicateAddress(item.id)"
+                                                                          :disabled="!customerEditMode">
+                                                        {{ $tc('sw-customer.detailAddresses.contextMenuDuplicate') }}
+                                                    </sw-context-menu-item>
                                                 {% endblock %}
 
                                                 {% block sw_customer_detail_addresses_grid_columns_actions_defaultShippingAddress %}
-                                                <sw-context-menu-item @click="onChangeDefaultShippingAddress(item.id)">
-                                                    {{ $tc('sw-customer.detailAddresses.contextMenuDefaultShippingAddress') }}
-                                                </sw-context-menu-item>
+                                                    <sw-context-menu-item @click="onChangeDefaultShippingAddress(item.id)"
+                                                                          :disabled="!customerEditMode">
+                                                        {{ $tc('sw-customer.detailAddresses.contextMenuDefaultShippingAddress') }}
+                                                    </sw-context-menu-item>
                                                 {% endblock %}
 
                                                 {% block sw_customer_detail_addresses_grid_columns_actions_defaultBillingAddress %}
-                                                <sw-context-menu-item @click="onChangeDefaultBillingAddress(item.id)">
-                                                    {{ $tc('sw-customer.detailAddresses.contextMenuDefaultBillingAddress') }}
-                                                </sw-context-menu-item>
+                                                    <sw-context-menu-item @click="onChangeDefaultBillingAddress(item.id)"
+                                                                          :disabled="!customerEditMode">
+                                                        {{ $tc('sw-customer.detailAddresses.contextMenuDefaultBillingAddress') }}
+                                                    </sw-context-menu-item>
                                                 {% endblock %}
 
                                                 {% block sw_customer_detail_addresses_grid_columns_actions_delete %}

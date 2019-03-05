@@ -78,6 +78,10 @@ Component.register('sw-customer-detail', {
 
         createMode() {
             return this.$route.name.includes('create');
+        },
+
+        isOrderPage() {
+            return this.$route.name.includes('order');
         }
     },
 

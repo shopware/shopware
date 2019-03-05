@@ -30,7 +30,7 @@ module.exports = {
             .expect.element(page.elements.smartBarHeader).to.have.text.that.contains(global.AdminFixtureService.basicFixture.name);
 
         page.createDateRangeCondition({
-            type: 'Date range',
+            type: 'date range',
             ruleSelector: `${page.elements.conditionOrContainer}--0`,
             fromDate: '2019-03-28 12:12',
             toDate: '2019-04-28 12:12',
@@ -53,7 +53,7 @@ module.exports = {
     'add another and-condition before the second one': (browser) => {
         const page = ruleBuilderPage(browser);
 
-        browser.clickContextMenuItem('.sw-rule-list__create-before-action', page.elements.contextMenuButton, `${page.elements.conditionAndContainer}--1`);
+        browser.clickContextMenuItem('.sw-condition-base__create-before-action', page.elements.contextMenuButton, `${page.elements.conditionAndContainer}--1`);
 
         page.createBasicSelectCondition({
             type: 'customer group',
@@ -68,7 +68,7 @@ module.exports = {
     'add another and-condition to the rule after the second one': (browser) => {
         const page = ruleBuilderPage(browser);
 
-        browser.clickContextMenuItem('.sw-rule-list__create-after-action', page.elements.contextMenuButton, `${page.elements.conditionAndContainer}--1`);
+        browser.clickContextMenuItem('.sw-condition-base__create-after-action', page.elements.contextMenuButton, `${page.elements.conditionAndContainer}--1`);
 
         page.createBasicSelectCondition({
             type: 'billing country',
@@ -153,12 +153,12 @@ module.exports = {
 
         browser
             .click(page.elements.ruleDeleteAction)
-            .expect.element(page.elements.ruleFieldCondition).to.have.attribute('title').that.equals('Placeholder');
+            .expect.element(page.elements.ruleFieldCondition).to.have.attribute('title').that.equals('');
 
         browser
             .click(page.elements.ruleSaveAction)
             .checkNotification(`An error occurred while saving rule "${global.AdminFixtureService.basicFixture.name}".`)
-            .expect.element('.sw-condition-base__error-container').to.have.text.that.equals('type: This "type" value (placeholder) is invalid.');
+            .expect.element('.sw-condition-base__error-container').to.have.text.that.equals('This "type" value (NULL) is invalid.');
     },
     after: (browser) => {
         browser.end();

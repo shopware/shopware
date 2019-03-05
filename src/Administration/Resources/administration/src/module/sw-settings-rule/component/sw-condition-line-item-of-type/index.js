@@ -1,13 +1,14 @@
 import { Component } from 'src/core/shopware';
+import LocalStore from 'src/core/data/LocalStore';
 import template from './sw-condition-line-item-of-type.html.twig';
 
 /**
  * @public
- * @description TODO: Add description
+ * @description Condition for the LineItemOfTypeRule. This component must a be child of sw-condition-tree.
  * @status prototype
  * @example-type code-only
  * @component-example
- * <sw-condition-line-item-of-type :condition="condition"></sw-condition-line-item-of-type>
+ * <sw-condition-line-item-of-type :condition="condition" :level="0"></sw-condition-line-item-of-type>
  */
 Component.extend('sw-condition-line-item-of-type', 'sw-condition-base', {
     template,
@@ -15,12 +16,19 @@ Component.extend('sw-condition-line-item-of-type', 'sw-condition-base', {
 
     computed: {
         lineItemTypes() {
-            return {
-                // TODO: Add line item types
-                product: {
-                    label: 'global.sw-condition.condition.lineItemOfTypeRule.product'
+            return [
+                {
+                    value: 'product',
+                    label: this.$tc('global.sw-condition.condition.lineItemOfTypeRule.product')
+                },
+                {
+                    value: 'discount_surcharge',
+                    label: this.$tc('global.sw-condition.condition.lineItemOfTypeRule.discount_surcharge')
                 }
-            };
+            ];
+        },
+        lineItemTypeStore() {
+            return new LocalStore(this.lineItemTypes, 'value');
         },
         fieldNames() {
             return ['operator', 'lineItemType'];

@@ -1,23 +1,23 @@
-{% block sw_condition_fields %}
-    {% block sw_condition_fields_product %}
+{% block sw_condition_base_fields %}
+    {% block sw_condition_line_item_with_quantity_field_product %}
         <sw-select :store="getProductStore()"
                    name="id"
                    :id="condition.id"
                    :required="true"
-                   class="field field--select field--select-product field--main has--arrow"
+                   class="field--main has--arrow"
                    v-model="condition.value.id">
         </sw-select>
     {% endblock %}
-    {% block sw_condition_fields_operator %}
-        <sw-condition-operator-select class="field--select-operator" operatorSetName="number"
+    {% block sw_condition_line_item_with_quantity_field_operator %}
+        <sw-condition-operator-select operatorSetName="number"
                                       v-model="condition.value.operator">
         </sw-condition-operator-select>
     {% endblock %}
-    {% block sw_condition_fields_value %}
+    {% block sw_condition_line_item_with_quantity_field_quantity %}
         <sw-field type="number"
                   name="quantity"
-                  step="1"
-                  class="field field--main"
+                  :step="1"
+                  class="field--main"
                   v-model="condition.value.quantity">
         </sw-field>
     {% endblock %}

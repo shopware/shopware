@@ -1,14 +1,14 @@
-{% block sw_condition_fields %}
-    {% block sw_condition_fields_operator %}
+{% block sw_condition_base_fields %}
+    {% block sw_condition_goods_count_field_operator %}
         <sw-condition-operator-select operatorSetName="number"
                                       v-model="condition.value.operator">
         </sw-condition-operator-select>
     {% endblock %}
-    {% block sw_condition_fields_value %}
+    {% block sw_condition_goods_count_field_count %}
         <sw-field type="number"
                   name="count"
-                  step="1"
-                  class="field field--main"
+                  :step="1"
+                  class="field--main"
                   v-model="condition.value.count">
         </sw-field>
     {% endblock %}

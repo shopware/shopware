@@ -3,11 +3,11 @@ import template from './sw-condition-goods-count.html.twig';
 
 /**
  * @public
- * @description TODO: Add description
+ * @description Condition for the GoodsCountRule. This component must a be child of sw-condition-tree.
  * @status prototype
  * @example-type code-only
  * @component-example
- * <sw-condition-goods-count :condition="condition"></sw-condition-goods-count>
+ * <sw-condition-goods-count :condition="condition" :level="0"></sw-condition-goods-count>
  */
 Component.extend('sw-condition-goods-count', 'sw-condition-base', {
     template,

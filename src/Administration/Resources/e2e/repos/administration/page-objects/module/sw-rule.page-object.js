@@ -53,7 +53,7 @@ class RuleBuilderPageObject extends GeneralPageObject {
 
         if (ruleData.operator) {
             this.browser
-                .fillSwSelectComponent(`${ruleData.ruleSelector} .field--select`, {
+                .fillSwSelectComponent(`${ruleData.ruleSelector} .sw-condition-operator-select`, {
                     value: ruleData.operator,
                     isMulti: false,
                     searchTerm: ruleData.operator
@@ -72,7 +72,7 @@ class RuleBuilderPageObject extends GeneralPageObject {
 
         if (ruleData.operator) {
             this.browser
-                .fillSwSelectComponent(`${ruleData.ruleSelector} .field--select`, {
+                .fillSwSelectComponent(`${ruleData.ruleSelector} .sw-condition-operator-select`, {
                     value: ruleData.operator,
                     isMulti: false,
                     searchTerm: ruleData.operator
@@ -87,12 +87,12 @@ class RuleBuilderPageObject extends GeneralPageObject {
                 isMulti: false,
                 searchTerm: ruleData.type
             })
-            .fillSwSelectComponent(`${ruleData.ruleSelector} .field--select-product`, {
+            .fillSwSelectComponent(`${ruleData.ruleSelector} .sw-select[name=id]`, {
                 value: ruleData.firstValue,
                 isMulti: ruleData.isMulti,
                 searchTerm: ruleData.firstValue
             })
-            .fillSwSelectComponent(`${ruleData.ruleSelector} .field--select-operator`, {
+            .fillSwSelectComponent(`${ruleData.ruleSelector} .sw-condition-operator-select`, {
                 value: ruleData.operator,
                 isMulti: ruleData.isMulti,
                 searchTerm: ruleData.operator

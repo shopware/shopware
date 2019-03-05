@@ -9,8 +9,7 @@ Component.extend('sw-product-stream-filter', 'sw-condition-base', {
 
     mixins: [
         Mixin.getByName('validation'),
-        Mixin.getByName('notification'),
-        Mixin.getByName('condition')
+        Mixin.getByName('notification')
     ],
 
     data() {

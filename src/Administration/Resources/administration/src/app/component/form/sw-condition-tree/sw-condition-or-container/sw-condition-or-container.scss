@@ -25,16 +25,16 @@ $sw-condition-or-container-button: #52667A;
         font-weight: bold;
         display: inline-block;
         position: relative;
-        width: calc(100% - 32px);
+        width: 100%;
         text-transform: uppercase;
 
-        &:after {
+        &:before {
             content: "";
             position: absolute;
             border-top: 1px dashed $sw-condition-or-container-border;
             top: 50%;
-            width: calc(100% - 15px);
-            margin-left: 15px;
+            width: calc(100% - 36px);
+            margin-left: 46px;
         }
     }
 

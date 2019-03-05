@@ -3,11 +3,11 @@ import template from './sw-condition-shipping-country.html.twig';
 
 /**
  * @public
- * @description TODO: Add description
+ * @description Condition for the ShippingCountryRule. This component must a be child of sw-condition-tree.
  * @status prototype
  * @example-type code-only
  * @component-example
- * <sw-condition-shipping-country :condition="condition"></sw-condition-shipping-country>
+ * <sw-condition-shipping-country :condition="condition" :level="0"></sw-condition-shipping-country>
  */
 Component.extend('sw-condition-shipping-country', 'sw-condition-base', {
     template,

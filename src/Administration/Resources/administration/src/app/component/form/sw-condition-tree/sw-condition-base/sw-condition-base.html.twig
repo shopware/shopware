@@ -1,12 +1,14 @@
-{% block sw_condition %}
+{% block sw_condition_base %}
 <div class="sw-condition-base" :class="[conditionClass, { 'has--error': hasErrors }]">
     <div class="sw-condition-base__container">
-        {% block sw_condition_field_condition %}
+        {% block sw_condition_base_field_condition %}
             <sw-select :id="createId()"
                        itemValueKey="type"
                        displayName="label"
                        :store="conditionStore"
                        v-model="condition.type"
+                       :placeholder="$tc('global.sw-condition.condition.placeholder')"
+                       :previewResultsLimit="500"
                        :required="true"
                        class="field--condition"
                        :title="$tc(getLabel(condition.type))"
@@ -14,7 +16,7 @@
             </sw-select>
         {% endblock %}
 
-        {% block sw_condition_fields %}
+        {% block sw_condition_base_fields %}
             <slot name="condition-fields">
                 <sw-field type="text" class="field--main"
                           :placeholder="$tc('global.sw-condition.condition.placeholder-warning')"
@@ -23,7 +25,7 @@
             </slot>
         {% endblock %}
 
-        {% block sw_condition_field_actions %}
+        {% block sw_condition_base_field_actions %}
             <div class="field field--actions">
                 <sw-context-button>
                     <template slot="button">
@@ -31,10 +33,10 @@
                             <sw-icon name="small-more" decorative></sw-icon>
                         </button>
                     </template>
-                    <sw-context-menu-item class="sw-rule-list__create-before-action" @click="$emit('create-before', condition)">
+                    <sw-context-menu-item class="sw-condition-base__create-before-action" @click="$emit('create-before', condition)">
                         {{ $tc('global.sw-condition.condition.createBefore') }}
                     </sw-context-menu-item>
-                    <sw-context-menu-item class="sw-rule-list__create-after-action" @click="$emit('create-after', condition)">
+                    <sw-context-menu-item class="sw-condition-base__create-after-action" @click="$emit('create-after', condition)">
                         {{ $tc('global.sw-condition.condition.createAfter') }}
                     </sw-context-menu-item>
                     <sw-context-menu-item @click="$emit('delete-condition', condition)"
@@ -46,11 +48,11 @@
             </div>
         {% endblock %}
     </div>
-    {% block sw_condition_errors %}
+    {% block sw_condition_base_errors %}
         <div v-if="hasErrors" class="sw-condition-base__error-container">
             <div v-for="(error, fieldName) in formErrors">
                 <span v-if="error.detail">
-                    {{ fieldName }}: {{ error.detail }}
+                    {{ error.detail }}
                 </span>
             </div>
         </div>

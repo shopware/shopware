@@ -40,9 +40,19 @@ Component.register('sw-settings-rule-detail', {
                     type: 'orContainer'
                 },
                 placeholder: {
-                    type: 'placeholder'
+                    type: null
                 },
                 getComponent(condition) {
+                    if (this.isPlaceholder(condition)) {
+                        return 'sw-condition-base';
+                    }
+                    if (this.isAndContainer(condition)) {
+                        return 'sw-condition-and-container';
+                    }
+                    if (this.isOrContainer(condition)) {
+                        return 'sw-condition-or-container';
+                    }
+
                     condition = this.conditionStore.getById(condition.type);
                     if (!condition.component) {
                         return 'sw-condition-not-found';
@@ -52,7 +62,7 @@ Component.register('sw-settings-rule-detail', {
                 },
                 isAndContainer(condition) { return condition.type === 'andContainer'; },
                 isOrContainer(condition) { return condition.type === 'orContainer'; },
-                isPlaceholder(condition) { return condition.type === 'placeholder'; }
+                isPlaceholder(condition) { return !condition.type; }
             }
         };
     },
@@ -130,10 +140,28 @@ Component.register('sw-settings-rule-detail', {
                 }
 
                 const changes = Object.keys(condition.getChanges()).length;
-                if (changes && condition.isDeleted !== true) {
+                if (condition.isDeleted === false
+                    && (changes || !this.areConditionsValueEqual(condition, condition.original))) {
                     condition.original.type = '';
                     condition.original.value = {};
                 }
+            });
+        },
+
+        areConditionsValueEqual(conditionA, conditionB) {
+            if (!(conditionA.value && conditionB.value)) {
+                return true;
+            }
+
+            const propsA = Object.keys(conditionA.value);
+            const propsB = Object.keys(conditionB.value);
+
+            if (propsA.length !== propsB.length) {
+                return false;
+            }
+
+            return !propsA.find(property => {
+                return conditionA.value[property].toString() !== conditionB.value[property].toString();
             });
         }
     }

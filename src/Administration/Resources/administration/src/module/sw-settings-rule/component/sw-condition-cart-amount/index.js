@@ -3,11 +3,11 @@ import template from './sw-condition-cart-amount.html.twig';
 
 /**
  * @public
- * @description TODO: Add description
+ * @description Condition for the CartAmountRule. This component must a be child of sw-condition-tree.
  * @status prototype
  * @example-type code-only
  * @component-example
- * <sw-condition-cart-amount :condition="condition"></sw-condition-cart-amount>
+ * <sw-condition-cart-amount :condition="condition" :level="0"></sw-condition-cart-amount>
  */
 Component.extend('sw-condition-cart-amount', 'sw-condition-base', {
     template,

@@ -12,7 +12,7 @@ Module.register('sw-settings-rule', {
     flag: NEXT516,
     type: 'core',
     name: 'Rules',
-    description: 'Rules section in the settings module',
+    description: 'sw-settings-rule.general.descriptionTextModule',
     color: '#9AA8B5',
     icon: 'default-action-settings',
     entity: 'rule',

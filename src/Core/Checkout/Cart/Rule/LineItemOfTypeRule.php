@@ -56,7 +56,7 @@ class LineItemOfTypeRule extends Rule
     public function getConstraints(): array
     {
         return [
-            'lineItemType' => [new NotBlank(), new Type('string')],
+            'lineItemType' => [new NotBlank(), new Type('string'), new Choice(['product', 'discount_surcharge'])],
             'operator' => [new Choice([self::OPERATOR_EQ, self::OPERATOR_NEQ])],
         ];
     }

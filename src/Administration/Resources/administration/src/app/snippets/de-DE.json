@@ -303,12 +303,12 @@
           "label":  "Datumsbereich",
           "useTime": "Zeit verwenden"
         },
-        "base": "Platzhalter",
+        "placeholder": "Bedingung wählen",
         "salesChannelRule": "Verkaufskanal",
         "currencyRule": "Währung",
         "billingCountryRule": "Rechnungsland",
         "billingStreetRule": "Rechnungsstraße",
-        "billingZipCodeRule": "Rechnungs-PLZ",
+        "billingZipCodeRule": "Rechnungsadresse-PLZ",
         "customerGroupRule": "Kundengruppe",
         "customerNumberRule": "Kundennummer",
         "differentAddressesRule": "Abweichende Adressen",
@@ -316,21 +316,20 @@
         "lastNameRule": "Kunden-Nachname",
         "shippingCountryRule": "Lieferland",
         "shippingStreetRule": "Lieferstraße",
-        "shippingZipCodeRule": "Liefer-PLZ",
+        "shippingZipCodeRule": "Lieferadresse-PLZ",
         "cartAmountRule": "Warenkorbwert",
         "goodsCountRule": "Anzahl Warenkorb-Produkte",
         "goodsPriceRule": "Gesamtpreis Warenkorb-Produkte",
         "lineItemOfTypeRule": {
           "label": "Position des Typs",
-          "product": "Produkte"
+          "product": "Produkt",
+          "discount_surcharge": "Rabatt / Aufschlag"
         },
         "lineItemRule": "Positionen",
         "lineItemsInCartRule": "Positionen im Warenkorb",
         "lineItemUnitPriceRule": "Positionen Preis",
         "lineItemTotalPriceRule": "Positionen Gesamtpreis",
         "lineItemWithQuantityRule": "Positionen mit Anzahl",
-        "andRule": "Und-Container",
-        "orRule": "Oder-Container",
         "yes": "Ja",
         "no": "Nein",
         "and": "Und",
@@ -1273,7 +1272,8 @@
   "sw-settings-rule": {
     "general": {
       "mainMenuItemGeneral": "Regeln",
-      "placeholderSearchBar": "Durchsuche alle Regeln"
+      "placeholderSearchBar": "Durchsuche alle Regeln",
+      "descriptionTextModule": "Verwaltung von Regeln."
     },
     "list": {
       "textHeadline": "Regeln",

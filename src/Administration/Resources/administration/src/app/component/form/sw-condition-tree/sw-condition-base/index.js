@@ -5,26 +5,39 @@ import './sw-condition-base.scss';
 
 /**
  * @public
- * @description TODO: Add description
+ * @description Base condition for the condition-tree. This component must be a child of sw-condition-tree.
  * @status prototype
  * @example-type code-only
  * @component-example
- * <sw-condition-base :condition="condition"></sw-condition-base>
+ * <sw-condition-base :condition="condition" :level="0"></sw-condition-base>
  */
 export default {
     name: 'sw-condition-base',
     template,
 
+    inject: ['config', 'conditionStore'],
+
     mixins: [
         Mixin.getByName('validation'),
-        Mixin.getByName('notification'),
-        Mixin.getByName('condition')
+        Mixin.getByName('notification')
     ],
 
-    /**
-     * All additional passed attributes are bound explicit to the correct child element.
-     */
-    inheritAttrs: false,
+    props: {
+        condition: {
+            type: Object,
+            required: false,
+            default: null
+        },
+        level: {
+            type: Number,
+            required: true
+        },
+        parentDisabledDelete: {
+            type: Boolean,
+            required: false,
+            default: false
+        }
+    },
 
     computed: {
         fieldNames() {

@@ -3,11 +3,11 @@ import template from './sw-condition-date-range.html.twig';
 
 /**
  * @public
- * @description TODO: Add description
+ * @description Condition for the DateRangeRule. This component must a be child of sw-condition-tree.
  * @status prototype
  * @example-type code-only
  * @component-example
- * <sw-condition-date-range :condition="condition"></sw-condition-date-range>
+ * <sw-condition-date-range :condition="condition" :level="0"></sw-condition-date-range>
  */
 Component.extend('sw-condition-date-range', 'sw-condition-base', {
     template,

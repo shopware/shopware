@@ -4,11 +4,12 @@ import './sw-condition-not-found.scss';
 
 /**
  * @public
- * @description TODO: Add description
+ * @description This condition is shown, if the specific condition was not found.
+ * This component must a be child of sw-condition-tree.
  * @status prototype
  * @example-type code-only
  * @component-example
- * <sw-condition-not-found :condition="condition"></sw-condition-not-found>
+ * <sw-condition-not-found :condition="condition" :level="0"></sw-condition-not-found>
  */
 Component.extend('sw-condition-not-found', 'sw-condition-base', {
     template,

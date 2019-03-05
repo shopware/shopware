@@ -4,11 +4,11 @@ import template from './sw-condition-different-addresses.html.twig';
 
 /**
  * @public
- * @description TODO: Add description
+ * @description Condition for the DifferentAddressesRule. This component must a be child of sw-condition-tree.
  * @status prototype
  * @example-type code-only
  * @component-example
- * <sw-condition-different-addresses :condition="condition"></sw-condition-different-address>
+ * <sw-condition-different-addresses :condition="condition" :level="0"></sw-condition-different-addresses>
  */
 Component.extend('sw-condition-different-addresses', 'sw-condition-base', {
     template,

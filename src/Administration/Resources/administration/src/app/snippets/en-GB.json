@@ -300,10 +300,10 @@
       },
       "condition": {
         "dateRangeRule": {
-          "label": "Date range",
+          "label": "date range",
           "useTime": "use time"
         },
-        "base": "Placeholder",
+        "placeholder": "Select condition",
         "salesChannelRule": "sales channel",
         "currencyRule": "currency",
         "billingCountryRule": "billing country",
@@ -322,15 +322,14 @@
         "goodsPriceRule": "goods price",
         "lineItemOfTypeRule": {
           "label": "line item of type",
-          "product": "product"
+          "product": "product",
+          "discount_surcharge": "discount / surcharge"
         },
         "lineItemRule": "line item",
         "lineItemsInCartRule": "line items in cart",
         "lineItemUnitPriceRule": "line item unit price",
         "lineItemTotalPriceRule": "line item total price",
         "lineItemWithQuantityRule": "line item with quantity",
-        "andRule": "And container",
-        "orRule": "Or container",
         "yes": "yes",
         "no": "no",
         "and": "and",
@@ -338,9 +337,9 @@
         "field": {
           "valuePlaceholder": "Value..."
         },
-        "placeholder-warning": "Please choose a condition",
+        "placeholder-warning": "Please choose a condition.",
         "not-found": {
-          "label": "Condition was not found",
+          "label": "condition was not found",
           "error-message": "Condition type {type} was not found. The condition includes the field: {fields} | The condition type {type} was not found. The conditions include the fields: {fields}"
         },
         "subCondition": "subcondition",
@@ -1277,7 +1276,8 @@
   "sw-settings-rule": {
     "general": {
       "mainMenuItemGeneral": "Rules",
-      "placeholderSearchBar": "Search all rules"
+      "placeholderSearchBar": "Search all rules",
+      "descriptionTextModule": "Manage rules here."
     },
     "list": {
       "textHeadline": "Rules",

@@ -3,11 +3,11 @@ import template from './sw-condition-line-item-total-price.html.twig';
 
 /**
  * @public
- * @description TODO: Add description
+ * @description Condition for the LineItemTotalPriceRule. This component must a be child of sw-condition-tree.
  * @status prototype
  * @example-type code-only
  * @component-example
- * <sw-condition-line-item-total-price :condition="condition"></sw-condition-line-item-total-price>
+ * <sw-condition-line-item-total-price :condition="condition" :level="0"></sw-condition-line-item-total-price>
  */
 Component.extend('sw-condition-line-item-total-price', 'sw-condition-base', {
     template,

@@ -1,15 +1,15 @@
-{% block sw_condition_fields %}
-    {% block sw_condition_fields_operator %}
+{% block sw_condition_base_fields %}
+    {% block sw_condition_currency_field_operator %}
         <sw-condition-operator-select operatorSetName="multiStore"
                                       v-model="condition.value.operator">
         </sw-condition-operator-select>
     {% endblock %}
-    {% block sw_condition_fields_value %}
+    {% block sw_condition_currency_field_currency_ids %}
         <sw-condition-value :id="condition.id"
                             multi
                             name="currencyIds"
                             :store="getCurrencyStore()"
-                            class="field field--main field--multi"
+                            class="field--main"
                             v-model="condition.value.currencyIds">
         </sw-condition-value>
     {% endblock %}

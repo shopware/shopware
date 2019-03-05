@@ -103,6 +103,10 @@ Component.register('sw-customer-detail', {
                 } else {
                     this.customerStore.getByIdAsync(this.customerId).then((customer) => {
                         this.customer = customer;
+                        this.languageStore.getByIdAsync(this.customer.languageId).then((language) => {
+                            this.language = language;
+                            this.isLoading = false;
+                        });
                         this.initializeFurtherComponents();
                     });
                 }
@@ -120,10 +124,6 @@ Component.register('sw-customer-detail', {
                 page: 1
             });
 
-            this.languageStore.getByIdAsync(this.customer.languageId).then((language) => {
-                this.language = language;
-                this.isLoading = false;
-            });
 
             this.salesChannelStore.getList({ page: 1, limit: 100 }).then((response) => {
                 response.items.forEach((salesChannel) => {
@@ -164,11 +164,12 @@ Component.register('sw-customer-detail', {
                     title: titleSaveSuccess,
                     message: messageSaveSuccess
                 });
-            }).catch(() => {
+            }).catch((exception) => {
                 this.createNotificationError({
                     title: titleSaveError,
                     message: messageSaveError
                 });
+                throw exception;
             }).finally(() => {
                 this.customerEditMode = false;
             });

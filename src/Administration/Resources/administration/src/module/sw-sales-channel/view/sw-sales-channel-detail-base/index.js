@@ -19,6 +19,10 @@ Component.register('sw-sales-channel-detail-base', {
             type: Object,
             required: true,
             default: {}
+        },
+        attributeSets: {
+            type: Array,
+            required: true
         }
     },
 

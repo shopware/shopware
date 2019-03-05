@@ -77,10 +77,7 @@ module.exports = {
 
         'object-curly-newline': [ 'error', { 'consistent': true } ],
 
-        'no-underscore-dangle': [ 'error', {
-            'allowAfterThis': true,
-            'allowAfterSuper': true
-        }],
+        'no-underscore-dangle': 0,
 
         'prefer-destructuring': [ 'off', { 'object': true, 'array': false } ],
 

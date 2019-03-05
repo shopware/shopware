@@ -43,6 +43,16 @@
                 {% block sw_order_detail_content_view %}
                     <router-view :order="order" ref="baseComponent" @sw-order-detail-base-error = "onError"></router-view>
                 {% endblock %}
+
+                {% block sw_order_detail_attribute_sets %}
+                    <sw-card>
+                        <sw-attribute-set-renderer
+                                v-if="next754"
+                                :entity="order"
+                                :sets="attributeSets">
+                        </sw-attribute-set-renderer>
+                    </sw-card>
+                {% endblock %}
             </sw-card-view>
         {% endblock %}
     </sw-page>

@@ -52,6 +52,16 @@
                                 {% endblock %}
                             </sw-card>
                         {% endblock %}
+
+                        {% block sw_customer_detail_attribute_sets %}
+                            <sw-card>
+                                <sw-attribute-set-renderer
+                                        v-if="next754"
+                                        :entity="customer"
+                                        :sets="customerAttributeSets">
+                                </sw-attribute-set-renderer>
+                            </sw-card>
+                        {% endblock %}
                     </div>
                 {% endblock %}
             </transition-group>

@@ -32,6 +32,10 @@ Component.register('sw-customer-detail-addresses', {
         customerEditMode: {
             type: Boolean,
             required: true
+        },
+        customerAddressAttributeSets: {
+            type: Array,
+            required: true
         }
     },
 

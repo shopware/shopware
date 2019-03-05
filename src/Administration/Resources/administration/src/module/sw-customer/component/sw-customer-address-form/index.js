@@ -24,6 +24,11 @@ Component.register('sw-customer-address-form', {
             default() {
                 return [];
             }
+        },
+
+        attributeSets: {
+            type: Array,
+            required: true
         }
     },
 

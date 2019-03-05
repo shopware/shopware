@@ -1,6 +1,5 @@
 {% block sw_product_detail_base %}
     <div class="sw-product-detail-base">
-
         {% block sw_product_detail_base_basic_info_card %}
             <sw-card :title="$tc('sw-product.detailBase.cardTitleProductInfo')" :isLoading="product.isLoading">
                 {% block sw_product_detail_base_basic_info_form %}
@@ -46,6 +45,16 @@
                 {% block sw_product_detail_base_settings_form %}
                     <sw-product-settings-form :product="product"></sw-product-settings-form>
                 {% endblock %}
+            </sw-card>
+        {% endblock %}
+
+        {% block sw_product_detail_attribute_sets %}
+            <sw-card :title="$tc('sw-settings-attribute.general.mainMenuItemGeneral')" :isLoading="product.isLoading">
+                <sw-attribute-set-renderer
+                        v-if="next754"
+                        :entity="product"
+                        :sets="attributeSets">
+                </sw-attribute-set-renderer>
             </sw-card>
         {% endblock %}
     </div>

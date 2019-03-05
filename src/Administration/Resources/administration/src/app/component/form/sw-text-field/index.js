@@ -16,7 +16,8 @@ export default {
     template,
 
     mixins: [
-        Mixin.getByName('validation')
+        Mixin.getByName('validation'),
+        Mixin.getByName('sw-inline-snippet')
     ],
 
     /**
@@ -55,7 +56,6 @@ export default {
             }
         },
         errorMessage: {
-            type: String,
             required: false,
             default: null
         },
@@ -64,12 +64,10 @@ export default {
             default: ''
         },
         helpText: {
-            type: String,
             required: false,
             default: ''
         },
         tooltipText: {
-            type: String,
             required: false,
             default: ''
         },
@@ -120,38 +118,6 @@ export default {
         },
         fallbackLocale() {
             return this.$root.$i18n.fallbackLocale;
-        },
-        fieldLabel() {
-            if (!this.label) {
-                return '';
-            }
-
-            // Check if label is translated
-            if (this.label[this.locale]) {
-                return this.label[this.locale];
-            }
-
-            if (this.label[this.fallbackLocale]) {
-                return this.label[this.fallbackLocale];
-            }
-
-            return this.label;
-        },
-        fieldPlaceholder() {
-            if (!this.placeholder) {
-                return '';
-            }
-
-            // Check if placeholder is translated
-            if (this.placeholder[this.locale]) {
-                return this.placeholder[this.locale];
-            }
-
-            if (this.placeholder[this.fallbackLocale]) {
-                return this.placeholder[this.fallbackLocale];
-            }
-
-            return this.placeholder;
         },
         id() {
             return `sw-field--${this.utilsId}`;

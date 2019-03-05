@@ -1,4 +1,5 @@
 import { Component, Mixin, State } from 'src/core/shopware';
+import CriteriaFactory from 'src/core/factory/criteria.factory';
 import template from './sw-customer-detail.html.twig';
 
 Component.register('sw-customer-detail', {
@@ -24,6 +25,8 @@ Component.register('sw-customer-detail', {
             countries: [],
             addresses: [],
             paymentMethods: [],
+            customerAddressAttributeSets: [],
+            customerAttributeSets: [],
             languages: [],
             language: {}
         };
@@ -82,6 +85,10 @@ Component.register('sw-customer-detail', {
 
         isOrderPage() {
             return this.$route.name.includes('order');
+        },
+
+        attributeSetStore() {
+            return State.getStore('attribute_set');
         }
     },
 
@@ -149,6 +156,34 @@ Component.register('sw-customer-detail', {
 
             this.paymentMethodStore.getList({ page: 1, limit: 100 }).then((response) => {
                 this.paymentMethods = response.items;
+            });
+
+            this.attributeSetStore.getList({
+                page: 1,
+                limit: 100,
+                criteria: CriteriaFactory.equals('relations.entityName', 'customer'),
+                associations: {
+                    attributes: {
+                        limit: 100,
+                        sort: 'attribute.config.attributePosition'
+                    }
+                }
+            }, true).then((response) => {
+                this.customerAttributeSets = response.items;
+            });
+
+            this.attributeSetStore.getList({
+                page: 1,
+                limit: 100,
+                criteria: CriteriaFactory.equals('relations.entityName', 'customer_address'),
+                associations: {
+                    attributes: {
+                        limit: 100,
+                        sort: 'attribute.config.attributePosition'
+                    }
+                }
+            }, true).then((response) => {
+                this.customerAddressAttributeSets = response.items;
             });
         },
 

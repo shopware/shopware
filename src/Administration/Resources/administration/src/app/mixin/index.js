@@ -1,6 +1,4 @@
-import './validation.mixin';
-import './notification.mixin';
-import './listing.mixin';
-import './selectable-media-item';
-import './placeholder.mixin';
-import './discard-detail-page-changes.mixin';
+(() => {
+    const context = require.context('./', false, /(?<!index)\.js$/);
+    return context.keys().forEach(item => context(item));
+})();

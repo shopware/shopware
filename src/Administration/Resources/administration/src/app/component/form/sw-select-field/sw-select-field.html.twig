@@ -12,8 +12,8 @@
                     :value="value">
 
                 {% block sw_field_input_select_field_placeholder_option %}
-                    <option class="sw-field__placeholder-option" v-if="fieldPlaceholder"
-                            :value="null">{{ fieldPlaceholder }}</option>
+                    <option class="sw-field__placeholder-option" v-if="getInlineSnippet(placeholder)"
+                            :value="null">{{ getInlineSnippet(placeholder) }}</option>
                 {% endblock %}
 
                 {% block sw_field_input_select_field_options %}

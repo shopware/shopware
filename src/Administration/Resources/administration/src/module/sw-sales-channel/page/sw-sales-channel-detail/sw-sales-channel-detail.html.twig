@@ -47,7 +47,9 @@
                 {% endblock %}
 
                 {% block sw_sales_channel_detail_content_view %}
-                    <router-view :salesChannel="salesChannel"></router-view>
+                    <router-view :salesChannel="salesChannel"
+                                 :attributeSets="attributeSets">
+                    </router-view>
                 {% endblock %}
             </sw-card-view>
         {% endblock %}

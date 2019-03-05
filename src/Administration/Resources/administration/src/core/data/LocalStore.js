@@ -1,4 +1,5 @@
-import { hasOwnProperty } from 'src/core/service/utils/object.utils';
+import { hasOwnProperty, deepCopyObject } from 'src/core/service/utils/object.utils';
+import types from 'src/core/service/utils/types.utils';
 import utils from 'src/core/service/util.service';
 
 /**
@@ -15,19 +16,27 @@ export default class LocalStore {
      * @memberOf module:core/data/LocalStore
      * @param {array} values
      * @param {string} propertyName
+     * @param {string} searchProperty
      */
-    constructor(values, propertyName = 'id') {
+    constructor(values, propertyName = 'id', searchProperty = 'id') {
         this.store = {};
+        this.propertyName = propertyName;
+        this.searchProperty = searchProperty;
+
+        this.isLoading = false;
+
+        if (!values || values.length < 1) {
+            return;
+        }
+
         values.forEach(value => {
             this.store[value[propertyName]] = value;
-            if (value.meta) {
+            if (this.store[value[propertyName]].meta) {
                 return;
             }
 
-            value.meta = { viewData: value };
+            this.store[value[propertyName]].meta = { viewData: deepCopyObject(value) };
         });
-
-        this.propertyName = propertyName;
     }
 
     /**
@@ -59,8 +68,21 @@ export default class LocalStore {
             let store = Object.values(this.store);
             if (params.term) {
                 const searchTerm = params.term.toLowerCase();
-                store = store.filter(value => {
-                    return this.objectPropertiesContains(value, searchTerm)
+                store = store.filter((value) => {
+                    // For inline snippets - example: value[searchProperty] = { 'de_DE': 'Größe', 'en_GB': 'Size' }
+                    const property = value[this.searchProperty];
+                    if (types.isObject(property)) {
+                        let found = false;
+                        Object.keys(property).forEach((key) => {
+                            if (property[key].toLowerCase().includes(searchTerm)) {
+                                found = true;
+                            }
+                        });
+
+                        return found;
+                    }
+
+                    return this.objectPropertiesContains(value, searchTerm) > 0
                         || this.objectPropertiesContains(value.meta.viewData, searchTerm);
                 });
             }

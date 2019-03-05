@@ -75,7 +75,6 @@ class DemodataCommand extends Command
 
             $this->addOption('product-attributes', null, InputOption::VALUE_REQUIRED, 'Products attribute count');
             $this->addOption('manufacturer-attributes', null, InputOption::VALUE_REQUIRED, 'Manufacturer attribute count');
-            $this->addOption('category-attributes', null, InputOption::VALUE_REQUIRED, 'Category attribute count');
             $this->addOption('order-attributes', null, InputOption::VALUE_REQUIRED, 'Order attribute count');
             $this->addOption('customer-attributes', null, InputOption::VALUE_REQUIRED, 'Customer attribute count');
             $this->addOption('media-attributes', null, InputOption::VALUE_REQUIRED, 'Media attribute count');
@@ -159,7 +158,6 @@ class DemodataCommand extends Command
             'relations' => [
                 'product' => (int) ($input->getOption('product-attributes') ?? $input->getOption('product-attributes') * 0.1),
                 'product_manufacturer' => (int) ($input->getOption('manufacturer-attributes') ?? $input->getOption('manufacturer-attributes') * 0.1),
-                'category' => (int) ($input->getOption('category-attributes') ?? $input->getOption('category-attributes') * 0.1),
                 'order' => (int) ($input->getOption('order-attributes') ?? $input->getOption('order-attributes') * 0.1),
                 'customer' => (int) ($input->getOption('customer-attributes') ?? $input->getOption('customer-attributes') * 0.1),
                 'media' => (int) ($input->getOption('media-attributes') ?? $input->getOption('media-attributes') * 0.1),

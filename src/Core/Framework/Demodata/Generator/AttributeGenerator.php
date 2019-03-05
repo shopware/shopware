@@ -132,7 +132,8 @@ class AttributeGenerator implements DemodataGeneratorInterface
             case AttributeTypes::DATETIME:
                 $config = [
                     'componentName' => 'sw-field',
-                    'type' => 'datetime',
+                    'type' => 'date',
+                    'dateType' => 'datetime',
                     'attributeType' => 'date',
                     'label' => [
                         'en-GB' => $name,
@@ -169,7 +170,7 @@ class AttributeGenerator implements DemodataGeneratorInterface
 
         return [
             'id' => Uuid::uuid4()->getHex(),
-            'name' => $prefix . '_' . str_replace(' ', '_', $name),
+            'name' => strtolower($prefix) . '_' . str_replace(' ', '_', $name),
             'type' => $type,
             'config' => $config,
         ];
@@ -182,18 +183,19 @@ class AttributeGenerator implements DemodataGeneratorInterface
             return ['id' => Uuid::uuid4()->getHex(), 'entityName' => $rel];
         }, $relationNames);
 
-        $attributeCount = random_int(1, 30);
+        $attributeCount = random_int(1, 5);
         $attributes = [];
 
-        $setName = 'core_' . $context->getFaker()->unique()->category;
+        $setName = $context->getFaker()->unique()->category;
+        $prefix = 'core_';
 
         for ($j = 0; $j < $attributeCount; ++$j) {
-            $attributes[] = $this->randomAttribute($setName, $context);
+            $attributes[] = $this->randomAttribute($prefix . $setName, $context);
         }
 
         $set = [
             'id' => Uuid::uuid4()->getHex(),
-            'name' => $setName,
+            'name' => $prefix . $setName,
             'config' => [
                 'label' => [
                     'en-GB' => $setName,

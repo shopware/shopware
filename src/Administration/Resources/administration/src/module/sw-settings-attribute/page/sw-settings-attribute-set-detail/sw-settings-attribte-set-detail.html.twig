@@ -1,0 +1,46 @@
+{% block sw_settings_attribute_set_detail %}
+    <sw-page class="sw-settings-set-detail">
+
+        {% block sw_settings_attribute_set_detail_header %}
+            <template slot="smart-bar-header">
+                <h2 v-if="getInlineSnippet(set.config.name)">{{ getInlineSnippet(set.config.name) }}</h2>
+                <h2 v-else>{{ $tc('sw-settings-attribute.set.detail.textHeadline') }}</h2>
+            </template>
+        {% endblock %}
+
+        {% block sw_settings_attribute_set_detail_actions %}
+            <template slot="smart-bar-actions">
+                {% block sw_settings_attribute_set_detail_actions_abort %}
+                    <sw-button :disabled="set.isLoading"
+                               :routerLink="{ name: 'sw.settings.attribute.index' }">
+                        {{ $tc('sw-settings-attribute.set.detail.buttonCancel') }}
+                    </sw-button>
+                {% endblock %}
+
+                {% block sw_settings_attribute_set_detail_actions_save %}
+                    <sw-button variant="primary"
+                               class="sw-settings-set-detail__save-action"
+                               :disabled="set.isLoading"
+                               @click.prevent="onSave">
+                        {{ $tc('sw-settings-attribute.set.detail.buttonSave') }}
+                    </sw-button>
+                {% endblock %}
+            </template>
+        {% endblock %}
+
+        {% block sw_settings_attribute_set_detail_content %}
+            <sw-card-view slot="content">
+                {% block sw_settings_attribute_set_detail_content_detail_base %}
+                    <sw-attribute-set-detail-base :set="set"></sw-attribute-set-detail-base>
+                {% endblock %}
+
+                {% block sw_settings_attribute_set_detail_content_detail_attribute_list %}
+                    <sw-attribute-list
+                            ref="attributeList"
+                            :set="set">
+                    </sw-attribute-list>
+                {% endblock %}
+            </sw-card-view>
+        {% endblock %}
+    </sw-page>
+{% endblock %}

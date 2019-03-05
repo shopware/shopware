@@ -83,7 +83,10 @@ export default {
             if (value !== null && value.length) {
                 this.colorPicker.setColor(value, true);
                 this.color = value;
+                return;
             }
+
+            this.color = '';
         },
 
         onOpen() {

@@ -3,7 +3,7 @@
            type="text"
            :validation="validation"
            :name="displayName"
-           :placeholder="fieldPlaceholder"
+           :placeholder="getInlineSnippet(placeholder)"
            @input="onInput"
            @keydown.up="increaseNumberByStep"
            @keydown.down="decreaseNumberByStep"

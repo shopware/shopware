@@ -13,13 +13,27 @@ Mixin.register('sw-settings-list', {
             entityName: '',
             items: [],
             isLoading: false,
-            showDeleteModal: false
+            showDeleteModal: false,
+            deleteEntity: null
         };
     },
 
     computed: {
         store() {
             return State.getStore(this.entityName);
+        },
+        titleSaveSuccess() {
+            return this.$tc(`sw-settings-${this.entityName}.list.titleDeleteSuccess`);
+        },
+        messageSaveSuccess() {
+            if (this.deleteEntity) {
+                return this.$tc(
+                    `sw-settings-${this.entityName}.list.messageDeleteSuccess`,
+                    0,
+                    { name: this.deleteEntity.meta.viewData.name }
+                );
+            }
+            return '';
         }
     },
 
@@ -58,22 +72,16 @@ Mixin.register('sw-settings-list', {
         },
 
         onConfirmDelete(id) {
-            const currency = this.store.store[id];
-            const currencyName = currency.name;
-            const titleSaveSuccess = this.$tc(`sw-settings-${this.entityName}.list.titleDeleteSuccess`);
-            const messageSaveSuccess = this.$tc(
-                `sw-settings-${this.entityName}.list.messageDeleteSuccess`,
-                0,
-                { name: currencyName }
-            );
+            this.deleteEntity = this.store.store[id];
 
             this.onCloseDeleteModal();
             this.store.store[id].delete(true).then(() => {
                 this.createNotificationSuccess({
-                    title: titleSaveSuccess,
-                    message: messageSaveSuccess
+                    title: this.titleSaveSuccess,
+                    message: this.messageSaveSuccess
                 });
 
+                this.deleteEntity = null;
                 this.getList();
             });
         },

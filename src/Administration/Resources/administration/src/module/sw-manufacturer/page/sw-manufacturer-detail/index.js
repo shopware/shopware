@@ -1,5 +1,6 @@
 import { Component, Mixin, State } from 'src/core/shopware';
 import { warn } from 'src/core/service/utils/debug.utils';
+import CriteriaFactory from 'src/core/factory/criteria.factory';
 import template from './sw-manufacturer-detail.html.twig';
 import './sw-manufacturer-detail.scss';
 
@@ -16,7 +17,8 @@ Component.register('sw-manufacturer-detail', {
         return {
             manufacturerId: null,
             manufacturer: { isLoading: true },
-            mediaItem: null
+            mediaItem: null,
+            attributeSets: []
         };
     },
 
@@ -38,6 +40,10 @@ Component.register('sw-manufacturer-detail', {
             return {
                 'sw-manufacturer-image-pane--logo': isLogo
             };
+        },
+
+        attributeSetStore() {
+            return State.getStore('attribute_set');
         }
     },
 
@@ -69,6 +75,20 @@ Component.register('sw-manufacturer-detail', {
                 if (manufacturer.mediaId) {
                     this.mediaItem = this.mediaStore.getById(this.manufacturer.mediaId);
                 }
+            });
+
+            this.attributeSetStore.getList({
+                page: 1,
+                limit: 100,
+                criteria: CriteriaFactory.equals('relations.entityName', 'product_manufacturer'),
+                associations: {
+                    attributes: {
+                        limit: 100,
+                        sort: 'attribute.config.attributePosition'
+                    }
+                }
+            }, true).then((response) => {
+                this.attributeSets = response.items;
             });
         },
 

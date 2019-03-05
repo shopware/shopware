@@ -12,7 +12,8 @@ Component.register('sw-manufacturer-list', {
         return {
             manufacturers: [],
             showDeleteModal: false,
-            isLoading: false
+            isLoading: false,
+            sortBy: 'name'
         };
     },
 

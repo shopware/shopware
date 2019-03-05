@@ -45,6 +45,12 @@ export default {
         };
     },
 
+    watch: {
+        '$route.query.term'(to) {
+            this.searchTerm = to;
+        }
+    },
+
     computed: {
         searchTypeColor() {
             if (!this.$route.meta.$module) {
@@ -95,6 +101,8 @@ export default {
                 },
                 component: this
             });
+
+            this.searchTerm = this.$route.query.term;
         },
 
         clearSearchTerm() {

@@ -1,6 +1,7 @@
 import { Mixin } from 'src/core/shopware';
 import CriteriaFactory from 'src/core/factory/criteria.factory';
 import { debug } from 'src/core/service/util.service';
+import types from 'src/core/service/utils/types.utils';
 
 Mixin.register('listing', {
 
@@ -11,7 +12,7 @@ Mixin.register('listing', {
             total: 0,
             sortBy: null,
             sortDirection: 'ASC',
-            term: '',
+            term: undefined,
             disableRouteParams: false
         };
     },
@@ -32,93 +33,109 @@ Mixin.register('listing', {
     },
 
     created() {
-        this.getDataFromRoute();
-        this.updateRoute();
-        this.getList();
+        if (this.disableRouteParams) {
+            this.getList();
+            return;
+        }
+        const actualQueryParameters = this.$route.query;
+
+        // When no route information are provided
+        if (types.isEmpty(actualQueryParameters)) {
+            this.resetListing();
+            this.updateRoute();
+        } else {
+            // otherwise update local data and fetch from server
+            this.updateData(actualQueryParameters);
+            this.getList();
+        }
     },
 
-    methods: {
-        getDataFromRoute() {
-            if (this.disableRouteParams) {
-                return {};
-            }
-
-            const params = this.$route.query;
-
-            this.page = parseInt(params.page, 10) || this.page;
-            this.limit = parseInt(params.limit, 10) || this.limit;
-            this.sortDirection = params.sortDirection || this.sortDirection;
-            this.sortBy = params.sortBy || this.sortBy;
-            this.term = params.term || this.term;
-
-            if (params.filters) {
-                const filters = JSON.parse(params.filters);
-
-                filters.queries.forEach((query) => {
-                    const localFilter = this.filters.find((filter) => {
-                        return filter.criteria.type === query.type && filter.criteria.field === query.field;
-                    });
-
-                    if (localFilter) {
-                        localFilter.active = true;
-                    }
-                });
-            }
-
-            return params;
-        },
-
-        updateRoute() {
+    watch: {
+        // Watch for changes in query parameters and update listing
+        '$route'() {
             if (this.disableRouteParams) {
                 return;
             }
+            const query = this.$route.query;
 
-            const params = this.getListingParams();
-
-            if (params.criteria) {
-                params.filters = params.criteria.getQueryString();
-                delete params.criteria;
+            if (types.isEmpty(query)) {
+                this.resetListing();
             }
 
-            const previousParams = this.$route.query;
-            let pageHasChanged = parseInt(previousParams.page, 10) !== params.page;
+            // Update data information from the url
+            this.updateData(query);
 
-            if (!params.term) {
-                delete previousParams.term;
-            }
+            // Fetch new list
+            this.getList();
+        }
+    },
 
-            // Don't push another item onto the stack, if the component has not been mounted yet, to prevent duplicate
-            // items that effectively load the same list
-            if (typeof this.$el === 'undefined') {
-                pageHasChanged = false;
-            }
+    methods: {
+        updateData(customData) {
+            this.page = parseInt(customData.page, 10) || this.page;
+            this.limit = parseInt(customData.limit, 10) || this.limit;
+            this.term = customData.term || this.term;
+            this.sortBy = customData.sortBy || this.sortBy;
+            this.sortDirection = customData.sortDirection || this.sortDirection;
+        },
+        updateRoute(customQuery) {
+            // Get actual query parameter
+            const query = customQuery || this.$route.query;
+            const routeQuery = this.$route.query;
 
+            // Create new route
             const route = {
-                name: this.routeName,
-                query: { ...previousParams, ...params }
+                name: this.$route.name,
+                query: {
+                    limit: query.limit || this.limit,
+                    page: query.page || this.page,
+                    term: query.term || this.term,
+                    sortBy: query.sortBy || this.sortBy,
+                    sortDirection: query.sortDirection || this.sortDirection
+                }
             };
 
-            if (pageHasChanged) {
-                this.$router.push(route);
-            } else {
+            // If query is empty then replace route, otherwise push
+            if (types.isEmpty(routeQuery)) {
                 this.$router.replace(route);
+            } else {
+                this.$router.push(route);
             }
         },
 
+        resetListing() {
+            this.updateRoute({
+                name: this.$route.name,
+                query: {
+                    limit: this.limit,
+                    page: this.page,
+                    term: this.term,
+                    sortBy: this.sortBy,
+                    sortDirection: this.sortDirection
+                }
+            });
+        },
+
         getListingParams() {
+            if (this.disableRouteParams) {
+                return {
+                    limit: this.limit,
+                    page: this.page,
+                    term: this.term,
+                    sortBy: this.sortBy,
+                    sortDirection: this.sortDirection
+                };
+            }
+            // Get actual query parameter
+            const query = this.$route.query;
+
             const params = {
-                limit: this.limit,
-                page: this.page
+                limit: query.limit,
+                page: query.page,
+                term: query.term,
+                sortBy: query.sortBy || this.sortBy,
+                sortDirection: query.sortDirection || this.sortDirection
             };
-
-            if (this.term && this.term.length) {
-                params.term = this.term;
-            }
-
-            if (this.sortBy && this.sortBy.length) {
-                params.sortBy = this.sortBy;
-                params.sortDirection = this.sortDirection;
-            }
 
             const criteria = this.generateCriteriaFromFilters(this.filters);
 
@@ -153,37 +170,60 @@ Mixin.register('listing', {
         onPageChange(opts) {
             this.page = opts.page;
             this.limit = opts.limit;
-
-            this.updateRoute();
-            this.getList();
+            if (this.disableRouteParams) {
+                this.getList();
+                return;
+            }
+            this.updateRoute({
+                page: this.page
+            });
         },
 
         onSearch(value) {
-            this.term = value;
+            if (value.length === 0) value = undefined;
 
-            this.page = 1;
-            this.updateRoute();
-            this.getList();
+            if (this.disableRouteParams) {
+                this.term = value;
+                this.page = 1;
+                this.getList();
+            }
+
+            this.term = value;
+            this.updateRoute({
+                term: this.term,
+                page: 1
+            });
         },
 
         onSwitchFilter(filter, filterIndex) {
             this.filters[filterIndex].active = !this.filters[filterIndex].active;
 
             this.page = 1;
-            this.updateRoute();
-            this.getList();
         },
 
         onSortColumn(column) {
-            if (this.sortBy === column.dataIndex) {
-                this.sortDirection = (this.sortDirection === 'ASC' ? 'DESC' : 'ASC');
-            } else {
-                this.sortBy = column.dataIndex;
-                this.sortDirection = 'ASC';
+            if (this.disableRouteParams) {
+                if (this.sortBy === column.dataIndex) {
+                    this.sortDirection = (this.sortDirection === 'ASC' ? 'DESC' : 'ASC');
+                } else {
+                    this.sortDirection = 'ASC';
+                    this.sortBy = column.dataIndex;
+                }
+                this.getList();
+                return;
             }
 
+            if (this.sortBy === column.dataIndex) {
+                this.updateRoute({
+                    sortDirection: (this.sortDirection === 'ASC' ? 'DESC' : 'ASC')
+                });
+            } else {
+                this.updateRoute({
+                    sortBy: column.dataIndex,
+                    sortDirection: 'ASC'
+                });
+            }
             this.updateRoute();
-            this.getList();
         },
 
         onRefresh() {

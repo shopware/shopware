@@ -50,6 +50,15 @@ Component.register('sw-customer-list', {
                 params.sortDirection = 'DESC';
             }
 
+            // Use natural sorting when using customer number
+            if (params.sortBy === 'customerNumber') {
+                params.sortings = [{
+                    field: 'customerNumber',
+                    direction: 'DESC',
+                    naturalSorting: true
+                }];
+            }
+
             return this.customerStore.getList(params).then((response) => {
                 this.total = response.total;
                 this.customers = response.items;

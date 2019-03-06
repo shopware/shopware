@@ -3,8 +3,10 @@ import HttpClient from "../../service/http-client.service";
 import DomAccess from "../../helper/dom-access.helper";
 import ButtonLoadingIndicator from "../loading-indicator/button-loading-indicator.plugin";
 import DeviceDetection from "../../helper/device-detection.helper";
+import Plugin from "../../helper/plugin.helper";
 
 const MODAL_REMOTE_DATA_ATTRIBUTE = 'data-url';
+const MODAL_AJAX_CLASS = 'js-ajax-modal';
 
 /**
  * This class extends the Bootstrap modal functionality by
@@ -15,12 +17,14 @@ const MODAL_REMOTE_DATA_ATTRIBUTE = 'data-url';
  * Notice: The response template needs to have the markup as defined in the Bootstrap docs
  * https://getbootstrap.com/docs/4.3/components/modal/#live-demo
  */
-export default class ModalExtension {
+export default class ModalExtension extends Plugin {
 
     /**
      * Constructor.
      */
     constructor() {
+        super();
+
         this._registerEvents();
     }
 
@@ -95,7 +99,7 @@ export default class ModalExtension {
      */
     _getElementFromResponse(response) {
         let element = document.createElement('div');
-        element.classList.add('ajax-modal');
+        element.classList.add(MODAL_AJAX_CLASS);
         element.innerHTML = response;
 
         return element;

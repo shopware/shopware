@@ -3,8 +3,10 @@
 namespace Shopware\Core\Framework\Twig\TokenParser;
 
 use Shopware\Core\Framework\Twig\TemplateFinder;
+use Twig\Token;
+use Twig\TokenParser\AbstractTokenParser;
 
-final class ExtendsTokenParser extends \Twig_TokenParser
+final class ExtendsTokenParser extends AbstractTokenParser
 {
     /**
      * @var TemplateFinder
@@ -33,10 +35,10 @@ final class ExtendsTokenParser extends \Twig_TokenParser
         $stream->next();
 
         $stream->injectTokens([
-            new \Twig_Token(\Twig_Token::BLOCK_START_TYPE, '', 2),
-            new \Twig_Token(\Twig_Token::NAME_TYPE, 'extends', 2),
-            new \Twig_Token(\Twig_Token::STRING_TYPE, $parent, 2),
-            new \Twig_Token(\Twig_Token::BLOCK_END_TYPE, '', 2),
+            new Token(Token::BLOCK_START_TYPE, '', 2),
+            new Token(Token::NAME_TYPE, 'extends', 2),
+            new Token(Token::STRING_TYPE, $parent, 2),
+            new Token(Token::BLOCK_END_TYPE, '', 2),
         ]);
     }
 

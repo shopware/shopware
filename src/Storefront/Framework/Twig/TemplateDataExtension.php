@@ -6,8 +6,10 @@ use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\PlatformRequest;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
+use Twig\Extension\AbstractExtension;
+use Twig\Extension\GlobalsInterface;
 
-class TemplateDataExtension extends \Twig_Extension implements \Twig_Extension_GlobalsInterface
+class TemplateDataExtension extends AbstractExtension implements GlobalsInterface
 {
     /**
      * @var RequestStack

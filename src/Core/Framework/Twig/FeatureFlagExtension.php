@@ -3,13 +3,15 @@
 namespace Shopware\Core\Framework\Twig;
 
 use Shopware\Core\Framework\FeatureFlag\FeatureConfig;
+use Twig\Extension\AbstractExtension;
+use Twig\TwigFunction;
 
-class FeatureFlagExtension extends \Twig_Extension
+class FeatureFlagExtension extends AbstractExtension
 {
     public function getFunctions(): array
     {
         return [
-            new \Twig_Function('feature', [$this, 'feature']),
+            new TwigFunction('feature', [$this, 'feature']),
         ];
     }
 

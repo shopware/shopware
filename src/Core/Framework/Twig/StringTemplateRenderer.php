@@ -3,18 +3,21 @@
 namespace Shopware\Core\Framework\Twig;
 
 use Shopware\Core\Framework\Exception\StringTemplateRenderingException;
+use Twig\Environment;
+use Twig\Error\Error;
+use Twig\Loader\ArrayLoader;
 
 class StringTemplateRenderer
 {
     /**
-     * @var \Twig_Environment
+     * @var Environment
      */
     private $twig;
 
     public function __construct()
     {
         // use private twig instance here, because we use custom template loader
-        $this->twig = new \Twig_Environment(new \Twig_Loader_Array());
+        $this->twig = new Environment(new ArrayLoader());
         $this->twig->setCache(false);
         $this->twig->enableStrictVariables();
     }
@@ -25,11 +28,11 @@ class StringTemplateRenderer
     public function render(string $templateSource, array $data): string
     {
         $name = md5($templateSource);
-        $this->twig->setLoader(new \Twig_Loader_Array([$name => $templateSource]));
+        $this->twig->setLoader(new ArrayLoader([$name => $templateSource]));
 
         try {
             return $this->twig->render($name, $data);
-        } catch (\Twig_Error $error) {
+        } catch (Error $error) {
             throw new StringTemplateRenderingException($error->getMessage());
         }
     }

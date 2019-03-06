@@ -3,13 +3,14 @@
 namespace Shopware\Core\Framework\Twig\Node;
 
 use Shopware\Core\Framework\Twig\InheritanceExtension;
+use Twig\Node\Expression\AbstractExpression;
 use Twig\Node\IncludeNode;
 
 class SwInclude extends IncludeNode
 {
     public function __construct(
-        \Twig_Node_Expression $expr,
-        ?\Twig_Node_Expression $variables = null,
+        AbstractExpression $expr,
+        ?AbstractExpression $variables = null,
         $only = false,
         $ignoreMissing = false,
         $lineno,

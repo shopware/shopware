@@ -4,11 +4,12 @@ namespace Shopware\Core\Framework\Test\Api\Controller;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\QueueTestBehaviour;
 use Shopware\Core\PlatformRequest;
 
 class ConsumeMessagesControllerTest extends TestCase
 {
-    use AdminFunctionalTestBehaviour;
+    use AdminFunctionalTestBehaviour, QueueTestBehaviour;
 
     public function testConsumeMessages()
     {

@@ -79,8 +79,5 @@ new ModalExtension();
 // Collapse Footer Columns
 new CollapseFooterColumns();
 
-// Cookie Permission
-new CookiePermission();
-
 // Logout
 new Logout();

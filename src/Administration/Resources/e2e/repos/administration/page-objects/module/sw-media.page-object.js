@@ -5,10 +5,12 @@ class MediaPageObject extends GeneralPageObject {
         super(browser);
 
         this.elements = {
-            ...this.elements, ...{
+            ...this.elements,
+            ...{
                 previewItem: '.sw-media-preview__item',
                 folderPreviewItem: '.sw-media-base-item__preview-container',
                 baseItem: '.sw-media-base-item',
+                baseItemName: '.sw-media-base-item__name',
                 gridItem: '.sw-media-grid-item__item',
                 mediaItem: '.sw-media-media-item',
                 folderItem: '.sw-media-folder-item',
@@ -60,6 +62,32 @@ class MediaPageObject extends GeneralPageObject {
             .waitForElementVisible('.sw-modal__title');
     }
 
+    moveMediaItem(name, itemType, position = 0) {
+        let contextMenuItemSelector = '.sw-media-context-item__move-media-action';
+
+        if (itemType === 'folder') {
+            contextMenuItemSelector = '.sw-media-context-item__move-folder-action';
+        }
+
+        this.browser
+            .waitForElementVisible(`${this.elements.gridItem}--${position}`)
+            .clickContextMenuItem(contextMenuItemSelector, this.elements.contextMenuButton, `${this.elements.gridItem}--${position} `)
+            .expect.element(this.elements.modalTitle).to.have.text.that.equals(`Move "${name}"`);
+        this.browser.expect.element('.sw-media-modal-move__confirm').to.not.be.enabled;
+
+        this.browser
+            .click('.sw-media-folder-content__folder-listing')
+            .click('.sw-media-modal-move__confirm');
+
+        if (itemType === 'folder') {
+            this.browser
+                .checkNotification('Media items successfully moved', '.sw-notifications__notification--1')
+                .checkNotification('Folder "First folder" has been moved successfully.');
+        } else {
+            this.browser.checkNotification('Media items successfully moved');
+        }
+    }
+
     createFolder(name, position = 0) {
         this.browser
             .click('.sw-media-index__create-folder-action')
@@ -68,7 +96,7 @@ class MediaPageObject extends GeneralPageObject {
             .setValue(this.elements.folderNameInput, this.browser.Keys.ENTER)
             .waitForElementNotPresent('.sw-media-base-item__loader');
 
-        this.browser.expect.element(`${this.elements.gridItem}--${position} .sw-media-base-item__name`).to.have.text.that.equals(name);
+        this.browser.expect.element(`${this.elements.gridItem}--${position} ${this.elements.baseItemName}`).to.have.text.that.equals(name);
     }
 
     setThumbnailSize(width, height) {

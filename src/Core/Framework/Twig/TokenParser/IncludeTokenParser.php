@@ -4,8 +4,11 @@ namespace Shopware\Core\Framework\Twig\TokenParser;
 
 use Shopware\Core\Framework\Twig\Node\SwInclude;
 use Shopware\Core\Framework\Twig\TemplateFinder;
+use Twig\Node\IncludeNode;
+use Twig\Token;
+use Twig\TokenParser\AbstractTokenParser;
 
-final class IncludeTokenParser extends \Twig_TokenParser
+final class IncludeTokenParser extends AbstractTokenParser
 {
     /**
      * @var TemplateFinder
@@ -17,7 +20,7 @@ final class IncludeTokenParser extends \Twig_TokenParser
         $this->finder = $finder;
     }
 
-    public function parse(\Twig_Token $token)
+    public function parse(Token $token)
     {
         $expr = $this->parser->getExpressionParser()->parseExpression();
 
@@ -26,7 +29,7 @@ final class IncludeTokenParser extends \Twig_TokenParser
         //resolves parent template
         if ($expr->hasAttribute('value')) {
             $parent = $this->finder->find(
-            //set pointer to next value (contains the template file name)
+                //set pointer to next value (contains the template file name)
                 $this->finder->getTemplateName($expr->getAttribute('value')),
                 true,
                 $ignoreMissing
@@ -37,7 +40,7 @@ final class IncludeTokenParser extends \Twig_TokenParser
             return new SwInclude($expr, $variables, $only, $ignoreMissing, $token->getLine(), $this->getTag());
         }
 
-        return new \Twig_Node_Include($expr, $variables, $only, $ignoreMissing, $token->getLine(), $this->getTag());
+        return new IncludeNode($expr, $variables, $only, $ignoreMissing, $token->getLine(), $this->getTag());
     }
 
     public function getTag(): string
@@ -45,28 +48,28 @@ final class IncludeTokenParser extends \Twig_TokenParser
         return 'sw_include';
     }
 
-    protected function parseArguments(): array
+    private function parseArguments(): array
     {
         $stream = $this->parser->getStream();
 
         $ignoreMissing = false;
-        if ($stream->nextIf(\Twig_Token::NAME_TYPE, 'ignore')) {
-            $stream->expect(\Twig_Token::NAME_TYPE, 'missing');
+        if ($stream->nextIf(Token::NAME_TYPE, 'ignore')) {
+            $stream->expect(Token::NAME_TYPE, 'missing');
 
             $ignoreMissing = true;
         }
 
         $variables = null;
-        if ($stream->nextIf(\Twig_Token::NAME_TYPE, 'with')) {
+        if ($stream->nextIf(Token::NAME_TYPE, 'with')) {
             $variables = $this->parser->getExpressionParser()->parseExpression();
         }
 
         $only = false;
-        if ($stream->nextIf(\Twig_Token::NAME_TYPE, 'only')) {
+        if ($stream->nextIf(Token::NAME_TYPE, 'only')) {
             $only = true;
         }
 
-        $stream->expect(\Twig_Token::BLOCK_END_TYPE);
+        $stream->expect(Token::BLOCK_END_TYPE);
 
         return [$variables, $only, $ignoreMissing];
     }

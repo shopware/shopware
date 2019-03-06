@@ -7,22 +7,18 @@ use Shopware\Core\Framework\Test\TestCaseBase\StorefrontFunctionalTestBehaviour;
 use Shopware\Core\Framework\Twig\InheritanceExtension;
 use Shopware\Core\Framework\Twig\TemplateFinder;
 use Shopware\Storefront\Test\fixtures\BundleFixture;
+use Twig\Environment;
+use Twig\Loader\FilesystemLoader;
 
 class TwigIncludeTest extends TestCase
 {
     use StorefrontFunctionalTestBehaviour;
 
-    /**
-     * @throws \Throwable
-     * @throws \Twig_Error_Loader
-     * @throws \Twig_Error_Runtime
-     * @throws \Twig_Error_Syntax
-     */
     public function testMultipleInheritance(): void
     {
-        $loader = new \Twig_Loader_Filesystem(__DIR__ . '/fixtures/Storefront/Resources/views');
+        $loader = new FilesystemLoader(__DIR__ . '/fixtures/Storefront/Resources/views');
         $loader->addPath(__DIR__ . '/fixtures/Storefront/Resources/views', 'Storefront');
-        $twig = new \Twig_Environment($loader, [
+        $twig = new Environment($loader, [
             'cache' => false,
         ]);
         $templateFinder = new TemplateFinder($loader);
@@ -36,17 +32,11 @@ class TwigIncludeTest extends TestCase
         static::assertSame('innerblockplugin2innerblockplugin1innerblock', $template->render([]));
     }
 
-    /**
-     * @throws \Throwable
-     * @throws \Twig_Error_Loader
-     * @throws \Twig_Error_Runtime
-     * @throws \Twig_Error_Syntax
-     */
     public function testIncludeWithVars(): void
     {
-        $loader = new \Twig_Loader_Filesystem(__DIR__ . '/fixtures/Storefront/Resources/views');
+        $loader = new FilesystemLoader(__DIR__ . '/fixtures/Storefront/Resources/views');
         $loader->addPath(__DIR__ . '/fixtures/Storefront/Resources/views', 'Storefront');
-        $twig = new \Twig_Environment($loader, [
+        $twig = new Environment($loader, [
             'cache' => false,
         ]);
         $templateFinder = new TemplateFinder($loader);
@@ -60,17 +50,11 @@ class TwigIncludeTest extends TestCase
         static::assertSame('innerblockvaluefromindex', $template->render([]));
     }
 
-    /**
-     * @throws \Throwable
-     * @throws \Twig_Error_Loader
-     * @throws \Twig_Error_Runtime
-     * @throws \Twig_Error_Syntax
-     */
     public function testIncludeWithVarsOnly(): void
     {
-        $loader = new \Twig_Loader_Filesystem(__DIR__ . '/fixtures/Storefront/Resources/views');
+        $loader = new FilesystemLoader(__DIR__ . '/fixtures/Storefront/Resources/views');
         $loader->addPath(__DIR__ . '/fixtures/Storefront/Resources/views', 'Storefront');
-        $twig = new \Twig_Environment($loader, [
+        $twig = new Environment($loader, [
             'cache' => false,
         ]);
         $templateFinder = new TemplateFinder($loader);
@@ -84,17 +68,11 @@ class TwigIncludeTest extends TestCase
         static::assertSame('innerblockvaluefromindexnotvisibleinnerblockvaluefromindex', $template->render([]));
     }
 
-    /**
-     * @throws \Throwable
-     * @throws \Twig_Error_Loader
-     * @throws \Twig_Error_Runtime
-     * @throws \Twig_Error_Syntax
-     */
     public function testIncludeTemplatenameExpression(): void
     {
-        $loader = new \Twig_Loader_Filesystem(__DIR__ . '/fixtures/Storefront/Resources/views');
+        $loader = new FilesystemLoader(__DIR__ . '/fixtures/Storefront/Resources/views');
         $loader->addPath(__DIR__ . '/fixtures/Storefront/Resources/views', 'Storefront');
-        $twig = new \Twig_Environment($loader, [
+        $twig = new Environment($loader, [
             'cache' => false,
         ]);
         $templateFinder = new TemplateFinder($loader);
@@ -108,17 +86,11 @@ class TwigIncludeTest extends TestCase
         static::assertSame('innerblockplugin2innerblockplugin1innerblock', $template->render([]));
     }
 
-    /**
-     * @throws \Throwable
-     * @throws \Twig_Error_Loader
-     * @throws \Twig_Error_Runtime
-     * @throws \Twig_Error_Syntax
-     */
     public function testIncludeIgnoreMissing(): void
     {
-        $loader = new \Twig_Loader_Filesystem(__DIR__ . '/fixtures/Storefront/Resources/views');
+        $loader = new FilesystemLoader(__DIR__ . '/fixtures/Storefront/Resources/views');
         $loader->addPath(__DIR__ . '/fixtures/Storefront/Resources/views', 'Storefront');
-        $twig = new \Twig_Environment($loader, [
+        $twig = new Environment($loader, [
             'cache' => false,
         ]);
         $templateFinder = new TemplateFinder($loader);

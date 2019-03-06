@@ -9,6 +9,9 @@ use function Shopware\Core\Framework\Test\FeatureFlag\_fixture\ifNextFix101;
 use function Shopware\Core\Framework\Test\FeatureFlag\_fixture\ifNextFix101Call;
 use function Shopware\Core\Framework\Test\FeatureFlag\_fixture\nextFix102;
 use Shopware\Core\Framework\Twig\FeatureFlagExtension;
+use Twig\Environment;
+use Twig\Error\RuntimeError;
+use Twig\Loader\FilesystemLoader;
 
 class FeatureTest extends TestCase
 {
@@ -114,8 +117,8 @@ class FeatureTest extends TestCase
     {
         FeatureConfig::registerFlag('nextFix101', __METHOD__);
 
-        $loader = new \Twig_Loader_Filesystem(__DIR__ . '/_fixture/');
-        $twig = new \Twig_Environment($loader, [
+        $loader = new FilesystemLoader(__DIR__ . '/_fixture/');
+        $twig = new Environment($loader, [
             'cache' => false,
         ]);
         $twig->addExtension(new FeatureFlagExtension());
@@ -128,14 +131,14 @@ class FeatureTest extends TestCase
 
     public function testTwigFeatureFlagNotRegistered(): void
     {
-        $loader = new \Twig_Loader_Filesystem(__DIR__ . '/_fixture/');
-        $twig = new \Twig_Environment($loader, [
+        $loader = new FilesystemLoader(__DIR__ . '/_fixture/');
+        $twig = new Environment($loader, [
             'cache' => false,
         ]);
         $twig->addExtension(new FeatureFlagExtension());
         $template = $twig->loadTemplate('featuretest_unregistered.html.twig');
 
-        $this->expectException(\Twig_Error_Runtime::class);
+        $this->expectException(RuntimeError::class);
         $this->expectExceptionMessageRegExp('/.*randomFlagThatIsNotRegisterde471112.*/');
         $template->render([]);
     }

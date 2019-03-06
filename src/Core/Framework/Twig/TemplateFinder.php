@@ -3,6 +3,8 @@
 namespace Shopware\Core\Framework\Twig;
 
 use Symfony\Component\HttpKernel\Bundle\BundleInterface;
+use Twig\Error\LoaderError;
+use Twig\Loader\FilesystemLoader;
 
 class TemplateFinder
 {
@@ -12,7 +14,7 @@ class TemplateFinder
     private $directories;
 
     /**
-     * @var \Twig_Loader_Filesystem
+     * @var FilesystemLoader
      */
     private $loader;
 
@@ -21,7 +23,7 @@ class TemplateFinder
      */
     private $queue = [];
 
-    public function __construct(\Twig_Loader_Filesystem $loader)
+    public function __construct(FilesystemLoader $loader)
     {
         $this->loader = $loader;
 
@@ -74,7 +76,7 @@ class TemplateFinder
     }
 
     /**
-     * @throws \Twig_Error_Loader
+     * @throws LoaderError
      */
     public function find(string $template, $wholeInheritance = false, $ignoreMissing = false): string
     {
@@ -100,6 +102,6 @@ class TemplateFinder
         if ($ignoreMissing === true) {
             return $template;
         }
-        throw new \Twig_Error_Loader(sprintf('Unable to load template "%s". (Looked into: %s)', $template, implode(', ', array_values($queue))));
+        throw new LoaderError(sprintf('Unable to load template "%s". (Looked into: %s)', $template, implode(', ', array_values($queue))));
     }
 }

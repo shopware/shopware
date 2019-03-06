@@ -2,12 +2,15 @@
 
 namespace Shopware\Core\Framework\Twig;
 
-class InstanceOfExtension extends \Twig_Extension
+use Twig\Extension\AbstractExtension;
+use Twig\TwigTest;
+
+class InstanceOfExtension extends AbstractExtension
 {
     public function getTests(): array
     {
         return [
-            'instanceof' => new \Twig_SimpleTest('instanceof', [
+            'instanceof' => new TwigTest('instanceof', [
                 $this, 'isInstanceOf',
             ]),
         ];

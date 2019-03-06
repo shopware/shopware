@@ -4,8 +4,9 @@ namespace Shopware\Core\Framework\Twig;
 
 use Shopware\Core\Framework\Twig\TokenParser\ExtendsTokenParser;
 use Shopware\Core\Framework\Twig\TokenParser\IncludeTokenParser;
+use Twig\Extension\AbstractExtension;
 
-class InheritanceExtension extends \Twig_Extension
+class InheritanceExtension extends AbstractExtension
 {
     /**
      * @var TemplateFinder

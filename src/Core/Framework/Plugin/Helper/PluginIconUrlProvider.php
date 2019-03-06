@@ -15,10 +15,6 @@ class PluginIconUrlProvider
      */
     private $baseUrl;
 
-    /**
-     * @param AssetService $assetService
-     * @param string       $baseUrl
-     */
     public function __construct(AssetService $assetService, string $baseUrl)
     {
         $this->assetService = $assetService;

@@ -85,7 +85,7 @@
                                             <sw-context-button>
 
                                                 {% block sw_plugin_license_list_grid_columns_actions_view %}
-                                                    <sw-context-menu-item @click="onDownload(item.id)">
+                                                    <sw-context-menu-item v-if="!item.installed" @click="onDownload(item.technicalPluginName)">
                                                         Download
                                                     </sw-context-menu-item>
                                                 {% endblock %}

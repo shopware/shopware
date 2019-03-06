@@ -4,7 +4,9 @@ namespace Shopware\Core\Framework\Store\Services;
 
 use GuzzleHttp\Client;
 use Psr\Http\Message\ResponseInterface;
-use Shopware\Core\Framework\Framework;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Plugin\PluginCollection;
 use Shopware\Core\Framework\Plugin\PluginEntity;
 use Shopware\Core\Framework\Store\Struct\AccessTokenStruct;
@@ -26,14 +28,20 @@ final class StoreClient
     private $openSSLVerifier;
 
     /**
+     * @var EntityRepositoryInterface
+     */
+    private $pluginRepo;
+
+    /**
      * @var ?string
      */
     private $host;
 
-    public function __construct(Client $client, OpenSSLVerifier $openSSLVerifier, ?string $host)
+    public function __construct(Client $client, OpenSSLVerifier $openSSLVerifier, EntityRepositoryInterface $pluginRepo, ?string $host)
     {
         $this->client = $client;
         $this->openSSLVerifier = $openSSLVerifier;
+        $this->pluginRepo = $pluginRepo;
         $this->host = $host;
     }
 
@@ -84,10 +92,10 @@ final class StoreClient
      *
      * @return array|StoreLicenseStruct[]
      */
-    public function getLicenseList(string $token): array
+    public function getLicenseList(string $token, Context $context): array
     {
         $response = $this->client->get(
-            '/licenses',
+            '/swplatform/pluginlicenses',
             [
                 'query' => $this->getDefaultQueryParameters(),
                 'headers' => [
@@ -102,24 +110,37 @@ final class StoreClient
         $data = json_decode($response->getBody()->getContents(), true);
 
         $licenseList = [];
-        foreach ($data as $license) {
+        $installedPlugins = [];
+        /** @var PluginCollection $pluginCollection */
+        $pluginCollection = $this->pluginRepo->search(new Criteria(), $context)->getEntities();
+
+        /** @var PluginEntity $plugin */
+        foreach ($pluginCollection as $plugin) {
+            $installedPlugins[] = $plugin->getName();
+        }
+
+        foreach ($data['data'] as $license) {
             $licenseStruct = new StoreLicenseStruct();
             $licenseStruct->setId($license['id']);
-            $licenseStruct->setName($license['description']);
-            $licenseStruct->setTechnicalPluginName($license['name']);
+            $licenseStruct->setName($license['name']);
+            $licenseStruct->setTechnicalPluginName($license['technicalPluginName']);
             $licenseStruct->setCreationDate(new \DateTime($license['creationDate']));
             if (isset($license['expirationDate'])) {
                 $licenseStruct->setExpirationDate(new \DateTime($license['expirationDate']));
             }
-            $licenseStruct->setAvailableVersion('');
-            if (isset($license['priceModel']['type'])) {
-                $type = new StoreLicenseTypeStruct($license['priceModel']['type']);
+            if (isset($license['availableVersion'])) {
+                $licenseStruct->setAvailableVersion($license['availableVersion']);
+            }
+            if (isset($license['type']['name'])) {
+                $type = new StoreLicenseTypeStruct($license['type']['name']);
                 $licenseStruct->setType($type);
             }
             if (isset($license['subscription']['expirationDate'])) {
                 $subscription = new StoreLicenseSubscriptionStruct(new \DateTime($license['subscription']['expirationDate']));
                 $licenseStruct->setSubscription($subscription);
             }
+            $licenseStruct->setInstalled(in_array($licenseStruct->getTechnicalPluginName(), $installedPlugins, true));
+
             $licenseList[] = $licenseStruct;
         }
 
@@ -132,22 +153,20 @@ final class StoreClient
         /** @var PluginEntity $plugin */
         foreach ($pluginCollection as $plugin) {
             $pluginArray[] = [
-                'pluginName' => $plugin->getName(),
+                'name' => $plugin->getName(),
                 'version' => $plugin->getVersion(),
             ];
         }
 
+        if (empty($pluginArray)) {
+            return [];
+        }
+
         $response = $this->client->post(
-            '/pluginStore/updates', // old route
+            '/swplatform/pluginupdates',
             [
-                'query' => [
-                    'shopwareVersion' => '5.5.1',
-                    'domain' => $this->host,
-                    'plugins' => [$pluginArray[0]['pluginName'] => $pluginArray[0]['version']],
-                ],
+                'query' => $this->getDefaultQueryParameters(),
                 'body' => \json_encode([
-                    'shopwareVersion' => '5.5.1',
-                    'domain' => $this->host,
                     'plugins' => $pluginArray,
                 ]),
                 'headers' => [
@@ -161,17 +180,37 @@ final class StoreClient
         $data = json_decode($response->getBody()->getContents(), true);
 
         $updateList = [];
-        foreach ($data as $update) {
-            $updateList[] = new StoreUpdatesStruct($update['code'], $update['highestVersion'], $update['id'], $update['name']);
+        foreach ($data['data'] as $update) {
+            $updateList[] = new StoreUpdatesStruct($update['name'], $update['version'], $update['changelog'], new \DateTime($update['releaseDate']));
         }
 
         return $updateList;
     }
 
+    public function getDownloadDataForPlugin(string $pluginName, string $token): array
+    {
+        $response = $this->client->get(
+            '/swplatform/pluginfiles/' . $pluginName,
+            [
+                'query' => $this->getDefaultQueryParameters(),
+                'headers' => [
+                    'X-Shopware-Token' => $token,
+                    'Content-type' => 'application/json',
+                    'ACCEPT' => ['application/vnd.api+json,application/json'],
+                ],
+            ]
+        );
+        $this->verifyResponseSignature($response);
+
+        $data = json_decode($response->getBody()->getContents(), true);
+
+        return $data;
+    }
+
     private function getDefaultQueryParameters(): array
     {
         return [
-            'shopwareVersion' => Framework::VERSION,
+            'shopwareVersion' => '6.0.0',
             'language' => 'de_DE',
             'domain' => $this->host,
         ];

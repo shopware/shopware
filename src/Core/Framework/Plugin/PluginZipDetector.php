@@ -27,8 +27,6 @@ namespace Shopware\Core\Framework\Plugin;
 class PluginZipDetector
 {
     /**
-     * @param \ZipArchive $archive
-     *
      * @return bool
      */
     public function isPlugin(\ZipArchive $archive)

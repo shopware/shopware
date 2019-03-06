@@ -198,6 +198,7 @@
         <service id="Shopware\Core\Framework\Store\Api\StoreController" public="true">
             <argument type="service" id="Shopware\Core\Framework\Store\Services\StoreClient" />
             <argument type="service" id="plugin.repository"/>
+            <argument type="service" id="Shopware\Core\Framework\Plugin\PluginInstallerService" />
         </service>
 
         <service class="GuzzleHttp\Client" id="shopware.store.api_client">
@@ -209,6 +210,7 @@
         <service id="Shopware\Core\Framework\Store\Services\StoreClient">
             <argument type="service" id="shopware.store.api_client" />
             <argument type="service" id="Shopware\Core\Framework\Store\Services\OpenSSLVerifier" />
+            <argument type="service" id="plugin.repository"/>
             <argument key="$host" type="string">%shopware.store.host%</argument>
         </service>
 

@@ -8,7 +8,8 @@ Component.register('sw-plugin-license-list', {
     inject: ['storeService'],
 
     mixins: [
-        Mixin.getByName('listing')
+        Mixin.getByName('listing'),
+        Mixin.getByName('notification')
     ],
 
     data() {
@@ -27,7 +28,14 @@ Component.register('sw-plugin-license-list', {
 
     methods: {
 
-        onDownload() {
+        onDownload(pluginName) {
+            this.storeService.downloadPlugin(pluginName).then(() => {
+                this.createNotificationSuccess({
+                    title: this.$tc('sw-plugin.general.titleDownloadSuccess'),
+                    message: this.$tc('sw-plugin.general.messageDownloadSuccess')
+                });
+                this.getList();
+            });
         },
 
         getList() {

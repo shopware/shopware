@@ -50,6 +50,19 @@ class StoreApiService extends ApiService {
                 return ApiService.handleResponse(response);
             });
     }
+
+    downloadPlugin(pluginName) {
+        const headers = this.getBasicHeaders();
+        const params = {
+            pluginName: pluginName
+        };
+
+        return this.httpClient
+            .get(`/_custom/${this.getApiBasePath()}/download`, { params, headers })
+            .then((response) => {
+                return ApiService.handleResponse(response);
+            });
+    }
 }
 
 export default StoreApiService;

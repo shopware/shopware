@@ -6,6 +6,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Plugin\PluginCollection;
+use Shopware\Core\Framework\Plugin\PluginInstallerService;
 use Shopware\Core\Framework\Store\Services\StoreClient;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Cookie;
@@ -26,10 +27,16 @@ class StoreController extends AbstractController
      */
     private $pluginRepo;
 
-    public function __construct(StoreClient $storeClient, EntityRepositoryInterface $pluginRepo)
+    /**
+     * @var PluginInstallerService
+     */
+    private $pluginInstallerService;
+
+    public function __construct(StoreClient $storeClient, EntityRepositoryInterface $pluginRepo, PluginInstallerService $pluginInstallerService)
     {
         $this->storeClient = $storeClient;
         $this->pluginRepo = $pluginRepo;
+        $this->pluginInstallerService = $pluginInstallerService;
     }
 
     /**
@@ -66,11 +73,11 @@ class StoreController extends AbstractController
     /**
      * @Route("/api/v{version}/_custom/store/licenses", name="api.custom.store.licenses", methods={"GET"})
      */
-    public function getLicenseList(Request $request): Response
+    public function getLicenseList(Request $request, Context $context): Response
     {
         $token = $request->cookies->get('store_token', '');
 
-        $licenseList = $this->storeClient->getLicenseList($token);
+        $licenseList = $this->storeClient->getLicenseList($token, $context);
 
         return new JsonResponse([
             'items' => $licenseList,
@@ -95,5 +102,19 @@ class StoreController extends AbstractController
             'items' => $updatesList,
             'total' => count($updatesList),
         ]);
+    }
+
+    /**
+     * @Route("/api/v{version}/_custom/store/download", name="api.custom.store.download", methods={"GET"})
+     */
+    public function downloadPlugin(Request $request, Context $context): Response
+    {
+        $token = $request->cookies->get('store_token', '');
+
+        $data = $this->storeClient->getDownloadDataForPlugin($request->query->get('pluginName'), $token);
+
+        $success = $this->pluginInstallerService->downloadStorePlugin($data, $context);
+
+        return new JsonResponse(['success' => $success]);
     }
 }

@@ -47,16 +47,16 @@ class StoreLicenseStruct extends Struct
     private $availableVersion;
 
     /**
-     * @return int
+     * @var bool
      */
+    private $installed;
+
     public function getId(): int
     {
         return $this->id;
     }
 
     /**
-     * @param int $id
-     *
      * @return $this
      */
     public function setId(int $id): self
@@ -66,17 +66,12 @@ class StoreLicenseStruct extends Struct
         return $this;
     }
 
-    /**
-     * @return string
-     */
     public function getName(): string
     {
         return $this->name;
     }
 
     /**
-     * @param string $name
-     *
      * @return $this
      */
     public function setName(string $name): self
@@ -86,17 +81,12 @@ class StoreLicenseStruct extends Struct
         return $this;
     }
 
-    /**
-     * @return string
-     */
     public function getTechnicalPluginName(): string
     {
         return $this->technicalPluginName;
     }
 
     /**
-     * @param string $technicalPluginName
-     *
      * @return $this
      */
     public function setTechnicalPluginName(string $technicalPluginName): self
@@ -106,17 +96,12 @@ class StoreLicenseStruct extends Struct
         return $this;
     }
 
-    /**
-     * @return \DateTime
-     */
     public function getCreationDate(): \DateTime
     {
         return $this->creationDate;
     }
 
     /**
-     * @param \DateTime $creationDate
-     *
      * @return $this
      */
     public function setCreationDate(\DateTime $creationDate): self
@@ -135,8 +120,6 @@ class StoreLicenseStruct extends Struct
     }
 
     /**
-     * @param \DateTime $expirationDate
-     *
      * @return $this
      */
     public function setExpirationDate(\DateTime $expirationDate): self
@@ -146,37 +129,27 @@ class StoreLicenseStruct extends Struct
         return $this;
     }
 
-    /**
-     * @return StoreLicenseSubscriptionStruct|null
-     */
     public function getSubscription(): ?StoreLicenseSubscriptionStruct
     {
         return $this->subscription;
     }
 
     /**
-     * @param StoreLicenseSubscriptionStruct|null $subscription
-     *
      * @return $this
      */
-    public function setSubscription(StoreLicenseSubscriptionStruct $subscription = null): self
+    public function setSubscription(?StoreLicenseSubscriptionStruct $subscription = null): self
     {
         $this->subscription = $subscription;
 
         return $this;
     }
 
-    /**
-     * @return StoreLicenseTypeStruct
-     */
     public function getType(): StoreLicenseTypeStruct
     {
         return $this->type;
     }
 
     /**
-     * @param StoreLicenseTypeStruct $type
-     *
      * @return $this
      */
     public function setType(StoreLicenseTypeStruct $type): self
@@ -186,17 +159,12 @@ class StoreLicenseStruct extends Struct
         return $this;
     }
 
-    /**
-     * @return string
-     */
     public function getAvailableVersion(): string
     {
         return $this->availableVersion;
     }
 
     /**
-     * @param string $availableVersion
-     *
      * @return $this
      */
     public function setAvailableVersion(string $availableVersion): self
@@ -204,6 +172,16 @@ class StoreLicenseStruct extends Struct
         $this->availableVersion = $availableVersion;
 
         return $this;
+    }
+
+    public function getInstalled(): bool
+    {
+        return $this->installed;
+    }
+
+    public function setInstalled(bool $installed): void
+    {
+        $this->installed = $installed;
     }
 
     public function jsonSerialize(): array
@@ -216,6 +194,7 @@ class StoreLicenseStruct extends Struct
             'technicalPluginName' => $this->getTechnicalPluginName(),
             'type' => $this->getType()->toArray(),
             'subscription' => $this->getSubscription() !== null ? $this->getSubscription()->toArray() : null,
+            'installed' => $this->getInstalled(),
         ];
     }
 }

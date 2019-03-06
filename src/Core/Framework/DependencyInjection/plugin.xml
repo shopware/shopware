@@ -50,6 +50,11 @@
             <argument>%kernel.plugin_dir%</argument>
             <argument type="service" id="Shopware\Core\Framework\Plugin\PluginZipDetector"/>
             <argument type="service" id="Shopware\Core\Framework\Plugin\PluginExtractor"/>
+            <argument type="service" id="Shopware\Core\Framework\Plugin\PluginService"/>
+            <argument type="service" id="shopware.store.download_client"/>
+        </service>
+
+        <service class="GuzzleHttp\Client" id="shopware.store.download_client">
         </service>
 
         <service id="Shopware\Core\Framework\Plugin\PluginExtractor">

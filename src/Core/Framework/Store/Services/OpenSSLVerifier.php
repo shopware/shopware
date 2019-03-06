@@ -32,7 +32,7 @@ class OpenSSLVerifier
     {
         $pubkeyid = $this->getKeyResource();
 
-        $signature = base64_decode($signature);
+        $signature = base64_decode($signature, true);
 
         // State whether signature is okay or not
         $ok = openssl_verify($message, $signature, $pubkeyid);

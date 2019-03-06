@@ -25,11 +25,13 @@ module.exports = {
 
         browser
             .click('.icon--folder-breadcrumbs-back-to-root')
-            .clickContextMenuItem('.sw-media-context-item__rename-folder-action', page.elements.contextMenuButton)
+            .waitForElementNotPresent(page.elements.loader)
+            .moveToElement(`${page.elements.gridItem}--0`, 2, 2)
+            .clickContextMenuItem('.sw-media-context-item__rename-folder-action', page.elements.contextMenuButton, `${page.elements.gridItem}--0`)
             .waitForElementVisible(`${page.elements.folderNameInput}`)
             .setValue(page.elements.folderNameInput, [browser.Keys.CONTROL, 'a'])
             .setValue(page.elements.folderNameInput, browser.Keys.DELETE)
-            .fillField(page.elements.folderNameInput, 'Edith gets a new name',)
+            .fillField(page.elements.folderNameInput, 'Edith gets a new name', true)
             .setValue(page.elements.folderNameInput, browser.Keys.ENTER)
             .waitForElementNotPresent('.sw-media-base-item__loader');
     },

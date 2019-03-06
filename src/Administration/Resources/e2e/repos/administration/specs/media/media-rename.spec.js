@@ -20,7 +20,7 @@ module.exports = {
             .click('.sw-media-quickinfo-metadata-name .sw-confirm-field__button--submit')
             .waitForElementPresent(`${page.elements.gridItem}--0 .sw-media-base-item__loader`)
             .waitForElementNotPresent(`${page.elements.gridItem}--0 .sw-media-base-item__loader`)
-            .expect.element(`${page.elements.gridItem}--0 .sw-media-base-item__name`).to.have.text.that.contains('new file name');
+            .expect.element(`${page.elements.gridItem}--0 ${page.elements.baseItemName}`).to.have.text.that.contains('new file name');
     },
     after: (browser) => {
         browser.end();

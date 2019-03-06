@@ -38,12 +38,12 @@ module.exports = {
             .waitForElementNotPresent('.sw-field__select-load-placeholder');
 
         if (global.flags.isActive('next1207')) {
-            browser.expect.element(`${page.elements.gridItem}--0 .sw-media-base-item__name`).to.have.text.that.equals(global.MediaFixtureService.mediaFolderFixture.name);
-            browser.expect.element(`${page.elements.gridItem}--1 .sw-media-base-item__name`).to.have.text.that.equals('sw-login-background.png');
+            browser.expect.element(`${page.elements.gridItem}--0 ${page.elements.baseItemName}`).to.have.text.that.equals(global.MediaFixtureService.mediaFolderFixture.name);
+            browser.expect.element(`${page.elements.gridItem}--1 ${page.elements.baseItemName}`).to.have.text.that.equals('sw-login-background.png');
 
             page.createFolder('German crowd');
         } else {
-            browser.expect.element(`${page.elements.gridItem}--0 .sw-media-base-item__name`).to.have.text.that.equals('sw-login-background.png');
+            browser.expect.element(`${page.elements.gridItem}--0 ${page.elements.baseItemName}`).to.have.text.that.equals('sw-login-background.png');
         }
     },
     after: (browser) => {

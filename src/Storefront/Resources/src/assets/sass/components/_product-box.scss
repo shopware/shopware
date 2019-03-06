@@ -1,0 +1,19 @@
+.product-box {
+    height: 100%;
+}
+
+.product--image {
+    margin-bottom: 1rem;
+
+    a {
+        display: block;
+    }
+}
+
+.product--name {
+    margin-bottom: 1rem;
+}
+
+.product--price {
+    font-weight: $font-weight-bold;
+}

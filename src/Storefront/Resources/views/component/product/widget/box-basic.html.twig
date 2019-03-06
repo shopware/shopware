@@ -1,11 +1,46 @@
 {% block component_product_box %}
-    {% block component_product_box_content %}
-        {% block component_product_box_image %}{% endblock %}
+    <div class="card product-box box--{{ layout }}">
+        {% block component_product_box_content %}
+            <div class="card-body">
+                {% block component_product_box_image %}
+                    <div class="product--image">
+                        <a href="{{ path('frontend.detail.page', {'productId': product.id}) }}"
+                           title="{{ product.name }}">
+                                <img class="img-fluid"
+                                     src="{{ asset(product.cover.media.url) }}"
+                                     alt="{{ product.cover.media.alt }}">
+                        </a>
+                    </div>
+                {% endblock %}
 
-        {% block component_product_box_name %}{% endblock %}
+                {% block component_product_box_info %}
+                    <div class="product--info">
+                        {% block component_product_box_name %}
+                            <div class="product--name">
+                                <a href="{{ path('frontend.detail.page', {'productId': product.id}) }}"
+                                   class="product--name"
+                                   title="{{ product.name }}">
+                                    {{ product.name }}
+                                </a>
+                            </div>
+                        {% endblock %}
 
-        {% block component_product_box_price %}{% endblock %}
+                        {% block component_product_box_price %}
+                            <div class="product--price-info">
+                                <p class="product--price">
+                                    {{ product.price.gross|localizedcurrency('EUR', app.request.locale) }}
+                                </p>
+                            </div>
+                        {% endblock %}
 
-        {% block component_product_box_description %}{% endblock %}
-    {% endblock %}
+                        {% block component_product_box_description %}
+                            <div class="product--description">
+                                {{ product.description }}
+                            </div>
+                        {% endblock %}
+                    </div>
+                {% endblock %}
+            </div>
+        {% endblock %}
+    </div>
 {% endblock %}

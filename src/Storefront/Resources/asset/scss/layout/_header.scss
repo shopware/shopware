@@ -1,12 +1,86 @@
 .header-row {
-    padding: $spacer 0;
+    padding-top: $spacer;
 }
 
 .logo-main-link {
     display: block;
 }
 
-.cart-widget {
-    @extend .btn;
-    @extend .btn-light;
+.header-logo-col,
+.header-search-col {
+    margin-bottom: $spacer;
+}
+
+.header-actions-col {
+    display: inline-flex;
+    justify-content: flex-end;
+}
+
+.account-widget {
+    margin-right: $spacer-xs;
+}
+
+.account-widget-dropdown {
+    padding-bottom: 0;
+    font-size: $font-size-sm;
+
+    &.show {
+        display: none;
+    }
+}
+
+.account-widget-title,
+.account-widget-btn::after,
+.cart-widget-total {
+    display: none;
+}
+
+.login-submit-widget {
+    padding: $spacer;
+}
+
+.cart-widget-display {
+    position: relative;
+    display: inline-block;
+}
+
+.cart-widget .cart-widget-badge {
+    position: absolute;
+    top: -10px;
+    left: 5px;
+}
+
+.account-widget .account-widget-btn,
+.cart-widget .cart-widget-btn {
+    position: relative;
+}
+
+@include media-breakpoint-up(md) {
+    .header-row {
+        padding-bottom: $spacer;
+    }
+
+    .header-logo-col,
+    .header-search-col {
+        margin-bottom: 0;
+    }
+
+    .header-search {
+        max-width: 350px;
+        margin: auto;
+    }
+
+    .account-widget-dropdown.show {
+        display: block;
+    }
+
+    .account-widget-title,
+    .account-widget-btn::after,
+    .cart-widget-total {
+        display: inline-block;
+    }
+
+    .cart-widget-total {
+        margin-left: $spacer-sm;
+    }
 }

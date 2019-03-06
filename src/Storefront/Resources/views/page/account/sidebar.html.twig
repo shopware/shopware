@@ -1,10 +1,12 @@
 {% block page_account_sidebar_inner %}
-	<aside class="account-sidebar">
-		<div class="card">
+    <aside {% if not headerWidget %}class="account-sidebar"{% endif %}>
+        <div {% if not headerWidget %}class="card"{% endif %}>
 			{% block page_account_sidebar_header %}
-				<div class="card-header account-sidebar-header">
-					{{ "account.greetings"|trans }}{{ page.customer.firstName }}
-				</div>
+				{% if not headerWidget %}
+					<div class="card-header account-sidebar-header">
+						{{ "account.greetings"|trans }}{{ page.customer.firstName }}
+					</div>
+				{% endif %}
 			{% endblock %}
 
 			{% block page_account_sidebar_menu %}
@@ -54,19 +56,21 @@
 			{% endblock %}
 
 			{% block page_account_sidebar_footer %}
-				<div class="card-footer account-sidebar-footer">
-					{% block page_account_sidebar_logout %}
-						<form action="{{ path('storefront-api.customer.logout', {'version': 1}) }}"
-						      data-logout="true"
-						      data-redirect="{{ path('frontend.home.page') }}"
-						      method="post">
-							<button class="btn btn-link" type="submit">
-								<i class="fas fa-sign-out-alt"></i>
-								{{ "account.logout"|trans }}
-							</button>
-						</form>
-					{% endblock %}
-				</div>
+                {% if context.customer %}
+					<div class="card-footer account-sidebar-footer">
+						{% block page_account_sidebar_logout %}
+							<form action="{{ path('storefront-api.customer.logout', {'version': 1}) }}"
+								  data-logout="true"
+								  data-redirect="{{ path('frontend.home.page') }}"
+								  method="post">
+								<button class="btn btn-link" type="submit">
+									<i class="fas fa-sign-out-alt"></i>
+									{{ "account.logout"|trans }}
+								</button>
+							</form>
+						{% endblock %}
+					</div>
+				{% endif %}
 			{% endblock %}
 		</div>
 	</aside>

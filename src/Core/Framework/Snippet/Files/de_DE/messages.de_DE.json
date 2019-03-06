@@ -33,6 +33,7 @@
         "robots": "index,follow"
     },
     "account": {
+        "myAccount": "Mein Konto",
         "registerTitle": "Registrierung",
         "loginHeader": "Ich bin bereits Kunde",
         "loginFormDescription": "Einloggen mit Ihrer E-Mail-Adresse und Ihrem Passwort",
@@ -111,6 +112,8 @@
         "addressEditWelcome": "Adresse bearbeiten",
         "addressSaveChange": "Adresse speichern",
         "requiredFields": "* hierbei handelt es sich um ein Pflichtfeld"
+        "orRegister": "oder",
+        "orRegisterLink": "registrieren"
     },
     "address": {
         "streetLabel": "Straße und Nr.",
@@ -123,7 +126,8 @@
         "zipcodePlaceholder": "PLZ",
         "cityLabel": "Ort",
         "cityPlaceholder": "Ort",
-        "countryLabel": "Land"
+        "countryLabel": "Land",
+        "requiredFields": "* hierbei handelt es sich um ein Pflichtfeld"
     },
     "checkout": {
         "stepAddress": "Ihre Adresse",

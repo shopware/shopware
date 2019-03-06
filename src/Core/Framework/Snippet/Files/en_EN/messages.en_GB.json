@@ -17,7 +17,9 @@
         "noscriptNotice": "To be able to use our shop in full range, we recommend activating Javascript in your browser."
     },
     "header": {
-        "logoLink": "zur Startseite wechseln"
+        "logoLink": "zur Startseite wechseln",
+        "searchButton": "Search",
+        "searchPlaceholder": "Search term..."
     },
     "header": {
         "logoLink": "zur Startseite wechseln"
@@ -33,6 +35,7 @@
         "robots": "index,follow"
     },
     "account": {
+        "myAccount": "My Account",
         "registerTitle": "Registration",
         "loginHeader": "I'm already a customer",
         "loginFormDescription": "Log in with your email address and password",
@@ -94,8 +97,10 @@
         "paymentChangeSubmit": "Change",
         "profilePersonalTitle": "Profile",
         "profileMailTitle": "Email address",
-        "profileCurrentMail": "Current email address",
         "profilePasswordTitle": "Password",
+        "orRegister": "or",
+        "orRegisterLink": "register",
+        "profileCurrentMail": "Current email address",
         "profilePasswordCreateNew": "New password",
         "profilePasswordCurrent": "Your current password",
         "profileSaveChanges": "Save Changes",
@@ -123,7 +128,8 @@
         "zipcodePlaceholder": "Zipcode",
         "cityLabel": "City",
         "cityPlaceholder": "City",
-        "countryLabel": "Country"
+        "countryLabel": "Country",
+        "requiredFields": "The fields marked with * are required"
     },
     "checkout": {
         "stepAddress": "Address",

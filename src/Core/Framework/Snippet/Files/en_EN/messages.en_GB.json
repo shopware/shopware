@@ -1,8 +1,10 @@
 {
-    "star": "*",
     "general": {
         "homeLink": "Home",
-        "menuLink": "Menu"
+        "menuLink": "Menu",
+        "star": "*",
+        "grossTaxInformation": "Prices incl. VAT plus shipping costs",
+        "netTaxInformation": "Prices plus VAT plus shipping costs"
     },
     "header": {
         "logoLink": "zur Startseite wechseln"
@@ -21,13 +23,15 @@
         "cartTitle": "Shopping cart",
         "continueShopping": "Continue shopping",
         "emptyCart": "Your shopping cart is empty",
-        "grossTaxInformation": "Prices incl. VAT plus shipping costs",
-        "netTaxInformation": "Prices plus VAT plus shipping costs",
         "proceedToCart": "Edit shopping cart",
         "proceedToCheckout": "Proceed to checkout",
         "quantityTimes": "x",
         "removeLineItem": "Remove product",
         "subtotalAmount": "Subtotal amount"
+    },
+    "detail": {
+        "ordernumberLabel": "Order number: ",
+        "addProduct": "Add to shopping cart"
     },
     "footer": {
         "includeVat": "* All prices incl. value added tax",

@@ -386,7 +386,7 @@ EOF;
 
         /** @var EntityWriteResult $event */
         $event = $written[JsonDefinition::class][0];
-        static::assertEquals($insertTime, $event->getPayload()['root']['child']['childDate']);
+        static::assertEquals($insertTime->format(\DateTime::ATOM), $event->getPayload()['root']['child']['childDate']);
 
         $update = [
             'id' => $id,
@@ -402,7 +402,7 @@ EOF;
 
         /** @var EntityWriteResult $event */
         $event = $written[JsonDefinition::class][0];
-        static::assertEquals($updateTime, $event->getPayload()['root']['child']['childDate']);
+        static::assertEquals($updateTime->format(\DateTime::ATOM), $event->getPayload()['root']['child']['childDate']);
     }
 
     public function testNestedJsonFilter(): void

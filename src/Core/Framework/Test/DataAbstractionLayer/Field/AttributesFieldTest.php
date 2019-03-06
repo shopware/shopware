@@ -15,6 +15,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\DataAbstractionLayer\VersionManager;
+use Shopware\Core\Framework\Struct\ArrayEntity;
 use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\AttributesTestDefinition;
 use Shopware\Core\Framework\Test\TestCaseBase\CacheTestBehaviour;
@@ -385,8 +386,8 @@ class AttributesFieldTest extends TestCase
         $first = $result->first();
         $last = $result->last();
 
-        static::assertEquals($laterDate, $first->get('attributes')['datetime']);
-        static::assertEquals($earlierDate, $last->get('attributes')['datetime']);
+        static::assertEquals($laterDate->format(\DateTime::ATOM), $first->get('attributes')['datetime']);
+        static::assertEquals($earlierDate->format(\DateTime::ATOM), $last->get('attributes')['datetime']);
 
         $criteria = new Criteria();
         $criteria->addSorting(new FieldSorting('attributes.datetime', FieldSorting::ASCENDING));
@@ -395,8 +396,8 @@ class AttributesFieldTest extends TestCase
 
         $first = $result->first();
         $last = $result->last();
-        static::assertEquals($earlierDate, $first->get('attributes')['datetime']);
-        static::assertEquals($laterDate, $last->get('attributes')['datetime']);
+        static::assertEquals($earlierDate->format(\DateTime::ATOM), $first->get('attributes')['datetime']);
+        static::assertEquals($laterDate->format(\DateTime::ATOM), $last->get('attributes')['datetime']);
     }
 
     public function testSortingDateTime(): void
@@ -404,6 +405,7 @@ class AttributesFieldTest extends TestCase
         $this->addAttributes(['datetime' => AttributeTypes::DATETIME]);
 
         $ids = [Uuid::uuid4()->getHex(), Uuid::uuid4()->getHex(), Uuid::uuid4()->getHex(), Uuid::uuid4()->getHex()];
+        /** @var \DateTime[] $dateTimes */
         $dateTimes = [
             new \DateTime('1990-01-01'),
             new \DateTime('1990-01-01T00:01'),
@@ -430,20 +432,20 @@ class AttributesFieldTest extends TestCase
         $result = array_values($repo->search($criteria, Context::createDefaultContext())->getElements());
         static::assertCount(4, $result);
 
-        static::assertEquals($dateTimes[3], $result[0]->get('attributes')['datetime']);
-        static::assertEquals($dateTimes[2], $result[1]->get('attributes')['datetime']);
-        static::assertEquals($dateTimes[1], $result[2]->get('attributes')['datetime']);
-        static::assertEquals($dateTimes[0], $result[3]->get('attributes')['datetime']);
+        static::assertEquals($dateTimes[3]->format(\DateTime::ATOM), $result[0]->get('attributes')['datetime']);
+        static::assertEquals($dateTimes[2]->format(\DateTime::ATOM), $result[1]->get('attributes')['datetime']);
+        static::assertEquals($dateTimes[1]->format(\DateTime::ATOM), $result[2]->get('attributes')['datetime']);
+        static::assertEquals($dateTimes[0]->format(\DateTime::ATOM), $result[3]->get('attributes')['datetime']);
 
         $criteria = new Criteria();
         $criteria->addSorting(new FieldSorting('attributes.datetime', FieldSorting::ASCENDING));
         $result = array_values($repo->search($criteria, Context::createDefaultContext())->getElements());
         static::assertCount(4, $result);
 
-        static::assertEquals($dateTimes[0], $result[0]->get('attributes')['datetime']);
-        static::assertEquals($dateTimes[1], $result[1]->get('attributes')['datetime']);
-        static::assertEquals($dateTimes[2], $result[2]->get('attributes')['datetime']);
-        static::assertEquals($dateTimes[3], $result[3]->get('attributes')['datetime']);
+        static::assertEquals($dateTimes[0]->format(\DateTime::ATOM), $result[0]->get('attributes')['datetime']);
+        static::assertEquals($dateTimes[1]->format(\DateTime::ATOM), $result[1]->get('attributes')['datetime']);
+        static::assertEquals($dateTimes[2]->format(\DateTime::ATOM), $result[2]->get('attributes')['datetime']);
+        static::assertEquals($dateTimes[3]->format(\DateTime::ATOM), $result[3]->get('attributes')['datetime']);
     }
 
     public function testSortingString(): void
@@ -971,6 +973,46 @@ class AttributesFieldTest extends TestCase
         static::assertNotNull($event);
         static::assertCount(1, $event->getPayloads());
         static::assertEquals($entity, $event->getPayloads()[0]);
+    }
+
+    public function testJsonEncodeDateTime(): void
+    {
+        $this->addAttributes(['date' => AttributeTypes::DATETIME]);
+
+        $dateTime = new \DateTime('2004-02-29 00:00:00.001');
+
+        $id = Uuid::uuid4()->getHex();
+        $entity = [
+            'id' => $id,
+            'attributes' => ['date' => $dateTime],
+        ];
+
+        $repo = $this->getTestRepository();
+        $repo->create([$entity], Context::createDefaultContext());
+
+        $first = $repo->search(new Criteria([$id]), Context::createDefaultContext())->first();
+        $encoded = json_decode(json_encode($first), true);
+        static::assertEquals($dateTime->format(\DateTime::ATOM), $encoded['attributes']['date']);
+    }
+
+    public function testJsonEncodeNestedDateTime(): void
+    {
+        $this->addAttributes(['json' => AttributeTypes::JSON]);
+
+        $dateTime = new \DateTime('2004-02-29 00:00:00.001');
+
+        $id = Uuid::uuid4()->getHex();
+        $entity = [
+            'id' => $id,
+            'attributes' => ['json' => ['date' => $dateTime->format(\DateTime::ATOM)]],
+        ];
+
+        $repo = $this->getTestRepository();
+        $repo->create([$entity], Context::createDefaultContext());
+
+        $first = $repo->search(new Criteria([$id]), Context::createDefaultContext())->first();
+        $encoded = json_decode(json_encode($first), true);
+        static::assertEquals($dateTime->format(\DateTime::ATOM), $encoded['attributes']['json']['date']);
     }
 
     private function addAttributes(array $attributeTypes): void

@@ -4,10 +4,10 @@
  *
  * Variables, Mixins, Functions
  * ---------------------------- */
-@import 'abstracts/variables';
+@import 'abstracts/variables/bootstrap';
 
 /*
- * Theme Variables
+ * Theme variables
  * ---------- */
 @import 'themes/shopware/abstracts/variables';
 
@@ -15,6 +15,11 @@
 * Vendors
 * ------- */
 @import 'vendors/bootstrap';
+
+/*
+* Custom variables
+* ---------------------------- */
+@import 'abstracts/variables/custom';
 
 /*
  * Base stuff
@@ -41,6 +46,7 @@
  * Page-specific styles
  * -------------------- */
 @import 'pages/content';
+@import 'pages/product-detail';
 
 /*
  * Themes

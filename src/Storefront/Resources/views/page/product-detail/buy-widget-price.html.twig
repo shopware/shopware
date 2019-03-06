@@ -1,0 +1,7 @@
+{% block page_product_detail_price_inner %}
+	<meta itemprop="price" content="{{ page.product.price.gross }}">
+
+	<div class="product-detail-price">
+		{{ page.product.price.gross|localizedcurrency(page.context.currency.shortName, app.request.locale) }}
+	</div>
+{% endblock %}

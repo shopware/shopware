@@ -1,8 +1,10 @@
 {
-    "star": "*",
     "general": {
         "homeLink": "Home",
-        "menuLink": "Menü"
+        "menuLink": "Menü",
+        "star": "*",
+        "grossTaxInformation": "inkl. MwSt. zzgl. Versandkosten",
+        "netTaxInformation": "exkl. MwSt. zzgl. Versandkosten"
     },
     "header": {
         "logoLink": "Switch to homepage"
@@ -21,13 +23,15 @@
         "cartTitle": "Warenkorb",
         "continueShopping": "Weiter einkaufen",
         "emptyCart": "Ihr Warenkorb ist leer",
-        "grossTaxInformation": "inkl. MwSt. zzgl. Versandkosten",
-        "netTaxInformation": "exkl. MwSt. zzgl. Versandkosten",
         "proceedToCart": "Warenkorb bearbeiten",
         "proceedToCheckout": "Zur Kasse",
         "quantityTimes": "x",
         "removeLineItem": "Artikel entfernen",
         "subtotalAmount": "Zwischensumme"
+    },
+    "detail": {
+        "ordernumberLabel": "Artikel-Nr.:",
+        "addProduct": "In den Warenkorb"
     },
     "footer": {
         "includeVat": "* Alle Preise inkl. gesetzl. Mehrwertsteuer zzgl. <a href='#'>Versandkosten</a> und ggf. Nachnahmegebühren, wenn nicht anders beschrieben",

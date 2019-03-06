@@ -37,7 +37,7 @@
                                         <span class="cart-item-link-name">{{ lineItem.label }}</span>
                                     {% endblock %}
                                     {% block base_cart_mini_item_price %}
-                                        <span class="cart-item-link-price">{{ lineItem.price.totalPrice|localizedcurrency('EUR', app.request.locale) }}{{ "star"|trans }}</span> {# @TODO CURRENCY FORMAT DEPENDING ON SELECTED CURRENCY AND LOCALE#}
+                                        <span class="cart-item-link-price">{{ lineItem.price.totalPrice|localizedcurrency('EUR', app.request.locale) }}{{ "general.star"|trans }}</span> {# @TODO CURRENCY FORMAT DEPENDING ON SELECTED CURRENCY AND LOCALE#}
                                     {% endblock %}
                                 </a>
                             {% endblock %}
@@ -54,6 +54,7 @@
                 {% block base_cart_mini_cart_prices %}
                     <div class="cart-prices">
                         <span class="cart-prices-text">{{ "checkout.subtotalAmount"|trans }}</span>
+	                    {# @TODO CURRENCY FORMAT DEPENDING ON SELECTED CURRENCY AND LOCALE#}
                         <span class="cart-prices-subtotal">{{ page.cart.price.positionPrice|localizedcurrency('EUR', app.request.locale) }}</span>
                     </div>
                 {% endblock %}
@@ -61,9 +62,9 @@
                 {% block base_cart_mini_cart_tax_info %}
                     <p class="cart-tax">
                         {% if page.cart.price.taxStatus == "gross" %}
-                            {{ "checkout.grossTaxInformation"|trans }}
+                            {{ "general.grossTaxInformation"|trans }}
                         {% else %}
-                            {{ "checkout.netTaxInformation"|trans }}
+                            {{ "general.netTaxInformation"|trans }}
                         {% endif %}
                     </p>
                 {% endblock %}

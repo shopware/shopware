@@ -1,7 +1,45 @@
-{# @TODO This is just an example on how the AJAX add to cart and the template will correspond to each other - REFACTOR #}
-<form action="{{ path('storefront-api.checkout.frontend.cart.product.add', {'version': 1, 'id': page.product.key}) }}"
-      data-add-to-cart="true">
-    <label for="quantity">Qty</label>
-    <input id="quantity" type="number" name="quantity" value="1">
-    <button>In den Warenkorb</button>
-</form>
+{% block page_product_detail_buy_form_inner %}
+    <form action="{{ path('storefront-api.checkout.frontend.cart.product.add', {'version': 1, 'id': page.product.id}) }}"
+          method="post"
+          class="buy-widget"
+          data-add-to-cart="true">
+		{% block page_product_detail_buy_container %}
+            <div class="form-row buy-widget-container">
+				{% block page_product_detail_buy_quantity_container %}
+                    <div class="col-4">
+	                    {% if page.product.maxPurchase %}
+		                    {% if page.product.stock < page.product.maxPurchase %}
+			                    {% set maxQuantity = page.product.stock %}
+                            {% else %}
+	                            {% set maxQuantity = page.product.maxPurchase %}
+                            {% endif %}
+                        {% else %}
+	                        {% set maxQuantity = 100 %}
+	                    {% endif %}
+
+						{% block page_product_detail_buy_quantity %}
+                            <select name="quantity"
+                                    class="custom-select quantity-select">
+								{% for i in range(page.product.minPurchase, maxQuantity, page.product.purchaseSteps) %}
+                                    <option value="{{ i }}">
+										{{ i }}{% if page.product.packUnit %} {{ page.product.packUnit }}{% endif %}
+                                    </option>
+								{% endfor %}
+                            </select>
+						{% endblock %}
+                    </div>
+				{% endblock %}
+
+				{% block page_product_detail_buy_button_container %}
+                    <div class="col-8">
+						{% block page_product_detail_buy_button %}
+                            <button class="btn btn-primary btn-block buy-widget-submit">
+								{{ "detail.addProduct"|trans }}
+                            </button>
+						{% endblock %}
+                    </div>
+				{% endblock %}
+            </div>
+		{% endblock %}
+    </form>
+{% endblock %}

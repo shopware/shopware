@@ -1,0 +1,24 @@
+{% block page_product_detail_headline_inner %}
+	{% block page_product_detail_name %}
+		<div class="col">
+			{% block page_product_detail_name_inner %}
+				<h1 class="product-detail-name" itemprop="name">
+					{{ page.product.name }}
+				</h1>
+			{% endblock %}
+		</div>
+	{% endblock %}
+
+	{% block page_product_detail_manufacturer %}
+		<div class="col-md-auto">
+			{% block page_product_detail_manufacturer_inner %}
+				{#TODO: NEXT-1924 - show manufacturer image#}
+				<a href="{{ page.product.manufacturer.link }}"
+				   class="product-detail-manufacturer"
+				   title="{{ page.product.manufacturer.name }}">
+					{{ page.product.manufacturer.name }}
+				</a>
+			{% endblock %}
+		</div>
+	{% endblock %}
+{% endblock %}

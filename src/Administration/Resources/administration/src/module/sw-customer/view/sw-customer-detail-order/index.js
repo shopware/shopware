@@ -20,6 +20,7 @@ Component.register('sw-customer-detail-order', {
 
     data() {
         return {
+            disableRouteParams: true,
             offset: 0,
             limit: 10,
             paginationSteps: [10, 25, 50, 75, 100],

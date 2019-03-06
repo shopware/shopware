@@ -54,9 +54,8 @@
                         {% endblock %}
 
                         {% block sw_customer_detail_attribute_sets %}
-                            <sw-card>
+                            <sw-card v-if="next754">
                                 <sw-attribute-set-renderer
-                                        v-if="next754"
                                         :entity="customer"
                                         :sets="customerAttributeSets">
                                 </sw-attribute-set-renderer>

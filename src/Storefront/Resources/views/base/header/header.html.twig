@@ -14,7 +14,13 @@
             {% endblock %}
 
             {% block base_header_actions %}
-                {% sw_include '@Storefront/base/header/actions.html.twig' %}
+                {% block base_header_actions_account %}
+
+                {% endblock %}
+
+                {% block base_header_actions_cart %}
+                    {% sw_include '@Storefront/base/header/actions/cart-widget.html.twig' %}
+                {% endblock %}
             {% endblock %}
         </div>
     {% endblock %}

@@ -19,7 +19,7 @@ class PageLoadingIndicatorSingleton extends LoadingIndicator {
 
         Backdrop.open();
         let backdrop = document.querySelector(`.${Backdrop.SELECTOR_CLASS()}`);
-        backdrop.insertAdjacentHTML('beforeend', this.getTemplate());
+        backdrop.insertAdjacentHTML('beforeend', LoadingIndicator.getTemplate());
     }
 
     /**

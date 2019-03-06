@@ -25,8 +25,9 @@ class BackdropSingleton {
     /**
      * Insert a backdrop to document.body and set a class
      * to the body to override default scrolling behaviour
+     * @param {function|null} callback
      */
-    open() {
+    open(callback) {
         // avoid multiple backdrops
         this._removeExistingBackdrops();
 
@@ -39,6 +40,11 @@ class BackdropSingleton {
         // add open class afterwards to make any css animation effects possible
         setTimeout(function() {
             backdrop.classList.add(BACKDROP_OPEN_CLASS);
+
+            // if a callback function is being injected execute it after opening the backdrop
+            if (typeof callback === "function") {
+                callback();
+            }
         }, 1);
 
         this._dispatchEvents();
@@ -121,9 +127,10 @@ export default class Backdrop {
 
     /**
      * Open the Backdrop
+     * @param {function|null} callback
      */
-    static open() {
-        instance.open();
+    static open(callback = null) {
+        instance.open(callback);
     }
 
     /**

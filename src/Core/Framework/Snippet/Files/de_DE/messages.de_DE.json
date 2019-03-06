@@ -1,4 +1,5 @@
 {
+    "star": "*",
     "general": {
         "homeLink": "Home",
         "menuLink": "Menü"
@@ -12,5 +13,17 @@
         "descriptionDefault": "",
         "revisit": "15 days",
         "robots": "index,follow"
+    },
+    "checkout": {
+        "cartTitle": "Warenkorb",
+        "continueShopping": "Weiter einkaufen",
+        "emptyCart": "Ihr Warenkorb ist leer",
+        "grossTaxInformation": "inkl. MwSt. zzgl. Versandkosten",
+        "netTaxInformation": "exkl. MwSt. zzgl. Versandkosten",
+        "proceedToCart": "Warenkorb bearbeiten",
+        "proceedToCheckout": "Zur Kasse",
+        "quantityTimes": "x",
+        "removeLineItem": "Artikel entfernen",
+        "subtotalAmount": "Zwischensumme"
     }
 }

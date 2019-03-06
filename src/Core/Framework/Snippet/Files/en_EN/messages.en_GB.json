@@ -1,4 +1,5 @@
 {
+    "star": "*",
     "general": {
         "homeLink": "Home",
         "menuLink": "Menu"
@@ -12,5 +13,17 @@
         "descriptionDefault": "",
         "revisit": "15 days",
         "robots": "index,follow"
+    },
+    "checkout": {
+        "cartTitle": "Shopping cart",
+        "continueShopping": "Continue shopping",
+        "emptyCart": "Your shopping cart is empty",
+        "grossTaxInformation": "Prices incl. VAT plus shipping costs",
+        "netTaxInformation": "Prices plus VAT plus shipping costs",
+        "proceedToCart": "Edit shopping cart",
+        "proceedToCheckout": "Proceed to checkout",
+        "quantityTimes": "x",
+        "removeLineItem": "Remove product",
+        "subtotalAmount": "Subtotal amount"
     }
 }

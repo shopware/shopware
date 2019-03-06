@@ -31,7 +31,7 @@ class CheckoutPageletController extends StorefrontController
     }
 
     /**
-     * @Route("/widgets/checkout/info", name="widgets/checkout/info", methods={"GET"})
+     * @Route("/widgets/checkout/info", name="widgets.checkout.info", methods={"GET"})
      *
      * @throws CartTokenNotFoundException
      */
@@ -39,7 +39,7 @@ class CheckoutPageletController extends StorefrontController
     {
         $page = $this->infoLoader->load($request, $context);
 
-        return $this->renderStorefront('@Storefront/index/pagelet.html.twig', ['page' => $page]);
+        return $this->renderStorefront('@Storefront/base/header/actions/cart-widget.html.twig', ['page' => $page]);
     }
 
     /**
@@ -51,6 +51,6 @@ class CheckoutPageletController extends StorefrontController
     {
         $page = $this->ajaxCartLoader->load($request, $context);
 
-        return $this->renderStorefront('@Storefront/index/pagelet.html.twig', ['page' => $page]);
+        return $this->renderStorefront('@Storefront/base/header/cart-mini.html.twig', ['page' => $page]);
     }
 }

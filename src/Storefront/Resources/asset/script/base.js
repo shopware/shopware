@@ -69,6 +69,9 @@ new CartWidget();
 // Cart Mini OffCanvas
 new CartMini();
 
+// Cookie Permission
+new CookiePermission();
+
 // Modal Extension
 new ModalExtension();
 

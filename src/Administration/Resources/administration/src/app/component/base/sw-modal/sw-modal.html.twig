@@ -10,7 +10,7 @@
                          aria-labelledby="modalTitleEl"
                          tabindex="-1">
                         {% block sw_modal_header %}
-                            <header class="sw-modal__header">
+                            <header v-if="showHeader" class="sw-modal__header">
                                 <slot name="modal-header">
                                     {% block sw_modal_slot_header %}
                                         {% block sw_modal_close %}

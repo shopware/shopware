@@ -29,5 +29,9 @@
     "footer": {
         "includeVat": "* All prices incl. value added tax",
         "excludeVat": "* All prices are quoted net of the statutory value-added tax and <a href='#'>shipping costs</a> and possibly delivery charges, if not otherwise described"
+    },
+    "cookie": {
+        "message": "Diese Website verwendet Cookies, um Ihnen die bestmögliche Funktionalität bieten zu können.&nbsp;<a href='#'>Mehr Informationen</a>",
+        "accept": "Accept"
     }
 }

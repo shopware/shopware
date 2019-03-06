@@ -29,5 +29,9 @@
     "footer": {
         "includeVat": "* Alle Preise inkl. gesetzl. Mehrwertsteuer zzgl. <a href='#'>Versandkosten</a> und ggf. Nachnahmegebühren, wenn nicht anders beschrieben",
         "excludeVat": "* Alle Preise verstehen sich zzgl. Mehrwertsteuer und <a href='#'>Versandkosten</a> und ggf. Nachnahmegebühren, wenn nicht anders beschrieben"
+    },
+    "cookie": {
+        "message": "Diese Website verwendet Cookies, um Ihnen die bestmögliche Funktionalität bieten zu können.&nbsp;<a href='#'>Mehr Informationen</a>",
+        "accept": "Einverstanden"
     }
 }

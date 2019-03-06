@@ -2,13 +2,14 @@
 import '@babel/polyfill';
 import 'bootstrap';
 import jQuery from 'jquery';
+
 // Import styles
 import '../scss/base.scss';
 
 import HttpClient from './service/http-client.service';
 import CartMini from './plugin/cart-mini/cart-mini.plugin';
 import CartWidget from './plugin/actions/cart-widget.plugin';
-
+import CookiePermission from './plugin/cookie-permission/cookie-permission.plugin';
 import SimplePlugin from './plugin/test/simple-plugin';
 import ExtendedPlugin from './plugin/test/extended-plugin';
 import ModalExtension from "./plugin/modal/modal-extension.plugin";
@@ -63,3 +64,6 @@ new CartMini();
 
 // Modal Extension
 new ModalExtension();
+
+// Cookie Permission
+new CookiePermission();

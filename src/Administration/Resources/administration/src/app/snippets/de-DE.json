@@ -332,6 +332,8 @@
         "lineItemWithQuantityRule": "Positionen mit Anzahl",
         "yes": "Ja",
         "no": "Nein",
+        "withTime": "Mit Zeitabfrage",
+        "withoutTime": "Ohne Zeitabfrage",
         "and": "Und",
         "or": "Oder",
         "field": {

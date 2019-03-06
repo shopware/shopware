@@ -12,7 +12,6 @@ use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Validation\ConstraintViolationException;
-use Symfony\Component\Validator\Constraints\Choice;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Type;
 
@@ -86,11 +85,10 @@ class LineItemOfTypeRuleTest extends TestCase
             static::assertGreaterThan(0, count($stackException->getExceptions()));
             /** @var ConstraintViolationException $exception */
             foreach ($stackException->getExceptions() as $exception) {
-                static::assertCount(2, $exception->getViolations());
+                static::assertCount(1, $exception->getViolations());
                 static::assertSame('/conditions/' . $conditionId . '/lineItemType', $exception->getViolations()->get(0)->getPropertyPath());
                 static::assertSame(NotBlank::IS_BLANK_ERROR, $exception->getViolations()->get(0)->getCode());
                 static::assertSame('This value should not be blank.', $exception->getViolations()->get(0)->getMessage());
-                static::assertSame('The value you selected is not a valid choice.', $exception->getViolations()->get(1)->getMessage());
             }
         }
     }
@@ -114,38 +112,10 @@ class LineItemOfTypeRuleTest extends TestCase
             static::assertGreaterThan(0, count($stackException->getExceptions()));
             /** @var ConstraintViolationException $exception */
             foreach ($stackException->getExceptions() as $exception) {
-                static::assertCount(2, $exception->getViolations());
+                static::assertCount(1, $exception->getViolations());
                 static::assertSame('/conditions/' . $conditionId . '/lineItemType', $exception->getViolations()->get(0)->getPropertyPath());
                 static::assertSame(Type::INVALID_TYPE_ERROR, $exception->getViolations()->get(0)->getCode());
                 static::assertSame('This value should be of type string.', $exception->getViolations()->get(0)->getMessage());
-                static::assertSame('The value you selected is not a valid choice.', $exception->getViolations()->get(1)->getMessage());
-            }
-        }
-    }
-
-    public function testValidateWithInvalidLineItemString(): void
-    {
-        $conditionId = Uuid::uuid4()->getHex();
-        try {
-            $this->conditionRepository->create([
-                [
-                    'id' => $conditionId,
-                    'type' => (new LineItemOfTypeRule())->getName(),
-                    'ruleId' => Uuid::uuid4()->getHex(),
-                    'value' => [
-                        'lineItemType' => 'invalid',
-                    ],
-                ],
-            ], $this->context);
-            static::fail('Exception was not thrown');
-        } catch (WriteStackException $stackException) {
-            static::assertGreaterThan(0, count($stackException->getExceptions()));
-            /** @var ConstraintViolationException $exception */
-            foreach ($stackException->getExceptions() as $exception) {
-                static::assertCount(1, $exception->getViolations());
-                static::assertSame('/conditions/' . $conditionId . '/lineItemType', $exception->getViolations()->get(0)->getPropertyPath());
-                static::assertSame(Choice::NO_SUCH_CHOICE_ERROR, $exception->getViolations()->get(0)->getCode());
-                static::assertSame('The value you selected is not a valid choice.', $exception->getViolations()->get(0)->getMessage());
             }
         }
     }

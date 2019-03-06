@@ -332,6 +332,8 @@
         "lineItemWithQuantityRule": "line item with quantity",
         "yes": "yes",
         "no": "no",
+        "withTime": "use time",
+        "withoutTime": "don't use time",
         "and": "and",
         "or": "or",
         "field": {

@@ -16,4 +16,8 @@ $sw-avatar-size-default:   40px;
     text-transform: uppercase;
     color: $sw-avatar-color-initials;
     user-select: none;
+
+    .sw-icon {
+        color: $color-shopware-blue;
+    }
 }

@@ -58,6 +58,11 @@ pluginManager.register('searchWidgetPlugin', {
     selector: document
 });
 
+pluginManager.register('modalExtensionPlugin', {
+    plugin: ModalExtension,
+    selector: document
+});
+
 pluginManager.register('cartWidgetPlugin', {
     plugin: CartWidget,
     selector: document
@@ -97,9 +102,6 @@ document.addEventListener('DOMContentLoaded', () => {
 if (module.hot) {
     module.hot.accept();
 }
-
-// Modal Extension
-new ModalExtension();
 
 // Logout
 new Logout();

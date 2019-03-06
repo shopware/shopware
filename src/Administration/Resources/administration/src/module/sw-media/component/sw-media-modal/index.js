@@ -1,7 +1,12 @@
 import { Component, State } from 'src/core/shopware';
+import utils from 'src/core/service/util.service';
 import template from './sw-media-modal.html.twig';
 import './sw-media-modal.scss';
 
+/**
+ * @event sw-media-modal-selection-changed EntityProxy[]
+ * @event closeModal (void)
+ */
 Component.register('sw-media-modal', {
     template,
 
@@ -36,7 +41,8 @@ Component.register('sw-media-modal', {
             folderId: this.initialFolderId,
             currentFolder: null,
             compact: false,
-            term: ''
+            term: '',
+            id: utils.createId()
         };
     },
 
@@ -63,6 +69,10 @@ Component.register('sw-media-modal', {
 
         hasUploads() {
             return this.uploads.length > 0;
+        },
+
+        uploadTag() {
+            return `sw-media-modal--${this.id}`;
         }
     },
 
@@ -121,7 +131,7 @@ Component.register('sw-media-modal', {
         onEmitSelection() {
             // emit media items only
             const selectedMedia = this.selection.filter((selected) => {
-                return selected.entityName === 'media';
+                return selected.getEntityName() === 'media';
             });
 
             this.$emit('sw-media-modal-selection-changed', selectedMedia);
@@ -176,38 +186,34 @@ Component.register('sw-media-modal', {
         /*
          * Media uploads
          */
-        onUploadsAdded({ uploadTag, data }) {
-            data.forEach((upload) => {
-                upload.entity.isLoading = true;
-                if (!this.entityContext) {
-                    upload.entity.mediaFolderId = this.folderId;
+        onUploadsAdded({ data }) {
+            this.mediaStore.sync().then(() => {
+                data.forEach((uploadTask) => {
+                    this.uploads.push(this.mediaStore.getById(uploadTask.targetId));
+                });
+                this.uploadStore.runUploads(this.uploadTag);
+            });
+        },
+
+        onUploadFinished({ targetId }) {
+            this.mediaStore.getByIdAsync(targetId).then((updatedMedia) => {
+                if (!this.uploads.some((upload) => {
+                    return updatedMedia.id === upload.id;
+                })) {
+                    this.uploads.push(updatedMedia);
                 }
 
-                this.uploads.push(upload.entity);
-            });
-
-            this.mediaStore.sync().then(() => {
-                this.uploadStore.runUploads(uploadTag);
+                if (!this.selection.some((selectedItem) => {
+                    return updatedMedia.id === selectedItem.id;
+                })) {
+                    this.selection.push(updatedMedia);
+                }
             });
         },
 
-        onUploadFinished(uploadedItem) {
-            if (!this.uploads.some((upload) => {
-                return uploadedItem === upload;
-            })) {
-                this.uploads.push(uploadedItem);
-            }
-
-            if (!this.selection.some((selectedItem) => {
-                return uploadedItem === selectedItem;
-            })) {
-                this.selection.push(uploadedItem);
-            }
-        },
-
-        onUploadFailed(duplicatedEntity) {
+        onUploadFailed(task) {
             this.uploads = this.uploads.filter((selectedUpload) => {
-                return selectedUpload !== duplicatedEntity;
+                return selectedUpload.id !== task.targetId;
             });
         }
     }

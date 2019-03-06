@@ -8,8 +8,8 @@ import utils from 'src/core/service/util.service';
  * component that listens to mutations of the upload store and transforms them back into the vue.js event system.
  * @status ready
  * @event sw-media-upload-added { UploadTask[]: data }
- * @event sw-media-upload-finished { string: targetId}
- * @event sw-media-upload-failed { UploadTask: task }
+ * @event sw-media-upload-finished { string: targetId }
+ * @event sw-media-upload-failed UploadTask UploadTask
  * @example code-only
  * @component-example
  * <sw-upload-store-listener @sw-uploads-added="..."></sw-upload-store-listener>
@@ -25,6 +25,12 @@ export default {
         uploadTag: {
             type: String,
             required: true
+        },
+
+        autoUpload: {
+            type: Boolean,
+            required: false,
+            default: false
         }
     },
 
@@ -38,6 +44,11 @@ export default {
         uploadStore() {
             return State.getStore('upload');
         },
+
+        mediaStore() {
+            return State.getStore('media');
+        },
+
         listenerKey() {
             return `sw-upload-store-listener-${this.id}`;
         }
@@ -58,6 +69,11 @@ export default {
             }
 
             if (action === UploadEvents.UPLOAD_ADDED) {
+                if (this.autoUpload === true) {
+                    this.syncEntitiesAndRunUploads();
+                    return;
+                }
+
                 this.$emit(UploadEvents.UPLOAD_ADDED, payload);
                 return;
             }
@@ -70,6 +86,12 @@ export default {
             if (action === UploadEvents.UPLOAD_FAILED) {
                 this.$emit(UploadEvents.UPLOAD_FAILED, payload);
             }
+        },
+
+        syncEntitiesAndRunUploads() {
+            this.mediaStore.sync().then(() => {
+                this.uploadStore.runUploads(this.uploadTag);
+            });
         }
     }
 };

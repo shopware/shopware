@@ -23,7 +23,8 @@ Component.register('sw-profile-index', {
             oldPassword: null,
             newPassword: null,
             newPasswordConfirm: null,
-            avatarMediaItem: null
+            avatarMediaItem: null,
+            uploadTag: 'sw-profile-upload-tag'
         };
     },
 
@@ -60,7 +61,7 @@ Component.register('sw-profile-index', {
     watch: {
         'user.avatarMedia'() {
             if (this.user.avatarMedia.id) {
-                this.setMediaItem(this.user.avatarMedia);
+                this.setMediaItem({ targetId: this.user.avatarMedia.id });
             }
         }
     },
@@ -166,17 +167,14 @@ Component.register('sw-profile-index', {
             });
         },
 
-        onUploadAdded({ uploadTag }) {
-            this.user.isLoading = true;
-
-            this.mediaStore.sync().then(() => {
-                return this.uploadStore.runUploads(uploadTag);
-            }).finally(() => {
-                this.user.isLoading = false;
+        setMediaItem({ targetId }) {
+            this.mediaStore.getByIdAsync(targetId).then((updatedMedia) => {
+                this.avatarMediaItem = updatedMedia;
             });
+            this.user.avatarId = targetId;
         },
 
-        setMediaItem(mediaEntity) {
+        setMediaFromSidebar(mediaEntity) {
             this.avatarMediaItem = mediaEntity;
             this.user.avatarId = mediaEntity.id;
         },

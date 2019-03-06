@@ -12,13 +12,15 @@
                        displayName="label"
                        :id="createId()"
                        :previewResultsLimit="500"
-                       class="field--condition has-arrow"
+                       class="field--condition"
+                       :class="{ 'field--not-last' : (index!=(definitions.length-1)) }"
                        :required="true"
                        @input="selectFilter(index, $event)">
             </sw-select>
         </template>
         <template v-else>
-            <div v-for="field in actualCondition.field.split('.')"
+            <div v-for="field, index in conditionFieldPath"
+                 :class="{ 'field--not-last' : (index!=(conditionFieldPath.length-1)) }"
                  class="field--condition condition--api">
                 <div class="condition--api-value">{{ field }}</div>
             </div>
@@ -33,6 +35,7 @@
                    displayName="name"
                    :criteria="typeCriteria"
                    :required="true"
+                   :disabled="isApi()"
                    class="field--operator has--arrow"
                    @input="selectType">
         </sw-select>
@@ -64,6 +67,7 @@
         <sw-tagged-field v-else-if="isEqualsAny(actualCondition.type)"
                          v-model="multiValues"
                          class="field--main"
+                         :disabled="isApi()"
                          @input="updateTaggedValue">
         </sw-tagged-field>
     {% endblock %}
@@ -74,6 +78,7 @@
                 <sw-field type="number"
                           class="field--main has--arrow"
                           v-model="actualCondition.parameters.gte"
+                          :disabled="isApi()"
                           :placeholder="$tc('global.sw-condition.operator.greaterThanEquals')">
                 </sw-field>
             {% endblock %}
@@ -81,16 +86,31 @@
                 <sw-field type="number"
                           class="field--main"
                           v-model="actualCondition.parameters.lte"
+                          :disabled="isApi()"
                           :placeholder="$tc('global.sw-condition.operator.lowerThanEquals')">
                 </sw-field>
             {% endblock %}
         </template>
     {% endblock %}
 
+    {% block sw_product_stream_filter_boolean %}
+        <sw-select v-else-if="lastField.type === 'boolean'"
+                   :store="selectValues"
+                   :id="createId()"
+                   itemValueKey="value"
+                   displayName="label"
+                   :required="true"
+                   class="field--main"
+                   :disabled="isApi()"
+                   v-model="actualCondition.value">
+        </sw-select>
+    {% endblock %}
+
     {% block sw_product_stream_filter_type_field %}
         <sw-field v-else
                   :type="getValueFieldByType(lastField.type)"
                   class="field--main"
+                  :disabled="isApi()"
                   v-model="actualCondition.value">
         </sw-field>
     {% endblock %}

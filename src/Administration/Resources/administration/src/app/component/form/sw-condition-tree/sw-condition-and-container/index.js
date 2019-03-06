@@ -15,7 +15,7 @@ export default {
     name: 'sw-condition-and-container',
     template,
 
-    inject: ['config', 'entityAssociationStore'],
+    inject: ['config', 'entityAssociationStore', 'isApi'],
 
     mixins: [
         Mixin.getByName('validation'),

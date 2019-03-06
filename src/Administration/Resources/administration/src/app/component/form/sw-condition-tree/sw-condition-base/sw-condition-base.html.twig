@@ -1,5 +1,5 @@
 {% block sw_condition_base %}
-<div class="sw-condition-base" :class="[conditionClass, { 'has--error': hasErrors }]">
+<div class="sw-condition-base" :class="[conditionClass, { 'has--error': hasErrors }, {'is--api' : isApi()}]">
     <div class="sw-condition-base__container">
         {% block sw_condition_base_field_condition %}
             <sw-select :id="createId()"
@@ -26,8 +26,9 @@
         {% endblock %}
 
         {% block sw_condition_base_field_actions %}
-            <div class="field field--actions">
-                <sw-context-button>
+            <div class="field field--actions"
+                 :class="{'is--disabled' : isApi()}">
+                <sw-context-button :disabled="isApi()">
                     <template slot="button">
                         <button class="sw-context-button__button">
                             <sw-icon name="small-more" decorative></sw-icon>

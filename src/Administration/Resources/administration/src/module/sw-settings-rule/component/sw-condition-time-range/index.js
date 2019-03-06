@@ -21,7 +21,9 @@ Component.extend('sw-condition-time-range', 'sw-condition-base', {
     data() {
         return {
             datepickerConfig: {
-                enableTime: true
+                enableTime: true,
+                dateFormat: 'H:i',
+                altFormat: 'H:i'
             }
         };
     }

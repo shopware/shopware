@@ -1,7 +1,7 @@
 @import "~scss/variables";
 @import "~scss/mixins";
 
-$sw-condition-base-color-primary: #6E8A97;
+$sw-condition-base-color-primary: #758CA3;
 $sw-condition-base-color-primary-text: $color-white;
 $sw-condition-base-color-background: $color-white;
 $sw-condition-base-color-secondary: $color-white;
@@ -10,6 +10,7 @@ $sw-condition-base-color-border: #D6DDE5;
 $sw-condition-base-font-size: 14px;
 $sw-condition-base-z-index-arrow: 100;
 $sw-condition-base-color-error: $color-crimson;
+$sw-condition-base-text-access-key: $color-gutenberg;
 
 .sw-condition-base {
     background: none;
@@ -17,6 +18,17 @@ $sw-condition-base-color-error: $color-crimson;
     .sw-condition-base__container {
         display: flex;
         width: 100%;
+
+        .sw-icon {
+            width: 18px;
+            height: 18px;
+        }
+
+        .sw-select:first-child {
+            .sw-select__inner {
+                padding-left: 0;
+            }
+        }
     }
 
     .sw-condition-base__base-field {
@@ -45,19 +57,22 @@ $sw-condition-base-color-error: $color-crimson;
             background: transparent;
             min-height: 40px;
             border: 0;
-            padding-right: 24px;
+            padding-right: 20px;
             padding-top: 4px;
+            cursor: pointer;
 
             .sw-select__selection-item-holder {
                 padding-bottom: 0;
             }
 
             .sw-select__single-selection {
+                padding: 2px 6px 2px 16px;
                 @include truncate();
             }
 
             .sw-select__indicators {
                 top: 10px;
+                right: 6px;
             }
 
             .sw-select__indicator .sw-icon {
@@ -105,6 +120,9 @@ $sw-condition-base-color-error: $color-crimson;
                 .sw-icon {
                     color: unset;
                 }
+            }
+            .sw-select__placeholder {
+                color: $sw-condition-base-color-primary-text;
             }
         }
 
@@ -161,7 +179,7 @@ $sw-condition-base-color-error: $color-crimson;
         }
     }
 
-    .sw-field--date, .sw-field--datetime {
+    .sw-field--date, .sw-field--datetime, .sw-field--time {
         @extend .sw-condition-base__base-field;
         .sw-datepicker {
             width: 100%;
@@ -250,10 +268,23 @@ $sw-condition-base-color-error: $color-crimson;
             display: flex;
             align-items: center;
         }
+
+        &.is--disabled {
+            cursor: default;
+
+            button {
+                cursor: default;
+                opacity: 0.2;
+            }
+        }
     }
 
     .sw-field input:disabled {
         background-color: $sw-condition-base-color-background;
+        color: $sw-condition-base-text-access-key;
+        &::placeholder {
+            color: $sw-condition-base-text-access-key;
+        }
     }
 
     .sw-field--switch {
@@ -307,6 +338,7 @@ $sw-condition-base-color-error: $color-crimson;
 
     .sw-context-button .sw-context-button__button {
         border: none;
+        width: 100%;
     }
 
     &.has--error .sw-condition-base__container {

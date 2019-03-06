@@ -15,7 +15,7 @@ export default {
     name: 'sw-condition-base',
     template,
 
-    inject: ['config', 'conditionStore'],
+    inject: ['config', 'conditionStore', 'isApi'],
 
     mixins: [
         Mixin.getByName('validation'),

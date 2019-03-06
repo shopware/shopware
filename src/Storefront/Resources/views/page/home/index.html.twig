@@ -1,14 +1,43 @@
 {% sw_extends '@Storefront/base.html.twig' %}
 
 {% block base_content %}
-    {% set id = '01E966BCCE2C4187A866DD1EDCF58F9E' %}
-    <form action="{{ path('storefront-api.checkout.frontend.cart.product.add', {'version': 1, 'id': id}) }}"
-          data-add-to-cart="true">
-        <label for="quantity">Qty</label>
-        <input id="quantity"
-               type="number"
-               name="quantity"
-               value="1">
-        <button>In den Warenkorb</button>
-    </form>
+    <button type="button"
+            class="btn btn-primary"
+            data-toggle="modal"
+            data-target=".staticModal">
+        Modal
+    </button>
+
+    <button type="button"
+            class="btn btn-primary"
+            data-toggle="modal"
+            data-target=".ajaxModal"
+            data-url="{{ path('widgets.checkout.info') }}">
+        Ajax Modal
+    </button>
+
+    <!-- Modal -->
+    <div class="modal fade staticModal"
+         tabindex="-1"
+         role="dialog"
+         aria-labelledby="exampleModalLabel"
+         aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    ...
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary">Save changes</button>
+                </div>
+            </div>
+        </div>
+    </div>
 {% endblock %}

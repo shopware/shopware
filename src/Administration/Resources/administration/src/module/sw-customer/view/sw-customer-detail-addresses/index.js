@@ -42,6 +42,7 @@ Component.register('sw-customer-detail-addresses', {
     data() {
         return {
             isLoading: false,
+            disableRouteParams: true,
             offset: 0,
             limit: 10,
             paginationSteps: [10, 25, 50, 75, 100],

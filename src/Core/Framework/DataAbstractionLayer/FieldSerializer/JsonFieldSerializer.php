@@ -180,7 +180,7 @@ class JsonFieldSerializer implements FieldSerializerInterface
             );
 
             /*
-             * Dont call encode on nested JsonFields if there not typed. This also allows directly storing
+             * Dont call encode on nested JsonFields if they are not typed. This also allows directly storing
              * non-array values like strings.
              */
             if ($nestedField instanceof JsonField && empty($nestedField->getPropertyMapping())) {

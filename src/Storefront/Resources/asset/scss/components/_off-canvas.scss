@@ -36,6 +36,11 @@
 
     .off-canvas-close-icon {
         margin-right: $spacer-xs;
+        margin-top: 0.55rem;
+
+        &.float-right {
+            margin-right: 0;
+        }
     }
 
     > .spinner-border {

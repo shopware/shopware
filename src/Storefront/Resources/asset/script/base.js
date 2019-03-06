@@ -25,6 +25,7 @@ import pluginManager from './helper/plugin.manager';
 import ViewportDetection from "./helper/viewport-detection.helper";
 import CollapseFooterColumns from "./plugin/collapse/collapse-footer.plugin";
 import Logout from "./plugin/logout/logout.plugin";
+import OffCanvasAccountMenu from "./plugin/off-canvas-account-menu/offcanvas-account-menu.plugin";
 
 // Expose jQuery and plugin manager to the global window object
 window.jQuery = jQuery;
@@ -81,3 +82,5 @@ new CollapseFooterColumns();
 
 // Logout
 new Logout();
+
+new OffCanvasAccountMenu();

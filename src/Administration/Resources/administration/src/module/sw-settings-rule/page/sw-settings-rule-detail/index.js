@@ -17,6 +17,7 @@ Component.register('sw-settings-rule-detail', {
     data() {
         return {
             rule: {},
+            moduleTypes: null,
             nestedConditions: {},
             moduleTypeStore: new LocalStore(this.ruleConditionDataProviderService.getModuleTypes((moduleType) => {
                 moduleType.name = this.$tc(moduleType.name);
@@ -77,8 +78,13 @@ Component.register('sw-settings-rule-detail', {
         this.createdComponent();
     },
 
-    mounted() {
-        this.mountedComponent();
+    watch: {
+        'rule.moduleTypes': {
+            deep: true,
+            handler() {
+                this.checkModuleType();
+            }
+        }
     },
 
     methods: {
@@ -90,10 +96,13 @@ Component.register('sw-settings-rule-detail', {
             this.rule = this.ruleStore.getById(this.$route.params.id);
         },
 
-        mountedComponent() {
+        checkModuleType() {
             if (!this.rule.moduleTypes || (this.rule.moduleTypes && !this.rule.moduleTypes.types)) {
-                this.rule.moduleTypes = { types: [] };
+                this.moduleTypes = [];
+                return;
             }
+
+            this.moduleTypes = this.rule.moduleTypes.types;
         },
 
         onSave() {
@@ -109,8 +118,10 @@ Component.register('sw-settings-rule-detail', {
                 'sw-settings-rule.detail.messageSaveError', 0, { name: this.rule.name }
             );
 
-            if (this.rule.moduleTypes && this.rule.moduleTypes.types.length === 0) {
+            if (this.moduleTypes.length === 0) {
                 this.rule.moduleTypes = null;
+            } else {
+                this.rule.moduleTypes = { types: this.moduleTypes };
             }
 
             this.removeOriginalConditionTypes(this.rule.conditions);
@@ -121,6 +132,8 @@ Component.register('sw-settings-rule-detail', {
                     message: messageSaveSuccess
                 });
                 this.$refs.conditionTree.$emit('on-save');
+
+                this.checkModuleType();
 
                 return true;
             }).catch((exception) => {

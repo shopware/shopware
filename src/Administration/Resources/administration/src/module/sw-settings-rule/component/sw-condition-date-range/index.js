@@ -1,4 +1,5 @@
 import { Component } from 'src/core/shopware';
+import LocalStore from 'src/core/data/LocalStore';
 import template from './sw-condition-date-range.html.twig';
 
 /**
@@ -13,6 +14,20 @@ Component.extend('sw-condition-date-range', 'sw-condition-base', {
     template,
 
     computed: {
+        selectValues() {
+            const values = [
+                {
+                    label: this.$tc('global.sw-condition.condition.yes'),
+                    value: 'true'
+                },
+                {
+                    label: this.$tc('global.sw-condition.condition.no'),
+                    value: 'false'
+                }
+            ];
+
+            return new LocalStore(values, 'value');
+        },
         fieldNames() {
             return ['fromDate', 'toDate', 'useTime'];
         },
@@ -26,7 +41,7 @@ Component.extend('sw-condition-date-range', 'sw-condition-base', {
     watch: {
         useTime: {
             handler(newValue) {
-                this.condition.value.useTime = !!newValue;
+                this.condition.value.useTime = newValue === String(true);
                 this.$set(this.datepickerConfig, 'enableTime', this.condition.value.useTime);
             }
         },
@@ -55,7 +70,7 @@ Component.extend('sw-condition-date-range', 'sw-condition-base', {
             datepickerConfig: {},
             fromDate: this.condition.value.fromDate,
             toDate: this.condition.value.toDate,
-            useTime: !!this.condition.value.useTime
+            useTime: this.condition.value.useTime ? String(this.condition.value.useTime) : String(false)
         };
     },
 

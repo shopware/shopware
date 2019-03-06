@@ -5,7 +5,8 @@ class RuleBuilderPageObject extends GeneralPageObject {
         super(browser);
 
         this.elements = {
-            ...this.elements, ...{
+            ...this.elements,
+            ...{
                 columnName: '.sw-settings-rule-list__column-name',
                 ruleSaveAction: '.sw-settings-rule-detail__save-action',
                 ruleDeleteAction: '.sw-condition-or-container__actions--delete',
@@ -108,7 +109,11 @@ class RuleBuilderPageObject extends GeneralPageObject {
                 searchTerm: ruleData.type
             });
 
-        ruleData.useTime ? this.browser.tickCheckbox('input[name=useTime]', true) : null;
+        this.browser.fillSwSelectComponent(`${ruleData.ruleSelector} .sw-select[name=useTime]`, {
+            value: ruleData.useTime ? 'use time' : 'don\'t use time',
+            isMulti: false,
+            searchTerm: String(ruleData.useTime)
+        });
 
         this.browser
             .fillDateField('.field--from-date input', ruleData.fromDate)

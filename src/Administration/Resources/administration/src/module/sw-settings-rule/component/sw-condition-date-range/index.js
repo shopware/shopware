@@ -17,11 +17,11 @@ Component.extend('sw-condition-date-range', 'sw-condition-base', {
         selectValues() {
             const values = [
                 {
-                    label: this.$tc('global.sw-condition.condition.yes'),
+                    label: this.$tc('global.sw-condition.condition.withTime'),
                     value: 'true'
                 },
                 {
-                    label: this.$tc('global.sw-condition.condition.no'),
+                    label: this.$tc('global.sw-condition.condition.withoutTime'),
                     value: 'false'
                 }
             ];

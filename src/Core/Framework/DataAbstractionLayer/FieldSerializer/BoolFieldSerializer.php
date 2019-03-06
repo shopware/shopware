@@ -52,14 +52,25 @@ class BoolFieldSerializer implements FieldSerializerInterface
             $this->validate($this->validator, $constraints, $data->getKey(), $data->getValue(), $parameters->getPath());
         }
 
-        $transformed = $data->getValue() ? 1 : 0;
+        $value = $data->getValue();
+        if ($value === null) {
+            yield $field->getStorageName() => null;
+
+            return;
+        }
+
+        $transformed = $value ? 1 : 0;
 
         /* @var BoolField $field */
         yield $field->getStorageName() => $transformed;
     }
 
-    public function decode(Field $field, $value): bool
+    public function decode(Field $field, $value): ?bool
     {
+        if ($value === null) {
+            return null;
+        }
+
         return (bool) $value;
     }
 }

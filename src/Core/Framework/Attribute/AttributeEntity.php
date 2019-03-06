@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Attribute;
 
+use Shopware\Core\Framework\Attribute\Aggregate\AttributeSet\AttributeSetEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 

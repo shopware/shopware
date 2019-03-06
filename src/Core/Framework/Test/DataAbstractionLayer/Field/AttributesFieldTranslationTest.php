@@ -69,12 +69,12 @@ class AttributesFieldTranslationTest extends TestCase
     public function testTranslatedAttributes(): void
     {
         $this->addAttributes([
-            'code' => AttributeTypes::STRING,
-            'de' => AttributeTypes::STRING,
-            'system' => AttributeTypes::STRING,
+            'code' => AttributeTypes::TEXT,
+            'de' => AttributeTypes::TEXT,
+            'system' => AttributeTypes::TEXT,
             'systemFloat' => AttributeTypes::FLOAT,
-            'root' => AttributeTypes::STRING,
-            'child' => AttributeTypes::STRING,
+            'root' => AttributeTypes::TEXT,
+            'child' => AttributeTypes::TEXT,
         ]);
 
         $rootLanguageId = Uuid::uuid4()->getHex();
@@ -295,14 +295,14 @@ class AttributesFieldTranslationTest extends TestCase
         $first = $result->first();
         static::assertArrayNotHasKey('system', $first->get('translatedAttributes'));
         static::assertArrayNotHasKey('root', $first->get('translatedAttributes'));
-        static::assertEquals((new \DateTime($now))->format(Defaults::DATE_FORMAT), $first->get('translatedAttributes')['child']);
+        static::assertEquals((new \DateTime($now))->format(\DateTime::ATOM), $first->get('translatedAttributes')['child']);
         static::assertEquals(3, $first->get('translatedAttributes')['int']);
 
         /** @var Entity $viewData */
         $viewData = $first->getViewData();
         static::assertEquals(1.0, $viewData->get('translatedAttributes')['systemFloat']);
         static::assertTrue($viewData->get('translatedAttributes')['root']);
-        static::assertEquals((new \DateTime($now))->format(Defaults::DATE_FORMAT), $viewData->get('translatedAttributes')['child']);
+        static::assertEquals((new \DateTime($now))->format(\DateTime::ATOM), $viewData->get('translatedAttributes')['child']);
         static::assertEquals(3, $viewData->get('translatedAttributes')['int']);
     }
 
@@ -313,7 +313,7 @@ class AttributesFieldTranslationTest extends TestCase
             'root' => AttributeTypes::BOOL,
             'sub' => AttributeTypes::DATETIME,
             'int' => AttributeTypes::INT,
-            'parent' => AttributeTypes::STRING,
+            'parent' => AttributeTypes::TEXT,
         ]);
 
         $parentId = Uuid::uuid4()->getHex();
@@ -427,14 +427,14 @@ class AttributesFieldTranslationTest extends TestCase
         /** @var Entity $first */
         $first = $result->first();
         static::assertArrayNotHasKey('system', $first->get('translatedAttributes'));
-        static::assertTrue($first->get('translatedAttributes')['root']);
+        static::assertEquals(1, $first->get('translatedAttributes')['root']);
         static::assertArrayNotHasKey('sub', $first->get('translatedAttributes'));
         static::assertEquals(2, $first->get('translatedAttributes')['int']);
 
         /** @var Entity $viewData */
         $viewData = $first->getViewData();
         static::assertEquals(1.0, $viewData->get('translatedAttributes')['systemFloat']);
-        static::assertTrue($viewData->get('translatedAttributes')['root']);
+        static::assertEquals(1, $viewData->get('translatedAttributes')['root']);
         static::assertArrayNotHasKey('sub', $viewData->get('translatedAttributes'));
         static::assertEquals(2, $viewData->get('translatedAttributes')['int']);
         static::assertEquals('inherited attribute', $viewData->get('translatedAttributes')['parent']);
@@ -476,14 +476,14 @@ class AttributesFieldTranslationTest extends TestCase
         $first = $result->first();
         static::assertArrayNotHasKey('system', $first->get('translatedAttributes'));
         static::assertArrayNotHasKey('root', $first->get('translatedAttributes'));
-        static::assertEquals((new \DateTime($now))->format(Defaults::DATE_FORMAT), $first->get('translatedAttributes')['sub']);
+        static::assertEquals((new \DateTime($now))->format(\DateTime::ATOM), $first->get('translatedAttributes')['sub']);
         static::assertEquals(3, $first->get('translatedAttributes')['int']);
 
         /** @var Entity $viewData */
         $viewData = $first->getViewData();
         static::assertEquals(1.0, $viewData->get('translatedAttributes')['systemFloat']);
-        static::assertTrue($viewData->get('translatedAttributes')['root']);
-        static::assertEquals((new \DateTime($now))->format(Defaults::DATE_FORMAT), $viewData->get('translatedAttributes')['sub']);
+        static::assertEquals(1, $viewData->get('translatedAttributes')['root']);
+        static::assertEquals((new \DateTime($now))->format(\DateTime::ATOM), $viewData->get('translatedAttributes')['sub']);
         static::assertEquals(3, $viewData->get('translatedAttributes')['int']);
         static::assertEquals('inherited attribute', $viewData->get('translatedAttributes')['parent']);
     }

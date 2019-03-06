@@ -44,7 +44,7 @@ class CartPriceFieldSerializer extends JsonFieldSerializer
             return null;
         }
 
-        $value = json_decode((string) $value, true);
+        $value = parent::decode($field, $value);
 
         $taxRules = array_map(
             function (array $tax) {

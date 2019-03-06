@@ -69,14 +69,14 @@ class JsonFieldSerializer implements FieldSerializerInterface
         $value = $data->getValue();
 
         /** @var JsonField $field */
-        if ($this->requiresValidation($field, $existence, $data->getValue(), $parameters)) {
+        if ($this->requiresValidation($field, $existence, $value, $parameters)) {
             $constraints = $this->getConstraints($parameters);
 
-            $this->validate($this->validator, $constraints, $data->getKey(), $data->getValue(), $parameters->getPath());
+            $this->validate($this->validator, $constraints, $data->getKey(), $value, $parameters->getPath());
         }
 
-        if (!empty($field->getPropertyMapping()) && $data->getValue() !== null) {
-            $value = $this->validateMapping($field, $data->getValue(), $parameters);
+        if ($value !== null && !empty($field->getPropertyMapping())) {
+            $value = $this->validateMapping($field, $value, $parameters);
         }
 
         if ($value !== null) {
@@ -88,11 +88,38 @@ class JsonFieldSerializer implements FieldSerializerInterface
 
     public function decode(Field $field, $value)
     {
+        if (!$field instanceof JsonField) {
+            throw new InvalidSerializerFieldException(JsonField::class, $field);
+        }
+
         if ($value === null) {
             return null;
         }
 
-        return json_decode($value, true);
+        $raw = json_decode($value, true);
+        $decoded = $raw;
+        if (empty($field->getPropertyMapping())) {
+            return $raw;
+        }
+
+        foreach ($field->getPropertyMapping() as $embedded) {
+            $key = $embedded->getPropertyName();
+            if (!isset($raw[$key])) {
+                continue;
+            }
+            $value = $embedded instanceof JsonField
+                ? self::encodeJson($raw[$key])
+                : $raw[$key];
+
+            $decodedValue = $this->fieldHandlerRegistry->decode($embedded, $value);
+            if ($decodedValue instanceof \DateTime) {
+                $decodedValue = $decodedValue->format(\DateTime::ATOM);
+            }
+
+            $decoded[$key] = $decodedValue;
+        }
+
+        return $decoded;
     }
 
     protected function getConstraints(WriteParameterBag $parameters): array
@@ -151,6 +178,15 @@ class JsonFieldSerializer implements FieldSerializerInterface
                 $parameters->getCommandQueue(),
                 $parameters->getExceptionStack()
             );
+
+            /*
+             * Dont call encode on nested JsonFields if they are not typed. This also allows directly storing
+             * non-array values like strings.
+             */
+            if ($nestedField instanceof JsonField && empty($nestedField->getPropertyMapping())) {
+                $stack->update($kvPair->getKey(), $kvPair->getValue());
+                continue;
+            }
 
             try {
                 $encoded = $this->fieldHandlerRegistry->encode($nestedField, $existence, $kvPair, $nestedParams);

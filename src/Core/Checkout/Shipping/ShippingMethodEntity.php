@@ -202,12 +202,12 @@ class ShippingMethodEntity extends Entity
         $this->bindShippingfree = $bindShippingfree;
     }
 
-    public function getBindLaststock(): bool
+    public function getBindLaststock(): ?bool
     {
         return $this->bindLaststock;
     }
 
-    public function setBindLaststock(bool $bindLaststock): void
+    public function setBindLaststock(?bool $bindLaststock): void
     {
         $this->bindLaststock = $bindLaststock;
     }

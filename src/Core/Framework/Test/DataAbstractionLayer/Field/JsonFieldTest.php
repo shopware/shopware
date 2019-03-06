@@ -6,7 +6,9 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DBALException;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductDefinition;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -19,12 +21,13 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\JsonDefinition;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\NestedDefinition;
+use Shopware\Core\Framework\Test\TestCaseBase\CacheTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Version\Aggregate\VersionCommitData\VersionCommitDataDefinition;
 
 class JsonFieldTest extends TestCase
 {
-    use KernelTestBehaviour;
+    use KernelTestBehaviour, CacheTestBehaviour;
 
     /**
      * @var Connection
@@ -40,6 +43,7 @@ DROP TABLE IF EXISTS _test_nullable;
 CREATE TABLE `_test_nullable` (
   `id` varbinary(16) NOT NULL,
   `data` longtext NULL,
+  `root` longtext NULL,
   PRIMARY KEY `id` (`id`)
 );
 EOF;
@@ -358,6 +362,95 @@ EOF;
             // mysql throws an exception on invalid path
             static::assertTrue(true);
         }
+    }
+
+    public function testNestedJsonField(): void
+    {
+        $context = $this->createWriteContext();
+        $insertTime = new \DateTime('2004-02-29 08:59:59.001');
+        $updateTime = new \DateTime('2004-02-29 08:59:59.002');
+
+        $id = Uuid::uuid4()->getHex();
+
+        $insert = [
+            'id' => $id,
+            'root' => [
+                'child' => [
+                    'childDate' => $insertTime,
+                ],
+            ],
+        ];
+        $written = $this->getWriter()->insert(JsonDefinition::class, [$insert], $context);
+        static::assertCount(1, $written);
+        static::assertCount(1, $written[JsonDefinition::class]);
+
+        /** @var EntityWriteResult $event */
+        $event = $written[JsonDefinition::class][0];
+        static::assertEquals($insertTime->format(\DateTime::ATOM), $event->getPayload()['root']['child']['childDate']);
+
+        $update = [
+            'id' => $id,
+            'root' => [
+                'child' => [
+                    'childDate' => $updateTime,
+                ],
+            ],
+        ];
+        $written = $this->getWriter()->update(JsonDefinition::class, [$update], $context);
+        static::assertCount(1, $written);
+        static::assertCount(1, $written[JsonDefinition::class]);
+
+        /** @var EntityWriteResult $event */
+        $event = $written[JsonDefinition::class][0];
+        static::assertEquals($updateTime->format(\DateTime::ATOM), $event->getPayload()['root']['child']['childDate']);
+    }
+
+    public function testNestedJsonFilter(): void
+    {
+        $context = $this->createWriteContext();
+
+        $firstId = Uuid::uuid4()->getHex();
+        $firstDate = new \DateTime('2004-02-29 08:59:59.001');
+
+        $laterId = Uuid::uuid4()->getHex();
+        $laterDate = new \DateTime('2004-02-29 08:59:59.002');
+
+        $latestId = Uuid::uuid4()->getHex();
+        $latestDate = new \DateTime('2005-02-28 08:59:59.000');
+
+        $data = [
+            [
+                'id' => $firstId,
+                'root' => ['child' => ['childDate' => $firstDate]],
+            ],
+            [
+                'id' => $laterId,
+                'root' => ['child' => ['childDate' => $laterDate]],
+            ],
+            [
+                'id' => $latestId,
+                'root' => ['child' => ['childDate' => $latestDate]],
+            ],
+        ];
+        $this->getWriter()->insert(JsonDefinition::class, $data, $context);
+
+        $repo = $this->getRepository();
+        $context = $context->getContext();
+
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('root.child.childDate', $firstDate->format(Defaults::DATE_FORMAT)));
+        $result = $repo->search(JsonDefinition::class, $criteria, $context);
+
+        static::assertCount(1, $result->getIds());
+        static::assertEquals([$firstId], $result->getIds());
+
+        $criteria = new Criteria();
+        // string match, should only work if its casted correctly
+        $criteria->addFilter(new EqualsFilter('root.child.childDate', '2005-02-28 08:59:59'));
+        $result = $repo->search(JsonDefinition::class, $criteria, $context);
+
+        static::assertCount(1, $result->getIds());
+        static::assertEquals([$latestId], $result->getIds());
     }
 
     protected function createWriteContext(): WriteContext

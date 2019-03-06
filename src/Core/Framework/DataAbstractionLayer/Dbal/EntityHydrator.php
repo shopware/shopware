@@ -11,6 +11,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\AttributesField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Extension;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Inherited;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToOneAssociationField;
@@ -163,14 +164,22 @@ class EntityHydrator
             }
 
             if ($field->is(Inherited::class)) {
-                //decode resolved inheritance value (only assigned to `viewData`)
-                $decoded = $this->fieldHandler->decode($field, $value);
-                $entity->getViewData()->assign([$propertyName => $decoded]);
-
                 //decode raw child value (only assigned to `child` entity)
                 $key = $root . '.' . $propertyName . '.raw';
-                $decoded = $this->fieldHandler->decode($field, $row[$key]);
-                $entity->assign([$propertyName => $decoded]);
+                $raw = $this->fieldHandler->decode($field, $row[$key]);
+                $entity->assign([$propertyName => $raw]);
+
+                $parentKey = $root . '.' . $propertyName . '.inherited';
+                if (isset($row[$parentKey]) && $field instanceof JsonField) {
+                    // merge raw and inherited json values into view data
+                    $mergedJson = $this->mergeJson([$row[$parentKey], $row[$key]]);
+                    $merged = $this->fieldHandler->decode($field, $mergedJson);
+                    $entity->getViewData()->assign([$propertyName => $merged]);
+                } else {
+                    //decode resolved inheritance value (only assigned to `viewData`)
+                    $decoded = $this->fieldHandler->decode($field, $value);
+                    $entity->getViewData()->assign([$propertyName => $decoded]);
+                }
 
                 continue;
             }
@@ -184,7 +193,7 @@ class EntityHydrator
 
         if ($translations !== null) {
             $entity->assign(['translations' => $translations]);
-            $this->mergeTranslatedAttributes($entity->getViewData(), $definition, $translations);
+            $this->mergeTranslatedAttributes($entity->getViewData(), $definition, $root, $row, $context);
         }
 
         //write object cache key to prevent multiple hydration for the same entity
@@ -196,12 +205,28 @@ class EntityHydrator
     }
 
     /**
+     * @param string[] $jsonStrings
+     */
+    private function mergeJson(array $jsonStrings): ?string
+    {
+        // remove empty strings and nulls
+        $filtered = \array_filter($jsonStrings);
+        if (empty($filtered)) {
+            return null;
+        }
+        $decoded = \array_map(function ($jsonString) { return \json_decode($jsonString, true); }, $filtered);
+
+        return \json_encode(\array_merge(...$decoded), JSON_PRESERVE_ZERO_FRACTION);
+    }
+
+    /**
      * @param string|EntityDefinition $definition
      */
-    private function mergeTranslatedAttributes(Entity $viewData, string $definition, EntityCollection $translations): void
+    private function mergeTranslatedAttributes(Entity $viewData, string $definition, string $root, array $row, Context $context): void
     {
         $translationDefinition = $definition::getTranslationDefinitionClass();
         $translatedAttributeFields = $translationDefinition::getFields()->filterInstance(AttributesField::class);
+        $chain = EntityDefinitionQueryHelper::buildTranslationChain($root, $context, true);
 
         /*
          * The translations are order like this:
@@ -211,23 +236,22 @@ class EntityHydrator
          */
         foreach ($translatedAttributeFields as $field) {
             $property = $field->getPropertyName();
-            $attributeTranslations = [];
-            /** @var Entity $translation */
-            foreach ($translations as $translation) {
-                $attributeTranslation = $translation->get($property);
-                if ($attributeTranslation !== null) {
-                    $attributeTranslations[] = $attributeTranslation;
-                }
+
+            $values = [];
+            foreach ($chain as $part) {
+                $key = $part['alias'] . '.' . $property;
+                $values[] = $row[$key] ?? null;
             }
-            if (empty($attributeTranslations)) {
+            if (empty($values)) {
                 continue;
             }
+
             /**
              * `array_merge`s ordering is reversed compared to the translations array.
              * In other terms: The first argument has the lowest 'priority', so we need to reverse the array
              */
-            $merged = \array_merge(...\array_reverse($attributeTranslations, false));
-            $viewData->assign([$property => $merged]);
+            $merged = $this->mergeJson(\array_reverse($values, false));
+            $viewData->assign([$property => $this->fieldHandler->decode($field, $merged)]);
         }
     }
 

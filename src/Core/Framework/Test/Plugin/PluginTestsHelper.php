@@ -39,6 +39,7 @@ trait PluginTestsHelper
                     'version' => $version,
                     'label' => \SwagTest\SwagTest::PLUGIN_LABEL,
                     'installedAt' => $installedAt,
+                    'active' => false,
                 ],
             ],
             $context

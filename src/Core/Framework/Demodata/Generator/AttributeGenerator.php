@@ -92,7 +92,7 @@ class AttributeGenerator implements DemodataGeneratorInterface
             AttributeTypes::FLOAT,
             AttributeTypes::DATETIME,
             AttributeTypes::BOOL,
-            AttributeTypes::STRING,
+            AttributeTypes::TEXT,
         ];
 
         $name = $context->getFaker()->unique()->words(3, true);
@@ -246,7 +246,7 @@ class AttributeGenerator implements DemodataGeneratorInterface
             case AttributeTypes::DATETIME:
                 return $faker->dateTime;
 
-            case AttributeTypes::STRING:
+            case AttributeTypes::TEXT:
             default:
                 return $faker->text();
         }

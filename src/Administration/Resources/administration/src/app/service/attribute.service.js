@@ -14,7 +14,7 @@ export default function createAttributeService() {
     const $typeStore = {
         select: {
             configRenderComponent: 'sw-attribute-type-select',
-            type: 'string',
+            type: 'json',
             config: {
                 componentName: 'sw-select',
                 type: 'select'
@@ -30,7 +30,7 @@ export default function createAttributeService() {
         },
         media: {
             configRenderComponent: 'sw-attribute-type-base',
-            type: 'string',
+            type: 'text',
             config: {
                 componentName: 'sw-media-field'
             }
@@ -71,14 +71,14 @@ export default function createAttributeService() {
         },
         textEditor: {
             configRenderComponent: 'sw-attribute-type-text-editor',
-            type: 'string',
+            type: 'html',
             config: {
                 componentName: 'sw-text-editor'
             }
         },
         colorpicker: {
             configRenderComponent: 'sw-attribute-type-base',
-            type: 'string',
+            type: 'text',
             config: {
                 componentName: 'sw-field',
                 type: 'colorpicker'

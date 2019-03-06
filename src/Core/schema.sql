@@ -9,6 +9,7 @@ CREATE TABLE `plugin` (
     `license`         VARCHAR(255) COLLATE utf8mb4_unicode_ci NULL,
     `version`         VARCHAR(255) COLLATE utf8mb4_unicode_ci NOT NULL,
     `upgrade_version` VARCHAR(255) COLLATE utf8mb4_unicode_ci NULL,
+    `icon`            MEDIUMBLOB                              NULL,
     `installed_at`    DATETIME(3)                             NULL,
     `upgraded_at`     DATETIME(3)                             NULL,
     `created_at`      DATETIME(3)                             NOT NULL,

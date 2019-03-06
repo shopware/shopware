@@ -67,6 +67,16 @@ class PluginEntity extends Entity
     protected $upgradedAt;
 
     /**
+     * @var string|null
+     */
+    protected $iconRaw;
+
+    /**
+     * @var string|null
+     */
+    protected $icon;
+
+    /**
      * @var string
      */
     protected $label;
@@ -226,6 +236,26 @@ class PluginEntity extends Entity
         $this->upgradedAt = $upgradedAt;
     }
 
+    public function getIconRaw(): ?string
+    {
+        return $this->iconRaw;
+    }
+
+    public function setIconRaw(string $iconRaw): void
+    {
+        $this->iconRaw = $iconRaw;
+    }
+
+    public function getIcon(): ?string
+    {
+        return $this->icon;
+    }
+
+    public function setIcon(string $icon): void
+    {
+        $this->icon = $icon;
+    }
+
     public function getLabel(): string
     {
         return $this->label;
@@ -324,5 +354,13 @@ class PluginEntity extends Entity
     public function setAttributes(?array $attributes): void
     {
         $this->attributes = $attributes;
+    }
+
+    public function jsonSerialize(): array
+    {
+        $serializedData = parent::jsonSerialize();
+        unset($serializedData['iconRaw']);
+
+        return $serializedData;
     }
 }

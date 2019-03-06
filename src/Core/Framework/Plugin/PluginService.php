@@ -103,6 +103,7 @@ class PluginService
                 'copyright' => $extra['copyright'] ?? null,
                 'license' => implode(', ', $license),
                 'version' => $pluginVersion,
+                'iconRaw' => $this->getPluginIconRaw($pluginPath),
             ];
 
             $pluginData = $this->getTranslation($extra, $pluginData, 'label', 'label', $shopwareContext);
@@ -223,5 +224,16 @@ class PluginService
         $languageEntity = $result->first();
 
         return $languageEntity->getId();
+    }
+
+    private function getPluginIconRaw(string $pluginPath): ?string
+    {
+        $png = $pluginPath . '/Resources/public/plugin.png';
+
+        if (!is_file($png)) {
+            return null;
+        }
+
+        return file_get_contents($png);
     }
 }

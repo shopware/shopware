@@ -258,7 +258,7 @@ class SalesChannelEntity extends Entity
         return $this->mailHeaderFooterId;
     }
 
-    public function setMailHeaderFooterId(?string $mailHeaderFooterId): void
+    public function setMailHeaderFooterId(string $mailHeaderFooterId): void
     {
         $this->mailHeaderFooterId = $mailHeaderFooterId;
     }

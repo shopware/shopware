@@ -64,5 +64,6 @@
 			<argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\EntityAggregatorInterface"/>
 			<argument type="service" id="event_dispatcher"/>
 		</service>
+
 	</services>
 </container>

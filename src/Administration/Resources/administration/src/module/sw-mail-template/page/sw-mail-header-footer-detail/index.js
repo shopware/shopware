@@ -82,7 +82,20 @@ Component.register('sw-mail-header-footer-detail', {
                 )
             };
 
-            return this.mailHeaderFooter.save().then(() => {
+            if (!this.mailHeaderFooter.salesChannels) {
+                this.mailHeaderFooter.salesChannels = [];
+            }
+
+            return this.mailHeaderFooter.save(false).then(() => {
+                this.salesChannelStore.forEach((salesChannel) => {
+                    if (this.mailHeaderFooter.salesChannels.findIndex(entry => entry === salesChannel.id) >= 0) {
+                        salesChannel.mailHeaderFooterId = this.mailHeaderFooter.id;
+                    } else if (salesChannel.mailHeaderFooterId === this.mailHeaderFooter.id) {
+                        salesChannel.mailHeaderFooterId = null;
+                    }
+                    return salesChannel.save(false);
+                });
+            }).then(() => {
                 this.createNotificationSuccess(notificationSuccess);
             }).catch((exception) => {
                 this.createNotificationError(notificationError);

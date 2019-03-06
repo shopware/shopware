@@ -1,15 +1,15 @@
-.product--name {
+.product-name {
     color: $headings-color;
     font-weight: $headings-font-weight;
     font-size: $font-size-lg;
 
-    a:hover {
+    &:hover {
         color: $primary;
         text-decoration: none;
     }
 }
 
-.product--price {
+.product-price {
     color: $headings-color;
     font-size: $font-size-lg;
 }

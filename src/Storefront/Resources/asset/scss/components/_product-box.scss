@@ -2,18 +2,19 @@
     height: 100%;
 }
 
-.product--image {
-    margin-bottom: 1rem;
-
-    a {
-        display: block;
-    }
-}
-
-.product--name {
+.product-image {
     margin-bottom: 1rem;
 }
 
-.product--price {
+.product-image-link {
+    display: block;
+}
+
+.product-name {
+    display: block;
+    margin-bottom: 1rem;
+}
+
+.product-price {
     font-weight: $font-weight-bold;
 }

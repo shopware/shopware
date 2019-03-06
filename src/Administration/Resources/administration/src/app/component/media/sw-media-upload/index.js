@@ -12,7 +12,7 @@ import './sw-media-upload.scss';
  * @example-type dynamic
  * @component-example
  * <sw-media-upload
- *     uploadTag="Lorem ipsum dolor sit amet"
+ *     uploadTag="my-upload-tag"
  *     variant="regular"
  *     allowMultiSelect="false"
  *     variant="regular"
@@ -264,6 +264,7 @@ export default {
         },
 
         onRemoveMediaItem() {
+            this.preview = null;
             this.$emit('sw-media-upload-remove-image');
         },
 
@@ -276,7 +277,7 @@ export default {
                 this.preview = url;
             }
 
-            const fileInfo = fileReader.getNameAnExtensionFromUrl(url);
+            const fileInfo = fileReader.getNameAndExtensionFromUrl(url);
             if (fileExtension) {
                 fileInfo.extension = fileExtension;
             }
@@ -339,10 +340,13 @@ export default {
             return mediaItem;
         },
 
-        async getDefaultFolderId() {
+        getDefaultFolderId() {
             return this.defaultFolderStore.getList({
                 limit: 1,
-                criteria: CriteriaFactory.equals('entity', this.defaultFolder)
+                criteria: CriteriaFactory.equals('entity', this.defaultFolder),
+                associations: {
+                    folder: {}
+                }
             }).then(({ items }) => {
                 if (items.length !== 1) {
                     return null;

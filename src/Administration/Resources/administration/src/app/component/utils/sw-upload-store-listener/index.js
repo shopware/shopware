@@ -1,6 +1,18 @@
-import { State } from 'src/core/shopware';
+import { Mixin, State } from 'src/core/shopware';
 import { UploadEvents } from 'src/core/data/UploadStore';
 import utils from 'src/core/service/util.service';
+
+function isIllegalFileNameException(error) {
+    return error.response.data.errors.some((err) => {
+        return err.code === 'ILLEGAL_FILE_NAME_EXCEPTION';
+    });
+}
+
+function isDuplicationException(error) {
+    return error.response.data.errors.some((err) => {
+        return err.code === 'DUPLICATED_MEDIA_FILE_NAME_EXCEPTION';
+    });
+}
 
 /**
  * @public
@@ -20,6 +32,10 @@ export default {
     render() {
         return document.createComment('');
     },
+
+    mixins: [
+        Mixin.getByName('notification')
+    ],
 
     props: {
         uploadTag: {
@@ -47,19 +63,15 @@ export default {
 
         mediaStore() {
             return State.getStore('media');
-        },
-
-        listenerKey() {
-            return `sw-upload-store-listener-${this.id}`;
         }
     },
 
     created() {
-        this.uploadStore.addListener(this.listenerKey, this.convertStoreEventToVueEvent);
+        this.uploadStore.addListener(this.uploadTag, this.convertStoreEventToVueEvent);
     },
 
     destroyed() {
-        this.uploadStore.removeListener(this.listenerKey);
+        this.uploadStore.removeListener(this.uploadTag, this.convertStoreEventToVueEvent);
     },
 
     methods: {
@@ -79,11 +91,31 @@ export default {
             }
 
             if (action === UploadEvents.UPLOAD_FINISHED) {
+                this.createNotificationSuccess({
+                    title: this.$root.$tc('global.sw-media-upload.notification.success.title'),
+                    message: this.$root.$tc('global.sw-media-upload.notification.success.message')
+                });
                 this.$emit(UploadEvents.UPLOAD_FINISHED, payload);
                 return;
             }
 
             if (action === UploadEvents.UPLOAD_FAILED) {
+                if (isIllegalFileNameException(payload.error)) {
+                    this.createNotificationError({
+                        title: this.$root.$tc('global.sw-media-upload.notification.illegalFilename.title'),
+                        message: this.$root.$tc(
+                            'global.sw-media-upload.notification.illegalFilename.message',
+                            0,
+                            { fileName: payload.fileName }
+                        )
+                    });
+                } else if (!isDuplicationException(payload.error)) {
+                    this.createNotificationError({
+                        title: this.$root.$tc('global.sw-media-upload.notification.failure.title'),
+                        message: this.$root.$tc('global.sw-media-upload.notification.failure.message')
+                    });
+                }
+
                 this.$emit(UploadEvents.UPLOAD_FAILED, payload);
             }
         },

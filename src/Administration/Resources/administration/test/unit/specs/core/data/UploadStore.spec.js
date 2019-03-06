@@ -1,105 +1,135 @@
 import UploadStore from 'src/core/data/UploadStore';
-import noop from 'lodash/noop';
-import times from 'lodash/times';
-import rangeRight from 'lodash/rangeRight';
+import utils from 'src/core/service/util.service';
 
+function mediaServiceMock() {
+    return {
+        uploadMediaById() {
+            return Promise.resolve();
+        },
+        uploadMediaFromUrl() {
+            return Promise.resolve();
+        }
+    };
+}
+
+function defaultUpdateData() {
+    return {
+        targetId: utils.createId(),
+        src: new URL('http://some.ressource.domain'),
+        fileName: 'file',
+        extension: 'ext'
+    };
+}
+
+/* eslint no-unused-expressions: 0 */
 describe('src/core/data/uploadStore.js', () => {
+    it('adds listener', () => {
+        const mediaService = mediaServiceMock();
+        const uploadStore = new UploadStore(mediaService);
+
+        const callback = () => {};
+        uploadStore.addListener('test-tag', callback);
+
+        expect(uploadStore.$listeners['test-tag']).not.to.be.empty;
+        expect(uploadStore.$listeners['test-tag'][0]).to.be.equals(callback);
+    });
+
+    it('removes the correct listener', () => {
+        const mediaService = mediaServiceMock();
+        const uploadStore = new UploadStore(mediaService);
+
+        const callback = () => {};
+        uploadStore.addListener('test-tag', callback);
+        uploadStore.addListener('test-tag-2', callback);
+
+        expect(uploadStore.$listeners['test-tag']).to.exist;
+        expect(uploadStore.$listeners['test-tag-2']).to.exist;
+
+        uploadStore.removeListener('test-tag');
+
+        expect(uploadStore.$listeners['test-tag']).to.be.empty;
+        expect(uploadStore.$listeners['test-tag-2']).to.exist;
+    });
+
+    it('removes a given callback from listeners', () => {
+        const mediaService = mediaServiceMock();
+        const uploadStore = new UploadStore(mediaService);
+
+        const toRemove = () => { return true; };
+        const toStay = () => {};
+
+        uploadStore.addListener('test-tag', toRemove);
+        uploadStore.addListener('test-tag', toStay);
+
+        uploadStore.removeListener('test-tag', toRemove);
+
+        expect(uploadStore.$listeners['test-tag']).to.have.length(1);
+        expect(uploadStore.$listeners['test-tag'][0]).to.be.equals(toStay);
+    });
+
     it('should save uploads', () => {
-        const uStore = new UploadStore();
-        const tag = 'tag1';
+        const mediaService = mediaServiceMock();
+        const uploadStore = new UploadStore(mediaService);
 
-        const resultTask = uStore.addUpload(tag, noop);
+        const listenerOne = sinon.spy();
+        const listenerTwo = sinon.spy();
+        uploadStore.addListener('test-tag', listenerOne);
+        uploadStore.addListener('test', listenerTwo);
 
-        expect(uStore.tags).to.contain.all.keys(tag);
-        expect(uStore.tags.get(tag)).to.have.lengthOf(1);
-        expect(resultTask).to.have.property('id');
+        uploadStore.addUpload('test-tag', defaultUpdateData());
+
+
+        expect(listenerOne.called).to.be.equals(true);
+        expect(listenerTwo.called).to.be.equals(false);
     });
 
-    it('should count pending upload tasks for a tag', () => {
-        const tags = ['tag1', 'tag1', 'tag2', 'tag2', 'tag3'];
-        const uStore = new UploadStore();
-        tags.forEach((tag) => {
-            uStore.addUpload(tag, noop);
-        });
+    it('calls default and correct listeners', () => {
+        const mediaService = mediaServiceMock();
+        const uploadStore = new UploadStore(mediaService);
 
-        const count = uStore.getPendingTaskCount('tag1');
+        const defaultListener = sinon.spy();
+        const correctListener = sinon.spy();
+        const otherTagsListener = sinon.spy();
 
-        expect(count).to.equal(2);
+        uploadStore.addDefaultListener(defaultListener);
+        uploadStore.addListener('test-tag', correctListener);
+        uploadStore.addListener('wrong-tag', otherTagsListener);
+
+        uploadStore.addUpload('test-tag', defaultUpdateData());
+        expect(defaultListener.withArgs('sw-media-upload-added').calledOnce);
+        expect(correctListener.withArgs('sw-media-upload-added').calledOnce);
+
+        uploadStore.runUploads('test-tag');
+        expect(defaultListener.withArgs('sw-media-upload-finished').calledOnce);
+        expect(correctListener.withArgs('sw-media-upload-finished').calledOnce);
+
+        expect(otherTagsListener.notCalled);
     });
 
-    it('should count running upload tasks for a tag', () => {
-        const uStore = new UploadStore();
+    it('does not stop just because one upload failed', () => {
+        const mediaService = mediaServiceMock();
 
-        const testTasks = [
-            { id: 0, running: true, resolved: false },
-            { id: 1, running: true, resolved: false },
-            { id: 2, running: false, resolved: true },
-            { id: 3, running: false, resolved: true },
-            { id: 4, running: false, resolved: true }
-        ];
-        const tag = 'tag1';
+        // simulate that the first upload fails
+        function failingUploadFunction() {
+            if (!this.called) {
+                this.called = true;
+                return Promise.reject();
+            }
 
-        uStore.tags.set(tag, testTasks);
+            return Promise.resolve();
+        }
+        mediaService.uploadMediaFromUrl = failingUploadFunction;
 
-        const count = uStore.getRunningTaskCount(tag);
+        const uploadStore = new UploadStore(mediaService);
 
-        expect(count).to.equal(2);
-    });
-
-    it('should delete an upload by its ID', () => {
-        const uStore = new UploadStore();
-        const tag = 'tag1';
-
-        const upload = uStore.addUpload(tag, noop);
-        const uploadId = upload.id;
-
-        uStore.removeUpload(uploadId);
-
-        expect(uStore.tags.size).to.equal(0);
-    });
-
-    it('should run uploads', () => {
-        const tag = 'tag1';
-        let uploadCounter = 0;
-        const testFn = () => {
-            uploadCounter += 1;
-        };
-
-        const uStore = new UploadStore();
-        times(10, () => {
-            uStore.addUpload(tag, testFn);
-        });
-
-        return uStore.runUploads(tag).then(() => {
-            expect(uStore.tags.size).to.equal(0);
-
-            expect(uploadCounter).to.equal(10);
-        });
-    });
-
-    it('should provide a callback mechanism for status updates', () => {
-        const tag = 'tag1';
-        const uploadCount = 10;
-        const uStore = new UploadStore();
-
-        // save 10 mock uploads that take 0,1,2,3,..,9 ms to finish
-        times(uploadCount, (index) => {
-            uStore.addUpload(tag, () => {
-                return new Promise((resolve) => {
-                    setTimeout(resolve, index);
-                });
-            });
-        });
-
-        const runningTaskLog = [];
-        const testCallback = (runningTaskCount) => {
-            runningTaskLog.push(runningTaskCount);
-        };
-
-        return uStore.runUploads(tag, testCallback).then(() => {
-            expect(uStore.tags.size).to.equal(0);
-
-            expect(runningTaskLog).to.deep.equal(rangeRight(uploadCount));
-        });
+        const defaultListener = sinon.spy();
+        uploadStore.addDefaultListener(defaultListener);
+        uploadStore.addUploads('test-tag', [
+            defaultUpdateData(),
+            defaultUpdateData()
+        ]);
+        uploadStore.runUploads('test-tag');
+        expect(defaultListener.calledWith('sw-media-upload-failed').calleOnce);
+        expect(defaultListener.calledWith('sw-media-upload-finished').calleOnce);
     });
 });

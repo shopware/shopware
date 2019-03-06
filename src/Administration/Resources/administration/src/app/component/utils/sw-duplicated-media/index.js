@@ -3,6 +3,9 @@ import CriteriaFactory from 'src/core/factory/criteria.factory';
 import template from './sw-duplicated-media.html.twig';
 import './sw-duplicated-media.scss';
 
+const LOCAL_STORAGE_KEY_OPTION = 'sw-duplicate-media-resolve-option';
+const LOCAL_STORAGE_SAVE_SELECTION = 'sw-duplicate-media-resolve-save-selection';
+
 export default {
     name: 'sw-duplicated-media',
     template,
@@ -14,12 +17,9 @@ export default {
     data() {
         return {
             isLoading: false,
-            localStorageKeyOption: 'sw-duplicate-media-resolve-option',
-            localStorageKeySaveSelection: 'sw-duplicate-media-resolve-save-selection',
-            uploadTag: 'sw-duplicate-media-resolver',
             shouldSaveSelection: false,
             selectedOption: 'Replace',
-            duplicateName: '',
+            suggestedName: '',
             existingMedia: null,
             targetEntity: null,
             failedUploadTasks: [],
@@ -87,6 +87,14 @@ export default {
             }
 
             return metadata.join(', ');
+        },
+
+        showModal() {
+            return this.failedUploadTasks.length > 0 && !this.isWorkingOnMultipleTasks;
+        },
+
+        isWorkingOnMultipleTasks() {
+            return this.isLoading && this.shouldSaveSelection;
         }
     },
 
@@ -115,7 +123,11 @@ export default {
 
     created() {
         this.componentCreated();
-        this.uploadStore.addListener(this.uploadTag, this.handleUploadStoreEvent);
+        this.uploadStore.addDefaultListener(this.handleUploadStoreEvent);
+    },
+
+    beforeDestroyed() {
+        this.uploadStore.removeDefaultListener(this.handleUploadStoreEvent);
     },
 
     methods: {
@@ -125,22 +137,26 @@ export default {
         },
 
         loadDefaultOption() {
-            this.shouldSaveSelection = localStorage.getItem(this.localStorageKeySaveSelection || false);
+            this.shouldSaveSelection = localStorage.getItem(LOCAL_STORAGE_SAVE_SELECTION) || false;
             if (this.shouldSaveSelection) {
-                this.defaultOption = localStorage.getItem(this.localStorageKeyOption || 'Replace');
+                this.defaultOption = localStorage.getItem(LOCAL_STORAGE_KEY_OPTION) || 'Replace';
             }
             this.selectedOption = this.defaultOption || 'Replace';
         },
 
         saveDefaultOption() {
-            localStorage.setItem(this.localStorageKeySaveSelection, this.shouldSaveSelection);
+            localStorage.setItem(LOCAL_STORAGE_SAVE_SELECTION, this.shouldSaveSelection);
             if (this.shouldSaveSelection) {
-                localStorage.setItem(this.localStorageKeyOption, this.defaultOption);
+                localStorage.setItem(LOCAL_STORAGE_KEY_OPTION, this.defaultOption);
             }
         },
 
         handleUploadStoreEvent({ action, payload }) {
             if (action !== 'sw-media-upload-failed') {
+                return;
+            }
+
+            if (!this.isDuplicatedNameError(payload.error)) {
                 return;
             }
 
@@ -152,10 +168,16 @@ export default {
             this.failedUploadTasks.push(payload);
         },
 
+        isDuplicatedNameError(error) {
+            return error.response.data.errors.some((err) => {
+                return err.code === 'DUPLICATED_MEDIA_FILE_NAME_EXCEPTION';
+            });
+        },
+
         updatePreviewData() {
             if (!this.currentTask) {
                 this.existingMedia = null;
-                this.duplicateName = '';
+                this.suggestedName = '';
                 return;
             }
 
@@ -170,7 +192,7 @@ export default {
             });
 
             this.mediaService.provideName(this.currentTask.fileName, this.currentTask.extension).then((response) => {
-                this.duplicateName = response.fileName;
+                this.suggestedName = response.fileName;
             });
         },
 
@@ -191,24 +213,21 @@ export default {
                 break;
             case 'Skip':
             default:
-                solvingPromise = this.skipCurrentFile();
+                solvingPromise = this.skipFile(this.currentTask);
                 break;
             }
 
             return solvingPromise.then(() => {
-                this.removeCurrentTask();
+                this.failedUploadTasks.splice(0, 1);
                 if (this.shouldSaveSelection) {
                     return this.solveDuplicate();
                 }
                 this.isLoading = false;
                 return Promise.resolve();
-            }).catch(() => {
+            }).catch((cause) => {
                 this.isLoading = false;
+                return Promise.reject(cause);
             });
-        },
-
-        removeCurrentTask() {
-            this.failedUploadTasks.splice(0, 1);
         },
 
         renameFile(uploadTask) {
@@ -220,9 +239,29 @@ export default {
             });
         },
 
+        skipAll() {
+            this.isLoading = true;
+
+            return this.skipFile(this.currentTask).then(() => {
+                this.failedUploadTasks.splice(0, 1);
+                if (this.currentTask) {
+                    return this.skipAll();
+                }
+
+                this.isLoading = false;
+                return Promise.resolve();
+            }).catch(() => {
+                this.isLoading = false;
+                return Promise.reject();
+            });
+        },
+
         skipCurrentFile() {
+            this.isLoading = true;
             this.skipFile(this.currentTask).then(() => {
                 this.failedUploadTasks.splice(0, 1);
+                this.isLoading = false;
+            }).catch(() => {
                 this.isLoading = false;
             });
         },

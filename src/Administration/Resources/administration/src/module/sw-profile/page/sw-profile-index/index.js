@@ -41,10 +41,6 @@ Component.register('sw-profile-index', {
             return State.getStore('media');
         },
 
-        uploadStore() {
-            return State.getStore('upload');
-        },
-
         isUserLoading() {
             return !this.user.id;
         },

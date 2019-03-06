@@ -90,10 +90,11 @@ Component.register('sw-media-index', {
         },
 
         onUploadFinished({ targetId }) {
+            this.uploads = this.uploads.filter((upload) => {
+                return upload.id !== targetId;
+            });
+
             this.mediaItemStore.getByIdAsync(targetId).then((updatedItem) => {
-                this.uploads = this.uploads.filter((upload) => {
-                    return upload.id !== updatedItem.id;
-                });
                 this.$refs.mediaLibrary.injectItem(updatedItem);
             });
         },

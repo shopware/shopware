@@ -78,11 +78,11 @@ function getNameAndExtensionFromFile(fileHandle) {
 }
 
 /**
-* @function getNameAnExtensionFromUrl
+* @function getNameAndExtensionFromUrl
 * @param { URL } urlObject
 * @returns {*} = { extension, fileName }
 */
-function getNameAnExtensionFromUrl(urlObject) {
+function getNameAndExtensionFromUrl(urlObject) {
     let ref = urlObject.href.split('/').pop();
 
     const indexOfQueryIndicator = ref.indexOf('?');
@@ -98,5 +98,5 @@ export default {
     readFileAsDataURL,
     readFileAsText,
     getNameAndExtensionFromFile,
-    getNameAnExtensionFromUrl
+    getNameAndExtensionFromUrl
 };

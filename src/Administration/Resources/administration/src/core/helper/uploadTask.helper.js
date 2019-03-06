@@ -1,5 +1,3 @@
-import utils from 'src/core/service/util.service';
-
 /**
  * This class wraps an upload and stores information about it. For use in core/data/UploadStore
  * @class
@@ -7,8 +5,6 @@ import utils from 'src/core/service/util.service';
 export default class UploadTask {
     constructor({ uploadTag, src, targetId, fileName, extension = 'dat' }) {
         this.running = false;
-        this.id = utils.createId();
-
         this.src = src;
         this.uploadTag = uploadTag;
         this.targetId = targetId;

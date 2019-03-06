@@ -31,10 +31,6 @@ Component.register('sw-manufacturer-detail', {
             return State.getStore('media');
         },
 
-        uploadStore() {
-            return State.getStore('upload');
-        },
-
         logoFieldClasses() {
             const isLogo = this.manufacturer.mediaId || this.manufacturer.isLoading;
             return {

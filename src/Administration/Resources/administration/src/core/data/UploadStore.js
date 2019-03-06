@@ -3,7 +3,7 @@
  */
 import remove from 'lodash/remove';
 import UploadTask from 'src/core/helper/uploadTask.helper';
-import { debug, fileReader } from 'src/core/service/util.service';
+import { fileReader } from 'src/core/service/util.service';
 
 const UploadEvents = {
     UPLOAD_ADDED: 'sw-media-upload-added',
@@ -13,30 +13,61 @@ const UploadEvents = {
 
 class UploadStore {
     constructor(mediaService) {
-        this.tags = new Map();
         this.uploads = [];
-        this.$listeners = new Map();
+        this.$listeners = {};
         this.mediaService = mediaService;
     }
 
     /*
      * Event dispatching
      */
-    addListener(key, callback) {
-        if (this.$listeners.has(key)) {
-            debug.warn('UploadStore', `Overriding existing listener for key ${key}.`);
+    hasListeners(uploadTag) {
+        if (!uploadTag) {
+            return false;
         }
-        this.$listeners.set(key, callback);
+
+        return this.$listeners.hasOwnProperty(uploadTag);
     }
 
-    removeListener(key) {
-        this.$listeners.delete(key);
+    hasDefaultListeners() {
+        return this.hasListeners('default');
     }
 
-    _notifyListeners(event) {
-        this.$listeners.forEach((callback) => {
-            callback(event);
+    addListener(uploadTag, callback) {
+        if (!this.hasListeners(uploadTag)) {
+            this.$listeners[uploadTag] = [];
+        }
+        this.$listeners[uploadTag].push(callback);
+    }
+
+    removeListener(uploadTag, callback) {
+        if (!this.hasListeners(uploadTag)) {
+            return;
+        }
+
+        if (callback === undefined) {
+            remove(this.$listeners[uploadTag], () => true);
+            return;
+        }
+
+        remove(this.$listeners[uploadTag], (listener) => {
+            return listener === callback;
         });
+    }
+
+    removeDefaultListener(callback) {
+        this.removeListener('default', callback);
+    }
+
+    addDefaultListener(callback) {
+        this.addListener('default', callback);
+    }
+
+    getListenerForTag(uploadTag) {
+        const tagListener = this.hasListeners(uploadTag) ? this.$listeners[uploadTag] : [];
+        const defaultListeners = this.hasDefaultListeners() ? this.$listeners.default : [];
+
+        return [...tagListener, ...defaultListeners];
     }
 
     _createUploadEvent(action, uploadTag, payload) {
@@ -46,10 +77,6 @@ class UploadStore {
     /*
      * store functionality
      */
-    _isTagMissing(tag) {
-        return !this.tags.has(tag);
-    }
-
     addUpload(uploadTag, uploadData) {
         this.addUploads(uploadTag, [uploadData]);
     }
@@ -59,16 +86,12 @@ class UploadStore {
             this.uploads.push(new UploadTask({ uploadTag, ...uploadData }));
         });
 
-        this._notifyListeners(this._createUploadEvent(
-            UploadEvents.UPLOAD_ADDED,
-            uploadTag,
-            { data: uploadCollection }
-        ));
-    }
-
-    removeUpload(id) {
-        remove(this.uploads, (upload) => {
-            return upload.id === id;
+        this.getListenerForTag(uploadTag).forEach((listener) => {
+            listener(this._createUploadEvent(
+                UploadEvents.UPLOAD_ADDED,
+                uploadTag,
+                { data: uploadCollection }
+            ));
         });
     }
 
@@ -79,9 +102,10 @@ class UploadStore {
     }
 
     runUploads(tag) {
-        const affectedUploads = this.uploads.filter((upload) => {
+        const affectedUploads = remove(this.uploads, (upload) => {
             return upload.uploadTag === tag;
         });
+        const affectedListeners = this.getListenerForTag(tag);
 
         if (affectedUploads.length === 0) {
             return Promise.resolve();
@@ -94,22 +118,24 @@ class UploadStore {
 
             task.running = true;
             return this._startUpload(task).then(() => {
-                this.removeUpload(task.id);
                 task.running = false;
-                this._notifyListeners(this._createUploadEvent(
-                    UploadEvents.UPLOAD_FINISHED,
-                    tag,
-                    { targetId: task.targetId }
-                ));
+                affectedListeners.forEach((listener) => {
+                    listener(this._createUploadEvent(
+                        UploadEvents.UPLOAD_FINISHED,
+                        tag,
+                        { targetId: task.targetId }
+                    ));
+                });
             }).catch((cause) => {
-                this.removeUpload(task.id);
                 task.error = cause;
                 task.running = false;
-                this._notifyListeners(this._createUploadEvent(
-                    UploadEvents.UPLOAD_FAILED,
-                    tag,
-                    task
-                ));
+                affectedListeners.forEach((listener) => {
+                    listener(this._createUploadEvent(
+                        UploadEvents.UPLOAD_FAILED,
+                        tag,
+                        task
+                    ));
+                });
             });
         }));
     }
@@ -123,9 +149,7 @@ class UploadStore {
                     buffer,
                     task.extension,
                     task.fileName
-                ).then(() => {
-                    this.removeUpload(task.id);
-                });
+                );
             });
         }
 
@@ -138,7 +162,7 @@ class UploadStore {
             );
         }
 
-        return Promise.reject(new Error('src of upload must either be instaceof File or URL'));
+        return Promise.reject(new Error('src of upload must either be an instance of File or URL'));
     }
 }
 

@@ -68,10 +68,6 @@ export default {
             return State.getStore('media');
         },
 
-        uploadStore() {
-            return State.getStore('upload');
-        },
-
         mediaFieldClasses() {
             return {
                 'is--active': this.showPicker

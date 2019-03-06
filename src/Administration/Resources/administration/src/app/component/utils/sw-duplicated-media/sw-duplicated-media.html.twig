@@ -1,10 +1,8 @@
 {% block sw_duplicated_media %}
-    <sw-modal v-if="currentTask"
+    <sw-modal v-if="showModal"
               class="sw-duplicated-media"
-              @closeModal="skipCurrentFile"
+              @closeModal="skipAll"
               :title="$tc('global.sw-duplicated-media.titleModal')">
-            <sw-loader v-if="isLoading"></sw-loader>
-
         {% block sw_duplicated_media_body %}
             {% block sw_duplicated_media_body_description %}
                 <p class="sw-duplicated-media__description">
@@ -33,24 +31,28 @@
                     {%  endblock %}
 
                     {% block sw_duplicated_media_body_preview_new_media %}
-                        <div class="sw-media-duplicated-media__target-upload">
+                        <div class="sw-duplicated-media__target-upload">
                             {% block sw_media_duplicated_media_target_preview %}
-                                <div class="sw-media-duplicated-media__target-preview">
+                                <div class="sw-duplicated-media__target-preview">
                                     <sw-media-preview :source="currentTask.src"></sw-media-preview>
                                 </div>
                             {% endblock %}
 
                             {% block sw_media_duplicated_media_target_name %}
-                                <span v-if="this.selectedOption !== 'Rename'" key="sw-media-duplicated-media__target-name">
+                                <span v-if="this.selectedOption !== 'Rename'"
+                                      key="sw-duplicated-media__target-label"
+                                      class="sw-duplicated-media__target-label">
                                     {{ `${currentTask.fileName}.${currentTask.extension}` }}
                                 </span>
-                                <span v-else key="sw-media-duplicated-media__target-name">
-                                    {{ `${duplicateName}.${currentTask.extension}` }}
+                                <span v-else
+                                      key="sw-duplicated-media__target-label"
+                                      class="sw-duplicated-media__target-label">
+                                    {{ `${suggestedName}.${currentTask.extension}` }}
                                 </span>
                             {% endblock %}
 
                             {% block sw_media_duplicated_media_target_details %}
-                                <span class="sw-media-duplicated-media__target-details">{{ currentTaskDetails }}</span>
+                                <span class="sw-duplicated-media__target-details">{{ currentTaskDetails }}</span>
                             {% endblock %}
                         </div>
                     {%  endblock %}
@@ -86,7 +88,7 @@
         {% block sw_duplicated_media_footer %}
             <template slot="modal-footer">
                 {% block sw_duplicated_media_save_selection %}
-                    <sw-field v-if="hasAdditionalErrors"
+                    <sw-field v-if="!isLoading && hasAdditionalErrors"
                               class="sw-duplicated-media__additional-error-count"
                               type="checkbox"
                               v-model="shouldSaveSelection"

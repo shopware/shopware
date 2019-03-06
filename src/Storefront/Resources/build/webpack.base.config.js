@@ -1,12 +1,10 @@
 const webpack = require('webpack');
 const WebpackBar = require('webpackbar');
 const StyleLintPlugin = require('stylelint-webpack-plugin');
-const { resolve } = require('path');
-const config = require('../config');
-
+const {resolve} = require('path');
 const buildDirectory = resolve(process.env.PROJECT_ROOT, 'public');
 
-const publicPath = `${process.env.APP_URL}${(process.env.ENV === 'watch') ? `:${config.devServerPort}` : ''}/`;
+const publicPath = `${process.env.APP_URL}${(process.env.ENV === 'watch') ? ':9999' : ''}/`;
 
 /**
  * -------------------------------------------------------
@@ -24,7 +22,7 @@ const publicPath = `${process.env.APP_URL}${(process.env.ENV === 'watch') ? `:${
  * @type {{main: string}}
  */
 const entries = {
-    main: './src/main.js'
+    main: './asset/script/base.js'
 };
 
 /**

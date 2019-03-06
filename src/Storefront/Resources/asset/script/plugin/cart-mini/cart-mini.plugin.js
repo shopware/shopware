@@ -1,9 +1,9 @@
-import DomAccess from "../../helper/DomAccess";
+import DomAccess from "../../helper/dom-access.helper";
 import HttpClient from "../../service/http-client.service";
-import OffCanvas from "../off-canvas/OffCanvas";
-import LoadingIndicator from "../loading-indicator/LoadingIndicator";
-import DeviceDetection from "../../helper/DeviceDetection";
-import CartWidget from "../actions/CartWidget";
+import OffCanvas from "../off-canvas/offcanvas.plugin";
+import LoadingIndicator from "../loading-indicator/loading-indicator.plugin";
+import DeviceDetection from "../../helper/device-detection.helper";
+import CartWidget from "../actions/cart-widget.plugin";
 
 const CART_MINI_OPEN_TRIGGER_DATA_ATTRIBUTE = 'data-cart-mini';
 const CART_MINI_REMOVE_PRODUCT_TRIGGER_SELECTOR = '*[data-remove-product=true]';

@@ -1,4 +1,4 @@
-import DeviceDetection from "../../helper/DeviceDetection";
+import DeviceDetection from "../../helper/device-detection.helper";
 
 const SELECTOR_CLASS = "modal-backdrop";
 const BACKDROP_OPEN_CLASS = "modal-backdrop--open";

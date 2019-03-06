@@ -1,8 +1,8 @@
-import OffCanvas from "./OffCanvas";
+import OffCanvas from "./offcanvas.plugin";
 import HttpClient from "../../service/http-client.service";
-import LoadingIndicator from "../loading-indicator/LoadingIndicator";
+import LoadingIndicator from "../loading-indicator/loading-indicator.plugin";
 
-export default class AjaxContentOffCanvas extends OffCanvas {
+export default class AjaxOffCanvas extends OffCanvas {
 
     /**
      * Fire AJAX request to get the off-canvas content

@@ -3,7 +3,6 @@ const {resolve} = require('path');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const FriendlyErrorsWebpackPlugin = require('friendly-errors-webpack-plugin');
 const buildDirectory = resolve(process.env.PROJECT_ROOT, 'public');
-const config = require('../config');
 
 /**
  * -------------------------------------------------------
@@ -79,7 +78,7 @@ const plugins = [
  */
 const devServer = {
     contentBase: buildDirectory,
-    open: config.autoOpenBrowser,
+    open: false,
     overlay: {
         warnings: false,
         errors: true
@@ -91,7 +90,7 @@ const devServer = {
     hot: true,
     compress: true,
     disableHostCheck: true,
-    port: config.devServerPort,
+    port: 9999,
     host: '0.0.0.0',
     clientLogLevel: 'warning',
     headers: {

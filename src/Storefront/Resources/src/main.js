@@ -1,29 +1,50 @@
 // Provides polyfills based on the configured browser list
 import '@babel/polyfill';
 import 'bootstrap';
+import jQuery from 'jquery';
 
 // Import styles
 import './assets/sass/main.scss';
 
 import Client from './service/http-client.service';
-import Plugin from './helper/plugin.helper';
-import CartMini from "./plugins/cart-mini/CartMini";
-import CartWidget from "./plugins/actions/CartWidget";
+import CartMini from './plugins/cart-mini/CartMini';
+import CartWidget from './plugins/actions/CartWidget';
+
+import SimplePlugin from './plugins/test/simple-plugin';
+import ExtendedPlugin from './plugins/test/extended-plugin';
+import pluginManager from './helper/plugin.manager';
+
+// Expose jQuery and plugin manager to the global window object
+window.jQuery = jQuery;
+window.$ = jQuery;
+window.$pluginManager = pluginManager;
 
 const client = new Client(window.accessKey, window.contextToken);
-
-client.get('/storefront-api/v1/product?page=1&limit=10', function(response) {
+client.get('/storefront-api/v1/product?page=1&limit=10', (response) => {
     console.log('client response', JSON.parse(response));
 });
 
-const plugin = new Plugin('sw-simple-vanilla-plugin');
-plugin.on('initialized', () => {
-    console.log(
-        `Plugin %c"${plugin.name}" %cgot initialized`,
-        'font-weight: bold',
-        'font-weight: normal'
-    );
+pluginManager.register('simplePlugin', {
+    plugin: SimplePlugin,
+    selector: '*[data-simple-plugin="true"]'
 });
+
+pluginManager.register('extendedPlugin', {
+    plugin: ExtendedPlugin,
+    selector: '*[data-extended-plugin="true"]'
+});
+
+document.addEventListener('DOMContentLoaded', () => {
+    const jQueryInstance = window.$;
+    const plugins = pluginManager.run(jQueryInstance);
+
+    // Initialize plugins
+    Object.entries(plugins).forEach((plugin) => {
+        const [name, definition] = plugin;
+        jQuery(definition.selector)[name]();
+    });
+}, false);
+
 
 // Necessary for the webpack hot module reloading server
 if (module.hot) {
@@ -32,7 +53,7 @@ if (module.hot) {
 
 
 // Header Cart Widget
-new CartWidget();
+new CartWidget(); // eslint-disable-line no-new
 
 // Cart Mini OffCanvas
-new CartMini();
+new CartMini(); // eslint-disable-line no-new

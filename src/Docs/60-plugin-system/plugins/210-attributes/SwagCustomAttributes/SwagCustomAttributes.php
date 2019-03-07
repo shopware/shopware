@@ -9,23 +9,49 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\Plugin;
 use Shopware\Core\Framework\Plugin\Context\ActivateContext;
 use Shopware\Core\Framework\Plugin\Context\DeactivateContext;
-use Shopware\Core\Framework\Plugin\Context\InstallContext;
 
 class SwagCustomAttributes extends Plugin
 {
-    public function __construct(bool $active = true, ?string $path = null)
+    public function activate(ActivateContext $context): void
     {
-        parent::__construct($active, $path);
+        /** @var EntityRepositoryInterface $attributeSetRepository */
+        $attributeSetRepository = $this->container->get('attribute_set.repository');
+        $attributeSetRepository->upsert($this->getAttributeSets(), $context->getContext());
+
+        /** @var EntityRepositoryInterface $attributeRepository */
+        $attributeRepository = $this->container->get('attribute.repository');
+        $attributeRepository->upsert($this->getAttributes(), $context->getContext());
     }
 
-    public function install(InstallContext $context): void
+    public function deactivate(DeactivateContext $context): void
     {
+        /**
+         * We can safely delete the attribute set and the attributes.
+         * The attribute data attached to the entities is not deleted.
+         * Instead, it will not be hydrated anymore. After recreating
+         * the attribute with the same name, the data will be accessible again.
+         */
+        $ids = [];
+        foreach ($this->getAttributeSets() as $sets) {
+            $ids[] = ['id' => $sets['id']];
+        }
+        /** @var EntityRepositoryInterface $attributeSetRepository */
+        $attributeSetRepository = $this->container->get('attribute_set.repository');
+        $attributeSetRepository->delete($ids, $context->getContext());
+
+        $ids = [];
+        foreach ($this->getAttributes() as $attributes) {
+            $ids[] = ['id' => $attributes['id']];
+        }
+        /** @var EntityRepositoryInterface $attributeRepository */
+        $attributeRepository = $this->container->get('attribute.repository');
+        $attributeRepository->delete($ids, $context->getContext());
     }
 
     /**
      * These sets are visible in the administration
      */
-    public function getAttributeSets(): array
+    private function getAttributeSets(): array
     {
         return [[
             'id' => 'd7e5e8604f8342878105ecd4df2d8645',
@@ -38,6 +64,7 @@ class SwagCustomAttributes extends Plugin
             ],
             'attributes' => [
                 [
+                    'id' => 'c7e5e8604f8342878105ecd4df2d8646',
                     'name' => 'swag_backpack_size',
                     'type' => AttributeTypes::INT,
                     'config' => [
@@ -51,6 +78,7 @@ class SwagCustomAttributes extends Plugin
                     ],
                 ],
                 [
+                    'id' => 'c7e5e8604f8342878105ecd4df2d8647',
                     'name' => 'swag_backpack_color',
                     'type' => AttributeTypes::JSON,
                     'config' => [
@@ -80,9 +108,11 @@ class SwagCustomAttributes extends Plugin
             ],
             'relations' => [
                 [
+                    'id' => 'c7e5e8604f8342878105ecd4df2d8641',
                     'entityName' => ProductDefinition::getEntityName(),
                 ],
                 [
+                    'id' => 'c7e5e8604f8342878105ecd4df2d8642',
                     'entityName' => CustomerDefinition::getEntityName(),
                 ],
             ],
@@ -92,7 +122,7 @@ class SwagCustomAttributes extends Plugin
     /**
      * These attributes are NOT visible in the administration.
      */
-    public function getAttributes(): array
+    private function getAttributes(): array
     {
         return [
             [
@@ -101,35 +131,5 @@ class SwagCustomAttributes extends Plugin
                 'type' => AttributeTypes::JSON,
             ],
         ];
-    }
-
-    public function activate(ActivateContext $context): void
-    {
-        /** @var EntityRepositoryInterface $attributeSetRepository */
-        $attributeSetRepository = $this->container->get('attribute_set.repository');
-        $attributeSetRepository->upsert($this->getAttributeSets(), $context->getContext());
-
-        /** @var EntityRepositoryInterface $attributeRepository */
-        $attributeRepository = $this->container->get('attribute.repository');
-        $attributeRepository->upsert($this->getAttributes(), $context->getContext());
-    }
-
-    public function deactivate(DeactivateContext $context): void
-    {
-        $ids = [];
-        foreach ($this->getAttributeSets() as $sets) {
-            $ids[] = ['id' => $sets['id']];
-        }
-        /** @var EntityRepositoryInterface $attributeSetRepository */
-        $attributeSetRepository = $this->container->get('attribute_set.repository');
-        $attributeSetRepository->delete($ids, $context->getContext());
-
-        $ids = [];
-        foreach ($this->getAttributes() as $attributes) {
-            $ids[] = ['id' => $attributes['id']];
-        }
-        /** @var EntityRepositoryInterface $attributeRepository */
-        $attributeRepository = $this->container->get('attribute.repository');
-        $attributeRepository->delete($ids, $context->getContext());
     }
 }

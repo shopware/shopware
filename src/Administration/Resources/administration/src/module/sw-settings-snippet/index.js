@@ -1,5 +1,4 @@
 import { Module } from 'src/core/shopware';
-import { NEXT717 } from 'src/flag/feature_next717';
 
 import './extension/sw-settings-index';
 import './page/sw-settings-snippet-set-list';
@@ -10,7 +9,6 @@ import './component/sidebar/sw-settings-snippet-sidebar';
 import './component/sidebar/sw-settings-snippet-boolean-filter-item';
 
 Module.register('sw-settings-snippet', {
-    flag: NEXT717,
     type: 'core',
     name: 'Snippets',
     description: 'sw-settings-snippet.general.description',

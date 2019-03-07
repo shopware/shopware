@@ -2,7 +2,6 @@ const settingsPage = require('administration/page-objects/module/sw-settings.pag
 
 module.exports = {
     '@tags': ['settings', 'snippet-set-create', 'snippets', 'snippet-set', 'create'],
-    '@disabled': !global.flags.isActive('next717'),
     'open snippet module': (browser) => {
         browser
             .openMainMenuEntry({

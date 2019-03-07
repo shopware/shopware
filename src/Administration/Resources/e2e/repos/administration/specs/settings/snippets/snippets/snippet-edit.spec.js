@@ -2,7 +2,6 @@ const settingsPage = require('administration/page-objects/module/sw-settings.pag
 
 module.exports = {
     '@tags': ['settings', 'snippet-edit', 'snippets', 'snippets', 'edit'],
-    '@disabled': !global.flags.isActive('next717'),
     before: (browser, done) => {
         global.SnippetFixtureService.setSnippetFixtures().then(() => {
             done();

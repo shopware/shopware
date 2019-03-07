@@ -119,11 +119,10 @@
                         </sw-select>
                     {% endblock %}
                     {% block sw_sales_channel_detail_base_domains_input_snippet_set %}
-                        <sw-select v-if="next717"
-                                :store="snippetSetStore"
-                                v-model="domain.snippetSetId"
-                                id="domainSnippet"
-                                :label="$tc('sw-sales-channel.detail.labelInputSnippet')">
+                        <sw-select :store="snippetSetStore"
+                                   v-model="domain.snippetSetId"
+                                   id="domainSnippet"
+                                   :label="$tc('sw-sales-channel.detail.labelInputSnippet')">
                         </sw-select>
                     {% endblock %}
                     {% block sw_sales_channel_detail_base_domains_delete %}

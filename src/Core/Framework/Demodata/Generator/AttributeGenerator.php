@@ -5,7 +5,7 @@ namespace Shopware\Core\Framework\Demodata\Generator;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\FetchMode;
 use Faker\Generator;
-use Shopware\Core\Framework\Attribute\AttributeSetDefinition;
+use Shopware\Core\Framework\Attribute\Aggregate\AttributeSet\AttributeSetDefinition;
 use Shopware\Core\Framework\Attribute\AttributeTypes;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;

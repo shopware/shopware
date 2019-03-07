@@ -101,17 +101,17 @@
                                 {% endblock %}
 
                                 {% block sw_customer_detail_addresses_grid_columns_last_name %}
-                                <sw-grid-column flex="minmax(120px, 1fr)"
-                                                :label="$tc('sw-customer.detailAddresses.columnLastName')"
-                                                dataIndex="lastName"
-                                                truncate
-                                                sortable>
-                                    {% block sw_customer_detail_addresses_grid_columns_last_name_label %}
-                                        <a @click="onEditAddress(item.id)">
-                                            {{ item.lastName }}
-                                        </a>
-                                    {% endblock %}
-                                </sw-grid-column>
+                                    <sw-grid-column flex="minmax(120px, 1fr)"
+                                                    :label="$tc('sw-customer.detailAddresses.columnLastName')"
+                                                    dataIndex="lastName"
+                                                    truncate
+                                                    sortable>
+                                        {% block sw_customer_detail_addresses_grid_columns_last_name_label %}
+                                            <a @click="onEditAddress(item.id)">
+                                                {{ item.lastName }}
+                                            </a>
+                                        {% endblock %}
+                                    </sw-grid-column>
                                 {% endblock %}
 
                                 {% block sw_customer_detail_addresses_grid_columns_first_name %}
@@ -213,7 +213,7 @@
                                                 {% block sw_customer_detail_addresses_grid_columns_actions_delete %}
                                                     <sw-context-menu-item @click="onDeleteAddress(item.id)"
                                                                           variant="danger"
-                                                                          :disabled="isDefaultAddress(item.id)">
+                                                                          :disabled="!customerEditMode || isDefaultAddress(item.id)">
                                                         {{ $tc('sw-customer.detailAddresses.contextMenuDelete') }}
                                                     </sw-context-menu-item>
                                                 {% endblock %}
@@ -235,7 +235,9 @@
                                         {% endblock %}
 
                                         {% block sw_customer_detail_addresses_delete_modal_address_item %}
-                                            <sw-address :address="item"></sw-address>
+                                            <sw-address class="sw-customer-detail-addresses__confirm-delete-address"
+                                                        :address="item">
+                                            </sw-address>
                                         {% endblock %}
 
                                         {% block sw_customer_detail_addresses_delete_modal_footer %}

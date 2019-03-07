@@ -24,21 +24,33 @@ Component.register('sw-customer-detail-order', {
             offset: 0,
             limit: 10,
             paginationSteps: [10, 25, 50, 75, 100],
-            orders: []
+            orders: [],
+            isLoading: false,
+            // todo after NEXT-2291: to be removed if new emptyState-Splashscreens are implemented
+            orderIcon: 'default-shopping-paper-bag'
         };
     },
 
     created() {
-        this.getList();
+        this.createdComponent();
     },
 
     computed: {
         customerOrderStore() {
             return State.getStore('order');
+        },
+        emptyTitle() {
+            return this.term ?
+                this.$tc('sw-customer.detailOrder.emptySearchTitle') :
+                this.$tc('sw-customer.detailOrder.emptyTitle');
         }
     },
 
     methods: {
+        createdComponent() {
+            this.getList();
+        },
+
         loadOrders() {
             this.isLoading = true;
             const criteria = CriteriaFactory.equals('orderCustomer.customerId', this.customer.id);

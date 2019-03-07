@@ -582,7 +582,10 @@
       "columnAmount": "Amount",
       "columnOrderState": "Order status",
       "columnOrderDate": "Order date",
-      "columnContextOpenOrder": "Open order"
+      "columnContextOpenOrder": "Open order",
+      "emptyTitle": "No orders yet",
+      "emptySearchTitle": "No search result",
+      "emptySubline": "Customer orders"
     },
     "addressForm": {
       "labelCompany": "Company",

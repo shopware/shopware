@@ -18,12 +18,22 @@ export default {
             type: String,
             default: '',
             required: false
+        },
+        color: {
+            type: String,
+            default: '',
+            required: false
+        },
+        icon: {
+            type: String,
+            default: '',
+            required: false
         }
     },
 
     computed: {
         moduleColor() {
-            return this.$route.meta.$module.color;
+            return this.color || this.$route.meta.$module.color;
         },
 
         moduleDescription() {
@@ -31,7 +41,7 @@ export default {
         },
 
         moduleIcon() {
-            return this.$route.meta.$module.icon;
+            return this.icon || this.$route.meta.$module.icon;
         },
 
         hasActionSlot() {

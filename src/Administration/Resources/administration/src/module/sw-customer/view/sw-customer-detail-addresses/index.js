@@ -140,6 +140,10 @@ Component.register('sw-customer-detail-addresses', {
                 this.customer.defaultBillingAddressId = this.defaultBillingAddressId;
             }
 
+            if (this.$route.query.hasOwnProperty('detailId')) {
+                this.$route.query.detailId = null;
+            }
+
             this.currentAddress = null;
         },
 

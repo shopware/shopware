@@ -4,14 +4,27 @@
             <div class="sw-customer-detail-order-toolbar">
                 <sw-card-filter
                         :placeholder="$tc('sw-customer.detailOrder.searchbarPlaceholder')"
+                        v-if="term || orders && orders.length"
                         @sw-card-filter-term-change="onChange">
                 </sw-card-filter>
             </div>
         {% endblock %}
 
         {% block sw_customer_detail_order_card_grid %}
-            <template slot="grid">
-                <sw-grid :items="orders"
+            <div class="sw-customer-detail-order__content" slot="grid">
+                <sw-loader v-if="isLoading"></sw-loader>
+
+                <template v-if="(!orders || !orders.length) && !isLoading">
+                    {% block sw_customer_detail_order_card_grid_empty_state %}
+                        <sw-empty-state :icon="orderIcon"
+                                        :title="emptyTitle"
+                                        subline="sw-customer.detailOrder.emptySubline">
+                        </sw-empty-state>
+                    {% endblock %}
+                </template>
+
+                <sw-grid v-else
+                         :items="orders"
                          :selectable="false"
                          :sortBy="sortBy"
                          :sortDirection="sortDirection"
@@ -74,19 +87,18 @@
                     {% endblock %}
 
                     {% block sw_customer_detail_addresses_grid_pagination %}
-                    <sw-pagination slot="pagination"
-                                   :offset="offset"
-                                   :limit="limit"
-                                   :total="total"
-                                   :total-visible="7"
-                                   :page="page"
-                                   :steps="paginationSteps"
-                                   @page-change="onPageChange">
-                    </sw-pagination>
+                        <sw-pagination slot="pagination"
+                                       :offset="offset"
+                                       :limit="limit"
+                                       :total="total"
+                                       :total-visible="7"
+                                       :page="page"
+                                       :steps="paginationSteps"
+                                       @page-change="onPageChange">
+                        </sw-pagination>
                     {% endblock %}
-
                 </sw-grid>
-            </template>
+            </div>
         {% endblock %}
     </sw-card>
 {% endblock %}

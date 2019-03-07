@@ -213,8 +213,6 @@ export default {
 
 
         removeEventListeners() {
-            this.$off('sw-select-option-clicked', this.addSelection);
-            this.$off('sw-select-option-mouse-over', this.setActiveResultPosition);
             this.$root.$off('on-change-application-language', this.loadSelections);
             document.removeEventListener('click', this.closeOnClickOutside);
             document.removeEventListener('keyup', this.closeOnClickOutside);

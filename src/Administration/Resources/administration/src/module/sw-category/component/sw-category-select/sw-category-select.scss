@@ -1,5 +1,7 @@
 @import "~scss/variables";
 
+$sw-category-select-input-background: $color-white;
+
 .sw-select.sw-category-select {
     .sw-select__inner {
         padding: 0;
@@ -19,7 +21,7 @@
     .sw-select__input-single {
         border: none;
         font-size: 14px;
-        background: $color-white;
+        background: $sw-category-select-input-background;
         padding: 8px 16px;
     }
 }

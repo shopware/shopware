@@ -11,7 +11,7 @@ $sw-context-menu-z-index:                $z-index-context-menu;
     z-index: $sw-context-menu-z-index;
     cursor: pointer;
 
-    &.is--dropup {
+    &.is--top-align {
         .sw-context-menu__content {
             margin-top: calc(-100% - 30px);
 

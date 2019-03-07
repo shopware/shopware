@@ -1,6 +1,6 @@
 import { Component } from 'src/core/shopware';
+import utils from 'src/core/service/util.service';
 import template from './sw-category-select.html.twig';
-import utils from './../../../../../src/core/service/util.service';
 import './sw-category-select.scss';
 
 Component.extend('sw-category-select', 'sw-select', {
@@ -50,14 +50,12 @@ Component.extend('sw-category-select', 'sw-select', {
             this.emitActiveResultPosition();
         },
 
-        // @todo
         doGlobalSearch: utils.debounce(function debouncedSearch() {
             this.getResults();
             this.loadSelections();
             this.scrollToResultsTop();
         }, 400),
 
-        // override functions that get data
         loadResults() {
             this.getResults();
         },
@@ -66,7 +64,6 @@ Component.extend('sw-category-select', 'sw-select', {
             this.getResults();
         },
 
-        // override methods as empty
         loadSelections() {},
         emitChanges() {}
     }

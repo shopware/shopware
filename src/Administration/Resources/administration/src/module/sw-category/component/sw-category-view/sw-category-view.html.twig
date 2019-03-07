@@ -65,69 +65,69 @@
                     <div class="sw-category-view__product-search">
                         <sw-category-select
                             :hasPreview="false"
+                            id="productSelection"
+                            itemValueKey="id"
                             :store="productStore"
                             :associationStore="categoryProductStore"
-                            itemValueKey="id" id="productSelection"
                             :placeholder="$tc('sw-category.general.productAssignmentPlaceholder')"
                             @sw-category-select-on-select="onSelectProduct">
                         </sw-category-select>
                     </div>
 
-                    <sw-button class="sw--category-view__multi-delete" :disabled="deleteButtonDisabled" @click="onRemoveProducts" square size="small">
+                    <sw-button class="sw-category-view__multi-delete" :disabled="deleteButtonDisabled" @click="onRemoveProducts" square size="small">
                         <sw-icon name="default-action-trash" small />
                     </sw-button>
                 {% endblock %}
 
                 {% block sw_category_view_products_grid %}
-                    <sw-container slot="grid" type="row" v-if="products">
-                        <sw-grid
-                            ref="grid"
-                            selectable
-                            :items="products"
-                            :sortBy="sortBy"
-                            :sortDirection="sortDirection"
-                            :isLoading="isLoadingProducts"
-                            @sw-grid-select-item="selectionChanged"
-                            @sw-grid-select-all="selectionChanged"
-                            table>
+                    <sw-grid
+                        v-if="products"
+                        slot="grid"
+                        ref="grid"
+                        selectable
+                        :items="products"
+                        :sortBy="sortBy"
+                        :sortDirection="sortDirection"
+                        :isLoading="isLoadingProducts"
+                        @sw-grid-select-item="selectionChanged"
+                        @sw-grid-select-all="selectionChanged"
+                        table>
 
-                            <template slot="columns" slot-scope="{ item }">
-                                <sw-grid-column flex="minmax(200px, 1fr)" :label="$tc('sw-category.general.columnNameLabel')">
-                                    <router-link :to="{ name: 'sw.product.detail', params: { id: item.id }}" target="_blank">
-                                        {{ placeholder(item, 'name' ) }}
-                                    </router-link>
-                                </sw-grid-column>
-                                <sw-grid-column flex="minmax(200px, 1fr)" :label="$tc('sw-category.general.columnManufacturerLabel')">
-                                    {{ placeholder(item.manufacturer, 'name' ) }}
-                                </sw-grid-column>
+                        <template slot="columns" slot-scope="{ item }">
+                            <sw-grid-column flex="minmax(200px, 1fr)" :label="$tc('sw-category.general.columnNameLabel')">
+                                <router-link :to="{ name: 'sw.product.detail', params: { id: item.id }}">
+                                    {{ placeholder(item, 'name' ) }}
+                                </router-link>
+                            </sw-grid-column>
+                            <sw-grid-column flex="minmax(200px, 1fr)" :label="$tc('sw-category.general.columnManufacturerLabel')">
+                                {{ placeholder(item.manufacturer, 'name' ) }}
+                            </sw-grid-column>
 
-                                <sw-grid-column flex="70px" align="center">
-                                    <sw-context-button>
-                                        <sw-context-menu-item @click="onViewProduct(item.id)">
-                                            {{ $tc('sw-category.general.productAssignmentActionDetails') }}
-                                        </sw-context-menu-item>
-                                        <sw-context-menu-item @click="onRemoveProduct(item)">
-                                            {{ item.isDeleted ?
-                                                $tc('sw-category.general.productAssignmentActionUndo') :
-                                                $tc('sw-category.general.productAssignmentActionRemove')
-                                            }}
-                                        </sw-context-menu-item>
-                                    </sw-context-button>
-                                </sw-grid-column>
-                            </template>
+                            <sw-grid-column flex="70px" align="center">
+                                <sw-context-button>
+                                    <sw-context-menu-item @click="onViewProduct(item.id)">
+                                        {{ $tc('sw-category.general.productAssignmentActionDetails') }}
+                                    </sw-context-menu-item>
+                                    <sw-context-menu-item @click="onRemoveProduct(item)">
+                                        {{ item.isDeleted ?
+                                            $tc('sw-category.general.productAssignmentActionUndo') :
+                                            $tc('sw-category.general.productAssignmentActionRemove')
+                                        }}
+                                    </sw-context-menu-item>
+                                </sw-context-button>
+                            </sw-grid-column>
+                        </template>
 
-                            <template slot="pagination">
-                                <sw-pagination
-                                    :page="page"
-                                    :limit="limit"
-                                    :total="total"
-                                    :total-visible="7"
-                                    @page-change="onPageChange">
-                                </sw-pagination>
-                            </template>
-
-                        </sw-grid>
-                    </sw-container>
+                        <template slot="pagination">
+                            <sw-pagination
+                                :page="page"
+                                :limit="limit"
+                                :total="total"
+                                :total-visible="7"
+                                @page-change="onPageChange">
+                            </sw-pagination>
+                        </template>
+                    </sw-grid>
                 {% endblock %}
             </sw-card>
         {% endblock %}

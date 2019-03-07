@@ -41,7 +41,7 @@ export default {
             default: 15
         },
 
-        menuAlign: {
+        menuHorizontalAlign: {
             type: String,
             required: false,
             default: 'right',
@@ -114,8 +114,8 @@ export default {
 
         contextMenuClass() {
             return {
-                'is--left-align': this.menuAlign === 'left',
-                'is--dropup': this.menuVerticalAlign === 'top'
+                'is--left-align': this.menuHorizontalAlign === 'left',
+                'is--top-align': this.menuVerticalAlign === 'top'
             };
         }
     },
@@ -150,7 +150,7 @@ export default {
 
             this.positionTop = boundingBox.top - secureOffset;
 
-            if (this.menuAlign === 'left') {
+            if (this.menuHorizontalAlign === 'left') {
                 this.positionLeft = boundingBox.left - secureOffset;
             } else {
                 this.positionLeft = (boundingBox.left + boundingBox.width + this.menuOffsetLeft) - this.menuWidth;

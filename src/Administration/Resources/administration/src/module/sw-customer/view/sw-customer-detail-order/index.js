@@ -20,12 +20,13 @@ Component.register('sw-customer-detail-order', {
 
     data() {
         return {
+            isLoading: false,
+            activeCustomer: this.customer,
             disableRouteParams: true,
             offset: 0,
             limit: 10,
             paginationSteps: [10, 25, 50, 75, 100],
             orders: [],
-            isLoading: false,
             // todo after NEXT-2291: to be removed if new emptyState-Splashscreens are implemented
             orderIcon: 'default-shopping-paper-bag'
         };
@@ -36,6 +37,9 @@ Component.register('sw-customer-detail-order', {
     },
 
     computed: {
+        customerStore() {
+            return State.getStore('customer');
+        },
         customerOrderStore() {
             return State.getStore('order');
         },
@@ -53,7 +57,7 @@ Component.register('sw-customer-detail-order', {
 
         loadOrders() {
             this.isLoading = true;
-            const criteria = CriteriaFactory.equals('orderCustomer.customerId', this.customer.id);
+            const criteria = CriteriaFactory.equals('orderCustomer.customerId', this.activeCustomer.id);
             const params = this.getListingParams();
             params.criteria = criteria;
 
@@ -70,7 +74,10 @@ Component.register('sw-customer-detail-order', {
         },
 
         getList() {
-            if (!this.customer.id) {
+            if (!this.activeCustomer.id && this.$route.params.id) {
+                this.activeCustomer = this.customerStore.getById(this.$route.params.id);
+            }
+            if (!this.activeCustomer.id) {
                 this.$router.push({ name: 'sw.customer.detail.base', params: { id: this.$route.params.id } });
                 return;
             }

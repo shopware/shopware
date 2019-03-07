@@ -1,4 +1,4 @@
-import { Component, Mixin, Entity } from 'src/core/shopware';
+import { Component, State, Mixin, Entity } from 'src/core/shopware';
 import { object } from 'src/core/service/util.service';
 import { required } from 'src/core/service/validation.service';
 import template from './sw-customer-detail-addresses.html.twig';
@@ -42,6 +42,7 @@ Component.register('sw-customer-detail-addresses', {
     data() {
         return {
             isLoading: false,
+            activeCustomer: this.customer,
             disableRouteParams: true,
             offset: 0,
             limit: 10,
@@ -55,14 +56,20 @@ Component.register('sw-customer-detail-addresses', {
     },
 
     computed: {
+        customerStore() {
+            return State.getStore('customer');
+        },
         customerAddressStore() {
-            return this.customer.getAssociation('addresses');
+            return this.activeCustomer.getAssociation('addresses');
         }
     },
 
     methods: {
         getList() {
-            if (!this.customer.id) {
+            if (!this.activeCustomer.id && this.$route.params.id) {
+                this.activeCustomer = this.customerStore.getById(this.$route.params.id);
+            }
+            if (!this.activeCustomer.id) {
                 this.$router.push({ name: 'sw.customer.detail.base', params: { id: this.$route.params.id } });
                 return;
             }
@@ -90,7 +97,7 @@ Component.register('sw-customer-detail-addresses', {
         createNewCustomerAddress() {
             const newAddress = this.createEmptyAddress();
 
-            newAddress.customerId = this.customer.id;
+            newAddress.customerId = this.activeCustomer.id;
 
             this.currentAddress = newAddress;
         },
@@ -108,10 +115,10 @@ Component.register('sw-customer-detail-addresses', {
                 return;
             }
 
-            const address = this.customer.addresses.find(a => a.id === this.currentAddress.id);
+            const address = this.activeCustomer.addresses.find(a => a.id === this.currentAddress.id);
 
             if (typeof address === 'undefined') {
-                this.customer.addresses.push(this.currentAddress);
+                this.activeCustomer.addresses.push(this.currentAddress);
                 this.addresses.push(this.currentAddress);
             } else {
                 Object.assign(address, this.currentAddress);
@@ -133,11 +140,11 @@ Component.register('sw-customer-detail-addresses', {
 
         onCloseAddressModal() {
             if (this.hasOwnProperty('defaultShippingAddressId')) {
-                this.customer.defaultShippingAddressId = this.defaultShippingAddressId;
+                this.activeCustomer.defaultShippingAddressId = this.defaultShippingAddressId;
             }
 
             if (this.hasOwnProperty('defaultBillingAddressId')) {
-                this.customer.defaultBillingAddressId = this.defaultBillingAddressId;
+                this.activeCustomer.defaultBillingAddressId = this.defaultBillingAddressId;
             }
 
             if (this.$route.query.hasOwnProperty('detailId')) {
@@ -152,7 +159,7 @@ Component.register('sw-customer-detail-addresses', {
         },
 
         onEditAddress(id) {
-            this.currentAddress = object.deepCopyObject(this.customer.addresses.find(a => a.id === id));
+            this.currentAddress = object.deepCopyObject(this.activeCustomer.addresses.find(a => a.id === id));
             this.showEditAddressModal = id;
         },
 
@@ -166,8 +173,8 @@ Component.register('sw-customer-detail-addresses', {
         onConfirmDeleteAddress(id) {
             this.$nextTick(() => {
                 this.customerAddressStore.getById(id).delete();
-                this.customer.addresses = this.customer.addresses.filter(a => a.id !== id);
-                this.customer.save().then(() => {
+                this.activeCustomer.addresses = this.activeCustomer.addresses.filter(a => a.id !== id);
+                this.activeCustomer.save().then(() => {
                     this.getList();
                     this.onCloseDeleteAddressModal();
                 });
@@ -179,16 +186,16 @@ Component.register('sw-customer-detail-addresses', {
         },
 
         isDefaultAddress(addressId) {
-            return this.customer.defaultBillingAddressId === addressId ||
-                this.customer.defaultShippingAddressId === addressId;
+            return this.activeCustomer.defaultBillingAddressId === addressId ||
+                this.activeCustomer.defaultShippingAddressId === addressId;
         },
 
         onChangeDefaultBillingAddress(billingAddressId) {
-            this.customer.defaultBillingAddressId = billingAddressId;
+            this.activeCustomer.defaultBillingAddressId = billingAddressId;
         },
 
         onChangeDefaultShippingAddress(shippingAddressId) {
-            this.customer.defaultShippingAddressId = shippingAddressId;
+            this.activeCustomer.defaultShippingAddressId = shippingAddressId;
         },
 
         onDuplicateAddress(addressId) {
@@ -205,8 +212,8 @@ Component.register('sw-customer-detail-addresses', {
             const preFix = this.createPrefix(data.name, '-address');
             const name = `default${preFix}AddressId`;
 
-            this[name] = this.customer[name];
-            this.customer[name] = data.id;
+            this[name] = this.activeCustomer[name];
+            this.activeCustomer[name] = data.id;
         },
 
         onChange(term) {

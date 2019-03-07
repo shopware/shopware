@@ -1,0 +1,94 @@
+{
+  "sw-media": {
+    "general": {
+      "mainMenuItemGeneral": "Medien",
+      "descriptionTextModule": "Verwaltung von Mediendateien.",
+      "placeholderSearchBar": "Durchsuche den aktuellen Ordner",
+      "notification": {
+        "urlCopied": {
+          "title": "Erfolg",
+          "message": "URL in Zwischenablage kopiert."
+        }
+      }
+    },
+    "sidebar": {
+      "labelHeadlineMultiple": "{count} ausgewählte Dateien",
+      "labelNoMediaSelected": "Keine Medien ausgewählt",
+      "actions": {
+        "copyLink": "Link kopieren",
+        "delete": "Löschen",
+        "dissolve": "Auflösen",
+        "download": "Download",
+        "move": "Verschieben",
+        "replace": "Ersetzen",
+        "settings": "Einstellungen"
+      },
+      "sections": {
+        "actions": "Aktionen",
+        "preview": "Vorschau",
+        "metadata": "Metadaten",
+        "usage": "Wird verwendet in",
+        "selectedFiles": "Ausgewählte Dateien"
+      },
+      "infoMissingFile": {
+        "titleMissingFile": "Datei nicht gefunden",
+        "descriptionMissingFile": "Wir konnten diese Datei nicht finden. Du kannst eine neue Datei hochladen oder diese löschen."
+      },
+      "metadata": {
+        "name": "Name",
+        "fileType": "Dateityp",
+        "altText": "Alt-Text",
+        "title": "Titel",
+        "mimeType": "MIME-Type",
+        "fileSize": "Größe",
+        "createdAt": "Hochgeladen am",
+        "url": "URL",
+        "width": "Breite",
+        "height": "Höhe",
+        "frameRate": "Bildrate",
+        "documentTitle": "Dokumenten Titel",
+        "creator": "Erstellt durch",
+        "pages": "Seiten",
+        "totalSize": "Insgesamt"
+      },
+      "usage": {
+        "tooltipFoundInProducts": "Gefunden in Produkten",
+        "tooltipFoundInManufacturers": "Gefunden in Herstellern",
+        "titleMediaNotUsed": "Medium nicht verwendet",
+        "labelMediaNotUsed": "Das Medium wird zurzeit nicht verwendet."
+      }
+    },
+    "index": {
+      "buttonCreateFolder": "Neuen Ordner hinzufügen",
+      "rootFolderName": "Medien"
+    },
+    "mediaLibrary": {
+      "labelButtonLoadMore": "Weitere laden",
+      "titleEmptyState": "Noch keine Medien vorhanden",
+      "descriptionEmptyState": "Verwaltung von Medien."
+    },
+    "sorting": {
+      "labelSort": "Sortiere nach:",
+      "labelSortByNameAsc": "Name, aufsteigend",
+      "labelSortByNameDsc": "Name, absteigend",
+      "labelSortBySizeAsc": "Größe, aufsteigend",
+      "labelSortBySizeDsc": "Größe, absteigend",
+      "labelSortByCreatedAsc": "Erstelldatum, aufsteigend",
+      "labelSortByCreatedDsc": "Erstelldatum, absteigend"
+    },
+    "presentation": {
+      "labelPresentation": "Darstellung:",
+      "labelPresentationSmall": "Kleine Vorschau",
+      "labelPresentationMedium": "Normale Vorschau",
+      "labelPresentationLarge": "Große Vorschau",
+      "labelPresentationList": "Liste"
+    },
+    "sw-media-modal": {
+      "titleModal": "Medien auswählen",
+      "labelTabItemLibrary": "Bibliothek",
+      "labelTabItemUpload": "Dateien hochladen",
+      "labelButtonCancel": "Abbrechen",
+      "labelButtonSaveSelection": "Medien hinzufügen"
+    }
+  }
+}

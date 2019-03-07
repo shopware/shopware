@@ -5,6 +5,9 @@ import './page/sw-settings-currency-list';
 import './page/sw-settings-currency-detail';
 import './page/sw-settings-currency-create';
 
+import deDE from './snippet/de_DE.json';
+import enGB from './snippet/en_GB.json';
+
 Module.register('sw-settings-currency', {
     type: 'core',
     name: 'Currency settings',
@@ -12,6 +15,11 @@ Module.register('sw-settings-currency', {
     color: '#9AA8B5',
     icon: 'default-action-settings',
     entity: 'currency',
+
+    snippets: {
+        'de-DE': deDE,
+        'en-GB': enGB
+    },
 
     routes: {
         index: {

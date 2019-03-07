@@ -12,6 +12,8 @@ import './component/sw-customer-address-form';
 import './component/sw-customer-address-form-options';
 import './component/sw-customer-default-addresses';
 import './component/sw-customer-card';
+import deDE from './snippet/de_DE.json';
+import enGB from './snippet/en_GB.json';
 
 Module.register('sw-customer', {
     type: 'core',
@@ -22,6 +24,11 @@ Module.register('sw-customer', {
     color: '#F88962',
     icon: 'default-avatar-multiple',
     entity: 'customer',
+
+    snippets: {
+        'de-DE': deDE,
+        'en-GB': enGB
+    },
 
     routes: {
         index: {

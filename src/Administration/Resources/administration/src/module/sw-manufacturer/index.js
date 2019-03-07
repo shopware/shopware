@@ -3,6 +3,9 @@ import './page/sw-manufacturer-list';
 import './page/sw-manufacturer-detail';
 import './page/sw-manufacturer-create';
 
+import deDE from './snippet/de_DE.json';
+import enGB from './snippet/en_GB.json';
+
 Module.register('sw-manufacturer', {
     type: 'core',
     name: 'Manufacturer',
@@ -12,6 +15,11 @@ Module.register('sw-manufacturer', {
     color: '#57D9A3',
     icon: 'default-symbol-products',
     entity: 'product_manufacturer',
+
+    snippets: {
+        'de-DE': deDE,
+        'en-GB': enGB
+    },
 
     routes: {
         index: {

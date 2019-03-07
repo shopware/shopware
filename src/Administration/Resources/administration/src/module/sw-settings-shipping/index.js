@@ -8,6 +8,9 @@ import './page/sw-settings-shipping-create';
 import './view/sw-settings-shipping-detail-base';
 import './view/sw-settings-shipping-detail-advanced-prices';
 
+import deDE from './snippet/de_DE.json';
+import enGB from './snippet/en_GB.json';
+
 Module.register('sw-settings-shipping', {
     type: 'core',
     flag: NEXT688,
@@ -16,6 +19,11 @@ Module.register('sw-settings-shipping', {
     color: '#9AA8B5',
     icon: 'default-action-settings',
     entity: 'shipping_method',
+
+    snippets: {
+        'de-DE': deDE,
+        'en-GB': enGB
+    },
 
     routes: {
         index: {

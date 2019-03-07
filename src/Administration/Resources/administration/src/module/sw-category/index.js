@@ -6,6 +6,9 @@ import './component/sw-category-select';
 import './component/sw-category-leave-page-modal';
 import './page/sw-category-detail';
 
+import deDE from './snippet/de_DE.json';
+import enGB from './snippet/en_GB.json';
+
 Module.register('sw-category', {
     flag: NEXT716,
     type: 'core',
@@ -15,6 +18,11 @@ Module.register('sw-category', {
     targetVersion: '1.0.0',
     color: '#57D9A3',
     icon: 'default-package-closed',
+
+    snippets: {
+        'de-DE': deDE,
+        'en-GB': enGB
+    },
 
     routes: {
         index: {

@@ -1,0 +1,39 @@
+{
+  "sw-settings-currency": {
+    "general": {
+      "mainMenuItemGeneral": "Währungen",
+      "placeholderSearchBar": "Durchsuche alle Währungen"
+    },
+    "list": {
+      "textHeadline": "Währungen",
+      "textDeleteConfirm": "Bist Du sicher, dass Du die Währung \"{name}\" löschen möchtest?",
+      "columnName": "Name",
+      "columnShortName": "Kurzname",
+      "columnSymbol": "Symbol",
+      "columnFactor": "Faktor",
+      "buttonAddCurrency": "Währung anlegen",
+      "contextMenuEdit": "Bearbeiten",
+      "modalTitleDelete": "Währung löschen",
+      "titleDeleteSuccess": "Erfolg",
+      "messageDeleteSuccess": "Die Währung \"{name}\" wurde erfolgreich gelöscht.",
+      "buttonCancel": "Abbrechen",
+      "buttonDelete": "Löschen"
+    },
+    "detail": {
+      "textHeadline": "Neue Währung",
+      "titleCard": "Einstellungen",
+      "titleSaveSuccess": "Erfolg",
+      "messageSaveSuccess": "Die Währung \"{name}\" wurde erfolgreich gespeichert.",
+      "labelName": "Name",
+      "labelShortName": "Kurzname",
+      "labelSymbol": "Symbol",
+      "labelFactor": "Faktor",
+      "placeholderName": "Namen eingeben...",
+      "placeholderShortName": "Kurznamen eingeben...",
+      "placeholderSymbol": "Symbol eingeben...",
+      "placeholderFactor": "Faktor eingeben...",
+      "buttonCancel": "Abbrechen",
+      "buttonSave": "Speichern"
+    }
+  }
+}

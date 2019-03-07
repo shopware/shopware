@@ -1,0 +1,94 @@
+{
+  "sw-media": {
+    "general": {
+      "mainMenuItemGeneral": "Media",
+      "descriptionTextModule": "Manage media here.",
+      "placeholderSearchBar": "Search current folder",
+      "notification": {
+        "urlCopied": {
+          "title": "Success",
+          "message": "URL has been copied to clipboard."
+        }
+      }
+    },
+    "sidebar": {
+      "labelHeadlineMultiple": "{count} files selected",
+      "labelNoMediaSelected": "No media selected",
+      "actions": {
+        "copyLink": "Copy link",
+        "delete": "Delete",
+        "dissolve": "Dissolve",
+        "download": "Download",
+        "move": "Move",
+        "replace": "Replace",
+        "settings": "Settings"
+      },
+      "sections": {
+        "actions": "Actions",
+        "preview": "Preview",
+        "metadata": "Meta data",
+        "usage": "Used in",
+        "selectedFiles": "Selected files"
+      },
+      "infoMissingFile": {
+        "titleMissingFile": "File not found",
+        "descriptionMissingFile": "Unable to find requested file. Upload new file(s) or delete placeholder."
+      },
+      "metadata": {
+        "name": "Name",
+        "fileType": "File type",
+        "altText": "Alt text",
+        "title": "Title",
+        "mimeType": "MIME-Type",
+        "fileSize": "Size",
+        "createdAt": "Uploaded at",
+        "url": "URL",
+        "width": "Width",
+        "height": "Height",
+        "frameRate": "Framerate",
+        "documentTitle": "Document title",
+        "creator": "Created by",
+        "pages": "Pages",
+        "totalSize": "A total of"
+      },
+      "usage": {
+        "tooltipFoundInProducts": "Found in products",
+        "tooltipFoundInManufacturers": "Found in manufacturers",
+        "titleMediaNotUsed": "Unused medium",
+        "labelMediaNotUsed": "This media item is currently not in use."
+      }
+    },
+    "index": {
+      "buttonCreateFolder": "Add new folder",
+      "rootFolderName": "Media"
+    },
+    "mediaLibrary": {
+      "labelButtonLoadMore": "Load more",
+      "titleEmptyState": "No media items yet",
+      "descriptionEmptyState": "Manage media items here."
+    },
+    "sorting": {
+      "labelSort": "Sort by:",
+      "labelSortByNameAsc": "Name, ascending",
+      "labelSortByNameDsc": "Name, descending",
+      "labelSortBySizeAsc": "Size, ascending",
+      "labelSortBySizeDsc": "Size, descending",
+      "labelSortByCreatedAsc": "Creation date, ascending",
+      "labelSortByCreatedDsc": "Creation date, descending"
+    },
+    "presentation": {
+      "labelPresentation": "Presentation:",
+      "labelPresentationSmall": "Small preview",
+      "labelPresentationMedium": "Regular preview",
+      "labelPresentationLarge": "Large preview",
+      "labelPresentationList": "List"
+    },
+    "sw-media-modal": {
+      "titleModal": "Choose media",
+      "labelTabItemLibrary": "Media Library",
+      "labelTabItemUpload": "Upload files",
+      "labelButtonCancel": "Cancel",
+      "labelButtonSaveSelection": "Add media"
+    }
+  }
+}

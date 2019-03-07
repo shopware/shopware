@@ -9,7 +9,8 @@ export default {
     getModuleRoutes,
     registerModule,
     getModuleRegistry,
-    getModuleByEntityName
+    getModuleByEntityName,
+    getModuleSnippets
 };
 
 /**
@@ -326,4 +327,34 @@ function getModuleByEntityName(entityName) {
     return Array.from(modules.values()).find((value) => {
         return entityName === value.manifest.entity;
     });
+}
+
+/**
+ * Returns a list of all module specific snippets
+ *
+ * @returns {Object}
+ */
+function getModuleSnippets() {
+    return Array.from(modules.values()).reduce((accumulator, module) => {
+        const manifest = module.manifest;
+
+        if (!hasOwnProperty(manifest, 'snippets')) {
+            return accumulator;
+        }
+
+        const keys = Object.keys(manifest.snippets);
+        if (!keys.length) {
+            return accumulator;
+        }
+
+        keys.forEach((key) => {
+            if (!hasOwnProperty(accumulator, key)) {
+                accumulator[key] = {};
+            }
+            const snippets = manifest.snippets[key];
+            accumulator[key] = { ...accumulator[key], ...snippets };
+        });
+
+        return accumulator;
+    }, {});
 }

@@ -1,0 +1,29 @@
+{
+  "sw-category": {
+    "general": {
+      "mainMenuItemIndex": "Kategorien",
+      "mainMenuItemList": "Übersicht",
+      "headlineCategories": "Kategorien",
+      "headlineInformationCard": "Kategorieinformationen",
+      "buttonCreateCategory": "Kategorie erstellen",
+      "buttonSafeCategory": "Speichern",
+      "isCategoryActiveLabel": "Kategorien ist aktiv",
+      "descriptionLabel": "Beschreibung",
+      "showSubcategoryProductsLabel": "Enthält Produkte aus Subkategorien",
+      "categoryNameLabel": "Name",
+      "titleSaveSuccess": "Erfolg",
+      "messageSaveSuccess": "Die Kategorie \"{name}\" wurde erfolgreich gespeichert.",
+      "useAsLogo": "Als Logo verwenden",
+      "treeHeadline": "Kategoriestruktur",
+      "treeHeadSelected": "{count} selektiert",
+      "actions": {
+        "createSub": "Neue Subkategorie",
+        "createBefore": "Neue Kategorie davor",
+        "createAfter": "Neue Kategorie danach",
+        "edit": "Bearbeiten",
+        "duplicate": "Duplizieren",
+        "delete": "Löschen"
+      }
+    }
+  }
+}

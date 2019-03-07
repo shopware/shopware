@@ -16,6 +16,9 @@ import './component/sw-attribute-type-date';
 import './component/sw-attribute-type-checkbox';
 import './component/sw-attribute-type-text-editor';
 
+import deDE from './snippet/de_DE.json';
+import enGB from './snippet/en_GB.json';
+
 Module.register('sw-settings-attribute', {
     flag: NEXT754,
     type: 'core',
@@ -24,6 +27,11 @@ Module.register('sw-settings-attribute', {
     color: '#9AA8B5',
     icon: 'default-action-settings',
     entity: 'attribute-set',
+
+    snippets: {
+        'de-DE': deDE,
+        'en-GB': enGB
+    },
 
     routes: {
         index: {

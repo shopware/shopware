@@ -6,6 +6,9 @@ import './component/sw-product-stream-modal-preview';
 import { NEXT739 } from 'src/flag/feature_next739';
 import './component/sw-product-stream-filter';
 
+import deDE from './snippet/de_DE.json';
+import enGB from './snippet/en_GB.json';
+
 Module.register('sw-product-stream', {
     type: 'core',
     flag: NEXT739,
@@ -16,6 +19,11 @@ Module.register('sw-product-stream', {
     color: '#57D9A3',
     icon: 'default-symbol-products',
     entity: 'product_stream',
+
+    snippets: {
+        'de-DE': deDE,
+        'en-GB': enGB
+    },
 
     routes: {
         index: {

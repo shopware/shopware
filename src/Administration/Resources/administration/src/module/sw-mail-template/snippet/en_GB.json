@@ -1,0 +1,66 @@
+{
+  "sw-mail-template": {
+    "general": {
+      "mainMenuItemList": "Overview",
+      "mainMenuItemGeneral": "Email templates",
+      "placeholderSearchBar": "Search email templates",
+      "notificationTestMailErrorTitle": "Error",
+      "notificationTestMailSalesChannelErrorMessage": "Please choose a sales channel",
+      "notificationTestMailErrorMessage": "An error occurred while sending the test email.",
+      "notificationTestMailSuccessTitle": "Success",
+      "notificationTestMailSuccessMessage": "The test email has been sent successfully."
+    },
+    "list": {
+      "textMailTemplateOverview": "Email templates",
+      "buttonAddMailTemplate": "Add email template",
+      "columnMailType": "Type",
+      "columnDescription": "Description",
+      "columnSalesChannels": "Sales Channels",
+      "contextMenuDelete": "Delete",
+      "contextMenuEdit": "Edit",
+      "contextMenuDuplicate": "Duplicate",
+      "textDeleteConfirm": "Are you sure you want to delete the email template \"{name}\"?",
+      "modalTitleDelete": "Delete email template",
+      "buttonCancel": "Cancel",
+      "buttonDelete": "Delete",
+      "messageEmpty": "No email templates yet",
+      "titleSidebarItemRefresh": "Refresh"
+    },
+    "detail": {
+      "basic": {
+        "titleCard": "Informations",
+        "labelMailType": "Type",
+        "labelDescription": "Description",
+        "labelSalesChannels": "Sales channels",
+        "placeholderMailType": "Choose a type",
+        "placeholderDescription": "Enter email template description",
+        "placeholderSalesChannels": "Choose email template sales channels"
+      },
+      "options": {
+        "titleCard": "Options",
+        "labelSenderMail": "Sender mail",
+        "labelSenderName": "Sender name",
+        "labelSubject": "Subject",
+        "placeholderSenderMail": "example@shop.com",
+        "placeholderSenderName": "example@costumer.com",
+        "placeholderSubject": "Enter email template subject"
+      },
+      "mailText": {
+        "titleCard": "Mail text",
+        "labelContentPlain": "Plain text",
+        "labelContentHtml": "HTML",
+        "placeholderPlain": "Enter email template plain text...",
+        "placeholderHtml": "Enter email template HTML text...",
+        "placeholderTestMail": "example@shop.de",
+        "buttonTestMail": "Testmail senden an"
+      },
+      "buttonCancel": "Cancel",
+      "buttonSave": "Save",
+      "textHeadline": "New email template",
+      "textHeadlineEdit": "Edit email template",
+      "titleResult": "Email template",
+      "titleSaveSuccess": "Success",
+      "messageSaveSuccess": "The email template \"{name}\" has been saved successfully."
+    }
+  }
+}

@@ -1,0 +1,32 @@
+{
+  "sw-settings-country": {
+    "general": {
+      "mainMenuItemGeneral": "Countries",
+      "placeholderSearchBar": "Search countries"
+    },
+    "list": {
+      "textHeadline": "Countries",
+      "textDeleteConfirm": "Are you sure you want to delete the country \"{name}\"?",
+      "columnName": "Name",
+      "columnActive": "Active",
+      "buttonAddCountry": "Add country",
+      "contextMenuEdit": "Edit",
+      "modalTitleDelete": "Delete Country",
+      "titleDeleteSuccess": "Success",
+      "messageDeleteSuccess": "Country \"{name}\" has been deleted successfully.",
+      "buttonCancel": "Cancel",
+      "buttonDelete": "Delete"
+    },
+    "detail": {
+      "textHeadline": "New country",
+      "titleCard": "Settings",
+      "titleSaveSuccess": "Success",
+      "messageSaveSuccess": "Country \"{name}\" has been saved successfully.",
+      "labelName": "Name",
+      "labelActive": "Active",
+      "placeholderName": "Enter name",
+      "buttonCancel": "Cancel",
+      "buttonSave": "Save"
+    }
+  }
+}

@@ -1,0 +1,47 @@
+{
+  "sw-integration": {
+    "general": {
+      "mainMenuItemIndex": "Integrations",
+      "headlineIntegrations": "Integrations",
+      "buttonCreateIntegration": "Add integration",
+      "heroHeadlineIntegrations": "Manage Integrations",
+      "heroDescriptionIntegrations": "Shopware offers a powerful API for perfectly integrating third-party systems into your processes. In order to establish proper communication, Shopware requires external applications to authenticate through individual security keys first. You can create those individual keys right here, enabling you to track changes, introduced by external applications, separately."
+    },
+    "list": {
+      "contextMenuEdit": "Edit",
+      "contextMenuDelete": "Delete",
+      "messageEmpty": "No integrations yet",
+      "sublineEmpty": "The module for managing integrations.",
+      "permissions": "Permissions",
+      "writeAccess": "Write",
+      "readAccess": "Read",
+      "integrationName": "Integration"
+    },
+    "detail": {
+      "deleteModalTitle": "Delete",
+      "detailModalTitle": "Create integration",
+      "detailModalTitleEdit": "Edit:",
+      "confirmDelete" : "Are you sure you want to delete this integration?",
+      "buttonApply": "Save integration",
+      "buttonApplyEdit": "Save changes",
+      "buttonCancel": "Cancel",
+      "buttonDelete": "Delete",
+      "buttonCreateNewApiKeys": "Create new API key",
+      "hintCreateNewApiKeys": "The regeneration of the API access keys requires updating all associated scripts or applications.",
+      "labelFieldLabel": "Name",
+      "idFieldLabel": "Access key ID",
+      "secretFieldLabel": "Secret access key",
+      "secretHelpText": "The access key will no longer be visible after saving. Be sure to copy and store the key in a secure place. In case you lost the key anyway, simply generate a new one here.",
+      "secretHelpText": "Please copy your access key now. For safety reasons it will be no longer visible after saving.",
+      "permissions": "Permissions",
+      "readAccessFieldLabel": "Read (default)",
+      "writeAccessFieldLabel": "Write (optional)",
+      "titleSaveSuccess": "Success",
+      "messageSaveSuccess": "Integration has been saved successfully",
+      "titleSaveError": "Error",
+      "messageSaveError": "Integration could not be saved",
+      "titleCreateNewError": "Error",
+      "messageCreateNewError": "Integration could not be saved."
+    }
+  }
+}

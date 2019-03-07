@@ -8,6 +8,9 @@ import './page/sw-settings-rule-create';
 import './component/sw-condition-not-found';
 import './component/sw-condition-operator-select';
 
+import deDE from './snippet/de_DE.json';
+import enGB from './snippet/en_GB.json';
+
 Module.register('sw-settings-rule', {
     flag: NEXT516,
     type: 'core',
@@ -16,6 +19,11 @@ Module.register('sw-settings-rule', {
     color: '#9AA8B5',
     icon: 'default-action-settings',
     entity: 'rule',
+
+    snippets: {
+        'de-DE': deDE,
+        'en-GB': enGB
+    },
 
     routes: {
         index: {

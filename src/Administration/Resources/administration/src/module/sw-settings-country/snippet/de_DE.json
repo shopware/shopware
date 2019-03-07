@@ -1,0 +1,32 @@
+{
+  "sw-settings-country": {
+    "general": {
+      "mainMenuItemGeneral": "Länder",
+      "placeholderSearchBar": "Durchsuche alle Länder"
+    },
+    "list": {
+      "textHeadline": "Länder",
+      "textDeleteConfirm": "Bist Du sicher, dass Du dieses Land \"{name}\" löschen möchtest?",
+      "columnName": "Name",
+      "columnActive": "Aktiv",
+      "buttonAddCountry": "Land anlegen",
+      "contextMenuEdit": "Bearbeiten",
+      "modalTitleDelete": "Land löschen",
+      "titleDeleteSuccess": "Erfolg",
+      "messageDeleteSuccess": "Das Land \"{name}\" wurde erfolgreich gelöscht.",
+      "buttonCancel": "Abbrechen",
+      "buttonDelete": "Löschen"
+    },
+    "detail": {
+      "textHeadline": "Neues Land",
+      "titleCard": "Einstellungen",
+      "titleSaveSuccess": "Erfolg",
+      "messageSaveSuccess": "Das Land \"{name}\" wurde erfolgreich gespeichert.",
+      "labelName": "Name",
+      "labelActive": "Aktiv",
+      "placeholderName": "Namen eingeben...",
+      "buttonCancel": "Abbrechen",
+      "buttonSave": "Speichern"
+    }
+  }
+}

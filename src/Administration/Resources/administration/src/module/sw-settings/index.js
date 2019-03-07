@@ -3,12 +3,20 @@ import './component/sw-settings-item';
 import './page/sw-settings-index';
 import './mixin/sw-settings-list.mixin';
 
+import deDE from './snippet/de_DE.json';
+import enGB from './snippet/en_GB.json';
+
 Module.register('sw-settings', {
     type: 'core',
     name: 'Settings',
     description: 'Settings Module',
     color: '#9AA8B5',
     icon: 'default-action-settings',
+
+    snippets: {
+        'de-DE': deDE,
+        'en-GB': enGB
+    },
 
     routes: {
         index: {

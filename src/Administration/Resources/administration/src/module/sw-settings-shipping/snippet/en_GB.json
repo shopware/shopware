@@ -1,0 +1,34 @@
+{
+  "sw-settings-shipping": {
+    "general": {
+      "mainMenuItemGeneral": "Shipping costs",
+      "placeholderSearchBar": "Search shipping rates"
+    },
+    "list": {
+      "textHeadline": "Shipping costs",
+      "textDeleteConfirm": "Are you sure you want to delete the shipping rate \"{name}\"?",
+      "columnName": "Name",
+      "columnActive": "Active",
+      "columnShippingfree": "Free shipping",
+      "buttonAddShippingMethod": "Add shipping rate",
+      "contextMenuEdit": "Edit",
+      "modalTitleDelete": "Delete shipping rate",
+      "titleDeleteSuccess": "Success",
+      "messageDeleteSuccess": "Shipping rate \"{name}\" has been deleted successfully.",
+      "buttonCancel": "Cancel",
+      "buttonDelete": "Delete"
+    },
+    "detail": {
+      "textHeadline": "New shipping rate",
+      "titleCard": "Settings",
+      "titleSaveSuccess": "Success",
+      "messageSaveSuccess": "Shipping rate \"{name}\" has been saved successfully.",
+      "labelName": "Name",
+      "labelActive": "Active",
+      "labelBindShippingfree": "Free shipping",
+      "placeholderName": "Enter name",
+      "buttonCancel": "Cancel",
+      "buttonSave": "Save"
+    }
+  }
+}

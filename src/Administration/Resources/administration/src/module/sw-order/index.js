@@ -13,6 +13,9 @@ import './component/sw-order-state-history-card';
 import './component/sw-order-state-history-card-entry';
 import './component/sw-order-state-select';
 
+import deDE from './snippet/de_DE.json';
+import enGB from './snippet/en_GB.json';
+
 Module.register('sw-order', {
     type: 'core',
     name: 'Orders',
@@ -22,6 +25,11 @@ Module.register('sw-order', {
     color: '#A092F0',
     icon: 'default-shopping-paper-bag',
     entity: 'order',
+
+    snippets: {
+        'de-DE': deDE,
+        'en-GB': enGB
+    },
 
     routes: {
         index: {

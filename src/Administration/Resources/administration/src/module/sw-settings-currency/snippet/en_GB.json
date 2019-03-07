@@ -1,0 +1,39 @@
+{
+  "sw-settings-currency": {
+    "general": {
+      "mainMenuItemGeneral": "Currencies",
+      "placeholderSearchBar": "Search currencies"
+    },
+    "list": {
+      "textHeadline": "Currencies",
+      "textDeleteConfirm": "Are you sure you want to delete the currency \"{name}\"?",
+      "columnName": "Name",
+      "columnShortName": "Short name",
+      "columnSymbol": "Symbol",
+      "columnFactor": "Factor",
+      "buttonAddCurrency": "Add currency",
+      "contextMenuEdit": "Edit",
+      "modalTitleDelete": "Delete currency",
+      "titleDeleteSuccess": "Currency",
+      "messageDeleteSuccess": "Currency \"{name}\" has been deleted successfully.",
+      "buttonCancel": "Cancel",
+      "buttonDelete": "Delete"
+    },
+    "detail": {
+      "textHeadline": "New currency",
+      "titleCard": "Settings",
+      "titleSaveSuccess": "Success",
+      "messageSaveSuccess": "Currency \"{name}\" has been saved successfully.",
+      "labelName": "Name",
+      "labelShortName": "Short name",
+      "labelSymbol": "Symbol",
+      "labelFactor": "Factor",
+      "placeholderName": "Enter name",
+      "placeholderShortName": "Enter short name",
+      "placeholderSymbol": "Enter symbol",
+      "placeholderFactor": "Enter factor",
+      "buttonCancel": "Cancel",
+      "buttonSave": "Save"
+    }
+  }
+}

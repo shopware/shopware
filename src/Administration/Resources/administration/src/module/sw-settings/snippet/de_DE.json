@@ -1,0 +1,10 @@
+{
+  "sw-settings": {
+    "general": {
+      "mainMenuItemGeneral": "Einstellungen"
+    },
+    "index": {
+      "title": "Einstellungen"
+    }
+  }
+}

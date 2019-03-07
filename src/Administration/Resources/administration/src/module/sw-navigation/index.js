@@ -4,6 +4,9 @@ import './component/sw-navigation-view';
 import './page/sw-navigation-detail';
 import { NEXT1594 } from '../../flag/feature_next1594';
 
+import deDE from './snippet/de_DE.json';
+import enGB from './snippet/en_GB.json';
+
 Module.register('sw-navigation', {
     type: 'core',
     flag: NEXT1594,
@@ -13,6 +16,11 @@ Module.register('sw-navigation', {
     targetVersion: '1.0.0',
     color: '#57D9A3',
     icon: 'default-package-closed',
+
+    snippets: {
+        'de-DE': deDE,
+        'en-GB': enGB
+    },
 
     routes: {
         index: {

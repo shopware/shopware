@@ -15,6 +15,9 @@ import './component/sw-media-breadcrumbs';
 import './component/sw-media-library';
 import './component/sw-media-modal';
 
+import deDE from './snippet/de_DE.json';
+import enGB from './snippet/en_GB.json';
+
 Module.register('sw-media', {
     type: 'core',
     name: 'Media',
@@ -24,6 +27,11 @@ Module.register('sw-media', {
     color: '#FFD700',
     icon: 'default-object-image',
     entity: 'media',
+
+    snippets: {
+        'de-DE': deDE,
+        'en-GB': enGB
+    },
 
     routes: {
         index: {

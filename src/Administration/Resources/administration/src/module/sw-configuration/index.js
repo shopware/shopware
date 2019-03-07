@@ -1,4 +1,8 @@
 import { Module } from 'src/core/shopware';
+
+import deDE from './snippet/de_DE.json';
+import enGB from './snippet/en_GB.json';
+
 import './page/sw-configuration-list';
 import './page/sw-configuration-detail';
 import './page/sw-configuration-create';
@@ -16,6 +20,11 @@ Module.register('sw-configuration', {
     flag: NEXT719,
     color: '#57D9A3',
     icon: 'default-symbol-products',
+
+    snippets: {
+        'de-DE': deDE,
+        'en-GB': enGB
+    },
 
     routes: {
         index: {

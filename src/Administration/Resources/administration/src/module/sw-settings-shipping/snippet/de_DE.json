@@ -1,0 +1,34 @@
+{
+  "sw-settings-shipping": {
+    "general": {
+      "mainMenuItemGeneral": "Versandarten",
+      "placeholderSearchBar": "Durchsuche alle Versandarten"
+    },
+    "list": {
+      "textHeadline": "Versandarten",
+      "textDeleteConfirm": "Bist Du sicher, dass du die Versandart \"{name}\" löschen möchtest?",
+      "columnName": "Name",
+      "columnActive": "Aktiv",
+      "columnShippingfree": "Versandkostenfrei",
+      "buttonAddShippingMethod": "Versandart anlegen",
+      "contextMenuEdit": "Bearbeiten",
+      "modalTitleDelete": "Versandart löschen",
+      "titleDeleteSuccess": "Erfolg",
+      "messageDeleteSuccess": "Die Versandart \"{name}\" wurde erfolgreich gelöscht.",
+      "buttonCancel": "Abbrechen",
+      "buttonDelete": "Löschen"
+    },
+    "detail": {
+      "textHeadline": "Neue Versandart",
+      "titleCard": "Einstellungen",
+      "titleSaveSuccess": "Erfolg",
+      "messageSaveSuccess": "Die Versandart \"{name}\" wurde erfolgreich gespeichert.",
+      "labelName": "Name",
+      "labelActive": "Aktiv",
+      "labelBindShippingfree": "Versandkostenfrei",
+      "placeholderName": "Namen eingeben...",
+      "buttonCancel": "Abbrechen",
+      "buttonSave": "Speichern"
+    }
+  }
+}

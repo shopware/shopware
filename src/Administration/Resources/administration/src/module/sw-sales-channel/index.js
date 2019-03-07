@@ -7,6 +7,9 @@ import './page/sw-sales-channel-create';
 import './view/sw-sales-channel-detail-base';
 import './view/sw-sales-channel-create-base';
 
+import deDE from './snippet/de_DE.json';
+import enGB from './snippet/en_GB.json';
+
 Module.register('sw-sales-channel', {
     type: 'core',
     name: 'sales-channels',
@@ -16,6 +19,11 @@ Module.register('sw-sales-channel', {
     color: '#14D7A5',
     icon: 'default-device-server',
     entity: 'sales_channel',
+
+    snippets: {
+        'de-DE': deDE,
+        'en-GB': enGB
+    },
 
     routes: {
         detail: {

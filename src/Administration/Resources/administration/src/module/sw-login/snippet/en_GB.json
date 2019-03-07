@@ -1,0 +1,56 @@
+{
+  "sw-login": {
+    "index": {
+      "headlineMain": "Hello",
+      "subheadlineMain": "Welcome back!",
+      "headlineForm": "Log in to your Shopware store",
+      "labelUsername": "Username",
+      "labelPassword": "Password",
+      "placeholderUsername": "Enter your username",
+      "placeholderPassword": "Enter your password",
+      "buttonLogin": "Log in",
+      "titleErrorMessage": "Error",
+      "messageUnsupportedGrantType": "Authorization grant type not supported by authorization server.",
+      "messageInvalidRequest": "Invalid request.",
+      "messageInvalidClient": "Client authentication failed.",
+      "messageInvalidScope": "Invalid scope request.",
+      "messageInvalidCredentials": "Incorrect user credentials.",
+      "messageServerError": "The authorization server encountered an unexpected condition.",
+      "messageInvalidRefreshToken": "Invalid refresh token.",
+      "messageAccessDenied": "Request denied by authorization server.",
+      "messageInvalidGrant": "Invalid authorization grant or refresh token.",
+      "messageGeneralRequestError": "Something went wrong requesting \"{url}\".",
+      "forgottenPasswordLink": "Forgot your password?"
+    },
+    "recovery" : {
+      "info": {
+        "headline": "Back to login",
+        "info": "If you entered a valid email address, you'll receive your password recovery mail in a few minutes.",
+        "warning": "Please note, that the recovery link is only valid for the next 2 hours."
+      },
+      "recovery": {
+        "headline": "Password recovery",
+        "newPasswordField": {
+          "label": "Enter your new password"
+        },
+        "passwordConfirmField": {
+          "label": "Repeat your new password"
+        },
+        "submit": {
+          "label": "Update password"
+        },
+        "errorMessage": "Your recovery link has expired or is invalid!"
+      },
+      "headline": "Password recovery",
+      "text": "Enter the email address thats's linked to your account.",
+      "email": {
+        "label": "Email address:",
+        "placeholder": "you@example.com"
+      },
+      "error": {
+        "passwordUpdateTitle": "There was an error updating your password:"
+      },
+      "submit": "Send recovery mail"
+    }
+  }
+}

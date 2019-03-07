@@ -85,7 +85,8 @@ class StockDeliverySeparatorTest extends TestCase
                     new DeliveryDate(
                         new \DateTime('2012-01-04'),
                         new \DateTime('2012-01-05')
-                    )
+                    ),
+                    false
                 )
             );
 
@@ -124,7 +125,8 @@ class StockDeliverySeparatorTest extends TestCase
                     5,
                     5.0,
                     new DeliveryDate(new \DateTime('2012-01-01'), new \DateTime('2012-01-02')),
-                    new DeliveryDate(new \DateTime('2012-01-04'), new \DateTime('2012-01-05'))
+                    new DeliveryDate(new \DateTime('2012-01-04'), new \DateTime('2012-01-05')),
+                    false
                 )
             );
 
@@ -135,7 +137,8 @@ class StockDeliverySeparatorTest extends TestCase
                     5,
                     5.0,
                     new DeliveryDate(new \DateTime('2012-01-01'), new \DateTime('2012-01-02')),
-                    new DeliveryDate(new \DateTime('2012-01-04'), new \DateTime('2012-01-05'))
+                    new DeliveryDate(new \DateTime('2012-01-04'), new \DateTime('2012-01-05')),
+                    false
                 )
             );
 
@@ -170,7 +173,8 @@ class StockDeliverySeparatorTest extends TestCase
                     0,
                     5.0,
                     new DeliveryDate(new \DateTime('2012-01-01'), new \DateTime('2012-01-03')),
-                    new DeliveryDate(new \DateTime('2012-01-04'), new \DateTime('2012-01-05'))
+                    new DeliveryDate(new \DateTime('2012-01-04'), new \DateTime('2012-01-05')),
+                    false
                 )
             );
 
@@ -181,7 +185,8 @@ class StockDeliverySeparatorTest extends TestCase
                     0,
                     5.0,
                     new DeliveryDate(new \DateTime('2012-01-01'), new \DateTime('2012-01-02')),
-                    new DeliveryDate(new \DateTime('2012-01-04'), new \DateTime('2012-01-05'))
+                    new DeliveryDate(new \DateTime('2012-01-04'), new \DateTime('2012-01-05')),
+                    false
                 )
             );
 
@@ -221,7 +226,8 @@ class StockDeliverySeparatorTest extends TestCase
                     5,
                     5.0,
                     new DeliveryDate(new \DateTime('2012-01-01'), new \DateTime('2012-01-03')),
-                    new DeliveryDate(new \DateTime('2012-01-04'), new \DateTime('2012-01-05'))
+                    new DeliveryDate(new \DateTime('2012-01-04'), new \DateTime('2012-01-05')),
+                    false
                 )
             );
 
@@ -264,7 +270,8 @@ class StockDeliverySeparatorTest extends TestCase
                     5,
                     5.0,
                     new DeliveryDate(new \DateTime('2012-01-01'), new \DateTime('2012-01-03')),
-                    new DeliveryDate(new \DateTime('2012-01-04'), new \DateTime('2012-01-06'))
+                    new DeliveryDate(new \DateTime('2012-01-04'), new \DateTime('2012-01-06')),
+                    false
                 )
             );
 

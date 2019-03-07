@@ -349,7 +349,11 @@
         "deleteAllConditions": "Alle entfernen",
         "createBefore": "Davor erstellen",
         "createAfter": "Danach erstellen",
-        "delete": "Löschen"
+        "delete": "Löschen",
+        "shippingFreeRule": "Versandfreie Artikel",
+        "timeRangeRule": "Zeitraum",
+        "weightOfCartRule": "Warenkorb Gewicht",
+        "dayOfWeekRule": "Wochentag"
       }
     },
     "sw-product-image": {
@@ -400,6 +404,15 @@
       "tax": "Steuern",
       "unit": "Maßeinheit | Maßeinheiten",
       "user": "Benutzer"
+    },
+    "day-of-week": {
+      "monday": "Montag",
+      "tuesday": "Dienstag",
+      "wednesday": "Mittwoch",
+      "thursday": "Donnerstag",
+      "friday": "Freitag",
+      "saturday": "Samstag",
+      "sunday": "Sonntag"
     }
   },
   "sw-login": {

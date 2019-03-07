@@ -552,7 +552,8 @@ class RecalculationServiceTest extends TestCase
             100,
             0,
             new DeliveryDate(new \DateTime(), new \DateTime()),
-            new DeliveryDate(new \DateTime(), new \DateTime())
+            new DeliveryDate(new \DateTime(), new \DateTime()),
+            false
         );
         $cart->add(
             (new LineItem('1', 'product_', 5))

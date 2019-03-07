@@ -35,5 +35,13 @@
             <tag name="rule.definition"/>
         </service>
 
+        <service id="Shopware\Core\Framework\Rule\TimeRangeRule">
+            <tag name="rule.definition"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Rule\WeekdayRule">
+            <tag name="rule.definition"/>
+        </service>
+
     </services>
 </container>

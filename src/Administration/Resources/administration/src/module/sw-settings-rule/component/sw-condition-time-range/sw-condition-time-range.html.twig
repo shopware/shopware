@@ -1,0 +1,18 @@
+{% block sw_condition_fields %}
+    {% block sw_condition_fields_value %}
+        <sw-field type="date"
+                  dateType="time"
+                  name="fromTime"
+                  :config="datepickerConfig"
+                  v-model="condition.value.fromTime"
+                  class="field--main field--date has--arrow">
+        </sw-field>
+        <sw-field type="date"
+                  dateType="time"
+                  name="toTime"
+                  :config="datepickerConfig"
+                  v-model="condition.value.toTime"
+                  class="field--main field--date">
+        </sw-field>
+    {% endblock %}
+{% endblock %}

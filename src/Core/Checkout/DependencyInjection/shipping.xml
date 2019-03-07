@@ -16,6 +16,6 @@
         <service id="Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodTranslation\ShippingMethodTranslationDefinition">
             <tag name="shopware.entity.definition" entity="shipping_method_translation"/>
         </service>
+
     </services>
 </container>                
-                

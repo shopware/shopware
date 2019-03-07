@@ -44,6 +44,14 @@
             <tag name="rule.definition"/>
         </service>
 
+        <service id="Shopware\Core\Checkout\Cart\Rule\CartWeightRule">
+            <tag name="rule.definition"/>
+        </service>
+
+        <service id="Shopware\Core\Checkout\Cart\Rule\CartHasDeliveryFreeItemRule">
+            <tag name="rule.definition"/>
+        </service>
+
         <service id="Shopware\Core\Checkout\Customer\Rule\BillingCountryRule">
             <tag name="rule.definition"/>
         </service>
@@ -87,5 +95,6 @@
         <service id="Shopware\Core\Checkout\Customer\Rule\ShippingZipCodeRule">
             <tag name="rule.definition"/>
         </service>
+
     </services>
 </container>

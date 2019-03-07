@@ -349,7 +349,11 @@
         "deleteAllConditions": "Delete all",
         "createBefore": "Create before",
         "createAfter": "Create after",
-        "delete": "Delete"
+        "delete": "Delete",
+        "shippingFreeRule": "Shipping free product",
+        "timeRangeRule": "time range",
+        "weightOfCartRule": "weight of cart",
+        "dayOfWeekRule": "Day of the week"
       }
     },
     "sw-product-image": {
@@ -400,6 +404,15 @@
       "tax": "Tax | Taxes",
       "unit": "Unit | Units",
       "user": "User | Users"
+    },
+    "day-of-week": {
+      "monday": "Monday",
+      "tuesday": "Tuesday",
+      "wednesday": "Wednesday",
+      "thursday": "Thursday",
+      "friday": "Friday",
+      "saturday": "Saturday",
+      "sunday": "Sunday"
     }
   },
   "sw-login": {

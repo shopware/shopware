@@ -66,13 +66,11 @@ Component.register('sw-product-variants-generated-variants', {
                 params.queries = queries;
             }
             delete params.term;
-            console.log('getList started');
             this.variantStore.getList(params).then((res) => {
                 this.total = res.total;
                 this.variantList = res.items;
                 this.isLoading = false;
                 this.$emit('variantListUpdated', this.variantList);
-                console.log('getList finished', this.variantList);
             });
         },
 

@@ -20,5 +20,9 @@
     height: 100%;
     background-color: @sw-progress-bar-value-color;
     border-radius: @sw-progress-bar-height / 2;
+
+    &.is--empty {
+      transition: 0s width linear;
+    }
   }
 }

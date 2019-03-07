@@ -45,15 +45,21 @@ export default class VariantsGenerator extends EventEmitter {
                     return { id };
                 });
 
-                this.emit('maxProgressChange', variantsToDelete.length);
+                this.emit('maxProgressChange', {
+                    type: 'delete',
+                    progress: variantsToDelete.length
+                });
 
                 // first delete variants, then create new variants
                 // use promise for creating a recursion to create sequential request
                 new Promise((resolveDelete) => {
                     this.sendDeletion(variantsToDelete, 0, 10, resolveDelete);
                 }).then(() => {
-                    this.emit('maxProgressChange', variantsToCreate.length);
-                    this.sendVariants(variantsToCreate, 0, 50, resolve);
+                    this.emit('maxProgressChange', {
+                        type: 'create',
+                        progress: variantsToCreate.length
+                    });
+                    this.sendVariants(variantsToCreate, 0, 10, resolve);
                 });
             });
         });
@@ -127,7 +133,6 @@ export default class VariantsGenerator extends EventEmitter {
                 const diff = types.difference(options, permutation);
 
                 if (diff.length <= 0) {
-                    console.log('true');
                     returnValue = true;
                 }
             }
@@ -190,24 +195,22 @@ export default class VariantsGenerator extends EventEmitter {
     sendVariants(variants, offset, limit, resolve) {
         const chunk = variants.slice(offset, offset + limit);
 
-        console.log('Send chunk: ', chunk);
-
         if (chunk.length <= 0) {
             resolve();
             return;
         }
 
-        this.emit('actualProgressChange', offset);
+        this.emit('actualProgressChange', {
+            type: 'create',
+            progress: offset
+        });
 
         const payload = [{
             action: 'upsert',
             entity: 'product',
             payload: chunk
         }];
-
         const header = this.EntityStore.getLanguageHeader(this.getLanguageId());
-
-        console.log('Sync Payload: ', payload);
 
         this.syncService.sync(payload, {}, header).then(() => {
             this.sendVariants(variants, offset + limit, limit, resolve);
@@ -217,14 +220,15 @@ export default class VariantsGenerator extends EventEmitter {
     sendDeletion(variants, offset, limit, resolve) {
         const chunk = variants.slice(offset, offset + limit);
 
-        console.log('Delete chunk: ', chunk);
-
         if (chunk.length <= 0) {
             resolve();
             return;
         }
 
-        this.emit('actualProgressChange', offset);
+        this.emit('actualProgressChange', {
+            type: 'delete',
+            progress: offset
+        });
 
         const payload = [{
             action: 'delete',

@@ -26,7 +26,8 @@ Component.extend('sw-product-variants-configurator-selection', 'sw-property-sear
             actualProgress: 0,
             maxProgress: 0,
             warningModal: false,
-            warningModalNumber: 0
+            warningModalNumber: 0,
+            progressType: ''
         };
     },
 
@@ -54,6 +55,16 @@ Component.extend('sw-product-variants-configurator-selection', 'sw-property-sear
 
         progressInPercentage() {
             return this.actualProgress / this.maxProgress * 100;
+        },
+
+        progressMessage() {
+            if (this.progressType === 'delete') {
+                return 'gelöscht';
+            }
+            if (this.progressType === 'create') {
+                return 'generiert';
+            }
+            return '';
         }
     },
 
@@ -69,11 +80,13 @@ Component.extend('sw-product-variants-configurator-selection', 'sw-property-sear
             });
 
             this.variantsGenerator.on('maxProgressChange', (maxProgress) => {
-                this.maxProgress = maxProgress;
+                this.maxProgress = maxProgress.progress;
+                this.progressType = maxProgress.type;
             });
 
             this.variantsGenerator.on('actualProgressChange', (actualProgress) => {
-                this.actualProgress = actualProgress;
+                this.actualProgress = actualProgress.progress;
+                this.progressType = actualProgress.type;
             });
 
             // debugging

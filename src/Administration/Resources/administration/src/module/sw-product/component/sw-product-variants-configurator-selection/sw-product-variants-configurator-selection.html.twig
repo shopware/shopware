@@ -24,7 +24,7 @@
         <div class="generate-variant-progress-bar__wrapper" v-show="isLoading">
             <sw-progress-bar class="generate-variant-progress-bar" :value="progressInPercentage"></sw-progress-bar>
             <span class="generate-variant-progress-bar__description">
-                {{ actualProgress }} von {{ maxProgress }} Varianten generiert
+                {{ actualProgress }} von {{ maxProgress }} Varianten {{ progressMessage }}
             </span>
         </div>
     </transition>

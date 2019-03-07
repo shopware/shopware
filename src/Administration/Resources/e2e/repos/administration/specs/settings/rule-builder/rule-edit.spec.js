@@ -2,7 +2,6 @@ const ruleBuilderPage = require('administration/page-objects/module/sw-rule.page
 
 module.exports = {
     '@tags': ['settings', 'rule', 'rule-edit', 'edit'],
-    '@disabled': !global.flags.isActive('next516'),
     before: (browser, done) => {
         global.AdminFixtureService.create('rule').then(() => {
             done();

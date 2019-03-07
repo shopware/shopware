@@ -627,7 +627,7 @@
       "isCategoryActiveLabel": "Category is active",
       "descriptionLabel": "Description",
       "imageLabel": "Display image",
-      "showSubcategoryProductsLabel": "Includes products from subcategories",
+      "showSubcategoryProductsLabel": "Include products from subcategories",
       "categoryNameLabel": "Name",
       "titleSaveSuccess": "Success",
       "messageSaveSuccess": "Category \"{name}\" has been saved successfully.",

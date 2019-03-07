@@ -69,7 +69,7 @@ Component.register('sw-customer-detail', {
             }
 
             const salutation = customer.salutation ? customer.salutation : '';
-            const title = customer.titel ? customer.title : '';
+            const title = customer.title ? customer.title : '';
             const firstName = customer.firstName ? customer.firstName : '';
             const lastName = customer.lastName ? customer.lastName : '';
 

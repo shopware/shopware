@@ -195,12 +195,12 @@
                                         {% endblock %}
 
                                         {% block sw_data_grid_body_cell_spacer %}
-                                            <th v-if="hasResizeColumns"
+                                            <td v-if="hasResizeColumns"
                                                 aria-hidden="true"
                                                 class="sw-data-grid__cell sw-data-grid__cell-spacer"
                                                 @dblclick="onDbClickCell(item)">
                                                 <div class="sw-data-grid__cell-content"></div>
-                                            </th>
+                                            </td>
                                         {% endblock %}
 
                                         {% block sw_data_grid_body_cell_actions %}

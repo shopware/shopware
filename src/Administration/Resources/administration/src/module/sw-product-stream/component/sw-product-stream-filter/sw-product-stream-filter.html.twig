@@ -42,14 +42,14 @@
             {% block sw_product_stream_filter_range_field_gte %}
                 <sw-field type="number"
                           class="field--main has--arrow"
-                          v-model="condition.parameters.gte"
+                          v-model="actualCondition.parameters.gte"
                           :placeholder="$tc('global.sw-condition.operator.greaterThanEquals')">
                 </sw-field>
             {% endblock %}
             {% block sw_product_stream_filter_range_field_lte %}
                 <sw-field type="number"
                           class="field--main"
-                          v-model="condition.parameters.lte"
+                          v-model="actualCondition.parameters.lte"
                           :placeholder="$tc('global.sw-condition.operator.lowerThanEquals')">
                 </sw-field>
             {% endblock %}

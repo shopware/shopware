@@ -7,6 +7,8 @@ import TYPES from './type-provider';
 Component.extend('sw-product-stream-filter', 'sw-condition-base', {
     template,
 
+    inject: ['entityAssociationStore'],
+
     mixins: [
         Mixin.getByName('validation'),
         Mixin.getByName('notification')
@@ -193,7 +195,7 @@ Component.extend('sw-product-stream-filter', 'sw-condition-base', {
             return types.not || types.type;
         },
         createNegatedCondition() {
-            this.negatedCondition = this.entityAssociationStore.create();
+            this.negatedCondition = this.entityAssociationStore().create();
 
             this.fieldNames.forEach(field => {
                 this.negatedCondition[field] = this.condition[field];

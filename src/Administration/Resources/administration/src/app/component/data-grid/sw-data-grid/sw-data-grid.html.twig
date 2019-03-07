@@ -60,11 +60,11 @@
                                                                 {% block sw_data_grid_sort_indicator_transition %}
                                                                     <transition name="sort-indicator" mode="out-in">
                                                                         {% block sw_data_grid_sort_indicator_icon_asc %}
-                                                                            <sw-icon key="ASC" name="small-arrow-small-down" size="16px" v-if="sortDirection === 'ASC'"></sw-icon>
+                                                                            <sw-icon key="ASC" name="small-arrow-small-up" size="16px" v-if="sortDirection === 'ASC'"></sw-icon>
                                                                         {% endblock %}
 
                                                                         {% block sw_data_grid_sort_indicator_icon_desc %}
-                                                                            <sw-icon key="DESC" name="small-arrow-small-up" size="16px" v-else></sw-icon>
+                                                                            <sw-icon key="DESC" name="small-arrow-small-down" size="16px" v-else></sw-icon>
                                                                         {% endblock %}
                                                                     </transition>
                                                                 {% endblock %}
@@ -151,41 +151,38 @@
                                                 {% block sw_data_grid_body_columns_content %}
                                                     <div class="sw-data-grid__cell-content">
 
-                                                        {% block sw_data_grid_inline_edit_slot %}
-                                                            <slot v-if="isInlineEdit(item) && column.hasOwnProperty('inlineEdit')"
-                                                                  :name="`inline-edit-${column.property}`"
-                                                                  :item="item"
-                                                                  :column="column"
-                                                                  :compact="compact">
-                                                                {% block sw_data_grid_inline_edit %}
-                                                                    <sw-data-grid-inline-edit
-                                                                        :column="column"
-                                                                        :compact="compact"
-                                                                        :value="item[column.property]"
-                                                                        @input="item[column.property] = $event">
-                                                                    </sw-data-grid-inline-edit>
-                                                                {% endblock %}
-                                                            </slot>
-                                                        {% endblock %}
+                                                        {% block sw_data_grid_columns_slot %}
+                                                            <slot :name="`column-${column.property}`"
+                                                                  v-bind="{ item, column, compact, isInlineEdit: (isInlineEdit(item) && column.hasOwnProperty('inlineEdit')) }">
 
-                                                        {% block sw_data_grid_columns_render_slot %}
-                                                            <slot v-else
-                                                                  :name="`column-${column.property}`"
-                                                                  :item="item"
-                                                                  :column="column">
-
-                                                                {% block sw_data_grid_columns_render_router_link %}
-                                                                    <router-link v-if="column.routerLink"
-                                                                                 class="sw-data-grid__cell-value"
-                                                                                 :to="{ name: column.routerLink, params: { id: item.id } }">
-                                                                        {{ renderColumn(item, column) }}
-                                                                    </router-link>
+                                                                {% block sw_data_grid_columns_inline_edit %}
+                                                                    <template v-if="isInlineEdit(item) && column.hasOwnProperty('inlineEdit')">
+                                                                        {% block sw_data_grid_columns_render_inline_edit %}
+                                                                            <sw-data-grid-inline-edit
+                                                                                :column="column"
+                                                                                :compact="compact"
+                                                                                :value="item[column.property]"
+                                                                                @input="item[column.property] = $event">
+                                                                            </sw-data-grid-inline-edit>
+                                                                        {% endblock %}
+                                                                    </template>
                                                                 {% endblock %}
 
-                                                                {% block sw_data_grid_columns_render_value %}
-                                                                    <span class="sw-data-grid__cell-value" v-else>
-                                                                        {{ renderColumn(item, column) }}
-                                                                    </span>
+                                                                {% block sw_data_grid_columns_value %}
+                                                                    <template v-else>
+                                                                        {% block sw_data_grid_columns_render_router_link %}
+                                                                            <router-link v-if="column.routerLink"
+                                                                                         class="sw-data-grid__cell-value"
+                                                                                         :to="{ name: column.routerLink, params: { id: item.id } }">
+                                                                                {{ renderColumn(item, column) }}
+                                                                            </router-link>
+                                                                        {% endblock %}
+                                                                        {% block sw_data_grid_columns_render_value %}
+                                                                            <span class="sw-data-grid__cell-value" v-else>
+                                                                                {{ renderColumn(item, column) }}
+                                                                            </span>
+                                                                        {% endblock %}
+                                                                    </template>
                                                                 {% endblock %}
                                                             </slot>
                                                         {% endblock %}

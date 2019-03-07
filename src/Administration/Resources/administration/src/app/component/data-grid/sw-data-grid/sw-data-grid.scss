@@ -249,6 +249,7 @@
         max-width: 88px;
         box-shadow: inset 1px 0 0 $color-steam-cloud;
         overflow: visible;
+        z-index: 4;
 
         &.is--loading {
             position: initial;
@@ -265,6 +266,7 @@
 
     .sw-data-grid__cell-settings {
         box-shadow: inset 1px -1px 0 $color-steam-cloud;
+        z-index: 5;
     }
 
     &.is--scroll-x {

@@ -34,6 +34,10 @@ export default {
         this.createdComponent();
     },
 
+    beforeDestroy() {
+        this.beforeDestroyedComponent();
+    },
+
     computed: {
         classes() {
             return {
@@ -50,9 +54,15 @@ export default {
         createdComponent() {
             this.currentValue = this.value;
 
-            this.$parent.$on('inline-edit-assign', () => {
-                this.$emit('input', this.currentValue);
-            });
+            this.$parent.$on('inline-edit-assign', this.emitInput);
+        },
+
+        beforeDestroyedComponent() {
+            this.$parent.$off('inline-edit-assign', this.emitInput);
+        },
+
+        emitInput() {
+            this.$emit('input', this.currentValue);
         }
     }
 };

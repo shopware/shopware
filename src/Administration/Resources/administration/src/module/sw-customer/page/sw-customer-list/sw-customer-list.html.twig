@@ -59,27 +59,30 @@
 
                             {% block sw_customer_list_grid_columns %}
                                 {% block sw_customer_list_grid_columns_name %}
-                                    <template slot="column-firstName" slot-scope="{ item }">
-                                        <router-link :to="{ name: 'sw.customer.detail', params: { id: item.id } }">
-                                            {{ item.firstName }} {{ item.lastName }}
-                                        </router-link>
-                                    </template>
-                                {% endblock %}
+                                    <template slot="column-firstName" slot-scope="{ item, compact, isInlineEdit }">
 
-                                {% block sw_customer_list_grid_inline_edit_name %}
-                                    <template slot="inline-edit-firstName" slot-scope="{ item, column, compact }">
-                                        {% block sw_customer_list_grid_inline_edit_first_name %}
-                                            <sw-text-field class="sw-customer-list__inline-edit-fist-name"
-                                                           v-model="item.firstName"
-                                                           :size="compact ? 'small' : 'default'">
-                                            </sw-text-field>
+                                        {% block sw_customer_list_grid_inline_edit_name %}
+                                            <template v-if="isInlineEdit">
+                                                {% block sw_customer_list_grid_inline_edit_first_name %}
+                                                    <sw-text-field class="sw-customer-list__inline-edit-fist-name"
+                                                                   v-model="item.firstName"
+                                                                   :size="compact ? 'small' : 'default'">
+                                                    </sw-text-field>
+                                                {% endblock %}
+
+                                                {% block sw_customer_list_grid_inline_edit_last_name %}
+                                                    <sw-text-field class="sw-customer-list__inline-edit-last-name"
+                                                                   v-model="item.lastName"
+                                                                   :size="compact ? 'small' : 'default'">
+                                                    </sw-text-field>
+                                                {% endblock %}
+                                            </template>
                                         {% endblock %}
 
-                                        {% block sw_customer_list_grid_inline_edit_last_name %}
-                                            <sw-text-field class="sw-customer-list__inline-edit-last-name"
-                                                           v-model="item.lastName"
-                                                           :size="compact ? 'small' : 'default'">
-                                            </sw-text-field>
+                                        {% block sw_customer_list_grid_columns_name_link %}
+                                            <router-link v-else :to="{ name: 'sw.customer.detail', params: { id: item.id } }">
+                                                {{ item.firstName }} {{ item.lastName }}
+                                            </router-link>
                                         {% endblock %}
                                     </template>
                                 {% endblock %}

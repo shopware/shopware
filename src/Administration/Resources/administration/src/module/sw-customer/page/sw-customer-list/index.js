@@ -144,6 +144,7 @@ Component.register('sw-customer-list', {
             }, {
                 property: 'email',
                 dataIndex: 'email',
+                inlineEdit: 'string',
                 label: this.$tc('sw-customer.list.columnEmail'),
                 allowResize: true
             }];

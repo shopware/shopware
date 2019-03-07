@@ -1,0 +1,47 @@
+{% block sw_data_grid_skeleton %}
+    <tbody class="sw-data-grid-skeleton" aria-busy="true">
+
+        {% block sw_data_grid_skeleton_row %}
+            <tr v-for="item in itemAmount" class="sw-data-grid__row">
+
+                {% block sw_data_grid_skeleton_cell_selection %}
+                    <td v-if="showSelection" class="sw-data-grid__cell">
+                        {% block sw_data_grid_skeleton_cell_selection_content %}
+                            <div class="sw-grid__cell-content"></div>
+                        {% endblock %}
+                    </td>
+                {% endblock %}
+
+                {% block sw_data_grid_skeleton_columns %}
+                    <td v-for="column in currentColumns"
+                        v-show="column.visible"
+                        class="sw-data-grid__cell">
+                        {% block sw_data_grid_skeleton_columns_content %}
+                            <div class="sw-data-grid__cell-content">
+                                {% block sw_data_grid_skeleton_element %}
+                                    <span class="sw-data-grid__skeleton"></span>
+                                {% endblock %}
+                            </div>
+                        {% endblock %}
+                    </td>
+                {% endblock %}
+
+                {% block sw_data_grid_skeleton_spacer %}
+                    <td v-if="hasResizeColumns" class="sw-data-grid__cell" aria-hidden="true">
+                        {% block sw_data_grid_skeleton_spacer_content %}
+                            <div class="sw-grid__cell-content"></div>
+                        {% endblock %}
+                    </td>
+                {% endblock %}
+
+                {% block sw_data_grid_skeleton_cell_actions %}
+                    <td v-if="showActions" class="sw-data-grid__cell">
+                        {% block sw_data_grid_skeleton_cell_actions_content %}
+                            <div class="sw-grid__cell-content"></div>
+                        {% endblock %}
+                    </td>
+                {% endblock %}
+            </tr>
+        {% endblock %}
+    </tbody>
+{% endblock %}

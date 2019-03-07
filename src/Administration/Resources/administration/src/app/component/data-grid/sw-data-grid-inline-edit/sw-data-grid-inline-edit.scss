@@ -1,0 +1,17 @@
+.sw-data-grid-inline-edit {
+    width: 100%;
+    display: flex;
+
+    .sw-field,
+    .sw-field.sw-field--small {
+        margin-bottom: 0;
+    }
+
+    .sw-data-grid-inline-edit__placeholder {
+        display: inline-block;
+        margin: 0 10px;
+        color: rgba(0, 0, 0, 0.2);
+        cursor: default;
+        user-select: none;
+    }
+}

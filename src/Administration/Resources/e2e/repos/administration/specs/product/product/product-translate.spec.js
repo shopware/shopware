@@ -26,7 +26,7 @@ module.exports = {
         const page = productPage(browser);
 
         browser
-            .clickContextMenuItem('.sw-product-list__edit-action', page.elements.contextMenuButton, `${page.elements.gridRow}--0`)
+            .clickContextMenuItem('.sw-product-list__edit-action', page.elements.contextMenuButton, `${page.elements.dataGridRow}--0`)
             .waitForElementNotPresent(`.product-basic-form ${page.elements.loader}`)
             .expect.element(page.elements.smartBarHeader).to.have.text.that.equals(fixture.name);
     },
@@ -63,7 +63,7 @@ module.exports = {
 
         browser
             .click('.smart-bar__actions .sw-button__content')
-            .expect.element(`${page.elements.gridRow}--0 .sw-product-list__column-product-name`).to.have.text.that.equals('Echt gutes Produkt');
+            .expect.element(`${page.elements.dataGridRow}--0 ${page.elements.productListName}`).to.have.text.that.equals('Echt gutes Produkt');
     },
     'change back to english and verify again': (browser) => {
         const page = productPage(browser);
@@ -77,7 +77,7 @@ module.exports = {
             .click('.sw-select-option:nth-of-type(2)')
             .waitForElementNotPresent('.sw-field__select-load-placeholder')
             .waitForElementNotPresent(page.elements.loader)
-            .expect.element(`${page.elements.gridRow}--0  .sw-product-list__column-product-name`).to.have.text.that.equals(fixture.name).before(5000);
+            .expect.element(`${page.elements.dataGridRow}--0  ${page.elements.productListName}`).to.have.text.that.equals(fixture.name).before(5000);
     },
     after: (browser) => {
         browser.end();

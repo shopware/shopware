@@ -63,6 +63,12 @@ export default {
             type: Boolean,
             required: false,
             default: false
+        },
+
+        autoClose: {
+            type: Boolean,
+            required: false,
+            default: true
         }
     },
 
@@ -150,8 +156,11 @@ export default {
         closeMenu(event) {
             const el = this.$refs.swContextButton;
             const target = event.target;
+            const excludedElements = this.autoClose ?
+                !target.classList.contains('is--disabled') :
+                !target.closest('.sw-context-menu__content');
 
-            if ((el !== target) && !el.contains(target) && !target.classList.contains('is--disabled')) {
+            if ((el !== target) && !el.contains(target) && excludedElements) {
                 this.showMenu = false;
                 this.removeMenuFromBody();
             }

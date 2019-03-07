@@ -19,6 +19,10 @@ Component.register('sw-order-list', {
     computed: {
         orderStore() {
             return State.getStore('order');
+        },
+
+        orderColumns() {
+            return this.getOrderColumns();
         }
     },
 
@@ -35,13 +39,7 @@ Component.register('sw-order-list', {
         },
 
         onInlineEditSave(order) {
-            this.isLoading = true;
-
-            order.save().then(() => {
-                this.isLoading = false;
-            }).catch(() => {
-                this.isLoading = false;
-            });
+            order.save();
         },
 
         onChangeLanguage() {
@@ -73,6 +71,42 @@ Component.register('sw-order-list', {
             return order.addresses.find((address) => {
                 return address.id === order.billingAddressId;
             });
+        },
+
+        getOrderColumns() {
+            return [{
+                property: 'id',
+                dataIndex: 'id',
+                label: this.$tc('sw-order.list.columnOrderNumber'),
+                routerLink: 'sw.order.detail',
+                allowResize: true,
+                primary: true
+            }, {
+                property: 'orderCustomer.firstName',
+                dataIndex: 'orderCustomer.firstName,orderCustomer.lastName',
+                label: this.$tc('sw-order.list.columnCustomerName'),
+                allowResize: true
+            }, {
+                property: 'billingAddressId',
+                label: this.$tc('sw-order.list.columnBillingAddress'),
+                allowResize: true
+            }, {
+                property: 'amountTotal',
+                dataIndex: 'amountTotal',
+                label: this.$tc('sw-order.list.columnAmount'),
+                align: 'right',
+                allowResize: true
+            }, {
+                property: 'stateMachineState.name',
+                dataIndex: 'stateMachineState.name',
+                label: this.$tc('sw-order.list.columnState'),
+                allowResize: true
+            }, {
+                property: 'date',
+                dataIndex: 'date',
+                label: this.$tc('sw-order.list.orderDate'),
+                allowResize: true
+            }];
         }
     }
 });

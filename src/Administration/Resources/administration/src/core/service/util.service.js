@@ -3,6 +3,7 @@
  */
 import throttle from 'lodash/throttle';
 import debounce from 'lodash/debounce';
+import get from 'lodash/get';
 import uuidV4 from 'uuid/v4';
 
 import {
@@ -75,6 +76,7 @@ export default {
     createId,
     throttle,
     debounce,
+    get,
     object,
     debug,
     format,

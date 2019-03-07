@@ -12,7 +12,7 @@ class CustomerPageObject extends GeneralPageObject {
                 customerMailInput: 'input[name=sw-field--customer-email]',
                 customerMetaData: '.sw-customer-card__metadata',
                 customerSaveAction: '.smart-bar__actions button.sw-button--primary',
-                columnName: '.sw-customer-list__column-customer-name'
+                columnName: `${this.elements.dataGridColumn}--firstName`
             }
         };
     }

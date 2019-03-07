@@ -6,10 +6,9 @@ class ProductPageObject extends GeneralPageObject {
 
         this.elements = {
             ...this.elements, ...{
-                columnProductName: 'sw-product-list__column-product-name > a',
                 mediaForm: '.sw-product-media-form',
                 productSaveAction: '.sw-product-detail__save-action',
-                productListName: '.sw-product-list__column-product-name'
+                productListName: `${this.elements.dataGridColumn}--name`
             }
         };
     }
@@ -48,7 +47,7 @@ class ProductPageObject extends GeneralPageObject {
         this.browser
             .click(`${this.elements.modal}__footer button${this.elements.primaryButton}`)
             .waitForElementNotPresent(this.elements.modal)
-            .waitForElementNotPresent(this.elements.columnProductName);
+            .waitForElementNotPresent(`${this.elements.productListName} > a`);
     }
 
     changeTranslation(productName, language, position) {

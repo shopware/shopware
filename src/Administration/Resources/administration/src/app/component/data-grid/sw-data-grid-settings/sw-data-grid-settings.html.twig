@@ -1,0 +1,92 @@
+{% block sw_data_grid_settings %}
+    <sw-context-button
+        :disabled="disabled"
+        v-tooltip="{ message: $tc('global.sw-data-grid.tooltipListSettings') }"
+        :menuWidth="300"
+        :autoClose="false">
+
+        {% block sw_data_grid_settings_trigger %}
+            <sw-button class="sw-data-grid-settings__trigger"
+                       :disabled="disabled"
+                       :aria-label="$tc('global.sw-data-grid.tooltipListSettings')"
+                       slot="button"
+                       size="x-small"
+                       square>
+                {% block sw_data_grid_settings_trigger_icon %}
+                    <sw-icon name="small-default-stack-line" size="14px"></sw-icon>
+                {% endblock %}
+            </sw-button>
+        {% endblock %}
+
+        {% block sw_data_grid_settings_content %}
+            <div class="sw-data-grid-settings">
+
+                {% block sw_data_grid_settings_general %}
+                    <div class="sw-data-grid__settings-container">
+
+                        {% block sw_data_grid_settings_compact_switch %}
+                            <sw-field type="switch"
+                                      v-model="currentCompact"
+                                      @change="onChangeCompactMode(currentCompact)"
+                                      :label="$tc('global.sw-data-grid.labelSettingsCompactMode')">
+                            </sw-field>
+                        {% endblock %}
+                    </div>
+                {% endblock %}
+
+                {% block sw_data_grid_settings_devider %}
+                    <sw-context-menu-divider></sw-context-menu-divider>
+                {% endblock %}
+
+                {% block sw_data_grid_settings_columns %}
+                    <transition-group name="columns-list" tag="div" class="sw-data-grid__settings-container">
+
+                        {% block sw_data_grid_settings_column_element %}
+                            <div v-for="(column, index) in currentColumns"
+                                 class="sw-data-grid__settings-column-item"
+                                 :key="column.property">
+
+                                {% block sw_data_grid_settings_column_visibility_checkbox %}
+                                    <sw-field :disabled="column.primary"
+                                              @change="onChangeColumnVisibility($event, index)"
+                                              type="checkbox"
+                                              :label="column.label"
+                                              :value="currentColumns[index].visible">
+                                    </sw-field>
+                                {% endblock %}
+
+                                {% block sw_data_grid_settings_column_item_conrols %}
+                                    <sw-button-group v-if="currentColumns.length >= 2" class="sw-data-grid__settings-column-item-controls">
+
+                                        {% block sw_data_grid_settings_column_control_up %}
+                                            <sw-button size="x-small"
+                                                       square
+                                                       :disabled="index === 0"
+                                                       @click="onClickChangeColumnOrderUp(index)">
+                                                {% block sw_data_grid_settings_column_control_up_icon %}
+                                                    <sw-icon name="small-arrow-small-up" size="14px"></sw-icon>
+                                                {% endblock %}
+                                            </sw-button>
+                                        {% endblock %}
+
+                                        {% block sw_data_grid_settings_column_control_down %}
+                                            <sw-button size="x-small"
+                                                       square
+                                                       :disabled="index === (currentColumns.length - 1)"
+                                                       class="down"
+                                                       @click="onClickChangeColumnOrderDown(index)">
+                                                {% block sw_data_grid_settings_column_control_down_icon %}
+                                                    <sw-icon name="small-arrow-small-down" size="14px"></sw-icon>
+                                                {% endblock %}
+                                            </sw-button>
+                                        {% endblock %}
+                                    </sw-button-group>
+                                {% endblock %}
+                            </div>
+                        {% endblock %}
+                    </transition-group>
+                {% endblock %}
+            </div>
+        {% endblock %}
+    </sw-context-button>
+{% endblock %}

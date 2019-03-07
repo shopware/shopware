@@ -21,14 +21,14 @@ module.exports = {
             })
             .expect.element(page.elements.smartBarAmount).to.have.text.that.equals('(1)');
 
-        browser.expect.element('.sw-product-list__column-product-name').to.have.text.that.equals(fixture.name);
+        browser.expect.element(page.elements.productListName).to.have.text.that.equals(fixture.name);
     },
     'delete created product': (browser) => {
         const page = productPage(browser);
 
 
         browser
-            .clickContextMenuItem('.sw-context-menu-item--danger', page.elements.contextMenuButton, `${page.elements.gridRow}--0`)
+            .clickContextMenuItem('.sw-context-menu-item--danger', page.elements.contextMenuButton, `${page.elements.dataGridRow}--0`)
             .expect.element(`${page.elements.modal} .sw-product-list__confirm-delete-text`).to.have.text.that
             .contains(`Are you sure you really want to delete the product "${fixture.name}"?`);
 

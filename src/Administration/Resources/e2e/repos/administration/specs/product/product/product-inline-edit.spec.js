@@ -27,11 +27,11 @@ module.exports = {
         const page = productPage(browser);
 
         browser
-            .waitForElementVisible(`${page.elements.gridRow}--0`)
-            .moveToElement(`${page.elements.gridRow}--0`, 5, 5).doubleClick()
-            .fillField(`${page.elements.gridRow}--0 input[name=sw-field--item-name]`, 'Cyberdyne Systems T800', true)
-            .click(`${page.elements.gridRow}--0 ${page.elements.gridRowInlineEdit}`)
-            .waitForElementNotPresent('.is--inline-editing')
+            .waitForElementVisible(`${page.elements.dataGridRow}--0`)
+            .moveToElement(`${page.elements.dataGridRow}--0`, 5, 5).doubleClick()
+            .fillField(`${page.elements.dataGridRow}--0 ${page.elements.productListName} input[type=text]`, 'Cyberdyne Systems T800', true)
+            .click(`${page.elements.dataGridRow}--0 ${page.elements.dataGridInlineEditSave}`)
+            .waitForElementNotPresent('.is--inline-edit')
             .refresh()
             .expect.element(page.elements.productListName).to.have.text.that.contains('Cyberdyne Systems T800');
     },

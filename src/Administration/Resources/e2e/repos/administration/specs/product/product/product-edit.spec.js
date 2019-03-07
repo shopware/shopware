@@ -5,7 +5,7 @@ module.exports = {
     before: (browser, done) => {
         global.ProductFixtureService.setProductFixture({
             name: "Really good product",
-            description: "This describes a product. It is your product. You will take care of your product. You will set a price, keep records of storage quantities and take care of whatever needs your product might develop. You love your product. Your are the product. Now go find someone dumb enough to buy your precious product.",
+            description: "This describes a product. It is your product. You will take care of your product. You will set a price, keep records of storage quantities and take care of whatever needs your product might develop. You love your product. Your are the product. Now go find someone dumb enough to buy your precious product."
         }).then(() => {
             done();
         });
@@ -24,7 +24,7 @@ module.exports = {
         const page = productPage(browser);
 
         browser
-            .clickContextMenuItem('.sw-context-menu-item__text', page.elements.contextMenuButton, `${page.elements.gridRow}--0`)
+            .clickContextMenuItem('.sw-context-menu-item__text', page.elements.contextMenuButton, `${page.elements.dataGridRow}--0`)
             .waitForElementNotPresent(`.product-basic-form ${page.elements.loader}`)
             .fillField('input[name=sw-field--product-name]', 'Geändertes, immernoch supergeiles Produkt', true)
             .fillField('.ql-editor', 'Cant you see this is a great product?', true, 'editor')

@@ -107,35 +107,12 @@
                               v-model="address.vatId">
                     </sw-field>
                 {% endblock %}
+
+                <slot>
+                    {% block sw_customer_address_form_extension_slot %} {% endblock %}
+                </slot>
+
             </sw-container>
-        {% endblock %}
-
-        {% block sw_customer_address_form_default_shipping_address %}
-            <sw-field type="checkbox"
-                      v-model="this.isDefaultShippingAddressId"
-                      :disabled="this.isDefaultShippingAddressId"
-                      @change="onChangeDefaultShippingAddress"
-                      :label="$tc('sw-customer.detailAddresses.contextMenuDefaultShippingAddress')">
-            </sw-field>
-        {% endblock %}
-
-        {% block sw_customer_address_form_default_billing_address %}
-            <sw-field class="sw-customer-address-form__set-default-billing-address-action"
-                      type="checkbox"
-                      v-model="this.isDefaultBillingAddressId"
-                      :disabled="this.isDefaultBillingAddressId"
-                      @change="onChangeDefaultBillingAddress"
-                      :label="$tc('sw-customer.detailAddresses.contextMenuDefaultBillingAddress')">
-            </sw-field>
-        {% endblock %}
-
-        {% block sw_customer_address_form_attribute_sets %}
-            <sw-attribute-set-renderer
-                    v-if="next754"
-                    :entity="address"
-                    variant="tabs"
-                    :sets="attributeSets">
-            </sw-attribute-set-renderer>
         {% endblock %}
     </div>
 {% endblock %}

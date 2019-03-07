@@ -9,6 +9,7 @@ import './view/sw-customer-create-base';
 import './component/sw-customer-base-form';
 import './component/sw-customer-base-info';
 import './component/sw-customer-address-form';
+import './component/sw-customer-address-form-options';
 import './component/sw-customer-default-addresses';
 import './component/sw-customer-card';
 

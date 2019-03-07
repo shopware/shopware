@@ -24,33 +24,6 @@ Component.register('sw-customer-address-form', {
             default() {
                 return [];
             }
-        },
-
-        attributeSets: {
-            type: Array,
-            required: true
-        }
-    },
-
-    data() {
-        return {
-            isDefaultShippingAddressId: false,
-            isDefaultBillingAddressId: false
-        };
-    },
-
-    created() {
-        this.isDefaultShippingAddressId = this.customer.defaultShippingAddressId === this.address.id;
-        this.isDefaultBillingAddressId = this.customer.defaultBillingAddressId === this.address.id;
-    },
-
-    methods: {
-        onChangeDefaultShippingAddress(active) {
-            this.$emit('change-default-address', { name: 'shipping-address', id: this.address.id, value: active });
-        },
-
-        onChangeDefaultBillingAddress(active) {
-            this.$emit('change-default-address', { name: 'billing-address', id: this.address.id, value: active });
         }
     }
 });

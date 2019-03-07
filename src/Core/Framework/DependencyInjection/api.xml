@@ -17,6 +17,10 @@
             <argument>%kernel.debug%</argument>
         </service>
 
+        <service id="Shopware\Core\Framework\Api\EventListener\ResponseHeaderListener">
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
         <service id="Shopware\Core\Framework\Api\Context\ContextValueResolver">
             <tag name="controller.argument_value_resolver" priority="1000"/>
         </service>

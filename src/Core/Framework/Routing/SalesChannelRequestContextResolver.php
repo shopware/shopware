@@ -64,7 +64,7 @@ class SalesChannelRequestContextResolver implements RequestContextResolverInterf
         if ($master->attributes->has(PlatformRequest::ATTRIBUTE_STOREFRONT_CONTEXT_OBJECT)) {
             $context = $master->attributes->get(PlatformRequest::ATTRIBUTE_STOREFRONT_CONTEXT_OBJECT);
         } else {
-            $context = $this->contextService->get($salesChannelId, $contextToken, null);
+            $context = $this->contextService->get($salesChannelId, $contextToken, $request->headers->get(PlatformRequest::HEADER_LANGUAGE_ID));
         }
 
         $request->attributes->set(PlatformRequest::ATTRIBUTE_CONTEXT_OBJECT, $context->getContext());

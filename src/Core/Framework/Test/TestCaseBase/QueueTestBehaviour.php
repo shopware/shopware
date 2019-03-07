@@ -17,7 +17,9 @@ trait QueueTestBehaviour
      */
     public function clearQueue()
     {
-        file_put_contents($this->getQueueFile(), '');
+        if (file_exists($this->getQueueFile())) {
+            file_put_contents($this->getQueueFile(), '');
+        }
     }
 
     /**
@@ -25,7 +27,9 @@ trait QueueTestBehaviour
      */
     public function removeQueue()
     {
-        unlink($this->getQueueFile());
+        if (file_exists($this->getQueueFile())) {
+            unlink($this->getQueueFile());
+        }
     }
 
     public function getQueueFile(): string

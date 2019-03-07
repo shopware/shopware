@@ -25,7 +25,8 @@
                             :showContextMenuButton="true"
                             :selected="false"
                             :isList="true"
-                            @sw-media-item-clicked="onNavigateToFolder(folder.id)">
+                            @sw-media-item-clicked="onNavigateToFolder(folder.id)"
+                            @sw-media-folder-item-delete="handleFolderGridItemDelete">
                         </sw-media-folder-item>
                     {% endblock %}
 

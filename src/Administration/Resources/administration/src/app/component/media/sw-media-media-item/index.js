@@ -148,7 +148,7 @@ export default {
         emitItemDeleted(deletePromise) {
             this.closeModalDelete();
             deletePromise.then((ids) => {
-                this.$emit('sw-media-media-item-delete', ids);
+                this.$emit('sw-media-media-item-delete', ids.mediaIds);
             });
         },
 

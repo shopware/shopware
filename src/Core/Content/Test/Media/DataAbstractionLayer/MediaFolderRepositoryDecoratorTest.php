@@ -3,7 +3,6 @@
 namespace Shopware\Core\Content\Test\Media\DataAbstractionLayer;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
@@ -49,8 +48,8 @@ class MediaFolderRepositoryDecoratorTest extends TestCase
             [
                 'id' => $folderId,
                 'name' => 'testFolder',
-                'configuration' => []
-            ]
+                'configuration' => [],
+            ],
         ], $this->context);
 
         $this->mediaRepository->create(
@@ -93,14 +92,14 @@ class MediaFolderRepositoryDecoratorTest extends TestCase
             [
                 'id' => $parentFolderId,
                 'name' => 'parent',
-                'configuration' => []
+                'configuration' => [],
             ],
             [
                 'id' => $childFolderId,
                 'name' => 'testFolder',
                 'configuration' => [],
-                'parentId' => $parentFolderId
-            ]
+                'parentId' => $parentFolderId,
+            ],
         ], $this->context);
 
         $this->mediaRepository->create(
@@ -154,14 +153,14 @@ class MediaFolderRepositoryDecoratorTest extends TestCase
             [
                 'id' => $parentFolderId,
                 'name' => 'parent',
-                'configuration' => []
+                'configuration' => [],
             ],
             [
                 'id' => $childFolderId,
                 'name' => 'testFolder',
                 'configuration' => [],
-                'parentId' => $parentFolderId
-            ]
+                'parentId' => $parentFolderId,
+            ],
         ], $this->context);
 
         $this->mediaRepository->create(
@@ -202,5 +201,127 @@ class MediaFolderRepositoryDecoratorTest extends TestCase
 
         static::assertFalse($this->getPublicFilesystem()->has($childMediaPath));
         static::assertTrue($this->getPublicFilesystem()->has($parentMediaPath));
+    }
+
+    public function testDeleteFolderParentAndChild(): void
+    {
+        $childFolderId = Uuid::uuid4()->getHex();
+        $parentFolderId = Uuid::uuid4()->getHex();
+        $childMediaId = Uuid::uuid4()->getHex();
+        $parentMediaId = Uuid::uuid4()->getHex();
+
+        $this->folderRepository->create([
+            [
+                'id' => $parentFolderId,
+                'name' => 'parent',
+                'configuration' => [],
+            ],
+            [
+                'id' => $childFolderId,
+                'name' => 'testFolder',
+                'configuration' => [],
+                'parentId' => $parentFolderId,
+            ],
+        ], $this->context);
+
+        $this->mediaRepository->create(
+            [
+                [
+                    'id' => $childMediaId,
+                    'name' => 'test media',
+                    'mimeType' => 'image/png',
+                    'fileExtension' => 'png',
+                    'fileName' => $childMediaId . '-' . (new \DateTime())->getTimestamp(),
+                    'mediaFolderId' => $childFolderId,
+                ],
+                [
+                    'id' => $parentMediaId,
+                    'name' => 'test media',
+                    'mimeType' => 'image/png',
+                    'fileExtension' => 'png',
+                    'fileName' => $parentMediaId . '-' . (new \DateTime())->getTimestamp(),
+                    'mediaFolderId' => $parentFolderId,
+                ],
+            ],
+            $this->context
+        );
+        $media = $this->mediaRepository->search(new Criteria([$childMediaId, $parentMediaId]), $this->context);
+
+        $childMediaPath = $this->getContainer()->get(UrlGeneratorInterface::class)->getRelativeMediaUrl($media->get($childMediaId));
+        $parentMediaPath = $this->getContainer()->get(UrlGeneratorInterface::class)->getRelativeMediaUrl($media->get($parentMediaId));
+
+        $this->getPublicFilesystem()->putStream($childMediaPath, fopen(self::FIXTURE_FILE, 'rb'));
+        $this->getPublicFilesystem()->putStream($parentMediaPath, fopen(self::FIXTURE_FILE, 'rb'));
+
+        $this->folderRepository->delete([['id' => $parentFolderId], ['id' => $childFolderId]], $this->context);
+
+        static::assertEquals(0, $this->folderRepository->search(new Criteria([$parentFolderId, $childFolderId]), $this->context)->getTotal());
+        static::assertEquals(0, $this->mediaRepository->search(new Criteria([$childMediaId, $parentMediaId]), $this->context)->getTotal());
+
+        $this->runWorker();
+
+        static::assertFalse($this->getPublicFilesystem()->has($childMediaPath));
+        static::assertFalse($this->getPublicFilesystem()->has($parentMediaPath));
+    }
+
+    public function testDeleteFolderChildAndParent(): void
+    {
+        $childFolderId = Uuid::uuid4()->getHex();
+        $parentFolderId = Uuid::uuid4()->getHex();
+        $childMediaId = Uuid::uuid4()->getHex();
+        $parentMediaId = Uuid::uuid4()->getHex();
+
+        $this->folderRepository->create([
+            [
+                'id' => $parentFolderId,
+                'name' => 'parent',
+                'configuration' => [],
+            ],
+            [
+                'id' => $childFolderId,
+                'name' => 'testFolder',
+                'configuration' => [],
+                'parentId' => $parentFolderId,
+            ],
+        ], $this->context);
+
+        $this->mediaRepository->create(
+            [
+                [
+                    'id' => $childMediaId,
+                    'name' => 'test media',
+                    'mimeType' => 'image/png',
+                    'fileExtension' => 'png',
+                    'fileName' => $childMediaId . '-' . (new \DateTime())->getTimestamp(),
+                    'mediaFolderId' => $childFolderId,
+                ],
+                [
+                    'id' => $parentMediaId,
+                    'name' => 'test media',
+                    'mimeType' => 'image/png',
+                    'fileExtension' => 'png',
+                    'fileName' => $parentMediaId . '-' . (new \DateTime())->getTimestamp(),
+                    'mediaFolderId' => $parentFolderId,
+                ],
+            ],
+            $this->context
+        );
+        $media = $this->mediaRepository->search(new Criteria([$childMediaId, $parentMediaId]), $this->context);
+
+        $childMediaPath = $this->getContainer()->get(UrlGeneratorInterface::class)->getRelativeMediaUrl($media->get($childMediaId));
+        $parentMediaPath = $this->getContainer()->get(UrlGeneratorInterface::class)->getRelativeMediaUrl($media->get($parentMediaId));
+
+        $this->getPublicFilesystem()->putStream($childMediaPath, fopen(self::FIXTURE_FILE, 'rb'));
+        $this->getPublicFilesystem()->putStream($parentMediaPath, fopen(self::FIXTURE_FILE, 'rb'));
+
+        $this->folderRepository->delete([['id' => $childFolderId], ['id' => $parentFolderId]], $this->context);
+
+        static::assertEquals(0, $this->folderRepository->search(new Criteria([$parentFolderId, $childFolderId]), $this->context)->getTotal());
+        static::assertEquals(0, $this->mediaRepository->search(new Criteria([$childMediaId, $parentMediaId]), $this->context)->getTotal());
+
+        $this->runWorker();
+
+        static::assertFalse($this->getPublicFilesystem()->has($childMediaPath));
+        static::assertFalse($this->getPublicFilesystem()->has($parentMediaPath));
     }
 }

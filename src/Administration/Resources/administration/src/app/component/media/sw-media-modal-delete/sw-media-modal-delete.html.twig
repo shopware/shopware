@@ -2,10 +2,10 @@
     <sw-modal variant="small"
               class="sw-media-modal-delete"
               @closeModal="closeDeleteModal($event)"
-              :title="$tc('global.sw-media-modal-delete.titleModal')">
+              :title="snippets.modalTitle">
 
         {% block sw_media_modal_body %}
-            {{ $tc('global.sw-media-modal-delete.deleteMessage', itemsToDelete.length, { mediaName: this.mediaNameFilter(itemsToDelete[0]), count: itemsToDelete.length }) }}
+            <p v-html="snippets.deleteMessage"></p>
         {% endblock %}
 
         {% block sw_media_modal_footer %}

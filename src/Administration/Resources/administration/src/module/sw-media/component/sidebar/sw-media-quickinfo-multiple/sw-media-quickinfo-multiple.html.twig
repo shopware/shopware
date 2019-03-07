@@ -19,8 +19,7 @@
                         {% endblock %}
 
                         {% block sw_media_quickinfo_multiple_quickactions_delete %}
-                            <li v-if="!hasFolder"
-                                class="sw-media-sidebar__quickaction is--danger"
+                            <li class="sw-media-sidebar__quickaction is--danger"
                                 @click="openModalDelete">
 
                                 <sw-icon small name="default-action-trash" class="sw-media-sidebar__quickactions-icon is--danger"></sw-icon>
@@ -67,7 +66,7 @@
 
         {% block sw_media_sidebar_modal_delete %}
             <sw-media-modal-delete
-                v-if="!hasFolder && showModalDelete"
+                v-if="showModalDelete"
                 :itemsToDelete="items"
                 @sw-media-modal-delete-close="closeModalDelete"
                 @sw-media-modal-delete-items-deleted="deleteSelectedItems">

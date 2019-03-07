@@ -14,7 +14,7 @@ module.exports = {
             .click('.sw-media-upload__button-url-upload')
             .waitForElementVisible('.sw-media-url-form')
             .fillField('input[name=sw-field--url]', `${process.env.APP_URL}/bundles/administration/static/fixtures/sw-login-background.png`)
-            .click(`.sw-modal__footer .sw-button--primary`)
+            .click('.sw-modal__footer .sw-button--primary')
             .waitForElementNotPresent('.sw-media-url-form')
             .waitForElementNotPresent(page.elements.loader)
             .waitForElementNotPresent('.sw-media-base-item__loader')
@@ -28,7 +28,7 @@ module.exports = {
             .click(`${page.elements.gridItem}--0 .sw-media-preview__item`)
             .waitForElementVisible('.sw-media-quickinfo')
             .click('li.quickaction--delete')
-            .expect.element(`${page.elements.modal}__body`).to.have.text.that.equals('Are you sure you want to delete "sw-login-background.png" ?');
+            .expect.element(`${page.elements.modal}__body`).to.have.text.that.equals('Are you sure you want to delete "sw-login-background.png"?');
 
         browser
             .click('.sw-media-modal-delete__confirm')

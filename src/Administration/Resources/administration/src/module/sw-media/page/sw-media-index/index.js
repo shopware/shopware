@@ -114,6 +114,10 @@ Component.register('sw-media-index', {
             this.clearSelection();
         },
 
+        onItemsDeleted(ids) {
+            this.onMediaFoldersDissolved(ids.folderIds);
+        },
+
         onMediaFoldersDissolved(ids) {
             this.clearSelection();
             if (ids.includes(this.routeFolderId)) {

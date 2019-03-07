@@ -25,7 +25,6 @@ class MediaFolderRepositoryDecorator implements EntityRepositoryInterface
      */
     private $mediaRepository;
 
-
     public function __construct(
         EntityRepositoryInterface $innerRepo,
         EntityRepositoryInterface $mediaRepository
@@ -48,7 +47,6 @@ class MediaFolderRepositoryDecorator implements EntityRepositoryInterface
     }
 
     // Unchanged methods
-
     public function aggregate(Criteria $criteria, Context $context): AggregatorResult
     {
         return $this->innerRepo->aggregate($criteria, $context);
@@ -96,12 +94,7 @@ class MediaFolderRepositoryDecorator implements EntityRepositoryInterface
 
     private function getRawIds(array $ids)
     {
-        return array_map(
-            function ($idArray) {
-                return $idArray['id'];
-            },
-            $ids
-        );
+        return array_column($ids, 'id');
     }
 
     private function deleteMediaAndSubfolders(MediaFolderCollection $folders, Context $context): void
@@ -120,7 +113,6 @@ class MediaFolderRepositoryDecorator implements EntityRepositoryInterface
 
                 $this->mediaRepository->delete($affectedMediaIds, $context);
             }
-
 
             if ($folder->getChildren() === null) {
                 $this->loadChildFolders($folder, $context);

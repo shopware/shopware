@@ -96,26 +96,45 @@
       "labelUploading": "Uploading..."
     },
     "sw-media-modal-delete": {
-      "titleModal": "Delete media files",
-      "deleteMessage": "Are you sure you want to delete \"{mediaName}\" ? | Are you sure you want to delete {count} media items?",
+      "titleModal": {
+        "media": "Delete media files",
+        "folder": "Delete folders",
+        "mediaAndFolder": "Delete folders and media files"
+      },
+      "deleteMessage": {
+        "media": "Are you sure you want to delete \"{name}\"? | Are you sure you want to delete {count} media items?",
+        "folder": "Are you sure you want to delete the folder \"{name}\"?<br>All subfolders and contained media items will be deleted too. | Are you sure you want to delete {count} folders?<br>All subfolders and contained media items will be deleted too.",
+        "mediaAndFolder": "Are you sure you want to delete {mediaCount} media items and {folderCount} folders?<br>All subfolders and contained media items will be deleted too."
+      },
       "buttonDelete": "Delete",
       "buttonCancel": "Cancel",
       "notification": {
         "successSingle": {
           "title": "Success",
-          "message": "File \"{mediaName}\"  has been deleted successfully."
+          "message": {
+            "media": "File \"{name}\" has been deleted successfully.",
+            "folder": "Folder \"{name}\" has been deleted successfully."
+          }
         },
         "errorSingle": {
           "title": "Error",
-          "message": "Error deleting \"{mediaName}\"."
+          "message": "Error deleting \"{name}\"."
         },
         "successOverall": {
           "title": "Success",
-          "message": "Files have been deleted successfully."
+          "message": {
+            "media": "Files have been deleted successfully.",
+            "folder": "Folders have been deleted successfully.",
+            "mediaAndFolder": "Files and folders have been deleted successfully."
+          }
         },
         "errorOverall": {
           "title": "Error",
-          "message": "Error deleting files."
+          "message": {
+            "media": "Error deleting files.",
+            "folder": "Error deleting folders.",
+            "mediaAndFolder": "Error deleting files and folders."
+          }
         }
       }
     },

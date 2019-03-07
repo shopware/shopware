@@ -85,7 +85,7 @@
                         :items="selectedItems"
                         :currentFolderId="routeFolderId"
                         editable
-                        @sw-media-sidebar-items-delete="reloadList"
+                        @sw-media-sidebar-items-delete="onItemsDeleted"
                         @sw-media-sidebar-folder-items-dissolved="onMediaFoldersDissolved"
                         @sw-media-sidebar-items-moved="reloadList"
                         @sw-media-item-selection-remove="onMediaUnselect">

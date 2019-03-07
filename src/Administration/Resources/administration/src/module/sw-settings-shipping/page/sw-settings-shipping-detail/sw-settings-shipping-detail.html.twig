@@ -3,7 +3,7 @@
 
         {% block sw_settings_shipping_detail_header %}
             <template slot="smart-bar-header">
-                <h2 v-if="shippingMethod.name">{{ shippingMethod.name }}</h2>
+                <h2 v-if="placeholder(shippingMethod, 'name', false)">{{ placeholder(shippingMethod, 'name', shippingMethod.name) }}</h2>
                 <h2 v-else>{{ $tc('sw-settings-shipping.detail.textHeadline') }}</h2>
             </template>
         {% endblock %}
@@ -24,34 +24,38 @@
             </template>
         {% endblock %}
 
+        {% block sw_settings_shipping_detail_language_switch %}
+            <sw-language-switch slot="language-switch"
+                                @on-change="onChangeLanguage"
+                                :saveChangesFunction="saveOnLanguageChange"
+                                :abortChangeFunction="abortOnLanguageChange">
+            </sw-language-switch>
+        {% endblock %}
+
         {% block sw_settings_shipping_detail_content %}
             <sw-card-view slot="content">
 
-                {% block sw_settings_shipping_detail_content_card %}
-                    <sw-card :title="$tc('sw-settings-shipping.detail.titleCard')">
-                        {% block sw_settings_shipping_detail_content_field_name %}
-                            <sw-field type="text"
-                                      :label="$tc('sw-settings-shipping.detail.labelName')"
-                                      :placeholder="$tc('sw-settings-shipping.detail.placeholderName')"
-                                      v-model="shippingMethod.name">
-                            </sw-field>
+                {% block sw_settings_shipping_detail_content_tabs %}
+                    <sw-tabs class="sw-product-detail-page__tabs">
+                        {% block sw_settings_shipping_detail_content_tabs_general %}
+                            <sw-tabs-item :route="{ name: 'sw.settings.shipping.detail.base', params: { id: $route.params.id } }"
+                                          :title="$tc('sw-settings-shipping.detail.tabGeneral')">
+                                {{ $tc('sw-settings-shipping.detail.tabGeneral') }}
+                            </sw-tabs-item>
                         {% endblock %}
-                        <sw-container columns="repeat(auto-fit, minmax(250px, 1fr)" gap="0px 30px">
-                            {% block sw_settings_shipping_detail_content_field_active %}
-                                <sw-field type="checkbox"
-                                          :label="$tc('sw-settings-shipping.detail.labelActive')"
-                                          v-model="shippingMethod.active">
-                                </sw-field>
-                            {% endblock %}
 
-                            {% block sw_settings_shipping_detail_content_field_bind_shipping_free %}
-                                <sw-field type="checkbox"
-                                          :label="$tc('sw-settings-shipping.detail.labelBindShippingfree')"
-                                          v-model="shippingMethod.bindShippingfree">
-                                </sw-field>
-                            {% endblock %}
-                        </sw-container>
-                    </sw-card>
+                        {% block sw_settings_shipping_detail_content_tabs_advanced_prices %}
+                            <sw-tabs-item :route="{ name: 'sw.settings.shipping.detail.advancedPrices', params: { id: $route.params.id } }"
+                                          :title="$tc('sw-settings-shipping.detail.tabAdvancedPrices')">
+                                {{ $tc('sw-settings-shipping.detail.tabAdvancedPrices') }}
+                            </sw-tabs-item>
+                        {% endblock %}
+                    </sw-tabs>
+                {% endblock %}
+
+                {% block sw_settings_shipping_detail_content_card %}
+                    <router-view :shippingMethod="shippingMethod">
+                    </router-view>
                 {% endblock %}
             </sw-card-view>
         {% endblock %}

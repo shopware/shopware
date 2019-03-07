@@ -1,0 +1,17 @@
+{% block sw_settings_shipping_detail_content_tabs %}
+    <sw-tabs class="sw-product-detail-page__tabs">
+        {% block sw_settings_shipping_detail_content_tabs_general %}
+            <sw-tabs-item :route="{ name: 'sw.settings.shipping.create.base', params: { id: $route.params.id } }"
+                          :title="$tc('sw-settings-shipping.detail.tabGeneral')">
+                {{ $tc('sw-settings-shipping.detail.tabGeneral') }}
+            </sw-tabs-item>
+        {% endblock %}
+
+        {% block sw_settings_shipping_detail_content_tabs_advanced_prices %}
+            <sw-tabs-item :route="{ name: 'sw.settings.shipping.create.advancedPrices', params: { id: $route.params.id } }"
+                          :title="$tc('sw-settings-shipping.detail.tabAdvancedPrices')">
+                {{ $tc('sw-settings-shipping.detail.tabAdvancedPrices') }}
+            </sw-tabs-item>
+        {% endblock %}
+    </sw-tabs>
+{% endblock %}

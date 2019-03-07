@@ -1,0 +1,59 @@
+{# TODO: Only filled with content for the purpose of not being empty! #}
+{# TODO: Will be done in NEXT-1821 #}
+
+{% block sw_settings_shipping_detail_advanced_prices %}
+    <sw-card :title="$tc('sw-settings-shipping.detail.tabAdvancedPrices')"
+             :large="true"
+             :isLoading="shippingMethod.isLoading">
+
+        {% block sw_settings_shipping_detail_advanced_prices_field_calculation %}
+            <sw-select name="calculation"
+                       :id="createId()"
+                       :label="$tc('sw-settings-shipping.detail.labelCalculation')"
+                       itemValueKey="value"
+                       displayName="label"
+                       :store="selectValues"
+                       :required="true"
+                       v-model="calculation">
+            </sw-select>
+        {% endblock %}
+
+        {% block sw_settings_shipping_detail_advanced_prices_field_price_table %}
+            <sw-grid :items="shippingMethod.prices" :selectable="false" v-if="shippingMethod.prices.length > 0">
+                <template slot="columns" slot-scope="{ item }">
+                    {% block sw_settings_shipping_detail_advanced_prices_field_table_quantity_start %}
+                        <sw-grid-column align="stretch"
+                                        :label="$tc('sw-settings-shipping.detail.columnQuantityStart')">
+                            <sw-field type="number"
+                                      validation="required"
+                                      v-model="item.quantityFrom">
+                            </sw-field>
+                        </sw-grid-column>
+                    {% endblock %}
+
+                    {% block sw_settings_shipping_detail_advanced_prices_field_table_quantity_to %}
+                        <sw-grid-column align="stretch"
+                                        :label="$tc('sw-settings-shipping.detail.columnQuantityEnd')">
+                            <sw-field v-model="item.quantityTo">
+                            </sw-field>
+                        </sw-grid-column>
+                    {% endblock %}
+
+                    {% block sw_settings_shipping_detail_advanced_prices_field_table_price %}
+                        <sw-grid-column :label="$tc('sw-settings-shipping.detail.columnPrice')">
+                            <sw-field type="number"
+                                      v-model="item.price"></sw-field>
+                        </sw-grid-column>
+                    {% endblock %}
+
+                    {% block sw_settings_shipping_detail_advanced_prices_field_table_factor %}
+                        <sw-grid-column :label="$tc('sw-settings-shipping.detail.columnFactor')">
+                            <sw-field type="number"
+                                      v-model="item.factor"></sw-field>
+                        </sw-grid-column>
+                    {% endblock %}
+                </template>
+            </sw-grid>
+        {% endblock %}
+    </sw-card>
+{% endblock %}

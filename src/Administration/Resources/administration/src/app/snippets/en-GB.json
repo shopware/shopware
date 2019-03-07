@@ -1477,9 +1477,28 @@
       "labelName": "Name",
       "labelActive": "Active",
       "labelBindShippingfree": "Free shipping",
+      "labelMinDeliveryTime": "min deliverytime",
+      "labelMaxDeliveryTime": "max deliverytime",
       "placeholderName": "Enter name",
+      "placeholderDescription": "Enter description",
+      "placeholderComment": "Enter comment",
+      "labelCalculation": "Calculation",
+      "labelComment": "Comment",
+      "labelDescription": "Description",
       "buttonCancel": "Cancel",
-      "buttonSave": "Save"
+      "buttonSave": "Save",
+      "labelSetRules": "Select rules",
+      "tabGeneral": "General",
+      "tabAdvancedPrices": "Price settings",
+      "columnQuantityStart": "Amount from",
+      "columnQuantityEnd": "Amount to",
+      "columnPrice": "Price",
+      "columnFactor": "Factor"
+    },
+    "constants": {
+      "weight": "Weight",
+      "price": "Price",
+      "lineItemCount": "Line item count"
     }
   },
   "sw-settings-country": {

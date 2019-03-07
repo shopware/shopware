@@ -304,7 +304,6 @@ class StorefrontSalesChannelControllerTest extends TestCase
         $shippingMethod = [
             'id' => Uuid::uuid4()->getHex(),
             'name' => 'Express shipping',
-            'type' => 1,
             'bindShippingfree' => false,
         ];
         $data = [

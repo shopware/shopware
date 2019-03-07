@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\Rule;
 
 use Shopware\Core\Checkout\DiscountSurcharge\DiscountSurchargeCollection;
+use Shopware\Core\Checkout\Shipping\ShippingMethodCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductPriceRule\ProductPriceRuleCollection;
 use Shopware\Core\Content\Rule\Aggregate\RuleCondition\RuleConditionCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
@@ -57,6 +58,11 @@ class RuleEntity extends Entity
      * @var ProductPriceRuleCollection|null
      */
     protected $productPriceRules;
+
+    /**
+     * @var ShippingMethodCollection|null
+     */
+    protected $shippingMethods;
 
     /**
      * @var RuleConditionCollection|null
@@ -151,6 +157,16 @@ class RuleEntity extends Entity
     public function setProductPriceRules(ProductPriceRuleCollection $productPriceRules): void
     {
         $this->productPriceRules = $productPriceRules;
+    }
+
+    public function getShippingMethods(): ?ShippingMethodCollection
+    {
+        return $this->shippingMethods;
+    }
+
+    public function setShippingMethods(?ShippingMethodCollection $shippingMethods): void
+    {
+        $this->shippingMethods = $shippingMethods;
     }
 
     public function getConditions(): ?RuleConditionCollection

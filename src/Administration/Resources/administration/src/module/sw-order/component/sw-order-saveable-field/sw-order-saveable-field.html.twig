@@ -6,12 +6,10 @@
                   class="sw-order-saveable-field">
         {% block sw_order_saveable_field_input %}
             {% block  sw_order_saveable_field_input_field%}
-                <sw-field v-if="type !== 'select'"
-                          ref="edit-field"
+                <sw-field ref="edit-field"
                           :type="type"
                           :value="value"
-                          :placeholder="placeholder"
-                          class="sw-order-detail-base__select-inline">
+                          :placeholder="placeholder">
 
                 </sw-field>
             {% endblock %}
@@ -40,7 +38,7 @@
         @click="onClick">
         {% block w_order_saveable_field_content %}
 
-            <div :class="textClasses">{{ displayValue() }}</div>
+            <div>{{ displayValue() }}</div>
         {% endblock %}
     </div>
 

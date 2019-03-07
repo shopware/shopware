@@ -24,11 +24,6 @@ Component.register('sw-order-saveable-field', {
             type: Boolean,
             required: false,
             default: true
-        },
-        truncateable: {
-            type: Boolean,
-            required: false,
-            default: false
         }
     },
     data() {
@@ -36,14 +31,6 @@ Component.register('sw-order-saveable-field', {
             isEditing: false,
             isLoading: false
         };
-    },
-    computed: {
-        textClasses() {
-            if (this.truncateable) {
-                return 'truncateable';
-            }
-            return '';
-        }
     },
     methods: {
         onClick() {

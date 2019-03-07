@@ -1,7 +1,6 @@
 @import "~scss/variables";
 @import "~scss/mixins";
 
-$sw-order-detail-base-link : $color-shopware-blue;
 $sw-order-detail-base-select-status-payment: #EDF8FF;
 $sw-order-detail-base-select-status-payment-link: #189EFF;
 
@@ -11,48 +10,6 @@ $sw-order-detail-base-select-status-delivery-link: #23BE2F;
 .sw-order-detail-base {
     .sw-order-detail-base__summary {
         grid-template-areas: 'empty summary'
-    }
-
-    .sw-order-detail-base__summary-vertical
-    {
-      line-height: 15px;
-      dt,
-      dd {
-        padding: 4px;
-        border-bottom: none;
-          /*&:not(:first-of-type){
-              padding-top: 21px;
-          }*/
-      }
-
-      dt {
-        font-weight: 600;
-        color: $color-kashmir;
-        //padding-top: 21px;
-        &:not(:first-child), &:only-of-type{
-          padding-top: 21px;
-        }
-
-      }
-    }
-
-    .sw-description-list, .sw-alert {
-        .sw-order-detail-base__address-edit-button, .sw-order-detail-base__address-add-button, .sw-order-detail-base__continue-work-alert  {
-            color: $sw-order-detail-base-link;
-            background: transparent;
-            border: none;
-            line-height: 10px;
-            padding-top: 0;
-            padding-bottom: 0;
-            vertical-align: top;
-        }
-        .sw-order-detail-base__address-add-button {
-            margin-top: 5px;
-        }
-        .sw-order-detail-base__continue-work-alert {
-            vertical-align: initial;
-            padding-top: 0;
-        }
     }
 
     .sw-order-detail-base__summary-data {
@@ -85,34 +42,5 @@ $sw-order-detail-base-select-status-delivery-link: #23BE2F;
     .sw-order-detail-base__line-item-grid-card .sw-card__content {
         padding: 0;
     }
-
-    .sw-order-detail-base__status-action-container{
-        padding: 24px 0 0 0;
-    }
-
-    .sw-order-detail-base__select-inline {
-        .sw-select__inner {
-
-            min-height: 32px;
-            padding-top: 2px;
-            padding-right: 32px;
-        }
-        .sw-select__indicators{
-            top: 5px;
-        }
-        .sw-select__single-selection{
-            padding: 0 8px;
-        }
-    }
-
-    .sw-order-detail-base__version-notification {
-        max-width: 800px;
-    }
-
-    .sw-order-inline-field__truncateable {
-      @include truncate();
-      width:300px;
-    }
-
 
 }

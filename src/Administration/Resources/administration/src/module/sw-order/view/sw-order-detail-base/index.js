@@ -1,7 +1,6 @@
-import { Component, State } from 'src/core/shopware';
+import { Component } from 'src/core/shopware';
 import { format } from 'src/core/service/util.service';
 import './sw-order-detail-base.scss';
-import ApiService from 'src/core/service/api.service';
 
 import EntityStore from 'src/core/data/EntityStore';
 import EntityProxy from 'src/core/data/EntityProxy';
@@ -10,13 +9,15 @@ import template from './sw-order-detail-base.html.twig';
 
 Component.register('sw-order-detail-base', {
     template,
-    inject: ['orderService', 'versionCommitService', 'userService', 'stateStyleDataProviderService'],
+    inject: ['orderService', 'userService', 'stateStyleDataProviderService'],
     props: {
         order: {
             type: Object,
             required: true,
             default() {
-                return {};
+                return {
+                    deliveries: []
+                };
             }
         }
     },
@@ -26,13 +27,8 @@ Component.register('sw-order-detail-base', {
             isEditing: false,
             isDisplayingLeavePageWarning: false,
             hasAssociations: false,
-            hasDeliveries: false,
-            hasDeliveryTrackingCode: false,
-            hasDifferentBillingAndShippingAddress: false,
             lastVersionId: null,
-            addressBeingEdited: null,
             nextRoute: null,
-            countries: null,
             liveVersionId: '20080911ffff4fffafffffff19830531',
             currentOrder: null,
             transactionOptions: [],
@@ -53,35 +49,6 @@ Component.register('sw-order-detail-base', {
         },
         sortedCalculatedTaxes() {
             return this.sortByTaxRate(this.currentOrder.price.calculatedTaxes.elements);
-        },
-        countryStore() {
-            return State.getStore('country');
-        },
-        paymentMethodStore() {
-            return State.getStore('payment_method');
-        },
-        orderAddressStore() {
-            return State.getStore('order_address');
-        },
-        billingAddress() {
-            return this.currentOrder.addresses.find((address) => {
-                return address.id === this.currentOrder.billingAddressId;
-            });
-        },
-        orderDate() {
-            if (this.currentOrder && !this.currentOrder.isLoading) {
-                return format.date(this.currentOrder.date);
-            }
-            return '';
-        },
-        lastChangedDate() {
-            if (this.currentOrder) {
-                if (this.currentOrder.updatedAt) {
-                    return format.date(this.currentOrder.updatedAt);
-                }
-                return this.orderDate;
-            }
-            return '';
         },
         transactionOptionPlaceholder() {
             if (this.isLoading) return null;
@@ -123,10 +90,6 @@ Component.register('sw-order-detail-base', {
         createdComponent() {
             this.isLoading = true;
 
-            this.countryStore.getList({ page: 1, limit: 100, sortBy: 'name' }).then((response) => {
-                this.countries = response.items;
-            });
-
             this.recalculationOrderStore = new EntityStore(this.order.getEntityName(),
                 this.orderService,
                 EntityProxy);
@@ -134,38 +97,6 @@ Component.register('sw-order-detail-base', {
             this.recalculationOrderStore.add(this.order);
             this.currentOrder = this.order;
             this.reloadOrderAssociations();
-        },
-        sortByTaxRate(price) {
-            return price.sort((prev, current) => {
-                return prev.taxRate - current.taxRate;
-            });
-        },
-        onLeaveModalClose() {
-            this.nextRoute(false);
-            this.nextRoute = null;
-            this.isDisplayingLeavePageWarning = false;
-        },
-        onLeaveModalConfirm() {
-            this.isDisplayingLeavePageWarning = false;
-
-            this.$nextTick(() => {
-                this.nextRoute();
-            });
-        },
-        onLineItemChanges() {
-            this.isLoading = true;
-
-            this.orderService.recalculateOrder(this.currentOrder.id, this.currentOrder.versionId, {}, {}).then(() => {
-                this.reloadVersionedOrder(this.currentOrder.versionId);
-            }).catch((error) => {
-                this.$emit('sw-order-detail-base-error', error);
-            });
-        },
-        onRecalculateOrder() {
-            this.onLineItemChanges();
-        },
-        loadLiveVersion() {
-            this.reloadVersionedOrder(this.liveVersionId);
         },
         createVersionedOrder() {
             this.isLoading = true;
@@ -202,14 +133,9 @@ Component.register('sw-order-detail-base', {
             );
 
             return Promise.all([addresses, delivieries, transactions]).then(() => {
-                this.hasDeliveries = this.currentOrder &&
+                /* this.hasDeliveries = this.currentOrder &&
                     this.currentOrder.deliveries &&
-                    this.currentOrder.deliveries.length > 0;
-
-                this.hasDeliveryTrackingCode = this.hasDeliveries && this.currentOrder.deliveries[0].trackingCode;
-
-                this.hasDifferentBillingAndShippingAddress = this.hasDeliveries &&
-                    this.billingAddress.id !== this.currentOrder.deliveries[0].shippingOrderAddress.id;
+                    this.currentOrder.deliveries.length > 0; */
 
                 this.isLoading = false;
                 this.hasAssociations = true;
@@ -221,8 +147,8 @@ Component.register('sw-order-detail-base', {
                 return this.reloadVersionedOrder(this.currentOrder.versionId);
             });
         },
-        changeLanguage() {
-            this.reloadVersionedOrder(this.currentOrder.versionId);
+        loadLiveVersion() {
+            this.reloadVersionedOrder(this.liveVersionId);
         },
         startEditing() {
             if (this.currentOrder.versionId === this.liveVersionId) {
@@ -242,6 +168,42 @@ Component.register('sw-order-detail-base', {
                 this.$emit('sw-order-detail-base-error', error);
             });
         },
+        onLeaveModalClose() {
+            this.nextRoute(false);
+            this.nextRoute = null;
+            this.isDisplayingLeavePageWarning = false;
+        },
+        onLeaveModalConfirm() {
+            this.isDisplayingLeavePageWarning = false;
+
+            this.$nextTick(() => {
+                this.nextRoute();
+            });
+        },
+        onRecalculateOrder() {
+            this.isLoading = true;
+
+            this.orderService.recalculateOrder(this.currentOrder.id, this.currentOrder.versionId, {}, {}).then(() => {
+                this.reloadVersionedOrder(this.currentOrder.versionId);
+            }).catch((error) => {
+                this.$emit('sw-order-detail-base-error', error);
+            });
+        },
+        onShippingChargeEdited(amount) {
+            this.currentOrder.deliveries[0].shippingCosts.unitPrice = amount;
+            this.currentOrder.deliveries[0].shippingCosts.totalPrice = amount;
+            return this.currentOrder.save().then(() => {
+                this.onLineItemChanges();
+            });
+        },
+        sortByTaxRate(price) {
+            return price.sort((prev, current) => {
+                return prev.taxRate - current.taxRate;
+            });
+        },
+        changeLanguage() {
+            this.reloadVersionedOrder(this.currentOrder.versionId);
+        },
         onStateTransitionOptionsChanged(stateMachineName, options) {
             if (stateMachineName === 'order.states') {
                 this.orderOptions = options;
@@ -254,82 +216,6 @@ Component.register('sw-order-detail-base', {
         },
         onQuickTransactionStatusChange(actionName) {
             this.$refs['state-card'].onTransactionStateSelected(actionName);
-        },
-        onAddressModalClose() {
-            this.addressBeingEdited = null;
-        },
-        onAddressModalSave() {
-            this.addressBeingEdited = null;
-            this.saveAndReloadVersionedOrder();
-        },
-        onAddressModalAddressSelected(address) {
-            const editedId = this.addressBeingEdited.id;
-            this.addressBeingEdited = null;
-
-            this.$nextTick(() => {
-                return this.orderService.changeOrderAddress(
-                    editedId,
-                    address.id,
-                    {},
-                    ApiService.getVersionHeader(this.currentOrder.versionId)
-                ).then(() => {
-                    return this.saveAndReloadVersionedOrder();
-                }).catch((error) => {
-                    this.$emit('sw-order-detail-base-error', error);
-                });
-            });
-        },
-        onEditBillingAddress() {
-            if (this.isEditing) {
-                this.addressBeingEdited = this.billingAddress;
-            }
-        },
-        onEditDeliveryAddress() {
-            if (this.isEditing) {
-                this.addressBeingEdited = this.currentOrder.deliveries[0].shippingOrderAddress;
-            }
-        },
-        onAddNewDeliveryAddress() {
-            if (!this.isEditing) {
-                return;
-            }
-
-            this.orderAddressStore.getByIdAsync(
-                this.currentOrder.deliveries[0].shippingOrderAddress.id,
-                '',
-                this.currentOrder.versionId
-            )
-                .then(() => {
-                    const tmp = this.orderAddressStore.duplicate(this.currentOrder.deliveries[0].shippingOrderAddress.id);
-                    this.currentOrder.deliveries[0].shippingOrderAddressId = tmp.id;
-                    return tmp.save();
-                })
-                .then(() => {
-                    return this.saveAndReloadVersionedOrder();
-                })
-                .then(() => {
-                    return this.$nextTick(() => {
-                        this.onEditDeliveryAddress();
-                    });
-                })
-                .catch((error) => {
-                    this.$emit('sw-order-detail-base-error', error);
-                });
-        },
-        onCustomerEmailEdited(email) {
-            this.currentOrder.orderCustomer.email = email;
-            this.saveAndReloadVersionedOrder();
-        },
-        onShippingChargeEdited(amount) {
-            this.currentOrder.deliveries[0].shippingCosts.unitPrice = amount;
-            this.currentOrder.deliveries[0].shippingCosts.totalPrice = amount;
-            return this.currentOrder.save().then(() => {
-                this.onLineItemChanges();
-            });
-        },
-        onCustomerPhoneNumberEdited(number) {
-            this.billingAddress.phoneNumber = number;
-            this.saveAndReloadVersionedOrder();
         }
     }
 });

@@ -1,0 +1,67 @@
+@import "~scss/variables";
+
+$sw-order-user-card-link : $color-shopware-blue;
+
+
+.sw-order-user-card {
+
+  .sw-order-user-card__container{
+    padding-bottom: 24px;
+  }
+
+  .sw-order-user-card__metadata-user-name {
+    font-weight: 600;
+    font-size: 18px;
+    margin-bottom: 8px;
+  }
+
+  .sw-order-user-card__metadata-item {
+    margin-bottom: 8px;
+    font-size: 14px;
+  }
+
+  .sw-order-user-card__actions {
+    padding-top: 10px;
+
+    .sw-button {
+      margin-right: 6px;
+
+      &:last-of-type {
+        margin-right: 0;
+      }
+    }
+  }
+
+  .sw-order-user-card__summary-vertical
+  {
+    line-height: 15px;
+    dt,
+    dd {
+      padding: 4px;
+      border-bottom: none;
+    }
+
+    dt {
+      font-weight: 600;
+      &:not(:first-child), &:only-of-type{
+        padding-top: 21px;
+      }
+
+    }
+  }
+
+  .sw-description-list {
+    .sw-order-user-card__address-edit-button, .sw-order-user-card__address-add-button  {
+      color: $sw-order-user-card-link;
+      background: transparent;
+      border: none;
+      line-height: 10px;
+      padding-top: 0;
+      padding-bottom: 0;
+      vertical-align: top;
+    }
+    .sw-order-user-card__address-add-button {
+      margin-top: 5px;
+    }
+  }
+}

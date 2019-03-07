@@ -23,8 +23,9 @@
       "titleSidebarItemRefresh": "Aktualisieren"
     },
     "detail": {
-      "buttonCancel": "Abbrechen",
+      "buttonCancel": "Änderungen verwerfen",
       "buttonSave": "Speichern",
+      "buttonEdit": "Bearbeiten",
       "tabOrderDetails": "Bestelldetails",
       "tabDeliveries": "Lieferungen",
       "textHeadline": "Bestellung",

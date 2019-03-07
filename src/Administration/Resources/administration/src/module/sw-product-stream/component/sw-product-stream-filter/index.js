@@ -20,10 +20,7 @@ Component.extend('sw-product-stream-filter', 'sw-condition-base', {
             value: null,
             typeCriteria: null,
             fieldPath: [],
-            negatedCondition: null,
-            operatorCriteria: {},
-            fieldPath: [],
-            typeStore: {}
+            negatedCondition: null
         };
     },
 
@@ -102,9 +99,6 @@ Component.extend('sw-product-stream-filter', 'sw-condition-base', {
                 .filter((fieldObject, index) => !(index === 0 && fieldObject.name === 'product'))
                 .map(fieldObject => fieldObject.name)
                 .join('.');
-        },
-        types(newValue) {
-            this.typeStore = new LocalStore(Object.values(newValue), 'type');
         }
     },
 

@@ -112,7 +112,7 @@ class JsonFieldSerializer implements FieldSerializerInterface
                 : $raw[$key];
 
             $decodedValue = $this->fieldHandlerRegistry->decode($embedded, $value);
-            if ($decodedValue instanceof \DateTime) {
+            if ($decodedValue instanceof \DateTimeInterface) {
                 $decodedValue = $decodedValue->format(\DateTime::ATOM);
             }
 

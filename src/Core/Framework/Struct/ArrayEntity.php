@@ -78,7 +78,7 @@ class ArrayEntity extends Entity implements \ArrayAccess
         ];
 
         foreach ($this->data as $property => $value) {
-            if ($value instanceof \DateTime) {
+            if ($value instanceof \DateTimeInterface) {
                 $value = $value->format(\DateTime::ATOM);
             }
 

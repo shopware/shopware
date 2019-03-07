@@ -311,9 +311,7 @@ class EntityAggregator implements EntityAggregatorInterface
                 $value = $this->tryToCast($value);
             }
 
-            if ($value) {
-                $current['values'][] = $value;
-            }
+            $current['values'][] = $value;
 
             return $current;
         });

@@ -56,8 +56,9 @@ class CachedEntityAggregator implements EntityAggregatorInterface
     public function aggregate(string $definition, Criteria $criteria, Context $context): AggregatorResult
     {
         if (!$this->enabled) {
-            $this->decorated->aggregate($definition, $criteria, $context);
+            return $this->decorated->aggregate($definition, $criteria, $context);
         }
+
         // load all hits from cache
         $result = $this->loadFromCache($definition, $criteria, $context);
 

@@ -113,8 +113,7 @@ Component.register('sw-category-view', {
         },
 
         onViewProduct(productId) {
-            const route = this.$router.resolve({ name: 'sw.product.detail', params: { id: productId } });
-            window.open(route.href, '_blank');
+            this.$router.push({ name: 'sw.product.detail', params: { id: productId } });
         },
 
         onSelectProduct(productId) {

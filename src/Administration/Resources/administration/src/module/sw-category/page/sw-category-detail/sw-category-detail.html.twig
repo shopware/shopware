@@ -37,17 +37,20 @@
             {% block sw_category_side_content %}
                 <sw-category-tree
                     :categories="categories"
+                    :activeCategory="category"
                     @sw-category-on-save="onSaveCategories"
                     @sw-category-on-refresh="onRefreshCategories"
                     @sw-category-on-duplicate="onDuplicateCategory"
                     @sw-category-on-reset-details="resetCategory"
                     @sw-category-load-children="getCategories"
+                    @sw-category-tree-on-unsaved-changes="openChangeModal"
                 ></sw-category-tree>
             {% endblock %}
         </template>
 
         {% block sw_category_content %}
             <template slot="content">
+
                 {% block sw_category_content_view %}
                     <sw-category-view v-if="!isMobileViewport && category || isMobileViewport && category"
                         ref="categoryView"
@@ -60,6 +63,14 @@
                         @sw-category-view-on-remove-media="onUnlinkLogo"
                     ></sw-category-view>
                 {% endblock %}
+
+                {% block sw_category_content_leave_modal %}
+                    <sw-category-leave-page-modal v-if="isDisplayingLeavePageWarning"
+                        @leave-page-cancel="onLeaveModalClose(nextRoute)"
+                        @leave-page-confirm="onLeaveModalConfirm(nextRoute)">
+                    </sw-category-leave-page-modal>
+                {% endblock %}
+
                 {% block sw_category_content_loader %}
                     <sw-loader v-if="!categories"></sw-loader>
                 {% endblock %}

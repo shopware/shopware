@@ -52,9 +52,9 @@
 
                             {% block sw_category_tree_items_item_content_default %}
                                 <template v-else>
-                                    <router-link class="tree-link" :to="{ name: 'sw.category.detail', params: { id: item.id }}">
+                                    <a class="tree-link" @click="changeCategory(item)">
                                         <span class="sw-tree-item__label">{{ item.data.name || item.data.meta.viewData.name }}</span>
-                                    </router-link>
+                                    </a>
                                 </template>
                             {% endblock %}
                         </template>

@@ -11,15 +11,17 @@ Component.register('sw-category-tree', {
         categories: {
             type: Array,
             required: true,
-            default() {
-                return [];
-            }
+            default: []
+        },
+        activeCategory: {
+            type: [Object, null],
+            required: false,
+            default: null
         }
     },
 
     data() {
         return {
-            activeCategoryId: this.$route.params.id || null,
             currentEditCategory: null,
             item: null,
             checkedCategories: {},
@@ -33,7 +35,7 @@ Component.register('sw-category-tree', {
     },
 
     created() {
-        if (this.activeCategoryId) {
+        if (this.activeCategory && this.activeCategory.id) {
             this.openTreeById();
         }
     },
@@ -44,17 +46,7 @@ Component.register('sw-category-tree', {
         }
     },
 
-    watch: {
-        '$route.params.id'() {
-            this.getActiveCategory();
-        }
-    },
-
     methods: {
-        getActiveCategory() {
-            this.activeCategoryId = this.$route.params.id;
-        },
-
         onUpdatePositions() {
             this.saveCategories();
         },
@@ -71,7 +63,7 @@ Component.register('sw-category-tree', {
             const category = this.categoryStore.getById(itemId);
             category.delete(true).then(() => {
                 this.refreshCategories();
-                if (itemId === this.activeCategoryId) {
+                if (this.activeCategory && itemId === this.activeCategory.id) {
                     this.$emit('sw-category-on-reset-details');
                 }
             });
@@ -197,6 +189,15 @@ Component.register('sw-category-tree', {
             return newCategory;
         },
 
+        changeCategory(category) {
+            const route = { name: 'sw.category.detail', params: { id: category.id } };
+            if (this.activeCategory && this.activeCategory.hasChanges()) {
+                this.$emit('sw-category-tree-on-unsaved-changes', route);
+            } else {
+                this.$router.push(route);
+            }
+        },
+
         checkDefaultLanguage() {
             return this.languageStore.getCurrentId() === this.languageStore.systemLanguageId;
         },
@@ -284,8 +285,12 @@ Component.register('sw-category-tree', {
             this.getParentIdsByItemId();
         },
 
-        getParentIdsByItemId(id = this.activeCategoryId) {
-            this.getItemById(id).then((category) => {
+        getParentIdsByItemId() {
+            if (!this.activeCategory || !this.activeCategory.id) {
+                return;
+            }
+
+            this.getItemById(this.activeCategory.id).then((category) => {
                 if (!category.path) {
                     return;
                 }

@@ -19,7 +19,9 @@ Component.register('sw-category-detail', {
             isLoading: false,
             mediaItem: null,
             isMobileViewport: null,
-            splitBreakpoint: 1024
+            splitBreakpoint: 1024,
+            isDisplayingLeavePageWarning: false,
+            nextRoute: null
         };
     },
 
@@ -56,6 +58,16 @@ Component.register('sw-category-detail', {
 
     created() {
         this.createdComponent();
+    },
+
+    beforeRouteLeave(to, from, next) {
+        if (this.category && this.category.hasChanges()) {
+            this.isDisplayingLeavePageWarning = true;
+            this.nextRoute = to;
+            next(false);
+        } else {
+            next();
+        }
     },
 
     methods: {
@@ -120,6 +132,24 @@ Component.register('sw-category-detail', {
 
         onSaveCategories() {
             return this.categoryStore.sync();
+        },
+
+        openChangeModal(destination) {
+            this.nextRoute = destination;
+            this.isDisplayingLeavePageWarning = true;
+        },
+
+        onLeaveModalClose() {
+            this.nextRoute = null;
+            this.isDisplayingLeavePageWarning = false;
+        },
+
+        onLeaveModalConfirm(destination) {
+            this.isDisplayingLeavePageWarning = false;
+            this.category.discardChanges();
+            this.$nextTick(() => {
+                this.$router.push({ name: destination.name, params: destination.params });
+            });
         },
 
         cancelEdit() {

@@ -114,7 +114,6 @@ Component.extend('sw-product-stream-filter', 'sw-condition-base', {
             return new LocalStore(this.types, 'type');
         },
         createdComponent() {
-            this.typeStore = new LocalStore(Object.values(this.types), 'type');
             this.locateConditionTreeComponent();
             this.fields.push({ name: 'product', entity: 'product', type: 'object' });
             this.mapValues();

@@ -6,6 +6,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\SourceContext;
 use Symfony\Component\Messenger\Envelope;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Messenger\Stamp\ReceivedStamp;
@@ -74,22 +75,26 @@ class MonitoringBusDecorator implements MessageBusInterface
         $queueSize = $this->messageQueueRepository->search($criteria, $context)->first();
 
         if (!$queueSize) {
-            $this->messageQueueRepository->create([
-                [
-                    'name' => $name,
-                    'size' => 1,
-                ],
-            ], $context);
+            $context->scope(SourceContext::ORIGIN_SYSTEM, function () use ($name, $context) {
+                $this->messageQueueRepository->create([
+                    [
+                        'name' => $name,
+                        'size' => 1,
+                    ],
+                ], $context);
+            });
 
             return;
         }
 
-        $this->messageQueueRepository->update([
-            [
-                'id' => $queueSize->getId(),
-                'size' => $queueSize->getSize() + 1,
-            ],
-        ], $context);
+        $context->scope(SourceContext::ORIGIN_SYSTEM, function () use ($queueSize, $context) {
+            $this->messageQueueRepository->update([
+                [
+                    'id' => $queueSize->getId(),
+                    'size' => $queueSize->getSize() + 1,
+                ],
+            ], $context);
+        });
     }
 
     private function decrementMessageQueueSize(string $name): void
@@ -105,11 +110,13 @@ class MonitoringBusDecorator implements MessageBusInterface
             return;
         }
 
-        $this->messageQueueRepository->update([
-            [
-                'id' => $queueSize->getId(),
-                'size' => $queueSize->getSize() - 1,
-            ],
-        ], $context);
+        $context->scope(SourceContext::ORIGIN_SYSTEM, function () use ($queueSize, $context) {
+            $this->messageQueueRepository->update([
+                [
+                    'id' => $queueSize->getId(),
+                    'size' => $queueSize->getSize() - 1,
+                ],
+            ], $context);
+        });
     }
 }

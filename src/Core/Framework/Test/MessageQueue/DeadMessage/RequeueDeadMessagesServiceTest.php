@@ -5,7 +5,6 @@ namespace Shopware\Core\Framework\Test\MessageQueue\DeadMessage;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
-use Shopware\Core\Framework\MessageQueue\DeadMessage\DeadMessageUpdater;
 use Shopware\Core\Framework\MessageQueue\DeadMessage\RequeueDeadMessagesService;
 use Shopware\Core\Framework\MessageQueue\Handler\EncryptedMessageHandler;
 use Shopware\Core\Framework\MessageQueue\Message\EncryptedMessage;
@@ -100,10 +99,6 @@ class RequeueDeadMessagesServiceTest extends TestCase
                 'exceptionLine' => $e->getLine(),
             ],
         ], Context::createDefaultContext());
-        $deadMessageUpdater = $this->getContainer()->get(DeadMessageUpdater::class);
-        $deadMessageUpdater->updateOriginalMessage($encryptedId, $msg);
-        $deadMessageUpdater->updateOriginalMessage($plainId, $msg);
-        $deadMessageUpdater->updateOriginalMessage($futureId, $msg);
 
         $this->bus->expects(static::once())
             ->method('dispatch')
@@ -173,10 +168,6 @@ class RequeueDeadMessagesServiceTest extends TestCase
                 'exceptionLine' => $e->getLine(),
             ],
         ], Context::createDefaultContext());
-        $deadMessageUpdater = $this->getContainer()->get(DeadMessageUpdater::class);
-        $deadMessageUpdater->updateOriginalMessage($testMessageId, $msg);
-        $deadMessageUpdater->updateOriginalMessage($id1, $msg);
-        $deadMessageUpdater->updateOriginalMessage($id2, $msg);
 
         $this->bus->expects(static::once())
             ->method('dispatch')

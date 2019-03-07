@@ -7,7 +7,6 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\MessageQueue\DeadMessage\DeadMessageEntity;
-use Shopware\Core\Framework\MessageQueue\DeadMessage\DeadMessageUpdater;
 use Shopware\Core\Framework\MessageQueue\Exception\MessageFailedException;
 use Shopware\Core\Framework\MessageQueue\Handler\RetryMessageHandler;
 use Shopware\Core\Framework\MessageQueue\Message\RetryMessage;
@@ -110,6 +109,7 @@ class RetryMessageHandlerTest extends TestCase
             [
                 'id' => $deadMessageId,
                 'originalMessageClass' => get_class($message),
+                'serializedOriginalMessage' => serialize($message),
                 'handlerClass' => DummyHandler::class,
                 'encrypted' => false,
                 'nextExecutionTime' => DeadMessageEntity::calculateNextExecutionTime(1),
@@ -119,7 +119,5 @@ class RetryMessageHandlerTest extends TestCase
                 'exceptionLine' => $e->getLine(),
             ],
         ], $this->context);
-        $deadMessageUpdater = $this->getContainer()->get(DeadMessageUpdater::class);
-        $deadMessageUpdater->updateOriginalMessage($deadMessageId, $message);
     }
 }

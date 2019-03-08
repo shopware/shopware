@@ -32,17 +32,17 @@
                 </sw-field>
             {% endblock %}
             {% block sw_product_basic_form_manufacturer_field %}
-                <sw-field type="select"
-                          :label="$tc('sw-product.basicForm.labelManufacturer')"
-                          :placeholder="$tc('sw-product.basicForm.placeholderManufacturer')"
-                          validation="required"
-                          v-model="product.manufacturerId">
-                    <option
-                            v-for="manufacturer in manufacturers"
-                            :value="manufacturer.id">
-                        {{ manufacturer.meta.viewData.name }}
-                    </option>
-                </sw-field>
+
+                <sw-select :store="manufacturerStore"
+                           name="selectManufactureForProduct"
+                           id="manufacturerId"
+                           :required="true"
+                           :placeholder="$tc('sw-product.basicForm.placeholderManufacturer')"
+                           :label="$tc('sw-product.basicForm.labelManufacturer')"
+                           v-model="product.manufacturerId">
+                </sw-select>
+
+
             {% endblock %}
         </sw-container>
 

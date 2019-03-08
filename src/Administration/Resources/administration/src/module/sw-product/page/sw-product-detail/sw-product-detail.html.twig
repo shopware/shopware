@@ -68,6 +68,7 @@
                 {% block sw_product_detail_content_view %}
                     <router-view :product="product"
                                  :manufacturers="manufacturers"
+                                 :manufacturerStore="manufacturerStore"
                                  :taxes="taxes"
                                  :attributeSets="attributeSets"
                                  :currencies="currencies">

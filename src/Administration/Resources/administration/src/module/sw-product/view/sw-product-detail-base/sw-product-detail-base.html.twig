@@ -3,7 +3,7 @@
         {% block sw_product_detail_base_basic_info_card %}
             <sw-card :title="$tc('sw-product.detailBase.cardTitleProductInfo')" :isLoading="product.isLoading">
                 {% block sw_product_detail_base_basic_info_form %}
-                    <sw-product-basic-form :product="product" :manufacturers="manufacturers"></sw-product-basic-form>
+                    <sw-product-basic-form :product="product" :manufacturerStore="manufacturerStore"></sw-product-basic-form>
                 {% endblock %}
             </sw-card>
         {% endblock %}

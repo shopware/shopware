@@ -1,4 +1,5 @@
 import util from 'src/core/service/util.service';
+import dom from 'src/core/service/utils/dom.utils';
 import template from './sw-tabs.html.twig';
 import './sw-tabs.scss';
 
@@ -57,27 +58,17 @@ export default {
             activeItem: null,
             scrollLeftPossible: false,
             scrollRightPossible: true,
-            firstScroll: false
+            firstScroll: false,
+            scrollbarOffset: ''
         };
     },
 
     created() {
-        this.updateActiveItem();
+        this.createdComponent();
     },
 
     mounted() {
-        const tabContent = this.$refs.swTabContent;
-
-        tabContent.addEventListener('scroll', util.throttle(() => {
-            const rightEnd = tabContent.scrollWidth - tabContent.offsetWidth;
-            const leftDistance = tabContent.scrollLeft;
-
-            this.scrollRightPossible = !(rightEnd - leftDistance < 5);
-            this.scrollLeftPossible = !(leftDistance < 5);
-        }, 100));
-
-        this.checkIfNeedScroll();
-        window.addEventListener('resize', util.throttle(() => this.checkIfNeedScroll(), 1000));
+        this.mountedComponent();
     },
 
     watch: {
@@ -92,7 +83,8 @@ export default {
                 'sw-tabs--vertical': this.isVertical,
                 'sw-tabs--small': this.small,
                 'sw-tabs--scrollable': this.isScrollable,
-                'sw-tabs--align-right': this.alignRight
+                'sw-tabs--align-right': this.alignRight,
+                'sw-tabs--scrollbar-active': this.scrollbarOffset > 0
             };
         },
 
@@ -135,11 +127,46 @@ export default {
             return `
                 transform: translate(${this.sliderMovement}px, 0) rotate(0deg);
                 width: ${this.sliderLength}px;
+                bottom: ${this.scrollbarOffset}px;
                 `;
+        },
+
+        tabContentStyle() {
+            return {
+                'padding-bottom': `${this.scrollbarOffset}px`
+            };
         }
     },
 
     methods: {
+        mountedComponent() {
+            const tabContent = this.$refs.swTabContent;
+
+            tabContent.addEventListener('scroll', util.throttle(() => {
+                const rightEnd = tabContent.scrollWidth - tabContent.offsetWidth;
+                const leftDistance = tabContent.scrollLeft;
+
+                this.scrollRightPossible = !(rightEnd - leftDistance < 5);
+                this.scrollLeftPossible = !(leftDistance < 5);
+            }, 100));
+
+            this.checkIfNeedScroll();
+            this.addScrollbarOffset();
+
+            const that = this;
+            this.$device.onResize({
+                listener() {
+                    that.checkIfNeedScroll();
+                    that.addScrollbarOffset();
+                },
+                component: this
+            });
+        },
+
+        createdComponent() {
+            this.updateActiveItem();
+        },
+
         updateActiveItem() {
             this.$nextTick().then(() => {
                 this.$children.forEach((item, i) => {
@@ -192,6 +219,10 @@ export default {
                 const scrollWidth = itemOffset - (tabContentWidth / 2) + (itemWidth / 2);
                 tabContent.scrollLeft = scrollWidth;
             }
+        },
+
+        addScrollbarOffset() {
+            this.scrollbarOffset = dom.getScrollbarHeight(this.$refs.swTabContent);
         }
     }
 };

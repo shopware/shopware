@@ -56,11 +56,11 @@ export default {
     },
 
     mounted() {
-        this.updateActiveState();
+        this.mountedComponent();
     },
 
     beforeUpdate() {
-        this.updateActiveState();
+        this.beforeUpdateComponent();
     },
 
     watch: {
@@ -70,10 +70,7 @@ export default {
     },
 
     created() {
-        this.$parent.$on('newActiveItem', this.checkIfActive);
-        if (this.active) {
-            this.isActive = true;
-        }
+        this.createdComponent();
     },
 
     computed: {
@@ -89,6 +86,20 @@ export default {
     },
 
     methods: {
+        createdComponent() {
+            this.$parent.$on('newActiveItem', this.checkIfActive);
+            if (this.active) {
+                this.isActive = true;
+            }
+        },
+
+        beforeUpdateComponent() {
+            this.updateActiveState();
+        },
+
+        mountedComponent() {
+            this.updateActiveState();
+        },
         updateActiveState() {
             this.checkIfRouteMatchesLink();
             if (this.activeTab && this.activeTab === this.name) {

@@ -9,7 +9,7 @@ $sw-side-navigation-item-link-color: $color-gutenberg;
     .sw-tabs__content {
         position: relative;
         display: flex;
-        overflow: scroll;
+        overflow: auto;
         scroll-behavior: smooth;
 
         &::-webkit-scrollbar {
@@ -116,6 +116,14 @@ $sw-side-navigation-item-link-color: $color-gutenberg;
 
     &.sw-tabs--scrollable {
         padding: 0 20px;
+    }
+
+    &.sw-tabs--scrollbar-active {
+        .sw-tabs__content {
+            &::before {
+                display: none;
+            }
+        }
     }
 
 }

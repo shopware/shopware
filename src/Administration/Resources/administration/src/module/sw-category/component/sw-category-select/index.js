@@ -12,10 +12,13 @@ Component.extend('sw-category-select', 'sw-select', {
             type: String,
             required: true
         },
+
         assignedProducts: {
             type: Array,
             required: false,
-            default: []
+            default() {
+                return [];
+            }
         }
     },
 
@@ -84,11 +87,9 @@ Component.extend('sw-category-select', 'sw-select', {
         },
 
         addToAssociations(productId) {
-            if (this.findIndexInArray(this.associationAddList, productId) !== -1
-                && this.findIndexInArray(this.associationAddList, productId) !== null) {
+            if (this.findIndexInArray(this.associationAddList, productId) !== null) {
                 this.associationAddList = this.removeFromArrayById(this.associationAddList, productId);
-            } else if (this.findIndexInArray(this.associationRemoveList, productId) !== -1
-                && this.findIndexInArray(this.associationRemoveList, productId) !== null) {
+            } else if (this.findIndexInArray(this.associationRemoveList, productId) !== null) {
                 this.associationRemoveList = this.removeFromArrayById(this.associationRemoveList, productId);
             } else {
                 this.associationAddList.push(productId);
@@ -97,11 +98,9 @@ Component.extend('sw-category-select', 'sw-select', {
         },
 
         removeFromAssociations(productId) {
-            if (this.findIndexInArray(this.associationRemoveList, productId) !== -1
-                && this.findIndexInArray(this.associationRemoveList, productId) !== null) {
+            if (this.findIndexInArray(this.associationRemoveList, productId) !== null) {
                 this.associationRemoveList = this.removeFromArrayById(this.associationRemoveList, productId);
-            } else if (this.findIndexInArray(this.associationAddList, productId) !== -1
-                && this.findIndexInArray(this.associationAddList, productId) !== null) {
+            } else if (this.findIndexInArray(this.associationAddList, productId) !== null) {
                 this.associationAddList = this.removeFromArrayById(this.associationAddList, productId);
             } else {
                 this.associationRemoveList.push(productId);
@@ -138,7 +137,7 @@ Component.extend('sw-category-select', 'sw-select', {
         },
 
         checkAssociation(productId) {
-            return !!this.associations.find(product => product === productId);
+            return this.associations.some(product => product === productId);
         },
 
         openResultList() {

@@ -57,12 +57,12 @@ class PluginEntity extends Entity
     protected $upgradeVersion;
 
     /**
-     * @var \DateTime|null
+     * @var \DateTimeInterface|null
      */
     protected $installedAt;
 
     /**
-     * @var \DateTime|null
+     * @var \DateTimeInterface|null
      */
     protected $upgradedAt;
 
@@ -102,12 +102,12 @@ class PluginEntity extends Entity
     protected $changelog;
 
     /**
-     * @var \DateTime|null
+     * @var \DateTimeInterface|null
      */
     protected $createdAt;
 
     /**
-     * @var \DateTime|null
+     * @var \DateTimeInterface|null
      */
     protected $updatedAt;
 
@@ -216,22 +216,22 @@ class PluginEntity extends Entity
         $this->upgradeVersion = $upgradeVersion;
     }
 
-    public function getInstalledAt(): ?\DateTime
+    public function getInstalledAt(): ?\DateTimeInterface
     {
         return $this->installedAt;
     }
 
-    public function setInstalledAt(?\DateTime $installedAt): void
+    public function setInstalledAt(?\DateTimeInterface $installedAt): void
     {
         $this->installedAt = $installedAt;
     }
 
-    public function getUpgradedAt(): ?\DateTime
+    public function getUpgradedAt(): ?\DateTimeInterface
     {
         return $this->upgradedAt;
     }
 
-    public function setUpgradedAt(\DateTime $upgradedAt): void
+    public function setUpgradedAt(\DateTimeInterface $upgradedAt): void
     {
         $this->upgradedAt = $upgradedAt;
     }
@@ -306,22 +306,22 @@ class PluginEntity extends Entity
         $this->changelog = $changelog;
     }
 
-    public function getCreatedAt(): ?\DateTime
+    public function getCreatedAt(): ?\DateTimeInterface
     {
         return $this->createdAt;
     }
 
-    public function setCreatedAt(\DateTime $createdAt): void
+    public function setCreatedAt(\DateTimeInterface $createdAt): void
     {
         $this->createdAt = $createdAt;
     }
 
-    public function getUpdatedAt(): ?\DateTime
+    public function getUpdatedAt(): ?\DateTimeInterface
     {
         return $this->updatedAt;
     }
 
-    public function setUpdatedAt(\DateTime $updatedAt): void
+    public function setUpdatedAt(\DateTimeInterface $updatedAt): void
     {
         $this->updatedAt = $updatedAt;
     }

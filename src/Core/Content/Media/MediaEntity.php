@@ -65,17 +65,17 @@ class MediaEntity extends Entity
     protected $mediaType;
 
     /**
-     * @var \DateTime|null
+     * @var \DateTimeInterface|null
      */
     protected $createdAt;
 
     /**
-     * @var \DateTime|null
+     * @var \DateTimeInterface|null
      */
     protected $updatedAt;
 
     /**
-     * @var \DateTime|null
+     * @var \DateTimeInterface|null
      */
     protected $uploadedAt;
 
@@ -233,32 +233,32 @@ class MediaEntity extends Entity
         $this->mediaType = $mediaType;
     }
 
-    public function getCreatedAt(): ?\DateTime
+    public function getCreatedAt(): ?\DateTimeInterface
     {
         return $this->createdAt;
     }
 
-    public function setCreatedAt(\DateTime $createdAt): void
+    public function setCreatedAt(\DateTimeInterface $createdAt): void
     {
         $this->createdAt = $createdAt;
     }
 
-    public function getUpdatedAt(): ?\DateTime
+    public function getUpdatedAt(): ?\DateTimeInterface
     {
         return $this->updatedAt;
     }
 
-    public function setUpdatedAt(\DateTime $updatedAt): void
+    public function setUpdatedAt(\DateTimeInterface $updatedAt): void
     {
         $this->updatedAt = $updatedAt;
     }
 
-    public function getUploadedAt(): ?\DateTime
+    public function getUploadedAt(): ?\DateTimeInterface
     {
         return $this->uploadedAt;
     }
 
-    public function setUploadedAt(?\DateTime $uploadedAt): void
+    public function setUploadedAt(?\DateTimeInterface $uploadedAt): void
     {
         $this->uploadedAt = $uploadedAt;
     }

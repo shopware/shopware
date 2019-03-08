@@ -9,12 +9,12 @@ use Symfony\Component\Validator\Constraints\Type;
 class DateRangeRule extends Rule
 {
     /**
-     * @var \DateTime|null
+     * @var \DateTimeInterface|null
      */
     protected $fromDate;
 
     /**
-     * @var \DateTime|null
+     * @var \DateTimeInterface|null
      */
     protected $toDate;
 

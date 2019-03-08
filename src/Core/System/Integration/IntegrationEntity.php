@@ -29,7 +29,7 @@ class IntegrationEntity extends Entity
     protected $writeAccess;
 
     /**
-     * @var \DateTime|null
+     * @var \DateTimeInterface|null
      */
     protected $lastUsageAt;
 
@@ -39,12 +39,12 @@ class IntegrationEntity extends Entity
     protected $attributes;
 
     /**
-     * @var \DateTime|null
+     * @var \DateTimeInterface|null
      */
     protected $createdAt;
 
     /**
-     * @var \DateTime|null
+     * @var \DateTimeInterface|null
      */
     protected $updatedAt;
 
@@ -88,32 +88,32 @@ class IntegrationEntity extends Entity
         $this->writeAccess = $writeAccess;
     }
 
-    public function getLastUsageAt(): ?\DateTime
+    public function getLastUsageAt(): ?\DateTimeInterface
     {
         return $this->lastUsageAt;
     }
 
-    public function setLastUsageAt(\DateTime $lastUsageAt): void
+    public function setLastUsageAt(\DateTimeInterface $lastUsageAt): void
     {
         $this->lastUsageAt = $lastUsageAt;
     }
 
-    public function getCreatedAt(): ?\DateTime
+    public function getCreatedAt(): ?\DateTimeInterface
     {
         return $this->createdAt;
     }
 
-    public function setCreatedAt(\DateTime $createdAt): void
+    public function setCreatedAt(\DateTimeInterface $createdAt): void
     {
         $this->createdAt = $createdAt;
     }
 
-    public function getUpdatedAt(): ?\DateTime
+    public function getUpdatedAt(): ?\DateTimeInterface
     {
         return $this->updatedAt;
     }
 
-    public function setUpdatedAt(\DateTime $updatedAt): void
+    public function setUpdatedAt(\DateTimeInterface $updatedAt): void
     {
         $this->updatedAt = $updatedAt;
     }

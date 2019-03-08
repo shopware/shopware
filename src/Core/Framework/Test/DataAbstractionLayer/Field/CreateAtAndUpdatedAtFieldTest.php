@@ -82,7 +82,7 @@ EOF;
         $entity = $entities->get($id);
 
         static::assertNotNull($entity->get('createdAt'));
-        static::assertInstanceOf(\DateTime::class, $entity->get('createdAt'));
+        static::assertInstanceOf(\DateTimeInterface::class, $entity->get('createdAt'));
         static::assertNull($entity->get('updatedAt'));
     }
 
@@ -108,7 +108,7 @@ EOF;
         $entity = $entities->get($id);
 
         static::assertNotNull($entity->get('createdAt'));
-        static::assertInstanceOf(\DateTime::class, $entity->get('createdAt'));
+        static::assertInstanceOf(\DateTimeInterface::class, $entity->get('createdAt'));
 
         static::assertEquals(
             $date->format(Defaults::DATE_FORMAT),
@@ -136,7 +136,7 @@ EOF;
         $entity = $entities->get($id);
 
         static::assertNotNull($entity->get('createdAt'));
-        static::assertInstanceOf(\DateTime::class, $entity->get('createdAt'));
+        static::assertInstanceOf(\DateTimeInterface::class, $entity->get('createdAt'));
     }
 
     public function testUpdatedAtWillBeSetAutomatically(): void

@@ -50,7 +50,7 @@ class InheritanceIndexer implements IndexerInterface
         $this->eventDispatcher = $eventDispatcher;
     }
 
-    public function index(\DateTime $timestamp): void
+    public function index(\DateTimeInterface $timestamp): void
     {
         $context = Context::createDefaultContext();
 

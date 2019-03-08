@@ -93,12 +93,12 @@ class CustomerAddressEntity extends Entity
     protected $additionalAddressLine2;
 
     /**
-     * @var \DateTime|null
+     * @var \DateTimeInterface|null
      */
     protected $createdAt;
 
     /**
-     * @var \DateTime|null
+     * @var \DateTimeInterface|null
      */
     protected $updatedAt;
 
@@ -282,22 +282,22 @@ class CustomerAddressEntity extends Entity
         $this->additionalAddressLine2 = $additionalAddressLine2;
     }
 
-    public function getCreatedAt(): ?\DateTime
+    public function getCreatedAt(): ?\DateTimeInterface
     {
         return $this->createdAt;
     }
 
-    public function setCreatedAt(\DateTime $createdAt): void
+    public function setCreatedAt(\DateTimeInterface $createdAt): void
     {
         $this->createdAt = $createdAt;
     }
 
-    public function getUpdatedAt(): ?\DateTime
+    public function getUpdatedAt(): ?\DateTimeInterface
     {
         return $this->updatedAt;
     }
 
-    public function setUpdatedAt(\DateTime $updatedAt): void
+    public function setUpdatedAt(\DateTimeInterface $updatedAt): void
     {
         $this->updatedAt = $updatedAt;
     }

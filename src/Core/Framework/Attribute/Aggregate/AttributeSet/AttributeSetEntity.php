@@ -30,12 +30,12 @@ class AttributeSetEntity extends Entity
     protected $relations;
 
     /**
-     * @var \DateTime
+     * @var \DateTimeInterface
      */
     protected $createdAt;
 
     /**
-     * @var \DateTime|null
+     * @var \DateTimeInterface|null
      */
     protected $updatedAt;
 
@@ -79,22 +79,22 @@ class AttributeSetEntity extends Entity
         $this->relations = $relations;
     }
 
-    public function getCreatedAt(): \DateTime
+    public function getCreatedAt(): \DateTimeInterface
     {
         return $this->createdAt;
     }
 
-    public function setCreatedAt(?\DateTime $createdAt): void
+    public function setCreatedAt(?\DateTimeInterface $createdAt): void
     {
         $this->createdAt = $createdAt;
     }
 
-    public function getUpdatedAt(): ?\DateTime
+    public function getUpdatedAt(): ?\DateTimeInterface
     {
         return $this->updatedAt;
     }
 
-    public function setUpdatedAt(?\DateTime $updatedAt): void
+    public function setUpdatedAt(?\DateTimeInterface $updatedAt): void
     {
         $this->updatedAt = $updatedAt;
     }

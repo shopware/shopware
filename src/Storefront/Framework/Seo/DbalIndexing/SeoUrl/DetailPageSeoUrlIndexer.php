@@ -90,7 +90,7 @@ class DetailPageSeoUrlIndexer implements IndexerInterface
         $this->checkoutContextFactory = $checkoutContextFactory;
     }
 
-    public function index(\DateTime $timestamp): void
+    public function index(\DateTimeInterface $timestamp): void
     {
         $defaultContext = Context::createDefaultContext();
 

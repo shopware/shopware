@@ -46,7 +46,7 @@ class UserEntity extends Entity
     protected $email;
 
     /**
-     * @var \DateTime|null
+     * @var \DateTimeInterface|null
      */
     protected $lastLogin;
 
@@ -61,17 +61,17 @@ class UserEntity extends Entity
     protected $failedLogins;
 
     /**
-     * @var \DateTime|null
+     * @var \DateTimeInterface|null
      */
     protected $lockedUntil;
 
     /**
-     * @var \DateTime|null
+     * @var \DateTimeInterface|null
      */
     protected $createdAt;
 
     /**
-     * @var \DateTime|null
+     * @var \DateTimeInterface|null
      */
     protected $updatedAt;
 
@@ -180,12 +180,12 @@ class UserEntity extends Entity
         $this->email = $email;
     }
 
-    public function getLastLogin(): ?\DateTime
+    public function getLastLogin(): ?\DateTimeInterface
     {
         return $this->lastLogin;
     }
 
-    public function setLastLogin(?\DateTime $lastLogin): void
+    public function setLastLogin(?\DateTimeInterface $lastLogin): void
     {
         $this->lastLogin = $lastLogin;
     }
@@ -210,32 +210,32 @@ class UserEntity extends Entity
         $this->failedLogins = $failedLogins;
     }
 
-    public function getLockedUntil(): ?\DateTime
+    public function getLockedUntil(): ?\DateTimeInterface
     {
         return $this->lockedUntil;
     }
 
-    public function setLockedUntil(?\DateTime $lockedUntil): void
+    public function setLockedUntil(?\DateTimeInterface $lockedUntil): void
     {
         $this->lockedUntil = $lockedUntil;
     }
 
-    public function getCreatedAt(): ?\DateTime
+    public function getCreatedAt(): ?\DateTimeInterface
     {
         return $this->createdAt;
     }
 
-    public function setCreatedAt(\DateTime $createdAt): void
+    public function setCreatedAt(\DateTimeInterface $createdAt): void
     {
         $this->createdAt = $createdAt;
     }
 
-    public function getUpdatedAt(): ?\DateTime
+    public function getUpdatedAt(): ?\DateTimeInterface
     {
         return $this->updatedAt;
     }
 
-    public function setUpdatedAt(\DateTime $updatedAt): void
+    public function setUpdatedAt(\DateTimeInterface $updatedAt): void
     {
         $this->updatedAt = $updatedAt;
     }

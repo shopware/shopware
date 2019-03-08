@@ -83,7 +83,7 @@ class SearchKeywordIndexer implements IndexerInterface
         $this->definitionRegistry = $definitionRegistry;
     }
 
-    public function index(\DateTime $timestamp): void
+    public function index(\DateTimeInterface $timestamp): void
     {
         $dictionary = $this->indexTableOperator->getIndexName(self::DICTIONARY, $timestamp->getTimestamp());
         $document = $this->indexTableOperator->getIndexName(self::DOCUMENT_TABLE, $timestamp->getTimestamp());
@@ -160,7 +160,7 @@ class SearchKeywordIndexer implements IndexerInterface
         return implode('', $peaces);
     }
 
-    private function indexContext(Context $context, \DateTime $timestamp): void
+    private function indexContext(Context $context, \DateTimeInterface $timestamp): void
     {
         foreach ($this->registry->getDefinitions() as $definition) {
             /** @var string|EntityDefinition $definition */

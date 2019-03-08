@@ -1,10 +1,10 @@
-{% block sw_condition_fields %}
-    {% block sw_condition_fields_operator %}
+{% block sw_condition_base_fields %}
+    {% block sw_condition_weight_of_cart_field_operator %}
         <sw-condition-operator-select operatorSetName="string"
                                       v-model="condition.value.operator">
         </sw-condition-operator-select>
     {% endblock %}
-    {% block sw_condition_fields_value %}
+    {% block sw_condition_weight_of_cart_field_weight %}
         <sw-field type="number"
                   name="weight"
                   :step="0.01"

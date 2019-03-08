@@ -157,11 +157,6 @@ class MediaRepositoryDecorator implements EntityRepositoryInterface
 
     private function getRawIds(array $ids)
     {
-        return array_map(
-            function ($idArray) {
-                return $idArray['id'];
-            },
-            $ids
-        );
+        return array_column($ids, 'id');
     }
 }

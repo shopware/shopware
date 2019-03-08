@@ -114,6 +114,10 @@ export default {
             });
         },
 
+        handleFolderGridItemDelete() {
+            this.getSubFolders();
+        },
+
         handleMediaGridItemDelete() {
             const pages = this.page;
             this.page = 1;

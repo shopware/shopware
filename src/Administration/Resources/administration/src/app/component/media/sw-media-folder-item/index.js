@@ -38,7 +38,8 @@ export default {
         return {
             showSettings: false,
             showDissolveModal: false,
-            showMoveModal: false
+            showMoveModal: false,
+            showDeleteModal: false
         };
     },
 
@@ -154,6 +155,21 @@ export default {
 
         closeDissolveModal() {
             this.showDissolveModal = false;
+        },
+
+        openDeleteModal() {
+            this.showDeleteModal = true;
+        },
+
+        closeDeleteModal() {
+            this.showDeleteModal = false;
+        },
+
+        emitItemDeleted(deletePromise) {
+            this.closeDeleteModal();
+            deletePromise.then((ids) => {
+                this.$emit('sw-media-folder-item-delete', ids.folderIds);
+            });
         },
 
         onFolderDissolved(dissolvePromise) {

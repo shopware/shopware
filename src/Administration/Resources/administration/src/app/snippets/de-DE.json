@@ -104,26 +104,46 @@
       "labelUploading": "Wird hochgeladen..."
     },
     "sw-media-modal-delete": {
-      "titleModal": "Medien löschen",
-      "deleteMessage": "Möchtest Du \"{mediaName}\" wirklich löschen? | Möchtest Du diese {count} Medien wirklich löschen?",
+      "titleModal": {
+        "media": "Medien löschen",
+        "folder": "Ordner löschen",
+        "mediaAndFolder": "Ordner und Medien löschen"
+      },
+      "deleteMessage": {
+        "media": "Möchtest Du die Datei \"{name}\" wirklich löschen? | Möchtest Du diese {count} Dateien wirklich löschen?",
+        "folder": "Möchtest Du den Ordner \"{name}\" wirklich löschen?<br>Es werden auch alle Unterordner und Medien in diesem Ordner gelöscht. | Möchtest Du diese {count} Ordner wirklich löschen?<br>Es werden auch alle Unterordner und Medien in diesem Ordner gelöscht.",
+        "mediaAndFolder": "Möchtest Du {mediaCount} Dateien und {folderCount} Ordner wirklich löschen?<br>Es werden auch alle Unterordner und Dateien aus den Ordner gelöscht."
+
+      },
       "buttonDelete": "Löschen",
       "buttonCancel": "Abbrechen",
       "notification": {
         "successSingle": {
           "title": "Erfolg",
-          "message": "Datei \"{mediaName}\" erfolgreich gelöscht."
+          "message": {
+            "media": "Datei \"{name}\" erfolgreich gelöscht.",
+            "folder": "Ordner \"{name}\" erfolgreich gelöscht."
+          }
         },
         "errorSingle": {
           "title": "Fehler",
-          "message": "Fehler beim Löschen von \"{mediaName}\"."
+          "message": "Fehler beim Löschen von \"{name}\"."
         },
         "successOverall": {
           "title": "Erfolg",
-          "message": "Dateien erfolgreich gelöscht."
+          "message": {
+            "media": "Dateien erfolgreich gelöscht.",
+            "folder": "Ordner erfolgreich gelöscht.",
+            "mediaAndFolder": "Dateien und Ordner erfolgreich gelöscht."
+          }
         },
         "errorOverall": {
           "title": "Fehler",
-          "message": "Die Dateien konnten nicht gelöscht werden."
+          "message": {
+            "media": "Die Dateien konnten nicht gelöscht werden.",
+            "folder": "Die Ordner konnten nicht gelöscht werden.",
+            "mediaAndFolder": "Die Dateien und Ordner konnten nicht gelöscht werden."
+          }
         }
       }
     },

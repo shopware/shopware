@@ -100,7 +100,7 @@
                     <sw-media-sidebar
                         :items="selection"
                         :currentFolderId="null"
-                        @sw-media-sidebar-items-delete="refreshList"
+                        @sw-media-sidebar-items-delete="onItemsDeleted"
                         @sw-media-sidebar-folder-items-dissolved="onMediaFoldersDissolved"
                         @sw-media-sidebar-items-moved="refreshList"
                         @sw-media-item-selection-remove="onMediaUnselect">

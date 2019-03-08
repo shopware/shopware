@@ -93,6 +93,11 @@
             <argument type="service" id="messenger.bus.shopware"/>
         </service>
 
+        <service id="Shopware\Core\Content\Media\DataAbstractionLayer\MediaFolderRepositoryDecorator" decorates="media_folder.repository">
+            <argument type="service" id="Shopware\Core\Content\Media\DataAbstractionLayer\MediaFolderRepositoryDecorator.inner"/>
+            <argument type="service" id="media.repository"/>
+        </service>
+
         <!--File Services-->
         <service id="Shopware\Core\Content\Media\File\FileFetcher">
         </service>

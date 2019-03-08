@@ -91,6 +91,12 @@
                                         {{ $tc('global.sw-media-folder-item.labelContextMenuRename') }}
                                     </sw-context-menu-item>
                                 {% endblock %}
+
+                                {% block sw_media_folder_item_context_item_delete %}
+                                    <sw-context-menu-item class="sw-media-context-item__delete-folder-action" @click="openDeleteModal" variant="danger">
+                                        {{ $tc('global.sw-media-folder-item.labelContextMenuDelete') }}
+                                    </sw-context-menu-item>
+                                {% endblock %}
                             </div>
                         {% endblock %}
                     </template>
@@ -122,7 +128,16 @@
                 :itemsToMove="[item]"
                 @sw-media-modal-move-close="closeMoveModal"
                 @sw-media-modal-move-items-moved="onFolderMoved">
-        </sw-media-modal-move>
+            </sw-media-modal-move>
+        {% endblock %}
+
+        {% block sw_media_folder_delete_modal %}
+            <sw-media-modal-delete
+                v-if="showDeleteModal"
+                :itemsToDelete="[item]"
+                @sw-media-modal-delete-items-deleted="emitItemDeleted"
+                @sw-media-modal-delete-close="closeDeleteModal">
+            </sw-media-modal-delete>
         {% endblock %}
     </div>
 {% endblock %}

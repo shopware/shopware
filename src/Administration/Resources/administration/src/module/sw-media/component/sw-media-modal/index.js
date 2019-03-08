@@ -155,6 +155,10 @@ Component.register('sw-media-modal', {
             this.selection.splice(0, this.selection.length);
         },
 
+        onItemsDeleted(ids) {
+            this.onMediaFoldersDissolved(ids.folderIds);
+        },
+
         onMediaFoldersDissolved(folderIds) {
             if (!this.currentFolder) {
                 return;

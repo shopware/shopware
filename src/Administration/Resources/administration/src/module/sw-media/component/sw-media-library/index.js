@@ -240,9 +240,9 @@ Component.register('sw-media-library', {
         },
 
         fetchAssociatedFolders() {
-            this.parentFolder = null;
             if (this.folderId === null) {
                 this.currentFolder = null;
+                this.parentFolder = null;
                 return;
             }
 

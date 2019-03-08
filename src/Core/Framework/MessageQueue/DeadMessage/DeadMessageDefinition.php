@@ -11,6 +11,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Internal;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\WriteProtected;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IntField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\LongTextField;
@@ -19,6 +20,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\UpdatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\ScheduledTask\ScheduledTaskDefinition;
+use Shopware\Core\Framework\SourceContext;
 
 class DeadMessageDefinition extends EntityDefinition
 {
@@ -48,21 +50,21 @@ class DeadMessageDefinition extends EntityDefinition
     protected static function defineFields(): FieldCollection
     {
         return new FieldCollection([
-            (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
+            (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required(), new WriteProtected(SourceContext::ORIGIN_SYSTEM)),
 
-            (new LongTextField('original_message_class', 'originalMessageClass'))->setFlags(new Required()),
-            (new BlobField('serialized_original_message', 'serializedOriginalMessage'))->addFlags(new Internal()),
-            (new LongTextField('handler_class', 'handlerClass'))->setFlags(new Required()),
-            (new BoolField('encrypted', 'encrypted'))->setFlags(new Required()),
+            (new LongTextField('original_message_class', 'originalMessageClass'))->setFlags(new Required(), new WriteProtected(SourceContext::ORIGIN_SYSTEM)),
+            (new BlobField('serialized_original_message', 'serializedOriginalMessage'))->addFlags(new Required(), new Internal(), new WriteProtected(SourceContext::ORIGIN_SYSTEM)),
+            (new LongTextField('handler_class', 'handlerClass'))->setFlags(new Required(), new WriteProtected(SourceContext::ORIGIN_SYSTEM)),
+            (new BoolField('encrypted', 'encrypted'))->setFlags(new Required(), new WriteProtected(SourceContext::ORIGIN_SYSTEM)),
 
-            (new IntField('error_count', 'errorCount', 0))->setFlags(new Required()),
+            (new IntField('error_count', 'errorCount', 0))->setFlags(new Required(), new WriteProtected(SourceContext::ORIGIN_SYSTEM)),
 
-            (new DateField('next_execution_time', 'nextExecutionTime'))->setFlags(new Required()),
+            (new DateField('next_execution_time', 'nextExecutionTime'))->setFlags(new Required(), new WriteProtected(SourceContext::ORIGIN_SYSTEM)),
 
-            (new LongTextField('exception', 'exception'))->setFlags(new Required()),
-            (new LongTextField('exception_message', 'exceptionMessage'))->setFlags(new Required()),
-            (new LongTextField('exception_file', 'exceptionFile'))->setFlags(new Required()),
-            (new IntField('exception_line', 'exceptionLine'))->setFlags(new Required()),
+            (new LongTextField('exception', 'exception'))->setFlags(new Required(), new WriteProtected(SourceContext::ORIGIN_SYSTEM)),
+            (new LongTextField('exception_message', 'exceptionMessage'))->setFlags(new Required(), new WriteProtected(SourceContext::ORIGIN_SYSTEM)),
+            (new LongTextField('exception_file', 'exceptionFile'))->setFlags(new Required(), new WriteProtected(SourceContext::ORIGIN_SYSTEM)),
+            (new IntField('exception_line', 'exceptionLine'))->setFlags(new Required(), new WriteProtected(SourceContext::ORIGIN_SYSTEM)),
 
             new FkField('scheduled_task_id', 'scheduledTaskId', ScheduledTaskDefinition::class),
 

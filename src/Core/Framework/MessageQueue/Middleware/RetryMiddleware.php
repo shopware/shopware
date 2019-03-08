@@ -6,11 +6,11 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\MessageQueue\DeadMessage\DeadMessageEntity;
-use Shopware\Core\Framework\MessageQueue\DeadMessage\DeadMessageUpdater;
 use Shopware\Core\Framework\MessageQueue\Exception\MessageFailedException;
 use Shopware\Core\Framework\MessageQueue\Message\RetryMessage;
 use Shopware\Core\Framework\MessageQueue\Stamp\DecryptedStamp;
 use Shopware\Core\Framework\ScheduledTask\ScheduledTask;
+use Shopware\Core\Framework\SourceContext;
 use Shopware\Core\Framework\Struct\Uuid;
 use Symfony\Component\Messenger\Envelope;
 use Symfony\Component\Messenger\Middleware\MiddlewareInterface;
@@ -28,15 +28,9 @@ class RetryMiddleware implements MiddlewareInterface
      */
     private $context;
 
-    /**
-     * @var DeadMessageUpdater
-     */
-    private $deadMessageUpdater;
-
-    public function __construct(EntityRepositoryInterface $deadMessageRepository, DeadMessageUpdater $deadMessageUpdater)
+    public function __construct(EntityRepositoryInterface $deadMessageRepository)
     {
         $this->deadMessageRepository = $deadMessageRepository;
-        $this->deadMessageUpdater = $deadMessageUpdater;
         $this->context = Context::createDefaultContext();
     }
 
@@ -67,28 +61,30 @@ class RetryMiddleware implements MiddlewareInterface
 
     private function createDeadMessageFromEnvelope(Envelope $envelope, MessageFailedException $e): void
     {
-        $encrypted = count($envelope->all(DecryptedStamp::class)) > 0;
-        $scheduledTaskId = null;
-        if ($envelope->getMessage() instanceof ScheduledTask) {
-            $scheduledTaskId = $envelope->getMessage()->getTaskId();
-        }
+        $this->context->scope(SourceContext::ORIGIN_SYSTEM, function () use ($envelope, $e) {
+            $encrypted = count($envelope->all(DecryptedStamp::class)) > 0;
+            $scheduledTaskId = null;
+            if ($envelope->getMessage() instanceof ScheduledTask) {
+                $scheduledTaskId = $envelope->getMessage()->getTaskId();
+            }
 
-        $id = Uuid::uuid4()->getHex();
-        $this->deadMessageRepository->create([
-            [
-                'id' => $id,
-                'originalMessageClass' => get_class($envelope->getMessage()),
-                'handlerClass' => $e->getHandlerClass(),
-                'encrypted' => $encrypted,
-                'nextExecutionTime' => DeadMessageEntity::calculateNextExecutionTime(1),
-                'exception' => get_class($e->getPrevious()),
-                'exceptionMessage' => $e->getPrevious()->getMessage(),
-                'exceptionFile' => $e->getPrevious()->getFile(),
-                'exceptionLine' => $e->getPrevious()->getLine(),
-                'scheduledTaskId' => $scheduledTaskId,
-            ],
-        ], $this->context);
-        $this->deadMessageUpdater->updateOriginalMessage($id, $envelope->getMessage());
+            $id = Uuid::uuid4()->getHex();
+            $this->deadMessageRepository->create([
+                [
+                    'id' => $id,
+                    'originalMessageClass' => get_class($envelope->getMessage()),
+                    'serializedOriginalMessage' => serialize($envelope->getMessage()),
+                    'handlerClass' => $e->getHandlerClass(),
+                    'encrypted' => $encrypted,
+                    'nextExecutionTime' => DeadMessageEntity::calculateNextExecutionTime(1),
+                    'exception' => get_class($e->getPrevious()),
+                    'exceptionMessage' => $e->getPrevious()->getMessage(),
+                    'exceptionFile' => $e->getPrevious()->getFile(),
+                    'exceptionLine' => $e->getPrevious()->getLine(),
+                    'scheduledTaskId' => $scheduledTaskId,
+                ],
+            ], $this->context);
+        });
     }
 
     private function handleExistingDeadMessage(DeadMessageEntity $deadMessage, MessageFailedException $e): void
@@ -117,31 +113,35 @@ class RetryMiddleware implements MiddlewareInterface
 
     private function incrementErrorCount(DeadMessageEntity $deadMessage): void
     {
-        $this->deadMessageRepository->update([
-            [
-                'id' => $deadMessage->getId(),
-                'errorCount' => $deadMessage->getErrorCount() + 1,
-                'nextExecutionTime' => DeadMessageEntity::calculateNextExecutionTime($deadMessage->getErrorCount() + 1),
-            ],
-        ], $this->context);
+        $this->context->scope(SourceContext::ORIGIN_SYSTEM, function () use ($deadMessage) {
+            $this->deadMessageRepository->update([
+                [
+                    'id' => $deadMessage->getId(),
+                    'errorCount' => $deadMessage->getErrorCount() + 1,
+                    'nextExecutionTime' => DeadMessageEntity::calculateNextExecutionTime($deadMessage->getErrorCount() + 1),
+                ],
+            ], $this->context);
+        });
     }
 
     private function createDeadMessageFromExistingMessage(DeadMessageEntity $message, MessageFailedException $e): void
     {
-        $id = Uuid::uuid4()->getHex();
-        $this->deadMessageRepository->create([
-            [
-                'id' => $id,
-                'originalMessageClass' => $message->getOriginalMessageClass(),
-                'handlerClass' => $e->getHandlerClass(),
-                'encrypted' => $message->isEncrypted(),
-                'nextExecutionTime' => DeadMessageEntity::calculateNextExecutionTime(1),
-                'exception' => get_class($e->getPrevious()),
-                'exceptionMessage' => $e->getPrevious()->getMessage(),
-                'exceptionFile' => $e->getPrevious()->getFile(),
-                'exceptionLine' => $e->getPrevious()->getLine(),
-            ],
-        ], $this->context);
-        $this->deadMessageUpdater->updateOriginalMessage($id, $message->getOriginalMessage());
+        $this->context->scope(SourceContext::ORIGIN_SYSTEM, function () use ($message, $e) {
+            $id = Uuid::uuid4()->getHex();
+            $this->deadMessageRepository->create([
+                [
+                    'id' => $id,
+                    'originalMessageClass' => $message->getOriginalMessageClass(),
+                    'serializedOriginalMessage' => serialize($message->getOriginalMessage()),
+                    'handlerClass' => $e->getHandlerClass(),
+                    'encrypted' => $message->isEncrypted(),
+                    'nextExecutionTime' => DeadMessageEntity::calculateNextExecutionTime(1),
+                    'exception' => get_class($e->getPrevious()),
+                    'exceptionMessage' => $e->getPrevious()->getMessage(),
+                    'exceptionFile' => $e->getPrevious()->getFile(),
+                    'exceptionLine' => $e->getPrevious()->getLine(),
+                ],
+            ], $this->context);
+        });
     }
 }

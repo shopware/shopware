@@ -39,7 +39,6 @@
         <!--Middleware-->
         <service id="Shopware\Core\Framework\MessageQueue\Middleware\RetryMiddleware">
             <argument type="service" id="dead_message.repository"/>
-            <argument type="service" id="Shopware\Core\Framework\MessageQueue\DeadMessage\DeadMessageUpdater"/>
         </service>
 
         <!--Service-->
@@ -47,12 +46,6 @@
             <argument type="service" id="dead_message.repository"/>
             <argument type="service" id="messenger.bus.shopware"/>
             <argument type="service" id="encrypted.messenger.bus.shopware"/>
-        </service>
-
-        <service id="Shopware\Core\Framework\MessageQueue\DeadMessage\DeadMessageUpdater">
-            <argument type="service" id="Doctrine\DBAL\Connection"/>
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator"/>
-            <argument type="service" id="shopware.cache"/>
         </service>
 
         <!--EventSubscriber-->

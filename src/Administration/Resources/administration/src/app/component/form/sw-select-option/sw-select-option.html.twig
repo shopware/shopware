@@ -15,7 +15,7 @@
         {% block sw_select_option_item_icon_transition %}
             <transition name="sw-select-appear">
                 {% block sw_select_option_item_icon %}
-                    <sw-icon v-if="isInSelections(item)"
+                    <sw-icon v-if="isInSelections(item) && !selected || selected"
                              name="small-default-checkmark-line-medium"
                              size="16px">
                     </sw-icon>

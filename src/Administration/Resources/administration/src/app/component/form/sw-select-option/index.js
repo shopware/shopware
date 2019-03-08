@@ -21,6 +21,11 @@ export default {
             type: Boolean,
             required: false,
             default: false
+        },
+        selected: {
+            type: Boolean,
+            required: false,
+            default: false
         }
     },
 

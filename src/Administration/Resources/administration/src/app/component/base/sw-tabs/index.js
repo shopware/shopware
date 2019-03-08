@@ -64,11 +64,11 @@ export default {
     },
 
     created() {
-        this.onCreated();
+        this.createdComponent();
     },
 
     mounted() {
-        this.onMounted();
+        this.mountedComponent();
     },
 
     watch: {
@@ -139,7 +139,7 @@ export default {
     },
 
     methods: {
-        onMounted() {
+        mountedComponent() {
             const tabContent = this.$refs.swTabContent;
 
             tabContent.addEventListener('scroll', util.throttle(() => {
@@ -163,7 +163,7 @@ export default {
             });
         },
 
-        onCreated() {
+        createdComponent() {
             this.updateActiveItem();
         },
 

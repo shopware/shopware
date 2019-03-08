@@ -178,7 +178,7 @@ class Kernel extends HttpKernel
         $routes->import($confDir . '/{routes}/' . $this->environment . '/**/*' . self::CONFIG_EXTS, '/', 'glob');
         $routes->import($confDir . '/{routes}' . self::CONFIG_EXTS, '/', 'glob');
 
-        $this->addPluginRoutes($routes);
+        $this->addBundleRoutes($routes);
         $this->addApiRoutes($routes);
     }
 
@@ -289,10 +289,12 @@ class Kernel extends HttpKernel
         $routes->import('.', null, 'api');
     }
 
-    private function addPluginRoutes(RouteCollectionBuilder $routes): void
+    private function addBundleRoutes(RouteCollectionBuilder $routes): void
     {
-        foreach (self::$plugins->getActives() as $plugin) {
-            $plugin->configureRoutes($routes, (string) $this->environment);
+        foreach ($this->getBundles() as $bundle) {
+            if ($bundle instanceof \Shopware\Core\Framework\Bundle) {
+                $bundle->configureRoutes($routes, (string) $this->environment);
+            }
         }
     }
 

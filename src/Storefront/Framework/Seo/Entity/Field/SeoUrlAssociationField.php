@@ -3,11 +3,10 @@
 namespace Shopware\Storefront\Framework\Seo\Entity\Field;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Extension;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\WriteProtected;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
 use Shopware\Storefront\Framework\Seo\SeoUrl\SeoUrlDefinition;
 
-class CanonicalUrlAssociationField extends ManyToOneAssociationField
+class SeoUrlAssociationField extends OneToManyAssociationField
 {
     /**
      * @var string
@@ -16,12 +15,11 @@ class CanonicalUrlAssociationField extends ManyToOneAssociationField
 
     public function __construct(
         string $propertyName,
-        string $storageName,
-        bool $loadInBasic,
-        string $routeName
+        string $routeName,
+        string $localField = 'id'
     ) {
-        parent::__construct($propertyName, $storageName, SeoUrlDefinition::class, $loadInBasic, 'foreign_key');
-        $this->addFlags(new WriteProtected(), new Extension());
+        parent::__construct($propertyName, SeoUrlDefinition::class, 'foreign_key', false, $localField);
+        $this->addFlags(new Extension());
         $this->routeName = $routeName;
     }
 

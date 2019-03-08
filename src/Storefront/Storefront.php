@@ -2,15 +2,15 @@
 
 namespace Shopware\Storefront;
 
+use Shopware\Core\Framework\Bundle;
 use Shopware\Storefront\DependencyInjection\DisableTemplateCachePass;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
-use Symfony\Component\HttpKernel\Bundle\Bundle;
 
 class Storefront extends Bundle
 {
-    protected $name = 'Storefront';
+    protected $name = 'ShopwareStorefrontBundle';
 
     /**
      * {@inheritdoc}
@@ -25,6 +25,8 @@ class Storefront extends Bundle
         if ($container->getParameter('kernel.debug')) {
             $loader->load('profiling.xml');
         }
+
+        $loader->load('seo.xml');
 
         $container->addCompilerPass(new DisableTemplateCachePass());
     }

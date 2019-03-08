@@ -11,30 +11,6 @@
             <argument type="service" id="request_stack" />
         </service>
 
-        <service id="Shopware\Storefront\Framework\Seo\DbalIndexing\SeoUrl\DetailPageSeoUrlIndexer">
-            <argument type="service" id="Doctrine\DBAL\Connection"/>
-            <argument type="service" id="slugify"/>
-            <argument type="service" id="router"/>
-            <argument type="service" id="product.repository"/>
-            <argument type="service" id="sales_channel.repository"/>
-            <argument type="service" id="event_dispatcher"/>
-            <argument type="service" id="Shopware\Core\Content\Product\Util\EventIdExtractor"/>
-            <argument type="service" id="Shopware\Core\Checkout\Context\CheckoutContextFactory"/>
-            <!--<tag name="shopware.dbal_indexing.indexer"/>-->
-        </service>
-
-        <service id="Shopware\Storefront\Framework\Seo\DbalIndexing\SeoUrl\ListingPageSeoUrlIndexer">
-            <argument type="service" id="Doctrine\DBAL\Connection"/>
-            <argument type="service" id="slugify"/>
-            <argument type="service" id="router"/>
-            <argument type="service" id="category.repository"/>
-            <argument type="service" id="sales_channel.repository"/>
-            <argument type="service" id="event_dispatcher"/>
-            <argument type="service" id="Shopware\Core\Content\Product\Util\EventIdExtractor"/>
-            <argument type="service" id="Shopware\Core\Checkout\Context\CheckoutContextFactory"/>
-            <!--<tag name="shopware.dbal_indexing.indexer"/>-->
-        </service>
-
         <service id="Shopware\Storefront\Framework\Theme\ThemeDefinition" >
             <tag name="shopware.entity.definition" entity="theme" />
         </service>
@@ -50,39 +26,9 @@
             <argument type="service" id="Shopware\Storefront\PageController\ErrorPageController"/>
         </service>
 
-        <service id="Shopware\Storefront\Framework\Seo\Product\UrlGeneratorExtension">
-            <argument type="service" id="request_stack"/>
-            <tag name="kernel.event_subscriber"/>
-            <tag name="shopware.entity.extension"/>
-        </service>
-
-        <service id="Shopware\Storefront\Framework\Seo\Product\CanonicalUrlExtension">
-            <tag name="shopware.entity.extension"/>
-        </service>
-
-        <service id="Shopware\Storefront\Framework\Seo\Category\CanonicalUrlExtension">
-            <tag name="shopware.entity.extension"/>
-        </service>
-
-        <service id="Shopware\Storefront\Framework\Seo\SeoUrlDefinition" >
-            <tag name="shopware.entity.definition" entity="seo_url" />
-        </service>
-
         <service id="Shopware\Storefront\Framework\Command\SalesChannelCreateStorefrontCommand">
             <argument type="service" id="sales_channel.repository"/>
             <tag name="console.command"/>
-        </service>
-
-        <service id="Shopware\Storefront\Framework\Seo\SalesChannelExtension">
-            <tag name="shopware.entity.extension"/>
-        </service>
-        <service id="Shopware\Storefront\Framework\Theme\SalesChannelExtension">
-            <tag name="shopware.entity.extension"/>
-        </service>
-
-        <service id="Shopware\Storefront\Framework\Seo\Entity\FieldHandler\CanonicalUrlFieldSerializer">
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Write\WriteCommandExtractor" />
-            <tag name="shopware.write_read_field_handler"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Context\CheckoutContextValueResolver">
@@ -114,10 +60,6 @@
         <service id="Shopware\Storefront\Pagelet\Listing\Subscriber\SearchTermSubscriber">
             <tag name="kernel.event_subscriber"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\SearchBuilder"/>
-        </service>
-
-        <service id="Shopware\Storefront\Framework\Seo\Entity\Dbal\CanonicalUrlAssociationFieldResolver">
-            <tag name="shopware.entity.field_resolver" priority="200"/>
         </service>
 
         <service id="Shopware\Storefront\Page\Navigation\NavigationPageLoader">

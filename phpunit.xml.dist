@@ -23,7 +23,11 @@
 
     <testsuites>
         <testsuite name="administration">
-            <directory>src/Administration/Test</directory>
+            <directory>src/Administration</directory>
+        </testsuite>
+
+        <testsuite name="storefront">
+            <directory>src/Storefront</directory>
         </testsuite>
 
         <testsuite name="checkout">
@@ -34,37 +38,9 @@
             <directory>src/Core/Content</directory>
         </testsuite>
 
-
-        <testsuite name="dal">
-            <directory>src/Core/Framework/Test/DataAbstractionLayer/</directory>
-        </testsuite>
-
-        <testsuite name="api">
-            <directory>src/Core/Framework/Test/Api/</directory>
-        </testsuite>
-
         <testsuite name="framework">
-            <directory>src/Core/Framework/Test/Attribute</directory>
-            <directory>src/Core/Framework/Test/Command</directory>
-            <directory>src/Core/Framework/Test/Event</directory>
-            <directory>src/Core/Framework/Test/FeatureFlag</directory>
-            <directory>src/Core/Framework/Test/MessageQueue</directory>
-            <directory>src/Core/Framework/Test/Migration</directory>
-            <directory>src/Core/Framework/Test/Plugin</directory>
-            <directory>src/Core/Framework/Test/Routing</directory>
-            <directory>src/Core/Framework/Test/Rule</directory>
-            <directory>src/Core/Framework/Test/Serializer</directory>
-            <directory>src/Core/Framework/Test/Snippet</directory>
-            <directory>src/Core/Framework/Test/ScheduledTask</directory>
-            <directory>src/Core/Framework/Test/StateMachine</directory>
-            <directory>src/Core/Framework/Test/Struct</directory>
-            <directory>src/Core/Framework/Test/TestCaseBase</directory>
-            <directory>src/Core/Framework/Test/Translation</directory>
-
-            <file>src/Core/Framework/Test/ClassNamespaceTest.php</file>
-            <file>src/Core/Framework/Test/ServiceDefinitionTest.php</file>
+            <directory>src/Core/Framework</directory>
         </testsuite>
-
 
         <testsuite name="migration">
             <directory>src/Core/Migration</directory>
@@ -72,11 +48,6 @@
 
         <testsuite name="system">
             <directory>src/Core/System</directory>
-        </testsuite>
-
-
-        <testsuite name="storefront">
-            <directory>src/Storefront/Test</directory>
         </testsuite>
     </testsuites>
 

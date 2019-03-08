@@ -15,7 +15,8 @@ class RuleBuilderPageObject extends GeneralPageObject {
                 subConditionContainer: '.container-condition-level__is--even',
                 ruleFieldCondition: '.field--condition',
                 orSpacer: '.condition-content__spacer--or',
-                andSpacer: '.condition-content__spacer--and'
+                andSpacer: '.condition-content__spacer--and',
+                baseCondition: '.sw-condition-base'
             }
         };
     }

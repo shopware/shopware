@@ -180,7 +180,6 @@ export default {
             }
 
             condition.delete();
-            this.condition[this.config.childName].splice(this.condition[this.config.childName].indexOf(condition), 1);
 
             if (this.condition[this.config.childName].length <= 0) {
                 this.$nextTick(() => {

@@ -20,7 +20,12 @@ Component.register('sw-settings-rule-detail', {
             moduleTypes: null,
             nestedConditions: {},
             moduleTypeStore: new LocalStore(this.ruleConditionDataProviderService.getModuleTypes((moduleType) => {
+                if (moduleType.label) {
+                    return;
+                }
+
                 moduleType.name = this.$tc(moduleType.name);
+                moduleType.label = moduleType.name;
             }), 'id'),
             treeConfig: {
                 conditionStore: new LocalStore(this.ruleConditionDataProviderService.getConditions((condition) => {

@@ -224,6 +224,7 @@ Component.register('sw-category-detail', {
             this.isLoading = true;
             return this.category.save().then(() => {
                 categoryView.getList();
+                categoryView.onResetAssociations();
                 this.isLoading = false;
                 this.createNotificationSuccess({
                     title: titleSaveSuccess,

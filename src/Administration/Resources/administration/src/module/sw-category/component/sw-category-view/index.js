@@ -96,6 +96,10 @@ Component.register('sw-category-view', {
             return newProducts;
         },
 
+        onResetAssociations() {
+            this.$refs.productAssignmentSelect.resetAssociations();
+        },
+
         onUploadAdded({ uploadTag }) {
             this.$emit('sw-category-view-on-upload-media', uploadTag);
         },
@@ -125,6 +129,7 @@ Component.register('sw-category-view', {
         },
 
         addProduct(productId) {
+            this.$refs.productAssignmentSelect.addToAssociations(productId);
             const product = this.productStore.getById(productId);
 
             if (!this.categoryProductStore.hasId(productId)) {
@@ -156,6 +161,8 @@ Component.register('sw-category-view', {
         },
 
         onRemoveProduct(product, ignoreUndo = false) {
+            this.$refs.productAssignmentSelect.removeFromAssociations(product.id);
+
             if (product.isDeleted && !ignoreUndo) {
                 product.isDeleted = false;
                 return;

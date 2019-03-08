@@ -64,6 +64,9 @@
                 {% block sw_category_view_products_search %}
                     <div class="sw-category-view__product-search">
                         <sw-category-select
+                            ref="productAssignmentSelect"
+                            :categoryId="category.id"
+                            :assignedProducts="products"
                             :hasPreview="false"
                             id="productSelection"
                             itemValueKey="id"

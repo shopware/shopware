@@ -1,7 +1,9 @@
 <div class="sw-cms-toolbar">
     <div class="sw-cms-toolbar__back-btn">
         <slot name="back-btn">
-            <sw-icon name="default-arrow-head-left"></sw-icon>
+            <router-link class="sw-cms-toolbar__back-btn-link" :to="{ name: 'sw.dashboard.index' }">
+                <sw-icon name="default-action-log-out"></sw-icon>
+            </router-link>
         </slot>
     </div>
 

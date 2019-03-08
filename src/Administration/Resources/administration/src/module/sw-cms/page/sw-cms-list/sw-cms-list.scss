@@ -8,6 +8,11 @@
         display: grid;
         grid-template-columns: 300px 1fr;
         grid-column-gap: 30px;
+
+        .sw-search-bar {
+            background: #FAFBFC;
+            z-index:9;
+        }
     }
 
     .sw-cms-list__sidebar {
@@ -31,11 +36,19 @@
 
         .actions__sorting {
             display: grid;
-            grid-template-columns: 120px 1fr;
-            grid-column-gap: 10px;
-            align-items: center;
-            align-content: center;
-            justify-items: right;
+
+            .sw-field {
+                display: grid;
+                width: auto;
+                grid-template-columns: auto auto;
+                align-items: center;
+                margin-bottom: 0;
+
+                label {
+                    margin: 8px 10px 8px 0;
+                    text-align: right;
+                }
+            }
         }
     }
 

@@ -13,7 +13,9 @@
 
         .sw-icon {
             color: $color-steam-cloud;
+            transform: rotate(180deg);
         }
+
     }
 
     .sw-cms-toolbar__title h2 {

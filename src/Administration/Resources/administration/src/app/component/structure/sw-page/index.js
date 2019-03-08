@@ -116,6 +116,10 @@ export default {
                 'border-bottom-color': this.pageColor,
                 'padding-right': this.pageOffset
             };
+        },
+
+        additionalEventListeners() {
+            return this.$listeners;
         }
     },
 

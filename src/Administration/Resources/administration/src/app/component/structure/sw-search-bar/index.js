@@ -34,6 +34,10 @@ export default {
         entityService: {
             type: Object,
             required: false
+        },
+        showTag: {
+            type: Boolean,
+            default: true
         }
     },
 

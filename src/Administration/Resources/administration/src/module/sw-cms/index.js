@@ -6,6 +6,9 @@ import './component';
 import './page/sw-cms-list';
 import './page/sw-cms-detail';
 
+import deDE from './snippet/de_DE.json';
+import enGB from './snippet/en_GB.json';
+
 Module.register('sw-cms', {
     flag: NEXT134,
     type: 'core',
@@ -13,6 +16,11 @@ Module.register('sw-cms', {
     description: 'The module for creating content.',
     color: '#ff68b4',
     icon: 'default-object-marketing',
+
+    snippets: {
+        'de-DE': deDE,
+        'en-GB': enGB
+    },
 
     routes: {
         index: {

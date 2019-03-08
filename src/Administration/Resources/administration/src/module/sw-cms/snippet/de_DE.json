@@ -1,0 +1,21 @@
+{
+    "sw-cms": {
+        "general": {
+            "placeholderSearchBar": "Suche nach einem Layout",
+            "mainMenuItemGeneral": "CMS",
+            "greeting": "Willkommen",
+            "createNewLayout": "Neues Layout anlegen"
+        },
+        "sorting": {
+            "labelSort": "Sortieren nach:",
+            "labelSortByCreatedAsc": "Erstellungsdatum aufsteigend",
+            "labelSortByCreatedDsc": "Erstellungsdatum absteigend",
+            "labelSortByUpdatedAsc": "Bearbeitungsdatum, aufsteigend",
+            "labelSortByUpdatedDsc": "Bearbeitungsdatum, absteigend",
+            "labelSortByAllPages": "Alle Typen",
+            "labelSortByShopPages": "Shop Seiten",
+            "labelSortByLandingPages": "Landing Pages",
+            "labelSortByBlogArticles": "Blog Artikel"
+        }
+    }
+}

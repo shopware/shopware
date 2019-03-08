@@ -9,34 +9,20 @@ class AccessTokenStruct extends Struct
     /**
      * @var string
      */
-    private $token;
+    protected $token;
 
     /**
-     * @var \DateTime
+     * @var \DateTimeInterface
      */
-    private $expirationDate;
-
-    public function __construct(string $token, \DateTime $expirationDate)
-    {
-        $this->token = $token;
-        $this->expirationDate = $expirationDate;
-    }
+    protected $expirationDate;
 
     public function getToken(): string
     {
         return $this->token;
     }
 
-    public function getExpirationDate(): \DateTime
+    public function getExpirationDate(): \DateTimeInterface
     {
         return $this->expirationDate;
-    }
-
-    public function toArray()
-    {
-        return [
-            'token' => $this->getToken(),
-            'expirationDate' => $this->getExpirationDate()->format(DATE_ATOM),
-        ];
     }
 }

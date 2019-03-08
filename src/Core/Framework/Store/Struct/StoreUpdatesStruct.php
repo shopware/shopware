@@ -9,55 +9,25 @@ class StoreUpdatesStruct extends Struct
     /**
      * @var string
      */
-    private $code;
+    protected $name;
+
     /**
      * @var string
      */
-    private $highestVersion;
-    /**
-     * @var int
-     */
-    private $id;
+    protected $iconPath;
+
     /**
      * @var string
      */
-    private $name;
+    protected $version;
 
-    public function __construct(string $code, string $highestVersion, int $id, string $name)
-    {
-        $this->code = $code;
-        $this->highestVersion = $highestVersion;
-        $this->id = $id;
-        $this->name = $name;
-    }
+    /**
+     * @var string
+     */
+    protected $changelog;
 
-    public function getCode(): string
-    {
-        return $this->code;
-    }
-
-    public function getHighestVersion(): string
-    {
-        return $this->highestVersion;
-    }
-
-    public function getId(): int
-    {
-        return $this->id;
-    }
-
-    public function getName(): string
-    {
-        return $this->name;
-    }
-
-    public function jsonSerialize(): array
-    {
-        return [
-            'code' => $this->getCode(),
-            'highestVersion' => $this->getHighestVersion(),
-            'id' => $this->getId(),
-            'name' => $this->getName(),
-        ];
-    }
+    /**
+     * @var \DateTimeInterface
+     */
+    protected $releaseDate;
 }

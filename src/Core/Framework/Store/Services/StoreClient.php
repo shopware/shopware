@@ -7,9 +7,12 @@ use Psr\Http\Message\ResponseInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Framework;
 use Shopware\Core\Framework\Plugin\PluginCollection;
 use Shopware\Core\Framework\Plugin\PluginEntity;
+use Shopware\Core\Framework\Store\Exception\StoreSignatureValidationException;
 use Shopware\Core\Framework\Store\Struct\AccessTokenStruct;
+use Shopware\Core\Framework\Store\Struct\PluginDownloadDataStruct;
 use Shopware\Core\Framework\Store\Struct\StoreLicenseStruct;
 use Shopware\Core\Framework\Store\Struct\StoreLicenseSubscriptionStruct;
 use Shopware\Core\Framework\Store\Struct\StoreLicenseTypeStruct;
@@ -32,17 +35,11 @@ final class StoreClient
      */
     private $pluginRepo;
 
-    /**
-     * @var ?string
-     */
-    private $host;
-
-    public function __construct(Client $client, OpenSSLVerifier $openSSLVerifier, EntityRepositoryInterface $pluginRepo, ?string $host)
+    public function __construct(Client $client, OpenSSLVerifier $openSSLVerifier, EntityRepositoryInterface $pluginRepo)
     {
         $this->client = $client;
         $this->openSSLVerifier = $openSSLVerifier;
         $this->pluginRepo = $pluginRepo;
-        $this->host = $host;
     }
 
     public function loginWithShopwareId(string $shopwareId, string $password): AccessTokenStruct
@@ -54,18 +51,18 @@ final class StoreClient
                     'shopwareId' => $shopwareId,
                     'password' => $password,
                 ]),
-                'query' => $this->getDefaultQueryParameters(),
-                'headers' => [
-                    'Content-type' => 'application/json',
-                    'ACCEPT' => ['application/json'],
-                ],
+                'query' => array_merge(
+                    $this->client->getConfig('query'),
+                    $this->getDefaultQueryParameters()
+                ),
             ]
         );
         $this->verifyResponseSignature($response);
 
         $data = json_decode($response->getBody()->getContents(), true);
 
-        $accessTokenStruct = new AccessTokenStruct($data['token'], new \DateTime($data['expirationDate']));
+        $accessTokenStruct = new AccessTokenStruct();
+        $accessTokenStruct->assign($data);
 
         return $accessTokenStruct;
     }
@@ -76,10 +73,6 @@ final class StoreClient
             '/accesstokens/' . $token,
             [
                 'query' => $this->getDefaultQueryParameters(),
-                'headers' => [
-                    'Content-type' => 'application/json',
-                    'ACCEPT' => ['application/json'],
-                ],
             ]
         );
         $this->verifyResponseSignature($response);
@@ -88,21 +81,21 @@ final class StoreClient
     }
 
     /**
-     * @throws \Exception
-     *
-     * @return array|StoreLicenseStruct[]
+     * @return StoreLicenseStruct[]
      */
     public function getLicenseList(string $token, Context $context): array
     {
         $response = $this->client->get(
             '/swplatform/pluginlicenses',
             [
-                'query' => $this->getDefaultQueryParameters(),
-                'headers' => [
-                    'X-Shopware-Token' => $token,
-                    'Content-type' => 'application/json',
-                    'ACCEPT' => ['application/vnd.api+json,application/json'],
-                ],
+                'query' => array_merge(
+                    $this->client->getConfig('query'),
+                    $this->getDefaultQueryParameters()
+                ),
+                'headers' => array_merge(
+                    $this->client->getConfig('headers'),
+                    ['X-Shopware-Token' => $token]
+                ),
             ]
         );
         $this->verifyResponseSignature($response);
@@ -116,30 +109,33 @@ final class StoreClient
 
         /** @var PluginEntity $plugin */
         foreach ($pluginCollection as $plugin) {
-            $installedPlugins[] = $plugin->getName();
+            $installedPlugins[$plugin->getName()] = $plugin->getVersion();
         }
 
         foreach ($data['data'] as $license) {
             $licenseStruct = new StoreLicenseStruct();
-            $licenseStruct->setId($license['id']);
-            $licenseStruct->setName($license['name']);
-            $licenseStruct->setTechnicalPluginName($license['technicalPluginName']);
-            $licenseStruct->setCreationDate(new \DateTime($license['creationDate']));
-            if (isset($license['expirationDate'])) {
-                $licenseStruct->setExpirationDate(new \DateTime($license['expirationDate']));
-            }
+            $licenseStruct->assign($license);
+
+            $licenseStruct->setInstalled(array_key_exists($licenseStruct->getTechnicalPluginName(), $installedPlugins));
             if (isset($license['availableVersion'])) {
-                $licenseStruct->setAvailableVersion($license['availableVersion']);
+                if ($licenseStruct->getInstalled()) {
+                    $installedVersion = $installedPlugins[$licenseStruct->getTechnicalPluginName()];
+
+                    $licenseStruct->setUpdateAvailable(version_compare($installedVersion, $licenseStruct->getAvailableVersion()) === -1);
+                } else {
+                    $licenseStruct->setUpdateAvailable(false);
+                }
             }
             if (isset($license['type']['name'])) {
-                $type = new StoreLicenseTypeStruct($license['type']['name']);
+                $type = new StoreLicenseTypeStruct();
+                $type->assign($license['type']);
                 $licenseStruct->setType($type);
             }
             if (isset($license['subscription']['expirationDate'])) {
-                $subscription = new StoreLicenseSubscriptionStruct(new \DateTime($license['subscription']['expirationDate']));
+                $subscription = new StoreLicenseSubscriptionStruct();
+                $subscription->assign($license['subscription']);
                 $licenseStruct->setSubscription($subscription);
             }
-            $licenseStruct->setInstalled(in_array($licenseStruct->getTechnicalPluginName(), $installedPlugins, true));
 
             $licenseList[] = $licenseStruct;
         }
@@ -147,6 +143,9 @@ final class StoreClient
         return $licenseList;
     }
 
+    /**
+     * @return StoreUpdatesStruct[]
+     */
     public function getUpdatesList(PluginCollection $pluginCollection): array
     {
         $pluginArray = [];
@@ -165,14 +164,13 @@ final class StoreClient
         $response = $this->client->post(
             '/swplatform/pluginupdates',
             [
-                'query' => $this->getDefaultQueryParameters(),
+                'query' => array_merge(
+                    $this->client->getConfig('query'),
+                    $this->getDefaultQueryParameters()
+                ),
                 'body' => \json_encode([
                     'plugins' => $pluginArray,
                 ]),
-                'headers' => [
-                    'Content-type' => 'application/json',
-                    'ACCEPT' => ['application/vnd.api+json,application/json'],
-                ],
             ]
         );
         $this->verifyResponseSignature($response);
@@ -181,38 +179,43 @@ final class StoreClient
 
         $updateList = [];
         foreach ($data['data'] as $update) {
-            $updateList[] = new StoreUpdatesStruct($update['name'], $update['version'], $update['changelog'], new \DateTime($update['releaseDate']));
+            $updateStruct = new StoreUpdatesStruct();
+            $updateStruct->assign($update);
+            $updateList[] = $updateStruct;
         }
 
         return $updateList;
     }
 
-    public function getDownloadDataForPlugin(string $pluginName, string $token): array
+    public function getDownloadDataForPlugin(string $pluginName, string $token): PluginDownloadDataStruct
     {
         $response = $this->client->get(
             '/swplatform/pluginfiles/' . $pluginName,
             [
-                'query' => $this->getDefaultQueryParameters(),
-                'headers' => [
-                    'X-Shopware-Token' => $token,
-                    'Content-type' => 'application/json',
-                    'ACCEPT' => ['application/vnd.api+json,application/json'],
-                ],
+                'query' => array_merge(
+                    $this->client->getConfig('query'),
+                    $this->getDefaultQueryParameters()
+                ),
+                'headers' => array_merge(
+                    $this->client->getConfig('headers'),
+                    ['X-Shopware-Token' => $token]
+                ),
             ]
         );
         $this->verifyResponseSignature($response);
 
+        $dataStruct = new PluginDownloadDataStruct();
         $data = json_decode($response->getBody()->getContents(), true);
+        $dataStruct->assign($data);
 
-        return $data;
+        return $dataStruct;
     }
 
     private function getDefaultQueryParameters(): array
     {
         return [
-            'shopwareVersion' => '6.0.0',
+            'shopwareVersion' => Framework::VERSION,
             'language' => 'de_DE',
-            'domain' => $this->host,
         ];
     }
 
@@ -222,7 +225,7 @@ final class StoreClient
         $signature = $response->getHeader($signatureHeaderName)[0];
 
         if (empty($signature)) {
-            throw new \RuntimeException(sprintf('Signature not found in header "%s"', $signatureHeaderName));
+            throw new StoreSignatureValidationException(sprintf('Signature not found in header "%s"', $signatureHeaderName));
         }
 
         if (!$this->openSSLVerifier->isSystemSupported()) {
@@ -235,6 +238,6 @@ final class StoreClient
             return;
         }
 
-        throw new \RuntimeException('Signature not valid');
+        throw new StoreSignatureValidationException('Signature not valid');
     }
 }

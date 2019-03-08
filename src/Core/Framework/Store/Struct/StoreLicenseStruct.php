@@ -9,169 +9,81 @@ class StoreLicenseStruct extends Struct
     /**
      * @var int
      */
-    private $id;
+    protected $id;
 
     /**
      * @var string
      */
-    private $name;
+    protected $name;
 
     /**
      * @var string
      */
-    private $technicalPluginName;
+    protected $producer;
 
     /**
-     * @var \DateTime
+     * @var string
      */
-    private $creationDate;
+    protected $technicalPluginName;
 
     /**
-     * @var \DateTime
+     * @var \DateTimeInterface
      */
-    private $expirationDate;
+    protected $creationDate;
+
+    /**
+     * @var \DateTimeInterface
+     */
+    protected $expirationDate;
 
     /**
      * @var StoreLicenseSubscriptionStruct|null
      */
-    private $subscription;
+    protected $subscription;
 
     /**
      * @var StoreLicenseTypeStruct
      */
-    private $type;
+    protected $type;
 
     /**
      * @var string
      */
-    private $availableVersion;
+    protected $availableVersion;
 
     /**
      * @var bool
      */
-    private $installed;
-
-    public function getId(): int
-    {
-        return $this->id;
-    }
+    protected $installed;
 
     /**
-     * @return $this
+     * @var string
      */
-    public function setId(int $id): self
-    {
-        $this->id = $id;
-
-        return $this;
-    }
-
-    public function getName(): string
-    {
-        return $this->name;
-    }
+    protected $iconPath;
 
     /**
-     * @return $this
+     * @var bool
      */
-    public function setName(string $name): self
-    {
-        $this->name = $name;
-
-        return $this;
-    }
+    protected $updateAvailable;
 
     public function getTechnicalPluginName(): string
     {
         return $this->technicalPluginName;
     }
 
-    /**
-     * @return $this
-     */
-    public function setTechnicalPluginName(string $technicalPluginName): self
-    {
-        $this->technicalPluginName = $technicalPluginName;
-
-        return $this;
-    }
-
-    public function getCreationDate(): \DateTime
-    {
-        return $this->creationDate;
-    }
-
-    /**
-     * @return $this
-     */
-    public function setCreationDate(\DateTime $creationDate): self
-    {
-        $this->creationDate = $creationDate;
-
-        return $this;
-    }
-
-    /**
-     * @return \DateTime
-     */
-    public function getExpirationDate(): ?\DateTime
-    {
-        return $this->expirationDate;
-    }
-
-    /**
-     * @return $this
-     */
-    public function setExpirationDate(\DateTime $expirationDate): self
-    {
-        $this->expirationDate = $expirationDate;
-
-        return $this;
-    }
-
-    public function getSubscription(): ?StoreLicenseSubscriptionStruct
-    {
-        return $this->subscription;
-    }
-
-    /**
-     * @return $this
-     */
-    public function setSubscription(?StoreLicenseSubscriptionStruct $subscription = null): self
+    public function setSubscription(?StoreLicenseSubscriptionStruct $subscription = null): void
     {
         $this->subscription = $subscription;
-
-        return $this;
     }
 
-    public function getType(): StoreLicenseTypeStruct
-    {
-        return $this->type;
-    }
-
-    /**
-     * @return $this
-     */
-    public function setType(StoreLicenseTypeStruct $type): self
+    public function setType(StoreLicenseTypeStruct $type): void
     {
         $this->type = $type;
-
-        return $this;
     }
 
     public function getAvailableVersion(): string
     {
         return $this->availableVersion;
-    }
-
-    /**
-     * @return $this
-     */
-    public function setAvailableVersion(string $availableVersion): self
-    {
-        $this->availableVersion = $availableVersion;
-
-        return $this;
     }
 
     public function getInstalled(): bool
@@ -184,17 +96,8 @@ class StoreLicenseStruct extends Struct
         $this->installed = $installed;
     }
 
-    public function jsonSerialize(): array
+    public function setUpdateAvailable(bool $updateAvailable): void
     {
-        return [
-            'id' => $this->getId(),
-            'name' => $this->getName(),
-            'creationDate' => $this->getCreationDate()->format(DATE_ATOM),
-            'expirationDate' => $this->getExpirationDate() !== null ? $this->getExpirationDate()->format(DATE_ATOM) : null,
-            'technicalPluginName' => $this->getTechnicalPluginName(),
-            'type' => $this->getType()->toArray(),
-            'subscription' => $this->getSubscription() !== null ? $this->getSubscription()->toArray() : null,
-            'installed' => $this->getInstalled(),
-        ];
+        $this->updateAvailable = $updateAvailable;
     }
 }

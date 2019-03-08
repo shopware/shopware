@@ -2,6 +2,8 @@
 
 namespace Shopware\Core\Framework\Store\Services;
 
+use Shopware\Core\Framework\Store\Exception\StoreSignatureValidationException;
+
 class OpenSSLVerifier
 {
     /**
@@ -17,7 +19,7 @@ class OpenSSLVerifier
     public function __construct(string $publicKey)
     {
         if (!is_readable($publicKey)) {
-            throw new \InvalidArgumentException(sprintf('Public keyfile "%s" not readable', $publicKey));
+            throw new StoreSignatureValidationException(sprintf('Public keyfile "%s" not readable', $publicKey));
         }
 
         $this->publicKeyPath = $publicKey;
@@ -28,7 +30,7 @@ class OpenSSLVerifier
         return function_exists('openssl_verify');
     }
 
-    public function isValid($message, $signature): bool
+    public function isValid(string $message, string $signature): bool
     {
         $pubkeyid = $this->getKeyResource();
 
@@ -45,7 +47,7 @@ class OpenSSLVerifier
         }
         while ($errors[] = openssl_error_string()) {
         }
-        throw new \RuntimeException(sprintf("Error during private key read: \n%s", implode("\n", $errors)));
+        throw new StoreSignatureValidationException(sprintf("Error during private key read: \n%s", implode("\n", $errors)));
     }
 
     private function getKeyResource()
@@ -56,10 +58,12 @@ class OpenSSLVerifier
 
         $publicKey = trim(file_get_contents($this->publicKeyPath));
 
-        if (false === $this->keyResource = openssl_pkey_get_public($publicKey)) {
+        $this->keyResource = openssl_pkey_get_public($publicKey);
+
+        if ($this->keyResource === false) {
             while ($errors[] = openssl_error_string()) {
             }
-            throw new \RuntimeException(sprintf("Error during public key read: \n%s", implode("\n", $errors)));
+            throw new StoreSignatureValidationException(sprintf("Error during public key read: \n%s", implode("\n", $errors)));
         }
 
         return $this->keyResource;

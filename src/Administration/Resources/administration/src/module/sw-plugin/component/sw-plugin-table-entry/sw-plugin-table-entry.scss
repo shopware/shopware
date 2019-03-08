@@ -1,0 +1,30 @@
+@import '~scss/variables';
+
+.sw-plugin-table-entry {
+    display: flex;
+    align-items: center;
+    height: 100%;
+
+    img {
+        margin-right: 10px;
+        height: 40px;
+        width: 40px;
+    }
+
+    .sw-plugin-table-entry__text-container {
+        display: flex;
+        flex-direction: column;
+        white-space: initial;
+        font-size: $font-size-small;
+        font-weight: 600;
+        line-height: 17px;
+
+        .sw-plugin-table-entry__subtitle {
+            color: $color-gray;
+            font-size: 12px;
+            font-weight: initial;
+        }
+    }
+
+
+}

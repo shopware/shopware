@@ -1,29 +1,8 @@
 <?php declare(strict_types=1);
-/**
- * Shopware 5
- * Copyright (c) shopware AG
- *
- * According to our dual licensing model, this program can be used either
- * under the terms of the GNU Affero General Public License, version 3,
- * or under a proprietary license.
- *
- * The texts of the GNU Affero General Public License with an additional
- * permission and of our proprietary license can be found at and
- * in the LICENSE file you have received along with this program.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU Affero General Public License for more details.
- *
- * "Shopware" is a registered trademark of shopware AG.
- * The licensing of the program under the AGPLv3 does not imply a
- * trademark license. Therefore any rights, title and interest in
- * our trademarks remain entirely with us.
- */
 
 namespace Shopware\Core\Framework\Plugin;
 
+use Shopware\Core\Framework\Plugin\Exception\PluginExtractionException;
 use Symfony\Component\Filesystem\Filesystem;
 
 class PluginExtractor
@@ -38,46 +17,39 @@ class PluginExtractor
      */
     private $filesystem;
 
-    /**
-     * @param string $pluginDir
-     */
-    public function __construct($pluginDir, Filesystem $filesystem)
+    public function __construct(string $pluginDir, Filesystem $filesystem)
     {
         $this->pluginDir = $pluginDir;
         $this->filesystem = $filesystem;
     }
 
     /**
-     * Extracts the provided zip file to the provided destination
-     *
-     * @param \ZipArchive $archive
-     *
-     * @throws \Exception
+     * Extracts the provided zip file to the plugin directory
      */
-    public function extract($archive)
+    public function extract(\ZipArchive $archive): void
     {
         $destination = $this->pluginDir;
 
         if (!is_writable($destination)) {
-            throw new \Exception(sprintf('Destination directory "%s" is not writable', $destination));
+            throw new PluginExtractionException(sprintf('Destination directory "%s" is not writable', $destination));
         }
 
-        $prefix = $this->getPluginPrefix($archive);
-        $this->validatePluginZip($prefix, $archive);
+        $pluginName = $this->getPluginName($archive);
+        $this->validatePluginZip($pluginName, $archive);
 
-        $oldFile = $this->findOldFile($prefix);
+        $oldFile = $this->findOldFile($pluginName);
         $backupFile = $this->createBackupFile($oldFile);
 
         try {
             $archive->extractTo($destination);
 
-            if ($backupFile !== false) {
+            if ($backupFile !== '') {
                 $this->filesystem->remove($backupFile);
             }
 
             unlink($archive->filename);
         } catch (\Exception $e) {
-            if ($backupFile !== false) {
+            if ($backupFile !== '') {
                 $this->filesystem->rename($backupFile, $oldFile);
             }
             throw $e;
@@ -90,10 +62,8 @@ class PluginExtractor
      * Iterates all files of the provided zip archive
      * path and validates the plugin namespace, directory traversal
      * and multiple plugin directories.
-     *
-     * @param string $prefix
      */
-    private function validatePluginZip($prefix, \ZipArchive $archive)
+    private function validatePluginZip(string $prefix, \ZipArchive $archive): void
     {
         for ($i = 2; $i < $archive->numFiles; ++$i) {
             $stat = $archive->statIndex($i);
@@ -103,21 +73,18 @@ class PluginExtractor
         }
     }
 
-    /**
-     * @return string
-     */
-    private function getPluginPrefix(\ZipArchive $archive)
+    private function getPluginName(\ZipArchive $archive): string
     {
         $entry = $archive->statIndex(0);
 
-        return explode('/', $entry['name'])[0];
+        return explode(DIRECTORY_SEPARATOR, $entry['name'])[0];
     }
 
     /**
      * Clear opcode caches to make sure that the
      * updated plugin files are used in the following requests.
      */
-    private function clearOpcodeCache()
+    private function clearOpcodeCache(): void
     {
         if (function_exists('opcache_reset')) {
             opcache_reset();
@@ -128,14 +95,10 @@ class PluginExtractor
         }
     }
 
-    /**
-     * @param string $filename
-     * @param string $prefix
-     */
-    private function assertPrefix($filename, $prefix)
+    private function assertPrefix(string $filename, string $prefix): void
     {
         if (strpos($filename, $prefix) !== 0) {
-            throw new \RuntimeException(
+            throw new PluginExtractionException(
                 sprintf(
                     'Detected invalid file/directory %s in the plugin zip: %s',
                     $filename,
@@ -145,43 +108,30 @@ class PluginExtractor
         }
     }
 
-    /**
-     * @param string $filename
-     */
-    private function assertNoDirectoryTraversal($filename)
+    private function assertNoDirectoryTraversal(string $filename): void
     {
-        if (strpos($filename, '../') !== false) {
-            throw new \RuntimeException('Directory Traversal detected');
+        if (strpos($filename, '..' . DIRECTORY_SEPARATOR) !== false) {
+            throw new PluginExtractionException('Directory Traversal detected');
         }
     }
 
-    /**
-     * @param string $pluginName
-     *
-     * @return bool|string
-     */
-    private function findOldFile($pluginName)
+    private function findOldFile(string $pluginName): string
     {
-        $dir = $this->pluginDir . '/' . $pluginName;
+        $dir = $this->pluginDir . DIRECTORY_SEPARATOR . $pluginName;
         if ($this->filesystem->exists($dir)) {
             return $dir;
         }
 
-        return false;
+        return '';
     }
 
-    /**
-     * @param string|bool $oldFile
-     *
-     * @return bool|string
-     */
-    private function createBackupFile($oldFile)
+    private function createBackupFile(string $oldFile): string
     {
-        if ($oldFile === false) {
-            return false;
+        if ($oldFile === '') {
+            return '';
         }
 
-        $backupFile = $oldFile . '.' . uniqid();
+        $backupFile = $oldFile . '.' . uniqid('', true);
         $this->filesystem->rename($oldFile, $backupFile);
 
         return $backupFile;

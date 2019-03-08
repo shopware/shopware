@@ -1,6 +1,7 @@
 <?php declare(strict_types=1);
 
 namespace Flag {
+    use PHPUnit\Framework\TestCase;
     use Shopware\Core\Framework\FeatureFlag\FeatureConfig;
 
     FeatureConfig::registerFlag('next1223', 'FEATURE_NEXT_1223');
@@ -21,15 +22,15 @@ namespace Flag {
             $this->{$methodName}(...$arguments);
         };
 
-        ifnext1223(\Closure::bind($closure, $object, $object));
+        ifNext1223(\Closure::bind($closure, $object, $object));
     }
 
-    function skipTestNext1223(\PHPUnit\Framework\TestCase $test): void
+    function skipTestNext1223(TestCase $test): void
     {
         if (next1223()) {
             return;
         }
 
-        $test->markTestSkipped('Skipping feature test "NEXT-1223"');
+        $test::markTestSkipped('Skipping feature test "NEXT-1223"');
     }
 }

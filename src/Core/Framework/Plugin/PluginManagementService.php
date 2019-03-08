@@ -5,8 +5,13 @@ namespace Shopware\Core\Framework\Plugin;
 use Composer\IO\NullIO;
 use GuzzleHttp\Client;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Plugin\Exception\NoPluginFoundInZipException;
+use Shopware\Core\Framework\Plugin\Helper\ZipUtils;
+use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
+use Symfony\Component\HttpFoundation\Response;
 
-class PluginInstallerService
+class PluginManagementService
 {
     /**
      * @var string
@@ -29,83 +34,66 @@ class PluginInstallerService
     private $pluginService;
 
     /**
-     * @var Client
+     * @var Filesystem
      */
-    private $client;
+    private $filesystem;
 
     public function __construct(
         string $pluginPath,
         PluginZipDetector $pluginZipDetector,
         PluginExtractor $pluginExtractor,
         PluginService $pluginService,
-        Client $client
+        Filesystem $filesystem
     ) {
         $this->pluginPath = $pluginPath;
         $this->pluginZipDetector = $pluginZipDetector;
         $this->pluginExtractor = $pluginExtractor;
         $this->pluginService = $pluginService;
-        $this->client = $client;
+        $this->filesystem = $filesystem;
     }
 
-    /**
-     * @param string $file
-     *
-     * @throws \Exception
-     */
-    public function extractPluginZip($file): void
+    public function extractPluginZip(string $file): void
     {
         $archive = ZipUtils::openZip($file);
 
         if ($this->pluginZipDetector->isPlugin($archive)) {
             $this->pluginExtractor->extract($archive);
         } else {
-            throw new \RuntimeException('No Plugin found in archive.');
+            throw new NoPluginFoundInZipException($file);
         }
     }
 
-    public function downloadStorePlugin(array $data, Context $context): bool
+    public function uploadPlugin(UploadedFile $file): void
     {
-        $location = $data['location'];
+        $tempFileName = tempnam(sys_get_temp_dir(), $file->getClientOriginalName());
+        $tempDirectory = dirname(realpath($tempFileName));
 
+        $file = $file->move($tempDirectory, $tempFileName);
+
+        $this->extractPluginZip($file->getPathname());
+    }
+
+    public function downloadStorePlugin(string $location, Context $context): int
+    {
         $tempFileName = tempnam(sys_get_temp_dir(), 'store-plugin');
 
-        $response = $this->client->get($location, ['sink' => $tempFileName]);
+        $client = new Client();
+        $response = $client->request('GET', $location, ['sink' => $tempFileName]);
+        $statusCode = $response->getStatusCode();
 
-        if ($response->getStatusCode() !== 200) {
-            return false;
+        if ($statusCode !== Response::HTTP_OK) {
+            return $statusCode;
         }
         $this->extractPluginZip($tempFileName);
 
         $this->pluginService->refreshPlugins($context, new NullIO());
 
-        return true;
+        return $statusCode;
     }
 
     public function deletePlugin(PluginEntity $plugin): void
     {
         $path = $this->pluginPath . DIRECTORY_SEPARATOR . $plugin->getName();
-        $this->removeDirectory($path);
-    }
-
-    /**
-     * @param string $path
-     */
-    private function removeDirectory($path): void
-    {
-        if (!is_dir($path)) {
-            return;
-        }
-
-        $files = new \RecursiveIteratorIterator(
-            new \RecursiveDirectoryIterator($path, \RecursiveDirectoryIterator::SKIP_DOTS),
-            \RecursiveIteratorIterator::CHILD_FIRST
-        );
-
-        foreach ($files as $fileInfo) {
-            $todo = ($fileInfo->isDir() ? 'rmdir' : 'unlink');
-            $todo($fileInfo->getRealPath());
-        }
-
-        rmdir($path);
+        $this->filesystem->remove($path);
     }
 }

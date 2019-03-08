@@ -114,14 +114,14 @@ class Configuration implements ConfigurationInterface
         $rootNode = $treeBuilder->getRootNode();
         $rootNode
             ->children()
-            ->arrayNode('poll_interval')
-            ->useAttributeAsKey('name')
-            ->defaultValue([])
-            ->integerPrototype()->end()
-            ->end()
-            ->booleanNode('enable_admin_worker')
-            ->defaultValue(true)
-            ->end()
+                ->arrayNode('poll_interval')
+                    ->useAttributeAsKey('name')
+                    ->defaultValue([])
+                    ->integerPrototype()->end()
+                ->end()
+                ->booleanNode('enable_admin_worker')
+                    ->defaultValue(true)
+                ->end()
 
             ->end()
         ;

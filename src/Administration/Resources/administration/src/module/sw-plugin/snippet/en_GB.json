@@ -1,0 +1,88 @@
+{
+  "sw-plugin":{
+    "general":{
+      "mainMenuItemGeneral":"Plugin Manager",
+      "mainMenuPluginList":"Installed",
+      "mainMenuLicenseList":"My licenses",
+      "descriptionTextModule":"Manage plugins here",
+      "placeholderSearchBar":"Search plugins",
+      "tabList":"My plugins",
+      "tabLicenses":"Licenses",
+      "tabUpdates":"Updates",
+      "version":"Version",
+      "accountLink":"Go to account",
+      "login":"Login",
+      "logout":"Logout",
+      "messageDownloadSuccess":"The plugin was downloaded successfully",
+      "titleDownloadSuccess":"Plugin downloaded",
+      "downloadButton":"Download"
+    },
+    "fileUpload":{
+      "buttonFileUpload":"Upload plugin"
+    },
+    "store-login":{
+      "headline":"Shopware Account",
+      "information":"The Shopware ID is your username for the login to the Shopware account and other shopware services.",
+      "titleLoginSuccess":"Shopware Account",
+      "titleLoginMessage":"Login successfully",
+      "labelShopwareId":"Shopware ID",
+      "labelShopwareIdHelp":"Where can I find my Shopware ID?",
+      "labelPassword":"Password",
+      "buttonLogin":"Login",
+      "buttonCancel":"Cancel",
+      "footerNoAccount":"You don't have an account yet?",
+      "footerRegisterAccount":"Create new account",
+      "forgotPasswordUrl":"https://account2.shopware.com/recovery?lang=en",
+      "registerAccountUrl":"https://account2.shopware.com/register?lang=en"
+    },
+    "list":{
+      "textPluginManager":"Plugin Manager",
+      "messageEmpty":"You have not yet uploaded a plugin",
+      "columnPluginName":"Pluginname",
+      "columnVersion":"Version",
+      "columnInstalledAt":"Installed on",
+      "columnUpdatedAt":"Updated on",
+      "columnLicense":"License",
+      "columnActive":"Activated",
+      "columnAuthor":"Manufacturer",
+      "columnPlugin":"Plugin",
+      "columnChangelog":"New features",
+      "titleSidebarItemRefresh":"Refresh",
+      "contextInstall":"Install",
+      "contextUninstall":"Uninstall",
+      "contextActivate":"Activate",
+      "contextDeactivate":"Deactivate",
+      "contextUpdate":"Update to",
+      "contextDelete":"Delete",
+      "pluginHeader":"My plugins",
+      "sortUpgradedAtAsc":"Last updated",
+      "sortPluginNameAsc":"Plugin names ascending",
+      "sortPluginNameDsc":"Plugin names descending",
+      "sortLabel":"Sort by:"
+    },
+    "license-list":{
+      "textMyPurchases":"Purchases",
+      "columnName":"Plugin name",
+      "columnCreationDate":"Purchased on",
+      "columnExpirationDate":"Valid until",
+      "columnType":"Variant",
+      "messageEmpty":"No licenses existing",
+      "labelType_buy":"Buy",
+      "labelType_rent":"Rent",
+      "labelType_test":"Test",
+      "labelType_free":"Free",
+      "labelType_support":"Paid support"
+    },
+    "updates":{
+      "messageEmpty":"There are no updates available",
+      "updateError":"Error loading updates",
+      "updateButton":"Update",
+      "updateAllButton":"Update all",
+      "updateHeader":"Updates",
+      "lastUpdatesHeader":"Last updates",
+      "titleUpdateSuccess":"Update successful",
+      "messageUpdateSuccess":"The plugin has been updated successfully",
+      "messageUpdatesSuccess":"The plugins have been updated successfully"
+    }
+  }
+}

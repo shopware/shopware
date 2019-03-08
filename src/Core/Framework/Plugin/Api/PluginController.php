@@ -4,18 +4,22 @@ namespace Shopware\Core\Framework\Plugin\Api;
 
 use Composer\IO\NullIO;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Plugin\PluginInstallerService;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\Plugin\Exception\CantDeletePluginException;
+use Shopware\Core\Framework\Plugin\Exception\PluginExtractionException;
 use Shopware\Core\Framework\Plugin\PluginLifecycleService;
+use Shopware\Core\Framework\Plugin\PluginManagementService;
 use Shopware\Core\Framework\Plugin\PluginService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 class PluginController extends AbstractController
 {
+    private const LAST_UPDATES_DAYS = 7;
+
     /**
      * @var PluginService
      */
@@ -27,64 +31,63 @@ class PluginController extends AbstractController
     private $pluginLifecycleService;
 
     /**
-     * @var PluginInstallerService
+     * @var PluginManagementService
      */
-    private $pluginInstallerService;
+    private $pluginManagementService;
+
+    /**
+     * @var EntityRepositoryInterface
+     */
+    private $pluginRepo;
 
     public function __construct(
         PluginService $pluginService,
         PluginLifecycleService $pluginLifecycleService,
-        PluginInstallerService $pluginInstallerService
+        PluginManagementService $pluginManagementService,
+        EntityRepositoryInterface $pluginRepo
     ) {
         $this->pluginService = $pluginService;
         $this->pluginLifecycleService = $pluginLifecycleService;
-        $this->pluginInstallerService = $pluginInstallerService;
+        $this->pluginManagementService = $pluginManagementService;
+        $this->pluginRepo = $pluginRepo;
     }
 
     /**
      * @Route("/api/v{version}/_action/plugin/upload", name="api.action.plugin.upload", methods={"POST"})
      */
-    public function uploadPlugin(Request $request, Context $context): Response
+    public function uploadPlugin(Request $request, Context $context): JsonResponse
     {
         /** @var UploadedFile $file */
         $file = $request->files->get('file');
 
-        $information = pathinfo($file->getClientOriginalName());
-
-        if ($information['extension'] !== 'zip') {
+        if ($file->getMimeType() !== 'application/zip') {
             unlink($file->getPathname());
-            throw new \RuntimeException('extension must be zip');
+            throw new PluginExtractionException('extension must be zip');
         }
-
-        $tempFileName = tempnam(sys_get_temp_dir(), $file->getClientOriginalName());
-        $tempDirectory = dirname(realpath($tempFileName));
 
         try {
-            $file = $file->move($tempDirectory, $tempFileName);
-
-            $this->pluginInstallerService->extractPluginZip($file->getPathname());
+            $this->pluginManagementService->uploadPlugin($file);
         } catch (\Exception $e) {
             unlink($file->getPathname());
-            throw new \RuntimeException($e->getMessage());
+            throw $e;
         }
-
         $this->pluginService->refreshPlugins($context, new NullIO());
 
-        return new JsonResponse(['success' => true]);
+        return new JsonResponse();
     }
 
     /**
      * @Route("/api/v{version}/_action/plugin/{pluginName}/delete", name="api.action.plugin.delete", methods={"POST"})
      */
-    public function deletePlugin(string $pluginName, Request $request, Context $context): Response
+    public function deletePlugin(string $pluginName, Context $context): JsonResponse
     {
         $plugin = $this->pluginService->getPluginByName($pluginName, $context);
 
         if ($plugin->getInstalledAt() !== null) {
-            throw new \RuntimeException('can not delete installed plugins');
+            throw new CantDeletePluginException('can not delete installed plugins');
         }
 
-        $this->pluginInstallerService->deletePlugin($plugin);
+        $this->pluginManagementService->deletePlugin($plugin);
 
         $this->pluginService->refreshPlugins($context, new NullIO());
 
@@ -94,7 +97,7 @@ class PluginController extends AbstractController
     /**
      * @Route("/api/v{version}/_action/plugin/{pluginName}/install", name="api.action.plugin.install", methods={"POST"})
      */
-    public function installPlugin(string $pluginName, Request $request, Context $context): Response
+    public function installPlugin(string $pluginName, Context $context): JsonResponse
     {
         $plugin = $this->pluginService->getPluginByName($pluginName, $context);
 
@@ -106,7 +109,7 @@ class PluginController extends AbstractController
     /**
      * @Route("/api/v{version}/_action/plugin/{pluginName}/uninstall", name="api.action.plugin.uninstall", methods={"POST"})
      */
-    public function uninstallPlugin(string $pluginName, Request $request, Context $context): Response
+    public function uninstallPlugin(string $pluginName, Context $context): JsonResponse
     {
         $plugin = $this->pluginService->getPluginByName($pluginName, $context);
 
@@ -118,7 +121,7 @@ class PluginController extends AbstractController
     /**
      * @Route("/api/v{version}/_action/plugin/{pluginName}/activate", name="api.action.plugin.activate", methods={"POST"})
      */
-    public function activatePlugin(string $pluginName, Request $request, Context $context): Response
+    public function activatePlugin(string $pluginName, Context $context): JsonResponse
     {
         $plugin = $this->pluginService->getPluginByName($pluginName, $context);
 
@@ -130,7 +133,7 @@ class PluginController extends AbstractController
     /**
      * @Route("/api/v{version}/_action/plugin/{pluginName}/deactivate", name="api.action.plugin.deactivate", methods={"POST"})
      */
-    public function deactivatePlugin(string $pluginName, Request $request, Context $context): Response
+    public function deactivatePlugin(string $pluginName, Context $context): JsonResponse
     {
         $plugin = $this->pluginService->getPluginByName($pluginName, $context);
 
@@ -142,27 +145,12 @@ class PluginController extends AbstractController
     /**
      * @Route("/api/v{version}/_action/plugin/{pluginName}/update", name="api.action.plugin.update", methods={"POST"})
      */
-    public function updatePlugin(string $pluginName, Request $request, Context $context): Response
+    public function updatePlugin(string $pluginName, Context $context): JsonResponse
     {
         $plugin = $this->pluginService->getPluginByName($pluginName, $context);
 
         $this->pluginLifecycleService->updatePlugin($plugin, $context);
 
         return new JsonResponse($pluginName);
-    }
-
-    /**
-     * @Route("/api/v{version}/_action/plugin/lastUpdates", name="api.action.plugin.lastUpdates", methods={"GET"})
-     */
-    public function getLastUpdates(Request $request, Context $context): Response
-    {
-        $lastUpdates = $this->pluginService->getLastPluginUpdates($context);
-
-        $response = [
-            'total' => count($lastUpdates),
-            'items' => $lastUpdates,
-        ];
-
-        return new JsonResponse($response);
     }
 }

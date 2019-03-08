@@ -1,25 +1,37 @@
 {% block sw_plugin_store_login_status %}
-<div class="sw-plugin-store-login-status">
+    <div class="sw-plugin-store-login-status">
 
-    <div class="sw-plugin-store-login-status__title">Shopware Account</div>
+        {% block sw_plugin_store_login_status_title %}
+            <div class="sw-plugin-store-login-status__title">Shopware Account</div>
+        {% endblock %}
 
-    <div class="sw-plugin-store-login-status__login-box">
-        <div class="sw-plugin-store-login-status__box-content">
-            <sw-avatar size="36px" color="#E3F3FF" placeholder></sw-avatar>
-            <div class="sw-plugin-store-login-status__account-info">
-                <span class="sw-plugin-store-login-status__name">Florian Klockenkemper</span>
-                <span class="sw-plugin-store-login-status__email">fk@shopware.com</span>
+        {% block sw_plugin_store_login_status_box %}
+            <div class="sw-plugin-store-login-status__login-box">
+                {% block sw_plugin_store_login_status_box_content %}
+                    <div class="sw-plugin-store-login-status__box-content">
+                        <sw-avatar size="36px" color="#E3F3FF" placeholder></sw-avatar>
+                        <div class="sw-plugin-store-login-status__account-info">
+                            <span class="sw-plugin-store-login-status__name">Placeholder</span>
+                            <span class="sw-plugin-store-login-status__email">placeholder@test.com</span>
+                        </div>
+                    </div>
+                {% endblock %}
+                {% block sw_plugin_store_login_status_box_actions %}
+                    <sw-context-button class="sw-plugin-store-login-status__context-button" icon="default-action-more-vertical" :menuOffsetLeft="17">
+                        {% block sw_plugin_store_login_status_box_actions_to_account %}
+                            <sw-context-menu-item>
+                                <a class="account-link" href="https://account.shopware.com" target="_blank">{{ $tc('sw-plugin.general.accountLink') }}</a>
+                            </sw-context-menu-item>
+                        {% endblock %}
+
+                        {% block sw_plugin_store_login_status_box_actions_logout %}
+                            <sw-context-menu-item @click="logout()">
+                                {{ $tc('sw-plugin.general.logout') }}
+                            </sw-context-menu-item>
+                        {% endblock %}
+                </sw-context-button>
+                {% endblock %}
             </div>
-        </div>
-        <sw-context-button class="sw-plugin-store-login-status__context-button" icon="default-action-more-vertical" :menuOffsetLeft="17">
-            <sw-context-menu-item @click="navigateToAccount()">
-                {{ $tc('sw-plugin.general.accountLink') }}
-            </sw-context-menu-item>
-
-            <sw-context-menu-item @click="logout()">
-                {{ $tc('sw-plugin.general.logout') }}
-            </sw-context-menu-item>
-        </sw-context-button>
+        {% endblock %}
     </div>
-</div>
 {% endblock %}

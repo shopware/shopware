@@ -1,78 +1,76 @@
 {% block sw_plugin_manager %}
-<sw-page class="sw-plugin-manager">
-    {% block sw_plugin_manager_search_bar %}
-        <template slot="search-bar">
-            <sw-search-bar :placeholder="$tc('sw-plugin.general.placeholderSearchBar')"
-                           :searchType="$tc('sw-plugin.general.mainMenuItemGeneral')"
-                           @search="this.onSearch">
-            </sw-search-bar>
-        </template>
-    {% endblock %}
-
-    {% block sw_plugin_manager_smart_bar_header %}
-    <template slot="smart-bar-header">
-        {% block sw_plugin_manager_smart_bar_header_title %}
-        <h2>
-            {% block sw_plugin_manager_smart_bar_header_title_text %}
-                {{ $tc('sw-plugin.list.textPluginManager') }}
-            {% endblock %}
-        </h2>
-        {% endblock %}
-    </template>
-    {% endblock %}
-
-    {% block sw_plugin_manager_smart_bar_actions %}
-    <template slot="smart-bar-actions">
-        {% block sw_plugin_manager_smart_bar_actions_slot %}
-
-        {% block sw_plugin_manager_smart_bar_actions_add %}
-        <sw-button variant="primary" target="_blank" link="https://store.shopware.com">
-            Zum Shopware Store
-        </sw-button>
+    <sw-page class="sw-plugin-manager">
+        {% block sw_plugin_manager_search_bar %}
+            <template slot="search-bar">
+                <sw-search-bar :placeholder="$tc('sw-plugin.general.placeholderSearchBar')"
+                               :searchType="$tc('sw-plugin.general.mainMenuItemGeneral')"
+                               @search="this.onSearch">
+                </sw-search-bar>
+            </template>
         {% endblock %}
 
-        {% endblock %}
-    </template>
-    {% endblock %}
-
-    {% block sw_plugin_manager_content %}
-    <sw-card-view slot="content">
-        <div class="plugin-manager-sidebar">
-        {% block sw_plugin_manager_content_tabs %}
-        <sw-tabs :isVertical="true" small>
-            {% block sw_plugin_manager_content_tab_list %}
-            <sw-tabs-item :route="{ name: 'sw.plugin.index.list' }"
-                          :title="$tc('sw-plugin.general.tabList')"
-                          variant="minimal">
-                {{ $tc('sw-plugin.general.tabList') }}
-            </sw-tabs-item>
-            {% endblock %}
-
-            {% block sw_plugin_manager_content_tab_licenses %}
-            <sw-tabs-item :route="{ name: 'sw.plugin.index.licenses' }"
-                          :title="$tc('sw-plugin.general.tabLicenses')"
-                          variant="minimal">
-                {{ $tc('sw-plugin.general.tabLicenses') }}
-            </sw-tabs-item>
-            {% endblock %}
-
-            {% block sw_plugin_manager_content_tab_updates %}
-            <sw-tabs-item :route="{ name: 'sw.plugin.index.updates' }"
-                          :title="$tc('sw-plugin.general.tabUpdates')"
-                          variant="minimal">
-                {{ $tc('sw-plugin.general.tabUpdates') }}
-            </sw-tabs-item>
-            {% endblock %}
-        </sw-tabs>
+        {% block sw_plugin_manager_smart_bar_header %}
+            <template slot="smart-bar-header">
+                {% block sw_plugin_manager_smart_bar_header_title %}
+                    <h2>
+                        {% block sw_plugin_manager_smart_bar_header_title_text %}
+                            {{ $tc('sw-plugin.list.textPluginManager') }}
+                        {% endblock %}
+                    </h2>
+                {% endblock %}
+            </template>
         {% endblock %}
 
-        <sw-plugin-store-login-status></sw-plugin-store-login-status>
-        </div>
-
-        {% block sw_plugin_manager_content_view %}
-        <router-view :searchTerm="searchTerm"></router-view>
+        {% block sw_plugin_manager_smart_bar_actions %}
+            <template slot="smart-bar-actions">
+                {% block sw_plugin_manager_smart_bar_actions_store_link %}
+                    <sw-button variant="primary" target="_blank" link="https://store.shopware.com">
+                        Zum Shopware Store
+                    </sw-button>
+                {% endblock %}
+            </template>
         {% endblock %}
-    </sw-card-view>
-    {% endblock %}
-</sw-page>
+
+        {% block sw_plugin_manager_content %}
+            <template slot="content">
+                <sw-card-view slot="content">
+                    {% block sw_plugin_manager_content_sidebar %}
+                        <div class="plugin-manager-sidebar">
+                            {% block sw_plugin_manager_content_sidebar_tabs %}
+                                <sw-tabs :isVertical="true" small>
+                                    {% block sw_plugin_manager_content_sidebar_tabs_list %}
+                                        <sw-tabs-item :route="{ name: 'sw.plugin.index.list' }"
+                                                      :title="$tc('sw-plugin.general.tabList')"
+                                                      variant="minimal">
+                                            {{ $tc('sw-plugin.general.tabList') }}
+                                        </sw-tabs-item>
+                                    {% endblock %}
+
+                                    {% block sw_plugin_manager_content_sidebar_tabs_licenses %}
+                                        <sw-tabs-item :route="{ name: 'sw.plugin.index.licenses' }"
+                                                      :title="$tc('sw-plugin.general.tabLicenses')"
+                                                      variant="minimal">
+                                            {{ $tc('sw-plugin.general.tabLicenses') }}
+                                        </sw-tabs-item>
+                                    {% endblock %}
+
+                                    {% block sw_plugin_manager_content_sidebar_tabs_updates %}
+                                        <sw-tabs-item :route="{ name: 'sw.plugin.index.updates' }"
+                                                      :title="$tc('sw-plugin.general.tabUpdates')"
+                                                      variant="minimal">
+                                            {{ $tc('sw-plugin.general.tabUpdates') }}
+                                        </sw-tabs-item>
+                                    {% endblock %}
+                                </sw-tabs>
+                            {% endblock %}
+                        </div>
+                    {% endblock %}
+
+                    {% block sw_plugin_manager_content_view %}
+                        <router-view :searchTerm="searchTerm"></router-view>
+                    {% endblock %}
+                </sw-card-view>
+            </template>
+        {% endblock %}
+    </sw-page>
 {% endblock %}

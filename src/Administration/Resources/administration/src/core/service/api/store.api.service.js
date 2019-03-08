@@ -15,7 +15,7 @@ class StoreApiService extends ApiService {
         const headers = this.getBasicHeaders();
 
         return this.httpClient
-            .post(`/_custom/${this.getApiBasePath()}/login`, { shopwareId, password }, { headers })
+            .post(`/_action/${this.getApiBasePath()}/login`, { shopwareId, password }, { headers })
             .then((response) => {
                 return ApiService.handleResponse(response);
             });
@@ -25,7 +25,7 @@ class StoreApiService extends ApiService {
         const headers = this.getBasicHeaders();
 
         return this.httpClient
-            .get(`/_custom/${this.getApiBasePath()}/checklogin`, { headers })
+            .get(`/_action/${this.getApiBasePath()}/checklogin`, { headers })
             .then((response) => {
                 return ApiService.handleResponse(response);
             });
@@ -35,7 +35,7 @@ class StoreApiService extends ApiService {
         const headers = this.getBasicHeaders();
 
         return this.httpClient
-            .get(`/_custom/${this.getApiBasePath()}/licenses`, { headers })
+            .get(`/_action/${this.getApiBasePath()}/licenses`, { headers })
             .then((response) => {
                 return ApiService.handleResponse(response);
             });
@@ -45,7 +45,7 @@ class StoreApiService extends ApiService {
         const headers = this.getBasicHeaders();
 
         return this.httpClient
-            .get(`/_custom/${this.getApiBasePath()}/updates`, { headers })
+            .get(`/_action/${this.getApiBasePath()}/updates`, { headers })
             .then((response) => {
                 return ApiService.handleResponse(response);
             });
@@ -58,7 +58,7 @@ class StoreApiService extends ApiService {
         };
 
         return this.httpClient
-            .get(`/_custom/${this.getApiBasePath()}/download`, { params, headers })
+            .get(`/_action/${this.getApiBasePath()}/download`, { params, headers })
             .then((response) => {
                 return ApiService.handleResponse(response);
             });

@@ -9,6 +9,10 @@ import './component/sw-plugin-store-login';
 import './component/sw-plugin-store-login-status';
 import './component/sw-plugin-updates-grid';
 import './component/sw-plugin-last-updates-grid';
+import './component/sw-plugin-table-entry';
+
+import deDE from './snippet/de_DE.json';
+import enGB from './snippet/en_GB.json';
 
 Module.register('sw-plugin', {
     flag: NEXT1223,
@@ -20,6 +24,11 @@ Module.register('sw-plugin', {
     color: '#9AA8B5',
     icon: 'default-object-plug',
     entity: 'plugin',
+
+    snippets: {
+        'de-DE': deDE,
+        'en-GB': enGB
+    },
 
     routes: {
         index: {

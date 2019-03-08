@@ -27,25 +27,27 @@ Component.register('sw-plugin-license-list', {
     },
 
     methods: {
-
-        onDownload(pluginName) {
+        downloadPlugin(pluginName, update = false) {
             this.storeService.downloadPlugin(pluginName).then(() => {
-                this.createNotificationSuccess({
-                    title: this.$tc('sw-plugin.general.titleDownloadSuccess'),
-                    message: this.$tc('sw-plugin.general.messageDownloadSuccess')
-                });
+                if (update) {
+                    this.createNotificationSuccess({
+                        title: this.$tc('sw-plugin.updates.titleUpdateSuccess'),
+                        message: this.$tc('sw-plugin.updates.messageUpdateSuccess')
+                    });
+                } else {
+                    this.createNotificationSuccess({
+                        title: this.$tc('sw-plugin.general.titleDownloadSuccess'),
+                        message: this.$tc('sw-plugin.general.messageDownloadSuccess')
+                    });
+                }
                 this.getList();
             });
         },
 
         getList() {
             this.isLoading = true;
-            this.storeService.checkLogin().then((result) => {
-                if (result) {
-                    this.loadLicenses();
-                    return;
-                }
-                this.showLoginModal = true;
+            this.storeService.checkLogin().then(() => {
+                this.loadLicenses();
             }).catch(() => {
                 this.showLoginModal = true;
             });

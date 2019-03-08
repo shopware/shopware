@@ -49,7 +49,6 @@ Component.register('sw-plugin-list', {
     },
 
     methods: {
-
         changeActiveState(plugin) {
             if (!plugin.active) {
                 this.pluginService.deactivate(plugin.name).then(() => {

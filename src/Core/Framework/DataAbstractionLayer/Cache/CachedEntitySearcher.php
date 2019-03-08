@@ -21,7 +21,7 @@ class CachedEntitySearcher implements EntitySearcherInterface
         VersionCommitDefinition::class,
         VersionCommitDataDefinition::class,
         NumberRangeStateDefinition::class,
-        PluginDefinition::class
+        PluginDefinition::class,
     ];
 
     /**

@@ -4,18 +4,18 @@
 
     .sw-plugin-store-login-status__name {
         font-weight: 600;
-        font-size: 14px;
+        font-size: $font-size-small;
         text-overflow: ellipsis;
         white-space: nowrap;
     }
 
     .sw-plugin-store-login-status__email {
-        font-size: 14px;
+        font-size: $font-size-small;
     }
     
     .sw-plugin-store-login-status__title {
         padding-bottom: 4px;
-        font-size: 14px;
+        font-size: $font-size-small;
     }
 
     .sw-plugin-store-login-status__account-info {
@@ -27,9 +27,9 @@
     .sw-plugin-store-login-status__login-box {
         display: flex;
         justify-content: space-between;
-        background: #F9FAFB;
-        border-radius: 4px 4px 4px 4px;
-        border: 1px solid #DCDCDC;
+        background: $color-white;
+        border-radius: $border-radius-default;
+        border: 1px solid $color-steam-cloud;
         width: 240px;
         padding: 12px;
     }
@@ -42,4 +42,9 @@
         display: flex;
     }
 
+}
+
+.sw-context-menu-item .account-link {
+    text-decoration: none;
+    color: inherit;
 }

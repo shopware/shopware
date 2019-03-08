@@ -16,7 +16,9 @@ Component.register('sw-plugin-updates-grid', {
         return {
             limit: 25,
             updates: [],
-            isLoading: false
+            isLoading: false,
+            updating: [],
+            disableRouteParams: false
         };
     },
 
@@ -27,7 +29,36 @@ Component.register('sw-plugin-updates-grid', {
     },
 
     methods: {
-        onDownload() {
+        onUpdate(pluginName) {
+            this.updating.push(pluginName);
+            this.storeService.downloadPlugin(pluginName).then(() => {
+                this.createNotificationSuccess({
+                    title: this.$tc('sw-plugin.updates.titleUpdateSuccess'),
+                    message: this.$tc('sw-plugin.updates.messageUpdateSuccess')
+                });
+                this.updating = this.updating.filter(name => name !== pluginName);
+                this.getList();
+            });
+        },
+
+        updateAll() {
+            const updatePromises = [];
+            this.updates.forEach((update) => {
+                updatePromises.push(this.storeService.downloadPlugin(update.name));
+                this.updating.push(update.name);
+            });
+            Promise.all(updatePromises).then(() => {
+                this.createNotificationSuccess({
+                    title: this.$tc('sw-plugin.updates.titleUpdateSuccess'),
+                    message: this.$tc('sw-plugin.updates.messageUpdatesSuccess')
+                });
+                this.updating = [];
+                this.getList();
+            });
+        },
+
+        isUpdating(pluginName) {
+            return this.updating.includes(pluginName);
         },
 
         getList() {

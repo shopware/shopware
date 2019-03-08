@@ -1,11 +1,10 @@
-import { Component, Mixin } from 'src/core/shopware';
+import { Component, Mixin, State } from 'src/core/shopware';
+import CriteriaFactory from 'src/core/factory/criteria.factory';
 import template from './sw-plugin-last-updates-grid.html.twig';
 import './sw-plugin-last-updates-grid.scss';
 
 Component.register('sw-plugin-last-updates-grid', {
     template,
-
-    inject: ['pluginService'],
 
     mixins: [
         Mixin.getByName('listing'),
@@ -16,8 +15,15 @@ Component.register('sw-plugin-last-updates-grid', {
         return {
             limit: 25,
             lastUpdates: [],
-            isLoading: false
+            isLoading: false,
+            disableRouteParams: false
         };
+    },
+
+    computed: {
+        pluginsStore() {
+            return State.getStore('plugin');
+        }
     },
 
     watch: {
@@ -27,14 +33,14 @@ Component.register('sw-plugin-last-updates-grid', {
     },
 
     methods: {
-        onDownload() {
-        },
-
         getList() {
             this.isLoading = true;
-            this.pluginService.getLastUpdates().then((data) => {
-                this.lastUpdates = data.items;
-                this.total = data.total;
+
+            const params = this.getListingParams();
+
+            this.pluginsStore.getList(params).then((response) => {
+                this.lastUpdates = response.items;
+                this.total = response.total;
                 this.isLoading = false;
             }).catch(() => {
                 this.isLoading = false;
@@ -42,6 +48,20 @@ Component.register('sw-plugin-last-updates-grid', {
                     message: this.$tc('sw-plugin.updates.updateError')
                 });
             });
+        },
+
+        getListingParams() {
+            const filterDate = new Date();
+            filterDate.setDate(filterDate.getDate() - 7);
+
+            return {
+                limit: this.limit,
+                sortBy: 'upgradedAt',
+                sortDirection: 'DESC',
+                criteria: CriteriaFactory.range('upgradedAt', {
+                    gte: filterDate
+                })
+            };
         },
 
         getLatestChangelog(plugin) {

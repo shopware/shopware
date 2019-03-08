@@ -194,30 +194,6 @@
             <tag name="shopware.snippet.filter"/>
         </service>
 
-        <!-- Store -->
-        <service id="Shopware\Core\Framework\Store\Api\StoreController" public="true">
-            <argument type="service" id="Shopware\Core\Framework\Store\Services\StoreClient" />
-            <argument type="service" id="plugin.repository"/>
-            <argument type="service" id="Shopware\Core\Framework\Plugin\PluginInstallerService" />
-        </service>
-
-        <service class="GuzzleHttp\Client" id="shopware.store.api_client">
-            <argument key="$config" type="collection">
-                <argument key="base_uri">%shopware.store.api_url%</argument>
-            </argument>
-        </service>
-
-        <service id="Shopware\Core\Framework\Store\Services\StoreClient">
-            <argument type="service" id="shopware.store.api_client" />
-            <argument type="service" id="Shopware\Core\Framework\Store\Services\OpenSSLVerifier" />
-            <argument type="service" id="plugin.repository"/>
-            <argument key="$host" type="string">%shopware.store.host%</argument>
-        </service>
-
-        <service id="Shopware\Core\Framework\Store\Services\OpenSSLVerifier">
-            <argument>%kernel.project_dir%/vendor/shopware/platform/src/Core/Framework/Store/public.key</argument>
-        </service>
-
         <!-- Twig -->
         <service id="Shopware\Core\Framework\Twig\TemplateFinder" public="true">
             <argument type="service" id="twig.loader"/>

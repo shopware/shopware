@@ -1,7 +1,11 @@
 {% block sw_plugin_updates %}
-<div class="sw-plugin-updates">
-    <sw-plugin-updates-grid></sw-plugin-updates-grid>
+    <div class="sw-plugin-updates">
+        {% block sw_plugin_updates_updates_grid %}
+            <sw-plugin-updates-grid></sw-plugin-updates-grid>
+        {% endblock %}
 
-    <sw-plugin-last-updates-grid></sw-plugin-last-updates-grid>
-</div>
+        {% block sw_plugin_updates_last_updates_grid %}
+            <sw-plugin-last-updates-grid></sw-plugin-last-updates-grid>
+        {% endblock %}
+    </div>
 {% endblock %}

@@ -17,7 +17,7 @@ trait PluginTestsHelper
         string $projectDir
     ): PluginService {
         return new PluginService(
-            __DIR__ . '/_fixture',
+            __DIR__ . '/_fixture/plugins',
             $projectDir,
             $pluginRepo,
             $languageRepo,

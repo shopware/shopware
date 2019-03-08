@@ -1,7 +1,6 @@
 @import "~scss/variables";
 
 .sw-plugin-last-updates-grid {
-
     .sw-plugin-last-updates-grid__info-container {
         align-items: center;
 
@@ -16,15 +15,15 @@
             flex-direction: column;
 
             .sw-plugin-last-updates-grid__upgraded-date {
-                color: #9aa7be;
-                font-size: 14px;
+                color: $color-gray;
+                font-size: $font-size-small;
             }
         }
 
     }
 
     .sw-plugin-last-updates-grid__version {
-        font-size: 14px;
+        font-size: $font-size-small;
         color: $color-gray;
     }
 }

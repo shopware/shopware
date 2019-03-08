@@ -178,23 +178,6 @@ class PluginService
         return $pluginEntity;
     }
 
-    public function getLastPluginUpdates(Context $context): array
-    {
-        /** @var PluginCollection $pluginCollection */
-        $pluginCollection = $this->getPlugins(new Criteria(), $context);
-
-        $lastUpdates = [];
-
-        /** @var PluginEntity $plugin */
-        foreach ($pluginCollection as $plugin) {
-            if ($plugin->getUpgradedAt() && $plugin->getUpgradedAt()->diff(new \DateTime())->days <= 7) {
-                $lastUpdates[] = $plugin;
-            }
-        }
-
-        return $lastUpdates;
-    }
-
     private function getPlugins(Criteria $criteria, Context $context): PluginCollection
     {
         /** @var PluginCollection $pluginCollection */

@@ -1,0 +1,14 @@
+{% block sw_plugin_table_entry %}
+    <div class="sw-plugin-table-entry">
+        {% block sw_plugin_table_entry_icon %}
+            <img v-if="icon" :src="'data:image/png;base64, ' + icon"/>
+            <img v-if="iconPath" :src="iconPath"/>
+        {% endblock %}
+        {% block sw_plugin_table_entry_icon_container %}
+            <div class="sw-plugin-table-entry__text-container">
+                <p>{{ title }}</p>
+                <p class="sw-plugin-table-entry__subtitle">{{ subtitle }}</p>
+            </div>
+        {% endblock %}
+    </div>
+{% endblock %}

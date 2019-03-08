@@ -11,7 +11,7 @@
             <slot name="toolbar-items">
                 <div class="generate-variant-button-container">
                     <sw-button @click="generateVariants(false)" :disabled="isLoading">
-                        {{ $tc('sw-product.variant.generateVariantsButton') }}
+                        {{ $tc('sw-product.variations.generateVariationsButton') }}
                     </sw-button>
                 </div>
             </slot>
@@ -24,7 +24,7 @@
         <div class="generate-variant-progress-bar__wrapper" v-show="isLoading">
             <sw-progress-bar class="generate-variant-progress-bar" :value="progressInPercentage"></sw-progress-bar>
             <span class="generate-variant-progress-bar__description">
-                {{ actualProgress }} von {{ maxProgress }} Varianten {{ progressMessage }}
+                {{ actualProgress }} {{ $tc('sw-product.variations.progressTypeOf') }} {{ maxProgress }} {{ $tc('sw-product.variations.progressTypeVariation') }} {{ progressMessage }}
             </span>
         </div>
     </transition>
@@ -35,22 +35,23 @@
               variant="small">
 
         <p class="sw-product-variants-configurator-selection__modal--delete-text">
-            Du möchtest folgende Anzahl an Produkt-Varianten erstellen: <strong>{{ warningModalNumber }}</strong><br><br>
-            Die Generierung dieser großen Anzahl an Varianten kann
-            sehr lange dauern und zu einem Browserabsturz führen. <br><br>
-            Willst du wirklich fortfahren?
+            {{ $tc('sw-product.variations.generationWarningPartBefore') }} <strong>{{ warningModalNumber }}</strong>
+            <br><br>
+            sw-product.variations
+            <br><br>
+            {{ $tc('sw-product.variations.generationWarningPartContinue') }}
         </p>
 
         <template slot="modal-footer">
             <sw-button @click="onCloseWarningModal"
                        size="small">
-                Abbrechen
+                {{ $tc('sw-product.variations.generationWarningButtonCancel') }}
             </sw-button>
 
             <sw-button @click="onConfirmWarningModal"
                        variant="primary"
                        size="small">
-                Trotzdem generieren
+                {{ $tc('sw-product.variations.generationWarningButtonContinue') }}
             </sw-button>
         </template>
 

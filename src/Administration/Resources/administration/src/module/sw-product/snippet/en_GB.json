@@ -130,6 +130,7 @@
       "buttonSave": "Save",
       "tabGeneral": "General",
       "tabAdvancedPrices": "Advanced pricing",
+      "tabVariation": "Variation",
       "tabProperties": "Properties",
       "titleSaveSuccess": "Success",
       "messageSaveSuccess": "Product \"{name}\" has been saved successfully.",
@@ -141,6 +142,30 @@
     },
     "properties": {
       "cardTitleProperties": "Properties"
+    },
+    "variations": {
+      "generateVariationsButton": "Generate variations",
+      "configuratorCardTitle": "Variations generator",
+      "generatedVariationCardTitle": "Generated variations",
+      "progressTypeOf": "of",
+      "progressTypeDeleted": "deleted",
+      "progressTypeGenerated": "generated",
+      "progressTypeVariation": "variations",
+      "generationWarningPartBefore": "You want to create this number of product variations:",
+      "generationWarningPartAfter": "The generation of this large number of variations can take a long time and lead to a browser crash.",
+      "generationWarningPartContinue": "Do you really want to continue?",
+      "generationWarningButtonCancel": "Cancel",
+      "generationWarningButtonContinue": "Generate anyway",
+      "generatedFilterList": "Filter list",
+      "generatedListColumnVariation": "Variation",
+      "generatedListColumnPrice": "Price",
+      "generatedListColumnProductNumber": "Product number",
+      "generatedListColumnStock": "Stock",
+      "generatedListContextMenuEdit": "Edit",
+      "generatedListContextMenuDelete": "Delete",
+      "generatedListDeleteModalMessage": "Do you want to delete this variation?",
+      "generatedListDeleteModalButtonCancel": "Cancel",
+      "generatedListDeleteModalButtonDelete": "Delete"
     }
   }
 }

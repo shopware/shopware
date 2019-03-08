@@ -59,10 +59,10 @@ Component.extend('sw-product-variants-configurator-selection', 'sw-property-sear
 
         progressMessage() {
             if (this.progressType === 'delete') {
-                return 'gelöscht';
+                return this.$tc('sw-product.variations.progressTypeDeleted');
             }
             if (this.progressType === 'create') {
-                return 'generiert';
+                return this.$tc('sw-product.variations.progressTypeGenerated');
             }
             return '';
         }
@@ -87,14 +87,6 @@ Component.extend('sw-product-variants-configurator-selection', 'sw-property-sear
             this.variantsGenerator.on('actualProgressChange', (actualProgress) => {
                 this.actualProgress = actualProgress.progress;
                 this.progressType = actualProgress.type;
-            });
-
-            // debugging
-            this.variantsGenerator.on('getDeletableProducts', (data) => {
-                console.log('getDeletableProducts', data);
-            });
-            this.variantsGenerator.on('deleteProducts', (data) => {
-                console.log('deleteProducts', data);
             });
         },
 

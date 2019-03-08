@@ -23,8 +23,13 @@ export default class VariantsGenerator extends EventEmitter {
         return new Promise((resolve, reject) => {
             const grouped = this.groupTheOptions(this.configuratorStore);
 
+            // When nothing is selected, delete everything
             if (grouped.length <= 0) {
-                reject(new Error('No options selected'));
+                this.loadExisting(this.product.id).then((variantsOnServer) => {
+                    const deleteArray = Object.keys(variantsOnServer).map((id) => { return { id }; });
+                    this.emit('maxProgressChange', { type: 'delete', progress: deleteArray.length });
+                    this.sendDeletion(deleteArray, 0, 10, resolve);
+                });
                 return;
             }
 
@@ -45,20 +50,14 @@ export default class VariantsGenerator extends EventEmitter {
                     return { id };
                 });
 
-                this.emit('maxProgressChange', {
-                    type: 'delete',
-                    progress: variantsToDelete.length
-                });
+                this.emit('maxProgressChange', { type: 'delete', progress: variantsToDelete.length });
 
                 // first delete variants, then create new variants
                 // use promise for creating a recursion to create sequential request
                 new Promise((resolveDelete) => {
                     this.sendDeletion(variantsToDelete, 0, 10, resolveDelete);
                 }).then(() => {
-                    this.emit('maxProgressChange', {
-                        type: 'create',
-                        progress: variantsToCreate.length
-                    });
+                    this.emit('maxProgressChange', { type: 'create', progress: variantsToCreate.length });
                     this.sendVariants(variantsToCreate, 0, 10, resolve);
                 });
             });
@@ -200,10 +199,7 @@ export default class VariantsGenerator extends EventEmitter {
             return;
         }
 
-        this.emit('actualProgressChange', {
-            type: 'create',
-            progress: offset
-        });
+        this.emit('actualProgressChange', { type: 'create', progress: offset });
 
         const payload = [{
             action: 'upsert',
@@ -225,10 +221,7 @@ export default class VariantsGenerator extends EventEmitter {
             return;
         }
 
-        this.emit('actualProgressChange', {
-            type: 'delete',
-            progress: offset
-        });
+        this.emit('actualProgressChange', { type: 'delete', progress: offset });
 
         const payload = [{
             action: 'delete',

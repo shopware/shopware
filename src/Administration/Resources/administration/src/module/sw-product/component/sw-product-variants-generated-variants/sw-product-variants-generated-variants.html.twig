@@ -14,7 +14,7 @@
                     </sw-button>
 
                     <sw-button>
-                        Liste filtern
+                        {{ $tc('sw-product.variations.generatedFilterList') }}
                         <sw-icon name="default-action-filter"></sw-icon>
                     </sw-button>
 
@@ -31,7 +31,7 @@
 
             <template slot="columns" slot-scope="{ item }">
 
-                <sw-grid-column dataIndex="variants" truncate flex="minmax(550px, 1fr)" label="Variante">
+                <sw-grid-column dataIndex="variants" truncate flex="minmax(550px, 1fr)" :label="$tc('sw-product.variations.generatedListColumnVariation')">
                     <template v-if="item.meta.viewData.variations">
                         <span v-for="singleVariation in item.meta.viewData.variations.elements">
                             {{ singleVariation.name }} |
@@ -40,7 +40,7 @@
 
                 </sw-grid-column>
 
-                <sw-grid-column dataIndex="price" truncate flex="minmax(150px, 1fr)" label="Preis" :class="fieldPriceClasses" class="sw-product-variants-generated-variants__grid--priceField">
+                <sw-grid-column dataIndex="price" truncate flex="minmax(150px, 1fr)" :label="$tc('sw-product.variations.generatedListColumnPrice')" :class="fieldPriceClasses" class="sw-product-variants-generated-variants__grid--priceField">
                     <sw-confirm-field
                             compact
                             placeholder="Preis Brutto"
@@ -72,14 +72,14 @@
 
                 </sw-grid-column>
 
-                <sw-grid-column dataIndex="product-number" truncate flex="minmax(130px, 1fr)" label="Produktnummer">
+                <sw-grid-column dataIndex="product-number" truncate flex="minmax(130px, 1fr)" :label="$tc('sw-product.variations.generatedListColumnProductNumber')">
                     <sw-field type="text" placeholder="SW123a" size="small"/>
                 </sw-grid-column>
 
-                <sw-grid-column dataIndex="stock" truncate flex="minmax(130px, 1fr)" label="Lagerbestand">
+                <sw-grid-column dataIndex="stock" truncate flex="minmax(130px, 1fr)" :label="$tc('sw-product.variations.generatedListColumnStock')">
                     <sw-confirm-field
                             compact
-                            placeholder="Lagerbestand"
+                            :placeholder="$tc('sw-product.variations.generatedListColumnStock')"
                             :value="item.stock"
                             :item="item"
                             @input="onSubmitStock"
@@ -91,20 +91,12 @@
 
                     <sw-context-button>
 
-                        <sw-context-menu-item v-if="item.isDeleted" disabled>
-                            Bearbeiten (deaktiviert)
+                        <sw-context-menu-item @click="onOptionEdit(item)">
+                            {{ $tc('sw-product.variations.generatedListContextMenuEdit') }}
                         </sw-context-menu-item>
 
-                        <sw-context-menu-item v-else @click="onOptionEdit(item)">
-                            Bearbeiten
-                        </sw-context-menu-item>
-
-                        <sw-context-menu-item v-if="item.isDeleted" variant="success" @click="onOptionResetDelete(item)">
-                            Löschen zurücksetzen
-                        </sw-context-menu-item>
-
-                        <sw-context-menu-item v-else variant="danger" @click="onOptionDelete(item)">
-                            Löschen
+                        <sw-context-menu-item variant="danger" @click="onOptionDelete(item)">
+                            {{ $tc('sw-product.variations.generatedListContextMenuDelete') }}
                         </sw-context-menu-item>
 
                     </sw-context-button>
@@ -117,21 +109,21 @@
                           variant="small">
 
                     <p class="sw-product-variants-generated-variants__modal--confirm-delete-text">
-                        Möchtest du die Variante löschen?
+                        {{ $tc('sw-product.variations.generatedListDeleteModalMessage') }}
                     </p>
 
                     <template slot="modal-footer">
                         <sw-button @click="onCloseDeleteModal"
                                    size="small"
                                    :disabled="modalLoading">
-                            Abbrechen
+                            {{ $tc('sw-product.variations.generatedListDeleteModalButtonCancel') }}
                         </sw-button>
 
                         <sw-button @click="onConfirmDelete(item)"
                                    variant="primary"
                                    size="small"
                                    :disabled="modalLoading">
-                            Löschen
+                            {{ $tc('sw-product.variations.generatedListDeleteModalButtonDelete') }}
                         </sw-button>
                     </template>
 

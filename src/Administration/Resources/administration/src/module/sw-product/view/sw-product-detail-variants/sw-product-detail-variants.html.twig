@@ -1,16 +1,15 @@
 <div class="sw-product-detail-variants">
-    <sw-card class="sw-card__configurator" :title="$tc('sw-product.variant.configuratorCardTitle')">
+    <sw-card class="sw-card__configurator" :title="$tc('sw-product.variations.configuratorCardTitle')">
         <sw-product-variants-configurator-selection
                 :product="product"
                 :options="configuratorStore"
                 :overlay="false"
                 :collapsible="false"
-                {#@onButtonClick="generateVariants"#}
                 @variationsGenerated="updateVariations">
         </sw-product-variants-configurator-selection>
     </sw-card>
 
-    <sw-card class="sw-card__generated-variants" :title="$tc('sw-product.variant.generatedVariantsCardTitle')">
+    <sw-card class="sw-card__generated-variants" :title="$tc('sw-product.variations.generatedVariationCardTitle')">
 
         <sw-product-variants-generated-variants
             v-show="variantListHasContent"

@@ -134,6 +134,9 @@ export default {
                 }
                 this.refreshSwSelectSelections();
             }
+        },
+        '$attrs.disabled'() {
+            this.createBind();
         }
     },
 

@@ -54,9 +54,12 @@
                         {% endblock %}
 
                         {% block sw_customer_detail_attribute_sets %}
-                            <sw-card v-if="next754">
+                            <sw-card :title="$tc('sw-settings-attribute.general.mainMenuItemGeneral')"
+                                     v-if="next754 && customerAttributeSets.length > 0"
+                                     :isLoading="customer.isLoading">
                                 <sw-attribute-set-renderer
                                         :entity="customer"
+                                        :disabled="!editMode"
                                         :sets="customerAttributeSets">
                                 </sw-attribute-set-renderer>
                             </sw-card>

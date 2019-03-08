@@ -47,6 +47,11 @@ export default {
                 }
                 return ['tabs', 'media-collapse'].includes(value);
             }
+        },
+        disabled: {
+            type: Boolean,
+            default: false,
+            required: false
         }
     },
 

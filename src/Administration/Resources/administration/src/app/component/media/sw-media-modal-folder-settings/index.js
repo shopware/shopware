@@ -1,4 +1,5 @@
 import { Mixin, State } from 'src/core/shopware';
+import CriteriaFactory from 'src/core/factory/criteria.factory';
 import template from './sw-media-modal-folder-settings.html.twig';
 import './sw-media-modal-folder-settings.scss';
 
@@ -204,40 +205,66 @@ export default {
                 this.configuration.createThumbnails = false;
             }
 
-            this.mediaFolderConfigurationStore.sync()
-                .then(() => {
-                    if (typeof this.folder.defaultFolderId === 'undefined') {
-                        this.folder.defaultFolderId = null;
-                    }
-                    return this.folder.save();
-                })
-                .then(() => {
-                    this.mediaFolderConfigurationThumbnailSizeStore.forEach((association) => {
-                        if (association.isDeleted) {
-                            this.mediaFolderConfigurationThumbnailSizeStore.remove(association);
-                        }
-                    });
-                    this.createNotificationSuccess({
-                        title: this.$root.$tc(
-                            'global.sw-media-modal-folder-settings.notification.success.title'
-                        ),
-                        message: this.$root.$tc(
-                            'global.sw-media-modal-folder-settings.notification.success.message'
-                        )
-                    });
-                })
-                .catch(() => {
-                    this.createNotificationError({
-                        title: this.$root.$tc(
-                            'global.sw-media-modal-folder-settings.notification.error.title'
-                        ),
-                        message: this.$root.$tc(
-                            'global.sw-media-modal-folder-settings.notification.error.message'
-                        )
-                    });
-                });
+            let handleDefaultFolder = Promise.resolve();
 
-            this.$emit('sw-media-modal-folder-settings-save', this.folder);
+            if (this.folder.defaultFolderId) {
+                handleDefaultFolder = this.ensureUniqueDefaultFolder(this.folder.id, this.folder.defaultFolderId);
+            } else {
+                this.folder.defaultFolderId = null;
+            }
+
+            handleDefaultFolder.then(() => {
+                this.mediaFolderConfigurationStore.sync()
+                    .then(() => {
+                        return this.folder.save();
+                    })
+                    .then(() => {
+                        this.mediaFolderConfigurationThumbnailSizeStore.forEach((association) => {
+                            if (association.isDeleted) {
+                                this.mediaFolderConfigurationThumbnailSizeStore.remove(association);
+                            }
+                        });
+                        this.createNotificationSuccess({
+                            title: this.$root.$tc(
+                                'global.sw-media-modal-folder-settings.notification.success.title'
+                            ),
+                            message: this.$root.$tc(
+                                'global.sw-media-modal-folder-settings.notification.success.message'
+                            )
+                        });
+                    })
+                    .catch(() => {
+                        this.createNotificationError({
+                            title: this.$root.$tc(
+                                'global.sw-media-modal-folder-settings.notification.error.title'
+                            ),
+                            message: this.$root.$tc(
+                                'global.sw-media-modal-folder-settings.notification.error.message'
+                            )
+                        });
+                    });
+
+                this.$emit('sw-media-modal-folder-settings-save', this.folder);
+            });
+        },
+
+        ensureUniqueDefaultFolder(folderId, defaultFolderId) {
+            const criteria = CriteriaFactory.multi(
+                'AND',
+                CriteriaFactory.equals('media_folder.defaultFolderId', defaultFolderId),
+                CriteriaFactory.not(
+                    'OR',
+                    CriteriaFactory.equals('media_folder.id', folderId)
+                )
+            );
+            return this.mediaFolderStore.getList({ criteria })
+                .then(({ items }) => {
+                    const updates = items.map((folder) => {
+                        folder.defaultFolderId = null;
+                        return folder.save();
+                    });
+                    return Promise.all(updates);
+                });
         },
 
         onClickCancel(originalDomEvent) {

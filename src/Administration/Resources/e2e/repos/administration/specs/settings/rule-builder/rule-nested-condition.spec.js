@@ -31,7 +31,7 @@ module.exports = {
 
         page.createDateRangeCondition({
             type: 'date range',
-            ruleSelector: `${page.elements.conditionOrContainer}--0`,
+            ruleSelector: `${page.elements.conditionOrContainer}--0 ${page.elements.baseCondition}`,
             fromDate: '2019-03-28 12:12',
             toDate: '2019-04-28 12:12',
             useTime: true
@@ -46,7 +46,7 @@ module.exports = {
             type: 'cart amount',
             inputName: 'amount',
             operator: 'Greater',
-            ruleSelector: `${page.elements.conditionOrContainer}--0 ${page.elements.conditionAndContainer}--1`,
+            ruleSelector: `${page.elements.conditionOrContainer}--0 ${page.elements.conditionAndContainer}--1 ${page.elements.baseCondition}`,
             value: '100'
         });
     },
@@ -58,7 +58,7 @@ module.exports = {
         page.createBasicSelectCondition({
             type: 'customer group',
             operator: 'Is none of',
-            ruleSelector: `${page.elements.conditionOrContainer}--0 ${page.elements.conditionAndContainer}--1`,
+            ruleSelector: `${page.elements.conditionOrContainer}--0 ${page.elements.conditionAndContainer}--1 ${page.elements.baseCondition}`,
             value: 'Standard customer group',
             isMulti: true
         });
@@ -73,7 +73,7 @@ module.exports = {
         page.createBasicSelectCondition({
             type: 'billing country',
             operator: 'Is none of',
-            ruleSelector: `${page.elements.conditionOrContainer}--0 ${page.elements.conditionAndContainer}--2`,
+            ruleSelector: `${page.elements.conditionOrContainer}--0 ${page.elements.conditionAndContainer}--2 ${page.elements.baseCondition}`,
             value: 'Australia',
             isMulti: true
         });
@@ -89,7 +89,7 @@ module.exports = {
 
         page.createBasicSelectCondition({
             type: 'is new customer',
-            ruleSelector: `${page.elements.conditionOrContainer}--1`,
+            ruleSelector: `${page.elements.conditionOrContainer}--1 ${page.elements.baseCondition}`,
             value: 'no',
             isMulti: false
         });
@@ -106,7 +106,7 @@ module.exports = {
             type: 'last name',
             inputName: 'lastName',
             operator: 'Not equals',
-            ruleSelector: `${page.elements.conditionOrContainer}--1 ${page.elements.conditionOrContainer}--0`,
+            ruleSelector: `${page.elements.conditionOrContainer}--1 ${page.elements.conditionOrContainer}--0 ${page.elements.baseCondition}`,
             value: 'Norris'
         });
 
@@ -118,7 +118,7 @@ module.exports = {
 
         page.createCombinedInputSelectCondition({
             type: 'line item with quantity',
-            ruleSelector: `${page.elements.conditionOrContainer}--1 ${page.elements.conditionOrContainer}--1`,
+            ruleSelector: `${page.elements.conditionOrContainer}--1 ${page.elements.conditionOrContainer}--1 ${page.elements.baseCondition}`,
             firstValue: global.ProductFixtureService.productFixture.name,
             secondValue: '20',
             inputName: 'quantity',
@@ -139,7 +139,7 @@ module.exports = {
         browser
             .getLocationInView('.sw-condition-container__or-child--1')
             .clickContextMenuItem('.sw-context-menu-item--danger', page.elements.contextMenuButton, `${page.elements.conditionOrContainer}--1 ${page.elements.conditionOrContainer}--1`)
-            .waitForElementNotPresent(`${page.elements.conditionOrContainer}--1 ${page.elements.conditionOrContainer}--1`);
+            .waitForElementNotPresent(`${page.elements.conditionOrContainer}--1 ${page.elements.conditionOrContainer}--1 ${page.elements.baseCondition}`);
     },
     'delete single container': (browser) => {
         const page = ruleBuilderPage(browser);

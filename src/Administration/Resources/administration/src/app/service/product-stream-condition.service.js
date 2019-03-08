@@ -9,99 +9,104 @@
  * @returns {Object}
  */
 export default function conditionService() {
-    const blacklist = {
+    const blacklist = [
+        'createdAt',
+        'updatedAt',
+        'afterCategoryId',
+        'versionId',
+        'afterCategoryVersionId',
+        'autoIncrement',
+        'canonicalUrl',
+        'children',
+        'facetIds',
+        'mediaId',
+        'parent',
+        'parentId',
+        'parentVersionId',
+        'sortingIds',
+        'metaTitle',
+        'metaDescription',
+        'metaKeywords',
+        'products',
+        'product',
+        'productId',
+        'productVersionId',
+        'optionId',
+        'groupId',
+        'media',
+        'salesChannelId',
+        'typeId',
+        'languageId',
+        'currencyId',
+        'paymentMethodId',
+        'shippingMethodId',
+        'countryId',
+        'navigationId',
+        'navigationVersionId',
+        'mailHeaderFooterId',
+        'manufacturerId',
+        'unitId',
+        'taxId',
+        'coverId',
+        'productMediaVersionId',
+        'datasheetIds',
+        'variationIds'
+    ];
+
+    const entityBlacklist = {
         price: [
             'linked'
         ],
         tax: [
             'attributes',
             'name',
-            'createdAt',
-            'updatedAt',
             'products',
             'productServices'
         ],
         category: [
-            'afterCategoryId',
-            'versionId',
-            'afterCategoryVersionId',
             'displayNestedProducts',
-            'autoIncrement',
             'path',
             'level',
             'template',
             'attributes',
-            'canonicalUrl',
             'childCount',
-            'children',
             'cmsDescription',
             'cmsHeadline',
             'createdAt',
             'extensions',
             'external',
-            'facetIds',
             'hideFilter',
             'hideSortings',
             'hideTop',
             'media',
-            'mediaId',
-            'metaDescription',
-            'metaKeywords',
-            'metaTitle',
             'navigations',
             'nestedProducts',
-            'parent',
-            'parentId',
-            'parentVersionId',
-            'productBoxLayout',
-            'products',
-            'sortingIds',
-            'updatedAt'
+            'productBoxLayout'
         ],
         product_manufacturer: [
-            'versionId',
-            'mediaId',
             'link',
-            'createdAt',
-            'updatedAt',
-            'metaTitle',
-            'metaDescription',
-            'metaKeywords',
             'attributes',
-            'media',
-            'products'
+            'media'
         ],
         unit: [
             'attributes',
-            'createdAt',
-            'updatedAt',
-            'products',
             'shortCode'
         ],
         product_configurator: [
             'versionId',
-            'productId',
-            'productVersionId',
-            'optionId',
             'prices',
             'createdAt',
             'updatedAt',
-            'attributes',
-            'product'
+            'attributes'
         ],
         configuration_group_option: [
-            'groupId',
             'position',
             'colorHexCode',
-            'mediaId',
-            'media',
             'productConfigurators',
             'productServices',
             'productDatasheets',
             'productVariations',
-            'attributes',
-            'createdAt',
-            'updatedAt'
+            'attributes'
         ],
         configuration_group: [
             'description',
@@ -111,35 +116,16 @@ export default function conditionService() {
             'displayType',
             'sortingType',
             'options',
-            'attributes',
-            'createdAt',
-            'updatedAt'
+            'attributes'
         ],
         product_visibility: [
-            'id',
-            'productId',
-            'productVersionId',
-            'salesChannelId',
-            'createdAt',
-            'updatedAt',
-            'product'
+            'id'
         ],
         sales_channel: [
-            'typeId',
-            'languageId',
-            'currencyId',
-            'paymentMethodId',
-            'shippingMethodId',
-            'countryId',
-            'navigationId',
-            'navigationVersionId',
-            'mailHeaderFooterId',
             'name',
             'accessKey',
             'configuration',
             'attributes',
-            'createdAt',
-            'updatedAt',
             'extensions',
             'type',
             'currencies',
@@ -164,29 +150,13 @@ export default function conditionService() {
             'currency'
         ],
         product: [
-            'versionId',
-            'parentId',
-            'parentVersionId',
             'blacklistIds',
             'whitelistIds',
-            'autoIncrement',
-            'manufacturerId',
             'productManufacturerVersionId',
-            'unitId',
-            'taxId',
-            'coverId',
-            'productMediaVersionId',
             'listingPrices',
             'categoryTree',
-            'datasheetIds',
-            'variationIds',
             'extensions',
-            'parent',
-            'children',
-            'products',
             'productServices',
-            'mediaId',
-            'media',
             'cover',
             'metaTitle',
             'priceRules',
@@ -195,11 +165,17 @@ export default function conditionService() {
             'searchKeywords',
             'categoriesRo',
             'canonicalUrl',
-            'position'
+            'position',
+            'purchaseSteps'
         ]
     };
 
     return {
-        blacklist
+        isPropertyInBlacklist
     };
+
+    function isPropertyInBlacklist(definition, property) {
+        return blacklist.includes(property)
+            || (entityBlacklist[definition] && entityBlacklist[definition].includes(property));
+    }
 }

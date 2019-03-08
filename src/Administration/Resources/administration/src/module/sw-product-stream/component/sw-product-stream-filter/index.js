@@ -5,6 +5,8 @@ import template from './sw-product-stream-filter.html.twig';
 import TYPES from './type-provider';
 import './sw-product-stream-filter.scss';
 
+const productDefinitionName = 'product';
+
 Component.extend('sw-product-stream-filter', 'sw-condition-base', {
     template,
 
@@ -26,46 +28,8 @@ Component.extend('sw-product-stream-filter', 'sw-condition-base', {
             fieldPath: [],
             negatedCondition: null,
             isApi: false,
-            definitionBlacklist: null
-        };
-    },
-
-    computed: {
-        fieldNames() {
-            return ['type', 'field', 'operator', 'value', 'parameters', 'position', 'attributes'];
-        },
-        definitions() {
-            if (this.isApi) {
-                return [];
-            }
-            this.definitionBlacklist = {};
-
-            const definitions = [];
-            const blackListedDefinitions = [];
-            let definition = Entity.getDefinition('product');
-            this.addDefinitionToStack(definition, definitions, blackListedDefinitions);
-
-            this.fields.forEach((field) => {
-                if (this.isEntityDefinition(field)) {
-                    definition = Entity.getDefinition(field.entity);
-                    this.addDefinitionToStack(definition, definitions, blackListedDefinitions);
-                } else if (this.isObjectDefinition(field)) {
-                    definition = field;
-                    this.addDefinitionToStack(definition, definitions, blackListedDefinitions);
-                }
-            });
-
-            return definitions;
-        },
-
-        definition() {
-            return this.definitions[this.definitions.length - 1];
-        },
-        actualCondition() {
-            return this.negatedCondition || this.condition;
-        },
-        types() {
-            return [
+            definitionBlacklist: {},
+            types: [
                 {
                     type: TYPES.TYPE_RANGE,
                     name: this.$tc('sw-product-stream.filter.type.range')
@@ -97,7 +61,22 @@ Component.extend('sw-product-stream-filter', 'sw-condition-base', {
                     name: this.$tc('sw-product-stream.filter.type.notEqualsAny'),
                     not: TYPES.TYPE_EQUALS_ANY
                 }
-            ];
+            ]
+        };
+    },
+
+    computed: {
+        fieldNames() {
+            return ['type', 'field', 'operator', 'value', 'parameters', 'position', 'attributes'];
+        },
+        definitions() {
+            return this.getDefinitions();
+        },
+        definition() {
+            return this.definitions[this.definitions.length - 1];
+        },
+        actualCondition() {
+            return this.negatedCondition || this.condition;
         }
     },
 
@@ -146,15 +125,6 @@ Component.extend('sw-product-stream-filter', 'sw-condition-base', {
     },
 
     methods: {
-        getDefinitionStore(definition) {
-            return new LocalStore(Object.values(definition.properties), 'name');
-        },
-        getTypeStore() {
-            return new LocalStore(this.types, 'type');
-        },
-        getStore(entity) {
-            return State.getStore(entity);
-        },
         createdComponent() {
             this.locateConditionTreeComponent();
 
@@ -171,7 +141,34 @@ Component.extend('sw-product-stream-filter', 'sw-condition-base', {
                 this.isApi = true;
             }
         },
+        mountComponent() {
+            this.loadNegatedCondition();
+        },
 
+        getDefinitions() {
+            if (this.isApi) {
+                return [];
+            }
+
+            this.definitionBlacklist = {};
+
+            const definitions = [];
+            const blackListedDefinitions = [];
+            let definition = Entity.getDefinition(productDefinitionName);
+            this.addDefinitionToStack(definition, definitions, blackListedDefinitions);
+
+            this.fields.forEach((field) => {
+                if (this.isEntityDefinition(field)) {
+                    definition = Entity.getDefinition(field.entity);
+                    this.addDefinitionToStack(definition, definitions, blackListedDefinitions);
+                } else if (this.isObjectDefinition(field)) {
+                    definition = field;
+                    this.addDefinitionToStack(definition, definitions, blackListedDefinitions);
+                }
+            });
+
+            return definitions;
+        },
         addDefinitionToStack(definition, definitions, blackListedDefinitions) {
             blackListedDefinitions.push(definition.name);
             this.definitionBlacklist[definition.name] = blackListedDefinitions.slice(0);
@@ -179,35 +176,55 @@ Component.extend('sw-product-stream-filter', 'sw-condition-base', {
             definitions.push(definition);
         },
 
-        isObjectDefinition(field) {
-            return field.type === 'object' && field.properties;
+        filterProperties(definition) {
+            const store = {};
+            Object.keys(definition.properties).forEach((key) => {
+                if (this.isPropertyInAnyBlacklist(definition.name, key)) {
+                    return;
+                }
+
+                store[key] = definition.properties[key];
+                let label = '';
+                if (key === 'id' && definition.name === productDefinitionName) {
+                    label = this.$tc('sw-product-stream.filter.values.product');
+                } else if (key === 'id') {
+                    label = this.$tc('sw-product-stream.filter.values.choose');
+                } else {
+                    label = this.$tc(`sw-product-stream.filter.values.${key}`);
+                }
+
+                store[key].label = label;
+                store[key].name = key;
+                store[key].meta = {
+                    viewData: {
+                        label: store[key].label,
+                        name: store[key].name
+                    }
+                };
+            });
+            return store;
         },
 
-        isEntityDefinition(field) {
-            return !!field.entity;
+        isPropertyInAnyBlacklist(definitionName, property) {
+            return this.productStreamConditionService.isPropertyInBlacklist(definitionName, property)
+                || (this.definitionBlacklist
+                    && this.definitionBlacklist[definitionName]
+                    && this.definitionBlacklist[definitionName].includes(property));
         },
 
-        mountComponent() {
-            this.loadNegatedCondition();
+        getDefinitionStore(definition) {
+            return new LocalStore(Object.values(definition.properties), 'name');
         },
-
-        loadNegatedCondition() {
-            if (this.condition.type !== TYPES.TYPE_NOT) {
-                this.type = this.condition.type;
-                this.mapValues();
-                return;
-            }
-
-            this.negatedCondition = this.condition.queries[0];
-
-            this.type = this.types.find(type => type.not === this.negatedCondition.type).type;
-
-            this.mapValues();
+        getTypeStore() {
+            return new LocalStore(this.types, 'type');
+        },
+        getStore(entity) {
+            return State.getStore(entity);
         },
 
         getPathFields() {
             const fields = [];
-            let definition = this.filterProperties(Entity.getDefinition('product'));
+            let definition = this.filterProperties(Entity.getDefinition(productDefinitionName));
             if (!this.actualCondition.field) {
                 this.actualCondition.field = 'id';
                 fields.push(definition.id);
@@ -217,13 +234,11 @@ Component.extend('sw-product-stream-filter', 'sw-condition-base', {
             this.actualCondition.field.split('.').forEach((path) => {
                 const field = definition[path];
                 // return if Element is product
-                if (path === 'product') {
+                if (path === productDefinitionName) {
                     return;
                 }
 
-                if (!field
-                    || (this.productStreamConditionService.blacklist[definition.name]
-                        && this.productStreamConditionService.blacklist[definition.name].includes(path))) {
+                if (!field || this.productStreamConditionService.isPropertyInBlacklist(definition.name, path)) {
                     throw new Error('field not found or in blacklist');
                 }
 
@@ -274,37 +289,25 @@ Component.extend('sw-product-stream-filter', 'sw-condition-base', {
             return fields;
         },
 
-        filterProperties(definition) {
-            const store = {};
-            Object.keys(definition.properties).forEach((key) => {
-                if ((this.productStreamConditionService.blacklist[definition.name]
-                    && this.productStreamConditionService.blacklist[definition.name].includes(key))
-                    || (this.definitionBlacklist
-                        && this.definitionBlacklist[definition.name]
-                        && this.definitionBlacklist[definition.name].includes(key))) {
-                    return;
-                }
+        isObjectDefinition(field) {
+            return field.type === 'object' && field.properties;
+        },
+        isEntityDefinition(field) {
+            return !!field.entity;
+        },
 
-                store[key] = definition.properties[key];
-                let label = '';
-                if (key === 'id' && definition.name === 'product') {
-                    label = this.$tc('sw-product-stream.filter.values.product');
-                } else if (key === 'id') {
-                    label = this.$tc('sw-product-stream.filter.values.choose');
-                } else {
-                    label = this.$tc(`sw-product-stream.filter.values.${key}`);
-                }
+        loadNegatedCondition() {
+            if (this.condition.type !== TYPES.TYPE_NOT) {
+                this.type = this.condition.type;
+                this.mapValues();
+                return;
+            }
 
-                store[key].label = label;
-                store[key].name = key;
-                store[key].meta = {
-                    viewData: {
-                        label: store[key].label,
-                        name: store[key].name
-                    }
-                };
-            });
-            return store;
+            this.negatedCondition = this.condition.queries[0];
+
+            this.type = this.types.find(type => type.not === this.negatedCondition.type).type;
+
+            this.mapValues();
         },
 
         selectFilter(index, newValue) {
@@ -330,17 +333,6 @@ Component.extend('sw-product-stream-filter', 'sw-condition-base', {
             this.actualCondition.value = values.map(value => value.id || value).join('|');
         },
 
-        getValueFieldByType(type) {
-            switch (type) {
-            case 'string':
-                return 'text';
-            case 'integer':
-                return 'number';
-            default:
-                return type;
-            }
-        },
-
         selectType(value) {
             if (!this.negatedCondition && this.isNegatedConditionType(value)) {
                 this.createNegatedCondition();
@@ -357,6 +349,7 @@ Component.extend('sw-product-stream-filter', 'sw-condition-base', {
 
             return types.not || types.type;
         },
+
         createNegatedCondition() {
             this.negatedCondition = this.entityAssociationStore().create();
 
@@ -397,6 +390,16 @@ Component.extend('sw-product-stream-filter', 'sw-condition-base', {
         },
         isEquals(type) {
             return type === TYPES.TYPE_EQUALS;
+        },
+        getValueFieldByType(type) {
+            switch (type) {
+            case 'string':
+                return 'text';
+            case 'integer':
+                return 'number';
+            default:
+                return type;
+            }
         },
         getAvailableTypes() {
             if (!this.lastField) {

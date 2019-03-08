@@ -530,7 +530,6 @@
         "notContains": "not contains",
         "range": "range"
       },
-      "choose": "Please Choose",
       "values": {
         "active": "active",
         "additionalText": "additional text",
@@ -566,7 +565,6 @@
         "price": "price",
         "product": "product",
         "purchasePrice": "purchase price",
-        "purchaseSteps": "purchase steps",
         "purchaseUnit": "purchase unit",
         "referenceUnit": "reference unit",
         "releaseDate": "release date",

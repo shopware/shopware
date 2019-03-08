@@ -32,7 +32,7 @@
                    displayName="name"
                    :criteria="typeCriteria"
                    :required="true"
-                   class="field--select has--arrow"
+                   class="has--arrow"
                    @input="selectType">
         </sw-select>
     {% endblock %}
@@ -41,7 +41,7 @@
         <sw-select v-if="lastField.name === 'id' && isEquals(actualCondition.type)"
                    :store="getStore(definition.name)"
                    :id="createId()"
-                   class="field--select field--main"
+                   class="field--main"
                    :required="true"
                    v-model="actualCondition.value">
         </sw-select>
@@ -52,7 +52,7 @@
                             multi
                             :store="getStore(definition.name)"
                             :id="createId()"
-                            class="field--multi field--main"
+                            class="field--main"
                             v-model="multiValues"
                             :required="true"
                             @input="updateMultiValue">
@@ -62,7 +62,7 @@
     {% block sw_product_stream_filter_multi_tagged_value %}
         <sw-tagged-field v-else-if="isEqualsAny(actualCondition.type)"
                          v-model="multiValues"
-                         class="field--multi field--main"
+                         class="field--main"
                          @input="updateTaggedValue">
         </sw-tagged-field>
     {% endblock %}

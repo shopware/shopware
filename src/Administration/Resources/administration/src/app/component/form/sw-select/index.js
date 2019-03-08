@@ -48,6 +48,11 @@ export default {
         value: {
             required: false
         },
+        hasPreview: {
+            type: Boolean,
+            required: false,
+            default: true
+        },
         label: {
             default: ''
         },
@@ -157,7 +162,9 @@ export default {
 
     watch: {
         '$route.params.id'() {
-            this.createdComponent();
+            this.selections = [];
+            this.results = [];
+            this.loadSelections();
         },
         // load data of the selected option when it changes
         value() {
@@ -187,7 +194,6 @@ export default {
         createdComponent() {
             this.selections = [];
             this.results = [];
-
             this.loadSelections();
             this.addEventListeners();
         },
@@ -356,7 +362,7 @@ export default {
             const swSelectEl = this.$refs.swSelect;
             const activeItem = swSelectEl.querySelector('.is--active');
             const itemHeight = swSelectEl.querySelector('.sw-select-option').offsetHeight;
-            const activeItemPosition = activeItem.offsetTop + itemHeight;
+            const activeItemPosition = activeItem ? activeItem.offsetTop + itemHeight : 0;
             const resultContainer = swSelectEl.querySelector('.sw-select__results');
             let resultContainerHeight = resultContainer.offsetHeight;
 
@@ -424,6 +430,7 @@ export default {
 
             if (this.multi) {
                 if (this.isInSelections(item)) {
+                    this.onDismissSelection(item);
                     return;
                 }
 
@@ -451,21 +458,21 @@ export default {
             this.$emit('sw-select-on-keyup-enter', this.activeResultPosition);
         },
 
-        onDismissSelection(id) {
-            this.dismissSelection(id);
+        onDismissSelection(item) {
+            this.dismissSelection(item);
             this.setFocus();
         },
 
-        dismissSelection(id) {
-            if (!id) {
+        dismissSelection(item) {
+            if (!item[this.itemValueKey]) {
                 return;
             }
 
-            this.selections = this.selections.filter((entry) => entry.id !== id);
+            this.selections = this.selections.filter((entry) => entry[this.itemValueKey] !== item[this.itemValueKey]);
 
             this.emitChanges(this.selections);
 
-            if (this.defaultItemId && this.defaultItemId === id) {
+            if (this.defaultItemId && this.defaultItemId === item[this.itemValueKey]) {
                 if (this.selections.length >= 1) {
                     this.changeDefaultItemId(this.selections[0].id);
                 } else {
@@ -483,9 +490,8 @@ export default {
                 return;
             }
 
-            const lastSelectionId = this.selections[this.selections.length - 1].id;
-
-            this.dismissSelection(lastSelectionId);
+            const lastSelection = this.selections[this.selections.length - 1];
+            this.dismissSelection(lastSelection);
         },
 
         emitChanges(items) {

@@ -12,9 +12,7 @@
         {% block sw_category_tree_actions %}
             <template slot="actions">
                 <div v-if="checkedCategoriesCount > 0" class="sw-category-tree-actions__headline">
-                    <span>
-                        {{ $tc('sw-category.general.treeHeadSelected', 0, { count: checkedCategoriesCount }) }}:
-                    </span>
+                    <span>{{ $tc('sw-category.general.treeHeadSelected', 0, { count: checkedCategoriesCount }) }}:</span>
                     <span class="sw-category-tree__batch-delete" @click="deleteSelectedCategories">{{ $tc('sw-category.general.actions.delete') }}</span>
                 </div>
 
@@ -40,22 +38,23 @@
                         <template slot="content" slot-scope="{ item }">
                             {% block sw_category_tree_items_item_content_edit %}
                                 <template v-if="currentEditCategory === item.data.id">
-                                    <sw-confirm-field class="sw-category-detail__edit-category-field"
-                                                      v-model="item.data.name"
-                                                      :preventEmptySubmit="true"
-                                                      @input="onEditCategoryFinish"
-                                                      @blur="abortCreateCategory(item)"
-                                                      @cancelSubmit="abortCategoryEdit(item)"
-                                                      :placeholder="$tc('sw-category.general.buttonCreateCategory')">
+                                    <sw-confirm-field
+                                        class="sw-category-detail__edit-category-field"
+                                        v-model="item.data.name"
+                                        :preventEmptySubmit="true"
+                                        @input="onEditCategoryFinish"
+                                        @blur="abortCreateCategory(item)"
+                                        @cancelSubmit="abortCategoryEdit(item)"
+                                        :placeholder="$tc('sw-category.general.buttonCreateCategory')">
                                     </sw-confirm-field>
                                 </template>
                             {% endblock %}
 
                             {% block sw_category_tree_items_item_content_default %}
                                 <template v-else>
-                                    <router-link class="tree-link" :to="{ name: 'sw.category.detail', params: { id: item.id }}">
+                                    <a class="tree-link" @click="changeCategory(item)">
                                         <span class="sw-tree-item__label">{{ item.data.name || item.data.meta.viewData.name }}</span>
-                                    </router-link>
+                                    </a>
                                 </template>
                             {% endblock %}
                         </template>
@@ -63,25 +62,37 @@
 
                     {% block sw_category_tree_items_actions %}
                         <template slot="actions" slot-scope="{ item, openTreeItem }">
-                            <sw-context-button>
-                                {% block sw_category_tree_items_actions_categorybefore %}
-                                    <sw-context-menu-item :disabled="currentEditCategory !== null"
-                                                          @click="addCategory(item, 'before');">
-                                        {{ $tc('sw-category.general.actions.createBefore') }}
-                                    </sw-context-menu-item>
-                                {% endblock %}
-                                {% block sw_category_tree_items_actions_categoryafter %}
-                                    <sw-context-menu-item :disabled="currentEditCategory !== null"
-                                                          @click="addCategory(item, 'after');">
-                                        {{ $tc('sw-category.general.actions.createAfter') }}
-                                    </sw-context-menu-item>
-                                {% endblock %}
-                                {% block sw_category_tree_items_actions_subcategory %}
-                                    <sw-context-menu-item :disabled="currentEditCategory !== null"
-                                                          @click="addSubcategory(item); openTreeItem(true)">
-                                        {{ $tc('sw-category.general.actions.createSub') }}
-                                    </sw-context-menu-item>
-                                {% endblock %}
+                            <sw-context-button menuVerticalAlign="top">
+
+                                <div class="sw-context-menu__group">
+                                    {% block sw_category_tree_items_actions_subcategory %}
+                                        <sw-context-menu-item
+                                            v-tooltip="{ showDelay: 300, message: $tc('sw-category.general.actions.actionsDisabledInLanguage'), disabled: checkDefaultLanguage() }"
+                                            :disabled="currentEditCategory !== null || !checkDefaultLanguage()"
+                                            @click="addSubcategory(item); openTreeItem(true)">
+                                            {{ $tc('sw-category.general.actions.createSub') }}
+                                        </sw-context-menu-item>
+                                    {% endblock %}
+                                </div>
+
+                                <div class="sw-context-menu__group">
+                                    {% block sw_category_tree_items_actions_categorybefore %}
+                                        <sw-context-menu-item
+                                            v-tooltip="{ showDelay: 300, message: $tc('sw-category.general.actions.actionsDisabledInLanguage'), disabled: checkDefaultLanguage() }"
+                                            :disabled="currentEditCategory !== null || !checkDefaultLanguage()"
+                                            @click="addCategory(item, 'before');">
+                                            {{ $tc('sw-category.general.actions.createBefore') }}
+                                        </sw-context-menu-item>
+                                    {% endblock %}
+                                    {% block sw_category_tree_items_actions_categoryafter %}
+                                        <sw-context-menu-item
+                                            v-tooltip="{ showDelay: 300, message: $tc('sw-category.general.actions.actionsDisabledInLanguage'), disabled: checkDefaultLanguage() }"
+                                            :disabled="currentEditCategory !== null || !checkDefaultLanguage()"
+                                            @click="addCategory(item, 'after');">
+                                            {{ $tc('sw-category.general.actions.createAfter') }}
+                                        </sw-context-menu-item>
+                                    {% endblock %}
+                                </div>
 
                                 {% block sw_category_tree_items_actions_group %}
                                     <div class="sw-context-menu__group">
@@ -91,12 +102,13 @@
                                             </sw-context-menu-item>
                                         {% endblock %}
                                         {% block sw_category_tree_items_actions_delete %}
-                                            <sw-context-menu-item variant="danger" @click="onDeleteCategory(item)">
+                                            <sw-context-menu-item variant="danger" @click="onDeleteCategory(item.id)">
                                                 {{ $tc('sw-category.general.actions.delete') }}
                                             </sw-context-menu-item>
                                         {% endblock %}
                                     </div>
                                 {% endblock %}
+
                             </sw-context-button>
                         </template>
                     {% endblock %}

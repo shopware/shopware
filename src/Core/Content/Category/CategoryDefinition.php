@@ -60,6 +60,7 @@ class CategoryDefinition extends EntityDefinition
     {
         $defaults = parent::getDefaults($existence);
         $defaults['displayNestedProducts'] = true;
+        $defaults['active'] = false;
 
         return $defaults;
     }

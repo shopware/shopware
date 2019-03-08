@@ -6,13 +6,14 @@
         {% endblock %}
 
         {% block sw_category_view_information %}
-            <sw-card :title="$tc('sw-category.general.headlineInformationCard')" :isLoading="isLoading">
+            <sw-card :title="$tc('sw-category.general.headlineInformationCard')" :isLoading="isLoading || isLoadingProducts">
                 <sw-container columns="repeat(auto-fit, minmax(150px, 1fr))" gap="0px 30px" class="sw-category__infos">
                     {% block sw_category_view_information_name %}
                         <sw-field
                             name="categoryName"
                             class="sw-category__name"
                             v-model="category.name"
+                            validation="required"
                             :label="$tc('sw-category.general.categoryNameLabel')"
                             :placeholder="placeholder(category, 'name')">
                         </sw-field>
@@ -43,6 +44,7 @@
 
                 {% block sw_category_view_information_media %}
                     <sw-media-upload
+                        :label="$tc('sw-category.general.imageLabel')"
                         variant="regular"
                         :source="mediaItem"
                         :uploadTag="category.id"
@@ -56,16 +58,78 @@
             </sw-card>
         {% endblock %}
 
-        {% block sw_category_view_sidebar %}
-            <template slot="card-view-sidebar">
-                <sw-sidebar-media-item ref="mediaSidebarItem">
-                    <template slot="context-menu-items" slot-scope="media">
-                        <sw-context-menu-item @click="setMediaItem(media.mediaItem)">
-                            {{ $tc('sw-category.general.useAsLogo') }}
-                        </sw-context-menu-item>
-                    </template>
-                </sw-sidebar-media-item>
-            </template>
+        {% block sw_category_view_products %}
+            <sw-card :title="$tc('sw-category.general.productAssignmentHeadline')" :isLoading="isLoading || isLoadingProducts">
+
+                {% block sw_category_view_products_search %}
+                    <div class="sw-category-view__product-search">
+                        <sw-category-select
+                            :hasPreview="false"
+                            id="productSelection"
+                            itemValueKey="id"
+                            :store="productStore"
+                            :associationStore="categoryProductStore"
+                            :placeholder="$tc('sw-category.general.productAssignmentPlaceholder')"
+                            @sw-category-select-on-select="onSelectProduct">
+                        </sw-category-select>
+                    </div>
+
+                    <sw-button class="sw-category-view__multi-delete" :disabled="deleteButtonDisabled" @click="onRemoveProducts" square size="small">
+                        <sw-icon name="default-action-trash" small />
+                    </sw-button>
+                {% endblock %}
+
+                {% block sw_category_view_products_grid %}
+                    <sw-grid
+                        v-if="products"
+                        slot="grid"
+                        ref="grid"
+                        selectable
+                        :items="products"
+                        :sortBy="sortBy"
+                        :sortDirection="sortDirection"
+                        :isLoading="isLoadingProducts"
+                        @sw-grid-select-item="selectionChanged"
+                        @sw-grid-select-all="selectionChanged"
+                        table>
+
+                        <template slot="columns" slot-scope="{ item }">
+                            <sw-grid-column flex="minmax(200px, 1fr)" :label="$tc('sw-category.general.columnNameLabel')">
+                                <router-link :to="{ name: 'sw.product.detail', params: { id: item.id }}">
+                                    {{ placeholder(item, 'name' ) }}
+                                </router-link>
+                            </sw-grid-column>
+                            <sw-grid-column flex="minmax(200px, 1fr)" :label="$tc('sw-category.general.columnManufacturerLabel')">
+                                {{ placeholder(item.manufacturer, 'name' ) }}
+                            </sw-grid-column>
+
+                            <sw-grid-column flex="70px" align="center">
+                                <sw-context-button>
+                                    <sw-context-menu-item @click="onViewProduct(item.id)">
+                                        {{ $tc('sw-category.general.productAssignmentActionDetails') }}
+                                    </sw-context-menu-item>
+                                    <sw-context-menu-item @click="onRemoveProduct(item)">
+                                        {{ item.isDeleted ?
+                                            $tc('sw-category.general.productAssignmentActionUndo') :
+                                            $tc('sw-category.general.productAssignmentActionRemove')
+                                        }}
+                                    </sw-context-menu-item>
+                                </sw-context-button>
+                            </sw-grid-column>
+                        </template>
+
+                        <template slot="pagination">
+                            <sw-pagination
+                                :page="page"
+                                :limit="limit"
+                                :total="total"
+                                :total-visible="7"
+                                @page-change="onPageChange">
+                            </sw-pagination>
+                        </template>
+                    </sw-grid>
+                {% endblock %}
+            </sw-card>
         {% endblock %}
 
     </sw-card-view>

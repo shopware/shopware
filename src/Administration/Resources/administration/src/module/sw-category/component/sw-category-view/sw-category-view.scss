@@ -7,6 +7,16 @@
     .sw-text-editor {
         margin-bottom: 0;
     }
+    .sw-category-view__product-search {
+        padding: 30px;
+    }
+
+    .sw-category-view__multi-delete {
+        z-index: 5;
+        position: absolute;
+        right: 20px;
+        top: 122px;
+    }
 
     @media screen and (min-width: 1580px) {
         .sw-card .sw-card__title {

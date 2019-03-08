@@ -41,7 +41,7 @@ export default {
             default: 15
         },
 
-        menuAlign: {
+        menuHorizontalAlign: {
             type: String,
             required: false,
             default: 'right',
@@ -50,6 +50,18 @@ export default {
                     return true;
                 }
                 return ['right', 'left'].includes(value);
+            }
+        },
+
+        menuVerticalAlign: {
+            type: String,
+            required: false,
+            default: 'bottom',
+            validator(value) {
+                if (!value.length) {
+                    return true;
+                }
+                return ['bottom', 'top'].includes(value);
             }
         },
 
@@ -108,7 +120,8 @@ export default {
 
         contextMenuClass() {
             return {
-                'is--left-align': this.menuAlign === 'left'
+                'is--left-align': this.menuHorizontalAlign === 'left',
+                'is--top-align': this.menuVerticalAlign === 'top'
             };
         }
     },
@@ -142,7 +155,8 @@ export default {
             const secureOffset = 5;
 
             this.positionTop = boundingBox.top - secureOffset;
-            if (this.menuAlign === 'left') {
+
+            if (this.menuHorizontalAlign === 'left') {
                 this.positionLeft = boundingBox.left - secureOffset;
             } else {
                 this.positionLeft = (boundingBox.left + boundingBox.width + this.menuOffsetLeft) - this.menuWidth;

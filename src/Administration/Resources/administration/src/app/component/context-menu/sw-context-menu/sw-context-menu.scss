@@ -11,6 +11,18 @@ $sw-context-menu-z-index:                $z-index-context-menu;
     z-index: $sw-context-menu-z-index;
     cursor: pointer;
 
+    &.is--top-align {
+        .sw-context-menu__content {
+            margin-top: calc(-100% - 30px);
+
+            &::before {
+                transform: rotate(-135deg);
+                bottom: -5px;
+                top: unset;
+            }
+        }
+    }
+
     .sw-context-menu__content {
         padding: 8px;
         background: $color-white;
@@ -47,6 +59,8 @@ $sw-context-menu-z-index:                $z-index-context-menu;
 
             &:first-child {
                 border-top: 0 none;
+                padding-top: 5px;
+                margin-top: 0;
             }
         }
     }

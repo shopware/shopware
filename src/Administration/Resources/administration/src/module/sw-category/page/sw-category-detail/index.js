@@ -19,7 +19,9 @@ Component.register('sw-category-detail', {
             isLoading: false,
             mediaItem: null,
             isMobileViewport: null,
-            splitBreakpoint: 1024
+            splitBreakpoint: 1024,
+            isDisplayingLeavePageWarning: false,
+            nextRoute: null
         };
     },
 
@@ -42,7 +44,7 @@ Component.register('sw-category-detail', {
 
         pageClasses() {
             return {
-                'has--category': !!this.category && !this.isLoading,
+                'has--category': !!this.category,
                 'is--mobile': !!this.isMobileViewport
             };
         }
@@ -56,6 +58,16 @@ Component.register('sw-category-detail', {
 
     created() {
         this.createdComponent();
+    },
+
+    beforeRouteLeave(to, from, next) {
+        if (this.category && this.category.hasChanges()) {
+            this.isDisplayingLeavePageWarning = true;
+            this.nextRoute = to;
+            next(false);
+        } else {
+            next();
+        }
     },
 
     methods: {
@@ -93,10 +105,14 @@ Component.register('sw-category-detail', {
         },
 
         setCategory() {
-            this.isLoading = true;
             const categoryId = this.$route.params.id;
+            this.isLoading = true;
 
-            if (categoryId) {
+            if (this.category) {
+                this.category.discardChanges();
+            }
+
+            if (this.$route.params.id) {
                 this.getCategory(categoryId).then(response => {
                     this.category = response;
                     this.mediaItem = this.category.mediaId
@@ -104,7 +120,9 @@ Component.register('sw-category-detail', {
                     this.isLoading = false;
                 });
             } else {
-                this.resetCategory();
+                this.isLoading = false;
+                this.category = null;
+                this.mediaItem = null;
             }
         },
 
@@ -116,11 +134,34 @@ Component.register('sw-category-detail', {
             return this.categoryStore.sync();
         },
 
+        openChangeModal(destination) {
+            this.nextRoute = destination;
+            this.isDisplayingLeavePageWarning = true;
+        },
+
+        onLeaveModalClose() {
+            this.nextRoute = null;
+            this.isDisplayingLeavePageWarning = false;
+        },
+
+        onLeaveModalConfirm(destination) {
+            this.isDisplayingLeavePageWarning = false;
+            this.category.discardChanges();
+            this.$nextTick(() => {
+                this.$router.push({ name: destination.name, params: destination.params });
+            });
+        },
+
+        cancelEdit() {
+            this.category.discardChanges();
+            this.resetCategory();
+        },
+
         resetCategory() {
             this.$router.push({ name: 'sw.category.index' });
+            this.isLoading = true;
             this.category = null;
             this.mediaItem = null;
-            this.isLoading = false;
         },
 
         onDuplicateCategory(item) {
@@ -141,6 +182,10 @@ Component.register('sw-category-detail', {
             }).finally(() => {
                 this.isLoading = false;
             });
+        },
+
+        openSidebar() {
+            this.$refs.mediaSidebarItem.openContent();
         },
 
         setMediaItem(mediaEntity) {
@@ -168,6 +213,7 @@ Component.register('sw-category-detail', {
         },
 
         onSave() {
+            const categoryView = this.$refs.categoryView;
             const categoryName = this.category.name || this.category.meta.viewData.name;
             const titleSaveSuccess = this.$tc('sw-category.general.titleSaveSuccess');
             const messageSaveSuccess = this.$tc('sw-category.general.messageSaveSuccess', 0, { name: categoryName });
@@ -175,12 +221,16 @@ Component.register('sw-category-detail', {
             const messageSaveError = this.$tc('global.notification.notificationSaveErrorMessage',
                 0, { entityName: categoryName });
 
+            this.isLoading = true;
             return this.category.save().then(() => {
+                categoryView.getList();
+                this.isLoading = false;
                 this.createNotificationSuccess({
                     title: titleSaveSuccess,
                     message: messageSaveSuccess
                 });
             }).catch(exception => {
+                this.isLoading = false;
                 this.createNotificationError({
                     title: titleSaveError,
                     message: messageSaveError

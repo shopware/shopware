@@ -1,4 +1,4 @@
-import { Application, Mixin } from 'src/core/shopware';
+import { Application, Mixin, State } from 'src/core/shopware';
 import template from './sw-media-folder-item.html.twig';
 import './sw-media-folder-item.scss';
 
@@ -39,11 +39,19 @@ export default {
             showSettings: false,
             showDissolveModal: false,
             showMoveModal: false,
-            showDeleteModal: false
+            showDeleteModal: false,
+            iconConfig: {
+                name: '',
+                color: 'inherit'
+            }
         };
     },
 
     computed: {
+        mediaDefaultFolderStore() {
+            return State.getStore('media_default_folder');
+        },
+
         baseComponent() {
             return this.$refs.innerComponent;
         },
@@ -65,21 +73,16 @@ export default {
             return !!this.item.defaultFolderId;
         },
 
-        iconConfig() {
-            if (this.isDefaultFolder) {
-                const module = this.moduleFactory.getModuleByEntityName(this.item.defaultFolder.entity);
-                if (module) {
-                    return {
-                        name: module.manifest.icon,
-                        color: module.manifest.color
-                    };
-                }
+        defaultFolder() {
+            if (!this.isDefaultFolder) {
+                return Promise.resolve(null);
             }
 
-            return {
-                name: 'folder-thumbnail',
-                color: 'inherit'
-            };
+            if (this.item.defaultFolder.entity !== '') {
+                return Promise.resolve(this.item.defaultFolder);
+            }
+
+            return this.mediaDefaultFolderStore.getByIdAsync(this.item.defaultFolderId);
         }
     },
 
@@ -87,11 +90,36 @@ export default {
         this.mountedComponent();
     },
 
+    watch: {
+        defaultFolder() {
+            this.updateIconConfig();
+        }
+    },
+
     methods: {
         mountedComponent() {
             if (this.item.name === '') {
                 this.baseComponent.startInlineEdit();
             }
+
+            if (this.isDefaultFolder) {
+                this.updateIconConfig();
+            }
+        },
+
+        updateIconConfig() {
+            this.defaultFolder.then((defaultFolder) => {
+                if (!defaultFolder) {
+                    return;
+                }
+                const module = this.moduleFactory.getModuleByEntityName(defaultFolder.entity);
+                if (module) {
+                    this.iconConfig = {
+                        name: module.manifest.icon,
+                        color: module.manifest.color
+                    };
+                }
+            });
         },
 
         onStartRenaming() {

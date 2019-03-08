@@ -7,6 +7,8 @@ import './page/sw-mail-template-index';
 import './page/sw-mail-header-footer-detail';
 import './page/sw-mail-header-footer-create';
 import { NEXT712 } from 'src/flag/feature_next712';
+import deDE from './snippet/de_DE.json';
+import enGB from './snippet/en_GB.json';
 
 Module.register('sw-mail-template', {
     type: 'core',
@@ -18,6 +20,11 @@ Module.register('sw-mail-template', {
     color: '#c64e3f',
     icon: 'default-symbol-products',
     entity: 'mail_template',
+
+    snippets: {
+        'de-DE': deDE,
+        'en-GB': enGB
+    },
 
     routes: {
         index: {

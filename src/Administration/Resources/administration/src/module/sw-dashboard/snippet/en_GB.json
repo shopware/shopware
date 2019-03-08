@@ -1,0 +1,8 @@
+{
+  "sw-dashboard": {
+    "general": {
+      "mainMenuItemGeneral": "Dashboard",
+      "descriptionTextModule": "This is the front page, containing statistics and system information"
+    }
+  }
+}

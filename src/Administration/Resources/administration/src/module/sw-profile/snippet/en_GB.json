@@ -1,0 +1,27 @@
+{
+  "sw-profile": {
+    "general": {
+      "headlineProfile": "Your profile"
+    },
+    "index": {
+      "buttonSaveLabel": "Save",
+      "titleInfoCard": "Profile information",
+      "titleImageCard": "Profile image",
+      "titlePasswordCard": "Password",
+      "labelNameField": "Display name",
+      "labelUsernameField": "Username",
+      "labelEmailField": "Email",
+      "labelOldPassword": "Old password",
+      "labelNewPasswordField": "New password",
+      "labelNewPasswordConfirmField": "Confirm password",
+      "notificationPasswordErrorTitle": "Error",
+      "notificationPasswordErrorMessage": "The submitted passwords do not match.",
+      "notificationOldPasswordErrorMessage": "Please submit your current password correctly.",
+      "notificationInvalidEmailErrorMessage": "Please enter a valid email address.",
+      "notificationSaveSuccessTitle": "Success",
+      "notificationSaveSuccessMessage": "Profile information has been saved successfully.",
+      "labelUploadAvatar": "Upload an avatar",
+      "labelUseAsAvatar": "Use as avatar"
+    }
+  }
+}

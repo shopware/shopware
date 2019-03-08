@@ -1,0 +1,40 @@
+{
+  "sw-settings-payment": {
+    "general": {
+      "mainMenuItemGeneral": "Payment methods",
+      "placeholderSearchBar": "Search payment methods"
+    },
+    "list": {
+      "textHeadline": "Payment methods",
+      "textDeleteConfirm": "Are you sure you want to delete the payment method \"{name}\"?",
+      "columnName": "Name",
+      "columnDescription": "Description",
+      "columnActive": "Active",
+      "buttonAddPaymentMethod": "Add payment method",
+      "contextMenuEdit": "Edit",
+      "modalTitleDelete": "Delete payment method",
+      "titleDeleteSuccess": "Success",
+      "messageDeleteSuccess": "Payment method \"{name}\" has been deleted successfully.",
+      "buttonCancel": "Cancel",
+      "buttonDelete": "Delete"
+    },
+    "detail": {
+      "textHeadline": "New Payment method",
+      "titleCard": "Settings",
+      "titleSaveSuccess": "Success",
+      "messageSaveSuccess": "Payment method \"{name}\" has been saved successfully.",
+      "labelName": "Name",
+      "labelTechnicalName": "Technical name",
+      "labelActive": "Active",
+      "labelMobileInactive": "Inactive on smartphones",
+      "labelAdditionalDescription": "Description",
+      "labelHandler": "Handler",
+      "placeholderName": "Enter name",
+      "placeholderTechnicalName": "Enter technical name",
+      "placeholderAdditionalDescription": "Enter description",
+      "placeholderHandler": "Enter handler",
+      "buttonCancel": "Cancel",
+      "buttonSave": "Save"
+    }
+  }
+}

@@ -14,6 +14,9 @@ import './page/sw-product-list';
 import './page/sw-product-detail';
 import './page/sw-product-create';
 
+import deDE from './snippet/de_DE.json';
+import enGB from './snippet/en_GB.json';
+
 Module.register('sw-product', {
     type: 'core',
     name: 'Products',
@@ -23,6 +26,12 @@ Module.register('sw-product', {
     color: '#57D9A3',
     icon: 'default-symbol-products',
     entity: 'product',
+
+    snippets: {
+        'de-DE': deDE,
+        'en-GB': enGB
+    },
+
 
     routes: {
         index: {

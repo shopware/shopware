@@ -1,0 +1,53 @@
+{
+  "sw-settings-shipping": {
+    "general": {
+      "mainMenuItemGeneral": "Shipping costs",
+      "placeholderSearchBar": "Search shipping rates"
+    },
+    "list": {
+      "textHeadline": "Shipping costs",
+      "textDeleteConfirm": "Are you sure you want to delete the shipping rate \"{name}\"?",
+      "columnName": "Name",
+      "columnActive": "Active",
+      "columnShippingfree": "Free shipping",
+      "buttonAddShippingMethod": "Add shipping rate",
+      "contextMenuEdit": "Edit",
+      "modalTitleDelete": "Delete shipping rate",
+      "titleDeleteSuccess": "Success",
+      "messageDeleteSuccess": "Shipping rate \"{name}\" has been deleted successfully.",
+      "buttonCancel": "Cancel",
+      "buttonDelete": "Delete"
+    },
+    "detail": {
+      "textHeadline": "New shipping rate",
+      "titleCard": "Settings",
+      "titleSaveSuccess": "Success",
+      "messageSaveSuccess": "Shipping rate \"{name}\" has been saved successfully.",
+      "labelName": "Name",
+      "labelActive": "Active",
+      "labelBindShippingfree": "Free shipping",
+      "labelMinDeliveryTime": "min deliverytime",
+      "labelMaxDeliveryTime": "max deliverytime",
+      "placeholderName": "Enter name",
+      "placeholderDescription": "Enter description",
+      "placeholderComment": "Enter comment",
+      "labelCalculation": "Calculation",
+      "labelComment": "Comment",
+      "labelDescription": "Description",
+      "buttonCancel": "Cancel",
+      "buttonSave": "Save",
+      "labelSetRules": "Select rules",
+      "tabGeneral": "General",
+      "tabAdvancedPrices": "Price settings",
+      "columnQuantityStart": "Amount from",
+      "columnQuantityEnd": "Amount to",
+      "columnPrice": "Price",
+      "columnFactor": "Factor"
+    },
+    "constants": {
+      "weight": "Weight",
+      "price": "Price",
+      "lineItemCount": "Line item count"
+    }
+  }
+}

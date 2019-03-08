@@ -1,0 +1,34 @@
+{
+  "sw-settings-tax": {
+    "general": {
+      "mainMenuItemGeneral": "Steuern",
+      "taxRateSymbol": "&#037;",
+      "placeholderSearchBar": "Durchsuche alle Steuern"
+    },
+    "list": {
+      "textHeadline": "Steuern",
+      "textDeleteConfirm": "Bist Du sicher, dass Du die Steuer \"{name}\" löschen möchtest?",
+      "columnName": "Name",
+      "columnTaxRate": "Steuersatz",
+      "buttonAddTax": "Steuer anlegen",
+      "contextMenuEdit": "Bearbeiten",
+      "modalTitleDelete": "Steuer löschen",
+      "titleDeleteSuccess": "Erfolg",
+      "messageDeleteSuccess": "Die Steuer \"{name}\" wurde erfolgreich gelöscht.",
+      "buttonCancel": "Abbrechen",
+      "buttonDelete": "Löschen"
+    },
+    "detail": {
+      "textHeadline": "Neue Steuer",
+      "titleCard": "Einstellungen",
+      "titleSaveSuccess": "Erfolg",
+      "messageSaveSuccess": "Die Steuer \"{name}\" wurde erfolgreich gespeichert.",
+      "labelName": "Name",
+      "labelTaxRate": "Steuersatz",
+      "placeholderName": "Namen eingeben...",
+      "placeholderTaxRate": "Steuersatz eingeben...",
+      "buttonCancel": "Abbrechen",
+      "buttonSave": "Speichern"
+    }
+  }
+}

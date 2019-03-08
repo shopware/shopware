@@ -1,0 +1,34 @@
+{
+  "sw-settings-tax": {
+    "general": {
+      "mainMenuItemGeneral": "Tax",
+      "taxRateSymbol": "&#037;",
+      "placeholderSearchBar": "Search tax rates"
+    },
+    "list": {
+      "textHeadline": "Tax",
+      "textDeleteConfirm": "Are you sure you want to delete the tax \"{name}\"?",
+      "columnName": "Name",
+      "columnTaxRate": "Tax rate",
+      "buttonAddTax": "Add tax",
+      "contextMenuEdit": "Edit",
+      "modalTitleDelete": "Delete tax",
+      "titleDeleteSuccess": "Success",
+      "messageDeleteSuccess": "Tax \"{name}\" has been deleted successfully.",
+      "buttonCancel": "Cancel",
+      "buttonDelete": "Delete"
+    },
+    "detail": {
+      "textHeadline": "New tax",
+      "titleCard": "Settings",
+      "titleSaveSuccess": "Success",
+      "messageSaveSuccess": "Tax \"{name}\" has been saved successfully.",
+      "labelName": "Name",
+      "labelTaxRate": "Tax rate",
+      "placeholderName": "Enter name",
+      "placeholderTaxRate": "Enter tax rate",
+      "buttonCancel": "Cancel",
+      "buttonSave": "Save"
+    }
+  }
+}

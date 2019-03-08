@@ -1,0 +1,48 @@
+{
+  "sw-category": {
+    "general": {
+      "mainMenuItemIndex": "Kategorien",
+      "mainMenuItemList": "Übersicht",
+      "headlineCategories": "Kategorien",
+      "headlineInformationCard": "Kategorieinformationen",
+      "buttonCreateCategory": "Kategorie erstellen",
+      "buttonSafeCategory": "Speichern",
+      "isCategoryActiveLabel": "Kategorien ist aktiv",
+      "descriptionLabel": "Beschreibung",
+      "imageLabel": "Anzeigebild",
+      "showSubcategoryProductsLabel": "Enthält Produkte aus Subkategorien",
+      "categoryNameLabel": "Name",
+      "titleSaveSuccess": "Erfolg",
+      "messageSaveSuccess": "Die Kategorie \"{name}\" wurde erfolgreich gespeichert.",
+      "useAsLogo": "Als Anzeigebild verwenden",
+      "treeHeadline": "Kategoriestruktur",
+      "columnNameLabel": "Name",
+      "columnManufacturerLabel": "Hersteller",
+      "treeHeadSelected": "{count} selektiert",
+      "productAssignmentHeadline": "Produktzuweisung",
+      "productAssignmentPlaceholder": "Produkte durchsuchen und zuweisen...",
+      "productAssignmentActionDetails": "Details",
+      "productAssignmentActionRemove": "Entfernen",
+      "productAssignmentActionUndo": "Rückgängig machen",
+      "productAssignmentEmptyText": "Keine Produkte gefunden",
+      "emptyStateHeadline": "Keine Kategorie ausgewählt",
+
+      "leavePageModal" : {
+        "headline" : "Warnung",
+        "description" : "Es existieren ungespeicherte Änderungen. Soll die Seite trotzdem verlassen werden?",
+        "confirmButton" : "Seite verlassen",
+        "cancelButton" : "Auf Seite bleiben"
+      },
+
+      "actions": {
+        "actionsDisabledInLanguage": "Kategorien können nur in der Standardsprache erstellt werden",
+        "createSub": "Neue Subkategorie",
+        "createBefore": "Neue Kategorie davor",
+        "createAfter": "Neue Kategorie danach",
+        "edit": "Bearbeiten",
+        "duplicate": "Duplizieren",
+        "delete": "Löschen"
+      }
+    }
+  }
+}

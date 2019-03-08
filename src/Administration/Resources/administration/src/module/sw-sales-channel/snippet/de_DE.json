@@ -1,0 +1,58 @@
+{
+  "sw-sales-channel": {
+    "general": {
+      "titleMenuItems": "Verkaufskanäle"
+    },
+    "modal": {
+      "title": "Verkaufskanal anlegen",
+      "buttonAddChannel": "Hinzufügen",
+      "titleDetailPrefix": "Details zu",
+      "buttonShowDetails": "Details",
+      "buttonBack": "Zurück",
+      "buttonCancel": "Abbrechen",
+      "titleDescription": "Informationen"
+    },
+    "detail": {
+      "titleSaveSuccess": "Erfolg",
+      "messageSaveSuccess": "Der Verkaufskanal \"{name}\" wurde erfolgreich gespeichert.",
+      "buttonSave": "Speichern",
+      "buttonCreateNewApiKeys": "API-Zugangsdaten neu generieren",
+      "tabBase": "Allgemein",
+      "labelAccessKeyField": "API-Zugangs-ID",
+      "titleAPIError": "Fehler",
+      "messageAPIError": "Der API-Schlüssel konnte nicht generiert werden.",
+      "titleGeneralSettings": "Grundeinstellungen",
+      "labelInputName": "Name",
+      "labelInputActive": "Aktiv",
+      "labelInputShippingMethods": "Versandarten",
+      "labelInputPaymentMethods": "Zahlungsarten",
+      "labelInputCountries": "Länder",
+      "labelInputTaxCalculation": "Steuerberechnung",
+      "labelOptionTaxVertical": "Vertikal",
+      "labelOptionTaxHorizontal": "Horizontal",
+      "labelInputCurrencies": "Währungen",
+      "labelInputLanguages": "Sprachen",
+      "labelInputCategories": "Kategorien",
+      "titleOptionsCard": "Optionen",
+      "textDeleteInfo": "Achtung: Hiermit löschst Du diesen Verkaufskanal vollständig! Der Verkaufskanal wird danach nicht mehr in der Shopware Administration verfügbar sein und kann auch nicht wiederhergestellt werden. Alle vorhandenen Bestellungen bleiben jedoch erhalten. Auch ausgespielte Kataloge werden durch diese Aktion nicht verändert.",
+      "buttonDelete": "Verkaufskanal löschen",
+      "deleteModalTitle": "Verkaufskanal löschen",
+      "textConfirmDelete": "Möchtest Du diesen Verkaufskanal wirklich löschen?",
+      "buttonCloseDeleteModal": "Abbrechen",
+      "buttonConfirmDelete": "Löschen",
+      "textHeadline": "Neuer Verkaufskanal",
+      "placeholderName": "Gib einen Namen für den Verkaufskanal ein...",
+      "placeholderInputCategories": "Kategorien hinzufügen",
+      "titleDomains": "Domänen",
+      "labelInputCurrency": "Währung",
+      "labelInputLanguage": "Sprache",
+      "labelInputSnippet": "Textbaustein-Set",
+      "buttonDeleteDomain": "Domäne löschen",
+      "buttonAddDomain": "Domäne hinzufügen",
+      "deleteDomainModalTitle": "Domäne löschen",
+      "textConfirmDeleteDomain": "Möchtest Du diese Domäne wirklich löschen? Der Verkaufskanal ist dann nicht mehr über \"{url}\" zugänglich!",
+      "buttonCloseDeleteDomainModal": "Abbrechen",
+      "buttonConfirmDeleteDomain": "Löschen"
+    }
+  }
+}

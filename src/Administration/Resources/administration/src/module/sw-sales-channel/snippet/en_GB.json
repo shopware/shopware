@@ -1,0 +1,58 @@
+{
+  "sw-sales-channel": {
+    "general": {
+      "titleMenuItems": "Sales channel"
+    },
+    "modal": {
+      "title": "Add sales channel",
+      "buttonAddChannel": "Add",
+      "titleDetailPrefix": "Details of",
+      "buttonShowDetails": "Show details",
+      "buttonBack": "Back",
+      "buttonCancel": "Cancel",
+      "titleDescription": "Information"
+    },
+    "detail": {
+      "titleSaveSuccess": "Success",
+      "messageSaveSuccess": "Sales channel \"{name}\" has been saved successfully.",
+      "buttonSave": "Save",
+      "buttonCreateNewApiKeys": "Create new API key",
+      "tabBase": "General",
+      "labelAccessKeyField": "API access key",
+      "titleAPIError": "Error",
+      "messageAPIError": "Unable to generate API access key.",
+      "titleGeneralSettings": "General Settings",
+      "labelInputName": "Name",
+      "labelInputActive": "Active",
+      "labelInputShippingMethods": "Shipping methods",
+      "labelInputPaymentMethods": "Payment methods",
+      "labelInputCountries": "Countries",
+      "labelInputTaxCalculation": "Tax calculation",
+      "labelOptionTaxVertical": "Vertical",
+      "labelOptionTaxHorizontal": "Horizontal",
+      "labelInputCurrencies": "Currencies",
+      "labelInputLanguages": "Languages",
+      "labelInputCategories": "Categories",
+      "titleOptionsCard": "Options",
+      "textDeleteInfo": "Careful, you are about to delete this sales channel permanently. The sales channel will no longer be available in your Shopware administration if you proceed. However, deleting the sales channel will not affect existing orders and categories.",
+      "buttonDelete": "Delete sales channel",
+      "deleteModalTitle": "Delete sales channel",
+      "textConfirmDelete": "Are you sure you want to delete this sales channel?",
+      "buttonCloseDeleteModal": "Cancel",
+      "buttonConfirmDelete": "Delete",
+      "textHeadline": "New sales channel",
+      "placeholderName": "Enter sales channel name...",
+      "placeholderInputCategories": "Add Categories",
+      "titleDomains": "Domains",
+      "labelInputCurrency": "Currency",
+      "labelInputLanguage": "Language",
+      "labelInputSnippet": "Snippet",
+      "buttonDeleteDomain": "Delete domain",
+      "buttonAddDomain": "Add domain",
+      "deleteDomainModalTitle": "Delete domain",
+      "textConfirmDeleteDomain": "Are you sure you want to delete this domain? The sales channel will no longer be accessible by \"{url}\"",
+      "buttonCloseDeleteDomainModal": "Cancel",
+      "buttonConfirmDeleteDomain": "Delete"
+    }
+  }
+}

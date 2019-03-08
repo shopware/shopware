@@ -1,0 +1,8 @@
+{
+  "sw-dashboard": {
+    "general": {
+      "mainMenuItemGeneral": "Dashboard",
+      "descriptionTextModule": "Startseite, Statistiken und Systeminformationen"
+    }
+  }
+}

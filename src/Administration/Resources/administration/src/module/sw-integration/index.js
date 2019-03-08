@@ -2,6 +2,8 @@ import { Module } from 'src/core/shopware';
 
 import './extension/sw-settings-index';
 import './page/sw-integration-list';
+import deDE from './snippet/de_DE.json';
+import enGB from './snippet/en_GB.json';
 
 Module.register('sw-integration', {
     type: 'core',
@@ -12,6 +14,11 @@ Module.register('sw-integration', {
     color: '#9AA8B5',
     icon: 'default-action-settings',
     entity: 'integration',
+
+    snippets: {
+        'de-DE': deDE,
+        'en-GB': enGB
+    },
 
     routes: {
         index: {

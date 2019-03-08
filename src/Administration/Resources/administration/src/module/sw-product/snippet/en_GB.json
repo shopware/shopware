@@ -1,0 +1,142 @@
+{
+  "sw-product": {
+    "visibility": {
+      "textHeadline": "Set visibility per sales channel",
+      "placeholderVisibility": "Type to search for sales channels ...",
+      "columnAll": "Everywhere",
+      "columnSearchOnly": "Only visible in search",
+      "columnLinkOnly": "Hidden",
+      "linkAdvancedVisibility": "Configure advanced visibility",
+      "labelVisibility": "Visibility",
+      "closeModal": "Apply"
+    },
+    "general": {
+      "mainMenuItemGeneral": "Products",
+      "mainMenuItemList": "Overview",
+      "mainMenuItemAdd": "Add product",
+      "descriptionTextModule": "Manage products here.",
+      "placeholderSearchBar": "Search products"
+    },
+    "basicForm": {
+      "labelTitle": "Title",
+      "labelDescription": "Description",
+      "labelProductNumber": "Product number",
+      "labelManufacturer": "Manufacturer",
+      "placeholderName": "Enter product title",
+      "placeholderDescriptionLong": "Enter product description",
+      "placeholderId": "Enter product number",
+      "placeholderManufacturer": "Enter product manufacturer"
+    },
+    "categoryForm": {
+      "labelCategory": "Category",
+      "placeholderCategory": "Type to search for categories"
+    },
+    "priceForm": {
+      "labelTaxRate": "Tax rate",
+      "labelPurchasePriceGross": "Purchase price (gross)",
+      "labelUnit": "Unit of measurement",
+      "labelPurchaseUnit": "Purchase unit",
+      "labelReferenceUnit": "Reference unit",
+      "labelPackUnit": "Packaging unit",
+      "placeholderTaxRate": "Tax rate",
+      "placeholderPurchasePriceGross": "Purchase price (gross)",
+      "placeholderUnit": "Select",
+      "placeholderPurchaseUnit": "Purchase unit",
+      "placeholderReferenceUnit": "Reference unit",
+      "placeholderPackUnit": "Box, bottle, crate, etc.",
+      "optionLitre": "Litre",
+      "optionKilogram": "Kilogram",
+      "optionMetre": "Metre"
+    },
+    "settingsForm": {
+      "labelCreatedAt": "Creation date",
+      "labelReleaseDate": "Release date",
+      "labelWidth": "Width",
+      "labelHeight": "Height",
+      "labelLength": "Length",
+      "labelWeight": "Weight",
+      "labelMinPurchase": "Minimum order quantity",
+      "labelMaxPurchase": "Maximum order quantity",
+      "labelEan": "EAN",
+      "labelManufacturerNumber": "Manufacturer number",
+      "labelStock": "Stock",
+      "labelActive": "Active",
+      "labelShippingFree": "Free shipping",
+      "labelMarkAsTopseller": "Promote product",
+      "placeholderCreatedAt": "Enter creation date",
+      "placeholderReleaseDate": "Enter release date",
+      "placeholderWidth": "e.g. 500",
+      "placeholderHeight": "e.g. 200",
+      "placeholderLength": "e.g. 100",
+      "placeholderWeight": "e.g. 0,4",
+      "placeholderStock": "Enter quantity in stock",
+      "placeholderMinPurchase": "Minimum purchase",
+      "placeholderMaxPurchase": "Maximum purchase",
+      "placeholderEan": "Enter EAN number",
+      "placeholderManufacturerNumber": "Enter manufacturer number"
+    },
+    "detailBase": {
+      "cardTitleProductInfo": "Information",
+      "cardTitleAssignment": "Assignment",
+      "cardTitlePrices": "Prices",
+      "cardTitleSettings": "Settings",
+      "linkAdvancedPrices": "Use advanced pricing",
+      "cardTitleMedia": "Media",
+      "labelContextMenuAddToProduct": "Add to product"
+    },
+    "priceRules": {
+      "cardTitlePriceRule": "New price rule",
+      "placeholderRule": "Select",
+      "placeholderQuantityEnd": "Infinite",
+      "buttonPriceRuleDelete": "Delete price rule",
+      "buttonPriceRuleDuplicate": "Duplicate price rule",
+      "buttonPriceRuleCurrencyAdd": "Add currency",
+      "buttonAddAdditionalPriceRule": "Add price rule",
+      "textCurrencyDefault": "(Default)",
+      "textPriceRuleForCurrency": "Price rule for currency",
+      "columnQuantityStart": "Starting from",
+      "columnQuantityEnd": "Ending at",
+      "columnPrice": "Price (gross / net)",
+      "contextMenuDuplicate": "Duplicate",
+      "contextMenuDelete": "Delete"
+    },
+    "list": {
+      "textProductOverview": "Products",
+      "textTotalProducts": "No products | One product | {count} products",
+      "buttonAddProduct": "Add product",
+      "buttonCancel": "Cancel",
+      "buttonDelete": "Delete",
+      "columnName": "Name",
+      "columnManufacturer": "Manufacturer",
+      "columnActive": "Active",
+      "columnPrice": "Price",
+      "columnInStock": "In Stock",
+      "columnActions": "Action(s)",
+      "contextMenuEdit": "Edit",
+      "contextMenuDelete": "Delete",
+      "contextMenuDuplicate": "Duplicate",
+      "messageEmpty": "No products yet",
+      "modalTitleDelete": "Product",
+      "textDeleteConfirm": "Are you sure you really want to delete the product \"{name}\"?",
+      "titleSidebarItemRefresh": "Refresh"
+    },
+    "detail": {
+      "textHeadline": "New product",
+      "buttonCancel": "Cancel",
+      "buttonSave": "Save",
+      "tabGeneral": "General",
+      "tabAdvancedPrices": "Advanced pricing",
+      "tabProperties": "Properties",
+      "titleSaveSuccess": "Success",
+      "messageSaveSuccess": "Product \"{name}\" has been saved successfully.",
+      "messageUploadSuccess": "{count} of {total} files saved."
+    },
+    "mediaForm": {
+      "errorNoImage": "\"{file}\" is not an image",
+      "errorMediaItemDuplicated": "Media item already assigned"
+    },
+    "properties": {
+      "cardTitleProperties": "Properties"
+    }
+  }
+}

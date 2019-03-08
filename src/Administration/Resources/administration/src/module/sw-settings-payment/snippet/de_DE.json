@@ -1,0 +1,40 @@
+{
+  "sw-settings-payment": {
+    "general": {
+      "mainMenuItemGeneral": "Zahlungsarten",
+      "placeholderSearchBar": "Durchsuche alle Zahlungsarten"
+    },
+    "list": {
+      "textHeadline": "Zahlungsarten",
+      "textDeleteConfirm": "Bist Du sicher, dass Du die Zahlungsart \"{name}\" löschen möchtest?",
+      "columnName": "Name",
+      "columnDescription": "Beschreibung",
+      "columnActive": "Aktiv",
+      "buttonAddPaymentMethod": "Zahlungsart anlegen",
+      "contextMenuEdit": "Bearbeiten",
+      "modalTitleDelete": "Zahlungsart löschen",
+      "titleDeleteSuccess": "Erfolg",
+      "messageDeleteSuccess": "Die Zahlungsart \"{name}\" wurde erfolgreich gelöscht.",
+      "buttonCancel": "Abbrechen",
+      "buttonDelete": "Löschen"
+    },
+    "detail": {
+      "textHeadline": "Neue Zahlungsart",
+      "titleCard": "Einstellungen",
+      "titleSaveSuccess": "Erfolg",
+      "messageSaveSuccess": "Die Zahlungsart \"{name}\" wurde erfolgreich gespeichert.",
+      "labelName": "Name",
+      "labelTechnicalName": "Technischer Name",
+      "labelActive": "Aktiv",
+      "labelMobileInactive": "Inaktiv für Smartphones",
+      "labelAdditionalDescription": "Beschreibung",
+      "labelHandler": "Handler",
+      "placeholderName": "Namen eingeben...",
+      "placeholderTechnicalName": "Technischen Namen eingeben...",
+      "placeholderAdditionalDescription": "Beschreibung eingeben...",
+      "placeholderHandler": "Handler eingeben...",
+      "buttonCancel": "Abbrechen",
+      "buttonSave": "Speichern"
+    }
+  }
+}

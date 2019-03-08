@@ -5,6 +5,9 @@ import './page/sw-settings-language-list';
 import './page/sw-settings-language-detail';
 import './page/sw-settings-language-create';
 
+import deDE from './snippet/de_DE.json';
+import enGB from './snippet/en_GB.json';
+
 Module.register('sw-settings-language', {
     type: 'core',
     name: 'Language settings',
@@ -12,6 +15,11 @@ Module.register('sw-settings-language', {
     color: '#9AA8B5',
     icon: 'default-action-settings',
     entity: 'language',
+
+    snippets: {
+        'de-DE': deDE,
+        'en-GB': enGB
+    },
 
     routes: {
         index: {

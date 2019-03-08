@@ -1,0 +1,53 @@
+{
+  "sw-settings-shipping": {
+    "general": {
+      "mainMenuItemGeneral": "Versandarten",
+      "placeholderSearchBar": "Durchsuche alle Versandarten"
+    },
+    "list": {
+      "textHeadline": "Versandarten",
+      "textDeleteConfirm": "Bist Du sicher, dass du die Versandart \"{name}\" löschen möchtest?",
+      "columnName": "Name",
+      "columnActive": "Aktiv",
+      "columnShippingfree": "Versandkostenfrei",
+      "buttonAddShippingMethod": "Versandart anlegen",
+      "contextMenuEdit": "Bearbeiten",
+      "modalTitleDelete": "Versandart löschen",
+      "titleDeleteSuccess": "Erfolg",
+      "messageDeleteSuccess": "Die Versandart \"{name}\" wurde erfolgreich gelöscht.",
+      "buttonCancel": "Abbrechen",
+      "buttonDelete": "Löschen"
+    },
+    "detail": {
+      "textHeadline": "Neue Versandart",
+      "titleCard": "Einstellungen",
+      "titleSaveSuccess": "Erfolg",
+      "messageSaveSuccess": "Die Versandart \"{name}\" wurde erfolgreich gespeichert.",
+      "labelName": "Name",
+      "labelDescription": "Beschreibung",
+      "labelActive": "Aktiv",
+      "labelBindShippingfree": "Versandkostenfrei",
+      "labelMinDeliveryTime": "Minimum Lieferzeit",
+      "labelMaxDeliveryTime": "Maximal Lieferzeit",
+      "placeholderName": "Namen eingeben...",
+      "placeholderDescription": "Beschreibung eingeben...",
+      "placeholderComment": "Kommentar eingeben...",
+      "labelCalculation": "Berechnung",
+      "labelComment": "Kommentar",
+      "buttonCancel": "Abbrechen",
+      "buttonSave": "Speichern",
+      "labelSetRules": "Regel auswählen",
+      "tabGeneral": "Allgemein",
+      "tabAdvancedPrices": "Erweiterte Preise",
+      "columnQuantityStart": "Menge ab",
+      "columnQuantityEnd": "Menge bis",
+      "columnPrice": "Preis",
+      "columnFactor": "Faktor"
+    },
+    "constants": {
+      "weight": "Gewicht",
+      "price": "Preis",
+      "lineItemCount": "Anzahl Produkte"
+    }
+  }
+}

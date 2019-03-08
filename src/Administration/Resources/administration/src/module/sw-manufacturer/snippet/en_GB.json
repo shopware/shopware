@@ -1,0 +1,43 @@
+{
+  "sw-manufacturer": {
+    "general": {
+      "mainMenuItemList": "Manufacturer",
+      "mainMenuItemGeneral": "Manufacturer",
+      "placeholderSearchBar": "Search manufacturers"
+    },
+    "list": {
+      "textManufacturerOverview": "Manufacturer",
+      "textTotalManufacturer": "No manufacturer | One manufacturer | {count} manufacturers",
+      "buttonAddManufacturer": "Add manufacturer",
+      "columnName": "Manufacturer",
+      "columnLink": "Website",
+      "columnDescription": "Description",
+      "columnActions": "Actions",
+      "contextMenuEdit": "Edit",
+      "contextMenuDelete": "Delete",
+      "contextMenuDuplicate": "Duplicate",
+      "modalTitleDelete": "Delete manufacturer",
+      "textDeleteConfirm": "Are you sure you want to delete the manufacturer \"{name}\"?",
+      "buttonCancel": "Cancel",
+      "buttonDelete": "Delete",
+      "titleSidebarItemRefresh": "Refresh"
+    },
+    "detail": {
+      "textHeadline": "New manufacturer",
+      "textMediaSelection": "Media selection",
+      "buttonCancel": "Cancel",
+      "buttonSave": "Save",
+      "cardTitleManufacturerInfo": "Manufacturer information",
+      "labelName": "Name",
+      "labelDescription": "Description",
+      "labelLink": "Website",
+      "placeholderName": "Enter manufacturer name.",
+      "placeholderDescription": "Enter manufacturer description.",
+      "placeholderLink": "Enter manufacturer website.",
+      "titleSaveSuccess": "Success",
+      "messageSaveSuccess": "Manufacturer \"{name}\" has been saved successfully.",
+      "labelLogo": "Logo",
+      "labelUseAsLogo": "Use as Logo"
+    }
+  }
+}

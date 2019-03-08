@@ -9,6 +9,9 @@ import './page/sw-settings-snippet-create';
 import './component/sidebar/sw-settings-snippet-sidebar';
 import './component/sidebar/sw-settings-snippet-boolean-filter-item';
 
+import deDE from './snippet/de_DE.json';
+import enGB from './snippet/en_GB.json';
+
 Module.register('sw-settings-snippet', {
     flag: NEXT717,
     type: 'core',
@@ -19,6 +22,11 @@ Module.register('sw-settings-snippet', {
     color: '#9AA8B5',
     icon: 'default-action-settings',
     entity: 'snippet',
+
+    snippets: {
+        'de-DE': deDE,
+        'en-GB': enGB
+    },
 
     routes: {
         index: {

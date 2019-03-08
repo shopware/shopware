@@ -1,5 +1,7 @@
 import { Module } from 'src/core/shopware';
 import './page/sw-dashboard-index';
+import deDE from './snippet/de_DE.json';
+import enGB from './snippet/en_GB.json';
 
 Module.register('sw-dashboard', {
     type: 'core',
@@ -9,6 +11,11 @@ Module.register('sw-dashboard', {
     targetVersion: '1.0.0',
     color: '#6AD6F0',
     icon: 'default-device-dashboard',
+
+    snippets: {
+        'de-DE': deDE,
+        'en-GB': enGB
+    },
 
     routes: {
         index: {

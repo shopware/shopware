@@ -53,7 +53,7 @@ class Context extends Struct
         $this->currencyFactor = $currencyFactor;
 
         if (empty($languageIdChain)) {
-            throw new \InvalidArgumentException('languageIdChain may not be empty');
+            throw new \InvalidArgumentException('Argument languageIdChain must not be empty');
         }
         $this->languageIdChain = array_keys(array_flip(array_filter($languageIdChain)));
     }

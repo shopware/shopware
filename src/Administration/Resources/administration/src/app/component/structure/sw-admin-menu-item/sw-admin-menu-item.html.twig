@@ -2,7 +2,9 @@
     <li class="sw-admin-menu__navigation-list-item"
         :class="getItemName(entry.id || entry.path)"
         @click="$emit('menuItemClicked', entry, $event.currentTarget)"
-        @mouseover="$emit('menuItemHovered', entry, $event.currentTarget)">
+        @mouseover="$emit('menuItemHovered', entry, $event.currentTarget, parentEntries)"
+        @mouseleave="$emit('menuItemLeaved', entry, $event.currentTarget, parentEntries)"
+    >
 
         {% block sw_admin_menu_item_router_link %}
             <router-link v-if="entry.path"
@@ -73,9 +75,9 @@
         {% block sw_sidebar_sub_items_list %}
             <ul v-if="sidebarExpanded" class="sw-admin-menu__sub-navigation-list">
                 <sw-admin-menu-item v-for="entry in entry.children"
-                                 :entry="entry"
-                                 :key="entry.id || entry.path"
-                                 :displayIcon="false">
+                                    :entry="entry"
+                                    :key="entry.id || entry.path"
+                                    :displayIcon="false">
                 </sw-admin-menu-item>
             </ul>
         {% endblock %}

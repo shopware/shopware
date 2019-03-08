@@ -1,3 +1,5 @@
+/*eslint-disable */
+
 // Register flags and fixtures globally so we have to import them one time
 require('./../../common/helper/cliOutputHelper');
 require('./../../common/flags.js');

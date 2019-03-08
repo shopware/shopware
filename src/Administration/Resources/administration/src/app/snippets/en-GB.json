@@ -1595,7 +1595,7 @@
       "description": "Attribute Manager",
       "mainMenuItemGeneral": "Attributes",
       "placeholderSearchBar": "Search in all attribute sets",
-      "tooltipTechnicalName": "The technical name has to be unique and can´t be changed later"
+      "tooltipTechnicalName": "The technical name has to be unique and can't be changed later."
     },
     "set": {
       "list": {

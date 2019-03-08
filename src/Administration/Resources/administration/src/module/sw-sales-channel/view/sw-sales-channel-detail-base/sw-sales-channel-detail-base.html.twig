@@ -231,11 +231,14 @@
             </sw-card>
         {% endblock %}
         {% block sw_sales_channel_detail_attribute_sets %}
-            <sw-attribute-set-renderer
-                v-if="next754"
-                :entity="salesChannel"
-                :sets="attributeSets">
-            </sw-attribute-set-renderer>
+            <sw-card :title="$tc('sw-settings-attribute.general.mainMenuItemGeneral')"
+                 v-if="next754 && attributeSets.length > 0"
+                 :isLoading="salesChannel.isLoading">
+                <sw-attribute-set-renderer
+                    :entity="salesChannel"
+                    :sets="attributeSets">
+                </sw-attribute-set-renderer>
+            </sw-card>
         {% endblock %}
     </div>
 {% endblock %}

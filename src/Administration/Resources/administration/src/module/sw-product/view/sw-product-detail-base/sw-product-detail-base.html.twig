@@ -49,9 +49,10 @@
         {% endblock %}
 
         {% block sw_product_detail_attribute_sets %}
-            <sw-card :title="$tc('sw-settings-attribute.general.mainMenuItemGeneral')" :isLoading="product.isLoading">
+        <sw-card :title="$tc('sw-settings-attribute.general.mainMenuItemGeneral')"
+                 v-if="next754 && attributeSets.length > 0"
+                 :isLoading="product.isLoading">
                 <sw-attribute-set-renderer
-                        v-if="next754"
                         :entity="product"
                         :sets="attributeSets">
                 </sw-attribute-set-renderer>

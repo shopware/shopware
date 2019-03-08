@@ -1592,7 +1592,7 @@
       "description": "Freitextfelder Verwaltung",
       "mainMenuItemGeneral": "Freitextfelder",
       "placeholderSearchBar": "Durchsuche alle Freitextfelder",
-      "tooltipTechnicalName": "Der technische Name muss eindeutig sein und kann nach dem Speichern nicht mehr verändert werden"
+      "tooltipTechnicalName": "Der technische Name muss eindeutig sein und kann nach dem Speichern nicht mehr verändert werden."
     },
     "set": {
       "list": {

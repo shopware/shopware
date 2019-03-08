@@ -2,7 +2,7 @@
     <div class="sw-tabs" :class="tabClasses">
 
             {% block sw_tabs_content %}
-                <div class="sw-tabs__content" ref="swTabContent">
+                <div class="sw-tabs__content" ref="swTabContent" :style="tabContentStyle">
                     {% block sw_tabs_content_slot %}
                         <slot :active="active"></slot>
                     {% endblock %}

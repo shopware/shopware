@@ -24,11 +24,30 @@
       "titleSaveSuccess": "Erfolg",
       "messageSaveSuccess": "Die Versandart \"{name}\" wurde erfolgreich gespeichert.",
       "labelName": "Name",
+      "labelDescription": "Beschreibung",
       "labelActive": "Aktiv",
       "labelBindShippingfree": "Versandkostenfrei",
+      "labelMinDeliveryTime": "Minimum Lieferzeit",
+      "labelMaxDeliveryTime": "Maximal Lieferzeit",
       "placeholderName": "Namen eingeben...",
+      "placeholderDescription": "Beschreibung eingeben...",
+      "placeholderComment": "Kommentar eingeben...",
+      "labelCalculation": "Berechnung",
+      "labelComment": "Kommentar",
       "buttonCancel": "Abbrechen",
-      "buttonSave": "Speichern"
+      "buttonSave": "Speichern",
+      "labelSetRules": "Regel auswählen",
+      "tabGeneral": "Allgemein",
+      "tabAdvancedPrices": "Erweiterte Preise",
+      "columnQuantityStart": "Menge ab",
+      "columnQuantityEnd": "Menge bis",
+      "columnPrice": "Preis",
+      "columnFactor": "Faktor"
+    },
+    "constants": {
+      "weight": "Gewicht",
+      "price": "Preis",
+      "lineItemCount": "Anzahl Produkte"
     }
   }
 }

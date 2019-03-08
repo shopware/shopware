@@ -24,6 +24,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\Pricing\Price;
 use Shopware\Core\Framework\Pricing\PriceRuleCollection;
 use Shopware\Core\Framework\Search\SearchDocumentCollection;
+use Shopware\Core\Framework\Tag\TagCollection;
 use Shopware\Core\System\Tax\TaxEntity;
 use Shopware\Core\System\Unit\UnitEntity;
 
@@ -310,6 +311,11 @@ class ProductEntity extends Entity
      * @var CategoryCollection|null
      */
     protected $categories;
+
+    /**
+     * @var TagCollection|null
+     */
+    protected $tags;
 
     /**
      * @var ConfigurationGroupOptionCollection|null
@@ -1022,6 +1028,16 @@ class ProductEntity extends Entity
     public function setCategories(CategoryCollection $categories): void
     {
         $this->categories = $categories;
+    }
+
+    public function getTags(): ?TagCollection
+    {
+        return $this->tags;
+    }
+
+    public function setTags(TagCollection $tags): void
+    {
+        $this->tags = $tags;
     }
 
     public function getDatasheet(): ?ConfigurationGroupOptionCollection

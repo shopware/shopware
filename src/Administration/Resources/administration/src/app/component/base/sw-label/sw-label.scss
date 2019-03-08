@@ -1,4 +1,5 @@
 @import "~scss/variables";
+@import "~scss/mixins";
 @import "sw-label-variant";
 
 $sw-label-border-radius: $border-radius-default;
@@ -20,8 +21,10 @@ $sw-label-warning-color-text: darken($color-pumpkin-spice, 10%);
 $sw-label-warning-color-border: $color-pumpkin-spice;
 
 .sw-label {
+    @include truncate();
     display: inline-block;
     position: relative;
+    max-width: 100%;
     margin-right: 6px;
     margin-bottom: 6px;
     padding: 4px 12px 4px 12px;

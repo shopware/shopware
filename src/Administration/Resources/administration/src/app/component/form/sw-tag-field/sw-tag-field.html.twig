@@ -1,0 +1,35 @@
+{% block sw_tag_field %}
+<div class="sw-tag-field">
+    {% block sw_tag_field_form %}
+        {% block sw_tag_field_form_select %}
+            <sw-select :id="entity.id"
+                       multi
+                       ref="swTagSelect"
+                       :label="$tc('global.sw-tag-field.title')"
+                       :placeholder="$tc('global.sw-tag-field.placeholder')"
+                       :associationStore="associationStore"
+                       :store="tagStore"
+                       :possibleMinPosition="-1"
+                       :highlightSearchTerm="true"
+                       @sw-select-search-term-change="onSearchTermChange"
+                       @sw-select-on-arrow-down="onArrowDown"
+                       @sw-select-list-applied="onSearchResultChange"
+                       @sw-select-option-clicked="onClickAdd"
+                >
+                {% block sw_tag_field_form_select_add_option %}
+                    <sw-select-option  v-if="term && !recentlyAdded && !tagExists"
+                                       slot="sw_select_list_before"
+                                       :index="-1"
+                                       :disabled="false"
+                                       :item="{ index: -1 }"
+                                       class="sw-tag-field-add sw-select-option">
+                        {% block sw_tag_field_form_select_add_option_content %}
+                            {{ $tc('global.sw-tag-field.listItemAdd', 0, { term: term }) }}
+                        {% endblock %}
+                    </sw-select-option>
+                {% endblock %}
+            </sw-select>
+        {% endblock %}
+    {% endblock %}
+</div>
+{% endblock %}

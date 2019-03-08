@@ -1,4 +1,5 @@
 import { Mixin } from 'src/core/shopware';
+import CriteriaFactory from 'src/core/factory/criteria.factory';
 import utils from 'src/core/service/util.service';
 import './sw-select.scss';
 import template from './sw-select.html.twig';
@@ -62,7 +63,7 @@ export default {
         previewResultsLimit: {
             type: Number,
             required: false,
-            default: 25
+            default: 10
         },
         resultsLimit: {
             type: Number,
@@ -77,6 +78,11 @@ export default {
         store: {
             type: Object,
             required: true
+        },
+        highlightSearchTerm: {
+            type: Boolean,
+            required: false,
+            default: false
         },
         // Only required if this is a multi select
         associationStore: {
@@ -96,6 +102,11 @@ export default {
         helpText: {
             required: false,
             default: ''
+        },
+        possibleMinPosition: {
+            type: Number,
+            required: false,
+            default: 0
         },
         // In Single Selections
         showSearch: {
@@ -125,6 +136,11 @@ export default {
             type: String,
             required: false,
             default: null
+        },
+        sortDirection: {
+            type: String,
+            required: false,
+            default: 'ASC'
         }
     },
 
@@ -134,11 +150,20 @@ export default {
             isExpanded: false,
             results: [],
             // for multi select
+            page: 1,
+            total: 0,
+            previewPage: 1,
+            previewTotal: 0,
+            nextLoadStep: this.resultsLimit,
+            nextPreviewLoadStep: 0,
+            // the current displayed selected items
             selections: [],
-            activeResultPosition: 0,
+            selected: [],
+            activeResultPosition: 1,
             isLoading: false,
             isLoadingSelections: false,
             hasError: false,
+            deletedItems: [],
             // for a single selection
             singleSelection: {}
         };
@@ -164,12 +189,12 @@ export default {
         '$route.params.id'() {
             this.selections = [];
             this.results = [];
-            this.loadSelections();
+            this.loadSelected();
         },
         // load data of the selected option when it changes
         value() {
             if (!this.multi) {
-                this.loadSelections();
+                this.loadSelected();
             }
         },
         // Show loading indicator while selected option is being fetched in single selections
@@ -194,7 +219,8 @@ export default {
         createdComponent() {
             this.selections = [];
             this.results = [];
-            this.loadSelections();
+
+            this.loadSelected();
             this.addEventListeners();
         },
 
@@ -206,32 +232,116 @@ export default {
             this.$on('sw-select-option-clicked', this.addSelection);
             this.$on('sw-select-option-mouse-over', this.setActiveResultPosition);
             // Reload selections when global language changes
-            this.$root.$on('on-change-application-language', this.loadSelections);
+            this.$root.$on('on-change-application-language', this.loadSelected);
             document.addEventListener('click', this.closeOnClickOutside);
             document.addEventListener('keyup', this.closeOnClickOutside);
         },
 
-
         removeEventListeners() {
-            this.$root.$off('on-change-application-language', this.loadSelections);
+            this.$root.$off('on-change-application-language', this.loadSelected);
             document.removeEventListener('click', this.closeOnClickOutside);
             document.removeEventListener('keyup', this.closeOnClickOutside);
         },
 
-        loadSelections() {
+        calculateNextPreviewLoadStep() {
+            const nextStep = this.previewTotal - this.previewResultsLimit * this.previewPage;
+
+            return nextStep > this.previewResultsLimit ? this.previewResultsLimit : nextStep;
+        },
+
+        calculateNextLoadStep() {
+            const nextStep = this.total - this.resultsLimit * this.page;
+
+            return nextStep > this.resultsLimit ? this.resultsLimit : nextStep;
+        },
+
+        getDistFromBottom(element) {
+            return element.scrollHeight - element.clientHeight - element.scrollTop;
+        },
+
+        loadMore() {
+            this.page += 1;
+            this.getList();
+        },
+
+        getList(clearList = false) {
+            this.isLoading = true;
+
+            this.store.getList(this.getListParams()).then((response) => {
+                const ids = response.items.map((item) => {
+                    return item[this.itemValueKey];
+                });
+
+                if (ids.length === 0 || this.selected.length >= this.previewTotal) {
+                    this.applyList(response, { items: [] }, clearList);
+                    return;
+                }
+
+                const criteria = CriteriaFactory.equalsAny(this.itemValueKey, ids);
+                this.associationStore.getList({
+                    page: 1,
+                    limit: this.resultsLimit,
+                    criteria
+                }).then((secondResponse) => {
+                    this.applyList(response, secondResponse, clearList);
+                });
+            });
+        },
+
+        applyList(response, secondResponse, clearList) {
+            const result = secondResponse.items.filter((item) => {
+                return this.deletedItems.every((x) => {
+                    return x !== item[this.itemValueKey];
+                });
+            });
+
+            this.selected = [...this.selected, ...result];
+
+            if (clearList) {
+                this.results = [];
+            }
+
+            if (this.highlightSearchTerm) {
+                response.items.forEach((item) => {
+                    item.meta.viewData[this.displayName] = this.highlight(item.meta.viewData[this.displayName]);
+                });
+            }
+
+            this.isLoading = false;
+
+            this.$nextTick(() => {
+                this.results = [...this.results, ...response.items];
+
+                this.total = response.total;
+                this.nextLoadStep = this.calculateNextLoadStep();
+
+                if (clearList) {
+                    this.scrollToResultsTop();
+                    this.setActiveResultPosition({ index: 0 });
+                }
+
+                this.$emit('sw-select-list-applied', this.results);
+            });
+        },
+
+        loadSelected(clearList = false) {
             if (this.multi) {
                 this.isLoadingSelections = true;
 
-                this.associationStore.getList({
-                    page: 1,
-                    limit: 500 // ToDo: The concept of assigning a large amount of relations needs a special solution.
-                }).then((response) => {
-                    this.selections = response.items;
+                this.associationStore.getList(this.getPreviewListParams()).then((response) => {
+                    if (clearList) {
+                        this.selections = [];
+                    }
+
+                    this.selections = [...this.selections, ...response.items];
                     this.isLoadingSelections = false;
+                    this.previewTotal = response.total;
+                    this.nextPreviewLoadStep = this.calculateNextPreviewLoadStep();
                 });
             } else {
                 // return if the value is not set yet(*note the watcher on value)
                 if (!this.value) {
+                    this.singleSelection = {};
                     return;
                 }
                 if (this.valueEmitType === 'values') {
@@ -240,68 +350,81 @@ export default {
                 }
 
                 if (this.valueEmitType === 'entities') {
-                    this.singleSelection = this.store.getById(this.value.id);
+                    this.singleSelection = this.store.getById(this.value[this.itemValueKey]);
                 }
             }
         },
 
-        loadResults() {
-            this.isLoading = true;
+        resetListing() {
+            this.isExpanded = false;
+            this.page = 1;
+            this.nextLoadStep = this.calculateNextLoadStep();
+        },
 
-            this.store.getList({
-                page: 1,
+
+        highlight(text) {
+            if (this.searchTerm.trim().length <= 0) {
+                return text;
+            }
+
+            return text.replace(
+                new RegExp(this.searchTerm.trim(), 'gi'),
+                `<span class='is--highlighted'>${this.searchTerm.trim()}</span>`
+            );
+        },
+
+        getListParams() {
+            return {
+                sortBy: this.sortField,
+                sortDirection: this.sortDirection,
+                page: this.page,
                 limit: this.resultsLimit,
-                term: this.searchTerm,
-                criteria: this.criteria
-            }).then((response) => {
-                this.results = response.items;
-                // Reset active position index after search
-                this.setActiveResultPosition({ index: 0 });
-                this.scrollToResultsTop();
-                // Finish loading after next render tick
-                this.$nextTick(() => {
-                    this.isLoading = false;
-                });
-            });
-        },
-
-        loadPreviewResults() {
-            this.isLoading = true;
-            this.results = [];
-
-            const params = {
-                page: 1,
-                limit: this.previewResultsLimit,
-                criteria: this.criteria
+                criteria: this.criteria,
+                term: this.searchTerm
             };
-            if (this.sortField) {
-                params.sortBy = this.sortField;
-                params.sortDirection = 'ASC';
-            }
-
-            this.store.getList(params).then((response) => {
-                // Abort if a search is done atm
-                if (this.searchTerm !== '') {
-                    return;
-                }
-                this.results = response.items;
-                this.$nextTick(() => {
-                    this.isLoading = false;
-                });
-            });
         },
 
-        openResultList() {
-            if (this.isExpanded === false) {
-                this.loadPreviewResults();
+        getPreviewListParams() {
+            return {
+                sortBy: this.sortField,
+                sortDirection: this.sortDirection,
+                page: this.previewPage,
+                limit: this.previewResultsLimit
+            };
+        },
+
+        onScroll(event) {
+            if (this.getDistFromBottom(event.target) !== 0) {
+                return;
             }
+
+            this.loadMore();
+        },
+
+        onPreviewLoadMore(event) {
+            event.preventDefault();
+            this.previewPage += 1;
+            this.loadSelected(this.previewPage === 1);
+        },
+
+        openResultList(event) {
+            if (event.relatedTarget && event.relatedTarget.type === 'submit') {
+                this.$refs.swSelectInput.blur();
+                return;
+            }
+
+            if (this.isExpanded === false) {
+                this.getList(true);
+                this.scrollToResultsTop();
+            }
+
             this.isExpanded = true;
             this.emitActiveResultPosition();
         },
 
         closeResultList() {
             this.$nextTick(() => {
-                this.isExpanded = false;
+                this.resetListing();
             });
 
             this.activeResultPosition = 0;
@@ -316,17 +439,14 @@ export default {
 
         onSearchTermChange() {
             this.isLoading = true;
-
+            this.page = 1;
             this.doGlobalSearch();
+
+            this.$emit('sw-select-search-term-change', this.searchTerm);
         },
 
         doGlobalSearch: utils.debounce(function debouncedSearch() {
-            if (this.searchTerm.length > 0) {
-                this.loadResults();
-            } else {
-                this.loadPreviewResults();
-                this.scrollToResultsTop();
-            }
+            this.getList(true);
         }, 400),
 
         setActiveResultPosition({ index }) {
@@ -339,7 +459,9 @@ export default {
         },
 
         navigateUpResults() {
-            if (this.activeResultPosition === 0) {
+            this.$emit('sw-select-on-arrow-up', this.activeResultPosition);
+
+            if (this.activeResultPosition === this.possibleMinPosition) {
                 return;
             }
 
@@ -349,10 +471,16 @@ export default {
             const resultItem = swSelectEl.querySelector('.sw-select-option');
             const resultContainer = swSelectEl.querySelector('.sw-select__results');
 
+            if (!resultItem) {
+                return;
+            }
+
             resultContainer.scrollTop -= resultItem.offsetHeight;
         },
 
         navigateDownResults() {
+            this.$emit('sw-select-on-arrow-down', this.activeResultPosition);
+
             if (this.activeResultPosition === this.results.length - 1 || this.results.length < 1) {
                 return;
             }
@@ -362,6 +490,12 @@ export default {
             const swSelectEl = this.$refs.swSelect;
             const activeItem = swSelectEl.querySelector('.is--active');
             const itemHeight = swSelectEl.querySelector('.sw-select-option').offsetHeight;
+
+
+            if (!activeItem) {
+                return;
+            }
+
             const activeItemPosition = activeItem ? activeItem.offsetTop + itemHeight : 0;
             const resultContainer = swSelectEl.querySelector('.sw-select__results');
             let resultContainerHeight = resultContainer.offsetHeight;
@@ -375,16 +509,21 @@ export default {
 
         scrollToResultsTop() {
             this.setActiveResultPosition({ index: 0 });
+
+            if (!this.$refs.swSelect.querySelector('.sw-select__results')) {
+                return;
+            }
+
             this.$refs.swSelect.querySelector('.sw-select__results').scrollTop = 0;
         },
 
-        setFocus() {
+        setFocus(event) {
             if (this.multi) {
                 this.$refs.swSelectInput.focus();
                 return;
             }
 
-            this.openResultList();
+            this.openResultList(event);
 
             if (!this.showSearch) {
                 return;
@@ -401,21 +540,21 @@ export default {
         },
 
         closeOnClickOutside(event) {
-            if (event.type === 'keyup' && event.key.toLowerCase() !== 'tab') {
+            if (event.type === 'keyup' && event.key && event.key.toLowerCase() !== 'tab') {
                 return;
             }
 
             const target = event.target;
 
             if (target.closest('.sw-select') !== this.$refs.swSelect) {
-                this.isExpanded = false;
+                this.resetListing();
                 this.activeResultPosition = 0;
             }
         },
 
         isInSelections(item) {
             if (this.multi) {
-                return !this.selections.every((selection) => {
+                return !this.selected.every((selection) => {
                     return selection[this.itemValueKey] !== item[this.itemValueKey];
                 });
             }
@@ -428,13 +567,19 @@ export default {
                 return;
             }
 
+            item = JSON.parse(JSON.stringify(item));
+            if (item.meta.viewData[this.displayName].constructor === String) {
+                item.meta.viewData[this.displayName] = item.meta.viewData[this.displayName].replace(/<[^>]+>/g, '');
+            }
+
             if (this.multi) {
                 if (this.isInSelections(item)) {
-                    this.onDismissSelection(item);
+                    this.onDismissSelection(item[this.itemValueKey]);
                     return;
                 }
 
                 this.selections.push(item);
+                this.selected.push(item);
                 this.searchTerm = '';
 
                 this.emitChanges(this.selections);
@@ -450,7 +595,6 @@ export default {
             this.singleSelection = item;
 
             this.updateValue();
-
             this.closeResultList();
         },
 
@@ -458,23 +602,25 @@ export default {
             this.$emit('sw-select-on-keyup-enter', this.activeResultPosition);
         },
 
-        onDismissSelection(item) {
-            this.dismissSelection(item);
+        onDismissSelection(identifier) {
+            this.dismissSelection(identifier);
             this.setFocus();
         },
 
-        dismissSelection(item) {
-            if (!item[this.itemValueKey]) {
+        dismissSelection(identifier) {
+            if (!identifier) {
                 return;
             }
 
-            this.selections = this.selections.filter((entry) => entry[this.itemValueKey] !== item[this.itemValueKey]);
+            this.deletedItems.push(identifier);
+            this.selections = this.selections.filter((entry) => entry[this.itemValueKey] !== identifier);
+            this.selected = this.selected.filter((entry) => entry[this.itemValueKey] !== identifier);
 
             this.emitChanges(this.selections);
 
-            if (this.defaultItemId && this.defaultItemId === item[this.itemValueKey]) {
+            if (this.defaultItemId && this.defaultItemId === identifier) {
                 if (this.selections.length >= 1) {
-                    this.changeDefaultItemId(this.selections[0].id);
+                    this.changeDefaultItemId(this.selections[0][this.itemValueKey]);
                 } else {
                     this.changeDefaultItemId(null);
                 }
@@ -491,25 +637,28 @@ export default {
             }
 
             const lastSelection = this.selections[this.selections.length - 1];
-            this.dismissSelection(lastSelection);
+            this.dismissSelection(lastSelection[this.itemValueKey]);
         },
 
         emitChanges(items) {
-            const itemIds = items.map((item) => item.id);
+            const itemIds = items.map((item) => item[this.itemValueKey]);
             const associationStore = this.associationStore;
 
             // Delete existing relations
-            Object.keys(associationStore.store).forEach((id) => {
-                if (!itemIds.includes(id)) {
-                    // Only delete the entity if we have a real entity proxy with delete function
-                    // this is not the case if we are working with a local store
-                    if (typeof associationStore.store[id].delete === 'function') {
-                        associationStore.store[id].delete();
-                        return;
-                    }
+            this.deletedItems.forEach((identifier) => {
+                const itemId = Object.keys(associationStore.store).find((id) => {
+                    return associationStore.store[id][this.itemValueKey] === identifier;
+                });
 
-                    associationStore.remove(associationStore.store[id]);
+                if (!itemIds.includes(identifier) &&
+                    associationStore.store[itemId] &&
+                    typeof associationStore.store[itemId].delete === 'function'
+                ) {
+                    associationStore.store[itemId].delete();
+                    return;
                 }
+
+                associationStore.remove(associationStore.store[itemId]);
             });
 
             // Add new relations

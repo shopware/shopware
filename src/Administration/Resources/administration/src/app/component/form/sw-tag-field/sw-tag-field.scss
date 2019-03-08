@@ -1,0 +1,13 @@
+@import "~scss/variables";
+
+$sw-select-color-border: $color-steam-cloud;
+$sw-select-color-search-highlight: $color-shopware-blue;
+.sw-tag-field {
+    .sw-select__selection-item-holder {
+        .sw-label {
+            background: transparent;
+            border: 1px solid $sw-select-color-border;
+            padding-right: 12px;
+        }
+    }
+}

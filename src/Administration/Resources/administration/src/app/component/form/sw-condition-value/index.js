@@ -5,13 +5,13 @@ export default {
     watch: {
         value() {
             if (this.multi) {
-                this.loadSelections();
+                this.loadSelected();
             }
         }
     },
 
     methods: {
-        loadSelections() {
+        loadSelected() {
             this.isLoading = true;
             if (this.multi) {
                 if (!this.value) {
@@ -20,7 +20,9 @@ export default {
 
                 this.selections = [];
                 this.value.forEach((id) => {
-                    this.selections.push(this.store.getById(id));
+                    const item = this.store.getById(id);
+                    this.selections.push(item);
+                    this.selected.push(item);
                 });
                 this.isLoading = false;
             } else {

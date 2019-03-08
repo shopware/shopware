@@ -55,6 +55,10 @@ export default {
     methods: {
         createdComponent() {
             this.registerEvents();
+
+            if (this.index === 0) {
+                this.isActive = true;
+            }
         },
 
         destroyedComponent() {

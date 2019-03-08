@@ -27,6 +27,10 @@ $sw-select-transition-result-icon: all ease-in-out .15s;
 .sw-select {
     outline: none;
 
+    .is--highlighted {
+        color: $sw-select-color-border-focus;
+    }
+
     .sw-select__label {
         display: block;
         line-height: 16px;
@@ -38,11 +42,30 @@ $sw-select-transition-result-icon: all ease-in-out .15s;
         user-select: none;
     }
 
+    .sw-select__button-load-more {
+        margin: 15px;
+        width: calc(100% - 30px);
+    }
+
+    .sw-label--dismiss-able {
+        padding-right: 12px;
+
+        .sw-label__dismiss {
+            display: none;
+        }
+    }
+
+    .sw-select__load-more-list-item-button {
+        padding: 2px 10px;
+        line-height: 26px;
+        color: $sw-select-color-border-focus;
+    }
+
     .sw-select__inner {
         display: block;
         position: relative;
         width: 100%;
-        padding: 6px 80px 0 6px;
+        padding: 6px 6px 0 6px;
         line-height: 20px;
         min-height: 45px;
         font-size: 14px;
@@ -91,10 +114,43 @@ $sw-select-transition-result-icon: all ease-in-out .15s;
         color: $sw-select-input-color-placeholder;
     }
 
+    .sw-select__selection-item-holder {
+        max-width: 220px;
+        padding-right: 6px;
+        padding-bottom: 6px;
+        line-height: 0;
+
+        .sw-label {
+            margin: 0;
+        }
+
+        &:hover .sw-label--dismiss-able {
+            .sw-select__selection-item {
+                display: block;
+                width: calc(100% - 15px);
+            }
+
+            .sw-label__dismiss {
+                display: block;
+                color: $sw-select-color-text-default-item;
+            }
+        }
+    }
+
+    .sw-select__selection-item {
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
     .sw-select__selections {
         display: flex;
         flex-wrap: wrap;
         list-style: none;
+        width: calc(100% - 20px);
+    }
+
+    .sw-select__load-more-list-item-label {
+        color: $sw-select-color-text-default-item
     }
 
     .is--clickAble .sw-label {

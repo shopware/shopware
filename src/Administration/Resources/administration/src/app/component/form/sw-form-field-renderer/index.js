@@ -241,7 +241,7 @@ export default {
         refreshSwSelectSelections() {
             this.$nextTick(() => {
                 if (this.$refs.component) {
-                    this.$refs.component.loadSelections();
+                    this.$refs.component.loadSelected(true);
                 }
             });
         }

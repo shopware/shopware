@@ -39,6 +39,11 @@
     "sw-text-editor": {
       "labelTextLength": "{count} character | {count} characters"
     },
+    "sw-tag-field":{
+      "title": "Tags",
+      "listItemAdd": "Add \"{term}\"",
+      "placeholder": "Type to search tags..."
+    },
     "sw-grid-row": {
       "buttonInlineEditCancel": "Cancel",
       "buttonInlineEditSave": "Save"

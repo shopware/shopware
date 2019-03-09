@@ -8,7 +8,7 @@ use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingLocation;
 use Shopware\Core\Checkout\Cart\Rule\CartRuleScope;
 use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Customer\Rule\ShippingCountryRule;
-use Shopware\Core\Content\Rule\Exception\UnsupportedOperatorException;
+use Shopware\Core\Framework\Rule\Exception\UnsupportedOperatorException;
 use Shopware\Core\System\Country\CountryEntity;
 
 class ShippingCountryRuleTest extends TestCase

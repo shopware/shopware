@@ -2,10 +2,6 @@
 
 namespace Shopware\Core\Framework\Search;
 
-use Shopware\Core\Checkout\Customer\CustomerDefinition;
-use Shopware\Core\Checkout\Order\OrderDefinition;
-use Shopware\Core\Content\Media\MediaDefinition;
-use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
@@ -38,14 +34,24 @@ class CompositeEntitySearcher
      */
     private $definitionRegistry;
 
+    /**
+     * @var string[]|EntityDefinition[]
+     */
+    private $definitionClasses;
+
     public function __construct(
         DefinitionRegistry $definitionRegistry,
         SearchBuilder $searchBuilder,
-        EntityRepositoryInterface $changesRepository
+        EntityRepositoryInterface $changesRepository,
+        iterable $definitions
     ) {
         $this->changesRepository = $changesRepository;
         $this->searchBuilder = $searchBuilder;
         $this->definitionRegistry = $definitionRegistry;
+
+        foreach ($definitions as $definition) {
+            $this->definitionClasses[] = get_class($definition);
+        }
     }
 
     public function search(string $term, int $limit, Context $context, string $userId): array
@@ -69,13 +75,13 @@ class CompositeEntitySearcher
      */
     private function applyAuditLog(array $results, string $userId, Context $context): array
     {
+        $entityNames = array_map(function (string $definition): string {
+            return $definition::getEntityName();
+        }, $this->definitionClasses);
+
         $criteria = new Criteria();
         $criteria->addFilter(
-            new EqualsAnyFilter('version_commit_data.entityName', [
-                ProductDefinition::getEntityName(),
-                OrderDefinition::getEntityName(),
-                CustomerDefinition::getEntityName(),
-            ])
+            new EqualsAnyFilter('version_commit_data.entityName', $entityNames)
         );
         $criteria->addFilter(
             new EqualsFilter('version_commit_data.userId', $userId)
@@ -176,18 +182,11 @@ class CompositeEntitySearcher
 
     private function searchEntities(string $term, Context $context): array
     {
-        $definitions = [
-            ProductDefinition::class,
-            OrderDefinition::class,
-            CustomerDefinition::class,
-            MediaDefinition::class,
-        ];
-
         $results = [];
 
         //fetch best matches for defined definitions
         /** @var string|EntityDefinition $definition */
-        foreach ($definitions as $definition) {
+        foreach ($this->definitionClasses as $definition) {
             $criteria = new Criteria();
             $criteria->setLimit(15);
 

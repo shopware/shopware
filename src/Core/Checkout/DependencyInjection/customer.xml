@@ -7,6 +7,7 @@
     <services>
         <service id="Shopware\Core\Checkout\Customer\CustomerDefinition">
             <tag name="shopware.entity.definition" entity="customer"/>
+            <tag name="shopware.composite_search.definition"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Customer\Aggregate\CustomerGroupTranslation\CustomerGroupTranslationDefinition">

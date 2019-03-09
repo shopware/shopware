@@ -41,6 +41,7 @@
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionRegistry"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\SearchBuilder"/>
             <argument type="service" id="version_commit_data.repository"/>
+            <argument type="tagged" tag="shopware.composite_search.definition"/>
         </service>
 
         <service id="Shopware\Core\Framework\Api\Controller\SyncController" public="true">

@@ -64,9 +64,19 @@
 
                             {% block sw_product_list_grid_columns %}
                                 {% block sw_product_list_grid_columns_name %}
-                                    <template slot="column-active" slot-scope="{ item }">
-                                        <sw-icon v-if="item.active" name="small-default-checkmark-line-medium" small class="is--active"></sw-icon>
-                                        <sw-icon v-else name="small-default-x-line-medium" small class="is--inactive"></sw-icon>
+                                    <template slot="column-active" slot-scope="{ item, isInlineEdit }">
+                                        {% block sw_product_list_grid_columns_name_inline_edit %}
+                                            <template v-if="isInlineEdit">
+                                                <sw-checkbox-field v-model="item.active"></sw-checkbox-field>
+                                            </template>
+                                        {% endblock %}
+
+                                        {% block sw_product_list_grid_columns_name_content %}
+                                            <template v-else>
+                                                <sw-icon v-if="item.active" name="small-default-checkmark-line-medium" small class="is--active"></sw-icon>
+                                                <sw-icon v-else name="small-default-x-line-medium" small class="is--inactive"></sw-icon>
+                                            </template>
+                                        {% endblock %}
                                     </template>
                                 {% endblock %}
 
@@ -77,9 +87,19 @@
                                 {% endblock %}
 
                                 {% block sw_product_list_grid_columns_stock %}
-                                    <template slot="column-stock" slot-scope="{ item }">
-                                        {{ item.stock }}
-                                        <sw-color-badge :variant="item.stock | stockColorVariant"></sw-color-badge>
+                                    <template slot="column-stock" slot-scope="{ item, isInlineEdit, compact }">
+                                        {% block sw_product_list_grid_columns_stock_inline_edit %}
+                                            <template v-if="isInlineEdit">
+                                                <sw-number-field :size="compact ? 'small' : 'default'" v-model="item.stock"></sw-number-field>
+                                            </template>
+                                        {% endblock %}
+
+                                        {% block sw_product_list_grid_columns_stock_content %}
+                                            <template v-else>
+                                                {{ item.stock }}
+                                                <sw-color-badge :variant="item.stock | stockColorVariant"></sw-color-badge>
+                                            </template>
+                                        {% endblock %}
                                     </template>
                                 {% endblock %}
                             {% endblock %}

@@ -107,8 +107,8 @@ export default {
             isInlineEditActive: false,
             currentInlineEditId: '',
             hasResizeColumns: false,
-            _columnsResize: false,
-            _currentColumnWidth: null
+            _hasColumnsResize: false,
+            _isResizing: false
         };
     },
 
@@ -317,6 +317,10 @@ export default {
         },
 
         onClickHeaderCell(event, column) {
+            if (this._isResizing) {
+                return;
+            }
+
             if (!column.dataIndex) {
                 return;
             }
@@ -335,6 +339,7 @@ export default {
             this.resizeX = event.pageX;
             this.originalTarget = event.target;
             this.columnIndex = columnIndex;
+            this._isResizing = true;
 
             this._handleColumnResizeClasses('add');
 
@@ -355,6 +360,10 @@ export default {
             this.originalTarget = null;
             this.columnIndex = null;
 
+            utils.debounce(() => {
+                this._isResizing = false;
+            }, 50)();
+
             window.removeEventListener('mouseup', this.onStopResize, false);
             window.removeEventListener('mousemove', this.onResize, false);
         },
@@ -367,15 +376,19 @@ export default {
             const currentColumnElement = this.originalTarget.parentNode;
             const pageX = event.pageX;
             const diffX = pageX - this.resizeX;
-
             const newColumnWidth = currentColumnElement.offsetWidth + diffX;
+
+            this.resizeX = pageX;
+            this.trackScrollX();
+
+            if (newColumnWidth < 65) {
+                return;
+            }
+
             currentColumnElement.style.width = `${newColumnWidth}px`;
             currentColumnElement.style.minWidth = `${newColumnWidth}px`;
 
-            this.trackScrollX();
-
             this._currentColumnWidth = newColumnWidth;
-            this.resizeX = pageX;
         },
 
         _handleColumnResizeClasses(operation) {
@@ -389,23 +402,23 @@ export default {
         },
 
         enableResizeMode() {
-            if (this._columnsResize) {
+            if (this._hasColumnsResize) {
                 return;
             }
 
             this.setAllColumnElementWidths();
 
             this.$refs.table.style.tableLayout = 'fixed';
-            this._columnsResize = true;
+            this._hasColumnsResize = true;
         },
 
-        setAllColumnElementWidths(auto = false) {
+        setAllColumnElementWidths() {
             this.$refs.column.forEach((element) => {
-                const currentWidth = element.offsetWidth;
+                const currentWidth = `${element.offsetWidth}px`;
 
                 if (element.offsetWidth) {
-                    element.style.width = auto ? 'auto' : `${currentWidth}px`;
-                    element.style.minWidth = auto ? 'auto' : `${currentWidth}px`;
+                    element.style.width = currentWidth;
+                    element.style.minWidth = currentWidth;
                 }
             });
         },

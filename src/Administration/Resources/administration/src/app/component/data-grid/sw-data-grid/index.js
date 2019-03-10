@@ -9,7 +9,7 @@ export default {
 
     props: {
         dataSource: {
-            type: Array,
+            type: [Array, Object],
             required: true,
             default() {
                 return [];
@@ -26,7 +26,7 @@ export default {
 
         identifier: {
             type: String,
-            required: true,
+            required: false,
             default: ''
         },
 
@@ -155,7 +155,7 @@ export default {
         initGridColumns() {
             const storageItem = window.localStorage.getItem(this.localStorageItemKey);
 
-            if (storageItem !== null) {
+            if (this.identifier && storageItem !== null) {
                 this.currentColumns = JSON.parse(storageItem);
             } else {
                 this.currentColumns = this.getDefaultColumns();

@@ -85,7 +85,7 @@ class StorefrontCheckoutControllerTest extends TestCase
             [
                 'id' => $productId,
                 'name' => 'Test',
-                'price' => ['gross' => 10, 'net' => 9],
+                'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
                 'manufacturer' => ['id' => $this->manufacturerId, 'name' => 'test'],
                 'tax' => ['id' => $this->taxId, 'taxRate' => 17, 'name' => 'with id'],
             ],
@@ -138,7 +138,7 @@ class StorefrontCheckoutControllerTest extends TestCase
             [
                 'id' => $productId,
                 'name' => 'Test',
-                'price' => ['gross' => 10, 'net' => 9],
+                'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
                 'manufacturer' => ['id' => $this->manufacturerId, 'name' => 'test'],
                 'tax' => ['id' => $this->taxId, 'taxRate' => 17, 'name' => 'with id'],
             ],
@@ -184,7 +184,7 @@ class StorefrontCheckoutControllerTest extends TestCase
             [
                 'id' => $productId,
                 'name' => 'Test',
-                'price' => ['gross' => $grossPrice, 'net' => 9],
+                'price' => ['gross' => $grossPrice, 'net' => 9, 'linked' => false],
                 'manufacturer' => ['id' => $this->manufacturerId, 'name' => 'test'],
                 'tax' => ['id' => $this->taxId, 'taxRate' => 17, 'name' => 'with id'],
             ],
@@ -256,7 +256,7 @@ class StorefrontCheckoutControllerTest extends TestCase
             [
                 'id' => $productId,
                 'name' => 'Test',
-                'price' => ['gross' => $grossPrice, 'net' => 9],
+                'price' => ['gross' => $grossPrice, 'net' => 9, 'linked' => false],
                 'manufacturer' => ['id' => $this->manufacturerId, 'name' => 'test'],
                 'tax' => ['id' => $this->taxId, 'taxRate' => 17, 'name' => 'with id'],
             ],
@@ -328,7 +328,7 @@ class StorefrontCheckoutControllerTest extends TestCase
             [
                 'id' => $productId,
                 'name' => 'Test',
-                'price' => ['gross' => $grossPrice, 'net' => 9],
+                'price' => ['gross' => $grossPrice, 'net' => 9, 'linked' => false],
                 'manufacturer' => ['id' => $this->manufacturerId, 'name' => 'test'],
                 'tax' => ['id' => $this->taxId, 'taxRate' => 17, 'name' => 'with id'],
             ],
@@ -381,7 +381,7 @@ class StorefrontCheckoutControllerTest extends TestCase
             [
                 'id' => $productId,
                 'name' => 'Test',
-                'price' => ['gross' => $grossPrice, 'net' => 9],
+                'price' => ['gross' => $grossPrice, 'net' => 9, 'linked' => false],
                 'manufacturer' => ['id' => $this->manufacturerId, 'name' => 'test'],
                 'tax' => ['id' => $this->taxId, 'taxRate' => 17, 'name' => 'with id'],
             ],
@@ -569,7 +569,7 @@ class StorefrontCheckoutControllerTest extends TestCase
             [
                 'id' => $productId,
                 'name' => 'Test',
-                'price' => ['gross' => $grossPrice, 'net' => 9],
+                'price' => ['gross' => $grossPrice, 'net' => 9, 'linked' => false],
                 'manufacturer' => ['id' => $this->manufacturerId, 'name' => 'test'],
                 'tax' => ['id' => $this->taxId, 'taxRate' => 17, 'name' => 'with id'],
             ],

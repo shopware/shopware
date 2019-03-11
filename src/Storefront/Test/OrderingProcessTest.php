@@ -93,7 +93,7 @@ class OrderingProcessTest extends TestCase
             'name' => $name,
             'tax' => ['name' => 'test', 'rate' => $taxRate],
             'manufacturer' => ['name' => 'test'],
-            'price' => ['gross' => $grossPrice, 'net' => $netPrice],
+            'price' => ['gross' => $grossPrice, 'net' => $netPrice, 'linked' => false],
         ];
 
         $this->getClient()->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/product', [], [], [], $data);

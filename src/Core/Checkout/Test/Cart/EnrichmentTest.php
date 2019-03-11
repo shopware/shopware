@@ -67,7 +67,7 @@ class EnrichmentTest extends TestCase
                 'id' => $id,
                 'name' => 'Missing label',
                 'description' => 'Missing description',
-                'price' => ['gross' => 15, 'net' => 15],
+                'price' => ['gross' => 15, 'net' => 15, 'linked' => false],
                 'manufacturer' => ['name' => 'test'],
                 'tax' => ['name' => 'test', 'taxRate' => 15],
                 'cover' => [
@@ -119,7 +119,7 @@ class EnrichmentTest extends TestCase
                 'id' => $id,
                 'name' => 'Missing label',
                 'description' => 'Missing description',
-                'price' => ['gross' => 15, 'net' => 15],
+                'price' => ['gross' => 15, 'net' => 15, 'linked' => false],
                 'manufacturer' => ['name' => 'test'],
                 'tax' => ['name' => 'test', 'taxRate' => 15],
                 'media' => [

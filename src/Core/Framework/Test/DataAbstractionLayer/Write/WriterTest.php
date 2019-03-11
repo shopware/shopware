@@ -201,7 +201,7 @@ class WriterTest extends TestCase
             [
                 'id' => $productId->getHex(),
                 'name' => 'test 1',
-                'price' => ['gross' => 10, 'net' => 9],
+                'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
                 'tax' => ['name' => 'test', 'taxRate' => 5],
                 'manufacturer' => ['name' => 'test'],
                 'categories' => [
@@ -252,7 +252,7 @@ class WriterTest extends TestCase
             [
                 'id' => $productId->getHex(),
                 'name' => 'test 1',
-                'price' => ['gross' => 10, 'net' => 8.10],
+                'price' => ['gross' => 10, 'net' => 8.10, 'linked' => false],
                 'tax' => ['name' => 'test', 'taxRate' => 5],
                 'manufacturer' => ['name' => 'test'],
                 'categories' => [
@@ -262,7 +262,7 @@ class WriterTest extends TestCase
             [
                 'id' => $productId2->getHex(),
                 'name' => 'test 1',
-                'price' => ['gross' => 10, 'net' => 8.10],
+                'price' => ['gross' => 10, 'net' => 8.10, 'linked' => false],
                 'tax' => ['name' => 'test', 'taxRate' => 5],
                 'manufacturer' => ['name' => 'test'],
                 'categories' => [
@@ -271,7 +271,7 @@ class WriterTest extends TestCase
             ],
             [
                 'name' => 'test 1',
-                'price' => ['gross' => 10, 'net' => 8.10],
+                'price' => ['gross' => 10, 'net' => 8.10, 'linked' => false],
                 'tax' => ['name' => 'test', 'taxRate' => 5],
                 'manufacturer' => ['name' => 'test'],
                 'categories' => [
@@ -311,7 +311,7 @@ class WriterTest extends TestCase
                 [
                     'id' => $this->id,
                     'name' => 'test',
-                    'price' => ['gross' => 10, 'net' => 8.10],
+                    'price' => ['gross' => 10, 'net' => 8.10, 'linked' => false],
                     'the_unknown_field' => 'do nothing?',
                     'tax' => ['name' => 'test', 'taxRate' => 5],
                     'manufacturer' => ['id' => Uuid::uuid4()->getHex(), 'link' => 'https://shopware.com', 'name' => 'shopware AG'],
@@ -345,7 +345,7 @@ class WriterTest extends TestCase
                     'the_unknown_field' => 'do nothing?',
                     'tax' => ['name' => 'test', 'taxRate' => 5],
                     'name' => 'foo',
-                    'price' => ['gross' => 10, 'net' => 8.10],
+                    'price' => ['gross' => 10, 'net' => 8.10, 'linked' => false],
                     'manufacturer' => ['id' => Uuid::uuid4()->getHex(), 'link' => 'https://shopware.com', 'name' => 'shopware AG'],
                 ],
             ],
@@ -382,7 +382,7 @@ class WriterTest extends TestCase
                     'categories' => [
                         ['name' => 'Some category'],
                     ],
-                    'price' => ['gross' => 10, 'net' => 8.10],
+                    'price' => ['gross' => 10, 'net' => 8.10, 'linked' => false],
                 ],
             ],
             $this->createWriteContext()
@@ -413,7 +413,7 @@ class WriterTest extends TestCase
                     'descriptionLong' => '<p>html</p>',
                     'availableFrom' => new \DateTime('2011-01-01T15:03:01.012345Z'),
                     'availableTo' => new \DateTime('2011-01-01T15:03:01.012345Z'),
-                    'price' => ['gross' => 10, 'net' => 8.10],
+                    'price' => ['gross' => 10, 'net' => 8.10, 'linked' => false],
                     'manufacturer' => [
                         'id' => $productManufacturerId,
                         'link' => 'http://www.shopware.com',
@@ -729,7 +729,7 @@ class WriterTest extends TestCase
                 [
                     'id' => $this->id,
                     'name' => 'Test product',
-                    'price' => ['gross' => 10, 'net' => 8.10],
+                    'price' => ['gross' => 10, 'net' => 8.10, 'linked' => false],
                     'tax' => ['name' => 'test', 'taxRate' => 5],
                     'manufacturer' => [
                         'id' => Uuid::uuid4()->getHex(),

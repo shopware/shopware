@@ -67,7 +67,7 @@ class ProductRepositoryTest extends TestCase
         $data = [
             'id' => $id->getHex(),
             'name' => 'test',
-            'price' => ['gross' => 15, 'net' => 10],
+            'price' => ['gross' => 15, 'net' => 10, 'linked' => false],
             'manufacturer' => ['name' => 'test'],
             'tax' => ['name' => 'test', 'taxRate' => 15],
             'categories' => [
@@ -95,28 +95,28 @@ class ProductRepositoryTest extends TestCase
             [
                 'id' => Uuid::uuid4()->getHex(),
                 'name' => 'Test',
-                'price' => ['gross' => 10, 'net' => 9],
+                'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
                 'manufacturer' => ['name' => 'test'],
                 'tax' => ['taxRate' => 19, 'name' => 'without id'],
             ],
             [
                 'id' => Uuid::uuid4()->getHex(),
                 'name' => 'Test',
-                'price' => ['gross' => 10, 'net' => 9],
+                'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
                 'manufacturer' => ['name' => 'test'],
                 'tax' => ['id' => $tax, 'taxRate' => 17, 'name' => 'with id'],
             ],
             [
                 'id' => Uuid::uuid4()->getHex(),
                 'name' => 'Test',
-                'price' => ['gross' => 10, 'net' => 9],
+                'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
                 'manufacturer' => ['name' => 'test'],
                 'taxId' => $tax,
             ],
             [
                 'id' => Uuid::uuid4()->getHex(),
                 'name' => 'Test',
-                'price' => ['gross' => 10, 'net' => 9],
+                'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
                 'manufacturer' => ['name' => 'test'],
                 'tax' => ['id' => $tax, 'taxRate' => 18],
             ],
@@ -167,28 +167,28 @@ class ProductRepositoryTest extends TestCase
             [
                 'id' => Uuid::uuid4()->getHex(),
                 'name' => 'Test',
-                'price' => ['gross' => 10, 'net' => 9],
+                'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
                 'tax' => ['taxRate' => 17, 'name' => 'test'],
                 'manufacturer' => ['name' => 'without id'],
             ],
             [
                 'id' => Uuid::uuid4()->getHex(),
                 'name' => 'Test',
-                'price' => ['gross' => 10, 'net' => 9],
+                'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
                 'tax' => ['taxRate' => 17, 'name' => 'test'],
                 'manufacturer' => ['id' => $manufacturerId, 'name' => 'with id'],
             ],
             [
                 'id' => Uuid::uuid4()->getHex(),
                 'name' => 'Test',
-                'price' => ['gross' => 10, 'net' => 9],
+                'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
                 'tax' => ['taxRate' => 17, 'name' => 'test'],
                 'manufacturerId' => $manufacturerId,
             ],
             [
                 'id' => Uuid::uuid4()->getHex(),
                 'name' => 'Test',
-                'price' => ['gross' => 10, 'net' => 9],
+                'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
                 'tax' => ['taxRate' => 17, 'name' => 'test'],
                 'manufacturer' => ['id' => $manufacturerId, 'link' => 'test'],
             ],
@@ -242,7 +242,7 @@ class ProductRepositoryTest extends TestCase
             [
                 'id' => $id->getHex(),
                 'name' => 'Test',
-                'price' => ['gross' => 10, 'net' => 9],
+                'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
                 'tax' => ['name' => 'test', 'taxRate' => 19],
                 'manufacturer' => ['name' => 'test'],
             ],
@@ -289,7 +289,7 @@ class ProductRepositoryTest extends TestCase
         $data = [
             'id' => $id->getHex(),
             'name' => 'price test',
-            'price' => ['gross' => 15, 'net' => 10],
+            'price' => ['gross' => 15, 'net' => 10, 'linked' => false],
             'manufacturer' => ['name' => 'test'],
             'tax' => ['name' => 'test', 'taxRate' => 15],
             'priceRules' => [
@@ -298,14 +298,14 @@ class ProductRepositoryTest extends TestCase
                     'currencyId' => Defaults::CURRENCY,
                     'quantityStart' => 1,
                     'ruleId' => $ruleA,
-                    'price' => ['gross' => 15, 'net' => 10],
+                    'price' => ['gross' => 15, 'net' => 10, 'linked' => false],
                 ],
                 [
                     'id' => $ruleB,
                     'currencyId' => Defaults::CURRENCY,
                     'quantityStart' => 1,
                     'ruleId' => $ruleB,
-                    'price' => ['gross' => 10, 'net' => 8],
+                    'price' => ['gross' => 10, 'net' => 8, 'linked' => false],
                 ],
             ],
         ];
@@ -355,7 +355,7 @@ class ProductRepositoryTest extends TestCase
             [
                 'id' => $id->getHex(),
                 'name' => 'price test 1',
-                'price' => ['gross' => 500, 'net' => 400],
+                'price' => ['gross' => 500, 'net' => 400, 'linked' => false],
                 'manufacturer' => ['name' => 'test'],
                 'tax' => ['name' => 'test', 'taxRate' => 15],
                 'ean' => $filterId,
@@ -364,14 +364,14 @@ class ProductRepositoryTest extends TestCase
                         'currencyId' => Defaults::CURRENCY,
                         'quantityStart' => 1,
                         'ruleId' => $ruleA,
-                        'price' => ['gross' => 15, 'net' => 14],
+                        'price' => ['gross' => 15, 'net' => 14, 'linked' => false],
                     ],
                 ],
             ],
             [
                 'id' => $id2->getHex(),
                 'name' => 'price test 2',
-                'price' => ['gross' => 500, 'net' => 400],
+                'price' => ['gross' => 500, 'net' => 400, 'linked' => false],
                 'manufacturer' => ['name' => 'test'],
                 'tax' => ['name' => 'test', 'taxRate' => 15],
                 'ean' => $filterId,
@@ -380,14 +380,14 @@ class ProductRepositoryTest extends TestCase
                         'currencyId' => Defaults::CURRENCY,
                         'quantityStart' => 1,
                         'ruleId' => $ruleA,
-                        'price' => ['gross' => 5, 'net' => 4],
+                        'price' => ['gross' => 5, 'net' => 4, 'linked' => false],
                     ],
                 ],
             ],
             [
                 'id' => $id3->getHex(),
                 'name' => 'price test 3',
-                'price' => ['gross' => 500, 'net' => 400],
+                'price' => ['gross' => 500, 'net' => 400, 'linked' => false],
                 'manufacturer' => ['name' => 'test'],
                 'tax' => ['name' => 'test', 'taxRate' => 15],
                 'ean' => $filterId,
@@ -396,7 +396,7 @@ class ProductRepositoryTest extends TestCase
                         'currencyId' => Defaults::CURRENCY,
                         'quantityStart' => 1,
                         'ruleId' => $ruleA,
-                        'price' => ['gross' => 10, 'net' => 9],
+                        'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
                     ],
                 ],
             ],
@@ -523,7 +523,7 @@ class ProductRepositoryTest extends TestCase
             [
                 'id' => $id,
                 'name' => 'Insert',
-                'price' => ['gross' => 10, 'net' => 9],
+                'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
                 'tax' => ['name' => 'test', 'taxRate' => 10],
                 'manufacturer' => ['name' => 'test'],
                 'ean' => $filterId,
@@ -531,7 +531,7 @@ class ProductRepositoryTest extends TestCase
             [
                 'id' => $id,
                 'name' => 'Update',
-                'price' => ['gross' => 12, 'net' => 10],
+                'price' => ['gross' => 12, 'net' => 10, 'linked' => false],
                 'ean' => $filterId,
             ],
         ];
@@ -558,8 +558,8 @@ class ProductRepositoryTest extends TestCase
 
         $filterId = Uuid::uuid4()->getHex();
         $data = [
-            ['id' => $id, 'name' => 'Insert', 'price' => ['gross' => 10, 'net' => 9], 'tax' => ['name' => 'test', 'taxRate' => 10], 'manufacturer' => ['name' => 'test'], 'ean' => $filterId],
-            ['id' => $child, 'parentId' => $id, 'name' => 'Update', 'price' => ['gross' => 12, 'net' => 11], 'ean' => $filterId],
+            ['id' => $id, 'name' => 'Insert', 'price' => ['gross' => 10, 'net' => 9, 'linked' => false], 'tax' => ['name' => 'test', 'taxRate' => 10], 'manufacturer' => ['name' => 'test'], 'ean' => $filterId],
+            ['id' => $child, 'parentId' => $id, 'name' => 'Update', 'price' => ['gross' => 12, 'net' => 11, 'linked' => false], 'ean' => $filterId],
         ];
 
         $this->repository->upsert($data, Context::createDefaultContext());
@@ -597,7 +597,7 @@ class ProductRepositoryTest extends TestCase
                 'id' => $child,
                 'parentId' => null,
                 'name' => 'Child transformed to parent',
-                'price' => ['gross' => 13, 'net' => 12],
+                'price' => ['gross' => 13, 'net' => 12, 'linked' => false],
                 'tax' => ['name' => 'test', 'taxRate' => 15],
                 'manufacturer' => ['name' => 'test3'],
             ],
@@ -679,7 +679,7 @@ class ProductRepositoryTest extends TestCase
                 'id' => $child,
                 'parentId' => null,
                 'name' => 'Child transformed to parent',
-                'price' => ['gross' => 13, 'net' => 12],
+                'price' => ['gross' => 13, 'net' => 12, 'linked' => false],
                 'tax' => ['name' => 'test', 'taxRate' => 15],
                 'manufacturer' => ['name' => 'test3'],
             ],
@@ -777,13 +777,13 @@ class ProductRepositoryTest extends TestCase
     public function testWriteProductWithSameTaxes(): void
     {
         $tax = ['id' => Uuid::uuid4()->getHex(), 'taxRate' => 19, 'name' => 'test'];
-
+        $price = ['gross' => 10, 'net' => 9, 'linked' => false];
         $data = [
-            ['name' => 'test', 'tax' => $tax, 'price' => ['gross' => 10, 'net' => 9], 'manufacturer' => ['name' => 'test']],
-            ['name' => 'test', 'tax' => $tax, 'price' => ['gross' => 10, 'net' => 9], 'manufacturer' => ['name' => 'test']],
-            ['name' => 'test', 'tax' => $tax, 'price' => ['gross' => 10, 'net' => 9], 'manufacturer' => ['name' => 'test']],
-            ['name' => 'test', 'tax' => $tax, 'price' => ['gross' => 10, 'net' => 9], 'manufacturer' => ['name' => 'test']],
-            ['name' => 'test', 'tax' => $tax, 'price' => ['gross' => 10, 'net' => 9], 'manufacturer' => ['name' => 'test']],
+            ['name' => 'test', 'tax' => $tax, 'price' => $price, 'manufacturer' => ['name' => 'test']],
+            ['name' => 'test', 'tax' => $tax, 'price' => $price, 'manufacturer' => ['name' => 'test']],
+            ['name' => 'test', 'tax' => $tax, 'price' => $price, 'manufacturer' => ['name' => 'test']],
+            ['name' => 'test', 'tax' => $tax, 'price' => $price, 'manufacturer' => ['name' => 'test']],
+            ['name' => 'test', 'tax' => $tax, 'price' => $price, 'manufacturer' => ['name' => 'test']],
         ];
 
         $taxes = $this->repository->create($data, Context::createDefaultContext())->getEventByDefinition(TaxDefinition::class);
@@ -804,7 +804,7 @@ class ProductRepositoryTest extends TestCase
             [
                 'id' => $parentId,
                 'name' => 'T-shirt',
-                'price' => ['gross' => 10, 'net' => 9],
+                'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
                 'manufacturer' => ['name' => 'test'],
                 'tax' => ['name' => 'test', 'taxRate' => 15],
                 'media' => [
@@ -893,7 +893,7 @@ class ProductRepositoryTest extends TestCase
             [
                 'id' => $parentId,
                 'name' => 'T-shirt',
-                'price' => ['gross' => 10, 'net' => 9],
+                'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
                 'tax' => ['name' => 'test', 'taxRate' => 15],
                 'manufacturer' => ['name' => 'test'],
                 'categories' => [
@@ -960,9 +960,9 @@ class ProductRepositoryTest extends TestCase
         $greenId = Uuid::uuid4()->getHex();
         $parentId = Uuid::uuid4()->getHex();
 
-        $parentPrice = ['gross' => 10, 'net' => 9];
+        $parentPrice = ['gross' => 10, 'net' => 9, 'linked' => false];
         $parentName = 'T-shirt';
-        $greenPrice = ['gross' => 12, 'net' => 11];
+        $greenPrice = ['gross' => 12, 'net' => 11, 'linked' => false];
         $redName = 'Red shirt';
 
         $products = [
@@ -1005,9 +1005,9 @@ class ProductRepositoryTest extends TestCase
         $greenId = Uuid::uuid4()->getHex();
         $parentId = Uuid::uuid4()->getHex();
 
-        $parentPrice = ['gross' => 10, 'net' => 9];
+        $parentPrice = ['gross' => 10, 'net' => 9, 'linked' => false];
         $parentName = 'T-shirt';
-        $greenPrice = ['gross' => 12, 'net' => 11];
+        $greenPrice = ['gross' => 12, 'net' => 11, 'linked' => false];
         $redName = 'Red shirt';
 
         $manufacturerId = Uuid::uuid4()->getHex();
@@ -1053,9 +1053,9 @@ class ProductRepositoryTest extends TestCase
         $greenId = Uuid::uuid4()->getHex();
         $parentId = Uuid::uuid4()->getHex();
 
-        $parentPrice = ['gross' => 10, 'net' => 9];
+        $parentPrice = ['gross' => 10, 'net' => 9, 'linked' => false];
         $parentName = 'T-shirt';
-        $greenPrice = ['gross' => 12, 'net' => 11];
+        $greenPrice = ['gross' => 12, 'net' => 11, 'linked' => false];
         $redName = 'Red shirt';
 
         $categoryId = Uuid::uuid4()->getHex();
@@ -1120,7 +1120,7 @@ class ProductRepositoryTest extends TestCase
                 'id' => $parentId,
                 'tax' => ['name' => 'test', 'taxRate' => 15],
                 'name' => 'Parent',
-                'price' => ['gross' => 10, 'net' => 9],
+                'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
                 'manufacturer' => ['name' => 'test'],
                 'categories' => $parentCategories,
             ],
@@ -1128,7 +1128,7 @@ class ProductRepositoryTest extends TestCase
                 'id' => $redId,
                 'name' => 'Red',
                 'parentId' => $parentId,
-                'price' => ['gross' => 10, 'net' => 9],
+                'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
                 'manufacturer' => ['name' => 'test'],
                 'categories' => $redCategories,
             ],
@@ -1159,9 +1159,9 @@ class ProductRepositoryTest extends TestCase
         $greenId = Uuid::uuid4()->getHex();
         $parentId = Uuid::uuid4()->getHex();
 
-        $parentPrice = ['gross' => 10, 'net' => 9];
+        $parentPrice = ['gross' => 10, 'net' => 9, 'linked' => false];
         $parentName = 'T-shirt';
-        $greenPrice = ['gross' => 12, 'net' => 11];
+        $greenPrice = ['gross' => 12, 'net' => 11, 'linked' => false];
         $redName = 'Red shirt';
 
         $manufacturerId = Uuid::uuid4()->getHex();
@@ -1218,7 +1218,7 @@ class ProductRepositoryTest extends TestCase
                         'id' => $productId,
                         'tax' => ['name' => 'test', 'taxRate' => 15],
                         'name' => 'test',
-                        'price' => ['gross' => 10, 'net' => 9],
+                        'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
                         'manufacturer' => ['name' => 'test'],
                     ],
                 ],
@@ -1256,7 +1256,7 @@ class ProductRepositoryTest extends TestCase
                         'name' => 'test',
                         'tax' => ['name' => 'test', 'taxRate' => 15],
                         'manufacturerId' => $manufacturerId,
-                        'price' => ['gross' => 10, 'net' => 9],
+                        'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
                     ],
                 ],
             ],
@@ -1289,7 +1289,7 @@ class ProductRepositoryTest extends TestCase
             'id' => $id,
             'name' => 'test',
             'tax' => ['name' => 'test', 'taxRate' => 15],
-            'price' => ['gross' => 10, 'net' => 9],
+            'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
             'manufacturer' => ['name' => 'test'],
             'datasheet' => [
                 [
@@ -1340,7 +1340,7 @@ class ProductRepositoryTest extends TestCase
             'id' => $id,
             'name' => 'test',
             'tax' => ['name' => 'test', 'taxRate' => 15],
-            'price' => ['gross' => 10, 'net' => 9],
+            'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
             'manufacturer' => ['name' => 'test'],
             'variations' => [
                 [
@@ -1391,12 +1391,12 @@ class ProductRepositoryTest extends TestCase
             'id' => $id,
             'name' => 'test',
             'tax' => ['name' => 'test', 'taxRate' => 15],
-            'price' => ['gross' => 10, 'net' => 9],
+            'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
             'manufacturer' => ['name' => 'test'],
             'configurators' => [
                 [
                     'id' => $redId,
-                    'price' => ['gross' => 50, 'net' => 25],
+                    'price' => ['gross' => 50, 'net' => 25, 'linked' => false],
                     'option' => [
                         'id' => $redId,
                         'name' => 'red',
@@ -1405,7 +1405,7 @@ class ProductRepositoryTest extends TestCase
                 ],
                 [
                     'id' => $blueId,
-                    'price' => ['gross' => 100, 'net' => 90],
+                    'price' => ['gross' => 100, 'net' => 90, 'linked' => false],
                     'option' => [
                         'id' => $blueId,
                         'name' => 'blue',
@@ -1453,12 +1453,12 @@ class ProductRepositoryTest extends TestCase
             'id' => $id,
             'name' => 'Test product service: ' . (new \DateTime())->format(Defaults::DATE_FORMAT),
             'tax' => ['name' => 'test', 'taxRate' => 15],
-            'price' => ['gross' => 10, 'net' => 9],
+            'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
             'manufacturer' => ['name' => 'test'],
             'services' => [
                 [
                     'id' => $redId,
-                    'price' => ['gross' => 50, 'net' => 25],
+                    'price' => ['gross' => 50, 'net' => 25, 'linked' => false],
                     'tax' => ['name' => 'high', 'taxRate' => 100],
                     'option' => [
                         'id' => $redId,
@@ -1468,7 +1468,7 @@ class ProductRepositoryTest extends TestCase
                 ],
                 [
                     'id' => $blueId,
-                    'price' => ['gross' => 100, 'net' => 90],
+                    'price' => ['gross' => 100, 'net' => 90, 'linked' => false],
                     'tax' => ['name' => 'low', 'taxRate' => 1],
                     'option' => [
                         'id' => $blueId,
@@ -1524,7 +1524,7 @@ class ProductRepositoryTest extends TestCase
         $data = [
             'id' => $id,
             'name' => 'price test',
-            'price' => ['gross' => 15, 'net' => 10],
+            'price' => ['gross' => 15, 'net' => 10, 'linked' => false],
             'manufacturer' => ['name' => 'test'],
             'tax' => ['name' => 'test', 'taxRate' => 15],
             'priceRules' => [
@@ -1533,19 +1533,19 @@ class ProductRepositoryTest extends TestCase
                     'quantityStart' => 1,
                     'quantityEnd' => 20,
                     'ruleId' => $ruleA,
-                    'price' => ['gross' => 100, 'net' => 100],
+                    'price' => ['gross' => 100, 'net' => 100, 'linked' => false],
                 ],
                 [
                     'currencyId' => Defaults::CURRENCY,
                     'quantityStart' => 21,
                     'ruleId' => $ruleA,
-                    'price' => ['gross' => 10, 'net' => 50],
+                    'price' => ['gross' => 10, 'net' => 50, 'linked' => false],
                 ],
                 [
                     'currencyId' => Defaults::CURRENCY,
                     'quantityStart' => 1,
                     'ruleId' => $ruleB,
-                    'price' => ['gross' => 50, 'net' => 50],
+                    'price' => ['gross' => 50, 'net' => 50, 'linked' => false],
                 ],
             ],
         ];
@@ -1589,7 +1589,7 @@ class ProductRepositoryTest extends TestCase
         $data = [
             'id' => $id,
             'name' => 'price test',
-            'price' => ['gross' => 15, 'net' => 10],
+            'price' => ['gross' => 15, 'net' => 10, 'linked' => false],
             'manufacturer' => ['name' => 'test'],
             'tax' => ['name' => 'test', 'taxRate' => 15],
             'priceRules' => [
@@ -1599,7 +1599,7 @@ class ProductRepositoryTest extends TestCase
                     'quantityStart' => 1,
 
                     'ruleId' => $ruleA,
-                    'price' => ['gross' => 100, 'net' => 100],
+                    'price' => ['gross' => 100, 'net' => 100, 'linked' => false],
                 ],
             ],
         ];
@@ -1626,7 +1626,7 @@ class ProductRepositoryTest extends TestCase
                 [
                     'id' => $id,
                     'quantityEnd' => 20,
-                    'price' => ['gross' => 5000, 'net' => 4000],
+                    'price' => ['gross' => 5000, 'net' => 4000, 'linked' => false],
                 ],
 
                 //add new graduation to existing rule
@@ -1634,7 +1634,7 @@ class ProductRepositoryTest extends TestCase
                     'currencyId' => Defaults::CURRENCY,
                     'quantityStart' => 21,
                     'ruleId' => $ruleA,
-                    'price' => ['gross' => 10, 'net' => 50],
+                    'price' => ['gross' => 10, 'net' => 50, 'linked' => false],
                 ],
             ],
         ];
@@ -1667,7 +1667,7 @@ class ProductRepositoryTest extends TestCase
                     'currencyId' => Defaults::CURRENCY,
                     'quantityStart' => 1,
                     'ruleId' => $ruleB,
-                    'price' => ['gross' => 50, 'net' => 50],
+                    'price' => ['gross' => 50, 'net' => 50, 'linked' => false],
                 ],
             ],
         ];
@@ -1700,7 +1700,7 @@ class ProductRepositoryTest extends TestCase
         $default = [
             'tax' => ['name' => 'test', 'taxRate' => 15, 'id' => $manufacturerId],
             'name' => 'test product',
-            'price' => ['gross' => 10, 'net' => 9],
+            'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
             'manufacturer' => ['name' => 'test', 'id' => $manufacturerId],
         ];
 
@@ -1767,7 +1767,7 @@ class ProductRepositoryTest extends TestCase
             'id' => $id,
             'name' => 'product',
             'ean' => 'test',
-            'price' => ['gross' => 15, 'net' => 10],
+            'price' => ['gross' => 15, 'net' => 10, 'linked' => false],
             'manufacturer' => ['name' => 'manufacturer'],
             'tax' => ['name' => 'tax', 'taxRate' => 15],
             'categories' => [

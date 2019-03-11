@@ -77,7 +77,7 @@ EOF;
             'name' => $id,
             'tax' => ['name' => 'test', 'taxRate' => 10],
             'manufacturer' => ['name' => 'test'],
-            'price' => ['gross' => 50, 'net' => 25],
+            'price' => ['gross' => 50, 'net' => 25, 'linked' => false],
         ];
 
         $this->getClient()->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/product', $data);
@@ -144,7 +144,7 @@ EOF;
             'name' => $id,
             'tax' => ['name' => 'test', 'taxRate' => 10],
             'manufacturer' => ['name' => 'test'],
-            'price' => ['gross' => 50, 'net' => 25],
+            'price' => ['gross' => 50, 'net' => 25, 'linked' => false],
         ];
 
         $this->getClient()->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/product', $data);
@@ -185,7 +185,7 @@ EOF;
             'name' => $id,
             'tax' => ['name' => 'test', 'taxRate' => 10],
             'manufacturer' => ['name' => 'test'],
-            'price' => ['gross' => 50, 'net' => 25],
+            'price' => ['gross' => 50, 'net' => 25, 'linked' => false],
         ];
 
         $this->getClient()->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/product', $data);
@@ -226,7 +226,7 @@ EOF;
             'name' => $id->getHex(),
             'tax' => ['name' => 'test', 'taxRate' => 10],
             'manufacturer' => ['name' => 'test'],
-            'price' => ['gross' => 50, 'net' => 25],
+            'price' => ['gross' => 50, 'net' => 25, 'linked' => false],
         ];
 
         $this->getClient()->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/product', $data);
@@ -309,7 +309,7 @@ EOF;
         $data = [
             'id' => $id->getHex(),
             'name' => 'Test',
-            'price' => ['gross' => 50, 'net' => 25],
+            'price' => ['gross' => 50, 'net' => 25, 'linked' => false],
             'tax' => ['name' => 'test', 'taxRate' => 10],
             'manufacturer' => ['name' => 'test'],
             'categories' => [
@@ -372,7 +372,7 @@ EOF;
             'name' => 'Cotton Shirt',
             'tax' => ['name' => 'test', 'taxRate' => 10],
             'manufacturer' => ['name' => 'Shopware AG'],
-            'price' => ['gross' => 50, 'net' => 25],
+            'price' => ['gross' => 50, 'net' => 25, 'linked' => false],
         ];
 
         $this->getClient()->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/product', $data);
@@ -459,7 +459,7 @@ EOF;
         $data = [
             'id' => $id,
             'name' => 'price test',
-            'price' => ['gross' => 15, 'net' => 10],
+            'price' => ['gross' => 15, 'net' => 10, 'linked' => false],
             'manufacturer' => ['name' => 'test'],
             'tax' => ['name' => 'test', 'taxRate' => 15],
             'priceRules' => [
@@ -468,14 +468,14 @@ EOF;
                     'currencyId' => Defaults::CURRENCY,
                     'quantityStart' => 1,
                     'ruleId' => $ruleA,
-                    'price' => ['gross' => 15, 'net' => 10],
+                    'price' => ['gross' => 15, 'net' => 10, 'linked' => false],
                 ],
                 [
                     'id' => $ruleB,
                     'currencyId' => Defaults::CURRENCY,
                     'quantityStart' => 1,
                     'ruleId' => $ruleB,
-                    'price' => ['gross' => 10, 'net' => 8],
+                    'price' => ['gross' => 10, 'net' => 8, 'linked' => false],
                 ],
             ],
         ];
@@ -529,7 +529,7 @@ EOF;
         $data = [
             'id' => $id,
             'name' => 'price test',
-            'price' => ['gross' => 15, 'net' => 10],
+            'price' => ['gross' => 15, 'net' => 10, 'linked' => false],
             'manufacturer' => ['name' => 'test'],
             'tax' => ['name' => 'test', 'taxRate' => 15],
             'priceRules' => [
@@ -538,14 +538,14 @@ EOF;
                     'currencyId' => Defaults::CURRENCY,
                     'quantityStart' => 1,
                     'ruleId' => $ruleA,
-                    'price' => ['gross' => 15, 'net' => 10],
+                    'price' => ['gross' => 15, 'net' => 10, 'linked' => false],
                 ],
                 [
                     'id' => $ruleB,
                     'currencyId' => Defaults::CURRENCY,
                     'quantityStart' => 1,
                     'ruleId' => $ruleB,
-                    'price' => ['gross' => 10, 'net' => 8],
+                    'price' => ['gross' => 10, 'net' => 8, 'linked' => false],
                 ],
             ],
         ];
@@ -591,7 +591,7 @@ EOF;
         $data = [
             'id' => $id,
             'name' => 'price test',
-            'price' => ['gross' => 15, 'net' => 10],
+            'price' => ['gross' => 15, 'net' => 10, 'linked' => false],
             'manufacturer' => ['name' => 'test'],
             'tax' => ['name' => 'test', 'taxRate' => 15],
             'categories' => [
@@ -643,7 +643,7 @@ EOF;
             'name' => 'Wool Shirt',
             'tax' => ['name' => 'test', 'taxRate' => 10],
             'manufacturer' => ['name' => 'Shopware AG'],
-            'price' => ['gross' => 8300, 'net' => 8300],
+            'price' => ['gross' => 8300, 'net' => 8300, 'linked' => false],
         ];
 
         $this->getClient()->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/product', $data);
@@ -677,7 +677,7 @@ EOF;
             'name' => 'Wool Shirt',
             'tax' => ['name' => 'test', 'taxRate' => 10],
             'manufacturer' => ['name' => $manufacturerName],
-            'price' => ['gross' => 8300, 'net' => 8300],
+            'price' => ['gross' => 8300, 'net' => 8300, 'linked' => false],
             'stock' => 50,
         ];
         $this->getClient()->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/product', $data);
@@ -689,7 +689,7 @@ EOF;
             'name' => 'Wool Shirt 2',
             'tax' => ['name' => 'test', 'taxRate' => 10],
             'manufacturer' => ['name' => $manufacturerName],
-            'price' => ['gross' => 8300, 'net' => 8300],
+            'price' => ['gross' => 8300, 'net' => 8300, 'linked' => false],
             'stock' => 100,
         ];
         $this->getClient()->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/product', $data);

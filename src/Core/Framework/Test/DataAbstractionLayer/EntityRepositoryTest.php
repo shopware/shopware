@@ -158,14 +158,14 @@ class EntityRepositoryTest extends TestCase
                     'name' => 'Test',
                     'tax' => ['name' => 'test', 'taxRate' => 5],
                     'manufacturer' => ['name' => 'test'],
-                    'price' => ['gross' => 10, 'net' => 5],
+                    'price' => ['gross' => 10, 'net' => 5, 'linked' => false],
                 ],
                 [
                     'id' => $id2,
                     'name' => 'Test',
                     'tax' => ['name' => 'test', 'taxRate' => 5],
                     'manufacturer' => ['name' => 'test'],
-                    'price' => ['gross' => 10, 'net' => 5],
+                    'price' => ['gross' => 10, 'net' => 5, 'linked' => false],
                 ],
             ],
             $context
@@ -234,10 +234,10 @@ class EntityRepositoryTest extends TestCase
                     'name' => 'Test',
                     'tax' => ['name' => 'test', 'taxRate' => 5],
                     'manufacturer' => ['name' => 'test'],
-                    'price' => ['gross' => 10, 'net' => 5],
+                    'price' => ['gross' => 10, 'net' => 5, 'linked' => false],
                     'priceRules' => [
                         [
-                            'price' => ['gross' => 10, 'net' => 5],
+                            'price' => ['gross' => 10, 'net' => 5, 'linked' => false],
                             'currencyId' => Defaults::CURRENCY,
                             'quantityStart' => 1,
                             'quantityEnd' => 9,
@@ -248,7 +248,7 @@ class EntityRepositoryTest extends TestCase
                             ],
                         ],
                         [
-                            'price' => ['gross' => 10, 'net' => 5],
+                            'price' => ['gross' => 10, 'net' => 5, 'linked' => false],
                             'currencyId' => Defaults::CURRENCY,
                             'quantityStart' => 10,
                             'rule' => [
@@ -264,10 +264,10 @@ class EntityRepositoryTest extends TestCase
                     'name' => 'Test',
                     'tax' => ['name' => 'test', 'taxRate' => 5],
                     'manufacturer' => ['name' => 'test'],
-                    'price' => ['gross' => 10, 'net' => 5],
+                    'price' => ['gross' => 10, 'net' => 5, 'linked' => false],
                     'priceRules' => [
                         [
-                            'price' => ['gross' => 10, 'net' => 5],
+                            'price' => ['gross' => 10, 'net' => 5, 'linked' => false],
                             'currencyId' => Defaults::CURRENCY,
                             'quantityStart' => 1,
                             'quantityEnd' => 9,
@@ -278,7 +278,7 @@ class EntityRepositoryTest extends TestCase
                             ],
                         ],
                         [
-                            'price' => ['gross' => 10, 'net' => 5],
+                            'price' => ['gross' => 10, 'net' => 5, 'linked' => false],
                             'currencyId' => Defaults::CURRENCY,
                             'quantityStart' => 10,
                             'rule' => [
@@ -326,7 +326,7 @@ class EntityRepositoryTest extends TestCase
         $data = [
             'id' => $id,
             'name' => 'test',
-            'price' => ['gross' => 15, 'net' => 10],
+            'price' => ['gross' => 15, 'net' => 10, 'linked' => false],
             'manufacturer' => ['id' => $id, 'name' => 'test'],
             'tax' => ['id' => $id, 'name' => 'test', 'taxRate' => 15],
         ];
@@ -369,7 +369,7 @@ class EntityRepositoryTest extends TestCase
         $data = [
             'id' => $id,
             'name' => 'test',
-            'price' => ['gross' => 15, 'net' => 10],
+            'price' => ['gross' => 15, 'net' => 10, 'linked' => false],
             'manufacturer' => ['id' => $id, 'name' => 'test'],
             'tax' => ['id' => $id, 'name' => 'test', 'taxRate' => 15],
         ];
@@ -423,7 +423,7 @@ class EntityRepositoryTest extends TestCase
         $data = [
             'id' => $id,
             'name' => 'test',
-            'price' => ['gross' => 15, 'net' => 10],
+            'price' => ['gross' => 15, 'net' => 10, 'linked' => false],
             'manufacturer' => ['id' => $id, 'name' => 'test'],
             'tax' => ['id' => $id, 'name' => 'test', 'taxRate' => 15],
             'priceRules' => [
@@ -432,14 +432,14 @@ class EntityRepositoryTest extends TestCase
                     'currencyId' => Defaults::CURRENCY,
                     'quantityStart' => 1,
                     'ruleId' => $ruleA,
-                    'price' => ['gross' => 15, 'net' => 10],
+                    'price' => ['gross' => 15, 'net' => 10, 'linked' => false],
                 ],
                 [
                     'id' => $ruleB,
                     'currencyId' => Defaults::CURRENCY,
                     'quantityStart' => 1,
                     'ruleId' => $ruleB,
-                    'price' => ['gross' => 10, 'net' => 8],
+                    'price' => ['gross' => 10, 'net' => 8, 'linked' => false],
                 ],
             ],
         ];
@@ -491,7 +491,7 @@ class EntityRepositoryTest extends TestCase
         $data = [
             'id' => $id,
             'name' => 'test',
-            'price' => ['gross' => 15, 'net' => 10],
+            'price' => ['gross' => 15, 'net' => 10, 'linked' => false],
             'manufacturer' => ['id' => $id, 'name' => 'test'],
             'tax' => ['id' => $id, 'name' => 'test', 'taxRate' => 15],
             'categories' => [
@@ -550,7 +550,7 @@ class EntityRepositoryTest extends TestCase
         $data = [
             'id' => $id,
             'name' => 'parent',
-            'price' => ['gross' => 15, 'net' => 10],
+            'price' => ['gross' => 15, 'net' => 10, 'linked' => false],
             'manufacturer' => ['id' => $id, 'name' => 'test'],
             'tax' => ['id' => $id, 'name' => 'test', 'taxRate' => 15],
             'children' => [

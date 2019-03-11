@@ -497,7 +497,7 @@ class RecalculationServiceTest extends TestCase
         $data = [
             'id' => $productId,
             'name' => $name,
-            'price' => ['gross' => $price + ($price * $taxRate / 100), 'net' => $price],
+            'price' => ['gross' => $price + ($price * $taxRate / 100), 'net' => $price, 'linked' => false],
             'manufacturer' => ['name' => 'create'],
             'tax' => ['name' => 'create', 'taxRate' => $taxRate],
         ];

@@ -82,7 +82,7 @@ class ProductStreamIndexerTest extends TestCase
                 [
                     'id' => $productId,
                     'name' => 'Test',
-                    'price' => ['gross' => 10, 'net' => 9],
+                    'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
                     'manufacturer' => ['name' => 'test'],
                     'tax' => ['taxRate' => 19, 'name' => 'without id'],
                 ],
@@ -124,7 +124,7 @@ class ProductStreamIndexerTest extends TestCase
                 [
                     'id' => $productId,
                     'name' => 'Test',
-                    'price' => ['gross' => 10, 'net' => 9],
+                    'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
                     'manufacturer' => ['name' => 'test'],
                     'tax' => ['taxRate' => 19, 'name' => 'without id'],
                 ],
@@ -176,7 +176,7 @@ class ProductStreamIndexerTest extends TestCase
                 [
                     'id' => $productId,
                     'name' => 'Test',
-                    'price' => ['gross' => 10, 'net' => 9],
+                    'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
                     'manufacturer' => ['name' => 'test'],
                     'tax' => ['taxRate' => 19, 'name' => 'without id'],
                 ],
@@ -216,7 +216,7 @@ class ProductStreamIndexerTest extends TestCase
                 [
                     'id' => $productId,
                     'name' => 'Test',
-                    'price' => ['gross' => 10, 'net' => 9],
+                    'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
                     'manufacturer' => ['name' => 'test'],
                     'tax' => ['taxRate' => 19, 'name' => 'without id'],
                 ],
@@ -256,7 +256,7 @@ class ProductStreamIndexerTest extends TestCase
                 [
                     'id' => $productId,
                     'name' => 'Test',
-                    'price' => ['gross' => 10, 'net' => 9],
+                    'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
                     'manufacturer' => ['name' => 'test'],
                     'tax' => ['taxRate' => 19, 'name' => 'without id'],
                 ],
@@ -296,7 +296,7 @@ class ProductStreamIndexerTest extends TestCase
                 [
                     'id' => $productId,
                     'name' => 'Test',
-                    'price' => ['gross' => 10, 'net' => 9],
+                    'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
                     'manufacturer' => ['name' => 'test'],
                     'tax' => ['taxRate' => 19, 'name' => 'without id'],
                 ],

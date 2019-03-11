@@ -29,6 +29,7 @@
 
         <service id="Shopware\Core\Content\Product\ProductDefinition">
             <tag name="shopware.entity.definition" entity="product"/>
+            <tag name="shopware.composite_search.definition" />
         </service>
 
         <service id="Shopware\Core\Content\Product\Aggregate\ProductCategory\ProductCategoryDefinition">

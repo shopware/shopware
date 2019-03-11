@@ -14,6 +14,7 @@
         <!-- Entity definitions -->
         <service id="Shopware\Core\Content\Media\MediaDefinition">
             <tag name="shopware.entity.definition" entity="media"/>
+            <tag name="shopware.composite_search.definition"/>
         </service>
 
         <service id="Shopware\Core\Content\Media\Aggregate\MediaDefaultFolder\MediaDefaultFolderDefinition">

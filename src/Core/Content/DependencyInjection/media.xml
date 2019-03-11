@@ -44,6 +44,10 @@
         <service id="Shopware\Core\Content\Media\Aggregate\MediaFolderConfigurationMediaThumbnailSize\MediaFolderConfigurationMediaThumbnailSizeDefinition">
             <tag name="shopware.entity.definition" entity="media_folder_configuration_media_thumbnail_size"/>
         </service>
+
+        <service id="Shopware\Core\Content\Media\Aggregate\MediaTag\MediaTagDefinition">
+            <tag name="shopware.entity.definition" entity="media_tag"/>
+        </service>
         <!-- end of Entity definitions -->
 
         <!-- message handlers -->

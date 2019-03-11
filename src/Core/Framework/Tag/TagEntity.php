@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Tag;
 
+use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
@@ -29,6 +30,11 @@ class TagEntity extends Entity
      * @var ProductCollection|null
      */
     protected $products;
+
+    /**
+     * @var MediaCollection|null
+     */
+    protected $media;
 
     public function getName(): string
     {
@@ -68,5 +74,15 @@ class TagEntity extends Entity
     public function setProducts(ProductCollection $products): void
     {
         $this->products = $products;
+    }
+
+    public function getMedia(): ?MediaCollection
+    {
+        return $this->media;
+    }
+
+    public function setMedia(MediaCollection $media): void
+    {
+        $this->media = $media;
     }
 }

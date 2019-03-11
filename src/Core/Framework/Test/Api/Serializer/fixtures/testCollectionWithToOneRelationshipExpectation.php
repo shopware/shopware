@@ -6,37 +6,31 @@ return [
             'id' => '3e352be2d85846dd97529c0f6b544870',
             'type' => 'media',
             'attributes' => [
+                'userId' => '6f51622eb3814c75ae0263cece27ce72',
+                'mediaFolderId' => null,
                 'mimeType' => 'image/jpg',
                 'fileExtension' => 'jpg',
+                'uploadedAt' => null,
+                'fileName' => null,
                 'fileSize' => 18921,
                 'metaData' => null,
-                'userId' => '6f51622eb3814c75ae0263cece27ce72',
+                'mediaType' => null,
                 'createdAt' => '2012-08-15T00:00:00+00:00',
                 'updatedAt' => '2017-11-21T11:25:34+00:00',
-                'title' => 'Lagerkorn-5,0klein',
                 'alt' => null,
+                'title' => 'Lagerkorn-5,0klein',
                 'url' => '',
-                'hasFile' => false,
-                'fileName' => null,
-                'mediaType' => null,
-                'uploadedAt' => null,
-                'mediaFolderId' => null,
                 'attributes' => null,
+                'hasFile' => false,
             ],
             'links' => [
                 'self' => '/api/media/3e352be2d85846dd97529c0f6b544870',
             ],
             'relationships' => [
-                'translations' => [
-                    'data' => [],
-                    'links' => [
-                        'related' => '/api/media/3e352be2d85846dd97529c0f6b544870/translations',
-                    ],
-                ],
                 'user' => [
                     'data' => [
-                        'id' => '6f51622eb3814c75ae0263cece27ce72',
                         'type' => 'user',
+                        'id' => '6f51622eb3814c75ae0263cece27ce72',
                     ],
                     'links' => [
                         'related' => '/api/media/3e352be2d85846dd97529c0f6b544870/user',
@@ -60,8 +54,21 @@ return [
                         'related' => '/api/media/3e352be2d85846dd97529c0f6b544870/product-media',
                     ],
                 ],
-                'thumbnails' => [
+                'avatarUser' => [
+                    'data' => null,
+                    'links' => [
+                        'related' => '/api/media/3e352be2d85846dd97529c0f6b544870/avatar-user',
+                    ],
+                ],
+                'translations' => [
                     'data' => [],
+                    'links' => [
+                        'related' => '/api/media/3e352be2d85846dd97529c0f6b544870/translations',
+                    ],
+                ],
+                'thumbnails' => [
+                    'data' => [
+                    ],
                     'links' => [
                         'related' => '/api/media/3e352be2d85846dd97529c0f6b544870/thumbnails',
                     ],
@@ -78,47 +85,43 @@ return [
                         'related' => '/api/media/3e352be2d85846dd97529c0f6b544870/configuration-group-options',
                     ],
                 ],
-                'avatarUser' => [
-                    'data' => null,
+                'tags' => [
+                    'data' => [],
                     'links' => [
-                        'related' => '/api/media/3e352be2d85846dd97529c0f6b544870/avatar-user',
+                        'related' => '/api/media/3e352be2d85846dd97529c0f6b544870/tags',
                     ],
                 ],
             ],
             'meta' => null,
-        ],
-        [
+        ], [
             'id' => 'f1ad1d0c02454a40abf250f764d16248',
             'type' => 'media',
             'attributes' => [
+                'userId' => '6f51622eb3814c75ae0263cece27ce72',
+                'mediaFolderId' => null,
                 'mimeType' => 'image/jpg',
                 'fileExtension' => 'jpg',
+                'uploadedAt' => null,
+                'fileName' => null,
                 'fileSize' => 155633,
                 'metaData' => null,
-                'userId' => '6f51622eb3814c75ae0263cece27ce72',
+                'mediaType' => null,
                 'createdAt' => '2012-08-17T00:00:00+00:00',
                 'updatedAt' => '2017-11-21T11:25:34+00:00',
-                'title' => 'Jasmine-Lotus-Cover',
                 'alt' => null,
+                'title' => 'Jasmine-Lotus-Cover',
                 'url' => '',
-                'hasFile' => false,
-                'fileName' => null,
-                'mediaType' => null,
-                'uploadedAt' => null,
-                'mediaFolderId' => null,
                 'attributes' => null,
+                'hasFile' => false,
+            ],
+            'links' => [
+                'self' => '/api/media/f1ad1d0c02454a40abf250f764d16248',
             ],
             'relationships' => [
-                'translations' => [
-                    'data' => [],
-                    'links' => [
-                        'related' => '/api/media/f1ad1d0c02454a40abf250f764d16248/translations',
-                    ],
-                ],
                 'user' => [
                     'data' => [
-                        'id' => '6f51622eb3814c75ae0263cece27ce72',
                         'type' => 'user',
+                        'id' => '6f51622eb3814c75ae0263cece27ce72',
                     ],
                     'links' => [
                         'related' => '/api/media/f1ad1d0c02454a40abf250f764d16248/user',
@@ -142,6 +145,18 @@ return [
                         'related' => '/api/media/f1ad1d0c02454a40abf250f764d16248/product-media',
                     ],
                 ],
+                'avatarUser' => [
+                    'data' => null,
+                    'links' => [
+                        'related' => '/api/media/f1ad1d0c02454a40abf250f764d16248/avatar-user',
+                    ],
+                ],
+                'translations' => [
+                    'data' => [],
+                    'links' => [
+                        'related' => '/api/media/f1ad1d0c02454a40abf250f764d16248/translations',
+                    ],
+                ],
                 'thumbnails' => [
                     'data' => [],
                     'links' => [
@@ -160,15 +175,12 @@ return [
                         'related' => '/api/media/f1ad1d0c02454a40abf250f764d16248/configuration-group-options',
                     ],
                 ],
-                'avatarUser' => [
-                    'data' => null,
+                'tags' => [
+                    'data' => [],
                     'links' => [
-                        'related' => '/api/media/f1ad1d0c02454a40abf250f764d16248/avatar-user',
+                        'related' => '/api/media/f1ad1d0c02454a40abf250f764d16248/tags',
                     ],
                 ],
-            ],
-            'links' => [
-                'self' => '/api/media/f1ad1d0c02454a40abf250f764d16248',
             ],
             'meta' => null,
         ],
@@ -179,39 +191,45 @@ return [
             'type' => 'user',
             'attributes' => [
                 'localeId' => null,
+                'avatarId' => null,
                 'username' => 'user1',
                 'password' => 'password',
+                'name' => 'Manufacturer',
                 'email' => 'user1@shop.de',
                 'lastLogin' => '2018-01-15T08:01:16+00:00',
                 'active' => true,
                 'failedLogins' => 0,
                 'lockedUntil' => null,
-                'name' => 'Manufacturer',
                 'attributes' => null,
                 'createdAt' => '2018-01-15T08:01:16+00:00',
                 'updatedAt' => null,
-                'avatarId' => null,
             ],
             'links' => [
                 'self' => '/api/user/6f51622eb3814c75ae0263cece27ce72',
             ],
             'relationships' => [
-                'media' => [
-                    'links' => [
-                        'related' => '/api/user/6f51622eb3814c75ae0263cece27ce72/media',
-                    ],
-                    'data' => [],
-                ],
-                'accessKeys' => [
-                    'links' => [
-                        'related' => '/api/user/6f51622eb3814c75ae0263cece27ce72/access-keys',
-                    ],
-                    'data' => [],
-                ],
                 'locale' => [
                     'data' => null,
                     'links' => [
                         'related' => '/api/user/6f51622eb3814c75ae0263cece27ce72/locale',
+                    ],
+                ],
+                'avatarMedia' => [
+                    'data' => null,
+                    'links' => [
+                        'related' => '/api/user/6f51622eb3814c75ae0263cece27ce72/avatar-media',
+                    ],
+                ],
+                'media' => [
+                    'data' => [],
+                    'links' => [
+                        'related' => '/api/user/6f51622eb3814c75ae0263cece27ce72/media',
+                    ],
+                ],
+                'accessKeys' => [
+                    'data' => [],
+                    'links' => [
+                        'related' => '/api/user/6f51622eb3814c75ae0263cece27ce72/access-keys',
                     ],
                 ],
                 'stateMachineHistoryEntries' => [
@@ -224,12 +242,6 @@ return [
                     'data' => null,
                     'links' => [
                         'related' => '/api/user/6f51622eb3814c75ae0263cece27ce72/recovery-user',
-                    ],
-                ],
-                'avatarMedia' => [
-                    'data' => null,
-                    'links' => [
-                        'related' => '/api/user/6f51622eb3814c75ae0263cece27ce72/avatar-media',
                     ],
                 ],
             ],

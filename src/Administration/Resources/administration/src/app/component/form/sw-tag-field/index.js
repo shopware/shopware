@@ -88,6 +88,10 @@ Component.register('sw-tag-field', {
 
             this.$refs.swTagSelect.activeResultPosition = 0;
             this.$refs.swTagSelect.navigateUpResults();
+        },
+
+        emitInput(selected) {
+            this.$emit('input', selected);
         }
     }
 });

@@ -1,0 +1,15 @@
+{% block sw_media_tag %}
+    <div class="sw-media-tag">
+        <sw-media-collapse :title="$tc('global.sw-tag-field.title')"
+                           :expandOnLoading="true">
+
+            {% block sw_media_tag_input %}
+                <sw-tag-field slot="content"
+                              :entity="media"
+                              @input="onChange">
+                </sw-tag-field>
+            {% endblock %}
+
+        </sw-media-collapse>
+    </div>
+{% endblock %}

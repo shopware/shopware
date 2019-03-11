@@ -64,34 +64,27 @@ class JsonApiEncoderTest extends TestCase
                 'id' => '1d23c1b015bf43fb97e89008cf42d6fe',
                 'type' => 'media',
                 'attributes' => [
-                    'title' => 'Manufacturer',
-                    'alt' => 'A media object description',
+                    'userId' => null,
+                    'mediaFolderId' => null,
                     'mimeType' => 'image/png',
                     'fileExtension' => 'png',
+                    'uploadedAt' => null,
+                    'fileName' => null,
                     'fileSize' => 310818,
                     'metaData' => null,
+                    'mediaType' => null,
                     'createdAt' => '2018-01-15T08:01:16+00:00',
                     'updatedAt' => null,
-                    'userId' => null,
+                    'alt' => 'A media object description',
+                    'title' => 'Manufacturer',
                     'url' => '',
-                    'hasFile' => false,
-                    'fileName' => null,
-                    'mediaType' => null,
-                    'uploadedAt' => null,
-                    'mediaFolderId' => null,
                     'attributes' => null,
+                    'hasFile' => false,
                 ],
-                'meta' => null,
                 'links' => [
                     'self' => '/api/media/1d23c1b015bf43fb97e89008cf42d6fe',
                 ],
                 'relationships' => [
-                    'translations' => [
-                        'data' => [],
-                        'links' => [
-                            'related' => '/api/media/1d23c1b015bf43fb97e89008cf42d6fe/translations',
-                        ],
-                    ],
                     'user' => [
                         'data' => null,
                         'links' => [
@@ -116,6 +109,18 @@ class JsonApiEncoderTest extends TestCase
                             'related' => '/api/media/1d23c1b015bf43fb97e89008cf42d6fe/product-media',
                         ],
                     ],
+                    'avatarUser' => [
+                        'data' => null,
+                        'links' => [
+                            'related' => '/api/media/1d23c1b015bf43fb97e89008cf42d6fe/avatar-user',
+                        ],
+                    ],
+                    'translations' => [
+                        'data' => [],
+                        'links' => [
+                            'related' => '/api/media/1d23c1b015bf43fb97e89008cf42d6fe/translations',
+                        ],
+                    ],
                     'thumbnails' => [
                         'data' => [],
                         'links' => [
@@ -134,13 +139,14 @@ class JsonApiEncoderTest extends TestCase
                             'related' => '/api/media/1d23c1b015bf43fb97e89008cf42d6fe/configuration-group-options',
                         ],
                     ],
-                    'avatarUser' => [
-                        'data' => null,
+                    'tags' => [
+                        'data' => [],
                         'links' => [
-                            'related' => '/api/media/1d23c1b015bf43fb97e89008cf42d6fe/avatar-user',
+                            'related' => '/api/media/1d23c1b015bf43fb97e89008cf42d6fe/tags',
                         ],
                     ],
                 ],
+                'meta' => null,
             ],
             'included' => [],
         ];

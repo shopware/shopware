@@ -82,7 +82,7 @@
 
                 <sw-product-stream-modal-preview
                         v-if="showModalPreview"
-                        :productFilters="productStream.filters"
+                        :productFilter="productStream.filters[0]"
                         ref="modalPreview"
                         @sw-product-stream-modal-preview-close="closeModalPreview">
                 </sw-product-stream-modal-preview>

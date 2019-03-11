@@ -17,7 +17,8 @@ export default {
         return {
             conditionStore: this.conditionStore,
             entityAssociationStore: () => this.entityAssociationStore,
-            config: this.config
+            config: this.config,
+            isApi: () => this.isApi
         };
     },
 

@@ -3,7 +3,7 @@
 
 {% block sw_condition_base_fields %}
     {% block sw_product_stream_filter_field_select %}
-        <template v-if="!isApi">
+        <template v-if="!isApi()">
             <sw-select v-for="definition, index in definitions"
                        :key="index"
                        :store="getDefinitionStore(definition)"
@@ -27,7 +27,6 @@
 
     {% block sw_product_stream_filter_type_select %}
         <sw-select :store="getTypeStore()"
-                   v-if="typeCriteria"
                    v-model="type"
                    :id="createId()"
                    itemValueKey="type"

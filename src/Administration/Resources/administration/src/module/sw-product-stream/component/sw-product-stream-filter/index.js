@@ -10,7 +10,7 @@ const productDefinitionName = 'product';
 Component.extend('sw-product-stream-filter', 'sw-condition-base', {
     template,
 
-    inject: ['productStreamConditionService', 'entityAssociationStore'],
+    inject: ['productStreamConditionService', 'entityAssociationStore', 'isApi'],
     mixins: [
         Mixin.getByName('validation'),
         Mixin.getByName('notification')
@@ -83,7 +83,7 @@ Component.extend('sw-product-stream-filter', 'sw-condition-base', {
         fields: {
             immediate: true,
             handler(newValue) {
-                if (!newValue || this.fields.length === 0) {
+                if (!newValue || this.fields.length === 0 || this.isApi()) {
                     return;
                 }
 
@@ -109,14 +109,6 @@ Component.extend('sw-product-stream-filter', 'sw-condition-base', {
             handler() {
                 this.mapValues();
             }
-        },
-        isApi: {
-            handler() {
-                if (!this.isApi) {
-                    return;
-                }
-                this.lastField = {};
-            }
         }
     },
 
@@ -124,7 +116,7 @@ Component.extend('sw-product-stream-filter', 'sw-condition-base', {
         createdComponent() {
             this.locateConditionTreeComponent();
 
-            if (this.isApi) {
+            if (this.isApi()) {
                 return;
             }
 
@@ -133,20 +125,18 @@ Component.extend('sw-product-stream-filter', 'sw-condition-base', {
                 this.lastField = this.fields[this.fields.length - 1];
             } catch (error) {
                 this.conditionTreeComponent.isApi = true;
-                this.lastField = {};
-                this.fields = [];
-                // prevent error before template check works with isApi
-                this.actualCondition.field.split('.').forEach(() => {
-                    this.fields.push({ name: 'dummy' });
-                });
             }
         },
         mountComponent() {
             this.loadNegatedCondition();
+
+            if (this.isApi()) {
+                this.lastField = {};
+            }
         },
 
         getDefinitions() {
-            if (this.isApi) {
+            if (this.isApi()) {
                 return [];
             }
 

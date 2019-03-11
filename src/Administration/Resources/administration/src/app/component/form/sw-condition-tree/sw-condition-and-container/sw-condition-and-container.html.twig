@@ -17,7 +17,6 @@
                                        v-if="!child.isDeleted"
                                        :condition="child"
                                        :level="level + 1"
-                                       :isApi="isApi"
                                        :parentDisabledDelete="disabledDeleteButton"
                                        @delete-condition="onDeleteCondition"
                                        @create-before="createPlaceholderBefore"

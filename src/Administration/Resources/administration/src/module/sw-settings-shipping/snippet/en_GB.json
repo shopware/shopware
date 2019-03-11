@@ -6,7 +6,7 @@
     },
     "list": {
       "textHeadline": "Shipping costs",
-      "textDeleteConfirm": "Are you sure you want to delete the shipping rate \"{name}\"?",
+      "textDeleteConfirm": "Are you sure you want to delete the shipping method \"{name}\"?",
       "columnName": "Name",
       "columnActive": "Active",
       "columnShippingfree": "Free shipping",

@@ -1,0 +1,145 @@
+{% block sw_settings_user_detail %}
+    <sw-page class="sw-settings-user-detail">
+        {% block sw_settings_user_detail_header %}
+            <template slot="smart-bar-header">
+                <h2 >{{ username }}</h2>
+            </template>
+        {% endblock %}
+
+        {% block sw_settings_user_detail_actions %}
+            <template slot="smart-bar-actions">
+                {% block sw_settings_user_detail_actions_cancel %}
+                    <sw-button :disabled="isLoading" :routerLink="{ name: 'sw.settings.user.list' }">
+                        {{ $tc('sw-manufacturer.detail.buttonCancel') }}
+                    </sw-button>
+                {% endblock %}
+
+                {% block sw_settings_user_detail_actions_save %}
+                    <sw-button class="sw-settings-user-detail__save-action" variant="primary" :disabled="isLoading"
+                               @click.prevent="onSave">
+                        {{ $tc('sw-manufacturer.detail.buttonSave') }}
+                    </sw-button>
+                {% endblock %}
+            </template>
+        {% endblock %}
+
+        {% block sw_settings_user_detail_content %}
+            <template slot="content">
+                <sw-card-view>
+                    {% block sw_settings_user_detail_content %}
+                        <sw-card :title="$tc('sw-settings-user.user-detail.labelCard')">
+                            {% block sw_settings_user_detail_content_grid %}
+                                <div v-if="!isLoading" class="sw-settings-user-detail__grid">
+                                    {% block sw_settings_user_detail_content_first_name %}
+                                        <sw-text-field
+                                                class="sw-settings-user-detail__grid-firstName"
+                                                v-model="user.firstName"
+                                                :label="$tc('sw-settings-user.user-detail.labelFirstName')">
+                                        </sw-text-field>
+                                    {% endblock %}
+
+                                    {% block sw_settings_user_detail_content_last_name %}
+                                        <sw-text-field
+                                                class="sw-settings-user-detail__grid-lastName"
+                                                v-model="user.lastName"
+                                                :label="$tc('sw-settings-user.user-detail.labelLastName')">
+                                        </sw-text-field>
+                                    {% endblock %}
+
+                                    {% block sw_settings_user_detail_content_email %}
+                                        <sw-text-field
+                                                class="sw-settings-user-detail__grid-eMail"
+                                                v-model="user.email"
+                                                :label="$tc('sw-settings-user.user-detail.labelEmail')">
+                                        </sw-text-field>
+                                    {% endblock %}
+
+                                    {% block sw_settings_user_detail_content_username %}
+                                        <sw-text-field
+                                                class="sw-settings-user-detail__grid-username"
+                                                v-model="user.username"
+                                                :label="$tc('sw-settings-user.user-detail.labelUsername')">
+                                        </sw-text-field>
+                                    {% endblock %}
+
+                                    {% block sw_settings_user_detail_content_media_upload %}
+                                        <sw-upload-store-listener
+                                                :uploadTag="user.id"
+                                                autoUpload
+                                                @sw-media-upload-finished="setMediaItem">
+                                        </sw-upload-store-listener>
+                                        <sw-media-upload
+                                                class="sw-settings-user-detail__grid-profile-picture"
+                                                :source="avatarMedia"
+                                                :label="$tc('sw-settings-user.user-detail.labelProfilePicture')"
+                                                :uploadTag="user.id"
+                                                :allowMultiSelect="false"
+                                                variant="regular"
+                                                :defaultFolder="user.getEntityName()"
+                                                @sw-media-upload-remove-image="onUnlinkLogo">
+                                        </sw-media-upload>
+                                    {% endblock %}
+
+                                    {% block sw_settings_user_detail_content_password %}
+                                        <sw-password-field
+                                                class="sw-settings-user-detail__grid-password"
+                                                :value="user.password"
+                                                :label="$tc('sw-settings-user.user-detail.labelPassword')"
+                                                :passwordToggleAble="false"
+                                                :copyAble="false"
+                                                :disabled="true">
+                                        </sw-password-field>
+                                    {% endblock %}
+
+                                    {% block sw_settings_user_detail_grid_change_password %}
+                                        <a v-if="!isCurrentUser" class="sw-settings-user-detail__grid-change-password" @click="onChangePassword">
+                                            {{ $tc('sw-settings-user.user-detail.labelChangePassword') }}
+                                        </a>
+                                    {% endblock %}
+                                </div>
+                            {% endblock %}
+
+                            {% block sw_settings_user_detail_content_password_modal %}
+                                <sw-modal v-if="changePasswordModal"
+                                          @closeModal="onClosePasswordModal"
+                                          :title="$tc('sw-settings-user.user-detail.labelNewPassword')"
+                                          variant="small">
+                                    {{ $tc('sw-settings-user.user-detail.textChangePassword') }}
+                                    {% block sw_settings_user_detail_content_password_modal_input %}
+                                        <sw-password-field
+                                                class="sw-settings-user-detail__new-password"
+                                                v-model="newPassword"
+                                                :passwordToggleAble="true"
+                                                :copyAble="false"
+                                                :placeholder="$tc('sw-settings-user.user-detail.placeholderNewPassword')">
+                                        </sw-password-field>
+                                    {% endblock %}
+
+                                    {% block sw_settings_user_detail_password_modal_footer %}
+                                        <template slot="modal-footer">
+                                            {% block sw_settings_user_detail_password_modal_actions_cancel %}
+                                                <sw-button @click="onClosePasswordModal"
+                                                           size="small">
+                                                    {{ $tc('sw-settings-user.user-detail.labelButtonCancel') }}
+                                                </sw-button>
+                                            {% endblock %}
+
+                                            {% block sw_settings_user_detail_password_modal_actions_change %}
+                                                <sw-button @click="onSubmit"
+                                                           variant="primary"
+                                                           size="small"
+                                                           :disabled="disableConfirm">
+                                                    {{ $tc('sw-settings-user.user-detail.labelButtonChangePassword') }}
+                                                </sw-button>
+                                            {% endblock %}
+                                        </template>
+                                    {% endblock %}
+                                </sw-modal>
+                            {% endblock %}
+                        </sw-card>
+                    {% endblock %}
+                </sw-card-view>
+            </template>
+        {% endblock %}
+    </sw-page>
+{% endblock %}

@@ -71,7 +71,7 @@ export default {
         },
 
         userName() {
-            return this.user.name;
+            return `${this.user.firstName} ${this.user.lastName} `;
         },
 
         avatarUrl() {
@@ -83,17 +83,11 @@ export default {
         },
 
         firstName() {
-            if (this.user.name) {
-                return this.user.name.split(' ')[0];
-            }
-            return '';
+            return this.user.firstName;
         },
 
         lastName() {
-            if (this.user.name) {
-                return this.user.name.split(' ')[1];
-            }
-            return '';
+            return this.user.lastName;
         }
     },
 

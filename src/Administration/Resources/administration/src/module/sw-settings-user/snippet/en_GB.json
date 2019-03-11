@@ -1,0 +1,62 @@
+{
+  "sw-settings-user": {
+    "general": {
+      "mainMenuItemGeneral": "User",
+      "placeholderSearchBar": "Find users",
+      "labelUserList": "User Management",
+      "labelCreateNewUser": "Create new user"
+    },
+    "user-grid": {
+      "labelUsername": "Username",
+      "labelFirstName": "First Name",
+      "labelLastName": "Last Name",
+      "labelEmail": "E-Mail",
+      "contextMenuEdit": "Edit",
+      "contextMenuDelete": "Delete",
+      "contextMenuDuplicate": "Duplicate",
+      "titleModalDelete": "Delete user",
+      "textModalDelete": "Do you really want to delete the user \"{name}\"?",
+      "labelButtonCancel": "Cancel",
+      "labelButtonDelete": "Delete",
+      "notification": {
+        "deleteSuccess": {
+          "title": "Success",
+          "message": "User \"{name}\" deleted successfully."
+        },
+        "deleteError": {
+          "title": "Error",
+          "message": "An error occurred while deleting the user \"{name}\"."
+        },
+        "deleteUserLoggedInError": {
+          "title": "Error",
+          "message": "The own user can not be deleted."
+        }
+      }
+    },
+    "user-detail": {
+      "labelCard": "Basic information",
+      "labelFirstName": "First name",
+      "labelLastName": "Last name",
+      "labelEmail": "E-Mail",
+      "labelUsername": "Username",
+      "labelPassword": "Password",
+      "labelProfilePicture": "Profile picture",
+      "labelChangePassword": "Change password",
+      "labelNewPassword": "New password",
+      "placeholderNewPassword": "Enter new password",
+      "labelButtonCancel": "Cancel",
+      "labelButtonChangePassword": "Change",
+      "textChangePassword": "By pressing the change button the password be saved immediately.",
+      "notification": {
+        "saveError": {
+          "title": "Error",
+          "message": "An error occurred while deleting the user \"{name}\"."
+        },
+        "saveSuccess": {
+          "title": "Success",
+          "message": "User \"{name}\" has been deleted successfully."
+        }
+      }
+    }
+  }
+}

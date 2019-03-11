@@ -7,7 +7,8 @@ $userId = '6f51622eb3814c75ae0263cece27ce72';
 
 $user = new UserEntity();
 $user->setId($userId);
-$user->setName('Manufacturer');
+$user->setFirstName('Manufacturer');
+$user->setLastName('');
 $user->setPassword('password');
 $user->setUsername('user1');
 $user->setActive(true);

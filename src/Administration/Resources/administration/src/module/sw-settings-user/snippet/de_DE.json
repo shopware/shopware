@@ -1,0 +1,62 @@
+{
+  "sw-settings-user": {
+    "general": {
+      "mainMenuItemGeneral": "Benutzer",
+      "placeholderSearchBar": "Finde Benutzer",
+      "labelUserList": "Benutzerverwaltung",
+      "labelCreateNewUser": "Neuer Benutzer"
+    },
+    "user-grid": {
+      "labelUsername": "Benutzername",
+      "labelFirstName": "Vorname",
+      "labelLastName": "Nachname",
+      "labelEmail": "E-Mail",
+      "contextMenuEdit": "Bearbeiten",
+      "contextMenuDelete": "Löschen",
+      "contextMenuDuplicate": "Duplizieren",
+      "titleModalDelete": "Benutzer löschen",
+      "textModalDelete": "Möchtest du den Benutzer \"{name}\" wirklich löschen?",
+      "labelButtonCancel": "Abbrechen",
+      "labelButtonDelete": "Löschen",
+      "notification": {
+        "deleteSuccess": {
+          "title": "Erfolg",
+          "message": "Der Benutzer \"{name}\" wurde erfolgreich gelöscht."
+        },
+        "deleteError": {
+          "title": "Fehler",
+          "message": "Beim Löschen des Benutzers \"{name}\" ist ein Fehler aufgetreten."
+        },
+        "deleteUserLoggedInError": {
+          "title": "Fehler",
+          "message": "Der eigene Benutzer kann nicht entfernt werden."
+        }
+      }
+    },
+    "user-detail": {
+      "labelCard": "Basisinformationen",
+      "labelFirstName": "Vorname",
+      "labelLastName": "Nachname",
+      "labelEmail": "E-Mail",
+      "labelUsername": "Benutzername",
+      "labelPassword": "Passwort",
+      "labelProfilePicture": "Profilbild",
+      "labelChangePassword": "Passwort ändern",
+      "labelNewPassword": "Neues Passwort",
+      "placeholderNewPassword": "Neues Passwort eingeben",
+      "labelButtonCancel": "Abbrechen",
+      "labelButtonChangePassword": "Ändern",
+      "textChangePassword": "Mit einem Klick auf ändern wird das Passwort direkt gespeichert.",
+      "notification": {
+        "saveError": {
+          "title": "Fehler",
+          "message": "Beim Speichern des Benutzers \"{name}\" ist ein Fehler aufgetreten."
+        },
+        "saveSuccess": {
+          "title": "Erfolg",
+          "message": "Der Benutzer \"{name}\" wurde erfolgreich gespeichert."
+        }
+      }
+    }
+  }
+}

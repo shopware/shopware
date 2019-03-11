@@ -160,7 +160,8 @@ class AuthControllerTest extends TestCase
 
         $this->getContainer()->get(Connection::class)->insert('user', [
             'id' => Uuid::randomBytes(),
-            'name' => $username,
+            'first_name' => $username,
+            'last_name' => '',
             'email' => 'test@example.com',
             'username' => $username,
             'password' => password_hash($password, PASSWORD_BCRYPT),

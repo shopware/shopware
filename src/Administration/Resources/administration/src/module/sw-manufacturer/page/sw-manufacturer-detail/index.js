@@ -31,10 +31,6 @@ Component.register('sw-manufacturer-detail', {
             return State.getStore('media');
         },
 
-        uploadStore() {
-            return State.getStore('upload');
-        },
-
         logoFieldClasses() {
             const isLogo = this.manufacturer.mediaId || this.manufacturer.isLoading;
             return {
@@ -104,19 +100,11 @@ Component.register('sw-manufacturer-detail', {
             this.loadEntityData();
         },
 
-        onUploadAdded({ uploadTag }) {
-            this.manufacturer.isLoading = true;
-
-            this.mediaStore.sync().then(() => {
-                return this.uploadStore.runUploads(uploadTag);
-            }).finally(() => {
-                this.manufacturer.isLoading = false;
+        setMediaItem({ targetId }) {
+            this.mediaStore.getByIdAsync(targetId).then((updatedMedia) => {
+                this.mediaItem = updatedMedia;
             });
-        },
-
-        setMediaItem(mediaEntity) {
-            this.mediaItem = mediaEntity;
-            this.manufacturer.mediaId = mediaEntity.id;
+            this.manufacturer.mediaId = targetId;
         },
 
         onUnlinkLogo() {

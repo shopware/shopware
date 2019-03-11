@@ -62,14 +62,19 @@
                                     {% block sw_media_modal_tab_content_upload %}
                                         <template v-if="active === tabNameUpload" class="sw-media-modal__uploads-content">
                                             {% block sw_media_modal_upload_component %}
+                                                <sw-upload-store-listener
+                                                    :uploadTag="uploadTag"
+                                                    @sw-media-upload-added="onUploadsAdded"
+                                                    @sw-media-upload-finished="onUploadFinished"
+                                                    @sw-media-upload-failed="onUploadFailed">
+                                                </sw-upload-store-listener>
                                                 <sw-media-upload
                                                     class="sw-media-modal__upload-container"
                                                     variant="regular"
+                                                    :uploadTag="uploadTag"
                                                     :defaultFolder="entityContext"
-                                                    allowMultiple
-                                                    @sw-media-upload-new-uploads-added="onUploadsAdded"
-                                                    @sw-media-upload-media-upload-failure="onUploadFailed"
-                                                    @sw-media-upload-media-upload-success="onUploadFinished">
+                                                    :targetFolder="folderId"
+                                                    allowMultiple>
                                                 </sw-media-upload>
                                             {% endblock %}
 

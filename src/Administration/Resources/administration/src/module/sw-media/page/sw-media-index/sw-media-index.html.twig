@@ -51,9 +51,8 @@
                 {% block sw_media_index_smart_bar_media_upload %}
                     <sw-media-upload
                         variant="compact"
-                        @sw-media-upload-new-uploads-added="onUploadsAdded"
-                        @sw-media-upload-media-upload-failure="onUploadFailed"
-                        @sw-media-upload-media-upload-success="onUploadFinished">
+                        :targetFolderId="routeFolderId"
+                        :uploadTag="uploadTag">
                     </sw-media-upload>
                 {% endblock %}
             </template>
@@ -66,8 +65,14 @@
         {% endblock %}
 
         {% block sw_media_index_page_content %}
-            <div slot="content"class="sw-media-index__page-content">
+            <div slot="content" class="sw-media-index__page-content">
                 {% block sw_media_index_listing_grid %}
+                    <sw-upload-store-listener
+                        :uploadTag="uploadTag"
+                        @sw-media-upload-added="onUploadsAdded"
+                        @sw-media-upload-finished="onUploadFinished"
+                        @sw-media-upload-failed="onUploadFailed">
+                    </sw-upload-store-listener>
                     <sw-media-library
                         class="sw-media-index__media-library"
                         :folderId="routeFolderId"

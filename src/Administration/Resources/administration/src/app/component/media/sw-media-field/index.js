@@ -1,5 +1,6 @@
 import { State, Mixin } from 'src/core/shopware';
 import CriteriaFactory from 'src/core/factory/criteria.factory';
+import utils from 'src/core/service/util.service';
 import template from './sw-media-field.html.twig';
 import './sw-media-field.scss';
 
@@ -42,7 +43,8 @@ export default {
             showUploadField: false,
             suggestedItems: [],
             isLoadingSuggestions: false,
-            pickerClasses: {}
+            pickerClasses: {},
+            uploadTag: utils.createId()
         };
     },
 
@@ -64,10 +66,6 @@ export default {
     computed: {
         mediaStore() {
             return State.getStore('media');
-        },
-
-        uploadStore() {
-            return State.getStore('upload');
         },
 
         mediaFieldClasses() {
@@ -93,7 +91,9 @@ export default {
                 this.mediaEntity = null;
                 return;
             }
-            this.mediaEntity = this.mediaStore.getById(id);
+            this.mediaStore.getByIdAsync(id).then((updatedEntity) => {
+                this.mediaEntity = updatedEntity;
+            });
         },
 
         fetchSuggestions() {
@@ -156,16 +156,8 @@ export default {
             this.showUploadField = !this.showUploadField;
         },
 
-        uploadNewFile({ uploadTag, data }) {
-            const uploadData = data.pop();
-
-            uploadData.entity.save().then(() => {
-                this.uploadStore.runUploads(uploadTag);
-            });
-        },
-
-        exposeNewId(uploadedEntity) {
-            this.$emit('mediaIdChanged', uploadedEntity.id);
+        exposeNewId({ targetId }) {
+            this.$emit('mediaIdChanged', targetId);
             this.showUploadField = false;
             this.showPicker = false;
         }

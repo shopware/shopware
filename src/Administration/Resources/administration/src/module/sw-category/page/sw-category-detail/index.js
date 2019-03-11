@@ -190,9 +190,11 @@ Component.register('sw-category-detail', {
             this.$refs.mediaSidebarItem.openContent();
         },
 
-        setMediaItem(mediaEntity) {
-            this.mediaItem = mediaEntity;
-            this.category.mediaId = mediaEntity.id;
+        setMediaItem(mediaId) {
+            this.mediaStore.getByIdAsync(mediaId).then((updatedEntity) => {
+                this.mediaItem = updatedEntity;
+            });
+            this.category.mediaId = mediaId;
         },
 
         onUnlinkLogo() {

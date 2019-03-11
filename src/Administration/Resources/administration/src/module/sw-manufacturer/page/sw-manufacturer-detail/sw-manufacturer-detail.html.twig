@@ -69,16 +69,20 @@
                         </div>
 
                         {% block sw_manufacturer_detail_logo_upload %}
+                            <sw-upload-store-listener
+                                :uploadTag="manufacturer.id"
+                                autoUpload
+                                @sw-media-upload-finished="setMediaItem">
+                            </sw-upload-store-listener>
                             <sw-media-upload
                                 :source="mediaItem"
                                 class="sw-manufacturer-detail__logo-upload"
                                 :allowMultiSelect="false"
                                 variant="regular"
+                                :uploadTag="manufacturer.id"
                                 :label="$tc('sw-manufacturer.detail.labelLogo')"
                                 :defaultFolder="manufacturer.getEntityName()"
-                                @sw-media-upload-new-uploads-added="onUploadAdded"
                                 @sw-media-upload-media-upload-success="setMediaItem"
-                                @sw-media-upload-open-sidebar="openMediaSidebar"
                                 @sw-media-upload-remove-image="onUnlinkLogo">
                             </sw-media-upload>
                         {% endblock %}

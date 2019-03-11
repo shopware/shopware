@@ -104,12 +104,12 @@ Component.register('sw-category-view', {
             this.$emit('sw-category-view-on-upload-media', uploadTag);
         },
 
-        setMediaItem(mediaItem) {
-            this.$emit('sw-category-view-on-set-media', mediaItem);
+        setMediaItem({ targetId }) {
+            this.$emit('sw-category-view-on-set-media', targetId);
         },
 
-        removeMediaItem(mediaItem) {
-            this.$emit('sw-category-view-on-remove-media', mediaItem);
+        removeMediaItem() {
+            this.$emit('sw-category-view-on-remove-media');
         },
 
         openMediaSidebar() {

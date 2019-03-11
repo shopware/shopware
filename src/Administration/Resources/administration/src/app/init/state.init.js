@@ -6,6 +6,7 @@ import UploadStore from 'src/core/data/UploadStore';
 
 export default function createCoreStates() {
     const factoryContainer = this.getContainer('factory');
+    const serviceContainer = this.getContainer('service');
     const stateFactory = factoryContainer.state;
 
     stateFactory.registerStore('auth', new AuthStore());
@@ -14,7 +15,9 @@ export default function createCoreStates() {
     stateFactory.registerStore('adminLocale', new LocaleStore(
         factoryContainer.locale.getLastKnownLocale()
     ));
-    stateFactory.registerStore('upload', new UploadStore());
+    stateFactory.registerStore('upload', new UploadStore(
+        serviceContainer.mediaService
+    ));
 
     return true;
 }

@@ -1,106 +1,169 @@
 /**
  * @module core/data/UploadStore
  */
-import noop from 'lodash/noop';
 import remove from 'lodash/remove';
 import UploadTask from 'src/core/helper/uploadTask.helper';
+import { fileReader } from 'src/core/service/util.service';
+
+const UploadEvents = {
+    UPLOAD_ADDED: 'sw-media-upload-added',
+    UPLOAD_FINISHED: 'sw-media-upload-finished',
+    UPLOAD_FAILED: 'sw-media-upload-failed'
+};
 
 class UploadStore {
-    constructor() {
-        this.tags = new Map();
-        this.callbacks = new Map();
+    constructor(mediaService) {
+        this.uploads = [];
+        this.$listeners = {};
+        this.mediaService = mediaService;
     }
 
-    isTagMissing(tag) {
-        return !this.tags.has(tag);
-    }
-
-    callbackOnUploadFinished(tag, callback) {
-        if (!this.callbacks.has(tag)) {
-            this.callbacks.set(tag, []);
+    /*
+     * Event dispatching
+     */
+    hasListeners(uploadTag) {
+        if (!uploadTag) {
+            return false;
         }
 
-        this.callbacks.get(tag).push(callback);
+        return this.$listeners.hasOwnProperty(uploadTag);
     }
 
-    addUpload(tag, uploadFunction) {
-        if (this.isTagMissing(tag)) {
-            this.tags.set(tag, []);
+    hasDefaultListeners() {
+        return this.hasListeners('default');
+    }
+
+    addListener(uploadTag, callback) {
+        if (!this.hasListeners(uploadTag)) {
+            this.$listeners[uploadTag] = [];
+        }
+        this.$listeners[uploadTag].push(callback);
+    }
+
+    removeListener(uploadTag, callback) {
+        if (!this.hasListeners(uploadTag)) {
+            return;
         }
 
-        const task = new UploadTask(uploadFunction);
+        if (callback === undefined) {
+            remove(this.$listeners[uploadTag], () => true);
+            return;
+        }
 
-        this.tags.get(tag).push(task);
-
-        return task;
-    }
-
-    removeUpload(id) {
-        this.tags.forEach((taskCollection, tag) => {
-            remove(taskCollection, (task) => {
-                return task.id === id;
-            });
-
-            if (taskCollection.length === 0) {
-                this.tags.delete(tag);
-            }
+        remove(this.$listeners[uploadTag], (listener) => {
+            return listener === callback;
         });
     }
 
-    removeByTag(tag) {
-        if (this.isTagMissing(tag)) {
-            return;
-        }
-        this.tags.delete(tag);
+    removeDefaultListener(callback) {
+        this.removeListener('default', callback);
     }
 
-    runUploads(tag, callback = noop) {
-        if (this.isTagMissing(tag)) {
+    addDefaultListener(callback) {
+        this.addListener('default', callback);
+    }
+
+    getListenerForTag(uploadTag) {
+        const tagListener = this.hasListeners(uploadTag) ? this.$listeners[uploadTag] : [];
+        const defaultListeners = this.hasDefaultListeners() ? this.$listeners.default : [];
+
+        return [...tagListener, ...defaultListeners];
+    }
+
+    _createUploadEvent(action, uploadTag, payload) {
+        return { action, uploadTag, payload };
+    }
+
+    /*
+     * store functionality
+     */
+    addUpload(uploadTag, uploadData) {
+        this.addUploads(uploadTag, [uploadData]);
+    }
+
+    addUploads(uploadTag, uploadCollection) {
+        uploadCollection.forEach((uploadData) => {
+            this.uploads.push(new UploadTask({ uploadTag, ...uploadData }));
+        });
+
+        this.getListenerForTag(uploadTag).forEach((listener) => {
+            listener(this._createUploadEvent(
+                UploadEvents.UPLOAD_ADDED,
+                uploadTag,
+                { data: uploadCollection }
+            ));
+        });
+    }
+
+    removeByTag(uploadTag) {
+        remove(this.uploads, (upload) => {
+            return upload.uploadTag === uploadTag;
+        });
+    }
+
+    runUploads(tag) {
+        const affectedUploads = remove(this.uploads, (upload) => {
+            return upload.uploadTag === tag;
+        });
+        const affectedListeners = this.getListenerForTag(tag);
+
+        if (affectedUploads.length === 0) {
             return Promise.resolve();
         }
 
-        return Promise.all(this.tags.get(tag).map((task) => {
-            return task.start().then(() => {
-                callback.apply(null, [this.getRunningTaskCount(tag)]);
+        return Promise.all(affectedUploads.map((task) => {
+            if (task.running) {
+                return Promise.resolve();
+            }
+
+            task.running = true;
+            return this._startUpload(task).then(() => {
+                task.running = false;
+                affectedListeners.forEach((listener) => {
+                    listener(this._createUploadEvent(
+                        UploadEvents.UPLOAD_FINISHED,
+                        tag,
+                        { targetId: task.targetId }
+                    ));
+                });
+            }).catch((cause) => {
+                task.error = cause;
+                task.running = false;
+                affectedListeners.forEach((listener) => {
+                    listener(this._createUploadEvent(
+                        UploadEvents.UPLOAD_FAILED,
+                        tag,
+                        task
+                    ));
+                });
             });
-        })).then(() => {
-            this.tags.delete(tag);
-            this.runCallbacks(tag);
-        }).catch(() => {
-            this.tags.delete(tag);
-            this.runCallbacks(tag);
-        });
+        }));
     }
 
-    getRunningTaskCount(tag) {
-        if (this.isTagMissing(tag)) {
-            return 0;
-        }
-        return this.tags.get(tag).reduce((total, task) => {
-            return task.running ? total + 1 : total;
-        }, 0);
-    }
-
-    getPendingTaskCount(tag) {
-        if (this.isTagMissing(tag)) {
-            return 0;
-        }
-        return this.tags.get(tag).reduce((total, task) => {
-            const isPending = !task.running && !task.resolved;
-            return isPending ? total + 1 : total;
-        }, 0);
-    }
-
-    runCallbacks(tag) {
-        const callbacks = this.callbacks.get(tag);
-        if (callbacks) {
-            callbacks.forEach((callback) => {
-                callback();
+    _startUpload(task) {
+        if (task.src instanceof File) {
+            return fileReader.readAsArrayBuffer(task.src).then((buffer) => {
+                return this.mediaService.uploadMediaById(
+                    task.targetId,
+                    task.src.type,
+                    buffer,
+                    task.extension,
+                    task.fileName
+                );
             });
-
-            this.callbacks.delete(tag);
         }
+
+        if (task.src instanceof URL) {
+            return this.mediaService.uploadMediaFromUrl(
+                task.targetId,
+                task.src.href,
+                task.extension,
+                task.fileName
+            );
+        }
+
+        return Promise.reject(new Error('src of upload must either be an instance of File or URL'));
     }
 }
 
-export default UploadStore;
+export { UploadStore as default, UploadEvents };

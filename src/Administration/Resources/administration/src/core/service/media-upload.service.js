@@ -3,32 +3,20 @@
  */
 import { fileReader } from 'src/core/service/util.service';
 
-export default function createMediaUploadService(mediaService) {
-    return {
-        uploadFileToMedia,
-        uploadUrlToMedia,
-        splitFileNameAndExtension
-    };
+class MediaUploadService {
+    constructor(mediaService) {
+        this.mediaService = mediaService;
+    }
 
-    function uploadFileToMedia(file, mediaEntity, fileName = '') {
-        const pathinfo = splitFileNameAndExtension(file.name);
+    uploadFileToMedia(file, mediaEntity, fileName = '') {
+        const pathinfo = this.splitFileNameAndExtension(file.name);
 
         if (fileName) {
             pathinfo.fileName = fileName;
         }
 
-        fileReader.readAsDataURL(file).then((dataUrl) => {
-            mediaEntity.fileName = pathinfo.fileName;
-            mediaEntity.fileExtension = pathinfo.extension;
-            mediaEntity.hasFile = true;
-            mediaEntity.mimeType = file.type;
-            mediaEntity.url = dataUrl;
-            mediaEntity.uploadedAt = new Date();
-            mediaEntity.fileSize = file.size;
-        });
-
         return fileReader.readAsArrayBuffer(file).then((buffer) => {
-            return mediaService.uploadMediaById(
+            return this.mediaService.uploadMediaById(
                 mediaEntity.id,
                 file.type,
                 buffer,
@@ -38,8 +26,8 @@ export default function createMediaUploadService(mediaService) {
         });
     }
 
-    function uploadUrlToMedia(url, mediaEntity, fileExtension = '', fileName = '') {
-        const pathinfo = splitFileNameAndExtension(url.href.split('/').pop());
+    uploadUrlToMedia(url, mediaEntity, fileExtension = '', fileName = '') {
+        const pathinfo = this.splitFileNameAndExtension(url.href.split('/').pop());
         const indexOfQueryIndicator = pathinfo.fileName.indexOf('?');
 
         if (indexOfQueryIndicator > 0) {
@@ -53,13 +41,7 @@ export default function createMediaUploadService(mediaService) {
             pathinfo.fileName = fileName;
         }
 
-        mediaEntity.fileName = pathinfo.fileName;
-        mediaEntity.fileExtension = pathinfo.extension;
-        mediaEntity.hasFile = true;
-        mediaEntity.url = url.href;
-        mediaEntity.uploadedAt = new Date();
-
-        return mediaService.uploadMediaFromUrl(
+        return this.mediaService.uploadMediaFromUrl(
             mediaEntity.id,
             url.href,
             pathinfo.extension,
@@ -67,7 +49,7 @@ export default function createMediaUploadService(mediaService) {
         );
     }
 
-    function splitFileNameAndExtension(completeFileName) {
+    splitFileNameAndExtension(completeFileName) {
         const fileParts = completeFileName.split('.');
 
         // no dot in filename
@@ -92,3 +74,7 @@ export default function createMediaUploadService(mediaService) {
         };
     }
 }
+
+export default (mediaService) => {
+    return new MediaUploadService(mediaService);
+};

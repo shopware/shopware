@@ -338,7 +338,6 @@ describe('core/data/EntityStore.js', () => {
         });
         const product = tax.associations.products.create();
 
-        console.log(tax.associations);
         store.add(tax);
 
         const newTax = store.duplicate(tax.id, true);

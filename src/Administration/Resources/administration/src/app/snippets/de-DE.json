@@ -171,7 +171,7 @@
         }
       }
     },
-    "sw-media-modal-duplicate-media": {
+    "sw-duplicated-media": {
       "titleModal": "Datei existiert bereits",
       "description": "Es existiert bereits eine Datei mit dem Namen \"{fileName}\".",
       "buttonReplace": "Datei ersetzen",

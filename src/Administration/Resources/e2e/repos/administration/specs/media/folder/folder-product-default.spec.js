@@ -45,7 +45,7 @@ module.exports = {
             .waitForElementNotPresent('.sw-select__results')
             .click(page.elements.saveSettingsAction)
             .checkNotification('Settings have been saved successfully')
-            .waitForElementVisible(`.icon--default-symbol-products`);
+            .waitForElementVisible('.icon--default-symbol-products');
     },
     'check if the folder is used as default location when uploading in products': (browser) => {
         const page = mediaPage(browser);
@@ -74,7 +74,9 @@ module.exports = {
             .click('.sw-sidebar-navigation-item')
             .expect.element(mediaPageObject.elements.folderNameLabel).to.have.text.that.equals(fixtures.name);
 
-        browser.expect.element(mediaPageObject.elements.mediaNameLabel).to.have.text.that.equals('sw-login-background.png');
+        browser
+            .click(mediaPageObject.elements.folderNameLabel)
+            .expect.element(mediaPageObject.elements.mediaNameLabel).to.have.text.that.equals('sw-login-background.png');
     },
     'verify if the product image is located in its corresponding media folder': (browser) => {
         const page = mediaPage(browser);

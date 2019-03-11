@@ -45,10 +45,6 @@ Component.register('sw-product-detail', {
             return State.getStore('tax');
         },
 
-        uploadStore() {
-            return State.getStore('upload');
-        },
-
         attributeSetStore() {
             return State.getStore('attribute_set');
         }

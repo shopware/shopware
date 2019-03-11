@@ -75,6 +75,11 @@
                 text-decoration: underline;
             }
         }
+
+        .sw-icon,
+        .sw-color-badge {
+            flex-shrink: 0;
+        }
     }
 
     .sw-data-grid__cell-value {

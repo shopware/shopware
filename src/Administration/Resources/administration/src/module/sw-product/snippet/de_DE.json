@@ -118,7 +118,9 @@
       "messageEmpty": "Noch keine Produkte",
       "modalTitleDelete": "Produkte",
       "textDeleteConfirm": "Möchtest Du das Produkt \"{name}\" wirklich löschen?",
-      "titleSidebarItemRefresh": "Aktualisieren"
+      "titleSidebarItemRefresh": "Aktualisieren",
+      "titleSaveSuccess": "Erfolg",
+      "messageSaveSuccess": "Das Produkt \"{name}\" wurde erfolgreich gespeichert."
     },
     "detail": {
       "textHeadline": "Neues Produkt",

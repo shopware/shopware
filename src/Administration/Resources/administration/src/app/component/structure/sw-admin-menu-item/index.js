@@ -58,6 +58,22 @@ export default {
 
         getItemName(menuItemName) {
             return menuItemName.replace(/\./g, '-');
+        },
+
+        subIsActive(path) {
+            let compareTo;
+
+            if (this.$route.meta.$current) {
+                compareTo = this.$route.meta.$current.parent;
+            }
+            if (this.$route.meta.parentPath) {
+                compareTo = this.$route.meta.parentPath;
+            }
+            if (this.$route.meta.$module.navigation && this.$route.meta.$module.navigation[0].parent) {
+                compareTo = this.$route.meta.$module.navigation[0].parent;
+            }
+
+            return compareTo ? compareTo.replace(/-/g, '.').indexOf(path.replace(/\.index/g, '')) === 0 : false;
         }
     }
 };

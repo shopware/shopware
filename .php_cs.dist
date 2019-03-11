@@ -50,6 +50,7 @@ return Config::create()
         // functions should be used with $strict param set to true
         'strict_param' => true,
         'array_indentation' => true,
+        'compact_nullable_typehint' => true,
         Fixer\NoUselessCommentFixer::name() => true,
         Fixer\PhpdocNoSuperfluousParamFixer::name() => true,
         Fixer\NoImportFromGlobalNamespaceFixer::name() => true,

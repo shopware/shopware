@@ -162,7 +162,7 @@ class MediaFolderEntity extends Entity
         $this->createdAt = $createdAt;
     }
 
-    public function getUpdatedAt(): ? \DateTimeInterface
+    public function getUpdatedAt(): ?\DateTimeInterface
     {
         return $this->updatedAt;
     }

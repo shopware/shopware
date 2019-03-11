@@ -1,4 +1,5 @@
-import { types } from 'src/core/service/util.service';
+import { deepCopyObject } from 'src/core/service/utils/object.utils';
+
 import EventEmitter from 'events';
 
 export default class VariantsGenerator extends EventEmitter {
@@ -28,14 +29,14 @@ export default class VariantsGenerator extends EventEmitter {
                 this.loadExisting(this.product.id).then((variantsOnServer) => {
                     const deleteArray = Object.keys(variantsOnServer).map((id) => { return { id }; });
                     this.emit('maxProgressChange', { type: 'delete', progress: deleteArray.length });
-                    this.sendDeletion(deleteArray, 0, 10, resolve);
+                    this.syncVariants('delete', deleteArray, 0, 10, resolve);
                 });
                 return;
             }
 
             // check for large request over 100 000 variants
             const numberOfVariants = grouped.map((group) => group.length).reduce((curr, length) => curr * length);
-            if (!forceGenerating && numberOfVariants >= 100000) {
+            if (!forceGenerating && numberOfVariants >= 10000) {
                 this.emit('warning', numberOfVariants);
                 reject(new Error('Warning fired'));
                 return;
@@ -45,31 +46,42 @@ export default class VariantsGenerator extends EventEmitter {
             const permutations = this.buildCombinations(grouped);
 
             this.loadExisting(this.product.id).then((variantsOnServer) => {
-                const variantsToCreate = this.filterExistingProducts(permutations, variantsOnServer);
-                const variantsToDelete = this.filterDeleteProducts(permutations, variantsOnServer).map((id) => {
-                    return { id };
-                });
+                const filterVariations = this.filterVariations(permutations, variantsOnServer);
 
-                this.emit('maxProgressChange', { type: 'delete', progress: variantsToDelete.length });
+                this.emit('maxProgressChange', { type: 'delete', progress: filterVariations.variationsToDelete.length });
 
                 // first delete variants, then create new variants
                 // use promise for creating a recursion to create sequential request
                 new Promise((resolveDelete) => {
-                    this.sendDeletion(variantsToDelete, 0, 10, resolveDelete);
+                    this.syncVariants('delete', filterVariations.variationsToDelete, 0, 100, resolveDelete);
                 }).then(() => {
-                    this.emit('maxProgressChange', { type: 'create', progress: variantsToCreate.length });
-                    this.sendVariants(variantsToCreate, 0, 10, resolve);
+                    this.emit('maxProgressChange', { type: 'upsert', progress: filterVariations.variationsToCreate.length });
+                    this.syncVariants('upsert', filterVariations.variationsToCreate, 0, 100, resolve);
                 });
             });
         });
     }
 
-    filterExistingProducts(newVariations, variantsOnServer) {
-        const neededVariants = [];
+    filterVariations(newVariations, variationOnServer) {
+        let variationsToDelete = Object.keys(deepCopyObject(variationOnServer));
+        const variationsToCreate = [];
 
-        // todo filter restrictions
-        newVariations.forEach((variation) => {
-            if (this.exists(variation, variantsOnServer)) {
+        const variationOnServerHashed = Object.entries(variationOnServer).map((variation) => {
+            return [variation[0], JSON.stringify(variation[1].sort())];
+        });
+        const newVariationsSorted = newVariations.map((variation) => variation.sort());
+
+        this.emit('maxProgressChange', { type: 'calc', progress: newVariationsSorted.length });
+
+        newVariationsSorted.forEach((variation, index) => {
+            console.log(index);
+            this.emit('actualProgressChange', { type: 'calc', progress: index });
+
+            const exist = this.existsHash(variation, variationOnServerHashed);
+
+            if (exist) {
+                // Remove from delete list
+                variationsToDelete = variationsToDelete.filter(key => key !== exist[0]);
                 return false;
             }
 
@@ -80,7 +92,8 @@ export default class VariantsGenerator extends EventEmitter {
             // todo calculate price with surcharges
             // todo consider product.priceRules (store of prices)
 
-            neededVariants.push({
+            // Add to create list
+            variationsToCreate.push({
                 parentId: this.product.id,
                 variations: variations,
                 stock: this.product.stock,
@@ -90,24 +103,20 @@ export default class VariantsGenerator extends EventEmitter {
             return true;
         });
 
-        return neededVariants;
+        return {
+            variationsToDelete: variationsToDelete.map((id) => {
+                return { id };
+            }),
+            variationsToCreate
+        };
     }
 
-    filterDeleteProducts(newVariations, variantsOnServer) {
-        const deletableVariations = [];
-        const variantCombinationOnServer = Object.entries(variantsOnServer);
-
-        // Loop through the server variation and check if they should exists
-        // otherwise add it to deletableVariations[]
-        variantCombinationOnServer.forEach((variation) => {
-            if (this.exists(variation[1], newVariations)) {
-                return false;
-            }
-
-            deletableVariations.push(variation[0]);
-            return true;
+    existsHash(permutation, existings) {
+        const permutationHash = JSON.stringify(permutation);
+        const found = existings.find((variation) => {
+            return permutationHash === variation[1];
         });
-        return deletableVariations;
+        return found || false;
     }
 
 
@@ -119,25 +128,6 @@ export default class VariantsGenerator extends EventEmitter {
         ).then((response) => {
             return response.data;
         });
-    }
-
-    exists(permutation, existings) {
-        let returnValue = false;
-        Object.keys(existings).forEach((key) => {
-            const options = existings[key];
-
-            // option count do not match? skip this existing
-            if (options.length === permutation.length) {
-                // check same options
-                const diff = types.difference(options, permutation);
-
-                if (diff.length <= 0) {
-                    returnValue = true;
-                }
-            }
-        });
-
-        return returnValue;
     }
 
     groupTheOptions(configurators) {
@@ -191,55 +181,30 @@ export default class VariantsGenerator extends EventEmitter {
         return all;
     }
 
-    sendVariants(variants, offset, limit, resolve) {
+    syncVariants(type, variants, offset, limit, resolve) {
         const chunk = variants.slice(offset, offset + limit);
-
         if (chunk.length <= 0) {
             resolve();
             return;
         }
 
-        this.emit('actualProgressChange', { type: 'create', progress: offset });
+        this.emit('actualProgressChange', { type: type, progress: offset });
 
         const payload = [{
-            action: 'upsert',
-            entity: 'product',
-            payload: chunk
-        }];
-        const header = this.EntityStore.getLanguageHeader(this.getLanguageId());
-
-        this.syncService.sync(payload, {}, header).then(() => {
-            this.sendVariants(variants, offset + limit, limit, resolve);
-        });
-    }
-
-    sendDeletion(variants, offset, limit, resolve) {
-        const chunk = variants.slice(offset, offset + limit);
-
-        if (chunk.length <= 0) {
-            resolve();
-            return;
-        }
-
-        this.emit('actualProgressChange', { type: 'delete', progress: offset });
-
-        const payload = [{
-            action: 'delete',
+            action: type,
             entity: 'product',
             payload: chunk
         }];
 
         const header = this.EntityStore.getLanguageHeader(this.getLanguageId());
-
         this.syncService.sync(payload, {}, header).then(() => {
-            this.sendDeletion(variants, offset + limit, limit, resolve);
+            this.syncVariants(type, variants, offset + limit, limit, resolve);
         });
     }
 
     getLanguageId() {
         if (this.languageId === null) {
             const store = this.State.getStore('language');
-
             this.languageId = store.getCurrentId();
         }
         return this.languageId;

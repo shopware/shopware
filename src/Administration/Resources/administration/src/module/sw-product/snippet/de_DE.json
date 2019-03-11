@@ -150,6 +150,7 @@
       "progressTypeOf": "von",
       "progressTypeDeleted": "gelöscht",
       "progressTypeGenerated": "generiert",
+      "progressTypeCalculated": "berechnet",
       "progressTypeVariation": "Varianten",
       "generationWarningPartBefore": "Du möchtest folgende Anzahl an Produkt-Varianten erstellen:",
       "generationWarningPartAfter": "Die Generierung dieser großen Anzahl an Varianten kann sehr lange dauern und zu einem Browserabsturz führen.",

@@ -61,8 +61,11 @@ Component.extend('sw-product-variants-configurator-selection', 'sw-property-sear
             if (this.progressType === 'delete') {
                 return this.$tc('sw-product.variations.progressTypeDeleted');
             }
-            if (this.progressType === 'create') {
+            if (this.progressType === 'upsert') {
                 return this.$tc('sw-product.variations.progressTypeGenerated');
+            }
+            if (this.progressType === 'calc') {
+                return this.$tc('sw-product.variations.progressTypeCalculated');
             }
             return '';
         }

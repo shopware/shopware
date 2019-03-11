@@ -27,6 +27,22 @@
         }
     }
 
+    .sw-tree-actions__headline {
+        display: grid;
+        color: $color-kashmir;
+        font-size: 18px;
+        padding: 21px 40px;
+        grid-template-columns: 1fr auto;
+        align-items: center;
+        border-bottom: 1px solid $color-steam-cloud;
+
+        .sw-tree__batch-delete {
+            color: $color-crimson;
+            font-size: 14px;
+            cursor: pointer;
+        }
+    }
+
     .sw-tree__actions {
         padding: 20px 20px 20px 20px;
 

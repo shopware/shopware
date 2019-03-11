@@ -6,21 +6,38 @@
                 <sw-field type="text" name="treeSearch" :placeholder="$tc('sw-tree.general.placeholderSearch')" v-model="currentTreeSearch" @input="searchItems"></sw-field>
             </div>
         {% endblock %}
-         {% block sw_tree_actions %}
-            <slot name="actions"></slot>
+
+        {% block sw_tree_actions %}
+            <div v-if="checkedElementsCount > 0" class="sw-tree-actions__headline">
+                <span> {{ $tc(`${translationContext}.general.treeHeadSelected`, 0, { count: checkedElementsCount }) }}:</span>
+                <span class="sw-tree__batch-delete" @click="onDeleteElements(null)">{{ $tc('sw-tree.general.actions.delete') }}</span>
+            </div>
+
+            <div v-else class="sw-tree-actions__headline">
+                <span>{{ $tc(`${translationContext}.general.treeHeadline`) }}</span>
+            </div>
         {% endblock %}
 
         {% block sw_tree_content %}
-            <sw-tree-input-field v-if="hasNoItems" @createNewItem="createFirstItem" class="sw-tree__content"></sw-tree-input-field>
+            <sw-tree-input-field v-if="hasNoItems" @createNewItem="onCreateNewItem" class="sw-tree__content"></sw-tree-input-field>
 
             <div v-else class="sw-tree__content">
                 {% block sw_tree_items %}
-                    <slot name="items" :treeItems="treeItems" :draggedItem="draggedItem">
+                    <slot
+                        name="items"
+                        :treeItems="treeItems"
+                        :draggedItem="draggedItem"
+                        :newElementId="newElementId"
+                        :checkItem="checkItem"
+                        :translationContext="translationContext"
+                        :onChangeRoute="onChangeRoute"
+                        :disableContextMenu="disableContextMenu">
                         {% block sw_tree_slot_items %}
                             <sw-tree-item
                                 v-for="item in treeItems"
                                 :key="item.id"
                                 :item="item"
+                                :translationContext="translationContext"
                                 :draggedItem="draggedItem">
                             </sw-tree-item>
                         {% endblock %}
@@ -31,6 +48,41 @@
                     <sw-loader v-if="isLoading"></sw-loader>
                 {% endblock %}
             </div>
+        {% endblock %}
+        
+        {% block sw_tree_delete_modal %}
+            <sw-modal v-if="showDeleteModal"
+                      @closeModal="onCloseDeleteModal"
+                      :title="$tc(`${translationContext}.modal.modalTitleDelete`)"
+                      variant="small">
+                {% block sw_tree_delete_modal_confirm_delete_text %}
+                    <p v-if="toDeleteItem" class="sw_tree__confirm-delete-text">
+                        {{ $tc(`${translationContext}.modal.textDeleteConfirm`, 0, { name: toDeleteItem.data.name || toDeleteItem.data.meta.viewData.name }) }}
+                    </p>
+                    <p v-else class="sw_tree__confirm-delete-text">
+                        {{ $tc(`${translationContext}.modal.textDeleteMultipleConfirm`, 0, { count: checkedElementsCount }) }}
+                    </p>
+                {% endblock %}
+    
+                {% block sw_tree_delete_modal_footer %}
+                    <template slot="modal-footer">
+                        {% block sw_tree_delete_modal_cancel %}
+                            <sw-button @click="onCloseDeleteModal"
+                                       size="small">
+                                {{ $tc('sw-tree.modal.buttonCancel') }}
+                            </sw-button>
+                        {% endblock %}
+        
+                        {% block sw_tree_delete_modal_confirm %}
+                            <sw-button @click="onConfirmDelete()"
+                                       variant="primary"
+                                       size="small">
+                                {{ $tc('sw-tree.modal.buttonDelete') }}
+                            </sw-button>
+                        {% endblock %}
+                    </template>
+                {% endblock %}
+            </sw-modal>
         {% endblock %}
     </div>
 {% endblock %}

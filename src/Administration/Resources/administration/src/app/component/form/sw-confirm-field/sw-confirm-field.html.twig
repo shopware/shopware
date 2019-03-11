@@ -31,7 +31,7 @@
                 {% block sw_confirm_field_confirm_button %}
                     <sw-button
                         class="sw-confirm-field__button sw-confirm-field__button--submit"
-                        :disabled="preventEmptySubmit && !draft.length"
+                        :disabled="preventEmptySubmit && !draft"
                         square
                         size="x-small"
                         variant="primary"

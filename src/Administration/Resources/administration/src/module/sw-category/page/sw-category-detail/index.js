@@ -9,7 +9,8 @@ Component.register('sw-category-detail', {
 
     mixins: [
         Mixin.getByName('notification'),
-        Mixin.getByName('placeholder')
+        Mixin.getByName('placeholder'),
+        Mixin.getByName('listing')
     ],
 
     data() {
@@ -21,7 +22,8 @@ Component.register('sw-category-detail', {
             isMobileViewport: null,
             splitBreakpoint: 1024,
             isDisplayingLeavePageWarning: false,
-            nextRoute: null
+            nextRoute: null,
+            searchQuery: null
         };
     },
 

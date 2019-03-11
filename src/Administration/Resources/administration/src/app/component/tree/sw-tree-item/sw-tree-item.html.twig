@@ -39,10 +39,28 @@
                 {% endblock %}
 
                 {% block sw_tree_item_element_content %}
-                    <div class="sw-tree-item__content">
+                    <div class="sw-tree-item__content" ref="item">
                         <slot name="content" :item="item" :openTreeItem="openTreeItem">
-                            {% block sw_tree_item_slot_content %}
-                                <span class="sw-tree-item__label">{{ item.data.name }}</span>
+                            {% block sw_tree_items_item_content_edit %}
+                                <template v-if="currentEditElement === item.data.id">
+                                    <sw-confirm-field class="sw-tree-detail__edit-tree-item"
+                                                      v-model="item.data.name"
+                                                      :preventEmptySubmit="true"
+                                                      @input="onFinishNameingElement"
+                                                      @blur="onCancelSubmit(item)"
+                                                      @cancelSubmit="onBlurTreeItemInput(item)"
+                                                      :placeholder="$tc(`${translationContext}.general.buttonCreate`)">
+                                    </sw-confirm-field>
+                                </template>
+                            {% endblock %}
+
+                            {% block sw_tree_items_item_content_default %}
+                                <template v-else>
+                                    <a v-if="onChangeRoute" class="tree-link" @click="onChangeRoute(item)">
+                                        <span class="sw-tree-item__label">{{ item.data.name || item.data.meta.viewData.name }}</span>
+                                    </a>
+                                    <span v-else class="sw-tree-item__label">{{ item.data.name || item.data.meta.viewData.name }}</span>
+                                </template>
                             {% endblock %}
                         </slot>
                     </div>
@@ -51,29 +69,97 @@
                 {% block sw_tree_item_element_actions %}
                     <div class="sw-tree-item__actions">
                         <slot name="actions" :item="item" :openTreeItem="openTreeItem">
-                            {% block sw_tree_item_slot_actions %}{% endblock %}
+                            <sw-context-button>
+                            {% block sw_tree_items_actions_before %}
+                                <sw-context-menu-item
+                                    v-tooltip="{ showDelay: 300, message:
+                                                $tc(`${translationContext}.general.actions.actionsDisabledInLanguage`),
+                                                disabled: !disableContextMenu() }"
+                                    :disabled="currentEditElement !== null || disableContextMenu()"
+                                    @click="addElement(item, 'before');">
+                                    {{ $tc(`${translationContext}.general.actions.createBefore`) }}
+                                </sw-context-menu-item>
+                            {% endblock %}
+                            {% block sw_tree_items_actions_after %}
+                                <sw-context-menu-item
+                                    v-tooltip="{ showDelay: 300, message:
+                                                $tc(`${translationContext}.general.actions.actionsDisabledInLanguage`),
+                                                disabled: !disableContextMenu() }"
+                                    :disabled="currentEditElement !== null || disableContextMenu()"
+                                    @click="addElement(item, 'after');">
+                                    {{ $tc(`${translationContext}.general.actions.createAfter`) }}
+                                </sw-context-menu-item>
+                            {% endblock %}
+                            {% block sw_tree_items_actions_sub %}
+                                <sw-context-menu-item
+                                    v-tooltip="{ showDelay: 300, message:
+                                                $tc(`${translationContext}.general.actions.actionsDisabledInLanguage`),
+                                                disabled: !disableContextMenu() }"
+                                    :disabled="currentEditElement !== null || disableContextMenu()"
+                                    @click="addSubElement(item); openTreeItem(true)">
+                                    {{ $tc(`${translationContext}.general.actions.createSub`) }}
+                                </sw-context-menu-item>
+                            {% endblock %}
+
+                            {% block sw_tree_items_actions_group %}
+                                <div class="sw-context-menu__group">
+                                    {% block sw_tree_items_actions_delete %}
+                                        <sw-context-menu-item variant="danger" @click="deleteElement(item)">
+                                            {{ $tc('sw-tree.general.actions.delete') }}
+                                        </sw-context-menu-item>
+                                    {% endblock %}
+                                </div>
+                            {% endblock %}
+                            </sw-context-button>
                         </slot>
                     </div>
                 {% endblock %}
             </div>
         {% endblock %}
 
+        {# ToDO: Repeat statt duplicated Content #}
         {% block sw_tree_item_children_transition %}
             <transition name="fade">
                 {% block sw_tree_item_children_content %}
-                    <div class="sw-tree-item__children" v-if="opened && item.children.length > 0">
+                    <div class="sw-tree-item__children" v-if="isOpened && item.children.length > 0">
                         {% block sw_tree_item_children_items %}
-                            <sw-tree-item v-for="child in item.children" :key="child.id" :item="child"
+                            <sw-tree-item v-for="child in item.children"
+                                          :key="child.id"
+                                          :item="child"
                                           :draggedItem="draggedItem"
-                                          @itemChecked="emitCheckedItem">
+                                          :parentScope="parentScope"
+                                          :newElementId="newElementId"
+                                          :translationContext="translationContext"
+                                          :onChangeRoute="onChangeRoute"
+                                          @itemChecked="emitCheckedItem" :disableContextMenu="disableContextMenu">
                                 {% block sw_tree_item_children_items_slots %}
                                     <template slot="content" slot-scope="{ item, openTreeItem }">
                                         {% block sw_tree_item_children_items_slot_content %}
                                             <sw-vnode-renderer :node="$scopedSlots.content({ item, openTreeItem })"
                                                                v-if="$scopedSlots.content"></sw-vnode-renderer>
-                                            {% block sw_tree_item_children_items_slot_content_default %}
+                                            {% block sw_tree_item_children_items_slot_content_default_block %}
                                                 <template v-else>
-                                                    <span class="sw-tree-item__label">{{ item.data.name }}</span>
+                                                    {% block sw_tree_item_children_items_slot_content_edit %}
+                                                        <template v-if="currentEditElement === item.data.id">
+                                                            <sw-confirm-field class="sw-tree-detail__edit-tree-item"
+                                                                              v-model="item.data.name"
+                                                                              :preventEmptySubmit="true"
+                                                                              @input="onFinishNameingElement"
+                                                                              @blur="onBlurTreeItemInput(item)"
+                                                                              @cancelSubmit="onCancelSubmit(item)"
+                                                                              :placeholder="$tc(`${translationContext}.general.buttonCreate`)">
+                                                            </sw-confirm-field>
+                                                        </template>
+                                                    {% endblock %}
+
+                                                    {% block sw_tree_item_children_items_slot_content_default %}
+                                                        <template v-else>
+                                                            <a v-if="onChangeRoute" class="tree-link" @click="onChangeRoute(item)">
+                                                                <span class="sw-tree-item__label">{{ item.data.name || item.data.meta.viewData.name }}</span>
+                                                            </a>
+                                                            <span v-else class="sw-tree-item__label">{{ item.data.name || item.data.meta.viewData.name }}</span>
+                                                        </template>
+                                                    {% endblock %}
                                                 </template>
                                             {% endblock %}
                                         {% endblock %}
@@ -83,6 +169,52 @@
                                         {% block sw_tree_item_children_items_slot_actions %}
                                             <sw-vnode-renderer :node="$scopedSlots.actions({ item, openTreeItem })"
                                                                v-if="$scopedSlots.actions"></sw-vnode-renderer>
+                                            <div v-else class="sw-tree-item__actions">
+                                                <slot name="actions" :item="item" :openTreeItem="openTreeItem">
+                                                    <sw-context-button>
+                                                        {% block sw_tree_items_actions_before %}
+                                                            <sw-context-menu-item
+                                                                v-tooltip="{ showDelay: 300, message:
+                                                                            $tc(`${translationContext}.general.actions.actionsDisabledInLanguage`),
+                                                                            disabled: !disableContextMenu() }"
+                                                                :disabled="currentEditElement !== null || disableContextMenu()"
+                                                                @click="addElement(item, 'before');">
+                                                                {{ $tc(`${translationContext}.general.actions.createBefore`) }}
+                                                            </sw-context-menu-item>
+                                                        {% endblock %}
+                                                        {% block sw_tree_items_actions_after %}
+                                                            <sw-context-menu-item
+                                                                v-tooltip="{ showDelay: 300, message:
+                                                                            $tc(`${translationContext}.general.actions.actionsDisabledInLanguage`),
+                                                                            disabled: !disableContextMenu() }"
+                                                                :disabled="currentEditElement !== null || disableContextMenu()"
+                                                                @click="addElement(item, 'after');">
+                                                                {{ $tc(`${translationContext}.general.actions.createAfter`) }}
+                                                            </sw-context-menu-item>
+                                                        {% endblock %}
+                                                        {% block sw_tree_items_actions_sub %}
+                                                            <sw-context-menu-item
+                                                                v-tooltip="{ showDelay: 300, message:
+                                                                            $tc(`${translationContext}.general.actions.actionsDisabledInLanguage`),
+                                                                            disabled: !disableContextMenu() }"
+                                                                :disabled="currentEditElement !== null || disableContextMenu()"
+                                                                @click="addSubElement(item); openTreeItem(true)">
+                                                                {{ $tc(`${translationContext}.general.actions.createSub`) }}
+                                                            </sw-context-menu-item>
+                                                        {% endblock %}
+
+                                                        {% block sw_tree_items_actions_group %}
+                                                        <div class="sw-context-menu__group">
+                                                            {% block sw_tree_items_actions_delete %}
+                                                                <sw-context-menu-item variant="danger" @click="deleteElement(item)">
+                                                                    {{ $tc('sw-tree.general.actions.delete') }}
+                                                                </sw-context-menu-item>
+                                                            {% endblock %}
+                                                        </div>
+                                                        {% endblock %}
+                                                    </sw-context-button>
+                                                </slot>
+                                            </div>
                                         {% endblock %}
                                     </template>
                                 {% endblock %}

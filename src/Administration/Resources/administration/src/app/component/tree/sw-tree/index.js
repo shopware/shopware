@@ -7,6 +7,7 @@ import './sw-tree.scss';
  * @public
  * @status ready
  * @example-type code-only
+ * @description you need to declare the functions createNewElement, getChildrenFromParent in the parent.
  * @component-example
  * <sw-tree>
  * </sw-tree>
@@ -51,14 +52,24 @@ export default {
             default: true
         },
 
-        createFirstItem: {
-            type: Function,
-            required: true
+        activeTreeItemId: {
+            type: String,
+            required: false,
+            default: ''
         },
 
-        openedTreeById: {
-            type: Boolean,
-            required: false,
+        translationContext: {
+            type: String,
+            default: 'sw-tree'
+        },
+
+        onChangeRoute: {
+            type: Function,
+            default: null
+        },
+
+        disableContextMenu: {
+            type: Function,
             default: false
         }
     },
@@ -69,7 +80,16 @@ export default {
             draggedItem: null,
             currentTreeSearch: null,
             isLoading: false,
-            activeElementId: this.$route.params.id || null
+            newElementId: null,
+            contextItem: null,
+            currentEditMode: null,
+            addElementPosition: null,
+            _eventFromEdit: null,
+            createdItem: null,
+            checkedElements: {},
+            checkedElementsCount: 0,
+            showDeleteModal: false,
+            toDeleteItem: null
         };
     },
 
@@ -77,7 +97,8 @@ export default {
         items() {
             this.treeItems = this.getTreeItems(this.isSearched ? null : this.rootParentId);
         },
-        openedTreeById(val) {
+
+        activeTreeItemId(val) {
             if (val && this.activeElementId) {
                 this.openTreeById();
             }
@@ -85,6 +106,10 @@ export default {
     },
 
     computed: {
+        activeElementId() {
+            return this.$route.params.id || null;
+        },
+
         isSortable() {
             if (this.currentTreeSearch !== null) {
                 return false;
@@ -111,11 +136,11 @@ export default {
 
     methods: {
         getItems(parentId = this.rootParentId, searchTerm = null) {
-            this.$emit('getTreeItems', parentId, searchTerm);
+            this.$emit('get-tree-items', parentId, searchTerm);
         },
 
         searchItems: utils.debounce(function debouncedTreeSearch() {
-            this.$emit('searchTreeItems', this.currentTreeSearch);
+            this.$emit('search-tree-items', this.currentTreeSearch);
         }, 600),
 
         getTreeItems(parentId) {
@@ -143,7 +168,6 @@ export default {
                     active: false
                 });
             });
-
             return sort.afterSort(treeItems, this.afterIdProperty);
         },
 
@@ -166,19 +190,20 @@ export default {
 
         endDrag() {
             if (!this.droppedItem) {
+                this.draggedItem = null;
                 return;
             }
 
             // item moved into other tree, update count
             if (this.draggedItem.data.parentId !== this.droppedItem.data.parentId) {
                 if (this.draggedItem.parentId !== null) {
-                    const draggedParent = this.findById(this.treeItems, this.draggedItem.parentId);
+                    const draggedParent = this.findById(this.draggedItem.parentId);
                     draggedParent.childCount -= 1;
                     draggedParent.data.childCount -= 1;
                 }
 
                 if (this.droppedItem.parentId !== null) {
-                    const droppedParent = this.findById(this.treeItems, this.droppedItem.parentId);
+                    const droppedParent = this.findById(this.droppedItem.parentId);
                     droppedParent.childCount += 1;
                     droppedParent.data.childCount += 1;
                 }
@@ -186,8 +211,13 @@ export default {
                 this.draggedItem.data.parentId = this.droppedItem.data.parentId;
             }
 
-            const tree = this.findTreeByParentId(this.treeItems, this.draggedItem.parentId);
+            const tree = this.findTreeByParentId(this.draggedItem.parentId);
             this.updateSorting(tree);
+
+            if (this.draggedItem.parentId !== this.droppedItem.parentId) {
+                const dropTree = this.findTreeByParentId(this.droppedItem.parentId);
+                this.updateSorting(dropTree);
+            }
 
             // reset event items
             this.draggedItem = null;
@@ -205,8 +235,8 @@ export default {
                 return;
             }
 
-            const sourceTree = this.findTreeByParentId(this.treeItems, draggedComponent.parentId);
-            const targetTree = this.findTreeByParentId(this.treeItems, droppedComponent.parentId);
+            const sourceTree = this.findTreeByParentId(draggedComponent.parentId);
+            const targetTree = this.findTreeByParentId(droppedComponent.parentId);
 
             const dragItemIdx = sourceTree.findIndex(i => i.id === draggedComponent.id);
             const dropItemIdx = targetTree.findIndex(i => i.id === droppedComponent.id);
@@ -214,6 +244,8 @@ export default {
             if (dragItemIdx < 0 || dropItemIdx < 0) {
                 return;
             }
+
+            droppedComponent = targetTree[dropItemIdx];
 
             if (draggedComponent.parentId !== droppedComponent.parentId) {
                 sourceTree.splice(dragItemIdx, 1);
@@ -229,7 +261,7 @@ export default {
         },
 
         openTreeById(id = this.activeElementId) {
-            const item = this.findById(this.treeItems, id);
+            const item = this.findById(id);
             if (this.activeElementId === item.id) {
                 item.active = true;
             } else {
@@ -240,14 +272,10 @@ export default {
             if (item.parentId !== null) {
                 this.openTreeById(activeElementParentId);
             }
-            if (this.$parent.$refs[`treeItem.${id}`].length > 0) {
-                this.$parent.$refs[`treeItem.${id}`][0].openTreeItem(true);
-                this.$parent.$refs[`treeItem.${id}`][0].getTreeItemChildren(item);
-            }
         },
 
-        findTreeByParentId(tree, parentId) {
-            const queue = [{ id: null, children: tree }];
+        findTreeByParentId(parentId) {
+            const queue = [{ id: null, children: this.treeItems }];
 
             while (queue.length > 0) {
                 const next = queue.shift();
@@ -264,8 +292,8 @@ export default {
             return null;
         },
 
-        findById(tree, id) {
-            const queue = [{ id: null, children: tree }];
+        findById(id) {
+            const queue = [{ id: null, children: this.treeItems }];
 
             while (queue.length > 0) {
                 const next = queue.shift();
@@ -280,6 +308,177 @@ export default {
             }
 
             return null;
+        },
+
+        onCreateNewItem(name) {
+            if (!name.length || name.length <= 0) {
+                return;
+            }
+
+            const newElem = this.$parent.createNewElement(null, null, name);
+
+            this.saveItems();
+
+            const item = this.getNewTreeItem(newElem);
+
+            this.addElement(item, 'after');
+        },
+
+        addSubElement(contextItem) {
+            if (!contextItem || !contextItem.data || !contextItem.data.id) {
+                return;
+            }
+
+            if (this.contextItem === null) {
+                this.contextItem = contextItem;
+            }
+            this.currentEditMode = this.addSubElement;
+
+            // this.getItems(contextItem.id);
+            this.$parent.getChildrenFromParent(contextItem.id).then(() => {
+                const parentElement = contextItem.data;
+                const newElem = this.$parent.createNewElement(contextItem, contextItem.id);
+                const newTreeItem = this.getNewTreeItem(newElem);
+
+                parentElement.childCount = parseInt(parentElement.childCount, 10) + 1;
+                this.newElementId = newElem.id;
+                this.createdItem = newTreeItem;
+            });
+        },
+
+        addElement(contextItem, pos) {
+            const newElem = this.$parent.createNewElement(contextItem);
+
+            const newTreeItem = this.getNewTreeItem(newElem);
+
+            if (this.contextItem === null) {
+                this.contextItem = contextItem;
+            }
+            if (this.addElementPosition === null) {
+                this.addElementPosition = pos;
+            }
+
+            this.currentEditMode = this.addElement;
+
+            const targetTree = this.findTreeByParentId(contextItem.parentId);
+
+            const newItemIdx = this.treeItems.findIndex(i => i.id === newTreeItem.id);
+            const contextItemIdx = targetTree.findIndex(i => i.id === contextItem.id);
+
+            if (pos === 'before') {
+                targetTree.splice(contextItemIdx, 1, newTreeItem, contextItem);
+            } else {
+                this.contextItem = newTreeItem;
+                targetTree.splice(contextItemIdx, 1, contextItem, newTreeItem);
+            }
+
+            this.treeItems.splice(newItemIdx, 1);
+            this.updateSorting(targetTree);
+            this.newElementId = newElem.id;
+            this.createdItem = newTreeItem;
+        },
+
+        getNewTreeItem(elem) {
+            return {
+                data: elem,
+                id: elem.id,
+                parentId: elem.parentId,
+                childCount: elem[this.childCountProperty],
+                children: 0,
+                initialOpened: false,
+                active: false
+            };
+        },
+
+        deleteElement(item) {
+            const targetTree = this.findTreeByParentId(item.parentId);
+            const deletedItemIdx = targetTree.findIndex(i => i.id === item.id);
+            targetTree.splice(deletedItemIdx, 1);
+            this.updateSorting(targetTree);
+            this.$emit('delete-element', item);
+            this.saveItems();
+        },
+
+        duplicateElement(item) {
+            this.$emit('duplicateElement', item);
+        },
+
+        abortCreateElement(item) {
+            if (this._eventFromEdit) {
+                this._eventFromEdit = null;
+                return;
+            }
+
+            if (this.currentEditMode !== null) {
+                this.deleteElement(item);
+            }
+
+            this.contextItem = null;
+            this.newElementId = null;
+            this.currentEditMode = null;
+            this.addElementPosition = null;
+        },
+
+        onFinishNameingElement(draft, event) {
+            if (this.createdItem) {
+                this.createdItem.data.save().then(() => {
+                    this.createdItem = null;
+                    this.saveItems();
+                    if (this.currentEditMode !== null && this.contextItem) {
+                        this.currentEditMode(this.contextItem, this.addElementPosition);
+                    }
+                });
+            }
+            this._eventFromEdit = event;
+            this.newElementId = null;
+        },
+
+        deleteSelectedElements() {
+            if (this.checkedElements.length <= 0) {
+                return;
+            }
+
+            Object.values(this.checkedElements).forEach((itemId) => {
+                const item = this.findById(itemId);
+                this.deleteElement(item);
+            });
+
+            this.checkedElements = {};
+            this.checkedElementsCount = 0;
+        },
+
+        checkItem(item) {
+            if (item.checked) {
+                this.checkedElements[item.id] = item.id;
+                this.checkedElementsCount += 1;
+            } else {
+                delete this.checkedElements[item.id];
+                this.checkedElementsCount -= 1;
+            }
+        },
+
+        saveItems() {
+            this.$emit('save-tree-items');
+        },
+
+        onDeleteElements(item) {
+            this.toDeleteItem = item;
+            this.showDeleteModal = true;
+        },
+
+        onCloseDeleteModal() {
+            this.showDeleteModal = false;
+            this.toDeleteItem = null;
+        },
+
+        onConfirmDelete() {
+            if (this.toDeleteItem) {
+                this.deleteElement(this.toDeleteItem);
+            } else {
+                this.deleteSelectedElements();
+            }
+            this.showDeleteModal = false;
+            this.toDeleteItem = null;
         }
     }
 };

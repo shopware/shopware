@@ -1,6 +1,16 @@
 {% block sw_category %}
     <sw-page class="sw-category" :class="pageClasses">
 
+        {% block sw_order_list_search_bar %}
+            <template slot="search-bar">
+                <sw-search-bar :placeholder="$tc('sw-category.general.placeholderSearchBar')"
+                               :searchType="$tc('sw-category.general.mainMenuItemIndex')"
+                               :entityService="categoryStore"
+                               @search="this.onSearch">
+                </sw-search-bar>
+            </template>
+        {% endblock %}
+
         <template slot="smart-bar-header">
             {% block sw_category_smart_bar_header %}
                 <h2 v-if="category">{{ placeholder(category, 'name') }}</h2>
@@ -38,6 +48,7 @@
                 <sw-category-tree
                     :categories="categories"
                     :activeCategory="category"
+                    :searchQuery="searchQuery"
                     @sw-category-on-save="onSaveCategories"
                     @sw-category-on-refresh="onRefreshCategories"
                     @sw-category-on-duplicate="onDuplicateCategory"

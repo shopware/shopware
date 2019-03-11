@@ -21,6 +21,27 @@ export default {
             type: Object,
             required: false,
             default: null
+        },
+
+        newElementId: {
+            type: String,
+            required: false,
+            default: null
+        },
+
+        translationContext: {
+            type: String,
+            default: 'sw-tree'
+        },
+
+        onChangeRoute: {
+            type: Function,
+            default: null
+        },
+
+        disableContextMenu: {
+            type: Function,
+            default: false
         }
     },
 
@@ -37,19 +58,32 @@ export default {
             mouseStartX: 0,
             mouseStartY: 0,
             rootParent: null,
-            checked: false
+            checked: false,
+            currentEditElement: null
         };
     },
 
     watch: {
         activeElementId(newId) {
             this.active = newId === this.item.id;
+        },
+        newElementId(newId) {
+            this.currentEditElement = newId;
         }
     },
 
     computed: {
         activeElementId() {
             return this.$route.params.id || null;
+        },
+
+        isOpened() {
+            if (this.item.initialOpened) {
+                this.openTreeItem(true);
+                this.getTreeItemChildren(this.item);
+                this.item.initialOpened = false;
+            }
+            return this.opened;
         },
 
         isDragging() {
@@ -63,7 +97,7 @@ export default {
             return {
                 'is--dragging': this.isDragging,
                 'is--active': this.active,
-                'is--opened': this.opened,
+                'is--opened': this.isOpened,
                 'is--no-children': this.item.childCount <= 0
             };
         },
@@ -79,6 +113,15 @@ export default {
                 onDrop: this.dragEnd,
                 preventEvent: true
             };
+        },
+
+        parentScope() {
+            let parentNode = this.$parent;
+            // eslint-disable-next-line
+            while (parentNode.$options._componentTag !== 'sw-tree') {
+                parentNode = parentNode.$parent;
+            }
+            return parentNode;
         }
     },
 
@@ -100,6 +143,10 @@ export default {
         mountedComponent() {
             if (this.item.active) {
                 this.$el.querySelector('.sw-tree-item.is--active input').focus();
+            }
+            if (this.newElementId) {
+                this.currentEditElement = this.newElementId;
+                this.editElement();
             }
         },
 
@@ -172,6 +219,47 @@ export default {
             this.checked = event;
             this.item.checked = event;
             this.$emit('itemChecked', item);
+        },
+
+        addSubElement(item) {
+            this.parentScope.addSubElement(item);
+        },
+
+        addElement(item, pos) {
+            this.parentScope.addElement(item, pos);
+        },
+
+        editElement() {
+            this.$nextTick(() => {
+                const elementNameField = this.$el.querySelector('.sw-tree-detail__edit-tree-item input');
+                if (elementNameField) {
+                    elementNameField.focus();
+                }
+            });
+        },
+
+        onFinishNameingElement(draft, event) {
+            this.parentScope.onFinishNameingElement(draft, event);
+        },
+
+        onBlurTreeItemInput(item) {
+            this.abortCreateElement(item);
+        },
+
+        onCancelSubmit(item) {
+            this.abortCreateElement(item);
+        },
+
+        abortCreateElement(item) {
+            this.parentScope.abortCreateElement(item);
+        },
+
+        deleteElement(item) {
+            this.parentScope.onDeleteElements(item);
+        },
+
+        duplicateElement(item) {
+            this.parentScope.duplicateElement(item);
         }
     }
 };

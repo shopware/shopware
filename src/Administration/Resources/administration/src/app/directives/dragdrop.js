@@ -111,6 +111,9 @@ const defaultDropConfig = {
  * @return {boolean}
  */
 function onDrag(el, dragConfig, event) {
+    if (event.buttons !== 1) {
+        return false;
+    }
     if (dragConfig.preventEvent === true) {
         event.preventDefault();
         event.stopPropagation();
@@ -123,6 +126,8 @@ function onDrag(el, dragConfig, event) {
 
     document.addEventListener('mouseup', stopDrag);
     document.addEventListener('touchend', stopDrag);
+
+    return true;
 }
 
 /**

@@ -22,7 +22,9 @@ export default {
             isOffCanvasShown: false,
             isUserActionsActive: false,
             flyoutEntries: [],
+            lastFlyoutEntries: [],
             flyoutStyle: {},
+            flyoutColor: '',
             flyoutLabel: '',
             subMenuOpen: false,
             scrollbarOffset: '',
@@ -178,9 +180,15 @@ export default {
             return this.isExpanded && menuItem.classList.contains('router-link-active');
         },
 
-        openFlyout(entry, currentTarget) {
+        openFlyout(entry, currentTarget, parentEntries) {
             if (!currentTarget) {
+                this.flyoutEntries = this.lastFlyoutEntries;
                 return false;
+            }
+
+            if (parentEntries) {
+                this.flyoutEntries = parentEntries;
+                return true;
             }
 
             this.flyoutEntries = [];
@@ -197,19 +205,16 @@ export default {
 
             this.flyoutLabel = entry.label;
 
-            if (!this.isExpanded) {
-                this.changeActiveItem(menuItem);
-            }
-
             this.flyoutStyle = {
-                top: `${currentTarget.getBoundingClientRect().top}px`,
-                'border-color': entry.color
+                top: `${currentTarget.getBoundingClientRect().top}px`
             };
+            this.flyoutColor = entry.color;
 
             return true;
         },
 
         closeFlyout() {
+            this.lastFlyoutEntries = this.flyoutEntries;
             this.flyoutEntries = [];
         },
 
@@ -227,6 +232,8 @@ export default {
             if (!this.isExpanded) {
                 this.closeFlyout();
             }
+
+            this.flyoutEntries = [];
         },
 
         onToggleUserActions() {

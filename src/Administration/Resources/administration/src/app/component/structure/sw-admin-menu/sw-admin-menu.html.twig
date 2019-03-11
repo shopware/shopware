@@ -30,6 +30,7 @@
                                         {% block sw_admin_menu_navigation_main_items %}
                                             <sw-admin-menu-item v-for="(entry, index) in mainMenuEntries"
                                                                 @menuItemHovered="openFlyout"
+                                                                @menuItemLeaved="closeFlyout"
                                                                 @menuItemClicked="openSubMenu"
                                                                 :sidebarExpanded="isExpanded"
                                                                 :entry="entry"
@@ -147,7 +148,7 @@
                          @mouseleave="closeFlyout">
 
                         {% block sw_admin_menu_flyout_label %}
-                            <div v-if="!isExpanded" class="sw-admin-menu__flyout-label">
+                            <div v-if="!isExpanded" class="sw-admin-menu__flyout-label" @mouseover="openFlyout">
                                 {{ $tc(flyoutLabel) }}
                             </div>
                         {% endblock %}
@@ -155,12 +156,17 @@
                         {% block sw_admin_menu_flyout_list %}
                             <ul v-if="flyoutEntries" class="sw-admin-menu__flyout-list">
                                 <sw-admin-menu-item v-for="(entry, index) in flyoutEntries"
+                                                    class="sw-admin-menu__flyout-item"
                                                     :class="['sw-admin-menu__flyout-item--' + entry.id]"
+                                                    :style="{'border-color': flyoutColor}"
                                                     :entry="entry"
+                                                    :parentEntries="flyoutEntries"
                                                     :key="entry.id || entry.path"
                                                     :collapsibleText="false"
                                                     :displayIcon="false"
-                                                    @menuItemClicked="closeFlyout">
+                                                    @menuItemClicked="closeFlyout"
+                                                    @menuItemHovered="openFlyout"
+                                >
                                 </sw-admin-menu-item>
                             </ul>
                         {% endblock %}

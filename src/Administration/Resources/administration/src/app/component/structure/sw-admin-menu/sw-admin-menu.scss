@@ -229,23 +229,28 @@ $sw-admin-menu-shop-status-ok: $color-emerald;
 
     .sw-admin-menu__flyout {
         background-color: $sw-admin-menu-color-active;
-        border-left: 2px solid $sw-admin-menu-color-text-secondary;
         width: $sw-admin-menu-width-flyout;
         z-index: $sw-admin-menu-z-index-flyout;
         position: absolute;
         top: 0;
         left: 80px;
 
-        .sw-admin-menu__navigation-link {
-            padding: 0 30px;
-            height: 48px;
-            line-height: 48px;
-            font-weight: normal;
+        .sw-admin-menu__flyout-item {
+            border-left: 2px solid $sw-admin-menu-color-text-secondary;
 
-            &:hover {
-                background-color: $sw-admin-menu-color-hover;
+            .sw-admin-menu__navigation-link {
+                padding: 0 30px;
+                height: 48px;
+                line-height: 48px;
+                font-weight: normal;
+
+                &:hover {
+                    background-color: $sw-admin-menu-color-hover;
+                }
             }
         }
+
+
     }
 
     .sw-admin-menu__flyout-list {

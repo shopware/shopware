@@ -12,6 +12,10 @@ export default {
             type: Object,
             required: true
         },
+        parentEntries: {
+            type: Array,
+            required: false
+        },
         displayIcon: {
             type: Boolean,
             default: true,

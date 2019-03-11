@@ -164,9 +164,11 @@ Component.register('sw-product-stream-detail', {
         closeModalPreview() {
             return new Promise((resolve) => {
                 this.showModalPreview = false;
-                this.$refs.modalPreview.$on('sw-product-stream-modal-preview-destroy', () => {
-                    resolve();
-                });
+                if (this.$refs.modalPreview) {
+                    this.$refs.modalPreview.$on('sw-product-stream-modal-preview-destroy', () => {
+                        resolve();
+                    });
+                }
             });
         },
 

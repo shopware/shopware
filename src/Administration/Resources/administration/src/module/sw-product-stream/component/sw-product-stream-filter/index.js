@@ -27,7 +27,6 @@ Component.extend('sw-product-stream-filter', 'sw-condition-base', {
             typeCriteria: null,
             fieldPath: [],
             negatedCondition: null,
-            isApi: false,
             definitionBlacklist: {},
             types: [
                 {
@@ -105,21 +104,18 @@ Component.extend('sw-product-stream-filter', 'sw-condition-base', {
                 }
             }
         },
-        'condition.value': {
+        'actualCondition.value': {
             immediate: true,
             handler() {
                 this.mapValues();
             }
         },
-        'conditionTreeComponent.isApi': {
+        isApi: {
             handler() {
-                if (!this.conditionTreeComponent.isApi) {
+                if (!this.isApi) {
                     return;
                 }
-
-                this.isApi = true;
-                this.field = [];
-                this.lastField = [];
+                this.lastField = {};
             }
         }
     },
@@ -128,8 +124,7 @@ Component.extend('sw-product-stream-filter', 'sw-condition-base', {
         createdComponent() {
             this.locateConditionTreeComponent();
 
-            if (this.conditionTreeComponent.isApi) {
-                this.isApi = true;
+            if (this.isApi) {
                 return;
             }
 
@@ -138,7 +133,12 @@ Component.extend('sw-product-stream-filter', 'sw-condition-base', {
                 this.lastField = this.fields[this.fields.length - 1];
             } catch (error) {
                 this.conditionTreeComponent.isApi = true;
-                this.isApi = true;
+                this.lastField = {};
+                this.fields = [];
+                // prevent error before template check works with isApi
+                this.actualCondition.field.split('.').forEach(() => {
+                    this.fields.push({ name: 'dummy' });
+                });
             }
         },
         mountComponent() {

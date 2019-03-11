@@ -36,6 +36,10 @@ export default {
             type: Boolean,
             required: false,
             default: false
+        },
+        isApi: {
+            type: Boolean,
+            required: true
         }
     },
 

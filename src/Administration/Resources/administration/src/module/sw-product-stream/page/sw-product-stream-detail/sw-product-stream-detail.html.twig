@@ -67,7 +67,7 @@
                     <sw-card :large="true" class="sw-product-stream-detail__condition_container" :title="$tc('sw-product-stream.detail.titleFilter')">
                         <sw-condition-tree v-if="productStream"
                                            :entity="productStream"
-                                           :conditionStore="getDefinitionStore()"
+                                           :conditionStore="conditionStore"
                                            :config="treeConfig"
                                            ref="conditionTree">
                         </sw-condition-tree>

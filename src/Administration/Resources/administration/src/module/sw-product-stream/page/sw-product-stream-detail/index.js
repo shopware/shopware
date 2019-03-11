@@ -1,6 +1,5 @@
-import { Component, Entity, Mixin, State } from 'src/core/shopware';
+import { Component, Mixin, State } from 'src/core/shopware';
 import { warn } from 'src/core/service/utils/debug.utils';
-import LocalStore from 'src/core/data/LocalStore';
 import template from './sw-product-stream-detail.html.twig';
 import './sw-product-stream-detail.scss';
 
@@ -18,6 +17,8 @@ Component.register('sw-product-stream-detail', {
             productStream: {},
             nestedFilters: {},
             filterAssociations: {},
+            // conditionsStore will not be used for product stream conditions
+            conditionStore: {},
             treeConfig: {
                 entityName: 'product-stream',
                 conditionIdentifier: 'filters',
@@ -118,16 +119,6 @@ Component.register('sw-product-stream-detail', {
 
         onChangeLanguage() {
             this.loadEntityData();
-        },
-
-        getDefinitionStore() {
-            // TODO: NEXT-1709 Move definitionStore to treeConfig.conditionStore
-            const definition = Entity.getDefinition('product');
-            Object.keys(definition.properties).forEach((key) => {
-                definition.properties[key].name = key;
-            });
-
-            return new LocalStore(Object.values(definition.properties), 'name');
         },
 
         onSave() {

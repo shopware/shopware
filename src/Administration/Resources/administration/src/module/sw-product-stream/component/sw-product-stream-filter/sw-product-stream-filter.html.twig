@@ -3,24 +3,26 @@
 
 {% block sw_condition_base_fields %}
     {% block sw_product_stream_filter_field_select %}
-        <sw-select v-if="!isApi"
-                   v-for="definition, index in definitions"
-                   :key="index"
-                   :store="getDefinitionStore(definition)"
-                   v-model="fields[index].name"
-                   itemValueKey="name"
-                   displayName="label"
-                   :id="createId()"
-                   :previewResultsLimit="500"
-                   class="field--condition has-arrow"
-                   :required="true"
-                   @input="selectFilter(index, $event)">
-        </sw-select>
-        <div v-if="isApi"
-             v-for="field in actualCondition.field.split('.')"
-             class="field--condition condition--api">
-            <div class="condition--api-value">{{ field }}</div>
-        </div>
+        <template v-if="!isApi">
+            <sw-select v-for="definition, index in definitions"
+                       :key="index"
+                       :store="getDefinitionStore(definition)"
+                       v-model="fields[index].name"
+                       itemValueKey="name"
+                       displayName="label"
+                       :id="createId()"
+                       :previewResultsLimit="500"
+                       class="field--condition has-arrow"
+                       :required="true"
+                       @input="selectFilter(index, $event)">
+            </sw-select>
+        </template>
+        <template v-else>
+            <div v-for="field in actualCondition.field.split('.')"
+                 class="field--condition condition--api">
+                <div class="condition--api-value">{{ field }}</div>
+            </div>
+        </template>
     {% endblock %}
 
     {% block sw_product_stream_filter_type_select %}

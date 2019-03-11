@@ -23,6 +23,7 @@ class System extends Bundle
         $loader->load('locale.xml');
         $loader->load('listing.xml');
         $loader->load('snippet.xml');
+        $loader->load('salutation.xml');
         $loader->load('tax.xml');
         $loader->load('unit.xml');
         $loader->load('user.xml');

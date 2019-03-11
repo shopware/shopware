@@ -1,0 +1,41 @@
+{
+    "sw-settings-salutation": {
+        "general": {
+            "mainMenuItemGeneral": "Salutations",
+            "description": "Manage salutations here.",
+            "buttonCancel": "Cancel",
+            "buttonCreate": "Add salutation",
+            "buttonDelete": "Delete",
+            "buttonSave": "Save",
+            "contextMenuDelete": "Delete",
+            "contextMenuEdit": "Edit",
+            "placeholderSearchBar": "Search salutations",
+            "titleError": "Error",
+            "titleSuccess": "Success"
+        },
+        "list": {
+            "buttonAdd": "Add salutation",
+            "columnSalutationKey": "Salutation key",
+            "columnName": "Salutation",
+            "fieldNamePlaceholder": "Please choose a salutation",
+            "fieldSalutationKeyPlaceholder": "Please choose a salutation key",
+            "messageDeleteError": "Salutation could not be deleted.",
+            "messageDeleteSuccess": "Salutation \"{key}\" has been deleted successfully.",
+            "messageSaveError": "Salutation could not be saved.",
+            "messageSaveSuccess": "Salutation \"{key}\" has been saved successfully.",
+            "textDeleteConfirm": "Are you sure you want to delete the salutation \"{key}\"?"
+        },
+        "detail": {
+            "cardTitle": "Salutation",
+            "fieldNameLabel": "Salutation",
+            "fieldNamePlaceholder": "Please choose a salutation",
+            "fieldSalutationKeyTooltip": "A unique, technical name that is required to include the salutations, e.g. in email templates.",
+            "fieldSalutationKeyLabel": "Salutation key",
+            "fieldSalutationKeyPlaceholder": "Please choose a salutation key",
+            "invalidKeyMessage": "Salutation key is already in use. Please choose a different one.",
+            "messageSaveError": "Salutation could not be saved.",
+            "messageSaveSuccess": "Salutation \"{key}\" has been saved successfully.",
+            "placeholderNewSalutation": "New Salutation"
+        }
+    }
+}

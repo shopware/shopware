@@ -61,7 +61,7 @@ Module.register('sw-settings-snippet', {
         id: 'sw-settings-snippet',
         icon: 'default-action-settings',
         label: 'sw-settings-snippet.general.mainMenuItemGeneral',
-        color: '#2471C8',
+        color: '#9AA8B5',
         path: 'sw.settings.snippet.index',
         parent: 'sw-settings'
     }]

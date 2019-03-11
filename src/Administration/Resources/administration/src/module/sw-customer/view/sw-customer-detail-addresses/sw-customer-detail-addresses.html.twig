@@ -3,7 +3,7 @@
 
         {% block sw_customer_detail_addresses %}
             <sw-card :isLoading="isLoading" :large="true">
-                {% block sw_customer_detail_addresses_add_button %}
+                {% block sw_customer_detail_addresses_toolbar %}
                     <div class="sw-customer-detail-addresses__toolbar">
                         <sw-card-filter placeholder=""
                                         @sw-card-filter-term-change="onChange">

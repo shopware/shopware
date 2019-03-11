@@ -1,0 +1,204 @@
+{% block sw_settings_salutation_list %}
+    <sw-page class="sw-settings-salutation-list">
+
+        {% block sw_settings_salutation_list_search_bar %}
+            <template slot="search-bar">
+                <sw-search-bar :placeholder="$tc('sw-settings-salutation.general.placeholderSearchBar')"
+                               :searchType="$tc('sw-settings-salutation.general.mainMenuItemGeneral')"
+                               @search="onSearch">
+                </sw-search-bar>
+            </template>
+        {% endblock %}
+
+        {% block sw_settings_salutation_list_smart_bar_header %}
+            <template slot="smart-bar-header">
+                {% block sw_settings_salutation_list_smart_bar_header_title %}
+                    <h2>
+                        {% block sw_settings_salutation_list_smart_bar_header_title_text %}
+                            {{ $tc('sw-settings.index.title') }}
+                            <sw-icon name="small-arrow-medium-right" small></sw-icon>
+                            {{ $tc('sw-settings-salutation.general.mainMenuItemGeneral') }}
+                        {% endblock %}
+
+                        {% block sw_settings_salutation_list_smart_bar_header_amount %}
+                            <span v-if="!isLoading && salutations && salutations.length"
+                                  class="sw-page__smart-bar-amount">
+                                ({{ total }})
+                            </span>
+                        {% endblock %}
+                    </h2>
+                {% endblock %}
+            </template>
+        {% endblock %}
+
+        {% block sw_settings_salutation_list_language_switch %}
+            <template slot="language-switch">
+                <sw-language-switch @on-change="onChangeLanguage"></sw-language-switch>
+            </template>
+        {% endblock %}
+
+        {% block sw_settings_salutation_list_actions %}
+            <template slot="smart-bar-actions">
+                {% block sw_settings_salutation_list_actions_create %}
+                    <sw-button class="sw-settings-salutation-list__create"
+                               variant="primary"
+                               :routerLink="{ name: 'sw.settings.salutation.create' }">
+                        {{ $tc('sw-settings-salutation.general.buttonCreate') }}
+                    </sw-button>
+                {% endblock %}
+            </template>
+        {% endblock %}
+
+        {% block sw_settings_salutation_list_cardview %}
+            <template slot="content">
+                <sw-card-view>
+                    {% block sw_settings_salutation_list_card_content %}
+                        <sw-card :isLoading="isLoading">
+
+                            {% block sw_settings_salutation_list_grid %}
+                                <template slot="grid">
+                                    <sw-grid class="sw-settings-salutation-list-grid"
+                                             :sortBy="sortBy"
+                                             :sortDirection="sortDirection"
+                                             :items="salutations"
+                                             :selectable="false"
+                                             @sort-column="onSortColumn"
+                                             @inline-edit-cancel="onInlineEditCancel"
+                                             @inline-edit-finish="onInlineEditSave"
+                                             table>
+
+                                        {% block sw_settings_salutation_list_columns %}
+                                            <template slot="columns" slot-scope="{ item }">
+
+                                                {% block sw_settings_salutation_list_column_key %}
+                                                    <sw-grid-column flex="minmax(120px, 1fr)"
+                                                                    class="sw-settings-salutation-list__column-key"
+                                                                    :label="$tc('sw-settings-salutation.list.columnSalutationKey')"
+                                                                    dataIndex="salutationKey"
+                                                                    truncate
+                                                                    editable
+                                                                    sortable>
+                                                        {% block sw_settings_salutation_list_column_key_content %}
+                                                            <router-link class="sw-settings-salutation-list__columns"
+                                                                         :title="$tc('sw-settings-salutation.general.contextMenuEdit')"
+                                                                         :to="{ name: 'sw.settings.salutation.detail', params: { id: item.id } }">
+                                                                {{ item.meta.viewData.salutationKey }}
+                                                            </router-link>
+                                                        {% endblock %}
+
+                                                        {% block sw_settings_salutation_list_column_key_editor %}
+                                                            <template slot="inline-edit">
+                                                                <sw-field type="text"
+                                                                          v-model="item.salutationKey"
+                                                                          :placeholder="$tc('sw-settings-salutation.list.fieldSalutationKeyPlaceholder')">
+                                                                </sw-field>
+                                                            </template>
+                                                        {% endblock %}
+                                                    </sw-grid-column>
+                                                {% endblock %}
+
+                                                {% block sw_settings_salutation_list_column_name %}
+                                                    <sw-grid-column flex="minmax(120px, 1fr)"
+                                                                    class="sw-settings-salutation-list__columns"
+                                                                    :label="$tc('sw-settings-salutation.list.columnName')"
+                                                                    dataIndex="name"
+                                                                    truncate
+                                                                    sortable>
+                                                        {% block sw_settings_salutation_list_column_name_content %}
+                                                            <span class="sw-settings-salutation-list__columns">
+                                                                {{ item.meta.viewData.name }}
+                                                            </span>
+                                                        {% endblock %}
+
+                                                        {% block sw_settings_salutation_list_column_name_editor %}
+                                                            <template slot="inline-edit">
+                                                                <sw-field type="text"
+                                                                          v-model="item.name"
+                                                                          :placeholder="getInlinePlaceholder(item)">
+                                                                </sw-field>
+                                                            </template>
+                                                        {% endblock %}
+                                                    </sw-grid-column>
+                                                {% endblock %}
+
+                                                {% block sw_settings_salutation_list_column_actions %}
+                                                    <sw-grid-column flex="minmax(100px, 100px)"
+                                                                    dataIndex="actions"
+                                                                    align="center"
+                                                                    truncate>
+                                                        {% block sw_settings_salutation_list_column_actions_menu %}
+                                                            <sw-context-button :menuWidth="290">
+                                                                {% block sw_settings_salutation_list_column_menu_edit %}
+                                                                    <sw-context-menu-item :routerLink="{ name: 'sw.settings.salutation.detail', params: { id: item.id } }">
+                                                                        {{ $tc('sw-settings-salutation.general.contextMenuEdit') }}
+                                                                    </sw-context-menu-item>
+                                                                {% endblock %}
+
+                                                                {% block sw_settings_salutation_list_column_menu_delete %}
+                                                                    <sw-context-menu-item @click="onDelete(item.id)"
+                                                                                          variant="danger">
+                                                                        {{ $tc('sw-settings-salutation.general.contextMenuDelete') }}
+                                                                    </sw-context-menu-item>
+                                                                {% endblock %}
+                                                            </sw-context-button>
+                                                        {% endblock %}
+                                                    </sw-grid-column>
+                                                {% endblock %}
+
+                                                {% block sw_settings_salutation_list_delete_modal %}
+                                                    <sw-modal v-if="showDeleteModal === item.id"
+                                                              @closeModal="onCloseDeleteModal"
+                                                              :title="$tc('sw-settings-salutation.general.mainMenuItemGeneral')"
+                                                              variant="small">
+                                                        {% block sw_settings_salutation_list_delete_modal_confirm_delete_text %}
+                                                            <p class="sw-settings-salutation-list__confirm-delete-text">
+                                                                {{ $tc('sw-settings-salutation.list.textDeleteConfirm', 0, { key: item.salutationKey }) }}
+                                                            </p>
+                                                        {% endblock %}
+
+                                                        {% block sw_settings_salutation_list_delete_modal_footer %}
+                                                            <template slot="modal-footer">
+                                                                {% block sw_settings_salutation_list_delete_modal_cancel %}
+                                                                    <sw-button @click="onCloseDeleteModal"
+                                                                               size="small">
+                                                                        {{ $tc('sw-settings-salutation.general.buttonCancel') }}
+                                                                    </sw-button>
+                                                                {% endblock %}
+
+                                                                {% block sw_settings_salutation_list_delete_modal_confirm %}
+                                                                    <sw-button @click="onConfirmDelete(item.id)"
+                                                                               variant="primary"
+                                                                               size="small">
+                                                                        {{ $tc('sw-settings-salutation.general.buttonDelete') }}
+                                                                    </sw-button>
+                                                                {% endblock %}
+                                                            </template>
+                                                        {% endblock %}
+                                                    </sw-modal>
+                                                {% endblock %}
+
+                                            </template>
+                                        {% endblock %}
+
+                                        {% block sw_settings_salutation_list_grid_pagination %}
+                                            <template slot="pagination">
+                                                <sw-pagination :page="page"
+                                                               :limit="limit"
+                                                               :total="total"
+                                                               :total-visible="7"
+                                                               @page-change="onPageChange">
+                                                </sw-pagination>
+                                            </template>
+                                        {% endblock %}
+                                    </sw-grid>
+                                </template>
+                            {% endblock %}
+
+                        </sw-card>
+                    {% endblock %}
+                </sw-card-view>
+            </template>
+        {% endblock %}
+
+    </sw-page>
+{% endblock %}

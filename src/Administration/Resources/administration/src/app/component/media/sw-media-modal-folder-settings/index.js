@@ -206,6 +206,9 @@ export default {
 
             this.mediaFolderConfigurationStore.sync()
                 .then(() => {
+                    if (typeof this.folder.defaultFolderId === 'undefined') {
+                        this.folder.defaultFolderId = null;
+                    }
                     return this.folder.save();
                 })
                 .then(() => {

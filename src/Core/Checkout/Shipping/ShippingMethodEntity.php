@@ -3,7 +3,7 @@
 namespace Shopware\Core\Checkout\Shipping;
 
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryCollection;
-use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodPrice\ShippingMethodPriceCollection;
+use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodPriceRule\ShippingMethodPriceRuleCollection;
 use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodTranslation\ShippingMethodTranslationCollection;
 use Shopware\Core\Content\Rule\RuleCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
@@ -29,11 +29,6 @@ class ShippingMethodEntity extends Entity
     protected $active;
 
     /**
-     * @var int
-     */
-    protected $calculation;
-
-    /**
      * @var float|null
      */
     protected $shippingFree;
@@ -57,11 +52,6 @@ class ShippingMethodEntity extends Entity
      * @var string|null
      */
     protected $comment;
-
-    /**
-     * @var ShippingMethodPriceCollection
-     */
-    protected $prices;
 
     /**
      * @var int
@@ -108,9 +98,15 @@ class ShippingMethodEntity extends Entity
      */
     protected $availabilityRuleIds;
 
+    /**
+     * @var ShippingMethodPriceRuleCollection|null
+     */
+    protected $priceRules;
+
     public function __construct()
     {
         $this->availabilityRuleIds = [];
+        $this->priceRules = new ShippingMethodPriceRuleCollection();
     }
 
     public function getBindShippingfree(): bool
@@ -141,16 +137,6 @@ class ShippingMethodEntity extends Entity
     public function setActive(bool $active): void
     {
         $this->active = $active;
-    }
-
-    public function getCalculation(): int
-    {
-        return $this->calculation;
-    }
-
-    public function setCalculation(int $calculation): void
-    {
-        $this->calculation = $calculation;
     }
 
     public function getShippingFree(): ?float
@@ -201,16 +187,6 @@ class ShippingMethodEntity extends Entity
     public function setComment(?string $comment): void
     {
         $this->comment = $comment;
-    }
-
-    public function getPrices(): ShippingMethodPriceCollection
-    {
-        return $this->prices;
-    }
-
-    public function setPrices(ShippingMethodPriceCollection $prices): void
-    {
-        $this->prices = $prices;
     }
 
     public function getMinDeliveryTime(): int
@@ -301,5 +277,15 @@ class ShippingMethodEntity extends Entity
     public function setAvailabilityRuleIds(array $availabilityRuleIds): void
     {
         $this->availabilityRuleIds = $availabilityRuleIds;
+    }
+
+    public function getPriceRules(): ?ShippingMethodPriceRuleCollection
+    {
+        return $this->priceRules;
+    }
+
+    public function setPriceRules(?ShippingMethodPriceRuleCollection $priceRules): void
+    {
+        $this->priceRules = $priceRules;
     }
 }

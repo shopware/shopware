@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Checkout\Cart\Delivery;
 
-use Doctrine\DBAL\Connection;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\Delivery;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryCollection;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
@@ -11,24 +10,15 @@ use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Checkout\Cart\Tax\PercentageTaxRuleBuilder;
 use Shopware\Core\Checkout\CheckoutContext;
-use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
-use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Struct\Uuid;
+use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodPriceRule\ShippingMethodPriceRuleEntity;
 
 class DeliveryCalculator
 {
-    public const CALCULATION_BY_WEIGHT = 0;
+    public const CALCULATION_BY_LINE_ITEM_COUNT = 1;
 
-    public const CALCULATION_BY_PRICE = 1;
+    public const CALCULATION_BY_PRICE = 2;
 
-    public const CALCULATION_BY_LINE_ITEM_COUNT = 2;
-
-    public const CALCULATION_BY_CUSTOM = 3;
-
-    /**
-     * @var Connection
-     */
-    private $connection;
+    public const CALCULATION_BY_WEIGHT = 3;
 
     /**
      * @var QuantityPriceCalculator
@@ -41,11 +31,9 @@ class DeliveryCalculator
     private $percentageTaxRuleBuilder;
 
     public function __construct(
-        Connection $connection,
         QuantityPriceCalculator $priceCalculator,
         PercentageTaxRuleBuilder $percentageTaxRuleBuilder
     ) {
-        $this->connection = $connection;
         $this->priceCalculator = $priceCalculator;
         $this->percentageTaxRuleBuilder = $percentageTaxRuleBuilder;
     }
@@ -59,6 +47,7 @@ class DeliveryCalculator
 
     private function calculateDelivery(Delivery $delivery, CheckoutContext $context): void
     {
+        $costs = null;
         if ($delivery->getShippingCosts()->getUnitPrice() > 0) {
             $costs = $this->calculateShippingCosts(
                 $delivery->getShippingCosts()->getTotalPrice(),
@@ -71,56 +60,52 @@ class DeliveryCalculator
             return;
         }
 
-        switch ($delivery->getShippingMethod()->getCalculation()) {
-            case self::CALCULATION_BY_WEIGHT:
-                $costs = $this->calculateShippingCosts(
-                    $this->findShippingCosts(
-                        $delivery->getShippingMethod(),
-                        $delivery->getPositions()->getWeight(),
-                        $context->getContext()
-                    ),
-                    $delivery->getPositions()->getLineItems(),
-                    $context
-                );
+        foreach ($delivery->getShippingMethod()->getPriceRules() as $priceRule) {
+            // TODO: Ticket number: NEXT-2360, Price rules shouldn't be loaded in general (access price rules different at this point)
+            if (!in_array($priceRule->getRuleId(), $context->getRuleIds(), true)) {
+                continue;
+            }
 
-                break;
-            case self::CALCULATION_BY_PRICE:
-                $costs = $this->calculateShippingCosts(
-                    $this->findShippingCosts(
-                        $delivery->getShippingMethod(),
-                        $delivery->getPositions()->getPrices()->sum()->getTotalPrice(),
-                        $context->getContext()
-                    ),
-                    $delivery->getPositions()->getLineItems(),
-                    $context
-                );
+            if (!$this->matchesQuantity($delivery, $priceRule)) {
+                continue;
+            }
 
-                break;
+            $costs = $this->calculateShippingCosts(
+                $priceRule->getPrice(),
+                $delivery->getPositions()->getLineItems(),
+                $context
+            );
+            break;
+        }
 
-            case self::CALCULATION_BY_LINE_ITEM_COUNT:
-                $costs = $this->calculateShippingCosts(
-                    $this->findShippingCosts(
-                        $delivery->getShippingMethod(),
-                        $delivery->getPositions()->getQuantity(),
-                        $context->getContext()
-                    ),
-                    $delivery->getPositions()->getLineItems(),
-                    $context
-                );
-                break;
-
-            case self::CALCULATION_BY_CUSTOM:
-                return;
-            default:
-                $price = $delivery->getPositions()->getLineItems()->getPrices()->sum()->getTotalPrice() / 100;
-                $costs = $this->calculateShippingCosts(
-                    $price,
-                    $delivery->getPositions()->getLineItems(),
-                    $context
-                );
+        if (!$costs) {
+            return;
         }
 
         $delivery->setShippingCosts($costs);
+    }
+
+    private function matchesQuantity(Delivery $delivery, ShippingMethodPriceRuleEntity $shippingMethodPriceRule): bool
+    {
+        $start = $shippingMethodPriceRule->getQuantityStart();
+        $end = $shippingMethodPriceRule->getQuantityEnd();
+
+        switch ($shippingMethodPriceRule->getCalculation()) {
+            case self::CALCULATION_BY_PRICE:
+                $value = $delivery->getPositions()->getPrices()->sum()->getTotalPrice();
+                break;
+            case self::CALCULATION_BY_LINE_ITEM_COUNT:
+                $value = $delivery->getPositions()->getQuantity();
+                break;
+            case self::CALCULATION_BY_WEIGHT:
+                $value = $delivery->getPositions()->getWeight();
+                break;
+            default:
+                $value = $delivery->getPositions()->getLineItems()->getPrices()->sum()->getTotalPrice() / 100;
+                break;
+        }
+
+        return ($value >= $start) && (!$end || $value <= $end);
     }
 
     private function calculateShippingCosts(float $price, LineItemCollection $calculatedLineItems, CheckoutContext $context): CalculatedPrice
@@ -132,20 +117,5 @@ class DeliveryCalculator
         $definition = new QuantityPriceDefinition($price, $rules, $context->getContext()->getCurrencyPrecision(), 1, true);
 
         return $this->priceCalculator->calculate($definition, $context);
-    }
-
-    private function findShippingCosts(ShippingMethodEntity $shippingMethod, float $value, Context $context): float
-    {
-        $query = $this->connection->createQueryBuilder();
-        $query->select('costs.price');
-        $query->from('shipping_method_price', 'costs');
-        $query->andWhere('costs.`quantity_from` <= :value');
-        $query->andWhere('costs.shipping_method_id = :id');
-        $query->setParameter('id', Uuid::fromHexToBytes($shippingMethod->getId()));
-        $query->setParameter('value', $value);
-        $query->addOrderBy('price', 'DESC');
-        $query->setMaxResults(1);
-
-        return (float) $query->execute()->fetchColumn();
     }
 }

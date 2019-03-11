@@ -55,7 +55,7 @@ Component.register('sw-product-detail-context-prices', {
             const priceRuleGroups = {};
 
             this.product.priceRules.forEach((rule) => {
-                if (this.priceRuleStore.getById(rule.id).isDeleted === true) {
+                if (this.priceRuleStore.getById(rule.id).isDeleted) {
                     return;
                 }
 

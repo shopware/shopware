@@ -5,6 +5,7 @@ namespace Shopware\Core\Checkout\Test\Cart\Order;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartBehaviorContext;
+use Shopware\Core\Checkout\Cart\Delivery\DeliveryCalculator;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\Delivery;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryDate;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryInformation;
@@ -30,6 +31,7 @@ use Shopware\Core\Checkout\Context\CheckoutContextService;
 use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressEntity;
 use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Checkout\Order\OrderEntity;
+use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\Checkout\Test\Cart\Common\TrueRule;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -69,10 +71,11 @@ class RecalculationServiceTest extends TestCase
         parent::setUp();
         $this->context = Context::createDefaultContext();
 
-        $ruleId = Uuid::uuid4()->getHex();
+        $priceRuleId = Uuid::uuid4()->getHex();
 
         $this->customerId = $this->createCustomer();
-        $shippingMethodId = $this->createShippingMethod($ruleId);
+        $shippingMethodId = $this->createShippingMethod($priceRuleId);
+
         $this->checkoutContext = $this->getContainer()->get(CheckoutContextFactory::class)->create(
             Uuid::uuid4()->getHex(),
             Defaults::SALES_CHANNEL,
@@ -82,7 +85,7 @@ class RecalculationServiceTest extends TestCase
             ]
         );
 
-        $this->checkoutContext->setRuleIds([$ruleId]);
+        $this->checkoutContext->setRuleIds([$priceRuleId]);
     }
 
     public function testPersistOrderAndConvertToCart(): void
@@ -354,6 +357,7 @@ class RecalculationServiceTest extends TestCase
         $versionContext = $this->context->createWithVersionId($versionId);
 
         $critera = new Criteria();
+        $critera->addAssociation('shippingMethod', (new Criteria())->addAssociation('priceRules'));
         $critera->addFilter(new EqualsFilter('order_delivery.orderId', $orderId));
         $orderDeliveryRepository = $this->getContainer()->get('order_delivery.repository');
         $deliveries = $orderDeliveryRepository->search($critera, $versionContext);
@@ -392,10 +396,239 @@ class RecalculationServiceTest extends TestCase
         static::assertEquals($shippingCosts->getTaxRules(), $newShippingCosts->getTaxRules());
         static::assertEquals(
             5,
-            $newShippingCosts->getCalculatedTaxes()->get(5)->getPrice()
-            + $newShippingCosts->getCalculatedTaxes()->get(7)->getPrice()
-            + $newShippingCosts->getCalculatedTaxes()->get(19)->getPrice()
+            $newShippingCosts->getCalculatedTaxes()->get('5')->getPrice()
+            + $newShippingCosts->getCalculatedTaxes()->get('7')->getPrice()
+            + $newShippingCosts->getCalculatedTaxes()->get('19')->getPrice()
         );
+    }
+
+    public function testForeachLoopInCalculateDeliveryFunction(): void
+    {
+        $priceRuleId = Uuid::uuid4()->getHex();
+        $shippingMethodId = Uuid::uuid4()->getHex();
+        $shippingMethod = $this->addSecondPriceRuleToShippingMethod($priceRuleId, $shippingMethodId);
+        $this->checkoutContext->setRuleIds(array_merge($this->checkoutContext->getRuleIds(), [$priceRuleId]));
+
+        $prop = ReflectionHelper::getProperty(CheckoutContext::class, 'shippingMethod');
+        $prop->setValue($this->checkoutContext, $shippingMethod);
+
+        // create order
+        $cart = $this->generateDemoCart();
+        $orderId = $this->persistCart($cart);
+
+        // create version of order
+        $versionId = $this->createVersionedOrder($orderId);
+        $versionContext = $this->context->createWithVersionId($versionId);
+
+        $critera = new Criteria();
+        $critera->addAssociation('shippingMethod', (new Criteria())->addAssociation('priceRules'));
+        $critera->addFilter(new EqualsFilter('order_delivery.orderId', $orderId));
+        $orderDeliveryRepository = $this->getContainer()->get('order_delivery.repository');
+        $deliveries = $orderDeliveryRepository->search($critera, $versionContext);
+
+        /** @var CalculatedPrice $shippingCosts */
+        $shippingCosts = $deliveries->first()->getShippingCosts();
+        static::assertSame(1, $shippingCosts->getQuantity());
+        static::assertSame(15.0, $shippingCosts->getUnitPrice());
+        static::assertSame(15.0, $shippingCosts->getTotalPrice());
+    }
+
+    public function testStartAndEndConditionsInPriceRule(): void
+    {
+        $priceRuleId = Uuid::uuid4()->getHex();
+        $shippingMethodId = Uuid::uuid4()->getHex();
+        $shippingMethod = $this->addSecondShippingMethodPriceRule($priceRuleId, $shippingMethodId);
+        $this->checkoutContext->setRuleIds(array_merge($this->checkoutContext->getRuleIds(), [$priceRuleId]));
+
+        $prop = ReflectionHelper::getProperty(CheckoutContext::class, 'shippingMethod');
+        $prop->setValue($this->checkoutContext, $shippingMethod);
+
+        // create order
+        $cart = $this->generateDemoCart();
+        $orderId = $this->persistCart($cart);
+
+        // create version of order
+        $versionId = $this->createVersionedOrder($orderId);
+        $versionContext = $this->context->createWithVersionId($versionId);
+
+        $critera = new Criteria();
+        $critera->addAssociation('shippingMethod', (new Criteria())->addAssociation('priceRules'));
+        $critera->addFilter(new EqualsFilter('order_delivery.orderId', $orderId));
+        $orderDeliveryRepository = $this->getContainer()->get('order_delivery.repository');
+        $deliveries = $orderDeliveryRepository->search($critera, $versionContext);
+        $firstPriceRule = $deliveries->first()->getShippingMethod()->getPriceRules()->first();
+        $secondPriceRule = $deliveries->first()->getShippingMethod()->getPriceRules()->last();
+
+        static::assertSame($firstPriceRule->getRuleId(), $secondPriceRule->getRuleId());
+        static::assertGreaterThan($firstPriceRule->getQuantityStart(), $firstPriceRule->getQuantityEnd());
+        static::assertGreaterThan($firstPriceRule->getQuantityEnd(), $secondPriceRule->getQuantityStart());
+        static::assertGreaterThan($secondPriceRule->getQuantityStart(), $secondPriceRule->getQuantityEnd());
+    }
+
+    public function testIfCorrectConditionIsUsedCalculationByLineItemCount(): void
+    {
+        $priceRuleId = Uuid::uuid4()->getHex();
+        $shippingMethodId = Uuid::uuid4()->getHex();
+        $shippingMethod = $this->addSecondShippingMethodPriceRule($priceRuleId, $shippingMethodId);
+        $this->checkoutContext->setRuleIds(array_merge($this->checkoutContext->getRuleIds(), [$priceRuleId]));
+
+        $prop = ReflectionHelper::getProperty(CheckoutContext::class, 'shippingMethod');
+        $prop->setValue($this->checkoutContext, $shippingMethod);
+
+        // create order
+        $cart = $this->generateDemoCart();
+        $orderId = $this->persistCart($cart);
+
+        // create version of order
+        $versionId = $this->createVersionedOrder($orderId);
+        $versionContext = $this->context->createWithVersionId($versionId);
+
+        $critera = new Criteria();
+        $critera->addAssociation('shippingMethod', (new Criteria())->addAssociation('priceRules'));
+        $critera->addFilter(new EqualsFilter('order_delivery.orderId', $orderId));
+        $orderDeliveryRepository = $this->getContainer()->get('order_delivery.repository');
+        $deliveries = $orderDeliveryRepository->search($critera, $versionContext);
+
+        /** @var CalculatedPrice $shippingCosts */
+        $shippingCosts = $deliveries->first()->getShippingCosts();
+        static::assertSame(1, $shippingCosts->getQuantity());
+        static::assertSame(15.0, $shippingCosts->getUnitPrice());
+        static::assertSame(15.0, $shippingCosts->getTotalPrice());
+
+        // increase quantity for first LineItem
+        $cart->getLineItems()->first()->setQuantity(8);
+        $cart = $this->getContainer()->get(Enrichment::class)->enrich($cart, $this->checkoutContext);
+        $cart = $this->getContainer()->get(Processor::class)->process($cart, $this->checkoutContext, new CartBehaviorContext());
+        $orderId = $this->persistCart($cart);
+
+        // create version of order
+        $versionId = $this->createVersionedOrder($orderId);
+        $versionContext = $this->context->createWithVersionId($versionId);
+
+        $critera = new Criteria();
+        $critera->addAssociation('shippingMethod', (new Criteria())->addAssociation('priceRules'));
+        $critera->addFilter(new EqualsFilter('order_delivery.orderId', $orderId));
+        $orderDeliveryRepository = $this->getContainer()->get('order_delivery.repository');
+        $deliveries = $orderDeliveryRepository->search($critera, $versionContext);
+
+        /** @var CalculatedPrice $shippingCosts */
+        $shippingCosts = $deliveries->first()->getShippingCosts();
+        static::assertSame(1, $shippingCosts->getQuantity());
+        static::assertSame(10.0, $shippingCosts->getUnitPrice());
+        static::assertSame(10.0, $shippingCosts->getTotalPrice());
+    }
+
+    public function testIfCorrectConditionIsUsedPriceCalculation(): void
+    {
+        $priceRuleId = Uuid::uuid4()->getHex();
+        $shippingMethodId = Uuid::uuid4()->getHex();
+        $shippingMethod = $this->createTwoConditionsWithDifferentQuantities($priceRuleId, $shippingMethodId, DeliveryCalculator::CALCULATION_BY_PRICE);
+        $this->checkoutContext->setRuleIds(array_merge($this->checkoutContext->getRuleIds(), [$priceRuleId]));
+
+        $prop = ReflectionHelper::getProperty(CheckoutContext::class, 'shippingMethod');
+        $prop->setValue($this->checkoutContext, $shippingMethod);
+
+        // create order
+        $cart = $this->generateDemoCart();
+        $orderId = $this->persistCart($cart);
+
+        // create version of order
+        $versionId = $this->createVersionedOrder($orderId);
+        $versionContext = $this->context->createWithVersionId($versionId);
+
+        $critera = new Criteria();
+        $critera->addAssociation('shippingMethod', (new Criteria())->addAssociation('priceRules'));
+        $critera->addFilter(new EqualsFilter('order_delivery.orderId', $orderId));
+        $orderDeliveryRepository = $this->getContainer()->get('order_delivery.repository');
+        $deliveries = $orderDeliveryRepository->search($critera, $versionContext);
+
+        /** @var CalculatedPrice $shippingCosts */
+        $shippingCosts = $deliveries->first()->getShippingCosts();
+        static::assertSame(1, $shippingCosts->getQuantity());
+        static::assertSame(9.99, $shippingCosts->getUnitPrice());
+        static::assertSame(9.99, $shippingCosts->getTotalPrice());
+
+        // decrease price for first LineItem
+        $cart->getLineItems()->first()->setPriceDefinition(new QuantityPriceDefinition(1, new TaxRuleCollection([new TaxRule(19)]), 5));
+        $cart = $this->getContainer()->get(Enrichment::class)->enrich($cart, $this->checkoutContext);
+        $cart = $this->getContainer()->get(Processor::class)->process($cart, $this->checkoutContext, new CartBehaviorContext());
+        $orderId = $this->persistCart($cart);
+
+        // create version of order
+        $versionId = $this->createVersionedOrder($orderId);
+        $versionContext = $this->context->createWithVersionId($versionId);
+
+        $critera = new Criteria();
+        $critera->addAssociation('shippingMethod', (new Criteria())->addAssociation('priceRules'));
+        $critera->addFilter(new EqualsFilter('order_delivery.orderId', $orderId));
+        $orderDeliveryRepository = $this->getContainer()->get('order_delivery.repository');
+        $deliveries = $orderDeliveryRepository->search($critera, $versionContext);
+
+        /** @var CalculatedPrice $shippingCosts */
+        $shippingCosts = $deliveries->first()->getShippingCosts();
+        static::assertSame(1, $shippingCosts->getQuantity());
+        static::assertSame(15.0, $shippingCosts->getUnitPrice());
+        static::assertSame(15.0, $shippingCosts->getTotalPrice());
+    }
+
+    public function testIfCorrectConditionIsUsedWeightCalculation(): void
+    {
+        $priceRuleId = Uuid::uuid4()->getHex();
+        $shippingMethodId = Uuid::uuid4()->getHex();
+        $shippingMethod = $this->createTwoConditionsWithDifferentQuantities($priceRuleId, $shippingMethodId, DeliveryCalculator::CALCULATION_BY_WEIGHT);
+        $this->checkoutContext->setRuleIds(array_merge($this->checkoutContext->getRuleIds(), [$priceRuleId]));
+
+        $prop = ReflectionHelper::getProperty(CheckoutContext::class, 'shippingMethod');
+        $prop->setValue($this->checkoutContext, $shippingMethod);
+
+        // create order
+        $cart = $this->generateDemoCart();
+        $orderId = $this->persistCart($cart);
+
+        // create version of order
+        $versionId = $this->createVersionedOrder($orderId);
+        $versionContext = $this->context->createWithVersionId($versionId);
+
+        $critera = new Criteria();
+        $critera->addAssociation('shippingMethod', (new Criteria())->addAssociation('priceRules'));
+        $critera->addFilter(new EqualsFilter('order_delivery.orderId', $orderId));
+        $orderDeliveryRepository = $this->getContainer()->get('order_delivery.repository');
+        $deliveries = $orderDeliveryRepository->search($critera, $versionContext);
+
+        /** @var CalculatedPrice $shippingCosts */
+        $shippingCosts = $deliveries->first()->getShippingCosts();
+        static::assertSame(1, $shippingCosts->getQuantity());
+        static::assertSame(15.0, $shippingCosts->getUnitPrice());
+        static::assertSame(15.0, $shippingCosts->getTotalPrice());
+
+        // increase weight for first LineItem
+        $deliveryInformation = new DeliveryInformation(
+            100,
+            75,
+            new DeliveryDate(new \DateTime(), new \DateTime()),
+            new DeliveryDate(new \DateTime(), new \DateTime()),
+            false
+        );
+        $cart->getLineItems()->first()->setDeliveryInformation($deliveryInformation);
+        $cart = $this->getContainer()->get(Enrichment::class)->enrich($cart, $this->checkoutContext);
+        $cart = $this->getContainer()->get(Processor::class)->process($cart, $this->checkoutContext, new CartBehaviorContext());
+        $orderId = $this->persistCart($cart);
+
+        // create version of order
+        $versionId = $this->createVersionedOrder($orderId);
+        $versionContext = $this->context->createWithVersionId($versionId);
+
+        $critera = new Criteria();
+        $critera->addAssociation('shippingMethod', (new Criteria())->addAssociation('priceRules'));
+        $critera->addFilter(new EqualsFilter('order_delivery.orderId', $orderId));
+        $orderDeliveryRepository = $this->getContainer()->get('order_delivery.repository');
+        $deliveries = $orderDeliveryRepository->search($critera, $versionContext);
+
+        /** @var CalculatedPrice $shippingCosts */
+        $shippingCosts = $deliveries->first()->getShippingCosts();
+        static::assertSame(1, $shippingCosts->getQuantity());
+        static::assertSame(9.99, $shippingCosts->getUnitPrice());
+        static::assertSame(9.99, $shippingCosts->getTotalPrice());
     }
 
     public function testReplaceBillingAddress(): void
@@ -755,7 +988,7 @@ class RecalculationServiceTest extends TestCase
         static::assertSame($calculatedTaxes->getTax(), 53.18);
     }
 
-    private function createShippingMethod(string $ruleId): string
+    private function createShippingMethod(string $priceRuleId): string
     {
         $shippingMethodId = Uuid::uuid4()->getHex();
         $repository = $this->getContainer()->get('shipping_method.repository');
@@ -770,17 +1003,27 @@ class RecalculationServiceTest extends TestCase
             'name' => 'test shipping method',
             'bindShippingfree' => false,
             'active' => true,
-            'prices' => [
+            'priceRules' => [
                 [
-                    'shippingMethodId' => Defaults::SHIPPING_METHOD,
-                    'quantityFrom' => 0,
                     'price' => '10.00',
-                    'factor' => 0,
+                    'currencyId' => Defaults::CURRENCY,
+                    'rule' => [
+                        'id' => $priceRuleId,
+                        'name' => 'true',
+                        'priority' => 0,
+                        'conditions' => [
+                            [
+                                'type' => 'true',
+                            ],
+                        ],
+                    ],
+                    'calculation' => 1,
+                    'quantityStart' => 1,
                 ],
             ],
             'availabilityRules' => [
                 [
-                    'id' => $ruleId,
+                    'id' => $priceRuleId,
                     'name' => 'true',
                     'priority' => 0,
                     'conditions' => [
@@ -795,5 +1038,195 @@ class RecalculationServiceTest extends TestCase
         $repository->create([$data], $this->context);
 
         return $shippingMethodId;
+    }
+
+    private function addSecondPriceRuleToShippingMethod(string $priceRuleId, string $shippingMethodId): ShippingMethodEntity
+    {
+        $repository = $this->getContainer()->get('shipping_method.repository');
+        $data = [
+            'id' => $shippingMethodId,
+            'type' => 0,
+            'name' => 'test shipping method 2',
+            'bindShippingfree' => false,
+            'active' => true,
+            'priceRules' => [
+                [
+                    'price' => '15.00',
+                    'currencyId' => Defaults::CURRENCY,
+                    'rule' => [
+                        'id' => $priceRuleId,
+                        'name' => 'true',
+                        'priority' => 0,
+                        'conditions' => [
+                            [
+                                'type' => 'true',
+                            ],
+                        ],
+                    ],
+                    'calculation' => 1,
+                    'quantityStart' => 0,
+                ],
+                [
+                    'price' => '20.00',
+                    'currencyId' => Defaults::CURRENCY,
+                    'rule' => [
+                        'id' => $priceRuleId,
+                        'name' => 'true',
+                        'priority' => 0,
+                        'conditions' => [
+                            [
+                                'type' => 'true',
+                            ],
+                        ],
+                    ],
+                    'calculation' => 1,
+                    'quantityStart' => 1,
+                ],
+            ],
+            'availabilityRules' => [
+                [
+                    'id' => $priceRuleId,
+                    'name' => 'true',
+                    'priority' => 0,
+                    'conditions' => [
+                        [
+                            'type' => 'true',
+                        ],
+                    ],
+                ],
+            ],
+        ];
+
+        $repository->upsert([$data], $this->context);
+
+        return $repository->search(new Criteria([$shippingMethodId]), $this->context)->get($shippingMethodId);
+    }
+
+    private function addSecondShippingMethodPriceRule(string $priceRuleId, string $shippingMethodId): ShippingMethodEntity
+    {
+        $repository = $this->getContainer()->get('shipping_method.repository');
+        $data = [
+            'id' => $shippingMethodId,
+            'type' => 0,
+            'name' => 'test shipping method 3',
+            'bindShippingfree' => false,
+            'active' => true,
+            'priceRules' => [
+                [
+                    'price' => '15.00',
+                    'currencyId' => Defaults::CURRENCY,
+                    'rule' => [
+                        'id' => $priceRuleId,
+                        'name' => 'true',
+                        'priority' => 0,
+                        'conditions' => [
+                            [
+                                'type' => 'true',
+                            ],
+                        ],
+                    ],
+                    'calculation' => 1,
+                    'quantityStart' => 1,
+                    'quantityEnd' => 9,
+                ],
+                [
+                    'price' => '10.00',
+                    'currencyId' => Defaults::CURRENCY,
+                    'rule' => [
+                        'id' => $priceRuleId,
+                        'name' => 'true',
+                        'priority' => 0,
+                        'conditions' => [
+                            [
+                                'type' => 'true',
+                            ],
+                        ],
+                    ],
+                    'calculation' => 1,
+                    'quantityStart' => 10,
+                    'quantityEnd' => 20,
+                ],
+            ],
+            'availabilityRules' => [
+                [
+                    'id' => $priceRuleId,
+                    'name' => 'true',
+                    'priority' => 0,
+                    'conditions' => [
+                        [
+                            'type' => 'true',
+                        ],
+                    ],
+                ],
+            ],
+        ];
+
+        $repository->upsert([$data], $this->context);
+
+        return $repository->search(new Criteria([$shippingMethodId]), $this->context)->get($shippingMethodId);
+    }
+
+    private function createTwoConditionsWithDifferentQuantities(string $priceRuleId, string $shippingMethodId, int $calculation): ShippingMethodEntity
+    {
+        $repository = $this->getContainer()->get('shipping_method.repository');
+
+        $data = [
+            'id' => $shippingMethodId,
+            'type' => 0,
+            'name' => 'test shipping method 4',
+            'bindShippingfree' => false,
+            'active' => true,
+            'priceRules' => [
+                [
+                    'price' => '15.00',
+                    'currencyId' => Defaults::CURRENCY,
+                    'rule' => [
+                        'id' => $priceRuleId,
+                        'name' => 'true',
+                        'priority' => 0,
+                        'conditions' => [
+                            [
+                                'type' => 'true',
+                            ],
+                        ],
+                    ],
+                    'calculation' => $calculation,
+                    'quantityStart' => 0,
+                    'quantityEnd' => 70,
+                ],
+                [
+                    'price' => '9.99',
+                    'currencyId' => Defaults::CURRENCY,
+                    'rule' => [
+                        'id' => $priceRuleId,
+                        'name' => 'true',
+                        'priority' => 0,
+                        'conditions' => [
+                            [
+                                'type' => 'true',
+                            ],
+                        ],
+                    ],
+                    'calculation' => $calculation,
+                    'quantityStart' => 71,
+                ],
+            ],
+            'availabilityRules' => [
+                [
+                    'id' => $priceRuleId,
+                    'name' => 'true',
+                    'priority' => 0,
+                    'conditions' => [
+                        [
+                            'type' => 'true',
+                        ],
+                    ],
+                ],
+            ],
+        ];
+
+        $repository->upsert([$data], $this->context);
+
+        return $repository->search(new Criteria([$shippingMethodId]), $this->context)->get($shippingMethodId);
     }
 }

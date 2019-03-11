@@ -3,7 +3,7 @@
 namespace Shopware\Core\Checkout\Shipping;
 
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryDefinition;
-use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodPrice\ShippingMethodPriceDefinition;
+use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodPriceRule\ShippingMethodPriceRuleDefinition;
 use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodRules\ShippingMethodRuleDefinition;
 use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodTranslation\ShippingMethodTranslationDefinition;
 use Shopware\Core\Content\Rule\RuleDefinition;
@@ -64,7 +64,6 @@ class ShippingMethodDefinition extends EntityDefinition
             (new BoolField('bind_shippingfree', 'bindShippingfree'))->addFlags(new Required()),
             (new TranslatedField('name'))->addFlags(new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
             new BoolField('active', 'active'),
-            new IntField('calculation', 'calculation'),
             new IntField('min_delivery_time', 'minDeliveryTime'),
             new IntField('max_delivery_time', 'maxDeliveryTime'),
             new FloatField('shipping_free', 'shippingFree'),
@@ -76,10 +75,10 @@ class ShippingMethodDefinition extends EntityDefinition
             (new TranslatedField('description'))->addFlags(new SearchRanking(SearchRanking::LOW_SEARCH_RAKING)),
             (new TranslatedField('comment'))->addFlags(new SearchRanking(SearchRanking::MIDDLE_SEARCH_RANKING)),
             (new OneToManyAssociationField('orderDeliveries', OrderDeliveryDefinition::class, 'shipping_method_id', false, 'id'))->addFlags(new RestrictDelete()),
-            (new OneToManyAssociationField('prices', ShippingMethodPriceDefinition::class, 'shipping_method_id', true, 'id'))->addFlags(new CascadeDelete()),
             (new TranslationsAssociationField(ShippingMethodTranslationDefinition::class, 'shipping_method_id'))->addFlags(new Required()),
             new ManyToManyAssociationField('salesChannels', SalesChannelDefinition::class, SalesChannelShippingMethodDefinition::class, false, 'shipping_method_id', 'sales_channel_id'),
             (new ManyToManyAssociationField('availabilityRules', RuleDefinition::class, ShippingMethodRuleDefinition::class, false, 'shipping_method_id', 'rule_id'))->addFlags(new CascadeDelete()),
+            (new OneToManyAssociationField('priceRules', ShippingMethodPriceRuleDefinition::class, 'shipping_method_id', true, 'id'))->addFlags(new CascadeDelete()),
         ]);
     }
 }

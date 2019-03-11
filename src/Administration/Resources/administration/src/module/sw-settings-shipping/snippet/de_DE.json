@@ -6,7 +6,7 @@
     },
     "list": {
       "textHeadline": "Versandarten",
-      "textDeleteConfirm": "Bist Du sicher, dass du die Versandart \"{name}\" löschen möchtest?",
+      "textDeleteConfirm": "Bist Du sicher, dass Du die Versandart \"{name}\" löschen möchtest?",
       "columnName": "Name",
       "columnActive": "Aktiv",
       "columnShippingfree": "Versandkostenfrei",
@@ -29,9 +29,9 @@
       "labelBindShippingfree": "Versandkostenfrei",
       "labelMinDeliveryTime": "Minimum Lieferzeit",
       "labelMaxDeliveryTime": "Maximal Lieferzeit",
-      "placeholderName": "Namen eingeben...",
-      "placeholderDescription": "Beschreibung eingeben...",
-      "placeholderComment": "Kommentar eingeben...",
+      "placeholderName": "Namen eingeben ...",
+      "placeholderDescription": "Beschreibung eingeben ...",
+      "placeholderComment": "Kommentar eingeben ...",
       "labelCalculation": "Berechnung",
       "labelComment": "Kommentar",
       "buttonCancel": "Abbrechen",
@@ -48,6 +48,26 @@
       "weight": "Gewicht",
       "price": "Preis",
       "lineItemCount": "Anzahl Produkte"
+    },
+    "priceRules": {
+      "cardTitlePriceRule": "Neue Preisregel",
+      "placeholderRule": "Bitte wählen ...",
+      "placeholderQuantityEnd": "Unendlich",
+      "buttonPriceRuleDelete": "Preisregel löschen",
+      "buttonPriceRuleDuplicate": "Preisregel duplizieren",
+      "buttonPriceRuleCurrencyAdd": "Währung hinzufügen",
+      "buttonAddAdditionalPriceRule": "Weitere Preisregel hinzufügen",
+      "textCurrencyDefault": "(Standard)",
+      "textPriceRuleForCurrency": "Preisregel für Währung",
+      "columnQuantityStart": "Menge von",
+      "columnQuantityEnd": "Menge bis",
+      "columnWeightStart": "Gewicht von",
+      "columnWeightEnd": "Gewicht bis",
+      "columnPriceStart": "Preis von",
+      "columnPriceEnd": "Preis bis",
+      "columnPrice": "Preis (Brutto)",
+      "contextMenuDuplicate": "Duplizieren",
+      "contextMenuDelete": "Löschen"
     }
   }
 }

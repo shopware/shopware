@@ -1,12 +1,14 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodPrice;
+namespace Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodPriceRule;
 
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
+use Shopware\Core\Content\Rule\RuleEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
+use Shopware\Core\System\Currency\CurrencyEntity;
 
-class ShippingMethodPriceEntity extends Entity
+class ShippingMethodPriceRuleEntity extends Entity
 {
     use EntityIdTrait;
     /**
@@ -15,19 +17,34 @@ class ShippingMethodPriceEntity extends Entity
     protected $shippingMethodId;
 
     /**
-     * @var float
+     * @var string
      */
-    protected $quantityFrom;
+    protected $currencyId;
+
+    /**
+     * @var string
+     */
+    protected $ruleId;
+
+    /**
+     * @var int
+     */
+    protected $calculation;
+
+    /**
+     * @var int
+     */
+    protected $quantityStart;
+
+    /**
+     * @var int|null
+     */
+    protected $quantityEnd;
 
     /**
      * @var float
      */
     protected $price;
-
-    /**
-     * @var float
-     */
-    protected $factor;
 
     /**
      * @var \DateTimeInterface|null
@@ -49,6 +66,16 @@ class ShippingMethodPriceEntity extends Entity
      */
     protected $attributes;
 
+    /**
+     * @var RuleEntity|null
+     */
+    protected $rule;
+
+    /**
+     * @var CurrencyEntity|null
+     */
+    protected $currency;
+
     public function getShippingMethodId(): string
     {
         return $this->shippingMethodId;
@@ -59,14 +86,24 @@ class ShippingMethodPriceEntity extends Entity
         $this->shippingMethodId = $shippingMethodId;
     }
 
-    public function getQuantityFrom(): float
+    public function getQuantityStart(): float
     {
-        return $this->quantityFrom;
+        return $this->quantityStart;
     }
 
-    public function setQuantityFrom(float $quantityFrom): void
+    public function setQuantityStart(int $quantityStart): void
     {
-        $this->quantityFrom = $quantityFrom;
+        $this->quantityStart = $quantityStart;
+    }
+
+    public function getQuantityEnd(): ?int
+    {
+        return $this->quantityEnd;
+    }
+
+    public function setQuantityEnd(int $quantityEnd): void
+    {
+        $this->quantityEnd = $quantityEnd;
     }
 
     public function getPrice(): float
@@ -79,14 +116,14 @@ class ShippingMethodPriceEntity extends Entity
         $this->price = $price;
     }
 
-    public function getFactor(): float
+    public function getCalculation(): int
     {
-        return $this->factor;
+        return $this->calculation;
     }
 
-    public function setFactor(float $factor): void
+    public function setCalculation(int $calculation): void
     {
-        $this->factor = $factor;
+        $this->calculation = $calculation;
     }
 
     public function getCreatedAt(): ?\DateTimeInterface
@@ -127,5 +164,45 @@ class ShippingMethodPriceEntity extends Entity
     public function setAttributes(?array $attributes): void
     {
         $this->attributes = $attributes;
+    }
+
+    public function getCurrencyId(): string
+    {
+        return $this->currencyId;
+    }
+
+    public function setCurrencyId(string $currencyId): void
+    {
+        $this->currencyId = $currencyId;
+    }
+
+    public function getRuleId(): string
+    {
+        return $this->ruleId;
+    }
+
+    public function setRuleId(string $ruleId): void
+    {
+        $this->ruleId = $ruleId;
+    }
+
+    public function getRule(): ?RuleEntity
+    {
+        return $this->rule;
+    }
+
+    public function setRule(?RuleEntity $rule): void
+    {
+        $this->rule = $rule;
+    }
+
+    public function getCurrency(): ?CurrencyEntity
+    {
+        return $this->currency;
+    }
+
+    public function setCurrency(?CurrencyEntity $currency): void
+    {
+        $this->currency = $currency;
     }
 }

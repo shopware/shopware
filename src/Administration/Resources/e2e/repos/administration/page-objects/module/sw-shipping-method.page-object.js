@@ -10,7 +10,6 @@ class ShippingMethodPageObject extends GeneralPageObject {
                 shippingSaveAction: '.sw-settings-shipping-method-detail__save-action',
                 shippingBackToListViewAction: '.sw-icon.icon--default-action-settings.sw-icon--small'
             }
-
         };
     }
 
@@ -22,6 +21,25 @@ class ShippingMethodPageObject extends GeneralPageObject {
             .tickCheckbox('input[name=sw-field--shippingMethod-bindShippingfree]', false);
 
         this.browser
+            .click(this.elements.shippingSaveAction)
+            .checkNotification(`Shipping rate "${name}" has been saved successfully.`);
+    }
+
+    createShippingMethodPriceRule(name) {
+        this.browser
+            .click('.sw-shipping-detail-page__price-settings')
+            .waitForElementVisible('.context-prices__actions button')
+            .click('.context-prices__actions button')
+            .click('.context-prices__rule')
+            .waitForElementVisible('.sw-select__results-list')
+            .click('.sw-select-option--0')
+            .expect.element('.sw-card__title').to.have.text.that.contains('Ruler');
+
+        this.browser
+            .waitForElementVisible('.context-prices__prices')
+            .fillField(`${this.elements.gridRow}--0 input[name=sw-field--item-quantityEnd]`, '20')
+            .fillField(`${this.elements.gridRow}--0 input[name=sw-field--item-price]`, '10')
+            .fillField(`${this.elements.gridRow}--1 input[name=sw-field--item-price]`, '8')
             .click(this.elements.shippingSaveAction)
             .checkNotification(`Shipping rate "${name}" has been saved successfully.`);
     }

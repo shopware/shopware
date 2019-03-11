@@ -42,7 +42,7 @@ export default {
 
         progressClasses() {
             return {
-                'is--empty': this.value < 1
+                'sw-progress-bar__value--no-transition': this.value < 1 || this.value >= this.maxValue
             };
         }
     }

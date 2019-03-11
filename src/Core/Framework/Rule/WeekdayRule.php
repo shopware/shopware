@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Framework\Rule;
 
-use Shopware\Core\Content\Rule\Exception\UnsupportedOperatorException;
+use Shopware\Core\Framework\Rule\Exception\UnsupportedOperatorException;
 use Symfony\Component\Validator\Constraints\Choice;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Range;

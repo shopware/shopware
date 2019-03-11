@@ -613,7 +613,7 @@ class StorefrontCustomerControllerTest extends TestCase
             [
                 'id' => $productId,
                 'name' => 'Test',
-                'price' => ['gross' => 10, 'net' => 9],
+                'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
                 'manufacturer' => ['name' => 'test'],
                 'tax' => ['taxRate' => 17, 'name' => 'with id'],
             ],

@@ -74,10 +74,10 @@ class CompositeEntitySearcherTest extends TestCase
         $filterId = Uuid::uuid4()->getHex();
 
         $this->productRepository->upsert([
-            ['id' => $productId1, 'name' => "${filterId}_test ${filterId}_product 1", 'price' => ['gross' => 10, 'net' => 9], 'tax' => ['name' => 'test', 'taxRate' => 5], 'manufacturer' => ['name' => 'test']],
-            ['id' => $productId2, 'name' => "${filterId}_test ${filterId}_product 2", 'price' => ['gross' => 10, 'net' => 9], 'tax' => ['name' => 'test', 'taxRate' => 5], 'manufacturer' => ['name' => 'test']],
-            ['id' => Uuid::uuid4()->getHex(), 'name' => 'notmatch', 'price' => ['gross' => 10, 'net' => 9], 'tax' => ['name' => 'notmatch', 'taxRate' => 5], 'manufacturer' => ['name' => 'notmatch']],
-            ['id' => Uuid::uuid4()->getHex(), 'name' => 'notmatch', 'price' => ['gross' => 10, 'net' => 9], 'tax' => ['name' => 'notmatch', 'taxRate' => 5], 'manufacturer' => ['name' => 'notmatch']],
+            ['id' => $productId1, 'name' => "${filterId}_test ${filterId}_product 1", 'price' => ['gross' => 10, 'net' => 9, 'linked' => false], 'tax' => ['name' => 'test', 'taxRate' => 5], 'manufacturer' => ['name' => 'test']],
+            ['id' => $productId2, 'name' => "${filterId}_test ${filterId}_product 2", 'price' => ['gross' => 10, 'net' => 9, 'linked' => false], 'tax' => ['name' => 'test', 'taxRate' => 5], 'manufacturer' => ['name' => 'test']],
+            ['id' => Uuid::uuid4()->getHex(), 'name' => 'notmatch', 'price' => ['gross' => 10, 'net' => 9, 'linked' => false], 'tax' => ['name' => 'notmatch', 'taxRate' => 5], 'manufacturer' => ['name' => 'notmatch']],
+            ['id' => Uuid::uuid4()->getHex(), 'name' => 'notmatch', 'price' => ['gross' => 10, 'net' => 9, 'linked' => false], 'tax' => ['name' => 'notmatch', 'taxRate' => 5], 'manufacturer' => ['name' => 'notmatch']],
         ], $this->context);
 
         $result = $this->search->search("${filterId}_test ${filterId}_product", 20, $this->context, $this->userId);
@@ -96,10 +96,10 @@ class CompositeEntitySearcherTest extends TestCase
         static::assertSame($secondScore, $firstScore);
 
         $this->productRepository->update([
-            ['id' => $productId2, 'price' => ['gross' => 15, 'net' => 1]],
-            ['id' => $productId2, 'price' => ['gross' => 20, 'net' => 1]],
-            ['id' => $productId2, 'price' => ['gross' => 25, 'net' => 1]],
-            ['id' => $productId2, 'price' => ['gross' => 30, 'net' => 1]],
+            ['id' => $productId2, 'price' => ['gross' => 15, 'net' => 1, 'linked' => false]],
+            ['id' => $productId2, 'price' => ['gross' => 20, 'net' => 1, 'linked' => false]],
+            ['id' => $productId2, 'price' => ['gross' => 25, 'net' => 1, 'linked' => false]],
+            ['id' => $productId2, 'price' => ['gross' => 30, 'net' => 1, 'linked' => false]],
         ], $this->context);
 
         $changes = $this->getVersionData(ProductDefinition::getEntityName(), $productId2, Defaults::LIVE_VERSION);

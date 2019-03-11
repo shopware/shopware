@@ -38,12 +38,12 @@ class ProductActionControllerTest extends TestCase
             'id' => $id,
             'name' => 'test',
             'tax' => ['name' => 'test', 'taxRate' => 15],
-            'price' => ['gross' => 10, 'net' => 9],
+            'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
             'manufacturer' => ['name' => 'test'],
             'configurators' => [
                 [
                     'id' => $redId,
-                    'price' => ['gross' => 50, 'net' => 25],
+                    'price' => ['gross' => 50, 'net' => 25, 'linked' => false],
                     'option' => [
                         'id' => $redId,
                         'name' => 'red',
@@ -52,7 +52,7 @@ class ProductActionControllerTest extends TestCase
                 ],
                 [
                     'id' => $blueId,
-                    'price' => ['gross' => 100, 'net' => 90],
+                    'price' => ['gross' => 100, 'net' => 90, 'linked' => false],
                     'option' => [
                         'id' => $blueId,
                         'name' => 'blue',

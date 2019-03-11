@@ -57,7 +57,7 @@ class ManyToManyAssociationFieldTest extends TestCase
         $data = [
             'id' => $productId->getHex(),
             'name' => 'test',
-            'price' => ['gross' => 15, 'net' => 10],
+            'price' => ['gross' => 15, 'net' => 10, 'linked' => false],
             'manufacturer' => ['name' => 'test'],
             'tax' => ['name' => 'test', 'taxRate' => 15],
             'categories' => [
@@ -83,7 +83,7 @@ class ManyToManyAssociationFieldTest extends TestCase
         $data = [
             'id' => $id->getHex(),
             'name' => 'test',
-            'price' => ['gross' => 15, 'net' => 10],
+            'price' => ['gross' => 15, 'net' => 10, 'linked' => false],
             'manufacturer' => ['name' => 'test'],
             'tax' => ['name' => 'test', 'taxRate' => 15],
             'categories' => [

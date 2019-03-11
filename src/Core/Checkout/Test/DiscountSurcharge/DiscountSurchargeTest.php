@@ -292,7 +292,7 @@ class DiscountSurchargeTest extends TestCase
                 'id' => $id,
                 'name' => $name,
                 'manufacturer' => ['name' => 'test'],
-                'price' => ['gross' => $grossPrice, 'net' => $netPrice],
+                'price' => ['gross' => $grossPrice, 'net' => $netPrice, 'linked' => false],
                 'tax' => ['name' => 'test', 'taxRate' => $taxRate],
             ],
         ], Context::createDefaultContext());

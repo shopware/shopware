@@ -42,7 +42,7 @@ class ProductControllerTest extends TestCase
             [
                 'id' => Uuid::uuid4()->getHex(),
                 'name' => 'Test',
-                'price' => ['gross' => 10, 'net' => 9],
+                'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
                 'manufacturer' => ['id' => $manufacturerId, 'name' => 'test'],
                 'tax' => ['id' => $taxId, 'taxRate' => 17, 'name' => 'with id'],
                 'visibilities' => [
@@ -86,7 +86,7 @@ class ProductControllerTest extends TestCase
             [
                 'id' => $productId,
                 'name' => 'Test',
-                'price' => ['gross' => 10, 'net' => 9],
+                'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
                 'manufacturer' => ['id' => $manufacturerId, 'name' => 'test'],
                 'tax' => ['id' => $taxId, 'taxRate' => 17, 'name' => 'with id'],
                 'visibilities' => [

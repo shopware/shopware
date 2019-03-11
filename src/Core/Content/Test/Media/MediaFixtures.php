@@ -93,7 +93,7 @@ trait MediaFixtures
                         'id' => Uuid::uuid4()->getHex(),
                         'product' => [
                             'id' => Uuid::uuid4()->getHex(),
-                            'price' => ['gross' => 10, 'net' => 9],
+                            'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
                             'manufacturer' => [
                                 'name' => 'test',
                             ],

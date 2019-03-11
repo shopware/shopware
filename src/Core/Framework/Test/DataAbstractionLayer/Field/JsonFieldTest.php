@@ -112,7 +112,7 @@ EOF;
         $data = [
             'id' => $id->getHex(),
             'name' => 'test',
-            'price' => ['gross' => 15],
+            'price' => ['gross' => 15, 'linked' => false],
             'manufacturer' => ['name' => 'test'],
             'tax' => ['name' => 'test', 'taxRate' => 15],
             'categories' => [
@@ -142,7 +142,7 @@ EOF;
         $data = [
             'id' => $id->getHex(),
             'name' => 'test',
-            'price' => ['foo' => 'bar'],
+            'price' => ['foo' => 'bar', 'linked' => false],
             'manufacturer' => ['name' => 'test'],
             'tax' => ['name' => 'test', 'taxRate' => 15],
             'categories' => [
@@ -180,7 +180,7 @@ EOF;
         $data = [
             'id' => $id->getHex(),
             'name' => 'test',
-            'price' => ['gross' => 15, 'net' => 'strings are not allowed'],
+            'price' => ['gross' => 15, 'net' => 'strings are not allowed', 'linked' => false],
             'manufacturer' => ['name' => 'test'],
             'tax' => ['name' => 'test', 'taxRate' => 15],
             'categories' => [
@@ -210,7 +210,7 @@ EOF;
         $data = [
             'id' => $id->getHex(),
             'name' => 'test',
-            'price' => ['gross' => 15, 'net' => 13.2, 'fail' => 'me'],
+            'price' => ['gross' => 15, 'net' => 13.2, 'linked' => false, 'fail' => 'me'],
             'manufacturer' => ['name' => 'test'],
             'tax' => ['name' => 'test', 'taxRate' => 15],
             'categories' => [

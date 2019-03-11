@@ -45,7 +45,7 @@ class ProductApiTest extends TestCase
         $data = [
             'id' => $id,
             'name' => 'price test',
-            'price' => ['gross' => 15, 'net' => 10],
+            'price' => ['gross' => 15, 'net' => 10, 'linked' => false],
             'manufacturer' => ['name' => 'test'],
             'tax' => ['name' => 'test', 'taxRate' => 15],
             'priceRules' => [
@@ -54,7 +54,7 @@ class ProductApiTest extends TestCase
                     'currencyId' => Defaults::CURRENCY,
                     'quantityStart' => 1,
                     'ruleId' => $ruleA,
-                    'price' => ['gross' => 100, 'net' => 100],
+                    'price' => ['gross' => 100, 'net' => 100, 'linked' => false],
                 ],
             ],
         ];
@@ -82,7 +82,7 @@ class ProductApiTest extends TestCase
                 [
                     'id' => $id,
                     'quantityEnd' => 20,
-                    'price' => ['gross' => 5000, 'net' => 4000],
+                    'price' => ['gross' => 5000, 'net' => 4000, 'linked' => false],
                 ],
 
                 //add new graduation to existing rule
@@ -90,7 +90,7 @@ class ProductApiTest extends TestCase
                     'currencyId' => Defaults::CURRENCY,
                     'quantityStart' => 21,
                     'ruleId' => $ruleA,
-                    'price' => ['gross' => 10, 'net' => 50],
+                    'price' => ['gross' => 10, 'net' => 50, 'linked' => false],
                 ],
             ],
         ];
@@ -124,7 +124,7 @@ class ProductApiTest extends TestCase
                     'currencyId' => Defaults::CURRENCY,
                     'quantityStart' => 1,
                     'ruleId' => $ruleB,
-                    'price' => ['gross' => 50, 'net' => 50],
+                    'price' => ['gross' => 50, 'net' => 50, 'linked' => false],
                 ],
             ],
         ];
@@ -158,7 +158,7 @@ class ProductApiTest extends TestCase
         $data = [
             'id' => $id,
             'name' => 'price test',
-            'price' => ['gross' => 15, 'net' => 10],
+            'price' => ['gross' => 15, 'net' => 10, 'linked' => false],
             'manufacturer' => ['name' => 'test'],
             'tax' => ['name' => 'test', 'taxRate' => 15],
             'descriptionLong' => $description,

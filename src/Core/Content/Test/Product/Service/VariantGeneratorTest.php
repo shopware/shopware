@@ -52,12 +52,12 @@ class VariantGeneratorTest extends TestCase
         $data = [
             'id' => $id,
             'name' => 'test',
-            'price' => ['gross' => 10, 'net' => 10],
+            'price' => ['gross' => 10, 'net' => 10, 'linked' => false],
             'tax' => ['name' => 'test', 'taxRate' => 19],
             'manufacturer' => ['name' => 'test'],
             'configurators' => [
                 [
-                    'price' => ['gross' => 50, 'net' => 25],
+                    'price' => ['gross' => 50, 'net' => 25, 'linked' => false],
                     'option' => [
                         'id' => $redId,
                         'name' => 'red',
@@ -65,7 +65,7 @@ class VariantGeneratorTest extends TestCase
                     ],
                 ],
                 [
-                    'price' => ['gross' => 100, 'net' => 90],
+                    'price' => ['gross' => 100, 'net' => 90, 'linked' => false],
                     'option' => [
                         'id' => $blueId,
                         'name' => 'blue',
@@ -119,7 +119,7 @@ class VariantGeneratorTest extends TestCase
         $data = [
             'id' => $id,
             'name' => 'test',
-            'price' => ['gross' => 50, 'net' => 25],
+            'price' => ['gross' => 50, 'net' => 25, 'linked' => false],
             'tax' => ['name' => 'test', 'taxRate' => 19],
             'manufacturer' => ['name' => 'test'],
             'configurators' => [
@@ -202,7 +202,7 @@ class VariantGeneratorTest extends TestCase
         $data = [
             'id' => $id,
             'name' => 'test',
-            'price' => ['gross' => 50, 'net' => 25],
+            'price' => ['gross' => 50, 'net' => 25, 'linked' => false],
             'tax' => ['name' => 'test', 'taxRate' => 19],
             'manufacturer' => ['name' => 'test'],
             'configurators' => [

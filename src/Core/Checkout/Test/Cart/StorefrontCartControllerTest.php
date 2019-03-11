@@ -92,7 +92,7 @@ class StorefrontCartControllerTest extends TestCase
             [
                 'id' => $productId,
                 'name' => 'Test',
-                'price' => ['gross' => 10, 'net' => 9],
+                'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
                 'manufacturer' => ['id' => $this->manufacturerId, 'name' => 'test'],
                 'tax' => ['id' => $this->taxId, 'taxRate' => 17, 'name' => 'with id'],
             ],
@@ -126,14 +126,14 @@ class StorefrontCartControllerTest extends TestCase
             [
                 'id' => $productId1,
                 'name' => 'Test 1',
-                'price' => ['gross' => 10, 'net' => 9],
+                'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
                 'manufacturer' => ['id' => $this->manufacturerId, 'name' => 'test'],
                 'tax' => ['id' => $this->taxId, 'taxRate' => 17, 'name' => 'with id'],
             ],
             [
                 'id' => $productId2,
                 'name' => 'Test 2',
-                'price' => ['gross' => 20, 'net' => 9],
+                'price' => ['gross' => 20, 'net' => 9, 'linked' => false],
                 'manufacturerId' => $this->manufacturerId,
                 'taxId' => $this->taxId,
             ],
@@ -161,7 +161,7 @@ class StorefrontCartControllerTest extends TestCase
             [
                 'id' => $productId1,
                 'name' => 'Test 1',
-                'price' => ['gross' => 10, 'net' => 9],
+                'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
                 'manufacturer' => ['id' => $this->manufacturerId, 'name' => 'test'],
                 'tax' => ['id' => $this->taxId, 'taxRate' => 17, 'name' => 'with id'],
             ],
@@ -191,7 +191,7 @@ class StorefrontCartControllerTest extends TestCase
             [
                 'id' => $productId1,
                 'name' => 'Test 1',
-                'price' => ['gross' => 10, 'net' => 9],
+                'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
                 'manufacturer' => ['id' => $this->manufacturerId, 'name' => 'test'],
                 'tax' => ['id' => $this->taxId, 'taxRate' => 17, 'name' => 'with id'],
             ],
@@ -221,7 +221,7 @@ class StorefrontCartControllerTest extends TestCase
             [
                 'id' => $productId1,
                 'name' => 'Test 1',
-                'price' => ['gross' => 10, 'net' => 9],
+                'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
                 'manufacturer' => ['id' => $this->manufacturerId, 'name' => 'test'],
                 'tax' => ['id' => $this->taxId, 'taxRate' => 17, 'name' => 'with id'],
             ],
@@ -250,14 +250,14 @@ class StorefrontCartControllerTest extends TestCase
             [
                 'id' => $productId1,
                 'name' => 'Test 1',
-                'price' => ['gross' => 10, 'net' => 9],
+                'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
                 'manufacturer' => ['id' => $this->manufacturerId, 'name' => 'test'],
                 'tax' => ['id' => $this->taxId, 'taxRate' => 17, 'name' => 'with id'],
             ],
             [
                 'id' => $productId2,
                 'name' => 'Test 2',
-                'price' => ['gross' => 20, 'net' => 9],
+                'price' => ['gross' => 20, 'net' => 9, 'linked' => false],
                 'manufacturerId' => $this->manufacturerId,
                 'taxId' => $this->taxId,
             ],
@@ -312,14 +312,14 @@ class StorefrontCartControllerTest extends TestCase
             [
                 'id' => $productId1,
                 'name' => 'Test 1',
-                'price' => ['gross' => 10, 'net' => 9],
+                'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
                 'manufacturer' => ['id' => $this->manufacturerId, 'name' => 'test'],
                 'tax' => ['id' => $this->taxId, 'taxRate' => 17, 'name' => 'with id'],
             ],
             [
                 'id' => $productId2,
                 'name' => 'Test 2',
-                'price' => ['gross' => 20, 'net' => 9],
+                'price' => ['gross' => 20, 'net' => 9, 'linked' => false],
                 'manufacturerId' => $this->manufacturerId,
                 'taxId' => $this->taxId,
             ],
@@ -362,7 +362,7 @@ class StorefrontCartControllerTest extends TestCase
             [
                 'id' => $productId,
                 'name' => 'Test',
-                'price' => ['gross' => 10, 'net' => 9],
+                'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
                 'manufacturer' => ['id' => $this->manufacturerId, 'name' => 'test'],
                 'tax' => ['id' => $this->taxId, 'taxRate' => 17, 'name' => 'with id'],
             ],
@@ -434,7 +434,7 @@ class StorefrontCartControllerTest extends TestCase
             [
                 'id' => $productId,
                 'name' => 'Test',
-                'price' => ['gross' => 10, 'net' => 9],
+                'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
                 'manufacturer' => ['id' => $this->manufacturerId, 'name' => 'test'],
                 'tax' => ['id' => $this->taxId, 'taxRate' => 17, 'name' => 'with id'],
             ],

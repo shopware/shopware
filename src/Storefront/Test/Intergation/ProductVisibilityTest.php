@@ -234,7 +234,7 @@ class ProductVisibilityTest extends TestCase
         return [
             'id' => $id,
             'name' => 'test',
-            'price' => ['gross' => 15, 'net' => 10],
+            'price' => ['gross' => 15, 'net' => 10, 'linked' => false],
             'manufacturer' => ['name' => 'test'],
             'tax' => ['name' => 'test', 'taxRate' => 15],
             'visibilities' => $mapped,

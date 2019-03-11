@@ -80,7 +80,7 @@ class EntityReaderTest extends TestCase
 
         $product = [
             'id' => $id,
-            'price' => ['gross' => 10, 'net' => 9],
+            'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
             'manufacturer' => ['name' => 'test'],
             'tax' => ['taxRate' => 13, 'name' => 'green'],
             'translations' => [
@@ -138,7 +138,7 @@ class EntityReaderTest extends TestCase
 
         $product = [
             'id' => $id,
-            'price' => ['gross' => 10, 'net' => 9],
+            'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
             'manufacturer' => ['name' => 'test'],
             'tax' => ['taxRate' => 13, 'name' => 'green'],
             'translations' => [
@@ -267,7 +267,7 @@ class EntityReaderTest extends TestCase
         $products = [
             [
                 'id' => $parentId,
-                'price' => ['gross' => 10, 'net' => 9],
+                'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
                 'manufacturer' => ['name' => 'test'],
                 'tax' => ['name' => 'test', 'taxRate' => 10],
                 'name' => 'parent',
@@ -277,13 +277,13 @@ class EntityReaderTest extends TestCase
                         'quantityStart' => 1,
                         'quantityEnd' => 20,
                         'ruleId' => $ruleA,
-                        'price' => ['gross' => 100, 'net' => 100],
+                        'price' => ['gross' => 100, 'net' => 100, 'linked' => false],
                     ],
                     [
                         'currencyId' => Defaults::CURRENCY,
                         'quantityStart' => 21,
                         'ruleId' => $ruleA,
-                        'price' => ['gross' => 10, 'net' => 50],
+                        'price' => ['gross' => 10, 'net' => 50, 'linked' => false],
                     ],
                 ],
             ],
@@ -301,7 +301,7 @@ class EntityReaderTest extends TestCase
                         'currencyId' => Defaults::CURRENCY,
                         'quantityStart' => 1,
                         'ruleId' => $ruleA,
-                        'price' => ['gross' => 10, 'net' => 50],
+                        'price' => ['gross' => 10, 'net' => 50, 'linked' => false],
                     ],
                 ],
             ],
@@ -348,7 +348,7 @@ class EntityReaderTest extends TestCase
         $products = [
             [
                 'id' => $parentId,
-                'price' => ['gross' => 10, 'net' => 9],
+                'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
                 'manufacturer' => ['name' => 'test'],
                 'tax' => ['name' => 'test', 'taxRate' => 10],
                 'name' => 'parent',
@@ -358,13 +358,13 @@ class EntityReaderTest extends TestCase
                         'quantityStart' => 1,
                         'quantityEnd' => 20,
                         'ruleId' => $ruleA,
-                        'price' => ['gross' => 100, 'net' => 100],
+                        'price' => ['gross' => 100, 'net' => 100, 'linked' => false],
                     ],
                     [
                         'currencyId' => Defaults::CURRENCY,
                         'quantityStart' => 21,
                         'ruleId' => $ruleA,
-                        'price' => ['gross' => 10, 'net' => 50],
+                        'price' => ['gross' => 10, 'net' => 50, 'linked' => false],
                     ],
                 ],
             ],
@@ -382,7 +382,7 @@ class EntityReaderTest extends TestCase
                         'currencyId' => Defaults::CURRENCY,
                         'quantityStart' => 1,
                         'ruleId' => $ruleA,
-                        'price' => ['gross' => 10, 'net' => 50],
+                        'price' => ['gross' => 10, 'net' => 50, 'linked' => false],
                     ],
                 ],
             ],
@@ -438,7 +438,7 @@ class EntityReaderTest extends TestCase
         $products = [
             [
                 'id' => $parentId,
-                'price' => ['gross' => 10, 'net' => 9],
+                'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
                 'manufacturer' => ['name' => 'test'],
                 'tax' => ['name' => 'test', 'taxRate' => 10],
                 'name' => 'parent',
@@ -536,7 +536,7 @@ class EntityReaderTest extends TestCase
         $products = [
             [
                 'id' => $parentId,
-                'price' => ['gross' => 10, 'net' => 9],
+                'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
                 'manufacturer' => ['name' => 'test'],
                 'tax' => ['name' => 'test', 'taxRate' => 10],
                 'name' => 'parent',
@@ -995,7 +995,7 @@ class EntityReaderTest extends TestCase
 
         $product1 = [
             'id' => $id1,
-            'price' => ['gross' => 10, 'net' => 9],
+            'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
             'active' => true,
             'manufacturer' => ['name' => 'test'],
             'name' => 'test',
@@ -1004,7 +1004,7 @@ class EntityReaderTest extends TestCase
 
         $product2 = [
             'id' => $id2,
-            'price' => ['gross' => 10, 'net' => 9],
+            'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
             'active' => false,
             'manufacturer' => ['name' => 'test'],
             'name' => 'test',
@@ -1013,7 +1013,7 @@ class EntityReaderTest extends TestCase
 
         $product3 = [
             'id' => $id3,
-            'price' => ['gross' => 10, 'net' => 9],
+            'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
             'active' => false,
             'manufacturer' => ['name' => 'test'],
             'name' => 'test',
@@ -1063,7 +1063,7 @@ class EntityReaderTest extends TestCase
                 [
                     'id' => $productId,
                     'name' => 'test media',
-                    'price' => ['gross' => 10, 'net' => 9],
+                    'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
                     'active' => true,
                     'tax' => ['taxRate' => 13, 'name' => 'green'],
                     'categories' => [
@@ -1106,7 +1106,7 @@ class EntityReaderTest extends TestCase
 
         $product1 = [
             'id' => $id1,
-            'price' => ['gross' => 10, 'net' => 9],
+            'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
             'active' => true,
             'manufacturer' => ['name' => 'test'],
             'name' => 'test',
@@ -1115,7 +1115,7 @@ class EntityReaderTest extends TestCase
 
         $product2 = [
             'id' => $id2,
-            'price' => ['gross' => 10, 'net' => 9],
+            'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
             'active' => false,
             'manufacturer' => ['name' => 'test'],
             'name' => 'test',
@@ -1124,7 +1124,7 @@ class EntityReaderTest extends TestCase
 
         $product3 = [
             'id' => $id3,
-            'price' => ['gross' => 10, 'net' => 9],
+            'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
             'active' => false,
             'manufacturer' => ['name' => 'test'],
             'name' => 'test',
@@ -1180,7 +1180,7 @@ class EntityReaderTest extends TestCase
 
         $product1 = [
             'id' => $id1,
-            'price' => ['gross' => 10, 'net' => 9],
+            'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
             'active' => true,
             'manufacturer' => ['name' => 'test'],
             'name' => 'test',
@@ -1189,7 +1189,7 @@ class EntityReaderTest extends TestCase
 
         $product2 = [
             'id' => $id2,
-            'price' => ['gross' => 10, 'net' => 9],
+            'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
             'active' => false,
             'manufacturer' => ['name' => 'test'],
             'name' => 'test',
@@ -1198,7 +1198,7 @@ class EntityReaderTest extends TestCase
 
         $product3 = [
             'id' => $id3,
-            'price' => ['gross' => 10, 'net' => 9],
+            'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
             'active' => false,
             'manufacturer' => ['name' => 'test'],
             'name' => 'test',
@@ -1250,7 +1250,7 @@ class EntityReaderTest extends TestCase
 
         $product1 = [
             'id' => $id1,
-            'price' => ['gross' => 10, 'net' => 9],
+            'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
             'active' => true,
             'manufacturer' => ['name' => 'test'],
             'name' => 'A',
@@ -1259,7 +1259,7 @@ class EntityReaderTest extends TestCase
 
         $product2 = [
             'id' => $id2,
-            'price' => ['gross' => 10, 'net' => 9],
+            'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
             'active' => false,
             'manufacturer' => ['name' => 'test'],
             'name' => 'B',
@@ -1268,7 +1268,7 @@ class EntityReaderTest extends TestCase
 
         $product3 = [
             'id' => $id3,
-            'price' => ['gross' => 10, 'net' => 9],
+            'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
             'active' => false,
             'manufacturer' => ['name' => 'test'],
             'name' => 'C',
@@ -1355,7 +1355,7 @@ class EntityReaderTest extends TestCase
         $products = [
             [
                 'id' => $id1,
-                'price' => ['gross' => 10, 'net' => 9],
+                'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
                 'active' => true,
                 'manufacturer' => ['name' => 'test'],
                 'name' => 'test',
@@ -1374,7 +1374,7 @@ class EntityReaderTest extends TestCase
             ],
             [
                 'id' => $id2,
-                'price' => ['gross' => 10, 'net' => 9],
+                'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
                 'active' => false,
                 'manufacturer' => ['name' => 'test'],
                 'name' => 'test',
@@ -1422,7 +1422,7 @@ class EntityReaderTest extends TestCase
         $products = [
             [
                 'id' => $id1,
-                'price' => ['gross' => 10, 'net' => 9],
+                'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
                 'active' => true,
                 'manufacturer' => ['name' => 'test'],
                 'name' => 'test',
@@ -1430,7 +1430,7 @@ class EntityReaderTest extends TestCase
             ],
             [
                 'id' => $id2,
-                'price' => ['gross' => 10, 'net' => 9],
+                'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
                 'active' => false,
                 'manufacturer' => ['name' => 'test'],
                 'name' => 'test',
@@ -1458,7 +1458,7 @@ class EntityReaderTest extends TestCase
 
         $data = [
             'id' => Uuid::uuid4()->getHex(),
-            'price' => ['gross' => 10, 'net' => 9],
+            'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
             'active' => true,
             'manufacturer' => ['name' => 'test'],
             'name' => 'test',

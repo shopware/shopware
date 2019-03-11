@@ -1,4 +1,5 @@
 import EntityProxy from 'src/core/data/EntityProxy';
+import CriteriaFactory from 'src/core/factory/criteria.factory';
 import { itAsync } from '../../../async-helper';
 
 const State = Shopware.State;
@@ -297,5 +298,75 @@ describe('core/data/EntityProxy.js', () => {
         expect(changes.price.gross).to.be.equal(90);
 
         expect(changes.testProp).to.be.an('undefined');
+    });
+
+    itAsync('should hydrate associations as EntityProxy', (done) => {
+        const productEntity = new EntityProxy('product', serviceContainer.productService);
+
+        productEntity.setLocalData({
+            name: 'Test Product',
+            price: {
+                gross: 90,
+                net: 80
+            }
+        });
+
+        const taxEntity = new EntityProxy('tax', serviceContainer.taxService);
+        taxEntity.setLocalData({ name: 'Test tax rate', taxRate: 99.98 });
+        productEntity.tax = taxEntity.getChanges();
+        productEntity.tax.id = taxEntity.id;
+
+        const manufacturerEntity = new EntityProxy('product_manufacturer', serviceContainer.productManufacturerService);
+        manufacturerEntity.setLocalData({ name: 'Test manufacturer' });
+        productEntity.manufacturer = manufacturerEntity.getChanges();
+        productEntity.manufacturer.id = manufacturerEntity.id;
+
+        const categoryEntity = productEntity.getAssociation('categories').create();
+        categoryEntity.name = 'Test category';
+
+        productEntity.save().then(() => {
+            console.log('First Request');
+            serviceContainer.productService.getList({
+                page: 1,
+                limit: 1,
+                criteria: CriteriaFactory.equals('id', productEntity.id),
+                associations: {
+                    categories: {
+                        page: 1,
+                        limit: 1
+                    }
+                }
+            }).then((response) => {
+                const data = response.data[0];
+                const loadedProduct = new EntityProxy('product', serviceContainer.productService);
+
+                loadedProduct.setData(data, false, true);
+                const category = loadedProduct.categories[0];
+
+                expect(category.draft).to.be.an('object');
+                expect(Object.getOwnPropertyDescriptor(category, 'draft')).to.be.an('undefined');
+
+                productEntity.delete(true)
+                    .then(() => {
+                        return manufacturerEntity.delete(true);
+                    })
+                    .then(() => {
+                        return taxEntity.delete(true);
+                    })
+                    .then(() => {
+                        return serviceContainer.categoryService.delete(category.id);
+                    })
+                    .then(() => {
+                        done();
+                    })
+                    .catch((error) => {
+                        done(error);
+                    });
+            }).catch((err) => {
+                done(err);
+            });
+        }).catch((err) => {
+            done(err);
+        });
     });
 });

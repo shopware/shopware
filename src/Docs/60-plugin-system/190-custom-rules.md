@@ -77,7 +77,7 @@ Component.extend('swag-example', 'sw-condition-base', {
 Your component extends the 'sw-condition-base' component and will replace the 'sw_condition_fields' block in the twig template.
 
 ```twig
-{% block sw_condition_fields %}
+{% block sw_condition_base_fields %}
     ...
 {% endblock %}
 ```

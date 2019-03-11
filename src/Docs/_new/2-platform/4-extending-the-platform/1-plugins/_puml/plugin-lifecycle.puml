@@ -1,0 +1,66 @@
+@startuml
+skinparam ArrowColor #189EFF
+skinparam ActivityBackgroundColor #189EFF
+skinparam ActivityBorderColor #189EFF
+skinparam ActivityFontColor white
+skinparam ActivityDiamondBackgroundColor #189EFF
+skinparam ActivityDiamondBorderColor #189EFF
+skinparam ActivityDiamondFontColor white
+
+start
+:Request;
+split
+->Install plugin request;
+:Validate requirements;
+-> Check for requirements \nin composer.json;
+if (Requirements met?) then (Yes)
+else (No)
+end
+endif
+:Install;
+-> E.g. install:\n- payment methods\n- cronjobs;
+:Apply migrations;
+->Setup tables if necessary;
+:postInstall;
+if (\nInstalled via CLI \nusing **--activate** parameter?\n) then (Yes)
+:activate;
+:Copy plugin assets;
+else (No)
+endif
+->Plugin fully installed;
+stop;
+split again
+-> Update plugin \nrequest;
+:Validate requirements;
+-> Check for requirements \nin composer.json;
+if (Requirements met?) then (Yes)
+else (No)
+end
+endif
+:update;
+:Apply migrations;
+-> Update plugin\nversion done;
+:postUpdate;
+stop
+split again
+-> Activate plugin \nrequest;
+:activate;
+->E.g. activate\npayment method;
+:Copy plugin assets;
+stop
+split again
+-> Deactivate plugin \nrequest;
+:deactivate;
+->E.g. deactivate\npayment method;
+:Remove plugin assets;
+stop
+split again
+-> Uninstall plugin \nrequest;
+:uninstall;
+-> E.g. uninstall cronjobs;
+if (Safe uninstall?) then (No)
+:Remove migrations;
+else (Yes)
+endif
+stop
+@enduml

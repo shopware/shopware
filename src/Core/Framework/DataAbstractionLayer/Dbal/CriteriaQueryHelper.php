@@ -3,11 +3,13 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer\Dbal;
 
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Exception\InvalidSortingDirectionException;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Parser\SqlQueryParser;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\ScoreQuery;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 
 trait CriteriaQueryHelper
 {
@@ -108,6 +110,8 @@ trait CriteriaQueryHelper
     {
         /* @var string|EntityDefinition $definition */
         foreach ($criteria->getSorting() as $sorting) {
+            $this->validateSortingDirection($sorting->getDirection());
+
             if ($sorting->getField() === '_score') {
                 $query->addOrderBy('_score', $sorting->getDirection());
                 continue;
@@ -187,5 +191,15 @@ trait CriteriaQueryHelper
         }
 
         return array_merge(...$fields);
+    }
+
+    /**
+     * @throws InvalidSortingDirectionException
+     */
+    private function validateSortingDirection(string $direction)
+    {
+        if (!in_array(strtoupper($direction), [FieldSorting::ASCENDING, FieldSorting::DESCENDING], true)) {
+            throw new InvalidSortingDirectionException($direction);
+        }
     }
 }

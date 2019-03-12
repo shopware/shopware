@@ -61,6 +61,7 @@ class PaymentMethodDefinition extends EntityDefinition
             new StringField('class', 'class'),
             new FloatField('percentage_surcharge', 'percentageSurcharge'),
             new FloatField('absolute_surcharge', 'absoluteSurcharge'),
+            // todo: maybe use single selection for snippets
             new StringField('surcharge_string', 'surchargeString'),
             new IntField('position', 'position'),
             new BoolField('active', 'active'),

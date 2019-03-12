@@ -24,17 +24,28 @@
       "titleSaveSuccess": "Success",
       "messageSaveSuccess": "Payment method \"{name}\" has been saved successfully.",
       "labelName": "Name",
+      "labelPosition": "Position",
+      "labelPluginId": "Plugin",
       "labelTechnicalName": "Technical name",
       "labelActive": "Active",
-      "labelMobileInactive": "Inactive on smartphones",
       "labelAdditionalDescription": "Description",
       "labelHandler": "Handler",
+      "labelSetRules": "Rules",
+      "labelTemplate": "Template",
+      "labelAbsoluteSurcharge": "Absolute Surcharge",
+      "labelPercentageSurcharge": "Percentage Surcharge",
       "placeholderName": "Enter name",
+      "placeholderPosition": "Enter position",
+      "placeholderPluginId": "-",
       "placeholderTechnicalName": "Enter technical name",
       "placeholderAdditionalDescription": "Enter description",
       "placeholderHandler": "Enter handler",
+      "placeholderTemplate": "Enter template",
+      "placeholderAbsoluteSurcharge": "Enter absolute surcharge",
+      "placeholderPercentageSurcharge": "Enter percentage surcharge",
       "buttonCancel": "Cancel",
-      "buttonSave": "Save"
+      "buttonSave": "Save",
+      "percentageSurchargeSymbol" : "%"
     }
   }
 }

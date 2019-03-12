@@ -3,7 +3,7 @@
 
         {% block sw_settings_payment_detail_header %}
             <template slot="smart-bar-header">
-                <h2 v-if="paymentMethod.name">{{ paymentMethod.name }}</h2>
+                <h2 v-if="placeholder(paymentMethod, 'name', false)">{{ placeholder(paymentMethod, 'name', paymentMethod.name) }}</h2>
                 <h2 v-else>{{ $tc('sw-settings-payment.detail.textHeadline') }}</h2>
             </template>
         {% endblock %}
@@ -29,34 +29,69 @@
 
                 {% block sw_settings_payment_detail_content_card %}
                     <sw-card :title="$tc('sw-settings-payment.detail.titleCard')">
+                        <sw-container columns="repeat(auto-fit, minmax(250px, 1fr)" gap="0px 30px">
+                                {% block sw_settings_payment_detail_content_field_active %}
+                                    <sw-field type="checkbox"
+                                              :label="$tc('sw-settings-payment.detail.labelActive')"
+                                              v-model="paymentMethod.active">
+                                    </sw-field>
+                                {% endblock %}
+                        </sw-container>
 
                         <sw-container columns="repeat(auto-fit, minmax(250px, 1fr)" gap="0px 30px">
-                            {% block sw_settings_payment_detail_content_field_active %}
-                                <sw-field type="checkbox"
-                                          :label="$tc('sw-settings-payment.detail.labelActive')"
-                                          v-model="paymentMethod.active">
-                                </sw-field>
-                            {% endblock %}
+                                {% block sw_settings_payment_detail_content_field_name %}
+                                    <sw-field type="text"
+                                              :label="$tc('sw-settings-shipping.detail.labelName')"
+                                              :placeholder="placeholder(paymentMethod, 'name', $tc('sw-settings-payment.detail.placeholderName'))"
+                                              v-model="paymentMethod.name">
+                                    </sw-field>
+                                {% endblock %}
 
-                            {% block sw_settings_payment_detail_content_field_mobile_inactive %}
-                                <sw-field type="checkbox"
-                                          :label="$tc('sw-settings-payment.detail.labelMobileInactive')"
-                                          v-model="paymentMethod.mobileInactive">
-                                </sw-field>
-                            {% endblock %}
+                                {% block sw_settings_payment_detail_content_field_position %}
+                                    <sw-field type="number"
+                                              :label="$tc('sw-settings-payment.detail.labelPosition')"
+                                              :placeholder="$tc('sw-settings-payment.detail.placeholderPosition')"
+                                              v-model="paymentMethod.position">
+                                    </sw-field>
+                                {% endblock %}
+                        </sw-container>
 
-                            {% block sw_settings_payment_detail_content_field_name %}
-                                <sw-field type="text"
-                                          validation="required"
-                                          :label="$tc('sw-settings-payment.detail.labelName')"
-                                          :placeholder="$tc('sw-settings-payment.detail.placeholderName')"
-                                          v-model="paymentMethod.name">
-                                </sw-field>
-                            {% endblock %}
+                        <sw-container columns="repeat(auto-fit, minmax(250px, 1fr)" gap="0px 30px">
+                                {% block sw_settings_payment_detail_content_field_absolute_surcharge %}
+                                    <sw-field type="number"
+                                              :label="$tc('sw-settings-payment.detail.labelAbsoluteSurcharge')"
+                                              :placeholder="$tc('sw-settings-payment.detail.placeholderAbsoluteSurcharge')"
+                                              v-model="paymentMethod.absoluteSurcharge">
+                                    </sw-field>
+                                {% endblock %}
 
+                                {% block sw_settings_payment_detail_content_field_percentuage_surcharge %}
+                                    <sw-field type="number"
+                                              :label="$tc('sw-settings-payment.detail.labelPercentageSurcharge')"
+                                              :placeholder="$tc('sw-settings-payment.detail.placeholderPercentageSurcharge')"
+                                              v-model="paymentMethod.percentageSurcharge">
+                                        <span slot="suffix" slot-scope="slotProps">
+                                            <span v-html="$tc('sw-settings-payment.detail.percentageSurchargeSymbol')"></span>
+                                        </span>
+                                    </sw-field>
+                                {% endblock %}
+                        </sw-container>
+
+                        <sw-container columns="repeat(auto-fit, minmax(250px, 1fr)" gap="0px 30px">
+                            {% block sw_settings_payment_detail_content_field_additional_description %}
+                                <sw-text-editor
+                                        :label="$tc('sw-settings-payment.detail.labelAdditionalDescription')"
+                                        :placeholder="placeholder(paymentMethod, 'additionalDescription', $tc('sw-settings-payment.detail.placeholderAdditionalDescription'))"
+                                        v-model="paymentMethod.additionalDescription">
+                                </sw-text-editor>
+                            {% endblock %}
+                        </sw-container>
+
+                        <sw-container columns="repeat(auto-fit, minmax(250px, 1fr)" gap="0px 30px">
                             {% block sw_settings_payment_detail_content_field_technial_name %}
                                 <sw-field type="text"
                                           validation="required"
+                                          :disabled="paymentMethod.pluginId"
                                           :label="$tc('sw-settings-payment.detail.labelTechnicalName')"
                                           :placeholder="$tc('sw-settings-payment.detail.placeholderTechnicalName')"
                                           v-model="paymentMethod.technicalName">
@@ -65,21 +100,44 @@
 
                             {% block sw_settings_payment_detail_content_field_class %}
                                 <sw-field type="text"
+                                          validation="required"
+                                          :disabled="paymentMethod.pluginId"
                                           :label="$tc('sw-settings-payment.detail.labelHandler')"
                                           :placeholder="$tc('sw-settings-payment.detail.placeholderHandler')"
                                           v-model="paymentMethod.class">
                                 </sw-field>
                             {% endblock %}
+
+                            {% block sw_settings_payment_detail_content_field_tempalte %}
+                                <sw-field type="text"
+                                          :disabled="paymentMethod.pluginId"
+                                          :label="$tc('sw-settings-payment.detail.labelTemplate')"
+                                          :placeholder="$tc('sw-settings-payment.detail.placeholderTemplate')"
+                                          v-model="paymentMethod.template">
+                                </sw-field>
+                            {% endblock %}
+
+                            {% block sw_settings_payment_detail_content_field_plugin %}
+                                <sw-field type="number"
+                                          disabled="disabled"
+                                          :label="$tc('sw-settings-payment.detail.labelPluginId')"
+                                          :placeholder="$tc('sw-settings-payment.detail.placeholderPluginId')"
+                                          v-model="paymentMethod.pluginId">
+                                </sw-field>
+                            {% endblock %}
                         </sw-container>
 
-                        {% block sw_settings_payment_detail_content_field_additional_description %}
-                            <sw-text-editor
-                                    validation="required"
-                                    :label="$tc('sw-settings-payment.detail.labelAdditionalDescription')"
-                                    :placeholder="$tc('sw-settings-payment.detail.placeholderAdditionalDescription')"
-                                    v-model="paymentMethod.additionalDescription">
-                            </sw-text-editor>
-                        {% endblock %}
+                        <sw-container columns="repeat(auto-fit, minmax(250px, 1fr)" gap="0px 30px">
+                            {% block sw_settings_payment_detail_content_field_rule_selection %}
+                                <sw-select multi
+                                           :store="ruleStore"
+                                           :label="$tc('sw-settings-payment.detail.labelSetRules')"
+                                           :associationStore="paymentMethodRuleAssociation"
+                                           v-model="paymentMethod.availabilityRules"
+                                           id="rules">
+                                </sw-select>
+                            {% endblock %}
+                        </sw-container>
                     </sw-card>
                 {% endblock %}
             </sw-card-view>

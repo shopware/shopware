@@ -179,6 +179,12 @@ export default {
                     this.isLoadingSelections = value;
                 }
             }
+        },
+        // load data of the selected option when store changes
+        store() {
+            if (!this.multi) {
+                this.loadSelections();
+            }
         }
     },
 

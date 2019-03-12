@@ -63,6 +63,18 @@ class TimeRangeRuleTest extends TestCase
         static::assertFalse($match->matches());
     }
 
+    public function testOnNextDayConditionMatchesCorrect(): void
+    {
+        $now = new \DateTimeImmutable('02:46');
+        $rule = new TimeRangeRule($now);
+
+        $rule->assign(['fromTime' => '23:00', 'toTime' => '22:00']);
+
+        $match = $rule->match($this->createMock(RuleScope::class));
+
+        static::assertFalse($match->matches());
+    }
+
     public function testIfRuleIsConsistent(): void
     {
         $ruleId = Uuid::uuid4()->getHex();

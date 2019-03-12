@@ -3,7 +3,6 @@
 namespace Shopware\Core\Framework\Demodata\Generator;
 
 use Doctrine\DBAL\Connection;
-use function Flag\next1207;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Configuration\ConfigurationGroupDefinition;
 use Shopware\Core\Content\Media\Aggregate\MediaDefaultFolder\MediaDefaultFolderEntity;
@@ -154,10 +153,7 @@ class ProductGenerator implements DemodataGeneratorInterface
             $services = $this->createServices($context);
         }
 
-        $mediaFolderId = null;
-        if (next1207()) {
-            $mediaFolderId = $this->getOrCreateDefaultFolder($context);
-        }
+        $mediaFolderId = $this->getOrCreateDefaultFolder($context);
 
         $visibilities = $this->buildVisibilities();
 

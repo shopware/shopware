@@ -1,7 +1,6 @@
 import { Mixin, State } from 'src/core/shopware';
 import fileReader from 'src/core/service/utils/file-reader.utils';
 import CriteriaFactory from 'src/core/factory/criteria.factory';
-import { next1207 } from 'src/flag/feature_next1207';
 import template from './sw-media-upload.html.twig';
 import './sw-media-upload.scss';
 
@@ -177,7 +176,7 @@ export default {
                 return;
             }
 
-            if (next1207() && !!this.defaultFolder) {
+            if (this.defaultFolder) {
                 this.getDefaultFolderId().then((defaultFolderId) => {
                     this.defaultFolderId = defaultFolderId;
                 });
@@ -334,9 +333,8 @@ export default {
 
         getMediaEntityForUpload() {
             const mediaItem = this.mediaItemStore.create();
-            if (next1207()) {
-                mediaItem.mediaFolderId = this.mediaFolderId;
-            }
+            mediaItem.mediaFolderId = this.mediaFolderId;
+
             return mediaItem;
         },
 

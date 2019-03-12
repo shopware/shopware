@@ -34,13 +34,9 @@ module.exports = {
         page.openMediaIndex();
 
         browser
-            .assert.urlContains('#/sw/media/index');
-
-        if (global.flags.isActive('next1207')) {
-            browser
-                .moveToElement(`${page.elements.gridItem}--0 .sw-media-base-item__preview-container`, 5, 5).doubleClick()
-                .waitForElementVisible('.icon--folder-breadcrumbs-back-to-root');
-        }
+            .assert.urlContains('#/sw/media/index')
+            .moveToElement(`${page.elements.gridItem}--0 .sw-media-base-item__preview-container`, 5, 5).doubleClick()
+            .waitForElementVisible('.icon--folder-breadcrumbs-back-to-root');
     },
     'open replace modal': (browser) => {
         const page = mediaPage(browser);

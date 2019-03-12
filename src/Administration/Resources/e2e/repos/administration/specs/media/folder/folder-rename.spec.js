@@ -2,7 +2,6 @@ const mediaPage = require('administration/page-objects/module/sw-media.page-obje
 
 module.exports = {
     '@tags': ['media', 'folder', 'folder-rename', 'rename'],
-    '@disabled': !global.flags.isActive('next1207'),
     before: (browser, done) => {
         global.MediaFixtureService.setFolderFixture().then(() => {
             done();

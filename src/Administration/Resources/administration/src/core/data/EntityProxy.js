@@ -826,6 +826,11 @@ export default class EntityProxy {
                     return { ...acc, [key]: null };
                 }
 
+                // Check null against empty string
+                if (type.isEmpty(a[key]) === type.isEmpty(b[key])) {
+                    return acc;
+                }
+
                 return { ...acc, [key]: b[key] };
             }
 

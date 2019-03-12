@@ -1,13 +1,15 @@
 const productPage = require('administration/page-objects/module/sw-product.page-object.js');
 const mediaPage = require('administration/page-objects/module/sw-media.page-object.js');
 
+const fixture = {
+    name: 'Ultimate Product',
+    descriptionLong: 'This is THE product.'
+};
+
 module.exports = {
     '@tags': ['media', 'media-usage', 'media-usage-in-product'],
     before: (browser, done) => {
-        global.ProductFixtureService.setProductFixture({
-            name: 'Ultimate Product',
-            descriptionLong: 'This is THE product.'
-        }).then(() => {
+        global.ProductFixtureService.setProductFixture(fixture).then(() => {
             done();
         });
     },
@@ -19,8 +21,9 @@ module.exports = {
                 targetPath: '#/sw/product/index',
                 mainMenuId: 'sw-product'
             })
-            .waitForElementVisible(page.elements.contextMenuButton)
-            .clickContextMenuItem(page.elements.contextMenu, page.elements.contextMenuButton);
+            .waitForElementVisible(page.elements.productListName)
+            .click(`${page.elements.productListName} a`)
+            .expect.element(page.elements.smartBarHeader).to.have.text.that.equals(fixture.name);
     },
     'upload media item': (browser) => {
         const page = productPage(browser);
@@ -35,10 +38,10 @@ module.exports = {
         page.openMediaIndex();
 
         browser
-            .moveToElement(page.elements.folderItem, 5, 5)
-            .click(page.elements.folderItem)
-            .moveToElement(page.elements.mediaItem, 5, 5)
-            .click(page.elements.mediaItem)
+            .waitForElementVisible(`${page.elements.gridItem}--0`)
+            .click(`${page.elements.gridItem}--0`)
+            .waitForElementVisible(`${page.elements.gridItem}--0`)
+            .click(`${page.elements.gridItem}--0`)
             .waitForElementNotPresent('sw-media-sidebar.no-headline')
             .expect.element('.sw-media-sidebar__headline').to.have.text.that.equals('sw-test-image.png');
 

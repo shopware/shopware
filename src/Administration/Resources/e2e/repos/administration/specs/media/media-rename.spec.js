@@ -16,7 +16,7 @@ module.exports = {
         browser
             .click(`${page.elements.gridItem}--0 .sw-media-preview__item`)
             .waitForElementVisible('.sw-media-quickinfo')
-            .fillField('.sw-media-quickinfo-metadata-name input', 'new file name',true)
+            .fillField('.sw-media-quickinfo-metadata-name input', 'new file name', true)
             .click('.sw-media-quickinfo-metadata-name .sw-confirm-field__button--submit')
             .waitForElementPresent(`${page.elements.gridItem}--0 .sw-media-base-item__loader`)
             .waitForElementNotPresent(`${page.elements.gridItem}--0 .sw-media-base-item__loader`)

@@ -5,7 +5,8 @@ class ProductPageObject extends GeneralPageObject {
         super(browser);
 
         this.elements = {
-            ...this.elements, ...{
+            ...this.elements,
+            ...{
                 mediaForm: '.sw-product-media-form',
                 productSaveAction: '.sw-product-detail__save-action',
                 productListName: `${this.elements.dataGridColumn}--name`

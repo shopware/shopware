@@ -48,7 +48,7 @@ module.exports = {
             .waitForElementVisible('.icon--default-symbol-products');
     },
     'check if the folder is used as default location when uploading in products': (browser) => {
-        const page = mediaPage(browser);
+        const productPageObject = productPage(browser);
 
         browser
             .openMainMenuEntry({
@@ -56,11 +56,11 @@ module.exports = {
                 mainMenuId: 'sw-product'
             })
             .waitForElementPresent('.smart-bar__actions a[href="#/sw/product/create"]')
-            .expect.element('.sw-product-list__column-product-name').to.have.text.that.equals(global.ProductFixtureService.productFixture.name);
+            .expect.element(`${productPageObject.elements.productListName}`).to.have.text.that.contains(global.ProductFixtureService.productFixture.name);
 
         browser
-            .clickContextMenuItem('.sw-product-list__edit-action', page.elements.contextMenuButton)
-            .expect.element(page.elements.smartBarHeader).to.have.text.that.equals(global.ProductFixtureService.productFixture.name);
+            .click(`${productPageObject.elements.productListName} a`)
+            .expect.element(productPageObject.elements.smartBarHeader).to.have.text.that.equals(global.ProductFixtureService.productFixture.name);
     },
     'upload product image and verify location in sidebar': (browser) => {
         const productPageObject = productPage(browser);

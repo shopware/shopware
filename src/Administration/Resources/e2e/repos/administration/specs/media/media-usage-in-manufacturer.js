@@ -32,10 +32,13 @@ module.exports = {
         page.openMediaIndex();
 
         browser
-            .moveToElement(page.elements.folderItem, 5, 5)
-            .click(page.elements.folderItem)
-            .moveToElement(page.elements.mediaItem, 5, 5)
-            .click(page.elements.mediaItem)
+            .waitForElementVisible(`${page.elements.gridItem}--0`)
+            .click(`${page.elements.gridItem}--0`)
+            .expect.element('.sw-media-sidebar__headline').to.have.text.that.equals('Manufacturer Media');
+
+        browser
+            .waitForElementVisible(`${page.elements.gridItem}--0`)
+            .click(`${page.elements.gridItem}--0`)
             .waitForElementNotPresent('sw-media-sidebar.no-headline')
             .expect.element('.sw-media-sidebar__headline').to.have.text.that.equals('sw-test-image.png');
 

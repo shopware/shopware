@@ -78,12 +78,11 @@ Component.register('sw-product-stream-modal-preview', {
         },
         buildCriteria() {
             if (this.associationStore.store) {
-                let defaultContainer = null;
-                Object.values(this.associationStore.store).forEach((filter) => {
-                    if (!filter.parentId && filter.type === 'multi' && filter.operator === 'OR') {
-                        defaultContainer = filter;
+                const defaultContainer = Object.values(this.associationStore.store).find(
+                    (filter) => {
+                        return !filter.parentId && filter.type === 'multi' && filter.operator === 'OR';
                     }
-                });
+                );
                 this.criteria = this.handleFilter(defaultContainer);
             }
         },

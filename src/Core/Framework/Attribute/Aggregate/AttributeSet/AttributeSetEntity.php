@@ -2,6 +2,8 @@
 
 namespace Shopware\Core\Framework\Attribute\Aggregate\AttributeSet;
 
+use Shopware\Core\Framework\Attribute\Aggregate\AttributeSetRelation\AttributeSetRelationCollection;
+use Shopware\Core\Framework\Attribute\AttributeCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 
@@ -20,12 +22,12 @@ class AttributeSetEntity extends Entity
     protected $config;
 
     /**
-     * @var array|null
+     * @var AttributeCollection|null
      */
     protected $attributes;
 
     /**
-     * @var array|null
+     * @var AttributeSetRelationCollection|null
      */
     protected $relations;
 
@@ -59,22 +61,22 @@ class AttributeSetEntity extends Entity
         $this->config = $config;
     }
 
-    public function getAttributes(): ?array
+    public function getAttributes(): ?AttributeCollection
     {
         return $this->attributes;
     }
 
-    public function setAttributes(?array $attributes): void
+    public function setAttributes(?AttributeCollection $attributes): void
     {
         $this->attributes = $attributes;
     }
 
-    public function getRelations(): ?array
+    public function getRelations(): ?AttributeSetRelationCollection
     {
         return $this->relations;
     }
 
-    public function setRelations(?array $relations): void
+    public function setRelations(?AttributeSetRelationCollection $relations): void
     {
         $this->relations = $relations;
     }

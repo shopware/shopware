@@ -4,9 +4,11 @@ namespace Shopware\Core\Framework\Test\Attribute;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Attribute\Aggregate\AttributeSet\AttributeSetDefinition;
+use Shopware\Core\Framework\Attribute\Aggregate\AttributeSet\AttributeSetEntity;
 use Shopware\Core\Framework\Attribute\Aggregate\AttributeSetRelation\AttributeSetRelationDefinition;
 use Shopware\Core\Framework\Attribute\AttributeDefinition;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -222,5 +224,68 @@ class AttributeSetRepositoryTest extends TestCase
         /** @var AttributeSetEntity $set */
         $set = $result->first();
         static::assertEquals($update['config'], $set->getConfig());
+    }
+
+    public function testSearchWithAssociations(): void
+    {
+        /** @var EntityRepositoryInterface $repo */
+        $repo = $this->getContainer()->get('attribute_set.repository');
+
+        $id = Uuid::uuid4()->getHex();
+        $nullId = Uuid::uuid4()->getHex();
+        $attributeSets = [
+            [
+                'id' => $id,
+                'name' => 'test set',
+                'config' => ['description' => 'test 1'],
+                'attributes' => [
+                    [
+                        'id' => Uuid::uuid4()->getHex(),
+                        'name' => 'foo.size',
+                        'type' => 'int',
+                    ],
+                ],
+                'relations' => [
+                    [
+                        'entityName' => 'product',
+                    ],
+                    [
+                        'entityName' => 'order',
+                    ],
+                ],
+            ],
+            [
+                'id' => $nullId,
+                'name' => 'test set null',
+                'config' => ['description' => 'test 1'],
+            ],
+        ];
+        $repo->create($attributeSets, Context::createDefaultContext());
+
+        $criteria = new Criteria([$id]);
+        $criteria->addAssociation('attributes');
+        $criteria->addAssociation('relations');
+
+        /** @var AttributeSetEntity $first */
+        $first = $repo->search($criteria, Context::createDefaultContext())->first();
+        static::assertCount(1, $first->getAttributes()->getElements());
+        static::assertCount(2, $first->getRelations()->getElements());
+
+        $criteria = new Criteria([$nullId]);
+        $criteria->addAssociation('attributes');
+        $criteria->addAssociation('relations');
+
+        /** @var AttributeSetEntity $first */
+        $first = $repo->search($criteria, Context::createDefaultContext())->first();
+        static::assertNotNull($first->getAttributes());
+        static::assertNotNull($first->getRelations());
+        static::assertCount(0, $first->getAttributes());
+        static::assertCount(0, $first->getRelations());
+
+        $criteria = new Criteria([$nullId]);
+        /** @var AttributeSetEntity $first */
+        $first = $repo->search($criteria, Context::createDefaultContext())->first();
+        static::assertNull($first->getAttributes());
+        static::assertNull($first->getRelations());
     }
 }

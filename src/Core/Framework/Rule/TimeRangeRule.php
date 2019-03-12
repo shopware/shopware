@@ -24,6 +24,21 @@ class TimeRangeRule extends Rule
      */
     private $now;
 
+    /**
+     * @var bool
+     */
+    private $validationTurnover = false;
+
+    /**
+     * @var \DateTime
+     */
+    private $to;
+
+    /**
+     * @var \DateTime
+     */
+    private $from;
+
     public function __construct(?\DateTimeInterface $now = null)
     {
         $this->now = $now ?? new \DateTimeImmutable();
@@ -36,16 +51,12 @@ class TimeRangeRule extends Rule
 
     public function match(RuleScope $scope): Match
     {
-        $from = $this->extractTime($this->fromTime);
-        $to = $this->extractTime($this->toTime);
+        $this->from = $this->extractTime($this->fromTime);
+        $this->to = $this->extractTime($this->toTime);
 
-        if ($to < $from && $this->now <= $from && $this->now >= $to) {
-            $from->modify('-1 day');
-        } elseif ($to > $from && $this->now >= $from && $this->now <= $to) {
-            $to->modify('+1 day');
-        }
+        $this->switchValidationIfToIsSmallerThanFrom();
 
-        return new Match($to >= $this->now && $from <= $this->now, ['not in the given time range']);
+        return new Match($this->returnResultWithSightOnValidationTurnover(), ['not in the given time range']);
     }
 
     public function getConstraints(): array
@@ -61,5 +72,26 @@ class TimeRangeRule extends Rule
         [$hour, $minute] = explode(':', $time);
 
         return (new \DateTime())->setTime((int) $hour, (int) $minute);
+    }
+
+    private function switchValidationIfToIsSmallerThanFrom(): void
+    {
+        if ($this->to < $this->from) {
+            $tmp = $this->from;
+            $this->from = $this->to;
+            $this->to = $tmp;
+            $this->validationTurnover = true;
+        }
+    }
+
+    private function returnResultWithSightOnValidationTurnover(): bool
+    {
+        $result = $this->to >= $this->now && $this->from <= $this->now;
+
+        if ($this->validationTurnover) {
+            return !$result;
+        }
+
+        return $result;
     }
 }

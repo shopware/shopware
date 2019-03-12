@@ -72,7 +72,7 @@ class TimeRangeRuleTest extends TestCase
 
         $match = $rule->match($this->createMock(RuleScope::class));
 
-        static::assertFalse($match->matches());
+        static::assertTrue($match->matches());
     }
 
     public function testIfRuleIsConsistent(): void

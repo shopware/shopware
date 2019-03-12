@@ -19,6 +19,16 @@ class TimeRangeRule extends Rule
      */
     protected $toTime;
 
+    /**
+     * @var \DateTimeInterface|null
+     */
+    private $now;
+
+    public function __construct(?\DateTimeInterface $now = null)
+    {
+        $this->now = $now ?? new \DateTimeImmutable();
+    }
+
     public function getName(): string
     {
         return 'timeRange';
@@ -28,15 +38,14 @@ class TimeRangeRule extends Rule
     {
         $from = $this->extractTime($this->fromTime);
         $to = $this->extractTime($this->toTime);
-        $now = new \DateTime();
 
-        if ($now < $from && $to <= $from) {
+        if ($to < $from && $this->now <= $from && $this->now >= $to) {
             $from->modify('-1 day');
-        } elseif ($now >= $from && $to <= $from) {
+        } elseif ($to > $from && $this->now >= $from && $this->now <= $to) {
             $to->modify('+1 day');
         }
 
-        return new Match($to > $now && $from < $now, ['not in the given time range']);
+        return new Match($to >= $this->now && $from <= $this->now, ['not in the given time range']);
     }
 
     public function getConstraints(): array

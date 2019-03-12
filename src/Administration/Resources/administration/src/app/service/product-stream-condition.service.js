@@ -171,11 +171,26 @@ export default function conditionService() {
     };
 
     return {
-        isPropertyInBlacklist
+        isPropertyInBlacklist,
+        addToGeneralBlacklist,
+        addToEntityBlacklist
     };
 
     function isPropertyInBlacklist(definition, property) {
         return blacklist.includes(property)
             || (entityBlacklist[definition] && entityBlacklist[definition].includes(property));
+    }
+
+    function addToGeneralBlacklist(properties) {
+        blacklist.push(...properties);
+    }
+
+    function addToEntityBlacklist(entity, properties) {
+        if (entityBlacklist[entity]) {
+            entityBlacklist[entity].push(...properties);
+            return;
+        }
+
+        entityBlacklist[entity] = properties;
     }
 }

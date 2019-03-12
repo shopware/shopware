@@ -24,6 +24,7 @@
     "@nuxtjs/friendly-errors-webpack-plugin": "2.1.0",
     "autoprefixer": "9.4.7",
     "babel-loader": "8.0.5",
+    "copy-webpack-plugin": "^5.0.1",
     "css-loader": "2.1.0",
     "eslint": "5.12.1",
     "eslint-loader": "2.1.1",

@@ -72,10 +72,9 @@ class TemplateDataExtension extends AbstractExtension implements GlobalsInterfac
                     'favicon' => 'favicon.ico',
                     'appleTouch' => 'apple-touch-icon.png',
                     'androidTouch' => 'android-touch-icon.png',
-                    'desktop' => 'media/logos/logo-desktop.png',
-                    'tabletLandscape' => 'media/logos/logo-tablet.png',
-                    'tablet' => 'media/logos/logo-tablet.png',
-                    'mobile' => 'media/logos/logo-mobile.png',
+                    'desktop' => 'img/logo-desktop.png',
+                    'tablet' => 'img/logo-desktop.png',
+                    'mobile' => 'img/logo-mobile.png',
                 ],
                 'general' => [
                     'ajaxVariantSwitch' => true,

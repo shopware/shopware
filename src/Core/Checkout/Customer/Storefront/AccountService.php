@@ -8,6 +8,7 @@ use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Context\CheckoutContextPersister;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressCollection;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
+use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Event\CustomerLoginEvent;
 use Shopware\Core\Checkout\Customer\Event\CustomerLogoutEvent;
@@ -22,6 +23,7 @@ use Shopware\Core\Framework\Exception\InvalidUuidException;
 use Shopware\Core\Framework\Routing\InternalRequest;
 use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\System\Country\CountryCollection;
+use Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
 
@@ -51,12 +53,17 @@ class AccountService
      * @var EventDispatcherInterface
      */
     private $eventDispatcher;
+    /**
+     * @var NumberRangeValueGeneratorInterface
+     */
+    private $numberRangeValueGenerator;
 
     public function __construct(
         EntityRepositoryInterface $countryRepository,
         EntityRepositoryInterface $customerAddressRepository,
         EntityRepositoryInterface $customerRepository,
         CheckoutContextPersister $contextPersister,
+        NumberRangeValueGeneratorInterface $numberRangeValueGenerator,
         EventDispatcherInterface $eventDispatcher
     ) {
         $this->countryRepository = $countryRepository;
@@ -64,6 +71,7 @@ class AccountService
         $this->customerRepository = $customerRepository;
         $this->contextPersister = $contextPersister;
         $this->eventDispatcher = $eventDispatcher;
+        $this->numberRangeValueGenerator = $numberRangeValueGenerator;
     }
 
     /**
@@ -334,11 +342,14 @@ class AccountService
 
         $data = [
             'id' => $customerId,
+            'customerNumber' => $this->numberRangeValueGenerator->getValue(
+                CustomerDefinition::getEntityName(), $context->getContext(),
+                $context->getSalesChannel()->getId()
+            ),
             'salesChannelId' => $context->getSalesChannel()->getId(),
             'languageId' => $context->getContext()->getLanguageId(),
             'groupId' => $context->getCurrentCustomerGroup()->getId(),
             'defaultPaymentMethodId' => $context->getPaymentMethod()->getId(),
-            'customerNumber' => '123',
             'salutation' => $request->optionalPost('salutation'),
             'firstName' => $request->requirePost('firstName'),
             'lastName' => $request->requirePost('lastName'),

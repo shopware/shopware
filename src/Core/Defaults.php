@@ -36,6 +36,8 @@ final class Defaults
 
     public const SHIPPING_METHOD = '20080911ffff4fffafffffff19830531';
 
+    public const NUMBER_RANGE = '20080911ffff4fffafffffff19830531';
+
     /**
      * @deprecated
      */
@@ -94,4 +96,43 @@ final class Defaults
 
     public const SALES_CHANNEL_STOREFRONT = '8a243080f92e4c719546314b577cf82b';
     public const DATE_FORMAT = 'Y-m-d H:i:s.v';
+
+    public const NUMBER_RANGE_TYPES = [
+        'product' => [
+            'id' => '20080911ffff4fffafffffff19830531',
+            'global' => 1,
+        ],
+        'order' => [
+            'id' => 'a6ddadce4cb441f3976a32505049f037',
+            'global' => 0,
+        ],
+        'customer' => [
+            'id' => '8a243080f92e4c719546314b577cf82b',
+            'global' => 0,
+        ],
+    ];
+
+    public const NUMBER_RANGES = [
+        'product' => [
+            'id' => '1194a493806742c9b85e61f1f2cf9be8',
+            'name' => 'Products',
+            'typeId' => '20080911ffff4fffafffffff19830531',
+            'pattern' => '{n}',
+            'start' => 1,
+        ],
+        'order' => [
+            'id' => '60025b03849340ba8d1abf7e58aa2b9f',
+            'name' => 'Orders',
+            'typeId' => 'a6ddadce4cb441f3976a32505049f037',
+            'pattern' => '{n}',
+            'start' => 1,
+        ],
+        'customer' => [
+            'id' => '099e79dbfa9f43e4876b172ff58359f2',
+            'name' => 'Customers',
+            'typeId' => '8a243080f92e4c719546314b577cf82b',
+            'pattern' => '{n}',
+            'start' => 1,
+        ],
+    ];
 }

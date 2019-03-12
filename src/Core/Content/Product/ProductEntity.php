@@ -77,6 +77,11 @@ class ProductEntity extends Entity
     protected $ean;
 
     /**
+     * @var string
+     */
+    protected $productNumber;
+
+    /**
      * @var int|null
      */
     protected $stock;
@@ -1132,5 +1137,15 @@ class ProductEntity extends Entity
     public function setVisibilities(ProductVisibilityCollection $visibilities): void
     {
         $this->visibilities = $visibilities;
+    }
+
+    public function getProductNumber(): string
+    {
+        return $this->productNumber;
+    }
+
+    public function setProductNumber(string $productNumber): void
+    {
+        $this->productNumber = $productNumber;
     }
 }

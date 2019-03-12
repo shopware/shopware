@@ -24,6 +24,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
+use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 
 class OrderPersisterTest extends TestCase
 {
@@ -111,10 +112,13 @@ class OrderPersisterTest extends TestCase
     private function getCheckoutContext(): MockObject
     {
         $customer = $this->getCustomer();
+        $salesChannel = new SalesChannelEntity();
         $checkoutContext = $this->createMock(CheckoutContext::class);
         $checkoutContext->method('getCustomer')->willReturn($customer);
 
         $context = Context::createDefaultContext();
+        $salesChannel->setId($context->getSourceContext()->getSalesChannelId());
+        $checkoutContext->method('getSalesChannel')->willReturn($salesChannel);
         $checkoutContext->method('getContext')->willReturn($context);
 
         return $checkoutContext;

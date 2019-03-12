@@ -1,0 +1,52 @@
+{
+  "sw-settings-number-range": {
+    "general": {
+      "mainMenuItemGeneral": "Number ranges",
+      "placeholderSearchBar": "Search number ranges"
+    },
+    "list": {
+      "textHeadline": "Number ranges",
+      "textDeleteConfirm": "Are you sure you want to delete the number range \"{name}\"?",
+      "columnName": "Name",
+      "columnUsedIn": "Used in:",
+      "columnAssignment": "Assignment",
+      "buttonAddNumberRange": "Add number range",
+      "contextMenuEdit": "Edit",
+      "modalTitleDelete": "Delete number range",
+      "titleDeleteSuccess": "Success",
+      "messageDeleteSuccess": "Number range \"{name}\" has been deleted successfully.",
+      "buttonCancel": "Cancel",
+      "buttonDelete": "Delete",
+      "global": "Global"
+    },
+    "detail": {
+      "textHeadline": "New number range",
+      "configCard": "Settings",
+      "assignmentCard": "Assignment",
+      "titleSaveSuccess": "Success",
+      "messageSaveSuccess": "Number range \"{name}\" has been saved successfully.",
+      "labelName": "Name",
+      "labelDescription": "Description",
+      "labelPrefix": "Prefix",
+      "labelSuffix": "Suffix",
+      "labelPattern": "Pattern",
+      "labelStart": "Start number",
+      "labelCurrentNumber": "Current number",
+      "labelPreview": "Preview",
+      "labelAdvanced": "Advanced",
+      "labelType": "Type",
+      "labelSalesChannel": "Saleschannel",
+      "placeholderName": "Enter name",
+      "placeholderDescription": "Enter description",
+      "placeholderPrefix": "Enter prefix",
+      "placeholderSuffix": "Enter suffix",
+      "placeholderPattern": "Enter pattern: \"prefix_{n}_suffix\"",
+      "placeholderStart": "Enter start number",
+      "placeholderPleaseSelect": "Please select",
+      "placeholderSimpleModeImpossible": "Simple mode not possible",
+      "buttonCancel": "Cancel",
+      "buttonSave": "Save",
+      "helpTextAdvancedField": "Use advanced pattern definition.<br/>Available patterns:<br/>&#x007B;n&#x007D;: increment - An incrementing number.<br/>&#x007B;date&#x007D;: date - The date in international format.<br/>&#x007B;date_ymd&#x007D;: formatted date - The date with a given format"
+    }
+  }
+}

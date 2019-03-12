@@ -31,5 +31,6 @@ class System extends Bundle
         $loader->load('integration.xml');
         $loader->load('state_machine.xml');
         $loader->load('configuration.xml');
+        $loader->load('number_range.xml');
     }
 }

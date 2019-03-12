@@ -4,6 +4,8 @@ import template from './sw-customer-base-form.html.twig';
 Component.register('sw-customer-base-form', {
     template,
 
+    inject: ['swCustomerCreateOnChangeSalesChannel'],
+
     props: {
         customer: {
             type: Object,

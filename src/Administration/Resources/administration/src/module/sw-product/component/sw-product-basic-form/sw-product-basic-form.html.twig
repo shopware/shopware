@@ -29,11 +29,9 @@
             {% block sw_product_basic_form_id_field %}
                 <sw-field type="text"
                           :label="$tc('sw-product.basicForm.labelProductNumber')"
-                          :placeholder="$tc('sw-product.basicForm.placeholderId')"
-                          :value="product.id">
+                          v-model="product.productNumber">
                 </sw-field>
             {% endblock %}
-
             {% block sw_product_basic_form_manufacturer_field %}
                 <sw-field type="select"
                           :label="$tc('sw-product.basicForm.labelManufacturer')"

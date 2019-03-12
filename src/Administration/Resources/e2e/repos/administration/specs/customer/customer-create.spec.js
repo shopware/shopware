@@ -31,7 +31,7 @@ module.exports = {
             .fillSelectField('select[name=sw-field--customer-salesChannelId]', 'Storefront API')
             .waitForElementNotPresent('.sw-field--customer-defaultPaymentMethodId .sw-field__select-load-placeholder')
             .fillSelectField('select[name=sw-field--customer-defaultPaymentMethodId]', 'Invoice')
-            .fillField('input[name=sw-field--customer-customerNumber]', 'cn-1234321');
+            .fillField('input[name=sw-field--customer-customerNumber]', 'cn-1234321', true);
     },
     'add customer address': (browser) => {
         const page = customerPage(browser);

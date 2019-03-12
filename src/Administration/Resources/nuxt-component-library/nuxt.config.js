@@ -4,7 +4,8 @@ const fileParser = require(__dirname + '/lib/file-parser');
 const process = require('process');
 
 function getPathFromRoot(directory) {
-    return path.join(process.env.PROJECT_ROOT, directory);
+    const projectRoot = process.env.PROJECT_ROOT || '/Applications/MAMP/htdocs/sw-next-development';
+    return path.join(projectRoot, directory);
 }
 
 console.log();
@@ -22,6 +23,9 @@ module.exports = {
     modules: [
         '~/modules/parser/index'
     ],
+    babel: {
+        compact: false
+    },
     head: {
         titleTemplate: '%s - Shopware Component library',
         meta: [
@@ -46,8 +50,9 @@ module.exports = {
             }
             config.resolve.alias['src'] = path.resolve(__dirname, '..', 'administration/src/');
             config.resolve.alias['less'] = path.resolve(__dirname, '..', 'administration/src/app/assets/less');
+            config.resolve.alias['scss'] = path.resolve(__dirname, '..', 'administration/src/app/assets/scss');
             config.resolve.alias['vue'] = __dirname + '/node_modules/vue/dist/vue.common';
-            config.resolve.extensions.push('.less', '.twig');
+            config.resolve.extensions.push('.less', '.twig', '.scss');
             config.module.rules.push({
                 test: /\.(html|twig)$/,
                 loader: 'html-loader'

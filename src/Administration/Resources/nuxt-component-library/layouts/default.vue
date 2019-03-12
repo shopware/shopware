@@ -7,6 +7,7 @@
                 </nuxt-link>
             </div>
             <nav class="navigation--main">
+                <input type="text" v-model="searchTerm" class="search-query" autocomplete="off" spellcheck="false" placeholder="Search">
                 <ul class="nav-tree--category">
                     <li class="nav-tree--main-entry" v-for="mainEntry in menu" :key="mainEntry.name">
                         <span class="nav-tree--main-entry-headline">{{ mainEntry.name }} components</span>
@@ -29,13 +30,58 @@
     </div>
 </template>
 
+<style>
+    .search-query {
+        display: block;
+        font-size: 16px;
+        height: 40px;
+        padding: 5px 50px;
+        margin: 0 20px;
+        border-radius: 30px;
+        color: #fff;
+        font-weight: 400;
+        background: rgba(205,221,247,0.15);
+        font-family: 'Brandon';
+    }
+
+    .search-query:focus {
+        outline: none;
+    }
+</style>
+
 <script>
 export default {
-    computed: {
-        menu() {
+    data() {
+        return {
+            menu: null,
+            searchTerm: this.$route.query.q || ''
+        };
+    },
+
+    created() {
+        this.menu = this.getMenuStructure();
+    },
+
+    methods: {
+        onSearch(event) {
+            const value = event.target.value;
+            if (value.length > 0) {
+                this.$router.replace({ path: this.$route.path, query: { q: value }});
+            } else {
+                this.$router.replace({ path: this.$route.path });
+            }
+            this.searchTerm = value;
+
+            this.menu = this.getMenuStructure();
+        },
+        getMenuStructure() {
             return this.$filesInfo.reduce((accumulator, item) => {
                 // Ignore the component when it's marked as private
                 if (item.source.meta.hasOwnProperty('private') && item.source.meta.private === true) {
+                    return accumulator;
+                }
+
+                if (!item.source.name.includes(this.searchTerm)) {
                     return accumulator;
                 }
 

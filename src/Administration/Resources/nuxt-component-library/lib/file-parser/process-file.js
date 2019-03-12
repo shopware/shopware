@@ -23,6 +23,7 @@ module.exports = (file, globalLessVariables) => {
     const componentDeclaration = extractComponentDeclaration(ast);
 
     if (!componentDeclaration.name || !componentDeclaration.definition) {
+        console.log('definition not found');
         return {};
     }
 

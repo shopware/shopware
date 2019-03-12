@@ -12,7 +12,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\UpdatedAtField;
@@ -54,7 +53,6 @@ class OrderTransactionDefinition extends EntityDefinition
 
             (new FkField('state_id', 'stateId', StateMachineStateDefinition::class))->addFlags(new Required()),
             new ManyToOneAssociationField('stateMachineState', 'state_id', StateMachineStateDefinition::class, true),
-            new JsonField('details', 'details'),
             new AttributesField(),
             new CreatedAtField(),
             new UpdatedAtField(),

@@ -48,11 +48,6 @@ class OrderTransactionEntity extends Entity
      */
     protected $order;
 
-    /**
-     * @var array|null
-     */
-    protected $details;
-
     /***
      * @var StateMachineStateEntity
      */
@@ -96,16 +91,6 @@ class OrderTransactionEntity extends Entity
     public function setAmount(CalculatedPrice $amount): void
     {
         $this->amount = $amount;
-    }
-
-    public function getDetails(): ?array
-    {
-        return $this->details;
-    }
-
-    public function setDetails(array $details): void
-    {
-        $this->details = $details;
     }
 
     public function getCreatedAt(): ?\DateTimeInterface

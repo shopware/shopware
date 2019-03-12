@@ -187,17 +187,17 @@ class ProductEntity extends Entity
     protected $allowNotification;
 
     /**
-     * @var \DateTime|null
+     * @var \DateTimeInterface|null
      */
     protected $releaseDate;
 
     /**
-     * @var \DateTime|null
+     * @var \DateTimeInterface|null
      */
     protected $createdAt;
 
     /**
-     * @var \DateTime|null
+     * @var \DateTimeInterface|null
      */
     protected $updatedAt;
 
@@ -631,32 +631,32 @@ class ProductEntity extends Entity
         $this->allowNotification = $allowNotification;
     }
 
-    public function getReleaseDate(): ?\DateTime
+    public function getReleaseDate(): ?\DateTimeInterface
     {
         return $this->releaseDate;
     }
 
-    public function setReleaseDate(?\DateTime $releaseDate): void
+    public function setReleaseDate(?\DateTimeInterface $releaseDate): void
     {
         $this->releaseDate = $releaseDate;
     }
 
-    public function getCreatedAt(): ?\DateTime
+    public function getCreatedAt(): ?\DateTimeInterface
     {
         return $this->createdAt;
     }
 
-    public function setCreatedAt(\DateTime $createdAt): void
+    public function setCreatedAt(\DateTimeInterface $createdAt): void
     {
         $this->createdAt = $createdAt;
     }
 
-    public function getUpdatedAt(): ?\DateTime
+    public function getUpdatedAt(): ?\DateTimeInterface
     {
         return $this->updatedAt;
     }
 
-    public function setUpdatedAt(\DateTime $updatedAt): void
+    public function setUpdatedAt(\DateTimeInterface $updatedAt): void
     {
         $this->updatedAt = $updatedAt;
     }

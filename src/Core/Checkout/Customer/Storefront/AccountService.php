@@ -458,7 +458,7 @@ class AccountService
         return $address;
     }
 
-    private function getBirthday(InternalRequest $request): ?\DateTime
+    private function getBirthday(InternalRequest $request): ?\DateTimeInterface
     {
         $birthdayDay = $request->optionalPost('birthdayDay');
         $birthdayMonth = $request->optionalPost('birthdayMonth');

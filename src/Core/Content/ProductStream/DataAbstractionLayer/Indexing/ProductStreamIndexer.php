@@ -79,7 +79,7 @@ class ProductStreamIndexer implements IndexerInterface
         $this->cache = $cache;
     }
 
-    public function index(\DateTime $timestamp): void
+    public function index(\DateTimeInterface $timestamp): void
     {
         $context = Context::createDefaultContext();
 

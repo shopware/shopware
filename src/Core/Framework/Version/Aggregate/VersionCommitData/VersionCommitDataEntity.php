@@ -30,7 +30,7 @@ class VersionCommitDataEntity extends Entity
     protected $entityId;
 
     /**
-     * @var \DateTime
+     * @var \DateTimeInterface
      */
     protected $createdAt;
 
@@ -99,12 +99,12 @@ class VersionCommitDataEntity extends Entity
         $this->entityId = $entityId;
     }
 
-    public function getCreatedAt(): \DateTime
+    public function getCreatedAt(): \DateTimeInterface
     {
         return $this->createdAt;
     }
 
-    public function setCreatedAt(\DateTime $createdAt): void
+    public function setCreatedAt(\DateTimeInterface $createdAt): void
     {
         $this->createdAt = $createdAt;
     }

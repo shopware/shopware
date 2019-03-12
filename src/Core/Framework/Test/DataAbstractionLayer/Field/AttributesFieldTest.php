@@ -405,7 +405,7 @@ class AttributesFieldTest extends TestCase
         $this->addAttributes(['datetime' => AttributeTypes::DATETIME]);
 
         $ids = [Uuid::uuid4()->getHex(), Uuid::uuid4()->getHex(), Uuid::uuid4()->getHex(), Uuid::uuid4()->getHex()];
-        /** @var \DateTime[] $dateTimes */
+        /** @var \DateTimeInterface[] $dateTimes */
         $dateTimes = [
             new \DateTime('1990-01-01'),
             new \DateTime('1990-01-01T00:01'),

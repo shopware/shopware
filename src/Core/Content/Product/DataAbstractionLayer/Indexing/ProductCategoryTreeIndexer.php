@@ -44,7 +44,7 @@ class ProductCategoryTreeIndexer implements IndexerInterface
         $this->connection = $connection;
     }
 
-    public function index(\DateTime $timestamp): void
+    public function index(\DateTimeInterface $timestamp): void
     {
         $context = Context::createDefaultContext();
 

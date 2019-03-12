@@ -36,12 +36,12 @@ class ScheduledTaskEntity extends Entity
     protected $deadMessages;
 
     /**
-     * @var \DateTime|null
+     * @var \DateTimeInterface|null
      */
     protected $lastExecutionTime;
 
     /**
-     * @var \DateTime
+     * @var \DateTimeInterface
      */
     protected $nextExecutionTime;
 
@@ -95,22 +95,22 @@ class ScheduledTaskEntity extends Entity
         $this->deadMessages = $deadMessages;
     }
 
-    public function getLastExecutionTime(): ?\DateTime
+    public function getLastExecutionTime(): ?\DateTimeInterface
     {
         return $this->lastExecutionTime;
     }
 
-    public function setLastExecutionTime(?\DateTime $lastExecutionTime): void
+    public function setLastExecutionTime(?\DateTimeInterface $lastExecutionTime): void
     {
         $this->lastExecutionTime = $lastExecutionTime;
     }
 
-    public function getNextExecutionTime(): \DateTime
+    public function getNextExecutionTime(): \DateTimeInterface
     {
         return $this->nextExecutionTime;
     }
 
-    public function setNextExecutionTime(\DateTime $nextExecutionTime): void
+    public function setNextExecutionTime(\DateTimeInterface $nextExecutionTime): void
     {
         $this->nextExecutionTime = $nextExecutionTime;
     }

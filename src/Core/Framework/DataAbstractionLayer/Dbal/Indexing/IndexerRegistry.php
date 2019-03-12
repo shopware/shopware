@@ -45,7 +45,7 @@ class IndexerRegistry implements IndexerInterface, EventSubscriberInterface
         ];
     }
 
-    public function index(\DateTime $timestamp): void
+    public function index(\DateTimeInterface $timestamp): void
     {
         if ($this->working) {
             return;

@@ -56,7 +56,7 @@ class TaskScheduler
         }
     }
 
-    public function getNextExecutionTime(): ?\DateTime
+    public function getNextExecutionTime(): ?\DateTimeInterface
     {
         $criteria = $this->buildCriteriaForNextScheduledTask();
         /** @var AggregationResult $aggregation */

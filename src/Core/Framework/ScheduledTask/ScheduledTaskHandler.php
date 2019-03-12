@@ -70,7 +70,7 @@ abstract class ScheduledTaskHandler extends AbstractMessageHandler
 
     protected function rescheduleTask(ScheduledTask $task, ScheduledTaskEntity $taskEntity): void
     {
-        $now = new \DateTime();
+        $now = new \DateTimeImmutable();
         $this->scheduledTaskRepository->update([
             [
                 'id' => $task->getTaskId(),

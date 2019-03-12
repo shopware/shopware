@@ -35,7 +35,7 @@ class DeadMessageEntity extends Entity
     protected $encrypted;
 
     /**
-     * @var \DateTime
+     * @var \DateTimeInterface
      */
     protected $nextExecutionTime;
 
@@ -65,12 +65,12 @@ class DeadMessageEntity extends Entity
     protected $errorCount;
 
     /**
-     * @var \DateTime
+     * @var \DateTimeInterface
      */
     protected $createdAt;
 
     /**
-     * @var \DateTime
+     * @var \DateTimeInterface
      */
     protected $updatedAt;
 
@@ -84,7 +84,7 @@ class DeadMessageEntity extends Entity
      */
     protected $scheduledTask;
 
-    public static function calculateNextExecutionTime(int $errorCount): \DateTime
+    public static function calculateNextExecutionTime(int $errorCount): \DateTimeInterface
     {
         return (new \DateTime())->modify(sprintf('+%d seconds', $errorCount ** 2));
     }
@@ -139,12 +139,12 @@ class DeadMessageEntity extends Entity
         $this->encrypted = $encrypted;
     }
 
-    public function getNextExecutionTime(): \DateTime
+    public function getNextExecutionTime(): \DateTimeInterface
     {
         return $this->nextExecutionTime;
     }
 
-    public function setNextExecutionTime(\DateTime $nextExecutionTime): void
+    public function setNextExecutionTime(\DateTimeInterface $nextExecutionTime): void
     {
         $this->nextExecutionTime = $nextExecutionTime;
     }
@@ -199,22 +199,22 @@ class DeadMessageEntity extends Entity
         $this->errorCount = $errorCount;
     }
 
-    public function getCreatedAt(): \DateTime
+    public function getCreatedAt(): \DateTimeInterface
     {
         return $this->createdAt;
     }
 
-    public function setCreatedAt(\DateTime $createdAt): void
+    public function setCreatedAt(\DateTimeInterface $createdAt): void
     {
         $this->createdAt = $createdAt;
     }
 
-    public function getUpdatedAt(): \DateTime
+    public function getUpdatedAt(): \DateTimeInterface
     {
         return $this->updatedAt;
     }
 
-    public function setUpdatedAt(\DateTime $updatedAt): void
+    public function setUpdatedAt(\DateTimeInterface $updatedAt): void
     {
         $this->updatedAt = $updatedAt;
     }

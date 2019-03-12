@@ -89,7 +89,7 @@ class ListingPageSeoUrlIndexer implements IndexerInterface
         $this->checkoutContextFactory = $checkoutContextFactory;
     }
 
-    public function index(\DateTime $timestamp): void
+    public function index(\DateTimeInterface $timestamp): void
     {
         $applications = $this->applicationRepository->search(new Criteria(), Context::createDefaultContext());
 

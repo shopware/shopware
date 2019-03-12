@@ -35,12 +35,12 @@ class OrderDeliveryEntity extends Entity
     protected $trackingCode;
 
     /**
-     * @var \DateTime
+     * @var \DateTimeInterface
      */
     protected $shippingDateEarliest;
 
     /**
-     * @var \DateTime
+     * @var \DateTimeInterface
      */
     protected $shippingDateLatest;
 
@@ -50,12 +50,12 @@ class OrderDeliveryEntity extends Entity
     protected $shippingCosts;
 
     /**
-     * @var \DateTime|null
+     * @var \DateTimeInterface|null
      */
     protected $createdAt;
 
     /**
-     * @var \DateTime|null
+     * @var \DateTimeInterface|null
      */
     protected $updatedAt;
 
@@ -134,22 +134,22 @@ class OrderDeliveryEntity extends Entity
         $this->trackingCode = $trackingCode;
     }
 
-    public function getShippingDateEarliest(): \DateTime
+    public function getShippingDateEarliest(): \DateTimeInterface
     {
         return $this->shippingDateEarliest;
     }
 
-    public function setShippingDateEarliest(\DateTime $shippingDateEarliest): void
+    public function setShippingDateEarliest(\DateTimeInterface $shippingDateEarliest): void
     {
         $this->shippingDateEarliest = $shippingDateEarliest;
     }
 
-    public function getShippingDateLatest(): \DateTime
+    public function getShippingDateLatest(): \DateTimeInterface
     {
         return $this->shippingDateLatest;
     }
 
-    public function setShippingDateLatest(\DateTime $shippingDateLatest): void
+    public function setShippingDateLatest(\DateTimeInterface $shippingDateLatest): void
     {
         $this->shippingDateLatest = $shippingDateLatest;
     }
@@ -164,22 +164,22 @@ class OrderDeliveryEntity extends Entity
         $this->shippingCosts = $shippingCosts;
     }
 
-    public function getCreatedAt(): ?\DateTime
+    public function getCreatedAt(): ?\DateTimeInterface
     {
         return $this->createdAt;
     }
 
-    public function setCreatedAt(\DateTime $createdAt): void
+    public function setCreatedAt(\DateTimeInterface $createdAt): void
     {
         $this->createdAt = $createdAt;
     }
 
-    public function getUpdatedAt(): ?\DateTime
+    public function getUpdatedAt(): ?\DateTimeInterface
     {
         return $this->updatedAt;
     }
 
-    public function setUpdatedAt(\DateTime $updatedAt): void
+    public function setUpdatedAt(\DateTimeInterface $updatedAt): void
     {
         $this->updatedAt = $updatedAt;
     }

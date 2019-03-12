@@ -51,11 +51,11 @@ class DateFieldSerializer implements FieldSerializerInterface
         $value = $data->getValue();
 
         if (\is_string($value)) {
-            $value = new \DateTime($value);
+            $value = new \DateTimeImmutable($value);
         }
 
         if (is_array($value) && array_key_exists('date', $value)) {
-            $value = new \DateTime($value['date']);
+            $value = new \DateTimeImmutable($value['date']);
         }
 
         /** @var DateField $field */
@@ -76,8 +76,8 @@ class DateFieldSerializer implements FieldSerializerInterface
         yield $field->getStorageName() => $value->format(Defaults::DATE_FORMAT);
     }
 
-    public function decode(Field $field, $value): ?\DateTime
+    public function decode(Field $field, $value): ?\DateTimeInterface
     {
-        return $value === null ? null : new \DateTime($value);
+        return $value === null ? null : new \DateTimeImmutable($value);
     }
 }

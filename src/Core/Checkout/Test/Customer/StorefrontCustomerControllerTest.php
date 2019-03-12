@@ -594,7 +594,7 @@ class StorefrontCustomerControllerTest extends TestCase
         ];
     }
 
-    private function formatBirthday($day, $month, $year): \DateTime
+    private function formatBirthday($day, $month, $year): \DateTimeInterface
     {
         return new \DateTime(sprintf(
             '%s-%s-%s',

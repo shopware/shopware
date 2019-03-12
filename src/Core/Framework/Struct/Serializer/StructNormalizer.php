@@ -146,7 +146,7 @@ class StructNormalizer implements DenormalizerInterface, NormalizerInterface
         return $this->classes[$class] = new \ReflectionClass($class);
     }
 
-    private function createDate(string $date): ?\DateTime
+    private function createDate(string $date): ?\DateTimeInterface
     {
         $d = \DateTime::createFromFormat(\DateTime::ATOM, $date);
 

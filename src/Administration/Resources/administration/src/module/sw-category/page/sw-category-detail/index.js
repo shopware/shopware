@@ -166,13 +166,6 @@ Component.register('sw-category-detail', {
             this.mediaItem = null;
         },
 
-        onDuplicateCategory(item) {
-            this.categoryStore.duplicate(item.id, true);
-            this.onSaveCategories().then(() => {
-                this.getCategories();
-            });
-        },
-
         getCategory(categoryId) {
             return this.categoryStore.getByIdAsync(categoryId);
         },

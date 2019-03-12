@@ -42,7 +42,8 @@
         },
         "modal": {
             "modalTitleDelete": "Kategorie löschen",
-            "textDeleteConfirm": "Möchtest Du die Kategorie \"{name}\" und alle unterliegenden Kategorien wirklich löschen?",
+            "textDeleteConfirm": "Möchtest Du die Kategorie \"{name}\" wirklich löschen?",
+            "textDeleteChildrenConfirm": "Alle unterliegenden Kategorien werden auch gelöscht.",
             "textDeleteMultipleConfirm": "Möchtest Du die {count} gewählten Kategorien wirklich löschen?"
         }
     }

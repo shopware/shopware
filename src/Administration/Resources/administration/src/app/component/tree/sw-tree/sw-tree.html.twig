@@ -10,7 +10,11 @@
         {% block sw_tree_actions %}
             <div v-if="checkedElementsCount > 0" class="sw-tree-actions__headline">
                 <span> {{ $tc(`${translationContext}.general.treeHeadSelected`, 0, { count: checkedElementsCount }) }}:</span>
-                <span class="sw-tree__batch-delete" @click="onDeleteElements(null)">{{ $tc('sw-tree.general.actions.delete') }}</span>
+                <sw-button @click="onDeleteElements(null)"
+                           variant="danger"
+                           size="small">
+                    {{ $tc('sw-tree.modal.buttonDelete') }}
+                </sw-button>
             </div>
 
             <div v-else class="sw-tree-actions__headline">
@@ -56,12 +60,24 @@
                       :title="$tc(`${translationContext}.modal.modalTitleDelete`)"
                       variant="small">
                 {% block sw_tree_delete_modal_confirm_delete_text %}
-                    <p v-if="toDeleteItem" class="sw_tree__confirm-delete-text">
-                        {{ $tc(`${translationContext}.modal.textDeleteConfirm`, 0, { name: toDeleteItem.data.name || toDeleteItem.data.meta.viewData.name }) }}
-                    </p>
-                    <p v-else class="sw_tree__confirm-delete-text">
-                        {{ $tc(`${translationContext}.modal.textDeleteMultipleConfirm`, 0, { count: checkedElementsCount }) }}
-                    </p>
+                    <div v-if="toDeleteItem">
+                        <p v-if="toDeleteItem.childCount > 0" class="sw_tree__confirm-delete-text">
+                            {{ $tc(`${translationContext}.modal.textDeleteConfirm`, 0, { name: toDeleteItem.data.name || toDeleteItem.data.meta.viewData.name }) }}<br>
+                            <b>{{ $tc(`${translationContext}.modal.textDeleteChildrenConfirm`) }}</b>
+                        </p>
+                        <p v-else class="sw_tree__confirm-delete-text">
+                            {{ $tc(`${translationContext}.modal.textDeleteConfirm`, 0, { name: toDeleteItem.data.name || toDeleteItem.data.meta.viewData.name }) }}
+                        </p>
+                    </div>
+                    <div v-else>
+                        <p v-if="checkedElementsChildCount > 0" class="sw_tree__confirm-delete-text">
+                            {{ $tc(`${translationContext}.modal.textDeleteMultipleConfirm`, 0, { count: checkedElementsCount }) }}<br>
+                            <b>{{ $tc(`${translationContext}.modal.textDeleteChildrenConfirm`) }}</b>
+                        </p>
+                        <p v-else class="sw_tree__confirm-delete-text">
+                            {{ $tc(`${translationContext}.modal.textDeleteMultipleConfirm`, 0, { count: checkedElementsCount }) }}
+                        </p>
+                    </div>
                 {% endblock %}
     
                 {% block sw_tree_delete_modal_footer %}
@@ -75,7 +91,7 @@
         
                         {% block sw_tree_delete_modal_confirm %}
                             <sw-button @click="onConfirmDelete()"
-                                       variant="primary"
+                                       variant="danger"
                                        size="small">
                                 {{ $tc('sw-tree.modal.buttonDelete') }}
                             </sw-button>

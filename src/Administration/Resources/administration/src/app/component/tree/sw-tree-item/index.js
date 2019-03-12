@@ -146,7 +146,7 @@ export default {
             }
             if (this.newElementId) {
                 this.currentEditElement = this.newElementId;
-                this.editElement();
+                this.editElementName();
             }
         },
 
@@ -229,7 +229,7 @@ export default {
             this.parentScope.addElement(item, pos);
         },
 
-        editElement() {
+        editElementName() {
             this.$nextTick(() => {
                 const elementNameField = this.$el.querySelector('.sw-tree-detail__edit-tree-item input');
                 if (elementNameField) {
@@ -256,10 +256,6 @@ export default {
 
         deleteElement(item) {
             this.parentScope.onDeleteElements(item);
-        },
-
-        duplicateElement(item) {
-            this.parentScope.duplicateElement(item);
         }
     }
 };

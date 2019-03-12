@@ -83,15 +83,6 @@ Component.register('sw-category-tree', {
                     this.$emit('sw-category-on-reset-details');
                 }
             });
-
-            if (this.parentItem && this.parentItem.data.childCount > 0) {
-                this.parentItem.data.childCount = this.parentItem.data.childCount - 1;
-            }
-            this.parentItem = null;
-        },
-
-        onDuplicateCategory(item) {
-            this.$emit('sw-category-on-duplicate', item);
         },
 
         createNewCategory(name, parentId, childCount = 0) {

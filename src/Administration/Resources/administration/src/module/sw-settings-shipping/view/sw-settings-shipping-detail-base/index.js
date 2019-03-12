@@ -23,5 +23,13 @@ Component.register('sw-settings-shipping-detail-base', {
             type: Object,
             required: true
         }
+    },
+    mounted() {
+        if (!this.shippingMethod.active) {
+            this.shippingMethod.active = false;
+        }
+        if (!this.shippingMethod.bindShippingfree) {
+            this.shippingMethod.bindShippingfree = false;
+        }
     }
 });

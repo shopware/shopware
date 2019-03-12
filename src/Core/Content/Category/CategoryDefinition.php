@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Category;
 
+use Shopware\Core\Content\Category\Aggregate\CategoryTag\CategoryTagDefinition;
 use Shopware\Core\Content\Category\Aggregate\CategoryTranslation\CategoryTranslationDefinition;
 use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Content\Navigation\NavigationDefinition;
@@ -38,6 +39,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\UpdatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
+use Shopware\Core\Framework\Tag\TagDefinition;
 
 class CategoryDefinition extends EntityDefinition
 {
@@ -109,9 +111,12 @@ class CategoryDefinition extends EntityDefinition
             new ManyToOneAssociationField('media', 'media_id', MediaDefinition::class, false),
             new ChildrenAssociationField(self::class),
             (new TranslationsAssociationField(CategoryTranslationDefinition::class, 'category_id'))->addFlags(new Required()),
+
+            (new OneToManyAssociationField('navigations', NavigationDefinition::class, 'category_id', false))->addFlags(new CascadeDelete()),
+
             (new ManyToManyAssociationField('products', ProductDefinition::class, ProductCategoryDefinition::class, false, 'category_id', 'product_id', 'id', 'id'))->addFlags(new CascadeDelete(), new ReverseInherited('categories')),
             (new ManyToManyAssociationField('nestedProducts', ProductDefinition::class, ProductCategoryTreeDefinition::class, false, 'category_id', 'product_id'))->addFlags(new CascadeDelete(), new WriteProtected()),
-            (new OneToManyAssociationField('navigations', NavigationDefinition::class, 'category_id', false))->addFlags(new CascadeDelete()),
+            (new ManyToManyAssociationField('tags', TagDefinition::class, CategoryTagDefinition::class, false, 'category_id', 'tag_id')),
         ]);
     }
 }

@@ -156,9 +156,7 @@ Component.register('sw-sales-channel-detail-base', {
         },
         onClickAddDomain() {
             const newDomain = this.domainAssociationStore.create();
-            if (!this.next717) {
-                newDomain.snippetSetId = this.defaultSnippetSetId;
-            }
+            newDomain.snippetSetId = this.defaultSnippetSetId;
             this.salesChannel.domains.push(newDomain);
         },
         onClickDeleteDomain(domain) {

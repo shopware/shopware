@@ -1,5 +1,4 @@
 import { Module } from 'src/core/shopware';
-import { NEXT717 } from 'src/flag/feature_next717';
 
 import './extension/sw-settings-index';
 import './page/sw-settings-snippet-set-list';
@@ -13,7 +12,6 @@ import deDE from './snippet/de_DE.json';
 import enGB from './snippet/en_GB.json';
 
 Module.register('sw-settings-snippet', {
-    flag: NEXT717,
     type: 'core',
     name: 'Snippets',
     description: 'sw-settings-snippet.general.description',

@@ -1,3 +1,11 @@
+.header-row {
+    padding: $spacer 0;
+}
+
+.logo-main-link {
+    display: block;
+}
+
 .cart-widget {
     @extend .btn;
     @extend .btn-light;

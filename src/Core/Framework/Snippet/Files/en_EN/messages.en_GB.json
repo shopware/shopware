@@ -4,6 +4,9 @@
         "homeLink": "Home",
         "menuLink": "Menu"
     },
+    "header": {
+        "logoLink": "zur Startseite wechseln"
+    },
     "meta": {
         "xmlLang": "en-GB",
         "author": "",

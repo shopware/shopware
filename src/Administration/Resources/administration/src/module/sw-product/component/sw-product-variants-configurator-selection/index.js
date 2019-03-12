@@ -1,5 +1,4 @@
-import { Component, Application, State, Mixin } from 'src/core/shopware';
-import EntityStore from 'src/core/data/EntityStore';
+import { Component, Mixin } from 'src/core/shopware';
 import StoreLoader from 'src/core/helper/store-loader.helper';
 import template from './sw-product-variants-configurator-selection.html.twig';
 import VariantsGenerator from '../../helper/sw-products-variants-generator';
@@ -38,15 +37,7 @@ Component.extend('sw-product-variants-configurator-selection', 'sw-property-sear
 
     computed: {
         variantsGenerator() {
-            const variantsGeneratorDependencies = {
-                product: this.product,
-                syncService: Application.getContainer('service').syncService,
-                EntityStore: EntityStore,
-                State: State,
-                $tc: this.$tc
-            };
-
-            return new VariantsGenerator(variantsGeneratorDependencies);
+            return new VariantsGenerator(this.product);
         },
 
         configuratorStore() {

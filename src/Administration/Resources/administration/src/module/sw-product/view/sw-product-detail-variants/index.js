@@ -1,6 +1,4 @@
 import { Component } from 'src/core/shopware';
-// import EntityStore from 'src/core/data/EntityStore';
-// import StoreLoader from 'src/core/helper/store-loader.helper';
 import template from './sw-product-detail-variants.html.twig';
 import './sw-product-detail-variants.scss';
 
@@ -33,7 +31,8 @@ Component.register('sw-product-detail-variants', {
             this.$refs.generatedVariants.getList();
         },
         updateVariantListHasContent(variantList) {
-            this.variantListHasContent = variantList.length > 0;
+            const searchTerm = this.$route.query ? this.$route.query.term : '';
+            this.variantListHasContent = variantList.length > 0 || searchTerm;
         }
     }
 });

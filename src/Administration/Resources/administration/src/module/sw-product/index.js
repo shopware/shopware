@@ -7,7 +7,7 @@ import './component/sw-product-media-form';
 import './component/sw-product-visibility-select';
 import './component/sw-product-visibility-detail';
 import './component/sw-product-variants-configurator-selection';
-import './component/sw-product-variants-generated-variants';
+import './component/sw-product-variants-overview';
 import './view/sw-product-detail-base';
 import './view/sw-product-create-base';
 import './view/sw-product-detail-context-prices';

@@ -1,13 +1,13 @@
 import { Component, State, Mixin } from 'src/core/shopware';
 import CriteriaFactory from 'src/core/factory/criteria.factory';
-import { deepCopyObject } from 'src/core/service/utils/object.utils';
-import template from './sw-product-variants-generated-variants.html.twig';
-import './sw-products-variants-generated-variants.scss';
+import template from './sw-product-variants-overview.html.twig';
+import './sw-products-variants-overview.scss';
 
-Component.register('sw-product-variants-generated-variants', {
+Component.register('sw-product-variants-overview', {
     template,
 
     mixins: [
+        Mixin.getByName('notification'),
         Mixin.getByName('listing')
     ],
 
@@ -36,8 +36,12 @@ Component.register('sw-product-variants-generated-variants', {
 
         fieldPriceClasses() {
             return {
-                'sw-product-variants-generated-variants__grid--priceField--edit': this.priceEdit
+                'sw-product-variants-overview__grid--priceField--edit': this.priceEdit
             };
+        },
+
+        variantColumns() {
+            return this.getVariantColumns();
         }
     },
 
@@ -54,7 +58,7 @@ Component.register('sw-product-variants-generated-variants', {
             this.priceEdit = value;
         },
 
-        getList() {
+        async getList() {
             this.isLoading = true;
             const params = this.getListingParams();
 
@@ -65,8 +69,9 @@ Component.register('sw-product-variants-generated-variants', {
             if (queries.length > 0) {
                 params.queries = queries;
             }
+
             delete params.term;
-            this.variantStore.getList(params).then((res) => {
+            await this.variantStore.getList(params).then((res) => {
                 this.total = res.total;
                 this.variantList = res.items;
                 this.isLoading = false;
@@ -121,8 +126,33 @@ Component.register('sw-product-variants-generated-variants', {
             return queries;
         },
 
-        onSearch() {
-            this.getList();
+        getVariantColumns() {
+            return [
+                {
+                    property: 'name',
+                    label: this.$tc('sw-product.variations.generatedListColumnVariation'),
+                    allowResize: true
+                },
+                {
+                    property: 'price',
+                    dataIndex: 'price.gross',
+                    label: this.$tc('sw-product.variations.generatedListColumnPrice'),
+                    allowResize: true,
+                    inlineEdit: 'number'
+                },
+                {
+                    property: 'stock',
+                    dataIndex: 'stock',
+                    label: this.$tc('sw-product.variations.generatedListColumnStock'),
+                    allowResize: true,
+                    inlineEdit: 'number'
+                },
+                {
+                    property: 'product-number',
+                    label: this.$tc('sw-product.variations.generatedListColumnProductNumber'),
+                    allowResize: true
+                }
+            ];
         },
 
         onOptionDelete(item) {
@@ -133,34 +163,25 @@ Component.register('sw-product-variants-generated-variants', {
             item.isDeleted = false;
         },
 
-        onSubmitPriceNet(value, e, item) {
-            this.isLoading = true;
-            this.variantList = deepCopyObject(this.variantList);
-
-            item.price.net = value;
-            item.save().then(() => {
-                this.getList();
+        onInlineEditSave(variation) {
+            return variation.save().then(() => {
+                this.getList().then(() => {
+                    this.createNotificationSuccess({
+                        title: this.$tc('sw-product.variations.generatedListTitleSaveSuccess'),
+                        message: this.$tc('sw-product.variations.generatedListMessageSaveSuccess')
+                    });
+                });
+            }).catch(() => {
+                variation.discardChanges();
+                this.createNotificationError({
+                    title: this.$tc('sw-product.variations.generatedListTitleSaveError'),
+                    message: this.$tc('sw-product.variations.generatedListMessageSaveError')
+                });
             });
         },
 
-        onSubmitPriceGross(value, e, item) {
-            this.isLoading = true;
-            this.variantList = deepCopyObject(this.variantList);
-
-            item.price.gross = value;
-            item.save().then(() => {
-                this.getList();
-            });
-        },
-
-        onSubmitStock(value, e, item) {
-            this.isLoading = true;
-            this.variantList = deepCopyObject(this.variantList);
-
-            item.stock = parseInt(value, 10);
-            item.save().then(() => {
-                this.getList();
-            });
+        onInlineEditCancel(variation) {
+            variation.discardChanges();
         },
 
         onCloseDeleteModal() {
@@ -168,9 +189,15 @@ Component.register('sw-product-variants-generated-variants', {
         },
         onConfirmDelete(item) {
             this.modalLoading = true;
+            this.showDeleteModal = false;
+
             item.delete(true).then(() => {
-                this.showDeleteModal = false;
                 this.modalLoading = false;
+                this.createNotificationSuccess({
+                    // todo: Change translation
+                    title: this.$tc('sw-product.variations.generatedListTitleDeleteError'),
+                    message: this.$tc('sw-product.variations.generatedListMessageDeleteSuccess')
+                });
                 this.getList();
             });
         }

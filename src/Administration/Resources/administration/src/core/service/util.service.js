@@ -11,15 +11,13 @@ import {
     hasOwnProperty,
     getObjectDiff,
     getArrayChanges,
-    merge,
-    findKey
+    merge
 } from './utils/object.utils';
 import { warn } from './utils/debug.utils';
 import { currency, date, fileSize } from './utils/format.utils';
 import domUtils from './utils/dom.utils';
 import stringUtils from './utils/string.utils';
 import typesUtils from './utils/types.utils';
-import arrayUtils from './utils/array.utils';
 import fileReaderUtils from './utils/file-reader.utils';
 import sortUtils from './utils/sort.utils';
 
@@ -28,8 +26,7 @@ export const object = {
     hasOwnProperty: hasOwnProperty,
     getObjectDiff: getObjectDiff,
     getArrayChanges: getArrayChanges,
-    merge: merge,
-    findKey: findKey
+    merge: merge
 };
 
 export const debug = {
@@ -62,12 +59,7 @@ export const types = {
     isFunction: typesUtils.isFunction,
     isDate: typesUtils.isDate,
     isString: typesUtils.isString,
-    isBoolean: typesUtils.isBoolean,
-    difference: typesUtils.difference
-};
-
-export const array = {
-    chunk: arrayUtils.chunk
+    isBoolean: typesUtils.isBoolean
 };
 
 export const fileReader = {

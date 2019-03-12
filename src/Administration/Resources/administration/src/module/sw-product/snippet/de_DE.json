@@ -166,7 +166,13 @@
       "generatedListContextMenuDelete": "Löschen",
       "generatedListDeleteModalMessage": "Möchtest du die Variante löschen?",
       "generatedListDeleteModalButtonCancel": "Abbrechen",
-      "generatedListDeleteModalButtonDelete": "Löschen"
+      "generatedListDeleteModalButtonDelete": "Löschen",
+      "generatedListTitleSaveSuccess": "Gespeichert",
+      "generatedListTitleSaveError": "Fehler",
+      "generatedListMessageSaveSuccess": "Die Variation wurde gespeichert.",
+      "generatedListMessageSaveError": "Die Variation konnte nicht gespeichert werden.",
+      "generatedListTitleDeleteError": "Gelöscht",
+      "generatedListMessageDeleteSuccess": "Die Variation wurde gelöscht."
     }
   }
 }

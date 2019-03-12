@@ -9,15 +9,15 @@
         </sw-product-variants-configurator-selection>
     </sw-card>
 
-    <sw-card class="sw-card__generated-variants" :title="$tc('sw-product.variations.generatedVariationCardTitle')">
+    <sw-card class="sw-card__generated-variants" :title="$tc('sw-product.variations.generatedVariationCardTitle')" large>
 
-        <sw-product-variants-generated-variants
+        <sw-product-variants-overview
             v-show="variantListHasContent"
             :product="product"
             ref="generatedVariants"
             @variantListUpdated="updateVariantListHasContent"
         >
-        </sw-product-variants-generated-variants>
+        </sw-product-variants-overview>
 
         <template v-if="!variantListHasContent">
 

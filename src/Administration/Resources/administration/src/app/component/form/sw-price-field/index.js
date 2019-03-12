@@ -37,7 +37,7 @@ export default {
         },
         currency: {
             type: Object,
-            required: true,
+            required: false,
             default() {
                 return {};
             }
@@ -45,6 +45,14 @@ export default {
         validation: {
             required: false,
             default: null
+        },
+        label: {
+            required: false,
+            default: true
+        },
+        compact: {
+            required: false,
+            default: false
         }
     },
 

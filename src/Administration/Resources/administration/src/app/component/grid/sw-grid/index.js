@@ -41,18 +41,6 @@ export default {
             default: true
         },
 
-        allSelectable: {
-            type: Boolean,
-            required: false,
-            default: true
-        },
-
-        showSelectionCheckbox: {
-            type: Boolean,
-            required: false,
-            default: true
-        },
-
         variant: {
             type: String,
             required: false,
@@ -132,7 +120,7 @@ export default {
         },
 
         columnFlex() {
-            let flex = (this.showSelectionCheckbox === true && this.selectable) ? '50px ' : '';
+            let flex = (this.selectable === true) ? '50px ' : '';
 
             this.columns.forEach((column) => {
                 if (`${parseInt(column.flex, 10)}` === column.flex) {

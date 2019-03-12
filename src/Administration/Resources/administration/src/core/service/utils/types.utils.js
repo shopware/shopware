@@ -12,7 +12,6 @@ import isDate from 'lodash/isDate';
 import isString from 'lodash/isString';
 import isBoolean from 'lodash/isBoolean';
 import isEqual from 'lodash/isEqual';
-import difference from 'lodash/difference';
 
 export default {
     isObject,
@@ -24,6 +23,5 @@ export default {
     isDate,
     isString,
     isBoolean,
-    isEqual,
-    difference
+    isEqual
 };

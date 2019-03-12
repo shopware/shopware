@@ -1,16 +1,19 @@
+import { Application, State } from 'src/core/shopware';
+import EntityStore from 'src/core/data/EntityStore';
 import { deepCopyObject } from 'src/core/service/utils/object.utils';
-
 import EventEmitter from 'events';
+import { md5 } from 'src/core/service/utils/format.utils';
 
 export default class VariantsGenerator extends EventEmitter {
-    constructor(dependencies) {
+    constructor(product) {
         super();
+
+        this.product = product;
+
         // set dependencies
-        this.product = dependencies.product;
-        this.syncService = dependencies.syncService;
-        this.EntityStore = dependencies.EntityStore;
-        this.State = dependencies.State;
-        this.$tc = dependencies.$tc;
+        this.syncService = Application.getContainer('service').syncService;
+        this.EntityStore = EntityStore;
+        this.State = State;
         this.httpClient = this.syncService.httpClient;
 
         // local data
@@ -29,12 +32,12 @@ export default class VariantsGenerator extends EventEmitter {
                 this.loadExisting(this.product.id).then((variantsOnServer) => {
                     const deleteArray = Object.keys(variantsOnServer).map((id) => { return { id }; });
                     this.emit('maxProgressChange', { type: 'delete', progress: deleteArray.length });
-                    this.syncVariants('delete', deleteArray, 0, 10, resolve);
+                    this.processQueue('delete', deleteArray, 0, 10, resolve);
                 });
                 return;
             }
 
-            // check for large request over 100 000 variants
+            // check for large request over 10 000 variants
             const numberOfVariants = grouped.map((group) => group.length).reduce((curr, length) => curr * length);
             if (!forceGenerating && numberOfVariants >= 10000) {
                 this.emit('warning', numberOfVariants);
@@ -46,82 +49,87 @@ export default class VariantsGenerator extends EventEmitter {
             const permutations = this.buildCombinations(grouped);
 
             this.loadExisting(this.product.id).then((variantsOnServer) => {
-                const filterVariations = this.filterVariations(permutations, variantsOnServer);
+                // filter deletable and creatable variations
+                this.filterVariations(permutations, variantsOnServer).then((queues) => {
+                    new Promise((resolveDelete) => {
+                        // notify view to refresh progrss
+                        this.emit('maxProgressChange', { type: 'delete', progress: queues.deleteQueue.length });
 
-                this.emit('maxProgressChange', { type: 'delete', progress: filterVariations.variationsToDelete.length });
+                        // create mapping for api call
+                        const mapped = queues.deleteQueue.map((id) => {
+                            return { id };
+                        });
 
-                // first delete variants, then create new variants
-                // use promise for creating a recursion to create sequential request
-                new Promise((resolveDelete) => {
-                    this.syncVariants('delete', filterVariations.variationsToDelete, 0, 100, resolveDelete);
-                }).then(() => {
-                    this.emit('maxProgressChange', { type: 'upsert', progress: filterVariations.variationsToCreate.length });
-                    this.syncVariants('upsert', filterVariations.variationsToCreate, 0, 100, resolve);
+                        // send api calls for delete
+                        this.processQueue('delete', mapped, 0, 10, resolveDelete);
+                    }).then(() => {
+                        // notify view to refresh progress
+                        this.emit('maxProgressChange', { type: 'upsert', progress: queues.createQueue.length });
+
+                        // send api calls for create
+                        this.processQueue('upsert', queues.createQueue, 0, 10, resolve);
+                    });
                 });
             });
         });
     }
 
     filterVariations(newVariations, variationOnServer) {
-        let variationsToDelete = Object.keys(deepCopyObject(variationOnServer));
-        const variationsToCreate = [];
+        return new Promise((resolve) => {
+            const createQueue = [];
 
-        const variationOnServerHashed = Object.entries(variationOnServer).map((variation) => {
-            return [variation[0], JSON.stringify(variation[1].sort())];
-        });
-        const newVariationsSorted = newVariations.map((variation) => variation.sort());
-
-        this.emit('maxProgressChange', { type: 'calc', progress: newVariationsSorted.length });
-
-        newVariationsSorted.forEach((variation, index) => {
-            console.log(index);
-            this.emit('actualProgressChange', { type: 'calc', progress: index });
-
-            const exist = this.existsHash(variation, variationOnServerHashed);
-
-            if (exist) {
-                // Remove from delete list
-                variationsToDelete = variationsToDelete.filter(key => key !== exist[0]);
-                return false;
+            /*
+             * {
+             *      hash1: variantId
+             *      hash2: variantId2
+             *      hash3: variantId..
+             * }
+             *
+             */
+            const hashed = {};
+            // eslint-disable-next-line no-restricted-syntax
+            for (const [key, options] of Object.entries(variationOnServer)) {
+                const hash = md5(JSON.stringify(options.sort()));
+                hashed[hash] = key;
             }
 
-            const variations = variation.map((optionId) => {
-                return { id: optionId };
+            let deleteQueue = deepCopyObject(hashed);
+
+            const newVariationsSorted = newVariations.map((variation) => variation.sort());
+
+            // notify page that the generation starts now
+            this.emit('maxProgressChange', { type: 'calc', progress: newVariationsSorted.length });
+
+            newVariationsSorted.forEach((variation) => {
+                const hash = md5(JSON.stringify(variation));
+                const exist = hashed[hash];
+
+                if (exist !== undefined) {
+                    delete deleteQueue[hash];
+                } else {
+                    const variations = variation.map((optionId) => {
+                        return { id: optionId };
+                    });
+
+                    // todo calculate price with surcharges
+                    // todo consider product.priceRules (store of prices)
+                    // Add to create list
+                    createQueue.push({
+                        parentId: this.product.id,
+                        variations: variations,
+                        stock: this.product.stock,
+                        price: { gross: 200, net: 100, linked: false }
+                    });
+                }
             });
 
-            // todo calculate price with surcharges
-            // todo consider product.priceRules (store of prices)
+            deleteQueue = Object.values(deleteQueue);
 
-            // Add to create list
-            variationsToCreate.push({
-                parentId: this.product.id,
-                variations: variations,
-                stock: this.product.stock,
-                price: { gross: 200, net: 100, linked: false }
-            });
-
-            return true;
+            resolve({ deleteQueue, createQueue });
         });
-
-        return {
-            variationsToDelete: variationsToDelete.map((id) => {
-                return { id };
-            }),
-            variationsToCreate
-        };
     }
-
-    existsHash(permutation, existings) {
-        const permutationHash = JSON.stringify(permutation);
-        const found = existings.find((variation) => {
-            return permutationHash === variation[1];
-        });
-        return found || false;
-    }
-
 
     loadExisting(id) {
-        // todo create a service for this request
         return this.httpClient.get(
             `/_action/product/${id}/combinations`,
             { headers: this.syncService.getBasicHeaders() }
@@ -181,8 +189,8 @@ export default class VariantsGenerator extends EventEmitter {
         return all;
     }
 
-    syncVariants(type, variants, offset, limit, resolve) {
-        const chunk = variants.slice(offset, offset + limit);
+    processQueue(type, queue, offset, limit, resolve) {
+        const chunk = queue.slice(offset, offset + limit);
         if (chunk.length <= 0) {
             resolve();
             return;
@@ -198,7 +206,7 @@ export default class VariantsGenerator extends EventEmitter {
 
         const header = this.EntityStore.getLanguageHeader(this.getLanguageId());
         this.syncService.sync(payload, {}, header).then(() => {
-            this.syncVariants(type, variants, offset + limit, limit, resolve);
+            this.processQueue(type, queue, offset + limit, limit, resolve);
         });
     }
 

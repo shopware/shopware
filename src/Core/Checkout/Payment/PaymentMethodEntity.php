@@ -6,6 +6,7 @@ use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionCollection;
 use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Checkout\Payment\Aggregate\PaymentMethodTranslation\PaymentMethodTranslationCollection;
+use Shopware\Core\Content\Rule\RuleCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\Plugin\PluginEntity;
@@ -71,11 +72,6 @@ class PaymentMethodEntity extends Entity
     protected $active;
 
     /**
-     * @var string|null
-     */
-    protected $riskRules;
-
-    /**
      * @var \DateTimeInterface|null
      */
     protected $createdAt;
@@ -119,6 +115,11 @@ class PaymentMethodEntity extends Entity
      * @var SalesChannelCollection|null
      */
     protected $salesChannels;
+
+    /**
+     * @var RuleCollection|null
+     */
+    protected $availabilityRules;
 
     /**
      * @var array|null
@@ -235,16 +236,6 @@ class PaymentMethodEntity extends Entity
         $this->active = $active;
     }
 
-    public function getRiskRules(): ?string
-    {
-        return $this->riskRules;
-    }
-
-    public function setRiskRules(?string $riskRules): void
-    {
-        $this->riskRules = $riskRules;
-    }
-
     public function getCreatedAt(): ?\DateTimeInterface
     {
         return $this->createdAt;
@@ -333,6 +324,16 @@ class PaymentMethodEntity extends Entity
     public function setSalesChannels(SalesChannelCollection $salesChannels): void
     {
         $this->salesChannels = $salesChannels;
+    }
+
+    public function getAvailabilityRules(): ?RuleCollection
+    {
+        return $this->availabilityRules;
+    }
+
+    public function setAvailabilityRules(?RuleCollection $availabilityRules): void
+    {
+        $this->availabilityRules = $availabilityRules;
     }
 
     public function getAttributes(): ?array

@@ -2,7 +2,6 @@ const ruleBuilderPage = require('administration/page-objects/module/sw-rule.page
 
 module.exports = {
     '@tags': ['settings', 'rule', 'rule-nested-condition', 'conditions', 'nested-condition', 'condition-types'],
-    '@disabled': !global.flags.isActive('next516'),
     before: (browser, done) => {
         global.AdminFixtureService.create('rule').then(() => {
             return global.ProductFixtureService.setProductFixture();

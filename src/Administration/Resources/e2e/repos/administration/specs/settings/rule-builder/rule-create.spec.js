@@ -2,7 +2,6 @@ const ruleBuilderPage = require('administration/page-objects/module/sw-rule.page
 
 module.exports = {
     '@tags': ['settings', 'rule', 'rule-create', 'create'],
-    '@disabled': !global.flags.isActive('next516'),
     'navigate to rule index': (browser) => {
         browser
             .openMainMenuEntry({

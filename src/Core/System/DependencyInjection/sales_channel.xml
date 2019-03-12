@@ -37,6 +37,10 @@
             <tag name="shopware.entity.definition" entity="sales_channel_shipping_method"/>
         </service>
 
+        <service id="Shopware\Core\System\SalesChannel\Aggregate\SalesChannelTheme\SalesChannelThemeDefinition">
+            <tag name="shopware.entity.definition" entity="sales_channel_theme"/>
+        </service>
+
         <service id="Shopware\Core\System\SalesChannel\Aggregate\SalesChannelType\SalesChannelTypeDefinition">
             <tag name="shopware.entity.definition" entity="sales_channel_type"/>
         </service>

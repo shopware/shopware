@@ -14,7 +14,8 @@ Component.register('sw-product-list', {
         return {
             products: [],
             showDeleteModal: false,
-            isLoading: false
+            isLoading: false,
+            total: 0
         };
     },
 

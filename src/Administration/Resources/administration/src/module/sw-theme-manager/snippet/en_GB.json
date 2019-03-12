@@ -1,0 +1,13 @@
+{
+  "sw-theme-manager": {
+    "general": {
+        "mainMenuItemIndex": "Theme Manager",
+        "placeholderSearchBar": "Search Themes"
+    },
+    "list": {
+        "titleSidebarItemRefresh": "Refresh",
+        "buttonAddtheme": "Create new theme",
+        "textThemeOverview": "Themes"
+    }
+  }
+}

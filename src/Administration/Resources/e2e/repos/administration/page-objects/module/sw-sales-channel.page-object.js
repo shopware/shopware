@@ -68,11 +68,11 @@ class SalesChannelPageObject extends GeneralPageObject {
 
     openSalesChannel(salesChannelName, position = 0) {
         this.browser
-            .expect.element(`${this.elements.salesChannelMenuName}--${position}`).to.have.text.that.equals(salesChannelName);
+            .expect.element(`${this.elements.salesChannelMenuName}--${position} > a`).to.have.text.that.equals(salesChannelName);
 
         this.browser
             .click(`${this.elements.salesChannelMenuName}--${position}`)
-            .expect.element(this.elements.smartBarHeader).to.have.text.that.equals(salesChannelName);
+            .expect.element(this.elements.smartBarHeader).to.have.text.that.contains(salesChannelName);
     }
 
     deleteSingleSalesChannel(salesChannelName, position = 0) {
@@ -84,7 +84,7 @@ class SalesChannelPageObject extends GeneralPageObject {
         this.browser
             .click(`${this.elements.modal}__footer button${this.elements.primaryButton}`)
             .waitForElementNotPresent(this.elements.modal)
-            .expect.element(`${this.elements.salesChannelMenuName}--${position}`).to.have.text.that.not.equals(salesChannelName);
+            .expect.element(`${this.elements.salesChannelMenuName}--${position} > a`).to.have.text.that.not.contains(salesChannelName);
     }
 
     checkClipboard() {

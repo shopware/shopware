@@ -29,7 +29,7 @@ module.exports = {
             .expect.element(page.elements.smartBarHeader).to.have.text.that.contains(global.AdminFixtureService.basicFixture.name);
 
         page.createDateRangeCondition({
-            type: 'date range',
+            type: 'Date range',
             ruleSelector: `${page.elements.conditionOrContainer}--0 ${page.elements.baseCondition}`,
             fromDate: '2019-03-28 12:12',
             toDate: '2019-04-28 12:12',
@@ -42,7 +42,7 @@ module.exports = {
         browser.click('.sw-condition-and-container__actions--and');
 
         page.createBasicInputCondition({
-            type: 'cart amount',
+            type: 'Cart amount',
             inputName: 'amount',
             operator: 'Greater',
             ruleSelector: `${page.elements.conditionOrContainer}--0 ${page.elements.conditionAndContainer}--1 ${page.elements.baseCondition}`,
@@ -55,14 +55,14 @@ module.exports = {
         browser.clickContextMenuItem('.sw-condition-base__create-before-action', page.elements.contextMenuButton, `${page.elements.conditionAndContainer}--1`);
 
         page.createBasicSelectCondition({
-            type: 'customer group',
+            type: 'Customer group',
             operator: 'Is none of',
             ruleSelector: `${page.elements.conditionOrContainer}--0 ${page.elements.conditionAndContainer}--1 ${page.elements.baseCondition}`,
             value: 'Standard customer group',
             isMulti: true
         });
 
-        browser.expect.element(`${page.elements.conditionAndContainer}--1 ${page.elements.ruleFieldCondition}`).to.have.attribute('title').that.equals('customer group');
+        browser.expect.element(`${page.elements.conditionAndContainer}--1 ${page.elements.ruleFieldCondition}`).to.have.attribute('title').that.equals('Customer group');
     },
     'add another and-condition to the rule after the second one': (browser) => {
         const page = ruleBuilderPage(browser);
@@ -70,14 +70,14 @@ module.exports = {
         browser.clickContextMenuItem('.sw-condition-base__create-after-action', page.elements.contextMenuButton, `${page.elements.conditionAndContainer}--1`);
 
         page.createBasicSelectCondition({
-            type: 'billing country',
+            type: 'Billing country',
             operator: 'Is none of',
             ruleSelector: `${page.elements.conditionOrContainer}--0 ${page.elements.conditionAndContainer}--2 ${page.elements.baseCondition}`,
             value: 'Australia',
             isMulti: true
         });
 
-        browser.expect.element(`${page.elements.conditionAndContainer}--2 ${page.elements.ruleFieldCondition}`).to.have.attribute('title').that.equals('billing country');
+        browser.expect.element(`${page.elements.conditionAndContainer}--2 ${page.elements.ruleFieldCondition}`).to.have.attribute('title').that.equals('Billing country');
     },
     'create second main condition as or-condition': (browser) => {
         const page = ruleBuilderPage(browser);
@@ -87,9 +87,9 @@ module.exports = {
             .waitForElementVisible(page.elements.orSpacer);
 
         page.createBasicSelectCondition({
-            type: 'is new customer',
+            type: 'Is new customer',
             ruleSelector: `${page.elements.conditionOrContainer}--1 ${page.elements.baseCondition}`,
-            value: 'no',
+            value: 'No',
             isMulti: false
         });
     },
@@ -102,7 +102,7 @@ module.exports = {
             .getLocationInView(`${page.elements.conditionOrContainer}--1 ${page.elements.subConditionContainer}`);
 
         page.createBasicInputCondition({
-            type: 'last name',
+            type: 'Last name',
             inputName: 'lastName',
             operator: 'Not equals',
             ruleSelector: `${page.elements.conditionOrContainer}--1 ${page.elements.conditionOrContainer}--0 ${page.elements.baseCondition}`,
@@ -116,7 +116,7 @@ module.exports = {
             .getLocationInView(`${page.elements.conditionOrContainer}--1 ${page.elements.andSpacer}`);
 
         page.createCombinedInputSelectCondition({
-            type: 'line item with quantity',
+            type: 'Line item with quantity',
             ruleSelector: `${page.elements.conditionOrContainer}--1 ${page.elements.conditionOrContainer}--1 ${page.elements.baseCondition}`,
             firstValue: global.ProductFixtureService.productFixture.name,
             secondValue: '20',

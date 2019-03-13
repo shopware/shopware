@@ -28,7 +28,7 @@ module.exports = {
             .expect.element(page.elements.smartBarHeader).to.have.text.that.contains(global.AdminFixtureService.basicFixture.name);
 
         page.createBasicSelectCondition({
-            type: 'currency',
+            type: 'Currency',
             operator: 'Is none of',
             ruleSelector: `${page.elements.conditionOrContainer}--0`,
             value: 'Euro',

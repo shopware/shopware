@@ -28,7 +28,7 @@ class RuleBuilderPageObject extends GeneralPageObject {
             .fillField('textarea[name=sw-field--rule-description]', 'Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.');
 
         this.createBasicSelectCondition({
-            type: 'currency',
+            type: 'Currency',
             operator: 'Is none of',
             ruleSelector: `${this.elements.conditionOrContainer}--0`,
             value: 'Euro',
@@ -111,7 +111,7 @@ class RuleBuilderPageObject extends GeneralPageObject {
             });
 
         this.browser.fillSwSelectComponent(`${ruleData.ruleSelector} .sw-select[name=useTime]`, {
-            value: ruleData.useTime ? 'use time' : 'don\'t use time',
+            value: ruleData.useTime ? 'Use time' : 'Don\'t use time',
             isMulti: false,
             searchTerm: String(ruleData.useTime)
         });

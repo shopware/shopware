@@ -346,7 +346,7 @@
         "customerNumberRule": "Kundennummer",
         "differentAddressesRule": "Abweichende Adressen",
         "isNewCustomerRule": "Neuer Kunde",
-        "lastNameRule": "Kunden-Nachname",
+        "lastNameRule": "Nachname",
         "shippingCountryRule": "Lieferland",
         "shippingStreetRule": "Lieferstraße",
         "shippingZipCodeRule": "Lieferadresse-PLZ",
@@ -372,7 +372,7 @@
         "field": {
           "valuePlaceholder": "Wert..."
         },
-        "placeholder-warning": "Bitte wähle eine Bedingung aus.",
+        "placeholder-warning": "Bitte wähle eine Bedingung aus...",
         "not-found": {
           "label": "Die Bedingung konnte nicht gefunden werden",
           "error-message": "Der Bedingungstyp {type} konnte nicht gefunden werden. Die Bedingung besitzt das Feld: {fields} | Der Bedingungstyp {type} konnte nicht gefunden werden. Die Bedingungen besitzen die Felder: {fields}"

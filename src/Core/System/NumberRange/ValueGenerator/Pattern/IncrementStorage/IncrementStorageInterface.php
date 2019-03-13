@@ -14,5 +14,5 @@ interface IncrementStorageInterface
     /**
      * fetch next number without increment. Use to preview next Value
      */
-    public function getNext(NumberRangeEntity $configuration, $incrementBy = 1): string;
+    public function getNext(NumberRangeEntity $configuration, int $incrementBy = 1): string;
 }

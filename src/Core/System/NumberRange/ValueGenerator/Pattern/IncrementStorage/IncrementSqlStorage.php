@@ -20,7 +20,7 @@ class IncrementSqlStorage implements IncrementStorageInterface
         $this->connection = $connection;
     }
 
-    public function pullState(NumberRangeEntity $configuration, $incrementBy = 1): string
+    public function pullState(NumberRangeEntity $configuration, int $incrementBy = 1): string
     {
         $this->connection->beginTransaction();
         $stmt = $this->connection->executeQuery(
@@ -51,7 +51,7 @@ class IncrementSqlStorage implements IncrementStorageInterface
         return (string) $nextNumber;
     }
 
-    public function getNext(NumberRangeEntity $configuration, $incrementBy = 1): string
+    public function getNext(NumberRangeEntity $configuration, int $incrementBy = 1): string
     {
         $stmt = $this->connection->executeQuery(
             'SELECT `last_value` FROM `number_range_state` WHERE number_range_id = :id FOR UPDATE',

@@ -826,8 +826,8 @@ export default class EntityProxy {
                     return { ...acc, [key]: null };
                 }
 
-                // Check null against empty string
-                if (type.isEmpty(a[key]) === type.isEmpty(b[key])) {
+                // Check if both dont exists or are empty
+                if (!a[key] && !b[key]) {
                     return acc;
                 }
 

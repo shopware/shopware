@@ -107,6 +107,7 @@
       "buttonCancel": "Abbrechen",
       "buttonDelete": "Löschen",
       "columnName": "Name",
+      "columnProductNumber": "Produktnummer",
       "columnManufacturer": "Hersteller",
       "columnActive": "Aktiv",
       "columnPrice": "Preis",

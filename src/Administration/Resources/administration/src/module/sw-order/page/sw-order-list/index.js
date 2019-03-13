@@ -75,8 +75,8 @@ Component.register('sw-order-list', {
 
         getOrderColumns() {
             return [{
-                property: 'id',
-                dataIndex: 'id',
+                property: 'orderNumber',
+                dataIndex: 'orderNumber',
                 label: this.$tc('sw-order.list.columnOrderNumber'),
                 routerLink: 'sw.order.detail',
                 allowResize: true,

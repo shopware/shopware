@@ -19,7 +19,8 @@ Component.register('sw-settings-number-range-detail', {
             simplePossible: true,
             prefix: '',
             suffix: '',
-            preview: ''
+            preview: '',
+            state: 1
         };
     },
 
@@ -29,9 +30,6 @@ Component.register('sw-settings-number-range-detail', {
         },
         numberRangeTypeStore() {
             return State.getStore('number_range_type');
-        },
-        typeAssociationStore() {
-            return this.numberRange.getAssociation('type');
         },
         salesChannelStore() {
             return State.getStore('sales_channel');
@@ -50,6 +48,12 @@ Component.register('sw-settings-number-range-detail', {
                     || this.selectedType.global === false
                 )
             );
+        },
+        firstSalesChannel() {
+            if (this.numberRange.salesChannels && this.numberRange.salesChannels.length > 0) {
+                return this.numberRange.salesChannels[0].id;
+            }
+            return '';
         }
     },
 
@@ -91,11 +95,21 @@ Component.register('sw-settings-number-range-detail', {
 
         getPreview() {
             this.numberRangeService.previewPattern(
-                'product',
+                this.numberRange.type.typeName,
                 this.numberRange.pattern,
                 this.numberRange.start
             ).then((response) => {
                 this.preview = response.number;
+            });
+        },
+
+        getState() {
+            this.numberRangeService.reserve(
+                this.numberRange.type.typeName,
+                this.firstSalesChannel,
+                true
+            ).then((response) => {
+                this.state = response.number - 1;
             });
         },
 
@@ -119,6 +133,7 @@ Component.register('sw-settings-number-range-detail', {
                 this.numberRange = response;
                 this.selectedType = this.numberRangeTypeStore.getById(this.numberRange.typeId);
                 this.getPreview();
+                this.getState();
                 this.splitPattern();
             });
         },

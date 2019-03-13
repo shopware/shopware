@@ -11,6 +11,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\Demodata\DemodataContext;
 use Shopware\Core\Framework\Demodata\DemodataGeneratorInterface;
 use Shopware\Core\Framework\Struct\Uuid;
+use Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInterface;
 
 class CustomerGenerator implements DemodataGeneratorInterface
 {
@@ -23,11 +24,19 @@ class CustomerGenerator implements DemodataGeneratorInterface
      * @var EntityRepositoryInterface
      */
     private $customerGroupRepository;
+    /**
+     * @var NumberRangeValueGeneratorInterface
+     */
+    private $numberRangeValueGenerator;
 
-    public function __construct(EntityWriterInterface $writer, EntityRepositoryInterface $customerGroupRepository)
+    public function __construct(
+        EntityWriterInterface $writer,
+        EntityRepositoryInterface $customerGroupRepository,
+        NumberRangeValueGeneratorInterface $numberRangeValueGenerator)
     {
         $this->writer = $writer;
         $this->customerGroupRepository = $customerGroupRepository;
+        $this->numberRangeValueGenerator = $numberRangeValueGenerator;
     }
 
     public function getDefinition(): string
@@ -148,7 +157,7 @@ class CustomerGenerator implements DemodataGeneratorInterface
 
             $customer = [
                 'id' => $id,
-                'customerNumber' => (string) ($number + $i),
+                'customerNumber' => $this->numberRangeValueGenerator->getValue('customer', $context->getContext(), null),
                 'salutation' => $salutation,
                 'firstName' => $firstName,
                 'lastName' => $lastName,

@@ -71,8 +71,7 @@ class ManyToManyAssociationFieldSerializer implements FieldSerializerInterface
             );
         }
 
-        return;
-        yield __CLASS__ => __METHOD__;
+        yield from [];
     }
 
     public function decode(Field $field, $value): void

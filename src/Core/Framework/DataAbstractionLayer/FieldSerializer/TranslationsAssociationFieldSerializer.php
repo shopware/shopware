@@ -157,8 +157,6 @@ class TranslationsAssociationFieldSerializer implements FieldSerializerInterface
             throw new MissingSystemTranslationException($path);
         }
 
-        // yield nothing. There has to be one yield for php to type check
-        return;
-        yield __CLASS__ => __METHOD__;
+        yield from [];
     }
 }

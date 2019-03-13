@@ -17,6 +17,7 @@ module.exports = {
 
         browser
             .click('.sw-media-folder-settings__thumbnails-tab')
+            .click('button.sw-media-modal-folder-settings__switch-mode')
             .waitForElementVisible('.sw-media-modal-folder-settings__thumbnails-list-container');
     },
     'set general thumbnail settings': (browser) => {
@@ -29,6 +30,7 @@ module.exports = {
         page.setThumbnailSize('800');
 
         browser
+            .click('button.sw-media-modal-folder-settings__switch-mode')
             .click(page.elements.saveSettingsAction)
             .checkNotification('Settings have been saved successfully');
     },
@@ -48,6 +50,7 @@ module.exports = {
 
         browser
             .tickCheckbox('input[name=thumbnail-size-active]', true)
+            .click('button.sw-media-modal-folder-settings__switch-mode')
             .click(page.elements.saveSettingsAction)
             .checkNotification('Settings have been saved successfully');
     },
@@ -87,6 +90,7 @@ module.exports = {
             .waitForElementNotPresent('.sw-media-modal-folder-settings__thumbnail-size-entry');
 
         browser
+            .click('.sw-media-modal-folder-settings__switch-mode')
             .click(page.elements.saveSettingsAction)
             .checkNotification('Settings have been saved successfully');
     },

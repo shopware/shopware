@@ -58,7 +58,6 @@ module.exports = {
             .waitForElementNotPresent('input[name=sw-field--url]')
             .waitForElementVisible(`${page.elements.gridItem}--0 ${page.elements.previewItem}`)
             .click('.sw-media-replace__replace-media-action')
-            .checkNotification('File successfully replaced.', `${page.elements.notification}--1`)
             .checkNotification('File has been saved successfully.');
     },
     'verify if image was replaced correctly': (browser) => {

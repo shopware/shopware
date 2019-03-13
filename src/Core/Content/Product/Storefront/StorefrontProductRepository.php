@@ -37,8 +37,8 @@ class StorefrontProductRepository
     public function read(Criteria $criteria, CheckoutContext $context): ProductCollection
     {
         $this->addActiveFilters($criteria, $context);
-
-        $criteria->addAssociation('product.media');
+        $this->addDatasheet($criteria);
+        $this->addMedia($criteria);
 
         /** @var ProductCollection $basics */
         $basics = $this->productRepository
@@ -126,5 +126,18 @@ class StorefrontProductRepository
                 ]
             )
         );
+    }
+
+    private function addDatasheet(Criteria $criteria): void
+    {
+        $datasheetCriteria = new Criteria();
+        $datasheetCriteria->addAssociation('configuration_group_option.group');
+
+        $criteria->addAssociation('product.datasheet', $datasheetCriteria);
+    }
+
+    private function addMedia(Criteria $criteria): void
+    {
+        $criteria->addAssociation('product.media');
     }
 }

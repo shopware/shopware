@@ -82,13 +82,27 @@ export default class CartMini {
         // Open the OffCanvas first
         OffCanvas.open(LoadingIndicator.getTemplate(), () => {
             // Fire POST request for adding the product to cart
-            this.client.post(requestUrl.toLowerCase(), new FormData(form), () => {
+            this.client.post(requestUrl.toLowerCase(), this._convertFormDataToJSON(new FormData(form)), () => {
                 // Update the CartWidget in the header
                 CartWidget.fetch();
                 // Fetch the current cart template and replace the OffCanvas content
                 this._fetchCartMini();
             });
         }, CART_MINI_POSITION);
+    }
+
+    /**
+     * Convert the FormData object to JSON
+     * @param {FormData} formData
+     * @returns {string}
+     * @private
+     */
+    _convertFormDataToJSON(formData) {
+        let object = {};
+        formData.forEach((value, key) => {
+            object[key] = value;
+        });
+        return JSON.stringify(object);
     }
 
     /**

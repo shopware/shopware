@@ -38,6 +38,8 @@ class StorefrontProductRepository
     {
         $this->addActiveFilters($criteria, $context);
 
+        $criteria->addAssociation('product.media');
+
         /** @var ProductCollection $basics */
         $basics = $this->productRepository
             ->search($criteria, $context->getContext())

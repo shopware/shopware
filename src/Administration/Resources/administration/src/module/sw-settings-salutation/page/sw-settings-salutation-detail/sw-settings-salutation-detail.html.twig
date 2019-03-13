@@ -1,0 +1,89 @@
+{% block sw_settings_salutation_detail %}
+    <sw-page class="sw-settings-salutation-detail">
+
+        {% block sw_settings_salutation_detail_search_bar %}
+            <template slot="search-bar"></template>
+        {% endblock %}
+
+        {% block sw_settings_salutation_detail_smart_bar_header %}
+            <template slot="smart-bar-header">
+                {% block sw_settings_salutation_detail_smart_bar_header_title %}
+                    <h2>
+                        {% block sw_settings_salutation_detail_smart_bar_header_title_text %}
+                            {{ $tc('sw-settings.index.title') }}
+                            <sw-icon name="small-arrow-medium-right" small></sw-icon>
+                            {{ $tc('sw-settings-salutation.general.mainMenuItemGeneral') }}
+                            <sw-icon name="small-arrow-medium-right" small></sw-icon>
+                            {{ salutation.meta.viewData.salutationKey || $tc('sw-settings-salutation.detail.placeholderNewSalutation') }}
+                        {% endblock %}
+                    </h2>
+                {% endblock %}
+            </template>
+        {% endblock %}
+
+        {% block sw_settings_salutation_detail_language_switch %}
+            <template slot="language-switch">
+                <sw-language-switch @on-change="onChangeLanguage"></sw-language-switch>
+            </template>
+        {% endblock %}
+
+        {% block sw_settings_salutation_detail_actions %}
+            <template slot="smart-bar-actions">
+                {% block sw_settings_salutation_detail_actions_cancel %}
+                    <sw-button class="sw-settings-salutation-detail__cancel"
+                               @click="onCancel">
+                        {{ $tc('sw-settings-salutation.general.buttonCancel') }}
+                    </sw-button>
+                {% endblock %}
+
+                {% block sw_settings_salutation_detail_actions_save %}
+                    <sw-button class="sw-settings-salutation-detail__save"
+                               :disabled="!salutation.salutationKey || invalidKey || isKeyChecking"
+                               variant="primary"
+                               @click="onSave">
+                        {{ $tc('sw-settings-salutation.general.buttonSave') }}
+                    </sw-button>
+                {% endblock %}
+            </template>
+        {% endblock %}
+
+        {% block sw_settings_salutation_detail_cardview %}
+            <template slot="content">
+                <sw-card-view>
+
+                    {% block sw_settings_salutation_detail_content_language_info %}
+                        <sw-language-info :entityDescription="entityDescription"></sw-language-info>
+                    {% endblock %}
+
+                    {% block sw_settings_salutation_detail_content_card %}
+                        <sw-card :isLoading="isLoading"
+                                 :title="$tc('sw-settings-salutation.detail.cardTitle')">
+
+                            {% block sw_settings_salutation_detail_content_card_salutation_key %}
+                                <sw-field v-model="salutation.salutationKey"
+                                          class="sw-settings-salutation-detail__salutation_key"
+                                          :label="$tc('sw-settings-salutation.detail.fieldSalutationKeyLabel')"
+                                          :placeholder="$tc('sw-settings-salutation.detail.fieldSalutationKeyPlaceholder')"
+                                          :tooltipText="$tc('sw-settings-salutation.detail.fieldSalutationKeyTooltip')"
+                                          :errorMessage="invalidKeyErrorMessage"
+                                          validation="required"
+                                          @input="onChange">
+                                </sw-field>
+                            {% endblock %}
+
+                            {% block sw_settings_salutation_detail_content_card_name %}
+                                <sw-field v-model="salutation.name"
+                                          class="sw-settings-salutation-detail__name"
+                                          :label="$tc('sw-settings-salutation.detail.fieldNameLabel')"
+                                          :placeholder="$tc('sw-settings-salutation.detail.fieldNamePlaceholder')">
+                                </sw-field>
+                            {% endblock %}
+
+                        </sw-card>
+                    {% endblock %}
+                </sw-card-view>
+            </template>
+        {% endblock %}
+
+    </sw-page>
+{% endblock %}

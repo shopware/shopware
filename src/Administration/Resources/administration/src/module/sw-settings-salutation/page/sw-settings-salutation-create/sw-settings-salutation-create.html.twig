@@ -1,0 +1,11 @@
+{% block sw_settings_salutation_detail_language_switch %}
+    <template slot="language-switch">
+        <sw-language-switch disabled></sw-language-switch>
+    </template>
+{% endblock %}
+
+{% block sw_settings_salutation_detail_content_language_info %}
+    <sw-language-info :entityDescription="entityDescription"
+                      isNewEntity>
+    </sw-language-info>
+{% endblock %}

@@ -1,0 +1,44 @@
+{
+    "sw-settings-salutation": {
+        "general": {
+            "mainMenuItemGeneral": "Anreden",
+            "description": "Verwaltung von Anreden.",
+            "buttonCancel": "Abbrechen",
+            "buttonCreate": "Anrede anlegen",
+            "buttonDelete": "Löschen",
+            "buttonSave": "Speichern",
+            "contextMenuDelete": "Löschen",
+            "contextMenuEdit": "Bearbeiten",
+            "placeholderSearchBar": "Durchsuche alle Anreden",
+            "titleError": "Fehler",
+            "titleSuccess": "Erfolg"
+        },
+        "list": {
+            "buttonAdd": "Anrede hinzufügen",
+            "columnSalutationKey": "Anreden-Schlüssel",
+            "columnName": "Anrede",
+            "fieldNamePlaceholder": "Bitte gebe eine Anrede an",
+            "fieldSalutationKeyPlaceholder": "Bitte gebe einen Anreden-Schlüssel an",
+            "messageDeleteError": "Die Anrede konnte nicht gelöscht werden.",
+            "messageDeleteSuccess": "Die Anrede \"{key}\" wurde erfolgreich gelöscht.",
+            "messageSaveError": "Die Anrede konnte nicht gespeichert werden.",
+            "messageSaveSuccess": "Die Anrede \"{key}\" wurde erfolgreich gespeichert.",
+            "textDeleteConfirm": "Möchtest Du die Anrede \"{key}\" wirklich löschen?"
+        },
+        "detail": {
+            "cardTitle": "Anrede",
+            "fieldNameLabel": "Anrede",
+            "fieldNamePlaceholder": "Bitte gebe eine Anrede an",
+            "fieldSalutationKeyTooltip": "Ein eindeutiger, technischer Name, der zur Einbindung der Anreden in z.B. E-Mail-Vorlagen benötigt wird.",
+            "fieldSalutationKeyLabel": "Anreden-Schlüssel",
+            "fieldSalutationKeyPlaceholder": "Bitte gebe einen Anreden-Schlüssel an",
+            "invalidKeyMessage": "Dieser Schlüssel wird bereits verwendet. Bitte wähle einen anderen aus.",
+            "messageSaveError": "Die Anrede konnte nicht gespeichert werden.",
+            "messageSaveSuccess": "Die Anrede \"{key}\" wurde erfolgreich gespeichert.",
+            "placeholderNewSalutation": "Neue Anrede"
+        }
+    }
+}
+
+
+

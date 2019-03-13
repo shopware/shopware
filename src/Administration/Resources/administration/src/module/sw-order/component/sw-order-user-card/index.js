@@ -12,20 +12,15 @@ Component.register('sw-order-user-card', {
     props: {
         currentOrder: {
             type: Object,
-            required: true,
-            default() {
-                return {};
-            }
+            required: true
         },
         isLoading: {
             type: Boolean,
-            required: true,
-            default: true
+            required: true
         },
         isEditing: {
             type: Boolean,
-            required: true,
-            default: false
+            required: true
         }
     },
     data() {
@@ -139,9 +134,11 @@ Component.register('sw-order-user-card', {
                 this.currentOrder.versionId
             )
                 .then(() => {
-                    const tmp = this.orderAddressStore.duplicate(this.currentOrder.deliveries[0].shippingOrderAddress.id);
-                    this.currentOrder.deliveries[0].shippingOrderAddressId = tmp.id;
-                    return tmp.save();
+                    const orderAddress = this.orderAddressStore.duplicate(
+                        this.currentOrder.deliveries[0].shippingOrderAddress.id
+                    );
+                    this.currentOrder.deliveries[0].shippingOrderAddressId = orderAddress.id;
+                    return orderAddress.save();
                 })
                 .then(() => {
                     this.$emit('order-changed');

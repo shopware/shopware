@@ -76,8 +76,6 @@
       "labelTrackingCode" : "Track and trace code",
       "buttonAddDeliveryAddress" : "Add new address",
       "labelSameDeliveryAndBillingAddress" : "Billing and shipping address are identical",
-      "labelOrderVersionAlreadyExists" : "Modified draft version of this order found.",
-      "labelOrderVersionEditedByOtherUser" : "It was last edited by another user.",
       "buttonContinueOnVersionedOrder" : "Load",
       "tax": "Included taxes:",
       "shippingCostsTax": "{taxRate}%: {tax}"

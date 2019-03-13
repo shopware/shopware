@@ -9,16 +9,11 @@ import template from './sw-order-detail-base.html.twig';
 
 Component.register('sw-order-detail-base', {
     template,
-    inject: ['orderService', 'userService', 'stateStyleDataProviderService'],
+    inject: ['orderService', 'stateStyleDataProviderService'],
     props: {
         order: {
             type: Object,
-            required: true,
-            default() {
-                return {
-                    deliveries: []
-                };
-            }
+            required: true
         }
     },
     data() {
@@ -133,10 +128,6 @@ Component.register('sw-order-detail-base', {
             );
 
             return Promise.all([addresses, delivieries, transactions]).then(() => {
-                /* this.hasDeliveries = this.currentOrder &&
-                    this.currentOrder.deliveries &&
-                    this.currentOrder.deliveries.length > 0; */
-
                 this.isLoading = false;
                 this.hasAssociations = true;
                 return Promise.resolve();

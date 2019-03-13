@@ -2,7 +2,7 @@
     <sw-modal :title="$tc('sw-order.addressSelection.modalTitleEditAddress')"
               @closeModal="onClose">
         {% block sw_order_address_modal_content %}
-            <sw-tabs class= "sw-order-address-modal" defaultItem = "edit" @newActiveItem="onNewActiveItem">
+            <sw-tabs class="sw-order-address-modal" defaultItem="edit" @newActiveItem="onNewActiveItem">
                 <template slot-scope="{ active }">
                 {% block sw_order_address_modal_tabs %}
                     {% block sw_order_address_modal_tab_edit_address %}

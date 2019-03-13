@@ -74,8 +74,6 @@
       "labelLastChange" : "Zuletzt geändert",
       "labelNoChangesYet" : "Bisher keine Änderungen",
       "labelTrackingCode" : "Sendungsnummer",
-      "labelOrderVersionAlreadyExists" : "Eine Arbeitskopie dieser Bestellung existiert bereits.",
-      "labelOrderVersionEditedByOtherUser" : "Sie wurde zuletzt durch einen anderen Nutzer editiert.",
       "buttonContinueOnVersionedOrder" : "Laden",
       "buttonAddDeliveryAddress" : "Neue Addresse hinzufügen",
       "labelSameDeliveryAndBillingAddress" : "Rechnungs- und Lieferadresse sind identisch",

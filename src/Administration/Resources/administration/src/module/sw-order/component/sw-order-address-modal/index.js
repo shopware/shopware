@@ -61,11 +61,8 @@ Component.register('sw-order-address-modal', {
         },
         onSave() {
             if (this.selectedAddressId !== 0) {
-                let address = null;
-                this.availableAddresses.forEach((addr) => {
-                    if (addr.id === this.selectedAddressId) {
-                        address = addr;
-                    }
+                const address = this.availableAddresses.find((addr) => {
+                    return addr.id === this.selectedAddressId;
                 });
                 this.$emit('sw-address-modal-selected-address', address);
             } else {

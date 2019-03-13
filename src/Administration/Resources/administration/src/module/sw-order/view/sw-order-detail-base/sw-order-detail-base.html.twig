@@ -1,14 +1,11 @@
 {% block sw_order_detail_base %}
-
     <div class="sw-order-detail-base">
-
         {% block sw_order_detail_base_leave_page_modal %}
             <sw-order-leave-page-modal v-if="isDisplayingLeavePageWarning"
-                                       @leave-page-cancel = "onLeaveModalClose"
-                                       @leave-page-confirm = "onLeaveModalConfirm">
+                @leave-page-cancel = "onLeaveModalClose"
+                @leave-page-confirm = "onLeaveModalConfirm">
             </sw-order-leave-page-modal>
         {% endblock %}
-
         {% block sw_order_detail_base__user_card %}
             <sw-order-user-card v-if="hasAssociations"
                 :currentOrder="currentOrder"
@@ -18,51 +15,45 @@
                 @error="$emit('sw-order-detail-base-error',$event)">
                 {% block  sw_order_detail_base_overview_status_change %}
                     <sw-container v-if="next1567 && !isEditing"
-                                  slot="additional-actions"
-                                  columns="minmax(min-content, 1fr) minmax(min-content, 1fr) 1fr"
-                                  gap="0 15px">
-
+                        slot="additional-actions"
+                        columns="minmax(min-content, 1fr) minmax(min-content, 1fr) 1fr"
+                        gap="0 15px">
                         {% block sw_order_detail_base_status_change_transaction %}
                             <sw-order-state-select :transitionOptions="transactionOptions"
-                                                   roundedStyle
-                                                   @state-selected="onQuickTransactionStatusChange"
-                                                   :placeholder="transactionOptionPlaceholder"
-                                                   :backgroundStyle="transactionOptionsBackground">
+                                roundedStyle
+                                @state-selected="onQuickTransactionStatusChange"
+                                :placeholder="transactionOptionPlaceholder"
+                                :backgroundStyle="transactionOptionsBackground">
                             </sw-order-state-select>
                         {% endblock %}
-
                         {% block sw_order_detail_base_status_change_order %}
                             <sw-order-state-select :transitionOptions="orderOptions"
-                                                   roundedStyle
-                                                   @state-selected="onQuickOrderStatusChange"
-                                                   :placeholder="orderOptionPlaceholder"
-                                                   :backgroundStyle="orderOptionsBackground">
+                                roundedStyle
+                                @state-selected="onQuickOrderStatusChange"
+                                :placeholder="orderOptionPlaceholder"
+                                :backgroundStyle="orderOptionsBackground">
                             </sw-order-state-select>
                         {% endblock %}
-
                     </sw-container>
                 {% endblock %}
             </sw-order-user-card>
         {% endblock %}
-
         {% block sw_order_detail_base_line_items_card %}
             <sw-card :title="$tc('sw-order.detailBase.cardTitleLineItems')"
-                     v-if="hasAssociations"
-                     :isLoading="isLoading"
-                     class = "sw-order-detail-base__line-item-grid-card">
-
+                v-if="hasAssociations"
+                :isLoading="isLoading"
+                class = "sw-order-detail-base__line-item-grid-card">
                 {% block sw_order_detail_base_line_items_card_rows %}
                     <sw-container isLoading="isLoading"
-                                  slot="grid"
-                                  type="row">
+                            slot="grid"
+                            type="row">
                         {% block sw_order_detail_base_line_items_grid %}
                             <sw-order-line-items-grid :order="currentOrder"
-                                                      :editable="isEditing"
-                                                      ref="sw-order-line-item-grid"
-                                                      @sw-order-line-items-grid-item-edited="onRecalculateOrder">
+                                :editable="isEditing"
+                                ref="sw-order-line-item-grid"
+                                @sw-order-line-items-grid-item-edited="onRecalculateOrder">
                             </sw-order-line-items-grid>
                         {% endblock %}
-
                         {% block sw_order_detail_base_line_items_summary %}
                             <sw-card-section divider="top" secondary slim>
                                 <sw-container columns="1fr 440px"
@@ -70,23 +61,21 @@
                                     <sw-description-list columns="265px 1fr"
                                                          class="sw-order-detail-base__summary-data">
                                         {% block sw_order_detail_base_line_items_summary_entries %}
-
                                             {% block sw_order_detail_base_line_items_summary_amount %}
                                                 <dt>{{ $tc('sw-order.detailBase.summaryLabelAmount') }}</dt>
                                                 <dd>{{ currentOrder.positionPrice | currency(order.currency.meta.viewData.shortName) }}</dd>
                                             {% endblock %}
-
                                             {% block sw_order_detail_base_line_items_summary_shipping_cost %}
                                                 <dt>{{ $tc('sw-order.detailBase.summaryLabelShippingCosts') }}</dt>
                                                 <dd>
                                                     <sw-order-saveable-field type="number"
-                                                                             v-tooltip="{
-                                                                                 showDelay: 300,
-                                                                                 message: shippingCostsDetail,
-                                                                             }"
-                                                                             :editable="isEditing"
-                                                                             :value="currentOrder.deliveries[0].shippingCosts.unitPrice | currency(order.currency.shortName)"
-                                                                             @valueChanged="onShippingChargeEdited">
+                                                        v-tooltip="{
+                                                            showDelay: 300,
+                                                            message: shippingCostsDetail,
+                                                        }"
+                                                        :editable="isEditing"
+                                                        :value="currentOrder.deliveries[0].shippingCosts.unitPrice | currency(order.currency.shortName)"
+                                                        @valueChanged="onShippingChargeEdited">
                                                     </sw-order-saveable-field>
                                                 </dd>
                                             {% endblock %}
@@ -119,7 +108,6 @@
                 {% endblock %}
             </sw-card>
         {% endblock %}
-
         {% block sw_order_detail_base_status_card %}
             <sw-order-state-history-card v-if="next1567 && hasAssociations &&!isEditing"
                 :title="$tc('sw-order.stateCard.cardTitle')"
@@ -130,16 +118,14 @@
                 ref="state-card">
             </sw-order-state-history-card>
         {% endblock %}
-
         {% block sw_order_detail_delivery_metadata %}
             <sw-order-delivery-metadata v-if="hasAssociations"
-                                        class="sw-order-delivery-metadata"
-                                       :title="$tc('sw-order.detailDeliveries.cardTitleItems', 0, { count: ' '})"
-                                       :isLoading="isLoading"
-                                       :order="currentOrder"
-                                       :delivery="currentOrder.deliveries[0]">
+                class="sw-order-delivery-metadata"
+                :title="$tc('sw-order.detailDeliveries.cardTitleItems', 0, { count: ' '})"
+                :isLoading="isLoading"
+                :order="currentOrder"
+                :delivery="currentOrder.deliveries[0]">
             </sw-order-delivery-metadata>
         {% endblock %}
-
     </div>
 {% endblock %}

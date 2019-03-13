@@ -22,13 +22,14 @@
 
                 <sw-button-group splitButton v-if="isEditing" :disabled="order.isLoading">
                     {% block sw_order_detail_actions_save %}
-                    <sw-button variant="primary" @click ="onSave" style="margin-right: 0">
-                        {{ $tc('sw-order.detail.buttonSave') }}
-                    </sw-button>
+                        <sw-button variant="primary"
+                            @click ="onSave"
+                            class="sw-order-detail__save_button">
+                            {{ $tc('sw-order.detail.buttonSave') }}
+                        </sw-button>
                     {% endblock %}
 
                     <sw-context-button>
-
                         <sw-button square slot="button" variant="primary" class="sw-media-upload__button-context-menu">
                             <sw-icon name="small-arrow-medium-down" size="16"></sw-icon>
                         </sw-button>

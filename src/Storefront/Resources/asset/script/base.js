@@ -4,14 +4,14 @@ import 'bootstrap';
 import jQuery from 'jquery';
 
 // Import styles
-import './assets/sass/main.scss';
+import '../scss/base.scss';
 
-import Client from './service/http-client.service';
-import CartMini from './plugins/cart-mini/CartMini';
-import CartWidget from './plugins/actions/CartWidget';
+import HttpClient from './service/http-client.service';
+import CartMini from './plugin/cart-mini/cart-mini.plugin';
+import CartWidget from './plugin/actions/cart-widget.plugin';
 
-import SimplePlugin from './plugins/test/simple-plugin';
-import ExtendedPlugin from './plugins/test/extended-plugin';
+import SimplePlugin from './plugin/test/simple-plugin';
+import ExtendedPlugin from './plugin/test/extended-plugin';
 import pluginManager from './helper/plugin.manager';
 
 // Expose jQuery and plugin manager to the global window object
@@ -19,7 +19,7 @@ window.jQuery = jQuery;
 window.$ = jQuery;
 window.$pluginManager = pluginManager;
 
-const client = new Client(window.accessKey, window.contextToken);
+const client = new HttpClient(window.accessKey, window.contextToken);
 client.get('/storefront-api/v1/product?page=1&limit=10', (response) => {
     console.log('client response', JSON.parse(response));
 });
@@ -53,7 +53,7 @@ if (module.hot) {
 
 
 // Header Cart Widget
-new CartWidget(); // eslint-disable-line no-new
+new CartWidget();
 
 // Cart Mini OffCanvas
-new CartMini(); // eslint-disable-line no-new
+new CartMini();

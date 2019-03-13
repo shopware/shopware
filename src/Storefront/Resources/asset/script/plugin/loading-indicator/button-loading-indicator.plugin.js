@@ -1,4 +1,4 @@
-import LoadingIndicator from "./LoadingIndicator";
+import LoadingIndicator from "./loading-indicator.plugin";
 
 export default class ButtonLoadingIndicator extends LoadingIndicator {
 

@@ -1,6 +1,6 @@
-import OffCanvas from "./OffCanvas";
+import OffCanvas from "./offcanvas.plugin";
 
-export default class DOMContentOffCanvas extends OffCanvas {
+export default class HtmlOffCanvas extends OffCanvas {
 
     /**
      * Open an off-canvas with HTML content from any given selector
@@ -10,7 +10,7 @@ export default class DOMContentOffCanvas extends OffCanvas {
      * @param {number} delay
      */
     static open(selector, position = 'left', closable = true, delay = OffCanvas.REMOVE_OFF_CANVAS_DELAY) {
-        super.open(DOMContentOffCanvas._getContent(selector, position, closable, delay));
+        super.open(HtmlOffCanvas._getContent(selector, position, closable, delay));
     }
 
     /**

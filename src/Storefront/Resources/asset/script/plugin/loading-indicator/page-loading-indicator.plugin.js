@@ -1,5 +1,5 @@
-import LoadingIndicator from "./LoadingIndicator";
-import Backdrop from "../backdrop/Backdrop";
+import LoadingIndicator from "./loading-indicator.plugin";
+import Backdrop from "../backdrop/backdrop.plugin";
 
 class PageLoadingIndicatorSingleton extends LoadingIndicator {
 

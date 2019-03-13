@@ -1,7 +1,6 @@
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const OptimizeCSSAssetsPlugin = require("optimize-css-assets-webpack-plugin");
 const TerserPlugin = require('terser-webpack-plugin');
-const config = require('../config');
 
 /**
  * -------------------------------------------------------
@@ -65,7 +64,7 @@ const optimization = {
             },
             cache: true,
             parallel: true,
-            sourceMap: config.productionSourceMap
+            sourceMap: true
         }),
         new OptimizeCSSAssetsPlugin({})
     ]
@@ -75,7 +74,7 @@ const optimization = {
  * Export the webpack configuration
  */
 module.exports = {
-    devtool: config.productionSourceMap ? 'source-map' : false,
+    devtool: 'source-map',
     mode: 'production',
     module: modules,
     optimization: optimization,

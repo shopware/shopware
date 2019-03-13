@@ -1,5 +1,15 @@
 {% block base_footer %}
     {% block base_footer_navigation %}{% endblock %}
-
+    <div class="footer-bottom">
+        {#TODO: NEXT-1990 - footer VAT links#}
+        <div class="footer-vat">
+            {% if page.context.taxState == "gross" %}
+                <p>{{ "footer.includeVat"|trans|raw }}</p>
+            {% else %}
+                <p>{{ "footer.excludeVat"|trans|raw }}</p>
+            {% endif %}
+        </div>
+    </div>
     {% block base_footer_copyright %}{% endblock %}
 {% endblock %}
+

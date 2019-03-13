@@ -19,6 +19,31 @@ class TimeRangeRule extends Rule
      */
     protected $toTime;
 
+    /**
+     * @var \DateTimeInterface|null
+     */
+    private $now;
+
+    /**
+     * @var bool
+     */
+    private $validationTurnover = false;
+
+    /**
+     * @var \DateTime
+     */
+    private $to;
+
+    /**
+     * @var \DateTime
+     */
+    private $from;
+
+    public function __construct(?\DateTimeInterface $now = null)
+    {
+        $this->now = $now ?? new \DateTimeImmutable();
+    }
+
     public function getName(): string
     {
         return 'timeRange';
@@ -26,17 +51,12 @@ class TimeRangeRule extends Rule
 
     public function match(RuleScope $scope): Match
     {
-        $from = $this->extractTime($this->fromTime);
-        $to = $this->extractTime($this->toTime);
-        $now = new \DateTime();
+        $this->from = $this->extractTime($this->fromTime);
+        $this->to = $this->extractTime($this->toTime);
 
-        if ($now < $from && $to <= $from) {
-            $from->modify('-1 day');
-        } elseif ($now >= $from && $to <= $from) {
-            $to->modify('+1 day');
-        }
+        $this->switchValidationIfToIsSmallerThanFrom();
 
-        return new Match($to > $now && $from < $now, ['not in the given time range']);
+        return new Match($this->returnResultWithSightOnValidationTurnover(), ['not in the given time range']);
     }
 
     public function getConstraints(): array
@@ -52,5 +72,26 @@ class TimeRangeRule extends Rule
         [$hour, $minute] = explode(':', $time);
 
         return (new \DateTime())->setTime((int) $hour, (int) $minute);
+    }
+
+    private function switchValidationIfToIsSmallerThanFrom(): void
+    {
+        if ($this->to < $this->from) {
+            $tmp = $this->from;
+            $this->from = $this->to;
+            $this->to = $tmp;
+            $this->validationTurnover = true;
+        }
+    }
+
+    private function returnResultWithSightOnValidationTurnover(): bool
+    {
+        $result = $this->to >= $this->now && $this->from <= $this->now;
+
+        if ($this->validationTurnover) {
+            return !$result;
+        }
+
+        return $result;
     }
 }

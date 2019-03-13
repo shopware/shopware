@@ -131,16 +131,6 @@ class OffCanvasSingleton {
     }
 
     /**
-     * Defines the fullwidth of the off-canvas by setting css class
-     * @param {boolean} fullwidth
-     * @returns {string}
-     * @private
-     */
-    _getFullwidth(fullwidth) {
-        return (fullwidth === true) ? OFF_CANVAS_FULLWIDTH_CLASS : '';
-    }
-
-    /**
      * Creates the off-canvas element prototype including all relevant settings,
      * appends it to the DOM and returns the HTMLElement for further processing
      * @param {'left'|'right'} position
@@ -152,7 +142,11 @@ class OffCanvasSingleton {
         let offCanvas = document.createElement('div');
         offCanvas.classList.add(OFF_CANVAS_CLASS);
         offCanvas.classList.add(this._getPosition(position));
-        (fullwidth === true) ? offCanvas.classList.add(this._getFullwidth(fullwidth)) : '';
+
+        if (fullwidth === true) {
+            offCanvas.classList.add(OFF_CANVAS_FULLWIDTH_CLASS);
+        }
+
         document.body.appendChild(offCanvas);
 
         return offCanvas;

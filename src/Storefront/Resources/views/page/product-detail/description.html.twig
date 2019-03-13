@@ -1,0 +1,32 @@
+{% sw_extends '@Storefront/base/_utilities/offcanvas.html.twig' %}
+
+{% block base_utilities_offcanvas_close %}
+    <a href="#off-canvas-close" class="off-canvas-close text-left">
+        <i class="fas fa-chevron-left"></i>
+        {{ "general.offcanvasCloseMenu"|trans }}
+    </a>
+{% endblock %}
+
+{% block base_utilities_offcanvas_content %}
+    {% block page_product_detail_description_inner %}
+        <div class="product-detail-description tab-pane-inner">
+            {% block page_product_detail_description_title %}
+                <h3 class="product-detail-description-title">
+                    {{"detail.descriptionTitle"|trans}} "{{page.product.name}}"
+                </h3>
+            {% endblock %}
+            
+            {% block page_product_detail_description_content %}
+                {% block page_product_detail_description_content_text %}
+                    <div class="product-detail-description-text" itemprop="description">
+                        {{page.product.descriptionLong|raw}}
+                    </div>
+                {% endblock %}
+
+                {% block page_product_detail_description_content_properties %}
+                    {% sw_include '@Storefront/page/product-detail/properties.html.twig' %}
+                {% endblock %}
+            {% endblock %}
+        </div>
+    {% endblock %}
+{% endblock %}

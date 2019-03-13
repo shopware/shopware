@@ -47,6 +47,9 @@ class TemplateDataExtension extends AbstractExtension implements GlobalsInterfac
                         'seo' => [
                             'descriptionMaxLength' => 150,
                         ],
+                        'checkout' => [
+                            'instockinfo' => false,
+                        ],
                     ]
                 ),
                 'theme' => $this->getThemeConfig(),

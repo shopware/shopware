@@ -5,6 +5,7 @@ const OFF_CANVAS_CLASS = 'off-canvas';
 const OFF_CANVAS_OPEN_CLASS = 'is-open';
 const OFF_CANVAS_POSITION_LEFT_CLASS = 'is-left';
 const OFF_CANVAS_POSITION_RIGHT_CLASS = 'is-right';
+const OFF_CANVAS_FULLWIDTH_CLASS = 'is-fullwidth';
 const OFF_CANVAS_CLOSE_TRIGGER_CLASS = 'off-canvas-close';
 const REMOVE_OFF_CANVAS_DELAY = 350;
 
@@ -17,12 +18,13 @@ class OffCanvasSingleton {
      * @param {'left'|'right'} position
      * @param {boolean} closable
      * @param {number} delay
+     * @param {boolean} fullwidth
      */
-    open(content, callback, position, closable, delay) {
+    open(content, callback, position, closable, delay, fullwidth) {
         // avoid multiple backdrops
         this._removeExistingOffCanvas();
 
-        const offCanvas = this._createOffCanvas(position);
+        const offCanvas = this._createOffCanvas(position, fullwidth);
 
         this.setContent(content, closable, delay);
 
@@ -129,16 +131,28 @@ class OffCanvasSingleton {
     }
 
     /**
+     * Defines the fullwidth of the off-canvas by setting css class
+     * @param {boolean} fullwidth
+     * @returns {string}
+     * @private
+     */
+    _getFullwidth(fullwidth) {
+        return (fullwidth === true) ? OFF_CANVAS_FULLWIDTH_CLASS : '';
+    }
+
+    /**
      * Creates the off-canvas element prototype including all relevant settings,
      * appends it to the DOM and returns the HTMLElement for further processing
      * @param {'left'|'right'} position
+     * @param {boolean} fullwidth
      * @returns {HTMLElement}
      * @private
      */
-    _createOffCanvas(position) {
+    _createOffCanvas(position, fullwidth) {
         let offCanvas = document.createElement('div');
         offCanvas.classList.add(OFF_CANVAS_CLASS);
         offCanvas.classList.add(this._getPosition(position));
+        (fullwidth === true) ? offCanvas.classList.add(this._getFullwidth(fullwidth)) : '';
         document.body.appendChild(offCanvas);
 
         return offCanvas;
@@ -162,9 +176,10 @@ export default class OffCanvas {
      * @param {'left'|'right'} position
      * @param {boolean} closable
      * @param {number} delay
+     * @param {boolean} fullwidth
      */
-    static open(content, callback = null, position = 'left', closable = true, delay = REMOVE_OFF_CANVAS_DELAY) {
-        instance.open(content, callback, position, closable, delay);
+    static open(content, callback = null, position = 'left', closable = true, delay = REMOVE_OFF_CANVAS_DELAY, fullwidth = false) {
+        instance.open(content, callback, position, closable, delay, fullwidth);
     }
 
     /**

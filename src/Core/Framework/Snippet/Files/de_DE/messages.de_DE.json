@@ -5,6 +5,15 @@
         "star": "*",
         "grossTaxInformation": "inkl. MwSt. zzgl. Versandkosten",
         "netTaxInformation": "exkl. MwSt. zzgl. Versandkosten",
+        "deliveryShippingFree": "Versandkostenfreie Lieferung!",
+        "deliveryNotAvailable": "Diese Auswahl steht nicht zur Verfügung!",
+        "deliveryShipping": "Dieser Artikel erscheint am",
+        "deliveryPartialStock": "Nur %inStock% von %quantity% ab Lager lieferbar",
+        "deliveryPartialStockAddon": "- Lieferzeit für nicht vorrätigen Artikel: %shippingTime% Werktag(e)",
+        "deliveryInStock": "Sofort versandfertig, Lieferzeit ca. 1-3 Werktage",
+        "deliveryShippingTime": "Lieferzeit %shippingTime% Werktage",
+        "deliveryShippingDelay": "Lieferzeit ca. 5 Werktage",
+        "offcanvasCloseMenu": "Menü schliessen",
         "noscriptNotice": "Um unseren Shop in vollem Umfang nutzen zu k&ouml;nnen, empfehlen wir Ihnen Javascript in Ihrem Browser zu aktiveren."
     },
     "header": {
@@ -125,7 +134,10 @@
     },
     "detail": {
         "ordernumberLabel": "Artikel-Nr.:",
-        "addProduct": "In den Warenkorb"
+        "addProduct": "In den Warenkorb",
+        "tabsDescription": "Beschreibung",
+        "descriptionTitle": "Produktinformationen",
+        "priceUnitName": "Inhalt:"
     },
     "footer": {
         "includeVat": "* Alle Preise inkl. gesetzl. Mehrwertsteuer zzgl. <a href='#'>Versandkosten</a> und ggf. Nachnahmegebühren, wenn nicht anders beschrieben",

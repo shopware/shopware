@@ -1,0 +1,69 @@
+{% block component_delivery_information %}
+    <div class="product-delivery-information">
+        {% if page.product.shippingFree %}
+            {% block component_delivery_information_shipping_free %}
+                <p class="delivery-information delivery-shipping-free text-info">
+                    {{ "general.deliveryShippingFree"|trans }}
+                </p>
+            {% endblock %}
+        {% endif %}
+{#TODO: NEXT-1020 - active not available #}
+        {% if not page.product.active %}
+            {% block component_delivery_information_not_available %}
+                <link itemprop="availability" href="http://schema.org/LimitedAvailability" />
+                <p class="delivery-information text-danger">
+                    {{ "general.deliveryNotAvailable"|trans }}
+                </p>
+            {% endblock %}
+        {% elseif page.product.releaseDate and page.product.releaseDate|date('U') > "now"|date('U') %}
+            {% block component_delivery_information_pre_order %}
+                <link itemprop="availability" href="http://schema.org/PreOrder" />
+                <p class="delivery-information text-warning">
+                    {{ "general.deliveryShipping"|trans }} {{ page.product.releaseDate|localizeddate('long', 'none', app.request.locale) }}
+                </p>
+            {% endblock %}
+
+{#TODO: NEXT-1946 - check "cart item type" and "quantity" #}
+{#TODO: NEXT-1920 - "shippingtime" not available #}
+        {% elseif shopware.config.checkout.instockinfo and page.product.stock > 0 %}
+            {% block component_delivery_information_partial_stock %}
+                <link itemprop="availability" href="http://schema.org/LimitedAvailability" />
+                <p class="delivery-information text-warning">
+                    {{ "general.deliveryPartialStock"|trans({
+                        '%inStock%': page.product.stock,
+                        '%quantity%': quantity
+                    }) }}
+                    {% if page.product.shippingtime %}
+                        {{ "general.deliveryPartialStockAddon"|trans({
+                            '%shippingTime%': shippingtime
+                        }) }}
+                    {% endif %}
+                </p>
+            {% endblock %}
+        {% elseif page.product.stock >= page.product.minpurchase %}
+            {% block component_delivery_information_instock %}
+                <link itemprop="availability" href="http://schema.org/InStock" />
+                <p class="delivery-information text-success">
+                    {{ "general.deliveryInStock"|trans }}
+                </p>
+            {% endblock %}
+{#TODO: NEXT-1920 - "shippingtime" not available #}
+        {% elseif page.product.shippingtime %}
+            {% block component_delivery_information_shippinh_time %}
+                <link itemprop="availability" href="http://schema.org/LimitedAvailability" />
+                <p class="delivery-information text-warning">
+                    {{ "general.deliveryShippingTime"|trans({
+                        '%shippingTime%': shippingtime
+                    }) }}
+                </p>
+            {% endblock %}
+        {% else %}
+            {% block component_delivery_information_shippinh_delay %}
+                <link itemprop="availability" href="http://schema.org/LimitedAvailability" />
+                <p class="delivery-information text-danger">
+                    {{ "general.deliveryShippingDelay"|trans }}
+                </p>
+            {% endblock %}
+        {% endif %}
+    </div>
+{% endblock %}

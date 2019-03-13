@@ -27,10 +27,9 @@
 		{% endblock %}
 
 		{% block page_product_detail_not_available %}
-			{#TODO: NEXT-1921 - product not available message#}
+{#TODO: NEXT-1921 - product not available message#}
 		{% endblock %}
 
-		{#TODO: NEXT-1914 - blockprices#}
 		{% block page_product_detail_buy_container %}
 			<div itemprop="offers"
 			     itemscope
@@ -45,18 +44,22 @@
 					{% endblock %}
 
 					{% block page_product_detail_tax %}
-						{#TODO: NEXT-1921 - add modal functionality#}
-						<p class="product-detail-tax">
-							{% if context.taxState == "gross" %}
-								{{ "general.grossTaxInformation"|trans }}
-							{% else %}
-								{{ "general.netTaxInformation"|trans }}
-							{% endif %}
-						</p>
+{#TODO: NEXT-1921 - add modal functionality#}
+                        <div class="product-detail-tax-container">
+                            <p class="product-detail-tax">
+                                {% if context.taxState == "gross" %}
+                                    {{ "general.grossTaxInformation"|trans }}
+                                {% else %}
+                                    {{ "general.netTaxInformation"|trans }}
+                                {% endif %}
+                            </p>
+                        </div>
 					{% endblock %}
 
 					{% block page_product_detail_delivery_informations %}
-						{#TODO: NEXT-1920 - delivery informations#}
+                        <div class="product-detail-delivery-information">
+                            {% sw_include '@Storefront/component/delivery-information.html.twig' %}
+                        </div>
 					{% endblock %}
 				{% endblock %}
 
@@ -89,7 +92,7 @@
 				{% block page_product_detail_ordernumber %}
 					<meta itemprop="productID" content="{{ page.product.id }}"/>
 					<span class="product-detail-ordernumber" itemprop="sku">
-						{#TODO: NEXT-1921 - show ordernumber#}
+{#TODO: NEXT-1921 - show ordernumber#}
 					</span>
 				{% endblock %}
 			</div>

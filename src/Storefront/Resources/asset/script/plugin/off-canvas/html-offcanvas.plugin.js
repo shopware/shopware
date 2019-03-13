@@ -8,9 +8,11 @@ export default class HtmlOffCanvas extends OffCanvas {
      * @param {'left'|'right'} position
      * @param {boolean} closable
      * @param {number} delay
+     * @param {boolean} fullwidth
      */
-    static open(selector, position = 'left', closable = true, delay = OffCanvas.REMOVE_OFF_CANVAS_DELAY) {
-        super.open(HtmlOffCanvas._getContent(selector, position, closable, delay));
+
+    static open(selector, position = 'left', closable = true, delay = OffCanvas.REMOVE_OFF_CANVAS_DELAY, fullwidth = false) {
+        super.open(HtmlOffCanvas._getContent(selector, position, closable, delay, fullwidth));
     }
 
     /**
@@ -19,10 +21,11 @@ export default class HtmlOffCanvas extends OffCanvas {
      * @param {'left'|'right'} position
      * @param {boolean} closable
      * @param {number} delay
+     * @param {boolean} fullwidth
      * @returns {string}
      * @private
      */
-    static _getContent(selector, position, closable, delay) {
+    static _getContent(selector, position, closable, delay, fullwidth) {
         let parent = document.querySelector(selector);
 
         if (parent instanceof Element === false) {

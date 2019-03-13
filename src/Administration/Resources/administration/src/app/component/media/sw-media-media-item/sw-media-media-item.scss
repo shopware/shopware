@@ -3,7 +3,12 @@
 .sw-media-media-item {
     position: relative;
 
-    .sw-media-preview--list {
+    .sw-media-preview .sw-media-preview__item {
+        max-width: calc(100% - 32px);
+        max-height: calc(100% - 32px);
+    }
+
+    .sw-media-base-item.is--list .sw-media-preview {
         width: 40px;
         height: 40px;
         grid-row: 1 / span 2;

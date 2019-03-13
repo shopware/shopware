@@ -81,7 +81,8 @@ export default {
             trueSource: null,
             width: 0,
             dataUrl: '',
-            urlPreviewFailed: false
+            urlPreviewFailed: false,
+            imagePreviewFailed: false
         };
     },
 
@@ -159,12 +160,12 @@ export default {
         },
 
         previewUrl() {
-            if (this.trueSource instanceof File) {
+            if (this.isFile) {
                 this.getDataUrlFromFile();
                 return this.dataUrl;
             }
 
-            if (this.trueSource instanceof URL) {
+            if (this.isUrl) {
                 return this.trueSource.href;
             }
 
@@ -173,6 +174,10 @@ export default {
 
         isUrl() {
             return this.trueSource instanceof URL;
+        },
+
+        isFile() {
+            return this.trueSource instanceof File;
         },
 
         alt() {
@@ -187,7 +192,7 @@ export default {
         },
 
         sourceSet() {
-            if (this.trueSource instanceof File || this.trueSource instanceof URL) {
+            if (this.isFile || this.isUrl) {
                 return '';
             }
 
@@ -206,6 +211,7 @@ export default {
     watch: {
         source() {
             this.urlPreviewFailed = false;
+            this.imagePreviewFailed = false;
             this.fetchSourceIfNecessary();
         }
     },
@@ -254,6 +260,12 @@ export default {
 
         removeUrlPreview() {
             this.urlPreviewFailed = true;
+        },
+
+        showEvent() {
+            if (!this.isFile) {
+                this.imagePreviewFailed = true;
+            }
         }
     }
 };

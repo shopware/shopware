@@ -182,6 +182,7 @@
                     <sw-button class="sw-media-modal-folder-settings__confirm"
                                @click="onClickSave"
                                size="small"
+                               :disabled="isEditThumbnails"
                                variant="primary">
                         {{ $tc('global.sw-media-modal-folder-settings.labelSave') }}
                     </sw-button>

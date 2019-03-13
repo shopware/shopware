@@ -15,8 +15,8 @@ $sw-media-preview-background:               $color-white;
     }
 
     .sw-media-preview__item {
-        max-width: calc(100% - 8px);
-        max-height: calc(100% - 8px);
+        max-width: 100%;
+        max-height: 100%;
         position: absolute;
         left: 50%;
         top: 50%;
@@ -32,10 +32,11 @@ $sw-media-preview-background:               $color-white;
             padding-bottom: 5px;
         }
     }
+
     svg.sw-media-preview__item {
-        height: calc(100% - 32px);
-        width: calc(100% - 32px);
-        max-height: 100px;
+        height: 100%;
+        width: 100%;
+        max-height: 100px !important;
     }
 
     .sw-media-preview__play-button {

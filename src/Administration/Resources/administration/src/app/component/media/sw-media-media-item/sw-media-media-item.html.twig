@@ -12,12 +12,12 @@
                 @sw-media-item-clicked="handleGridItemClick">
 
                 {% block sw_media_media_item_preview %}
-                    <sw-media-preview
-                        slot="sw-media-item-preview"
-                        :class="mediaPreviewClasses"
-                        :source="item.id"
-                        @sw-media-preview-play="emitPlayEvent">
-                    </sw-media-preview>
+                    <template slot="sw-media-item-preview">
+                        <sw-media-preview
+                            :source="item.id"
+                            @sw-media-preview-play="emitPlayEvent">
+                        </sw-media-preview>
+                    </template>
                 {% endblock %}
 
                 {% block sw_media_media_item_metadata %}

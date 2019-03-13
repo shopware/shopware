@@ -12,40 +12,42 @@
                     @sw-media-item-clicked="handleGridItemClick">
 
                 {% block sw_media_folder_item_preview %}
-                    {% block sw_media_folder_parent_icon%}
-                        <sw-icon slot="sw-media-item-preview"
-                                 v-if="isParent"
-                                 name="folder-thumbnail-back"
-                                 size="90%"
-                                 class="sw-media-folder-item__folder-thumbnails"
-                                 multicolor>
-                        </sw-icon>
-                    {% endblock %}
-
-                    {% block sw_media_folder_default_icon%}
-                        <span slot="sw-media-item-preview" v-else-if="isDefaultFolder">
-                            <sw-icon name="default-folder-thumbnail"
+                    <template slot="sw-media-item-preview">
+                        {% block sw_media_folder_parent_icon%}
+                            <sw-icon v-if="isParent"
+                                     key="sw-media-folder-preview"
+                                     name="folder-thumbnail-back"
                                      size="90%"
                                      class="sw-media-folder-item__folder-thumbnails"
-                                     :color="iconConfig.color">
+                                     multicolor>
                             </sw-icon>
-                            <sw-icon :name="iconConfig.name"
-                                     size="45%"
-                                     class="sw-media-folder-item__folder-thumbnails is--inner"
-                                     :color="iconConfig.color">
-                            </sw-icon>
-                        </span>
-                    {% endblock %}
+                        {% endblock %}
 
-                    {% block sw_media_folder_folder_icon%}
-                        <sw-icon slot="sw-media-item-preview"
-                                 v-else
-                                 size="90%"
-                                 name="folder-thumbnail"
-                                 class="sw-media-folder-item__folder-thumbnails"
-                                 multicolor>
-                        </sw-icon>
-                    {% endblock %}
+                        {% block sw_media_folder_default_icon%}
+                            <span v-else-if="isDefaultFolder" key="sw-media-folder-preview">
+                                <sw-icon name="default-folder-thumbnail"
+                                         size="90%"
+                                         class="sw-media-folder-item__folder-thumbnails"
+                                         :color="iconConfig.color">
+                                </sw-icon>
+                                <sw-icon :name="iconConfig.name"
+                                         size="45%"
+                                         class="sw-media-folder-item__folder-thumbnails is--inner"
+                                         :color="iconConfig.color">
+                                </sw-icon>
+                            </span>
+                        {% endblock %}
+
+                        {% block sw_media_folder_folder_icon%}
+                            <sw-icon v-else
+                                     key="sw-media-folder-preview"
+                                     size="90%"
+                                     name="folder-thumbnail"
+                                     class="sw-media-folder-item__folder-thumbnails"
+                                     multicolor>
+                            </sw-icon>
+                        {% endblock %}
+                    </template>
                 {% endblock %}
 
                 {% block sw_media_folder_meta_data %}

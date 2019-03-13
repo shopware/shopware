@@ -66,6 +66,13 @@ export default {
         }
     },
 
+    watch: {
+        uploadTag(newVal, oldVal) {
+            this.uploadStore.removeListener(oldVal, this.convertStoreEventToVueEvent);
+            this.uploadStore.addListener(newVal, this.convertStoreEventToVueEvent);
+        }
+    },
+
     created() {
         this.uploadStore.addListener(this.uploadTag, this.convertStoreEventToVueEvent);
     },

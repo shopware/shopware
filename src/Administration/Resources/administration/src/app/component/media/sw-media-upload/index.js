@@ -158,6 +158,14 @@ export default {
         }
     },
 
+    watch: {
+        defaultFolder() {
+            this.getDefaultFolderId().then((defaultFolderId) => {
+                this.defaultFolderId = defaultFolderId;
+            });
+        }
+    },
+
     created() {
         this.onCreated();
     },

@@ -286,7 +286,7 @@ class StorefrontSalesChannelControllerTest extends TestCase
             'id' => Uuid::uuid4()->getHex(),
             'name' => 'PayPal',
             'technicalName' => Uuid::uuid4()->getHex(),
-            'additionalDescription' => 'My payment method',
+            'description' => 'My payment method',
         ];
         $data = [
             'id' => $this->getStorefrontApiSalesChannelId(),

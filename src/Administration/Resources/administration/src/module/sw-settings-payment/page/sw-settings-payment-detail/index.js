@@ -37,8 +37,24 @@ Component.register('sw-settings-payment-detail', {
         createdComponent() {
             if (this.$route.params.id) {
                 this.paymentMethodId = this.$route.params.id;
-                this.paymentMethod = this.paymentMethodStore.getById(this.paymentMethodId);
+                this.loadEntityData();
             }
+        },
+
+        abortOnLanguageChange() {
+            return this.paymentMethod.hasChanges();
+        },
+
+        saveOnLanguageChange() {
+            return this.onSave();
+        },
+
+        onChangeLanguage() {
+            this.loadEntityData();
+        },
+
+        loadEntityData() {
+            this.paymentMethod = this.paymentMethodStore.getById(this.paymentMethodId);
         },
 
         onSave() {

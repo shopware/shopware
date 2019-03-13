@@ -88,6 +88,7 @@
             <argument type="service" id="cms_page.repository" />
             <argument type="service" id="product.repository" />
             <argument type="service" id="media.repository" />
+            <argument type="service" id="category.repository" />
             <tag name="shopware.demodata_generator" />
         </service>
 

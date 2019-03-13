@@ -53,6 +53,7 @@ class Framework extends Bundle
         $loader->load('rule.xml');
         $loader->load('scheduled-task.xml');
         $loader->load('services.xml');
+        $loader->load('tag.xml');
         $loader->load('util.xml');
 
         $container->addCompilerPass(new FeatureFlagCompilerPass(), PassConfig::TYPE_BEFORE_OPTIMIZATION);

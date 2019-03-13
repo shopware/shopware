@@ -16,8 +16,16 @@ $sw-select-option-disabled-color-text: darken($color-steam-cloud, 15%);
     align-items: center;
     justify-content: space-between;
 
+    .sw-select-option__result-item-text {
+        word-break: break-all;
+        display: flex;
+    }
+
     .sw-icon {
         color: $sw-select-option-color-icon;
+        flex-grow: 0;
+        flex-shrink: 0;
+        margin-left: 10px;
     }
 
     &.is--active {

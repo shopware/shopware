@@ -1,6 +1,5 @@
 {% block sw_product_basic_form %}
     <div class="product-basic-form">
-
         <sw-container columns="1fr 300px" gap="0px 30px">
             {% block sw_product_basic_form_title_field %}
                 <sw-field type="text"
@@ -46,5 +45,7 @@
                 </sw-field>
             {% endblock %}
         </sw-container>
+
+        <sw-tag-field :entity="product"></sw-tag-field>
     </div>
 {% endblock %}

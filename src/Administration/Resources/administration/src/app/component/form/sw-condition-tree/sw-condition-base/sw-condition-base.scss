@@ -48,6 +48,10 @@ $sw-condition-base-color-error: $color-crimson;
             padding-right: 24px;
             padding-top: 4px;
 
+            .sw-select__selection-item-holder {
+                padding-bottom: 0;
+            }
+
             .sw-select__single-selection {
                 @include truncate();
             }

@@ -6,7 +6,7 @@ Component.extend('sw-product-visibility-select', 'sw-select', {
     template,
 
     methods: {
-        loadSelections() {
+        loadSelected() {
             this.isLoadingSelections = true;
 
             const params = {
@@ -44,6 +44,14 @@ Component.extend('sw-product-visibility-select', 'sw-select', {
             }
 
             if (this.isInSelections(item)) {
+                let idToRemove = null;
+                this.associationStore.forEach((ine) => {
+                    if (ine.salesChannelId === item.id) {
+                        idToRemove = ine.id;
+                    }
+                });
+
+                this.dismissSelection(idToRemove);
                 return;
             }
 
@@ -60,6 +68,7 @@ Component.extend('sw-product-visibility-select', 'sw-select', {
                 });
 
                 this.selections.push(newItem);
+                this.selected.push(item);
             } else {
                 const visibility = this.getBySalesChannelId(salesChannelId);
 
@@ -77,9 +86,9 @@ Component.extend('sw-product-visibility-select', 'sw-select', {
                 return;
             }
 
-            if (!this.associationStore.hasId(id)) {
-                return;
-            }
+            this.deletedItems.push(id);
+            this.selections = this.selections.filter((entry) => entry.id !== id);
+            this.selected = this.selected.filter((entry) => entry.id !== id);
 
             const entity = this.associationStore.store[id];
             entity.delete();

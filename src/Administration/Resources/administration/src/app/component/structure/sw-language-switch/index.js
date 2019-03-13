@@ -87,7 +87,7 @@ Component.register('sw-language-switch', {
                 })) {
                     this.showUnsavedChangesModal = true;
                     this.languageId = this.lastLanguageId;
-                    this.$refs.languageSelect.loadSelections();
+                    this.$refs.languageSelect.loadSelected();
                     return;
                 }
             }
@@ -138,7 +138,7 @@ Component.register('sw-language-switch', {
             }
             this.languageId = this.newLanguageId;
             this.newLanguageId = '';
-            this.$refs.languageSelect.loadSelections();
+            this.$refs.languageSelect.loadSelected();
             this.emitChange();
         }
     }

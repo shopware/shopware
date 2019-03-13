@@ -150,7 +150,7 @@ Component.extend('sw-category-select', 'sw-select', {
 
         doGlobalSearch: utils.debounce(function debouncedSearch() {
             this.getResults();
-            this.loadSelections();
+            this.loadSelected();
         }, 400),
 
         loadResults() {
@@ -161,7 +161,7 @@ Component.extend('sw-category-select', 'sw-select', {
             this.getResults();
         },
 
-        loadSelections() {},
+        loadSelected() {},
         emitChanges() {},
         scrollToResultsTop() {}
     }

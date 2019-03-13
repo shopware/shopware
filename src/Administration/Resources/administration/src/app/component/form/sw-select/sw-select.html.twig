@@ -24,7 +24,8 @@
                 {% block sw_select_multi_selections %}
                     <template v-if="multi">
                         <ul class="sw-select__selections">
-                            <li :class="{ 'is--default': (selection.id === defaultItemId), 'is--clickAble': (defaultItemId) }"
+                            <li class="sw-select__selection-item-holder"
+                                :class="{ 'is--default': (selection.id === defaultItemId), 'is--clickAble': (defaultItemId) }"
                                 v-if="hasPreview"
                                 v-for="selection in selections"
                                 :key="selection.id"
@@ -32,7 +33,7 @@
                                 {% block sw_select_selection_item %}
                                     <sw-label dismissAble
                                               @selected="changeDefaultItemId(selection.id)"
-                                              @dismiss="onDismissSelection(selection)">
+                                              @dismiss="onDismissSelection(selection[itemValueKey])">
                                         <template>
                                             {% block sw_select_selection_item_text %}
                                                 <span class="sw-select__selection-item">
@@ -50,6 +51,18 @@
                                     </sw-label>
                                 {% endblock %}
                             </li>
+
+                            {% block sw_select_selection_load_more_item %}
+                                <li class="sw-select__load-more-list-item is--clickAble">
+                                    {% block sw_select_selection_load_more_item_button %}
+                                        <sw-button v-if="nextPreviewLoadStep > 0"
+                                                   class="sw-select__load-more-list-item-button"
+                                                   @click="onPreviewLoadMore">
+                                            +{{ nextPreviewLoadStep }}
+                                        </sw-button>
+                                    {% endblock %}
+                                </li>
+                            {% endblock %}
 
                             {% block sw_select_list_item_input %}
                                 <li class="sw-select__selection-item-input" key="listInput">
@@ -126,7 +139,7 @@
                 {% block sw_select_results_transition %}
                     <transition name="sw-select-fade-down">
                         {% block sw_select_results %}
-                            <div class="sw-select__results" v-if="isExpanded">
+                            <div @scroll="onScroll" class="sw-select__results" v-if="isExpanded">
                                 {% block sw_select_results_single_input %}
                                     <div v-if="!multi && showSearch"
                                          class="sw-select__input-single-wrapper">
@@ -140,25 +153,37 @@
                                     </div>
                                 {% endblock %}
 
-
                                 {% block sw_select_results_list %}
                                     <ul class="sw-select__results-list">
-                                         {% block sw_select_result_item %}
+                                        {% block sw_select_result_item %}
+                                           {% block sw_select_result_item_list_before %}
+                                               <slot name="sw_select_list_before"></slot>
+                                           {% endblock %}
+
+                                            {% block sw_select_result_item_list %}
                                              <template v-for="(item, index) in results">
                                                  <slot name="result_items" :item="item" :index="index">
                                                      {% block sw_select_result_item_slot %}
-                                                         <sw-select-option
-                                                            :index="index"
-                                                            :item="item">
-                                                             <slot name="displayName" :item="item">
-                                                                 {{ getInlineSnippet(item.meta.viewData[displayName]) }}
-                                                             </slot>
+                                                         <sw-select-option ref="swSelectOption"
+                                                                           :index="index"
+                                                                           :item="item">
+                                                            <slot name="displayName" :item="item">
+                                                                <span v-html="getInlineSnippet(item.meta.viewData[displayName])">
+                                                                    {{ getInlineSnippet(item.meta.viewData[displayName]) }}
+                                                                </span>
+                                                            </slot>
                                                          </sw-select-option>
                                                      {% endblock %}
                                                  </slot>
                                              </template>
+                                            {% endblock %}
+
+                                            {% block sw_select_result_item_list_after %}
+                                                <slot name="sw_select_list_after"></slot>
+                                            {% endblock %}
                                         {% endblock %}
                                     </ul>
+
                                 {% endblock %}
 
                                 {% block sw_select_results_empty %}

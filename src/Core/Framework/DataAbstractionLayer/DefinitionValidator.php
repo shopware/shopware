@@ -22,10 +22,10 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\SearchKeywordAssociationField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\StorageAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldAware\StorageAware;
 use Shopware\Core\Framework\Struct\ArrayEntity;
 
 class DefinitionValidator

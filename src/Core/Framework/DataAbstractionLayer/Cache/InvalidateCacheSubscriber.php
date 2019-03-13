@@ -7,8 +7,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelpe
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\StorageAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldAware\StorageAware;
 use Symfony\Component\Cache\Adapter\TagAwareAdapterInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 

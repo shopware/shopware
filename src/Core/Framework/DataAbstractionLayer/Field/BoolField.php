@@ -2,8 +2,6 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Field;
 
-use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldAware\StorageAware;
-
 class BoolField extends Field implements StorageAware
 {
     /**

@@ -9,6 +9,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\ImpossibleWriteOrderException;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\StorageAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\FieldSerializerRegistry;
@@ -19,7 +20,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\JsonUpdateCommand
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\UpdateCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommandInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommandQueue;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldAware\StorageAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException\FieldExceptionStack;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\RestrictDeleteViolation;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\RestrictDeleteViolationException;

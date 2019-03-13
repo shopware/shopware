@@ -2,8 +2,6 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Field;
 
-use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldAware\StorageAware;
-
 class IdField extends Field implements StorageAware
 {
     /**

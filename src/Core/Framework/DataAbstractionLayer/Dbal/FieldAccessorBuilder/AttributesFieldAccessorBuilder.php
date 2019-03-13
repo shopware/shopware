@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Attribute\AttributeTypes;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AttributesField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldAware\StorageAware;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\StorageAware;
 
 class AttributesFieldAccessorBuilder extends JsonFieldAccessorBuilder
 {

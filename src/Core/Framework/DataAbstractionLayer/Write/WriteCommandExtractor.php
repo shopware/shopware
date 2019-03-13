@@ -13,6 +13,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\WriteProtected;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\StorageAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\UpdatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\FieldSerializerRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\InsertCommand;
@@ -22,7 +23,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommandQueue
 use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\DataStack;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\ExceptionNoStackItemFound;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldAware\StorageAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException\InsufficientWritePermissionException;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException\InvalidJsonFieldException;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException\WriteFieldException;

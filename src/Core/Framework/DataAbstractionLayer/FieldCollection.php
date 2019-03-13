@@ -4,7 +4,7 @@ namespace Shopware\Core\Framework\DataAbstractionLayer;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldAware\StorageAware;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\StorageAware;
 use Shopware\Core\Framework\Struct\Collection;
 
 /**

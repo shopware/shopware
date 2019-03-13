@@ -22,6 +22,10 @@
         transform: translateX(0) !important;
     }
 
+    &.is--fullwidth {
+        width: 100%;
+    }
+
     .off-canvas-close {
         @extend .btn;
         @extend .btn-block;

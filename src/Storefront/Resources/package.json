@@ -54,6 +54,7 @@
     "jquery": "3.3.1",
     "open-sans-fontface": "^1.4.0",
     "@fortawesome/fontawesome-free": "^5.7.2",
-    "popper.js": "1.14.7"
+    "popper.js": "1.14.7",
+    "tiny-slider": "^2.9.1"
   }
 }

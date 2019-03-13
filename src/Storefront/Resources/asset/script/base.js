@@ -6,10 +6,11 @@ import jQuery from 'jquery';
 // Import styles
 import '../scss/base.scss';
 
+// Page
+import './page/product-detail/product-detail.page';
+import './page/account/register.page';
 import './page/account/addressbook.page';
 import './page/account/profile.page';
-
-import './page/account/register.page';
 
 import HttpClient from './service/http-client.service';
 import CartMini from './plugin/cart-mini/cart-mini.plugin';

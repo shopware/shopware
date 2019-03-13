@@ -1,7 +1,46 @@
 {% block page_product_detail_price_inner %}
-	<meta itemprop="price" content="{{ page.product.price.gross }}">
 
-	<div class="product-detail-price">
-		{{ page.product.price.gross|localizedcurrency(page.context.currency.shortName, app.request.locale) }}
-	</div>
+{#TODO: NEXT-1914 - blockprices#}
+    {% if page.product.blockprices %}
+        {% block page_product_detail_price_block %}
+
+        {% endblock %}
+    {% else %}
+        <meta itemprop="price" content="{{ page.product.price.gross }}">
+        <p class="product-detail-price">
+            {{ page.product.price.gross|localizedcurrency(page.context.currency.shortName, app.request.locale) }} {{ "general.star"|trans }}
+        </p>
+
+        {% if page.product.purchaseunit %}
+            {% block page_product_detail_price_unit %}
+                <div class="product-detail-price-unit">
+                    {% block page_product_detail_price_unit_label %}
+                        <span class="price-unit-label">
+                            {{ "detail.priceUnitName"|trans }}
+                        </span>
+                    {% endblock %}
+
+                    {% block page_product_detail_price_unit_content %}
+                        <span class="price-unit-content">
+{#TODO: NEXT-1918 - unit description not available #}
+{% set unitDescription = "kg" %}
+                            {{ page.product.purchaseunit }} {{ unitDescription }}
+                        </span>
+                    {% endblock %}
+
+                    {% if page.product.purchaseunit and page.product.referenceunit and page.product.purchaseunit != page.product.referenceunit %}
+                        {% block page_product_detail_price_unit_refrence_content %}
+                            <span class="price-unit-reference-content">
+{#TODO: NEXT-1918 - reference price not available #}
+{% set referencePrice =  page.product.price.gross * page.product.referenceunit / page.product.purchaseunit %}
+{#TODO: NEXT-1918 - unit description not available #}
+{% set unitDescription = "kg" %}
+                                ({{ referencePrice|localizedcurrency(page.context.currency.shortName, app.request.locale) }} {{ "general.star"|trans }} / {{ page.product.referenceunit }} {{ unitDescription }})
+                            </span>
+                        {% endblock %}
+                    {% endif %}
+                </div>
+            {% endblock %}
+        {% endif %}
+    {% endif %}
 {% endblock %}

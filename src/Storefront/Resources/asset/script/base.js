@@ -13,11 +13,14 @@ import CartWidget from './plugin/actions/cart-widget.plugin';
 import SimplePlugin from './plugin/test/simple-plugin';
 import ExtendedPlugin from './plugin/test/extended-plugin';
 import pluginManager from './helper/plugin.manager';
+import ViewportDetection from "./helper/viewport-detection.helper";
 
 // Expose jQuery and plugin manager to the global window object
 window.jQuery = jQuery;
 window.$ = jQuery;
 window.$pluginManager = pluginManager;
+
+new ViewportDetection();
 
 const client = new HttpClient(window.accessKey, window.contextToken);
 client.get('/storefront-api/v1/product?page=1&limit=10', (response) => {

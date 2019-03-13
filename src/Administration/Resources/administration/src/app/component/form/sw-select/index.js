@@ -187,14 +187,12 @@ export default {
 
     watch: {
         '$route.params.id'() {
-            this.selections = [];
-            this.results = [];
-            this.loadSelected();
+            this.init();
         },
         // load data of the selected option when it changes
         value() {
             if (!this.multi) {
-                this.loadSelected();
+                this.init();
             }
         },
         // Show loading indicator while selected option is being fetched in single selections
@@ -208,8 +206,11 @@ export default {
         // load data of the selected option when store changes
         store() {
             if (!this.multi) {
-                this.loadSelections();
+                this.init();
             }
+        },
+        associationStore() {
+            this.init();
         }
     },
 
@@ -223,11 +224,16 @@ export default {
 
     methods: {
         createdComponent() {
-            this.selections = [];
-            this.results = [];
-
-            this.loadSelected();
+            this.init();
             this.addEventListeners();
+        },
+
+        init() {
+            this.selections = [];
+            this.selected = [];
+            this.results = [];
+            this.deletedItems = [];
+            this.loadSelected(true);
         },
 
         destroyedComponent() {
@@ -584,6 +590,10 @@ export default {
                     return;
                 }
 
+                this.deletedItems = this.deletedItems.filter((identifier) => {
+                    return identifier !== item[this.itemValueKey];
+                });
+
                 this.selections.push(item);
                 this.selected.push(item);
                 this.searchTerm = '';
@@ -664,7 +674,9 @@ export default {
                     return;
                 }
 
-                associationStore.remove(associationStore.store[itemId]);
+                if (associationStore.store[itemId]) {
+                    associationStore.remove(associationStore.store[itemId]);
+                }
             });
 
             // Add new relations

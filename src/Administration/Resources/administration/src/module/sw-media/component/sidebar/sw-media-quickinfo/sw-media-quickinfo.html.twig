@@ -238,6 +238,10 @@
             </sw-media-collapse>
         {% endblock %}
 
+        {% block sw_media_quickinfo_tags %}
+            <sw-media-tag :media="item"></sw-media-tag>
+        {% endblock %}
+
         {% block sw_media_quickinfo_usage %}
             <sw-media-collapse
                 v-if="editable && item.hasFile"

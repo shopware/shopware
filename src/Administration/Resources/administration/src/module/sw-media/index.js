@@ -10,6 +10,7 @@ import './component/sw-media-collapse';
 import './component/sidebar/sw-media-folder-info';
 import './component/sidebar/sw-media-quickinfo';
 import './component/sidebar/sw-media-quickinfo-multiple';
+import './component/sidebar/sw-media-tag';
 import './component/sw-media-display-options';
 import './component/sw-media-breadcrumbs';
 import './component/sw-media-library';

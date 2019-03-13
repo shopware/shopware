@@ -2,6 +2,8 @@
 
 namespace Shopware\Core\Framework\Tag;
 
+use Shopware\Core\Content\Media\Aggregate\MediaTag\MediaTagDefinition;
+use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductTag\ProductTagDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
@@ -41,6 +43,7 @@ class TagDefinition extends EntityDefinition
             new UpdatedAtField(),
 
             (new ManyToManyAssociationField('products', ProductDefinition::class, ProductTagDefinition::class, false, 'tag_id', 'product_id')),
+            (new ManyToManyAssociationField('media', MediaDefinition::class, MediaTagDefinition::class, false, 'tag_id', 'media_id')),
         ]);
     }
 }

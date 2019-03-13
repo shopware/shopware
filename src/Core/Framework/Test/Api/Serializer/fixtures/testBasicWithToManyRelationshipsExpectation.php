@@ -144,6 +144,12 @@ return [
                         'related' => '/api/media/548faa1f7846436c85944f4aea792d96/configuration-group-options',
                     ],
                 ],
+                'tags' => [
+                    'data' => [],
+                    'links' => [
+                        'related' => '/api/media/548faa1f7846436c85944f4aea792d96/tags',
+                    ],
+                ],
                 'avatarUser' => [
                     'data' => null,
                     'links' => [

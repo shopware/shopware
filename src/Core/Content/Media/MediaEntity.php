@@ -13,6 +13,7 @@ use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufactu
 use Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
+use Shopware\Core\Framework\Tag\TagCollection;
 use Shopware\Core\System\User\UserEntity;
 
 class MediaEntity extends Entity
@@ -153,6 +154,11 @@ class MediaEntity extends Entity
      * @var array|null
      */
     protected $attributes;
+
+    /**
+     * @var TagCollection|null
+     */
+    protected $tags;
 
     public function get(string $property)
     {
@@ -426,6 +432,16 @@ class MediaEntity extends Entity
     public function setAttributes(?array $attributes): void
     {
         $this->attributes = $attributes;
+    }
+
+    public function getTags(): ?TagCollection
+    {
+        return $this->tags;
+    }
+
+    public function setTags(TagCollection $tags): void
+    {
+        $this->tags = $tags;
     }
 
     public function jsonSerialize(): array

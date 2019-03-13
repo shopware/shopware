@@ -47,7 +47,7 @@ class DefinitionValidator
     protected $registry;
 
     private static $pluralExceptions = [
-        'children', 'categoriesRo', 'datasheet',
+        'children', 'categoriesRo', 'datasheet', 'media',
     ];
 
     private static $customPrefixedNames = [

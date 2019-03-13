@@ -76,11 +76,12 @@ class CustomerGenerator implements DemodataGeneratorInterface
         $id = Uuid::uuid4()->getHex();
         $shippingAddressId = Uuid::uuid4()->getHex();
         $billingAddressId = Uuid::uuid4()->getHex();
+        $salutationId = Defaults::SALUTATION_ID_MR;
 
         $customer = [
             'id' => $id,
             'customerNumber' => '1337',
-            'salutation' => 'Herr',
+            'salutationId' => $salutationId,
             'firstName' => 'Max',
             'lastName' => 'Mustermann',
             'email' => 'test@example.com',
@@ -95,7 +96,7 @@ class CustomerGenerator implements DemodataGeneratorInterface
                     'id' => $shippingAddressId,
                     'customerId' => $id,
                     'countryId' => 'ffe61e1c99154f9597014a310ab5482d',
-                    'salutation' => 'Herr',
+                    'salutationId' => $salutationId,
                     'firstName' => 'Max',
                     'lastName' => 'Mustermann',
                     'street' => 'Ebbinghoff 10',
@@ -106,7 +107,7 @@ class CustomerGenerator implements DemodataGeneratorInterface
                     'id' => $billingAddressId,
                     'customerId' => $id,
                     'countryId' => 'ffe61e1c99154f9597014a310ab5482d',
-                    'salutation' => 'Herr',
+                    'salutationId' => $salutationId,
                     'firstName' => 'Max',
                     'lastName' => 'Mustermann',
                     'street' => 'Bahnhofstraße 27',
@@ -136,7 +137,8 @@ class CustomerGenerator implements DemodataGeneratorInterface
             $id = Uuid::uuid4()->getHex();
             $firstName = $context->getFaker()->firstName;
             $lastName = $context->getFaker()->lastName;
-            $salutation = $context->getFaker()->title;
+            $salutationId = $this->getRandomSalutationId();
+            $title = $this->getRandomTitle();
             $countries = [Defaults::COUNTRY, 'ffe61e1c99154f9597014a310ab5482d'];
 
             $addresses = [];
@@ -146,7 +148,8 @@ class CustomerGenerator implements DemodataGeneratorInterface
                 $addresses[] = [
                     'id' => Uuid::uuid4()->getHex(),
                     'countryId' => $countries[array_rand($countries)],
-                    'salutation' => $salutation,
+                    'salutationId' => $salutationId,
+                    'title' => $title,
                     'firstName' => $firstName,
                     'lastName' => $lastName,
                     'street' => $context->getFaker()->streetName,
@@ -158,7 +161,8 @@ class CustomerGenerator implements DemodataGeneratorInterface
             $customer = [
                 'id' => $id,
                 'customerNumber' => $this->numberRangeValueGenerator->getValue('customer', $context->getContext(), null),
-                'salutation' => $salutation,
+                'salutationId' => $salutationId,
+                'title' => $title,
                 'firstName' => $firstName,
                 'lastName' => $lastName,
                 'email' => $id . $context->getFaker()->safeEmail,
@@ -191,5 +195,24 @@ class CustomerGenerator implements DemodataGeneratorInterface
         }
 
         $context->getConsole()->progressFinish();
+    }
+
+    private function getRandomTitle(): string
+    {
+        $titles = ['', 'Dr.', 'Dr. med.', 'Prof.', 'Prof. Dr.'];
+
+        return $titles[array_rand($titles)];
+    }
+
+    private function getRandomSalutationId(): string
+    {
+        $salutationIds = [
+            Defaults::SALUTATION_ID_MR,
+            Defaults::SALUTATION_ID_MRS,
+            Defaults::SALUTATION_ID_MISS,
+            Defaults::SALUTATION_ID_DIVERSE,
+        ];
+
+        return $salutationIds[array_rand($salutationIds)];
     }
 }

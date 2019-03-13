@@ -89,7 +89,12 @@ final class Defaults
     public const SALUTATION_KEY_MR = 'mr';
     public const SALUTATION_KEY_MRS = 'mrs';
     public const SALUTATION_KEY_MISS = 'miss';
-    public const SALUTATION_KEY_DIVERS = 'divers';
+    public const SALUTATION_KEY_DIVERSE = 'diverse';
+
+    public const SALUTATION_ID_MR = '0ddcfee7912c4f57b7f8560f4fc35e08';
+    public const SALUTATION_ID_MRS = '1902982d717a4e97ab371326693d73df';
+    public const SALUTATION_ID_MISS = '6fdf0912858540b89a774919593d1b3a';
+    public const SALUTATION_ID_DIVERSE = '7ee9f67bf89140629d4a96441c139ff2';
 
     public const PAYMENT_METHOD_SEPA = 'a6ddadce4cb441f3976a32505049f037';
     public const SALES_CHANNEL_STOREFRONT_API = 'f183ee5650cf4bdb8a774337575067a6';

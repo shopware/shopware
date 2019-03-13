@@ -1,8 +1,8 @@
-const AdminApiService = require('./admin-api.service');
 const _ = require('lodash');
 const glob = require('glob');
 const path = require('path');
 const uuid = require('uuid/v4');
+const AdminApiService = require('./admin-api.service');
 
 export default class AdminFixtureService {
     constructor() {
@@ -30,9 +30,9 @@ export default class AdminFixtureService {
             .then(() => {
                 return this.apiClient.post(`/v1/search/${type}?response=true`, {
                     filter: [{
-                        field: "name",
-                        type: "equals",
-                        value: finalRawData.name,
+                        field: 'name',
+                        type: 'equals',
+                        value: finalRawData.name
                     }]
                 });
             }).then((data) => {
@@ -43,6 +43,16 @@ export default class AdminFixtureService {
                 global.logger.error(err);
                 global.logger.lineBreak();
             });
+    }
+
+    search(type, filter) {
+        return this.apiClient.post(`/v1/search/${type}?response=true`, {
+            filter: [{
+                field: filter.identifier ? filter.identifier : 'name',
+                type: 'equals',
+                value: filter.value
+            }]
+        });
     }
 
     createUuid() {
@@ -65,9 +75,9 @@ export default class AdminFixtureService {
     getClientId(salesChannelName = 'Storefront API') {
         return this.apiClient.post('/v1/search/sales-channel?response=true', {
             filter: [{
-                field: "name",
-                type: "equals",
-                value: salesChannelName,
+                field: 'name',
+                type: 'equals',
+                value: salesChannelName
             }]
         }).then((result) => {
             return result['attributes'].accessKey;

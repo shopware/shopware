@@ -1,9 +1,13 @@
-import { Component } from 'src/core/shopware';
+import { Component, Mixin } from 'src/core/shopware';
 import template from './sw-customer-card.html.twig';
 import './sw-customer-card.scss';
 
 Component.register('sw-customer-card', {
     template,
+
+    mixins: [
+        Mixin.getByName('salutation')
+    ],
 
     props: {
         customer: {
@@ -12,8 +16,7 @@ Component.register('sw-customer-card', {
         },
         title: {
             type: String,
-            required: true,
-            default: ''
+            required: true
         },
         editMode: {
             type: Boolean,
@@ -25,6 +28,12 @@ Component.register('sw-customer-card', {
             required: false,
             default: false
         }
+    },
+
+    data() {
+        return {
+            salutations: null
+        };
     },
 
     computed: {
@@ -46,26 +55,26 @@ Component.register('sw-customer-card', {
         },
 
         fullName() {
-            const customer = this.customer;
+            const name = {
+                name: this.salutation(this.customer),
+                company: this.customer.company
+            };
 
-            if (!customer.firstName && !customer.lastName && !customer.company) {
-                return '';
-            }
-
-            const salutation = customer.salutation ? customer.salutation : '';
-            const title = customer.title ? customer.title : '';
-            const firstName = customer.firstName ? customer.firstName : '';
-            const lastName = customer.lastName ? customer.lastName : '';
-
-            const company = customer.company ? customer.company : '';
-            const mergedName = `${salutation} ${title} ${firstName} ${lastName}`;
-            const dash = company.trim() ? ' - ' : '';
-
-            return `${mergedName} ${dash} ${company}`.trim();
+            return Object.values(name).filter(item => item !== null).join(' - ').trim();
         }
     },
 
+    created() {
+        this.createdComponent();
+    },
+
     methods: {
+        createdComponent() {
+            return this.salutationStore.getList({ page: 1, limit: 500 }).then(({ items }) => {
+                this.salutations = items;
+            });
+        },
+
         getMailTo(mail) {
             return `mailto:${mail}`;
         }

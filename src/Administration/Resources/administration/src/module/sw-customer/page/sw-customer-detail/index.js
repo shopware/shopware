@@ -8,6 +8,7 @@ Component.register('sw-customer-detail', {
 
     mixins: [
         Mixin.getByName('notification'),
+        Mixin.getByName('salutation'),
         Mixin.getByName('discard-detail-page-changes')('customer')
     ],
 
@@ -131,6 +132,10 @@ Component.register('sw-customer-detail', {
             }
         },
 
+        onChangeLanguage() {
+            this.createdComponent();
+        },
+
         initializeFurtherComponents() {
             if (!this.customer) {
                 return;
@@ -202,7 +207,7 @@ Component.register('sw-customer-detail', {
             return this.customer.save().then(() => {
                 this.createNotificationSuccess({
                     title: this.$tc('sw-customer.detail.titleSaveSuccess'),
-                    message: this.$tc('sw-customer.detail.messageSaveSuccess', 0, { name: this.customerName })
+                    message: this.$tc('sw-customer.detail.messageSaveSuccess', 0, { name: this.salutation(this.customer) })
                 });
                 this.customerEditMode = false;
             }).catch((exception) => {

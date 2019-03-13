@@ -35,7 +35,7 @@
                                         :class="addressButtonClasses(address.id)"
                                         @click="onExistingAddressSelected(address)">
                                     {{ address.company }} <br>
-                                    {{ address.salutation}} {{ address.firstName }} {{ address.lastName }}<br>
+                                    {{ address | salutation }}<br>
                                     {{ address.street }} <br>
                                     {{ address.zipcode }} {{ address.city }}<br>
                                     {{ address.country.name }}<br>

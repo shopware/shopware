@@ -31,13 +31,13 @@
                         {% block sw_order_user_card_metadata %}
                             <div class="sw-order-user-card__metadata">
                                 {% block sw_order_user_card_metadata_user_name %}
-                                    <div v-if="userName" class="sw-order-user-card__metadata-user-name">
-                                        {{ userName }}
+                                    <div v-if="currentOrder.orderCustomer" class="sw-order-user-card__metadata-user-name">
+                                        {{ currentOrder.orderCustomer | salutation }}
                                     </div>
                                 {% endblock %}
                             </div>
                         {% endblock %}
-                        {% block  sw_order_detail_base_info_summary %}
+                        {% block sw_order_detail_base_info_summary %}
                             <div>
                                 {% block  sw_order_detail_base_info_summary_entries %}
                                     <div class="sw-order-user-card__metadata-price">

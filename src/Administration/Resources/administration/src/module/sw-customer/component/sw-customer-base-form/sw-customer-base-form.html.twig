@@ -4,10 +4,13 @@
                       gap="0px 32px">
             <sw-container columns="1fr 1fr" gap="32px">
                 {% block sw_customer_base_form_first_salutation_field %}
-                    <sw-field type="text"
-                              :label="$tc('sw-customer.baseForm.labelSalutation')"
-                              v-model="customer.salutation">
-                    </sw-field>
+                    <sw-select-field :label="$tc('sw-customer.baseForm.labelSalutation')"
+                                     v-model="customer.salutationId"
+                                     validation="required">
+                        <option v-for="salutation in salutations" :key="salutation.id" :value="salutation.id">
+                            {{ salutation.meta.viewData.name }}
+                        </option>
+                    </sw-select-field>
                 {% endblock %}
 
                 {% block sw_customer_base_form_title_field %}

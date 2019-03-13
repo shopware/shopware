@@ -408,16 +408,15 @@ class RecalculationServiceTest extends TestCase
         static::assertNotNull($order);
         $orderAddressId = $order->getAddresses()->first()->getId();
 
-        $salutation = 'Replace salutation';
         $firstName = 'Replace first name';
         $lastName = 'Replace last name';
         $street = 'Replace street';
         $city = 'Replace city';
         $zipcode = '98765';
+        $salutation = 'Mr.';
 
         $customerAddressId = $this->addAddressToCustomer(
             $this->customerId,
-            $salutation,
             $firstName,
             $lastName,
             $street,
@@ -450,7 +449,7 @@ class RecalculationServiceTest extends TestCase
         $orderAddress = $order->getAddresses()->first();
 
         static::assertSame($orderAddressId, $orderAddress->getId());
-        static::assertSame($salutation, $orderAddress->getSalutation());
+        static::assertSame($salutation, $orderAddress->getSalutation()->getName());
         static::assertSame($firstName, $orderAddress->getFirstName());
         static::assertSame($lastName, $orderAddress->getLastName());
         static::assertSame($street, $orderAddress->getStreet());
@@ -460,7 +459,6 @@ class RecalculationServiceTest extends TestCase
 
     private function addAddressToCustomer(
         string $customerId,
-        string $salutation,
         string $firstName,
         string $lastName,
         string $street,
@@ -476,7 +474,7 @@ class RecalculationServiceTest extends TestCase
                     'id' => $addressId,
                     'customerId' => $customerId,
                     'countryId' => Defaults::COUNTRY,
-                    'salutation' => $salutation,
+                    'salutationId' => Defaults::SALUTATION_ID_MR,
                     'firstName' => $firstName,
                     'lastName' => $lastName,
                     'street' => $street,
@@ -514,7 +512,7 @@ class RecalculationServiceTest extends TestCase
         $customer = [
             'id' => $customerId,
             'number' => '1337',
-            'salutation' => 'Mr',
+            'salutationId' => Defaults::SALUTATION_ID_MR,
             'firstName' => 'Max',
             'lastName' => 'Mustermann',
             'customerNumber' => '1337',
@@ -530,7 +528,7 @@ class RecalculationServiceTest extends TestCase
                     'id' => $addressId,
                     'customerId' => $customerId,
                     'countryId' => Defaults::COUNTRY,
-                    'salutation' => 'Mr',
+                    'salutationId' => Defaults::SALUTATION_ID_MR,
                     'firstName' => 'Max',
                     'lastName' => 'Mustermann',
                     'street' => 'Ebbinghoff 10',

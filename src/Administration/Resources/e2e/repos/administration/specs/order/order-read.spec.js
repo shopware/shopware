@@ -1,11 +1,18 @@
 const orderPage = require('administration/page-objects/module/sw-order.page-object.js');
 
+let salutation = {};
+
 module.exports = {
     '@tags': ['order', 'order-read', 'read'],
     before: (browser, done) => {
         return global.ProductFixtureService.setProductFixture().then((result) => {
             return global.OrderFixtureService.createGuestOrder(result);
         }).then(() => {
+            return global.OrderFixtureService.search('salutation', {
+                value: 'Mr.'
+            });
+        }).then((salut) => {
+            salutation = salut;
             done();
         });
     },
@@ -30,9 +37,11 @@ module.exports = {
     },
     'verify customer details': (browser) => {
         const page = orderPage(browser);
+        const customerFixture = global.OrderFixtureService.customerStorefrontFixture;
 
-        browser
-            .expect.element(`${page.elements.userMetadata}-user-name`).to.have.text.that.equals(`${global.OrderFixtureService.customerStorefrontFixture.firstName} ${global.OrderFixtureService.customerStorefrontFixture.lastName}`);
+        browser.expect.element(`${page.elements.userMetadata}-user-name`).to.have.text.that.equals(
+            `${salutation.meta.viewData.name} ${customerFixture.firstName} ${customerFixture.lastName}`
+        );
         browser.expect.element('.sw-order-user-card__metadata-price').to.have.text.that.contains(global.ProductFixtureService.productFixture.price.gross);
         browser.expect.element('.sw-order-base__label-sales-channel').to.have.text.that.contains('Storefront API');
     },

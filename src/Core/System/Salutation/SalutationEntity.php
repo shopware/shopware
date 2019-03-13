@@ -2,6 +2,10 @@
 
 namespace Shopware\Core\System\Salutation;
 
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressCollection;
+use Shopware\Core\Checkout\Customer\CustomerCollection;
+use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressCollection;
+use Shopware\Core\Checkout\Order\Aggregate\OrderCustomer\OrderCustomerCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\System\Salutation\Aggregate\SalutationTranslation\SalutationTranslationCollection;
@@ -34,6 +38,26 @@ class SalutationEntity extends Entity
      * @var SalutationTranslationCollection|null
      */
     protected $translations;
+
+    /**
+     * @return CustomerCollection|null
+     */
+    protected $customers;
+
+    /**
+     * @return CustomerAddressCollection|null
+     */
+    protected $customerAddresses;
+
+    /**
+     * @return OrderCustomerCollection|null
+     */
+    protected $orderCustomers;
+
+    /**
+     * @return OrderAddressCollection|null
+     */
+    protected $orderAddresses;
 
     public function getSalutationKey(): string
     {
@@ -83,5 +107,45 @@ class SalutationEntity extends Entity
     public function setTranslations(SalutationTranslationCollection $translations): void
     {
         $this->translations = $translations;
+    }
+
+    public function getCustomers(): ?CustomerCollection
+    {
+        return $this->customers;
+    }
+
+    public function setCustomers(?CustomerCollection $customers): void
+    {
+        $this->customers = $customers;
+    }
+
+    public function getCustomerAddresses(): ?CustomerAddressCollection
+    {
+        return $this->customerAddresses;
+    }
+
+    public function setCustomerAddresses(?CustomerAddressCollection $customerAddresses): void
+    {
+        $this->customerAddresses = $customerAddresses;
+    }
+
+    public function getOrderCustomers(): ?OrderCustomerCollection
+    {
+        return $this->orderCustomers;
+    }
+
+    public function setOrderCustomers(?OrderCustomerCollection $orderCustomers): void
+    {
+        $this->orderCustomers = $orderCustomers;
+    }
+
+    public function getOrderAddresses(): ?OrderAddressCollection
+    {
+        return $this->orderAddresses;
+    }
+
+    public function setOrderAddresses(?OrderAddressCollection $orderAddresses): void
+    {
+        $this->orderAddresses = $orderAddresses;
     }
 }

@@ -7,6 +7,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\System\Country\Aggregate\CountryState\CountryStateEntity;
 use Shopware\Core\System\Country\CountryEntity;
+use Shopware\Core\System\Salutation\SalutationEntity;
 
 class CustomerAddressEntity extends Entity
 {
@@ -28,9 +29,9 @@ class CustomerAddressEntity extends Entity
     protected $countryStateId;
 
     /**
-     * @var string|null
+     * @var string
      */
-    protected $salutation;
+    protected $salutationId;
 
     /**
      * @var string
@@ -113,6 +114,11 @@ class CustomerAddressEntity extends Entity
     protected $countryState;
 
     /**
+     * @var SalutationEntity
+     */
+    protected $salutation;
+
+    /**
      * @var CustomerEntity|null
      */
     protected $customer;
@@ -152,14 +158,14 @@ class CustomerAddressEntity extends Entity
         $this->countryStateId = $countryStateId;
     }
 
-    public function getSalutation(): ?string
+    public function getSalutationId(): string
     {
-        return $this->salutation;
+        return $this->salutationId;
     }
 
-    public function setSalutation(?string $salutation): void
+    public function setSalutationId(string $salutationId): void
     {
-        $this->salutation = $salutation;
+        $this->salutationId = $salutationId;
     }
 
     public function getFirstName(): string
@@ -320,6 +326,16 @@ class CustomerAddressEntity extends Entity
     public function setCountryState(CountryStateEntity $countryState): void
     {
         $this->countryState = $countryState;
+    }
+
+    public function getSalutation(): SalutationEntity
+    {
+        return $this->salutation;
+    }
+
+    public function setSalutation(SalutationEntity $salutation): void
+    {
+        $this->salutation = $salutation;
     }
 
     public function getCustomer(): ?CustomerEntity

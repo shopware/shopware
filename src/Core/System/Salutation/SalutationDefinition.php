@@ -2,12 +2,18 @@
 
 namespace Shopware\Core\System\Salutation;
 
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressDefinition;
+use Shopware\Core\Checkout\Customer\CustomerDefinition;
+use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressDefinition;
+use Shopware\Core\Checkout\Order\Aggregate\OrderCustomer\OrderCustomerDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CreatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\RestrictDelete;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\SearchRanking;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
@@ -42,6 +48,10 @@ class SalutationDefinition extends EntityDefinition
             new UpdatedAtField(),
 
             (new TranslationsAssociationField(SalutationTranslationDefinition::class, 'salutation_id'))->addFlags(new Required()),
+            (new OneToManyAssociationField('customers', CustomerDefinition::class, 'salutation_id', false, 'id'))->addFlags(new RestrictDelete()),
+            (new OneToManyAssociationField('customerAddresses', CustomerAddressDefinition::class, 'salutation_id', false, 'id'))->addFlags(new RestrictDelete()),
+            (new OneToManyAssociationField('orderCustomers', OrderCustomerDefinition::class, 'salutation_id', false, 'id'))->addFlags(new RestrictDelete()),
+            (new OneToManyAssociationField('orderAddresses', OrderAddressDefinition::class, 'salutation_id', false, 'id'))->addFlags(new RestrictDelete()),
         ]);
     }
 }

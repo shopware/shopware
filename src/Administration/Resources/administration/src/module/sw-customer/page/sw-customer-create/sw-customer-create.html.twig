@@ -2,7 +2,6 @@
 
 {% block sw_customer_detail_header %}
     <template slot="smart-bar-header">
-        <h2 v-if="customerName">{{ customerName }}</h2>
-        <h2 v-else>{{ $tc('sw-customer.detail.headlineNewCustomer') }}</h2>
+        <h2>{{ customer | salutation($tc('sw-customer.general.newCustomer')) }}</h2>
     </template>
 {% endblock %}

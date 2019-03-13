@@ -8,10 +8,10 @@
       "mainMenuItemList": "Übersicht",
       "mainMenuItemAdd": "Kunden anlegen",
       "descriptionTextModule": "Verwaltung von Kunden.",
-      "placeholderSearchBar": "Durchsuchen aller Kunden"
+      "placeholderSearchBar": "Durchsuchen aller Kunden",
+      "newCustomer": "Neuer Kunde"
     },
     "card": {
-      "placeholderSalutation": "Anrede",
       "placeholderTitle": "Titel",
       "placeholderFirstName": "Vorname",
       "placeholderLastName": "Nachname",
@@ -144,7 +144,6 @@
       "buttonSave": "Speichern",
       "buttonCancel": "Abbrechen",
       "buttonEdit": "Bearbeiten",
-      "headlineNewCustomer": "Neuer Kunde",
       "tabGeneral": "Allgemein",
       "tabAddresses": "Adressen",
       "titleSaveError": "Fehler",

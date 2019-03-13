@@ -203,6 +203,7 @@ class PaymentServiceTest extends TestCase
             'orderCustomer' => [
                 'customerId' => $customerId,
                 'email' => 'test@example.com',
+                'salutationId' => Defaults::SALUTATION_ID_MR,
                 'firstName' => 'Max',
                 'lastName' => 'Mustermann',
             ],
@@ -215,7 +216,7 @@ class PaymentServiceTest extends TestCase
             'addresses' => [
                 [
                     'id' => $addressId,
-                    'salutation' => 'mr',
+                    'salutationId' => Defaults::SALUTATION_ID_MR,
                     'firstName' => 'Max',
                     'lastName' => 'Mustermann',
                     'street' => 'Ebbinghoff 10',
@@ -243,7 +244,7 @@ class PaymentServiceTest extends TestCase
         $customer = [
             'id' => $customerId,
             'customerNumber' => '1337',
-            'salutation' => 'Herr',
+            'salutationId' => Defaults::SALUTATION_ID_MR,
             'firstName' => 'Max',
             'lastName' => 'Mustermann',
             'email' => Uuid::uuid4()->getHex() . '@example.com',
@@ -258,7 +259,7 @@ class PaymentServiceTest extends TestCase
                     'id' => $addressId,
                     'customerId' => $customerId,
                     'countryId' => Defaults::COUNTRY,
-                    'salutation' => 'Herr',
+                    'salutationId' => Defaults::SALUTATION_ID_MR,
                     'firstName' => 'Max',
                     'lastName' => 'Mustermann',
                     'street' => 'Ebbinghoff 10',

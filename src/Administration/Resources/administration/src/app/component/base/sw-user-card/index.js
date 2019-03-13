@@ -82,21 +82,6 @@ export default {
                 return '';
             }
             return this.$route.meta.$module.color;
-        },
-
-        userName() {
-            const user = this.user;
-
-            if (!user.salutation && !user.firstName && !user.lastName) {
-                return '';
-            }
-
-            const salutation = user.salutation ? user.salutation : '';
-            const title = user.title ? user.title : '';
-            const firstName = user.firstName ? user.firstName : '';
-            const lastName = user.lastName ? user.lastName : '';
-
-            return `${salutation} ${title} ${firstName} ${lastName}`;
         }
     }
 };

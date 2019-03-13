@@ -100,7 +100,7 @@ class AccountServiceTest extends TestCase
     {
         $data = [
             'email' => 'max.mustermann@example.com',
-            'salutation' => 'Herr',
+            'salutationId' => Defaults::SALUTATION_ID_MR,
             'firstName' => 'Max',
             'lastName' => 'Mustermann',
 

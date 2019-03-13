@@ -7,6 +7,7 @@ import template from './sw-order-user-card.html.twig';
 
 Component.register('sw-order-user-card', {
     template,
+
     inject: ['orderService'],
 
     props: {
@@ -23,12 +24,14 @@ Component.register('sw-order-user-card', {
             required: true
         }
     },
+
     data() {
         return {
             addressBeingEdited: null,
             countries: null
         };
     },
+
     computed: {
         countryStore() {
             return State.getStore('country');
@@ -68,48 +71,41 @@ Component.register('sw-order-user-card', {
                 return this.orderDate;
             }
             return '';
-        },
-        userName() {
-            const user = this.currentOrder.orderCustomer;
-
-            if (!user.salutation && !user.firstName && !user.lastName) {
-                return '';
-            }
-
-            const salutation = user.salutation ? user.salutation : '';
-            const title = user.title ? user.title : '';
-            const firstName = user.firstName ? user.firstName : '';
-            const lastName = user.lastName ? user.lastName : '';
-
-            return `${salutation} ${title} ${firstName} ${lastName}`;
         }
     },
+
     created() {
         this.createdComponent();
     },
+
     methods: {
         createdComponent() {
             this.countryStore.getList({ page: 1, limit: 100, sortBy: 'name' }).then((response) => {
                 this.countries = response.items;
             });
         },
+
         onEditBillingAddress() {
             if (this.isEditing) {
                 this.addressBeingEdited = this.billingAddress;
             }
         },
+
         onEditDeliveryAddress() {
             if (this.isEditing) {
                 this.addressBeingEdited = this.currentOrder.deliveries[0].shippingOrderAddress;
             }
         },
+
         onAddressModalClose() {
             this.addressBeingEdited = null;
         },
+
         onAddressModalSave() {
             this.addressBeingEdited = null;
             this.$emit('order-changed');
         },
+
         onAddressModalAddressSelected(address) {
             const oldAddressId = this.addressBeingEdited.id;
             this.addressBeingEdited = null;
@@ -126,6 +122,7 @@ Component.register('sw-order-user-card', {
                 });
             });
         },
+
         onAddNewDeliveryAddress() {
             if (!this.isEditing) {
                 return;

@@ -11,7 +11,7 @@ export default class AjaxOffCanvas extends OffCanvas {
      * @param {'left'|'right'} position
      * @param {boolean} closable
      * @param {number} delay
-     * @param {fullwidth} fullwidth
+     * @param {boolean} fullwidth
      */
     static open(url, callback = null, position = 'left', closable = true, delay = OffCanvas.REMOVE_OFF_CANVAS_DELAY, fullwidth = false) {
         let client = new HttpClient(window.accessKey, window.contextToken);

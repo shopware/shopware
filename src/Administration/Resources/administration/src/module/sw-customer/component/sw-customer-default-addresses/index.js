@@ -8,8 +8,7 @@ Component.register('sw-customer-default-addresses', {
     props: {
         customer: {
             type: Object,
-            required: true,
-            default: {}
+            required: true
         },
 
         customerEditMode: {

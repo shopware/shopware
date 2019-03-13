@@ -57,6 +57,7 @@
                                     {% block sw_select_selection_load_more_item_button %}
                                         <sw-button v-if="nextPreviewLoadStep > 0"
                                                    class="sw-select__load-more-list-item-button"
+                                                   :size="size"
                                                    @click="onPreviewLoadMore">
                                             +{{ nextPreviewLoadStep }}
                                         </sw-button>
@@ -70,7 +71,8 @@
                                         <input ref="swSelectInput"
                                                class="sw-select__input"
                                                type="text"
-                                               :placeholder="getInlineSnippet(placeholder)"
+                                               :placeholder="getPlaceHolder(placeholder)"
+                                               :size="size"
                                                v-model="searchTerm"
                                                @input="onSearchTermChange"
                                                @focus="openResultList"

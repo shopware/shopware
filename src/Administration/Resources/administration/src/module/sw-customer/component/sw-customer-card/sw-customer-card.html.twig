@@ -93,6 +93,10 @@
                                             {% endblock %}
                                         {% endblock %}
 
+                                        {% block sw_customer_card_metadata_customer_tag %}
+                                            <sw-tag-field :entity="customer" :disabled="!editMode" size="small"></sw-tag-field>
+                                        {% endblock %}
+
                                         {% block sw_customer_card_metadata_additional %}
                                             <slot name="metadata-additional">
                                                 {% block sw_customer_card_slot_metadata_additional %}{% endblock %}

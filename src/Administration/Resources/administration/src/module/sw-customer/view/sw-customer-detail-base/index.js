@@ -14,8 +14,7 @@ Component.register('sw-customer-detail-base', {
     props: {
         customer: {
             type: Object,
-            required: true,
-            default: {}
+            required: true
         },
         customerEditMode: {
             type: Boolean,

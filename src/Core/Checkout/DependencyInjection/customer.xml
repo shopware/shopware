@@ -26,6 +26,10 @@
             <tag name="shopware.entity.definition" entity="customer_group_discount"/>
         </service>
 
+        <service id="Shopware\Core\Checkout\Customer\Aggregate\CustomerTag\CustomerTagDefinition">
+            <tag name="shopware.entity.definition" entity="customer_tag"/>
+        </service>
+
         <service id="Shopware\Core\Checkout\Customer\Storefront\AccountService">
             <argument type="service" id="country.repository"/>
             <argument type="service" id="customer_address.repository"/>

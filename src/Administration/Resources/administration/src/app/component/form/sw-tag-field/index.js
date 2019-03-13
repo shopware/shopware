@@ -10,6 +10,25 @@ Component.register('sw-tag-field', {
         entity: {
             type: Object,
             required: true
+        },
+
+        disabled: {
+            type: Boolean,
+            required: false,
+            default: false
+        },
+
+        size: {
+            type: String,
+            required: false,
+            default: 'default',
+            validValues: ['default', 'small'],
+            validator(value) {
+                if (!value.length) {
+                    return true;
+                }
+                return ['default', 'small'].includes(value);
+            }
         }
     },
 

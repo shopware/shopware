@@ -17,10 +17,7 @@ Component.register('sw-customer-detail-addresses', {
     props: {
         customer: {
             type: Object,
-            required: true,
-            default() {
-                return {};
-            }
+            required: true
         },
         countries: {
             type: Array,

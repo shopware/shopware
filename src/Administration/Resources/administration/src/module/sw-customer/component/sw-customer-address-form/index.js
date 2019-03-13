@@ -8,8 +8,7 @@ Component.register('sw-customer-address-form', {
     props: {
         customer: {
             type: Object,
-            required: true,
-            default: {}
+            required: true
         },
 
         address: {

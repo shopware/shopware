@@ -9,8 +9,7 @@ Component.register('sw-customer-base-form', {
     props: {
         customer: {
             type: Object,
-            required: true,
-            default: {}
+            required: true
         },
         salesChannels: {
             type: Array,

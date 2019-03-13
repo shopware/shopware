@@ -319,6 +319,34 @@ $sw-select-transition-result-icon: all ease-in-out .15s;
         }
     }
 
+    &.sw-select--small {
+        .sw-select__inner {
+            min-height: 32px;
+            padding: 3px 3px 0 3px;
+        }
+
+        .sw-label {
+            padding: 0px 12px 0px 12px;
+        }
+
+        .sw-select__selection-item-holder {
+            padding-bottom: 3px;
+            padding-right: 3px;
+        }
+
+        .sw-select__load-more-list-item-button {
+            padding: 1px 10px;
+            line-height: 20px;
+        }
+
+        .sw-select__input {
+            line-height: 20px;
+        }
+        .sw-select__selection-item-input {
+            margin-bottom: 0;
+        }
+    }
+
     // Vue.js transitions
     .sw-select-fade-down-enter-active,
     .sw-select-fade-down-leave-active {

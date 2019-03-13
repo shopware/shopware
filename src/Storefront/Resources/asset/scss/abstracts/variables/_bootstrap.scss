@@ -1,2 +1,11 @@
 $enable-responsive-font-sizes: true;
 $modal-backdrop-bg: rgba(#000, 0.5);
+
+$off-canvas-zindex: 1050;
+
+$spacer: 1rem;
+$spacer-xs: ( $spacer * 0.25 );
+$spacer-sm: ( $spacer * 0.5 );
+$spacer-md: $spacer;
+$spacer-lg: ( $spacer * 1.5 );
+$spacer-xl: ( $spacer * 3 );

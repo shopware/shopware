@@ -37,10 +37,13 @@ export default {
 
     computed: {
         componentClasses() {
-            return {
-                'is--active': this.isActive,
-                'is--disabled': this.disabled
-            };
+            return [
+                {
+                    'is--active': this.isActive,
+                    'is--disabled': this.disabled
+                },
+                `sw-select-option--${this.index}`
+            ];
         }
     },
 

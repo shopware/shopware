@@ -1,3 +1,23 @@
 {% sw_extends '@Storefront/base.html.twig' %}
 
-{% block base_content %}{% endblock %}
+{% block base_content %}
+    {% block page_content %}
+        <div class="cms-page">
+            {% block page_content_blocks %}
+                {% for block in page.cmsPage.blocks.elements %}
+                    {% block page_content_block %}
+                        <div class="row cms-row">
+                            {% block page_content_elements %}
+                                {% for element in block.slots.elements %}
+                                    {% block page_content_element %}
+                                        {% sw_include '@Storefront/page/content/elements/cms-' ~ element.type ~  '.html.twig' ignore missing %}
+                                    {% endblock %}
+                                {% endfor %}
+                            {% endblock %}
+                        </div>
+                    {% endblock %}
+                {% endfor %}
+            {% endblock %}
+        </div>
+    {% endblock %}
+{% endblock %}

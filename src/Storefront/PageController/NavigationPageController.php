@@ -29,6 +29,6 @@ class NavigationPageController extends StorefrontController
     {
         $page = $this->navigationPageLoader->load($request, $context);
 
-        return $this->renderStorefront('@Storefront/page/product-list/index.html.twig', ['page' => $page]);
+        return $this->renderStorefront('@Storefront/page/content/index.html.twig', ['page' => $page]);
     }
 }

@@ -41,10 +41,11 @@ exports.command = function fillSwSelectComponent(
 
     // type in the search term if available
     if (searchTerm) {
-        this.setValue(`${selector} ${inputCssSelector}`, searchTerm);
+        this.fillField(`${selector} ${inputCssSelector}`, searchTerm);
     }
 
     this.waitForElementNotPresent(`${selector} ${swSelectLoaderCssSelector}`);
+    this.expect.element('.sw-select-option--0').to.have.text.to.contains(value);
 
     // select the first result
     this.keys(this.Keys.ENTER);

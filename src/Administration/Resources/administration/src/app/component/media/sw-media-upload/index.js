@@ -180,6 +180,7 @@ export default {
 
     methods: {
         onCreated() {
+            this.uploadStore.addListener(this.uploadTag, this.handleUploadStoreEvent);
             if (this.mediaFolderId) {
                 return;
             }
@@ -205,6 +206,7 @@ export default {
 
         onBeforeDestroy() {
             this.uploadStore.removeByTag(this.uploadTag);
+            this.uploadStore.removeListener(this.uploadTag, this.handleUploadStoreEvent);
 
             ['dragover', 'drop'].forEach((event) => {
                 window.addEventListener(event, this.stopEventPropagation, false);
@@ -413,6 +415,12 @@ export default {
 
                 return configuration.save();
             });
+        },
+
+        handleUploadStoreEvent({ action }) {
+            if (action === 'sw-media-upload-failed') {
+                this.onRemoveMediaItem();
+            }
         }
     }
 };

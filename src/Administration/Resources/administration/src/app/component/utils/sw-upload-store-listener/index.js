@@ -107,23 +107,41 @@ export default {
             }
 
             if (action === UploadEvents.UPLOAD_FAILED) {
-                if (isIllegalFileNameException(payload.error)) {
-                    this.createNotificationError({
-                        title: this.$root.$tc('global.sw-media-upload.notification.illegalFilename.title'),
-                        message: this.$root.$tc(
-                            'global.sw-media-upload.notification.illegalFilename.message',
-                            0,
-                            { fileName: payload.fileName }
-                        )
-                    });
-                } else if (!isDuplicationException(payload.error)) {
-                    this.createNotificationError({
-                        title: this.$root.$tc('global.sw-media-upload.notification.failure.title'),
-                        message: this.$root.$tc('global.sw-media-upload.notification.failure.message')
-                    });
+                if (isDuplicationException(payload.error)) {
+                    this.$emit(UploadEvents.UPLOAD_FAILED, payload);
+                    return;
                 }
 
-                this.$emit(UploadEvents.UPLOAD_FAILED, payload);
+                this.handleError(payload).then(() => {
+                    this.$emit(UploadEvents.UPLOAD_FAILED, payload);
+                });
+            }
+        },
+
+        handleError(payload) {
+            this.showErrorNotification(payload);
+            return this.mediaStore.getByIdAsync(payload.targetId).then((updatedMedia) => {
+                if (!updatedMedia.hasFile) {
+                    updatedMedia.delete(true);
+                }
+            });
+        },
+
+        showErrorNotification(payload) {
+            if (isIllegalFileNameException(payload.error)) {
+                this.createNotificationError({
+                    title: this.$root.$tc('global.sw-media-upload.notification.illegalFilename.title'),
+                    message: this.$root.$tc(
+                        'global.sw-media-upload.notification.illegalFilename.message',
+                        0,
+                        { fileName: payload.fileName }
+                    )
+                });
+            } else {
+                this.createNotificationError({
+                    title: this.$root.$tc('global.sw-media-upload.notification.failure.title'),
+                    message: this.$root.$tc('global.sw-media-upload.notification.failure.message')
+                });
             }
         },
 

@@ -85,8 +85,8 @@
                                           disabled
                                           :label="$tc('sw-settings-number-range.detail.labelCurrentNumber')"
                                           :placeholder="numberRange.start"
-                                          v-if="numberRange.state"
-                                          v-model="numberRange.state.lastNumber">
+                                          v-if="state"
+                                          v-model="state">
                                 </sw-field>
                             {% endblock %}
 

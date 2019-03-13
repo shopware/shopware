@@ -130,6 +130,11 @@ Component.register('sw-product-list', {
                 allowResize: true,
                 primary: true
             }, {
+                property: 'productNumber',
+                dataIndex: 'productNumber',
+                label: this.$tc('sw-product.list.columnProductNumber'),
+                allowResize: true
+            }, {
                 property: 'manufacturer.name',
                 dataIndex: 'manufacturer.name',
                 label: this.$tc('sw-product.list.columnManufacturer'),

@@ -26,6 +26,7 @@ use Shopware\Core\Framework\Demodata\DemodataContext;
 use Shopware\Core\Framework\Demodata\DemodataGeneratorInterface;
 use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\Framework\Util\Random;
+use Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInterface;
 use Symfony\Component\Finder\Finder;
 
 class ProductGenerator implements DemodataGeneratorInterface
@@ -88,6 +89,10 @@ class ProductGenerator implements DemodataGeneratorInterface
      * @var EntityRepositoryInterface
      */
     private $folderRepository;
+    /**
+     * @var NumberRangeValueGeneratorInterface
+     */
+    private $numberRangeValueGenerator;
 
     public function __construct(
         EntityWriterInterface $writer,
@@ -98,7 +103,8 @@ class ProductGenerator implements DemodataGeneratorInterface
         FileSaver $fileSaver,
         FileNameProvider $fileNameProvider,
         VariantGenerator $variantGenerator,
-        Connection $connection
+        Connection $connection,
+        NumberRangeValueGeneratorInterface $numberRangeValueGenerator
     ) {
         $this->writer = $writer;
         $this->defaultFolderRepository = $defaultFolderRepository;
@@ -109,6 +115,7 @@ class ProductGenerator implements DemodataGeneratorInterface
         $this->fileNameProvider = $fileNameProvider;
         $this->variantGenerator = $variantGenerator;
         $this->connection = $connection;
+        $this->numberRangeValueGenerator = $numberRangeValueGenerator;
     }
 
     public function getDefinition(): string
@@ -360,6 +367,7 @@ class ProductGenerator implements DemodataGeneratorInterface
         $faker = $context->getFaker();
         $product = [
             'id' => Uuid::uuid4()->getHex(),
+            'productNumber' => $this->numberRangeValueGenerator->getValue('product', $context->getContext(), null),
             'price' => ['gross' => $price, 'net' => $price / 1.19, 'linked' => true],
             'name' => $faker->productName,
             'description' => $faker->text(),

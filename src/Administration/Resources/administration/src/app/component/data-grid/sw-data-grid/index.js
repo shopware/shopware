@@ -120,15 +120,12 @@ export default {
         this.mountedComponent();
     },
 
-    destroyed() {
-        this.destroyedComponent();
-    },
-
     computed: {
         classes() {
             return {
                 'is--compact': this.compact,
-                'sw-data-grid--full-page': this.fullPage
+                'sw-data-grid--full-page': this.fullPage,
+                'sw-data-grid--actions': this.showActions
             };
         },
 
@@ -145,11 +142,10 @@ export default {
         mountedComponent() {
             this.trackScrollX();
 
-            window.addEventListener('resize', this.trackScrollX.bind(this));
-        },
-
-        destroyedComponent() {
-            window.removeEventListener('resize', this.trackScrollX.bind(this));
+            this.$device.onResize({
+                listener: this.trackScrollX.bind(this),
+                component: this
+            });
         },
 
         initGridColumns() {
@@ -189,6 +185,12 @@ export default {
 
         saveGridColumns() {
             window.localStorage.setItem(this.localStorageItemKey, JSON.stringify(this.currentColumns));
+        },
+
+        getHeaderCellClasses(column) {
+            return {
+                'sw-data-grid__cell--sortable': column.dataIndex
+            };
         },
 
         getRowClasses(item, itemIndex) {
@@ -423,7 +425,7 @@ export default {
             });
         },
 
-        trackScrollX: utils.debounce(function debouncedResize() {
+        trackScrollX() {
             const el = this.$el;
             const wrapperEl = this.$refs.wrapper;
 
@@ -432,6 +434,6 @@ export default {
             } else {
                 el.classList.remove('is--scroll-x');
             }
-        }, 100)
+        }
     }
 };

@@ -96,11 +96,11 @@ class OffCanvasSingleton {
             document.addEventListener(BACKDROP_EVENT.ON_CLICK, onBackdropClick);
         }
 
-        let closeTrigger = document.querySelector(`.${OFF_CANVAS_CLOSE_TRIGGER_CLASS}`);
+        let closeTriggers = document.querySelectorAll(`.${OFF_CANVAS_CLOSE_TRIGGER_CLASS}`);
 
-        if (closeTrigger instanceof Element) {
-            closeTrigger.addEventListener(event, this.close.bind(this, delay));
-        }
+        closeTriggers.forEach((trigger) => {
+            trigger.addEventListener(event, this.close.bind(this, delay));
+        });
     }
 
     /**

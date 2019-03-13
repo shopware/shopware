@@ -346,6 +346,7 @@
           "useTime": "Use time"
         },
         "placeholder": "Select condition",
+        "orderCountRule": "Count of orders",
         "salesChannelRule": "Sales channel",
         "currencyRule": "Currency",
         "billingCountryRule": "Billing country",
@@ -356,6 +357,7 @@
         "differentAddressesRule": "Different addresses",
         "isNewCustomerRule": "Is new customer",
         "lastNameRule": "Last name",
+        "daysSinceLastOrderRule": "Days since last order",
         "shippingCountryRule": "Shipping country",
         "shippingStreetRule": "Shipping street",
         "shippingZipCodeRule": "Shipping zip code",
@@ -369,6 +371,7 @@
         },
         "lineItemRule": "Line item",
         "lineItemsInCartRule": "Line items in cart",
+        "lineItemsInCartCountRule": "Line item count in cart",
         "lineItemUnitPriceRule": "Line item unit price",
         "lineItemTotalPriceRule": "Line item total price",
         "lineItemWithQuantityRule": "Line item with quantity",

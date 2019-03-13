@@ -9,6 +9,7 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderCustomer\OrderCustomerDefinition
 use Shopware\Core\Checkout\Payment\PaymentMethodDefinition;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionPersonaCustomer\PromotionPersonaCustomerDefinition;
 use Shopware\Core\Checkout\Promotion\PromotionDefinition;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CustomFields;
@@ -86,6 +87,8 @@ class CustomerDefinition extends EntityDefinition
             new DateField('last_login', 'lastLogin'),
             new BoolField('newsletter', 'newsletter'),
             new DateField('birthday', 'birthday'),
+            (new DateField('last_order_date', 'lastOrderDate'))->addFlags(new WriteProtected(Context::SYSTEM_SCOPE)),
+            (new IntField('order_count', 'orderCount'))->addFlags(new WriteProtected(Context::SYSTEM_SCOPE)),
             new CustomFields(),
             new StringField('legacy_password', 'legacyPassword'),
             new StringField('legacy_encoder', 'legacyEncoder'),

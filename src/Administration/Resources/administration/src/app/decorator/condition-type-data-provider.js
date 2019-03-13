@@ -5,10 +5,12 @@ import 'src/module/sw-settings-rule/component/sw-condition-billing-zip-code';
 import 'src/module/sw-settings-rule/component/sw-condition-cart-amount';
 import 'src/module/sw-settings-rule/component/sw-condition-cart-has-delivery-free-item';
 import 'src/module/sw-settings-rule/component/sw-condition-currency';
+import 'src/module/sw-settings-rule/component/sw-condition-line-items-in-cart-count';
 import 'src/module/sw-settings-rule/component/sw-condition-customer-group';
 import 'src/module/sw-settings-rule/component/sw-condition-customer-number';
 import 'src/module/sw-settings-rule/component/sw-condition-date-range';
 import 'src/module/sw-settings-rule/component/sw-condition-day-of-week';
+import 'src/module/sw-settings-rule/component/sw-condition-days-since-last-order';
 import 'src/module/sw-settings-rule/component/sw-condition-different-addresses';
 import 'src/module/sw-settings-rule/component/sw-condition-goods-count';
 import 'src/module/sw-settings-rule/component/sw-condition-goods-price';
@@ -20,6 +22,7 @@ import 'src/module/sw-settings-rule/component/sw-condition-line-item-total-price
 import 'src/module/sw-settings-rule/component/sw-condition-line-item-unit-price';
 import 'src/module/sw-settings-rule/component/sw-condition-line-item-with-quantity';
 import 'src/module/sw-settings-rule/component/sw-condition-line-items-in-cart';
+import 'src/module/sw-settings-rule/component/sw-condition-order-count';
 import 'src/module/sw-settings-rule/component/sw-condition-sales-channel';
 import 'src/module/sw-settings-rule/component/sw-condition-shipping-country';
 import 'src/module/sw-settings-rule/component/sw-condition-shipping-street';
@@ -36,6 +39,14 @@ Application.addServiceProviderDecorator('ruleConditionDataProviderService', (rul
     ruleConditionService.addCondition('timeRange', {
         component: 'sw-condition-time-range',
         label: 'global.sw-condition.condition.timeRangeRule'
+    });
+    ruleConditionService.addCondition('customerOrderCount', {
+        component: 'sw-condition-order-count',
+        label: 'global.sw-condition.condition.orderCountRule'
+    });
+    ruleConditionService.addCondition('customerDaysSinceLastOrder', {
+        component: 'sw-condition-days-since-last-order',
+        label: 'global.sw-condition.condition.daysSinceLastOrderRule'
     });
     ruleConditionService.addCondition('salesChannel', {
         component: 'sw-condition-sales-channel',
@@ -112,6 +123,10 @@ Application.addServiceProviderDecorator('ruleConditionDataProviderService', (rul
     ruleConditionService.addCondition('cartLineItemsInCart', {
         component: 'sw-condition-line-items-in-cart',
         label: 'global.sw-condition.condition.lineItemsInCartRule'
+    });
+    ruleConditionService.addCondition('cartLineItemsInCartCount', {
+        component: 'sw-condition-line-items-in-cart-count',
+        label: 'global.sw-condition.condition.lineItemsInCartCountRule'
     });
     ruleConditionService.addCondition('cartLineItemTotalPrice', {
         component: 'sw-condition-line-item-total-price',

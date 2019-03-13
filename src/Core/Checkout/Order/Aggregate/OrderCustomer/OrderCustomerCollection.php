@@ -3,6 +3,7 @@
 namespace Shopware\Core\Checkout\Order\Aggregate\OrderCustomer;
 
 use Shopware\Core\Checkout\Customer\CustomerCollection;
+use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 /**
@@ -37,6 +38,32 @@ class OrderCustomerCollection extends EntityCollection
                 return $orderCustomer->getCustomer();
             })
         );
+    }
+
+    public function getLastOrderDate(): ?\DateTimeInterface
+    {
+        $lastOrderDate = null;
+
+        foreach ($this->getOrders() as $order) {
+            if (!$lastOrderDate || $order->getOrderDate() < $lastOrderDate) {
+                $lastOrderDate = $order->getOrderDate();
+            }
+        }
+
+        return $lastOrderDate;
+    }
+
+    public function getOrders(): OrderCollection
+    {
+        $orders = new OrderCollection();
+        foreach ($this->getElements() as $orderCustomer) {
+            if ($orderCustomer->getOrder() === null) {
+                continue;
+            }
+            $orders->add($orderCustomer->getOrder());
+        }
+
+        return $orders;
     }
 
     protected function getExpectedClass(): string

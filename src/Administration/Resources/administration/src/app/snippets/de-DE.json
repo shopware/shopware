@@ -347,6 +347,7 @@
           "useTime": "Zeit verwenden"
         },
         "placeholder": "Bedingung wählen",
+        "orderCountRule": "Anzahl Bestellungen",
         "salesChannelRule": "Verkaufskanal",
         "currencyRule": "Währung",
         "billingCountryRule": "Rechnungsland",
@@ -357,6 +358,7 @@
         "differentAddressesRule": "Abweichende Adressen",
         "isNewCustomerRule": "Neuer Kunde",
         "lastNameRule": "Nachname",
+        "daysSinceLastOrderRule": "Tage seit letzter Bestellung",
         "shippingCountryRule": "Lieferland",
         "shippingStreetRule": "Lieferstraße",
         "shippingZipCodeRule": "Lieferadresse-PLZ",
@@ -370,6 +372,7 @@
         },
         "lineItemRule": "Positionen",
         "lineItemsInCartRule": "Positionen im Warenkorb",
+        "lineItemsInCartCountRule": "Positionsanzahl im Warenkorb",
         "lineItemUnitPriceRule": "Positionen Preis",
         "lineItemTotalPriceRule": "Positionen Gesamtpreis",
         "lineItemWithQuantityRule": "Positionen mit Anzahl",

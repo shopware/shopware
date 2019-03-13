@@ -13,6 +13,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaI
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Routing\InternalRequest;
+use Shopware\Core\Framework\Struct\ArrayEntity;
 
 class SlotDataResolver
 {
@@ -164,6 +165,7 @@ class SlotDataResolver
                     $directReads[$definition][] = $criteria->getIds();
                 } else {
                     $criteriaHash = $this->hash($criteria);
+                    $criteria->addExtension('criteriaHash', new ArrayEntity(['hash' => $criteriaHash]));
                     $searches[$definition][$criteriaHash] = $criteria;
                 }
             }
@@ -266,7 +268,11 @@ class SlotDataResolver
 
         foreach ($criteriaObjects[$slot->getUniqueIdentifier()] as $definition => $criterias) {
             foreach ($criterias as $key => $criteria) {
-                $hash = $this->hash($criteria);
+                if (!$criteria->hasExtension('criteriaHash')) {
+                    continue;
+                }
+
+                $hash = $criteria->getExtension('criteriaHash')->get('hash');
                 if (!isset($searchResults[$hash])) {
                     continue;
                 }

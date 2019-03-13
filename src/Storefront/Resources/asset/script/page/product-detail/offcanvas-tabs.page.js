@@ -1,6 +1,6 @@
-import DomAccess from "../../helper/DomAccess";
-import OffCanvas from "../../plugins/off-canvas/OffCanvas";
-import DeviceDetection from "../../helper/DeviceDetection";
+import DomAccess from "../../helper/dom-access.helper";
+import OffCanvas from "../../plugin/off-canvas/offcanvas.plugin";
+import DeviceDetection from "../../helper/device-detection.helper";
 
 const OFFCANVAS_TAB_DATA_ATTRIBUTE = 'data-offcanvas-tab';
 const OFFCANVAS_TAB_POSITION = 'right';

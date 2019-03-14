@@ -34,6 +34,7 @@
         padding: 21px 40px;
         grid-template-columns: 1fr auto;
         align-items: center;
+        line-height: 32px;
         border-bottom: 1px solid $color-steam-cloud;
 
         .sw-tree__batch-delete {

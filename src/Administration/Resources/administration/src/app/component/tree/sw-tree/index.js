@@ -89,7 +89,8 @@ export default {
             checkedElements: {},
             checkedElementsCount: 0,
             showDeleteModal: false,
-            toDeleteItem: null
+            toDeleteItem: null,
+            checkedElementsChildCount: 0
         };
     },
 
@@ -334,13 +335,12 @@ export default {
             }
             this.currentEditMode = this.addSubElement;
 
-            // this.getItems(contextItem.id);
             this.$parent.getChildrenFromParent(contextItem.id).then(() => {
-                const parentElement = contextItem.data;
+                const parentElement = contextItem;
                 const newElem = this.$parent.createNewElement(contextItem, contextItem.id);
                 const newTreeItem = this.getNewTreeItem(newElem);
 
-                parentElement.childCount = parseInt(parentElement.childCount, 10) + 1;
+                parentElement.data.childCount += 1;
                 this.newElementId = newElem.id;
                 this.createdItem = newTreeItem;
             });
@@ -399,10 +399,6 @@ export default {
             this.saveItems();
         },
 
-        duplicateElement(item) {
-            this.$emit('duplicateElement', item);
-        },
-
         abortCreateElement(item) {
             if (this._eventFromEdit) {
                 this._eventFromEdit = null;
@@ -411,6 +407,11 @@ export default {
 
             if (this.currentEditMode !== null) {
                 this.deleteElement(item);
+
+                const parent = this.findById(item.parentId);
+                if (parent.id !== item.parentId) {
+                    parent.data.childCount -= 1;
+                }
             }
 
             this.contextItem = null;
@@ -445,13 +446,20 @@ export default {
 
             this.checkedElements = {};
             this.checkedElementsCount = 0;
+            this.checkedElementsChildCount = 0;
         },
 
         checkItem(item) {
             if (item.checked) {
+                if (item.childCount > 0) {
+                    this.checkedElementsChildCount += 1;
+                }
                 this.checkedElements[item.id] = item.id;
                 this.checkedElementsCount += 1;
             } else {
+                if (item.childCount > 0) {
+                    this.checkedElementsChildCount -= 1;
+                }
                 delete this.checkedElements[item.id];
                 this.checkedElementsCount -= 1;
             }

@@ -23,7 +23,7 @@
 
                 {% block sw_tree_item_element_selection %}
                     <div class="sw-tree-item__selection">
-                        <sw-field @change="toggleItemCheck($event, item)" type="checkbox"
+                        <sw-field :disabled="currentEditElement === item.data.id" @change="toggleItemCheck($event, item)" type="checkbox"
                                   :value="checked"></sw-field>
                     </div>
                 {% endblock %}
@@ -103,6 +103,11 @@
 
                             {% block sw_tree_items_actions_group %}
                                 <div class="sw-context-menu__group">
+                                    {% block sw_tree_items_actions_edit %}
+                                        <sw-context-menu-item @click="onChangeRoute(item)">
+                                            {{ $tc('sw-tree.general.actions.edit') }}
+                                        </sw-context-menu-item>
+                                    {% endblock %}
                                     {% block sw_tree_items_actions_delete %}
                                         <sw-context-menu-item variant="danger" @click="deleteElement(item)">
                                             {{ $tc('sw-tree.general.actions.delete') }}
@@ -205,6 +210,11 @@
 
                                                         {% block sw_tree_items_actions_group %}
                                                         <div class="sw-context-menu__group">
+                                                            {% block sw_tree_items_actions_edit %}
+                                                                <sw-context-menu-item @click="onChangeRoute(item)">
+                                                                    {{ $tc('sw-tree.general.actions.edit') }}
+                                                                </sw-context-menu-item>
+                                                            {% endblock %}
                                                             {% block sw_tree_items_actions_delete %}
                                                                 <sw-context-menu-item variant="danger" @click="deleteElement(item)">
                                                                     {{ $tc('sw-tree.general.actions.delete') }}

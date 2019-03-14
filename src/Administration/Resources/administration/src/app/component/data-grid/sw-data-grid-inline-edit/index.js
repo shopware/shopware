@@ -1,6 +1,9 @@
 import template from './sw-data-grid-inline-edit.html.twig';
 import './sw-data-grid-inline-edit.scss';
 
+/**
+ * @private
+ */
 export default {
     name: 'sw-data-grid-inline-edit',
 

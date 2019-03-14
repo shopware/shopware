@@ -5,18 +5,20 @@
         :menuWidth="300"
         :autoClose="false">
 
-        {% block sw_data_grid_settings_trigger %}
-            <sw-button class="sw-data-grid-settings__trigger"
-                       :disabled="disabled"
-                       :aria-label="$tc('global.sw-data-grid.tooltipListSettings')"
-                       slot="button"
-                       size="x-small"
-                       square>
-                {% block sw_data_grid_settings_trigger_icon %}
-                    <sw-icon name="small-default-stack-line" size="14px"></sw-icon>
-                {% endblock %}
-            </sw-button>
-        {% endblock %}
+        <template slot="button">
+            {% block sw_data_grid_settings_trigger %}
+                <sw-button
+                    class="sw-data-grid-settings__trigger"
+                    :disabled="disabled"
+                    :aria-label="$tc('global.sw-data-grid.tooltipListSettings')"
+                    size="x-small"
+                    square>
+                    {% block sw_data_grid_settings_trigger_icon %}
+                        <sw-icon name="small-default-stack-line" size="14px"></sw-icon>
+                    {% endblock %}
+                </sw-button>
+            {% endblock %}
+        </template>
 
         {% block sw_data_grid_settings_content %}
             <div class="sw-data-grid-settings">

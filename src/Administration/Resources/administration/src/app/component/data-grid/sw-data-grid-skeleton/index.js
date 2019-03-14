@@ -1,6 +1,9 @@
 import template from './sw-data-grid-skeleton.html.twig';
 import './sw-data-grid-skeleton.scss';
 
+/**
+ * @private
+ */
 export default {
     name: 'sw-data-grid-skeleton',
 

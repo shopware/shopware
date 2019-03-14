@@ -2,6 +2,27 @@ import utils from 'src/core/service/util.service';
 import template from './sw-data-grid.html.twig';
 import './sw-data-grid.scss';
 
+/**
+ * @public
+ * @status ready
+ * @description The sw-data-grid is a component to render tables with data.
+ * It also supports hiding columns or scrolling horizontally when many columns are present.
+ * @example-type static
+ * @component-example
+ * <sw-data-grid
+ *     :dataSource="[
+ *         { id: 'uuid1', company: 'Wordify', name: 'Portia Jobson' },
+ *         { id: 'uuid2', company: 'Twitternation', name: 'Baxy Eardley' },
+ *         { id: 'uuid3', company: 'Skidoo', name: 'Arturo Staker' },
+ *         { id: 'uuid4', company: 'Meetz', name: 'Dalston Top' },
+ *         { id: 'uuid5', company: 'Photojam', name: 'Neddy Jensen' }
+ *     ]"
+ *     :columns="[
+ *          { property: 'name', label: 'Name', rawData: true },
+ *          { property: 'company', label: 'Company', rawData: true }
+ *     ]">
+ * </sw-grid>
+ */
 export default {
     name: 'sw-data-grid',
 
@@ -120,15 +141,12 @@ export default {
         this.mountedComponent();
     },
 
-    destroyed() {
-        this.destroyedComponent();
-    },
-
     computed: {
         classes() {
             return {
                 'is--compact': this.compact,
-                'sw-data-grid--full-page': this.fullPage
+                'sw-data-grid--full-page': this.fullPage,
+                'sw-data-grid--actions': this.showActions
             };
         },
 
@@ -145,11 +163,10 @@ export default {
         mountedComponent() {
             this.trackScrollX();
 
-            window.addEventListener('resize', this.trackScrollX.bind(this));
-        },
-
-        destroyedComponent() {
-            window.removeEventListener('resize', this.trackScrollX.bind(this));
+            this.$device.onResize({
+                listener: this.trackScrollX.bind(this),
+                component: this
+            });
         },
 
         initGridColumns() {
@@ -189,6 +206,12 @@ export default {
 
         saveGridColumns() {
             window.localStorage.setItem(this.localStorageItemKey, JSON.stringify(this.currentColumns));
+        },
+
+        getHeaderCellClasses(column) {
+            return {
+                'sw-data-grid__cell--sortable': column.dataIndex
+            };
         },
 
         getRowClasses(item, itemIndex) {
@@ -423,7 +446,7 @@ export default {
             });
         },
 
-        trackScrollX: utils.debounce(function debouncedResize() {
+        trackScrollX() {
             const el = this.$el;
             const wrapperEl = this.$refs.wrapper;
 
@@ -432,6 +455,6 @@ export default {
             } else {
                 el.classList.remove('is--scroll-x');
             }
-        }, 100)
+        }
     }
 };

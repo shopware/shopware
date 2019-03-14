@@ -124,7 +124,7 @@ class MediaThumbnailEntity extends Entity
     {
         $identifier = sprintf('%dx%d', $this->getWidth(), $this->getHeight());
 
-        return  $identifier;
+        return $identifier;
     }
 
     public function getAttributes(): ?array

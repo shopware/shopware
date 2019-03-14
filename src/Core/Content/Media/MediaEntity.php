@@ -374,7 +374,7 @@ class MediaEntity extends Entity
         $this->fileName = $fileName;
     }
 
-    public function getMediaFolderId(): ? string
+    public function getMediaFolderId(): ?string
     {
         return $this->mediaFolderId;
     }

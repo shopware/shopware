@@ -4,5 +4,5 @@ namespace Shopware\Core\Framework\Rule;
 
 interface Validatable
 {
-    public function getRule(): ? Rule;
+    public function getRule(): ?Rule;
 }

@@ -11,7 +11,6 @@ use Shopware\Core\Framework\Struct\Collection;
 /**
  * @method LineItem[]    getIterator()
  * @method LineItem[]    getElements()
- * @method LineItem|null get(string $key)
  * @method LineItem|null first()
  * @method LineItem|null last()
  */
@@ -53,7 +52,7 @@ class LineItemCollection extends Collection
         return $this->has($this->getKey($lineItem));
     }
 
-    public function get($identifier): ? LineItem
+    public function get($identifier): ?LineItem
     {
         if ($this->has($identifier)) {
             return $this->elements[$identifier];

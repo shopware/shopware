@@ -1131,8 +1131,7 @@ class EntityReader implements EntityReaderInterface
 
         $fieldCriteria = $criteria->getAssociation($accessor);
 
-        return
-            $fieldCriteria->getOffset() !== null
+        return $fieldCriteria->getOffset() !== null
             || $fieldCriteria->getLimit() !== null
             || !empty($fieldCriteria->getSorting())
             || !empty($fieldCriteria->getFilters())

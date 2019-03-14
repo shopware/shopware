@@ -135,8 +135,7 @@ class CheckoutRuleLoader
         $previousLineItems = $previous->getLineItems();
         $currentLineItems = $current->getLineItems();
 
-        return
-            $previousLineItems->count() !== $currentLineItems->count()
+        return $previousLineItems->count() !== $currentLineItems->count()
             || $previous->getPrice()->getTotalPrice() !== $current->getPrice()->getTotalPrice()
             || $previousLineItems->getKeys() !== $currentLineItems->getKeys()
             || $previousLineItems->getTypes() !== $currentLineItems->getTypes()

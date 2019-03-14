@@ -151,6 +151,9 @@
         "confirmPaymentMethod": "Zahlungsart: ",
         "confirmDispatchMethod": "Versandart: ",
         "confirmSubmit": "Zahlungspflichtig bestellen",
+        "confirmTermsHeader": "AGB und Widerrufsbelehrung",
+        "confirmRevocationNotice": "Bitte beachten Sie bei Ihrer Bestellung auch unsere <a href='#' title='Widerrufsbelehrung'>Widerrufsbelehrung</a>.",
+        "confirmTerms": "Ich habe die <a href='#' title='AGB'>AGB</a> Ihres Shops gelesen und bin mit deren Geltung einverstanden.",
         "finishHeader": "Vielen Dank für Ihre Bestellung bei %shop%!"
     },
     "detail": {

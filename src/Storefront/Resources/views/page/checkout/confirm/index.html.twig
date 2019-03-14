@@ -1,6 +1,51 @@
 {% sw_extends '@Storefront/page/checkout/_page.html.twig' %}
 
 {% block page_checkout_container %}
+	{% block page_checkout_confirm_form %}
+		<form id="confirmForm"
+		      action="{{ path('storefront-api.checkout.order.create', {'version': '1'}) }}"
+		      data-finish-url="{{ path('frontend.checkout.finish.page') }}"
+		      method="post">
+			{% block page_checkout_confirm_form_agb %}
+				<div class="card confirm-terms">
+					<div class="card-body">
+						{% block page_checkout_confirm_form_agb_header %}
+							<div class="card-title">
+								{{ "checkout.confirmTermsHeader"|trans }}
+							</div>
+						{% endblock %}
+
+						{% block page_checkout_confirm_form_revocation_notice %}
+							{% if shopware.config.confirm.revocationNotice %}
+								{#TODO: NEXT-1951 - add link to shop page in snippet #}
+								<p>{{ "checkout.confirmRevocationNotice"|trans }}</p>
+							{% endif %}
+						{% endblock %}
+
+						{% block page_checkout_confirm_form_agb_control %}
+							<div class="custom-control custom-checkbox">
+								{% block page_checkout_confirm_form_agb_control_checkbox %}
+									<input type="checkbox"
+									       class="custom-control-input"
+									       required="required"
+									       id="sAGB"
+									       name="sAGB" />
+								{% endblock %}
+
+								{% block page_checkout_confirm_form_agb_control_label %}
+									{#TODO: NEXT-1951 - add link to shop page in snippet #}
+									<label for="sAGB" class="custom-control-label">
+										{{ "checkout.confirmTerms"|trans|raw }}
+									</label>
+								{% endblock %}
+							</div>
+						{% endblock %}
+					</div>
+				</div>
+			{% endblock %}
+		</form>
+	{% endblock %}
+
 	{% block page_checkout_confirm_info %}
 		<div class="row confirm-info">
 			{% block page_checkout_confirm_address %}
@@ -46,13 +91,11 @@
 	{#TODO: NEXT-1947 - messages (errors, laststock, invalid address)#}
 
 	{% block page_checkout_sidebar_actions_confirm_submit %}
-		<form id="confirmForm"
-		      action="{{ path('storefront-api.checkout.order.create', {'version': '1'}) }}"
-		      data-finish-url="{{ path('frontend.checkout.finish.page') }}"
-		      method="post">
-			<button class="btn btn-primary btn-block btn-lg" type="submit">
-				{{ "checkout.confirmSubmit"|trans }}
-			</button>
-		</form>
+		<button id="confirmFormSubmit"
+				class="btn btn-primary btn-block btn-lg"
+		        form="confirmForm"
+		        type="submit">
+			{{ "checkout.confirmSubmit"|trans }}
+		</button>
 	{% endblock %}
 {% endblock %}

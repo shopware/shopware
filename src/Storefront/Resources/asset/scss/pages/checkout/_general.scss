@@ -1,11 +1,11 @@
 // general
 .checkout {
-    padding-top: 0.5rem;
+    padding-top: $spacer-sm;
 }
 
 // sidebar
 .checkout-sidebar-header {
-    margin-bottom: 2rem;
+    margin-bottom: $spacer-lg;
 }
 
 .checkout-summary-item {
@@ -19,7 +19,7 @@
 }
 
 .checkout-summary-card {
-    margin-bottom: 1rem;
+    margin-bottom: $spacer;
 }
 
 .checkout-summary-total {
@@ -28,6 +28,6 @@
 
 @include media-breakpoint-up(lg) {
     .checkout {
-        padding-top: 3rem;
+        padding-top: $spacer-xl;
     }
 }

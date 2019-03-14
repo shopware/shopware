@@ -26,31 +26,33 @@
             <sw-tree-input-field v-if="hasNoItems" @createNewItem="onCreateNewItem" class="sw-tree__content"></sw-tree-input-field>
 
             <div v-else class="sw-tree__content">
-                {% block sw_tree_items %}
-                    <slot
-                        name="items"
-                        :treeItems="treeItems"
-                        :draggedItem="draggedItem"
-                        :newElementId="newElementId"
-                        :checkItem="checkItem"
-                        :translationContext="translationContext"
-                        :onChangeRoute="onChangeRoute"
-                        :disableContextMenu="disableContextMenu">
-                        {% block sw_tree_slot_items %}
-                            <sw-tree-item
-                                v-for="item in treeItems"
-                                :key="item.id"
-                                :item="item"
-                                :translationContext="translationContext"
-                                :draggedItem="draggedItem">
-                            </sw-tree-item>
-                        {% endblock %}
-                    </slot>
-                {% endblock %}
+                <div class="tree-items">
+                    {% block sw_tree_items %}
+                        <slot
+                            name="items"
+                            :treeItems="treeItems"
+                            :draggedItem="draggedItem"
+                            :newElementId="newElementId"
+                            :checkItem="checkItem"
+                            :translationContext="translationContext"
+                            :onChangeRoute="onChangeRoute"
+                            :disableContextMenu="disableContextMenu">
+                            {% block sw_tree_slot_items %}
+                                <sw-tree-item
+                                    v-for="item in treeItems"
+                                    :key="item.id"
+                                    :item="item"
+                                    :translationContext="translationContext"
+                                    :draggedItem="draggedItem">
+                                </sw-tree-item>
+                            {% endblock %}
+                        </slot>
+                    {% endblock %}
 
-                {% block sw_tree_loader %}
-                    <sw-loader v-if="isLoading"></sw-loader>
-                {% endblock %}
+                    {% block sw_tree_loader %}
+                        <sw-loader v-if="isLoading"></sw-loader>
+                    {% endblock %}
+                </div>
             </div>
         {% endblock %}
         

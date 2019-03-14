@@ -1,6 +1,9 @@
 import template from './sw-data-grid-settings.html.twig';
 import './sw-data-grid-settings.scss';
 
+/**
+ * @private
+ */
 export default {
     name: 'sw-data-grid-settings',
 

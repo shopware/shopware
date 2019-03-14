@@ -21,7 +21,6 @@
 
     .sw-data-grid__table {
         border-collapse: collapse;
-        border-left: 0;
         width: 100%;
     }
 
@@ -176,16 +175,9 @@
         }
     }
 
-    .sw-data-grid__cell--sortable {
+    .sw-data-grid__cell--sortable:hover {
         cursor: pointer;
-
-        &:hover {
-            background-color: $color-light-gray;
-
-            .sw-data-grid__action-edit-column .sw-icon {
-                color: $color-gutenberg;
-            }
-        }
+        background-color: $color-light-gray;
     }
 
     .sw-data-grid__cell--property {
@@ -195,6 +187,12 @@
 
         &.is--column-resizing {
             background-color: $color-cadet-blue;
+        }
+
+        &:hover {
+            .sw-data-grid__action-edit-column .sw-icon {
+                color: $color-gutenberg;
+            }
         }
     }
 

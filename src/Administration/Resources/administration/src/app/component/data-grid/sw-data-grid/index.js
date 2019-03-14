@@ -2,6 +2,27 @@ import utils from 'src/core/service/util.service';
 import template from './sw-data-grid.html.twig';
 import './sw-data-grid.scss';
 
+/**
+ * @public
+ * @status ready
+ * @description The sw-data-grid is a component to render tables with data.
+ * It also supports hiding columns or scrolling horizontally when many columns are present.
+ * @example-type static
+ * @component-example
+ * <sw-data-grid
+ *     :dataSource="[
+ *         { id: 'uuid1', company: 'Wordify', name: 'Portia Jobson' },
+ *         { id: 'uuid2', company: 'Twitternation', name: 'Baxy Eardley' },
+ *         { id: 'uuid3', company: 'Skidoo', name: 'Arturo Staker' },
+ *         { id: 'uuid4', company: 'Meetz', name: 'Dalston Top' },
+ *         { id: 'uuid5', company: 'Photojam', name: 'Neddy Jensen' }
+ *     ]"
+ *     :columns="[
+ *          { property: 'name', label: 'Name', rawData: true },
+ *          { property: 'company', label: 'Company', rawData: true }
+ *     ]">
+ * </sw-grid>
+ */
 export default {
     name: 'sw-data-grid',
 

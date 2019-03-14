@@ -72,7 +72,7 @@ $sw-tree-item-color-text: $color-gutenberg;
         grid-column-gap: 2px;
         align-items: center;
         align-content: center;
-        padding: 0 10px;
+        padding: 0;
         font-size: 14px;
         color: $sw-tree-item-color-text;
 
@@ -105,6 +105,8 @@ $sw-tree-item-color-text: $color-gutenberg;
         position: relative;
         cursor: pointer;
         user-select: none;
+        justify-self: center;
+
 
         .sw-loader {
             background: none;
@@ -117,8 +119,6 @@ $sw-tree-item-color-text: $color-gutenberg;
     }
 
     .sw-tree-item__content {
-        padding: 12px 0;
-
         .sw-field {
             width: auto;
             margin-bottom: 0;
@@ -151,7 +151,7 @@ $sw-tree-item-color-text: $color-gutenberg;
 
     .sw-tree-item__children {
         position: relative;
-        padding-left: 18px;
+        padding-left: 32px;
 
         .sw-tree-item {
             &.is--no-children > .sw-tree-item__element {
@@ -166,19 +166,7 @@ $sw-tree-item-color-text: $color-gutenberg;
                 }
             }
 
-            .sw-tree-item__element {
-                border-left: 1px solid $color-steam-cloud;
-                padding-left: 0;
-                grid-template-columns: 45px 24px 20px auto 30px;
-
-                .sw-tree-item__toggle {
-                    width: 35px;
-                    text-align: right;
-                }
-            }
-
             .sw-tree-item__children {
-                padding-left: 25px;
                 border-left: 1px solid $color-steam-cloud;
             }
         }
@@ -186,16 +174,15 @@ $sw-tree-item-color-text: $color-gutenberg;
 }
 
 .sw-tree-item__element {
-
     height: 42px;
     display: grid;
+    color: $sw-tree-item-color-text;
     grid-template-columns: 30px 24px 20px auto 30px;
     grid-column-gap: 2px;
     align-items: center;
     align-content: center;
-    padding: 0 10px;
+    padding: 0;
     font-size: 14px;
-    color: $sw-tree-item-color-text;
 
     &:hover {
         background: $sw-tree-item-color-background;
@@ -210,7 +197,8 @@ $sw-tree-item-color-text: $color-gutenberg;
         .tree-link {
             color: inherit;
             text-decoration: inherit;
-            display:block;
+            padding: 12px 0;
+            display: block;
         }
     }
 

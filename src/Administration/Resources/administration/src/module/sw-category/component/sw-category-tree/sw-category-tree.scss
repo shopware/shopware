@@ -3,11 +3,12 @@ $sw-category-tree-border-color: $color-steam-cloud;
 
 .sw-category-tree.sw-tree {
     background: $color-white;
+    width: 100%;
     height: 100%;
     border: none;
 
     .sw-tree__actions {
-        padding: 0 30px;
+        padding: 0 24px;
         display: flex;
         flex-direction: row;
         align-items: center;
@@ -17,7 +18,6 @@ $sw-category-tree-border-color: $color-steam-cloud;
     }
 
     .sw-tree__content {
-        padding: 24px 16px;
         max-height: unset;
         min-height: unset;
         height: calc(100% - 66px);

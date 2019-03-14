@@ -55,8 +55,46 @@
     .sw-tree__content {
         min-height: 400px;
         max-height: 600px;
-        padding: 20px;
         position: relative;
         overflow: auto;
+        width: 100%;
+        padding: 0;
+
+        .tree-items {
+            padding: 16px 16px 0 16px;
+            width: max-content;
+            min-width: 100%;
+        }
+
+        .sw-tree-item {
+            width: max-content;
+            min-width: 100%;
+        }
+
+        .sw-tree-item__children {
+            border-left: none !important;
+
+            &::before {
+                content: '';
+                background: $color-steam-cloud;
+                position: absolute;
+                left: 16px;
+                height: 100%;
+                width: 1px;
+            }
+        }
+
+        .sw-tree-item__element {
+            padding: 0;
+            width: 100%;
+        }
+
+        .sw-tree-item__content {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            padding-right: 8px;
+            max-width: 340px;
+        }
     }
 }

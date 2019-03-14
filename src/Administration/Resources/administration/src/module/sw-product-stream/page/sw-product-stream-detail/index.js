@@ -97,6 +97,7 @@ Component.register('sw-product-stream-detail', {
             if (this.$route.params.id) {
                 this.productStreamId = this.$route.params.id;
                 if (this.productStream.isLocal) {
+                    this.filterAssociations = this.productStream.getAssociation('filters');
                     return;
                 }
 

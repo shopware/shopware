@@ -10,8 +10,9 @@ Component.register('sw-product-stream-modal-preview', {
         Mixin.getByName('listing')
     ],
     props: {
-        productFilter: {
-            type: Object
+        associationStore: {
+            type: Object,
+            required: true
         }
     },
     data() {
@@ -76,8 +77,13 @@ Component.register('sw-product-stream-modal-preview', {
             });
         },
         buildCriteria() {
-            if (this.productFilter) {
-                this.criteria = this.handleFilter(this.productFilter);
+            if (this.associationStore.store) {
+                const defaultContainer = Object.values(this.associationStore.store).find(
+                    (filter) => {
+                        return !filter.parentId && filter.type === 'multi' && filter.operator === 'OR';
+                    }
+                );
+                this.criteria = this.handleFilter(defaultContainer);
             }
         },
         handleFilter(filter) {

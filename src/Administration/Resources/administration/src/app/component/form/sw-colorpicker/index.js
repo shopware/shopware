@@ -33,10 +33,9 @@ export default {
             required: false,
             default() {
                 return {
-                    popup: 'left',
                     alpha: false,
-                    editor: true,
-                    editorFormat: 'hex'
+                    editorFormat: 'hex',
+                    colorCallback: 'hex'
                 };
             }
         }
@@ -45,7 +44,8 @@ export default {
     data() {
         return {
             color: '',
-            open: false
+            open: false,
+            userConfig: {}
         };
     },
 
@@ -63,6 +63,9 @@ export default {
                 'is--disabled': !!this.$props.disabled,
                 'is--open': !!this.open
             };
+        },
+        emptyColor() {
+            return !this.color;
         }
     },
 
@@ -77,9 +80,17 @@ export default {
             this.colorPicker = new Picker({
                 parent: this.$el.querySelector('.sw-colorpicker__trigger'),
                 onClose: this.onClose,
-                onOpen: this.onOpen
+                onOpen: this.onOpen,
+                onChange: this.onChange
             });
-            this.colorPicker.setOptions(this.config);
+            const c = this.config;
+            this.userConfig = {
+                popup: 'left',
+                alpha: c.alpha || false,
+                editorFormat: c.editorFormat || 'hex',
+                colorCallback: c.colorCallback || 'hex'
+            };
+            this.colorPicker.setOptions(this.userConfig);
             this.setColor(this.value, true);
         },
 
@@ -106,10 +117,14 @@ export default {
             }
         },
 
+        onChange(value) {
+            this.color = value[this.userConfig.colorCallback];
+        },
+
         onClose(value) {
             this.open = false;
-            this.color = value.hex.substring(0, 7);
-            this.$emit('input', this.color);
+            this.color = value[this.userConfig.colorCallback];
+            this.$emit('sw-colorpicker-closed');
         }
     }
 };

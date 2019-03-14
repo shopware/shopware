@@ -117,8 +117,8 @@ class RuleBuilderPageObject extends GeneralPageObject {
         });
 
         this.browser
-            .fillDateField('.field--from-date input', ruleData.fromDate)
-            .fillDateField('.field--to-date input', ruleData.toDate);
+            .fillDateField('.field--from-date input.input', ruleData.fromDate)
+            .fillDateField('.field--to-date input.input', ruleData.toDate);
     }
 }
 

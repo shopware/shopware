@@ -1,8 +1,4 @@
 const {
-    extractImportFile,
-    getFileContent,
-    extractLessVariables,
-    getFullFilePath,
     parseLessFile
 } = require('./extractLessVariables');
 

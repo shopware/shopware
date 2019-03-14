@@ -35,13 +35,15 @@
         display: block;
         font-size: 16px;
         height: 40px;
-        padding: 5px 50px;
-        margin: 0 20px;
+        padding: 5px 20px;
+        margin: 0 40px;
         border-radius: 30px;
         color: #fff;
         font-weight: 400;
         background: rgba(205,221,247,0.15);
         font-family: 'Brandon';
+        outline: none;
+        border: none;
     }
 
     .search-query:focus {
@@ -62,18 +64,19 @@ export default {
         this.menu = this.getMenuStructure();
     },
 
-    methods: {
-        onSearch(event) {
+    watch: {
+        searchTerm() {
             const value = event.target.value;
             if (value.length > 0) {
                 this.$router.replace({ path: this.$route.path, query: { q: value }});
             } else {
                 this.$router.replace({ path: this.$route.path });
             }
-            this.searchTerm = value;
-
             this.menu = this.getMenuStructure();
-        },
+        }
+    },
+
+    methods: {
         getMenuStructure() {
             return this.$filesInfo.reduce((accumulator, item) => {
                 // Ignore the component when it's marked as private

@@ -144,6 +144,30 @@
             </table>
         </section>
 
+        <section class="section--less-variables" v-if="component.sassVariables.length">
+            <h3>SASS variables</h3>
+            <table>
+                <thead>
+                <tr>
+                    <th>Variable name</th>
+                    <th>Value</th>
+                </tr>
+                </thead>
+
+                <tbody>
+                <tr v-for="variable in component.sassVariables" :key="variable.key">
+                    <td>
+                        <u>{{ variable.key }}</u>
+                    </td>
+
+                    <td>
+                        {{ variable.value }}
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </section>
+
         <section class="section--twig-blocks" v-if="component.blocks.length">
             <h3>Twig blocks</h3>
 

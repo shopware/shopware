@@ -50,7 +50,7 @@
         {% block sw_order_detail_content %}
             <sw-card-view slot="content">
                 {% block sw_order_detail_content_view %}
-                    <router-view :order="order" ref="baseComponent" @sw-order-detail-base-error = "onError"></router-view>
+                    <router-view :order="order" ref="baseComponent" @sw-order-detail-base-error="onError"></router-view>
                 {% endblock %}
 
                 {% block sw_order_detail_attribute_sets %}

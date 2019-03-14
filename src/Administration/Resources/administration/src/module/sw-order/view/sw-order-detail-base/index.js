@@ -1,4 +1,4 @@
-import { Component } from 'src/core/shopware';
+import { Component, Application } from 'src/core/shopware';
 import { format } from 'src/core/service/util.service';
 import './sw-order-detail-base.scss';
 
@@ -24,10 +24,10 @@ Component.register('sw-order-detail-base', {
             hasAssociations: false,
             lastVersionId: null,
             nextRoute: null,
-            liveVersionId: '20080911ffff4fffafffffff19830531',
             currentOrder: null,
             transactionOptions: [],
-            orderOptions: []
+            orderOptions: [],
+            liveVersionId: ''
         };
     },
     computed: {
@@ -85,6 +85,7 @@ Component.register('sw-order-detail-base', {
         createdComponent() {
             this.isLoading = true;
 
+            this.liveVersionId = Application.getContainer('init').contextService.liveVersionId;
             this.recalculationOrderStore = new EntityStore(this.order.getEntityName(),
                 this.orderService,
                 EntityProxy);

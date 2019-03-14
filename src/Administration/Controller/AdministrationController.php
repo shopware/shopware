@@ -31,6 +31,7 @@ class AdministrationController extends AbstractController
             'features' => FeatureConfig::getAll(),
             'systemLanguageId' => '20080911ffff4fffafffffff19830531',
             'defaultLanguageIds' => ['20080911ffff4fffafffffff19830531', '00e84bd18c574a6ca748ac0db17654dc'],
+            'liveVersionId' => '20080911ffff4fffafffffff19830531',
         ]);
     }
 }

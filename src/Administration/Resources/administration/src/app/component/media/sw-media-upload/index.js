@@ -349,6 +349,7 @@ export default {
         },
 
         getDefaultFolderId() {
+            this.defaultFolderStore.removeAll();
             return this.defaultFolderStore.getList({
                 limit: 1,
                 criteria: CriteriaFactory.equals('entity', this.defaultFolder),
@@ -359,7 +360,7 @@ export default {
                 if (items.length !== 1) {
                     return null;
                 }
-
+                console.log(items);
                 const defaultFolder = items[0];
                 if (defaultFolder.folder.id) {
                     return defaultFolder.folder.id;
@@ -370,6 +371,7 @@ export default {
         },
 
         createFolder(defaultFolder) {
+            console.log('create things.....');
             const entityNameIdentifier = `global.entities.${defaultFolder.entity}`;
 
             const configuration = this.folderConfigurationStore.create();

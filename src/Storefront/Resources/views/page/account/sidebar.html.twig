@@ -1,5 +1,4 @@
 {% block page_account_sidebar_inner %}
-	{#TODO: NEXT-1933 - move to collapse or offcanvas on mobile viewport #}
 	<aside class="account-sidebar">
 		<div class="card">
 			{% block page_account_sidebar_header %}
@@ -50,8 +49,22 @@
 								{{ "account.orderLink"|trans }}
 							</a>
 						{% endblock %}
+					{% endblock %}
+				</div>
+			{% endblock %}
 
-						{#TODO: NEXT-1932 - logout link#}
+			{% block page_account_sidebar_footer %}
+				<div class="card-footer account-sidebar-footer">
+					{% block page_account_sidebar_logout %}
+						<form action="{{ path('storefront-api.customer.logout', {'version': 1}) }}"
+						      data-logout="true"
+						      data-redirect="{{ path('frontend.home.page') }}"
+						      method="post">
+							<button class="btn btn-link" type="submit">
+								<i class="fas fa-sign-out-alt"></i>
+								{{ "account.logout"|trans }}
+							</button>
+						</form>
 					{% endblock %}
 				</div>
 			{% endblock %}

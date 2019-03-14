@@ -68,6 +68,7 @@
         "addressTitle": "Adressen",
         "paymentTitle": "Zahlungsarten",
         "orderTitle": "Bestellungen",
+        "logout": "Abmelden",
         "overviewWelcome": "Willkommen, ",
         "overviewInfo": "Dies ist Ihr Konto Dashboard, wo Sie die Möglichkeit haben, Ihre letzten Kontoaktivitäten einzusehen.",
         "overviewPaymentHeader": "Gewählte Zahlungsart",

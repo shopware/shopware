@@ -1,3 +1,9 @@
+.account {
+    .account-sidebar {
+        display: none;
+    }
+}
+
 .account-sidebar-header {
     background: none;
     color: $headings-color;
@@ -19,6 +25,16 @@
     }
 }
 
+.account-sidebar-footer {
+    background: none;
+    margin-top: 1px;
+    border-top: 1px solid $border-color;
+
+    .btn {
+        line-height: normal;
+    }
+}
+
 .account-welcome {
     padding-top: $spacer;
 }
@@ -33,4 +49,12 @@
 .account-card-actions {
     align-items: flex-start;
     margin-top: auto;
+}
+
+@include media-breakpoint-up(md) {
+    .account {
+        .account-sidebar {
+            display: block;
+        }
+    }
 }

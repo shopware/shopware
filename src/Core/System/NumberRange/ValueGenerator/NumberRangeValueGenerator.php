@@ -94,12 +94,6 @@ class NumberRangeValueGenerator implements NumberRangeValueGeneratorInterface
                             new EqualsFilter('number_range.type.typeName', $definition),
                         ]
                     ),
-                    new MultiFilter(
-                        MultiFilter::CONNECTION_AND, [
-                            new EqualsFilter('number_range.salesChannels.id', null),
-                            new EqualsFilter('number_range.type.typeName', $definition),
-                        ]
-                    ),
                 ]
             )
         );
@@ -112,7 +106,27 @@ class NumberRangeValueGenerator implements NumberRangeValueGeneratorInterface
         if ($configurationCollection->count() === 1) {
             $this->configuration = $configurationCollection->first();
         } else {
-            throw new NoConfigurationException($definition, $salesChannelId);
+            //get Fallback Configuration
+            $criteria = new Criteria();
+            $criteria->addFilter(
+                new MultiFilter(
+                    MultiFilter::CONNECTION_AND, [
+                        new EqualsFilter('number_range.salesChannels.id', null),
+                        new EqualsFilter('number_range.type.typeName', $definition),
+                    ]
+                )
+            );
+            $criteria->setLimit(1);
+
+            $configurationCollection = $this->entityReader->read(
+                NumberRangeDefinition::class, $criteria, $context
+            );
+
+            if ($configurationCollection->count() === 1) {
+                $this->configuration = $configurationCollection->first();
+            } else {
+                throw new NoConfigurationException($definition, $salesChannelId);
+            }
         }
     }
 

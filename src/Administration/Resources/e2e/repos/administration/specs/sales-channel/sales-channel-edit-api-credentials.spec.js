@@ -6,7 +6,7 @@ const fixture = {
 };
 
 module.exports = {
-    '@tags': ['sales-channel-api-credentials', 'sales-channel', 'api-credentials'],
+    '@tags': ['sales-channel-api-credentials', 'edit', 'sales-channel', 'api-credentials'],
     before: (browser, done) => {
         global.SalesChannelFixtureService.setSalesChannelFixture(fixture).then(() => {
             done();

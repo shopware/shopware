@@ -1,12 +1,12 @@
 const productPage = require('administration/page-objects/module/sw-product.page-object.js');
 
 const fixture = {
-    name: "Really good product",
-    descriptionLong: "This describes a product. It is your product. You will take care of your product. You will set a price, keep records of storage quantities and take care of whatever needs your product might develop. You love your product. Your are the product. Now go find someone dumb enough to buy your precious product."
+    name: 'Really good product',
+    descriptionLong: 'This describes a product. It is your product. You will take care of your product. You will set a price, keep records of storage quantities and take care of whatever needs your product might develop. You love your product. Your are the product. Now go find someone dumb enough to buy your precious product.'
 };
 
 module.exports = {
-    '@tags': ['product', 'product-translate', 'translation', 'language-switch'],
+    '@tags': ['product', 'product-translate', 'edit', 'translate', 'language-switch'],
     before: (browser, done) => {
         global.ProductFixtureService.setProductFixture(fixture).then(() => {
             done();
@@ -47,7 +47,6 @@ module.exports = {
             .waitForElementNotPresent(page.elements.modal)
             .checkNotification(`Product "${fixture.name}" has been saved successfully.`)
             .expect.element('.sw-language-info').to.have.text.that.equals(`"${fixture.name}" displayed in the root language "Deutsch". Fallback is the system default language "English".`);
-
     },
     'translate some information to german': (browser) => {
         const page = productPage(browser);

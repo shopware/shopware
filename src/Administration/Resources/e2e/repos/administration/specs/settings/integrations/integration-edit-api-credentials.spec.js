@@ -1,7 +1,7 @@
 const integrationPage = require('../../../page-objects/module/sw-integration.page-object.js');
 
 module.exports = {
-    '@tags': ['settings', 'integration-api-credentials', 'integration', 'api-credentials'],
+    '@tags': ['settings', 'integration-api-credentials', 'edit', 'integration', 'api-credentials'],
     before: (browser, done) => {
         global.IntegrationFixtureService.setIntegrationFixtures().then(() => {
             done();
@@ -46,7 +46,7 @@ module.exports = {
         browser
             .waitForElementNotPresent(page.elements.modal)
             .waitForElementPresent(page.elements.listColumnName)
-            .clickContextMenuItem(`.sw_integration_list__edit-action`, page.elements.contextMenuButton, `${page.elements.gridRow}--0`)
+            .clickContextMenuItem('.sw_integration_list__edit-action', page.elements.contextMenuButton, `${page.elements.gridRow}--0`)
             .waitForElementVisible(page.elements.integrationName);
 
         page.verifyChangedApiCredentials();

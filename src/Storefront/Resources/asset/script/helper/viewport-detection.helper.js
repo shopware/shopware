@@ -106,7 +106,7 @@ export default class ViewportDetection {
     /**
      * Dispatch custom event with additional data
      * including the previous viewport
-     * @param eventName
+     * @param {string} eventName
      * @private
      */
     _dispatchViewportEvent(eventName) {

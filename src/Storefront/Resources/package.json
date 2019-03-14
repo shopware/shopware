@@ -29,6 +29,7 @@
     "eslint": "5.12.1",
     "eslint-loader": "2.1.1",
     "file-loader": "^3.0.1",
+    "form-association-polyfill": "^2.0.0",
     "friendly-errors-webpack-plugin": "1.7.0",
     "mini-css-extract-plugin": "0.5.0",
     "node-sass": "4.11.0",

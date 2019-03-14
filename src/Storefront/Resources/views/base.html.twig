@@ -50,7 +50,7 @@
                     <div class="container">
                         <div class="content-main-inner">
                             {% block base_breadcrumb %}
-	                            {% if breadcrumbList %}
+                                {% if breadcrumbList %}
                                     {% sw_include '@Storefront/base/breadcrumb.html.twig' %}
                                 {% endif %}
                             {% endblock %}
@@ -78,33 +78,34 @@
     {% endblock %}
 
     {% block base_body_script %}
-        {% block base_script_token %}
-            <script>
-                window.accessKey = '{{ page.context.salesChannel.accessKey }}';
-                window.contextToken = '{{ page.context.token }}';
-            </script>
-        {% endblock %}
+    {% block base_script_token %}
+        <script>
+            window.accessKey = '{{ page.context.salesChannel.accessKey }}';
+            window.contextToken = '{{ page.context.token }}';
+        </script>
+    {% endblock %}
 
-        {% block base_script_router %}
-            {# Register all routes that will be needed in JavaScript to the window.router object #}
-            <script>
-                window.router = {
-                    "frontend.cart.detail": '{{ path('frontend.cart.detail') }}',
-                    "widgets.checkout.info": '{{ path('widgets.checkout.info') }}',
-                };
-            </script>
-        {% endblock %}
+    {% block base_script_router %}
+        {# Register all routes that will be needed in JavaScript to the window.router object #}
+        <script>
+            window.router = {
+                "frontend.cart.detail": '{{ path('frontend.cart.detail') }}',
+                "frontend.checkout.finish.page": '{{ path('frontend.checkout.finish.page') }}',
+                "widgets.checkout.info": '{{ path('widgets.checkout.info') }}',
+            };
+        </script>
+    {% endblock %}
 
-        {% block base_script_hmr_mode %}
-            {# Set variable to "true" to enable HMR (hot page reloading) mode #}
-            {% set isHMRMode = true %}
+    {% block base_script_hmr_mode %}
+        {# Set variable to "true" to enable HMR (hot page reloading) mode #}
+        {% set isHMRMode = true %}
 
-            {% if isHMRMode %}
-                <script type="text/javascript" src="{{ app.request.server.get('APP_URL') }}:9999/js/main.bundle.js"></script>
-            {% else %}
-                <script type="text/javascript" src="{{ asset('js/main.bundle.js') }}"></script>
-            {% endif %}
-        {% endblock %}
+        {% if isHMRMode %}
+        <script type="text/javascript" src="{{ app.request.server.get('APP_URL') }}:9999/js/main.bundle.js"></script>
+        {% else %}
+        <script type="text/javascript" src="{{ asset('js/main.bundle.js') }}"></script>
+        {% endif %}
+    {% endblock %}
     {% endblock %}
     </body>
 {% endblock %}

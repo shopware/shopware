@@ -40,12 +40,6 @@ module.exports = {
         browser
             .click('.sw-select-option:nth-of-type(1)')
             .waitForElementNotPresent('.sw-field__select-load-placeholder')
-            .expect.element(`${page.elements.modal}__body`).to.have.text.that.contains('There are unsaved changes in the current language. Do you want to save them now?');
-
-        browser
-            .click(`${page.elements.modal}__footer button${page.elements.primaryButton}`)
-            .waitForElementNotPresent(page.elements.modal)
-            .checkNotification(`Product "${fixture.name}" has been saved successfully.`)
             .expect.element('.sw-language-info').to.have.text.that.equals(`"${fixture.name}" displayed in the root language "Deutsch". Fallback is the system default language "English".`);
 
     },

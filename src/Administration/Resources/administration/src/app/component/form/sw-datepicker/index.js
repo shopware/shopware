@@ -69,6 +69,7 @@ export default {
     data() {
         return {
             flatpickrInstance: null,
+            inputValue: '',
             defaultConfig: {
                 time_24hr: true,
                 locale: 'en',
@@ -337,6 +338,10 @@ export default {
          * @param event
          */
         onInput() {
+            if (this.inputValue) {
+                this.flatpickrInstance.input.defaultValue = this.inputValue;
+            }
+
             this.$nextTick(() => {
                 this.$emit('input', this.flatpickrInstance.input.defaultValue);
             });

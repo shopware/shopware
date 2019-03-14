@@ -60,7 +60,10 @@ Component.register('sw-order-user-card', {
         lastChangedDate() {
             if (this.currentOrder) {
                 if (this.currentOrder.updatedAt) {
-                    return format.date(this.currentOrder.updatedAt);
+                    return format.date(
+                        this.currentOrder.updatedAt,
+                        { year: '2-digit', hour: '2-digit', minute: '2-digit' }
+                    );
                 }
                 return this.orderDate;
             }

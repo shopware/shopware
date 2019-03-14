@@ -104,6 +104,7 @@
       "cardTitle": "States",
       "headlineOrderState": "Order State",
       "headlineTransactionState": "Payment State",
+      "labelLastEditedBy":"Last edited by",
       "labelSystemUser":"System",
       "labelSelectStatePlaceholder":"Choose status...",
       "labelSelectStateButton":"Update status",

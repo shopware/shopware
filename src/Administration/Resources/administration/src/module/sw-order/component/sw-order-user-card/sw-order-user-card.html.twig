@@ -40,7 +40,7 @@
                         {% block  sw_order_detail_base_info_summary %}
                             <div>
                                 {% block  sw_order_detail_base_info_summary_entries %}
-                                    <div class="sw-order-user-card__metadata-user-name">
+                                    <div class="sw-order-user-card__metadata-price">
                                         {{ currentOrder.amountTotal | currency(currentOrder.currency.meta.viewData.shortName) }}
                                     </div>
                                     <div class="sw-order-user-card__metadata-item">
@@ -167,7 +167,7 @@
                                 {%  block sw_order_detail_base_secondary_info_order_overview_right_column %}
                                     {% block sw_order_detail_base_secondary_info_order_language %}
                                         <dt>{{ $tc('sw-order.detailBase.labelLanguage') }}</dt>
-                                        <dd>{{ currentOrder.salesChannel.language.name }}</dd>
+                                        <dd>{{ currentOrder.salesChannel.language.meta.viewData.name }}</dd>
                                     {% endblock %}
                                     {% block sw_order_detail_base_secondary_info_last_change %}
                                         <dt>{{ $tc('sw-order.detailBase.labelLastChange') }}</dt>

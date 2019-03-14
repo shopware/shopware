@@ -86,6 +86,7 @@ Component.register('sw-order-detail-base', {
             this.isLoading = true;
 
             this.liveVersionId = Application.getContainer('init').contextService.liveVersionId;
+            console.log(this.liveVersionId);
             this.recalculationOrderStore = new EntityStore(this.order.getEntityName(),
                 this.orderService,
                 EntityProxy);

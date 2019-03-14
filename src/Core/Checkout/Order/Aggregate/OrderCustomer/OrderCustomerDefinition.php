@@ -58,7 +58,7 @@ class OrderCustomerDefinition extends EntityDefinition
             new AttributesField(),
             new CreatedAtField(),
             new UpdatedAtField(),
-            new OneToOneAssociationField('order', 'id', 'order_id', OrderDefinition::class, false),
+            new OneToOneAssociationField('order', 'id', 'order_customer_id', OrderDefinition::class, false),
             (new ManyToOneAssociationField('customer', 'customer_id', CustomerDefinition::class, false))->addFlags(new SearchRanking(0.5)),
         ]);
     }

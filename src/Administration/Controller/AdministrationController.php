@@ -2,6 +2,7 @@
 
 namespace Shopware\Administration\Controller;
 
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\FeatureFlag\FeatureConfig;
 use Shopware\Core\Framework\Twig\TemplateFinder;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -29,9 +30,9 @@ class AdministrationController extends AbstractController
 
         return $this->render($template, [
             'features' => FeatureConfig::getAll(),
-            'systemLanguageId' => '20080911ffff4fffafffffff19830531',
-            'defaultLanguageIds' => ['20080911ffff4fffafffffff19830531', '00e84bd18c574a6ca748ac0db17654dc'],
-            'liveVersionId' => '20080911ffff4fffafffffff19830531',
+            'systemLanguageId' => Defaults::LANGUAGE_SYSTEM,
+            'defaultLanguageIds' => [Defaults::LANGUAGE_SYSTEM, Defaults::LANGUAGE_SYSTEM_DE],
+            'liveVersionId' => Defaults::LIVE_VERSION,
         ]);
     }
 }

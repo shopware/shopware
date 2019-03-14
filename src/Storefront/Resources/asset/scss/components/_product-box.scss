@@ -3,7 +3,7 @@
 }
 
 .product-image {
-    margin-bottom: 1rem;
+    margin-bottom: $spacer;
 }
 
 .product-image-link {
@@ -12,7 +12,7 @@
 
 .product-name {
     display: block;
-    margin-bottom: 1rem;
+    margin-bottom: $spacer;
 }
 
 .product-price {

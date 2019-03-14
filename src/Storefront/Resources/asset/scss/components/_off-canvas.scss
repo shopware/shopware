@@ -8,17 +8,17 @@
     transition: all 0.45s cubic-bezier(0.3, 0, 0.15, 1);
     overflow-y: auto;
 
-    &.is--left {
+    &.is-left {
         transform: translateX(-100%);
         left: 0;
     }
 
-    &.is--right {
+    &.is-right {
         transform: translateX(100%);
         right: 0;
     }
 
-    &.is--open {
+    &.is-open {
         transform: translateX(0) !important;
     }
 
@@ -33,7 +33,7 @@
         position: absolute;
         left: 50%;
         top: 50%;
-        margin-left: -1rem;
-        margin-top: -1rem;
+        margin-left: -$spacer;
+        margin-top: -$spacer;
     }
 }

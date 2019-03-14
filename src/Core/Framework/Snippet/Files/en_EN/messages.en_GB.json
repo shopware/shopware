@@ -4,7 +4,8 @@
         "menuLink": "Menu",
         "star": "*",
         "grossTaxInformation": "Prices incl. VAT plus shipping costs",
-        "netTaxInformation": "Prices plus VAT plus shipping costs"
+        "netTaxInformation": "Prices plus VAT plus shipping costs",
+        "noscriptNotice": "To be able to use our shop in full range, we recommend activating Javascript in your browser."
     },
     "header": {
         "logoLink": "zur Startseite wechseln"

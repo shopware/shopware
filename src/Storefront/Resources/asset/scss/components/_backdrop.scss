@@ -2,7 +2,7 @@
     opacity: 0;
     transition: opacity 0.45s cubic-bezier(0.3, 0, 0.15, 1), visibility 0.45s linear;
 
-    &--open {
+    &.modal-backdrop-open {
         opacity: 1;
     }
 
@@ -10,7 +10,7 @@
         position: absolute;
         left: 50%;
         top: 50%;
-        margin-left: -1rem;
-        margin-top: -1rem;
+        margin-left: -$spacer;
+        margin-top: -$spacer;
     }
 }

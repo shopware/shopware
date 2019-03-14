@@ -7,9 +7,9 @@
 
     .cart-item {
         padding: 10px 0;
-        border-bottom: 1px solid $gray-300;
+        border-bottom: 1px solid $border-color;
 
-        &.is--empty {
+        &.is-empty {
             padding-top: 0;
             border-bottom: 0;
         }
@@ -17,7 +17,7 @@
 
     .cart-item-image {
         $size: 38px;
-        border: solid 1px $gray-300;
+        border: solid 1px $border-color;
         background: $white;
         width: $size;
         height: $size;
@@ -83,7 +83,6 @@
     }
 
     .cart-tax {
-        font-size: 12px;
+        font-size: $font-size-sm;
     }
-
 }

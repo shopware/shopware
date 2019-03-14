@@ -2,9 +2,9 @@ import DeviceDetection from "../../helper/device-detection.helper";
 import Backdrop, { BACKDROP_EVENT } from "../backdrop/backdrop.plugin";
 
 const OFF_CANVAS_CLASS = 'off-canvas';
-const OFF_CANVAS_OPEN_CLASS = 'is--open';
-const OFF_CANVAS_POSITION_LEFT_CLASS = 'is--left';
-const OFF_CANVAS_POSITION_RIGHT_CLASS = 'is--right';
+const OFF_CANVAS_OPEN_CLASS = 'is-open';
+const OFF_CANVAS_POSITION_LEFT_CLASS = 'is-left';
+const OFF_CANVAS_POSITION_RIGHT_CLASS = 'is-right';
 const OFF_CANVAS_CLOSE_TRIGGER_CLASS = 'off-canvas-close';
 const REMOVE_OFF_CANVAS_DELAY = 350;
 

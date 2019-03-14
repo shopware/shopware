@@ -10,14 +10,14 @@
     }
 }
 
-.content-main--inner {
+.content-main-inner {
     background: $white;
     min-height: 200px;
     padding: 0 10px 16px;
 }
 
 @include media-breakpoint-up(md) {
-    .content-main--inner {
+    .content-main-inner {
         padding: 0 30px 16px;
     }
 }
@@ -33,7 +33,7 @@
         }
     }
 
-    .content-main--inner {
+    .content-main-inner {
         box-shadow: 0 0 4px 1px $gray-300;
         min-height: 700px;
         padding: 0 50px 50px;

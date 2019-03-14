@@ -4,7 +4,8 @@
         "menuLink": "Menü",
         "star": "*",
         "grossTaxInformation": "inkl. MwSt. zzgl. Versandkosten",
-        "netTaxInformation": "exkl. MwSt. zzgl. Versandkosten"
+        "netTaxInformation": "exkl. MwSt. zzgl. Versandkosten",
+        "noscriptNotice": "Um unseren Shop in vollem Umfang nutzen zu k&ouml;nnen, empfehlen wir Ihnen Javascript in Ihrem Browser zu aktiveren."
     },
     "header": {
         "logoLink": "Switch to homepage"

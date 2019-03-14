@@ -1,9 +1,9 @@
 .account-register {
-    padding: 0.5rem 0;
+    padding: $spacer-sm 0;
 }
 
 .login-card {
-    margin-bottom: 1rem;
+    margin-bottom: $spacer;
 }
 
 .register-advantages {
@@ -15,20 +15,20 @@
 }
 
 .register-personal {
-    margin-bottom: 3rem;
+    margin-bottom: $spacer-xl;
 }
 
 .register-address {
-    margin-bottom: 3rem;
+    margin-bottom: $spacer-xl;
 }
 
 .register-required-info {
-    margin-bottom: 1rem;
+    margin-bottom: $spacer;
 }
 
 @include media-breakpoint-up(lg) {
     .account-register {
-        padding: 3rem 0;
+        padding: $spacer-xl 0;
     }
 
     .register-advantages {

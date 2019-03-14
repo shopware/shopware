@@ -1,0 +1,33 @@
+// general
+.checkout {
+    padding-top: 0.5rem;
+}
+
+// sidebar
+.checkout-sidebar-header {
+    margin-bottom: 2rem;
+}
+
+.checkout-summary-item {
+    display: flex;
+    justify-content: space-between;
+    font-size: $font-size-sm;
+
+    &:first-child {
+        border-top: 0;
+    }
+}
+
+.checkout-summary-card {
+    margin-bottom: 1rem;
+}
+
+.checkout-summary-total {
+    font-weight: $font-weight-bold;
+}
+
+@include media-breakpoint-up(lg) {
+    .checkout {
+        padding-top: 3rem;
+    }
+}

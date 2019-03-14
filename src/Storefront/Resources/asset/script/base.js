@@ -2,6 +2,7 @@
 import '@babel/polyfill';
 import 'bootstrap';
 import jQuery from 'jquery';
+
 // Import styles
 import '../scss/base.scss';
 
@@ -10,6 +11,7 @@ import './page/product-detail/product-detail.page';
 import './page/account/register.page';
 import './page/account/addressbook.page';
 import './page/account/profile.page';
+import './page/checkout/confirm.page';
 
 import HttpClient from './service/http-client.service';
 import CartMini from './plugin/cart-mini/cart-mini.plugin';
@@ -56,12 +58,10 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 }, false);
 
-
 // Necessary for the webpack hot module reloading server
 if (module.hot) {
     module.hot.accept();
 }
-
 
 // Header Cart Widget
 new CartWidget();

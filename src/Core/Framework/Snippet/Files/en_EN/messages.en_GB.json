@@ -68,6 +68,7 @@
         "addressTitle": "Addresses",
         "paymentTitle": "Payment methods",
         "orderTitle": "Orders",
+        "logout": "Logout",
         "overviewWelcome": "Welcome, ",
         "overviewInfo": "This is your account dashboard which enables you to view your account activities.",
         "overviewPaymentHeader": "Selected payment method",

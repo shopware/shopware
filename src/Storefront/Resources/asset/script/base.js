@@ -17,6 +17,7 @@ import ExtendedPlugin from './plugin/test/extended-plugin';
 import ModalExtension from "./plugin/modal/modal-extension.plugin";
 import pluginManager from './helper/plugin.manager';
 import ViewportDetection from "./helper/viewport-detection.helper";
+import Logout from "./plugin/logout/logout.plugin";
 
 // Expose jQuery and plugin manager to the global window object
 window.jQuery = jQuery;
@@ -69,3 +70,6 @@ new ModalExtension();
 
 // Cookie Permission
 new CookiePermission();
+
+// Logout
+new Logout();

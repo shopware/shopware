@@ -1,0 +1,35 @@
+{% sw_extends '@Storefront/page/checkout/_page.html.twig' %}
+
+{% block page_checkout_main_content %}
+	{% block page_checkout_finish %}
+		<div class="checkout-finish">
+			{% block page_checkout_finish_header %}
+				<h1 class="checkout-finish-header">
+					{{ "checkout.finishHeader"|trans({
+						'%shop%': shopware.config.shopName
+					}) }}
+				</h1>
+			{% endblock %}
+
+			{% block page_checkout_finish_main %}
+				{% if page.order.lineItems.elements %}
+					<div class="d-print-block card cart-table">
+						<div class="card-body">
+							{% block page_checkout_finish_table_header %}
+								{% sw_include '@Storefront/page/checkout/confirm/confirm-header.html.twig' %}
+							{% endblock %}
+
+							{% block page_checkout_finish_items %}
+								{% for lineItem in page.order.lineItems.elements %}
+									{% block page_checkout_finish_item %}
+										{% sw_include '@Storefront/page/checkout/confirm/confirm-item.html.twig' %}
+									{% endblock %}
+								{% endfor %}
+							{% endblock %}
+						</div>
+					</div>
+				{% endif %}
+			{% endblock %}
+		</div>
+	{% endblock %}
+{% endblock %}

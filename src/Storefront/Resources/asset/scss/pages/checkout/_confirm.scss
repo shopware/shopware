@@ -1,0 +1,18 @@
+.confirm-info {
+    margin-bottom: 2rem;
+}
+
+.confirm-address,
+.confirm-payment {
+    height: 100%;
+}
+
+.confirm-address {
+    margin-bottom: 2rem;
+}
+
+@include media-breakpoint-up(lg) {
+    .confirm-address {
+        margin-bottom: 0;
+    }
+}

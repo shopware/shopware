@@ -52,7 +52,7 @@ export default class ModalExtension {
      * When clicking/touching the modal trigger the button shall
      * show a loading indicator and an AJAX request needs to be triggered.
      * The response then has to be placed inside the modal which will show up.
-     * @param e
+     * @param {Event} e
      * @private
      */
     _onClickHandleAjaxModal(e) {
@@ -81,7 +81,7 @@ export default class ModalExtension {
             $(modal).on('hidden.bs.modal', () => {
                 // remove ajax modal wrapper
                 wrapper.remove();
-            })
+            });
         });
 
     }

@@ -17,6 +17,14 @@ export default class DeviceDetection {
     }
 
     /**
+     * Returns if we're dealing with a native Windows browser
+     * @returns {boolean}
+     */
+    static isNativeWindowsBrowser() {
+        return (DeviceDetection.isIEBrowser() || DeviceDetection.isEdgeBrowser());
+    }
+
+    /**
      * Returns whether the current userAgent is an iPhone device
      * @returns {boolean}
      */
@@ -32,5 +40,23 @@ export default class DeviceDetection {
     static isIPadDevice() {
         let userAgent = navigator.userAgent;
         return !!(userAgent.match(/iPad/i));
+    }
+
+    /**
+     * Returns if we're dealing with the Internet Explorer.
+     * @returns {boolean}
+     */
+    static isIEBrowser() {
+        let userAgent = navigator.userAgent.toLowerCase();
+        return userAgent.indexOf('msie') !== -1 || !!navigator.userAgent.match(/Trident.*rv[ :]*11\./);
+    }
+
+    /**
+     * Returns if we're dealing with the Windows Edge browser.
+     * @returns {boolean}
+     */
+    static isEdgeBrowser() {
+        let userAgent = navigator.userAgent.toLowerCase();
+        return userAgent.indexOf('edge') !== -1;
     }
 }

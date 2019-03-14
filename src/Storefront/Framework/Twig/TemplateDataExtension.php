@@ -110,6 +110,9 @@ class TemplateDataExtension extends AbstractExtension implements GlobalsInterfac
                 'additionalField2' => false,
                 'zipBeforeCity' => true,
             ],
+            'confirm' => [
+                'revocationNotice' => true,
+            ],
         ];
     }
 

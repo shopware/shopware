@@ -2,7 +2,6 @@
 import '@babel/polyfill';
 import 'bootstrap';
 import jQuery from 'jquery';
-
 // Import styles
 import '../scss/base.scss';
 
@@ -12,6 +11,7 @@ import CartWidget from './plugin/actions/cart-widget.plugin';
 
 import SimplePlugin from './plugin/test/simple-plugin';
 import ExtendedPlugin from './plugin/test/extended-plugin';
+import ModalExtension from "./plugin/modal/modal-extension.plugin";
 import pluginManager from './helper/plugin.manager';
 import ViewportDetection from "./helper/viewport-detection.helper";
 
@@ -60,3 +60,6 @@ new CartWidget();
 
 // Cart Mini OffCanvas
 new CartMini();
+
+// Modal Extension
+new ModalExtension();

@@ -10,6 +10,7 @@ import './sw-colorpicker.scss';
  * @component-example
  * <sw-colorpicker label="Color picker" value="#dd4800"></sw-colorpicker>
  */
+
 export default {
     name: 'sw-colorpicker',
     extendsFrom: 'sw-text-field',
@@ -28,16 +29,24 @@ export default {
             default: false
         },
 
-        config: {
-            type: Object,
+        alpha: {
+            type: Boolean,
             required: false,
-            default() {
-                return {
-                    alpha: false,
-                    editorFormat: 'hex',
-                    colorCallback: 'hex'
-                };
-            }
+            default: false
+        },
+
+        editorFormat: {
+            type: String,
+            required: false,
+            default: 'hex',
+            validValues: ['hex', 'hsl', 'rgb']
+        },
+
+        colorCallback: {
+            type: String,
+            required: false,
+            default: 'hex',
+            validValues: ['hex', 'rgbString', 'rgbaString']
         }
     },
 
@@ -83,12 +92,12 @@ export default {
                 onOpen: this.onOpen,
                 onChange: this.onChange
             });
-            const c = this.config;
+
             this.userConfig = {
                 popup: 'left',
-                alpha: c.alpha || false,
-                editorFormat: c.editorFormat || 'hex',
-                colorCallback: c.colorCallback || 'hex'
+                alpha: this.alpha || false,
+                editorFormat: this.editorFormat || 'hex',
+                colorCallback: this.colorCallback || 'hex'
             };
             this.colorPicker.setOptions(this.userConfig);
             this.setColor(this.value, true);
@@ -118,12 +127,12 @@ export default {
         },
 
         onChange(value) {
-            this.color = value[this.userConfig.colorCallback];
+            this.color = value[this.colorCallback];
         },
 
         onClose(value) {
             this.open = false;
-            this.color = value[this.userConfig.colorCallback];
+            this.color = value[this.colorCallback];
             this.$emit('sw-colorpicker-closed');
         }
     }

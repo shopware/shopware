@@ -6,8 +6,10 @@
 
 {% block page_checkout_container %}
 	{% if not page.cart.lineItems.elements %}
-		{#TODO: NEXT-1947 - no items alert#}
-		{{ "checkout.cartEmpty"|trans }}
+		{% sw_include '@Storefront/base/_utilities/alert.html.twig' with {
+			type: "info",
+			content: "checkout.cartEmpty"|trans
+		} %}
 	{% else %}
 		{{ parent() }}
 	{% endif %}

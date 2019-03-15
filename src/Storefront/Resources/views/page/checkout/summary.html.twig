@@ -17,7 +17,7 @@
 
 					{% block page_checkout_summary_position_price_value %}
 						<div class="checkout-summary-value">
-							{{ summary.price.positionPrice|localizedcurrency(page.context.currency.shortName, app.request.locale) }}{{ "star"|trans }}
+							{{ summary.price.positionPrice|localizedcurrency(page.context.currency.shortName, app.request.locale) }}{{ "general.star"|trans }}
 						</div>
 					{% endblock %}
 				</li>
@@ -35,7 +35,7 @@
 
 							{% block page_checkout_summary_shipping_cost_value %}
 								<div class="checkout-summary-value">
-									{{ delivery.shippingCosts.totalPrice|localizedcurrency(page.context.currency.shortName, app.request.locale) }}{{ "star"|trans }}
+									{{ delivery.shippingCosts.totalPrice|localizedcurrency(page.context.currency.shortName, app.request.locale) }}{{ "general.star"|trans }}
 								</div>
 							{% endblock %}
 						</li>

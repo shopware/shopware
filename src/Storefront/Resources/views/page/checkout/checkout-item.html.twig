@@ -1,72 +1,115 @@
 {% block page_checkout_item %}
-	<div class="row cart-item cart-item-{{ lineItem.type }} cart-item-row">
-		{% block page_checkout_item_info %}
-			<div class="col-5 cart-item-info">
-				{% block page_checkout_item_info_inner %}
-					<div class="row cart-item-row">
-						{% block page_checkout_item_info_image %}
-							<div class="col-auto cart-item-info-img">
-								<div class="cart-item-img-container">
-									<img src="{{ asset(lineItem.cover.url) }}"
-									     class="img-fluid cart-item-img"
-									     alt="{{ lineItem.cover.fileName }}">
+	<div class="cart-item cart-item-{{ lineItem.type }}">
+		<div class="row cart-item-row">
+			{% block page_checkout_item_info %}
+				<div class="col-5 cart-item-info">
+					{% block page_checkout_item_info_inner %}
+						<div class="row cart-item-row">
+							{% block page_checkout_item_info_image %}
+								<div class="col-auto cart-item-info-img">
+									{% block page_checkout_item_info_image_container %}
+										<div class="cart-item-img-container">
+											{% block page_checkout_item_info_image_link %}
+												<a href="{{ path('frontend.detail.page', {'productId': lineItem.key}) }}"
+												   class="cart-item-img-link"
+												   title="{{ lineItem.label }}">
+													{% block page_checkout_item_info_image_element %}
+														{% if lineItem.cover.url %}
+															{% set imgSrc = lineItem.cover.url %}
+														{% else %}
+															{% set imgSrc = shopware.theme.general.noPicture %}
+														{% endif %}
+														<img src="{{ asset(imgSrc) }}"
+														     class="img-fluid cart-item-img"
+														     alt="{{ lineItem.cover.fileName }}">
+													{% endblock %}
+												</a>
+											{% endblock %}
+										</div>
+									{% endblock %}
 								</div>
-							</div>
-						{% endblock %}
+							{% endblock %}
 
-						{% block page_checkout_item_info_label %}
-							<div class="col cart-item-label">
-								<a href="{{ path('frontend.detail.page', {'productId': lineItem.key}) }}"
-								   title="{{ lineItem.label }}">
-									{{ lineItem.label }}
-								</a>
-							</div>
-						{% endblock %}
-					</div>
-				{% endblock %}
-			</div>
-		{% endblock %}
+							{% block page_checkout_item_info_details %}
+								<div class="col cart-item-details">
+									{% block page_checkout_item_info_details_inner %}
+										{% block page_checkout_item_info_label %}
+											<a href="{{ path('frontend.detail.page', {'productId': lineItem.key}) }}"
+											   class="cart-item-label"
+											   title="{{ lineItem.label }}">
+												{{ lineItem.label|truncate(60) }}
+											</a>
+										{% endblock %}
 
-		{% block page_checkout_item_quantity %}
-			<div class="col-2 cart-item-quantity">
-				{% block page_checkout_item_quantity_inner %}
-					{#TODO: NEXT-1946 - quantity select#}
-					{{ lineItem.quantity }}
-				{% endblock %}
-			</div>
-		{% endblock %}
+										{% block page_checkout_item_info_ordernumber %}
+											{#TODO: NEXT-1946 - ordernumber#}
+										{% endblock %}
 
-		{% block page_checkout_item_unit_price %}
-			<div class="col-2 cart-item-unit-price">
-				{% block page_checkout_item_unit_price_inner %}
-					{{ lineItem.price.unitPrice|localizedcurrency(page.context.currency.shortName, app.request.locale) }}
-				{% endblock %}
-			</div>
-		{% endblock %}
+										{% block page_checkout_item_info_delivery_informations %}
+											{#TODO: NEXT-1946 - delivery informations#}
+										{% endblock %}
+									{% endblock %}
+								</div>
+							{% endblock %}
+						</div>
+					{% endblock %}
+				</div>
+			{% endblock %}
 
-		{% block page_checkout_item_total_price %}
-			<div class="col-2 cart-item-total-price">
-				{% block page_checkout_item_total_price_inner %}
-					{{ lineItem.price.totalPrice|localizedcurrency(page.context.currency.shortName, app.request.locale) }}
-				{% endblock %}
-			</div>
-		{% endblock %}
-
-		{% block page_checkout_item_remove %}
-			<div class="col-1 cart-item-remove">
-				{% block page_checkout_item_remove_inner %}
-					{% if lineItem.isRemovable() %}
-						{#TODO: NEXT-1946 - remove functionality#}
-						<form action="{{ path('storefront-api.checkout.cart.line-item.delete', {'version': 1, 'id': lineItem.key}) }}"
+			{% block page_checkout_item_quantity %}
+				<div class="col-2 cart-item-quantity">
+					{% block page_checkout_item_quantity_form %}
+						{#TODO: NEXT-1946 - update functionality#}
+						<form action="{{ path('storefront-api.checkout.cart.line-item.update', {'version': 1, 'id': lineItem.key}) }}"
 						      method="post">
-							<button type="submit"
-							        title="{{ "checkout.removeLineItem"|trans }}"
-							        class="btn btn-light btn-sm">X {#TODO: NEXT-1946 - replace with icon #}
-							</button>
+							{% block page_checkout_item_quantity_select %}
+								<select class="custom-select" name="quantity">
+									<option value="{{ lineItem.quantity }}" selected="selected">
+										{{ lineItem.quantity }}
+									</option>
+								</select>
+							{% endblock %}
 						</form>
-					{% endif %}
-				{% endblock %}
-			</div>
-		{% endblock %}
+					{% endblock %}
+				</div>
+			{% endblock %}
+
+			{% block page_checkout_item_unit_price %}
+				<div class="col-2 cart-item-unit-price">
+					{% block page_checkout_item_unit_price_inner %}
+						{{ lineItem.price.unitPrice|localizedcurrency(page.context.currency.shortName, app.request.locale) }}
+					{% endblock %}
+				</div>
+			{% endblock %}
+
+			{% block page_checkout_item_total_price %}
+				<div class="col-2 cart-item-total-price">
+					{% block page_checkout_item_total_price_inner %}
+						{{ lineItem.price.totalPrice|localizedcurrency(page.context.currency.shortName, app.request.locale) }}
+					{% endblock %}
+				</div>
+			{% endblock %}
+
+			{% block page_checkout_item_remove %}
+				<div class="col-1 cart-item-remove">
+					{% block page_checkout_item_remove_form %}
+						{% if lineItem.isRemovable() %}
+							{#TODO: NEXT-1946 - remove functionality#}
+							<form action="{{ path('storefront-api.checkout.cart.line-item.delete', {'version': 1, 'id': lineItem.key}) }}"
+							      method="post">
+								{% block page_checkout_item_remove_submit %}
+									<button type="submit"
+									        title="{{ "checkout.removeLineItem"|trans }}"
+									        class="btn btn-light btn-sm">
+										<i class="fas fa-times"></i>
+									</button>
+								{% endblock %}
+							</form>
+						{% endif %}
+					{% endblock %}
+				</div>
+			{% endblock %}
+		</div>
 	</div>
 {% endblock %}
+

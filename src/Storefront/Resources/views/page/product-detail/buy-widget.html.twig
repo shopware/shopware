@@ -22,18 +22,17 @@
 			{% endblock %}
 
 			{% block page_product_detail_rich_snippets_release_date %}
-				<meta itemprop="releaseDate" content="{{ page.product.releaseDate|localizeddate('short', 'none', app.request.locale) }}"/>
+				<meta itemprop="releaseDate"
+				      content="{{ page.product.releaseDate|localizeddate('short', 'none', app.request.locale) }}"/>
 			{% endblock %}
 		{% endblock %}
 
 		{% block page_product_detail_not_available %}
-{#TODO: NEXT-1921 - product not available message#}
+			{#TODO: NEXT-1921 - product not available message#}
 		{% endblock %}
 
 		{% block page_product_detail_buy_container %}
-			<div itemprop="offers"
-			     itemscope
-			     itemtype="http://schema.org/Offer">
+			<div itemprop="offers" itemscope itemtype="http://schema.org/Offer">
 				{% block page_product_detail_data %}
 					<meta itemprop="priceCurrency" content="{{ page.context.currency.shortName }}"/>
 
@@ -44,22 +43,22 @@
 					{% endblock %}
 
 					{% block page_product_detail_tax %}
-{#TODO: NEXT-1921 - add modal functionality#}
-                        <div class="product-detail-tax-container">
-                            <p class="product-detail-tax">
-                                {% if context.taxState == "gross" %}
-                                    {{ "general.grossTaxInformation"|trans }}
-                                {% else %}
-                                    {{ "general.netTaxInformation"|trans }}
-                                {% endif %}
-                            </p>
-                        </div>
+						{#TODO: NEXT-1921 - add modal functionality#}
+						<div class="product-detail-tax-container">
+							<p class="product-detail-tax">
+								{% if context.taxState == "gross" %}
+									{{ "general.grossTaxInformation"|trans }}
+								{% else %}
+									{{ "general.netTaxInformation"|trans }}
+								{% endif %}
+							</p>
+						</div>
 					{% endblock %}
 
 					{% block page_product_detail_delivery_informations %}
-                        <div class="product-detail-delivery-information">
-                            {% sw_include '@Storefront/component/delivery-information.html.twig' %}
-                        </div>
+						<div class="product-detail-delivery-information">
+							{% sw_include '@Storefront/component/delivery-information.html.twig' %}
+						</div>
 					{% endblock %}
 				{% endblock %}
 
@@ -82,22 +81,22 @@
 		{% endblock %}
 
 		{% block page_product_detail_ordernumber_container %}
-            {% if page.product.productNumber %}
-                <div class="product-detail-ordernumber-container">
-                    {% block page_product_detail_ordernumber_label %}
-                        <span class="product-detail-ordernumber-label">
+			{% if page.product.productNumber %}
+				<div class="product-detail-ordernumber-container">
+					{% block page_product_detail_ordernumber_label %}
+						<span class="product-detail-ordernumber-label">
                             {{ "detail.ordernumberLabel"|trans }}
                         </span>
-                    {% endblock %}
+					{% endblock %}
 
-                    {% block page_product_detail_ordernumber %}
-                        <meta itemprop="productID" content="{{ page.product.id }}"/>
-                        <span class="product-detail-ordernumber" itemprop="sku">
+					{% block page_product_detail_ordernumber %}
+						<meta itemprop="productID" content="{{ page.product.id }}"/>
+						<span class="product-detail-ordernumber" itemprop="sku">
                             {{ page.product.productNumber }}
                         </span>
-                    {% endblock %}
-                </div>
-            {% endif %}
+					{% endblock %}
+				</div>
+			{% endif %}
 		{% endblock %}
 	</div>
 {% endblock %}

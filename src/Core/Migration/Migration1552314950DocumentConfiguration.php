@@ -56,9 +56,11 @@ SQL;
         $stornoConfigId = Uuid::uuid4()->getBytes();
         $invoiceConfigId = Uuid::uuid4()->getBytes();
         $deliveryConfigId = Uuid::uuid4()->getBytes();
+        $creditConfigId = Uuid::uuid4()->getBytes();
 
         $invoiceId = $connection->fetchColumn('SELECT id FROM `document_type` WHERE `technical_name` = :technical_name', ['technical_name' => DocumentTypes::INVOICE]);
         $deliverNoteId = $connection->fetchColumn('SELECT id FROM `document_type` WHERE `technical_name` = :technical_name', ['technical_name' => DocumentTypes::DELIVERY_NOTE]);
+        $creditNoteId = $connection->fetchColumn('SELECT id FROM `document_type` WHERE `technical_name` = :technical_name', ['technical_name' => DocumentTypes::CREDIT_NOTE]);
 
         $defaultConfig = [
             'displayPrices' => true,
@@ -86,7 +88,12 @@ SQL;
 
         $connection->insert('document_base_config', ['id' => $stornoConfigId, 'name' => DocumentTypes::STORNO, 'type_id' => $stornoId, 'config' => $configJson, 'created_at' => date(Defaults::DATE_FORMAT)]);
         $connection->insert('document_base_config', ['id' => $invoiceConfigId, 'name' => DocumentTypes::INVOICE, 'type_id' => $invoiceId, 'config' => $configJson, 'created_at' => date(Defaults::DATE_FORMAT)]);
-        $connection->insert('document_base_config', ['id' => $deliveryConfigId, 'name' => DocumentTypes::DELIVERY_NOTE, 'type_id' => $deliverNoteId, 'config' => $configJson, 'created_at' => date(Defaults::DATE_FORMAT)]);
+        $connection->insert('document_base_config', ['id' => $creditConfigId, 'name' => DocumentTypes::CREDIT_NOTE, 'type_id' => $creditNoteId, 'config' => $configJson, 'created_at' => date(Defaults::DATE_FORMAT)]);
+
+        $deliveryConfig = $defaultConfig;
+        $deliveryConfig['displayPrices'] = false;
+        $deliveryConfigJson = json_encode($deliveryConfig);
+        $connection->insert('document_base_config', ['id' => $deliveryConfigId, 'name' => DocumentTypes::DELIVERY_NOTE, 'type_id' => $deliverNoteId, 'config' => $deliveryConfigJson, 'created_at' => date(Defaults::DATE_FORMAT)]);
     }
 
     public function updateDestructive(Connection $connection): void

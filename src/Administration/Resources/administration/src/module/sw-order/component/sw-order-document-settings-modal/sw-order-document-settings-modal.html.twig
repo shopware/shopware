@@ -1,6 +1,7 @@
 {% block sw_order_document_settings_modal %}
     <sw-modal title="Modal title"
-              @closeModal="onCancel">
+        @closeModal="onCancel"
+        class="sw-order-document-settings-modal">
 
         {% block sw_order_document_settings_modal_form_first_row %}
             <sw-container columns="1fr 1fr" gap="0px 10px">
@@ -19,6 +20,9 @@
                     </sw-datepicker>
                 {% endblock %}
             </sw-container>
+        {% endblock %}
+
+        {% block sw_order_document_settings_modal_form_additional_content %}
         {% endblock %}
 
         {% block sw_order_document_settings_modal_form_document_comment %}
@@ -47,15 +51,15 @@
                 {% block sw_order_document_settings_modal_form_document_footer_split_button %}
                     <sw-button-group splitButton>
                         {% block sw_order_document_settings_modal_form_document_footer_split_button_create %}
-                            <sw-button variant="primary" size="small" @click="onCreateDocument">
+                            <sw-button variant="primary" size="small" @click="onCreateDocument" :disabled="!documentPreconditionsFulfilled">
                                 {{ $tc('sw-order.documentModal.labelCreate') }}
                             </sw-button>
                         {% endblock %}
 
                         {% block sw_order_document_settings_modal_form_document_footer_split_button_context %}
-                            <sw-context-button>
+                            <sw-context-button :disabled="!documentPreconditionsFulfilled">
                                 {% block sw_order_document_settings_modal_form_document_footer_split_button_context_arrow %}
-                                    <sw-button square slot="button" variant="primary" size="small">
+                                    <sw-button square slot="button" variant="primary" size="small" :disabled="!documentPreconditionsFulfilled">
                                         <sw-icon name="small-arrow-medium-down" size="16"></sw-icon>
                                     </sw-button>
                                 {% endblock %}

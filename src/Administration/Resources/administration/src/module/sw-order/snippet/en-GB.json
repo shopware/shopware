@@ -62,6 +62,7 @@
       "buttonDelete" : "Delete order",
       "buttonAddProduct" :"Add product",
       "buttonAddBlankProduct" :"Add custom item",
+      "buttonAddCredit" :"Add credit item",
       "buttonEditAddress" : "Edit",
       "labelNoPhoneNumber" :"No phone number yet",
       "labelCustomerPhoneNumber":"Phone number",
@@ -136,7 +137,10 @@
       "labelCreateSend": "Create and send",
       "labelCreate": "Create",
       "labelCancel": "Close",
-      "labelPreview": "Preview"
+      "labelPreview": "Preview",
+      "labelHighlightedItemsHeader":"Name",
+      "labelHighlightedItemsEntry":"Total",
+      "labelNoItems":"No credit items"
     }
   }
 }

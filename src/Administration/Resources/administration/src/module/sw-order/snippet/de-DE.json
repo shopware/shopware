@@ -62,6 +62,7 @@
       "buttonDelete" : "Bestellung löschen",
       "buttonAddProduct" :"Produkt hinzufügen",
       "buttonAddBlankProduct" :"Leere Position hinzufügen",
+      "buttonAddCredit" :"Gutschrift hinzufügen",
       "buttonEditAddress" : "Bearbeiten",
       "labelNoPhoneNumber" :"Keine",
       "labelCustomerPhoneNumber":"Telefonnummer",
@@ -136,7 +137,10 @@
       "labelCreateSend": "Beleg erstellen und senden",
       "labelCreate": "Beleg erstellen",
       "labelCancel": "Schließen",
-      "labelPreview": "Vorschau"
+      "labelPreview": "Vorschau",
+      "labelHighlightedItemsHeader":"Name",
+      "labelHighlightedItemsEntry":"Gesamt",
+      "labelNoItems":"Keine Gutschriften hinzugefügt"
     }
   }
 }

@@ -53,6 +53,8 @@ class OrderConverter
 
     public const ORIGINAL_ID = 'originalId';
 
+    public const ORIGINAL_ORDER_NUMBER = 'originalOrderNumber';
+
     private const LINE_ITEM_PLACEHOLDER = 'lineItemPlaceholder';
 
     /**
@@ -157,9 +159,15 @@ class OrderConverter
             $data['id'] = $idStruct->getId();
         }
 
-        $data['orderNumber'] = $this->numberRangeValueGenerator->getValue(
-            OrderDefinition::getEntityName(), $context->getContext(), $context->getSalesChannel()->getId()
-        );
+        /** @var IdStruct|null $orderNumberStruct */
+        $orderNumberStruct = $cart->getExtensionOfType(self::ORIGINAL_ORDER_NUMBER, IdStruct::class);
+        if ($orderNumberStruct !== null) {
+            $data['orderNumber'] = $orderNumberStruct->getId();
+        } else {
+            $data['orderNumber'] = $this->numberRangeValueGenerator->getValue(
+                OrderDefinition::getEntityName(), $context->getContext(), $context->getSalesChannel()->getId()
+            );
+        }
 
         $event = new CartConvertedEvent($cart, $data, $context, $conversionContext);
 
@@ -191,6 +199,7 @@ class OrderConverter
         $cart = new Cart(self::CART_TYPE, Uuid::randomHex());
         $cart->setPrice($order->getPrice());
         $cart->addExtension(self::ORIGINAL_ID, new IdStruct($order->getId()));
+        $cart->addExtension(self::ORIGINAL_ORDER_NUMBER, new IdStruct($order->getOrderNumber()));
         /* NEXT-708 support:
             - transactions
         */

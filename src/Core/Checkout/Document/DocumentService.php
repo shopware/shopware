@@ -75,7 +75,7 @@ class DocumentService
         string $fileType,
         DocumentConfiguration $config,
         Context $context
-    ): string {
+    ): DocumentIdStruct {
         $documentType = $this->getDocumentTypeById($documentTypeId, $context);
 
         if (!$documentTypeId || !$documentType || !$this->documentGeneratorRegistry->hasGenerator($documentType->getTechnicalName())) {
@@ -97,6 +97,7 @@ class DocumentService
             $config->toArray()
         );
 
+        $deepLinkCode = Random::getAlphanumericString(32);
         $this->documentRepository->create([
             [
                 'id' => $documentId,
@@ -105,13 +106,13 @@ class DocumentService
                 'orderId' => $orderId,
                 'orderVersionId' => $orderVersionId,
                 'config' => $documentConfiguration->toArray(),
-                'deepLinkCode' => Random::getAlphanumericString(32),
+                'deepLinkCode' => $deepLinkCode,
             ],
         ],
             $context
         );
 
-        return $documentId;
+        return new DocumentIdStruct($documentId, $deepLinkCode);
     }
 
     public function getDocumentByIdAndToken(string $documentId, string $deepLinkCode, Context $context): string
@@ -142,7 +143,7 @@ class DocumentService
         /** @var DocumentEntity|null $document */
         $document = $this->documentRepository->search(new Criteria([$documentId]), $context)->get($documentId);
         if (!$document) {
-            throw new InvalidDocumentException($documentId);
+            throw new InvalidDocumentException($documentId->getId());
         }
 
         return $this->renderDocument($document, $context);

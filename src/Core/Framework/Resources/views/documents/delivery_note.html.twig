@@ -1,13 +1,7 @@
 {% sw_extends '@Shopware/documents/base.html.twig' %}
 
-{% set lineItems = [] %}
-{% for entry in orderDelivery.positions %}
-   {% set lineItems = lineItems | merge([entry.orderLineItem]) %}
-{% endfor %}
-
-
 {% block document_title_tag %}
-    {% trans with {'%deliveryNoteNumber%': config.custom.deliveryNoteNumber, '%invoiceNumber%': config.custom.invoiceNumber} %}document.deliveryNoteHeadline{% endtrans %}
+    {% trans with {'%deliveryNoteNumber%': config.custom.deliveryNoteNumber, '%orderNumber%':  order.orderNumber} %}document.deliveryNoteHeadline{% endtrans %}
 {% endblock %}
 
 {% block document_headline %}
@@ -23,6 +17,15 @@
         <tr><td>{% trans with {'%deliveryDate%': document.custom.deliveryDate|date('d.m.Y')} %}document.deliveryDate{% endtrans %}</td></tr>
     </table><br/>
 {% endblock %}
+
+{% block document_line_item_list %}
+    {% set lineItems = [] %}
+    {% for entry in orderDelivery.positions %}
+        {% set lineItems = lineItems | merge([entry.orderLineItem]) %}
+    {% endfor %}
+    {{ parent() }}
+{% endblock %}
+
 
 {% block document_sum %}
 {% endblock %}

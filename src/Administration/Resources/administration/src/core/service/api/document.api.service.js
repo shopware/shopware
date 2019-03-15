@@ -22,18 +22,12 @@ class DocumentApiService extends ApiService {
             });
     }
 
-    downloadDocument(documentId, salesChannelId, additionalHeaders = {}) {
-        const path = `v1/document/${documentId}`;
-        const route = `/_proxy/storefront-api/${salesChannelId}/${path}`;
-        const headers = this.getBasicHeaders(additionalHeaders);
+    generateDocumentPreviewLink(orderId, orderDeepLink, documentTypeId, config) {
+        return `/api/v1/_action/order/${orderId}/${orderDeepLink}/document/${documentTypeId}/preview?config=${config}`;
+    }
 
-        console.log('headers', headers);
-
-        return this.httpClient
-            .get(route, {
-                responseType: 'blob',
-                headers
-            });
+    generateDocumentLink(documentId, documentDeepLink, download = false) {
+        return `/api/v1/_action/document/${documentId}/${documentDeepLink}${download ? '?download=1' : ''}`;
     }
 }
 

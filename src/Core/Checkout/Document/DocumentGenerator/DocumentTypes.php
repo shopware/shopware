@@ -8,5 +8,7 @@ class DocumentTypes
 
     public const INVOICE = 'invoice';
 
+    public const CREDIT_NOTE = 'credit_note';
+
     public const STORNO = 'storno';
 }

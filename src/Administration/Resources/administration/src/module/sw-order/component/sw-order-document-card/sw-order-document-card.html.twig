@@ -4,7 +4,8 @@
 
     <template slot="grid">
     <sw-card-section divider="bottom" secondary slim>
-        <sw-card-filter :placeholder="$tc('sw-order.documentCard.searchBarPlaceholder')">
+        <sw-card-filter :placeholder="$tc('sw-order.documentCard.searchBarPlaceholder')"
+                @sw-card-filter-term-change="onSearchTermChange">
             <template slot="filter">
                 <sw-context-button>
                     <sw-button slot="button"
@@ -40,7 +41,7 @@
                             :label="$tc('sw-order.documentCard.labelNumber')"
                             dataIndex="item.id"
                             truncate>
-                {{ item.id }}
+                {{ item.config.documentNumber }}
             </sw-grid-column>
 
             <sw-grid-column flex="minmax(100px, 1fr)"
@@ -70,7 +71,7 @@
                 <sw-context-button>
 
                     <sw-context-menu-item>
-                        <a class="sw-document-download-button" :href="`/api/v1/_action/document/${item.id}/${item.deepLinkCode}`" target="_blank">
+                        <a class="sw-document-download-button" :href="documentService.generateDocumentLink(item.id,item.deepLinkCode)" target="_blank">
                             {{ $tc('sw-order.documentCard.labelDownloadPdf') }}
                         </a>
                     </sw-context-menu-item>

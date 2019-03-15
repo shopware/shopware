@@ -65,18 +65,18 @@ Component.register('sw-order-line-items-grid', {
         onInlineEditSave(item) {
             if (item.isLocal === true) {
                 // The item is a custom item
-                if (item.type === 'custom') {
-                    this.orderService.addCustomLineItemToOrder(this.order.id,
-                        this.order.versionId,
-                        item).then(() => {
-                        this.$emit('sw-order-line-items-grid-item-edited');
-                    });
-                } else {
+                if (item.type === '') {
                     // The is item is based on a product
                     this.orderService.addProductToOrder(this.order.id,
                         this.order.versionId,
                         item.identifier,
                         item.quantity).then(() => {
+                        this.$emit('sw-order-line-items-grid-item-edited');
+                    });
+                } else {
+                    this.orderService.addCustomLineItemToOrder(this.order.id,
+                        this.order.versionId,
+                        item).then(() => {
                         this.$emit('sw-order-line-items-grid-item-edited');
                     });
                 }
@@ -101,13 +101,23 @@ Component.register('sw-order-line-items-grid', {
             item.type = 'custom';
             this.orderLineItems.unshift(item);
         },
-
         onInsertExistingItem() {
             const item = this.lineItemsStore.create();
             item.versionId = this.order.versionId;
             item.priceDefinition.taxRules = [];
             item.priceDefinition.taxRules.push({ taxRate: 0 });
             item.quantity = 1;
+            this.orderLineItems.unshift(item);
+        },
+        onInsertCreditItem() {
+            const item = this.lineItemsStore.create();
+            item.versionId = this.order.versionId;
+            item.priceDefinition.taxRules.elements = [];
+            item.priceDefinition.isCalculated = false;
+            item.priceDefinition.taxRules.elements.push({ taxRate: 0, percentage: 100 });
+            item.description = 'credit line item';
+            item.quantity = 1;
+            item.type = 'credit';
             this.orderLineItems.unshift(item);
         },
         onSelectionChanged() {
@@ -127,7 +137,23 @@ Component.register('sw-order-line-items-grid', {
         },
         itemCreatedFromProduct(id) {
             const item = this.orderLineItems.find((elem) => { return elem.id === id; });
-            return item.isLocal && item.type !== 'custom';
+            return item.isLocal && item.type === '';
+        },
+        itemIsCredit(id) {
+            const item = this.orderLineItems.find((elem) => { return elem.id === id; });
+            return item.type === 'credit';
+        },
+        getMinItemPrice(id) {
+            if (this.itemIsCredit(id)) {
+                return null;
+            }
+            return 0;
+        },
+        getMaxItemPrice(id) {
+            if (!this.itemIsCredit(id)) {
+                return null;
+            }
+            return 0;
         }
     }
 });

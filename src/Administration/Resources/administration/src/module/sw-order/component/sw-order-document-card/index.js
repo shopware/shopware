@@ -3,6 +3,7 @@ import template from './sw-order-document-card.html.twig';
 import '../sw-order-document-settings-invoice-modal/';
 import '../sw-order-document-settings-storno-modal/';
 import '../sw-order-document-settings-delivery-note-modal/';
+import '../sw-order-document-settings-credit-note-modal/';
 import '../sw-order-document-settings-modal/';
 import './sw-order-document.card.scss';
 
@@ -11,9 +12,7 @@ Component.register('sw-order-document-card', {
 
     inject: ['documentService', 'numberRangeService'],
 
-    mixins: [
-        Mixin.getByName('listing')
-    ],
+    mixins: [Mixin.getByName('listing')],
 
     data() {
         return {
@@ -23,7 +22,8 @@ Component.register('sw-order-document-card', {
             showModal: false,
             currentDocumentType: null,
             documentNumber: null,
-            documentComment: ''
+            documentComment: '',
+            term: ''
         };
     },
     props: {
@@ -72,6 +72,7 @@ Component.register('sw-order-document-card', {
             const params = this.getListingParams();
             params.sortBy = 'createdAt';
             params.sortDirection = 'DESC';
+            params.term = this.term;
 
             const documentPromise = this.documentStore.getList(params).then((response) => {
                 this.total = response.total;
@@ -82,13 +83,15 @@ Component.register('sw-order-document-card', {
                 this.documentLoading = false;
             });
         },
+        onSearchTermChange(searchTerm) {
+            this.term = searchTerm;
+            this.getList();
+        },
         createDocument(orderId, documentType, params) {
             const technicalName = this.currentDocumentType.technicalName;
-            this.numberRangeService.reserve(`document_${technicalName}`, this.order.salesChannelId).then((response) => {
+            return this.numberRangeService.reserve(`document_${technicalName}`, this.order.salesChannelId).then((response) => {
                 params.documentNumber = response.number;
-                return this.documentService.createDocument(orderId, documentType, params).then(() => {
-                    this.getList();
-                });
+                return this.documentService.createDocument(orderId, documentType, params);
             });
         },
         onCancelModal() {
@@ -100,15 +103,32 @@ Component.register('sw-order-document-card', {
             this.currentDocumentType = documentType;
             this.showModal = true;
         },
-        onCreateDocument(params) {
+        onCreateDocument(params, additionalAction) {
             this.showModal = false;
             this.$nextTick().then(() => {
-                this.createDocument(this.order.id, this.currentDocumentType.id, params);
+                this.createDocument(this.order.id, this.currentDocumentType.id, params).then((response) => {
+                    this.getList();
+
+                    if (additionalAction === 'download') {
+                        const docId = response.data.documentId;
+                        const docLink = response.data.documentDeepLink;
+                        window.open(
+                            this.documentService.generateDocumentLink(docId, docLink, true), '_blank'
+                        );
+                    }
+                });
             });
         },
         onPreview(params) {
             const config = JSON.stringify(params);
-            window.open(`/api/v1/_action/order/${this.order.id}/${this.order.deepLinkCode}/document/${this.currentDocumentType.id}/preview?config=${config}`, '_blank');
+            window.open(
+                this.documentService.generateDocumentPreviewLink(
+                    this.order.id,
+                    this.order.deepLinkCode,
+                    this.currentDocumentType.id, config
+                ),
+                '_blank'
+            );
         }
     }
 });

@@ -47,7 +47,7 @@ Component.register('sw-order-detail-base', {
             return `${this.$tc('sw-order.detailBase.tax')}<br>${formattedTaxes}`;
         },
         sortedCalculatedTaxes() {
-            return this.sortByTaxRate(this.currentOrder.price.calculatedTaxes);
+            return this.sortByTaxRate(this.currentOrder.price.calculatedTaxes).filter(price => price.tax !== 0);
         },
         documentStore() {
             return this.currentOrder.getAssociation('documents');

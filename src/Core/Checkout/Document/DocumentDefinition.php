@@ -11,6 +11,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\CreatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\SearchRanking;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
@@ -49,11 +50,11 @@ class DocumentDefinition extends EntityDefinition
             new JsonField('config', 'config'),
             new BoolField('sent', 'sent'),
             (new StringField('deep_link_code', 'deepLinkCode'))->addFlags(new Required()),
-            new CreatedAtField(),
+            (new CreatedAtField())->addFlags(new SearchRanking(SearchRanking::MIDDLE_SEARCH_RANKING)),
 
             new AttributesField(),
 
-            new ManyToOneAssociationField('documentType', 'document_type_id', DocumentTypeDefinition::class, true),
+            (new ManyToOneAssociationField('documentType', 'document_type_id', DocumentTypeDefinition::class, true))->addFlags(new SearchRanking(SearchRanking::ASSOCIATION_SEARCH_RANKING)),
             new ManyToOneAssociationField('order', 'order_id', OrderDefinition::class, 'id', false),
         ]);
     }

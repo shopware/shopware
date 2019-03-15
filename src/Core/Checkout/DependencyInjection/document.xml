@@ -31,6 +31,12 @@
             <tag name="document.generator"/>
         </service>
 
+        <service id="Shopware\Core\Checkout\Document\DocumentGenerator\CreditNoteGenerator">
+            <argument type="service" id="templating"/>
+            <argument>%kernel.root_dir%</argument>
+            <tag name="document.generator"/>
+        </service>
+
         <service id="Shopware\Core\Checkout\Document\DocumentGenerator\DocumentGeneratorRegistry">
             <argument type="tagged" tag="document.generator"/>
         </service>

@@ -129,9 +129,9 @@
         {% endblock %}
         {% block sw_order_detail_base_document_grid %}
             <sw-order-document-card v-if="hasAssociations && next1046"
-                                    class="sw-order-detail-base__document-grid"
-                                    :order="currentOrder"
-                                    :isLoading="isLoading">
+                class="sw-order-detail-base__document-grid"
+                :order="currentOrder"
+                :isLoading="isLoading">
             </sw-order-document-card>
         {% endblock %}
         {% block sw_order_detail_attribute_sets %}

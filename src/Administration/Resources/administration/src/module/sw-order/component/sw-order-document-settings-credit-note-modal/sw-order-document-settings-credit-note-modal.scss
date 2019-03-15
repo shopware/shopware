@@ -1,0 +1,18 @@
+
+.sw-order-document-settings-modal {
+  .sw-order-document-settings-credit-note-modal__highlighted-items {
+    display: grid;
+
+    dt {
+      font-weight: inherit;
+    }
+
+    dd {
+      text-align: right;
+    }
+  }
+
+  .sw-order-document-settings-credit-note-modal__no-items-text {
+    margin-bottom: 22px;
+  }
+}

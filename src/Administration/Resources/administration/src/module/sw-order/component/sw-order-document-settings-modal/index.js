@@ -38,6 +38,11 @@ Component.register('sw-order-document-settings-modal', {
             }
         }
     },
+    computed: {
+        documentPreconditionsFulfilled() {
+            return true;
+        }
+    },
 
     methods: {
         createdComponent() {

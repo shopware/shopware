@@ -121,6 +121,10 @@ export default {
 
         showPlaceholder() {
             return this.placeholder && (!this.imageUrl || !this.imageUrl.length);
+        },
+
+        showInitials() {
+            return !this.placeholder && (!this.imageUrl || !this.imageUrl.length);
         }
     },
 

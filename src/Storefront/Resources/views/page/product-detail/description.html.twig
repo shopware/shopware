@@ -8,18 +8,18 @@
 {% endblock %}
 
 {% block base_utilities_offcanvas_content %}
-    {% block page_product_detail_description_inner %}
-        <div class="product-detail-description tab-pane-inner">
+    {% block page_product_detail_description_container %}
+        <div class="product-detail-description tab-pane-container">
             {% block page_product_detail_description_title %}
                 <h3 class="product-detail-description-title">
-                    {{"detail.descriptionTitle"|trans}} "{{page.product.name}}"
+                    {{ "detail.descriptionTitle"|trans }} "{{ page.product.name|e }}"
                 </h3>
             {% endblock %}
             
             {% block page_product_detail_description_content %}
                 {% block page_product_detail_description_content_text %}
                     <div class="product-detail-description-text" itemprop="description">
-                        {{page.product.descriptionLong|raw}}
+                        {{ page.product.descriptionLong|raw }}
                     </div>
                 {% endblock %}
 

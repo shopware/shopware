@@ -3,33 +3,57 @@
 }
 
 .product-detail-headline {
-    margin-bottom: $spacer;
+    margin-bottom: $spacer-xl;
 }
 
 .product-detail-content {
-    margin-bottom: $spacer-xl;
+    margin-bottom: $spacer-lg;
 }
 
-.product-detail-main {
-    margin-bottom: $spacer-xl;
-}
-
-.product-detail-gallery {
+.product-detail-media-container {
     margin-bottom: $spacer;
+}
+
+.product-detail-media-image-container {
+    margin-bottom: $spacer-lg;
+}
+
+.product-detail-image-container {
+    height: 430px;
+
+    .product-detail-image {
+        bottom: 0;
+        left: 0;
+        margin: auto;
+        max-height: 100%;
+        max-width: 100%;
+        position: absolute;
+        right: 0;
+        top: 0;
+    }
 }
 
 .product-detail-buy {
     margin-bottom: $spacer;
 }
 
-.product-detail-price-container {
-    margin-bottom: $spacer;
-}
-
 .product-detail-price {
     @include font-size(28);
-    margin-bottom: $spacer;
+    margin-bottom: 0;
     font-weight: $font-weight-bold;
+}
+
+.product-detail-price-unit,
+.product-detail-tax {
+    font-size: $font-size-sm;
+}
+
+.product-delivery-information {
+    margin-bottom: $spacer-lg;
+}
+
+.delivery-shipping-free {
+    margin-bottom: $spacer-sm;
 }
 
 .product-detail-form-container {
@@ -40,8 +64,65 @@
     margin-bottom: $spacer;
 }
 
+.product-detail-description-text {
+    margin-bottom: $spacer-lg;
+
+    p,
+    ul {
+        margin: 0;
+    }
+}
+
+@include media-breakpoint-down(xs) {
+    .product-detail-tabs {
+        .card-header {
+            border: 0;
+            padding-bottom: 0;
+            padding-top: 0;
+        }
+
+        .card-header-tabs {
+            flex-direction: column;
+        }
+
+        .card-tabs .nav-item {
+            margin: 0 0 $spacer-sm;
+        }
+
+        .card-tabs .nav-link {
+            background: none;
+            border-radius: $spacer-xs;
+            padding: $spacer $spacer-lg;
+        }
+    }
+
+    .product-detail-tabs-content {
+        display: none;
+    }
+
+    .off-canvas .tab-pane-inner {
+        padding: $spacer-sm;
+    }
+}
+
+@include media-breakpoint-up(sm) {
+    .off-canvas-close {
+        display: none;
+    }
+}
+
+@include media-breakpoint-up(md) {
+    .product-detail-media-image-container {
+        margin-bottom: $spacer-xl;
+    }
+}
+
 @include media-breakpoint-up(lg) {
     .product-detail {
         padding: $spacer-xl 0;
+    }
+
+    .product-detail-media-image-container {
+        margin-bottom: 0;
     }
 }

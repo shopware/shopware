@@ -82,20 +82,22 @@
 		{% endblock %}
 
 		{% block page_product_detail_ordernumber_container %}
-			<div class="product-detail-ordernumber-container">
-				{% block page_product_detail_ordernumber_label %}
-					<span class="product-detail-ordernumber-label">
-						{{ "detail.ordernumberLabel"|trans }}
-					</span>
-				{% endblock %}
+            {% if page.product.productNumber %}
+                <div class="product-detail-ordernumber-container">
+                    {% block page_product_detail_ordernumber_label %}
+                        <span class="product-detail-ordernumber-label">
+                            {{ "detail.ordernumberLabel"|trans }}
+                        </span>
+                    {% endblock %}
 
-				{% block page_product_detail_ordernumber %}
-					<meta itemprop="productID" content="{{ page.product.id }}"/>
-					<span class="product-detail-ordernumber" itemprop="sku">
-{#TODO: NEXT-1921 - show ordernumber#}
-					</span>
-				{% endblock %}
-			</div>
+                    {% block page_product_detail_ordernumber %}
+                        <meta itemprop="productID" content="{{ page.product.id }}"/>
+                        <span class="product-detail-ordernumber" itemprop="sku">
+                            {{ page.product.productNumber }}
+                        </span>
+                    {% endblock %}
+                </div>
+            {% endif %}
 		{% endblock %}
 	</div>
 {% endblock %}

@@ -1,0 +1,94 @@
+.gallery-thumbnails {
+    list-style: none;
+    padding: 0;
+    text-align: center;
+}
+
+.gallery-thumbnails-item {
+    border: 1px solid $gray-300;
+    border-radius: $spacer-xs;
+    cursor: pointer;
+    display: inline-block;
+    height: 80px;
+    margin-right: $spacer;
+    position: relative;
+    width: 80px;
+
+    &.tns-nav-active {
+        border-color: $primary;
+    }
+}
+
+.gallery-thumbnails-image,
+.gallery-slider-image {
+    bottom: 0;
+    left: 0;
+    margin: auto;
+    max-height: 100%;
+    max-width: 100%;
+    padding: $spacer-xs;
+    position: absolute;
+    right: 0;
+    top: 0;
+}
+
+.gallery-slider {
+    height: 200px;
+}
+
+.gallery-slider-item {
+    backface-visibility: hidden;
+    cursor: pointer;
+    display: inline-block;
+    height: 100%;
+    position: relative;
+    text-align: center;
+    width: 100%;
+}
+
+.gallery-slider-image {
+    padding: 0;
+}
+
+.gallery-controls {
+    list-style: none;
+    padding: 0;
+}
+
+.gallery-controls-prev,
+.gallery-controls-next {
+    color: $gray-600;
+
+    &:hover {
+        color: $primary;
+    }
+}
+
+@include media-breakpoint-up(md) {
+    .gallery-slider {
+        height: 400px;
+    }
+}
+
+@include media-breakpoint-up(lg) {
+    .gallery-thumbnails {
+        text-align: left;
+    }
+
+    .gallery-slider {
+        height: 430px;
+    }
+}
+
+@include media-breakpoint-up(xl) {
+    .gallery-thumbnails-item {
+        display: block;
+        margin-bottom: $spacer;
+        margin-right: 0;
+        width: auto;
+    }
+
+    .gallery-slider {
+        margin-bottom: 0;
+    }
+}

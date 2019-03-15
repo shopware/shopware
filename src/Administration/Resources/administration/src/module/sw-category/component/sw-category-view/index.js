@@ -185,10 +185,6 @@ Component.register('sw-category-view', {
                     this.products.splice(index, 1);
                 }
             });
-        },
-
-        getCategoryEntity() {
-            return this.category.getEntityName();
         }
     }
 });

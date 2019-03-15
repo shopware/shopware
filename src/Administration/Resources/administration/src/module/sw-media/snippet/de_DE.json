@@ -53,6 +53,7 @@
       },
       "usage": {
         "tooltipFoundInProducts": "Gefunden in Produkten",
+        "tooltipFoundInCategories": "Gefunden in Kategorien",
         "tooltipFoundInManufacturers": "Gefunden in Herstellern",
         "titleMediaNotUsed": "Medium nicht verwendet",
         "labelMediaNotUsed": "Das Medium wird zurzeit nicht verwendet."

@@ -18,7 +18,7 @@ class Migration1552643179AddCategoryDefaultFolder extends MigrationStep
     {
         $connection->insert('media_default_folder', [
             'id' => Uuid::uuid4()->getBytes(),
-            'association_fields' => '["categoryImage"]',
+            'association_fields' => '["categories"]',
             'entity' => 'category',
             'created_at' => (new \DateTime())->format(Defaults::DATE_FORMAT),
         ]);

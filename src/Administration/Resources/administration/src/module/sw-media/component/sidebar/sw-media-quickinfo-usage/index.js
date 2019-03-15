@@ -18,6 +18,7 @@ Component.register('sw-media-quickinfo-usage', {
     data() {
         return {
             products: [],
+            categories: [],
             manufacturers: [],
             isLoading: false
         };
@@ -36,6 +37,9 @@ Component.register('sw-media-quickinfo-usage', {
             const usages = [];
             this.products.forEach((product) => {
                 usages.push(this.getProductUsage(product));
+            });
+            this.categories.forEach((category) => {
+                usages.push(this.getCategoryUsage(category));
             });
             this.manufacturers.forEach((manufacturer) => {
                 usages.push(this.getManufacturerUsage(manufacturer));
@@ -63,6 +67,7 @@ Component.register('sw-media-quickinfo-usage', {
         createdComponent() {
             this.isLoading = true;
             this.loadProductAssociations();
+            this.loadCategoryAssociations();
             this.loadManufacturerAssociations();
         },
 
@@ -78,6 +83,16 @@ Component.register('sw-media-quickinfo-usage', {
                 this.products = response.items.map((productMedia) => {
                     return productMedia.product;
                 });
+                this.isLoading = false;
+            });
+        },
+
+        loadCategoryAssociations() {
+            this.item.getAssociation('categories').getList({
+                page: 1,
+                limit: 50
+            }).then((response) => {
+                this.categories = response.items;
                 this.isLoading = false;
             });
         },
@@ -101,6 +116,18 @@ Component.register('sw-media-quickinfo-usage', {
                     id: product.id
                 },
                 icon: this.getIconForModule('sw-product')
+            };
+        },
+
+        getCategoryUsage(category) {
+            return {
+                name: category.meta.viewData.name,
+                tooltip: this.$tc('sw-media.sidebar.usage.tooltipFoundInCategories'),
+                link: {
+                    name: 'sw.category.detail',
+                    id: category.id
+                },
+                icon: this.getIconForModule('sw-category')
             };
         },
 

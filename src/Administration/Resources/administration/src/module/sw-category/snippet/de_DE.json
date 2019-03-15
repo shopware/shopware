@@ -20,13 +20,16 @@
             "columnNameLabel": "Name",
             "columnManufacturerLabel": "Hersteller",
             "treeHeadSelected": "{count} selektiert",
+            "emptyStateHeadline": "Keine Kategorie ausgewählt",
             "productAssignmentHeadline": "Produktzuweisung",
             "productAssignmentPlaceholder": "Produkte durchsuchen und zuweisen...",
             "productAssignmentActionDetails": "Details",
             "productAssignmentActionRemove": "Entfernen",
             "productAssignmentActionUndo": "Rückgängig machen",
             "productAssignmentEmptyText": "Keine Produkte gefunden",
-            "emptyStateHeadline": "Keine Kategorie ausgewählt",
+            "productAssignmentEmptyStateTitle": "Keine Produkte zugewiesen",
+            "productAssignmentEmptyStateSubline": "Füge über die Suche neue Produkte hinzu",
+
             "leavePageModal": {
                 "headline": "Warnung",
                 "description": "Es existieren ungespeicherte Änderungen. Soll die Seite trotzdem verlassen werden?",

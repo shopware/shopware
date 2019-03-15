@@ -72,23 +72,67 @@
         </sw-tagged-field>
     {% endblock %}
 
-    {% block sw_product_stream_filter_range_fields %}
-        <template v-else-if="actualCondition.type == 'range'">
-            {% block sw_product_stream_filter_range_field_gte %}
-                <sw-field type="number"
-                          class="field--main has--arrow"
-                          v-model="actualCondition.parameters.gte"
+    {% block sw_product_stream_filter_range %}
+        <template v-else-if="isTypeRange()">
+            {% block sw_product_stream_filter_lower_than_field %}
+                <sw-field v-if="isTypeLower()"
+                          type="number"
+                          class="field--main"
+                          v-model="actualCondition.parameters.lt"
                           :disabled="isApi()"
-                          :placeholder="$tc('global.sw-condition.operator.greaterThanEquals')">
+                          :placeholder="$tc('global.sw-condition.operator.lowerThan')">
                 </sw-field>
             {% endblock %}
-            {% block sw_product_stream_filter_range_field_lte %}
-                <sw-field type="number"
+
+            {% block sw_product_stream_filter_greater_than_field %}
+                <sw-field v-else-if="isTypeGreater()"
+                          type="number"
+                          class="field--main"
+                          v-model="actualCondition.parameters.gt"
+                          :disabled="isApi()"
+                          :placeholder="$tc('global.sw-condition.operator.greaterThan')">
+                </sw-field>
+            {% endblock %}
+
+            {% block sw_product_stream_filter_lower_than_equals_field %}
+                <sw-field v-else-if="isTypeLowerEquals()"
+                          type="number"
                           class="field--main"
                           v-model="actualCondition.parameters.lte"
                           :disabled="isApi()"
                           :placeholder="$tc('global.sw-condition.operator.lowerThanEquals')">
                 </sw-field>
+            {% endblock %}
+
+            {% block sw_product_stream_filter_greater_than_equals_field %}
+                <sw-field v-else-if="isTypeGreaterEquals()"
+                          type="number"
+                          class="field--main"
+                          v-model="actualCondition.parameters.gte"
+                          :disabled="isApi()"
+                          :placeholder="$tc('global.sw-condition.operator.greaterThanEquals')">
+                </sw-field>
+            {% endblock %}
+
+            {% block sw_product_stream_filter_range_fields %}
+                <template v-else>
+                    {% block sw_product_stream_filter_range_field_gte %}
+                        <sw-field type="number"
+                                  class="field--main has--arrow"
+                                  v-model="actualCondition.parameters.gte"
+                                  :disabled="isApi()"
+                                  :placeholder="$tc('global.sw-condition.operator.greaterThanEquals')">
+                        </sw-field>
+                    {% endblock %}
+                    {% block sw_product_stream_filter_range_field_lte %}
+                        <sw-field type="number"
+                                  class="field--main"
+                                  v-model="actualCondition.parameters.lte"
+                                  :disabled="isApi()"
+                                  :placeholder="$tc('global.sw-condition.operator.lowerThanEquals')">
+                        </sw-field>
+                    {% endblock %}
+                </template>
             {% endblock %}
         </template>
     {% endblock %}

@@ -54,6 +54,7 @@
                         :source="mediaItem"
                         :uploadTag="category.id"
                         :allowMultiSelect="false"
+                        :defaultFolder="getCategoryEntity()"
                         @sw-media-upload-open-sidebar="openMediaSidebar"
                         @sw-media-upload-remove-image="removeMediaItem">
                     </sw-media-upload>

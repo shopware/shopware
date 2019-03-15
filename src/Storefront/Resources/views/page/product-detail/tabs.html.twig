@@ -2,7 +2,7 @@
     <div class="card card-tabs">
         {% block page_product_detail_tabs_navigation %}
             <div class="card-header tabs-navigation">
-                {% block page_product_detail_tabs_navigation_inner %}
+                {% block page_product_detail_tabs_navigation_container %}
                     <ul class="nav nav-tabs card-header-tabs" id="product-detail-tabs" role="tablist">
                         {% block page_product_detail_tabs_navigation_description %}
                             <li class="nav-item">
@@ -19,14 +19,12 @@
 
         {% block page_product_detail_tabs_content %}
             <div class="product-detail-tabs-content card-body">
-                {% block page_product_detail_tabs_content_inner %}
+                {% block page_product_detail_tabs_content_container %}
                     <div class="tab-content">
                         {% block page_product_detail_tabs_content_description %}
-                            {% block page_product_detail_tabs_content_description_inner %}
-                                <div class="tab-pane fade show active" id="description-tab-pane" role="tabpanel" aria-labelledby="description-tab">
-                                    {% sw_include '@Storefront/page/product-detail/description.html.twig' %}
-                                </div>
-                            {% endblock %}
+                            <div class="tab-pane fade show active" id="description-tab-pane" role="tabpanel" aria-labelledby="description-tab">
+                                {% sw_include '@Storefront/page/product-detail/description.html.twig' %}
+                            </div>
                         {% endblock %}
 
                     </div>

@@ -24,7 +24,6 @@
             {% endblock %}
 
 {#TODO: NEXT-1946 - check "cart item type" and "quantity" #}
-{#TODO: NEXT-1920 - "shippingtime" not available #}
         {% elseif shopware.config.checkout.instockinfo and page.product.stock > 0 %}
             {% block component_delivery_information_partial_stock %}
                 <link itemprop="availability" href="http://schema.org/LimitedAvailability" />
@@ -35,7 +34,7 @@
                     }) }}
                     {% if page.product.shippingtime %}
                         {{ "general.deliveryPartialStockAddon"|trans({
-                            '%shippingTime%': shippingtime
+                            '%shippingTime%': (page.product.minDeliveryTime + page.product.maxDeliveryTime)
                         }) }}
                     {% endif %}
                 </p>
@@ -47,13 +46,12 @@
                     {{ "general.deliveryInStock"|trans }}
                 </p>
             {% endblock %}
-{#TODO: NEXT-1920 - "shippingtime" not available #}
         {% elseif page.product.shippingtime %}
             {% block component_delivery_information_shippinh_time %}
                 <link itemprop="availability" href="http://schema.org/LimitedAvailability" />
                 <p class="delivery-information text-warning">
                     {{ "general.deliveryShippingTime"|trans({
-                        '%shippingTime%': shippingtime
+                        '%shippingTime%': (page.product.minDeliveryTime + page.product.maxDeliveryTime)
                     }) }}
                 </p>
             {% endblock %}

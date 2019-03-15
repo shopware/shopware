@@ -2,6 +2,31 @@
     @extend .btn-lg;
 }
 
+.product-detail-name {
+    @extend .text-dark;
+}
+
+.product-detail-price {
+    @extend .text-dark;
+}
+
 .product-detail-ordernumber-label {
     font-weight: $font-weight-bold;
+}
+
+@include media-breakpoint-down(xs) {
+    .product-detail-tabs {
+        .card-tabs .nav-link,
+        .card-tabs .nav-link.active {
+            color: $gray-600;
+        }
+
+        .card-tabs .nav-link:hover {
+            color: $primary;
+        }
+
+        .card-tabs .nav-link.active {
+            border-color: $gray-300;
+        }
+    }
 }

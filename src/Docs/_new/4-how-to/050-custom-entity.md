@@ -68,6 +68,16 @@ class CustomEntityDefinition extends EntityDefinition
     {
         return 'custom_entity';
     }
+    
+    public static function getCollectionClass(): string
+    {
+        return CustomEntityCollection::class;
+    }
+
+    public static function getEntityClass(): string
+    {
+        return CustomEntity::class;
+    }
 
     protected static function defineFields(): FieldCollection
     {
@@ -78,16 +88,6 @@ class CustomEntityDefinition extends EntityDefinition
             new UpdatedAtField(),
         ]);
     }
-
-    public static function getCollectionClass(): string
-    {
-        return CustomEntityCollection::class;
-    }
-
-    public static function getEntityClass(): string
-    {
-        return CustomEntity::class;
-    }
 }
 ```
 
@@ -96,6 +96,9 @@ class and it's actual entity class.
 Keep in mind, that the return of your `getEntityName` method will be used for two cases:
 - The database table name
 - The repository name in the DI container (`<the-name>.repository`)
+
+The methods `getCollectionClass` and `getEntityClass` are optional, **yet we highly recommend implementing them yourself
+in your entity definition**.
 
 The two missing classes, the `Entity` itself and the `EntityCollection`, will be created in the next steps.
 

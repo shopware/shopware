@@ -9,7 +9,7 @@ Below you'll find a valid plugin file structure.
 custom
 └── plugins
     └──  BaseClass
-         ├── BaseClass.php
+         ├── BaseClass.php
          └── composer.json
 ```
 *File Structure*

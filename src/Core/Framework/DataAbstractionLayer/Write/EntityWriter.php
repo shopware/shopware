@@ -126,17 +126,18 @@ class EntityWriter implements EntityWriterInterface
 
                 if ($field instanceof VersionField) {
                     $mapped[$field->getStorageName()] = $writeContext->getContext()->getVersionId();
-                } else {
-                    $fieldKeys = $fields
-                        ->filter(function (Field $field) {
-                            return !$field instanceof VersionField && !$field instanceof ReferenceVersionField;
-                        })
-                        ->map(function (Field $field) {
-                            return $field->getPropertyName();
-                        });
-
-                    throw new IncompletePrimaryKeyException($fieldKeys);
+                    continue;
                 }
+
+                $fieldKeys = $fields
+                    ->filter(function (Field $field) {
+                        return !$field instanceof VersionField && !$field instanceof ReferenceVersionField;
+                    })
+                    ->map(function (Field $field) {
+                        return $field->getPropertyName();
+                    });
+
+                throw new IncompletePrimaryKeyException($fieldKeys);
             }
 
             $resolved[] = $mapped;

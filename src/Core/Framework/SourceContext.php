@@ -66,7 +66,7 @@ class SourceContext
         $this->integrationId = $integrationId;
     }
 
-    public function getSalesChannelId(): ?string
+    public function getSalesChannelId(): string
     {
         return $this->salesChannelId;
     }

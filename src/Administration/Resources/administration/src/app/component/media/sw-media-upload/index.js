@@ -1,7 +1,6 @@
 import { Mixin, State } from 'src/core/shopware';
 import fileReader from 'src/core/service/utils/file-reader.utils';
 import CriteriaFactory from 'src/core/factory/criteria.factory';
-import { next1207 } from 'src/flag/feature_next1207';
 import template from './sw-media-upload.html.twig';
 import './sw-media-upload.scss';
 
@@ -159,6 +158,14 @@ export default {
         }
     },
 
+    watch: {
+        defaultFolder() {
+            this.getDefaultFolderId().then((defaultFolderId) => {
+                this.defaultFolderId = defaultFolderId;
+            });
+        }
+    },
+
     created() {
         this.onCreated();
     },
@@ -173,11 +180,12 @@ export default {
 
     methods: {
         onCreated() {
+            this.uploadStore.addListener(this.uploadTag, this.handleUploadStoreEvent);
             if (this.mediaFolderId) {
                 return;
             }
 
-            if (next1207() && !!this.defaultFolder) {
+            if (this.defaultFolder) {
                 this.getDefaultFolderId().then((defaultFolderId) => {
                     this.defaultFolderId = defaultFolderId;
                 });
@@ -198,6 +206,7 @@ export default {
 
         onBeforeDestroy() {
             this.uploadStore.removeByTag(this.uploadTag);
+            this.uploadStore.removeListener(this.uploadTag, this.handleUploadStoreEvent);
 
             ['dragover', 'drop'].forEach((event) => {
                 window.addEventListener(event, this.stopEventPropagation, false);
@@ -334,13 +343,13 @@ export default {
 
         getMediaEntityForUpload() {
             const mediaItem = this.mediaItemStore.create();
-            if (next1207()) {
-                mediaItem.mediaFolderId = this.mediaFolderId;
-            }
+            mediaItem.mediaFolderId = this.mediaFolderId;
+
             return mediaItem;
         },
 
         getDefaultFolderId() {
+            this.defaultFolderStore.removeAll();
             return this.defaultFolderStore.getList({
                 limit: 1,
                 criteria: CriteriaFactory.equals('entity', this.defaultFolder),
@@ -351,7 +360,6 @@ export default {
                 if (items.length !== 1) {
                     return null;
                 }
-
                 const defaultFolder = items[0];
                 if (defaultFolder.folder.id) {
                     return defaultFolder.folder.id;
@@ -407,6 +415,12 @@ export default {
 
                 return configuration.save();
             });
+        },
+
+        handleUploadStoreEvent({ action }) {
+            if (action === 'sw-media-upload-failed') {
+                this.onRemoveMediaItem();
+            }
         }
     }
 };

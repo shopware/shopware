@@ -5,6 +5,7 @@ import './sw-media-folder-item.scss';
 export default {
     name: 'sw-media-folder-item',
     template,
+    inheritAttrs: false,
 
     mixins: [
         Mixin.getByName('selectable-media-item'),
@@ -71,18 +72,6 @@ export default {
 
         isDefaultFolder() {
             return !!this.item.defaultFolderId;
-        },
-
-        defaultFolder() {
-            if (!this.isDefaultFolder) {
-                return Promise.resolve(null);
-            }
-
-            if (this.item.defaultFolder.entity !== '') {
-                return Promise.resolve(this.item.defaultFolder);
-            }
-
-            return this.mediaDefaultFolderStore.getByIdAsync(this.item.defaultFolderId);
         }
     },
 
@@ -91,7 +80,7 @@ export default {
     },
 
     watch: {
-        defaultFolder() {
+        'item.defaultFolderId'() {
             this.updateIconConfig();
         }
     },
@@ -102,16 +91,19 @@ export default {
                 this.baseComponent.startInlineEdit();
             }
 
-            if (this.isDefaultFolder) {
-                this.updateIconConfig();
-            }
+            this.updateIconConfig();
         },
 
         updateIconConfig() {
-            this.defaultFolder.then((defaultFolder) => {
+            if (!this.isDefaultFolder) {
+                return;
+            }
+
+            this.mediaDefaultFolderStore.getByIdAsync(this.item.defaultFolderId).then((defaultFolder) => {
                 if (!defaultFolder) {
                     return;
                 }
+
                 const module = this.moduleFactory.getModuleByEntityName(defaultFolder.entity);
                 if (module) {
                     this.iconConfig = {

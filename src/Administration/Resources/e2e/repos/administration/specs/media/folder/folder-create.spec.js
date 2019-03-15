@@ -2,7 +2,6 @@ const mediaPage = require('administration/page-objects/module/sw-media.page-obje
 
 module.exports = {
     '@tags': ['media', 'folder', 'folder-create', 'create', 'upload'],
-    '@disabled': !global.flags.isActive('next1207'),
     'open media listing': (browser) => {
         const page = mediaPage(browser);
         page.openMediaIndex();

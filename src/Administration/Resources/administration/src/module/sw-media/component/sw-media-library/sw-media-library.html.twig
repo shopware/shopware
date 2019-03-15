@@ -12,7 +12,7 @@
             </sw-media-display-options>
 
             {% block sw_media_index_create_folder %}
-                <sw-button v-if="next1207 && editable" class="sw-media-index__create-folder-action" variant="ghost" size="small" @click="createFolder">
+                <sw-button v-if="editable" class="sw-media-index__create-folder-action" variant="ghost" size="small" @click="createFolder">
                     {{ $tc('sw-media.index.buttonCreateFolder') }}
                 </sw-button>
             {% endblock %}

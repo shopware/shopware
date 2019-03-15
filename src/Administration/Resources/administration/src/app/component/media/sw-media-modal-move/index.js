@@ -76,7 +76,7 @@ export default {
 
         startFolderId() {
             const firstItem = this.itemsToMove[0];
-            if (firstItem.entityName === 'media') {
+            if (firstItem.getEntityName() === 'media') {
                 return firstItem.mediaFolderId;
             }
 

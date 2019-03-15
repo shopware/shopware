@@ -2,7 +2,6 @@ const mediaPage = require('administration/page-objects/module/sw-media.page-obje
 
 module.exports = {
     '@tags': ['media', 'folder', 'folder-move', 'move'],
-    '@disabled': !global.flags.isActive('next1207'),
     before: (browser, done) => {
         global.MediaFixtureService.setFolderFixture({
             name: 'First folder'

@@ -31,15 +31,12 @@ Component.register('sw-manufacturer-detail', {
             return State.getStore('media');
         },
 
-        logoFieldClasses() {
-            const isLogo = this.manufacturer.mediaId || this.manufacturer.isLoading;
-            return {
-                'sw-manufacturer-image-pane--logo': isLogo
-            };
-        },
-
         attributeSetStore() {
             return State.getStore('attribute_set');
+        },
+
+        mediaUploadTag() {
+            return `sw-manufacturer-detail--${this.manufacturer.id}`;
         }
     },
 
@@ -57,7 +54,7 @@ Component.register('sw-manufacturer-detail', {
         createdComponent() {
             if (this.$route.params.id) {
                 this.manufacturerId = this.$route.params.id;
-                if (this.manufacturer.isLocal) {
+                if (this.manufacturer && this.manufacturer.isLocal) {
                     return;
                 }
 
@@ -83,8 +80,8 @@ Component.register('sw-manufacturer-detail', {
                         sort: 'attribute.config.attributePosition'
                     }
                 }
-            }, true).then((response) => {
-                this.attributeSets = response.items;
+            }, true).then(({ items }) => {
+                this.attributeSets = items;
             });
         },
 

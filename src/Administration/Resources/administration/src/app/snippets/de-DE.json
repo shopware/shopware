@@ -217,21 +217,7 @@
       "titleModal": "Medien ersetzen",
       "buttonUpload": "Upload",
       "buttonCancel": "Abbrechen",
-      "buttonReplace": "Ersetzen",
-      "notification": {
-        "success": {
-          "title": "Erfolg",
-          "message": "Datei erfolgreich ersetzt."
-        },
-        "failure": {
-          "title": "Fehler",
-          "message": "Fehler beim Ersetzen von {mediaName}."
-        },
-        "fileReaderError": {
-          "title": "Fehler",
-          "message": "Die Datei konnte nicht gelesen werden."
-        }
-      }
+      "buttonReplace": "Ersetzen"
     },
     "sw-media-preview": {
       "fallbackVideoTagSupport": "Ihr Browser unterstützt diesen Video-Tag nicht",

@@ -8,6 +8,7 @@
                               type="number"
                               :label="$tc('global.sw-media-add-thumbnail-form.labelMaximumSize')"
                               :min="1"
+                              :step="1"
                               :validation="width > 0"
                               v-model="width">
                     </sw-field>
@@ -28,6 +29,7 @@
                               v-model="height"
                               :min="1"
                               :validation="height > 0"
+                              :step="1"
                               :disabled="isLocked">
                     </sw-field>
                 {% endblock %}

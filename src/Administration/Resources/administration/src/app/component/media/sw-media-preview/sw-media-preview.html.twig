@@ -3,12 +3,15 @@
         {% block sw_media_preview_file_type_check %}
             <template v-if="mimeTypeGroup === 'image'">
                 {% block sw_media_preview_file_type_image %}
-                    <img :src="previewUrl"
+                    <img v-if="!imagePreviewFailed"
+                         class="sw-media-preview__item"
+                         :class="transparencyClass"
+                         :src="previewUrl"
                          :alt="alt"
                          :srcset="sourceSet"
                          :sizes="`${width}px`"
-                         class="sw-media-preview__item"
-                         :class="transparencyClass">
+                         @error="showEvent">
+                    <sw-icon v-else class="sw-media-preview__item" name="file-thumbnail-broken" multicolor></sw-icon>
                 {% endblock %}
             </template>
 

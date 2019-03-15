@@ -7,7 +7,6 @@ module.exports = {
             done();
         });
     },
-    '@disabled': !global.flags.isActive('next1207'),
     'open media listing': (browser) => {
         const page = mediaPage(browser);
         page.openMediaIndex();

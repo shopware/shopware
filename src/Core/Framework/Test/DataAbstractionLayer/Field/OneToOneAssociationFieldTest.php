@@ -78,8 +78,8 @@ CREATE TABLE `root` (
 CREATE TABLE `root_sub` (
   `id` binary(16) NOT NULL,
   `version_id` binary(16) NOT NULL,
-  `root_version_id` binary(16) NOT NULL,
-  `root_id` binary(16) NOT NULL,
+  `root_version_id` binary(16),
+  `root_id` binary(16),
   `name` varchar(255) NULL,
   `stock` int NULL
 );
@@ -118,10 +118,10 @@ DROP TABLE IF EXISTS `root_sub_many`;
 
         $data = [
             'id' => $id,
-            'name' => 'root 1',
+            'name' => 'sub 1',
             'root' => [
                 'id' => $id2,
-                'name' => 'sub 1',
+                'name' => 'root 1',
             ],
         ];
 
@@ -356,5 +356,54 @@ DROP TABLE IF EXISTS `root_sub_many`;
         $sub = $root->get('sub');
         static::assertInstanceOf(ArrayEntity::class, $sub);
         static::assertSame('updated sub', $sub->get('name'));
+    }
+
+    public function testItInvalidatesTheCacheOnBothSides()
+    {
+        $idRoot = Uuid::uuid4()->getHex();
+        $idSub = Uuid::uuid4()->getHex();
+
+        $data = [
+            'id' => $idRoot,
+            'name' => 'root 1',
+            'sub' => [
+                'id' => $idSub,
+                'name' => 'sub 1',
+            ],
+        ];
+        $context = Context::createDefaultContext();
+        $this->repository->create([$data], $context);
+
+        $updatedRoot = $this->repository->search(new Criteria([$idRoot]), $context)->getEntities()->get($idRoot);
+        $updatedSub = $this->subRepository->search((new Criteria([$idSub]))->addAssociation('root'), $context)->getEntities()->get($idSub);
+
+        static::assertNotNull($updatedRoot->get('sub'));
+        static::assertNotNull($updatedSub->get('root'));
+
+        $this->subRepository->update([
+            [
+                'id' => $idSub,
+                'rootId' => null,
+            ],
+        ], $context);
+
+        $updatedRoot = $this->repository->search(new Criteria([$idRoot]), $context)->getEntities()->get($idRoot);
+        $updatedSub = $this->subRepository->search((new Criteria([$idSub]))->addAssociation('root'), $context)->getEntities()->get($idSub);
+
+        static::assertNull($updatedRoot->get('sub'));
+        static::assertNull($updatedSub->get('root'));
+
+        $this->subRepository->update([
+            [
+                'id' => $idSub,
+                'rootId' => $idRoot,
+            ],
+        ], $context);
+
+        $updatedRoot = $this->repository->search(new Criteria([$idRoot]), $context)->getEntities()->get($idRoot);
+        $updatedSub = $this->subRepository->search((new Criteria([$idSub]))->addAssociation('root'), $context)->getEntities()->get($idSub);
+
+        static::assertNotNull($updatedRoot->get('sub'));
+        static::assertNotNull($updatedSub->get('root'));
     }
 }

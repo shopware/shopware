@@ -12,12 +12,12 @@
                 @sw-media-item-clicked="handleGridItemClick">
 
                 {% block sw_media_media_item_preview %}
-                    <sw-media-preview
-                        slot="sw-media-item-preview"
-                        :class="mediaPreviewClasses"
-                        :source="item.id"
-                        @sw-media-preview-play="emitPlayEvent">
-                    </sw-media-preview>
+                    <template slot="sw-media-item-preview">
+                        <sw-media-preview
+                            :source="item.id"
+                            @sw-media-preview-play="emitPlayEvent">
+                        </sw-media-preview>
+                    </template>
                 {% endblock %}
 
                 {% block sw_media_media_item_metadata %}
@@ -53,7 +53,7 @@
                                 {% endblock %}
 
                                 {% block sw_media_media_item_context_item_move %}
-                                    <sw-context-menu-item v-if="next1207" class="sw-media-context-item__move-media-action"  @click="openModalMove">
+                                    <sw-context-menu-item class="sw-media-context-item__move-media-action"  @click="openModalMove">
                                         {{ $tc('global.sw-media-media-item.labelContextMenuMove') }}
                                     </sw-context-menu-item>
                                 {% endblock %}

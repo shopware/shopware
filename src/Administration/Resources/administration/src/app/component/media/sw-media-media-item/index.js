@@ -25,6 +25,7 @@ import './sw-media-media-item.scss';
 export default {
     name: 'sw-media-media-item',
     template,
+    inheritAttrs: false,
 
     inject: ['mediaService'],
 
@@ -61,12 +62,6 @@ export default {
     computed: {
         locale() {
             return this.$root.$i18n.locale;
-        },
-
-        mediaPreviewClasses() {
-            return {
-                'sw-media-preview--list': this.isList
-            };
         },
 
         defaultContextMenuClass() {

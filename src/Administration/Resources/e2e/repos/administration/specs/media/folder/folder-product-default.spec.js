@@ -7,7 +7,6 @@ const fixtures = {
 
 module.exports = {
     '@tags': ['media', 'folder', 'folder-product-default', 'set-default', 'product', 'upload'],
-    '@disabled': !global.flags.isActive('next1207'),
     before: (browser, done) => {
         global.MediaFixtureService.setFolderFixture(fixtures).then(() => {
             return global.ProductFixtureService.setProductFixture();

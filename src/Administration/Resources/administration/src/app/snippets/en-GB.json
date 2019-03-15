@@ -216,21 +216,7 @@
       "titleModal": "Replace media files",
       "buttonUpload": "Upload",
       "buttonCancel": "Cancel",
-      "buttonReplace": "Replace",
-      "notification": {
-        "success": {
-          "title": "Success",
-          "message": "File successfully replaced."
-        },
-        "failure": {
-          "title": "Error",
-          "message": "An error occurred while replacing {mediaName}."
-        },
-        "fileReaderError": {
-          "title": "Error",
-          "message": "Error reading file."
-        }
-      }
+      "buttonReplace": "Replace"
     },
     "sw-media-preview": {
       "fallbackVideoTagSupport": "Your browser does not support the video tag",

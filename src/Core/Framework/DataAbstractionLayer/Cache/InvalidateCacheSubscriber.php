@@ -6,6 +6,7 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Cache;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldAware\StorageAware;
 use Symfony\Component\Cache\Adapter\TagAwareAdapterInterface;
@@ -62,6 +63,12 @@ class InvalidateCacheSubscriber implements EventSubscriberInterface
 
                 foreach ($result->getPayload() as $propertyName => $value) {
                     $field = $definition::getFields()->get($propertyName);
+
+                    if ($field instanceof FkField) {
+                        if ($value !== null) {
+                            $keys[] = $field->getReferenceClass()::getEntityName() . '-' . $value;
+                        }
+                    }
 
                     if ($field instanceof TranslatedField) {
                         $field = EntityDefinitionQueryHelper::getTranslatedField($definition, $field);

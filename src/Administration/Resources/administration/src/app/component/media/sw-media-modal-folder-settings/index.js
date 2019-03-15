@@ -109,9 +109,6 @@ export default {
                 sortBy: 'width'
             }).then((response) => {
                 this.thumbnailSizes = response.items;
-                if (this.thumbnailSizes.length === 0) {
-                    this.isEditThumbnails = true;
-                }
             });
         },
 
@@ -224,6 +221,7 @@ export default {
                                 this.mediaFolderConfigurationThumbnailSizeStore.remove(association);
                             }
                         });
+
                         this.createNotificationSuccess({
                             title: this.$root.$tc(
                                 'global.sw-media-modal-folder-settings.notification.success.title'

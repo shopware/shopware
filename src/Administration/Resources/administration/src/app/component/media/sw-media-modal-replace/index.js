@@ -52,28 +52,12 @@ export default {
         },
 
         replaceMediaItem() {
-            const notificationSuccessTitle = this.$tc('global.sw-media-modal-replace.notification.success.title');
-            const notificationSuccessMessage = this.$tc('global.sw-media-modal-replace.notification.success.message');
-            const notificationErrorTitle = this.$tc('global.sw-media-modal-replace.notification.failure.title');
-            const notificationErrorMessage = this.$tc(
-                'global.sw-media-modal-replace.notification.failure.message', 1,
-                { mediaName: this.itemToReplace.fileName }
-            );
-
             this.itemToReplace.isLoading = true;
             this.uploadStore.runUploads(this.itemToReplace.id).then(() => {
                 this.mediaItemStore.getByIdAsync(this.itemToReplace.id).then(() => {
-                    this.createNotificationSuccess({
-                        title: notificationSuccessTitle,
-                        message: notificationSuccessMessage
-                    });
                 });
             }).catch(() => {
                 this.itemToReplace.isLoading = false;
-                this.createNotificationError({
-                    title: notificationErrorTitle,
-                    message: notificationErrorMessage
-                });
             });
             this.emitCloseReplaceModal();
         }

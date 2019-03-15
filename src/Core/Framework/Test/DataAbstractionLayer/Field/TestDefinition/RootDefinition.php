@@ -48,7 +48,7 @@ class SubDefinition extends EntityDefinition
             new VersionField(),
             new StringField('name', 'name'),
             new IntField('stock', 'stock'),
-            (new FkField('root_id', 'rootId', RootDefinition::class, 'id'))->addFlags(new Required()),
+            new FkField('root_id', 'rootId', RootDefinition::class, 'id'),
             (new ReferenceVersionField(RootDefinition::class))->addFlags(new Required()),
             new OneToOneAssociationField('root', 'root_id', 'id', RootDefinition::class, false),
             new OneToManyAssociationField('manies', SubManyDefinition::class, 'root_sub_id', true),

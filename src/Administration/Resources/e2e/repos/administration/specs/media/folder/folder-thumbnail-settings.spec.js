@@ -2,7 +2,6 @@ const mediaPage = require('administration/page-objects/module/sw-media.page-obje
 
 module.exports = {
     '@tags': ['media', 'folder', 'folder-thumbnails', 'thumbnails'],
-    '@disabled': !global.flags.isActive('next1207'),
     before: (browser, done) => {
         global.MediaFixtureService.setFolderFixture().then(() => {
             done();
@@ -18,6 +17,7 @@ module.exports = {
 
         browser
             .click('.sw-media-folder-settings__thumbnails-tab')
+            .click('button.sw-media-modal-folder-settings__switch-mode')
             .waitForElementVisible('.sw-media-modal-folder-settings__thumbnails-list-container');
     },
     'set general thumbnail settings': (browser) => {
@@ -30,6 +30,7 @@ module.exports = {
         page.setThumbnailSize('800');
 
         browser
+            .click('button.sw-media-modal-folder-settings__switch-mode')
             .click(page.elements.saveSettingsAction)
             .checkNotification('Settings have been saved successfully');
     },
@@ -49,6 +50,7 @@ module.exports = {
 
         browser
             .tickCheckbox('input[name=thumbnail-size-active]', true)
+            .click('button.sw-media-modal-folder-settings__switch-mode')
             .click(page.elements.saveSettingsAction)
             .checkNotification('Settings have been saved successfully');
     },
@@ -56,7 +58,7 @@ module.exports = {
         const page = mediaPage(browser);
 
         browser
-            .clickContextMenuItem(page.elements.showMediaAction, page.elements.contextMenuButton,`${page.elements.gridItem}--0`)
+            .clickContextMenuItem(page.elements.showMediaAction, page.elements.contextMenuButton, `${page.elements.gridItem}--0`)
             .waitForElementVisible('.icon--folder-thumbnail-back')
             .expect.element(page.elements.smartBarHeader).to.have.text.that.equals(global.MediaFixtureService.mediaFolderFixture.name);
 
@@ -88,6 +90,7 @@ module.exports = {
             .waitForElementNotPresent('.sw-media-modal-folder-settings__thumbnail-size-entry');
 
         browser
+            .click('.sw-media-modal-folder-settings__switch-mode')
             .click(page.elements.saveSettingsAction)
             .checkNotification('Settings have been saved successfully');
     },

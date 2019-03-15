@@ -62,14 +62,15 @@ class InvalidateCacheSubscriberTest extends TestCase
             'product.name',
             'product.id',
             'product.stock',
-            'product.product_manufacturer_id',
 
             'product_manufacturer-' . $id,
+            'product.product_manufacturer_id',
             'product_manufacturer.name',
             'product_manufacturer.id',
 
             'product_category-' . $id,
             'product_category.product_id',
+            'category-' . $id,
             'product_category.category_id',
         ];
 

@@ -117,6 +117,11 @@ Component.register('sw-profile-index', {
                         return false;
                     }
 
+                    if (this.oldPassword === this.newPassword) {
+                        this.createErrorMessage(this.$tc('sw-profile.index.notificationNewPasswordIsSameAsOldErrorMessage'));
+                        return false;
+                    }
+
                     if (this.newPassword !== this.newPasswordConfirm) {
                         this.createErrorMessage(this.$tc('sw-profile.index.notificationPasswordErrorMessage'));
                         return false;

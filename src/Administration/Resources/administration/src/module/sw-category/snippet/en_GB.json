@@ -20,13 +20,16 @@
             "columnNameLabel": "Name",
             "columnManufacturerLabel": "Manufacturer",
             "treeHeadSelected": "{count} selected",
+            "emptyStateHeadline": "No category selected",
             "productAssignmentHeadline": "Product assignment",
             "productAssignmentPlaceholder": "Search and assign products...",
             "productAssignmentActionDetails": "Details",
             "productAssignmentActionRemove": "Remove",
             "productAssignmentActionUndo": "Undo",
             "productAssignmentEmptyText": "No products found",
-            "emptyStateHeadline": "No category selected",
+            "productAssignmentEmptyStateTitle": "No products assigned",
+            "productAssignmentEmptyStateSubline": "Use the search to add products",
+
             "leavePageModal": {
                 "headline": "Warning",
                 "description": "You have unsaved changes. Are you sure that you want to leave this page?",

@@ -80,14 +80,20 @@
                         </sw-category-select>
                     </div>
 
-                    <sw-button class="sw-category-view__multi-delete" :disabled="deleteButtonDisabled" @click="onRemoveProducts" square size="small">
-                        <sw-icon name="default-action-trash" small />
+                    <sw-button
+                        v-if="products && products.length"
+                        class="sw-category-view__multi-delete"
+                        :disabled="deleteButtonDisabled"
+                        @click="onRemoveProducts"
+                        size="small"
+                        square>
+                            <sw-icon name="default-action-trash" small />
                     </sw-button>
                 {% endblock %}
 
                 {% block sw_category_view_products_grid %}
                     <sw-grid
-                        v-if="products"
+                        v-if="products.length"
                         slot="grid"
                         ref="grid"
                         selectable
@@ -134,6 +140,15 @@
                             </sw-pagination>
                         </template>
                     </sw-grid>
+
+                    <sw-empty-state
+                        v-else
+                        slot="grid"
+                        :title="$tc('sw-category.general.productAssignmentEmptyStateTitle')"
+                        :subline="$tc('sw-category.general.productAssignmentEmptyStateSubline')"
+                        icon="default-package-closed">
+                    </sw-empty-state>
+
                 {% endblock %}
             </sw-card>
         {% endblock %}

@@ -40,7 +40,7 @@ Component.register('sw-settings-attribute-set-detail', {
         },
 
         onSave() {
-            const setLabel = this.getInlineSnippet(this.set.config.label);
+            const setLabel = this.getInlineSnippet(this.set.config.label) || this.set.name;
             const titleSaveSuccess = this.$tc('sw-settings-attribute.set.detail.titleSaveSuccess');
             const messageSaveSuccess = this.$tc('sw-settings-attribute.set.detail.messageSaveSuccess', 0, {
                 name: setLabel
@@ -51,6 +51,10 @@ Component.register('sw-settings-attribute-set-detail', {
             if (!this.set.config.translated || this.set.config.translated === false) {
                 const fallbackLocale = this.swInlineSnippetFallbackLocale;
                 this.set.config.label = { [fallbackLocale]: this.set.config.label[fallbackLocale] };
+            }
+
+            if (!this.set.relations) {
+                this.set.relations = [];
             }
 
             return this.set.save().then(() => {

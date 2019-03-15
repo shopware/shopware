@@ -5,6 +5,7 @@
                 <div v-for="locale in locales">
                     <sw-field v-for="(label, name) in propertyNames"
                               v-model="config[name][locale]"
+                              @input="onInput($event, name, locale)"
                               :label="getLabel(label, locale)"
                               :key="getInlineSnippet(name)"
                               type="text">
@@ -37,6 +38,7 @@
                                           v-model="config[name][locale]"
                                           :label="getLabel(label, locale)"
                                           :key="getInlineSnippet(name)"
+                                          @input="onInput($event, name, locale)"
                                           type="text">
                                 </sw-field>
                             {% endblock %}

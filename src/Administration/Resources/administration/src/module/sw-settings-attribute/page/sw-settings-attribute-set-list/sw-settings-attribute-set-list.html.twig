@@ -45,15 +45,12 @@
                                      class="sw-settings-attribute-set-list-grid"
                                      :selectable="false"
                                      :items="items"
-                                     @inline-edit-cancel="onInlineEditCancel"
-                                     @inline-edit-finish="onInlineEditSave"
                                      table>
                                 {% block sw_settings_attribute_set_list_grid_columns %}
                                     <template slot="columns" slot-scope="{ item }">
 
                                         {% block sw_settings_attribute_set_list_grid_column_label %}
                                             <sw-grid-column flex="minmax(180px, 2fr)"
-                                                            editable
                                                             :label="$tc('sw-settings-attribute.set.list.columnName')">
                                                 <router-link
                                                         :title="$tc('sw-settings-attribute.set.list.contextMenuEdit')"
@@ -61,13 +58,6 @@
                                                          :to="{ name: 'sw.settings.attribute.detail', params: { id: item.id } }">
                                                     {{ getInlineSnippet(item.config.label) || item.name }}
                                                 </router-link>
-
-                                                {% block sw_settings_attribute_set_list_grid_column_label_edit %}
-                                                    <sw-field type="text"
-                                                              v-model="item.config.name"
-                                                              slot="inline-edit">
-                                                    </sw-field>
-                                                {% endblock %}
                                             </sw-grid-column>
                                         {% endblock %}
 

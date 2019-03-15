@@ -34,7 +34,7 @@
 
                     {% block sw_tooltip %}
                         <sw-help-text
-                                v-if="tooltipText"
+                                v-if="getInlineSnippet(tooltipText)"
                                 :text="getInlineSnippet(tooltipText)"
                                 :tooltipPosition="tooltipPosition">
                         </sw-help-text>

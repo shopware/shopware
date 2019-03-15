@@ -1,4 +1,5 @@
-import { Component, Mixin } from 'src/core/shopware';
+import { Component, State, Mixin } from 'src/core/shopware';
+import CriteriaFactory from 'src/core/factory/criteria.factory';
 import types from 'src/core/service/utils/types.utils';
 import template from './sw-attribute-list.html.twig';
 import './sw-attribute-list.scss';
@@ -11,6 +12,12 @@ Component.register('sw-attribute-list', {
         Mixin.getByName('listing'),
         Mixin.getByName('sw-inline-snippet')
     ],
+
+    provide() {
+        return {
+            SwAttributeListIsAttributeNameUnique: this.isAttributeNameUnique
+        };
+    },
 
     props: {
         set: {
@@ -25,15 +32,17 @@ Component.register('sw-attribute-list', {
             attributes: [],
             isLoading: false,
             currentAttribute: null,
-            searchTerm: '',
             deleteButtonDisabled: true,
             disableRouteParams: true
         };
     },
 
     computed: {
-        attributeStore() {
+        attributeAssociationStore() {
             return this.set.getAssociation('attributes');
+        },
+        attributeStore() {
+            return State.getStore('attribute');
         }
     },
 
@@ -51,7 +60,7 @@ Component.register('sw-attribute-list', {
         },
 
         hasExistingAttributes() {
-            return Object.values(this.attributeStore.store).some((item) => {
+            return Object.values(this.attributeAssociationStore.store).some((item) => {
                 return !item.isLocal;
             });
         },
@@ -61,8 +70,18 @@ Component.register('sw-attribute-list', {
             const params = this.getListingParams();
             params.sortBy = 'attribute.config.attributePosition';
 
+            if (params.term) {
+                params.criteria = CriteriaFactory.multi(
+                    'OR',
+                    ...this.getLocaleCriterias(params.term),
+                    CriteriaFactory.contains('name', params.term)
+                );
+
+                params.term = '';
+            }
+
             this.attributes = [];
-            return this.attributeStore.getList(params).then((response) => {
+            return this.attributeAssociationStore.getList(params).then((response) => {
                 this.total = response.total;
                 this.attributes = response.items;
                 this.isLoading = false;
@@ -73,6 +92,17 @@ Component.register('sw-attribute-list', {
             });
         },
 
+        getLocaleCriterias(term) {
+            const criterias = [];
+            const locales = Object.keys(this.$root.$i18n.messages);
+
+            locales.forEach(locale => {
+                criterias.push(CriteriaFactory.contains(`config.label.\"${locale}\"`, term));
+            });
+
+            return criterias;
+        },
+
         selectionChanged() {
             const selection = this.$refs.grid.getSelection();
             this.deleteButtonDisabled = Object.keys(selection).length <= 0;
@@ -80,7 +110,7 @@ Component.register('sw-attribute-list', {
 
         newItems() {
             const items = [];
-            this.attributeStore.forEach((item) => {
+            this.attributeAssociationStore.forEach((item) => {
                 if (item.isLocal) {
                     items.push(item);
                 }
@@ -92,7 +122,7 @@ Component.register('sw-attribute-list', {
             attribute.delete();
 
             if (attribute.isLocal) {
-                this.attributeStore.removeById(attribute.id);
+                this.attributeAssociationStore.removeById(attribute.id);
 
                 this.attributes.forEach((item, index) => {
                     if (item.id === attribute.id) {
@@ -114,8 +144,8 @@ Component.register('sw-attribute-list', {
         },
 
         onAddAttribute() {
-            const attribute = this.attributeStore.create();
-            this.attributeStore.removeById(attribute.id);
+            const attribute = this.attributeAssociationStore.create();
+            this.attributeAssociationStore.removeById(attribute.id);
             this.onAttributeEdit(attribute);
         },
 
@@ -125,8 +155,8 @@ Component.register('sw-attribute-list', {
 
         onSaveAttribute() {
             this.removeEmptyProperties(this.currentAttribute.config);
-            if (!this.attributeStore.hasId(this.currentAttribute.id)) {
-                this.attributeStore.add(this.currentAttribute);
+            if (!this.attributeAssociationStore.hasId(this.currentAttribute.id)) {
+                this.attributeAssociationStore.add(this.currentAttribute);
                 this.buildGridArray();
             }
 
@@ -162,9 +192,28 @@ Component.register('sw-attribute-list', {
                     this.removeEmptyProperties(config[property]);
                 }
 
-                if (types.isEmpty(config[property]) || config[property] === undefined) {
+                if ((types.isEmpty(config[property]) || config[property] === undefined) && config[property !== null]) {
                     this.$delete(config, property);
                 }
+            });
+        },
+        isAttributeNameUnique(attribute) {
+            // Search in local attribute list for name
+            const isUnique = !this.attributes.some((attr) => {
+                if (attribute.id === attr.id) {
+                    return false;
+                }
+                return attr.name === attribute.name;
+            });
+
+            if (!isUnique) {
+                return Promise.resolve(false);
+            }
+
+            // Search the server for the attribute name
+            const criteria = CriteriaFactory.equals('name', attribute.name);
+            return this.attributeStore.getList({ criteria }).then((res) => {
+                return res.total === 0;
             });
         }
     }

@@ -56,7 +56,7 @@ Component.register('sw-attribute-translated-labels', {
         initializeConfiguration() {
             Object.keys(this.propertyNames).forEach((property) => {
                 if (!this.config.hasOwnProperty(property)) {
-                    this.$set(this.config, property, {});
+                    this.$set(this.config, property, { [this.fallbackLocale]: null });
                 }
             });
         },
@@ -65,6 +65,11 @@ Component.register('sw-attribute-translated-labels', {
             const language = this.$tc(`locale.${locale}`);
 
             return `${snippet} (${language})`;
+        },
+        onInput(input, propertyName, locale) {
+            if (input === '') {
+                this.config[propertyName][locale] = null;
+            }
         }
     }
 });

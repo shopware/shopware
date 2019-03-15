@@ -45,7 +45,8 @@ export default {
         },
         max: {
             type: Number,
-            required: false
+            required: false,
+            default: null
         }
     },
     computed: {
@@ -56,7 +57,7 @@ export default {
 
     data() {
         return {
-            currentValue: 0
+            currentValue: this.value
         };
     },
 
@@ -115,22 +116,31 @@ export default {
 
             switch (this.numberType) {
             case 'int':
-                value = value.replace(/[^0-9]/g, '');
+                value = value.replace(/[^0-9\-]/g, '');
                 break;
             case 'float':
             default:
-                value = value.replace(/[^0-9.,]+/, '');
+                value = value.replace(/[^0-9.,\-]+/, '');
                 break;
             }
 
+            // Strip preceding 0 character
             value = value.replace(/^(-)?0+(?=\d)/, '$1');
 
+            // Dont parse and emit anything that is not a valid number
+            if (!value.match(/^(-?\d+[.,]\d*[1-9])$|^(-?\d+)$/)) {
+                this.currentValue = value;
+                return;
+            }
+
+            value = this.parseValue(value);
+
             if (value !== '') {
-                if (value <= this.max && value >= this.min) {
+                if (this.min && this.max && value <= this.max && value >= this.min) {
                     this.currentValue = value;
-                } else if (value < this.min) {
+                } else if (this.min && value < this.min) {
                     this.currentValue = this.min;
-                } else if (value > this.max) {
+                } else if (this.max && value > this.max) {
                     this.currentValue = this.max;
                 } else {
                     this.currentValue = value;
@@ -139,7 +149,7 @@ export default {
                 this.currentValue = value;
             }
 
-            this.$emit(type, this.parseValue(this.currentValue));
+            this.$emit(type, this.currentValue);
 
             if (this.hasError) {
                 this.errorStore.deleteError(this.formError);
@@ -147,9 +157,14 @@ export default {
         },
 
         increaseNumberByStep() {
+            if (!this.currentStep) {
+                return;
+            }
             const value = this.currentValue;
 
-            if (this.max) {
+            if (!value) {
+                this.currentValue = this.min ? this.min : this.currentStep;
+            } else if (this.max) {
                 if (value + this.currentStep <= this.max) {
                     this.currentValue = Math.round((value + this.currentStep) * 100) / 100;
                 }
@@ -161,9 +176,14 @@ export default {
         },
 
         decreaseNumberByStep() {
+            if (!this.currentStep) {
+                return;
+            }
             const value = this.currentValue;
 
-            if (this.min === null || value - this.currentStep >= this.min) {
+            if (!value) {
+                this.currentValue = this.min;
+            } else if (this.min === null || value - this.currentStep >= this.min) {
                 this.currentValue = Math.round((value - this.currentStep) * 100) / 100;
                 this.$emit('input', this.currentValue);
             }

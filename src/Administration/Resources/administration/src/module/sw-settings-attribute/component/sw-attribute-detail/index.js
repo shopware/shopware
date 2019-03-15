@@ -1,11 +1,15 @@
-import { Component } from 'src/core/shopware';
+import { Component, Mixin } from 'src/core/shopware';
 import template from './sw-attribute-detail.html.twig';
 import './sw-attribute-detail.scss';
 
 Component.register('sw-attribute-detail', {
     template,
 
-    inject: ['attributeDataProviderService'],
+    inject: ['attributeDataProviderService', 'SwAttributeListIsAttributeNameUnique'],
+
+    mixins: [
+        Mixin.getByName('notification')
+    ],
 
     props: {
         currentAttribute: {
@@ -100,7 +104,27 @@ Component.register('sw-attribute-detail', {
         },
         onSave() {
             this.applyTypeConfiguration();
-            this.$emit('save-attribute-edit', this.currentAttribute);
+            if (!this.currentAttribute.isLocal) {
+                this.$emit('save-attribute-edit', this.currentAttribute);
+                return;
+            }
+
+            this.SwAttributeListIsAttributeNameUnique(this.currentAttribute).then(isUnique => {
+                if (isUnique) {
+                    this.$emit('save-attribute-edit', this.currentAttribute);
+                    return;
+                }
+                this.createNameNotUniqueNotification();
+            });
+        },
+        createNameNotUniqueNotification() {
+            const titleSaveSuccess = this.$tc('sw-settings-attribute.set.detail.titleNameNotUnique');
+            const messageSaveSuccess = this.$tc('sw-settings-attribute.set.detail.messageNameNotUnique');
+
+            this.createNotificationError({
+                title: titleSaveSuccess,
+                message: messageSaveSuccess
+            });
         },
         applyTypeConfiguration() {
             const attributeType = this.currentAttribute.config.attributeType;

@@ -19,12 +19,7 @@ $sw-media-modal-folder-settings-delete-color:               $color-crimson;
 
     .sw-media-modal-folder-settings__thumbnails-left-container {
         .sw-field--boolean {
-            margin-bottom: 0;
-
-            label {
-                height: 0;
-                margin: 0
-            }
+            margin: 0 auto;
 
             .sw-field__input {
                 border: none;

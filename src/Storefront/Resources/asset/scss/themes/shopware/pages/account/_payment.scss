@@ -1,0 +1,7 @@
+.account-payment-form-group {
+    border-bottom: 1px solid $border-color;
+
+    &:last-of-type {
+        border-bottom: 0;
+    }
+}

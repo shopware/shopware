@@ -65,10 +65,23 @@ Component.register('sw-product-variants-overview', {
             const queries = this.buildQueries(params.term);
 
             params.criteria = CriteriaFactory.equals('product.parentId', this.product.id);
-            params.associations = { variations: {} };
+            params.associations = {
+                variations: {
+                    sort: [
+                        { field: 'groupId' },
+                        { field: 'id' }
+                    ]
+                }
+            };
+
             if (queries.length > 0) {
                 params.queries = queries;
             }
+
+            params.sortings = [
+                { field: 'product.variations.groupId' },
+                { field: 'product.variations.id' }
+            ];
 
             delete params.term;
             await this.variantStore.getList(params).then((res) => {

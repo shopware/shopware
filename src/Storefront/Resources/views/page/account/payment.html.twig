@@ -1,1 +1,81 @@
 {% sw_extends '@Storefront/page/account/_page.html.twig' %}
+
+{% block base_breadcrumb %}
+    {% set breadcrumbList = [
+        {
+            "name": "account.overviewTitle"|trans,
+            "link": path('frontend.account.home.page')
+        },
+        {
+            "name": "account.paymentTitle"|trans,
+            "link": path('frontend.account.payment.page')
+        }
+    ] %}
+
+    {{ parent() }}
+{% endblock %}
+
+{% block page_account_main_content %}
+    {% block page_account_payment %}
+        <div class="account-payment">
+            {% block page_account_payment_welcome %}
+                <div class="account-welcome">
+                    {% block page_account_payment_welcome_headline %}
+                        <h1>{{ "account.paymentTitle"|trans }}</h1>
+                    {% endblock %}
+                </div>
+            {% endblock %}
+
+            {% block page_account_payment_main %}
+                <div class="account-payment-card card">
+                    <div class="card-body">
+                        {% block page_account_payment_title %}
+                            <h2 class="card-title">
+                                {{ "account.overviewPaymentHeader"|trans }}
+                            </h2>
+                        {% endblock %}
+
+                        {% block page_account_payment_form %}
+                            {#TODO: NEXT-1936 - add form action and funcionality#}
+                            <form action="#" method="post">
+                                {% block page_account_payment_methods %}
+                                    {% for payment in page.paymentMethods.elements %}
+                                        {% block page_account_payment_method %}
+                                            <div class="account-payment-form-group form-group">
+                                                <div class="custom-control custom-radio">
+                                                    <input type="radio"
+                                                           id="paymentMethod{{ loop.index }}"
+                                                           name="paymentMethod"
+                                                           value="{{ payment.id }}"
+                                                           {% if payment.id is same as(page.customer.defaultPaymentMethodId) %}checked="checked"{% endif %}
+                                                           class="custom-control-input">
+                                                    <label class="custom-control-label"
+                                                           for="paymentMethod{{ loop.index }}">
+                                                        <strong>{{ payment.name }}</strong>
+                                                        <p>{{ payment.additionalDescription }}</p>
+                                                    </label>
+                                                </div>
+                                            </div>
+                                        {% endblock %}
+
+                                        {% block page_account_payment_fieldset_template %}
+                                            {#TODO: NEXT-1936 - include fieldset template#}
+                                        {% endblock %}
+                                    {% endfor %}
+                                {% endblock %}
+
+                                {% block page_account_payment_actions %}
+                                    <button class="btn btn-primary"
+                                            type="submit"
+                                            title="{{ "account.paymentChangeSubmit"|trans }}">
+                                        {{ "account.paymentChangeSubmit"|trans }}
+                                    </button>
+                                {% endblock %}
+                            </form>
+                        {% endblock %}
+                    </div>
+                </div>
+            {% endblock %}
+        </div>
+    {% endblock %}
+{% endblock %}

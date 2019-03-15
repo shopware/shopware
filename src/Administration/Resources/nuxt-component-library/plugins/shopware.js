@@ -1,6 +1,5 @@
 import Vue from 'vue'; // eslint-disable-line import/no-extraneous-dependencies
 import VueI18n from 'vue-i18n';
-import deDEMessages from 'src/app/snippets/de-DE.json';
 import enGBMessages from 'src/app/snippets/en-GB.json';
 import DeviceHelper from 'src/core/plugins/device-helper.plugin';
 import ValidationService from 'src/core/service/validation.service';
@@ -64,15 +63,37 @@ directiveRegistry.forEach((directive, name) => {
 });
 
 // Add components
+const vueComponents = {};
 components.forEach((config) => {
     const componentName = config.name;
-    config.template = Shopware.Template.getRenderedTemplate(componentName);
-    Vue.component(componentName, config);
+    const Component = Shopware.Component;
+    const Mixin = Shopware.Mixin;
+    const componentConfig = Component.build(componentName);
+
+    if (!componentConfig) {
+        return false;
+    }
+
+    // If the mixin is a string, use our mixin registry
+    if (componentConfig.mixins && componentConfig.mixins.length) {
+        componentConfig.mixins = componentConfig.mixins.map((mixin) => {
+            if (typeof mixin === 'string') {
+                return Mixin.getByName(mixin);
+            }
+
+            return mixin;
+        });
+    }
+
+    const vueComponent = Vue.component(componentName, componentConfig);
+    vueComponents[componentName] = vueComponent;
+
+    return vueComponent;
 });
 
 export default ({ app }) => {
     // Apply translations to application
-    const messages = { 'de-DE': deDEMessages, 'en-GB': enGBMessages };
+    const messages = { 'en-GB': enGBMessages };
     app.provide = () => {
         return Shopware.Application.getContainer('service');
     };

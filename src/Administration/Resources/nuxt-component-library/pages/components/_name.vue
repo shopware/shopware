@@ -1,6 +1,15 @@
 <template>
     <div class="page--component">
-        <h1>{{ componentTitle }} <div :class="tipClass">{{ component.meta.status }}</div></h1>
+        <header class="component--header">
+            <h1 class="header--title">{{ componentTitle }}</h1>
+            <h2 class="header--subtitle">
+                {{ technicalTitle }}
+                <span v-if="component.extendsFrom">
+                    <span class="text--black">extends</span> &lt;{{ component.extendsFrom }}&gt;
+                </span>
+            </h2>
+            <div :class="tipClass">{{ component.meta.status }}</div>
+        </header>
 
         <p class="is--xl" v-if="component.meta.description" v-html="component.meta.description"></p>
     
@@ -80,7 +89,7 @@
             </table>
         </section>
 
-        <section class="section--imports" v-if="component.imports.length">
+        <section class="section--imports" v-if="component.imports && component.imports.length">
             <h3>Imports</h3>
 
             <ul class="code-list">
@@ -90,7 +99,7 @@
             </ul>
         </section>
 
-        <section class="section--imports" v-if="component.watcher.length">
+        <section class="section--imports" v-if="component.watcher && component.watcher.length">
             <h3>Watcher</h3>
 
             <ul class="code-list">
@@ -100,7 +109,7 @@
             </ul>
         </section>
 
-        <section class="section--imports" v-if="component.mixins.length">
+        <section class="section--imports" v-if="component.mixins && component.mixins.length">
             <h3>Mixins</h3>
 
             <ul class="code-list">
@@ -110,7 +119,7 @@
             </ul>
         </section>
 
-        <section class="section--imports" v-if="component.inject.length">
+        <section class="section--imports" v-if="component.inject && component.inject.length">
             <h3>Inject</h3>
 
             <ul class="code-list">
@@ -120,7 +129,7 @@
             </ul>
         </section>
 
-        <section class="section--less-variables" v-if="component.lessVariables.length">
+        <section class="section--less-variables" v-if="component.lessVariables && component.lessVariables.length">
             <h3>Less variables</h3>
             <table>
                 <thead>
@@ -144,7 +153,7 @@
             </table>
         </section>
 
-        <section class="section--less-variables" v-if="component.sassVariables.length">
+        <section class="section--less-variables" v-if="component.sassVariables && component.sassVariables.length">
             <h3>SASS variables</h3>
             <table>
                 <thead>
@@ -168,7 +177,7 @@
             </table>
         </section>
 
-        <section class="section--twig-blocks" v-if="component.blocks.length">
+        <section class="section--twig-blocks" v-if="component.blocks && component.blocks.length">
             <h3>Twig blocks</h3>
 
             <ul class="code-list">
@@ -178,7 +187,7 @@
             </ul>
         </section>
 
-        <section class="section--vue-slots" v-if="component.slots.length">
+        <section class="section--vue-slots" v-if="component.slots && component.slots.length">
             <h3>Slots</h3>
 
             <ul class="code-list">
@@ -192,12 +201,37 @@
 </template>
 
 <style lang="less">
+    .component--header {
+        position: relative;
+
+        .tip {
+            position: absolute;
+            right: 0;
+            top: 15px;
+        }
+    }
+    .header--title {
+        margin: 0;
+        display: inline-block;
+    }
+
+    .header--subtitle {
+        margin: 0;
+        display: inline-block;
+        font-size: 1rem;
+        color: #535c68;
+    }
+
     .code-list {
         margin-left: 1em;
 
         li {
             margin-bottom: 8px;
         }
+    }
+
+    section {
+        margin-top: 55px;
     }
 </style>
 
@@ -207,6 +241,8 @@ import 'prismjs/themes/prism-okaidia.css';
 import exampleComponent from '~/components/example';
 
 export default {
+    scrollToTop: true,
+
     components: {
         Prism,
         'example': exampleComponent
@@ -226,6 +262,7 @@ export default {
                 methods: [],
                 mixins: [],
                 name: '',
+                readableName: '',
                 props: [],
                 slots: [],
                 watcher: [],
@@ -247,8 +284,12 @@ export default {
 
     computed: {
         componentTitle() {
-            return `<${this.title}>`;
+            return `${this.component.readableName}`;
         },
+        technicalTitle() {
+            return `<${this.component.name}>`;
+        },
+
         tipClass() {
             const status = this.component.meta.status;
             if (status === 'deprecated') {

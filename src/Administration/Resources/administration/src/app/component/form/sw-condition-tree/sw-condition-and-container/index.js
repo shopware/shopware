@@ -3,7 +3,7 @@ import template from './sw-condition-and-container.html.twig';
 import './sw-condition-and-container.scss';
 
 /**
- * @public
+ * @private
  * @description Contains some sw-base-conditions / sw-condition-and-container connected by and.
  * This component must be a child of sw-condition-tree
  * @status prototype

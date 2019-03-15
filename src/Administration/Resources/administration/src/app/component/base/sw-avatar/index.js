@@ -21,12 +21,16 @@ const colors = [
  * @status ready
  * @example-type static
  * @component-example
+ * <div style="display: flex; align-items: center;">
  * <sw-avatar color="#dd4800"
  *            size="48px"
  *            firstName="John"
- *            lastName="Doe"
- *            :imageUrl="getImageUrl">
- * </sw-avatar>
+ *            style="margin: 0 10px;"
+ *            lastName="Doe"></sw-avatar>
+ *
+ * <sw-avatar size="48px"
+ *            imageUrl="https://randomuser.me/api/portraits/women/68.jpg"></sw-avatar>
+ * </div>
  */
 export default {
     name: 'sw-avatar',

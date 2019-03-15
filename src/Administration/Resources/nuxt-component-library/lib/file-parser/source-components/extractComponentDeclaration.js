@@ -16,14 +16,13 @@ module.exports = (ast) => {
     }
 
     if (Object.prototype.hasOwnProperty.call(definition, 'expression')) {
-        args =  definition.expression.arguments;
+        args = definition.expression.arguments;
         return getOldStructureInformation(args);
-    } else if (Object.prototype.hasOwnProperty.call(definition, 'declaration')) {
+    } if (Object.prototype.hasOwnProperty.call(definition, 'declaration')) {
         args = definition.declaration.properties;
         return getNewStructureInformation(args);
-    } else {
-        return args;
     }
+    return args;
 };
 
 function getNewStructureInformation(args) {
@@ -36,26 +35,33 @@ function getNewStructureInformation(args) {
         }, null);
     }
 
-    return {
-        name: getModuleName(args),
-        definition: args
-    }
-}
-
-function getOldStructureInformation(args) {
-    function getModuleName(args) {
+    function getExtendedFromName(args) {
         return args.reduce((accumulator, declaration) => {
-            if (declaration.type === 'Literal') {
-                accumulator = declaration.value;
+            if (declaration.key.name === 'extendsFrom' && declaration.value.type === 'Literal') {
+                accumulator = declaration.value.value;
             }
-
             return accumulator;
         }, null);
     }
 
+    return {
+        name: getModuleName(args),
+        extendsFrom: getExtendedFromName(args),
+        definition: args
+    };
+}
+
+function getOldStructureInformation(args) {
+    function getModuleName(args) {
+        if (!args.length) {
+            return null;
+        }
+        return args[0].value;
+    }
+
     function getModuleDefinition(args) {
         return args.reduce((accumulator, declaration) => {
-            if (declaration.type === 'ObjectExpression') {
+            if (declaration.type === 'ObjectExpression' && !accumulator) {
                 accumulator = declaration.properties;
             }
 
@@ -63,10 +69,17 @@ function getOldStructureInformation(args) {
         }, []);
     }
 
+    function getExtendedFromName(args) {
+        if (args.length < 3) {
+            return null;
+        }
+
+        return args[1].value;
+    }
+
     return {
         name: getModuleName(args),
-        definition: getModuleDefinition(args)
+        definition: getModuleDefinition(args),
+        extendsFrom: getExtendedFromName(args)
     };
 }
-
-

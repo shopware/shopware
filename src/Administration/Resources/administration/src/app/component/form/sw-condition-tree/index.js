@@ -1,6 +1,9 @@
 import utils from 'src/core/service/util.service';
 import template from './sw-condition-tree.html.twig';
 
+/**
+ * @private
+ */
 export default {
     name: 'sw-condition-tree',
     template,

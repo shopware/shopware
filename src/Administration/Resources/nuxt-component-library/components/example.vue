@@ -34,7 +34,7 @@
                 </div>
             </div>
 
-            <template v-if="Object.keys(component.slots).length">
+            <template v-if="component.slots && Object.keys(component.slots).length">
                 <div class="panel--headline">
                     Slots
                 </div>
@@ -114,7 +114,7 @@
             border: 1px solid #d8dde6;
             border-radius: 4px;
             width: 100%;
-            padding: 4px 8px;
+            padding: 12px 8px;
             color: #000;
 
             &:focus {

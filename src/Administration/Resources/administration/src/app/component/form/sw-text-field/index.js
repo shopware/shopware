@@ -7,9 +7,9 @@ import template from './sw-text-field.html.twig';
  * @protected
  * @description Base input field component which extends all other sw-xxx-field components and is used as default/text.
  * @status ready
- * @example-type static
+ * @example-type dynamic
  * @component-example
- * <sw-text-field type="text" :label="Name" :placeholder="placeholder goes here..." v-model="model"></sw-text-field>
+ * <sw-text-field type="text" label="Name" placeholder="placeholder goes here..."></sw-text-field>
  */
 export default {
     name: 'sw-text-field',
@@ -32,6 +32,7 @@ export default {
             default: 'text'
         },
         label: {
+            type: String,
             required: false,
             default: ''
         },

@@ -6,7 +6,7 @@ import template from './sw-pagination.html.twig';
  * @status ready
  * @example-type static
  * @component-example
- * <sw-pagination total="500" limit="25" page="1"></sw-pagination>
+ * <sw-pagination :total="500" :limit="25" :page="1"></sw-pagination>
  */
 export default {
     name: 'sw-pagination',

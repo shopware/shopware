@@ -3,7 +3,7 @@ import AndContainer from '../sw-condition-and-container';
 import './sw-condition-or-container.scss';
 
 /**
- * @public
+ * @private
  * @description Contains some sw-base-conditions / sw-condition-and-container connected by or.
  * This component must be a child of sw-condition-tree
  * @status prototype

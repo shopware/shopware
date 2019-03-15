@@ -1,3 +1,6 @@
+/**
+ * @private
+ */
 export default {
     name: 'sw-condition-value',
     extendsFrom: 'sw-select',

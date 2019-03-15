@@ -6,14 +6,13 @@ import template from './sw-select-field.html.twig';
  * @status ready
  * @example-type static
  * @component-example
- * <sw-select-field placeholder="placeholder goes here..." :label="label"
-     v-model="model">
-     <slot>
-        <option v-for="operator in operators" :value="operator.id">
-        {{ option.label }}
-        </option>
-     </slot>
-    </sw-select-field>
+ * <sw-select-field placeholder="placeholder goes here..." label="label">
+ *     <option value="value1">Label #1</option>
+ *     <option value="value2">Label #2</option>
+ *     <option value="value3">Label #3</option>
+ *     <option value="value4">Label #4</option>
+ *     <option value="value5">Label #5</option>
+ * </sw-select-field>
  */
 export default {
     name: 'sw-select-field',

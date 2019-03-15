@@ -2,7 +2,7 @@ import template from './sw-product-image.html.twig';
 import './sw-product-image.scss';
 
 /**
- * @public
+ * @private
  * @description Component which renders an image.
  * @status ready
  * @example-type code-only

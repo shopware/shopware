@@ -10,7 +10,6 @@ import './sw-radio-panel.less';
  * @example-type static
  * @component-example
  * <sw-radio-panel value="selectionValueIfSelected"
- * v-model="selection"
  * title="Example title"
  * description="Example description"
  * icon="default-badge-warning"

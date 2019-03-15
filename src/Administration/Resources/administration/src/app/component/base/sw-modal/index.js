@@ -7,7 +7,7 @@ import './sw-modal.scss';
  * @status ready
  * @example-type static
  * @component-example
- * <sw-modal title="Modal box title" selector=".example .panel--content">
+ * <sw-modal title="Modal box title" selector=".example .panel--content" style="height: 400px">
  *     Lorem Ipsum
  * </sw-modal>
  */

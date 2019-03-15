@@ -3,11 +3,18 @@ import './sw-field.scss';
 /**
  * @private
  * @description sw-field as alias for all input fields
+ * @example-type dynamic
  * @status ready
  */
 export default {
     name: 'sw-field',
     functional: true,
+
+    watch: {
+        type() {
+            this.$forceUpdate();
+        }
+    },
 
     render(createElement, context) {
         function getComponentName() {

@@ -2,6 +2,14 @@ import Picker from 'vanilla-picker';
 import template from './sw-colorpicker.html.twig';
 import './sw-colorpicker.scss';
 
+/**
+ * @public
+ * @description Color picker input field.
+ * @status ready
+ * @example-type dynamic
+ * @component-example
+ * <sw-colorpicker label="Color picker" value="#dd4800"></sw-colorpicker>
+ */
 export default {
     name: 'sw-colorpicker',
     extendsFrom: 'sw-text-field',

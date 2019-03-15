@@ -1,6 +1,14 @@
 import template from './sw-confirm-field.html.twig';
 import './sw-confirm-field.scss';
 
+/**
+ * @public
+ * @description Text field with additional confirmation buttons inlined in the field itself.
+ * @status ready
+ * @example-type static
+ * @component-example
+ * <sw-confirm-field placeholder="Enter value..."></sw-confirm-field>
+ */
 export default {
     name: 'sw-confirm-field',
     template,

@@ -16,6 +16,14 @@ const lessVariableParser = require('./less-components');
 const sassVariableParser = require('./sass-components');
 const twigParser = require('./twig-components');
 
+function formatReadableName(value) {
+    value = value.replace('sw-', '').replace(/(\-\w)/g, (matches) => {
+        return ` ${matches[1].toUpperCase()}`;
+    });
+    value = `${value.charAt(0).toUpperCase()}${value.slice(1)}`;
+    return value;
+}
+
 module.exports = (file, globalVariables) => {
     const ast = parseSource(file.source);
 
@@ -24,7 +32,6 @@ module.exports = (file, globalVariables) => {
     const componentDeclaration = extractComponentDeclaration(ast);
 
     if (!componentDeclaration.name || !componentDeclaration.definition) {
-        console.log('definition not found');
         return {};
     }
 
@@ -41,7 +48,6 @@ module.exports = (file, globalVariables) => {
 
     const lessVariables = lessVariableParser(file, imports, globalVariables);
     const sassVariables = sassVariableParser(file, imports, globalVariables);
-    console.log(sassVariables);
     const twigInformation = twigParser(file, imports);
 
     return {
@@ -58,6 +64,8 @@ module.exports = (file, globalVariables) => {
         meta: comment,
         slots: twigInformation.slots,
         blocks: twigInformation.blocks,
-        name: componentDeclaration.name
+        name: componentDeclaration.name,
+        extendsFrom: componentDeclaration.extendsFrom,
+        readableName: formatReadableName(componentDeclaration.name)
     };
 };

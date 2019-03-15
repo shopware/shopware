@@ -7,8 +7,7 @@ import './sw-password-field.scss';
  * @status ready
  * @example-type static
  * @component-example
- * <sw-password-field type="password" :label="Name" :placeholder="placeholder goes here..."
- *  v-model="model"></sw-password-field>
+ * <sw-password-field type="password" label="Name" placeholder="placeholder goes here..."></sw-password-field>
  */
 export default {
     name: 'sw-password-field',

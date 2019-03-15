@@ -56,6 +56,7 @@ class ManyToManyAssociationFieldTest extends TestCase
         $productId = Uuid::uuid4();
         $data = [
             'id' => $productId->getHex(),
+            'stock' => 1,
             'name' => 'test',
             'price' => ['gross' => 15, 'net' => 10, 'linked' => false],
             'manufacturer' => ['name' => 'test'],
@@ -82,6 +83,7 @@ class ManyToManyAssociationFieldTest extends TestCase
         $id = Uuid::uuid4();
         $data = [
             'id' => $id->getHex(),
+            'stock' => 1,
             'name' => 'test',
             'price' => ['gross' => 15, 'net' => 10, 'linked' => false],
             'manufacturer' => ['name' => 'test'],

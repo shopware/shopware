@@ -200,6 +200,7 @@ class WriterTest extends TestCase
         $this->getWriter()->insert(ProductDefinition::class, [
             [
                 'id' => $productId->getHex(),
+                'stock' => 1,
                 'name' => 'test 1',
                 'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
                 'tax' => ['name' => 'test', 'taxRate' => 5],
@@ -252,6 +253,7 @@ class WriterTest extends TestCase
             [
                 'id' => $productId->getHex(),
                 'name' => 'test 1',
+                'stock' => 1,
                 'price' => ['gross' => 10, 'net' => 8.10, 'linked' => false],
                 'tax' => ['name' => 'test', 'taxRate' => 5],
                 'manufacturer' => ['name' => 'test'],
@@ -262,6 +264,7 @@ class WriterTest extends TestCase
             [
                 'id' => $productId2->getHex(),
                 'name' => 'test 1',
+                'stock' => 1,
                 'price' => ['gross' => 10, 'net' => 8.10, 'linked' => false],
                 'tax' => ['name' => 'test', 'taxRate' => 5],
                 'manufacturer' => ['name' => 'test'],
@@ -271,6 +274,7 @@ class WriterTest extends TestCase
             ],
             [
                 'name' => 'test 1',
+                'stock' => 1,
                 'price' => ['gross' => 10, 'net' => 8.10, 'linked' => false],
                 'tax' => ['name' => 'test', 'taxRate' => 5],
                 'manufacturer' => ['name' => 'test'],
@@ -311,6 +315,7 @@ class WriterTest extends TestCase
                 [
                     'id' => $this->id,
                     'name' => 'test',
+                    'stock' => 1,
                     'price' => ['gross' => 10, 'net' => 8.10, 'linked' => false],
                     'the_unknown_field' => 'do nothing?',
                     'tax' => ['name' => 'test', 'taxRate' => 5],
@@ -345,6 +350,7 @@ class WriterTest extends TestCase
                     'the_unknown_field' => 'do nothing?',
                     'tax' => ['name' => 'test', 'taxRate' => 5],
                     'name' => 'foo',
+                    'stock' => 1,
                     'price' => ['gross' => 10, 'net' => 8.10, 'linked' => false],
                     'manufacturer' => ['id' => Uuid::uuid4()->getHex(), 'link' => 'https://shopware.com', 'name' => 'shopware AG'],
                 ],
@@ -366,6 +372,7 @@ class WriterTest extends TestCase
                     'id' => $this->id,
                     'name' => 'ConfiguratorTest',
                     'description' => 'A test article',
+                    'stock' => 1,
                     'descriptionLong' => '<p>I\'m a <b>test article</b></p>',
                     'tax' => ['name' => 'test', 'taxRate' => 5],
                     'manufacturer' => ['id' => Uuid::uuid4()->getHex(), 'link' => 'https://shopware.com', 'name' => 'shopware AG'],
@@ -407,6 +414,7 @@ class WriterTest extends TestCase
                 [
                     'id' => $this->id,
                     'name' => '_THE_TITLE_',
+                    'stock' => 1,
                     'the_unknown_field' => 'do nothing?',
                     'tax' => ['name' => 'test', 'taxRate' => 5],
                     'description' => '<p>no html</p>',
@@ -551,6 +559,7 @@ class WriterTest extends TestCase
             [
                 [
                     'id' => $this->id,
+                    'stock' => 1,
                     'name' => [
                         Defaults::LANGUAGE_SYSTEM => '1ABC',
                         '2d905256e75149678dd5a32a81b94f1f' => '2ABC',
@@ -728,6 +737,7 @@ class WriterTest extends TestCase
             [
                 [
                     'id' => $this->id,
+                    'stock' => 1,
                     'name' => 'Test product',
                     'price' => ['gross' => 10, 'net' => 8.10, 'linked' => false],
                     'tax' => ['name' => 'test', 'taxRate' => 5],

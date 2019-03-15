@@ -138,6 +138,7 @@ class ProductVisibilityEntityTest extends TestCase
 
         return [
             'id' => $id,
+            'stock' => 1,
             'name' => 'test',
             'price' => ['gross' => 15, 'net' => 10, 'linked' => false],
             'manufacturer' => ['name' => 'test'],

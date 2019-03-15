@@ -51,6 +51,7 @@ class VariantGeneratorTest extends TestCase
 
         $data = [
             'id' => $id,
+            'stock' => 1,
             'name' => 'test',
             'price' => ['gross' => 10, 'net' => 10, 'linked' => false],
             'tax' => ['name' => 'test', 'taxRate' => 19],
@@ -118,6 +119,7 @@ class VariantGeneratorTest extends TestCase
 
         $data = [
             'id' => $id,
+            'stock' => 1,
             'name' => 'test',
             'price' => ['gross' => 50, 'net' => 25, 'linked' => false],
             'tax' => ['name' => 'test', 'taxRate' => 19],
@@ -201,6 +203,7 @@ class VariantGeneratorTest extends TestCase
 
         $data = [
             'id' => $id,
+            'stock' => 1,
             'name' => 'test',
             'price' => ['gross' => 50, 'net' => 25, 'linked' => false],
             'tax' => ['name' => 'test', 'taxRate' => 19],

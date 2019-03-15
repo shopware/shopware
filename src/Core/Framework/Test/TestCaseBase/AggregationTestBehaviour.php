@@ -56,6 +56,7 @@ trait AggregationTestBehaviour
         $products = [
             [
                 'name' => 'product 1',
+                'stock' => 1,
                 'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
                 'tax' => ['name' => 'test', 'taxRate' => 10],
                 'manufacturer' => ['name' => 'manufacturer1'],
@@ -66,6 +67,7 @@ trait AggregationTestBehaviour
             ],
             [
                 'name' => 'product 2',
+                'stock' => 1,
                 'price' => ['gross' => 20, 'net' => 19, 'linked' => false],
                 'tax' => ['name' => 'test', 'taxRate' => 10],
                 'manufacturer' => ['name' => 'manufacturer2'],
@@ -76,6 +78,7 @@ trait AggregationTestBehaviour
             ],
             [
                 'name' => 'product 3',
+                'stock' => 1,
                 'price' => ['gross' => 50, 'net' => 49, 'linked' => false],
                 'tax' => ['name' => 'test', 'taxRate' => 10],
                 'manufacturer' => ['name' => 'manufacturer1'],
@@ -85,6 +88,7 @@ trait AggregationTestBehaviour
             ],
             [
                 'name' => 'product 4',
+                'stock' => 1,
                 'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
                 'tax' => ['name' => 'test', 'taxRate' => 10],
                 'manufacturer' => ['name' => 'manufacturer2'],
@@ -95,6 +99,7 @@ trait AggregationTestBehaviour
             ],
             [
                 'name' => 'product 5',
+                'stock' => 1,
                 'price' => ['gross' => 90, 'net' => 99, 'linked' => false],
                 'tax' => ['name' => 'test', 'taxRate' => 10],
                 'manufacturer' => ['name' => 'manufacturer3'],
@@ -105,6 +110,7 @@ trait AggregationTestBehaviour
             ],
             [
                 'name' => 'product 6',
+                'stock' => 1,
                 'price' => ['gross' => 50, 'net' => 49, 'linked' => false],
                 'tax' => ['name' => 'test', 'taxRate' => 10],
                 'manufacturer' => ['name' => 'manufacturer2'],
@@ -114,6 +120,7 @@ trait AggregationTestBehaviour
             ],
             [
                 'name' => 'product 6',
+                'stock' => 1,
                 'price' => ['gross' => 20, 'net' => 19, 'linked' => false],
                 'tax' => ['name' => 'test', 'taxRate' => 10],
                 'manufacturer' => ['name' => 'manufacturer1'],

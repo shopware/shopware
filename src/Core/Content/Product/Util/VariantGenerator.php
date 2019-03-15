@@ -68,6 +68,7 @@ class VariantGenerator
             $variant = [
                 'parentId' => $productId,
                 'variations' => $mapping,
+                'stock' => $product->getStock(),
                 'variationIds' => array_values($options->getOptionIds()),
                 'price' => $this->buildPrice($product, $options),
             ];

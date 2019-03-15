@@ -41,6 +41,7 @@ class ProductControllerTest extends TestCase
         $this->productRepository->create([
             [
                 'id' => Uuid::uuid4()->getHex(),
+                'stock' => 1,
                 'name' => 'Test',
                 'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
                 'manufacturer' => ['id' => $manufacturerId, 'name' => 'test'],
@@ -85,6 +86,7 @@ class ProductControllerTest extends TestCase
         $this->productRepository->create([
             [
                 'id' => $productId,
+                'stock' => 1,
                 'name' => 'Test',
                 'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
                 'manufacturer' => ['id' => $manufacturerId, 'name' => 'test'],

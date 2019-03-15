@@ -74,6 +74,7 @@ EOF;
 
         $data = [
             'id' => $id,
+            'stock' => 1,
             'name' => $id,
             'tax' => ['name' => 'test', 'taxRate' => 10],
             'manufacturer' => ['name' => 'test'],
@@ -141,6 +142,7 @@ EOF;
 
         $data = [
             'id' => $id,
+            'stock' => 1,
             'name' => $id,
             'tax' => ['name' => 'test', 'taxRate' => 10],
             'manufacturer' => ['name' => 'test'],
@@ -182,6 +184,7 @@ EOF;
 
         $data = [
             'id' => $id,
+            'stock' => 1,
             'name' => $id,
             'tax' => ['name' => 'test', 'taxRate' => 10],
             'manufacturer' => ['name' => 'test'],
@@ -223,6 +226,7 @@ EOF;
 
         $data = [
             'id' => $id->getHex(),
+            'stock' => 1,
             'name' => $id->getHex(),
             'tax' => ['name' => 'test', 'taxRate' => 10],
             'manufacturer' => ['name' => 'test'],
@@ -308,6 +312,7 @@ EOF;
 
         $data = [
             'id' => $id->getHex(),
+            'stock' => 1,
             'name' => 'Test',
             'price' => ['gross' => 50, 'net' => 25, 'linked' => false],
             'tax' => ['name' => 'test', 'taxRate' => 10],
@@ -369,6 +374,7 @@ EOF;
 
         $data = [
             'id' => $id,
+            'stock' => 1,
             'name' => 'Cotton Shirt',
             'tax' => ['name' => 'test', 'taxRate' => 10],
             'manufacturer' => ['name' => 'Shopware AG'],
@@ -458,6 +464,7 @@ EOF;
 
         $data = [
             'id' => $id,
+            'stock' => 1,
             'name' => 'price test',
             'price' => ['gross' => 15, 'net' => 10, 'linked' => false],
             'manufacturer' => ['name' => 'test'],
@@ -528,6 +535,7 @@ EOF;
 
         $data = [
             'id' => $id,
+            'stock' => 1,
             'name' => 'price test',
             'price' => ['gross' => 15, 'net' => 10, 'linked' => false],
             'manufacturer' => ['name' => 'test'],
@@ -590,6 +598,7 @@ EOF;
 
         $data = [
             'id' => $id,
+            'stock' => 1,
             'name' => 'price test',
             'price' => ['gross' => 15, 'net' => 10, 'linked' => false],
             'manufacturer' => ['name' => 'test'],
@@ -640,6 +649,7 @@ EOF;
 
         $data = [
             'id' => $id,
+            'stock' => 1,
             'name' => 'Wool Shirt',
             'tax' => ['name' => 'test', 'taxRate' => 10],
             'manufacturer' => ['name' => 'Shopware AG'],

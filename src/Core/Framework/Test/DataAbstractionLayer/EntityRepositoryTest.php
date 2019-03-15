@@ -155,6 +155,7 @@ class EntityRepositoryTest extends TestCase
             [
                 [
                     'id' => $id,
+                    'stock' => 1,
                     'name' => 'Test',
                     'tax' => ['name' => 'test', 'taxRate' => 5],
                     'manufacturer' => ['name' => 'test'],
@@ -162,6 +163,7 @@ class EntityRepositoryTest extends TestCase
                 ],
                 [
                     'id' => $id2,
+                    'stock' => 1,
                     'name' => 'Test',
                     'tax' => ['name' => 'test', 'taxRate' => 5],
                     'manufacturer' => ['name' => 'test'],
@@ -231,6 +233,7 @@ class EntityRepositoryTest extends TestCase
             [
                 [
                     'id' => $id,
+                    'stock' => 1,
                     'name' => 'Test',
                     'tax' => ['name' => 'test', 'taxRate' => 5],
                     'manufacturer' => ['name' => 'test'],
@@ -261,6 +264,7 @@ class EntityRepositoryTest extends TestCase
                 ],
                 [
                     'id' => $id2,
+                    'stock' => 1,
                     'name' => 'Test',
                     'tax' => ['name' => 'test', 'taxRate' => 5],
                     'manufacturer' => ['name' => 'test'],
@@ -325,6 +329,7 @@ class EntityRepositoryTest extends TestCase
         $id = Uuid::uuid4()->getHex();
         $data = [
             'id' => $id,
+            'stock' => 1,
             'name' => 'test',
             'price' => ['gross' => 15, 'net' => 10, 'linked' => false],
             'manufacturer' => ['id' => $id, 'name' => 'test'],
@@ -368,6 +373,7 @@ class EntityRepositoryTest extends TestCase
         $id = Uuid::uuid4()->getHex();
         $data = [
             'id' => $id,
+            'stock' => 1,
             'name' => 'test',
             'price' => ['gross' => 15, 'net' => 10, 'linked' => false],
             'manufacturer' => ['id' => $id, 'name' => 'test'],
@@ -422,6 +428,7 @@ class EntityRepositoryTest extends TestCase
         $id = Uuid::uuid4()->getHex();
         $data = [
             'id' => $id,
+            'stock' => 1,
             'name' => 'test',
             'price' => ['gross' => 15, 'net' => 10, 'linked' => false],
             'manufacturer' => ['id' => $id, 'name' => 'test'],
@@ -490,6 +497,7 @@ class EntityRepositoryTest extends TestCase
         $id = Uuid::uuid4()->getHex();
         $data = [
             'id' => $id,
+            'stock' => 1,
             'name' => 'test',
             'price' => ['gross' => 15, 'net' => 10, 'linked' => false],
             'manufacturer' => ['id' => $id, 'name' => 'test'],
@@ -549,13 +557,14 @@ class EntityRepositoryTest extends TestCase
 
         $data = [
             'id' => $id,
+            'stock' => 1,
             'name' => 'parent',
             'price' => ['gross' => 15, 'net' => 10, 'linked' => false],
             'manufacturer' => ['id' => $id, 'name' => 'test'],
             'tax' => ['id' => $id, 'name' => 'test', 'taxRate' => 15],
             'children' => [
-                ['id' => $child1],
-                ['id' => $child2],
+                ['id' => $child1, 'stock' => 1],
+                ['id' => $child2, 'stock' => 1],
             ],
         ];
 

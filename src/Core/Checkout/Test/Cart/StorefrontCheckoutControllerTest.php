@@ -84,6 +84,7 @@ class StorefrontCheckoutControllerTest extends TestCase
         $this->productRepository->create([
             [
                 'id' => $productId,
+                'stock' => 1,
                 'name' => 'Test',
                 'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
                 'manufacturer' => ['id' => $this->manufacturerId, 'name' => 'test'],
@@ -137,6 +138,7 @@ class StorefrontCheckoutControllerTest extends TestCase
         $this->productRepository->create([
             [
                 'id' => $productId,
+                'stock' => 1,
                 'name' => 'Test',
                 'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
                 'manufacturer' => ['id' => $this->manufacturerId, 'name' => 'test'],
@@ -183,6 +185,7 @@ class StorefrontCheckoutControllerTest extends TestCase
         $this->productRepository->create([
             [
                 'id' => $productId,
+                'stock' => 1,
                 'name' => 'Test',
                 'price' => ['gross' => $grossPrice, 'net' => 9, 'linked' => false],
                 'manufacturer' => ['id' => $this->manufacturerId, 'name' => 'test'],
@@ -257,6 +260,7 @@ class StorefrontCheckoutControllerTest extends TestCase
         $this->productRepository->create([
             [
                 'id' => $productId,
+                'stock' => 1,
                 'name' => 'Test',
                 'price' => ['gross' => $grossPrice, 'net' => 9, 'linked' => false],
                 'manufacturer' => ['id' => $this->manufacturerId, 'name' => 'test'],
@@ -331,6 +335,7 @@ class StorefrontCheckoutControllerTest extends TestCase
         $this->productRepository->create([
             [
                 'id' => $productId,
+                'stock' => 1,
                 'name' => 'Test',
                 'price' => ['gross' => $grossPrice, 'net' => 9, 'linked' => false],
                 'manufacturer' => ['id' => $this->manufacturerId, 'name' => 'test'],
@@ -386,6 +391,7 @@ class StorefrontCheckoutControllerTest extends TestCase
         $this->productRepository->create([
             [
                 'id' => $productId,
+                'stock' => 1,
                 'name' => 'Test',
                 'price' => ['gross' => $grossPrice, 'net' => 9, 'linked' => false],
                 'manufacturer' => ['id' => $this->manufacturerId, 'name' => 'test'],
@@ -576,6 +582,7 @@ class StorefrontCheckoutControllerTest extends TestCase
         $this->productRepository->create([
             [
                 'id' => $productId,
+                'stock' => 1,
                 'name' => 'Test',
                 'price' => ['gross' => $grossPrice, 'net' => 9, 'linked' => false],
                 'manufacturer' => ['id' => $this->manufacturerId, 'name' => 'test'],

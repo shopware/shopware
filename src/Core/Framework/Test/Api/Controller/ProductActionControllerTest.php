@@ -36,6 +36,7 @@ class ProductActionControllerTest extends TestCase
 
         $data = [
             'id' => $id,
+            'stock' => 1,
             'name' => 'test',
             'tax' => ['name' => 'test', 'taxRate' => 15],
             'price' => ['gross' => 10, 'net' => 9, 'linked' => false],

@@ -125,6 +125,7 @@ class VersioningTest extends TestCase
 
         $product = [
             'id' => $id,
+            'stock' => 1,
             'name' => 'test',
             'manufacturer' => ['id' => $id, 'name' => 'test'],
             'tax' => ['id' => $id, 'name' => 'updated', 'taxRate' => 11000],
@@ -147,6 +148,7 @@ class VersioningTest extends TestCase
         $id = Uuid::uuid4()->getHex();
         $data = [
             'id' => $id,
+            'stock' => 1,
             'name' => 'test',
             'ean' => 'EAN',
             'price' => ['gross' => 100, 'net' => 10, 'linked' => false],
@@ -194,6 +196,7 @@ class VersioningTest extends TestCase
         $id = Uuid::uuid4()->getHex();
         $data = [
             'id' => $id,
+            'stock' => 1,
             'name' => 'test',
             'ean' => 'EAN',
             'price' => ['gross' => 100, 'net' => 10, 'linked' => false],
@@ -407,6 +410,7 @@ class VersioningTest extends TestCase
         $id = Uuid::uuid4()->getHex();
         $data = [
             'id' => $id,
+            'stock' => 1,
             'name' => 'test',
             'ean' => 'EAN',
             'price' => ['gross' => 100, 'net' => 10, 'linked' => false],
@@ -434,6 +438,7 @@ class VersioningTest extends TestCase
         $id = Uuid::uuid4()->getHex();
         $data = [
             'id' => $id,
+            'stock' => 1,
             'name' => 'test',
             'ean' => 'EAN',
             'price' => ['gross' => 100, 'net' => 10, 'linked' => false],
@@ -457,6 +462,7 @@ class VersioningTest extends TestCase
         $id = Uuid::uuid4()->getHex();
         $data = [
             'id' => $id,
+            'stock' => 1,
             'name' => 'test',
             'ean' => 'EAN',
             'price' => ['gross' => 100, 'net' => 10, 'linked' => false],
@@ -491,6 +497,7 @@ class VersioningTest extends TestCase
         $id = Uuid::uuid4()->getHex();
         $data = [
             'id' => $id,
+            'stock' => 1,
             'name' => 'test',
             'ean' => 'EAN',
             'price' => ['gross' => 100, 'net' => 10, 'linked' => false],
@@ -523,6 +530,7 @@ class VersioningTest extends TestCase
         $id = Uuid::uuid4()->getHex();
         $data = [
             'id' => $id,
+            'stock' => 1,
             'name' => 'test',
             'ean' => 'EAN',
             'price' => ['gross' => 100, 'net' => 10, 'linked' => false],
@@ -614,6 +622,7 @@ class VersioningTest extends TestCase
         $product = [
             'id' => $productId,
             'name' => 'to clone',
+            'stock' => 1,
             'manufacturer' => ['name' => 'test'],
             'tax' => ['name' => 'test', 'taxRate' => 15],
             'priceRules' => [
@@ -676,6 +685,7 @@ class VersioningTest extends TestCase
 
         $product = [
             'id' => $productId,
+            'stock' => 1,
             'name' => 'to clone',
             'manufacturer' => ['name' => 'test'],
             'tax' => ['name' => 'test', 'taxRate' => 15],
@@ -731,6 +741,7 @@ class VersioningTest extends TestCase
         $id = Uuid::uuid4()->getHex();
         $data = [
             'id' => $id,
+            'stock' => 1,
             'name' => 'test',
             'ean' => 'EAN',
             'price' => ['gross' => 100, 'net' => 10, 'linked' => false],
@@ -776,6 +787,7 @@ class VersioningTest extends TestCase
         //create live product with two prices
         $product = [
             'id' => $productId,
+            'stock' => 1,
             'name' => 'to clone',
             'manufacturer' => ['name' => 'test'],
             'tax' => ['name' => 'test', 'taxRate' => 15],
@@ -961,6 +973,7 @@ class VersioningTest extends TestCase
 
         $product = [
             'id' => $productId,
+            'stock' => 1,
             'name' => 'to clone',
             'manufacturer' => ['name' => 'test'],
             'tax' => ['name' => 'test', 'taxRate' => 15],
@@ -1023,6 +1036,7 @@ class VersioningTest extends TestCase
         $id = Uuid::uuid4()->getHex();
         $data = [
             'id' => $id,
+            'stock' => 1,
             'name' => 'test',
             'ean' => 'EAN',
             'price' => ['gross' => 100, 'net' => 10, 'linked' => false],
@@ -1078,6 +1092,7 @@ class VersioningTest extends TestCase
         //create live product with two prices
         $product = [
             'id' => $productId,
+            'stock' => 1,
             'name' => 'to clone',
             'manufacturer' => ['name' => 'test'],
             'tax' => ['name' => 'test', 'taxRate' => 15],
@@ -1175,6 +1190,7 @@ class VersioningTest extends TestCase
 
         $product = [
             'id' => $productId,
+            'stock' => 1,
             'name' => 'to clone',
             'manufacturer' => ['name' => 'test'],
             'tax' => ['name' => 'test', 'taxRate' => 15],
@@ -1231,6 +1247,7 @@ class VersioningTest extends TestCase
         $data = [
             [
                 'id' => $id1,
+                'stock' => 1,
                 'name' => 'test',
                 'ean' => 'EAN',
                 'price' => ['gross' => 100, 'net' => 10, 'linked' => false],
@@ -1239,6 +1256,7 @@ class VersioningTest extends TestCase
             ],
             [
                 'id' => $id2,
+                'stock' => 1,
                 'name' => 'test',
                 'ean' => null,
                 'price' => ['gross' => 100, 'net' => 10, 'linked' => false],
@@ -1277,6 +1295,7 @@ class VersioningTest extends TestCase
         $id = Uuid::uuid4()->getHex();
         $data = [
             'id' => $id,
+            'stock' => 1,
             'name' => 'test',
             'ean' => 'EAN',
             'price' => ['gross' => 100, 'net' => 10, 'linked' => false],
@@ -1339,6 +1358,7 @@ class VersioningTest extends TestCase
         //create live product with two prices
         $product = [
             'id' => $productId,
+            'stock' => 1,
             'name' => 'to clone',
             'manufacturer' => ['name' => 'test'],
             'tax' => ['name' => 'test', 'taxRate' => 15],
@@ -1421,6 +1441,7 @@ class VersioningTest extends TestCase
 
         $product = [
             'id' => $productId,
+            'stock' => 1,
             'name' => 'to clone',
             'manufacturer' => ['name' => 'test'],
             'tax' => ['name' => 'test', 'taxRate' => 15],
@@ -1476,6 +1497,7 @@ class VersioningTest extends TestCase
         $data = [
             [
                 'id' => $id1,
+                'stock' => 1,
                 'name' => 'test',
                 'ean' => 'EAN',
                 'price' => ['gross' => 100, 'net' => 10, 'linked' => false],
@@ -1484,6 +1506,7 @@ class VersioningTest extends TestCase
             ],
             [
                 'id' => $id2,
+                'stock' => 1,
                 'name' => 'test',
                 'ean' => 'EAN',
                 'price' => ['gross' => 100, 'net' => 10, 'linked' => false],
@@ -1537,6 +1560,7 @@ class VersioningTest extends TestCase
         $data = [
             [
                 'id' => $id1,
+                'stock' => 1,
                 'name' => 'test',
                 'ean' => 'EAN-1',
                 'price' => ['gross' => 100, 'net' => 10, 'linked' => false],
@@ -1545,6 +1569,7 @@ class VersioningTest extends TestCase
             ],
             [
                 'id' => $id2,
+                'stock' => 1,
                 'name' => 'test',
                 'ean' => 'EAN-2',
                 'price' => ['gross' => 100, 'net' => 10, 'linked' => false],
@@ -1619,6 +1644,7 @@ class VersioningTest extends TestCase
         $product = [
             'id' => Uuid::uuid4()->getHex(),
             'name' => '😄',
+            'stock' => 1,
             'ean' => 'EAN-1',
             'price' => ['gross' => 100, 'net' => 10, 'linked' => false],
             'manufacturer' => ['name' => 'create'],

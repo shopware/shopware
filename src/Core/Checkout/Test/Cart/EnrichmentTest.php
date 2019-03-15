@@ -66,6 +66,7 @@ class EnrichmentTest extends TestCase
             [
                 'id' => $id,
                 'name' => 'Missing label',
+                'stock' => 1,
                 'description' => 'Missing description',
                 'price' => ['gross' => 15, 'net' => 15, 'linked' => false],
                 'manufacturer' => ['name' => 'test'],
@@ -117,6 +118,7 @@ class EnrichmentTest extends TestCase
         $this->productRepository->create([
             [
                 'id' => $id,
+                'stock' => 1,
                 'name' => 'Missing label',
                 'description' => 'Missing description',
                 'price' => ['gross' => 15, 'net' => 15, 'linked' => false],

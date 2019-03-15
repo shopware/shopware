@@ -44,6 +44,7 @@ class ProductApiTest extends TestCase
 
         $data = [
             'id' => $id,
+            'stock' => 1,
             'name' => 'price test',
             'price' => ['gross' => 15, 'net' => 10, 'linked' => false],
             'manufacturer' => ['name' => 'test'],
@@ -157,6 +158,7 @@ class ProductApiTest extends TestCase
 
         $data = [
             'id' => $id,
+            'stock' => 1,
             'name' => 'price test',
             'price' => ['gross' => 15, 'net' => 10, 'linked' => false],
             'manufacturer' => ['name' => 'test'],

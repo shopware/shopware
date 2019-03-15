@@ -96,6 +96,7 @@ trait StorefrontPageTestBehaviour
 
         $data = [
             'id' => $id,
+            'stock' => 1,
             'name' => StorefrontPageTestConstants::PRODUCT_NAME,
             'price' => ['gross' => 15, 'net' => 10, 'linked' => false],
             'manufacturer' => ['name' => 'test'],

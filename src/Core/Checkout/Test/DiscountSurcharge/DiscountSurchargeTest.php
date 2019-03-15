@@ -290,6 +290,7 @@ class DiscountSurchargeTest extends TestCase
         self::$productRepository->upsert([
             [
                 'id' => $id,
+                'stock' => 1,
                 'name' => $name,
                 'manufacturer' => ['name' => 'test'],
                 'price' => ['gross' => $grossPrice, 'net' => $netPrice, 'linked' => false],

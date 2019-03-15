@@ -5,7 +5,7 @@
           role="img">
         <slot>
             {% block sw_avatar_slot_imageUrl %}
-                <span v-if="!showPlaceholder" class="sw-avatar__initials">
+                <span v-if="showInitials" class="sw-avatar__initials">
                     {{ avatarInitials }}
                 </span>
             {% endblock %}

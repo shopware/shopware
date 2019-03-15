@@ -8,18 +8,20 @@ use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\CheckoutContext;
+use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionEntity;
 use Shopware\Core\Checkout\Payment\Cart\Token\JWTFactory;
 use Shopware\Core\Checkout\Payment\Exception\InvalidOrderException;
 use Shopware\Core\Checkout\Payment\Exception\InvalidTokenException;
 use Shopware\Core\Checkout\Payment\Exception\TokenExpiredException;
-use Shopware\Core\Checkout\Payment\Exception\UnknownPaymentMethodException;
 use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Shopware\Core\Checkout\Payment\PaymentService;
 use Shopware\Core\Checkout\Test\Cart\Common\Generator;
-use Shopware\Core\Checkout\Test\Payment\Handler\TestPaymentHandler;
+use Shopware\Core\Checkout\Test\Payment\Handler\AsyncTestPaymentHandler;
+use Shopware\Core\Checkout\Test\Payment\Handler\SyncTestPaymentHandler;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
@@ -83,26 +85,28 @@ class PaymentServiceTest extends TestCase
         $this->context = Context::createDefaultContext();
     }
 
-    /**
-     * @throws InvalidOrderException
-     * @throws UnknownPaymentMethodException
-     */
     public function testHandlePaymentByOrderWithInvalidOrderId(): void
     {
         $orderId = Uuid::uuid4()->getHex();
         $checkoutContext = Generator::createCheckoutContext();
         $this->expectException(InvalidOrderException::class);
-        $this->paymentService->handlePaymentByOrder(
-            $orderId,
-            $checkoutContext
-        );
+        $this->expectExceptionMessage(sprintf('The order with id %s is invalid or could not be found.', $orderId));
+        $this->paymentService->handlePaymentByOrder($orderId, $checkoutContext);
     }
 
-    /**
-     * @throws InvalidOrderException
-     * @throws UnknownPaymentMethodException
-     */
-    public function testHandlePaymentByOrder(): void
+    public function testHandlePaymentByOrderSyncPayment(): void
+    {
+        $paymentMethodId = $this->createPaymentMethod($this->context, SyncTestPaymentHandler::class);
+        $customerId = $this->createCustomer($this->context);
+        $orderId = $this->createOrder($customerId, $paymentMethodId, $this->context);
+        $this->createTransaction($orderId, $paymentMethodId, $this->context);
+
+        $checkoutContext = $this->getCheckoutContext($paymentMethodId);
+
+        static::assertNull($this->paymentService->handlePaymentByOrder($orderId, $checkoutContext));
+    }
+
+    public function testHandlePaymentByOrderAsyncPayment(): void
     {
         $paymentMethodId = $this->createPaymentMethod($this->context);
         $customerId = $this->createCustomer($this->context);
@@ -111,18 +115,39 @@ class PaymentServiceTest extends TestCase
 
         $checkoutContext = $this->getCheckoutContext($paymentMethodId);
 
-        $response = $this->paymentService->handlePaymentByOrder(
-            $orderId,
-            $checkoutContext
-        );
+        $response = $this->paymentService->handlePaymentByOrder($orderId, $checkoutContext);
 
-        static::assertEquals(TestPaymentHandler::REDIRECT_URL, $response->getTargetUrl());
+        static::assertEquals(AsyncTestPaymentHandler::REDIRECT_URL, $response->getTargetUrl());
     }
 
-    /**
-     * @throws TokenExpiredException
-     * @throws UnknownPaymentMethodException
-     */
+    public function testHandlePaymentByOrderAsyncPaymentWithFinalize(): void
+    {
+        $paymentMethodId = $this->createPaymentMethod($this->context);
+        $customerId = $this->createCustomer($this->context);
+        $orderId = $this->createOrder($customerId, $paymentMethodId, $this->context);
+        $transactionId = $this->createTransaction($orderId, $paymentMethodId, $this->context);
+
+        $checkoutContext = $this->getCheckoutContext($paymentMethodId);
+
+        $response = $this->paymentService->handlePaymentByOrder($orderId, $checkoutContext);
+
+        static::assertEquals(AsyncTestPaymentHandler::REDIRECT_URL, $response->getTargetUrl());
+
+        $transaction = JWTFactoryTest::createTransaction();
+        $transaction->setId($transactionId);
+        $transaction->setPaymentMethodId($paymentMethodId);
+        $transaction->setOrderId($orderId);
+
+        $token = $this->tokenFactory->generateToken($transaction, $this->context, 'testFinishUrl');
+        $request = new Request();
+        $tokenStruct = $this->paymentService->finalizeTransaction($token, $request, $this->context);
+
+        static::assertSame('testFinishUrl', $tokenStruct->getFinishUrl());
+        /** @var OrderTransactionEntity $transactionEntity */
+        $transactionEntity = $this->orderTransactionRepository->search(new Criteria([$transactionId]), $this->context)->first();
+        static::assertSame(Defaults::ORDER_TRANSACTION_STATES_PAID, $transactionEntity->getStateMachineState()->getTechnicalName());
+    }
+
     public function testFinalizeTransactionWithInvalidToken(): void
     {
         $token = Uuid::uuid4()->getHex();
@@ -131,14 +156,10 @@ class PaymentServiceTest extends TestCase
         $this->paymentService->finalizeTransaction(
             $token,
             $request,
-            Context::createDefaultContext()
+            $this->context
         );
     }
 
-    /**
-     * @throws TokenExpiredException
-     * @throws UnknownPaymentMethodException
-     */
     public function testFinalizeTransactionWithExpiredToken(): void
     {
         $request = new Request();
@@ -273,19 +294,20 @@ class PaymentServiceTest extends TestCase
         return $customerId;
     }
 
-    private function createPaymentMethod(Context $context): string
-    {
+    private function createPaymentMethod(
+        Context $context,
+        string $handlerIdentifier = AsyncTestPaymentHandler::class
+    ): string {
         $id = Uuid::uuid4()->getHex();
-        $paypal = [
+        $payment = [
             'id' => $id,
-            'technicalName' => TestPaymentHandler::TECHNICAL_NAME,
+            'handlerIdentifier' => $handlerIdentifier,
             'name' => 'Test Payment',
-            'additionalDescription' => 'Test payment handler',
-            'class' => TestPaymentHandler::class,
+            'description' => 'Test payment handler',
             'active' => true,
         ];
 
-        $this->paymentMethodRepository->upsert([$paypal], $context);
+        $this->paymentMethodRepository->upsert([$payment], $context);
 
         return $id;
     }

@@ -25,11 +25,6 @@ class PaymentMethodTranslationEntity extends TranslationEntity
     protected $description;
 
     /**
-     * @var string|null
-     */
-    protected $surchargeText;
-
-    /**
      * @var PaymentMethodEntity
      */
     protected $paymentMethod;
@@ -67,16 +62,6 @@ class PaymentMethodTranslationEntity extends TranslationEntity
     public function setDescription(?string $description): void
     {
         $this->description = $description;
-    }
-
-    public function getSurchargeText(): ?string
-    {
-        return $this->surchargeText;
-    }
-
-    public function setSurchargeText(?string $surchargeText): void
-    {
-        $this->surchargeText = $surchargeText;
     }
 
     public function getPaymentMethod(): PaymentMethodEntity

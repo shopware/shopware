@@ -5,6 +5,7 @@ namespace Shopware\Core\System\Test\SalesChannel\Storefront;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Context\CheckoutRuleLoader;
+use Shopware\Core\Checkout\Test\Payment\Handler\SyncTestPaymentHandler;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
@@ -410,7 +411,7 @@ class StorefrontSalesChannelControllerTest extends TestCase
         $paymentMethod = [
             'id' => Uuid::uuid4()->getHex(),
             'name' => 'PayPal',
-            'technicalName' => Uuid::uuid4()->getHex(),
+            'handlerIdentifier' => SyncTestPaymentHandler::class,
             'description' => 'My payment method',
             'availabilityRules' => [
                 [
@@ -501,9 +502,9 @@ class StorefrontSalesChannelControllerTest extends TestCase
 
     private function addUnavailablePaymentMethod(): array
     {
-        $shippingMethod = [
+        $paymentMethod = [
             'id' => Uuid::uuid4()->getHex(),
-            'technicalName' => 'Unavailable',
+            'handlerIdentifier' => SyncTestPaymentHandler::class,
             'name' => 'Special payment',
             'position' => 4,
             'active' => true,
@@ -513,11 +514,11 @@ class StorefrontSalesChannelControllerTest extends TestCase
             'paymentMethodId' => Defaults::PAYMENT_METHOD_INVOICE,
             'paymentMethods' => [
                 ['id' => Defaults::PAYMENT_METHOD_INVOICE],
-                $shippingMethod,
+                $paymentMethod,
             ],
         ];
         $this->salesChannelRepository->update([$data], $this->context);
 
-        return $shippingMethod;
+        return $paymentMethod;
     }
 }

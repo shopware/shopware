@@ -43,37 +43,43 @@
         </service>
 
         <service id="Shopware\Core\Checkout\Payment\Cart\PaymentHandler\PaymentHandlerRegistry">
-            <argument type="tagged" tag="payment.method"/>
+            <argument type="tagged" tag="payment.method.sync"/>
+            <argument type="tagged" tag="payment.method.async"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Payment\Cart\PaymentHandler\PrePayment">
-            <tag name="payment.method"/>
             <argument type="service" id="order_transaction.repository"/>
             <argument type="service" id="Shopware\Core\System\StateMachine\StateMachineRegistry"/>
+            <tag name="payment.method.sync"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Payment\Cart\PaymentHandler\DebitPayment">
-            <tag name="payment.method"/>
             <argument type="service" id="order_transaction.repository"/>
             <argument type="service" id="Shopware\Core\System\StateMachine\StateMachineRegistry"/>
+            <tag name="payment.method.sync"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Payment\Cart\PaymentHandler\CashPayment">
-            <tag name="payment.method"/>
             <argument type="service" id="order_transaction.repository"/>
             <argument type="service" id="Shopware\Core\System\StateMachine\StateMachineRegistry"/>
+            <tag name="payment.method.sync"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Payment\Cart\PaymentHandler\InvoicePayment">
-            <tag name="payment.method"/>
             <argument type="service" id="order_transaction.repository"/>
             <argument type="service" id="Shopware\Core\System\StateMachine\StateMachineRegistry"/>
+            <tag name="payment.method.sync"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Payment\Cart\PaymentHandler\SEPAPayment">
-            <tag name="payment.method"/>
             <argument type="service" id="order_transaction.repository"/>
             <argument type="service" id="Shopware\Core\System\StateMachine\StateMachineRegistry"/>
+            <tag name="payment.method.sync"/>
+        </service>
+
+        <!--Repository Decorators-->
+        <service id="Shopware\Core\Checkout\Payment\DataAbstractionLayer\PaymentMethodRepositoryDecorator" decorates="payment_method.repository">
+            <argument type="service" id="Shopware\Core\Checkout\Payment\DataAbstractionLayer\PaymentMethodRepositoryDecorator.inner"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Payment\Util\EventIdExtractor"/>

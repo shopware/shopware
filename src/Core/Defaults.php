@@ -60,8 +60,6 @@ final class Defaults
     public const PAYMENT_METHOD_DEBIT = 'e84976ace9ab4928a3dcc387b66dbaa6';
     public const PAYMENT_METHOD_INVOICE = '19d144ffe15f4772860d59fca7f207c1';
     public const PAYMENT_METHOD_SEPA = 'a6ddadce4cb441f3976a32505049f037';
-    public const PAYMENT_METHOD_CASH_ON_DELIVERY = '77573b9cf7914cb5a9519945bff1d95b';
-    public const PAYMENT_METHOD_PAID_IN_ADVANCE = '47160b00cd064b0188176451f9f3c247';
 
     public const SALUTATION_KEY_MR = 'mr';
     public const SALUTATION_KEY_MRS = 'mrs';

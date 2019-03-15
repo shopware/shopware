@@ -25,25 +25,20 @@ skinparam backgroundColor #FFFFFF
 Table(ShopwareCoreCheckoutPaymentPaymentMethodDefinition, "payment_method\n(Payment method)") {
    primary_key(id) id
    pluginId foreignKey
-   not_null(technicalName) string
+   not_null(handlerIdentifier) string
    name translated
    description translated
-   template string
-   class string
-   percentageSurcharge float
-   absoluteSurcharge float
-   surchargeText translated
    position int
    active bool
    attributes translated
+   availabilityRuleIds list
    not_null(createdAt) createdAt
    not_null(updatedAt) updatedAt
 }
 TranslationTable(ShopwareCoreCheckoutPaymentAggregatePaymentMethodTranslationPaymentMethodTranslationDefinition, "payment_method_translation\n((Translations))") {
    not_null(name) string
    description longText
-   surchargeText longText
-   attributes attrbutes
+   attributes attributes
    primary_key(paymentMethodId) foreignKey
    primary_key(languageId) foreignKey
    not_null(createdAt) createdAt

@@ -34,6 +34,12 @@
         {% block sw_settings_payment_detail_content %}
             <sw-card-view slot="content">
 
+                {% block sw_product_stream_detail_content_language_info %}
+                    <sw-language-info
+                            :entityDescription="placeholder(paymentMethod, 'name', $tc('sw-settings-payment.detail.textHeadline'))">
+                    </sw-language-info>
+                {% endblock %}
+
                 {% block sw_settings_payment_detail_content_card %}
                     <sw-card :title="$tc('sw-settings-payment.detail.titleCard')">
                         <sw-container columns="repeat(auto-fit, minmax(250px, 1fr)" gap="0px 30px">
@@ -64,35 +70,6 @@
                         </sw-container>
 
                         <sw-container columns="repeat(auto-fit, minmax(250px, 1fr)" gap="0px 30px">
-                            {% block sw_settings_payment_detail_content_field_absolute_surcharge %}
-                                <sw-field type="number"
-                                          :label="$tc('sw-settings-payment.detail.labelAbsoluteSurcharge')"
-                                          :placeholder="$tc('sw-settings-payment.detail.placeholderAbsoluteSurcharge')"
-                                          v-model="paymentMethod.absoluteSurcharge">
-                                </sw-field>
-                            {% endblock %}
-
-                            {% block sw_settings_payment_detail_content_field_percentuage_surcharge %}
-                                <sw-field type="number"
-                                          :label="$tc('sw-settings-payment.detail.labelPercentageSurcharge')"
-                                          :placeholder="$tc('sw-settings-payment.detail.placeholderPercentageSurcharge')"
-                                          v-model="paymentMethod.percentageSurcharge">
-                                    <span slot="suffix" slot-scope="slotProps">
-                                        <span v-html="$tc('sw-settings-payment.detail.percentageSurchargeSymbol')"></span>
-                                    </span>
-                                </sw-field>
-                            {% endblock %}
-
-                            {% block sw_settings_payment_detail_content_field_surcharge_text %}
-                                <sw-field type="text"
-                                          :label="$tc('sw-settings-payment.detail.labelSurchargeText')"
-                                          :placeholder="placeholder(paymentMethod, 'surchargeText', $tc('sw-settings-payment.detail.placeholderSurchargeText'))"
-                                          v-model="paymentMethod.surchargeText">
-                                </sw-field>
-                            {% endblock %}
-                        </sw-container>
-
-                        <sw-container columns="repeat(auto-fit, minmax(250px, 1fr)" gap="0px 30px">
                             {% block sw_settings_payment_detail_content_field_description %}
                                 <sw-text-editor :label="$tc('sw-settings-payment.detail.labelDescription')"
                                                 :placeholder="placeholder(paymentMethod, 'description', $tc('sw-settings-payment.detail.placeholderDescription'))"
@@ -102,15 +79,6 @@
                         </sw-container>
 
                         <sw-container columns="repeat(auto-fit, minmax(250px, 1fr)" gap="0px 30px">
-                            {% block sw_settings_payment_detail_content_field_tempalte %}
-                                <sw-field type="text"
-                                          :disabled="!!paymentMethod.pluginId"
-                                          :label="$tc('sw-settings-payment.detail.labelTemplate')"
-                                          :placeholder="$tc('sw-settings-payment.detail.placeholderTemplate')"
-                                          v-model="paymentMethod.template">
-                                </sw-field>
-                            {% endblock %}
-
                             {% block sw_settings_payment_detail_content_field_plugin %}
                                 <sw-field type="text"
                                           :disabled="true"

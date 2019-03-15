@@ -14,6 +14,7 @@
         <service id="Shopware\Core\Framework\Demodata\Generator\RuleGenerator">
             <argument type="service" id="rule.repository" />
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriter" />
+            <argument type="service" id="payment_method.repository"/>
             <tag name="shopware.demodata_generator" />
         </service>
 

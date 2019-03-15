@@ -16,7 +16,8 @@
       "titleDeleteSuccess": "Erfolg",
       "messageDeleteSuccess": "Die Zahlungsart \"{name}\" wurde erfolgreich gelöscht.",
       "buttonCancel": "Abbrechen",
-      "buttonDelete": "Löschen"
+      "buttonDelete": "Löschen",
+      "pluginDeleteTitleText": "Zahlungsarten von Plugins können nicht gelöscht werden."
     },
     "detail": {
       "textHeadline": "Neue Zahlungsart",

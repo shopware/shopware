@@ -91,13 +91,13 @@ class ConfirmPageTest extends TestCase
         $paymentMethodRepository = $this->getContainer()->get('payment_method.repository');
         $paymentMethodRuleRepository = $this->getContainer()->get('payment_method_rule.repository');
         /** @var PaymentMethodEntity $paymentMethod */
-        $paymentMethod = $paymentMethodRepository->search(new Criteria([Defaults::PAYMENT_METHOD_DEBIT]), $context->getContext())->get(Defaults::PAYMENT_METHOD_DEBIT);
+        $paymentMethod = $paymentMethodRepository->search(new Criteria([Defaults::PAYMENT_METHOD_SEPA]), $context->getContext())->get(Defaults::PAYMENT_METHOD_SEPA);
 
         $ruleToDelete = [];
 
         foreach ($paymentMethod->getAvailabilityRuleIds() as $availabilityRuleId) {
             $ruleToDelete[] = [
-                'paymentMethodId' => Defaults::PAYMENT_METHOD_DEBIT,
+                'paymentMethodId' => Defaults::PAYMENT_METHOD_SEPA,
                 'ruleId' => $availabilityRuleId,
             ];
         }
@@ -114,7 +114,7 @@ class ConfirmPageTest extends TestCase
         $page = $this->getPageLoader()->load($request, $context);
 
         static::assertInstanceOf(CheckoutConfirmPage::class, $page);
-        static::assertSame(StorefrontPageTestConstants::PAYMENT_METHOD_COUNT - 1, $page->getPaymentMethods()->count());
+        static::assertSame(StorefrontPageTestConstants::AVAILABLE_PAYMENT_METHOD_COUNT - 1, $page->getPaymentMethods()->count());
         self::assertPageEvent(CheckoutConfirmPageLoadedEvent::class, $event, $context, $request, $page);
     }
 

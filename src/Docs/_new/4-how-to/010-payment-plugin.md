@@ -31,7 +31,7 @@ An implementation of your custom payment handler could look like this:
 
 namespace PaymentPlugin\Service;
 
-use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\PaymentHandlerInterface;
+use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\AsynchronousPaymentHandlerInterface;
 use Shopware\Core\Checkout\Payment\Cart\PaymentTransactionStruct;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -40,7 +40,7 @@ use Shopware\Core\System\StateMachine\StateMachineRegistry;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 
-class ExamplePayment implements PaymentHandlerInterface
+class ExamplePayment implements AsynchronousPaymentHandlerInterface
 {
     /**
      * @var EntityRepositoryInterface
@@ -58,7 +58,7 @@ class ExamplePayment implements PaymentHandlerInterface
         $this->stateMachineRegistry = $stateMachineRegistry;
     }
 
-    public function pay(PaymentTransactionStruct $transaction, Context $context): ?RedirectResponse
+    public function pay(PaymentTransactionStruct $transaction, Context $context): RedirectResponse
     {
         // Method that sends the return URL to the external gateway and gets a redirect URL back
         $redirectUrl = $this->sendReturnUrlToExternalGateway($transaction->getReturnUrl());
@@ -203,11 +203,10 @@ class PaymentPlugin extends Plugin
         $pluginId = $pluginIdProvider->getPluginIdByTechnicalName($this->getName(), $context);
 
         $examplePaymentData = [
-            'technicalName' => self::PAYMENT_METHOD_NAME,
+            // payment handler will be selected by the identifier
+            'handlerIdentifier' => ExamplePayment::class,
             'name' => 'Example payment',
-            'additionalDescription' => 'Example payment description',
-            // Add your payment handler here
-            'class' => ExamplePayment::class,
+            'description' => 'Example payment description',
             'pluginId' => $pluginId,
         ];
 

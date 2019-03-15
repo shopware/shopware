@@ -5,6 +5,7 @@ namespace Shopware\Core\Checkout\Test\Context\Storefront;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Ramsey\Uuid\Uuid;
+use Shopware\Core\Checkout\Test\Payment\Handler\SyncTestPaymentHandler;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
@@ -187,8 +188,8 @@ class StorefrontCheckoutContextControllerTest extends TestCase
                 'defaultBillingAddressId' => $addressId,
                 'defaultPaymentMethod' => [
                     'name' => 'Invoice',
-                    'additionalDescription' => 'Default payment method',
-                    'technicalName' => Uuid::uuid4()->getHex(),
+                    'description' => 'Default payment method',
+                    'handlerIdentifier' => SyncTestPaymentHandler::class,
                 ],
                 'groupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
                 'email' => $email,

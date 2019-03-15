@@ -2,6 +2,8 @@
 
 @sw-order-address-modal-highlight: #EDF8FF;
 @sw-order-address-modal-link: @color-shopware-blue;
+@sw-order-address-modal-selected: @color-shopware-blue;
+@sw-order-address-modal-selected-text: @color-white;
 
 .sw-order-address-modal {
     .sw-order-address-modal__entry {
@@ -13,7 +15,18 @@
 
         &:hover {
             background-color: @sw-order-address-modal-highlight;
-            color : @sw-order-address-modal-link;
+            color: @sw-order-address-modal-link;
         }
+    }
+
+    .sw-order-address-modal__entry__selected {
+        color: @sw-order-address-modal-selected-text;
+        background-color: @sw-order-address-modal-selected;
+
+        &:hover {
+            color: @sw-order-address-modal-selected-text;
+            background-color: @sw-order-address-modal-selected;
+        }
+
     }
 }

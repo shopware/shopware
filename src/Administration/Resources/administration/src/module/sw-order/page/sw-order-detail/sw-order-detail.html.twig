@@ -19,20 +19,29 @@
 
         {% block sw_order_detail_actions %}
             <template slot="smart-bar-actions">
-                {% block sw_order_detail_actions_abort %}
-                    <sw-button v-if="isEditing" :disabled="order.isLoading" @click ="onCancelEditing">
-                        {{ $tc('sw-order.detail.buttonCancel') }}
-                    </sw-button>
-                {% endblock %}
 
-                {% block sw_order_detail_actions_save %}
-                    <sw-button v-if="isEditing" variant="primary"  :disabled="order.isLoading" @click ="onSave">
-                        {{ $tc('sw-order.detail.buttonSave') }}
-                    </sw-button>
-                {% endblock %}
+                <sw-button-group splitButton v-if="isEditing" :disabled="order.isLoading">
+                    {% block sw_order_detail_actions_save %}
+                        <sw-button variant="primary"
+                            @click ="onSave"
+                            class="sw-order-detail__save_button">
+                            {{ $tc('sw-order.detail.buttonSave') }}
+                        </sw-button>
+                    {% endblock %}
 
-                <sw-button v-if="!isEditing" :disabled="order.isLoading" square @click="onStartEditing">
-                    <sw-icon name="default-documentation-paper-pencil" small></sw-icon>
+                    <sw-context-button>
+                        <sw-button square slot="button" variant="primary" class="sw-media-upload__button-context-menu">
+                            <sw-icon name="small-arrow-medium-down" size="16"></sw-icon>
+                        </sw-button>
+
+                        <sw-context-menu-item @click ="onCancelEditing">
+                            {{ $tc('sw-order.detail.buttonCancel') }}
+                        </sw-context-menu-item>
+                    </sw-context-button>
+                </sw-button-group>
+
+                <sw-button v-if="!isEditing" :disabled="order.isLoading" variant="primary" @click="onStartEditing">
+                    {{ $tc('sw-order.detail.buttonEdit') }}
                 </sw-button>
 
             </template>
@@ -41,7 +50,7 @@
         {% block sw_order_detail_content %}
             <sw-card-view slot="content">
                 {% block sw_order_detail_content_view %}
-                    <router-view :order="order" ref="baseComponent" @sw-order-detail-base-error = "onError"></router-view>
+                    <router-view :order="order" ref="baseComponent" @sw-order-detail-base-error="onError"></router-view>
                 {% endblock %}
 
                 {% block sw_order_detail_attribute_sets %}

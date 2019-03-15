@@ -3,7 +3,7 @@
 namespace Shopware\Core\Checkout\Order\Aggregate\OrderCustomer;
 
 use Shopware\Core\Checkout\Customer\CustomerEntity;
-use Shopware\Core\Checkout\Order\OrderCollection;
+use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 
@@ -60,9 +60,9 @@ class OrderCustomerEntity extends Entity
     protected $customer;
 
     /**
-     * @var OrderCollection|null
+     * @var OrderEntity|null
      */
-    protected $orders;
+    protected $order;
 
     /**
      * @var array|null
@@ -169,14 +169,14 @@ class OrderCustomerEntity extends Entity
         $this->customer = $customer;
     }
 
-    public function getOrders(): ?OrderCollection
+    public function getOrder(): ?OrderEntity
     {
-        return $this->orders;
+        return $this->order;
     }
 
-    public function setOrders(OrderCollection $orders): void
+    public function setOrder(OrderEntity $order): void
     {
-        $this->orders = $orders;
+        $this->order = $order;
     }
 
     public function getAttributes(): ?array

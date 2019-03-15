@@ -67,7 +67,8 @@
         pathInfo: '{{ app.request.pathInfo }}',
         features: {{ features|json_encode|raw }},
         systemLanguageId: '{{ systemLanguageId }}',
-        defaultLanguageIds: {{ defaultLanguageIds|json_encode|raw }}
+        defaultLanguageIds: {{ defaultLanguageIds|json_encode|raw }},
+        liveVersionId: '{{ liveVersionId }}'
     };
 
     Shopware.Application.start(applicationContext);

@@ -5,8 +5,9 @@ class OrderPageObject extends GeneralPageObject {
         super(browser);
 
         this.elements = {
-            ...this.elements, ...{
-                userMetadata: '.sw-user-card__metadata'
+            ...this.elements,
+            ...{
+                userMetadata: '.sw-order-user-card__metadata'
             }
         };
     }

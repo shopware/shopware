@@ -49,9 +49,9 @@ class OneToOneAssociationFieldSerializer implements FieldSerializerInterface
 
         //owning side?
         if ($keyField instanceof FkField) {
-            $id = $this->mapOwningSide($keyField, $field->getReferenceClass(), $data, $parameters);
+            $id = $this->mapOwningSide($field->getReferenceClass(), $field->getReferenceField(), $data, $parameters);
 
-            yield $field->getStorageName() => $id;
+            yield $keyField->getPropertyName() => $id;
 
             return;
         }
@@ -86,18 +86,21 @@ class OneToOneAssociationFieldSerializer implements FieldSerializerInterface
     }
 
     private function mapOwningSide(
-        FkField $foreignKey,
         string $referenceClass,
+        string $referenceField,
         KeyValuePair $data,
         WriteParameterBag $parameters
     ) {
         $value = $data->getValue();
+
+        $pkField = $referenceClass::getFields()->getByStorageName($referenceField);
+
         //id provided? otherwise set new one to return it and yield the id into the FkField
-        if (isset($value[$foreignKey->getPropertyName()])) {
-            $id = $value[$foreignKey->getPropertyName()];
+        if (isset($value[$pkField->getPropertyName()])) {
+            $id = $value[$pkField->getPropertyName()];
         } else {
             $id = Uuid::uuid4()->getHex();
-            $value[$foreignKey->getPropertyName()] = $id;
+            $value[$pkField->getPropertyName()] = $id;
         }
 
         $this->writeExtractor->extract(

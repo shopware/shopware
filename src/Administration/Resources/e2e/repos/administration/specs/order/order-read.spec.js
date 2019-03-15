@@ -33,8 +33,7 @@ module.exports = {
 
         browser
             .expect.element(`${page.elements.userMetadata}-user-name`).to.have.text.that.equals(`${global.OrderFixtureService.customerStorefrontFixture.firstName} ${global.OrderFixtureService.customerStorefrontFixture.lastName}`);
-        browser.expect.element(`${page.elements.userMetadata}-item`).to.have.text.that.contains(global.OrderFixtureService.customerStorefrontFixture.email);
-        browser.expect.element('.sw-order-detail-base__user-summary-data').to.have.text.that.contains(global.ProductFixtureService.productFixture.price.gross);
+        browser.expect.element('.sw-order-user-card__metadata-price').to.have.text.that.contains(global.ProductFixtureService.productFixture.price.gross);
         browser.expect.element('.sw-order-base__label-sales-channel').to.have.text.that.contains('Storefront API');
     },
     'verify line item details': (browser) => {

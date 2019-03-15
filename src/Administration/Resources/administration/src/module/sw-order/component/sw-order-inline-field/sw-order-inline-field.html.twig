@@ -1,0 +1,12 @@
+<div class = "sw-order-inline-field">
+
+    <slot v-if="editable">
+        <sw-confirm-field :value="value"
+            @input="onInput">
+
+        </sw-confirm-field>
+    </slot>
+    <span v-else >
+        {{ displayValue }}
+    </span>
+</div>

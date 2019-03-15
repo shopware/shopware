@@ -37,10 +37,14 @@ Component.register('sw-order-state-card-entry', {
         createdComponent() {
         },
         userDisplayName(user) {
+            let userString = '';
             if (user === null) {
-                return this.$tc('sw-order.stateCard.labelSystemUser');
+                userString = this.$tc('sw-order.stateCard.labelSystemUser');
+            } else {
+                userString = user.username;
             }
-            return user.username;
+
+            return `${this.$tc('sw-order.stateCard.labelLastEditedBy')} ${userString}`;
         },
         getIconFromState(stateName) {
             return this.stateStyleDataProviderService.getStyle(this.stateMachineName, stateName).icon;

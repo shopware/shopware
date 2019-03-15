@@ -7,6 +7,8 @@ $sw-order-state-select-rounded-list-background: $color-white;
 
 .sw-order-state-select{
 
+  padding-bottom: 21px;
+
   .sw-order-state-select__field {
     margin-bottom: 0;
     .sw-field__select {
@@ -32,11 +34,10 @@ $sw-order-state-select-rounded-list-background: $color-white;
 
     .sw-field__select {
       .sw-field__select-load-placeholder, select {
-        padding: 0 8px 0 14px;
+        padding: 0 30px 0 14px;
         border-radius: 15px;
         height: 32px;
         margin-bottom: 0;
-
       }
 
       select option {

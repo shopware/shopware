@@ -20,19 +20,10 @@ Component.register('sw-order-saveable-field', {
             required: false,
             default: null
         },
-        selectStore: {
-            required: false,
-            default: null
-        },
         editable: {
             type: Boolean,
             required: false,
             default: true
-        },
-        truncateable: {
-            type: Boolean,
-            required: false,
-            default: false
         }
     },
     data() {
@@ -41,16 +32,8 @@ Component.register('sw-order-saveable-field', {
             isLoading: false
         };
     },
-    computed: {
-        textClasses() {
-            if (this.truncateable) {
-                return 'truncateable';
-            }
-            return '';
-        }
-    },
     methods: {
-        onDoubleClick() {
+        onClick() {
             if (this.editable) {
                 this.isEditing = true;
             }
@@ -68,20 +51,11 @@ Component.register('sw-order-saveable-field', {
         },
         displayValue() {
             let retVal = '';
-            if (this.type === 'text') {
-                if (this.value) {
-                    retVal = this.value;
-                }
-            } else if (this.type === 'number') {
+            if (this.type === 'number') {
                 if (this.value !== null) {
                     retVal = this.value;
                 }
-            } else if (this.type === 'select') {
-                if (this.value) {
-                    retVal = this.value.name;
-                }
             }
-
             if (this.placeholder) {
                 retVal = this.placeholder;
             }

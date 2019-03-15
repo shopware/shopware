@@ -25,8 +25,8 @@ Component.register('sw-order-address-modal', {
     },
     data() {
         return {
-            currentlyShowing: 'edit',
-            availableAddresses: []
+            availableAddresses: [],
+            selectedAddressId: 0
         };
     },
     computed: {
@@ -35,8 +35,6 @@ Component.register('sw-order-address-modal', {
         }
     },
     created() {
-        this.currentAddress = this.address;
-
         this.customerStore.getByIdAsync(this.orderCustomer.customerId).then((customer) => {
             if (customer.isLocal) {
                 console.log('No Customer found');
@@ -48,14 +46,28 @@ Component.register('sw-order-address-modal', {
         });
     },
     methods: {
+        onNewActiveItem() {
+            this.selectedAddressId = 0;
+        },
+        addressButtonClasses(addressId) {
+            return `sw-order-address-modal__entry${addressId === this.selectedAddressId ?
+                ' sw-order-address-modal__entry__selected' : ''}`;
+        },
         onExistingAddressSelected(address) {
-            this.$emit('sw-address-modal-selected-address', address);
+            this.selectedAddressId = address.id;
         },
         onClose() {
             this.$emit('sw-address-modal-close');
         },
         onSave() {
-            this.$emit('sw-address-modal-save');
+            if (this.selectedAddressId !== 0) {
+                const address = this.availableAddresses.find((addr) => {
+                    return addr.id === this.selectedAddressId;
+                });
+                this.$emit('sw-address-modal-selected-address', address);
+            } else {
+                this.$emit('sw-address-modal-save');
+            }
         }
     }
 });

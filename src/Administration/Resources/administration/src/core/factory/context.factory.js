@@ -18,7 +18,8 @@ export default function createContext(context = {}) {
     if (isDevMode) {
         Object.assign(context, {
             systemLanguageId: '20080911ffff4fffafffffff19830531',
-            defaultLanguageIds: ['20080911ffff4fffafffffff19830531', '00e84bd18c574a6ca748ac0db17654dc']
+            defaultLanguageIds: ['20080911ffff4fffafffffff19830531', '00e84bd18c574a6ca748ac0db17654dc'],
+            liveVersionId: '20080911ffff4fffafffffff19830531'
         });
     }
 

@@ -1,0 +1,25 @@
+.cart-item {
+    margin: 0;
+    padding: 10px 0;
+    border-bottom: 1px solid $border-color;
+
+    &:last-child {
+        border-bottom: 0;
+    }
+}
+
+.cart-item-img {
+    padding: $spacer-xs;
+    border: 1px solid $border-color;
+    border-radius: $border-radius;
+}
+
+.cart-item-label {
+    color: $gray-600;
+    font-weight: $font-weight-bold;
+
+    &:hover {
+        color: $gray-600;
+        text-decoration: none;
+    }
+}

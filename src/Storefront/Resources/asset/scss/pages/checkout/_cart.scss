@@ -3,6 +3,10 @@
     margin-bottom: $spacer-lg;
 }
 
+.checkout-main {
+    margin-bottom: $spacer-lg;
+}
+
 .cart-main-header {
     margin-bottom: $spacer-lg;
 }
@@ -28,16 +32,6 @@ $cart-grid-gutter-width: $spacer-sm;
         padding-right: $cart-grid-gutter-width / 2;
         padding-left: $cart-grid-gutter-width / 2;
     }
-}
-
-// cart item
-.cart-item {
-    margin-bottom: $spacer;
-}
-
-.cart-item-img-container {
-    max-width: 70px;
-    max-height: 70px;
 }
 
 .cart-item-unit-price,

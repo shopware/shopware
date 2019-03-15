@@ -5,91 +5,97 @@
 {% endblock %}
 
 {% block base_utilities_offcanvas_content %}
-    {% block base_cart_mini %}
-        <div class="cart-mini">
-            {% set isCartNotEmpty = (page.cart.lineItems|length > 0) %}
+	{% block base_cart_mini %}
+		<div class="cart-mini">
+			{% set isCartNotEmpty = (page.cart.lineItems|length > 0) %}
 
-            {% if isCartNotEmpty %}
-                {% for lineItem in page.cart.lineItems %}
-                    {% block base_cart_mini_item %}
-                        <div class="cart-item">
-                            {% block base_cart_mini_item_image %}
-                                <div class="cart-item-image">
-                                    <img srcset="{{ lineItem.cover.url }}"
-                                         alt="{{ lineItem.label }}" title="{{ lineItem.label }}">
-                                </div>
-                            {% endblock %}
-                            {% block base_cart_mini_item_actions %}
-                                {% if lineItem.isRemovable() %}
-                                    <form class="cart-item-remove"
-                                          action="{{ path('storefront-api.checkout.cart.line-item.delete', {'version': 1, 'id': lineItem.key}) }}"
-                                          method="post"
-                                          data-remove-product="true">
-                                        <button type="submit"
-                                                title="{{ "checkout.removeLineItem"|trans }}"
-                                                class="btn btn-light">X {# @TODO: add icon here #}
-                                        </button>
-                                    </form>
-                                {% endif %}
-                            {% endblock %}
-                            {% block base_cart_mini_item_link %}
-                                <a href="{{ path('frontend.detail.page', {'productId': lineItem.key}) }}" class="cart-item-link">
-                                    {% block base_cart_mini_item_quantity %}
-                                        <span class="cart-item-link-quantity">{{ lineItem.quantity }}{{ "checkout.quantityTimes"|trans }}</span>
-                                    {% endblock %}
-                                    {% block base_cart_mini_item_name %}
-                                        <span class="cart-item-link-name">{{ lineItem.label }}</span>
-                                    {% endblock %}
-                                    {% block base_cart_mini_item_price %}
-                                        <span class="cart-item-link-price">{{ lineItem.price.totalPrice|localizedcurrency('EUR', app.request.locale) }}{{ "general.star"|trans }}</span> {# @TODO CURRENCY FORMAT DEPENDING ON SELECTED CURRENCY AND LOCALE#}
-                                    {% endblock %}
-                                </a>
-                            {% endblock %}
-                        </div>
-                    {% endblock %}
-                {% endfor %}
-            {% else %}
-                {% block base_cart_mini_cart_empty %}
-                    <div class="cart-item is-empty">{{ "checkout.emptyCart"|trans }}</div>
-                {% endblock %}
-            {% endif %}
+			{% if isCartNotEmpty %}
+				{% for lineItem in page.cart.lineItems %}
+					{% block base_cart_mini_item %}
+						<div class="cart-item">
+							{% block base_cart_mini_item_image %}
+								<div class="cart-item-image">
+									<img srcset="{{ lineItem.cover.url }}"
+									     alt="{{ lineItem.label }}"
+									     title="{{ lineItem.label }}">
+								</div>
+							{% endblock %}
+							{% block base_cart_mini_item_actions %}
+								{% if lineItem.isRemovable() %}
+									<form class="cart-item-remove"
+									      action="{{ path('storefront-api.checkout.cart.line-item.delete', {'version': 1, 'id': lineItem.key}) }}"
+									      method="post"
+									      data-remove-product="true">
+										<button type="submit"
+										        title="{{ "checkout.removeLineItem"|trans }}"
+										        class="btn btn-light">
+											<i class="fas fa-times"></i>
+										</button>
+									</form>
+								{% endif %}
+							{% endblock %}
+							{% block base_cart_mini_item_link %}
+								<a href="{{ path('frontend.detail.page', {'productId': lineItem.key}) }}"
+								   class="cart-item-link">
+									{% block base_cart_mini_item_quantity %}
+										<span class="cart-item-link-quantity">{{ lineItem.quantity }}{{ "checkout.quantityTimes"|trans }}</span>
+									{% endblock %}
+									{% block base_cart_mini_item_name %}
+										<span class="cart-item-link-name">{{ lineItem.label }}</span>
+									{% endblock %}
+									{% block base_cart_mini_item_price %}
+										<span class="cart-item-link-price">{{ lineItem.price.totalPrice|localizedcurrency('EUR', app.request.locale) }}{{ "general.star"|trans }}</span> {# @TODO CURRENCY FORMAT DEPENDING ON SELECTED CURRENCY AND LOCALE#}
+									{% endblock %}
+								</a>
+							{% endblock %}
+						</div>
+					{% endblock %}
+				{% endfor %}
+			{% else %}
+				{% block base_cart_mini_cart_empty %}
+					<div class="cart-item is--empty">{{ "checkout.emptyCart"|trans }}</div>
+				{% endblock %}
+			{% endif %}
 
-            {% if isCartNotEmpty %}
-                {% block base_cart_mini_cart_prices %}
-                    <div class="cart-prices">
-                        <span class="cart-prices-text">{{ "checkout.subtotalAmount"|trans }}</span>
-	                    {# @TODO CURRENCY FORMAT DEPENDING ON SELECTED CURRENCY AND LOCALE#}
-                        <span class="cart-prices-subtotal">{{ page.cart.price.positionPrice|localizedcurrency('EUR', app.request.locale) }}</span>
-                    </div>
-                {% endblock %}
+			{% if isCartNotEmpty %}
+				{% block base_cart_mini_cart_prices %}
+					<div class="cart-prices">
+						<span class="cart-prices-text">{{ "checkout.subtotalAmount"|trans }}</span>
+						{# @TODO CURRENCY FORMAT DEPENDING ON SELECTED CURRENCY AND LOCALE#}
+						<span class="cart-prices-subtotal">{{ page.cart.price.positionPrice|localizedcurrency('EUR', app.request.locale) }}</span>
+					</div>
+				{% endblock %}
 
-                {% block base_cart_mini_cart_tax_info %}
-                    <p class="cart-tax">
-                        {% if page.cart.price.taxStatus == "gross" %}
-                            {{ "general.grossTaxInformation"|trans }}
-                        {% else %}
-                            {{ "general.netTaxInformation"|trans }}
-                        {% endif %}
-                    </p>
-                {% endblock %}
-            {% endif %}
+				{% block base_cart_mini_cart_tax_info %}
+					<p class="cart-tax">
+						{% if page.cart.price.taxStatus == "gross" %}
+							{{ "general.grossTaxInformation"|trans }}
+						{% else %}
+							{{ "general.netTaxInformation"|trans }}
+						{% endif %}
+					</p>
+				{% endblock %}
+			{% endif %}
 
-            {% block base_cart_mini_cart_actions %}
-                <div class="cart-actions">
-                    {% block base_cart_mini_cart_actions_checkout %}
-                        <a href="{{ path('frontend.checkout.confirm.page') }}" class="btn btn-block {% if isCartNotEmpty %}btn-primary{% else %}btn-light disabled{% endif %}"
-                           title="{{ "checkout.proceedToCheckout"|trans }}">
-                            {{ "checkout.proceedToCheckout"|trans }}
-                        </a>
-                    {% endblock %}
+			{% block base_cart_mini_cart_actions %}
+				<div class="cart-actions">
+					{% block base_cart_mini_cart_actions_checkout %}
+						<a href="{{ path('frontend.checkout.confirm.page') }}"
+						   class="btn btn-block {% if isCartNotEmpty %}btn-primary{% else %}btn-light disabled{% endif %}"
+						   title="{{ "checkout.proceedToCheckout"|trans }}">
+							{{ "checkout.proceedToCheckout"|trans }}
+						</a>
+					{% endblock %}
 
-                    {% block base_cart_mini_cart_actions_cart %}
-                        <a href="{{ path('frontend.checkout.cart.page') }}" class="btn btn-block btn-light" title="{{ "checkout.proceedToCart"|trans }}">
-                            {{ "checkout.proceedToCart"|trans }}
-                        </a>
-                    {% endblock %}
-                </div>
-            {% endblock %}
-        </div>
-    {% endblock %}
+					{% block base_cart_mini_cart_actions_cart %}
+						<a href="{{ path('frontend.checkout.cart.page') }}"
+						   class="btn btn-block btn-light"
+						   title="{{ "checkout.proceedToCart"|trans }}">
+							{{ "checkout.proceedToCart"|trans }}
+						</a>
+					{% endblock %}
+				</div>
+			{% endblock %}
+		</div>
+	{% endblock %}
 {% endblock %}

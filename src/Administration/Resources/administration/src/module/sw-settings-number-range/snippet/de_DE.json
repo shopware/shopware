@@ -14,7 +14,7 @@
       "contextMenuEdit": "Bearbeiten",
       "modalTitleDelete": "Nummernkreis löschen",
       "titleDeleteSuccess": "Erfolg",
-      "messageDeleteSuccess": "Nummernkreis \"{name}\" wurde erfolgreich gelöscht.",
+      "messageDeleteSuccess": "Der Nummernkreis \"{name}\" wurde erfolgreich gelöscht.",
       "buttonCancel": "Abbrechen",
       "buttonDelete": "Löschen",
       "global": "Global"
@@ -24,7 +24,7 @@
       "configCard": "Einstellungen",
       "assignmentCard": "Zuweisung",
       "titleSaveSuccess": "Erfolg",
-      "messageSaveSuccess": "Nummernkreis \"{name}\" wurde erfolgreich gespeichert.",
+      "messageSaveSuccess": "Der Nummernkreis \"{name}\" wurde erfolgreich gespeichert.",
       "labelName": "Name",
       "labelDescription": "Beschreibung",
       "labelPrefix": "Präfix",
@@ -33,20 +33,20 @@
       "labelStart": "Startnummer",
       "labelCurrentNumber": "Aktuelle Nummer",
       "labelPreview": "Vorschau",
-      "labelAdvanced": "Erweitert",
+      "labelAdvanced": "Erweiterter Modus",
       "labelType": "Typ",
       "labelSalesChannel": "Verkaufskanal",
-      "placeholderName": "Namen eingeben...",
-      "placeholderDescription": "Beschreibung eingeben...",
-      "placeholderPrefix": "Präfix eingeben...",
-      "placeholderSuffix": "Suffix eingeben...",
-      "placeholderPattern": "Pattern eingeben: \"prefix_{n}_suffix\"",
-      "placeholderStart": "Startnumner eingeben...",
-      "placeholderPleaseSelect": "Bitte wählen...",
-      "placeholderSimpleModeImpossible": "Einfacher Modus nicht möglich",
+      "placeholderName": "Namen eingeben ...",
+      "placeholderDescription": "Beschreibung eingeben ...",
+      "placeholderPrefix": "Präfix eingeben ...",
+      "placeholderSuffix": "Suffix eingeben ...",
+      "placeholderPattern": "Pattern eingeben ... \"prefix_{n}_suffix\"",
+      "placeholderStart": "Startnummer eingeben ...",
+      "placeholderPleaseSelect": "Bitte wählen ...",
+      "placeholderSimpleModeImpossible": "Erweiterter Modus aktiv",
       "buttonCancel": "Abbrechen",
       "buttonSave": "Speichern",
-      "helpTextAdvancedField": "Wechsle zur erweiterten Pattern Definition.<br/>Verfügbare Pattern:<br/>&#x007B;n&#x007D;: Inkrement - Eine inkrementierende Zahl.<br/>&#x007B;date&#x007D;: Datum - Das Datum im internationalen Format.<br/>&#x007B;date_ymd&#x007D;: formatiertes Datum - Das Datum mit vorgegebenem Format"
+      "helpTextAdvancedField": "Erweiterte Pattern-Definition: <br/>&#x007B;Präfix&#x007D;_&#x007B;n&#x007D_&#x007B;Suffix&#x007D;<br/>'n' entspricht der definierten Startnummer<br/>('_' ist ein beliebiges Trennzeichen)<br/><br/>Verwendung von 'date' (PHP-Parameter): <br/>&#x007B;date&#x007D;:<br/>Internationales Datums-Format (YYYY-MM-DD)<br/>&#x007B;date_dmy&#x007D;:<br/>Benutzerdefiniertes Datums-Format (DD-MM-YY)<br/><br/>usw."
     }
   }
 }

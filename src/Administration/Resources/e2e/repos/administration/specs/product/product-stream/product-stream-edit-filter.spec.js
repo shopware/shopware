@@ -28,7 +28,6 @@ module.exports = {
 
         browser
             .waitForElementPresent('.sw-sidebar__navigation .sw-sidebar-navigation-item')
-            .click('.sw-sidebar__navigation .sw-sidebar-navigation-item')
             .clickContextMenuItem('.sw_product_stream_list__edit-action', page.elements.contextMenuButton, `${page.elements.gridRow}--0`)
             .waitForElementNotPresent(page.elements.loader)
             .expect.element(page.elements.smartBarHeader).to.have.text.that.contains('1st product stream');
@@ -116,7 +115,7 @@ module.exports = {
             inputName: 'sw-field--actualCondition-value',
             operator: 'Not equals',
             ruleSelector: `${page.elements.conditionOrContainer}--1 ${page.elements.conditionAndContainer}--1`,
-            value: '0'
+            value: '10'
         });
     },
     'create or-filter in this subcondition with sale unit': (browser) => {
@@ -125,15 +124,38 @@ module.exports = {
         browser
             .click(`${page.elements.conditionOrContainer}--1 ${page.elements.conditionAndContainer}--1 .sw-condition-or-container__actions--or`)
             .waitForElementVisible(`${page.elements.conditionOrContainer}--1 ${page.elements.orSpacer}`);
+
+        page.createBasicInputCondition({
+            type: 'Sales',
+            inputName: 'sw-field--actualCondition-value',
+            operator: 'Not equals',
+            ruleSelector: `${page.elements.conditionOrContainer}--1 ${page.elements.conditionAndContainer}--1 ${page.elements.conditionOrContainer}--1`,
+            value: '10'
+        });
     },
     'delete this rule': (browser) => {
+        const page = productStreamPage(browser);
 
+        browser
+            .getLocationInView(
+                '.sw-product-stream-detail__condition_container'
+            )
+            .clickContextMenuItem(
+                '.sw-context-menu-item--danger',
+                page.elements.contextMenuButton,
+                `${page.elements.conditionOrContainer}--1 ${page.elements.conditionAndContainer}--1 ${page.elements.conditionOrContainer}--1`
+            )
+            .waitForElementNotPresent(`${page.elements.conditionOrContainer}--1 ${page.elements.conditionOrContainer}--1 ${page.elements.baseCondition}`);
     },
     'delete the first subcondition': (browser) => {
+        const page = productStreamPage(browser);
 
+        browser
+            .click(`${page.elements.conditionOrContainer}--1 button.sw-button.sw-condition-and-container__actions--delete`)
+            .waitForElementNotPresent(`${page.elements.conditionOrContainer}--1 ${page.elements.subConditionContainer}`);
     },
     'delete all containers': (browser) => {
-
+        browser.click('.sw-condition-and-container__actions--delete');
     },
     after: (browser) => {
         browser.end();

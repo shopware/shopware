@@ -1,5 +1,5 @@
 {% block sw_side_navigation_item %}
-    <a class="sw-tabs-item" :class="tabsItemClasses" v-if="isNative" @click="clickEvent">
+    <a class="sw-tabs-item" :class="tabsItemClasses" v-if="isNative" @click="clickEvent" v-bind="$attrs">
         {% block sw_tabs_item_slot %}
             <slot></slot>
         {% endblock %}

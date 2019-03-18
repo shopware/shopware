@@ -18,7 +18,6 @@ class CartTransformer
             'price' => $cart->getPrice(),
             'shippingCosts' => $cart->getShippingCosts(),
             'stateId' => $stateId,
-            'paymentMethodId' => $context->getPaymentMethod()->getId(),
             'currencyId' => $currency->getId(),
             'currencyFactor' => $currency->getFactor(),
             'salesChannelId' => $context->getSalesChannel()->getId(),

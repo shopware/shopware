@@ -242,17 +242,18 @@ class OrderConverter
             $customerGroupId = $customer->getGroupId() ?? null;
         }
 
-        return $this->checkoutContextFactory->create(
-            Uuid::uuid4()->getHex(),
-            $order->getSalesChannelId(),
-            [
-                CheckoutContextService::CURRENCY_ID => $order->getCurrencyId(),
-                CheckoutContextService::PAYMENT_METHOD_ID => $order->getPaymentMethodId(),
-                CheckoutContextService::CUSTOMER_ID => $customerId,
-                CheckoutContextService::STATE_ID => $order->getStateId(),
-                CheckoutContextService::CUSTOMER_GROUP_ID => $customerGroupId,
-            ]
-        );
+        $options = [
+            CheckoutContextService::CURRENCY_ID => $order->getCurrencyId(),
+            CheckoutContextService::CUSTOMER_ID => $customerId,
+            CheckoutContextService::STATE_ID => $order->getStateId(),
+            CheckoutContextService::CUSTOMER_GROUP_ID => $customerGroupId,
+        ];
+
+        if ($order->getTransactions()) {
+            $options[CheckoutContextService::PAYMENT_METHOD_ID] = $order->getTransactions()->first()->getPaymentMethodId();
+        }
+
+        return $this->checkoutContextFactory->create(Uuid::uuid4()->getHex(), $order->getSalesChannelId(), $options);
     }
 
     private function convertDeliveries(OrderDeliveryCollection $orderDeliveries, LineItemCollection $lineItems): DeliveryCollection

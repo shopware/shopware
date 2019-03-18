@@ -75,17 +75,18 @@ abstract class StorefrontController extends AbstractController
     protected function handleRedirectTo(string $url): RedirectResponse
     {
         $parsedUrl = parse_url(urldecode($url));
-        if (array_key_exists('host', $parsedUrl)) {
-            throw new \RuntimeException('Absolute URLs are prohibited for the redirectTo parameter.');
-        }
-
         $redirectUrl = $parsedUrl['path'];
+
         if (array_key_exists('query', $parsedUrl)) {
             $redirectUrl .= '?' . $parsedUrl['query'];
         }
 
         if (array_key_exists('fragment', $parsedUrl)) {
             $redirectUrl .= '#' . $parsedUrl['query'];
+        }
+
+        if (array_key_exists('host', $parsedUrl)) {
+            throw new \RuntimeException('Absolute URLs are prohibited for the redirectTo parameter.');
         }
 
         return $this->redirect($redirectUrl);

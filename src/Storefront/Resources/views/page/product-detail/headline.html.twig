@@ -19,7 +19,7 @@
 					   title="{{ page.product.manufacturer.name|e }}">
 						{% if page.product.manufacturer.media %}
 							{% block page_product_detail_manufacturer_logo %}
-								<img src="{$sArticle.supplierImg}"
+								<img src="{{ page.product.manufacturer.media.url }}"
 								     class="product-detail-manufacturer-logo"
 								     alt="{{ page.product.manufacturer.name|e }}"/>
 							{% endblock %}

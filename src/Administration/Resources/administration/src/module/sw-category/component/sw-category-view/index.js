@@ -39,12 +39,6 @@ Component.register('sw-category-view', {
         };
     },
 
-    watch: {
-        category() {
-            this.getList();
-        }
-    },
-
     computed: {
         productStore() {
             return State.getStore('product');
@@ -55,15 +49,7 @@ Component.register('sw-category-view', {
         }
     },
 
-    created() {
-        this.componentCreated();
-    },
-
     methods: {
-        componentCreated() {
-            this.getList();
-        },
-
         getList() {
             this.isLoadingProducts = true;
             const params = this.getListingParams();

@@ -22,8 +22,7 @@ Component.register('sw-category-detail', {
             isMobileViewport: null,
             splitBreakpoint: 1024,
             isDisplayingLeavePageWarning: false,
-            nextRoute: null,
-            searchQuery: null
+            nextRoute: null
         };
     },
 

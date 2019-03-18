@@ -20,11 +20,6 @@ Component.register('sw-category-tree', {
             type: [Object, null],
             required: false,
             default: null
-        },
-
-        searchQuery: {
-            type: String,
-            required: false
         }
     },
 
@@ -34,7 +29,8 @@ Component.register('sw-category-tree', {
             linkContext: 'sw.category.detail',
             currentEditCategory: null,
             item: null,
-            activeTreeItemId: ''
+            activeTreeItemId: '',
+            loadedParentIds: []
         };
     },
 
@@ -53,7 +49,9 @@ Component.register('sw-category-tree', {
     watch: {
         activeCategory() {
             if (this.activeCategory && this.activeCategory.id) {
-                this.openTreeById();
+                if (!this.loadedParentIds.includes(this.activeCategory.parentId)) {
+                    this.openTreeById();
+                }
             }
         }
     },
@@ -125,26 +123,29 @@ Component.register('sw-category-tree', {
                 return;
             }
 
-            this.getItemById(this.activeCategory.id).then((category) => {
-                if (!category.path) {
-                    return;
-                }
-                const parentPath = category.path;
-                if (!parentPath) {
-                    return;
-                }
-                let parentIds = parentPath.split('|').reverse();
-                parentIds = parentIds.filter((parent) => {
-                    return parent !== '';
-                });
-                this.getParentItems(parentIds);
+            const category = this.activeCategory;
+
+            if (!category.path) {
+                return;
+            }
+
+            const parentPath = category.path;
+            if (!parentPath) {
+                return;
+            }
+
+            let parentIds = parentPath.split('|').reverse();
+            parentIds = parentIds.filter((parent) => {
+                return parent !== '';
             });
+
+            this.getParentItems(parentIds);
         },
 
         getParentItems(ids) {
             const promises = [];
-
             ids.forEach((id) => {
+                this.loadedParentIds.push(id);
                 promises.push(this.getChildrenFromParent(id));
             });
 

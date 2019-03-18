@@ -3,10 +3,10 @@
 $sw-product-variants-configurator-selection-overlay: rgba(255, 255, 255, 0.8);
 $sw-product-variants-configurator-selection-text-color: $color-gutenberg;
 
-.sw-property-search__toolbar.sw-product-variants-configurator-selection__toolbar {
+.sw-product-detail-variants .sw-property-search .sw-property-search__toolbar.sw-product-variants-configurator-selection__toolbar {
     border-bottom: 1px solid #D8DDE6;
-    margin-bottom: 0px !important;
-    padding-bottom: 30px !important;
+    margin-bottom: 0px;
+    padding-bottom: 30px;
 }
 
 .generate-variant-progress-bar__wrapper {

@@ -31,8 +31,26 @@ Component.extend('sw-product-variants-configurator-selection', 'sw-property-sear
     },
 
     created() {
-        this.createdComponent();
-        this.createdComponentHookAfter();
+        this.$super.createdComponent();
+
+        const loader = new StoreLoader();
+        loader.loadAll(this.configuratorStore);
+
+        this.variantsGenerator.on('warning', (number) => {
+            this.warningModalNumber = number;
+            this.warningModal = true;
+            this.isLoading = false;
+        });
+
+        this.variantsGenerator.on('maxProgressChange', (maxProgress) => {
+            this.maxProgress = maxProgress.progress;
+            this.progressType = maxProgress.type;
+        });
+
+        this.variantsGenerator.on('actualProgressChange', (actualProgress) => {
+            this.actualProgress = actualProgress.progress;
+            this.progressType = actualProgress.type;
+        });
     },
 
     computed: {
@@ -63,27 +81,6 @@ Component.extend('sw-product-variants-configurator-selection', 'sw-property-sear
     },
 
     methods: {
-        createdComponentHookAfter() {
-            const loader = new StoreLoader();
-            loader.loadAll(this.configuratorStore);
-
-            this.variantsGenerator.on('warning', (number) => {
-                this.warningModalNumber = number;
-                this.warningModal = true;
-                this.isLoading = false;
-            });
-
-            this.variantsGenerator.on('maxProgressChange', (maxProgress) => {
-                this.maxProgress = maxProgress.progress;
-                this.progressType = maxProgress.type;
-            });
-
-            this.variantsGenerator.on('actualProgressChange', (actualProgress) => {
-                this.actualProgress = actualProgress.progress;
-                this.progressType = actualProgress.type;
-            });
-        },
-
         generateVariants(forceGenerating) {
             this.isLoading = true;
 

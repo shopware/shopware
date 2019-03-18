@@ -20,6 +20,7 @@ export default class VariantsGenerator extends EventEmitter {
         this.configuratorStore = this.product.getAssociation('configurators');
         this.languageId = null;
         this.productStore = this.State.getStore('product');
+        this.languageStore = this.State.getStore('language');
     }
 
     // functions
@@ -139,47 +140,42 @@ export default class VariantsGenerator extends EventEmitter {
     }
 
     groupTheOptions(configurators) {
-        const groupedData = {};
-
-        configurators.forEach((configurator) => {
+        const groupedData = Object.values(configurators.store).reduce((accumulator, configurator) => {
             if (configurator.isDeleted) {
-                return;
+                return accumulator;
             }
 
-            let option = configurator.option;
-            if (configurator.internalOption) {
-                option = configurator.internalOption;
-            }
-
+            const option = configurator.internalOption ? configurator.internalOption : configurator.option;
             const groupId = option.groupId;
-            const grouped = groupedData[groupId];
+            const grouped = accumulator[groupId];
 
             if (grouped) {
                 grouped.push(option.id);
-                return;
+                return accumulator;
             }
 
-            groupedData[groupId] = [option.id];
-        });
+            accumulator[groupId] = [option.id];
+
+            return accumulator;
+        }, {});
 
         return Object.values(groupedData);
     }
 
-    buildCombinations(data, group = [], val = null, i = 0) {
+    buildCombinations(data, group = [], value = null, index = 0) {
         const all = [];
 
-        if (val !== null) {
-            group.push(val);
+        if (value !== null) {
+            group.push(value);
         }
 
-        if (i >= data.length) {
+        if (index >= data.length) {
             all.push(group);
             return all;
         }
 
-        data[i].forEach((v) => {
-            const x = i + 1;
-            const nested = this.buildCombinations(data, group.slice(), v, x);
+        data[index].forEach((entryValue) => {
+            const nested = this.buildCombinations(data, group.slice(), entryValue, index + 1);
 
             nested.forEach((nestedItem) => {
                 all.push(nestedItem);
@@ -211,10 +207,6 @@ export default class VariantsGenerator extends EventEmitter {
     }
 
     getLanguageId() {
-        if (this.languageId === null) {
-            const store = this.State.getStore('language');
-            this.languageId = store.getCurrentId();
-        }
-        return this.languageId;
+        return this.languageStore.getCurrentId();
     }
 }

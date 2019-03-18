@@ -34,12 +34,6 @@ Component.register('sw-product-variants-overview', {
             return State.getStore('product');
         },
 
-        fieldPriceClasses() {
-            return {
-                'sw-product-variants-overview__grid--priceField--edit': this.priceEdit
-            };
-        },
-
         variantColumns() {
             return this.getVariantColumns();
         }
@@ -58,7 +52,7 @@ Component.register('sw-product-variants-overview', {
             this.priceEdit = value;
         },
 
-        async getList() {
+        getList() {
             this.isLoading = true;
             const params = this.getListingParams();
 
@@ -84,7 +78,7 @@ Component.register('sw-product-variants-overview', {
             ];
 
             delete params.term;
-            await this.variantStore.getList(params).then((res) => {
+            this.variantStore.getList(params).then((res) => {
                 this.total = res.total;
                 this.variantList = res.items;
                 this.isLoading = false;
@@ -100,14 +94,8 @@ Component.register('sw-product-variants-overview', {
             const queries = [];
 
             terms.forEach((term) => {
-                // queries.push({
-                //     query: {
-                //         type: 'equals',
-                //         field: 'product.productNumber',
-                //         value: term
-                //     },
-                //     score: 5000
-                // });
+                // todo: add queries for the other fields
+
                 queries.push({
                     query: {
                         type: 'equals',
@@ -116,15 +104,6 @@ Component.register('sw-product-variants-overview', {
                     },
                     score: 3500
                 });
-
-                // queries.push({
-                //     query: {
-                //         type: 'contains',
-                //         field: 'product.productNumber',
-                //         value: term
-                //     },
-                //     score: 500
-                // });
 
                 queries.push({
                     query: {

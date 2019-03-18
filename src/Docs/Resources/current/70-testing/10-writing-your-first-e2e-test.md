@@ -14,7 +14,7 @@ This way, `init` will set up your Shopware installation, the administration will
 Now, it's time to start writing your first test! Your starting point is creating a folder in `/e2e/repos/administration/specs/` and if needed, creating a new directory for the area you want to test. 
 For example, let's assume you want to test if the dashboard can be opened. So we create a directory with the name `dashboard`.
 
-After that, you create the file which will contain your test, e.g. `overview-open.spec.js`. For details about the structure of spec files, you can read the corresponding section "Spec files: Test suite structure"  of the in-depth [guide](../70-testing/20-e2e-nightwatch-tests-in-detail.md).
+After that, you create the file which will contain your test, e.g. `overview-open.spec.js`. For details about the structure of spec files, you can read the corresponding section "Spec files: Test suite structure"  of the in-depth [guide](20-e2e-nightwatch-tests-in-detail.md).
 
 Have you noticed the tags? These tags ensure the ability to run a single test as well as specific groups of test suites.: `'@tags': ['dashboard','overview-opem', 'open'],` 
 You should define these tags from abstract to detail, including a tag which makes the execution of the single test possible. An example of this can be found in `create-manufacturer.spec.js`:
@@ -58,7 +58,7 @@ after: (browser) => {
 This after-Hook is used to end the browser after running our tests. It will be executed after our tests are finished. On top of that, the login to Shopware and other steps are executed in the global `beforeEach` hook, 
 so you don't have to bother yourself with these necessary but redundant steps when writing new tests.
 
-You will find more detailed information about those lifecycle hooks in the corresponding paragraph "Test hooks in detail" of the in-depth [guide](../70-testing/20-e2e-nightwatch-tests-in-detail.md).
+You will find more detailed information about those lifecycle hooks in the corresponding paragraph "Test hooks in detail" of the in-depth [guide](20-e2e-nightwatch-tests-in-detail.md).
 
 ## Finally: Running our first test
 

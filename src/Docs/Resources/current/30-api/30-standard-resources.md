@@ -2,7 +2,7 @@
 [titleEn]: <>(['Standard Resources'])
 All standard resources follow the same schema. There are only a few
 exceptions not following this schema. They are documented under [Special
-Resources](./40-special-resources.md).
+Resources](40-special-resources.md).
 The API is versioned by adding a version string to the query path.
 Currently, the only available version is **v1**.
 

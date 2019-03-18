@@ -169,7 +169,7 @@ This is the corresponding template:
 ```
 This will render the following config form:
 
-![Swag Radio Config](./img/210-swag-radio-config.png)
+![Swag Radio Config](img/210-swag-radio-config.png)
 
 ## Implement the component for rendering the new type in the administration
 The next step is to create the component which will be rendered on the entity detail pages. The radio button is a very basic example component.
@@ -252,7 +252,7 @@ And the corresponding template:
 </div>
 ```
 And now the new attribute type can be rendered on the entity pages:
-![Swag Radio Config](./img/210-swag-radio-renderer.png)
+![Swag Radio Config](img/210-swag-radio-renderer.png)
 
 ## Download
 Here you can *Download Link Here* the Plugin.

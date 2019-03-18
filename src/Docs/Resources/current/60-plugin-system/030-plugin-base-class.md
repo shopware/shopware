@@ -14,7 +14,7 @@ custom
 ```
 *File Structure*
 
-Read more about the `composer.json` file [here](./050-plugin-information.md).
+Read more about the `composer.json` file [here](050-plugin-information.md).
 
 ## Base Class
 Your plugin base class is used, to configure your plugin and manage plugin lifecycle events such as `update` and `install`.

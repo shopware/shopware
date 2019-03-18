@@ -16,9 +16,9 @@ A definition provides the following information:
 - What is the name?
 - Which fields are available?
 - Which PHP classes belong to the definition? (Struct & Collection)
-- Does this definition support [translations](./9-translations.md)?
+- Does this definition support [translations](9-translations.md)?
 - Does this definition support inheritance?
-- Does this definition support the [parent/child concept](./10-parent-child.md)?
+- Does this definition support the [parent/child concept](10-parent-child.md)?
 - Does this definition support data versions?
 
 ## Basic configuration
@@ -53,7 +53,7 @@ protected static function defineFields(): FieldCollection
 
 The method should return a new `FieldCollection` containing all fields and association fields for the definition. The fields should match the columns in your storage and your primary key should be flagged using the `PrimaryKey` flag.
 
-A full list of available fields can be found in the [Types guide](./2-types.md).
+A full list of available fields can be found in the [Types guide](2-types.md).
 
 ### Register your definition
 

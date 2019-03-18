@@ -10,7 +10,7 @@ Flags are attributes to a field in a definition. They provide additional informa
 |---|---|
 | PrimaryKey | The field is part of the primary key for this entity |
 | WriteProtected | Writing to this field is only allowed if the configured context is given |
-| Deferred | The value of the field won't be hydrated by the DataAbstractionLayer and must be filled in manually via [extensions](./4-extensions.md). |
+| Deferred | The value of the field won't be hydrated by the DataAbstractionLayer and must be filled in manually via [extensions](4-extensions.md). |
 | Extension | The value of the field will be handled as an extension and gets a data struct in the main struct. |
 | Required | The field is required when creating the entity. |
 | Inherited | The field is part of the parent/child concept and may receive the value of its parent. |
@@ -26,7 +26,7 @@ Flags are attributes to a field in a definition. They provide additional informa
 
 ## Using flags
 
-You have to add the flags to fields in your definition in order to use them. You can even modify the field's flags by creating [definition extensions](./4-extensions.md).
+You have to add the flags to fields in your definition in order to use them. You can even modify the field's flags by creating [definition extensions](4-extensions.md).
 
 ```php
 (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required())

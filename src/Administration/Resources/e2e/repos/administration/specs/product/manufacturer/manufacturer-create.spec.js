@@ -48,7 +48,14 @@ module.exports = {
             })
             .waitForElementPresent('.smart-bar__actions a[href="#/sw/product/create"]')
             .click('.smart-bar__actions a[href="#/sw/product/create"]')
-            .fillSelectField('select[name=sw-field--product-manufacturerId]', 'MAN-U-FACTURE');
+            .waitForElementPresent('.sw-select-product__select_manufacturer')
+            .fillSwSelectComponent(
+                '.sw-select-product__select_manufacturer',
+                {
+                    value: 'MAN-U-FACTURE',
+                    searchTerm: 'MAN-U-FACTURE'
+                }
+            );
     },
     after: (browser) => {
         browser.end();

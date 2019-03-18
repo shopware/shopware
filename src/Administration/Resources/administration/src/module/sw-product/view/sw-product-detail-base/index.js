@@ -10,10 +10,9 @@ Component.register('sw-product-detail-base', {
             required: true,
             default: {}
         },
-        manufacturers: {
-            type: Array,
-            required: true,
-            default: []
+        manufacturerStore: {
+            type: Object,
+            required: true
         },
         taxes: {
             type: Array,

@@ -10,6 +10,7 @@ module.exports = {
         const page = mediaPage(browser);
 
         browser
+            .waitForElementNotPresent(page.elements.loader)
             .click('.sw-media-upload__button-context-menu')
             .click('.sw-media-upload__button-url-upload')
             .waitForElementVisible('.sw-media-url-form')

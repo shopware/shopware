@@ -32,6 +32,7 @@ module.exports = {
         page.openMediaIndex();
 
         browser
+            .waitForElementNotPresent(page.elements.loader)
             .waitForElementVisible(`${page.elements.gridItem}--0`)
             .click(`${page.elements.gridItem}--0`)
             .expect.element('.sw-media-sidebar__headline').to.have.text.that.equals('Manufacturer Media');

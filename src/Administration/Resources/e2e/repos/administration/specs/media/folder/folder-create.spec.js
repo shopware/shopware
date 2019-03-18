@@ -17,16 +17,6 @@ module.exports = {
             .clickContextMenuItem(page.elements.showMediaAction, page.elements.contextMenuButton, `${page.elements.gridItem}--0`)
             .expect.element('.smart-bar__header').to.have.text.that.equals(global.MediaFixtureService.mediaFolderFixture.name);
     },
-    'navigate back and go in with a click': (browser) => {
-        const page = mediaPage(browser);
-
-        browser
-            .click('.sw-media-library__parent-folder')
-            .expect.element(`${page.elements.gridItem}--0 ${page.elements.baseItemName}`).to.have.text.that.equals(global.MediaFixtureService.mediaFolderFixture.name);
-        browser
-            .click('.sw-media-folder-item')
-            .expect.element('.smart-bar__header').to.have.text.that.equals(global.MediaFixtureService.mediaFolderFixture.name);
-    },
     'upload image to folder': (browser) => {
         const page = mediaPage(browser);
         page.uploadImageViaURL(`${process.env.APP_URL}/bundles/administration/static/fixtures/sw-login-background.png`);
@@ -36,6 +26,8 @@ module.exports = {
 
         browser
             .click('.icon--folder-breadcrumbs-back-to-root')
+            .waitForElementNotPresent(page.elements.loader)
+            .waitForElementNotPresent('.icon--folder-breadcrumbs-back-to-root')
             .waitForElementNotPresent(page.elements.previewItem);
     },
     'check if the folder can be found in other modules': (browser) => {

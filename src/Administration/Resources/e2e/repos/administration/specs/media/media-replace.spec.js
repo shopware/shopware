@@ -34,6 +34,7 @@ module.exports = {
         page.openMediaIndex();
 
         browser
+            .waitForElementNotPresent(page.elements.loader)
             .assert.urlContains('#/sw/media/index')
             .moveToElement(`${page.elements.gridItem}--0 .sw-media-base-item__preview-container`, 5, 5).doubleClick()
             .waitForElementVisible('.icon--folder-breadcrumbs-back-to-root');

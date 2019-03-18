@@ -8,7 +8,6 @@ module.exports = {
         });
     },
     'open media listing': (browser) => {
-        console.log(browser.globals.waitForConditionTimeout);
         const page = mediaPage(browser);
         page.openMediaIndex();
     },
@@ -16,6 +15,7 @@ module.exports = {
         const page = mediaPage(browser);
 
         browser
+            .waitForElementNotPresent(page.elements.loader)
             .clickContextMenuItem(page.elements.showMediaAction, page.elements.contextMenuButton)
             .expect.element(page.elements.smartBarHeader).to.have.text.that.equals(global.MediaFixtureService.mediaFolderFixture.name);
     },
@@ -25,8 +25,7 @@ module.exports = {
         browser
             .click('.icon--folder-breadcrumbs-back-to-root')
             .waitForElementNotPresent(page.elements.loader)
-            .moveToElement(`${page.elements.gridItem}--0`, 2, 2)
-            .clickContextMenuItem('.sw-media-context-item__rename-folder-action', page.elements.contextMenuButton, `${page.elements.gridItem}--0`)
+            .clickContextMenuItem('.sw-media-context-item__rename-folder-action', page.elements.contextMenuButton)
             .waitForElementVisible(`${page.elements.folderNameInput}`)
             .setValue(page.elements.folderNameInput, [browser.Keys.CONTROL, 'a'])
             .setValue(page.elements.folderNameInput, browser.Keys.DELETE)
@@ -69,7 +68,8 @@ module.exports = {
         const page = mediaPage(browser);
 
         browser
-            .click('.sw-media-library__parent-folder')
+            .click('.icon--folder-breadcrumbs-back-to-root')
+            .waitForElementNotPresent(page.elements.loader)
             .expect.element(page.elements.folderNameLabel).to.have.text.that.equals('What remains of Ediths Name');
     },
     after: (browser) => {

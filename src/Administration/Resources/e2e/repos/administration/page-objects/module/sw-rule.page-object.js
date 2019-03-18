@@ -9,14 +9,7 @@ class RuleBuilderPageObject extends GeneralPageObject {
             ...{
                 columnName: '.sw-settings-rule-list__column-name',
                 ruleSaveAction: '.sw-settings-rule-detail__save-action',
-                ruleDeleteAction: '.sw-condition-or-container__actions--delete',
-                conditionOrContainer: '.sw-condition-container__or-child',
-                conditionAndContainer: '.sw-condition-container__and-child',
-                subConditionContainer: '.container-condition-level__is--even',
-                ruleFieldCondition: '.field--condition',
-                orSpacer: '.condition-content__spacer--or',
-                andSpacer: '.condition-content__spacer--and',
-                baseCondition: '.sw-condition-base'
+                ruleDeleteAction: '.sw-condition-or-container__actions--delete'
             }
         };
     }

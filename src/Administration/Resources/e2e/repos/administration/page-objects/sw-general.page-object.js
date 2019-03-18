@@ -3,14 +3,21 @@ export default class GeneralPageObject {
         this.browser = browser;
 
         this.elements = {
+            // General components
+            loader: '.sw-loader',
+            modal: '.sw-modal',
+            modalTitle: '.sw-modal__title',
+            modalFooter: '.sw-modal__footer',
+
+            // Admin menu
             adminMenu: '.sw-admin-menu',
 
+            // Smart bar
             smartBarHeader: '.smart-bar__header',
             smartBarAmount: '.sw-page__smart-bar-amount',
             smartBarBack: 'a.smart-bar__back-btn',
 
-            cardTitle: '.sw-card__title',
-
+            // Listing components
             gridRow: '.sw-grid__row',
             gridRowInlineEdit: '.sw-grid-row__inline-edit-action',
 
@@ -22,17 +29,24 @@ export default class GeneralPageObject {
             contextMenu: '.sw-context-menu',
             contextMenuButton: '.sw-context-button__button',
 
+            // Create/detail components
             primaryButton: '.sw-button--primary',
             dangerButton: '.sw-button--danger',
-            loader: '.sw-loader',
+            cardTitle: '.sw-card__title',
 
-            modal: '.sw-modal',
-            modalTitle: '.sw-modal__title',
-            modalFooter: '.sw-modal__footer',
-
+            // Notifications
             alert: '.sw-alert',
             alertClose: '.sw-alert__close',
-            notification: '.sw-notifications__notification'
+            notification: '.sw-notifications__notification',
+
+            // Rule conditions
+            conditionOrContainer: '.sw-condition-container__or-child',
+            conditionAndContainer: '.sw-condition-container__and-child',
+            subConditionContainer: '.container-condition-level__is--even',
+            ruleFieldCondition: '.field--condition',
+            orSpacer: '.condition-content__spacer--or',
+            andSpacer: '.condition-content__spacer--and',
+            baseCondition: '.sw-condition-base'
         };
     }
 

@@ -39,11 +39,6 @@ class ProductStreamPageObject extends GeneralPageObject {
                 value: ruleData.type,
                 isMulti: false,
                 searchTerm: ruleData.type
-            })
-            .fillSwSelectComponent(`${ruleData.ruleSelector} .field--main`, {
-                value: ruleData.value,
-                isMulti: ruleData.isMulti,
-                searchTerm: ruleData.value
             });
 
         if (ruleData.operator) {
@@ -54,6 +49,12 @@ class ProductStreamPageObject extends GeneralPageObject {
                     searchTerm: ruleData.operator
                 });
         }
+        this.browser
+            .fillSwSelectComponent(`${ruleData.ruleSelector} .field--main`, {
+                value: ruleData.value,
+                isMulti: ruleData.isMulti,
+                searchTerm: ruleData.value
+            });
     }
 
     createBasicSwitchCondition(ruleData) {
@@ -82,7 +83,6 @@ class ProductStreamPageObject extends GeneralPageObject {
                 isMulti: false,
                 searchTerm: ruleData.type
             })
-            .pause(2000)
             .fillField(`${ruleData.ruleSelector} input[name=${ruleData.inputName}]`, ruleData.value);
 
         if (ruleData.operator) {

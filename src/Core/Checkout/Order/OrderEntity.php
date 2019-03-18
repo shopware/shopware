@@ -10,7 +10,6 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderCustomer\OrderCustomerEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionCollection;
-use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\Search\SearchDocumentCollection;
@@ -31,11 +30,6 @@ class OrderEntity extends Entity
      * @var string
      */
     protected $orderCustomerId;
-
-    /**
-     * @var string
-     */
-    protected $paymentMethodId;
 
     /**
      * @var string
@@ -123,11 +117,6 @@ class OrderEntity extends Entity
     protected $orderCustomer;
 
     /**
-     * @var PaymentMethodEntity
-     */
-    protected $paymentMethod;
-
-    /**
      * @var CurrencyEntity
      */
     protected $currency;
@@ -200,16 +189,6 @@ class OrderEntity extends Entity
     public function setOrderCustomerId(string $orderCustomerId): void
     {
         $this->orderCustomerId = $orderCustomerId;
-    }
-
-    public function getPaymentMethodId(): string
-    {
-        return $this->paymentMethodId;
-    }
-
-    public function setPaymentMethodId(string $paymentMethodId): void
-    {
-        $this->paymentMethodId = $paymentMethodId;
     }
 
     public function getCurrencyId(): string
@@ -335,16 +314,6 @@ class OrderEntity extends Entity
     public function setOrderCustomer(OrderCustomerEntity $orderCustomer): void
     {
         $this->orderCustomer = $orderCustomer;
-    }
-
-    public function getPaymentMethod(): PaymentMethodEntity
-    {
-        return $this->paymentMethod;
-    }
-
-    public function setPaymentMethod(PaymentMethodEntity $paymentMethod): void
-    {
-        $this->paymentMethod = $paymentMethod;
     }
 
     public function getCurrency(): CurrencyEntity

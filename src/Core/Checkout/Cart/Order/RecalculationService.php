@@ -91,6 +91,7 @@ class RecalculationService
     {
         $criteria = (new Criteria([$orderId]))
             ->addAssociation('lineItems')
+            ->addAssociation('transactions')
             ->addAssociation('deliveries');
         $order = $this->orderRepository->search($criteria, $context)->get($orderId);
         $this->validateOrder($order, $orderId);
@@ -148,6 +149,7 @@ class RecalculationService
     {
         $criteria = (new Criteria([$orderId]))
             ->addAssociation('lineItems')
+            ->addAssociation('transactions')
             ->addAssociation('deliveries');
         /** @var OrderEntity|null $order */
         $order = $this->orderRepository->search($criteria, $context)->get($orderId);

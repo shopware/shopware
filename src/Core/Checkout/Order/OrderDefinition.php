@@ -8,7 +8,6 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderCustomer\OrderCustomerDefinition
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryDefinition;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemDefinition;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionDefinition;
-use Shopware\Core\Checkout\Payment\PaymentMethodDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AttributesField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CalculatedPriceField;
@@ -71,7 +70,6 @@ class OrderDefinition extends EntityDefinition
             (new FkField('order_customer_id', 'orderCustomerId', OrderCustomerDefinition::class))->addFlags(new Required()),
             (new ReferenceVersionField(OrderCustomerDefinition::class))->addFlags(new Required()),
 
-            (new FkField('payment_method_id', 'paymentMethodId', PaymentMethodDefinition::class))->addFlags(new Required()),
             (new FkField('currency_id', 'currencyId', CurrencyDefinition::class))->addFlags(new Required()),
             (new FkField('sales_channel_id', 'salesChannelId', SalesChannelDefinition::class))->addFlags(new Required()),
 
@@ -97,7 +95,6 @@ class OrderDefinition extends EntityDefinition
             new UpdatedAtField(),
 
             (new OneToOneAssociationField('orderCustomer', 'order_customer_id', 'id', OrderCustomerDefinition::class, true))->addFlags(new CascadeDelete(), new SearchRanking(0.5)),
-            new ManyToOneAssociationField('paymentMethod', 'payment_method_id', PaymentMethodDefinition::class, true),
             new ManyToOneAssociationField('currency', 'currency_id', CurrencyDefinition::class, true),
             new ManyToOneAssociationField('salesChannel', 'sales_channel_id', SalesChannelDefinition::class, true),
             (new OneToManyAssociationField('addresses', OrderAddressDefinition::class, 'order_id', true))->addFlags(new CascadeDelete()),

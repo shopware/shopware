@@ -61,6 +61,7 @@ class OrderConverterController extends AbstractController
     {
         $criteria = (new Criteria([$orderId]))
             ->addAssociation('lineItems')
+            ->addAssociation('transactions')
             ->addAssociation('deliveries');
 
         /** @var OrderEntity|null $order */

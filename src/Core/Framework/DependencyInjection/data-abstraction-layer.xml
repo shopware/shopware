@@ -172,6 +172,7 @@
 
         <service id="Shopware\Core\Framework\DataAbstractionLayer\Search\Parser\SqlQueryParser">
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
         </service>
 
         <service id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityForeignKeyResolver">

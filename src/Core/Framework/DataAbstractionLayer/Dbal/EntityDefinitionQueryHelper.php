@@ -17,6 +17,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldAware\StorageAware;
+use Shopware\Core\Framework\Exception\InvalidUuidException;
 use Shopware\Core\Framework\Struct\Uuid;
 
 /**
@@ -47,6 +48,10 @@ class EntityDefinitionQueryHelper
 
     public static function escape(string $string): string
     {
+        if (strpos($string, '`') !== false) {
+            throw new \InvalidArgumentException('Backtick not allowed in identifier');
+        }
+
         return '`' . $string . '`';
     }
 
@@ -226,7 +231,7 @@ class EntityDefinitionQueryHelper
     {
         $table = $definition::getEntityName();
 
-        $query->from(self::escape($table), self::escape($table));
+        $query->from(self::escape($table));
 
         $useVersionFallback = (
             // only applies for versioned entities
@@ -254,7 +259,7 @@ class EntityDefinitionQueryHelper
             /** @var FkField|null $versionIdField */
             $versionIdField = array_shift($versionIdField);
 
-            $query->andWhere(self::escape($table) . '.`' . $versionIdField->getStorageName() . '` = :version');
+            $query->andWhere(self::escape($table) . '.' . self::escape($versionIdField->getStorageName()) . ' = :version');
             $query->setParameter('version', Uuid::fromStringToBytes($context->getVersionId()));
         }
 
@@ -274,6 +279,9 @@ class EntityDefinitionQueryHelper
             $wheres = [];
 
             foreach ($context->getRules() as $ruleId) {
+                if (!Uuid::isValid($ruleId)) {
+                    throw new InvalidUuidException($ruleId);
+                }
                 $wheres[] = sprintf(
                     'JSON_CONTAINS(IFNULL(' . $accessor . ', JSON_ARRAY()), JSON_ARRAY(:%s))',
                     'contextRule' . $ruleId
@@ -297,6 +305,9 @@ class EntityDefinitionQueryHelper
 
         $wheres = [];
         foreach ($context->getRules() as $ruleId) {
+            if (!Uuid::isValid($ruleId)) {
+                throw new InvalidUuidException($ruleId);
+            }
             $wheres[] = sprintf(
                 'JSON_CONTAINS(IFNULL(' . $accessor . ', JSON_ARRAY()), JSON_ARRAY(:%s))',
                 'contextRule' . $ruleId
@@ -520,6 +531,9 @@ class EntityDefinitionQueryHelper
             $accessor = $this->getFieldAccessor('blacklistIds', $definition, $definition::getEntityName(), $context);
 
             foreach ($context->getRules() as $ruleId) {
+                if (!Uuid::isValid($ruleId)) {
+                    throw new InvalidUuidException($ruleId);
+                }
                 $wheres[] = sprintf(
                     'JSON_CONTAINS(IFNULL(' . $accessor . ', JSON_ARRAY()), JSON_ARRAY(:%s))',
                     'contextRule' . $ruleId
@@ -538,6 +552,9 @@ class EntityDefinitionQueryHelper
 
         $wheres = [];
         foreach ($context->getRules() as $id) {
+            if (!Uuid::isValid($id)) {
+                throw new InvalidUuidException($id);
+            }
             $wheres[] = sprintf(
                 'JSON_CONTAINS(IFNULL(' . $accessor . ', JSON_ARRAY()), JSON_ARRAY(:%s))',
                 'contextRule' . $id

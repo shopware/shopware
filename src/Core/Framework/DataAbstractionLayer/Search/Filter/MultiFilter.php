@@ -6,6 +6,13 @@ class MultiFilter extends Filter
 {
     public const CONNECTION_AND = 'AND';
     public const CONNECTION_OR = 'OR';
+    public const CONNECTION_XOR = 'XOR';
+
+    public const VALID_OPERATORS = [
+        'AND', '&&',
+        'OR', '||',
+        'XOR',
+    ];
 
     /**
      * @var Filter[]
@@ -19,8 +26,12 @@ class MultiFilter extends Filter
 
     public function __construct(string $operator, array $queries = [])
     {
-        $this->operator = $operator;
+        $this->operator = strtoupper(trim($operator));
         $this->queries = $queries;
+
+        if (!in_array($this->operator, self::VALID_OPERATORS, true)) {
+            throw new \InvalidArgumentException('Operator ' . $this->operator . ' not allowed');
+        }
     }
 
     public function getQueries(): array
@@ -30,6 +41,10 @@ class MultiFilter extends Filter
 
     public function getOperator(): string
     {
+        if (!in_array($this->operator, self::VALID_OPERATORS, true)) {
+            throw new \InvalidArgumentException('Operator ' . $this->operator . ' not allowed');
+        }
+
         return $this->operator;
     }
 

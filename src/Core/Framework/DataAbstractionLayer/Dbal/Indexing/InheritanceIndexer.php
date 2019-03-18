@@ -148,9 +148,9 @@ class InheritanceIndexer implements IndexerInterface
             $sql = sprintf(
                 'UPDATE #root# SET #property# = IFNULL(
                         (
-                            SELECT #reference#.#entity#_id
+                            SELECT #reference#.#entity_id#
                             FROM   #reference#
-                            WHERE  #reference#.#entity#_id         = #root#.id
+                            WHERE  #reference#.#entity_id#         = #root#.id
                             %s
                             LIMIT 1
                         ),
@@ -158,13 +158,14 @@ class InheritanceIndexer implements IndexerInterface
                      )
                      WHERE #root#.id IN (:ids)
                      %s',
-                $definition::isVersionAware() ? 'AND #reference#.#entity#_version_id = #root#.version_id' : '',
+                $definition::isVersionAware() ? 'AND #reference#.#entity_version_id# = #root#.version_id' : '',
                 $definition::isVersionAware() ? 'AND #root#.version_id = :version' : ''
             );
 
             $parameters = [
                 '#root#' => EntityDefinitionQueryHelper::escape($definition::getEntityName()),
-                '#entity#' => $definition::getEntityName(),
+                '#entity_id#' => EntityDefinitionQueryHelper::escape($definition::getEntityName() . '_id'),
+                '#entity_version_id#' => EntityDefinitionQueryHelper::escape($definition::getEntityName() . '_version_id'),
                 '#property#' => EntityDefinitionQueryHelper::escape($association->getPropertyName()),
                 '#reference#' => EntityDefinitionQueryHelper::escape($reference::getEntityName()),
             ];

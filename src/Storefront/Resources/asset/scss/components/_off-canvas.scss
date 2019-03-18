@@ -31,10 +31,11 @@
         @extend .btn-block;
         @extend .btn-dark;
         border-radius: 0;
+        text-align: left;
+    }
 
-        i.close-icon {
-            margin-right: $spacer-xs;
-        }
+    .off-canvas-close-icon {
+        margin-right: $spacer-xs;
     }
 
     > .spinner-border {

@@ -23,12 +23,15 @@
 							{% block page_product_detail_media_gallery_controls %}
 								<ul class="gallery-controls" data-gallery-controls="true">
 									{% block page_product_detail_media_gallery_controls_items %}
-										{# TODO: NEXT-1915 - Icons #}
 										<li class="carousel-control-prev gallery-controls-prev">
-											&lt;
+                                            {% block page_product_detail_media_gallery_controls_items_prev_icon %}
+                                                <i class="fas fa-chevron-left"></i>
+                                            {% endblock %}
 										</li>
-										<li class="carousel-control-next gallery-controls-next">
-											&gt;
+                                        <li class="carousel-control-next gallery-controls-next">
+                                            {% block page_product_detail_media_gallery_controls_items_next_icon %}
+                                                <i class="fas fa-chevron-right"></i>
+                                            {% endblock %}
 										</li>
 									{% endblock %}
 								</ul>

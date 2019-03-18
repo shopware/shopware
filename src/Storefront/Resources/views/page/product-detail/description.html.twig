@@ -2,7 +2,9 @@
 
 {% block base_utilities_offcanvas_close %}
     <a href="#off-canvas-close" class="off-canvas-close text-left">
-        <i class="fas fa-chevron-left"></i>
+        {% block base_utilities_offcanvas_close_icon %}
+            <i class="fas fa-chevron-left close-icon"></i>
+        {% endblock %}
         {{ "general.offcanvasCloseMenu"|trans }}
     </a>
 {% endblock %}

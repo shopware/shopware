@@ -3,6 +3,7 @@
     {% set propertyGroups = [] %}
 
     {% if propertyItems|length > 0 %}
+{#TODO: NEXT-1923 - remove group sorting from template #} 
         {% for property in propertyItems if property.groupId not in propertyGroups %}
             {% set propertyGroups = propertyGroups|merge({ (property.groupId) : property.group.name }) %}
         {% endfor %}

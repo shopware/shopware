@@ -5,14 +5,18 @@
 }
 
 .gallery-thumbnails-item {
-    border: 1px solid $gray-300;
+    border: 1px solid $border-color;
     border-radius: $spacer-xs;
     cursor: pointer;
     display: inline-block;
     height: 80px;
-    margin-right: $spacer;
+    margin-right: $spacer-xs;
     position: relative;
     width: 80px;
+
+    &:last-child {
+        margin-right: 0;
+    }
 
     &.tns-nav-active {
         border-color: $primary;
@@ -73,6 +77,10 @@
 @include media-breakpoint-up(lg) {
     .gallery-thumbnails {
         text-align: left;
+
+        .gallery-thumbnails-item {
+            margin-right: $spacer;
+        }
     }
 
     .gallery-slider {

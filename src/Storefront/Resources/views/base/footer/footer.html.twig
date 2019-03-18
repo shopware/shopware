@@ -1,5 +1,78 @@
 {% block base_footer %}
-    {% block base_footer_navigation %}{% endblock %}
+    {% block base_footer_navigation %}
+        <div id="footerColumns" class="row footer-columns">
+            {# @todo: NEXT-1988 - replace example code with footer menu #}
+            <div class="col-md-3 footer-column">
+                <div class="column-headline"
+                     data-target="#collapseOne"
+                     aria-expanded="true"
+                     aria-controls="collapseOne">
+                    collapse 1
+                    <div class="toggle-icon">
+                        <i class="fas fa-plus"></i>
+                        <i class="fas fa-minus"></i>
+                    </div>
+                </div>
+                <div id="collapseOne"
+                     class="column-content"
+                     aria-labelledby="headingOne">
+                    Lorem ipsum dolor sit amet, consectetur adipisicing elit. Amet asperiores assumenda beatae blanditiis cumque deserunt, distinctio, doloremque error esse explicabo fugiat harum, laborum optio provident quo quod vel veniam vero!
+                </div>
+            </div>
+            <div class="col-md-3 footer-column">
+                <div class="column-headline"
+                     data-target="#collapseTwo"
+                     aria-expanded="true"
+                     aria-controls="collapseTwo">
+                    collapse 2
+                    <div class="toggle-icon">
+                        <i class="fas fa-plus"></i>
+                        <i class="fas fa-minus"></i>
+                    </div>
+                </div>
+                <div id="collapseTwo"
+                     class="column-content"
+                     aria-labelledby="headingTwo">
+                    Lorem ipsum dolor sit amet, consectetur adipisicing elit. Amet asperiores assumenda beatae blanditiis cumque deserunt, distinctio, doloremque error esse explicabo fugiat harum, laborum optio provident quo quod vel veniam vero!
+                </div>
+            </div>
+            <div class="col-md-3 footer-column">
+                <div class="column-headline"
+                     data-target="#collapseThree"
+                     aria-expanded="true"
+                     aria-controls="collapseThree">
+                    collapse 3
+                    <div class="toggle-icon">
+                        <i class="fas fa-plus"></i>
+                        <i class="fas fa-minus"></i>
+                    </div>
+                </div>
+                <div id="collapseThree"
+                     class="column-content"
+                     aria-labelledby="headingThree">
+                    Lorem ipsum dolor sit amet, consectetur adipisicing elit. Amet asperiores assumenda beatae blanditiis cumque deserunt, distinctio, doloremque error esse explicabo fugiat harum, laborum optio provident quo quod vel veniam vero!
+                </div>
+            </div>
+            <div class="col-md-3 footer-column">
+                <div class="column-headline"
+                     data-target="#collapseFour"
+                     aria-expanded="true"
+                     aria-controls="collapseFour">
+                    collapse 4
+                    <div class="toggle-icon">
+                        <i class="fas fa-plus"></i>
+                        <i class="fas fa-minus"></i>
+                    </div>
+                </div>
+                <div id="collapseFour"
+                     class="column-content"
+                     aria-labelledby="headingFour">
+                    Lorem ipsum dolor sit amet, consectetur adipisicing elit. Amet asperiores assumenda beatae blanditiis cumque deserunt, distinctio, doloremque error esse explicabo fugiat harum, laborum optio provident quo quod vel veniam vero!
+                </div>
+            </div>
+        </div>
+    {% endblock %}
+
     <div class="footer-bottom">
         {#TODO: NEXT-1990 - footer VAT links#}
         <div class="footer-vat">

@@ -103,6 +103,9 @@ module.exports = {
 
         browser
             .waitForElementVisible('.icon--folder-breadcrumbs-back-to-root')
+            .click('.icon--folder-breadcrumbs-back-to-root')
+            .waitForElementNotPresent(page.elements.loader)
+            .waitForElementNotPresent('.icon--folder-breadcrumbs-back-to-root')
             .click('.router-link-active')
             .expect.element(page.elements.folderNameLabel).to.have.text.that.equals(global.MediaFixtureService.mediaFolderFixture.name);
     },

@@ -33,6 +33,8 @@ module.exports = {
 
         browser
             .click('.icon--folder-breadcrumbs-back-to-root')
+            .waitForElementNotPresent(page.elements.loader)
+            .waitForElementNotPresent('.icon--folder-breadcrumbs-back-to-root')
             .waitForElementNotPresent(page.elements.previewItem);
     },
     'dissolve folder': (browser) => {

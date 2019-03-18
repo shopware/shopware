@@ -393,6 +393,11 @@ export default {
         deleteElement(item) {
             const targetTree = this.findTreeByParentId(item.parentId);
             const deletedItemIdx = targetTree.findIndex(i => i.id === item.id);
+            if (item.children.length > 0) {
+                item.children.forEach((child) => {
+                    child.data.isDeleted = true;
+                });
+            }
             targetTree.splice(deletedItemIdx, 1);
             this.updateSorting(targetTree);
             this.$emit('delete-element', item);

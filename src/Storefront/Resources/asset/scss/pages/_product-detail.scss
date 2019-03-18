@@ -93,7 +93,10 @@
         .card-tabs .nav-link {
             background: none;
             border-radius: $spacer-xs;
-            padding: $spacer $spacer-lg;
+            padding: $spacer;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
         }
     }
 

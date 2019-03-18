@@ -11,7 +11,7 @@ import './sw-tabs.scss';
  * @component-example
  * <sw-tabs>
  *
- *     <sw-tabs-item :route="{ name: 'sw.explore.index' }">
+ *     <sw-tabs-item href="https://www.google.com">
  *         Explore
  *     </sw-tabs-item>
  *

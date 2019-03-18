@@ -8,7 +8,7 @@ import './sw-card-view.scss';
  * @status ready
  * @example-type static
  * @component-example
- * <sw-card-view style="height: 400px;">
+ * <sw-card-view style="position: relative; height: 400px;">
  *    <sw-card title="Card-1" large>
  *        Lorem ipsum dolor sit amet
  *    </sw-card>

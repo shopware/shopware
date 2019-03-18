@@ -10,9 +10,7 @@ import './sw-language-switch.scss';
  * @status ready
  * @example-type code-only
  * @component-example
- * <sw-language-switch
- *  @on-change="onChangeLanguage">
- * </sw-language-info>
+ * <sw-language-switch></sw-language-info>
  */
 Component.register('sw-language-switch', {
     template,

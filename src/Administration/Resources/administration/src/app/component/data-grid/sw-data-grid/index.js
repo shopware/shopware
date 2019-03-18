@@ -21,7 +21,7 @@ import './sw-data-grid.scss';
  *          { property: 'name', label: 'Name', rawData: true },
  *          { property: 'company', label: 'Company', rawData: true }
  *     ]">
- * </sw-grid>
+ * </sw-data-grid>
  */
 export default {
     name: 'sw-data-grid',

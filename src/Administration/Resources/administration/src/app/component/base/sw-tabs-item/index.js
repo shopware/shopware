@@ -3,7 +3,7 @@ import template from './sw-tabs-item.html.twig';
 import './sw-tabs-item.scss';
 
 /**
- * @public
+ * @private
  * @description Renders a tab item.
  * @status ready
  * @example-type static

@@ -1,8 +1,9 @@
 /**
+ * @public
  * @status ready
  * @description The <u>sw-media-replace</u> component extends the <u>sw-media-upload</u> component. It is
  * used in cases of replacing items rather than uploading them.
- * @example-type static
+ * @example-type code-only
  * @component-example
  * <sw-media-replace itemToReplace="mediaItem" variant="regular">
  * </sw-media-replace>

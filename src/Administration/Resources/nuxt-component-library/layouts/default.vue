@@ -7,6 +7,9 @@
                 </nuxt-link>
             </div>
             <nav class="navigation--main">
+                <div class="search-wrapper">
+                    <input type="text" v-model="searchTerm" class="search-query" autocomplete="off" spellcheck="false" placeholder="Search">
+                </div>
                 <ul class="nav-tree--category">
                     <li class="nav-tree--main-entry" v-for="mainEntry in menu" :key="mainEntry.name">
                         <span class="nav-tree--main-entry-headline">{{ mainEntry.name }} components</span>
@@ -14,7 +17,7 @@
                         <ul class="nav-tree--sub-entries" v-if="mainEntry.children.length > 0">
                             <li class="nav-tree--sub-entry" v-for="subEntry in mainEntry.children" :key="subEntry.name">
                                 <nuxt-link :to="'/components/' + subEntry.name" class="nav--link">
-                                    &lt;{{ subEntry.name }}&gt;
+                                    {{ subEntry.readableName }}
                                 </nuxt-link>
                             </li>
                         </ul>
@@ -29,13 +32,64 @@
     </div>
 </template>
 
+<style>
+    .search-wrapper {
+        padding: 0 40px;
+    }
+    .search-query {
+        display: block;
+        font-size: 16px;
+        height: 40px;
+        padding: 5px 20px;
+        width: 100%;
+        border-radius: 30px;
+        color: #fff;
+        font-weight: 400;
+        background: rgba(205,221,247,0.15);
+        font-family: 'Brandon';
+        outline: none;
+        border: none;
+    }
+
+    .search-query:focus {
+        outline: none;
+    }
+</style>
+
 <script>
 export default {
-    computed: {
-        menu() {
+    data() {
+        return {
+            menu: null,
+            searchTerm: this.$route.query.q || ''
+        };
+    },
+
+    created() {
+        this.menu = this.getMenuStructure();
+    },
+
+    watch: {
+        searchTerm() {
+            const value = event.target.value;
+            if (value.length > 0) {
+                this.$router.replace({ path: this.$route.path, query: { q: value }});
+            } else {
+                this.$router.replace({ path: this.$route.path });
+            }
+            this.menu = this.getMenuStructure();
+        }
+    },
+
+    methods: {
+        getMenuStructure() {
             return this.$filesInfo.reduce((accumulator, item) => {
                 // Ignore the component when it's marked as private
                 if (item.source.meta.hasOwnProperty('private') && item.source.meta.private === true) {
+                    return accumulator;
+                }
+
+                if (!item.source.readableName.toLowerCase().includes(this.searchTerm.toLowerCase())) {
                     return accumulator;
                 }
 
@@ -48,6 +102,7 @@ export default {
 
                 accumulator[item.type].children.push({
                     name: item.source.name,
+                    readableName: item.source.readableName,
                     type: item.type,
                 });
 

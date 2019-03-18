@@ -1,3 +1,6 @@
+/**
+ * @private
+ */
 export default {
     name: 'sw-media-entity-mapper',
     functional: true,

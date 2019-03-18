@@ -2,12 +2,11 @@ import template from './sw-checkbox-field.html.twig';
 
 /**
  * @public
- * @description checkbox input field.
+ * @description Checkbox input field.
  * @status ready
  * @example-type static
  * @component-example
- * <sw-checkbox-field type="checkbox" :label="Name" :placeholder="placeholder goes here..."
- * v-model="model"></sw-checkbox-field>
+ * <sw-checkbox-field type="checkbox" label="Name" placeholder="placeholder goes here..."></sw-checkbox-field>
  */
 export default {
     name: 'sw-checkbox-field',

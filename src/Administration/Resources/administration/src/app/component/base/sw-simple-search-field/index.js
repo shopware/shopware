@@ -6,10 +6,9 @@ import './sw-simple-search-field.scss';
  * @public
  * @description a search field with delayed update
  * @status ready
- * @example-type code-only
+ * @example-type static
  * @component-example
- * {# renders a simple search field that binds the term to my termVariable at a delay of 1 second.#}
- * <sw-simple-search-field v-model="myTermVariable" :delay="1000"></sw-simple-search-field>
+ * <sw-simple-search-field :delay="1000"></sw-simple-search-field>
  */
 export default {
     name: 'sw-simple-search-field',

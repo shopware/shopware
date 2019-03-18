@@ -8,7 +8,7 @@ import './sw-media-upload.scss';
  * @status ready
  * @description The <u>sw-media-upload</u> component is used wherever an upload is needed. It supports drag & drop-,
  * file- and url-upload and comes in various forms.
- * @example-type dynamic
+ * @example-type code-only
  * @component-example
  * <sw-media-upload
  *     uploadTag="my-upload-tag"

@@ -3,6 +3,10 @@ import CriteriaFactory from 'src/core/factory/criteria.factory';
 import template from './sw-duplicated-media.html.twig';
 import './sw-duplicated-media.scss';
 
+/**
+ * @private
+ */
+
 const LOCAL_STORAGE_KEY_OPTION = 'sw-duplicate-media-resolve-option';
 const LOCAL_STORAGE_SAVE_SELECTION = 'sw-duplicate-media-resolve-save-selection';
 

@@ -5,10 +5,10 @@ import './sw-tagged-field.scss';
 
 /**
  * @public
- * @status ready
+ * @status deprecated
  * @example-type code-only
  * @component-example
- * <sw-tagged-field label="Label" :addOnKey="[13, ',']" v-model="array">
+ * <sw-tagged-field label="Label" :addOnKey="[13, ',']">
  * </sw-tagged-field>
  */
 export default {

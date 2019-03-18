@@ -4,7 +4,7 @@ import template from './sw-button-group.html.twig';
 /**
  * @status ready
  * @description The <u>sw-button-group</u> is a container element for sw-button and sw-context-button elements.
- * @example-type dynamic
+ * @example-type static
  * @component-example
  * <sw-button-group>
  *     <sw-button>Button 1</sw-button>

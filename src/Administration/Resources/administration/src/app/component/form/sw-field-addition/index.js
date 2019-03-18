@@ -1,5 +1,8 @@
 import template from './sw-field-addition.html.twig';
 
+/**
+ * @private
+ */
 export default {
     name: 'sw-field-addition',
     template,

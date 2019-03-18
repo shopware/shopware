@@ -13,16 +13,25 @@ const {
 } = require('./source-components');
 
 const lessVariableParser = require('./less-components');
+const sassVariableParser = require('./sass-components');
 const twigParser = require('./twig-components');
 
-module.exports = (file, globalLessVariables) => {
+function formatReadableName(value) {
+    value = value.replace('sw-', '').replace(/(\-\w)/g, (matches) => {
+        return ` ${matches[1].toUpperCase()}`;
+    });
+    value = `${value.charAt(0).toUpperCase()}${value.slice(1)}`;
+    return value;
+}
+
+module.exports = (file, globalVariables) => {
     const ast = parseSource(file.source);
 
     const comment = extractBlockComment(ast);
-    const imports  = extractImports(ast);
+    const imports = extractImports(ast);
     const componentDeclaration = extractComponentDeclaration(ast);
 
-    if (!componentDeclaration.name || !componentDeclaration.definition) {
+    if (!componentDeclaration.name || !componentDeclaration.definition) {
         return {};
     }
 
@@ -37,7 +46,8 @@ module.exports = (file, globalLessVariables) => {
     const mixins = extractMixins(definition);
     const inject = extractInject(definition);
 
-    const lessVariables = lessVariableParser(file, imports, globalLessVariables);
+    const lessVariables = lessVariableParser(file, imports, globalVariables);
+    const sassVariables = sassVariableParser(file, imports, globalVariables);
     const twigInformation = twigParser(file, imports);
 
     return {
@@ -49,10 +59,13 @@ module.exports = (file, globalLessVariables) => {
         mixins,
         inject,
         lessVariables,
+        sassVariables,
         hooks,
         meta: comment,
         slots: twigInformation.slots,
         blocks: twigInformation.blocks,
-        name: componentDeclaration.name
+        name: componentDeclaration.name,
+        extendsFrom: componentDeclaration.extendsFrom,
+        readableName: formatReadableName(componentDeclaration.name)
     };
 };

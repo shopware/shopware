@@ -1,27 +1,31 @@
 const fs = require('fs');
 const path = require('path');
-const fileParser = require(__dirname + '/lib/file-parser');
+
+const fileParser = require(`${__dirname}/lib/file-parser`); // eslint-disable-line import/no-dynamic-require
 const process = require('process');
 
 function getPathFromRoot(directory) {
-    return path.join(process.env.PROJECT_ROOT, directory);
+    const projectRoot = process.env.PROJECT_ROOT;
+    return path.join(projectRoot, directory);
 }
 
-console.log();
-
 const configFileName = 'component-library.conf.js';
-let config;
-
 module.exports = {
     env: {
         NODE_ENV: 'development'
     },
     router: {
-        mode: 'hash'
+        mode: 'hash',
+        scrollBehavior() {
+            return { x: 0, y: 0 };
+        }
     },
     modules: [
         '~/modules/parser/index'
     ],
+    babel: {
+        compact: false
+    },
     head: {
         titleTemplate: '%s - Shopware Component library',
         meta: [
@@ -40,14 +44,15 @@ module.exports = {
     ],
 
     build: {
-        extend(config,  { isDev }) {
+        extend(config, { isDev }) {
             if (!isDev) {
                 config.output.publicPath = './_nuxt/';
             }
-            config.resolve.alias['src'] = path.resolve(__dirname, '..', 'administration/src/');
-            config.resolve.alias['less'] = path.resolve(__dirname, '..', 'administration/src/app/assets/less');
-            config.resolve.alias['vue'] = __dirname + '/node_modules/vue/dist/vue.common';
-            config.resolve.extensions.push('.less', '.twig');
+            config.resolve.alias.src = path.resolve(__dirname, '..', 'administration/src/');
+            config.resolve.alias.less = path.resolve(__dirname, '..', 'administration/src/app/assets/less');
+            config.resolve.alias.scss = path.resolve(__dirname, '..', 'administration/src/app/assets/scss');
+            config.resolve.alias.vue = `${__dirname}/node_modules/vue/dist/vue.common`;
+            config.resolve.extensions.push('.less', '.twig', '.scss');
             config.module.rules.push({
                 test: /\.(html|twig)$/,
                 loader: 'html-loader'
@@ -57,9 +62,10 @@ module.exports = {
     generate: {
         dir: getPathFromRoot('build/artifacts/component-library'),
         routes: async () => {
-             // Check if we're having a config file, otherwise set the config
+            let config;
+            // Check if we're having a config file, otherwise set the config
             if (fs.existsSync(path.resolve(__dirname, configFileName))) {
-                config = require(path.resolve(__dirname, configFileName));
+                config = require(path.resolve(__dirname, configFileName)); // eslint-disable-line
             } else {
                 console.warn(`No config file "${configFileName}" in project root found`);
                 config = {};

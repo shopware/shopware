@@ -2,6 +2,9 @@ import { Mixin } from 'src/core/shopware';
 import './sw-field-copyable.scss';
 import template from './sw-field-copyable.html.twig';
 
+/**
+ * @private
+ */
 export default {
     name: 'sw-field-copyable',
     template,

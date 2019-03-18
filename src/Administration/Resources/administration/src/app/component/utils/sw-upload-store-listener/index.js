@@ -2,6 +2,10 @@ import { Mixin, State } from 'src/core/shopware';
 import { UploadEvents } from 'src/core/data/UploadStore';
 import utils from 'src/core/service/util.service';
 
+/**
+ * @private
+ */
+
 function isIllegalFileNameException(error) {
     return error.response.data.errors.some((err) => {
         return err.code === 'ILLEGAL_FILE_NAME_EXCEPTION';

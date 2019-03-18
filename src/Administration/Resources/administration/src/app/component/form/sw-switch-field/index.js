@@ -6,7 +6,7 @@ import template from './sw-switch-field.html.twig';
  * @status ready
  * @example-type static
  * @component-example
- * <sw-switch-field :label="Name" :placeholder="placeholder goes here..." v-model="model"></sw-switch-field>
+ * <sw-switch-field label="Name" placeholder="placeholder goes here..."></sw-switch-field>
  */
 export default {
     name: 'sw-switch-field',

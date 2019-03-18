@@ -16,9 +16,7 @@ import './sw-page.scss';
  *         </sw-search-bar>
  *     </template>
  *     <template slot="smart-bar-header">
- *         <h2>
- *             Lorem ipsum page
- *         </h2>
+ *         <h2>Lorem ipsum page</h2>
  *     </template>
  *     <template slot="smart-bar-actions">
  *         <sw-button variant="primary">
@@ -26,7 +24,11 @@ import './sw-page.scss';
  *         </sw-button>
  *     </template>
  *     <template slot="side-content">
- *         <sw-tree>...</sw-tree>
+ *         <sw-card-view>
+ *             <sw-card>
+ *                 Lorem ipsum dolor sit amet, consetetur sadipscing elitr
+ *             </sw-card>
+ *         </sw-card-view>
  *     </template>
  *     <template slot="content">
  *         <sw-card-view>

@@ -5,7 +5,24 @@ import template from './sw-datepicker.html.twig';
 import 'flatpickr/dist/flatpickr.css';
 import './sw-datepicker.scss';
 
-// Keep a copy of all flatpickr events for later use
+/**
+ * @public
+ * @description Datepicker wrapper for date inputs. For all configuration options visit:
+ * <a href="https://flatpickr.js.org/options/">https://flatpickr.js.org/options/</a>.
+ * Be careful when changing the config object. To add a parameter to the config at runtime use:
+ * <a href="https://vuejs.org/v2/api/#Vue-set">https://vuejs.org/v2/api/#Vue-set</a>.
+ *
+ * <u>this.$set(this.myDatepickerConfig, 'dateFormat', 'd.m.y');</u>
+ * @status ready
+ * @example-type static
+ * @component-example
+ * <sw-datepicker
+ *      dateType="date"
+ *      label="SW-Field Date"
+ *      size="default"
+ *      value="12.10.2019">
+ * </sw-datepicker>
+ */
 const allEvents = [
     'onChange',
     'onClose',
@@ -20,25 +37,6 @@ const allEvents = [
     'onPreCalendarPosition',
     'onKeyDown'
 ];
-
-/**
- * @public
- * @description Datepicker wrapper for date inputs. For all configuration options visit: https://flatpickr.js.org/options/
- * Be careful when changing the config object. To add a parameter to the config at runtime use:
- * https://vuejs.org/v2/api/#Vue-set
- * this.$set(this.myDatepickerConfig, 'dateFormat', 'd.m.y');
- * @status ready
- * @example-type static
- * @component-example
- * <sw-datepicker
- *      dateType="date"
- *      :datepickerConfig="myDatepickerConfig"
- *      v-model="myDate"
- *      label="SW-Field Date"
- *      size="default"
- *      @on-change="myOnChangeEventHandlingMethod">
- * </sw-datepicker>
- */
 export default {
     name: 'sw-datepicker',
     extendsFrom: 'sw-text-field',
@@ -90,7 +88,7 @@ export default {
         },
 
         locale() {
-            return this.localeStore.locale;
+            return (this.localeStore !== undefined ? this.localeStore.locale : 'en-GB');
         },
 
         currentFlatpickrConfig() {

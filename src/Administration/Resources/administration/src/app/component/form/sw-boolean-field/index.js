@@ -6,7 +6,7 @@ import template from './sw-boolean-field.html.twig';
  * @status ready
  * @example-type static
  * @component-example
- * <sw-boolean-field :label="Name" :placeholder="placeholder goes here..." v-model="model"></sw-boolean-field>
+ * <sw-boolean-field label="Name" placeholder="placeholder goes here..."></sw-boolean-field>
  */
 export default {
     name: 'sw-boolean-field',

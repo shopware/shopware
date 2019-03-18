@@ -22,7 +22,7 @@
         transform: translateX(0) !important;
     }
 
-    &.is--fullwidth {
+    &.is-fullwidth {
         width: 100%;
     }
 
@@ -31,6 +31,10 @@
         @extend .btn-block;
         @extend .btn-dark;
         border-radius: 0;
+
+        i.close-icon {
+            margin-right: $spacer-xs;
+        }
     }
 
     > .spinner-border {
@@ -39,5 +43,9 @@
         top: 50%;
         margin-left: -$spacer;
         margin-top: -$spacer;
+    }
+
+    .off-canvas-content-container {
+        padding: $spacer;
     }
 }

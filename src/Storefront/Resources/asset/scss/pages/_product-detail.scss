@@ -8,6 +8,7 @@
 
 .product-detail-content {
     margin-bottom: $spacer-lg;
+    padding: 0 5px;
 }
 
 .product-detail-media-container {
@@ -98,10 +99,6 @@
 
     .product-detail-tabs-content {
         display: none;
-    }
-
-    .off-canvas .tab-pane-inner {
-        padding: $spacer-sm;
     }
 }
 

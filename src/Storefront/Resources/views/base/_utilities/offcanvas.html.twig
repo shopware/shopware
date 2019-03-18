@@ -1,8 +1,16 @@
 {% block base_utilities_offcanvas %}
     {% block base_utilities_offcanvas_close %}
-        <a href="#off-canvas-close" class="off-canvas-close">
-            {{ "checkout.continueShopping"|trans }}
+        <a class="off-canvas-close text-left" href="#off-canvas-close">
+            {% block base_utilities_offcanvas_close_icon %}
+                <i class="fas fa-chevron-left close-icon"></i>
+            {% endblock %}
+            {{ "general.offcanvasCloseMenu"|trans }}
         </a>
     {% endblock %}
-    {% block base_utilities_offcanvas_content %}{% endblock %}
+
+    {% block base_utilities_offcanvas_content_container %}
+        <div class="off-canvas-content-container">
+            {% block base_utilities_offcanvas_content %}{% endblock %}
+        </div>
+    {% endblock %}
 {% endblock %}

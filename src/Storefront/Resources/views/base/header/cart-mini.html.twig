@@ -1,5 +1,11 @@
 {% sw_extends '@Storefront/base/_utilities/offcanvas.html.twig' %}
 
+{% block base_utilities_offcanvas_close %}
+    <a class="off-canvas-close text-center" href="#off-canvas-close">
+        {{ "checkout.continueShopping"|trans }}
+    </a>
+{% endblock %}
+
 {% block base_utilities_offcanvas_content %}
     {% block base_cart_mini %}
         <div class="cart-mini">

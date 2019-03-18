@@ -109,6 +109,12 @@
     .off-canvas-close {
         display: none;
     }
+
+    .product-detail-tabs {
+        .card-tabs .nav-link-icon {
+            display: none;
+        }
+    }
 }
 
 @include media-breakpoint-up(md) {

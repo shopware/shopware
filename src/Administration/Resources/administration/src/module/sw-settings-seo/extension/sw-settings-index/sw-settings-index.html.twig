@@ -1,0 +1,13 @@
+{% block sw_settings_content_card_slot_default %}
+    {% parent %}
+
+    {% block sw_settings_seo_item %}
+        <sw-settings-item v-if="next741"
+                          :label="$tc('sw-settings-seo.general.mainMenuItemGeneral')"
+                          :to="{ name: 'sw.settings.seo.index' }">
+            <template slot="icon">
+                <sw-icon name="default-action-search" size="45"></sw-icon>
+            </template>
+        </sw-settings-item>
+    {% endblock %}
+{% endblock %}

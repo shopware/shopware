@@ -82,7 +82,8 @@
       "cardTitleSettings": "Settings",
       "linkAdvancedPrices": "Use advanced pricing",
       "cardTitleMedia": "Media",
-      "labelContextMenuAddToProduct": "Add to product"
+      "labelContextMenuAddToProduct": "Add to product",
+      "cardTitleSeo": "SEO"
     },
     "priceRules": {
       "cardTitlePriceRule": "New price rule",

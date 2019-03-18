@@ -6,7 +6,10 @@ import './sw-price-field.scss';
  * @status ready
  * @example-type static
  * @component-example
- * <sw-price-field :taxRate="{ taxRate: 19 }" :price="{ net: 10, gross: 11.90 }" :currency="{ symbol: '€' }"></sw-price-field>
+ * <sw-price-field :taxRate="{ taxRate: 19 }"
+ *                 :price="{ net: 10, gross: 11.90 }"
+ *                 :currency="{ symbol: '€' }">
+ * </sw-price-field>
  */
 export default {
     name: 'sw-price-field',

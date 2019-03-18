@@ -18,6 +18,7 @@ Module.register('sw-category', {
     targetVersion: '1.0.0',
     color: '#57D9A3',
     icon: 'default-package-closed',
+    entity: 'category',
 
     snippets: {
         'de-DE': deDE,

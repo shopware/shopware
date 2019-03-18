@@ -633,12 +633,14 @@ export default class EntityProxy {
                     return;
                 }
 
-                const associationChanges = entity.getChanges();
+                const entityChanges = entity.getChanges();
+                const entityAssociationChanges = entity.getChangedAssociations();
+                Object.assign(entityChanges, entityAssociationChanges);
 
-                if (entity.isLocal || Object.keys(associationChanges).length > 0) {
-                    associationChanges.id = id;
+                if (entity.isLocal || Object.keys(entityChanges).length > 0) {
+                    entityChanges.id = id;
                     changes[associationKey] = changes[associationKey] || [];
-                    changes[associationKey].push(associationChanges);
+                    changes[associationKey].push(entityChanges);
                 }
             });
         });

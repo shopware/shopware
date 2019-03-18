@@ -108,6 +108,45 @@ describe('core/data/EntityProxy.js', () => {
         expect(changes.categories[0].name).to.be.equal('Test category');
     });
 
+    it('should get the changes of the entity including associations recursively', () => {
+        const pageEntity = new EntityProxy('cms_page', serviceContainer.cmsPageService);
+
+        pageEntity.name = 'Test page';
+        pageEntity.type = 'landingpage';
+        pageEntity.config.backgroundColor = '#ffffff';
+
+        const blockStore = pageEntity.getAssociation('blocks');
+        const blockEntity = blockStore.create();
+
+        blockEntity.position = 1;
+        blockEntity.config.backgroundColor = '#000000';
+        blockEntity.config.cssClass = '.test-class';
+
+        const slotStore = blockEntity.getAssociation('slots');
+        const slotEntity = slotStore.create();
+
+        slotEntity.type = 'text';
+        slotEntity.config.content = 'Lorem ipsum';
+
+        const changes = pageEntity.getChanges();
+        const changedAssociations = pageEntity.getChangedAssociations();
+
+        Object.assign(changes, changedAssociations);
+
+        expect(changes.name).to.be.equal('Test page');
+        expect(changes.type).to.be.equal('landingpage');
+        expect(changes.config.backgroundColor).to.be.equal('#ffffff');
+        expect(changes.blocks).to.be.an('array');
+        expect(changes.blocks.length).to.be.equal(1);
+        expect(changes.blocks[0].position).to.be.equal(1);
+        expect(changes.blocks[0].config.backgroundColor).to.be.equal('#000000');
+        expect(changes.blocks[0].config.cssClass).to.be.equal('.test-class');
+        expect(changes.blocks[0].slots).to.be.an('array');
+        expect(changes.blocks[0].slots.length).to.be.equal(1);
+        expect(changes.blocks[0].slots[0].type).to.be.equal('text');
+        expect(changes.blocks[0].slots[0].config.content).to.be.equal('Lorem ipsum');
+    });
+
     itAsync('should save the entity', (done) => {
         const productEntity = new EntityProxy('product', serviceContainer.productService);
 
@@ -325,7 +364,6 @@ describe('core/data/EntityProxy.js', () => {
         categoryEntity.name = 'Test category';
 
         productEntity.save().then(() => {
-            console.log('First Request');
             serviceContainer.productService.getList({
                 page: 1,
                 limit: 1,

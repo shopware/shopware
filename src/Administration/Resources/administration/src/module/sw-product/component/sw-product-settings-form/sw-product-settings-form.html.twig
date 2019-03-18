@@ -3,16 +3,6 @@
 
         {% block sw_product_settings_form_content %}
             <sw-container columns="repeat(auto-fit, minmax(250px, 1fr)" gap="0px 30px">
-
-                {% block sw_product_settings_form_create_date_field %}
-                    <sw-field type="date"
-                              dateType="datetime"
-                              :label="$tc('sw-product.settingsForm.labelCreatedAt')"
-                              :placeholder="$tc('sw-product.settingsForm.placeholderCreatedAt')"
-                              v-model="product.createdAt">
-                    </sw-field>
-                {% endblock %}
-
                 {% block sw_product_settings_form_release_date_field %}
                     <sw-field type="date"
                               dateType="datetime"
@@ -20,6 +10,16 @@
                               :placeholder="$tc('sw-product.settingsForm.placeholderReleaseDate')"
                               v-model="product.releaseDate">
                     </sw-field>
+                {% endblock %}
+
+                {% block sw_product_settings_form_stock_field %}
+                        <sw-field type="number"
+                                numberType="int"
+                                :min="0"
+                                :label="$tc('sw-product.settingsForm.labelStock')"
+                                :placeholder="$tc('sw-product.settingsForm.placeholderStock')"
+                                v-model="product.stock">
+                        </sw-field>
                 {% endblock %}
             </sw-container>
 
@@ -106,19 +106,6 @@
                               :label="$tc('sw-product.settingsForm.labelManufacturerNumber')"
                               :placeholder="$tc('sw-product.settingsForm.placeholderManufacturerNumber')"
                               v-model="product.manufacturerNumber">
-                    </sw-field>
-                {% endblock %}
-            </sw-container>
-
-
-            <sw-container columns="repeat(auto-fit, minmax(250px, 1fr)" gap="0px 30px">
-                {% block sw_product_settings_form_stock_field %}
-                    <sw-field type="number"
-                              numberType="int"
-                              :min="0"
-                              :label="$tc('sw-product.settingsForm.labelStock')"
-                              :placeholder="$tc('sw-product.settingsForm.placeholderStock')"
-                              v-model="product.stock">
                     </sw-field>
                 {% endblock %}
             </sw-container>

@@ -821,9 +821,14 @@ export default class EntityProxy {
 
             // Any other property
             if (b[key] !== a[key]) {
-                // If the property is translatable and empty we should send null
-                if (this.translatableProperties.includes(key) && b[key] === '') {
+                // Empty string fields have to be null instead of empty string
+                if (a[key] && b[key] === '') {
                     return { ...acc, [key]: null };
+                }
+
+                // Don't reset properties if they are already null
+                if ((!a[key] || a[key] === null) && (b[key] === '' || b[key] === null)) {
+                    return acc;
                 }
 
                 return { ...acc, [key]: b[key] };

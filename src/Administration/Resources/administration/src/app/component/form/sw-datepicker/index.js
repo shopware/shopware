@@ -69,9 +69,13 @@ export default {
     data() {
         return {
             flatpickrInstance: null,
+            inputValue: '',
             defaultConfig: {
                 time_24hr: true,
-                locale: 'en'
+                locale: 'en',
+                dateFormat: 'Y-m-dTH:i:S+00:00',
+                altInput: true,
+                altFormat: 'Y-m-d H:i'
                 // disableMobile: true // only render the flatpickr and no native pickers on mobile
             },
             localeStore: State.getStore('adminLocale'),
@@ -172,7 +176,7 @@ export default {
          */
         setDatepickerValue(newValue) {
             // Prevent updates if v-model value is same as input's current value
-            if (newValue === this.flatpickrInputRef.value) {
+            if (newValue === this.flatpickrInstance.input.defaultValue) {
                 return;
             }
 
@@ -251,8 +255,8 @@ export default {
 
             // emit a new value if the value has changed during config update
             this.$nextTick(() => {
-                if (this.value !== this.flatpickrInputRef.value) {
-                    this.$emit('input', this.flatpickrInputRef.value);
+                if (this.value !== this.flatpickrInstance.input.defaultValue) {
+                    this.$emit('input', this.flatpickrInstance.input.defaultValue);
                 }
             });
         },
@@ -292,8 +296,8 @@ export default {
 
             // emit a new value if the value has changed during instance recreation
             this.$nextTick(() => {
-                if (this.value !== this.flatpickrInputRef.value) {
-                    this.$emit('input', this.flatpickrInputRef.value);
+                if (this.value !== this.flatpickrInstance.input.defaultValue) {
+                    this.$emit('input', this.flatpickrInstance.input.defaultValue);
                 }
             });
         },
@@ -333,9 +337,13 @@ export default {
          *
          * @param event
          */
-        onInput(event) {
+        onInput() {
+            if (this.inputValue) {
+                this.flatpickrInstance.input.defaultValue = this.inputValue;
+            }
+
             this.$nextTick(() => {
-                this.$emit('input', event.target.value);
+                this.$emit('input', this.flatpickrInstance.input.defaultValue);
             });
         },
 
@@ -344,8 +352,8 @@ export default {
          *
          * @param event
          */
-        onBlur(event) {
-            this.$emit('blur', event.target.value);
+        onBlur() {
+            this.$emit('blur', this.flatpickrInstance.input.defaultValue);
         },
 
         /**

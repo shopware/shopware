@@ -31,8 +31,8 @@ module.exports = {
         page.createDateRangeCondition({
             type: 'Date range',
             ruleSelector: `${page.elements.conditionOrContainer}--0 ${page.elements.baseCondition}`,
-            fromDate: '2019-03-28 12:12',
-            toDate: '2019-04-28 12:12',
+            fromDate: '2019-28-03 12:12',
+            toDate: '2019-28-04 12:12',
             useTime: true
         });
     },

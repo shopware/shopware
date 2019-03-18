@@ -160,6 +160,69 @@ describe('core/data/EntityProxy.js', () => {
         });
     }, 50000);
 
+    itAsync('should reset the field value to null', (done) => {
+        const productEntity = new EntityProxy('product', serviceContainer.productService);
+
+        const taxEntity = new EntityProxy('tax', serviceContainer.taxService);
+        taxEntity.setLocalData({
+            name: 'Test tax rate',
+            taxRate: 99.98
+        });
+
+        const manufacturerEntity = new EntityProxy('product_manufacturer', serviceContainer.productManufacturerService);
+        manufacturerEntity.setLocalData({
+            name: 'Test manufacturer'
+        });
+
+        // Trigger changes
+        productEntity.tax = taxEntity.getChanges();
+        productEntity.tax.id = taxEntity.id;
+        productEntity.manufacturer = manufacturerEntity.getChanges();
+        productEntity.manufacturer.id = manufacturerEntity.id;
+
+        productEntity.name = 'Sample product';
+        productEntity.price = {
+            gross: 12,
+            net: 11
+        };
+        productEntity.releaseDate = '2019-03-20T12:00:00+00:00';
+
+        // Save entity
+        productEntity.save().then((response) => {
+            expect(response.errors.length).to.be.equal(0);
+            expect(response.name).to.be.equal('Sample product');
+
+            expect(response.price).to.deep.include({
+                gross: 12,
+                net: 11
+            });
+
+            // Change release date to an empty string
+            productEntity.releaseDate = '';
+
+            productEntity.save().then((secondResponse) => {
+                expect(secondResponse.errors.length).to.be.equal(0);
+                expect(secondResponse.releaseDate).to.be.equal(null);
+
+                productEntity.delete(true)
+                    .then(() => {
+                        return manufacturerEntity.delete(true);
+                    })
+                    .then(() => {
+                        return taxEntity.delete(true);
+                    })
+                    .then(() => {
+                        done();
+                    })
+                    .catch((error) => {
+                        done(error);
+                    });
+            });
+        }).catch((error) => {
+            done(error);
+        });
+    }, 50000);
+
     it('should remove itself from the store', () => {
         const store = State.getStore('product');
         const entity = store.create();

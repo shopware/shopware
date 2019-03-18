@@ -1,10 +1,12 @@
 {% block base_utilities_offcanvas %}
     {% block base_utilities_offcanvas_close %}
-        <a class="off-canvas-close text-left" href="#off-canvas-close">
+        <a class="off-canvas-close" href="#off-canvas-close">
             {% block base_utilities_offcanvas_close_icon %}
-                <i class="fas fa-chevron-left close-icon"></i>
+                <i class="fas fa-chevron-left off-canvas-close-icon"></i>
             {% endblock %}
-            {{ "general.offcanvasCloseMenu"|trans }}
+            {% block base_utilities_offcanvas_close_text %}
+                {{ "general.offcanvasCloseMenu"|trans }}
+            {% endblock %}
         </a>
     {% endblock %}
 

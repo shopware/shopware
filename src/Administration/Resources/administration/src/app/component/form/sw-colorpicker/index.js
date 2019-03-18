@@ -53,8 +53,7 @@ export default {
     data() {
         return {
             color: '',
-            open: false,
-            userConfig: {}
+            open: false
         };
     },
 
@@ -73,14 +72,28 @@ export default {
                 'is--open': !!this.open
             };
         },
+
         emptyColor() {
             return !this.color;
+        },
+
+        config() {
+            return {
+                popup: 'left',
+                alpha: this.alpha || false,
+                editorFormat: this.editorFormat || 'hex',
+                colorCallback: this.colorCallback || 'hex'
+            };
         }
     },
 
     watch: {
         value(value) {
             this.setColor(value);
+        },
+
+        color() {
+            this.$emit('input', this.color);
         }
     },
 
@@ -93,13 +106,11 @@ export default {
                 onChange: this.onChange
             });
 
-            this.userConfig = {
-                popup: 'left',
-                alpha: this.alpha || false,
-                editorFormat: this.editorFormat || 'hex',
-                colorCallback: this.colorCallback || 'hex'
-            };
-            this.colorPicker.setOptions(this.userConfig);
+            this.setColorpickerValues();
+        },
+
+        setColorpickerValues() {
+            this.colorPicker.setOptions(this.config);
             this.setColor(this.value, true);
         },
 

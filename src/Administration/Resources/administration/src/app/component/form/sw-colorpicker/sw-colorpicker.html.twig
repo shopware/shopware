@@ -6,26 +6,22 @@
                 {% block sw_colorpicker_text_field %}
                     <sw-text-field class="sw-colorpicker__textfield" v-model="color" :label="label" :disabled="disabled">
                         {% block sw_colorpicker_preview %}
-                            <template slot="prefix">
-                                <div class="sw-colorpicker__previewWrapper">
-                                    {% block sw_colorpicker_preview_color %}
-                                        <div class="sw-colorpicker__previewColor" :style="{ background: color }"></div>
-                                    {% endblock %}
-                                    {% block sw_colorpicker_preview_background %}
-                                        <div class="sw-colorpicker__previewBackground" :class="{'sw-colorpicker__previewBackground--empty': emptyColor}"></div>
-                                    {% endblock %}
-                                </div>
-                            </template>
+                            <div slot="prefix" class="sw-colorpicker__previewWrapper">
+                                {% block sw_colorpicker_preview_color %}
+                                    <div class="sw-colorpicker__previewColor" :style="{ background: color }"></div>
+                                {% endblock %}
+                                {% block sw_colorpicker_preview_background %}
+                                    <div class="sw-colorpicker__previewBackground" :class="{'sw-colorpicker__previewBackground--empty': emptyColor}"></div>
+                                {% endblock %}
+                            </div>
                         {% endblock %}
 
                         {% block sw_colorpicker_trigger %}
-                            <template slot="suffix">
-                                <div class="sw-colorpicker__trigger">
-                                    {% block sw_colorpicker_trigger_icon %}
-                                        <sw-icon class="sw-colorpicker__icon" name="default-tools-colorpicker"></sw-icon>
-                                    {% endblock %}
-                                </div>
-                            </template>
+                            <div slot="suffix" class="sw-colorpicker__trigger">
+                                {% block sw_colorpicker_trigger_icon %}
+                                    <sw-icon class="sw-colorpicker__icon" name="default-tools-colorpicker"></sw-icon>
+                                {% endblock %}
+                            </div>
                         {% endblock %}
                     </sw-text-field>
                 {% endblock %}

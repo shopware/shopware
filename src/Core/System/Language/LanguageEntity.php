@@ -25,8 +25,6 @@ use Shopware\Core\Framework\Struct\Collection;
 use Shopware\Core\System\Country\Aggregate\CountryStateTranslation\CountryStateTranslationCollection;
 use Shopware\Core\System\Country\Aggregate\CountryTranslation\CountryTranslationCollection;
 use Shopware\Core\System\Currency\Aggregate\CurrencyTranslation\CurrencyTranslationCollection;
-use Shopware\Core\System\Listing\Aggregate\ListingFacetTranslation\ListingFacetTranslationCollection;
-use Shopware\Core\System\Listing\Aggregate\ListingSortingTranslation\ListingSortingTranslationCollection;
 use Shopware\Core\System\Locale\Aggregate\LocaleTranslation\LocaleTranslationCollection;
 use Shopware\Core\System\Locale\LocaleEntity;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainCollection;
@@ -133,16 +131,6 @@ class LanguageEntity extends Entity
      * @var CustomerGroupTranslationCollection|null
      */
     protected $customerGroupTranslations;
-
-    /**
-     * @var ListingFacetTranslationCollection|null
-     */
-    protected $listingFacetTranslations;
-
-    /**
-     * @var ListingSortingTranslationCollection|null
-     */
-    protected $listingSortingTranslations;
 
     /**
      * @var LocaleTranslationCollection|null
@@ -437,26 +425,6 @@ class LanguageEntity extends Entity
     public function setCustomerGroupTranslations(CustomerGroupTranslationCollection $customerGroupTranslations): void
     {
         $this->customerGroupTranslations = $customerGroupTranslations;
-    }
-
-    public function getListingFacetTranslations(): ?ListingFacetTranslationCollection
-    {
-        return $this->listingFacetTranslations;
-    }
-
-    public function setListingFacetTranslations(ListingFacetTranslationCollection $listingFacetTranslations): void
-    {
-        $this->listingFacetTranslations = $listingFacetTranslations;
-    }
-
-    public function getListingSortingTranslations(): ?ListingSortingTranslationCollection
-    {
-        return $this->listingSortingTranslations;
-    }
-
-    public function setListingSortingTranslations(ListingSortingTranslationCollection $listingSortingTranslations): void
-    {
-        $this->listingSortingTranslations = $listingSortingTranslations;
     }
 
     public function getLocaleTranslations(): ?LocaleTranslationCollection

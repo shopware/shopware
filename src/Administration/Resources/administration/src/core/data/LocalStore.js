@@ -100,11 +100,13 @@ export default class LocalStore {
                 });
             }
 
-            if (params.limit && params.limit < Object.keys(this.store).length) {
-                const page = params.page !== undefined ? params.page - 1 : 0;
+            if (params.limit && params.page) {
+                const start = params.limit * (params.page - 1);
+                const end = start + params.limit;
 
-                store = store.slice(params.limit * page, params.limit);
+                store = store.slice(start, end);
             }
+
             resolve({ items: store, total: Object.keys(this.store).length, aggregations: [] });
         });
     }

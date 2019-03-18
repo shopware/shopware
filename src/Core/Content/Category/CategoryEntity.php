@@ -8,6 +8,7 @@ use Shopware\Core\Content\Navigation\NavigationCollection;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
+use Shopware\Core\Framework\Tag\TagCollection;
 
 class CategoryEntity extends Entity
 {
@@ -186,6 +187,11 @@ class CategoryEntity extends Entity
      * @var NavigationCollection|null
      */
     protected $navigations;
+
+    /**
+     * @var TagCollection|null
+     */
+    protected $tags;
 
     public function getParentId(): ?string
     {
@@ -535,5 +541,15 @@ class CategoryEntity extends Entity
     public function setNavigations(NavigationCollection $navigations): void
     {
         $this->navigations = $navigations;
+    }
+
+    public function getTags(): ?TagCollection
+    {
+        return $this->tags;
+    }
+
+    public function setTags(TagCollection $tags): void
+    {
+        $this->tags = $tags;
     }
 }

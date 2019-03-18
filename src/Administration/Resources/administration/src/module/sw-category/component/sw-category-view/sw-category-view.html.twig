@@ -59,6 +59,10 @@
                         @sw-media-upload-remove-image="removeMediaItem">
                     </sw-media-upload>
                 {% endblock %}
+
+                {% block sw_category_view_information_tags %}
+                    <sw-tag-field :entity="category"></sw-tag-field>
+                {% endblock %}
             </sw-card>
         {% endblock %}
 

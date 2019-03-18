@@ -1,0 +1,73 @@
+[titleEn]: <>(Creating a service)
+[wikiUrl]: <>(../how-to/creating-a-service?category=platform-en/how-to)
+
+## Overview
+
+Creating custom services for your plugin is as simple as it is in Symfony bundles, since
+Shopware platform plugins are basically just extended Symfony bundles.
+Make sure to have a look at the [Symfony documentation](https://symfony.com/doc/current/service_container.html#creating-configuring-services-in-the-container), to find out how services are registered in Symfony itself.
+
+The only difference is, that you need to let the Shopware platform know about your plugin's custom `services.xml` location.
+
+This is done in the plugin's base class.
+
+## Plugin base class
+
+You need to overwrite the base class' `build` method to load your `services.xml` file.
+
+```php
+<?php declare(strict_types=1);
+
+namespace CustomService;
+
+use Shopware\Core\Framework\Plugin;
+use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
+use Symfony\Component\Config\FileLocator;
+
+class CustomService extends Plugin
+{
+    public function build(ContainerBuilder $container): void
+    {
+        parent::build($container);
+        $loader = new XmlFileLoader($container, new FileLocator(__DIR__ . '/DependencyInjection/'));
+        $loader->load('services.xml');
+    }
+}
+```
+
+It now tries to load the `services.xml` file inside the `<plugin-root>/DependencyInjection` directory.
+
+From here on, everything works exactly like in Symfony itself.
+
+Here's an example `services.xml`:
+
+```xml
+<?xml version="1.0" ?>
+
+<container xmlns="http://symfony.com/schema/dic/services"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+
+    <services>
+        <service id="CustomService\Service\MyService" />
+    </services>
+</container>
+```
+
+And the related example service:
+```php
+<?php declare(strict_types = 1);
+
+namespace CustomService\Service;
+
+class MyService
+{
+    public function doSomething(): void
+    {
+    }
+}
+```
+
+Note: By default, all services on the Shopware platform are marked as `private`.
+Read more about private and public services [here](https://symfony.com/doc/current/service_container/alias_private.html#marking-services-as-public-private).

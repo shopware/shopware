@@ -21,6 +21,7 @@ module.exports = {
         const page = mediaPage(browser);
 
         browser
+            .waitForElementNotPresent(page.elements.loader)
             .waitForElementVisible(`${page.elements.gridItem}--0 .sw-media-base-item__preview-container`)
             .clickContextMenuItem(page.elements.showMediaAction, page.elements.contextMenuButton, `${page.elements.gridItem}--0 `)
             .expect.element('.smart-bar__header').to.have.text.that.equals('First folder');
@@ -61,6 +62,7 @@ module.exports = {
         const page = mediaPage(browser);
 
         browser
+            .waitForElementNotPresent(page.elements.loader)
             .clickContextMenuItem(page.elements.showMediaAction, page.elements.contextMenuButton, `${page.elements.gridItem}--0 `)
             .expect.element('.smart-bar__header').to.have.text.that.equals('Second folder');
 

@@ -16,6 +16,7 @@ module.exports = {
         page.openMediaModal(page.elements.showSettingsAction, 0);
 
         browser
+            .waitForElementNotPresent(page.elements.loader)
             .click('.sw-media-folder-settings__thumbnails-tab')
             .click('button.sw-media-modal-folder-settings__switch-mode')
             .waitForElementVisible('.sw-media-modal-folder-settings__thumbnails-list-container');
@@ -66,6 +67,9 @@ module.exports = {
     },
     'check inheritance of parent thumbnail settings and sizes': (browser) => {
         const page = mediaPage(browser);
+
+        browser.waitForElementNotPresent(page.elements.loader);
+
         page.openMediaModal(page.elements.showSettingsAction, 0);
 
         browser

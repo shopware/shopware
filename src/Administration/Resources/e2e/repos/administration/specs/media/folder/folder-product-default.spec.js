@@ -19,15 +19,16 @@ module.exports = {
         page.openMediaIndex();
 
         browser
-            .click(`${page.elements.gridItem}--0 .sw-media-base-item__preview-container`)
-            .click('.quickaction--settings')
-            .expect.element(`${page.elements.modal}__title`).to.have.text.that.equals('Products for the good');
+            .waitForElementNotPresent(page.elements.loader);
+
+        page.openMediaModal(page.elements.showSettingsAction, 0);
+
+        browser.expect.element(`${page.elements.modal}__title`).to.have.text.that.equals('Products for the good');
     },
     'set as default for products': (browser) => {
         const page = mediaPage(browser);
 
-        browser.expect.element('.sw-media-folder-settings-modal__default-folder-select.sw-select label').to.have.text
-            .that.equals('Default location for:').before(5000);
+        browser.expect.element('.sw-media-folder-settings-modal__default-folder-select.sw-select label').to.have.text.that.equals('Default location for:');
 
         browser
             .fillSwSelectComponent(

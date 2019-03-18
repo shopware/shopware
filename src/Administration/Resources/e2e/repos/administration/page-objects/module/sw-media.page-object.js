@@ -27,6 +27,7 @@ class MediaPageObject extends GeneralPageObject {
 
     uploadImageViaURL(imgPath) {
         this.browser
+            .waitForElementNotPresent(this.elements.loader)
             .clickContextMenuItem('.sw-media-upload__button-url-upload', '.sw-media-upload__button-context-menu')
             .waitForElementVisible('.sw-media-url-form')
             .fillField('input[name=sw-field--url]', imgPath)
@@ -90,6 +91,7 @@ class MediaPageObject extends GeneralPageObject {
 
     createFolder(name, position = 0) {
         this.browser
+            .waitForElementNotPresent(this.elements.loader)
             .click('.sw-media-index__create-folder-action')
             .waitForElementVisible(`${this.elements.gridItem}--0 .icon--folder-thumbnail`)
             .fillField(this.elements.folderNameInput, name)

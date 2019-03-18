@@ -38,6 +38,7 @@ module.exports = {
         page.openMediaIndex();
 
         browser
+            .waitForElementNotPresent(page.elements.loader)
             .waitForElementVisible(`${page.elements.gridItem}--0`)
             .click(`${page.elements.gridItem}--0`)
             .waitForElementVisible(`${page.elements.gridItem}--0`)

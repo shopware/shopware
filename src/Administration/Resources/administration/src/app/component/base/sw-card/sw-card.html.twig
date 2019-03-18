@@ -14,6 +14,9 @@
                 <slot name="grid" :title="title">
                     {% block sw_card_slot_grid %}{% endblock %}
                 </slot>
+                <slot name="footer">
+                    {% block sw_card_slot_footer %}{% endblock %}
+                </slot>
 
                 {% block sw_card_loader %}
                     <sw-loader v-if="isLoading"></sw-loader>

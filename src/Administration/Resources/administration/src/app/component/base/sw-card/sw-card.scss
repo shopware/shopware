@@ -8,7 +8,7 @@ $sw-card-tabs-item-color-border:            $color-steam-cloud;
 $sw-card-tabs-item-color-background:        $color-light-gray;
 $sw-card-tabs-item-color-background-active: $color-white;
 $sw-card-color-text:                        $color-gutenberg;
-$sw-card-tabs-color-background:             #F9FAFB; //TODO: replace with grey variable
+$sw-card-tabs-color-background:             #F9FAFB; //TODO: replace with matching global variable
 
 .sw-card {
     max-width: 800px;
@@ -22,7 +22,7 @@ $sw-card-tabs-color-background:             #F9FAFB; //TODO: replace with grey v
         }
 
         & > .sw-tabs {
-            border: 1px solid #D1D9E0;
+            border: 1px solid #D1D9E0; // TODO: replace with matching global variable.
             border-radius: $sw-card-border-radius $sw-card-border-radius 0 0;
             margin-bottom: 0;
 

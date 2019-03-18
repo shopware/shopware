@@ -2,7 +2,6 @@
 import '@babel/polyfill';
 import 'bootstrap';
 import jQuery from 'jquery';
-
 // Import styles
 import '../scss/base.scss';
 
@@ -21,6 +20,7 @@ import ExtendedPlugin from './plugin/test/extended-plugin';
 import ModalExtension from "./plugin/modal/modal-extension.plugin";
 import pluginManager from './helper/plugin.manager';
 import ViewportDetection from "./helper/viewport-detection.helper";
+import CollapseFooterColumns from "./plugin/collapse/collapse-footer.plugin";
 import Logout from "./plugin/logout/logout.plugin";
 
 // Expose jQuery and plugin manager to the global window object
@@ -71,6 +71,9 @@ new CartMini();
 
 // Modal Extension
 new ModalExtension();
+
+// Collapse Footer Columns
+new CollapseFooterColumns();
 
 // Cookie Permission
 new CookiePermission();

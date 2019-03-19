@@ -32,7 +32,8 @@ class CheckoutAjaxCartPageletLoader implements PageLoaderInterface
     public function load(InternalRequest $request, CheckoutContext $context): CheckoutAjaxCartPagelet
     {
         $page = new CheckoutAjaxCartPagelet(
-            $this->cartService->getCart($context->getToken(), $context)
+            $this->cartService->getCart($context->getToken(), $context),
+            $context
         );
 
         $this->eventDispatcher->dispatch(

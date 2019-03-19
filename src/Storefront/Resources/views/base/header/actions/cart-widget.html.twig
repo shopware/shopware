@@ -7,7 +7,8 @@
         <span class="cart-widget-display">{{ 'checkout.cartTitle'|trans }}</span>
         <span class="cart-widget-badge">{{ page.cart.lineItems|length }}</span>
         <i class="icon-basket"></i>
-	    {# @TODO: NEXT-1981 - replace "EUR" with context variable #}
-        <span class="cart-widget-total">{{ page.cart.price.positionPrice|localizedcurrency('EUR', app.request.locale) }}</span>
+        <span class="cart-widget-total">
+            {{ page.cart.price.positionPrice|localizedcurrency(page.context.currency.shortName, app.request.locale) }}
+        </span>
     </a>
 {% endblock %}

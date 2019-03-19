@@ -16,10 +16,12 @@
 							{% block base_cart_mini_item_image %}
 								<div class="cart-item-image">
 									<img srcset="{{ lineItem.cover.url }}"
+									     class="img-fluid"
 									     alt="{{ lineItem.label }}"
 									     title="{{ lineItem.label }}">
 								</div>
 							{% endblock %}
+
 							{% block base_cart_mini_item_actions %}
 								{% if lineItem.isRemovable() %}
 									<form class="cart-item-remove"
@@ -34,17 +36,26 @@
 									</form>
 								{% endif %}
 							{% endblock %}
+
 							{% block base_cart_mini_item_link %}
 								<a href="{{ path('frontend.detail.page', {'productId': lineItem.key}) }}"
 								   class="cart-item-link">
 									{% block base_cart_mini_item_quantity %}
-										<span class="cart-item-link-quantity">{{ lineItem.quantity }}{{ "checkout.quantityTimes"|trans }}</span>
+										<span class="cart-item-link-quantity">
+											{{ lineItem.quantity }}{{ "checkout.quantityTimes"|trans }}
+										</span>
 									{% endblock %}
+
 									{% block base_cart_mini_item_name %}
-										<span class="cart-item-link-name">{{ lineItem.label }}</span>
+										<span class="cart-item-link-name">
+											{{ lineItem.label }}
+										</span>
 									{% endblock %}
+
 									{% block base_cart_mini_item_price %}
-										<span class="cart-item-link-price">{{ lineItem.price.totalPrice|localizedcurrency('EUR', app.request.locale) }}{{ "general.star"|trans }}</span> {# @TODO CURRENCY FORMAT DEPENDING ON SELECTED CURRENCY AND LOCALE#}
+										<span class="cart-item-link-price">
+											{{ lineItem.price.totalPrice|localizedcurrency(page.context.currency.shortName, app.request.locale) }}{{ "general.star"|trans }}
+										</span>
 									{% endblock %}
 								</a>
 							{% endblock %}
@@ -60,9 +71,12 @@
 			{% if isCartNotEmpty %}
 				{% block base_cart_mini_cart_prices %}
 					<div class="cart-prices">
-						<span class="cart-prices-text">{{ "checkout.subtotalAmount"|trans }}</span>
-						{# @TODO CURRENCY FORMAT DEPENDING ON SELECTED CURRENCY AND LOCALE#}
-						<span class="cart-prices-subtotal">{{ page.cart.price.positionPrice|localizedcurrency('EUR', app.request.locale) }}</span>
+						<span class="cart-prices-text">
+							{{ "checkout.subtotalAmount"|trans }}
+						</span>
+						<span class="cart-prices-subtotal">
+							{{ page.cart.price.positionPrice|localizedcurrency(page.context.currency.shortName, app.request.locale) }}
+						</span>
 					</div>
 				{% endblock %}
 

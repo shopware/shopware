@@ -1,9 +1,11 @@
-.checkout-main-left {
-    @extend .col-lg-12;
-}
+.checkout.is-confirm {
+    .checkout-main-left {
+        @extend .col-lg-12;
+    }
 
-.checkout-main-right {
-    @extend .offset-lg-8;
+    .checkout-main-right {
+        @extend .offset-lg-8;
+    }
 }
 
 .confirm-terms {

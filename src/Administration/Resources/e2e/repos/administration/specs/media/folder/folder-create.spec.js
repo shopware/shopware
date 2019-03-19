@@ -10,7 +10,7 @@ module.exports = {
         const page = mediaPage(browser);
         page.createFolder(global.MediaFixtureService.mediaFolderFixture.name);
     },
-    'verify creation of the new folder and navigate': (browser) => {
+    'verify creation of and navigate into new folder': (browser) => {
         const page = mediaPage(browser);
 
         browser

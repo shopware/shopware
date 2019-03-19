@@ -4,6 +4,8 @@ namespace Shopware\Core\Framework\Tag;
 
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerTag\CustomerTagDefinition;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
+use Shopware\Core\Checkout\Order\Aggregate\OrderTag\OrderTagDefinition;
+use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Content\Category\Aggregate\CategoryTag\CategoryTagDefinition;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Media\Aggregate\MediaTag\MediaTagDefinition;
@@ -50,6 +52,7 @@ class TagDefinition extends EntityDefinition
             (new ManyToManyAssociationField('media', MediaDefinition::class, MediaTagDefinition::class, false, 'tag_id', 'media_id')),
             (new ManyToManyAssociationField('categories', CategoryDefinition::class, CategoryTagDefinition::class, false, 'tag_id', 'category_id')),
             (new ManyToManyAssociationField('customers', CustomerDefinition::class, CustomerTagDefinition::class, false, 'tag_id', 'customer_id')),
+            (new ManyToManyAssociationField('orders', OrderDefinition::class, OrderTagDefinition::class, false, 'tag_id', 'order_id')),
         ]);
     }
 }

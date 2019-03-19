@@ -5,7 +5,7 @@
                 <sw-select :id="entity.id"
                            multi
                            ref="swTagSelect"
-                           :label="$tc('global.sw-tag-field.title')"
+                           :label="label ? $tc('global.sw-tag-field.title') : ''"
                            :placeholder="$tc('global.sw-tag-field.placeholder')"
                            :associationStore="associationStore"
                            :store="tagStore"

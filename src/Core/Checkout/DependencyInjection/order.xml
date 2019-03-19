@@ -30,6 +30,10 @@
             <tag name="shopware.entity.definition" entity="order_line_item"/>
         </service>
 
+        <service id="Shopware\Core\Checkout\Order\Aggregate\OrderTag\OrderTagDefinition">
+            <tag name="shopware.entity.definition" entity="order_tag"/>
+        </service>
+
         <service id="Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionDefinition">
             <tag name="shopware.entity.definition" entity="order_transaction"/>
         </service>

@@ -12,7 +12,7 @@ Component.register('sw-order-detail', {
 
     data() {
         return {
-            order: {},
+            order: null,
             orderId: null,
             isEditing: false,
             attributeSets: []

@@ -329,7 +329,16 @@ class EntityHydrator
 
     private function hydrateManyToOne(array $row, string $root, Context $context, AssociationInterface $field): ?Entity
     {
-        $key = $root . '.' . $field->getPropertyName() . '.id';
+        /** @var OneToOneAssociationField $field */
+        if (!$field instanceof OneToOneAssociationField && !$field instanceof ManyToOneAssociationField) {
+            return null;
+        }
+
+        $pkField = $field->getReferenceClass()::getFields()->getByStorageName(
+            $field->getReferenceField()
+        );
+
+        $key = $root . '.' . $field->getPropertyName() . '.' . $pkField->getPropertyName();
 
         //check if ManyToOne is loaded (`product.manufacturer.id`). Otherwise the association is set to null and continue
         if (!isset($row[$key])) {

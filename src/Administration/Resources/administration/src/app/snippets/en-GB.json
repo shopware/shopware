@@ -307,9 +307,9 @@
     },
     "sw-condition": {
       "operator": {
-        "lowerThanEquals": "Lower than",
+        "lowerThanEquals": "Lower than equals",
         "equals": "Equals",
-        "greaterThanEquals": "Greater equals",
+        "greaterThanEquals": "Greater than equals",
         "lowerThan": "Lower",
         "greaterThan": "Greater",
         "notEquals": "Not equals",

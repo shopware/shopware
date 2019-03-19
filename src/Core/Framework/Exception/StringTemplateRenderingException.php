@@ -7,12 +7,17 @@ use Symfony\Component\HttpFoundation\Response;
 
 class StringTemplateRenderingException extends ShopwareHttpException
 {
-    protected $code = 'STRING-TEMPLATE-RENDERING-FAILED';
-
     public function __construct(string $twigMessage)
     {
-        $message = 'Failed rendering string template using Twig: ' . $twigMessage;
-        parent::__construct($message);
+        parent::__construct(
+            'Failed rendering string template using Twig: {{ message }}',
+            ['message' => $twigMessage]
+        );
+    }
+
+    public function getErrorCode(): string
+    {
+        return 'FRAMEWORK__STRING_TEMPLATE_RENDERING_FAILED';
     }
 
     public function getStatusCode(): int

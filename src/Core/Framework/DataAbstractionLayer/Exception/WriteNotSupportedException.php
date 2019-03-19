@@ -14,11 +14,12 @@ class WriteNotSupportedException extends ShopwareHttpException
      */
     private $field;
 
-    public function __construct(Field $field, int $code = 0, ?\Throwable $previous = null)
+    public function __construct(Field $field)
     {
-        $message = sprintf('Writing to ReadOnly field %s is not supported', \get_class($field));
-
-        parent::__construct($message, $code, $previous);
+        parent::__construct(
+            'Writing to ReadOnly field "{{ field }}" is not supported.',
+            ['field' => \get_class($field)]
+        );
 
         $this->field = $field;
     }
@@ -31,5 +32,10 @@ class WriteNotSupportedException extends ShopwareHttpException
     public function getField(): Field
     {
         return $this->field;
+    }
+
+    public function getErrorCode(): string
+    {
+        return 'FRAMEWORK__WRITE_NOT_SUPPORTED';
     }
 }

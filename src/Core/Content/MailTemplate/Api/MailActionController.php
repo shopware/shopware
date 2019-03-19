@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Content\MailTemplate\Api;
 
-use Shopware\Core\Content\MailTemplate\Exception\MailAddressValidationException;
 use Shopware\Core\Content\MailTemplate\Exception\MailTransportFailedException;
 use Shopware\Core\Content\MailTemplate\Service\MailBuilder;
 use Shopware\Core\Content\MailTemplate\Service\MailSender;
@@ -51,7 +50,6 @@ class MailActionController extends AbstractController
     /**
      * @Route("/api/v{version}/_action/mail-template/send", name="api.action.mail_template.send", methods={"POST"})
      *
-     * @throws MailAddressValidationException
      * @throws MissingParameterException
      * @throws StringTemplateRenderingException
      * @throws MailTransportFailedException

@@ -7,17 +7,21 @@ use Symfony\Component\HttpFoundation\Response;
 
 class MediaNotFoundException extends ShopwareHttpException
 {
-    public const CODE = 600000;
-
-    public function __construct(string $mediaId, int $code = self::CODE, ?\Throwable $previous = null)
+    public function __construct(string $mediaId)
     {
-        $message = sprintf('Media for id %s not found', $mediaId);
-
-        parent::__construct($message, $code, $previous);
+        parent::__construct(
+            'Media for id {{ mediaId }} not found.',
+            ['mediaId' => $mediaId]
+        );
     }
 
     public function getStatusCode(): int
     {
         return Response::HTTP_NOT_FOUND;
+    }
+
+    public function getErrorCode(): string
+    {
+        return 'CONTENT__MEDIA_NOT_FOUND';
     }
 }

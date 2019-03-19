@@ -77,10 +77,10 @@ class RetryMiddleware implements MiddlewareInterface
                     'handlerClass' => $e->getHandlerClass(),
                     'encrypted' => $encrypted,
                     'nextExecutionTime' => DeadMessageEntity::calculateNextExecutionTime(1),
-                    'exception' => get_class($e->getPrevious()),
-                    'exceptionMessage' => $e->getPrevious()->getMessage(),
-                    'exceptionFile' => $e->getPrevious()->getFile(),
-                    'exceptionLine' => $e->getPrevious()->getLine(),
+                    'exception' => get_class($e->getException()),
+                    'exceptionMessage' => $e->getException()->getMessage(),
+                    'exceptionFile' => $e->getException()->getFile(),
+                    'exceptionLine' => $e->getException()->getLine(),
                     'scheduledTaskId' => $scheduledTaskId,
                 ],
             ], $this->context);
@@ -89,7 +89,7 @@ class RetryMiddleware implements MiddlewareInterface
 
     private function handleExistingDeadMessage(DeadMessageEntity $deadMessage, MessageFailedException $e): void
     {
-        if ($this->isExceptionEqual($deadMessage, $e->getPrevious())) {
+        if ($this->isExceptionEqual($deadMessage, $e->getException())) {
             $this->incrementErrorCount($deadMessage);
 
             return;
@@ -136,10 +136,10 @@ class RetryMiddleware implements MiddlewareInterface
                     'handlerClass' => $e->getHandlerClass(),
                     'encrypted' => $message->isEncrypted(),
                     'nextExecutionTime' => DeadMessageEntity::calculateNextExecutionTime(1),
-                    'exception' => get_class($e->getPrevious()),
-                    'exceptionMessage' => $e->getPrevious()->getMessage(),
-                    'exceptionFile' => $e->getPrevious()->getFile(),
-                    'exceptionLine' => $e->getPrevious()->getLine(),
+                    'exception' => get_class($e->getException()),
+                    'exceptionMessage' => $e->getException()->getMessage(),
+                    'exceptionFile' => $e->getException()->getFile(),
+                    'exceptionLine' => $e->getException()->getLine(),
                 ],
             ], $this->context);
         });

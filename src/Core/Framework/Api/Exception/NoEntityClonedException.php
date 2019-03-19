@@ -2,18 +2,20 @@
 
 namespace Shopware\Core\Framework\Api\Exception;
 
-use Shopware\Core\Framework\ShopwareException;
-use Symfony\Component\Serializer\Exception\MappingException;
+use Shopware\Core\Framework\ShopwareHttpException;
 
-class NoEntityClonedException extends MappingException implements ShopwareException
+class NoEntityClonedException extends ShopwareHttpException
 {
-    /**
-     * {@inheritdoc}
-     */
-    public function __construct(string $entity, string $id, int $code = 0, ?\Throwable $previous = null)
+    public function __construct(string $entity, string $id)
     {
-        $message = sprintf('Could not clone entity %s with id %s', $entity, $id);
+        parent::__construct(
+            'Could not clone entity {{ entity }} with id {{ id }}.',
+            ['entity' => $entity, 'id' => $id]
+        );
+    }
 
-        parent::__construct($message, $code, $previous);
+    public function getErrorCode(): string
+    {
+        return 'FRAMEWORK__NO_ENTITIY_CLONED_ERROR';
     }
 }

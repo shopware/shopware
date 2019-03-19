@@ -222,10 +222,12 @@ class StorefrontCheckoutControllerTest extends TestCase
         $city = 'Cologne';
 
         $billing = [
-            'billingAddress.country' => $countryId,
-            'billingAddress.street' => $street,
-            'billingAddress.zipcode' => $zipcode,
-            'billingAddress.city' => $city,
+            'billingAddress' => [
+                'countryId' => $countryId,
+                'street' => $street,
+                'zipcode' => $zipcode,
+                'city' => $city,
+            ],
         ];
 
         $client = $this->createCart();
@@ -289,18 +291,12 @@ class StorefrontCheckoutControllerTest extends TestCase
             'salutationId' => $salutationId,
             'firstName' => $firstName,
             'lastName' => $lastName,
-        ];
-
-        $countryId = Defaults::COUNTRY;
-        $street = 'Examplestreet 11';
-        $zipcode = '48441';
-        $city = 'Cologne';
-
-        $billing = [
-            'billingAddress.country' => $countryId,
-            'billingAddress.street' => $street,
-            'billingAddress.zipcode' => $zipcode,
-            'billingAddress.city' => $city,
+            'billingAddress' => [
+                'countryId' => Defaults::COUNTRY,
+                'street' => 'Examplestreet 11',
+                'zipcode' => '48441',
+                'city' => 'Cologne',
+            ],
         ];
 
         $client = $this->createCart();
@@ -309,7 +305,7 @@ class StorefrontCheckoutControllerTest extends TestCase
         $this->addProduct($client, $productId, $quantity);
         static::assertSame(200, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
 
-        $this->guestOrder($client, array_merge($personal, $billing));
+        $this->guestOrder($client, $personal);
         static::assertSame(200, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
 
         $order = json_decode($client->getResponse()->getContent(), true);
@@ -328,10 +324,10 @@ class StorefrontCheckoutControllerTest extends TestCase
 
         static::assertEquals($firstName, $customer->getFirstName());
         static::assertEquals($lastName, $customer->getLastName());
-        static::assertEquals($countryId, $order['addresses'][0]['country']['id']);
-        static::assertEquals($street, $order['addresses'][0]['street']);
-        static::assertEquals($zipcode, $order['addresses'][0]['zipcode']);
-        static::assertEquals($city, $order['addresses'][0]['city']);
+        static::assertEquals($personal['billingAddress']['countryId'], $order['addresses'][0]['country']['id']);
+        static::assertEquals($personal['billingAddress']['street'], $order['addresses'][0]['street']);
+        static::assertEquals($personal['billingAddress']['zipcode'], $order['addresses'][0]['zipcode']);
+        static::assertEquals($personal['billingAddress']['city'], $order['addresses'][0]['city']);
 
         // todo@ju check shippingAddress when deliveries are implemented again
     }
@@ -359,27 +355,17 @@ class StorefrontCheckoutControllerTest extends TestCase
 
         $this->createCustomer($addressId, $mail, $password, $context);
 
-        $firstName = 'Max';
-        $lastName = 'Mustmann';
-        $salutationId = Defaults::SALUTATION_ID_MR;
-
         $personal = [
             'email' => $mail,
-            'salutationId' => $salutationId,
-            'firstName' => $firstName,
-            'lastName' => $lastName,
-        ];
-
-        $countryId = Defaults::COUNTRY;
-        $street = 'Examplestreet 11';
-        $zipcode = '48441';
-        $city = 'Cologne';
-
-        $billing = [
-            'billingAddress.country' => $countryId,
-            'billingAddress.street' => $street,
-            'billingAddress.zipcode' => $zipcode,
-            'billingAddress.city' => $city,
+            'salutationId' => Defaults::SALUTATION_ID_MR,
+            'firstName' => 'Max',
+            'lastName' => 'Mustermann',
+            'billingAddress' => [
+                'countryId' => Defaults::COUNTRY,
+                'street' => 'Examplestreet 11',
+                'zipcode' => '48441',
+                'city' => 'Cologne',
+            ],
         ];
 
         $client = $this->createCart();
@@ -388,7 +374,7 @@ class StorefrontCheckoutControllerTest extends TestCase
         $this->addProduct($client, $productId, $quantity);
         static::assertSame(Response::HTTP_OK, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
 
-        $this->guestOrder($client, array_merge($personal, $billing));
+        $this->guestOrder($client, $personal);
         static::assertSame(Response::HTTP_OK, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
     }
 
@@ -428,10 +414,12 @@ class StorefrontCheckoutControllerTest extends TestCase
         $city = 'Cologne';
 
         $billing = [
-            'billingAddress.country' => $countryId,
-            'billingAddress.street' => $street,
-            'billingAddress.zipcode' => $zipcode,
-            'billingAddress.city' => $city,
+            'billingAddress' => [
+                'countryId' => $countryId,
+                'street' => $street,
+                'zipcode' => $zipcode,
+                'city' => $city,
+            ],
         ];
 
         $addressId = Uuid::uuid4()->getHex();
@@ -496,7 +484,7 @@ class StorefrontCheckoutControllerTest extends TestCase
         $response = json_decode($client->getResponse()->getContent(), true);
         static::assertArrayHasKey('errors', $response);
 
-        static::assertTrue(array_key_exists('CART-EMPTY', array_flip(array_column($response['errors'], 'code'))));
+        static::assertTrue(array_key_exists('CHECKOUT__CART_EMPTY', array_flip(array_column($response['errors'], 'code'))));
     }
 
     public function testDeepLinkGuestOrderWithoutAccessKey(): void
@@ -545,7 +533,7 @@ class StorefrontCheckoutControllerTest extends TestCase
         static::assertSame(400, $response->getStatusCode());
 
         $content = json_decode($response->getContent(), true);
-        static::assertEquals(sprintf('Order with id "%s" not found', $orderId), $content['errors'][0]['detail']);
+        static::assertEquals(sprintf('Order with id "%s" not found.', $orderId), $content['errors'][0]['detail']);
     }
 
     public function testDeepLinkGuestOrderWithoutCode(): void
@@ -562,7 +550,7 @@ class StorefrontCheckoutControllerTest extends TestCase
         static::assertSame(400, $response->getStatusCode());
 
         $content = json_decode($response->getContent(), true);
-        static::assertEquals(sprintf('Order with id "%s" not found', $orderId), $content['errors'][0]['detail']);
+        static::assertEquals(sprintf('Order with id "%s" not found.', $orderId), $content['errors'][0]['detail']);
     }
 
     public function testDeepLinkGuestOrderWithWrongOrderId(): void
@@ -580,7 +568,7 @@ class StorefrontCheckoutControllerTest extends TestCase
         static::assertSame(400, $response->getStatusCode());
 
         $content = json_decode($response->getContent(), true);
-        static::assertEquals(sprintf('Order with id "%s" not found', $orderId), $content['errors'][0]['detail']);
+        static::assertEquals(sprintf('Order with id "%s" not found.', $orderId), $content['errors'][0]['detail']);
     }
 
     public function testUnavailableShippingMethodIsBlock(): void
@@ -676,18 +664,12 @@ class StorefrontCheckoutControllerTest extends TestCase
             'salutationId' => $salutationId,
             'firstName' => $firstName,
             'lastName' => $lastName,
-        ];
-
-        $countryId = Defaults::COUNTRY;
-        $street = 'Examplestreet 11';
-        $zipcode = '48441';
-        $city = 'Cologne';
-
-        $billing = [
-            'billingAddress.country' => $countryId,
-            'billingAddress.street' => $street,
-            'billingAddress.zipcode' => $zipcode,
-            'billingAddress.city' => $city,
+            'billingAddress' => [
+                'countryId' => Defaults::COUNTRY,
+                'street' => 'Examplestreet 11',
+                'zipcode' => '48411',
+                'city' => 'Cologne',
+            ],
         ];
 
         $client = $this->createCart();
@@ -700,7 +682,7 @@ class StorefrontCheckoutControllerTest extends TestCase
         $rulesProperty = ReflectionHelper::getProperty(CheckoutRuleLoader::class, 'rules');
         $rulesProperty->setValue($ruleLoader, null);
 
-        $this->guestOrder($client, array_merge($personal, $billing));
+        $this->guestOrder($client, $personal);
         static::assertSame(200, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
 
         $order = json_decode($client->getResponse()->getContent(), true);

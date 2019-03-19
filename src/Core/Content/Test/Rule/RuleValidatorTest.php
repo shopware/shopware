@@ -14,7 +14,7 @@ use Shopware\Core\Framework\Rule\Collector\RuleConditionRegistry;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
-use Shopware\Core\Framework\Validation\ConstraintViolationException;
+use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 use Symfony\Component\Validator\Constraints\Choice;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Type;
@@ -54,11 +54,11 @@ class RuleValidatorTest extends TestCase
             RuleConditionDefinition::class, ['type' => 'false'], ['id' => $id],
             $this->createMock(EntityExistence::class)
         );
-        $this->expectException(ConstraintViolationException::class);
+        $this->expectException(WriteConstraintViolationException::class);
         try {
             $this->ruleValidator->preValidate($commands, $this->context);
             static::fail('Exception was not thrown');
-        } catch (ConstraintViolationException $constraintViolationException) {
+        } catch (WriteConstraintViolationException $constraintViolationException) {
             static::assertCount(1, $constraintViolationException->getViolations());
             static::assertSame(
                 'This "type" value (false) is invalid.',
@@ -76,11 +76,11 @@ class RuleValidatorTest extends TestCase
             RuleConditionDefinition::class, ['id' => $id], ['type' => 'false'],
             $this->createMock(EntityExistence::class)
         );
-        $this->expectException(ConstraintViolationException::class);
+        $this->expectException(WriteConstraintViolationException::class);
         try {
             $this->ruleValidator->preValidate($commands, $this->context);
             static::fail('Exception was not thrown');
-        } catch (ConstraintViolationException $constraintViolationException) {
+        } catch (WriteConstraintViolationException $constraintViolationException) {
             static::assertCount(1, $constraintViolationException->getViolations());
             static::assertSame(
                 'This "type" value (false) is invalid.',
@@ -103,11 +103,11 @@ class RuleValidatorTest extends TestCase
         $this->conditionRegistry->expects(static::once())->method('has')->with('type')->willReturn(true);
         $this->conditionRegistry->expects(static::once())->method('getRuleInstance')->with('type')->willReturn($instance);
 
-        $this->expectException(ConstraintViolationException::class);
+        $this->expectException(WriteConstraintViolationException::class);
         try {
             $this->ruleValidator->preValidate($commands, $this->context);
             static::fail('Exception was not thrown');
-        } catch (ConstraintViolationException $constraintViolationException) {
+        } catch (WriteConstraintViolationException $constraintViolationException) {
             static::assertCount(1, $constraintViolationException->getViolations());
             static::assertSame(
                 'This value should not be blank.', $constraintViolationException->getViolations()->get(0)->getMessage()
@@ -133,11 +133,11 @@ class RuleValidatorTest extends TestCase
         $this->conditionRegistry->expects(static::once())->method('has')->with('type')->willReturn(true);
         $this->conditionRegistry->expects(static::once())->method('getRuleInstance')->with('type')->willReturn($instance);
 
-        $this->expectException(ConstraintViolationException::class);
+        $this->expectException(WriteConstraintViolationException::class);
         try {
             $this->ruleValidator->preValidate($commands, $this->context);
             static::fail('Exception was not thrown');
-        } catch (ConstraintViolationException $constraintViolationException) {
+        } catch (WriteConstraintViolationException $constraintViolationException) {
             static::assertCount(1, $constraintViolationException->getViolations());
             static::assertSame(
                 'This value should not be blank.', $constraintViolationException->getViolations()->get(0)->getMessage()
@@ -202,11 +202,11 @@ class RuleValidatorTest extends TestCase
         $this->conditionRegistry->expects(static::once())->method('has')->with('type')->willReturn(true);
         $this->conditionRegistry->expects(static::once())->method('getRuleInstance')->with('type')->willReturn($instance);
 
-        $this->expectException(ConstraintViolationException::class);
+        $this->expectException(WriteConstraintViolationException::class);
         try {
             $this->ruleValidator->preValidate($commands, $this->context);
             static::fail('Exception was not thrown');
-        } catch (ConstraintViolationException $constraintViolationException) {
+        } catch (WriteConstraintViolationException $constraintViolationException) {
             static::assertCount(1, $constraintViolationException->getViolations());
             static::assertSame(
                 'The value you selected is not a valid choice.',
@@ -237,11 +237,11 @@ class RuleValidatorTest extends TestCase
         $this->conditionRegistry->expects(static::once())->method('has')->with('type')->willReturn(true);
         $this->conditionRegistry->expects(static::once())->method('getRuleInstance')->with('type')->willReturn($instance);
 
-        $this->expectException(ConstraintViolationException::class);
+        $this->expectException(WriteConstraintViolationException::class);
         try {
             $this->ruleValidator->preValidate($commands, $this->context);
             static::fail('Exception was not thrown');
-        } catch (ConstraintViolationException $constraintViolationException) {
+        } catch (WriteConstraintViolationException $constraintViolationException) {
             static::assertCount(1, $constraintViolationException->getViolations());
             static::assertSame(
                 'The value you selected is not a valid choice.',

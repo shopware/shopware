@@ -7,11 +7,14 @@ use Symfony\Component\HttpFoundation\Response;
 
 class EmptyCartException extends ShopwareHttpException
 {
-    protected $code = 'CART-EMPTY';
-
-    public function __construct($code = 0, ?\Throwable $previous = null)
+    public function __construct()
     {
-        parent::__construct('Cart is empty', $code, $previous);
+        parent::__construct('Cart is empty');
+    }
+
+    public function getErrorCode(): string
+    {
+        return 'CHECKOUT__CART_EMPTY';
     }
 
     public function getStatusCode(): int

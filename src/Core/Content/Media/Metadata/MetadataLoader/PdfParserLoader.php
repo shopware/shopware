@@ -19,7 +19,7 @@ class PdfParserLoader implements MetadataLoaderInterface
     public function extractMetadata(string $filePath): array
     {
         if (!$this->isAllowedToHandle($filePath)) {
-            throw new CanNotLoadMetadataException(sprintf('File %s is not supported by library pdfparser', $filePath));
+            throw new CanNotLoadMetadataException('File "{{ filePath }}" is not supported by library pdfparser', ['filePath' => $filePath]);
         }
 
         try {
@@ -28,13 +28,13 @@ class PdfParserLoader implements MetadataLoaderInterface
         } catch (\Exception $e) {
             ob_end_clean(); // fixes a library bug
 
-            throw new CanNotLoadMetadataException(sprintf('File %s is not supported by library pdfparser', $filePath), 0, $e);
+            throw new CanNotLoadMetadataException('File "{{ filePath }}" is not supported by library pdfparser', ['filePath' => $filePath]);
         }
 
         $metadata = $document->getDetails();
 
         if (isset($metadata['error'])) {
-            throw new CanNotLoadMetadataException(sprintf('File %s is not supported by library pdfparser', $filePath));
+            throw new CanNotLoadMetadataException('File "{{ filePath }}" is not supported by library pdfparser', ['filePath' => $filePath]);
         }
 
         return $metadata;

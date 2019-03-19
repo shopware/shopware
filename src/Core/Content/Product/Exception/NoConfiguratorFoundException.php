@@ -2,12 +2,20 @@
 
 namespace Shopware\Core\Content\Product\Exception;
 
-class NoConfiguratorFoundException extends \Exception
-{
-    public const CODE = 300001;
+use Shopware\Core\Framework\ShopwareHttpException;
 
+class NoConfiguratorFoundException extends ShopwareHttpException
+{
     public function __construct(string $productId)
     {
-        parent::__construct(sprintf('Product with id %s has no configuration', $productId), self::CODE);
+        parent::__construct(
+            'Product with id {{ productId }} has no configuration.',
+            ['productId' => $productId]
+        );
+    }
+
+    public function getErrorCode(): string
+    {
+        return 'CONTENT__PRODUCT_HAS_NO_CONFIGURATOR';
     }
 }

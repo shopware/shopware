@@ -7,13 +7,17 @@ use Symfony\Component\HttpFoundation\Response;
 
 class MissingLineItemPriceException extends ShopwareHttpException
 {
-    protected $code = 'CART-MISSING-PRICE-DEFINITION';
-
-    public function __construct(string $identifier, int $code = 0, ?\Throwable $previous = null)
+    public function __construct(string $identifier)
     {
-        $message = sprintf('Line item %s contains no price definition or already calculated price', $identifier);
+        parent::__construct(
+            'Line item {{ identifier }} contains no price definition or already calculated price.',
+            ['identifier' => $identifier]
+        );
+    }
 
-        parent::__construct($message, $code, $previous);
+    public function getErrorCode(): string
+    {
+        return 'CHECKOUT__CART_MISSING_PRICE_DEFINITION';
     }
 
     public function getStatusCode(): int

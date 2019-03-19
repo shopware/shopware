@@ -7,17 +7,17 @@ use Symfony\Component\HttpFoundation\Response;
 
 class InvalidChildQuantityException extends ShopwareHttpException
 {
-    protected $code = 'CART-INVALID-CHILD-QUANTITY';
-
-    public function __construct(int $childQuantity, int $parentQuantity, int $code = 0, ?\Throwable $previous = null)
+    public function __construct(int $childQuantity, int $parentQuantity)
     {
-        $message = sprintf(
-            'The quantity of a child "%s" must be a multiple of the parent quantity "%s"',
-            $childQuantity,
-            $parentQuantity
+        parent::__construct(
+            'The quantity of a child "{{ childQuantity }}" must be a multiple of the parent quantity "{{ parentQuantity }}"',
+            ['childQuantity' => $childQuantity, 'parentQuantity' => $parentQuantity]
         );
+    }
 
-        parent::__construct($message, $code, $previous);
+    public function getErrorCode(): string
+    {
+        return 'CHECKOUT__CART_INVALID_CHILD_QUANTITY';
     }
 
     public function getStatusCode(): int

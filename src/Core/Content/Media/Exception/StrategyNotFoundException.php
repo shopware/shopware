@@ -6,14 +6,16 @@ use Shopware\Core\Framework\ShopwareHttpException;
 
 class StrategyNotFoundException extends ShopwareHttpException
 {
-    protected $code = 'STRATEGY_NOT_FOUND';
-
-    public function __construct(string  $strategyName, int $code = 0, ?\Throwable $previous = null)
+    public function __construct(string  $strategyName)
     {
-        $message = sprintf(
-            'No Strategy with name "%s" found',
-            $strategyName
+        parent::__construct(
+            'No Strategy with name "{{ strategyName }}" found.',
+            ['strategyName' => $strategyName]
         );
-        parent::__construct($message, $code, $previous);
+    }
+
+    public function getErrorCode(): string
+    {
+        return 'CONTENT__MEDIA_STRATEGY_NOT_FOUND';
     }
 }

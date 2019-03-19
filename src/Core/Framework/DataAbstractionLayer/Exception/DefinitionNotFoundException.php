@@ -6,10 +6,16 @@ use Shopware\Core\Framework\ShopwareHttpException;
 
 class DefinitionNotFoundException extends ShopwareHttpException
 {
-    public function __construct(string $entity, int $code = 0, ?\Throwable $previous = null)
+    public function __construct(string $entity)
     {
-        $message = sprintf('Definition for entity "%s" does not exist.', $entity);
+        parent::__construct(
+            'Definition for entity "{{ entityName }}" does not exist.',
+            ['entityName' => $entity]
+        );
+    }
 
-        parent::__construct($message, $code, $previous);
+    public function getErrorCode(): string
+    {
+        return 'FRAMEWORK__DEFINITION_NOT_FOUND';
     }
 }

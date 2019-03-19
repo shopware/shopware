@@ -2,19 +2,18 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException;
 
-class MalformatDataException extends WriteFieldException
+class ExpectedArrayException extends WriteFieldException
 {
-    private const CONCERN = 'data-malformat';
     /**
      * @var string
      */
     private $path;
 
-    public function __construct(string $path, $message, $code = 0, ?\Throwable $previous = null)
+    public function __construct(string $path)
     {
-        parent::__construct($message, $code, $previous);
+        parent::__construct('Expected data to be array.');
+
         $this->path = $path;
-        $this->message = $message;
     }
 
     public function getPath(): string
@@ -24,11 +23,11 @@ class MalformatDataException extends WriteFieldException
 
     public function getConcern(): string
     {
-        return self::CONCERN;
+        return 'data-malformat';
     }
 
     public function toArray(): array
     {
-        return [$this->message];
+        return [$this->getMessage()];
     }
 }

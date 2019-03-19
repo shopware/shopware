@@ -59,7 +59,7 @@ class JWTFactory implements TokenFactoryInterface
         try {
             $jwtToken = (new Parser())->parse($token);
         } catch (\InvalidArgumentException $e) {
-            throw new InvalidTokenException($token, 0, $e);
+            throw new InvalidTokenException($token);
         }
 
         if (!$jwtToken->verify(new Sha256(), $this->privateKey->getKeyPath())) {

@@ -12,7 +12,7 @@ use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
-use Shopware\Core\Framework\Validation\ConstraintViolationException;
+use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 use Symfony\Component\Validator\Constraints\Choice;
 use Symfony\Component\Validator\Constraints\NotBlank;
 
@@ -57,7 +57,7 @@ class LineItemTotalPriceRuleTest extends TestCase
             static::fail('Exception was not thrown');
         } catch (WriteStackException $stackException) {
             static::assertGreaterThan(0, count($stackException->getExceptions()));
-            /** @var ConstraintViolationException $exception */
+            /** @var WriteConstraintViolationException $exception */
             foreach ($stackException->getExceptions() as $exception) {
                 static::assertCount(1, $exception->getViolations());
                 static::assertSame('/conditions/' . $conditionId . '/amount', $exception->getViolations()->get(0)->getPropertyPath());
@@ -107,7 +107,7 @@ class LineItemTotalPriceRuleTest extends TestCase
             static::fail('Exception was not thrown');
         } catch (WriteStackException $stackException) {
             static::assertGreaterThan(0, count($stackException->getExceptions()));
-            /** @var ConstraintViolationException $exception */
+            /** @var WriteConstraintViolationException $exception */
             foreach ($stackException->getExceptions() as $exception) {
                 static::assertCount(1, $exception->getViolations());
                 static::assertSame('/conditions/' . $conditionId . '/amount', $exception->getViolations()->get(0)->getPropertyPath());
@@ -243,7 +243,7 @@ class LineItemTotalPriceRuleTest extends TestCase
             static::fail('Exception was not thrown');
         } catch (WriteStackException $stackException) {
             static::assertGreaterThan(0, count($stackException->getExceptions()));
-            /** @var ConstraintViolationException $exception */
+            /** @var WriteConstraintViolationException $exception */
             foreach ($stackException->getExceptions() as $exception) {
                 static::assertCount(1, $exception->getViolations());
                 static::assertSame('/conditions/' . $conditionId . '/operator', $exception->getViolations()->get(0)->getPropertyPath());

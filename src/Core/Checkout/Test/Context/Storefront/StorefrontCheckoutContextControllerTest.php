@@ -52,7 +52,7 @@ class StorefrontCheckoutContextControllerTest extends TestCase
         $content = json_decode($this->getStorefrontClient()->getResponse()->getContent(), true);
 
         static::assertEquals(
-            sprintf('Shipping method with id %s not found', $testId),
+            sprintf('Shipping method with id "%s" not found.', $testId),
             $content['errors'][0]['detail'] ?? null
         );
 
@@ -64,7 +64,7 @@ class StorefrontCheckoutContextControllerTest extends TestCase
         $content = json_decode($this->getStorefrontClient()->getResponse()->getContent(), true);
 
         static::assertEquals(
-            sprintf('Payment method with id %s not found', $testId),
+            sprintf('Payment method with id %s not found.', $testId),
             $content['errors'][0]['detail'] ?? null
         );
     }
@@ -81,7 +81,7 @@ class StorefrontCheckoutContextControllerTest extends TestCase
         $content = json_decode($this->getStorefrontClient()->getResponse()->getContent(), true);
 
         static::assertEquals(
-            'Customer is not logged in',
+            'Customer is not logged in.',
             $content['errors'][0]['detail'] ?? null
         );
 
@@ -93,7 +93,7 @@ class StorefrontCheckoutContextControllerTest extends TestCase
         $content = json_decode($this->getStorefrontClient()->getResponse()->getContent(), true);
 
         static::assertEquals(
-            'Customer is not logged in',
+            'Customer is not logged in.',
             $content['errors'][0]['detail'] ?? null
         );
     }
@@ -113,7 +113,7 @@ class StorefrontCheckoutContextControllerTest extends TestCase
         $content = json_decode($this->getStorefrontClient()->getResponse()->getContent(), true);
 
         static::assertEquals(
-            sprintf('Customer address with id %s not found', $testId),
+            sprintf('Customer address with id "%s" not found.', $testId),
             $content['errors'][0]['detail'] ?? null
         );
 
@@ -125,7 +125,7 @@ class StorefrontCheckoutContextControllerTest extends TestCase
         $content = json_decode($this->getStorefrontClient()->getResponse()->getContent(), true);
 
         static::assertEquals(
-            sprintf('Customer address with id %s not found', $testId),
+            sprintf('Customer address with id "%s" not found.', $testId),
             $content['errors'][0]['detail'] ?? null
         );
     }

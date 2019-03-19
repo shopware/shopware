@@ -9,7 +9,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException\MalformatDataException;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException\ExpectedArrayException;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteCommandExtractor;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
 use Shopware\Core\Framework\Routing\Exception\LanguageNotFoundException;
@@ -101,7 +101,7 @@ class TranslationsAssociationFieldSerializer implements FieldSerializerInterface
         $value = $data->getValue();
 
         if (!\is_array($value)) {
-            throw new MalformatDataException($parameters->getPath() . '/' . $key, 'Value must be an array.');
+            throw new ExpectedArrayException($parameters->getPath() . '/' . $key);
         }
 
         $refClass = $field->getReferenceClass();
@@ -111,7 +111,7 @@ class TranslationsAssociationFieldSerializer implements FieldSerializerInterface
         $translations = [];
         foreach ($value as $keyValue => $subResources) {
             if (!\is_array($subResources)) {
-                throw new MalformatDataException($parameters->getPath() . '/' . $key, 'Value must be an array.');
+                throw new ExpectedArrayException($parameters->getPath() . '/' . $key);
             }
 
             // See above for Supported formats

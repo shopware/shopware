@@ -2,7 +2,9 @@
 
 namespace Shopware\Core\Framework\MessageQueue\Exception;
 
-class MessageFailedException extends \RuntimeException
+use Shopware\Core\Framework\ShopwareHttpException;
+
+class MessageFailedException extends ShopwareHttpException
 {
     /**
      * @var object
@@ -14,21 +16,30 @@ class MessageFailedException extends \RuntimeException
      */
     private $handlerClass;
 
-    public function __construct(object $originalMessage, string $handlerClass, \Throwable $previous)
+    /**
+     * @var \Throwable
+     */
+    private $exception;
+
+    public function __construct(object $originalMessage, string $handlerClass, \Throwable $exception)
     {
         $this->originalMessage = $originalMessage;
         $this->handlerClass = $handlerClass;
+        $this->exception = $exception;
 
         parent::__construct(
-            sprintf(
-                'The handler "%s" threw a "%s" for message "%s"',
-                $handlerClass,
-                get_class($previous),
-                get_class($originalMessage)
-            ),
-            0,
-            $previous
+            'The handler "{{ handlerClass }}" threw a "{{ exceptionClass }}" for message "{{ messageClass }}".',
+            [
+                'handlerClass' => $handlerClass,
+                'exceptionClass' => get_class($exception),
+                'messageClass' => get_class($originalMessage),
+            ]
         );
+    }
+
+    public function getException(): \Throwable
+    {
+        return $this->exception;
     }
 
     public function getOriginalMessage(): object
@@ -39,5 +50,10 @@ class MessageFailedException extends \RuntimeException
     public function getHandlerClass(): string
     {
         return $this->handlerClass;
+    }
+
+    public function getErrorCode(): string
+    {
+        return 'FRAMEWORK__QUEUE_MESSAGE_FAILED';
     }
 }

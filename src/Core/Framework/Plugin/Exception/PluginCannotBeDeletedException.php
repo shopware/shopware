@@ -4,18 +4,18 @@ namespace Shopware\Core\Framework\Plugin\Exception;
 
 use Shopware\Core\Framework\ShopwareHttpException;
 
-class PluginExtractionException extends ShopwareHttpException
+class PluginCannotBeDeletedException extends ShopwareHttpException
 {
     public function __construct(string $reason)
     {
         parent::__construct(
-            'Plugin extraction failed. Error: {{ error }}',
+            'Cannot delete plugin. Error: {{ error }}',
             ['error' => $reason]
         );
     }
 
     public function getErrorCode(): string
     {
-        return 'FRAMEWORK__PLUGIN_EXTRACTION_FAILED';
+        return 'FRAMEWORK__PLUGIN_CANNOT_BE_DELETED';
     }
 }

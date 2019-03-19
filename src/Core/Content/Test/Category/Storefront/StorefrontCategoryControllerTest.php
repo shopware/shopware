@@ -4,7 +4,6 @@ namespace Shopware\Core\Content\Test\Category\Storefront;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Content\Category\Exception\CategoryNotFoundException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\Struct\Uuid;
@@ -296,8 +295,8 @@ class StorefrontCategoryControllerTest extends TestCase
 
         static::assertNotEmpty($content);
         static::assertArrayHasKey('errors', $content);
-        static::assertEquals($content['errors'][0]['code'], CategoryNotFoundException::CODE);
+        static::assertEquals($content['errors'][0]['code'], 'CONTENT__CATEGORY_NOT_FOUND');
         static::assertEquals($content['errors'][0]['status'], 404);
-        static::assertStringMatchesFormat('Category %s not found', $content['errors'][0]['detail']);
+        static::assertStringMatchesFormat('Category "%s" not found.', $content['errors'][0]['detail']);
     }
 }

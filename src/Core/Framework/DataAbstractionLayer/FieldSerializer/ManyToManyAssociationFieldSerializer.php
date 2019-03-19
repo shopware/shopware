@@ -12,7 +12,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationFiel
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException\MalformatDataException;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException\ExpectedArrayException;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteCommandExtractor;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
 use Shopware\Core\Framework\Struct\Uuid;
@@ -47,7 +47,7 @@ class ManyToManyAssociationFieldSerializer implements FieldSerializerInterface
         $value = $data->getValue();
 
         if (!\is_array($value)) {
-            throw new MalformatDataException($parameters->getPath() . '/' . $key, 'Value must be an array.');
+            throw new ExpectedArrayException($parameters->getPath() . '/' . $key);
         }
 
         $mappingAssociation = $this->getMappingAssociation($field);
@@ -59,7 +59,7 @@ class ManyToManyAssociationFieldSerializer implements FieldSerializerInterface
             }
 
             if (!\is_array($mapped)) {
-                throw new MalformatDataException($parameters->getPath() . '/' . $key, 'Value must be an array.');
+                throw new ExpectedArrayException($parameters->getPath() . '/' . $key);
             }
 
             $this->writeExtrator->extract(

@@ -13,7 +13,7 @@ use Shopware\Core\Framework\Rule\Container\XorRule;
 use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
-use Shopware\Core\Framework\Validation\ConstraintViolationException;
+use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 
 class XorRuleTest extends TestCase
 {
@@ -59,7 +59,7 @@ class XorRuleTest extends TestCase
             static::fail('Exception was not thrown');
         } catch (WriteStackException $stackException) {
             static::assertGreaterThan(0, count($stackException->getExceptions()));
-            /** @var ConstraintViolationException $exception */
+            /** @var WriteConstraintViolationException $exception */
             foreach ($stackException->getExceptions() as $exception) {
                 static::assertCount(1, $exception->getViolations());
                 static::assertSame('/conditions/' . $conditionId . '/rules', $exception->getViolations()->get(0)->getPropertyPath());

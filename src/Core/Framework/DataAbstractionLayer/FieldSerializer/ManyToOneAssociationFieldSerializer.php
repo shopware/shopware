@@ -10,7 +10,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException\MalformatDataException;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException\ExpectedArrayException;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteCommandExtractor;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
 
@@ -42,7 +42,7 @@ class ManyToOneAssociationFieldSerializer implements FieldSerializerInterface
         }
         /* @var ManyToOneAssociationField $field */
         if (!\is_array($data->getValue())) {
-            throw new MalformatDataException($parameters->getPath(), 'Expected array');
+            throw new ExpectedArrayException($parameters->getPath());
         }
 
         $referenceField = $field->getReferenceClass()::getFields()->getByStorageName($field->getReferenceField());

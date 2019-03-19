@@ -19,11 +19,12 @@ class InvalidSerializerFieldException extends ShopwareHttpException
      */
     private $field;
 
-    public function __construct(string $expectedClass, Field $field, int $code = 0, ?\Throwable $previous = null)
+    public function __construct(string $expectedClass, Field $field)
     {
-        $message = sprintf('Expected field of type %s got %s', $expectedClass, \get_class($field));
-
-        parent::__construct($message, $code, $previous);
+        parent::__construct(
+            'Expected field of type "{{ expectedField }}" got "{{ field }}".',
+            ['expectedField' => $expectedClass, 'field' => \get_class($field)]
+        );
 
         $this->expectedClass = $expectedClass;
         $this->field = $field;
@@ -42,5 +43,10 @@ class InvalidSerializerFieldException extends ShopwareHttpException
     public function getExpectedClass(): string
     {
         return $this->expectedClass;
+    }
+
+    public function getErrorCode(): string
+    {
+        return 'FRAMEWORK__INVALID_FIELD_SERIALIZER';
     }
 }

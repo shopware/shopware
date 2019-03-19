@@ -7,13 +7,37 @@ use Symfony\Component\HttpFoundation\Response;
 
 class MissingParameterException extends ShopwareHttpException
 {
-    protected $code = 'MISSING-PARAMETER';
+    /**
+     * @var string
+     */
+    private $name;
 
-    public function __construct(string $name, $code = 0, ?\Throwable $previous = null)
+    /**
+     * @var string
+     */
+    private $path;
+
+    public function __construct(string $name, string $path = '')
     {
-        $message = sprintf('Parameter "%s" is missing', $name);
+        $this->name = $name;
+        $this->path = $path;
 
-        parent::__construct($message, $code, $previous);
+        parent::__construct('Parameter "{{ parameterName }}" is missing.', ['parameterName' => $name]);
+    }
+
+    public function getName(): string
+    {
+        return $this->name;
+    }
+
+    public function getPath(): string
+    {
+        return $this->path;
+    }
+
+    public function getErrorCode(): string
+    {
+        return 'FRAMEWORK__MISSING_PARAMETER';
     }
 
     public function getStatusCode(): int

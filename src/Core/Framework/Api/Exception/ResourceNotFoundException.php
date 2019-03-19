@@ -7,18 +7,22 @@ use Symfony\Component\HttpFoundation\Response;
 
 class ResourceNotFoundException extends ShopwareHttpException
 {
-    protected $code = 'REST-RESOURCE-4';
-
-    public function __construct(string $resourceType, array $primaryKey, ?\Throwable $previous = null, $code = 0)
+    public function __construct(string $resourceType, array $primaryKey)
     {
         $resourceIds = [];
         foreach ($primaryKey as $key => $value) {
             $resourceIds[] = $key . '(' . $value . ')';
         }
 
-        $message = sprintf('The %s resource with the following primary key was not found: %s', $resourceType, implode(' ', $resourceIds));
+        parent::__construct(
+            'The {{ type }} resource with the following primary key was not found: {{ primaryKeyString }}',
+            ['type' => $resourceType, 'primaryKey' => $primaryKey, 'primaryKeyString' => implode(' ', $resourceIds)]
+        );
+    }
 
-        parent::__construct($message, $code, $previous);
+    public function getErrorCode(): string
+    {
+        return 'FRAMEWORK__RESOURCE_NOT_FOUND';
     }
 
     public function getStatusCode(): int

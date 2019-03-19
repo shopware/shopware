@@ -6,12 +6,16 @@ use Shopware\Core\Framework\ShopwareHttpException;
 
 class StoreTokenMissingException extends ShopwareHttpException
 {
-    protected $code = 'STORE-TOKEN-MISSING';
-
-    public function __construct(string $reason, int $code = 0, ?\Throwable $previous = null)
+    public function __construct(string $reason)
     {
-        $message = sprintf('Store token missing. Error: %s', $reason);
+        parent::__construct(
+            'Store token missing. Error: {{ message }}',
+            ['message' => $reason]
+        );
+    }
 
-        parent::__construct($message, $code, $previous);
+    public function getErrorCode(): string
+    {
+        return 'FRAMEWORK__STORE_TOKEN_IS_MISSING';
     }
 }

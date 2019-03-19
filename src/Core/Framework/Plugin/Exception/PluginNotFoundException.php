@@ -7,13 +7,17 @@ use Symfony\Component\HttpFoundation\Response;
 
 class PluginNotFoundException extends ShopwareHttpException
 {
-    protected $code = 'PLUGIN-NOT-FOUND';
-
-    public function __construct(string $pluginName, int $code = 0, ?\Throwable $previous = null)
+    public function __construct(string $pluginName)
     {
-        $message = sprintf('Plugin by name "%s" not found', $pluginName);
+        parent::__construct(
+            'Plugin by name "{{ plugin }}" not found.',
+            ['plugin' => $pluginName]
+        );
+    }
 
-        parent::__construct($message, $code, $previous);
+    public function getErrorCode(): string
+    {
+        return 'FRAMEWORK__PLUGIN_NOT_FOUND';
     }
 
     public function getStatusCode(): int

@@ -11,18 +11,24 @@ class UnmappedFieldException extends ShopwareHttpException
     /**
      * @param string|EntityDefinition $definition
      */
-    public function __construct(string $field, string $definition, int $code = 0, ?\Throwable $previous = null)
+    public function __construct(string $field, string $definition)
     {
         $fieldParts = explode('.', $field);
         $name = array_pop($fieldParts);
 
-        $message = sprintf('Field "%s" in entity "%s" was not found.', $name, $definition::getEntityName());
-
-        parent::__construct($message, $code, $previous);
+        parent::__construct(
+            'Field "{{ field }}" in entity "{{ entity }}" was not found.',
+            ['field' => $name, 'entity' => $definition::getEntityName()]
+        );
     }
 
     public function getStatusCode(): int
     {
         return Response::HTTP_BAD_REQUEST;
+    }
+
+    public function getErrorCode(): string
+    {
+        return 'FRAMEWORK__UNMAPPED_FIELD';
     }
 }

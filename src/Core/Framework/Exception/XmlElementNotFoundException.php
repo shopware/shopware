@@ -6,12 +6,16 @@ use Shopware\Core\Framework\ShopwareHttpException;
 
 class XmlElementNotFoundException extends ShopwareHttpException
 {
-    protected $code = 'XML-ELEMENT-NOT-FOUND';
-
-    public function __construct(string $element, int $code = 0, ?\Throwable $previous = null)
+    public function __construct(string $element)
     {
-        $message = sprintf('Unable to locate element with the name "%s".', $element);
+        parent::__construct(
+            'Unable to locate element with the name "{{ element }}".',
+            ['element' => $element]
+        );
+    }
 
-        parent::__construct($message, $code, $previous);
+    public function getErrorCode(): string
+    {
+        return 'FRAMEWORK__XML_ELEMENT_NOT_FOUND';
     }
 }

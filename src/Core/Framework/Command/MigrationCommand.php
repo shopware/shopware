@@ -95,7 +95,7 @@ class MigrationCommand extends Command
             }
         } catch (\Exception $e) {
             $this->finishProgress($migratedCounter, $total);
-            throw new MigrateException('Migration Error: "' . $e->getMessage() . '"');
+            throw new MigrateException($e->getMessage());
         }
 
         $this->finishProgress($migratedCounter, $total);

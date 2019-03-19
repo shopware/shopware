@@ -36,7 +36,7 @@ class StorefrontProxyControllerTest extends TestCase
         $response = json_decode($response, true);
 
         static::assertArrayHasKey('errors', $response);
-        static::assertEquals('INVALID-SALES-CHANNEL-ID', $response['errors'][0]['code'] ?? null);
+        static::assertEquals('FRAMEWORK__INVALID_SALES_CHANNEL', $response['errors'][0]['code'] ?? null);
     }
 
     public function testProxyCallToStorefrontApi(): void

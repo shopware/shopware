@@ -12,11 +12,11 @@ class InvalidFilterQueryException extends ShopwareHttpException
      */
     private $path;
 
-    public function __construct(string $message, string $path = '', int $code = 0, ?\Throwable $previous = null)
+    public function __construct(string $message, string $path = '')
     {
         $this->path = $path;
 
-        parent::__construct($message, $code, $previous);
+        parent::__construct('{{ message }}', ['message' => $message]);
     }
 
     public function getStatusCode(): int
@@ -27,5 +27,10 @@ class InvalidFilterQueryException extends ShopwareHttpException
     public function getPath(): string
     {
         return $this->path;
+    }
+
+    public function getErrorCode(): string
+    {
+        return 'FRAMEWORK__INVALID_FILTER_QUERY';
     }
 }

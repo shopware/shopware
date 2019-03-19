@@ -6,12 +6,16 @@ use Shopware\Core\Framework\ShopwareHttpException;
 
 class StoreSignatureValidationException extends ShopwareHttpException
 {
-    protected $code = 'STORE-SIGNATURE-VALIDATION';
-
-    public function __construct(string $reason, int $code = 0, ?\Throwable $previous = null)
+    public function __construct(string $reason)
     {
-        $message = sprintf('Store signature validation failed. Error: %s', $reason);
+        parent::__construct(
+            'Store signature validation failed. Error: {{ error }}',
+            ['error' => $reason]
+        );
+    }
 
-        parent::__construct($message, $code, $previous);
+    public function getErrorCode(): string
+    {
+        return 'FRAMEWORK__STORE_SIGNATURE_INVALID';
     }
 }

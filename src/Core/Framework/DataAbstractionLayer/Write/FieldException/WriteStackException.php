@@ -3,7 +3,7 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException;
 
 use Shopware\Core\Framework\ShopwareHttpException;
-use Shopware\Core\Framework\Validation\ConstraintViolationException;
+use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Validator\ConstraintViolationInterface;
 
@@ -51,7 +51,7 @@ class WriteStackException extends ShopwareHttpException
     public function getErrors(bool $withTrace = false): \Generator
     {
         foreach ($this->getExceptions() as $innerException) {
-            if ($innerException instanceof ConstraintViolationException) {
+            if ($innerException instanceof WriteConstraintViolationException) {
                 /** @var ConstraintViolationInterface $violation */
                 foreach ($innerException->getViolations() as $violation) {
                     $path = empty($innerException->getPath()) ? $violation->getPropertyPath() : $innerException->getPath();
@@ -91,5 +91,10 @@ class WriteStackException extends ShopwareHttpException
 
             yield $error;
         }
+    }
+
+    public function getErrorCode(): string
+    {
+        return 'FRAMEWORK__WRITE_STACK_ERROR';
     }
 }

@@ -8,7 +8,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\DataStack;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\ExceptionNoStackItemFound;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\ItemNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException\InvalidFieldException;
@@ -159,7 +159,7 @@ class JsonFieldSerializer implements FieldSerializerInterface
         foreach ($field->getPropertyMapping() as $nestedField) {
             try {
                 $kvPair = $stack->pop($nestedField->getPropertyName());
-            } catch (ExceptionNoStackItemFound $e) {
+            } catch (ItemNotFoundException $e) {
                 // The writer updates the whole field, so there is no possibility to update
                 // "some" fields. To enable a merge, we have to respect the $existence state
                 // for correct constraint validation. In addition the writer has to be rewritten

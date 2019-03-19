@@ -6,15 +6,16 @@ use Shopware\Core\Framework\ShopwareHttpException;
 
 class IllegalFileNameException extends ShopwareHttpException
 {
-    protected $code = 'ILLEGAL_FILE_NAME_EXCEPTION';
-
-    public function __construct(string $filename, string $cause, int $code = 0, ?\Throwable $previous = null)
+    public function __construct(string $filename, string $cause)
     {
-        $message = sprintf(
-            'Provided filename "%s" ist not permitted: %s',
-            $filename,
-            $cause
+        parent::__construct(
+            'Provided filename "{{ fileName }}" ist not permitted: {{ cause }}',
+            ['fileName' => $filename, 'cause' => $cause]
         );
-        parent::__construct($message, $code, $previous);
+    }
+
+    public function getErrorCode(): string
+    {
+        return 'CONTENT__MEDIA_ILLEGAL_FILE_NAME';
     }
 }

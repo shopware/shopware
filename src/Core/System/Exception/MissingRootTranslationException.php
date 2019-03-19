@@ -4,12 +4,12 @@ namespace Shopware\Core\System\Exception;
 
 namespace Shopware\Core\System\Exception;
 
-use Shopware\Core\Framework\Validation\ConstraintViolationException;
+use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\ConstraintViolationList;
 
-class MissingRootTranslationException extends ConstraintViolationException
+class MissingRootTranslationException extends WriteConstraintViolationException
 {
     public const VIOLATION_MISSING_ROOT_TRANSLATION = 'MISSING-ROOT-TRANSLATION';
 

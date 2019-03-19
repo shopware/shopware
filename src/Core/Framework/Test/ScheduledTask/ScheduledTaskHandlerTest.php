@@ -93,7 +93,7 @@ class ScheduledTaskHandlerTest extends TestCase
         try {
             $handler($task);
         } catch (MessageFailedException $e) {
-            $exception = $e->getPrevious();
+            $exception = $e->getException();
         }
 
         static::assertInstanceOf(\RuntimeException::class, $exception);

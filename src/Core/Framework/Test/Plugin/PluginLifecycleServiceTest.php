@@ -308,7 +308,7 @@ class PluginLifecycleServiceTest extends TestCase
         static::assertNotNull($pluginInstalled->getInstalledAt());
 
         $this->expectException(PluginNotActivatedException::class);
-        $this->expectExceptionMessage('Plugin "SwagTest" is not activated at all');
+        $this->expectExceptionMessage('Plugin "SwagTest" is not activated.');
         $this->pluginLifecycleService->deactivatePlugin($pluginInstalled, $this->context);
     }
 

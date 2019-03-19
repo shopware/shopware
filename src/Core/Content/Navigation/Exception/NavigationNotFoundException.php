@@ -7,17 +7,21 @@ use Symfony\Component\HttpFoundation\Response;
 
 class NavigationNotFoundException extends ShopwareHttpException
 {
-    public const CODE = 400000;
-
-    public function __construct(string $categoryId, int $code = self::CODE, ?\Throwable $previous = null)
+    public function __construct(string $navigationId)
     {
-        $message = sprintf('Navigation for id %s not found', $categoryId);
-
-        parent::__construct($message, $code, $previous);
+        parent::__construct(
+            'Navigation for id {{ navigationId }} not found.',
+            ['navigationId' => $navigationId]
+        );
     }
 
     public function getStatusCode(): int
     {
         return Response::HTTP_NOT_FOUND;
+    }
+
+    public function getErrorCode(): string
+    {
+        return 'CONTENT__NAVIGATION_NOT_FOUND';
     }
 }

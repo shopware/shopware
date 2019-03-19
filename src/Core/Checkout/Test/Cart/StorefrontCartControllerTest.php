@@ -244,7 +244,7 @@ class StorefrontCartControllerTest extends TestCase
 
         static::assertNotEmpty($cart);
         static::assertArrayHasKey('errors', $cart);
-        static::assertEquals('CART-INVALID-QUANTITY', $cart['errors'][0]['code']);
+        static::assertEquals('CHECKOUT__CART_INVALID_LINEITEM_QUANTITY', $cart['errors'][0]['code']);
     }
 
     public function testRemoveLineItem(): void
@@ -304,7 +304,7 @@ class StorefrontCartControllerTest extends TestCase
 
         static::assertTrue(
             array_key_exists(
-                'CART-LINE-ITEM-NOT-FOUND',
+                'CHECKOUT__CART_LINEITEM_NOT_FOUND',
                 array_flip(array_column($cart['errors'], 'code'))
             ),
             print_r($cart, true)

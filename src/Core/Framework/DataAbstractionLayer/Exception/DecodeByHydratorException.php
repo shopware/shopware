@@ -8,10 +8,16 @@ use Shopware\Core\Framework\ShopwareHttpException;
 
 class DecodeByHydratorException extends ShopwareHttpException
 {
-    public function __construct(Field $field, int $code = 0, ?\Throwable $previous = null)
+    public function __construct(Field $field)
     {
-        $message = sprintf('Decode of field %s are handled by EntityHydrator', get_class($field));
+        parent::__construct(
+            'Decoding of {{ fieldClass }} is handled by the entity hydrator.',
+            ['fieldClass' => get_class($field)]
+        );
+    }
 
-        parent::__construct($message, $code, $previous);
+    public function getErrorCode(): string
+    {
+        return 'FRAMEWORK__DECODING_HANDLED_BY_ENTITY_HYDRATOR';
     }
 }

@@ -7,18 +7,24 @@ use Symfony\Component\HttpFoundation\Response;
 
 class OrderNotFoundException extends ShopwareHttpException
 {
-    protected $code = 'ORDER-NOT-FOUND';
-
     /**
      * @var string
      */
     private $orderId;
 
-    public function __construct(string $orderId, $code = 0, ?\Throwable $previous = null)
+    public function __construct(string $orderId)
     {
-        $message = sprintf('Order with id "%s" not found', $orderId);
-        parent::__construct($message, $code, $previous);
+        parent::__construct(
+            'Order with id "{{ orderId }}" not found.',
+            ['orderId' => $orderId]
+        );
+
         $this->orderId = $orderId;
+    }
+
+    public function getErrorCode(): string
+    {
+        return 'CHECKOUT__ORDER_NOT_FOUND';
     }
 
     public function getStatusCode(): int

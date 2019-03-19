@@ -6,8 +6,13 @@ use Shopware\Core\Framework\ShopwareHttpException;
 
 class InconsistentCriteriaIdsException extends ShopwareHttpException
 {
-    public function __construct(int $code = 0, ?\Throwable $previous = null)
+    public function __construct()
     {
-        parent::__construct('Inconsistent argument for Criteria. Please filter all invalid values first.', $code, $previous);
+        parent::__construct('Inconsistent argument for Criteria. Please filter all invalid values first.');
+    }
+
+    public function getErrorCode(): string
+    {
+        return 'FRAMEWORK__INCONSISTENT_CRITERIA_IDS';
     }
 }

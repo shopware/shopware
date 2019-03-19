@@ -42,7 +42,7 @@ class CommandQueueValidator implements WriteCommandValidatorInterface
         foreach ($this->validators as $validators) {
             try {
                 $validators->postValidate($writeCommands, $context);
-            } catch (ConstraintViolationException $exception) {
+            } catch (WriteConstraintViolationException $exception) {
                 $exceptionStack->add($exception);
             }
         }
@@ -62,7 +62,7 @@ class CommandQueueValidator implements WriteCommandValidatorInterface
         foreach ($this->validators as $validators) {
             try {
                 $validators->preValidate($writeCommands, $context);
-            } catch (ConstraintViolationException $exception) {
+            } catch (WriteConstraintViolationException $exception) {
                 $exceptionStack->add($exception);
             }
         }

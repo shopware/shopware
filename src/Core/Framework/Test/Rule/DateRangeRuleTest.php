@@ -11,7 +11,7 @@ use Shopware\Core\Framework\Rule\DateRangeRule;
 use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
-use Shopware\Core\Framework\Validation\ConstraintViolationException;
+use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 use Symfony\Component\Validator\Constraints\DateTime;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Type;
@@ -57,7 +57,7 @@ class DateRangeRuleTest extends TestCase
             static::fail('Exception was not thrown');
         } catch (WriteStackException $stackException) {
             static::assertGreaterThan(0, count($stackException->getExceptions()));
-            /** @var ConstraintViolationException $exception */
+            /** @var WriteConstraintViolationException $exception */
             foreach ($stackException->getExceptions() as $exception) {
                 static::assertCount(2, $exception->getViolations());
                 static::assertSame('/conditions/' . $conditionId . '/fromDate', $exception->getViolations()->get(0)->getPropertyPath());
@@ -87,7 +87,7 @@ class DateRangeRuleTest extends TestCase
             static::fail('Exception was not thrown');
         } catch (WriteStackException $stackException) {
             static::assertGreaterThan(0, count($stackException->getExceptions()));
-            /** @var ConstraintViolationException $exception */
+            /** @var WriteConstraintViolationException $exception */
             foreach ($stackException->getExceptions() as $exception) {
                 static::assertCount(1, $exception->getViolations());
                 static::assertSame('/conditions/' . $conditionId . '/fromDate', $exception->getViolations()->get(0)->getPropertyPath());
@@ -114,7 +114,7 @@ class DateRangeRuleTest extends TestCase
             static::fail('Exception was not thrown');
         } catch (WriteStackException $stackException) {
             static::assertGreaterThan(0, count($stackException->getExceptions()));
-            /** @var ConstraintViolationException $exception */
+            /** @var WriteConstraintViolationException $exception */
             foreach ($stackException->getExceptions() as $exception) {
                 static::assertCount(1, $exception->getViolations());
                 static::assertSame('/conditions/' . $conditionId . '/toDate', $exception->getViolations()->get(0)->getPropertyPath());
@@ -143,7 +143,7 @@ class DateRangeRuleTest extends TestCase
                 static::fail('Exception was not thrown');
             } catch (WriteStackException $stackException) {
                 static::assertGreaterThan(0, count($stackException->getExceptions()));
-                /** @var ConstraintViolationException $exception */
+                /** @var WriteConstraintViolationException $exception */
                 foreach ($stackException->getExceptions() as $exception) {
                     static::assertCount(1, $exception->getViolations());
                     static::assertSame('/conditions/' . $conditionId . '/fromDate', $exception->getViolations()->get(0)->getPropertyPath());
@@ -173,7 +173,7 @@ class DateRangeRuleTest extends TestCase
                 static::fail('Exception was not thrown');
             } catch (WriteStackException $stackException) {
                 static::assertGreaterThan(0, count($stackException->getExceptions()));
-                /** @var ConstraintViolationException $exception */
+                /** @var WriteConstraintViolationException $exception */
                 foreach ($stackException->getExceptions() as $exception) {
                     static::assertCount(1, $exception->getViolations());
                     static::assertSame('/conditions/' . $conditionId . '/toDate', $exception->getViolations()->get(0)->getPropertyPath());
@@ -203,7 +203,7 @@ class DateRangeRuleTest extends TestCase
             static::fail('Exception was not thrown');
         } catch (WriteStackException $stackException) {
             static::assertGreaterThan(0, count($stackException->getExceptions()));
-            /** @var ConstraintViolationException $exception */
+            /** @var WriteConstraintViolationException $exception */
             foreach ($stackException->getExceptions() as $exception) {
                 static::assertCount(1, $exception->getViolations());
                 static::assertSame('/conditions/' . $conditionId . '/useTime', $exception->getViolations()->get(0)->getPropertyPath());

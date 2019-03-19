@@ -53,12 +53,12 @@ class DataStack
     }
 
     /**
-     * @throws ExceptionNoStackItemFound
+     * @throws ItemNotFoundException
      */
     public function pop(string $key): KeyValuePair
     {
         if (!$this->has($key)) {
-            throw new ExceptionNoStackItemFound(sprintf('Unable to find %s', $key));
+            throw new ItemNotFoundException($key);
         }
 
         $pair = $this->data[$key];

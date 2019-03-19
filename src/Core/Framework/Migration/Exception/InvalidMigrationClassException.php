@@ -2,6 +2,20 @@
 
 namespace Shopware\Core\Framework\Migration\Exception;
 
-class InvalidMigrationClassException extends \RuntimeException
+use Shopware\Core\Framework\ShopwareHttpException;
+
+class InvalidMigrationClassException extends ShopwareHttpException
 {
+    public function __construct(string $class, string $path)
+    {
+        parent::__construct(
+            'Unable to load migration {{ class }} at path {{ path }}',
+            ['class' => $class, 'path' => $path]
+        );
+    }
+
+    public function getErrorCode(): string
+    {
+        return 'FRAMEWORK__INVALID_MIGRATION';
+    }
 }

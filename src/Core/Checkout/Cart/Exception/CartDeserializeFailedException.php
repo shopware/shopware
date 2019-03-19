@@ -6,10 +6,13 @@ use Shopware\Core\Framework\ShopwareHttpException;
 
 class CartDeserializeFailedException extends ShopwareHttpException
 {
-    protected $code = 'CART-DESERIALIZE-FAILED';
-
-    public function __construct($code = 0, ?\Throwable $previous = null)
+    public function __construct()
     {
-        parent::__construct('Failed to deserialize cart', $code, $previous);
+        parent::__construct('Failed to deserialize cart.');
+    }
+
+    public function getErrorCode(): string
+    {
+        return 'CHECKOUT__CART_DESERIALIZE_FAILED';
     }
 }

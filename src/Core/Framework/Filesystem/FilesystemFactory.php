@@ -53,7 +53,7 @@ class FilesystemFactory implements FilesystemFactoryInterface
             }
         }
 
-        throw AdapterFactoryNotFoundException::fromAdapterType($type);
+        throw new AdapterFactoryNotFoundException($type);
     }
 
     /**
@@ -67,7 +67,7 @@ class FilesystemFactory implements FilesystemFactoryInterface
         foreach ($adapterFactories as $adapter) {
             $type = strtolower($adapter->getType());
             if (array_key_exists($type, $dupes)) {
-                throw DuplicateFilesystemFactoryException::fromAdapterType($type);
+                throw new DuplicateFilesystemFactoryException($type);
             }
 
             $dupes[$type] = 1;

@@ -7,13 +7,17 @@ use Symfony\Component\HttpFoundation\Response;
 
 class FilterNotFoundException extends ShopwareHttpException
 {
-    protected $code = 'FILTER-NOT-FOUND';
-
-    public function __construct(string $filterName, string $class, int $code = 0, ?\Throwable $previous = null)
+    public function __construct(string $filterName, string $class)
     {
-        $message = sprintf('The %s filter was not found in %s', $filterName, $class);
+        parent::__construct(
+            'The filter "{{ filter }}" was not found in "{{ class }}".',
+            ['filter' => $filterName, 'class' => $class]
+        );
+    }
 
-        parent::__construct($message, $code, $previous);
+    public function getErrorCode(): string
+    {
+        return 'FRAMEWORK__FILTER_NOT_FOUND';
     }
 
     public function getStatusCode(): int

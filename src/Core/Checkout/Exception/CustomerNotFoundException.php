@@ -7,13 +7,17 @@ use Symfony\Component\HttpFoundation\Response;
 
 class CustomerNotFoundException extends ShopwareHttpException
 {
-    protected $code = 'CUSTOMER-NOT_FOUND';
-
-    public function __construct(string $email, int $code = 0, ?\Throwable $previous = null)
+    public function __construct(string $email)
     {
-        $message = sprintf('No matching customer for email "%s" was found.', $email);
+        parent::__construct(
+            'No matching customer for email "{{ email }}" was found.',
+            ['email' => $email]
+        );
+    }
 
-        parent::__construct($message, $code, $previous);
+    public function getErrorCode(): string
+    {
+        return 'CHECKOUT__CUSTOMER_NOT_FOUND';
     }
 
     public function getStatusCode(): int

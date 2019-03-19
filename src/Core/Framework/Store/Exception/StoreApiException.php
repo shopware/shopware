@@ -11,22 +11,12 @@ class StoreApiException extends ShopwareHttpException
     /**
      * @var string
      */
-    protected $code = 'STORE-API';
-
-    /**
-     * @var string
-     */
     protected $title;
 
     /**
      * @var string
      */
     protected $documentationLink;
-
-    /**
-     * @var int
-     */
-    private $statusCode;
 
     public function __construct(ClientException $exception)
     {
@@ -35,13 +25,16 @@ class StoreApiException extends ShopwareHttpException
 
         $this->title = $data['title'];
         $this->documentationLink = $data['documentationLink'];
-        $this->statusCode = $data['status'];
     }
 
     public function getStatusCode(): int
     {
-        //TODO: Responses with 401 code have no body with axios
         return Response::HTTP_INTERNAL_SERVER_ERROR;
+    }
+
+    public function getErrorCode(): string
+    {
+        return 'FRAMEWORK__STORE_ERROR';
     }
 
     public function getErrors(bool $withTrace = false): \Generator

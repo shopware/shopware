@@ -4,8 +4,6 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException;
 
 class InvalidJsonFieldException extends WriteFieldException
 {
-    private const CONCERN = 'validation-error';
-
     /**
      * @var InvalidFieldException[]
      */
@@ -16,13 +14,13 @@ class InvalidJsonFieldException extends WriteFieldException
      */
     private $path;
 
-    public function __construct(string $path, array $exceptions, $code = 0, ?\Throwable $previous = null)
+    public function __construct(string $path, array $exceptions)
     {
         parent::__construct(
-            sprintf('Caught %s validation errors.', \count($exceptions)),
-            $code,
-            $previous
+            'Caught {{ count }} validation errors.',
+            ['count' => count($exceptions)]
         );
+
         $this->path = $path;
         $this->exceptions = $exceptions;
     }
@@ -34,7 +32,7 @@ class InvalidJsonFieldException extends WriteFieldException
 
     public function getConcern(): string
     {
-        return self::CONCERN;
+        return 'validation-error';
     }
 
     public function getExceptions(): array

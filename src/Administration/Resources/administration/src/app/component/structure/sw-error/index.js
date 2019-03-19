@@ -45,6 +45,10 @@ export default {
             return this.$root.initError;
         },
 
+        imagePath() {
+            return '/administration/static/img/error.svg';
+        },
+
         message() {
             if (!this.error.message) {
                 return this.$tc('sw-error.general.messagePlaceholder');

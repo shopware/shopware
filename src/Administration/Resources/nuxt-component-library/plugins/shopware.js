@@ -73,6 +73,14 @@ Shopware.Component.override('sw-icon', {
     }
 });
 
+Shopware.Component.override('sw-error', {
+    computed: {
+        imagePath() {
+            return './administration/static/img/error.svg';
+        }
+    }
+});
+
 // Add components
 const vueComponents = {};
 components.forEach((config) => {

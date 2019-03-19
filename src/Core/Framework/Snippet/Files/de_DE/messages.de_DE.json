@@ -146,9 +146,9 @@
         "summaryNetPrice": "Gesamtsumme ohne MwSt.:",
         "summaryTax": "zzgl. %rate% % MwSt.:",
         "proceedLink": "Zur Kasse",
-        "confirmAddressEqual": "Rechnungs- und Lieferadresse",
-        "confirmBilling": "Rechnungsadresse",
-        "confirmShipping": "Lieferadresse",
+        "addressEqualHeader": "Rechnungs- und Lieferadresse",
+        "billingAddressHeader": "Rechnungsadresse",
+        "shippingAddressHeader": "Lieferadresse",
         "confirmHeaderPayment": "Zahlung und Versand",
         "confirmPaymentMethod": "Zahlungsart: ",
         "confirmDispatchMethod": "Versandart: ",
@@ -157,7 +157,14 @@
         "confirmTermsHeader": "AGB und Widerrufsbelehrung",
         "confirmRevocationNotice": "Bitte beachten Sie bei Ihrer Bestellung auch unsere <a href='#' title='Widerrufsbelehrung'>Widerrufsbelehrung</a>.",
         "confirmTerms": "Ich habe die <a href='#' title='AGB'>AGB</a> Ihres Shops gelesen und bin mit deren Geltung einverstanden.",
-        "finishHeader": "Vielen Dank für Ihre Bestellung bei %shop%!"
+        "finishHeader": "Vielen Dank für Ihre Bestellung bei %shop%!",
+        "finishInfoHeader": "Informationen",
+        "finishInfoOrdernumber": "Bestellnummer:",
+        "finishTeaserPrintNotice": "Bitte beachten Sie, dass die Druck-Funktion nicht auf allen verfügbaren Endgeräten zur Verfügung steht.",
+        "finishInfoConfirmationMail": "Wir haben Ihnen eine Bestellbestätigung per E-Mail geschickt.",
+        "finishInfoPrintOrder": "Wir empfehlen die unten aufgeführte Bestellbestätigung auszudrucken.",
+        "finishButtonBackToShop": "Zurück zum Shop",
+        "finishLinkPrint": "Bestellbestätigung drucken"
     },
     "detail": {
         "ordernumberLabel": "Artikel-Nr.:",

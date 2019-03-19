@@ -146,9 +146,9 @@
         "summaryNetPrice": "Total amount without VAT:",
         "summaryTax": "Plus %rate% % VAT:",
         "proceedLink": "Checkout",
-        "confirmAddressEqual": "Billing and shipping address",
-        "confirmBilling": "Billing address",
-        "confirmShipping": "Shipping address",
+        "addressEqualHeader": "Billing and shipping address",
+        "billingAddressHeader": "Billing address",
+        "shippingAddressHeader": "Shipping address",
         "confirmHeaderPayment": "Payment and dispatch",
         "confirmPaymentMethod": "Payment method: ",
         "confirmDispatchMethod": "Shipping type: ",
@@ -157,7 +157,14 @@
         "confirmTermsHeader": "Terms, conditions and cancellation policy",
         "confirmRevocationNotice": "Terms, conditions and cancellation policy.",
         "confirmTerms": "I have read and accepted the <a href='#' title='General terms and conditions'>General terms and conditions</a> of your shop.",
-        "finishHeader": "Thank you for your order with %shop%!"
+        "finishHeader": "Thank you for your order with %shop%!",
+        "finishInfoHeader": "Information",
+        "finishInfoOrdernumber": "Order number: ",
+        "finishTeaserPrintNotice": "Please notice that the print functionality is not supported on all available devices.",
+        "finishInfoConfirmationMail": "We have sent you the order confirmation by email.",
+        "finishInfoPrintOrder": "We recommend to print the order confirmation below.",
+        "finishButtonBackToShop": "Back to the shop",
+        "finishLinkPrint": "Print order confirmation"
     },
     "detail": {
         "ordernumberLabel": "Order number: ",

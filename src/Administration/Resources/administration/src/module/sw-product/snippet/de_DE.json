@@ -82,7 +82,8 @@
       "cardTitleSettings": "Einstellungen",
       "linkAdvancedPrices": "Erweiterte Preisansicht öffnen",
       "cardTitleMedia": "Medien",
-      "labelContextMenuAddToProduct": "Zu Produkt hinzufügen"
+      "labelContextMenuAddToProduct": "Zu Produkt hinzufügen",
+      "cardTitleSeo": "SEO"
     },
     "priceRules": {
       "cardTitlePriceRule": "Neue Preisregel",

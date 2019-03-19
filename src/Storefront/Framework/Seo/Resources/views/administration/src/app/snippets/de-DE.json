@@ -1,0 +1,11 @@
+{
+  "sw-seo-url-template-card": {
+    "general": {
+      "titleCard": "SEO Url Templates",
+      "labelPossibleValues": "Mögliche Variablen"
+    },
+    "routeNames": {
+      "frontend-detail-page": "Produktdetailseite"
+    }
+  }
+}

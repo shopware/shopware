@@ -24,6 +24,16 @@
             </sw-card>
         {% endblock %}
 
+        {% block sw_product_detail_base_seo_card %}
+            <sw-card v-if="next741"
+                     :title="$tc('sw-product.detailBase.cardTitleSeo')"
+                     :isLoading="product.isLoading">
+                {% block sw_product_detail_base_seo_form %}
+                    <sw-settings-seo-entity-detail :entity="product"></sw-settings-seo-entity-detail>
+                {% endblock %}
+            </sw-card>
+        {% endblock %}
+
         {% block sw_product_detail_base_price_card %}
             <sw-card :title="$tc('sw-product.detailBase.cardTitlePrices')" :isLoading="product.isLoading">
                 {% block sw_product_detail_base_price_form %}

@@ -1,0 +1,14 @@
+{
+  "sw-settings-seo": {
+    "general": {
+      "mainMenuItemGeneral": "SEO",
+      "descriptionTextModule": "Verwaltung von SEO Einstellungen.",
+      "textHeadline" : "SEO",
+      "buttonSave": "Speichern"
+    }
+  },
+  "sw-settings-seo-entity-detail": {
+    "labelMetaTitle": "Meta-Title",
+    "labelAdditionalText": "Meta-Beschreibung"
+  }
+}

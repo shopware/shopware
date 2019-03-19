@@ -16,7 +16,7 @@ Component.register('sw-settings-salutation-list', {
             disableRouteParams: true,
             total: 0,
             page: 1,
-            limit: 25,
+            limit: 10,
             sortBy: 'salutationKey',
             sortDirection: 'ASC',
             term: '',
@@ -58,12 +58,6 @@ Component.register('sw-settings-salutation-list', {
                 'name',
                 this.$tc('sw-settings-salutation.list.fieldNamePlaceholder')
             );
-        },
-
-        onPageChange(params) {
-            this.page = params.page;
-            this.limit = params.limit;
-            this.getList();
         },
 
         onSearch(term) {

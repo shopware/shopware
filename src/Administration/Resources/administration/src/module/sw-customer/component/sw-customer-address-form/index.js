@@ -39,11 +39,11 @@ Component.register('sw-customer-address-form', {
     },
 
     created() {
-        this.createdComponents();
+        this.createdComponent();
     },
 
     methods: {
-        createdComponents() {
+        createdComponent() {
             this.salutationStore.getList({ page: 1, limit: 500 }).then(({ items }) => {
                 this.salutations = items;
             });

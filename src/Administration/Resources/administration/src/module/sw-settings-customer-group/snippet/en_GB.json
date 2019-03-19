@@ -1,0 +1,37 @@
+{
+    "sw-settings-customer-group": {
+        "general": {
+            "mainMenuItemGeneral": "Customer group",
+            "description": "Manage customer groups here.",
+            "buttonCancel": "Cancel",
+            "buttonCreate": "Add customer group",
+            "buttonDelete": "Delete",
+            "buttonSave": "Save",
+            "contextMenuEdit": "Edit",
+            "contextMenuDelete": "Delete",
+            "placeholderSearchBar": "Search customer group",
+            "titleError": "Error",
+            "titleSuccess": "Success"
+        },
+        "list": {
+            "columnName": "Name",
+            "columnDisplayGross": "Tax display",
+            "fieldNamePlaceholder": "Please choose a name",
+            "messageDeleteError": "Customer group could not be deleted.",
+            "messageDeleteSuccess": "Customer group has been deleted successfully.",
+            "messageSaveError": "Customer group could not be saved.",
+            "messageSaveSuccess": "Customer group \"{name}\" has been saved successfully.",
+            "textDeleteConfirm": "Are you sure you want to delete the customer group \"{name}\"?",
+            "textNetGross": "Gross | Net"
+        },
+        "detail": {
+            "cardTitle": "Customer group",
+            "fieldNameLabel": "Name",
+            "fieldDisplayGrossLabel": "Gross | Net",
+            "messageSaveError": "Customer group could not be saved.",
+            "messageSaveSuccess": "Customer group \"{name}\" has been saved successfully.",
+            "placeholderName": "Please choose a name",
+            "placeholderNewCustomerGroup": "New customer group"
+        }
+    }
+}

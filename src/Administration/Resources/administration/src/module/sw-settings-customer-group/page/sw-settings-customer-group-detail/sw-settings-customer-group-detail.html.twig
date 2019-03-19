@@ -1,0 +1,86 @@
+{% block sw_settings_customer_group_detail %}
+    <sw-page class="sw-settings-customer-group-detail">
+
+        {% block sw_settings_customer_group_detail_search_bar %}
+            <template slot="search-bar"></template>
+        {% endblock %}
+
+        {% block sw_settings_customer_group_detail_smart_bar_header %}
+            <template slot="smart-bar-header">
+                {% block sw_settings_customer_group_detail_smart_bar_header_title %}
+                    <h2>
+                        {% block sw_settings_customer_group_detail_smart_bar_header_title_text %}
+                            {{ customerGroup.meta.viewData.name || $tc('sw-settings-customer-group.detail.placeholderNewCustomerGroup') }}
+                        {% endblock %}
+                    </h2>
+                {% endblock %}
+            </template>
+        {% endblock %}
+
+        {% block sw_settings_customer_group_detail_language_switch %}
+            <template slot="language-switch">
+                <sw-language-switch @on-change="onChangeLanguage"></sw-language-switch>
+            </template>
+        {% endblock %}
+
+        {% block sw_settings_customer_group_detail_actions %}
+            <template slot="smart-bar-actions">
+                {% block sw_settings_customer_group_detail_actions_cancel %}
+                    <sw-button class="sw-settings-customer-group-detail__cancel"
+                               @click="onCancel">
+                        {{ $tc('sw-settings-customer-group.general.buttonCancel') }}
+                    </sw-button>
+                {% endblock %}
+
+                {% block sw_settings_customer_group_detail_actions_save %}
+                    <sw-button class="sw-settings-customer-group-detail__save"
+                               :disabled="!customerGroup.name"
+                               variant="primary"
+                               @click="onSave">
+                        {{ $tc('sw-settings-customer-group.general.buttonSave') }}
+                    </sw-button>
+                {% endblock %}
+            </template>
+        {% endblock %}
+
+        {% block sw_settings_customer_group_detail_cardview %}
+            <template slot="content">
+                <sw-card-view>
+
+                    {% block sw_settings_customer_group_detail_content_language_info %}
+                        <sw-language-info :entityDescription="entityDescription"></sw-language-info>
+                    {% endblock %}
+
+
+                    {% block sw_settings_customer_group_detail_content_card %}
+                        <sw-card :isLoading="isLoading"
+                                 :title="$tc('sw-settings-customer-group.detail.cardTitle')">
+                            <sw-container columns="repeat(auto-fit, minmax(250px, 1fr)" gap="0px 30px">
+
+                            {% block sw_settings_customer_group_detail_content_card_name %}
+                                <sw-field v-model="customerGroup.name"
+                                          class="sw-settings-customer-group-detail__name"
+                                          :label="$tc('sw-settings-customer-group.detail.fieldNameLabel')"
+                                          :placeholder="placeholder(customerGroup, 'name', $tc('sw-settings-customer-group.detail.placeholderName'))"
+                                          validation="required">
+                                </sw-field>
+                            {% endblock %}
+
+                            {% block sw_settings_customer_group_detail_content_card_display_gross %}
+                                <sw-field type="boolean"
+                                          v-model="customerGroup.displayGross"
+                                          class="sw-settings-customer-group-detail__display_gross"
+                                          :label="$tc('sw-settings-customer-group.detail.fieldDisplayGrossLabel', customerGroup.displayGross)">
+                                </sw-field>
+                            {% endblock %}
+
+                            </sw-container>
+                        </sw-card>
+                    {% endblock %}
+
+                </sw-card-view>
+            </template>
+        {% endblock %}
+
+    </sw-page>
+{% endblock %}

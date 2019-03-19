@@ -61,9 +61,16 @@ class CustomerGenerator implements DemodataGeneratorInterface
         $data = [
             'id' => $id,
             'displayGross' => false,
-            'inputGross' => false,
-            'hasGlobalDiscount' => false,
-            'name' => 'Net price customer group',
+            'translations' => [
+                [
+                    'languageId' => Defaults::LANGUAGE_SYSTEM,
+                    'name' => 'Net price customer group',
+                ],
+                [
+                    'languageId' => Defaults::LANGUAGE_SYSTEM_DE,
+                    'name' => 'Nettopreis-Kundengruppe',
+                ],
+            ],
         ];
 
         $this->customerGroupRepository->create([$data], $context);
@@ -124,7 +131,6 @@ class CustomerGenerator implements DemodataGeneratorInterface
 
     private function createCustomers(int $numberOfItems, DemodataContext $context): void
     {
-        $number = $context->getFaker()->randomNumber();
         $writeContext = WriteContext::createFromContext($context->getContext());
 
         $context->getConsole()->progressStart($numberOfItems);

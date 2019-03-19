@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup;
 
-use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroupDiscount\CustomerGroupDiscountCollection;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroupTranslation\CustomerGroupTranslationCollection;
 use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
@@ -11,6 +10,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 class CustomerGroupEntity extends Entity
 {
     use EntityIdTrait;
+
     /**
      * @var string|null
      */
@@ -22,31 +22,6 @@ class CustomerGroupEntity extends Entity
     protected $displayGross;
 
     /**
-     * @var bool
-     */
-    protected $inputGross;
-
-    /**
-     * @var bool
-     */
-    protected $hasGlobalDiscount;
-
-    /**
-     * @var float|null
-     */
-    protected $percentageGlobalDiscount;
-
-    /**
-     * @var float|null
-     */
-    protected $minimumOrderAmount;
-
-    /**
-     * @var float|null
-     */
-    protected $minimumOrderAmountSurcharge;
-
-    /**
      * @var \DateTimeInterface|null
      */
     protected $createdAt;
@@ -55,11 +30,6 @@ class CustomerGroupEntity extends Entity
      * @var \DateTimeInterface|null
      */
     protected $updatedAt;
-
-    /**
-     * @var CustomerGroupDiscountCollection|null
-     */
-    protected $discounts;
 
     /**
      * @var CustomerGroupTranslationCollection|null
@@ -96,56 +66,6 @@ class CustomerGroupEntity extends Entity
         $this->displayGross = $displayGross;
     }
 
-    public function getInputGross(): bool
-    {
-        return $this->inputGross;
-    }
-
-    public function setInputGross(bool $inputGross): void
-    {
-        $this->inputGross = $inputGross;
-    }
-
-    public function getHasGlobalDiscount(): bool
-    {
-        return $this->hasGlobalDiscount;
-    }
-
-    public function setHasGlobalDiscount(bool $hasGlobalDiscount): void
-    {
-        $this->hasGlobalDiscount = $hasGlobalDiscount;
-    }
-
-    public function getPercentageGlobalDiscount(): ?float
-    {
-        return $this->percentageGlobalDiscount;
-    }
-
-    public function setPercentageGlobalDiscount(?float $percentageGlobalDiscount): void
-    {
-        $this->percentageGlobalDiscount = $percentageGlobalDiscount;
-    }
-
-    public function getMinimumOrderAmount(): ?float
-    {
-        return $this->minimumOrderAmount;
-    }
-
-    public function setMinimumOrderAmount(?float $minimumOrderAmount): void
-    {
-        $this->minimumOrderAmount = $minimumOrderAmount;
-    }
-
-    public function getMinimumOrderAmountSurcharge(): ?float
-    {
-        return $this->minimumOrderAmountSurcharge;
-    }
-
-    public function setMinimumOrderAmountSurcharge(?float $minimumOrderAmountSurcharge): void
-    {
-        $this->minimumOrderAmountSurcharge = $minimumOrderAmountSurcharge;
-    }
-
     public function getCreatedAt(): ?\DateTimeInterface
     {
         return $this->createdAt;
@@ -164,16 +84,6 @@ class CustomerGroupEntity extends Entity
     public function setUpdatedAt(\DateTimeInterface $updatedAt): void
     {
         $this->updatedAt = $updatedAt;
-    }
-
-    public function getDiscounts(): ?CustomerGroupDiscountCollection
-    {
-        return $this->discounts;
-    }
-
-    public function setDiscounts(CustomerGroupDiscountCollection $discounts): void
-    {
-        $this->discounts = $discounts;
     }
 
     public function getTranslations(): ?CustomerGroupTranslationCollection

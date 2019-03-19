@@ -14,7 +14,8 @@ Mixin.register('sw-settings-list', {
             items: [],
             isLoading: false,
             showDeleteModal: false,
-            deleteEntity: null
+            deleteEntity: null,
+            steps: [10, 25, 50]
         };
     },
 
@@ -89,7 +90,7 @@ Mixin.register('sw-settings-list', {
         onInlineEditSave(item) {
             this.isLoading = true;
 
-            item.save().then(() => {
+            return item.save().then(() => {
                 this.isLoading = false;
             }).catch(() => {
                 this.isLoading = false;

@@ -1,0 +1,37 @@
+{
+    "sw-settings-customer-group": {
+        "general": {
+            "mainMenuItemGeneral": "Kundengruppen",
+            "description": "Verwaltung von Kundengruppen.",
+            "buttonCancel": "Abbrechen",
+            "buttonCreate": "Kundengruppe anlegen",
+            "buttonDelete": "Löschen",
+            "buttonSave": "Speichern",
+            "contextMenuEdit": "Bearbeiten",
+            "contextMenuDelete": "Löschen",
+            "placeholderSearchBar": "Durchsuche alle Kundengruppen",
+            "titleError": "Fehler",
+            "titleSuccess": "Erfolg"
+        },
+        "list": {
+            "columnName": "Name",
+            "columnDisplayGross": "Steuerdarstellung",
+            "fieldNamePlaceholder": "Bitte gebe einen Namen an",
+            "messageDeleteError": "Die Kundengruppe konnte nicht gelöscht werden.",
+            "messageDeleteSuccess": "Die Kundengruppe wurde erfolgreich gelöscht.",
+            "messageSaveError": "Die Kundengruppe konnte nicht gespeichert werden.",
+            "messageSaveSuccess": "Die Kundengruppe \"{name}\" wurde erfolgreich gespeichert.",
+            "textDeleteConfirm": "Möchtest Du die Kundengruppe \"{name}\" wirklich löschen?",
+            "textNetGross": "Brutto | Netto"
+        },
+        "detail": {
+            "cardTitle": "Kundengruppe",
+            "fieldNameLabel": "Name",
+            "fieldDisplayGrossLabel": "Brutto | Netto",
+            "messageSaveError": "Die Kundengruppe konnte nicht gespeichert werden.",
+            "messageSaveSuccess": "Die Kundengruppe \"{name}\" wurde erfolgreich gespeichert.",
+            "placeholderName": "Bitte gebe einen Namen an",
+            "placeholderNewCustomerGroup": "Neue Kundengruppe"
+        }
+    }
+}

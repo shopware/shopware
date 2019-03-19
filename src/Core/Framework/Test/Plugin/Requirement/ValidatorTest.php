@@ -30,10 +30,22 @@ class ValidatorTest extends TestCase
         require_once __DIR__ . '/_fixture/SwagRequirementInvalidTest/SwagRequirementInvalidTest.php';
         $pluginBaseClass = new \SwagRequirementInvalidTest\SwagRequirementInvalidTest();
 
-        $this->expectException(RequirementStackException::class);
-        $this->expectExceptionMessage('Required plugin/package "shopware/platform ^12.34" does not match installed version');
+        $exception = null;
+        try {
+            $this->createValidator()->validateRequirements($pluginBaseClass, Context::createDefaultContext(), 'test');
+        } catch (RequirementStackException $exception) {
+        }
 
-        $this->createValidator()->validateRequirements($pluginBaseClass, Context::createDefaultContext(), 'test');
+        $messages = [];
+        static::assertInstanceOf(RequirementStackException::class, $exception);
+        foreach ($exception->getRequirements() as $requirement) {
+            $messages[] = $requirement->getMessage();
+        }
+
+        static::assertContains(
+            'Required plugin/package "shopware/platform ^12.34" does not match installed version 9999999-dev.',
+            $messages
+        );
     }
 
     public function testValidateRequirementsMissing(): void
@@ -41,10 +53,22 @@ class ValidatorTest extends TestCase
         require_once __DIR__ . '/_fixture/SwagRequirementInvalidTest/SwagRequirementInvalidTest.php';
         $pluginBaseClass = new \SwagRequirementInvalidTest\SwagRequirementInvalidTest();
 
-        $this->expectException(RequirementStackException::class);
-        $this->expectExceptionMessage('Required plugin/package "test/not-installed ~2" is missing');
+        $exception = null;
+        try {
+            $this->createValidator()->validateRequirements($pluginBaseClass, Context::createDefaultContext(), 'test');
+        } catch (RequirementStackException $exception) {
+        }
 
-        $this->createValidator()->validateRequirements($pluginBaseClass, Context::createDefaultContext(), 'test');
+        $messages = [];
+        static::assertInstanceOf(RequirementStackException::class, $exception);
+        foreach ($exception->getRequirements() as $requirement) {
+            $messages[] = $requirement->getMessage();
+        }
+
+        static::assertContains(
+            'Required plugin/package "test/not-installed ~2" is missing',
+            $messages
+        );
     }
 
     private function createValidator(): RequirementsValidator

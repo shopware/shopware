@@ -30,6 +30,14 @@
             <tag name="controller.argument_value_resolver" priority="1000"/>
         </service>
 
+        <service id="Shopware\Core\Framework\Routing\QueryDataBagResolver">
+            <tag name="controller.argument_value_resolver" priority="1000"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Routing\RequestDataBagResolver">
+            <tag name="controller.argument_value_resolver" priority="1000"/>
+        </service>
+
         <!-- Cache -->
         <service id="shopware.cache" class="Symfony\Component\Cache\Adapter\TagAwareAdapter" public="true">
             <argument type="service" id="cache.app" />

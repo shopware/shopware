@@ -54,12 +54,11 @@ class MailActionController extends AbstractController
      * @throws StringTemplateRenderingException
      * @throws MailTransportFailedException
      */
-    public function send(Request $request, Context $context): JsonResponse
+    public function send(InternalRequest $request, Context $context): JsonResponse
     {
-        $internalRequest = InternalRequest::createFromHttpRequest($request);
-        $recipient = $internalRequest->requirePost('recipient');
-        $template = $internalRequest->requirePost('mailTemplate');
-        $salesChannelId = $internalRequest->requirePost('salesChannelId');
+        $recipient = $request->requirePost('recipient');
+        $template = $request->requirePost('mailTemplate');
+        $salesChannelId = $request->requirePost('salesChannelId');
 
         $bodies = ['text/html' => $template['contentHtml'], 'text/plain' => $template['contentPlain']];
 

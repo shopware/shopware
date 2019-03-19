@@ -182,7 +182,7 @@ class SeoService implements SeoServiceInterface
             $this->twig->setLoader(new ArrayLoader(['template' => $template]));
             $this->twig->loadTemplate('template');
         } catch (SyntaxError $syntaxError) {
-            throw new InvalidTemplateException('Syntax error: ' . $syntaxError->getMessage(), $syntaxError);
+            throw new InvalidTemplateException('Syntax error: ' . $syntaxError->getMessage());
         }
     }
 

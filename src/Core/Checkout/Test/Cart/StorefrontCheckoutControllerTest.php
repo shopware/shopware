@@ -203,7 +203,7 @@ class StorefrontCheckoutControllerTest extends TestCase
             ],
         ], $context);
 
-        $mail = Uuid::uuid4()->getHex();
+        $mail = Uuid::uuid4()->getHex() . '@shopware.unit';
 
         $firstName = 'Max';
         $lastName = 'Mustmann';
@@ -280,7 +280,7 @@ class StorefrontCheckoutControllerTest extends TestCase
             ],
         ], $context);
 
-        $mail = Uuid::uuid4()->getHex();
+        $mail = Uuid::uuid4()->getHex() . '@shopware.unit';
 
         $firstName = 'Max';
         $lastName = 'Mustmann';
@@ -350,7 +350,7 @@ class StorefrontCheckoutControllerTest extends TestCase
         ], $context);
 
         $addressId = Uuid::uuid4()->getHex();
-        $mail = Uuid::uuid4()->getHex();
+        $mail = Uuid::uuid4()->getHex() . '@shopware.unit';
         $password = 'shopware';
 
         $this->createCustomer($addressId, $mail, $password, $context);
@@ -395,7 +395,7 @@ class StorefrontCheckoutControllerTest extends TestCase
             ],
         ], $context);
 
-        $guestMail = Uuid::uuid4()->getHex();
+        $guestMail = Uuid::uuid4()->getHex() . '@shopware.unit';
 
         $firstName = 'Max';
         $lastName = 'Mustmann';
@@ -653,7 +653,7 @@ class StorefrontCheckoutControllerTest extends TestCase
             ],
         ], $context);
 
-        $mail = Uuid::uuid4()->getHex();
+        $mail = Uuid::uuid4()->getHex() . '@shopware.unit';
 
         $firstName = 'Max';
         $lastName = 'Mustmann';

@@ -482,5 +482,11 @@
 
             <tag name="shopware.field_serializer"/>
         </service>
+
+        <service id="Shopware\Core\Framework\DataAbstractionLayer\Validation\EntityExistsValidator">
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionRegistry"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface"/>
+            <tag name="validator.constraint_validator"/>
+        </service>
     </services>
 </container>

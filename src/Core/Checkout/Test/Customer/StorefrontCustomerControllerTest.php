@@ -210,7 +210,7 @@ class StorefrontCustomerControllerTest extends TestCase
         $response = $this->getStorefrontClient()->getResponse();
         $content = json_decode($response->getContent(), true);
 
-        static::assertEquals(Response::HTTP_OK, $response->getStatusCode());
+        static::assertEquals(Response::HTTP_OK, $response->getStatusCode(), $response->getContent());
         static::assertNotEmpty($content);
         static::assertArrayHasKey('data', $content);
 
@@ -281,7 +281,6 @@ class StorefrontCustomerControllerTest extends TestCase
     {
         $personal = [
             'salutationId' => Defaults::SALUTATION_ID_MR,
-            'salutation' => 'Mr.',
             'firstName' => 'Max',
             'lastName' => 'Mustermann',
             'password' => 'test',
@@ -296,7 +295,7 @@ class StorefrontCustomerControllerTest extends TestCase
                 'street' => 'Examplestreet 11',
                 'zipcode' => '48441',
                 'city' => 'Cologne',
-                'phone' => '0123456789',
+                'phoneNumber' => '0123456789',
                 'vatId' => 'DE999999999',
                 'additionalAddressLine1' => 'Additional address line 1',
                 'additionalAddressLine2' => 'Additional address line 2',
@@ -304,13 +303,12 @@ class StorefrontCustomerControllerTest extends TestCase
             'shippingAddress' => [
                 'countryId' => Defaults::COUNTRY,
                 'salutationId' => Defaults::SALUTATION_ID_MISS,
-                'salutation' => 'Miss',
                 'firstName' => 'Test 2',
                 'lastName' => 'Example 2',
                 'street' => 'Examplestreet 111',
                 'zipcode' => '12341',
                 'city' => 'Berlin',
-                'phone' => '987654321',
+                'phoneNumber' => '987654321',
                 'additionalAddressLine1' => 'Additional address line 01',
                 'additionalAddressLine2' => 'Additional address line 02',
             ],
@@ -330,7 +328,7 @@ class StorefrontCustomerControllerTest extends TestCase
         $customer = $this->readCustomer($uuid);
 
         // verify personal data
-        static::assertEquals($personal['salutation'], $customer->getSalutation()->getDisplayName());
+        static::assertEquals($personal['salutationId'], $customer->getSalutation()->getId());
         static::assertEquals($personal['firstName'], $customer->getFirstName());
         static::assertEquals($personal['lastName'], $customer->getLastName());
         static::assertTrue(password_verify($personal['password'], $customer->getPassword()));
@@ -350,13 +348,13 @@ class StorefrontCustomerControllerTest extends TestCase
         $billingAddress = $customer->getDefaultBillingAddress();
 
         static::assertEquals($personal['billingAddress']['countryId'], $billingAddress->getCountryId());
-        static::assertEquals($personal['salutation'], $billingAddress->getSalutation()->getDisplayName());
+        static::assertEquals($personal['salutationId'], $billingAddress->getSalutation()->getId());
         static::assertEquals($personal['firstName'], $billingAddress->getFirstName());
         static::assertEquals($personal['lastName'], $billingAddress->getLastName());
         static::assertEquals($personal['billingAddress']['street'], $billingAddress->getStreet());
         static::assertEquals($personal['billingAddress']['zipcode'], $billingAddress->getZipcode());
         static::assertEquals($personal['billingAddress']['city'], $billingAddress->getCity());
-        static::assertEquals($personal['billingAddress']['phone'], $billingAddress->getPhoneNumber());
+        static::assertEquals($personal['billingAddress']['phoneNumber'], $billingAddress->getPhoneNumber());
         static::assertEquals($personal['billingAddress']['vatId'], $billingAddress->getVatId());
         static::assertEquals($personal['billingAddress']['additionalAddressLine1'], $billingAddress->getAdditionalAddressLine1());
         static::assertEquals($personal['billingAddress']['additionalAddressLine2'], $billingAddress->getAdditionalAddressLine2());
@@ -365,13 +363,13 @@ class StorefrontCustomerControllerTest extends TestCase
         $shippingAddress = $customer->getDefaultShippingAddress();
 
         static::assertEquals($personal['shippingAddress']['countryId'], $shippingAddress->getCountryId());
-        static::assertEquals($personal['shippingAddress']['salutation'], $shippingAddress->getSalutation()->getDisplayName());
+        static::assertEquals($personal['shippingAddress']['salutationId'], $shippingAddress->getSalutation()->getId());
         static::assertEquals($personal['shippingAddress']['firstName'], $shippingAddress->getFirstName());
         static::assertEquals($personal['shippingAddress']['lastName'], $shippingAddress->getLastName());
         static::assertEquals($personal['shippingAddress']['street'], $shippingAddress->getStreet());
         static::assertEquals($personal['shippingAddress']['zipcode'], $shippingAddress->getZipcode());
         static::assertEquals($personal['shippingAddress']['city'], $shippingAddress->getCity());
-        static::assertEquals($personal['shippingAddress']['phone'], $shippingAddress->getPhoneNumber());
+        static::assertEquals($personal['shippingAddress']['phoneNumber'], $shippingAddress->getPhoneNumber());
         static::assertEquals($personal['shippingAddress']['additionalAddressLine1'], $shippingAddress->getAdditionalAddressLine1());
         static::assertEquals($personal['shippingAddress']['additionalAddressLine2'], $shippingAddress->getAdditionalAddressLine2());
     }
@@ -417,7 +415,6 @@ class StorefrontCustomerControllerTest extends TestCase
             'lastName' => 'User',
             'title' => 'PHD',
             'salutationId' => Defaults::SALUTATION_ID_MRS,
-            'salutation' => 'Mrs.',
             'birthdayYear' => 1900,
             'birthdayMonth' => 5,
             'birthdayDay' => 3,
@@ -433,7 +430,7 @@ class StorefrontCustomerControllerTest extends TestCase
         static::assertEquals($data['firstName'], $customer->getFirstName());
         static::assertEquals($data['lastName'], $customer->getLastName());
         static::assertEquals($data['title'], $customer->getTitle());
-        static::assertEquals($data['salutation'], $customer->getSalutation()->getDisplayName());
+        static::assertEquals($data['salutationId'], $customer->getSalutation()->getId());
         static::assertEquals(
             $this->formatBirthday(
                 $data['birthdayDay'],

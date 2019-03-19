@@ -187,7 +187,7 @@ class PluginLifecycleServiceTest extends TestCase
         $plugin = $this->pluginService->getPluginByName(\SwagTest\SwagTest::PLUGIN_NAME, $this->context);
 
         $this->expectException(PluginNotInstalledException::class);
-        $this->expectExceptionMessage('Plugin "SwagTest" is not installed at all');
+        $this->expectExceptionMessage('Plugin "SwagTest" is not installed.');
         $this->pluginLifecycleService->uninstallPlugin($plugin, $this->context);
     }
 
@@ -245,7 +245,7 @@ class PluginLifecycleServiceTest extends TestCase
         $plugin = $this->pluginService->getPluginByName(\SwagTest\SwagTest::PLUGIN_NAME, $this->context);
 
         $this->expectException(PluginNotInstalledException::class);
-        $this->expectExceptionMessage('Plugin "SwagTest" is not installed at all');
+        $this->expectExceptionMessage('Plugin "SwagTest" is not installed.');
         $this->pluginLifecycleService->activatePlugin($plugin, $this->context);
     }
 
@@ -289,7 +289,7 @@ class PluginLifecycleServiceTest extends TestCase
         $plugin = $this->pluginService->getPluginByName(\SwagTest\SwagTest::PLUGIN_NAME, $this->context);
 
         $this->expectException(PluginNotInstalledException::class);
-        $this->expectExceptionMessage('Plugin "SwagTest" is not installed at all');
+        $this->expectExceptionMessage('Plugin "SwagTest" is not installed.');
         $this->pluginLifecycleService->deactivatePlugin($plugin, $this->context);
     }
 

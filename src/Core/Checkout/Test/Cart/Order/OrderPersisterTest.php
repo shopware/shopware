@@ -86,9 +86,13 @@ class OrderPersisterTest extends TestCase
         } catch (InvalidCartException $exception) {
         }
 
+        $messages = [];
         static::assertInstanceOf(InvalidCartException::class, $exception);
-        error_log(print_r($exception->getErrors(), true) . PHP_EOL, 3, '/Users/j.buecker/debug.log');
-//        $this->expectExceptionMessageRegExp('/.*Line item "test" incomplete\. Property "label" missing\..*/');
+        foreach ($exception->getCartErrors() as $error) {
+            $messages[] = $error->getMessage();
+        }
+
+        static::assertContains('Line item "test" incomplete. Property "label" missing.', $messages);
     }
 
     private function getCustomer(): CustomerEntity

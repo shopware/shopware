@@ -123,6 +123,9 @@
         "countryLabel": "Country"
     },
     "checkout": {
+        "stepAddress": "Address",
+        "stepConfig": "Payment & shipping",
+        "stepConfirm": "Complete order",
         "cartTitle": "Shopping cart",
         "cartHeader": "Shopping cart",
         "continueShopping": "Continue shopping",

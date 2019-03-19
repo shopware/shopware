@@ -9,7 +9,7 @@
         "deliveryNotAvailable": "Diese Auswahl steht nicht zur Verfügung!",
         "deliveryShipping": "Dieser Artikel erscheint am",
         "deliveryPartialStock": "Nur %inStock% von %quantity% ab Lager lieferbar",
-        "deliveryPartialStockAddon": "- Lieferzeit für nicht vorrätigen Artikel: %shippingTime% Werktag(e)",
+        "deliveryPartialStockAddon": "- Lieferzeit für nicht vorrätigen Artikel: %shippingTime% Werktage",
         "deliveryInStock": "Sofort versandfertig, Lieferzeit ca. 1-3 Werktage",
         "deliveryShippingTime": "Lieferzeit %shippingTime% Werktage",
         "deliveryShippingDelay": "Lieferzeit ca. 5 Werktage",

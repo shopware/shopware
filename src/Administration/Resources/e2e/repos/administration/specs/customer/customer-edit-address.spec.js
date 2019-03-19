@@ -21,7 +21,7 @@ module.exports = {
 
         browser
             .clickContextMenuItem('.sw-customer-list__view-action', page.elements.contextMenuButton, `${page.elements.dataGridRow}--0`)
-            .expect.element(`${page.elements.customerMetaData}-customer-name`).to.have.text.that.equals('Mr Pep Eroni');
+            .expect.element(`${page.elements.customerMetaData}-customer-name`).to.have.text.that.equals('Mr. Pep Eroni');
     },
     'activate edit mode': (browser) => {
         browser
@@ -77,7 +77,7 @@ module.exports = {
     'save customer': (browser) => {
         browser
             .click('.sw-customer-detail__save-action')
-            .checkNotification('Customer "Mr Cran Berry" has been saved successfully.');
+            .checkNotification('Customer "Mr. Cran Berry" has been saved successfully.');
     },
     'remove address': (browser) => {
         const page = customerPage(browser);
@@ -95,21 +95,21 @@ module.exports = {
             ).expect.element('.sw-customer-detail-addresses__confirm-delete-text').to.have.text.that.equals('Are you sure you want to delete this address?');
 
         browser
-            .assert.containsText('.sw-address__full-name', 'Mr Harry Potter')
+            .assert.containsText('.sw-address__full-name', 'Mr. Harry Potter')
             .click(`${page.elements.modal}__footer button${page.elements.primaryButton}`)
             .waitForElementNotPresent(page.elements.modal)
             .waitForElementNotPresent(`${page.elements.gridRow}--1`);
 
         browser
             .click('.sw-customer-detail__save-action')
-            .checkNotification('Customer "Mr Cran Berry" has been saved successfully.');
+            .checkNotification('Customer "Mr. Cran Berry" has been saved successfully.');
     },
     'verify changed customer data': (browser) => {
         const page = customerPage(browser);
 
         browser
             .click('.sw-customer-detail__tab-general')
-            .assert.containsText(`${page.elements.customerMetaData}-customer-name`, 'Mr Cran Berry')
+            .assert.containsText(`${page.elements.customerMetaData}-customer-name`, 'Mr. Cran Berry')
             .assert.containsText('.sw-customer-base__label-is-active', 'Inactive');
     },
     after: (browser) => {

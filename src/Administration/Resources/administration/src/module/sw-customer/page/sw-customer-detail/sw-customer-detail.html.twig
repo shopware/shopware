@@ -2,7 +2,13 @@
     <sw-page class="sw-customer-detail">
         {% block sw_customer_detail_header %}
             <template slot="smart-bar-header">
-                <h2>{{ customerName }}</h2>
+                <h2 v-if="customer && customer.salutation">{{ salutation(customer) }}</h2>
+            </template>
+        {% endblock %}
+
+        {% block sw_customer_detail_header_language_switch %}
+            <template slot="language-switch">
+                <sw-language-switch @on-change="onChangeLanguage"></sw-language-switch>
             </template>
         {% endblock %}
 
@@ -69,7 +75,7 @@
 
                 {% block sw_customer_detail_content_view %}
                     <router-view :customer="customer"
-                                 :customerName="customerName"
+                                 customerName="salutation(customer)"
                                  :addresses="addresses"
                                  :salesChannels="salesChannels"
                                  :customerGroups="customerGroups"

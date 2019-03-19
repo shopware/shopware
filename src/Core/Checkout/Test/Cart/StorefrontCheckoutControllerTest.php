@@ -194,9 +194,11 @@ class StorefrontCheckoutControllerTest extends TestCase
 
         $firstName = 'Max';
         $lastName = 'Mustmann';
+        $salutationId = Defaults::SALUTATION_ID_MR;
 
         $personal = [
             'email' => $mail,
+            'salutationId' => $salutationId,
             'firstName' => $firstName,
             'lastName' => $lastName,
         ];
@@ -266,9 +268,11 @@ class StorefrontCheckoutControllerTest extends TestCase
 
         $firstName = 'Max';
         $lastName = 'Mustmann';
+        $salutationId = Defaults::SALUTATION_ID_MR;
 
         $personal = [
             'email' => $mail,
+            'salutationId' => $salutationId,
             'firstName' => $firstName,
             'lastName' => $lastName,
         ];
@@ -342,9 +346,11 @@ class StorefrontCheckoutControllerTest extends TestCase
 
         $firstName = 'Max';
         $lastName = 'Mustmann';
+        $salutationId = Defaults::SALUTATION_ID_MR;
 
         $personal = [
             'email' => $mail,
+            'salutationId' => $salutationId,
             'firstName' => $firstName,
             'lastName' => $lastName,
         ];
@@ -391,9 +397,11 @@ class StorefrontCheckoutControllerTest extends TestCase
 
         $firstName = 'Max';
         $lastName = 'Mustmann';
+        $salutationId = Defaults::SALUTATION_ID_MR;
 
         $personal = [
             'email' => $guestMail,
+            'salutationId' => $salutationId,
             'firstName' => $firstName,
             'lastName' => $lastName,
         ];
@@ -579,9 +587,11 @@ class StorefrontCheckoutControllerTest extends TestCase
 
         $firstName = 'Max';
         $lastName = 'Mustmann';
+        $salutationId = Defaults::SALUTATION_ID_MR;
 
         $personal = [
             'email' => $mail,
+            'salutationId' => $salutationId,
             'firstName' => $firstName,
             'lastName' => $lastName,
         ];
@@ -630,7 +640,7 @@ class StorefrontCheckoutControllerTest extends TestCase
                     'street' => 'test',
                     'city' => 'not',
                     'zipcode' => 'not',
-                    'salutation' => 'not',
+                    'salutationId' => Defaults::SALUTATION_ID_MR,
                     'country' => ['name' => 'not'],
                 ],
                 'defaultBillingAddressId' => $addressId,
@@ -644,7 +654,7 @@ class StorefrontCheckoutControllerTest extends TestCase
                 'password' => $password,
                 'lastName' => 'not',
                 'firstName' => 'match',
-                'salutation' => 'not',
+                'salutationId' => Defaults::SALUTATION_ID_MR,
                 'customerNumber' => 'not',
             ],
         ], $context);

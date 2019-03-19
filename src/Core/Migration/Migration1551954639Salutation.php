@@ -116,10 +116,10 @@ class Migration1551954639Salutation extends MigrationStep
             'created_at' => date(Defaults::DATE_FORMAT),
         ]);
 
-        // Inserts for: Divers
+        // Inserts for: Diverse
         $connection->insert('salutation', [
             'id' => $divers,
-            'salutation_key' => Defaults::SALUTATION_KEY_DIVERS,
+            'salutation_key' => 'divers',
             'created_at' => date(Defaults::DATE_FORMAT),
         ]);
         $connection->insert('salutation_translation', [

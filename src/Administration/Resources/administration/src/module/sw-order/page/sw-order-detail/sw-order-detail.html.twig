@@ -54,9 +54,9 @@
                 {% endblock %}
 
                 {% block sw_order_detail_attribute_sets %}
-                <sw-card :title="$tc('sw-settings-attribute.general.mainMenuItemGeneral')"
-                         v-if="next754 && attributeSets.length > 0"
-                         :isLoading="order.isLoading">
+                    <sw-card :title="$tc('sw-settings-attribute.general.mainMenuItemGeneral')"
+                             v-if="next754 && attributeSets.length > 0"
+                             :isLoading="order.isLoading">
                         <sw-attribute-set-renderer
                                 :disabled="!isEditing"
                                 :entity="order"

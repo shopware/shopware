@@ -16,17 +16,17 @@ class Migration1552402003SalutationAddConstraint extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        // implement update
-    }
-
-    public function updateDestructive(Connection $connection): void
-    {
         $connection->executeQuery('
             ALTER TABLE salutation
             ADD CONSTRAINT `uniq.salutation_key`
               UNIQUE `uniq.salutation_key` (`salutation_key`);
         ');
         $this->updateSalutations($connection);
+    }
+
+    public function updateDestructive(Connection $connection): void
+    {
+        // implement update destructive
     }
 
     private function updateSalutations(Connection $connection): void
@@ -38,12 +38,12 @@ class Migration1552402003SalutationAddConstraint extends MigrationStep
         $connection->executeQuery('
             DELETE FROM `salutation`
             WHERE `salutation_key` = :divers;
-        ', [':divers' => Defaults::SALUTATION_KEY_DIVERS]);
+        ', [':divers' => 'divers']);
 
         // Inserts for: Divers
         $connection->insert('salutation', [
             'id' => $divers,
-            'salutation_key' => Defaults::SALUTATION_KEY_DIVERS,
+            'salutation_key' => 'divers',
             'created_at' => date(Defaults::DATE_FORMAT),
         ]);
         $connection->insert('salutation_translation', [

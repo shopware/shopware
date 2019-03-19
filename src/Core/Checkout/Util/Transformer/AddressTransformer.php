@@ -32,7 +32,7 @@ class AddressTransformer
             'id' => Uuid::uuid4()->getHex(),
             'company' => $address->getCompany(),
             'department' => $address->getDepartment(),
-            'salutation' => $address->getSalutation(),
+            'salutationId' => $address->getSalutationId(),
             'title' => $address->getTitle(),
             'firstName' => $address->getFirstName(),
             'lastName' => $address->getLastName(),

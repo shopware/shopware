@@ -20,6 +20,7 @@ use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Test\Cart\Common\Generator;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Struct\Uuid;
@@ -91,7 +92,7 @@ class OrderPersisterTest extends TestCase
 
         $billingAddress = new CustomerAddressEntity();
         $billingAddress->setId('SWAG-ADDRESS-ID-1');
-        $billingAddress->setSalutation('mr');
+        $billingAddress->setSalutationId(Defaults::SALUTATION_ID_MR);
         $billingAddress->setFirstName($faker->firstName);
         $billingAddress->setLastName($faker->lastName);
         $billingAddress->setZipcode($faker->postcode);
@@ -102,6 +103,7 @@ class OrderPersisterTest extends TestCase
         $customer->setId('SWAG-CUSTOMER-ID-1');
         $customer->setDefaultBillingAddress($billingAddress);
         $customer->setEmail('test@example.com');
+        $customer->setSalutationId(Defaults::SALUTATION_ID_MR);
         $customer->setFirstName($faker->firstName);
         $customer->setLastName($faker->lastName);
         $customer->setCustomerNumber('Test');

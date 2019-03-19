@@ -24,8 +24,8 @@
                                     <div class="sw-user-card__metadata">
 
                                         {% block sw_user_card_metadata_user_name %}
-                                            <div v-if="userName" class="sw-user-card__metadata-user-name">
-                                                {{ userName }}
+                                            <div v-if="user" class="sw-user-card__metadata-user-name">
+                                                {{ user | salutation }}
                                             </div>
                                         {% endblock %}
 

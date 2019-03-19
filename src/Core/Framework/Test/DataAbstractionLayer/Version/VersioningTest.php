@@ -1672,7 +1672,7 @@ class VersioningTest extends TestCase
         $customer = [
             'id' => $customerId,
             'number' => '1337',
-            'salutation' => 'Mr',
+            'salutationId' => Defaults::SALUTATION_ID_MR,
             'firstName' => 'Max',
             'lastName' => 'Mustermann',
             'customerNumber' => '1337',
@@ -1688,7 +1688,7 @@ class VersioningTest extends TestCase
                     'id' => $addressId,
                     'customerId' => $customerId,
                     'countryId' => Defaults::COUNTRY,
-                    'salutation' => 'Mr',
+                    'salutationId' => Defaults::SALUTATION_ID_MR,
                     'firstName' => 'Max',
                     'lastName' => 'Mustermann',
                     'street' => 'Ebbinghoff 10',

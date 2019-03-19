@@ -50,7 +50,7 @@ class CustomerRepositoryTest extends TestCase
             'city' => 'not',
             'street' => 'not',
             'zipcode' => 'not',
-            'salutation' => 'not',
+            'salutationId' => Defaults::SALUTATION_ID_MR,
             'country' => ['name' => 'not'],
         ];
 
@@ -67,7 +67,7 @@ class CustomerRepositoryTest extends TestCase
                 'password' => 'not',
                 'lastName' => 'not',
                 'firstName' => $matchTerm,
-                'salutation' => 'not',
+                'salutationId' => Defaults::SALUTATION_ID_MR,
                 'customerNumber' => 'not',
             ],
             [
@@ -80,7 +80,7 @@ class CustomerRepositoryTest extends TestCase
                 'password' => 'not',
                 'lastName' => $matchTerm,
                 'firstName' => 'not',
-                'salutation' => 'not',
+                'salutationId' => Defaults::SALUTATION_ID_MR,
                 'customerNumber' => 'not',
             ],
             [
@@ -93,7 +93,7 @@ class CustomerRepositoryTest extends TestCase
                 'password' => 'not',
                 'lastName' => 'not',
                 'firstName' => 'not',
-                'salutation' => 'not',
+                'salutationId' => Defaults::SALUTATION_ID_MR,
                 'customerNumber' => $matchTerm,
             ],
             [
@@ -106,7 +106,7 @@ class CustomerRepositoryTest extends TestCase
                 'password' => 'not',
                 'lastName' => 'not',
                 'firstName' => 'not',
-                'salutation' => 'not',
+                'salutationId' => Defaults::SALUTATION_ID_MR,
                 'customerNumber' => 'not',
             ],
         ];

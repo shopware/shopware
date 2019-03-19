@@ -5,9 +5,11 @@ import './sw-order-detail.scss';
 
 Component.register('sw-order-detail', {
     template,
+
     mixins: [
         Mixin.getByName('notification')
     ],
+
     data() {
         return {
             order: {},
@@ -16,6 +18,7 @@ Component.register('sw-order-detail', {
             attributeSets: []
         };
     },
+
     computed: {
         orderStore() {
             return State.getStore('order');
@@ -25,14 +28,17 @@ Component.register('sw-order-detail', {
             return State.getStore('attribute_set');
         }
     },
+
     watch: {
         '$route.params.id'() {
             this.createdComponent();
         }
     },
+
     created() {
         this.createdComponent();
     },
+
     methods: {
         createdComponent() {
             this.orderId = this.$route.params.id;
@@ -56,25 +62,31 @@ Component.register('sw-order-detail', {
                 this.attributeSets = response.items;
             });
         },
+
         onChangeLanguage() {
             this.$refs.baseComponent.changeLanguage();
         },
+
         onSave() {
             this.isEditing = false;
             this.$refs.baseComponent.mergeOrder();
         },
+
         onStartEditing() {
             this.isEditing = true;
             this.$refs.baseComponent.startEditing();
         },
+
         onCancelEditing() {
             this.isEditing = false;
             this.$refs.baseComponent.cancelEditing();
         },
+
         onError(error) {
             this.createErrorNotification(error);
             this.onCancelEditing();
         },
+
         createErrorNotification(errorMessage) {
             this.createNotificationError({
                 title: this.$tc('sw-order.detail.titleRecalculationError'),

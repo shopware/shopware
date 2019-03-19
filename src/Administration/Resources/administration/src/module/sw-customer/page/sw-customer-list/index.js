@@ -7,6 +7,7 @@ Component.register('sw-customer-list', {
 
     mixins: [
         Mixin.getByName('notification'),
+        Mixin.getByName('salutation'),
         Mixin.getByName('listing')
     ],
 
@@ -33,7 +34,7 @@ Component.register('sw-customer-list', {
             return customer.save().then(() => {
                 this.createNotificationSuccess({
                     title: this.$tc('sw-customer.detail.titleSaveSuccess'),
-                    message: this.$tc('sw-customer.detail.messageSaveSuccess', 0, { name: this.getFullName(customer) })
+                    message: this.$tc('sw-customer.detail.messageSaveSuccess', 0, { name: this.salutation(customer) })
                 });
             }).catch(() => {
                 customer.discardChanges();
@@ -47,19 +48,6 @@ Component.register('sw-customer-list', {
 
         onInlineEditCancel(customer) {
             customer.discardChanges();
-        },
-
-        getFullName(customer) {
-            if (!customer.salutation && !customer.title && !customer.firstName && !customer.lastName) {
-                return '';
-            }
-
-            const salutation = customer.salutation ? customer.salutation : '';
-            const title = customer.title ? customer.title : '';
-            const firstName = customer.firstName ? customer.firstName : '';
-            const lastName = customer.lastName ? customer.lastName : '';
-
-            return `${salutation} ${title} ${firstName} ${lastName}`.trim();
         },
 
         getList() {

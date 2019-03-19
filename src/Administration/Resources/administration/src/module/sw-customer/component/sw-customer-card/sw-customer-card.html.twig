@@ -24,7 +24,7 @@
                                         {% block sw_customer_card_metadata_customer_name %}
                                             {% block sw_custsomer_card_metadata_customer_name_label %}
                                                 <div v-if="!editMode">
-                                                    <div v-if="fullName" class="sw-customer-card__metadata-customer-name">
+                                                    <div v-if="customer && customer.salutation" class="sw-customer-card__metadata-customer-name">
                                                         {{ fullName }}
                                                     </div>
                                                 </div>
@@ -34,10 +34,13 @@
                                                 <div v-else>
                                                     <sw-container columns="1fr 1fr" gap="10px">
                                                         {% block sw_customer_card_metadata_customer_name_editor_salutation %}
-                                                            <sw-text-field v-model="customer.salutation"
-                                                                           size="small"
-                                                                           :placeholder="$tc('sw-customer.card.placeholderSalutation')">
-                                                            </sw-text-field>
+                                                            <sw-select-field v-model="customer.salutationId"
+                                                                             size="small"
+                                                                             validation="required">
+                                                                <option v-for="salutation in salutations" :key="salutation.id" :value="salutation.id">
+                                                                    {{ salutation.meta.viewData.name }}
+                                                                </option>
+                                                            </sw-select-field>
                                                         {% endblock %}
 
                                                         {% block sw_customer_card_metadata_customer_name_editor_title %}

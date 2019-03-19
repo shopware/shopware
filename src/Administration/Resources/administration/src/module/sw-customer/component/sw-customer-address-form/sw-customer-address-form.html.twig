@@ -17,9 +17,13 @@
                 {% block sw_customer_address_form_salutation_title_container %}
                     <sw-container columns="1fr 1fr" gap="10px">
                         {% block sw_customer_address_form_salutation_field %}
-                            <sw-field :label="$tc('sw-customer.addressForm.labelSalutation')"
-                                      validation="required"
-                                      v-model="address.salutation">
+                            <sw-field type="select"
+                                      :label="$tc('sw-customer.addressForm.labelSalutation')"
+                                      v-model="address.salutationId"
+                                      validation="required">
+                                <option v-for="salutation in salutations" :key="salutation.id" :value="salutation.id">
+                                    {{ salutation.meta.viewData.name }}
+                                </option>
                             </sw-field>
                         {% endblock %}
 
@@ -89,7 +93,7 @@
                               v-model="address.countryId">
                         {% block sw_customer_address_form_country_field_options %}
                             <option v-for="country in countries" :key="country.id" :value="country.id">
-                                {{ country.name }}
+                                {{ country.meta.viewData.name }}
                             </option>
                         {% endblock %}
                     </sw-field>

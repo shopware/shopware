@@ -29,7 +29,7 @@ class CustomerTransformer
             'email' => $customer->getEmail(),
             'firstName' => $customer->getFirstName(),
             'lastName' => $customer->getLastName(),
-            'salutation' => $customer->getSalutation(),
+            'salutationId' => $customer->getSalutationId(),
             'title' => $customer->getTitle(),
             'customerNumber' => $customer->getCustomerNumber(),
         ];

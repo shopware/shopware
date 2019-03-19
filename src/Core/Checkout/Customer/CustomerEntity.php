@@ -13,6 +13,7 @@ use Shopware\Core\Framework\Search\SearchDocumentCollection;
 use Shopware\Core\Framework\Tag\TagCollection;
 use Shopware\Core\System\Language\LanguageEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
+use Shopware\Core\System\Salutation\SalutationEntity;
 
 class CustomerEntity extends Entity
 {
@@ -59,9 +60,9 @@ class CustomerEntity extends Entity
     protected $customerNumber;
 
     /**
-     * @var string|null
+     * @var string
      */
-    protected $salutation;
+    protected $salutationId;
 
     /**
      * @var string
@@ -204,6 +205,11 @@ class CustomerEntity extends Entity
     protected $lastPaymentMethod;
 
     /**
+     * @var SalutationEntity
+     */
+    protected $salutation;
+
+    /**
      * @var CustomerAddressEntity
      */
     protected $defaultBillingAddress;
@@ -338,14 +344,14 @@ class CustomerEntity extends Entity
         $this->customerNumber = $customerNumber;
     }
 
-    public function getSalutation(): ?string
+    public function getSalutationId(): string
     {
-        return $this->salutation;
+        return $this->salutationId;
     }
 
-    public function setSalutation(?string $salutation): void
+    public function setSalutationId(string $salutationId): void
     {
-        $this->salutation = $salutation;
+        $this->salutationId = $salutationId;
     }
 
     public function getFirstName(): string
@@ -628,13 +634,22 @@ class CustomerEntity extends Entity
         $this->lastPaymentMethod = $lastPaymentMethod;
     }
 
+    public function getSalutation(): SalutationEntity
+    {
+        return $this->salutation;
+    }
+
+    public function setSalutation(SalutationEntity $salutation): void
+    {
+        $this->salutation = $salutation;
+    }
+
     public function getDefaultBillingAddress(): CustomerAddressEntity
     {
         return $this->defaultBillingAddress;
     }
 
-    public function setDefaultBillingAddress(
-        CustomerAddressEntity $defaultBillingAddress): void
+    public function setDefaultBillingAddress(CustomerAddressEntity $defaultBillingAddress): void
     {
         $this->defaultBillingAddress = $defaultBillingAddress;
     }

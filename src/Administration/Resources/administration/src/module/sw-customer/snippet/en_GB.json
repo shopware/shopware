@@ -8,10 +8,10 @@
       "mainMenuItemList": "Overview",
       "mainMenuItemAdd": "Add customer",
       "descriptionTextModule": "Manage customers here.",
-      "placeholderSearchBar": "Search customers"
+      "placeholderSearchBar": "Search customers",
+      "newCustomer": "New Customer"
     },
     "card": {
-      "placeholderSalutation": "Salutation",
       "placeholderTitle": "Title",
       "placeholderFirstName": "First name",
       "placeholderLastName": "Last name",
@@ -144,7 +144,6 @@
       "buttonSave": "Save",
       "buttonCancel": "Cancel",
       "buttonEdit": "Edit",
-      "headlineNewCustomer": "New customer",
       "tabGeneral": "General",
       "tabAddresses": "Addresses",
       "titleSaveError": "Error",

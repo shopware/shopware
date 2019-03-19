@@ -21,7 +21,7 @@ module.exports = {
             .expect.element(`.sw-card:nth-of-type(1) ${page.elements.cardTitle}`).to.have.text.that.equals('Account');
 
         browser
-            .fillField('input[name=sw-field--customer-salutation]', 'Mr')
+            .fillSelectField('select[name=sw-field--customer-salutationId]', 'Mr.')
             .fillField('input[name=sw-field--customer-firstName]', 'Pep')
             .fillField('input[name=sw-field--customer-lastName]', 'Eroni')
             .fillField(page.elements.customerMailInput, 'test@example.com')
@@ -39,7 +39,7 @@ module.exports = {
         browser.expect.element(`.sw-card:nth-of-type(1) ${page.elements.cardTitle}`).to.have.text.that.equals('Account');
 
         browser
-            .fillField('input[name=sw-field--address-salutation]', 'Mr')
+            .fillSelectField('select[name=sw-field--address-salutationId]', 'Mr.')
             .fillField('input[name=sw-field--address-firstName]', 'Pep')
             .fillField('input[name=sw-field--address-lastName]', 'Eroni')
             .fillField('input[name=sw-field--address-street]', 'Ebbinghoff 10')
@@ -53,11 +53,11 @@ module.exports = {
 
         browser
             .click(page.elements.customerSaveAction)
-            .checkNotification('Customer "Mr Pep Eroni" has been saved successfully.')
+            .checkNotification('Customer "Mr. Pep Eroni" has been saved successfully.')
             .waitForElementNotPresent('.sw-card__content .sw-customer-base-form .sw-loader')
             .waitForElementNotPresent('.sw-card__content .sw-customer-address-form .sw-loader')
             .waitForElementVisible(page.elements.customerMetaData)
-            .assert.containsText(`${page.elements.customerMetaData}-customer-name`, 'Mr Pep Eroni')
+            .assert.containsText(`${page.elements.customerMetaData}-customer-name`, 'Mr. Pep Eroni')
             .assert.containsText('.sw-customer-card-email-link', 'test@example.com')
             .assert.containsText('.sw-customer-base__label-customer-number', 'cn-1234321')
             .assert.containsText('.sw-address__location', '48624');

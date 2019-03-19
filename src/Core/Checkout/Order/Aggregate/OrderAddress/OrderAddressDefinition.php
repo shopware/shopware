@@ -22,6 +22,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\System\Country\Aggregate\CountryState\CountryStateDefinition;
 use Shopware\Core\System\Country\CountryDefinition;
+use Shopware\Core\System\Salutation\SalutationDefinition;
 
 class OrderAddressDefinition extends EntityDefinition
 {
@@ -58,7 +59,7 @@ class OrderAddressDefinition extends EntityDefinition
             (new FkField('order_id', 'orderId', OrderDefinition::class))->setFlags(new Required()),
             (new ReferenceVersionField(OrderDefinition::class, 'order_version_id'))->setFlags(new Required()),
 
-            new StringField('salutation', 'salutation'),
+            (new FkField('salutation_id', 'salutationId', SalutationDefinition::class))->setFlags(new Required()),
             (new StringField('first_name', 'firstName'))->addFlags(new Required(), new SearchRanking(SearchRanking::MIDDLE_SEARCH_RANKING)),
             (new StringField('last_name', 'lastName'))->addFlags(new Required(), new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
             (new StringField('street', 'street'))->addFlags(new Required(), new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
@@ -77,6 +78,7 @@ class OrderAddressDefinition extends EntityDefinition
             (new ManyToOneAssociationField('country', 'country_id', CountryDefinition::class, true))->addFlags(new SearchRanking(SearchRanking::ASSOCIATION_SEARCH_RANKING)),
             (new ManyToOneAssociationField('countryState', 'country_state_id', CountryStateDefinition::class, true))->addFlags(new SearchRanking(SearchRanking::ASSOCIATION_SEARCH_RANKING)),
             (new ManyToOneAssociationField('order', 'order_id', OrderDefinition::class, false))->setFlags(new RestrictDelete()),
+            new ManyToOneAssociationField('salutation', 'salutation_id', SalutationDefinition::class, true),
             (new OneToManyAssociationField('orderDeliveries', OrderDeliveryDefinition::class, 'shipping_order_address_id', false, 'id'))->setFlags(new RestrictDelete()),
         ]);
     }

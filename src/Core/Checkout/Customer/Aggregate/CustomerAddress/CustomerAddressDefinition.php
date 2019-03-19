@@ -17,6 +17,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\UpdatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\System\Country\Aggregate\CountryState\CountryStateDefinition;
 use Shopware\Core\System\Country\CountryDefinition;
+use Shopware\Core\System\Salutation\SalutationDefinition;
 
 class CustomerAddressDefinition extends EntityDefinition
 {
@@ -51,7 +52,7 @@ class CustomerAddressDefinition extends EntityDefinition
 
             new FkField('country_state_id', 'countryStateId', CountryStateDefinition::class),
 
-            new StringField('salutation', 'salutation'),
+            (new FkField('salutation_id', 'salutationId', SalutationDefinition::class))->addFlags(new Required()),
             (new StringField('first_name', 'firstName'))->addFlags(new Required(), new SearchRanking(SearchRanking::MIDDLE_SEARCH_RANKING)),
             (new StringField('last_name', 'lastName'))->addFlags(new Required(), new SearchRanking(SearchRanking::MIDDLE_SEARCH_RANKING)),
             (new StringField('zipcode', 'zipcode'))->addFlags(new Required(), new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
@@ -70,6 +71,7 @@ class CustomerAddressDefinition extends EntityDefinition
             new ManyToOneAssociationField('customer', 'customer_id', CustomerDefinition::class, false),
             new ManyToOneAssociationField('country', 'country_id', CountryDefinition::class, true),
             new ManyToOneAssociationField('countryState', 'country_state_id', CountryStateDefinition::class, true),
+            new ManyToOneAssociationField('salutation', 'salutation_id', SalutationDefinition::class, true),
         ]);
     }
 }

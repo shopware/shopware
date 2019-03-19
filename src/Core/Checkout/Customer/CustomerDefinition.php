@@ -34,6 +34,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\Tag\TagDefinition;
 use Shopware\Core\System\Language\LanguageDefinition;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
+use Shopware\Core\System\Salutation\SalutationDefinition;
 
 class CustomerDefinition extends EntityDefinition
 {
@@ -73,7 +74,7 @@ class CustomerDefinition extends EntityDefinition
             (new IntField('auto_increment', 'autoIncrement'))->addFlags(new WriteProtected()),
 
             (new NumberRangeField('customer_number', 'customerNumber'))->addFlags(new Required(), new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
-            new StringField('salutation', 'salutation'),
+            (new FkField('salutation_id', 'salutationId', SalutationDefinition::class))->addFlags(new Required()),
             (new StringField('first_name', 'firstName'))->addFlags(new Required(), new SearchRanking(SearchRanking::MIDDLE_SEARCH_RANKING)),
             (new StringField('last_name', 'lastName'))->addFlags(new Required(), new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
             (new StringField('company', 'company'))->addFlags(new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
@@ -106,6 +107,7 @@ class CustomerDefinition extends EntityDefinition
             new ManyToOneAssociationField('lastPaymentMethod', 'last_payment_method_id', PaymentMethodDefinition::class, true),
             (new ManyToOneAssociationField('defaultBillingAddress', 'default_billing_address_id', CustomerAddressDefinition::class, true))->addFlags(new SearchRanking(SearchRanking::ASSOCIATION_SEARCH_RANKING)),
             new ManyToOneAssociationField('defaultShippingAddress', 'default_shipping_address_id', CustomerAddressDefinition::class, true),
+            new ManyToOneAssociationField('salutation', 'salutation_id', SalutationDefinition::class, true),
             (new OneToManyAssociationField('addresses', CustomerAddressDefinition::class, 'customer_id', false, 'id'))->addFlags(new CascadeDelete()),
             (new OneToManyAssociationField('orderCustomers', OrderCustomerDefinition::class, 'customer_id', false, 'id'))->addFlags(new RestrictDelete()),
             (new ManyToManyAssociationField('tags', TagDefinition::class, CustomerTagDefinition::class, false, 'customer_id', 'tag_id')),

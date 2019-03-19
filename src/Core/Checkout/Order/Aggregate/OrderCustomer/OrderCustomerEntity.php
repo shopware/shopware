@@ -6,14 +6,21 @@ use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
+use Shopware\Core\System\Salutation\SalutationEntity;
 
 class OrderCustomerEntity extends Entity
 {
     use EntityIdTrait;
+
     /**
      * @var string
      */
     protected $email;
+
+    /**
+     * @var string
+     */
+    protected $salutationId;
 
     /**
      * @var string
@@ -24,11 +31,6 @@ class OrderCustomerEntity extends Entity
      * @var string
      */
     protected $lastName;
-
-    /**
-     * @var string|null
-     */
-    protected $salutation;
 
     /**
      * @var string|null
@@ -60,6 +62,11 @@ class OrderCustomerEntity extends Entity
     protected $customer;
 
     /**
+     * @var SalutationEntity
+     */
+    protected $salutation;
+
+    /**
      * @var OrderEntity|null
      */
     protected $order;
@@ -77,6 +84,16 @@ class OrderCustomerEntity extends Entity
     public function setEmail(string $email): void
     {
         $this->email = $email;
+    }
+
+    public function getSalutationId(): string
+    {
+        return $this->salutationId;
+    }
+
+    public function setSalutationId(string $salutationId): void
+    {
+        $this->salutationId = $salutationId;
     }
 
     public function getFirstName(): string
@@ -97,16 +114,6 @@ class OrderCustomerEntity extends Entity
     public function setLastName(string $lastName): void
     {
         $this->lastName = $lastName;
-    }
-
-    public function getSalutation(): ?string
-    {
-        return $this->salutation;
-    }
-
-    public function setSalutation(string $salutation): void
-    {
-        $this->salutation = $salutation;
     }
 
     public function getTitle(): ?string
@@ -177,6 +184,16 @@ class OrderCustomerEntity extends Entity
     public function setOrder(OrderEntity $order): void
     {
         $this->order = $order;
+    }
+
+    public function getSalutation(): SalutationEntity
+    {
+        return $this->salutation;
+    }
+
+    public function setSalutation(SalutationEntity $salutation): void
+    {
+        $this->salutation = $salutation;
     }
 
     public function getAttributes(): ?array

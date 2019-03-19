@@ -135,7 +135,7 @@ class AccountService
             'id' => $context->getCustomer()->getId(),
             'firstName' => $request->requirePost('firstName'),
             'lastName' => $request->requirePost('lastName'),
-            'salutation' => $request->requirePost('salutation'),
+            'salutationId' => $request->requirePost('salutationId'),
             'title' => $request->optionalPost('title'),
             'birthday' => $this->getBirthday($request),
         ];
@@ -222,7 +222,7 @@ class AccountService
         $data = [
             'id' => $id,
             'customerId' => $context->getCustomer()->getId(),
-            'salutation' => $request->requirePost('salutation'),
+            'salutationId' => $request->requirePost('salutationId'),
             'firstName' => $request->requirePost('firstName'),
             'lastName' => $request->requirePost('lastName'),
             'street' => $request->requirePost('street'),
@@ -303,8 +303,7 @@ class AccountService
             'customerId' => $customerId,
             'firstName' => $request->requirePost('firstName'),
             'lastName' => $request->requirePost('lastName'),
-
-            'salutation' => $request->optionalPost('salutation'),
+            'salutationId' => $request->requirePost('salutationId'),
 
             'street' => $request->requirePost('billingAddress.street'),
             'zipcode' => $request->requirePost('billingAddress.zipcode'),
@@ -324,7 +323,7 @@ class AccountService
                 'id' => $shippingAddressId,
                 'customerId' => $customerId,
                 'countryId' => $request->requirePost('shippingAddress.country'),
-                'salutation' => $request->requirePost('shippingAddress.salutation'),
+                'salutationId' => $request->requirePost('shippingAddress.salutationId'),
                 'firstName' => $request->requirePost('shippingAddress.firstName'),
                 'lastName' => $request->requirePost('shippingAddress.lastName'),
                 'street' => $request->requirePost('shippingAddress.street'),
@@ -350,7 +349,7 @@ class AccountService
             'languageId' => $context->getContext()->getLanguageId(),
             'groupId' => $context->getCurrentCustomerGroup()->getId(),
             'defaultPaymentMethodId' => $context->getPaymentMethod()->getId(),
-            'salutation' => $request->optionalPost('salutation'),
+            'salutationId' => $request->requirePost('salutationId'),
             'firstName' => $request->requirePost('firstName'),
             'lastName' => $request->requirePost('lastName'),
             'email' => $request->requirePost('email'),

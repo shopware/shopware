@@ -19,7 +19,7 @@ class CustomerPageObject extends GeneralPageObject {
 
     createBasicAddress() {
         this.browser
-            .fillField('input[name=sw-field--address-salutation]', 'Mr')
+            .fillSelectField('select[name=sw-field--address-salutationId]', 'Mr.')
             .fillField('input[name=sw-field--address-firstName]', 'Harry')
             .fillField('input[name=sw-field--address-lastName]', 'Potter')
             .fillField('input[name=sw-field--address-street]', 'Ligusterweg 4')

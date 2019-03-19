@@ -82,7 +82,23 @@
         "paymentChangeSubmit": "Ändern",
         "profilePersonalTitle": "Persönliche Daten",
         "profileMailTitle": "E-Mail Adresse",
-        "profilePasswordTitle": "Passwort"
+        "profileCurrentMail": "Aktuelle E-Mail Adresse",
+        "profilePasswordTitle": "Passwort",
+        "profilePasswordCreateNew": "Neues Passwort",
+        "profilePasswordCurrent": "Ihr Aktuelles Passwort",
+        "profileSaveChanges": "Änderungen Speichern",
+        "addressWelcome": "Adressen",
+        "addressesTitleDefaultShippingAddress": "Standard-Lieferadresse",
+        "addressesTitleDefaultBillingAddress": "Standard-Rechnungsadresse",
+        "addressesSetAsDefaultShippingAction": "Als Standard-Lieferadresse verwenden",
+        "addressesSetAsDefaultBillingAction": "Als Standard-Rechnungsadresse verwenden",
+        "addressesContentItemActionEdit": "Bearbeiten",
+        "addressesContentItemActionDelete": "Löschen",
+        "addressCreateBtn": "Neue Adresse hinzufügen",
+        "addressCreateWelcome": "Neue Adresse erstellen",
+        "addressEditWelcome": "Adresse bearbeiten",
+        "addressSaveChange": "Adresse speichern",
+        "requiredFields": "* hierbei handelt es sich um ein Pflichtfeld"
     },
     "address": {
         "streetLabel": "Straße und Nr.",
@@ -95,8 +111,7 @@
         "zipcodePlaceholder": "PLZ",
         "cityLabel": "Ort",
         "cityPlaceholder": "Ort",
-        "countryLabel": "Land",
-        "requiredFields": "* hierbei handelt es sich um ein Pflichtfeld"
+        "countryLabel": "Land"
     },
     "checkout": {
         "cartTitle": "Warenkorb",

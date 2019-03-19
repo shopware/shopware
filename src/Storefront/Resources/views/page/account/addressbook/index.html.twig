@@ -1,1 +1,147 @@
 {% sw_extends '@Storefront/page/account/_page.html.twig' %}
+
+{% block base_breadcrumb %}
+    {% set breadcrumbList = [
+        {
+            "name": "account.overviewTitle"|trans,
+            "link": path('frontend.account.home.page')
+        },
+        {
+            "name": "account.addressWelcome"|trans,
+            "link": path('frontend.account.address.page')
+        }
+    ] %}
+
+    {{ parent() }}
+{% endblock %}
+
+{% block page_account_main_content %}
+    <div class="account-address">
+        {% block page_account_address_welcome %}
+            <div class="account-welcome">
+                {% block page_account_address_welcome_headline %}
+                    <h1>
+                        {{ "account.addressWelcome"|trans }}
+                    </h1>
+                {% endblock %}
+            </div>
+        {% endblock %}
+
+        {#TODO: NEXT-1935 - Messages#}
+        {% block page_account_address_success_messages %}{% endblock %}
+        {% block page_account_address_error_messages %}{% endblock %}
+
+        {% block page_account_address_main %}
+            {% set defaultBillingAddress = page.context.customer.defaultBillingAddressId %}
+            {% set defaultShippingAddress = page.context.customer.defaultShippingAddressId %}
+
+            <div class="row address-content">
+                {% for address in page.addresses.entities.elements %}
+                    {% block page_account_address_item_content %}
+                        <div class="col-lg-6 address-item-content address-box{% if defaultBillingAddress is same as(address.id) or defaultShippingAddress is same as(address.id) %} address-front{% endif %}">
+                            <div class="address-item-card card">
+                                <div class="address-item-card-body card-body">
+                                    {% block page_account_address_item_content_body %}
+                                        <div class="address-item-body">
+                                            {% block page_account_address_item_content_title %}
+                                                {% if defaultBillingAddress is same as(address.id) or defaultShippingAddress is same as(address.id) %}
+                                                    <div class="card-title">
+                                                        {% if defaultShippingAddress is same as(address.id) %}
+                                                                <div>{{ "account.addressesTitleDefaultShippingAddress"|trans }}</div>
+                                                        {% endif %}
+                                                        {% if defaultBillingAddress is same as(address.id) %}
+                                                                <div>{{ "account.addressesTitleDefaultBillingAddress"|trans }}</div>
+                                                        {% endif %}
+                                                    </div>
+                                                {% endif %}
+                                            {% endblock %}
+
+                                            {% block page_account_address_item_content_inner %}
+                                                {% sw_include '@Storefront/component/address/address.html.twig' %}
+                                            {% endblock %}
+                                        </div>
+                                    {% endblock %}
+
+                                    {% block page_account_address_item_content_actions %}
+                                        <div class="address-item-actions">
+                                            {% block page_account_address_item_content_set_default %}
+                                                <div class="address-actions-set-defaults">
+                                                    {% block page_account_address_item_content_set_default_shipping %}
+                                                        {% if defaultShippingAddress != address.id %}
+                                                            <form id="setDefaultShippingAddressForm-{{ loop.index }}"
+                                                                  action="{{ path('storefront-api.customer.address.set-default-shipping-address', {'version': 1, 'id': address.id}) }}"
+                                                                  method="post"
+                                                                  data-address-set-default="true">
+                                                                <input name="_method" type="hidden" value="PATCH">
+                                                                <button type="submit"
+                                                                        title="{{ "account.addressesSetAsDefaultShippingAction"|trans }}"
+                                                                        class="btn btn-sm">
+                                                                    {{ "account.addressesSetAsDefaultShippingAction"|trans }}
+                                                                </button>
+                                                            </form>
+                                                        {% endif %}
+                                                    {% endblock %}
+
+                                                    {% block page_account_address_item_content_set_default_billing %}
+                                                        {% if defaultBillingAddress != address.id %}
+                                                            <form id="setDefaultBillingAddressForm-{{ loop.index }}"
+                                                                  action="{{ path('storefront-api.customer.address.set-default-billing-address', {'version': 1, 'id': address.id}) }}"
+                                                                  method="post"
+                                                                  data-address-set-default="true">
+                                                                <input name="_method" type="hidden" value="PATCH">
+                                                                <button type="submit"
+                                                                        title="{{ "account.addressesSetAsDefaultBillingAction"|trans }}"
+                                                                        class="btn btn-sm">
+                                                                    {{ "account.addressesSetAsDefaultBillingAction"|trans }}
+                                                                </button>
+                                                            </form>
+                                                        {% endif %}
+                                                    {% endblock %}
+                                                </div>
+                                            {% endblock %}
+
+                                            <div class="address-actions-form">
+                                                {% block page_account_address_item_content_actions_change %}
+                                                    <a href="{{ path('frontend.account.address.edit.page', {'addressId': address.id}) }}"
+                                                       title="{{ "account.addressesContentItemActionEdit"|trans }}"
+                                                       class="btn btn-light btn-sm">
+                                                        {{ "account.addressesContentItemActionEdit"|trans }}
+                                                    </a>
+                                                {% endblock %}
+
+                                                {% block page_account_address_item_content_actions_delete %}
+                                                    {% if defaultShippingAddress != address.id and defaultBillingAddress != address.id %}
+                                                        <form id="deleteAddressForm-{{ loop.index }}"
+                                                              method="post"
+                                                              action="{{ path('storefront-api.customer.address.delete', {'version': 1, 'id': address.id}) }}"
+                                                              data-address-delete="true">
+                                                            <button type="submit"
+                                                                    class="btn btn-light btn-sm"
+                                                                    title="{{ "account.addressesContentItemActionDelete"|trans }}">
+                                                                {{ "account.addressesContentItemActionDelete"|trans }}
+                                                            </button>
+                                                        </form>
+                                                    {% endif %}
+                                                {% endblock %}
+                                            </div>
+                                        </div>
+                                    {% endblock %}
+                                </div>
+                            </div>
+                        </div>
+                    {% endblock %}
+                {% endfor %}
+
+                {% block page_account_address_item_content_create %}
+                    <div class="col-lg-6 address-item-content address-item-create">
+                        <a href="{{ path('frontend.account.address.create.page') }}"
+                           title="{{ "account.addressCreateBtn"|trans }}"
+                           class="btn btn-primary btn-block">
+                            {{ "account.addressCreateBtn"|trans }}
+                        </a>
+                    </div>
+                {% endblock %}
+            </div>
+        {% endblock %}
+    </div>
+{% endblock %}

@@ -52,7 +52,7 @@
 												{% endif %}
 												{{ page.customer.firstName }} {{ page.customer.lastName }}<br/>
 												{% if page.customer.birthday %}
-													{{ page.customer.birthday|date("m.d.Y") }}<br/>
+                                                    {{ page.customer.birthday|localizeddate('short', 'none', app.request.locale) }}
 												{% endif %}
 												{{ page.customer.email }}
 											</p>

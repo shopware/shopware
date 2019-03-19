@@ -71,6 +71,21 @@ export default class HttpClient {
     }
 
     /**
+     * Request PATCH
+     * @param {string} url
+     * @param {function} callback
+     */
+    patch(url, callback) {
+        const request = this._createPreparedRequest('PATCH', url);
+
+        request.addEventListener('loadend', function() {
+            callback(request.responseText);
+        });
+
+        request.send();
+    }
+
+    /**
      * Returns a new and configured XMLHttpRequest object which
      * is prepared to being used
      * @param {'GET'|'POST'|'DELETE'} type

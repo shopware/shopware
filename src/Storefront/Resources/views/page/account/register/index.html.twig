@@ -79,7 +79,7 @@
 													{% endblock %}
 
 													{% block page_account_register_address_fields %}
-														{% sw_include '@Storefront/component/address/address-form.html.twig' with {'type': 'billing'} %}
+														{% sw_include '@Storefront/component/address/address-form.html.twig' with {'prefix': 'billingAddress.'} %}
 
 														{#TODO: NEXT-2077 - differentShippingAddress#}
 													{% endblock %}
@@ -88,7 +88,7 @@
 
 											{% block page_account_register_required_fields %}
 												<p class="register-required-info">
-													{{ "address.requiredFields"|trans }}
+													{{ "account.requiredFields"|trans }}
 												</p>
 											{% endblock %}
 

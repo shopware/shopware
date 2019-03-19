@@ -123,6 +123,9 @@
         "countryLabel": "Land"
     },
     "checkout": {
+        "stepAddress": "Ihre Adresse",
+        "stepConfig": "Zahlungsart & Versandart",
+        "stepConfirm": "Prüfen und Bestellen",
         "cartTitle": "Warenkorb",
         "cartHeader": "Warenkorb",
         "continueShopping": "Weiter einkaufen",

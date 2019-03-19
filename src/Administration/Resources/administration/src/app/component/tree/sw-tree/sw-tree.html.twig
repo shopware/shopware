@@ -23,12 +23,12 @@
         {% endblock %}
 
         {% block sw_tree_content %}
-            <sw-tree-input-field v-if="hasNoItems" @createNewItem="onCreateNewItem" class="sw-tree__content"></sw-tree-input-field>
-
-            <div v-else class="sw-tree__content">
+            <div class="sw-tree__content">
                 <div class="tree-items">
                     {% block sw_tree_items %}
+                        <sw-tree-input-field v-if="hasNoItems" @createNewItem="onCreateNewItem"></sw-tree-input-field>
                         <slot
+                            v-else
                             name="items"
                             :treeItems="treeItems"
                             :draggedItem="draggedItem"

@@ -21,9 +21,9 @@
                 {% endblock %}
 
                 {% block sw_media_media_item_metadata %}
-                    <div slot="media-item-metadata" class="sw-media-media-item__metadata">
-                        {{ getMetaData }}
-                    </div>
+                    <template slot="media-item-metadata">
+                        <div class="sw-media-media-item__metadata">{{ getMetaData }}</div>
+                    </template>
                 {% endblock %}
 
                 {% block sw_media_media_item_context_menu %}

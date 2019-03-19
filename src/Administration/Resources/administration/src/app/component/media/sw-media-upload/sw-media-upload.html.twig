@@ -11,9 +11,11 @@
 
                     {% block sw_media_upload_compact_button_context_menu %}
                         <sw-context-button>
-                            <sw-button square slot="button" variant="primary" class="sw-media-upload__button-context-menu">
-                                <sw-icon name="small-arrow-medium-down" size="16"></sw-icon>
-                            </sw-button>
+                            <template slot="button">
+                                <sw-button square variant="primary" class="sw-media-upload__button-context-menu">
+                                    <sw-icon name="small-arrow-medium-down" size="16"></sw-icon>
+                                </sw-button>
+                            </template>
 
                             <sw-context-menu-item @click="openUrlModal" class="sw-media-upload__button-url-upload">
                                 {{ $tc('global.sw-media-upload.buttonUrlUpload') }}

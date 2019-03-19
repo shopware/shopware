@@ -7,35 +7,37 @@
                 :expandOnLoading="true">
 
                 {% block sw_media_quickinfo_multiple_quickactions_content %}
-                    <ul slot="content" class="sw-media-sidebar__quickactions-list">
-                        {% block sw_media_quickinfo_multiple_quickactions_move %}
-                            <li class="sw-media-sidebar__quickaction quickaction--move"
-                                @click="openModalMove">
+                    <template slot="content">
+                        <ul class="sw-media-sidebar__quickactions-list">
+                            {% block sw_media_quickinfo_multiple_quickactions_move %}
+                                <li class="sw-media-sidebar__quickaction quickaction--move"
+                                    @click="openModalMove">
 
-                                <sw-icon small name="default-action-move-file" class="sw-media-sidebar__quickactions-icon"></sw-icon>
-                                {{ $tc('sw-media.sidebar.actions.move') }}
-                            </li>
-                        {% endblock %}
+                                    <sw-icon small name="default-action-move-file" class="sw-media-sidebar__quickactions-icon"></sw-icon>
+                                    {{ $tc('sw-media.sidebar.actions.move') }}
+                                </li>
+                            {% endblock %}
 
-                        {% block sw_media_quickinfo_multiple_quickactions_delete %}
-                            <li class="sw-media-sidebar__quickaction is--danger"
-                                @click="openModalDelete">
+                            {% block sw_media_quickinfo_multiple_quickactions_delete %}
+                                <li class="sw-media-sidebar__quickaction is--danger"
+                                    @click="openModalDelete">
 
-                                <sw-icon small name="default-action-trash" class="sw-media-sidebar__quickactions-icon is--danger"></sw-icon>
-                                {{ $tc('sw-media.sidebar.actions.delete') }}
-                            </li>
-                        {% endblock %}
+                                    <sw-icon small name="default-action-trash" class="sw-media-sidebar__quickactions-icon is--danger"></sw-icon>
+                                    {{ $tc('sw-media.sidebar.actions.delete') }}
+                                </li>
+                            {% endblock %}
 
-                        {% block sw_media_quickinfo_folder_quickactions_dissolve %}
-                            <li v-if="!hasMedia"
-                                class="sw-media-sidebar__quickaction quickaction--dissolve"
-                                @click="openFolderDissolve">
+                            {% block sw_media_quickinfo_folder_quickactions_dissolve %}
+                                <li v-if="!hasMedia"
+                                    class="sw-media-sidebar__quickaction quickaction--dissolve"
+                                    @click="openFolderDissolve">
 
-                                <sw-icon small name="default-web-loading-star" class="sw-media-sidebar__quickactions-icon"></sw-icon>
-                                {{ $tc('sw-media.sidebar.actions.dissolve') }}
-                            </li>
-                        {% endblock %}
-                    </ul>
+                                    <sw-icon small name="default-web-loading-star" class="sw-media-sidebar__quickactions-icon"></sw-icon>
+                                    {{ $tc('sw-media.sidebar.actions.dissolve') }}
+                                </li>
+                            {% endblock %}
+                        </ul>
+                    </template>
                 {% endblock %}
             </sw-media-collapse>
         {% endblock %}

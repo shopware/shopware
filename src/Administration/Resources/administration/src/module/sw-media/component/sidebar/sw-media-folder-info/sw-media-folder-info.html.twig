@@ -7,35 +7,37 @@
                 :expandOnLoading="true">
 
                 {% block sw_media_quickinfo_folder_quickactions_content %}
-                    <ul slot="content" class="sw-media-sidebar__quickactions-list">
-                        {% block sw_media_quickinfo_folder_quickactions_move %}
-                            <li class="sw-media-sidebar__quickaction quickaction--move" @click="openModalMove">
-                                <sw-icon class="sw-media-sidebar__quickactions-icon" small name="default-action-move-file"></sw-icon>
-                                {{ $tc('sw-media.sidebar.actions.move') }}
-                            </li>
+                    <template slot="content">
+                        <ul class="sw-media-sidebar__quickactions-list">
+                            {% block sw_media_quickinfo_folder_quickactions_move %}
+                                <li class="sw-media-sidebar__quickaction quickaction--move" @click="openModalMove">
+                                    <sw-icon class="sw-media-sidebar__quickactions-icon" small name="default-action-move-file"></sw-icon>
+                                    {{ $tc('sw-media.sidebar.actions.move') }}
+                                </li>
+                                {% endblock %}
+
+                            {% block sw_media_quickinfo_folder_quickactions_settings %}
+                                <li class="sw-media-sidebar__quickaction quickaction--settings" @click="openFolderSettings">
+                                    <sw-icon class="sw-media-sidebar__quickactions-icon" small name="default-action-settings"></sw-icon>
+                                    {{ $tc('sw-media.sidebar.actions.settings') }}
+                                </li>
                             {% endblock %}
 
-                        {% block sw_media_quickinfo_folder_quickactions_settings %}
-                            <li class="sw-media-sidebar__quickaction quickaction--settings" @click="openFolderSettings">
-                                <sw-icon class="sw-media-sidebar__quickactions-icon" small name="default-action-settings"></sw-icon>
-                                {{ $tc('sw-media.sidebar.actions.settings') }}
-                            </li>
-                        {% endblock %}
+                            {% block sw_media_quickinfo_folder_quickactions_dissolve %}
+                               <li class="sw-media-sidebar__quickaction quickaction--dissolve" @click="openFolderDissolve">
+                                  <sw-icon class="sw-media-sidebar__quickactions-icon" small name="default-web-loading-star"></sw-icon>
+                                  {{ $tc('sw-media.sidebar.actions.dissolve') }}
+                               </li>
+                            {% endblock %}
 
-                        {% block sw_media_quickinfo_folder_quickactions_dissolve %}
-                           <li class="sw-media-sidebar__quickaction quickaction--dissolve" @click="openFolderDissolve">
-                              <sw-icon class="sw-media-sidebar__quickactions-icon" small name="default-web-loading-star"></sw-icon>
-                              {{ $tc('sw-media.sidebar.actions.dissolve') }}
-                           </li>
-                        {% endblock %}
-
-                        {% block sw_media_quickinfo_folder_quickactions_delete %}
-                            <li class="sw-media-sidebar__quickaction is--danger quickaction--delete" @click="openModalDelete">
-                                <sw-icon class="sw-media-sidebar__quickactions-icon is--danger" small name="default-action-trash"></sw-icon>
-                                {{ $tc('sw-media.sidebar.actions.delete') }}
-                            </li>
-                        {% endblock %}
-                    </ul>
+                            {% block sw_media_quickinfo_folder_quickactions_delete %}
+                                <li class="sw-media-sidebar__quickaction is--danger quickaction--delete" @click="openModalDelete">
+                                    <sw-icon class="sw-media-sidebar__quickactions-icon is--danger" small name="default-action-trash"></sw-icon>
+                                    {{ $tc('sw-media.sidebar.actions.delete') }}
+                                </li>
+                            {% endblock %}
+                        </ul>
+                    </template>
                 {% endblock %}
             </sw-media-collapse>
         {% endblock %}
@@ -46,30 +48,31 @@
                 :title="$tc('sw-media.sidebar.sections.metadata')">
 
                 {% block sw_media_quickinfo_folder_metadata_content %}
-                    <dl slot="content" class="sw-media-sidebar__metadata-list">
-                        {% block sw_media_quickinfo_folder_metadata_content_base %}
-                            <sw-media-quickinfo-metadata-item
-                                class="sw-media-quickinfo-metadata-name"
-                                :label-name="$tc('sw-media.sidebar.metadata.name')"
-                                :truncated="false">
+                    <template slot="content">
+                        <dl class="sw-media-sidebar__metadata-list">
+                            {% block sw_media_quickinfo_folder_metadata_content_base %}
+                                <sw-media-quickinfo-metadata-item
+                                    class="sw-media-quickinfo-metadata-name"
+                                    :label-name="$tc('sw-media.sidebar.metadata.name')"
+                                    :truncated="false">
+                                        <sw-confirm-field
+                                                v-if="editable"
+                                                compact
+                                                :value="mediaFolder.name"
+                                                ref="inlineEditFieldName"
+                                                @input="onChangeFolderName">
+                                        </sw-confirm-field>
+                                        <template v-else>{{ mediaFolder.name }}</template>
+                                </sw-media-quickinfo-metadata-item>
 
-                                    <sw-confirm-field
-                                            v-if="editable"
-                                            compact
-                                            :value="mediaFolder.name"
-                                            ref="inlineEditFieldName"
-                                            @input="onChangeFolderName">
-                                    </sw-confirm-field>
-                                    <template v-else>{{ mediaFolder.name }}</template>
-                            </sw-media-quickinfo-metadata-item>
-
-                            <sw-media-quickinfo-metadata-item
-                                class="sw-media-quickinfo-metadata-createdAt"
-                                :label-name="$tc('sw-media.sidebar.metadata.createdAt')">
-                                {{ createdAt }}
-                            </sw-media-quickinfo-metadata-item>
-                        {% endblock %}
-                    </dl>
+                                <sw-media-quickinfo-metadata-item
+                                    class="sw-media-quickinfo-metadata-createdAt"
+                                    :label-name="$tc('sw-media.sidebar.metadata.createdAt')">
+                                    {{ createdAt }}
+                                </sw-media-quickinfo-metadata-item>
+                            {% endblock %}
+                        </dl>
+                    </template>
                 {% endblock %}
             </sw-media-collapse>
         {% endblock %}

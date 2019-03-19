@@ -1,11 +1,10 @@
-{% block page_checkout_confirm_address_inner %}
+{% block page_checkout_finish_address_inner %}
 	{% set billingAddress = page.context.customer.defaultBillingAddress %}
 	{% set shippingAddress = page.context.customer.defaultShippingAddress %}
 	
 	<div class="card checkout-card">
 		<div class="card-body checkout-card-body">
-			{#TODO: NEXT-2017, NEXT-2018 - address modals#}
-			{% block page_checkout_confirm_address_title_equal %}
+			{% block page_checkout_finish_address_title_equal %}
 				<div class="card-title">
 					{% if billingAddress.id is same as(shippingAddress.id) %}
 						{{ "checkout.addressEqualHeader"|trans }}
@@ -15,21 +14,21 @@
 				</div>
 			{% endblock %}
 
-			{% block page_checkout_confirm_address_billing %}
-				<div class="confirm-address-billing">
+			{% block page_checkout_finish_address_billing %}
+				<div class="finish-address-billing">
 					{% sw_include '@Storefront/component/address/address.html.twig' with {'address': billingAddress} %}
 				</div>
 			{% endblock %}
 
 			{% if billingAddress.id is not same as(shippingAddress.id) %}
-				{% block page_checkout_confirm_address_title_shipping %}
+				{% block page_checkout_finish_address_title_shipping %}
 					<div class="card-title">
 						{{ "checkout.shippingAddressHeader"|trans }}
 					</div>
 				{% endblock %}
 
-				{% block page_checkout_confirm_address_shipping %}
-					<div class="confirm-address-shipping">
+				{% block page_checkout_finish_address_shipping %}
+					<div class="finish-address-shipping">
 						{% sw_include '@Storefront/component/address/address.html.twig' with {'address': page.context.customer.defaultShippingAddress} %}
 					</div>
 				{% endblock %}

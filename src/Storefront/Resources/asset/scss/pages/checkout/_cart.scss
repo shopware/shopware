@@ -75,6 +75,20 @@ $cart-grid-gutter-width: $spacer-sm;
     }
 }
 
+// equal height checkout card
+.checkout-card {
+    height: 100%;
+
+    .btn {
+        align-self: flex-start;
+    }
+}
+
+.checkout-card-body {
+    display: flex;
+    flex-direction: column;
+}
+
 @include media-breakpoint-up(md) {
     .cart-header {
         display: block;

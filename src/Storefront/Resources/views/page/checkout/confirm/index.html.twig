@@ -85,20 +85,18 @@
 
 {#TODO: NEXT-1947 - messages (errors, laststock, invalid address)#}
 
-{% block page_checkout_confirm_form %}
+{% block page_checkout_sidebar_actions %}
     <form id="confirmOrderForm"
           action="{{ path('storefront-api.checkout.order.create', {'version': '1'}) }}"
           data-finish-url="{{ path('frontend.checkout.finish.page') }}"
           method="post">
-        {% block page_checkout_sidebar_actions %}
-            {% block page_checkout_confirm_form_submit %}
-                <button id="confirmFormSubmit"
-                        class="btn btn-primary btn-block btn-lg"
-                        form="confirmOrderForm"
-                        type="submit">
-                    {{ "checkout.confirmSubmit"|trans }}
-                </button>
-            {% endblock %}
+        {% block page_checkout_confirm_form_submit %}
+            <button id="confirmFormSubmit"
+                    class="btn btn-primary btn-block btn-lg"
+                    form="confirmOrderForm"
+                    type="submit">
+                {{ "checkout.confirmSubmit"|trans }}
+            </button>
         {% endblock %}
     </form>
 {% endblock %}

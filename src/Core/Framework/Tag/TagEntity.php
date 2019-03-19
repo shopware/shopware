@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Tag;
 
+use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Content\Category\CategoryCollection;
 use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Product\ProductCollection;
@@ -41,6 +42,11 @@ class TagEntity extends Entity
      * @var CategoryCollection|null
      */
     protected $categories;
+
+    /**
+     * @var CustomerCollection|null
+     */
+    protected $customers;
 
     public function getName(): string
     {
@@ -100,5 +106,15 @@ class TagEntity extends Entity
     public function setCategories(CategoryCollection $categories): void
     {
         $this->categories = $categories;
+    }
+
+    public function getCustomers(): ?CustomerCollection
+    {
+        return $this->customers;
+    }
+
+    public function setCustomers(CustomerCollection $customers): void
+    {
+        $this->customers = $customers;
     }
 }

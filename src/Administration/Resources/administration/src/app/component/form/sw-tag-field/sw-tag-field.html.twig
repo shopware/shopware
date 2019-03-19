@@ -11,6 +11,8 @@
                            :store="tagStore"
                            :possibleMinPosition="-1"
                            :highlightSearchTerm="true"
+                           :disabled="disabled"
+                           :size="size"
                            @sw-select-search-term-change="onSearchTermChange"
                            @sw-select-on-arrow-down="onArrowDown"
                            @sw-select-list-applied="onSearchResultChange"

@@ -9,8 +9,7 @@ Component.register('sw-customer-base-info', {
     props: {
         customer: {
             type: Object,
-            required: true,
-            default: {}
+            required: true
         },
         customerGroups: {
             type: Array,

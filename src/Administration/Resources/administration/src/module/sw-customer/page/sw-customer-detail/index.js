@@ -1,6 +1,7 @@
 import { Component, Mixin, State } from 'src/core/shopware';
 import CriteriaFactory from 'src/core/factory/criteria.factory';
 import template from './sw-customer-detail.html.twig';
+import './sw-cusomer-detail.scss';
 
 Component.register('sw-customer-detail', {
     template,
@@ -17,7 +18,8 @@ Component.register('sw-customer-detail', {
 
     data() {
         return {
-            customer: {},
+            isLoading: true,
+            customer: null,
             customerId: null,
             customerEditMode: false,
             customerGroups: [],
@@ -64,7 +66,7 @@ Component.register('sw-customer-detail', {
         customerName() {
             const customer = this.customer;
 
-            if (!customer.salutation && !customer.title && !customer.firstName && !customer.lastName) {
+            if (!customer || (!customer.salutation && !customer.title && !customer.firstName && !customer.lastName)) {
                 return '';
             }
 
@@ -130,6 +132,10 @@ Component.register('sw-customer-detail', {
         },
 
         initializeFurtherComponents() {
+            if (!this.customer) {
+                return;
+            }
+
             this.isLoading = false;
             this.customerAddressStore.getList({
                 limit: 10,

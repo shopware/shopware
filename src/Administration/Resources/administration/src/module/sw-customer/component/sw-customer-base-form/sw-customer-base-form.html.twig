@@ -97,5 +97,9 @@
                 </sw-field>
             {% endblock %}
         </sw-container>
+
+        {% block sw_customer_base_form_tag_field %}
+            <sw-tag-field :entity="customer"></sw-tag-field>
+        {% endblock %}
     </div>
 {% endblock %}

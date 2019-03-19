@@ -3,6 +3,14 @@
 $sw-select-color-border: $color-steam-cloud;
 $sw-select-color-search-highlight: $color-shopware-blue;
 .sw-tag-field {
+
+    .sw-select.is--disabled.sw-select--multi.is--searchable {
+        .sw-select__inner {
+            border: none;
+            background: transparent;
+        }
+    }
+
     .sw-select__selection-item-holder {
         .sw-label {
             background: transparent;

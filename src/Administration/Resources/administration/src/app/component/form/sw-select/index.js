@@ -141,6 +141,18 @@ export default {
             type: String,
             required: false,
             default: 'ASC'
+        },
+        size: {
+            type: String,
+            required: false,
+            default: 'default',
+            validValues: ['default', 'small'],
+            validator(value) {
+                if (!value.length) {
+                    return true;
+                }
+                return ['default', 'small'].includes(value);
+            }
         }
     },
 
@@ -176,7 +188,8 @@ export default {
                 'is--disabled': this.disabled,
                 'is--expanded': this.isExpanded,
                 'sw-select--multi': this.multi,
-                'is--searchable': this.showSearch
+                'is--searchable': this.showSearch,
+                'sw-select--small': this.size === 'small'
             };
         },
         selectId() {
@@ -211,6 +224,11 @@ export default {
         },
         associationStore() {
             this.init();
+        },
+        disabled() {
+            if (this.disabled) {
+                this.searchTerm = '';
+            }
         }
     },
 
@@ -223,6 +241,14 @@ export default {
     },
 
     methods: {
+        getPlaceHolder(params) {
+            if (this.disabled) {
+                return '';
+            }
+
+            return this.getInlineSnippet(params);
+        },
+
         createdComponent() {
             this.init();
             this.addEventListeners();

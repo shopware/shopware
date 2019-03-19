@@ -8,10 +8,7 @@ Component.register('sw-customer-card', {
     props: {
         customer: {
             type: Object,
-            required: true,
-            default() {
-                return {};
-            }
+            required: true
         },
         title: {
             type: String,

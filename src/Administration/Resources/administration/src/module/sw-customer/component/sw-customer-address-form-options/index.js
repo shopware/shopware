@@ -7,8 +7,7 @@ Component.register('sw-customer-address-form-options', {
     props: {
         customer: {
             type: Object,
-            required: true,
-            default: {}
+            required: true
         },
 
         address: {

@@ -13,8 +13,7 @@ Component.register('sw-customer-detail-order', {
     props: {
         customer: {
             type: Object,
-            required: true,
-            default: {}
+            required: true
         }
     },
 

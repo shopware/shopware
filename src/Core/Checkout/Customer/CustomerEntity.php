@@ -10,6 +10,7 @@ use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\Search\SearchDocumentCollection;
+use Shopware\Core\Framework\Tag\TagCollection;
 use Shopware\Core\System\Language\LanguageEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 
@@ -241,6 +242,11 @@ class CustomerEntity extends Entity
      * @var SearchDocumentCollection|null
      */
     protected $searchKeywords;
+
+    /**
+     * @var TagCollection|null
+     */
+    protected $tags;
 
     /**
      * @var array|null
@@ -719,5 +725,15 @@ class CustomerEntity extends Entity
     public function setAttributes(?array $attributes): void
     {
         $this->attributes = $attributes;
+    }
+
+    public function getTags(): ?TagCollection
+    {
+        return $this->tags;
+    }
+
+    public function setTags(TagCollection $tags): void
+    {
+        $this->tags = $tags;
     }
 }

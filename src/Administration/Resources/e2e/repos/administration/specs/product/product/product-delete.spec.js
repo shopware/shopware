@@ -43,6 +43,7 @@ module.exports = {
 
         browser
             .fillGlobalSearchField('Soon be gone')
+            .waitForElementNotPresent(page.elements.loader)
             .waitForElementVisible(page.elements.emptyState)
             .expect.element(page.elements.smartBarAmount).to.have.text.that.contains('(0)');
     },

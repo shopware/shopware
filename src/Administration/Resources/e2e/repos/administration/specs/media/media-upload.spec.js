@@ -9,14 +9,10 @@ module.exports = {
     'upload and create new media item': (browser) => {
         const page = mediaPage(browser);
         page.uploadImageViaURL(`${process.env.APP_URL}/bundles/administration/static/fixtures/sw-login-background.png`);
-
     },
-    'look and search for the items in media index': (browser) => {
+    'look for the items in media index': (browser) => {
         const page = mediaPage(browser);
-        browser
-            .fillGlobalSearchField('sw-login-background')
-            .refresh()
-            .waitForElementVisible(page.elements.mediaNameLabel);
+        browser.waitForElementVisible(page.elements.mediaNameLabel);
     },
     'click preview thumbnail to open sidebar': (browser) => {
         const page = mediaPage(browser);

@@ -40,18 +40,7 @@ class TemplateDataExtension extends AbstractExtension implements GlobalsInterfac
 
         return [
             'shopware' => [
-                'config' => array_merge(
-                    $this->getDefaultConfiguration(),
-                    [
-                        'shopName' => 'Shopware Storefront',
-                        'seo' => [
-                            'descriptionMaxLength' => 150,
-                        ],
-                        'checkout' => [
-                            'instockinfo' => false,
-                        ],
-                    ]
-                ),
+                'config' => $this->getDefaultConfiguration(),
                 'theme' => $this->getThemeConfig(),
             ],
             'controllerName' => $controllerInfo->getName(),
@@ -99,6 +88,10 @@ class TemplateDataExtension extends AbstractExtension implements GlobalsInterfac
     private function getDefaultConfiguration(): array
     {
         return [
+            'shopName' => 'Shopware Storefront',
+            'seo' => [
+                'descriptionMaxLength' => 150,
+            ],
             'metaIsFamilyFriendly' => true,
             'register' => [
                 'titleField' => true,
@@ -112,6 +105,9 @@ class TemplateDataExtension extends AbstractExtension implements GlobalsInterfac
             ],
             'confirm' => [
                 'revocationNotice' => true,
+            ],
+            'checkout' => [
+                'instockinfo' => false,
             ],
         ];
     }

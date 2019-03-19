@@ -2,8 +2,9 @@
 	{% set billingAddress = page.context.customer.defaultBillingAddress %}
 	{% set shippingAddress = page.context.customer.defaultShippingAddress %}
 	
-	<div class="card confirm-address-card">
-		<div class="card-body">
+	<div class="card confirm-card">
+		<div class="card-body confirm-card-body">
+			{#TODO: NEXT-2017, NEXT-2018 - address modals#}
 			{% block page_checkout_confirm_address_title_equal %}
 				<div class="card-title">
 					{% if billingAddress.id is same as(shippingAddress.id) %}

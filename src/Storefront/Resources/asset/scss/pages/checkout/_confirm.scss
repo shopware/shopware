@@ -1,3 +1,11 @@
+.checkout-main-left {
+    @extend .col-lg-12;
+}
+
+.checkout-main-right {
+    @extend .offset-lg-8;
+}
+
 .confirm-terms {
     margin-bottom: $spacer-lg;
 }
@@ -6,9 +14,17 @@
     margin-bottom: $spacer-lg;
 }
 
-.confirm-address,
-.confirm-payment {
+.confirm-card {
     height: 100%;
+
+    .btn {
+        align-self: flex-start;
+    }
+}
+
+.confirm-card-body {
+    display: flex;
+    flex-direction: column;
 }
 
 .confirm-address {

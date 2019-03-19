@@ -3,6 +3,17 @@
     padding-top: $spacer-sm;
 }
 
+.checkout-main-left {
+    @extend .col-lg-8;
+}
+
+.checkout-main-right {
+    @extend .col-md-6;
+    @extend .offset-md-6;
+    @extend .col-lg-4;
+    @extend .offset-lg-0;
+}
+
 // sidebar
 .checkout-sidebar-header {
     margin-bottom: $spacer-lg;
@@ -45,7 +56,8 @@
 
 .cart-header-quantity,
 .cart-header-unit-price,
-.cart-header-total-price {
+.cart-header-total-price,
+.cart-header-tax-price {
     text-align: right;
 }
 
@@ -63,15 +75,10 @@ $cart-grid-gutter-width: $spacer-sm;
     }
 }
 
-.cart-item-quantity,
-.cart-item-unit-price,
-.cart-item-total-price,
-.cart-item-remove {
-    text-align: right;
-}
-
-.cart-item-total-price {
-    font-weight: $font-weight-bold;
+@include media-breakpoint-up(md) {
+    .cart-header {
+        display: block;
+    }
 }
 
 @include media-breakpoint-up(lg) {

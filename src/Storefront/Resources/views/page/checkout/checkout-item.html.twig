@@ -2,7 +2,7 @@
 	<div class="cart-item cart-item-{{ lineItem.type }}">
 		<div class="row cart-item-row">
 			{% block page_checkout_item_info %}
-				<div class="col-5 cart-item-info">
+				<div class="col-10 col-md cart-item-info">
 					{% block page_checkout_item_info_inner %}
 						<div class="row cart-item-row">
 							{% block page_checkout_item_info_image %}
@@ -33,21 +33,23 @@
 							{% block page_checkout_item_info_details %}
 								<div class="col cart-item-details">
 									{% block page_checkout_item_info_details_inner %}
-										{% block page_checkout_item_info_label %}
-											<a href="{{ path('frontend.detail.page', {'productId': lineItem.key}) }}"
-											   class="cart-item-label"
-											   title="{{ lineItem.label }}">
-												{{ lineItem.label|truncate(60) }}
-											</a>
-										{% endblock %}
+										<div class="cart-item-details-container">
+											{% block page_checkout_item_info_label %}
+												<a href="{{ path('frontend.detail.page', {'productId': lineItem.key}) }}"
+												   class="cart-item-label"
+												   title="{{ lineItem.label }}">
+													{{ lineItem.label|truncate(60) }}
+												</a>
+											{% endblock %}
 
-										{% block page_checkout_item_info_ordernumber %}
-											{#TODO: NEXT-1946 - ordernumber#}
-										{% endblock %}
+											{% block page_checkout_item_info_ordernumber %}
+												{#TODO: NEXT-1946 - ordernumber#}
+											{% endblock %}
 
-										{% block page_checkout_item_info_delivery_informations %}
-											{#TODO: NEXT-1946 - delivery informations#}
-										{% endblock %}
+											{% block page_checkout_item_info_delivery_informations %}
+												{#TODO: NEXT-1946 - delivery informations#}
+											{% endblock %}
+										</div>
 									{% endblock %}
 								</div>
 							{% endblock %}
@@ -57,13 +59,21 @@
 			{% endblock %}
 
 			{% block page_checkout_item_quantity %}
-				<div class="col-2 cart-item-quantity">
+				<div class="col-4 col-md-auto cart-item-quantity">
 					{% block page_checkout_item_quantity_form %}
 						{#TODO: NEXT-1946 - update functionality#}
 						<form action="{{ path('storefront-api.checkout.cart.line-item.update', {'version': 1, 'id': lineItem.key}) }}"
+						      class="cart-item-quantity-container"
 						      method="post">
+
+							{% block page_checkout_item_quantity_label %}
+								<div class="cart-item-quantity-label">
+									{{ "checkout.cartHeaderQuantity"|trans }}
+								</div>
+							{% endblock %}
+
 							{% block page_checkout_item_quantity_select %}
-								<select class="custom-select" name="quantity">
+								<select class="custom-select cart-item-quantity-select" name="quantity">
 									<option value="{{ lineItem.quantity }}" selected="selected">
 										{{ lineItem.quantity }}
 									</option>
@@ -75,7 +85,13 @@
 			{% endblock %}
 
 			{% block page_checkout_item_unit_price %}
-				<div class="col-2 cart-item-unit-price">
+				<div class="col-4 col-md-2 cart-item-unit-price">
+					{% block page_checkout_item_unit_price_label %}
+						<div class="cart-item-unit-price-label">
+							{{ "checkout.cartHeaderUnitPrice"|trans }}
+						</div>
+					{% endblock %}
+
 					{% block page_checkout_item_unit_price_inner %}
 						{{ lineItem.price.unitPrice|localizedcurrency(page.context.currency.shortName, app.request.locale) }}
 					{% endblock %}
@@ -83,7 +99,13 @@
 			{% endblock %}
 
 			{% block page_checkout_item_total_price %}
-				<div class="col-2 cart-item-total-price">
+				<div class="col-4 col-md-2 cart-item-total-price">
+					{% block page_checkout_item_total_price_label %}
+						<div class="cart-item-total-price-label">
+							{{ "checkout.cartHeaderTotalPrice"|trans }}
+						</div>
+					{% endblock %}
+
 					{% block page_checkout_item_total_price_inner %}
 						{{ lineItem.price.totalPrice|localizedcurrency(page.context.currency.shortName, app.request.locale) }}
 					{% endblock %}
@@ -91,7 +113,7 @@
 			{% endblock %}
 
 			{% block page_checkout_item_remove %}
-				<div class="col-1 cart-item-remove">
+				<div class="col-2 col-md-1 cart-item-remove">
 					{% block page_checkout_item_remove_form %}
 						{% if lineItem.isRemovable() %}
 							{#TODO: NEXT-1946 - remove functionality#}
@@ -100,7 +122,7 @@
 								{% block page_checkout_item_remove_submit %}
 									<button type="submit"
 									        title="{{ "checkout.removeLineItem"|trans }}"
-									        class="btn btn-light btn-sm">
+									        class="btn btn-light btn-sm cart-item-remove-button">
 										<i class="fas fa-times"></i>
 									</button>
 								{% endblock %}

@@ -14,7 +14,7 @@
 			{% block page_checkout_finish_main %}
 				{% if page.order.lineItems.elements %}
 					<div class="d-print-block card cart-table">
-						<div class="card-body">
+						<div class="card-body cart-table-body">
 							{% block page_checkout_finish_table_header %}
 								{% sw_include '@Storefront/page/checkout/confirm/confirm-header.html.twig' %}
 							{% endblock %}

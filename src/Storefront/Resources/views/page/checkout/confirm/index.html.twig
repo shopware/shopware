@@ -1,7 +1,6 @@
 {% sw_extends '@Storefront/page/checkout/_page.html.twig' %}
 
 {% block page_checkout_container %}
-
     {% block page_checkout_confirm_agb %}
         <div class="card confirm-terms">
             <div class="card-body">
@@ -64,7 +63,7 @@
     {% block page_checkout_confirm %}
         {% block page_checkout_confirm_table %}
             <div class="card cart-table confirm-table">
-                <div class="card-body">
+                <div class="card-body cart-table-body">
                     {% block page_checkout_confirm_table_header %}
                         {% sw_include '@Storefront/page/checkout/confirm/confirm-header.html.twig' %}
                     {% endblock %}

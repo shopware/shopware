@@ -165,7 +165,7 @@ before: (browser, done) => {
 ```
 *before-hook with use of the basic FixtureService*
 
-To cover this topic in detail, we wrote a separate [guide](../70-testing/30-working-with-e2e-fixture-services.md).
+To cover this topic in detail, we wrote a separate [guide](30-working-with-e2e-fixture-services.md).
 
 ### afterEach-hook and cleanup
 

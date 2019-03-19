@@ -108,6 +108,7 @@
     "autoload": {
         "psr-4": {
             "Shopware\\Administration\\": "src/Administration/",
+            "Shopware\\Docs\\": "src/Docs/",
             "Shopware\\Storefront\\": "src/Storefront/",
             "Shopware\\Core\\": "src/Core/"
         },

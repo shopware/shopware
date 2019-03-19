@@ -2,7 +2,7 @@
 [wikiUrl]: <>(../plugin-system/getting-started?category=shopware-platform-en/plugin-system)
 
 To be able to introduce extensions into the system, the core comes with an integrated plugin system.
-Plugins are [Symfony Bundles](https://symfony.com/doc/current/bundles.html) which can be activated and deactivated via the [bin/console plugin:* commands](./020-plugin-commands.md).
+Plugins are [Symfony Bundles](https://symfony.com/doc/current/bundles.html) which can be activated and deactivated via the [bin/console plugin:* commands](020-plugin-commands.md).
 A plugin can change the behavior of the system including: 
 * Create custom events and listen to existing ones
 * Include entities in the system and/or extend existing ones
@@ -34,12 +34,12 @@ class GettingStarted extends Plugin
 ```
 
 Now add a `composer.json` file to your plugin directory.
-Read [here](./050-plugin-information.md) for more information about the content of this file.
+Read [here](050-plugin-information.md) for more information about the content of this file.
 
 If you add these two files, the plugin can be registered and installed in the system.
 
 Subsequently, further functions can be integrated into the base class to react to certain actions in the system.
-Read more about the lifecycle and kernel methods of a plugin [here](./030-plugin-base-class.md).
+Read more about the lifecycle and kernel methods of a plugin [here](030-plugin-base-class.md).
 
 Run `bin/console plugin:install --activate GettingStarted` to install and activate the plugin.
 

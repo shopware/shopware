@@ -204,4 +204,4 @@ Now all that's left to do is to present you a working example `config.xml` and s
 </config>
 ```
 
-![Example plugin config](./img/plugin-config.png)
+![Example plugin config](img/plugin-config.png)

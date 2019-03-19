@@ -173,7 +173,7 @@ new TranslatedField('name')
 The `TranslatedField` is a mapping field to indicate that this field (in this case `name`) is translatable and
 can be found in the corresponding translation definition for the entity - just like a symlink.
 
-To learn more about translations, please refer to the [Translations Guide](./9-translations.md).
+To learn more about translations, please refer to the [Translations Guide](9-translations.md).
 
 ### JsonField
 
@@ -371,7 +371,7 @@ This field is the relation to the definition which holds the translations of the
 ## Custom types
 
 Custom types are mostly fields for a single purpose and to handle them separately when processing data.
-It is possible that a custom type has its own [FieldResolver](./11-field-resolver.md) and [FieldAccessor](./12-field-accessor.md).
+It is possible that a custom type has its own [FieldResolver](11-field-resolver.md) and [FieldAccessor](12-field-accessor.md).
 
 ### PriceField
 

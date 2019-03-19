@@ -1,5 +1,5 @@
 import { Module } from 'src/core/shopware';
-import './page/swag-multimedia-index/index';
+import './page/swag-multimedia-index';
 
 Module.register('swag-multimedia', {
     type: 'plugin',

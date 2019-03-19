@@ -55,6 +55,7 @@ class Framework extends Bundle
         $loader->load('services.xml');
         $loader->load('tag.xml');
         $loader->load('util.xml');
+        $loader->load('store.xml');
 
         $container->addCompilerPass(new FeatureFlagCompilerPass(), PassConfig::TYPE_BEFORE_OPTIMIZATION);
         $container->addCompilerPass(new ExtensionCompilerPass());

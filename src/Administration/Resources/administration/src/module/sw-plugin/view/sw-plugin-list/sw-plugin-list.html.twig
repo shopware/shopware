@@ -1,0 +1,179 @@
+{% block sw_plugin_list_content %}
+    <div class="sw-plugin-list">
+
+        {% block sw_plugin_list_top_actions %}
+            <div class="sw-plugin-manager__top-actions">
+                {% block sw_plugin_list_top_actions_header %}
+                    <h1>{{ $tc('sw-plugin.list.pluginHeader') }}</h1>
+                {% endblock %}
+                {% block sw_plugin_list_top_actions_sorting %}
+                    <div class="sw-plugin-list__action">
+                        {% block sw_plugin_list_sort %}
+                            <sw-field class="sw-plugin-list__sort_field"
+                                      type="select"
+                                      name="sortType"
+                                      :label="$tc('sw-plugin.list.sortLabel')"
+                                      v-model="sortType"
+                                      @change="sortPluginList">
+                                {% block sw_plugin_list_sort_options_upgraded_at_asc %}
+                                    <option value="upgradedAt:asc">
+                                        {{ $tc('sw-plugin.list.sortUpgradedAtAsc') }}
+                                    </option>
+                                {% endblock %}
+
+                                {% block sw_plugin_list_sort_options_pluginName_asc %}
+                                    <option value="name:asc">
+                                        {{ $tc('sw-plugin.list.sortPluginNameAsc') }}
+                                    </option>
+                                {% endblock %}
+
+                                {% block sw_plugin_list_sort_options_pluginName_dsc %}
+                                    <option value="name:dsc">
+                                        {{ $tc('sw-plugin.list.sortPluginNameDsc') }}
+                                    </option>
+                                {% endblock %}
+                            </sw-field>
+                        {% endblock %}
+                        {% block sw_plugin_list_top_actions_upload %}
+                            <sw-plugin-file-upload @sw-plugin-file-upload-success="successfulUpload"></sw-plugin-file-upload>
+                        {% endblock %}
+                    </div>
+                {% endblock %}
+            </div>
+        {% endblock %}
+
+        {% block sw_plugin_list_content %}
+            <sw-card :isLoading="isLoading">
+                {% block sw_plugin_list_grid %}
+                    <template slot="grid">
+                        <sw-grid v-show="isLoading || total"
+                                 :items="plugins"
+                                 :sortBy="sortBy"
+                                 :sortDirection="sortDirection"
+                                 :selectable="false"
+                                 @sort-column="onSortColumn"
+                                 table>
+
+                            {% block sw_plugin_list_grid_slots %}
+                                <template slot="columns" slot-scope="{ item }">
+
+                                    {% block sw_plugin_list_grid_columns_label %}
+                                        <sw-grid-column flex="minmax(100px, 1fr)"
+                                                        :label="$tc('sw-plugin.list.columnPluginName')"
+                                                        dataIndex="label"
+                                                        truncate>
+                                            {% block sw_plugin_list_grid_columns_label_label %}
+                                                <div class="sw-plugin-list__plugin-info-container">
+                                                    {% block sw_plugin_list_grid_columns_label_label_image %}
+                                                        <img v-if="item.icon" :src="'data:image/png;base64, ' + item.icon"/>
+                                                    {% endblock %}
+                                                    {% block sw_plugin_list_grid_columns_label_label_information %}
+                                                        <div class="sw-plugin-list__plugin-info">
+                                                            <p>{{ item.label }}</p>
+                                                            <p class="sw-plugin-list__author-name">{{ item.author }}</p>
+                                                        </div>
+                                                    {% endblock %}
+                                                </div>
+                                            {% endblock %}
+                                        </sw-grid-column>
+                                    {% endblock %}
+
+                                    {% block sw_plugin_list_grid_columns_activated %}
+                                        <sw-grid-column flex="minmax(80px, 150px)"
+                                                        :label="$tc('sw-plugin.list.columnActive')"
+                                                        dataIndex="active"
+                                                        truncate>
+                                            {% block sw_plugin_list_grid_columns_activated_label %}
+                                                <sw-field type="switch"
+                                                          :disabled="!item.installedAt"
+                                                          :label="item.active ? 'Aktiviert' : 'Deaktiviert'"
+                                                          v-model="item.active"
+                                                          v-on:change="changeActiveState(item)">
+                                                </sw-field>
+                                            {% endblock %}
+                                        </sw-grid-column>
+                                    {% endblock %}
+
+                                    {% block sw_plugin_list_grid_columns_version %}
+                                        <sw-grid-column flex="minmax(80px, 100px)"
+                                                        :label="$tc('sw-plugin.list.columnVersion')"
+                                                        dataIndex="version"
+                                                        truncate>
+                                            {% block sw_plugin_list_grid_columns_version_label %}
+                                                {{ item.version }}
+                                            {% endblock %}
+                                        </sw-grid-column>
+                                    {% endblock %}
+
+                                    {% block sw_plugin_list_grid_columns_actions %}
+                                        <sw-grid-column flex="minmax(100px, 100px)"
+                                                        align="center">
+                                            {% block sw_plugin_list_grid_columns_actions_context_button %}
+                                                <sw-context-button>
+                                                    {% block sw_plugin_list_grid_columns_actions_install %}
+                                                        <sw-context-menu-item v-if="!item.installedAt" @click="onInstallPlugin(item)">
+                                                            {{ $tc('sw-plugin.list.contextInstall') }}
+                                                        </sw-context-menu-item>
+                                                    {% endblock %}
+
+                                                     {% block sw_plugin_list_grid_columns_actions_uninstall %}
+                                                        <sw-context-menu-item v-if="item.installedAt" @click="onUninstallPlugin(item)">
+                                                            {{ $tc('sw-plugin.list.contextUninstall') }}
+                                                        </sw-context-menu-item>
+                                                     {% endblock %}
+
+                                                     {% block sw_plugin_list_grid_columns_actions_activate %}
+                                                        <sw-context-menu-item v-if="item.installedAt && !item.active"
+                                                                              @click="onActivatePlugin(item)">
+                                                            {{ $tc('sw-plugin.list.contextActivate') }}
+                                                        </sw-context-menu-item>
+                                                     {% endblock %}
+
+                                                     {% block sw_plugin_list_grid_columns_actions_deactivate %}
+                                                        <sw-context-menu-item v-if="item.active" @click="onDeactivatePlugin(item)">
+                                                            {{ $tc('sw-plugin.list.contextDeactivate') }}
+                                                        </sw-context-menu-item>
+                                                     {% endblock %}
+
+                                                     {% block sw_plugin_list_grid_columns_actions_update %}
+                                                        <sw-context-menu-item v-if="item.upgradeVersion" @click="onUpdatePlugin(item)">
+                                                            {{ $tc('sw-plugin.list.contextUpdate') }} {{ item.upgradeVersion }}
+                                                        </sw-context-menu-item>
+                                                    {% endblock %}
+
+                                                    {% block sw_plugin_list_grid_columns_actions_delete %}
+                                                        <sw-context-menu-item v-if="!item.installedAt" @click="onDeletePlugin(item)">
+                                                            {{ $tc('sw-plugin.list.contextDelete') }}
+                                                        </sw-context-menu-item>
+                                                    {% endblock %}
+                                                </sw-context-button>
+                                            {% endblock %}
+                                        </sw-grid-column>
+                                    {% endblock %}
+                                </template>
+                            {% endblock %}
+
+                            {% block sw_plugin_list_grid_pagination %}
+                                <template slot="pagination">
+                                    <sw-pagination :page="page"
+                                                   :limit="limit"
+                                                   :total="total"
+                                                   :total-visible="7"
+                                                   @page-change="onPageChange">
+                                    </sw-pagination>
+                                </template>
+                            {% endblock %}
+
+                        </sw-grid>
+                    </template>
+                {% endblock %}
+
+                {% block sw_plugin_list_card_empty_state %}
+                    <sw-empty-state v-if="!isLoading && !total"
+                                    :title="$tc('sw-plugin.list.messageEmpty')">
+                    </sw-empty-state>
+                {% endblock %}
+            </sw-card>
+        {% endblock %}
+    </div>
+{% endblock %}

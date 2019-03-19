@@ -23,6 +23,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Util\AssetService;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Component\Filesystem\Filesystem;
 
 class PluginLifecycleServiceTest extends TestCase
 {
@@ -77,7 +78,7 @@ class PluginLifecycleServiceTest extends TestCase
         $this->pluginCollection = $this->container->get(KernelPluginCollection::class);
         $this->connection = $this->container->get(Connection::class);
         $this->pluginLifecycleService = $this->createPluginLifecycleService();
-        require_once __DIR__ . '/_fixture/SwagTest/Migration/Migration1536761533Test.php';
+        require_once __DIR__ . '/_fixture/plugins/SwagTest/Migration/Migration1536761533Test.php';
         $this->addTestPluginToKernel();
         $this->context = Context::createDefaultContext();
     }
@@ -231,6 +232,9 @@ class PluginLifecycleServiceTest extends TestCase
         $pluginActivated = $this->pluginService->getPluginByName(\SwagTest\SwagTest::PLUGIN_NAME, $this->context);
 
         static::assertTrue($pluginActivated->getActive());
+
+        $filesystem = $this->container->get(Filesystem::class);
+        $filesystem->remove(__DIR__ . '/public');
     }
 
     public function testActivatePluginThrowsException(): void
@@ -272,6 +276,9 @@ class PluginLifecycleServiceTest extends TestCase
         $pluginDeactivated = $this->pluginService->getPluginByName(\SwagTest\SwagTest::PLUGIN_NAME, $this->context);
 
         static::assertFalse($pluginDeactivated->getActive());
+
+        $filesystem = $this->container->get(Filesystem::class);
+        $filesystem->remove(__DIR__ . '/public');
     }
 
     public function testDeactivatePluginNotInstalledThrowsException(): void
@@ -324,7 +331,7 @@ class PluginLifecycleServiceTest extends TestCase
 
     private function addTestPluginToKernel(): void
     {
-        require_once __DIR__ . '/_fixture/SwagTest/SwagTest.php';
+        require_once __DIR__ . '/_fixture/plugins/SwagTest/SwagTest.php';
         $this->pluginCollection->add(new \SwagTest\SwagTest(false));
     }
 

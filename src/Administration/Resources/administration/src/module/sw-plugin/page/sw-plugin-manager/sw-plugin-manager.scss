@@ -1,0 +1,25 @@
+.sw-plugin-manager {
+
+    .sw-plugin-manager__top-actions {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: flex-start;
+        max-width: 800px;
+        margin: 0 auto 10px auto;
+
+        @media screen and (max-width: 1360px) {
+            max-width: 770px;
+        }
+
+    }
+
+    .plugin-manager-sidebar {
+        position: absolute;
+        top: 100px;
+    }
+
+    .sw-empty-state {
+        position: relative;
+    }
+}

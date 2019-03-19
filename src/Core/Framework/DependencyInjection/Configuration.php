@@ -19,6 +19,7 @@ class Configuration implements ConfigurationInterface
                 ->append($this->createFilesystemSection())
                 ->append($this->createCdnSection())
                 ->append($this->createApiSection())
+                ->append($this->createStoreSection())
                 ->append($this->createAdminWorkerSection())
                 ->append($this->createCacheSection())
             ->end()
@@ -83,6 +84,22 @@ class Configuration implements ConfigurationInterface
             ->prototype('scalar')->end()
             ->end()
             ->integerNode('max_limit')->end()
+            ->end()
+        ;
+
+        return $rootNode;
+    }
+
+    private function createStoreSection(): ArrayNodeDefinition
+    {
+        $treeBuilder = new TreeBuilder('store');
+
+        /** @var ArrayNodeDefinition $rootNode */
+        $rootNode = $treeBuilder->getRootNode();
+        $rootNode
+            ->children()
+            ->scalarNode('api_url')->end()
+            ->scalarNode('host')->end()
             ->end()
         ;
 

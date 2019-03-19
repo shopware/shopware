@@ -1,0 +1,49 @@
+@import "~scss/variables";
+
+.sw-plugin-updates-grid {
+
+    p {
+        white-space: initial;
+    }
+
+    .sw-plugin-updates-grid__info-container {
+        align-items: center;
+
+        img {
+            margin-right: 10px;
+            height: 32px;
+            width: 32px;
+        }
+
+        .sw-plugin-updates-grid__plugin-info {
+            display: flex;
+            flex-direction: column;
+
+            .sw-plugin-updates-grid__upgraded-date {
+                color: $color-gray;
+                font-size: $font-size-small;
+            }
+        }
+
+    }
+
+    .sw-plugin-updates-grid__update-context {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+
+        .sw-loader {
+            position: unset;
+
+            .sw-loader__container {
+                display: inherit;
+            }
+        }
+
+        .sw-plugin-updates-grid__version {
+            margin-top: 6px;
+            font-size: $font-size-small;
+            color: $color-gray;
+        }
+    }
+}

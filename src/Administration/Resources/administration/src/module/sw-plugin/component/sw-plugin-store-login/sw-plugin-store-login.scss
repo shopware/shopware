@@ -1,0 +1,102 @@
+@import "~scss/variables";
+
+.sw-plugin-store-login {
+
+    .sw-modal__dialog {
+        max-width: 800px !important;
+    }
+
+    .sw-modal__body {
+        padding: 0 !important;
+    }
+
+    .sw-plugin-store-login__close-button-container {
+        width: 100%;
+        display: flex;
+        flex-direction: row-reverse;
+        padding: 20px 30px;
+        position: absolute;
+
+    }
+
+    .sw-plugin-store-login__content {
+        display: flex;
+        justify-content: space-between;
+    }
+
+    .sw-plugin-store-login__form {
+        width: 55%;
+        flex-grow: 1;
+        padding: 100px 40px 40px;
+
+        a {
+            font-size: 12px;
+            color: $color-shopware-blue;
+            text-decoration: none;
+        }
+
+        .shopware-id-label {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .forgot-password {
+            display: flex;
+            justify-content: flex-end;
+        }
+
+
+        .sw-plugin-store-login__information {
+            padding-bottom: 25px;
+
+            p {
+                font-size: $font-size-small;
+            }
+        }
+    }
+
+    .sw-modal__footer {
+        display: flex !important;
+    }
+
+    .sw-plugin-store-login__footer {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+        width: 100%;
+
+        .footer-information {
+            font-size: 12px;
+        }
+
+        .new-account-link {
+            color: $color-shopware-blue;
+            text-decoration: none;
+        }
+
+        .footer-button-container {
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+
+            .cancel-button {
+                margin-right: 12px;
+            }
+        }
+    }
+
+    .sw-plugin-store-login__illustration {
+        width: 45%;
+
+        @media screen and (max-width: 900px) {
+            display: none;
+        }
+
+        img {
+            width: 100%;
+            height: 100%;
+            margin-bottom: -4px;
+        }
+    }
+}

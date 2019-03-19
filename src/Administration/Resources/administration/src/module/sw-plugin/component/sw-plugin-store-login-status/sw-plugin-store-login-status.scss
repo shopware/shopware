@@ -1,0 +1,50 @@
+@import '~scss/variables';
+
+.sw-plugin-store-login-status {
+
+    .sw-plugin-store-login-status__name {
+        font-weight: 600;
+        font-size: $font-size-small;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .sw-plugin-store-login-status__email {
+        font-size: $font-size-small;
+    }
+    
+    .sw-plugin-store-login-status__title {
+        padding-bottom: 4px;
+        font-size: $font-size-small;
+    }
+
+    .sw-plugin-store-login-status__account-info {
+        display: flex;
+        flex-direction: column;
+        padding-left: 16px;
+    }
+
+    .sw-plugin-store-login-status__login-box {
+        display: flex;
+        justify-content: space-between;
+        background: $color-white;
+        border-radius: $border-radius-default;
+        border: 1px solid $color-steam-cloud;
+        width: 240px;
+        padding: 12px;
+    }
+
+    .sw-plugin-store-login-status__context-button {
+        align-self: center;
+    }
+
+    .sw-plugin-store-login-status__box-content {
+        display: flex;
+    }
+
+}
+
+.sw-context-menu-item .account-link {
+    text-decoration: none;
+    color: inherit;
+}

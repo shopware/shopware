@@ -57,14 +57,12 @@ module.exports = {
             .click(page.elements.smartBarBack)
             .refresh()
             .fillGlobalSearchField('Marci Darci')
+            .waitForElementNotPresent(page.elements.loader)
             .expect.element(page.elements.smartBarAmount).to.have.text.that.equals('(1)');
+        browser.expect.element(page.elements.productListName).to.have.text.that.contains('Marci Darci');
     },
     'check if the data of the product is assigned correctly': (browser) => {
         const page = productPage(browser);
-
-        browser
-            .refresh()
-            .expect.element(page.elements.productListName).to.have.text.that.contains('Marci Darci');
 
         browser
             .clickContextMenuItem('.sw-product-list__edit-action', page.elements.contextMenuButton, `${page.elements.dataGridRow}--0`)

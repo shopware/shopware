@@ -30,9 +30,10 @@ module.exports = {
             .expect.element(page.elements.columnName).to.have.text.that.contains('Rule 1st');
 
         browser
-            .fillGlobalSearchField('Rule them all')
+            .fillGlobalSearchField('Rule 1st')
             .waitForElementNotPresent(page.elements.loader)
             .expect.element(page.elements.smartBarAmount).to.have.text.that.contains('(1)');
+        browser.expect.element(page.elements.columnName).to.have.text.that.contains('Rule 1st');
     },
     after: (browser) => {
         browser.end();

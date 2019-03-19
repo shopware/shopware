@@ -17,5 +17,7 @@ exports.command = function fillGlobalSearchField(value, clearField = false) {
     this.setValue(searchInputCssSelector, [value, this.Keys.ENTER]);
     this.expect.element(searchInputCssSelector).to.have.value.that.equals(value);
 
+    this.assert.urlContains(encodeURI(value));
+
     return this;
 };

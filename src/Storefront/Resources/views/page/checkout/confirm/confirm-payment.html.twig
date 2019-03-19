@@ -1,6 +1,6 @@
 {% block page_checkout_confirm_payment_inner %}
-	<div class="card confirm-payment-card">
-		<div class="card-body">
+	<div class="card confirm-card">
+		<div class="card-body confirm-card-body">
 			{% block page_checkout_confirm_payment_title %}
 				<div class="card-title">
 					{{ "checkout.confirmHeaderPayment"|trans }}
@@ -20,6 +20,14 @@
 					<strong>{{ "checkout.confirmDispatchMethod"|trans }}</strong>
 					{{ page.context.shippingMethod.name }}
 				</p>
+			{% endblock %}
+
+			{% block page_checkout_confirm_payment_method_change %}
+				<a href="{{ path('frontend.checkout.config.page') }}"
+				   title="{{ "checkout.confirmPaymentMethodChange"|trans }}"
+				   class="btn btn-light btn-sm">
+					{{ "checkout.confirmPaymentMethodChange"|trans }}
+				</a>
 			{% endblock %}
 		</div>
 	</div>

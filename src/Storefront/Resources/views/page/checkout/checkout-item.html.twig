@@ -59,33 +59,38 @@
 			{% endblock %}
 
 			{% block page_checkout_item_quantity %}
-				<div class="col-4 col-md-auto cart-item-quantity">
+				<div class="col-12 col-sm-4 col-md-auto cart-item-quantity">
 					{% block page_checkout_item_quantity_form %}
-						{#TODO: NEXT-1946 - update functionality#}
+						{#TODO: NEXT-1946 - form action#}
+						{#TODO: NEXT-1946 - check laststock and instock?#}
 						<form action="{{ path('storefront-api.checkout.cart.line-item.update', {'version': 1, 'id': lineItem.key}) }}"
 						      class="cart-item-quantity-container"
 						      method="post">
+							<div class="row cart-item-quantity-row">
+								{% block page_checkout_item_quantity_label %}
+									<div class="col-8 col-sm-12 cart-item-quantity-label">
+										{{ "checkout.cartHeaderQuantity"|trans }}
+									</div>
+								{% endblock %}
 
-							{% block page_checkout_item_quantity_label %}
-								<div class="cart-item-quantity-label">
-									{{ "checkout.cartHeaderQuantity"|trans }}
-								</div>
-							{% endblock %}
-
-							{% block page_checkout_item_quantity_select %}
-								<select class="custom-select cart-item-quantity-select" name="quantity">
-									<option value="{{ lineItem.quantity }}" selected="selected">
-										{{ lineItem.quantity }}
-									</option>
-								</select>
-							{% endblock %}
+								{% block page_checkout_item_quantity_select %}
+									<div class="col-4 col-sm-12">
+										{#TODO: NEXT-1946 - use minpurchase, maxpurchase and purchasesteps to build select options#}
+										<select class="custom-select cart-item-quantity-select" name="quantity">
+											<option value="{{ lineItem.quantity }}" selected="selected">
+												{{ lineItem.quantity }}
+											</option>
+										</select>
+									</div>
+								{% endblock %}
+							</div>
 						</form>
 					{% endblock %}
 				</div>
 			{% endblock %}
 
 			{% block page_checkout_item_unit_price %}
-				<div class="col-4 col-md-2 cart-item-unit-price">
+				<div class="col-12 col-sm-4 col-md-2 cart-item-unit-price">
 					{% block page_checkout_item_unit_price_label %}
 						<div class="cart-item-unit-price-label">
 							{{ "checkout.cartHeaderUnitPrice"|trans }}
@@ -93,13 +98,13 @@
 					{% endblock %}
 
 					{% block page_checkout_item_unit_price_inner %}
-						{{ lineItem.price.unitPrice|localizedcurrency(page.context.currency.shortName, app.request.locale) }}
+						{{ lineItem.price.unitPrice|localizedcurrency(page.context.currency.shortName, app.request.locale) }}{% block page_checkout_item_unit_price_tax_symbol %}{{ "general.star"|trans }}{% endblock %}
 					{% endblock %}
 				</div>
 			{% endblock %}
 
 			{% block page_checkout_item_total_price %}
-				<div class="col-4 col-md-2 cart-item-total-price">
+				<div class="col-12 col-sm-4 col-md-2 cart-item-total-price">
 					{% block page_checkout_item_total_price_label %}
 						<div class="cart-item-total-price-label">
 							{{ "checkout.cartHeaderTotalPrice"|trans }}
@@ -107,7 +112,7 @@
 					{% endblock %}
 
 					{% block page_checkout_item_total_price_inner %}
-						{{ lineItem.price.totalPrice|localizedcurrency(page.context.currency.shortName, app.request.locale) }}
+						{{ lineItem.price.totalPrice|localizedcurrency(page.context.currency.shortName, app.request.locale) }}{% block page_checkout_item_total_price_tax_symbol %}{{ "general.star"|trans }}{% endblock %}
 					{% endblock %}
 				</div>
 			{% endblock %}

@@ -87,11 +87,6 @@
             <tag name="kernel.event_subscriber"/>
         </service>
 
-        <service id="Shopware\Storefront\Pagelet\Listing\Subscriber\SortingSubscriber">
-            <argument type="service" id="listing_sorting.repository"/>
-            <tag name="kernel.event_subscriber"/>
-        </service>
-
         <service id="Shopware\Storefront\Pagelet\Listing\Subscriber\DatasheetAggregationSubscriber">
             <tag name="kernel.event_subscriber"/>
         </service>

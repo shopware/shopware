@@ -13,7 +13,7 @@
         "textDeleteConfirm": "Do you really want to delete the set \"{name}\" ?",
         "buttonCancel": "Cancel",
         "buttonAdd": "New set",
-        "columnName": "Name",
+        "columnName": "Label",
         "contextMenuEdit": "Edit",
         "buttonDelete": "Delete",
         "titleDeleteSuccess": "Success",
@@ -35,7 +35,9 @@
         "addAttribute": "New attribute",
         "buttonApply": "Save",
         "labelEntities": "Use for:",
-        "placeholderEntities": "Add a usage..."
+        "placeholderEntities": "Add a usage...",
+        "titleNameNotUnique": "Error",
+        "messageNameNotUnique": "The technical name already exists."
       }
     },
     "attribute": {
@@ -69,7 +71,9 @@
         "labelYes": "Yes",
         "labelNo": "No",
         "labelAttributePosition": "Position",
-        "labelMultiSelect": "Multi select"
+        "labelMultiSelect": "Multi select",
+        "tooltipAttributePosition": "Controls the position of the attribute on detail pages.",
+        "tooltipRequired": "Makes this attribute required on detail pages."
       },
       "list": {
         "labelAttributeLabel": "Label",

@@ -1,13 +1,21 @@
 @import "~scss/variables";
 
+$sw-attribute-type-select-button-add-color: $color-shopware-blue;
+$sw-attribute-type-select-button-delete-color: $color-crimson;;
+
 .sw-attribute-type-base {
 	.sw-attribute-type-select__delete-option-button {
 		background: none;
-		color: $color-crimson;
+		color: $sw-attribute-type-select-button-delete-color;
 		margin-left: 20px;
 	}
 
 	.sw-attribute-type-select__option-container {
 		margin-top: 10px;
+	}
+
+	.sw-attribute-type-select__button-add {
+		color: $sw-attribute-type-select-button-add-color;
+		border-color: $sw-attribute-type-select-button-add-color;
 	}
 }

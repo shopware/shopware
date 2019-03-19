@@ -59,11 +59,18 @@ Component.register('sw-attribute-set-detail-base', {
                 const entity = this.attributeSetRelationStore.create();
                 this.attributeSetRelationStore.removeById(entity.id);
                 entity.entityName = name;
+                const searchField = { name: name };
+                Object.keys(this.$root.$i18n.messages).forEach(locale => {
+                    if (this.$te(`global.entities.${name}`)) {
+                        searchField[locale] = this.$tc(`global.entities.${name}`, 2, locale);
+                    }
+                });
+                entity.meta.viewData.searchField = searchField;
                 entity.meta.viewData.entityName = name;
                 entityNameStoreEntities.push(entity);
             });
 
-            this.entityNameStore = new LocalStore(entityNameStoreEntities);
+            this.entityNameStore = new LocalStore(entityNameStoreEntities, 'id', 'searchField');
         }
     }
 });

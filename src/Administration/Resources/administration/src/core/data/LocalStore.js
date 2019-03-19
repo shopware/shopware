@@ -70,16 +70,17 @@ export default class LocalStore {
                 const searchTerm = params.term.toLowerCase();
                 store = store.filter((value) => {
                     // For inline snippets - example: value[searchProperty] = { 'de_DE': 'Größe', 'en_GB': 'Size' }
-                    const property = value[this.searchProperty];
+                    let property = value[this.searchProperty];
+                    if (types.isObject(value[this.searchProperty])) {
+                        if (this.objectPropertiesContains(property, searchTerm)) {
+                            return true;
+                        }
+                    }
+                    property = value.meta.viewData[this.searchProperty];
                     if (types.isObject(property)) {
-                        let found = false;
-                        Object.keys(property).forEach((key) => {
-                            if (property[key].toLowerCase().includes(searchTerm)) {
-                                found = true;
-                            }
-                        });
-
-                        return found;
+                        if (this.objectPropertiesContains(property, searchTerm)) {
+                            return true;
+                        }
                     }
 
                     return this.objectPropertiesContains(value, searchTerm) > 0

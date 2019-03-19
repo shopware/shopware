@@ -29,6 +29,7 @@
                 {% block sw_attribute_detail_modal_position %}
                     <sw-field
                             type="number"
+                            :tooltipText="$tc('sw-settings-attribute.attribute.detail.tooltipAttributePosition')"
                             numberType="int"
                             :label="$tc('sw-settings-attribute.attribute.detail.labelAttributePosition')"
                             v-model="currentAttribute.config.attributePosition">
@@ -37,7 +38,8 @@
 
                 {% block sw_attribute_detail_modal_required %}
                     <sw-field
-                            type="switch"
+                            type="boolean"
+                            :tooltipText="$tc('sw-settings-attribute.attribute.detail.tooltipRequired')"
                             class="sw-attribute-detail__switch"
                             :label="$tc('sw-settings-attribute.attribute.detail.labelRequired')"
                             v-model="required">

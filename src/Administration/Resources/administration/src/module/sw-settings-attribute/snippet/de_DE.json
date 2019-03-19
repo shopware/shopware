@@ -13,7 +13,7 @@
         "textDeleteConfirm": "Möchtest Du das Set \"{name}\" wirklich löschen?",
         "buttonCancel": "Abbrechen",
         "buttonAdd": "Set anlegen",
-        "columnName": "Name",
+        "columnName": "Label",
         "contextMenuEdit": "Bearbeiten",
         "buttonDelete": "Löschen",
         "titleDeleteSuccess": "Erfolg",
@@ -35,7 +35,9 @@
         "addAttribute": "Neues Freitextfeld",
         "buttonApply": "Speichern",
         "labelEntities": "Verwenden für:",
-        "placeholderEntities": "Verwendung hinzufügen..."
+        "placeholderEntities": "Verwendung hinzufügen...",
+        "titleNameNotUnique": "Fehler",
+        "messageNameNotUnique": "Der technische Name existiert bereits."
       }
     },
     "attribute": {
@@ -69,7 +71,9 @@
         "labelYes": "Ja",
         "labelNo": "Nein",
         "labelAttributePosition": "Position",
-        "labelMultiSelect": "Mehrfachauswahl"
+        "labelMultiSelect": "Mehrfachauswahl",
+        "tooltipAttributePosition": "Steuert die Position des Freitextfeldes auf den Detailseiten.",
+        "tooltipRequired": "Macht dieses Freitextfeld zu einem Pflichtfeld auf Detailseiten."
       },
       "list": {
         "labelAttributeLabel": "Label",

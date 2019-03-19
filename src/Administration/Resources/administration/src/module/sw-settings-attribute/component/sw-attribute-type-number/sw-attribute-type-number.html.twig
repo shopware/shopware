@@ -15,27 +15,24 @@
             {% endblock %}
 
             {% block sw_attribute_type_number_container_step %}
-                <sw-field
-                        type="number"
+                <sw-number-field
                         :label="$tc('sw-settings-attribute.attribute.detail.labelStep')"
                         v-model="currentAttribute.config.step">
-                </sw-field>
+                </sw-number-field>
             {% endblock %}
 
             {% block sw_attribute_type_number_container_min %}
-                <sw-field
-                        type="number"
-                        :label="$tc('sw-settings-attribute.attribute.detail.labelMax')"
+                <sw-number-field
+                        :label="$tc('sw-settings-attribute.attribute.detail.labelMin')"
                         v-model="currentAttribute.config.min">
-                </sw-field>
+                </sw-number-field>
             {% endblock %}
 
             {% block sw_attribute_type_number_container_max %}
-                <sw-field
-                        type="number"
-                        :label="$tc('sw-settings-attribute.attribute.detail.labelMin')"
+                <sw-number-field
+                        :label="$tc('sw-settings-attribute.attribute.detail.labelMax')"
                         v-model="currentAttribute.config.max">
-                </sw-field>
+                </sw-number-field>
             {% endblock %}
         </sw-container>
     {% endblock %}

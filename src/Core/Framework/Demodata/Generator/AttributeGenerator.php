@@ -187,7 +187,7 @@ class AttributeGenerator implements DemodataGeneratorInterface
         $attributes = [];
 
         $setName = $context->getFaker()->unique()->category;
-        $prefix = 'core_';
+        $prefix = 'custom_';
 
         for ($j = 0; $j < $attributeCount; ++$j) {
             $attributes[] = $this->randomAttribute($prefix . $setName, $context);

@@ -1,8 +1,8 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodRules;
+namespace Shopware\Core\Checkout\Payment\Aggregate\PaymentMethodRules;
 
-use Shopware\Core\Checkout\Shipping\ShippingMethodDefinition;
+use Shopware\Core\Checkout\Payment\PaymentMethodDefinition;
 use Shopware\Core\Content\Rule\RuleDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CreatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
@@ -13,21 +13,21 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\UpdatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\MappingEntityDefinition;
 
-class ShippingMethodRuleDefinition extends MappingEntityDefinition
+class PaymentMethodRuleDefinition extends MappingEntityDefinition
 {
     public static function getEntityName(): string
     {
-        return 'shipping_method_rule';
+        return 'payment_method_rule';
     }
 
     protected static function defineFields(): FieldCollection
     {
         return new FieldCollection([
-            (new FkField('shipping_method_id', 'shippingMethodId', ShippingMethodDefinition::class))->addFlags(new Required(), new PrimaryKey()),
+            (new FkField('payment_method_id', 'paymentMethodId', PaymentMethodDefinition::class))->addFlags(new Required(), new PrimaryKey()),
             (new FkField('rule_id', 'ruleId', RuleDefinition::class))->addFlags(new Required(), new PrimaryKey()),
             new CreatedAtField(),
             new UpdatedAtField(),
-            new ManyToOneAssociationField('shippingMethod', 'shipping_method_id', ShippingMethodDefinition::class, true),
+            new ManyToOneAssociationField('paymentMethod', 'payment_method_id', PaymentMethodDefinition::class, true),
             new ManyToOneAssociationField('rule', 'rule_id', RuleDefinition::class, true),
         ]);
     }

@@ -51,9 +51,9 @@
                 {% endblock %}
 
                 {% block sw_media_folder_meta_data %}
-                    <div slot="media-item-metadata" class="sw-media-folder-item__metadata">
-                        {{ item.createdAt| date({ month: 'long'}) }}
-                    </div>
+                    <template slot="media-item-metadata">
+                        <div class="sw-media-folder-item__metadata">{{ item.createdAt| date({ month: 'long'}) }}</div>
+                    </template>
                 {% endblock %}
 
                 {% block sw_media_folder_item_context_menu %}

@@ -2,14 +2,11 @@
     <div class="sw-media-tag">
         <sw-media-collapse :title="$tc('global.sw-tag-field.title')"
                            :expandOnLoading="true">
-
             {% block sw_media_tag_input %}
-                <sw-tag-field slot="content"
-                              :entity="media"
-                              @input="onChange">
-                </sw-tag-field>
+                <template slot="content">
+                    <sw-tag-field :entity="media" @input="onChange"></sw-tag-field>
+                </template>
             {% endblock %}
-
         </sw-media-collapse>
     </div>
 {% endblock %}

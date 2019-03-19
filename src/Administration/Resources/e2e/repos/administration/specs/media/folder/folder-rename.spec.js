@@ -11,21 +11,17 @@ module.exports = {
         const page = mediaPage(browser);
         page.openMediaIndex();
     },
-    'verify the available folder and navigate to it': (browser) => {
+    'verify the available folder': (browser) => {
         const page = mediaPage(browser);
 
         browser
             .waitForElementNotPresent(page.elements.loader)
-            .clickContextMenuItem(page.elements.showMediaAction, page.elements.contextMenuButton)
-            .expect.element(page.elements.smartBarHeader).to.have.text.that.equals(global.MediaFixtureService.mediaFolderFixture.name);
+            .expect.element(page.elements.folderNameLabel).to.have.text.that.equals(global.MediaFixtureService.mediaFolderFixture.name);
     },
     'navigate back and edit folder name via context menu': (browser) => {
         const page = mediaPage(browser);
 
         browser
-            .click('.icon--folder-breadcrumbs-back-to-root')
-            .waitForElementNotPresent(page.elements.loader)
-            .waitForElementNotPresent('.icon--folder-breadcrumbs-back-to-root')
             .clickContextMenuItem('.sw-media-context-item__rename-folder-action', page.elements.contextMenuButton)
             .waitForElementVisible(`${page.elements.folderNameInput}`)
             .setValue(page.elements.folderNameInput, [browser.Keys.CONTROL, 'a'])

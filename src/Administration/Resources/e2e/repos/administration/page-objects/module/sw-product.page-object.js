@@ -69,6 +69,18 @@ class ProductPageObject extends GeneralPageObject {
             .click(`.sw-select-option:nth-of-type(${position})`)
             .waitForElementNotPresent('.sw-field__select-load-placeholder');
     }
+
+    createProductTag(value, position = 0) {
+        this.browser
+            .fillField(`.sw-tag-field ${this.elements.selectInput}`, value)
+            .expect.element('.sw-select__results-empty-message').to.have.text.that.equals(`No results found for "${value}".`);
+
+        this.browser
+            .setValue(`.sw-tag-field ${this.elements.selectInput}`, this.browser.Keys.ENTER)
+            .expect.element(`${this.elements.selectSelectedItem}--${position}`).to.have.text.that.equals(value);
+
+        this.browser.setValue(`.sw-tag-field ${this.elements.selectInput}`, this.browser.Keys.ESCAPE);
+    }
 }
 
 module.exports = (browser) => {

@@ -8,6 +8,8 @@ export default class GeneralPageObject {
             modal: '.sw-modal',
             modalTitle: '.sw-modal__title',
             modalFooter: '.sw-modal__footer',
+            selectSelectedItem: '.sw-select__selection',
+            selectInput: '.sw-select__input',
 
             // Admin menu
             adminMenu: '.sw-admin-menu',

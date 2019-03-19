@@ -42,7 +42,7 @@ module.exports = {
             .waitForElementNotPresent('.sw-field__select-load-placeholder')
             .expect.element('.sw-language-info').to.have.text.that.equals(`"${fixture.name}" displayed in the root language "Deutsch". Fallback is the system default language "English".`);
     },
-    'translate some information to german': (browser) => {
+    'translate some information to german and save': (browser) => {
         const page = productPage(browser);
 
         browser

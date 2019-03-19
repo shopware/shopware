@@ -52,7 +52,8 @@
       "deleteDomainModalTitle": "Delete domain",
       "textConfirmDeleteDomain": "Are you sure you want to delete this domain? The sales channel will no longer be accessible by \"{url}\"",
       "buttonCloseDeleteDomainModal": "Cancel",
-      "buttonConfirmDeleteDomain": "Delete"
+      "buttonConfirmDeleteDomain": "Delete",
+      "customerGroup": "Customer group"
     }
   }
 }

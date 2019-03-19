@@ -109,6 +109,7 @@ class SalesChannelRepositoryTest extends TestCase
             'paymentMethods' => [['id' => Defaults::PAYMENT_METHOD_DEBIT]],
             'shippingMethods' => [['id' => Defaults::SHIPPING_METHOD]],
             'countries' => [['id' => Defaults::COUNTRY]],
+            'customerGroupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
         ]], $context);
 
         /** @var SalesChannelEntity $salesChannel */

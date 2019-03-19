@@ -52,7 +52,8 @@
       "deleteDomainModalTitle": "Domäne löschen",
       "textConfirmDeleteDomain": "Möchtest Du diese Domäne wirklich löschen? Der Verkaufskanal ist dann nicht mehr über \"{url}\" zugänglich!",
       "buttonCloseDeleteDomainModal": "Abbrechen",
-      "buttonConfirmDeleteDomain": "Löschen"
+      "buttonConfirmDeleteDomain": "Löschen",
+      "customerGroup": "Kundengruppe"
     }
   }
 }

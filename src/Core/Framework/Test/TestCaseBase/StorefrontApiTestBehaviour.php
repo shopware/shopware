@@ -125,6 +125,7 @@ trait StorefrontApiTestBehaviour
             'countryId' => Defaults::COUNTRY,
             'currencies' => [['id' => Defaults::CURRENCY]],
             'languages' => [['id' => Defaults::LANGUAGE_SYSTEM]],
+            'customerGroupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
         ], $salesChannelOverride);
 
         $salesChannelRepository->upsert([$salesChannel], Context::createDefaultContext());

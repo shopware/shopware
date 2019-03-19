@@ -256,6 +256,7 @@ trait StorefrontPageTestBehaviour
 
         $salesChannelId = Uuid::uuid4()->getHex();
         $salesChannel['id'] = $salesChannelId;
+        $salesChannel['customerGroupId'] = Defaults::FALLBACK_CUSTOMER_GROUP;
 
         $salesChannelRepository->create([$salesChannel], Context::createDefaultContext());
 

@@ -42,6 +42,7 @@ class SalesChannelCreateCommand extends Command
             ->addOption('shippingMethodId', null, InputOption::VALUE_REQUIRED, 'Default shipping method', Defaults::SHIPPING_METHOD)
             ->addOption('countryId', null, InputOption::VALUE_REQUIRED, 'Default country', Defaults::COUNTRY)
             ->addOption('typeId', null, InputOption::VALUE_OPTIONAL, 'Sales channel type id')
+            ->addOption('customerGroupId', null, InputOption::VALUE_REQUIRED, 'Default customer group', Defaults::FALLBACK_CUSTOMER_GROUP)
         ;
     }
 
@@ -72,6 +73,7 @@ class SalesChannelCreateCommand extends Command
             'paymentMethods' => [['id' => $input->getOption('paymentMethodId')]],
             'countries' => [['id' => $input->getOption('countryId')]],
             'name' => $input->getOption('name'),
+            'customerGroupId' => $input->getOption('customerGroupId'),
         ];
         $data = array_merge_recursive($data, $this->getSalesChannelConfiguration($input, $output));
 

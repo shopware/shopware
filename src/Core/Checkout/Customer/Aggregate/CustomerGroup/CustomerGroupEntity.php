@@ -6,6 +6,7 @@ use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroupTranslation\CustomerG
 use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
+use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 
 class CustomerGroupEntity extends Entity
 {
@@ -45,6 +46,11 @@ class CustomerGroupEntity extends Entity
      * @var array|null
      */
     protected $attributes;
+
+    /**
+     * @var SalesChannelCollection|null
+     */
+    protected $salesChannels;
 
     public function getName(): ?string
     {
@@ -114,5 +120,15 @@ class CustomerGroupEntity extends Entity
     public function setAttributes(?array $attributes): void
     {
         $this->attributes = $attributes;
+    }
+
+    public function getSalesChannels(): ?SalesChannelCollection
+    {
+        return $this->salesChannels;
+    }
+
+    public function setSalesChannels(SalesChannelCollection $salesChannels): void
+    {
+        $this->salesChannels = $salesChannels;
     }
 }

@@ -17,6 +17,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\UpdatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 
 class CustomerGroupDefinition extends EntityDefinition
 {
@@ -45,6 +46,7 @@ class CustomerGroupDefinition extends EntityDefinition
             new CreatedAtField(),
             new UpdatedAtField(),
             (new OneToManyAssociationField('customers', CustomerDefinition::class, 'customer_group_id', false, 'id'))->addFlags(new RestrictDelete()),
+            (new OneToManyAssociationField('salesChannels', SalesChannelDefinition::class, 'customer_group_id', false, 'id'))->addFlags(new RestrictDelete()),
             (new TranslationsAssociationField(CustomerGroupTranslationDefinition::class, 'customer_group_id'))->addFlags(new Required()),
         ]);
     }

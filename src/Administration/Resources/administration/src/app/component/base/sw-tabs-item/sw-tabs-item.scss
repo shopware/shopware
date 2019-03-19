@@ -13,9 +13,6 @@ $sw-side-navigation-item-color-disabled: $color-kashmir;
     white-space: nowrap;
     color: lighten($sw-side-navigation-item-link-color, 30);
     cursor: pointer;
-    -webkit-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
     user-select: none;
 
     &.sw-tabs-item--active {

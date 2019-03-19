@@ -19,11 +19,13 @@ $sw-card-tabs-color-background:             #F9FAFB; //TODO: replace with matchi
     &.sw-card--tabs {
         .sw-card__content {
             border-radius: 0 0 $sw-card-border-radius $sw-card-border-radius;
+            border-top: none;
         }
 
         & > .sw-tabs {
             border: 1px solid #D1D9E0; // TODO: replace with matching global variable.
             border-radius: $sw-card-border-radius $sw-card-border-radius 0 0;
+            border-bottom: none;
             margin-bottom: 0;
 
             .sw-tabs__content {
@@ -59,6 +61,10 @@ $sw-card-tabs-color-background:             #F9FAFB; //TODO: replace with matchi
         .sw-card__content {
             display: grid;
             padding: 0;
+
+            .sw-grid {
+                border-top: none;
+            }
         }
     }
 

@@ -3,7 +3,6 @@
 namespace Shopware\Core\Checkout\Payment\Cart;
 
 use Shopware\Core\Checkout\Order\OrderEntity;
-use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\PaymentHandlerInterface;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\PaymentHandlerRegistry;
 use Shopware\Core\Checkout\Payment\Cart\Token\TokenFactoryInterface;
 use Shopware\Core\Checkout\Payment\Exception\InvalidOrderException;
@@ -29,11 +28,6 @@ class PaymentTransactionChainProcessor
     private $orderRepository;
 
     /**
-     * @var EntityRepositoryInterface
-     */
-    private $paymentMethodRepository;
-
-    /**
      * @var RouterInterface
      */
     private $router;
@@ -46,13 +40,11 @@ class PaymentTransactionChainProcessor
     public function __construct(
         TokenFactoryInterface $tokenFactory,
         EntityRepositoryInterface $orderRepository,
-        EntityRepositoryInterface $paymentMethodRepository,
         RouterInterface $router,
         PaymentHandlerRegistry $paymentHandlerRegistry
     ) {
         $this->tokenFactory = $tokenFactory;
         $this->orderRepository = $orderRepository;
-        $this->paymentMethodRepository = $paymentMethodRepository;
         $this->router = $router;
         $this->paymentHandlerRegistry = $paymentHandlerRegistry;
     }
@@ -73,22 +65,29 @@ class PaymentTransactionChainProcessor
             throw new InvalidOrderException($orderId);
         }
 
-        $transactions = $order->getTransactions()->filterByState(Defaults::ORDER_TRANSACTION_STATES_OPEN);
+        $transactions = $order->getTransactions();
+        if ($transactions === null) {
+            throw new InvalidOrderException($orderId);
+        }
+
+        $transactions = $transactions->filterByState(Defaults::ORDER_TRANSACTION_STATES_OPEN);
 
         foreach ($transactions as $transaction) {
             $token = $this->tokenFactory->generateToken($transaction, $context, $finishUrl);
             $returnUrl = $this->assembleReturnUrl($token);
 
-            $paymentTransaction = new PaymentTransactionStruct(
-                $transaction->getId(),
-                $transaction->getPaymentMethodId(),
-                $order,
-                $transaction->getAmount(),
-                $returnUrl
+            $paymentTransaction = new PaymentTransactionStruct($transaction, $returnUrl);
+
+            $paymentMethod = $transaction->getPaymentMethod();
+            if ($paymentMethod === null) {
+                throw new UnknownPaymentMethodException($transaction->getPaymentMethodId());
+            }
+
+            $response = $this->paymentHandlerRegistry->get($paymentMethod->getClass())->pay(
+                $paymentTransaction,
+                $context
             );
 
-            $handler = $this->getPaymentHandlerById($transaction->getPaymentMethodId(), $context);
-            $response = $handler->pay($paymentTransaction, $context);
             if ($response) {
                 return $response;
             }
@@ -97,26 +96,9 @@ class PaymentTransactionChainProcessor
         return null;
     }
 
-    /**
-     * @throws UnknownPaymentMethodException
-     */
-    private function getPaymentHandlerById(string $paymentMethodId, Context $context): PaymentHandlerInterface
-    {
-        $paymentMethods = $this->paymentMethodRepository->search(new Criteria([$paymentMethodId]), $context);
-
-        $paymentMethod = $paymentMethods->get($paymentMethodId);
-        if (!$paymentMethod) {
-            throw new UnknownPaymentMethodException($paymentMethodId);
-        }
-
-        return $this->paymentHandlerRegistry->get($paymentMethod->getClass());
-    }
-
     private function assembleReturnUrl(string $token): string
     {
-        $parameter = [
-            '_sw_payment_token' => $token,
-        ];
+        $parameter = ['_sw_payment_token' => $token];
 
         return $this->router->generate('payment.finalize.transaction', $parameter, UrlGeneratorInterface::ABSOLUTE_URL);
     }

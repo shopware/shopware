@@ -62,13 +62,7 @@ class PaymentService
             throw new InvalidOrderException($orderId);
         }
 
-        $redirect = $this->paymentProcessor->process($orderId, $context->getContext(), $finishUrl);
-
-        if ($redirect) {
-            return $redirect;
-        }
-
-        return null;
+        return $this->paymentProcessor->process($orderId, $context->getContext(), $finishUrl);
     }
 
     /**
@@ -77,12 +71,12 @@ class PaymentService
      */
     public function finalizeTransaction(string $paymentToken, Request $request, Context $context): TokenStruct
     {
-        $paymentToken = $this->parseToken($paymentToken, $context);
+        $paymentTokenStruct = $this->parseToken($paymentToken, $context);
 
-        $paymentHandler = $this->getPaymentHandlerById($paymentToken->getPaymentMethodId(), $context);
-        $paymentHandler->finalize($paymentToken->getTransactionId(), $request, $context);
+        $paymentHandler = $this->getPaymentHandlerById($paymentTokenStruct->getPaymentMethodId(), $context);
+        $paymentHandler->finalize($paymentTokenStruct->getTransactionId(), $request, $context);
 
-        return $paymentToken;
+        return $paymentTokenStruct;
     }
 
     /**
@@ -90,19 +84,13 @@ class PaymentService
      */
     private function parseToken(string $token, Context $context): TokenStruct
     {
-        $tokenStruct = $this->tokenFactory->parseToken(
-            $token,
-            $context
-        );
+        $tokenStruct = $this->tokenFactory->parseToken($token, $context);
 
         if ($tokenStruct->isExpired()) {
             throw new TokenExpiredException($tokenStruct->getToken());
         }
 
-        $this->tokenFactory->invalidateToken(
-            $tokenStruct->getToken(),
-            $context
-        );
+        $this->tokenFactory->invalidateToken($tokenStruct->getToken(), $context);
 
         return $tokenStruct;
     }

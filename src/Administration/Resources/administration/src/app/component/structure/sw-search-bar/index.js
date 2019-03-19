@@ -38,6 +38,10 @@ export default {
         showTag: {
             type: Boolean,
             default: true
+        },
+        allowGlobalSearch: {
+            type: Boolean,
+            default: true
         }
     },
 
@@ -165,7 +169,7 @@ export default {
         },
 
         resetSearchType() {
-            if (this.searchTerm.length === 0) {
+            if (this.searchTerm.length === 0 && this.allowGlobalSearch) {
                 this.useSearchTypeWhenSet = false;
             }
         },

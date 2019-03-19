@@ -96,7 +96,7 @@ class ApiController extends AbstractController
 
         $result = json_decode(json_encode($result), true);
 
-        return new JsonResponse(JsonType::format($result));
+        return new JsonResponse(['data' => JsonType::format($result)]);
     }
 
     /**

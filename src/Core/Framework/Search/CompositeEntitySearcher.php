@@ -2,23 +2,12 @@
 
 namespace Shopware\Core\Framework\Search;
 
-use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionRegistry;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
-use Shopware\Core\Framework\DataAbstractionLayer\Exception\RepositoryNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\SearchBuilder;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\EntityScoreQueryBuilder;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\SearchTermInterpreter;
-use Shopware\Core\Framework\Struct\ArrayEntity;
-use Shopware\Core\Framework\Version\Aggregate\VersionCommitData\VersionCommitDataCollection;
 
 class CompositeEntitySearcher
 {
@@ -31,12 +20,12 @@ class CompositeEntitySearcher
      * @var string[]|EntityDefinition[]
      */
     private $definitions;
-    
+
     /**
      * @var SearchTermInterpreter
      */
     private $interpreter;
-    
+
     /**
      * @var EntityScoreQueryBuilder
      */
@@ -77,9 +66,9 @@ class CompositeEntitySearcher
             $result = $repository->search($criteria, $context);
 
             $entities[] = [
-                'type' => $definition::getEntityName(),
+                'entity' => $definition::getEntityName(),
                 'total' => $result->getTotal(),
-                'entities' => $result
+                'entities' => $result,
             ];
         }
 

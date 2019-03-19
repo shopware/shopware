@@ -13,6 +13,7 @@ import RuleConditionService from 'src/app/service/rule-condition.service';
 import ProductStreamConditionService from 'src/app/service/product-stream-condition.service';
 import StateStyleService from 'src/app/service/state-style.service';
 import AttributeService from 'src/app/service/attribute.service';
+import SearchTypeService from 'src/app/service/search-type.service';
 import 'src/app/decorator/condition-type-data-provider';
 import 'src/app/decorator/state-styling-provider';
 
@@ -54,4 +55,7 @@ Application
     })
     .addServiceProvider('stateStyleDataProviderService', () => {
         return StateStyleService();
+    })
+    .addServiceProvider('searchTypeService', () => {
+        return SearchTypeService();
     });

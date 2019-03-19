@@ -55,6 +55,7 @@ Component.register('sw-category-detail', {
     watch: {
         '$route.params.id'() {
             this.setCategory();
+            this.$refs.searchBar.clearSearchTerm();
         }
     },
 

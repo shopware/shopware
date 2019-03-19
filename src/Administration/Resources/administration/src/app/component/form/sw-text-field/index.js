@@ -32,7 +32,7 @@ export default {
             default: 'text'
         },
         label: {
-            type: String,
+            type: [Object, String],
             required: false,
             default: ''
         },
@@ -57,18 +57,22 @@ export default {
             }
         },
         errorMessage: {
+            type: [Object, String],
             required: false,
             default: null
         },
         placeholder: {
+            type: [Object, String],
             required: false,
             default: ''
         },
         helpText: {
+            type: [Object, String],
             required: false,
             default: ''
         },
         tooltipText: {
+            type: [Object, String],
             required: false,
             default: ''
         },

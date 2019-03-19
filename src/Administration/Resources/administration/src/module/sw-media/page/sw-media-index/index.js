@@ -17,7 +17,7 @@ Component.register('sw-media-index', {
             isLoading: false,
             selectedItems: [],
             uploads: [],
-            term: this.$route.query ? this.$route.query.searchTerm : '',
+            term: this.$route.query ? this.$route.query.term : '',
             uploadTag: 'upload-tag-sw-media-index'
         };
     },

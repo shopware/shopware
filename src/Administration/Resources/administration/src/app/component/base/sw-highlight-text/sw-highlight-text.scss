@@ -1,0 +1,10 @@
+@import "~scss/variables";
+
+$sw-highlight-text-color-highlight-default: $color-shopware-blue;
+
+.sw-highlight-text {
+	.sw-highlight-text__highlight{
+		color: $sw-highlight-text-color-highlight-default;
+		font-weight: bold;
+	}
+}

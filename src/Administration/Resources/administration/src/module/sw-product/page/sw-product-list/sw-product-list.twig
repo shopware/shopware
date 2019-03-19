@@ -3,8 +3,8 @@
 
         {% block sw_order_list_search_bar %}
             <template slot="search-bar">
-                <sw-search-bar :placeholder="$tc('sw-product.general.placeholderSearchBar')"
-                               :searchType="$tc('sw-product.general.mainMenuItemGeneral')"
+                <sw-search-bar initialSearchType="product"
+                               :initialSearch="term"
                                @search="this.onSearch">
                 </sw-search-bar>
             </template>

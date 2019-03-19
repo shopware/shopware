@@ -3,11 +3,9 @@
 
         {% block sw_media_list_search_bar %}
             <template slot="search-bar">
-                <sw-search-bar
-                    :placeholder="$tc('sw-media.general.placeholderSearchBar')"
-                    :searchType="$tc('sw-media.general.mainMenuItemGeneral')"
-                    :initialSearch="term"
-                    @search="this.onSearch">
+                <sw-search-bar initialSearchType="media"
+                               :initialSearch="term"
+                               @search="this.onSearch">
                 </sw-search-bar>
             </template>
         {% endblock %}

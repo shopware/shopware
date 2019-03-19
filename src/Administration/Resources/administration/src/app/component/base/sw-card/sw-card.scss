@@ -8,6 +8,7 @@ $sw-card-tabs-item-color-border:            $color-steam-cloud;
 $sw-card-tabs-item-color-background:        $color-light-gray;
 $sw-card-tabs-item-color-background-active: $color-white;
 $sw-card-color-text:                        $color-gutenberg;
+$sw-card-tabs-color-background:             #F9FAFB; //TODO: replace with matching global variable
 
 .sw-card {
     max-width: 800px;
@@ -16,13 +17,54 @@ $sw-card-color-text:                        $color-gutenberg;
     color: $sw-card-color-text;
 
     &.sw-card--tabs {
-        padding: 0;
+        .sw-card__content {
+            border-radius: 0 0 $sw-card-border-radius $sw-card-border-radius;
+            border-top: none;
+        }
+
+        & > .sw-tabs {
+            border: 1px solid #D1D9E0; // TODO: replace with matching global variable.
+            border-radius: $sw-card-border-radius $sw-card-border-radius 0 0;
+            border-bottom: none;
+            margin-bottom: 0;
+
+            .sw-tabs__content {
+                background-color: $sw-card-tabs-color-background;
+            }
+
+            .sw-tabs__custom-Content {
+                padding: 0;
+            }
+
+            .sw-tabs__arrow {
+                top: (56px / 2);
+                padding: 0 12px 0 12px;
+            }
+
+            &.sw-tabs--scrollable {
+                padding: 0 (20px + 12px) 0 (20px + 12px);
+            }
+
+            .sw-tabs-item {
+                padding-top: 19px;
+                padding-bottom: 15px;
+                font-weight: normal;
+
+                &.sw-tabs-item--active {
+                    font-weight: 600;
+                }
+            }
+        }
     }
 
     &.sw-card--grid {
         .sw-card__content {
             display: grid;
             padding: 0;
+
+            .sw-grid {
+                border-top: none;
+            }
         }
     }
 
@@ -112,42 +154,44 @@ $sw-card-color-text:                        $color-gutenberg;
         }
     }
 
-    .sw-tabs {
-        border-width: 0 0 1px 0;
-        border-bottom-right-radius: 0;
-        border-bottom-left-radius: 0;
-        margin-bottom: 0;
+    .sw-card__content {
+        .sw-tabs {
+            border-width: 0 0 1px 0;
+            border-bottom-right-radius: 0;
+            border-bottom-left-radius: 0;
+            margin-bottom: 0;
 
-        .sw-tabs__container {
-            position: relative;
-            top: -5px;
-        }
-    }
-
-    .sw-tabs-item {
-        margin: 0;
-        padding-top: 5px;
-        line-height: 44px;
-        border-bottom-left-radius: 0;
-        border-bottom-right-radius: 0;
-
-        &:hover {
-            border-bottom-color: $sw-card-tabs-item-color-border;
+            .sw-tabs__container {
+                position: relative;
+                top: -5px;
+            }
         }
 
-        &:focus {
-            background-color: $sw-card-tabs-item-color-background;
-            border-bottom-color: $sw-card-tabs-item-color-border;
-        }
+        .sw-tabs-item {
+            margin: 0;
+            padding-top: 5px;
+            line-height: 44px;
+            border-bottom-left-radius: 0;
+            border-bottom-right-radius: 0;
 
-        &:active {
-            border-bottom-color: $sw-card-tabs-item-color-background-active;
-            background-color: $sw-card-tabs-item-color-background-active;
-        }
+            &:hover {
+                border-bottom-color: $sw-card-tabs-item-color-border;
+            }
 
-        &.router-link-active {
-            background-color: $sw-card-tabs-item-color-background-active;
-            border-bottom-color: $sw-card-tabs-item-color-background-active;
+            &:focus {
+                background-color: $sw-card-tabs-item-color-background;
+                border-bottom-color: $sw-card-tabs-item-color-border;
+            }
+
+            &:active {
+                border-bottom-color: $sw-card-tabs-item-color-background-active;
+                background-color: $sw-card-tabs-item-color-background-active;
+            }
+
+            &.router-link-active {
+                background-color: $sw-card-tabs-item-color-background-active;
+                border-bottom-color: $sw-card-tabs-item-color-background-active;
+            }
         }
     }
 }

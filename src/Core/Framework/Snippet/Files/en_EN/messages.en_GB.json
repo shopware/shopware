@@ -82,7 +82,23 @@
         "paymentChangeSubmit": "Change",
         "profilePersonalTitle": "Profile",
         "profileMailTitle": "Email address",
-        "profilePasswordTitle": "Password"
+        "profileCurrentMail": "Current email address",
+        "profilePasswordTitle": "Password",
+        "profilePasswordCreateNew": "New password",
+        "profilePasswordCurrent": "Your current password",
+        "profileSaveChanges": "Save Changes",
+        "addressWelcome": "Addresses",
+        "addressesTitleDefaultShippingAddress": "Default shipping address",
+        "addressesTitleDefaultBillingAddress": "Default billing address",
+        "addressesSetAsDefaultShippingAction": "Set as default shipping address",
+        "addressesSetAsDefaultBillingAction": "Set as default billing address",
+        "addressesContentItemActionEdit": "Change",
+        "addressesContentItemActionDelete": "Delete",
+        "addressCreateBtn": "Create a new Address",
+        "addressCreateWelcome": "Create a new Address",
+        "addressEditWelcome": "Change Address",
+        "addressSaveChange": "Save Address",
+        "requiredFields": "The fields marked with * are required"
     },
     "address": {
         "streetLabel": "Street and number",
@@ -95,8 +111,7 @@
         "zipcodePlaceholder": "Zipcode",
         "cityLabel": "City",
         "cityPlaceholder": "City",
-        "countryLabel": "Country",
-        "requiredFields": "The fields marked with * are required"
+        "countryLabel": "Country"
     },
     "checkout": {
         "cartTitle": "Shopping cart",

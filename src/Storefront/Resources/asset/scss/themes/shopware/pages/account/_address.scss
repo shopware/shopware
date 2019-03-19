@@ -1,0 +1,13 @@
+.address-item-body .card-title {
+    line-height: 24px;
+}
+
+.address-actions-set-defaults .btn {
+    color: $headings-color;
+    padding-left: 0;
+
+    &:hover {
+        color: $primary;
+        text-decoration: none;
+    }
+}

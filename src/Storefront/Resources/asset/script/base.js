@@ -6,6 +6,9 @@ import jQuery from 'jquery';
 // Import styles
 import '../scss/base.scss';
 
+import './page/account/addressbook.page';
+import './page/account/profile.page';
+
 import './page/account/register.page';
 
 import HttpClient from './service/http-client.service';

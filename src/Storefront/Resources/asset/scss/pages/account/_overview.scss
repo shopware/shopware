@@ -12,6 +12,16 @@
 
 .account-card {
     margin-bottom: $spacer-lg;
+
+    .card-body {
+        display: flex;
+        flex-direction: column;
+    }
+}
+
+.account-card-actions {
+    align-items: flex-start;
+    margin-top: auto;
 }
 
 @include media-breakpoint-up(md) {

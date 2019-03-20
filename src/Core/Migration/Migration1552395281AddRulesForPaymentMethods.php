@@ -15,7 +15,7 @@ class Migration1552395281AddRulesForPaymentMethods extends MigrationStep
     public function update(Connection $connection): void
     {
         $connection->exec('
-            CREATE TABLE payment_method_rule
+            CREATE TABLE `payment_method_rule`
             (
                 `payment_method_id` BINARY(16) NOT NULL,
                 `rule_id` BINARY(16) NOT NULL,

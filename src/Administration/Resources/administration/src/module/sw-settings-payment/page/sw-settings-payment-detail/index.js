@@ -1,4 +1,5 @@
 import { Component, State, Mixin } from 'src/core/shopware';
+import { warn } from 'src/core/service/utils/debug.utils';
 import template from './sw-settings-payment-detail.html.twig';
 
 Component.register('sw-settings-payment-detail', {
@@ -6,6 +7,7 @@ Component.register('sw-settings-payment-detail', {
 
     mixins: [
         Mixin.getByName('notification'),
+        Mixin.getByName('placeholder'),
         Mixin.getByName('discard-detail-page-changes')('paymentMethod')
     ],
 
@@ -18,6 +20,12 @@ Component.register('sw-settings-payment-detail', {
     computed: {
         paymentMethodStore() {
             return State.getStore('payment_method');
+        },
+        ruleStore() {
+            return State.getStore('rule');
+        },
+        paymentMethodRuleAssociation() {
+            return this.paymentMethod.getAssociation('availabilityRules');
         }
     },
 
@@ -29,8 +37,24 @@ Component.register('sw-settings-payment-detail', {
         createdComponent() {
             if (this.$route.params.id) {
                 this.paymentMethodId = this.$route.params.id;
-                this.paymentMethod = this.paymentMethodStore.getById(this.paymentMethodId);
+                this.loadEntityData();
             }
+        },
+
+        abortOnLanguageChange() {
+            return this.paymentMethod.hasChanges();
+        },
+
+        saveOnLanguageChange() {
+            return this.onSave();
+        },
+
+        onChangeLanguage() {
+            this.loadEntityData();
+        },
+
+        loadEntityData() {
+            this.paymentMethod = this.paymentMethodStore.getById(this.paymentMethodId);
         },
 
         onSave() {
@@ -40,11 +64,23 @@ Component.register('sw-settings-payment-detail', {
                 name: paymentMethodName
             });
 
+            const titleSaveError = this.$tc('global.notification.notificationSaveErrorTitle');
+            const messageSaveError = this.$tc(
+                'global.notification.notificationSaveErrorMessage', 0, { entityName: paymentMethodName }
+            );
+
             return this.paymentMethod.save().then(() => {
                 this.createNotificationSuccess({
                     title: titleSaveSuccess,
                     message: messageSaveSuccess
                 });
+            }).catch((exception) => {
+                this.createNotificationError({
+                    title: titleSaveError,
+                    message: messageSaveError
+                });
+                warn(this._name, exception.message, exception.response);
+                throw exception;
             });
         }
     }

@@ -34,7 +34,7 @@ class PaymentMethodEntity extends Entity
     /**
      * @var string|null
      */
-    protected $additionalDescription;
+    protected $description;
 
     /**
      * @var string|null
@@ -59,7 +59,7 @@ class PaymentMethodEntity extends Entity
     /**
      * @var string|null
      */
-    protected $surchargeString;
+    protected $surchargeText;
 
     /**
      * @var int
@@ -156,14 +156,14 @@ class PaymentMethodEntity extends Entity
         $this->name = $name;
     }
 
-    public function getAdditionalDescription(): ?string
+    public function getDescription(): ?string
     {
-        return $this->additionalDescription;
+        return $this->description;
     }
 
-    public function setAdditionalDescription(?string $additionalDescription): void
+    public function setDescription(?string $description): void
     {
-        $this->additionalDescription = $additionalDescription;
+        $this->description = $description;
     }
 
     public function getTemplate(): ?string
@@ -206,14 +206,14 @@ class PaymentMethodEntity extends Entity
         $this->absoluteSurcharge = $absoluteSurcharge;
     }
 
-    public function getSurchargeString(): ?string
+    public function getSurchargeText(): ?string
     {
-        return $this->surchargeString;
+        return $this->surchargeText;
     }
 
-    public function setSurchargeString(?string $surchargeString): void
+    public function setSurchargeText(?string $surchargeText): void
     {
-        $this->surchargeString = $surchargeString;
+        $this->surchargeText = $surchargeText;
     }
 
     public function getPosition(): int

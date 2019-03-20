@@ -127,13 +127,18 @@ export default {
         },
 
         onTextChange() {
-            const htmlValue = this.getHTML();
-            const textValue = this.getText();
+            const htmlValue = (this.getHTML() === '<p><br></p>') ? null : this.getHTML();
+            const textValue = (this.getText() === '\n') ? null : this.getText();
 
             if (this.htmlContent) {
-                this.$emit('input', (htmlValue === '<p><br></p>') ? '' : htmlValue);
+                this.$emit('input', htmlValue);
             } else {
                 this.$emit('input', textValue);
+            }
+
+            if (!textValue) {
+                this.textLength = 0;
+                return;
             }
 
             // The text of the quill editor always contains "\n".

@@ -127,6 +127,9 @@ export default {
             // Strip preceding 0 character
             value = value.replace(/^(-)?0+(?=\d)/, '$1');
 
+            // remove all '-' characters which are not in front
+            value = value.replace(/(?<!^)-/, '');
+
             // Dont parse and emit anything that is not a valid number
             if (!value.match(/^(-?\d+[.,]\d*[1-9])$|^(-?\d+)$/)) {
                 this.currentValue = value;
@@ -138,7 +141,7 @@ export default {
             if (value !== '') {
                 if (this.min && this.max && value <= this.max && value >= this.min) {
                     this.currentValue = value;
-                } else if (this.min && value < this.min) {
+                } else if (this.min !== null && value < this.min) {
                     this.currentValue = this.min;
                 } else if (this.max && value > this.max) {
                     this.currentValue = this.max;
@@ -149,7 +152,9 @@ export default {
                 this.currentValue = value;
             }
 
-            this.$emit(type, this.currentValue);
+            if (this.currentValue !== '-') {
+                this.$emit(type, this.currentValue);
+            }
 
             if (this.hasError) {
                 this.errorStore.deleteError(this.formError);

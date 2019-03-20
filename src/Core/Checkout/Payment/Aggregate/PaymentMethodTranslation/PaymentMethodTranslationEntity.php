@@ -22,7 +22,12 @@ class PaymentMethodTranslationEntity extends TranslationEntity
     /**
      * @var string|null
      */
-    protected $additionalDescription;
+    protected $description;
+
+    /**
+     * @var string|null
+     */
+    protected $surchargeText;
 
     /**
      * @var PaymentMethodEntity
@@ -54,14 +59,24 @@ class PaymentMethodTranslationEntity extends TranslationEntity
         $this->name = $name;
     }
 
-    public function getAdditionalDescription(): ?string
+    public function getDescription(): ?string
     {
-        return $this->additionalDescription;
+        return $this->description;
     }
 
-    public function setAdditionalDescription(?string $additionalDescription): void
+    public function setDescription(?string $description): void
     {
-        $this->additionalDescription = $additionalDescription;
+        $this->description = $description;
+    }
+
+    public function getSurchargeText(): ?string
+    {
+        return $this->surchargeText;
+    }
+
+    public function setSurchargeText(?string $surchargeText): void
+    {
+        $this->surchargeText = $surchargeText;
     }
 
     public function getPaymentMethod(): PaymentMethodEntity

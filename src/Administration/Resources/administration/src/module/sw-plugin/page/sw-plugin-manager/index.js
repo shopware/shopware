@@ -5,15 +5,39 @@ import './sw-plugin-manager.scss';
 Component.register('sw-plugin-manager', {
     template,
 
-    methods: {
-        onSearch(searchTerm) {
-            this.searchTerm = searchTerm;
-        }
-    },
+    inject: ['storeService'],
 
     data() {
         return {
-            searchTerm: ''
+            searchTerm: '',
+            availableUpdates: 0
         };
+    },
+
+    created() {
+        this.createdComponent();
+    },
+
+    methods: {
+        onSearch(searchTerm) {
+            this.searchTerm = searchTerm;
+        },
+
+        createdComponent() {
+            this.fetchAvailableUpdates();
+            this.$root.$on('sw-plugin-refresh-updates', () => {
+                this.fetchAvailableUpdates();
+            });
+        },
+
+        fetchAvailableUpdates() {
+            this.storeService.getUpdateList().then((updates) => {
+                this.availableUpdates = updates.total;
+            });
+        },
+
+        successfulUpload() {
+            this.$root.$emit('sw-plugin-force-refresh');
+        }
     }
 });

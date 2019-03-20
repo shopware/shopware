@@ -15,7 +15,9 @@
       "logout":"Abmelden",
       "messageDownloadSuccess":"Das Plugin wurde erfolgreich heruntergeladen",
       "titleDownloadSuccess":"Plugin heruntergeladen",
-      "downloadButton":"Laden"
+      "downloadButton":"Laden",
+      "storeLink": "https://store.shopware.com/",
+      "storeLabel": "Shopware Store"
     },
     "fileUpload":{
       "buttonFileUpload":"Plugin hochladen",
@@ -98,7 +100,8 @@
       "lastUpdatesHeader":"Zuletzt aktualisiert",
       "titleUpdateSuccess":"Aktualisierung erfolgreich",
       "messageUpdateSuccess":"Das Plugin wurde erfolgreich aktualisiert",
-      "messageUpdatesSuccess":"Die Plugins wurden erfolgreich aktualisiert"
+      "messageUpdatesSuccess":"Die Plugins wurden erfolgreich aktualisiert",
+      "cancelUpdates": "Abbrechen"
     }
   }
 }

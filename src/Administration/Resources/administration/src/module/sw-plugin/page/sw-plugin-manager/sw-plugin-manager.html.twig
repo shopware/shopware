@@ -23,10 +23,8 @@
 
         {% block sw_plugin_manager_smart_bar_actions %}
             <template slot="smart-bar-actions">
-                {% block sw_plugin_manager_smart_bar_actions_store_link %}
-                    <sw-button variant="primary" target="_blank" link="https://store.shopware.com">
-                        Zum Shopware Store
-                    </sw-button>
+                {% block sw_plugin_list_top_actions_upload %}
+                    <sw-plugin-file-upload @sw-plugin-file-upload-success="successfulUpload"></sw-plugin-file-upload>
                 {% endblock %}
             </template>
         {% endblock %}
@@ -59,6 +57,17 @@
                                                       :title="$tc('sw-plugin.general.tabUpdates')"
                                                       variant="minimal">
                                             {{ $tc('sw-plugin.general.tabUpdates') }}
+                                            <template v-if="availableUpdates">({{ availableUpdates }})</template>
+                                        </sw-tabs-item>
+                                    {% endblock %}
+
+                                    {% block sw_plugin_manager_content_sidebar_tabs_store_link %}
+                                        <sw-tabs-item :href="$tc('sw-plugin.general.storeLink')"
+                                                      target="_blank"
+                                                      title="Store"
+                                                      variant="minimal">
+                                            {{ $tc('sw-plugin.general.storeLabel') }}
+                                            <sw-icon class="external-icon" name="default-action-external" size="8px"></sw-icon>
                                         </sw-tabs-item>
                                     {% endblock %}
                                 </sw-tabs>

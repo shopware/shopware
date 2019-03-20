@@ -26,6 +26,10 @@ Component.register('sw-plugin-last-updates-grid', {
         }
     },
 
+    created() {
+        this.createdComponent();
+    },
+
     watch: {
         '$root.$i18n.locale'() {
             this.getList();
@@ -33,6 +37,12 @@ Component.register('sw-plugin-last-updates-grid', {
     },
 
     methods: {
+        createdComponent() {
+            this.$root.$on('sw-plugin-refresh-updates', () => {
+                this.getList();
+            });
+        },
+
         getList() {
             this.isLoading = true;
 

@@ -17,48 +17,56 @@ Component.register('sw-plugin-updates-grid', {
             limit: 25,
             updates: [],
             isLoading: false,
-            updating: [],
-            disableRouteParams: false
+            disableRouteParams: false,
+            updateQueue: []
         };
     },
 
     watch: {
         '$root.$i18n.locale'() {
             this.getList();
+        },
+
+        updateQueue() {
+            this.updateQueue.forEach((update) => {
+                update.downloadAction.then(() => {
+                    this.createNotificationSuccess({
+                        title: this.$tc('sw-plugin.updates.titleUpdateSuccess'),
+                        message: this.$tc('sw-plugin.updates.messageUpdateSuccess')
+                    });
+                    this.getList();
+                    this.$root.$emit('sw-plugin-refresh-updates');
+                    this.updateQueue = this.updateQueue.filter(queueObj => queueObj.pluginName !== update.pluginName);
+                });
+            });
         }
     },
 
     methods: {
         onUpdate(pluginName) {
-            this.updating.push(pluginName);
-            this.storeService.downloadPlugin(pluginName).then(() => {
-                this.createNotificationSuccess({
-                    title: this.$tc('sw-plugin.updates.titleUpdateSuccess'),
-                    message: this.$tc('sw-plugin.updates.messageUpdateSuccess')
-                });
-                this.updating = this.updating.filter(name => name !== pluginName);
-                this.getList();
-            });
+            const queueObj = {
+                pluginName: pluginName,
+                downloadAction: this.storeService.downloadPlugin(pluginName)
+            };
+            this.updateQueue.push(queueObj);
         },
 
         updateAll() {
-            const updatePromises = [];
             this.updates.forEach((update) => {
-                updatePromises.push(this.storeService.downloadPlugin(update.name));
-                this.updating.push(update.name);
-            });
-            Promise.all(updatePromises).then(() => {
-                this.createNotificationSuccess({
-                    title: this.$tc('sw-plugin.updates.titleUpdateSuccess'),
-                    message: this.$tc('sw-plugin.updates.messageUpdatesSuccess')
-                });
-                this.updating = [];
-                this.getList();
+                const queueObj = {
+                    pluginName: update.name,
+                    downloadAction: this.storeService.downloadPlugin(update.name)
+                };
+                this.updateQueue.push(queueObj);
             });
         },
 
+        cancelUpdates() {
+            this.updateQueue = [];
+        },
+
         isUpdating(pluginName) {
-            return this.updating.includes(pluginName);
+            return this.updateQueue.some(element => element.pluginName === pluginName);
         },
 
         getList() {

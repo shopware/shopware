@@ -28,6 +28,10 @@ Component.register('sw-plugin-list', {
         };
     },
 
+    mounted() {
+        this.mountedComponent();
+    },
+
     computed: {
         pluginsStore() {
             return State.getStore('plugin');
@@ -49,6 +53,12 @@ Component.register('sw-plugin-list', {
     },
 
     methods: {
+        mountedComponent() {
+            this.$root.$on('sw-plugin-force-refresh', () => {
+                this.getList();
+            });
+        },
+
         changeActiveState(plugin) {
             if (!plugin.active) {
                 this.pluginService.deactivate(plugin.name).then(() => {
@@ -125,10 +135,6 @@ Component.register('sw-plugin-list', {
                 });
                 this.getList();
             });
-        },
-
-        successfulUpload() {
-            this.getList();
         },
 
         getList() {

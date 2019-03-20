@@ -1,4 +1,4 @@
-let mainMenuCssSelector = '.sw-admin-menu__item--';
+const mainMenuCssSelector = '.sw-admin-menu__item--';
 const flyoutMenuCssSelector = '.sw-admin-menu__flyout-item--';
 const flyoutCssSelector = '.sw-admin-menu__flyout';
 const subMenuCssSelector = '.sw-admin-menu__navigation-list-item';
@@ -16,11 +16,11 @@ const subMenuCssSelector = '.sw-admin-menu__navigation-list-item';
  * @returns {exports}
  */
 exports.command = function openMainMenuEntry(
-    {targetPath, mainMenuId, subMenuId = null}
+    { targetPath, mainMenuId, subMenuId = null }
 ) {
     let finalMenuItem = `${mainMenuCssSelector}${mainMenuId}`;
 
-    this.waitForElementVisible('.sw-admin-menu', function(){
+    this.waitForElementVisible('.sw-admin-menu', function elementVisibleCallback() {
         // We're dealing with a sub menu entry, so we have to find and click it
         if (subMenuId) {
             this.moveToElement(`${mainMenuCssSelector}${mainMenuId}`, 5, 5);

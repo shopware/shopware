@@ -17,7 +17,6 @@ module.exports = {
                 subMenuId: 'sw-settings-language'
             })
             .expect.element(`${page.elements.gridRow}--2 ${page.elements.languageColumnName}`).to.have.text.that.contains(global.LanguageFixtureService.languageFixture.name);
-
     },
     'edit language': (browser) => {
         const page = settingsPage(browser);

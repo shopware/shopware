@@ -1,5 +1,4 @@
 const salesChannelPage = require('administration/page-objects/module/sw-sales-channel.page-object.js');
-const customerPage = require('administration/page-objects/module/sw-customer.page-object.js');
 
 module.exports = {
     '@tags': ['sales-channel-create', 'sales-channel', 'create'],
@@ -44,8 +43,6 @@ module.exports = {
             .expect.element(page.elements.salesChannelNameInput).to.have.value.that.equals('1st Epic Sales Channel');
     },
     'check if the sales channel can be used in other modules': (browser) => {
-        const customerPageObject = customerPage(browser);
-
         browser
             .openMainMenuEntry({
                 targetPath: '#/sw/customer/index',

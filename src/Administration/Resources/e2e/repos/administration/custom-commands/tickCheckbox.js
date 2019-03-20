@@ -10,7 +10,7 @@ exports.command = function tickCheckbox(selector, checked) {
 
     this.click(selector);
 
-    if(checked) {
+    if (checked) {
         this.expect.element(selector).to.be.selected;
         return this;
     }

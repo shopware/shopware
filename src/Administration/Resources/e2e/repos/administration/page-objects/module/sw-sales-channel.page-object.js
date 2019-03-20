@@ -5,7 +5,8 @@ class SalesChannelPageObject extends GeneralPageObject {
         super(browser);
 
         this.elements = {
-            ...this.elements, ...{
+            ...this.elements,
+            ...{
                 salesChannelMenuName: '.sw-admin-menu__sales-channel-item',
                 salesChannelModal: '.sw-sales-channel-modal',
                 salesChannelNameInput: 'input[name=sw-field--salesChannel-name]',
@@ -90,7 +91,7 @@ class SalesChannelPageObject extends GeneralPageObject {
     checkClipboard() {
         const me = this;
 
-        this.browser.getValue(me.elements.apiAccessKeyField, function checkValuePresent(result) {
+        this.browser.getValue(me.elements.apiAccessKeyField, (result) => {
             me.accessKeyId = result.value;
 
             me.browser
@@ -109,7 +110,7 @@ class SalesChannelPageObject extends GeneralPageObject {
     changeApiCredentials(salesChannelName) {
         const me = this;
 
-        this.browser.getValue(this.elements.apiAccessKeyField, function checkValuePresent(result) {
+        this.browser.getValue(this.elements.apiAccessKeyField, (result) => {
             me.newAccessKeyId = result.value;
 
             me.browser
@@ -127,7 +128,7 @@ class SalesChannelPageObject extends GeneralPageObject {
     verifyChangedApiCredentials() {
         const me = this;
 
-        this.browser.getValue(this.elements.apiAccessKeyField, function checkValuePresent(result) {
+        this.browser.getValue(this.elements.apiAccessKeyField, (result) => {
             me.newAccessKeyId = result.value;
 
             me.browser

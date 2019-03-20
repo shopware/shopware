@@ -18,7 +18,7 @@ module.exports = {
             .click('a[href="#/sw/settings/shipping/create"]')
             .waitForElementVisible('.sw-settings-shipping-detail')
             .assert.urlContains('#/sw/settings/shipping/create/base')
-            .elements('css selector', '.sw-tabs-item', function (result) {
+            .elements('css selector', '.sw-tabs-item', function onElementSelector(result) {
                 this.assert.equal(result.value.length > 1, true);
             });
     },
@@ -34,7 +34,7 @@ module.exports = {
         browser
             .fillField('.sw-search-bar__input', shippingMethodName)
             .waitForElementNotPresent(`${page.elements.gridRow}--1`)
-            .elements('css selector', '.sw-grid-row', function (result) {
+            .elements('css selector', '.sw-grid-row', function onElementSelector(result) {
                 this.assert.equal(result.value.length === 1, true);
             })
             .expect.element(`${page.elements.gridRow}--0`).to.have.text.that.contains(shippingMethodName);

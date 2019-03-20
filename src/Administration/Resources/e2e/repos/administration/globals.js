@@ -1,15 +1,12 @@
-/*eslint-disable */
-
 // Register flags and fixtures globally so we have to import them one time
 require('./../../common/helper/cliOutputHelper');
 require('./../../common/flags.js');
 require('../../common/service/administration/fixture.service');
 require('../../common/service/storefront/fixture.service');
 
-const beforeScenarioActions = require('./specs/before-scenario.js');
-
 const util = require('util');
 const exec = util.promisify(require('child_process').exec);
+const beforeScenarioActions = require('./specs/before-scenario.js');
 
 renderWatcherUsage();
 
@@ -19,18 +16,18 @@ module.exports = {
     asyncHookTimeout: 60000,
 
     beforeEach: (browser, done) => {
-        let launch_url = browser.launch_url;
+        let launchUrl = browser.launch_url;
 
         if (process.env.APP_WATCH === 'true') {
-            launch_url = launch_url.replace('8000', process.env.DEVPORT);
+            launchUrl = launchUrl.replace('8000', process.env.DEVPORT);
         }
-        browser.url(launch_url);
+        browser.url(launchUrl);
 
         return global.AdminFixtureService.apiClient.loginToAdministration().then((result) => {
             const startTime = new Date();
 
-            return browser.execute(function (result) {
-                localStorage.setItem('bearerAuth', JSON.stringify(result));
+            return browser.execute(function onExecuteOnBrowser(loginResult) {
+                localStorage.setItem('bearerAuth', JSON.stringify(loginResult));
 
                 // Disable the auto closing of notifications globally.
                 Shopware.State.getStore('notification')._defaults.autoClose = false;

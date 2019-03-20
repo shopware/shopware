@@ -17,7 +17,7 @@ exports.command = function clickContextMenuItem(menuButtonSelector, menuOpenSele
             .waitForElementVisible(`${scope} ${menuOpenSelector}`)
             .click(`${scope} ${menuOpenSelector}`);
 
-        if(scope.includes('sw-grid__row')) {
+        if (scope.includes('sw-grid__row')) {
             this.waitForElementVisible(`${menuOpenSelector}${activeContextButtonCssSelector}`);
         }
     } else {

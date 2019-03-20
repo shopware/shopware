@@ -2,9 +2,12 @@
 
 namespace Shopware\Core\Checkout\Customer\Event;
 
+use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\BusinessEventInterface;
+use Shopware\Core\Framework\Event\EventData\EntityType;
+use Shopware\Core\Framework\Event\EventData\EventDataCollection;
 use Symfony\Component\EventDispatcher\Event;
 
 class CustomerLoginEvent extends Event implements BusinessEventInterface
@@ -40,5 +43,11 @@ class CustomerLoginEvent extends Event implements BusinessEventInterface
     public function getContext(): Context
     {
         return $this->context;
+    }
+
+    public static function getAvailableData(): EventDataCollection
+    {
+        return (new EventDataCollection())
+            ->add('customer', new EntityType(CustomerDefinition::class));
     }
 }

@@ -2,6 +2,7 @@
 
 namespace Shopware\Docs\Command;
 
+use Shopware\Docs\Inspection\ArrayWriter;
 use Shopware\Docs\Inspection\ModuleInspector;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -81,8 +82,7 @@ EOD;
     {
         $io = new SymfonyStyle($input, $output);
 
-        $descriptions = require $this->descriptionPath;
-
+        $descriptions = new ArrayWriter($this->descriptionPath);
         $finder = $this->createModuleFinder();
 
         $markdown = [];
@@ -92,35 +92,22 @@ EOD;
             $tags = $this->moduleInspector->inspectModule($moduleDirectory);
             $modulePathName = $moduleDirectory->getRelativePathname();
 
+            $descriptions->ensure($modulePathName);
             $markdown[$modulePathName] = sprintf(
                 self::TEMPLATE_MODULE,
                 $modulePathName,
                 $modulePathName,
                 implode(', ', $tags),
-                $descriptions[$modulePathName] ?? '__EMPTY__'
+                $descriptions->get($modulePathName)
             );
 
             $io->write($modulePathName . ': ' . implode(', ', $tags) . PHP_EOL);
         }
 
-        $this->dumpModuleDescriptions($markdown, $descriptions);
-
+        $descriptions->dump();
         file_put_contents(__DIR__ . '/../_new/2-platform/1-structure/10-core-modules.md', sprintf(self::TEMPLATE_HEADER, implode(PHP_EOL, $markdown)));
 
         $io->success('Done');
-    }
-
-    protected function dumpModuleDescriptions(array $markdown, array $existingDescriptions = []): void
-    {
-        foreach (array_keys($markdown) as $name) {
-            if (isset($existingDescriptions[$name])) {
-                continue;
-            }
-
-            $existingDescriptions[$name] = '__EMPTY__';
-        }
-
-        file_put_contents($this->descriptionPath, "<?php\n\nreturn " . var_export($existingDescriptions, true) . ';');
     }
 
     private function createModuleFinder(): Finder

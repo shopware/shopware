@@ -8,11 +8,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\Struct\Uuid;
-use Shopware\Core\System\Event\NumberRangeEvents;
 use Shopware\Core\System\NumberRange\Aggregate\NumberRangeType\NumberRangeTypeEntity;
 use Shopware\Core\System\NumberRange\Exception\NoConfigurationException;
 use Shopware\Core\System\NumberRange\NumberRangeDefinition;
 use Shopware\Core\System\NumberRange\NumberRangeEntity;
+use Shopware\Core\System\NumberRange\NumberRangeEvents;
 use Shopware\Core\System\NumberRange\ValueGenerator\Pattern\ValueGeneratorPatternRegistry;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 

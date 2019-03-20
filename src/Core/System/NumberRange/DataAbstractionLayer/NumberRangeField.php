@@ -1,6 +1,8 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\DataAbstractionLayer\Field;
+namespace Shopware\Core\System\NumberRange\DataAbstractionLayer;
+
+use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 
 class NumberRangeField extends StringField
 {

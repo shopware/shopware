@@ -445,7 +445,7 @@
         "createBefore": "Neues Element davor",
         "createAfter": "Neues Element danach",
         "edit": "Bearbeiten",
-        "actionsDisabledInLanguage": "Elemente können nur in der Standardsprache erstellt werden",
+        "actionsDisabledInLanguage": "Elemente können nur in der Systemstandardsprache erstellt werden",
         "delete": "Löschen"
       }
     },

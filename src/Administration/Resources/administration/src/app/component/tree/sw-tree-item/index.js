@@ -40,7 +40,7 @@ export default {
         },
 
         disableContextMenu: {
-            type: Function,
+            type: Boolean,
             default: false
         }
     },

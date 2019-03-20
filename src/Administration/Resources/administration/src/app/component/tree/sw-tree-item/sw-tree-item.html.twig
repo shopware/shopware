@@ -74,8 +74,8 @@
                                 <sw-context-menu-item
                                     v-tooltip="{ showDelay: 300, message:
                                                 $tc(`${translationContext}.general.actions.actionsDisabledInLanguage`),
-                                                disabled: !disableContextMenu() }"
-                                    :disabled="currentEditElement !== null || disableContextMenu()"
+                                                disabled: disableContextMenu }"
+                                    :disabled="currentEditElement !== null || disableContextMenu"
                                     @click="addElement(item, 'before');">
                                     {{ $tc(`${translationContext}.general.actions.createBefore`) }}
                                 </sw-context-menu-item>
@@ -84,8 +84,8 @@
                                 <sw-context-menu-item
                                     v-tooltip="{ showDelay: 300, message:
                                                 $tc(`${translationContext}.general.actions.actionsDisabledInLanguage`),
-                                                disabled: !disableContextMenu() }"
-                                    :disabled="currentEditElement !== null || disableContextMenu()"
+                                                disabled: disableContextMenu }"
+                                    :disabled="currentEditElement !== null || disableContextMenu"
                                     @click="addElement(item, 'after');">
                                     {{ $tc(`${translationContext}.general.actions.createAfter`) }}
                                 </sw-context-menu-item>
@@ -94,8 +94,8 @@
                                 <sw-context-menu-item
                                     v-tooltip="{ showDelay: 300, message:
                                                 $tc(`${translationContext}.general.actions.actionsDisabledInLanguage`),
-                                                disabled: !disableContextMenu() }"
-                                    :disabled="currentEditElement !== null || disableContextMenu()"
+                                                disabled: disableContextMenu }"
+                                    :disabled="currentEditElement !== null || disableContextMenu"
                                     @click="addSubElement(item); openTreeItem(true)">
                                     {{ $tc(`${translationContext}.general.actions.createSub`) }}
                                 </sw-context-menu-item>
@@ -181,8 +181,8 @@
                                                             <sw-context-menu-item
                                                                 v-tooltip="{ showDelay: 300, message:
                                                                             $tc(`${translationContext}.general.actions.actionsDisabledInLanguage`),
-                                                                            disabled: !disableContextMenu() }"
-                                                                :disabled="currentEditElement !== null || disableContextMenu()"
+                                                                            disabled: disableContextMenu }"
+                                                                :disabled="currentEditElement !== null || disableContextMenu"
                                                                 @click="addElement(item, 'before');">
                                                                 {{ $tc(`${translationContext}.general.actions.createBefore`) }}
                                                             </sw-context-menu-item>
@@ -191,8 +191,8 @@
                                                             <sw-context-menu-item
                                                                 v-tooltip="{ showDelay: 300, message:
                                                                             $tc(`${translationContext}.general.actions.actionsDisabledInLanguage`),
-                                                                            disabled: !disableContextMenu() }"
-                                                                :disabled="currentEditElement !== null || disableContextMenu()"
+                                                                            disabled: disableContextMenu }"
+                                                                :disabled="currentEditElement !== null || disableContextMenu"
                                                                 @click="addElement(item, 'after');">
                                                                 {{ $tc(`${translationContext}.general.actions.createAfter`) }}
                                                             </sw-context-menu-item>
@@ -201,8 +201,8 @@
                                                             <sw-context-menu-item
                                                                 v-tooltip="{ showDelay: 300, message:
                                                                             $tc(`${translationContext}.general.actions.actionsDisabledInLanguage`),
-                                                                            disabled: !disableContextMenu() }"
-                                                                :disabled="currentEditElement !== null || disableContextMenu()"
+                                                                            disabled: disableContextMenu }"
+                                                                :disabled="currentEditElement !== null || disableContextMenu"
                                                                 @click="addSubElement(item); openTreeItem(true)">
                                                                 {{ $tc(`${translationContext}.general.actions.createSub`) }}
                                                             </sw-context-menu-item>

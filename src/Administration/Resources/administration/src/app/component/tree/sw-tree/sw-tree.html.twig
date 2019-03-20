@@ -26,7 +26,7 @@
             <div class="sw-tree__content">
                 <div class="tree-items">
                     {% block sw_tree_items %}
-                        <sw-tree-input-field v-if="hasNoItems" @createNewItem="onCreateNewItem"></sw-tree-input-field>
+                        <sw-tree-input-field v-if="hasNoItems" :disabled="disableContextMenu" @createNewItem="onCreateNewItem"></sw-tree-input-field>
                         <slot
                             v-else
                             name="items"

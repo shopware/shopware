@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Store\Api;
 
+use GuzzleHttp\Exception\ClientException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -10,6 +11,8 @@ use Shopware\Core\Framework\Plugin\PluginCollection;
 use Shopware\Core\Framework\Plugin\PluginEntity;
 use Shopware\Core\Framework\Plugin\PluginLifecycleService;
 use Shopware\Core\Framework\Plugin\PluginManagementService;
+use Shopware\Core\Framework\Store\Exception\StoreApiException;
+use Shopware\Core\Framework\Store\Exception\StoreInvalidCredentials;
 use Shopware\Core\Framework\Store\Exception\StoreTokenMissingException;
 use Shopware\Core\Framework\Store\Services\StoreClient;
 use Shopware\Core\Framework\Store\StoreSettingsEntity;
@@ -76,9 +79,16 @@ class StoreController extends AbstractController
         $shopwareId = $request->request->get('shopwareId');
         $password = $request->request->get('password');
 
-        $accessTokenStruct = $this->storeClient->loginWithShopwareId($shopwareId, $password, $context);
+        if ($shopwareId === null || $password === null) {
+            throw new StoreInvalidCredentials();
+        }
 
         $userId = $context->getSourceContext()->getUserId();
+        try {
+            $accessTokenStruct = $this->storeClient->loginWithShopwareId($shopwareId, $password, $context);
+        } catch (ClientException $exception) {
+            throw new StoreApiException($exception);
+        }
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('key', 'shopSecret'));
@@ -124,7 +134,11 @@ class StoreController extends AbstractController
     {
         $storeToken = $this->getUserStoreToken($context);
 
-        $licenseList = $this->storeClient->getLicenseList($storeToken, $context);
+        try {
+            $licenseList = $this->storeClient->getLicenseList($storeToken, $context);
+        } catch (ClientException $exception) {
+            throw new StoreApiException($exception);
+        }
 
         return new JsonResponse([
             'items' => $licenseList,
@@ -141,7 +155,11 @@ class StoreController extends AbstractController
         $plugins = $this->pluginRepo->search(new Criteria(), $context)->getEntities();
         $storeToken = $this->getUserStoreToken($context);
 
-        $updatesList = $this->storeClient->getUpdatesList($storeToken, $plugins, $context);
+        try {
+            $updatesList = $this->storeClient->getUpdatesList($storeToken, $plugins, $context);
+        } catch (ClientException $exception) {
+            throw new StoreApiException($exception);
+        }
 
         return new JsonResponse([
             'items' => $updatesList,
@@ -156,7 +174,11 @@ class StoreController extends AbstractController
     {
         $storeToken = $this->getUserStoreToken($context);
 
-        $data = $this->storeClient->getDownloadDataForPlugin($request->query->get('pluginName'), $storeToken, $context);
+        try {
+            $data = $this->storeClient->getDownloadDataForPlugin($request->query->get('pluginName'), $storeToken, $context);
+        } catch (ClientException $exception) {
+            throw new StoreApiException($exception);
+        }
 
         $statusCode = $this->pluginManagementService->downloadStorePlugin($data->getLocation(), $context);
         if ($statusCode !== Response::HTTP_OK) {

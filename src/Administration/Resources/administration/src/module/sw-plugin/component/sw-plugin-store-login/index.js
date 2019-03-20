@@ -8,13 +8,14 @@ Component.register('sw-plugin-store-login', {
     inject: ['storeService'],
 
     mixins: [
-        Mixin.getByName('notification')
+        Mixin.getByName('notification'),
+        Mixin.getByName('plugin-error-handler')
     ],
 
     data() {
         return {
-            shopwareId: '',
-            password: ''
+            shopwareId: null,
+            password: null
         };
     },
 
@@ -26,6 +27,8 @@ Component.register('sw-plugin-store-login', {
                     message: this.$tc('sw-plugin.store-login.titleLoginMessage')
                 });
                 this.$emit('sw-plugin-store-login-success');
+            }).catch((exception) => {
+                this.handleErrorResponse(exception);
             });
         },
 

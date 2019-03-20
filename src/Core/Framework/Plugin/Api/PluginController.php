@@ -6,7 +6,7 @@ use Composer\IO\NullIO;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\Plugin\Exception\CantDeletePluginException;
-use Shopware\Core\Framework\Plugin\Exception\PluginExtractionException;
+use Shopware\Core\Framework\Plugin\Exception\PluginNotAZipFileException;
 use Shopware\Core\Framework\Plugin\PluginLifecycleService;
 use Shopware\Core\Framework\Plugin\PluginManagementService;
 use Shopware\Core\Framework\Plugin\PluginService;
@@ -62,7 +62,7 @@ class PluginController extends AbstractController
 
         if ($file->getMimeType() !== 'application/zip') {
             unlink($file->getPathname());
-            throw new PluginExtractionException('extension must be zip');
+            throw new PluginNotAZipFileException($file->getMimeType());
         }
 
         try {

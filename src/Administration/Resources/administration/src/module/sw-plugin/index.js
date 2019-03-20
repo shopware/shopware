@@ -1,5 +1,6 @@
 import { Module } from 'src/core/shopware';
 import { NEXT1223 } from 'src/flag/feature_next1223';
+import './mixin/plugin-error-handler.mixin';
 import './page/sw-plugin-manager';
 import './view/sw-plugin-list';
 import './view/sw-plugin-license-list';

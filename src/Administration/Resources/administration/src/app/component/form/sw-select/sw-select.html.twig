@@ -25,9 +25,9 @@
                     <template v-if="multi">
                         <ul class="sw-select__selections">
                             <li class="sw-select__selection-item-holder"
-                                :class="{ 'is--default': (selection.id === defaultItemId), 'is--clickAble': (defaultItemId) }"
+                                :class="['sw-select__selection--' + index, { 'is--default': (selection.id === defaultItemId), 'is--clickAble': (defaultItemId)}]"
                                 v-if="hasPreview"
-                                v-for="selection in selections"
+                                v-for="(selection, index) in selections"
                                 :key="selection.id"
                                 :data-id="selection.id">
                                 {% block sw_select_selection_item %}

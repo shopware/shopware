@@ -1,40 +1,33 @@
 {% sw_extends '@Storefront/base/_utilities/offcanvas.html.twig' %}
 
-{% block base_utilities_offcanvas_close %}
-    <a class="off-canvas-close" href="#off-canvas-close">
-        {% block base_utilities_offcanvas_close_text %}
-            {{ "general.offcanvasCloseMenu"|trans }}
-        {% endblock %}
-        {% block base_utilities_offcanvas_close_icon %}
-            <i class="fas fa-chevron-right float-right off-canvas-close-icon"></i>
-        {% endblock %}
-    </a>
-{% endblock %}
-
 {% block base_utilities_offcanvas_content %}
-    {% block base_header_actions_account_widget_dropdown_header %}
-        <div class="dropdown-header account-widget-header">
-            {{ "account.myAccount"|trans }}
-        </div>
-    {% endblock %}
-
-    {% block base_header_actions_account_widget_dropdown_login %}
-        {% if not context.customer %}
-            <div class="login-submit-widget">
-                <a href="{{ path('frontend.account.login.page') }}"
-                   title="{{ "account.loginSubmit"|trans }}"
-                   class="btn btn-primary login-submit-widget-button">
-                    {{ "account.loginSubmit"|trans }}
-                </a>
-
-                <div class="register-submit-widget">
-                    {{ "account.orRegister"|trans }} <a href="{{ path('frontend.account.login.page') }}" title="{{ "account.orRegisterLink"|trans }}">{{ "account.orRegisterLink"|trans }}</a>
-                </div>
+    <div class="account-menu">
+        {% block base_header_actions_account_widget_dropdown_header %}
+            <div class="dropdown-header account-widget-header">
+                {{ "account.myAccount"|trans }}
             </div>
-        {% endif %}
-    {% endblock %}
+        {% endblock %}
 
-    {% block base_header_actions_account_widget_dropdown_links %}
-        {% sw_include '@Storefront/Resources/views/page/account/sidebar.html.twig' with {'headerWidget': true} %}
-    {% endblock %}
+        {% block base_header_actions_account_widget_dropdown_login %}
+            {% if not context.customer %}
+                <div class="account-widget-login">
+                    <a href="{{ path('frontend.account.login.page') }}"
+                       title="{{ "account.loginSubmit"|trans }}"
+                       class="btn btn-primary account-widget-login-button">
+                        {{ "account.loginSubmit"|trans }}
+                    </a>
+
+                    <div class="account-widget-register">
+                        {{ "account.orRegister"|trans }} <a href="{{ path('frontend.account.login.page') }}" title="{{ "account.orRegisterLink"|trans }}">{{ "account.orRegisterLink"|trans }}</a>
+                    </div>
+                </div>
+            {% endif %}
+        {% endblock %}
+
+        {% block base_header_actions_account_widget_dropdown_links %}
+            <div class="account-widget-links">
+                {% sw_include '@Storefront/Resources/views/page/account/sidebar.html.twig' with {'headerWidget': true} %}
+            </div>
+        {% endblock %}
+    </div>
 {% endblock %}

@@ -1,6 +1,6 @@
 {% block page_account_sidebar_inner %}
-    <aside {% if not headerWidget %}class="account-sidebar"{% endif %}>
-        <div {% if not headerWidget %}class="card"{% endif %}>
+    <div class="{% if not headerWidget %}account-sidebar{% else %}header-account-menu{% endif %}">
+        <div class="account-menu-inner">
 			{% block page_account_sidebar_header %}
 				{% if not headerWidget %}
 					<div class="card-header account-sidebar-header">
@@ -73,5 +73,5 @@
 				{% endif %}
 			{% endblock %}
 		</div>
-	</aside>
+	</div>
 {% endblock %}

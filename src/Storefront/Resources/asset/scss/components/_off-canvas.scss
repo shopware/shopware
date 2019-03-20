@@ -11,11 +11,26 @@
     &.is-left {
         transform: translateX(-100%);
         left: 0;
+
+        .off-canvas-close {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-direction: row-reverse;
+        }
+
+        .off-canvas-close-icon {
+            @extend .fa-chevron-right;
+        }
     }
 
     &.is-right {
         transform: translateX(100%);
         right: 0;
+
+        .off-canvas-close-icon {
+            @extend .fa-chevron-left;
+        }
     }
 
     &.is-open {
@@ -27,20 +42,13 @@
     }
 
     .off-canvas-close {
-        @extend .btn;
-        @extend .btn-block;
-        @extend .btn-dark;
         border-radius: 0;
         text-align: left;
+        padding: $spacer-xs $spacer-sm;
     }
 
     .off-canvas-close-icon {
         margin-right: $spacer-xs;
-        margin-top: 0.55rem;
-
-        &.float-right {
-            margin-right: 0;
-        }
     }
 
     > .spinner-border {

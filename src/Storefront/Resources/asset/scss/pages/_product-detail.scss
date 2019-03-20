@@ -13,6 +13,10 @@
 
 .product-detail-media-container {
     margin-bottom: $spacer;
+
+    &.is-single-image {
+        justify-content: center;
+    }
 }
 
 .product-detail-media-image-container {

@@ -124,13 +124,13 @@ export default class EntityProxy {
 
             set(target, property, value) {
                 if (property === 'draft') {
-                    Object.assign(that.draft, deepCopyObject(value));
+                    Object.assign(that.draft, value);
                     Object.assign(target, that.exposedData);
                     return true;
                 }
 
                 if (property === 'original') {
-                    Object.assign(that.original, deepCopyObject(value));
+                    Object.assign(that.original, value);
                     return true;
                 }
 
@@ -191,7 +191,7 @@ export default class EntityProxy {
         }
 
         this.draft = draft;
-        this.original = data;
+        this.original = deepCopyObject(data);
         this.isLocal = false;
     }
 
@@ -526,6 +526,7 @@ export default class EntityProxy {
      * Populates all associated stores and creates entities if there is initial data provided.
      *
      * @memberOf module:core/data/EntityProxy
+     * @param {Object} data
      * @return {void}
      */
     populateAssociatedStores(data = this.draft) {
@@ -549,9 +550,10 @@ export default class EntityProxy {
     populateAssociatedStore(associationName, items) {
         const store = this.associations[associationName];
 
-        items.forEach((item) => {
+        items.forEach((item, index) => {
             const entity = store.create(item.id);
             entity.setData(item, false, true, true);
+            items[index] = entity;
         });
 
         return store;
@@ -631,12 +633,14 @@ export default class EntityProxy {
                     return;
                 }
 
-                const associationChanges = entity.getChanges();
+                const entityChanges = entity.getChanges();
+                const entityAssociationChanges = entity.getChangedAssociations();
+                Object.assign(entityChanges, entityAssociationChanges);
 
-                if (entity.isLocal || Object.keys(associationChanges).length > 0) {
-                    associationChanges.id = id;
+                if (entity.isLocal || Object.keys(entityChanges).length > 0) {
+                    entityChanges.id = id;
                     changes[associationKey] = changes[associationKey] || [];
-                    changes[associationKey].push(associationChanges);
+                    changes[associationKey].push(entityChanges);
                 }
             });
         });

@@ -1,4 +1,5 @@
 import EntityProxy from 'src/core/data/EntityProxy';
+import CriteriaFactory from 'src/core/factory/criteria.factory';
 import { itAsync } from '../../../async-helper';
 
 const State = Shopware.State;
@@ -105,6 +106,45 @@ describe('core/data/EntityProxy.js', () => {
         expect(changes.categories).to.be.an('array');
         expect(changes.categories.length).to.be.equal(1);
         expect(changes.categories[0].name).to.be.equal('Test category');
+    });
+
+    it('should get the changes of the entity including associations recursively', () => {
+        const pageEntity = new EntityProxy('cms_page', serviceContainer.cmsPageService);
+
+        pageEntity.name = 'Test page';
+        pageEntity.type = 'landingpage';
+        pageEntity.config.backgroundColor = '#ffffff';
+
+        const blockStore = pageEntity.getAssociation('blocks');
+        const blockEntity = blockStore.create();
+
+        blockEntity.position = 1;
+        blockEntity.config.backgroundColor = '#000000';
+        blockEntity.config.cssClass = '.test-class';
+
+        const slotStore = blockEntity.getAssociation('slots');
+        const slotEntity = slotStore.create();
+
+        slotEntity.type = 'text';
+        slotEntity.config.content = 'Lorem ipsum';
+
+        const changes = pageEntity.getChanges();
+        const changedAssociations = pageEntity.getChangedAssociations();
+
+        Object.assign(changes, changedAssociations);
+
+        expect(changes.name).to.be.equal('Test page');
+        expect(changes.type).to.be.equal('landingpage');
+        expect(changes.config.backgroundColor).to.be.equal('#ffffff');
+        expect(changes.blocks).to.be.an('array');
+        expect(changes.blocks.length).to.be.equal(1);
+        expect(changes.blocks[0].position).to.be.equal(1);
+        expect(changes.blocks[0].config.backgroundColor).to.be.equal('#000000');
+        expect(changes.blocks[0].config.cssClass).to.be.equal('.test-class');
+        expect(changes.blocks[0].slots).to.be.an('array');
+        expect(changes.blocks[0].slots.length).to.be.equal(1);
+        expect(changes.blocks[0].slots[0].type).to.be.equal('text');
+        expect(changes.blocks[0].slots[0].config.content).to.be.equal('Lorem ipsum');
     });
 
     itAsync('should save the entity', (done) => {
@@ -297,5 +337,74 @@ describe('core/data/EntityProxy.js', () => {
         expect(changes.price.gross).to.be.equal(90);
 
         expect(changes.testProp).to.be.an('undefined');
+    });
+
+    itAsync('should hydrate associations as EntityProxy', (done) => {
+        const productEntity = new EntityProxy('product', serviceContainer.productService);
+
+        productEntity.setLocalData({
+            name: 'Test Product',
+            price: {
+                gross: 90,
+                net: 80
+            }
+        });
+
+        const taxEntity = new EntityProxy('tax', serviceContainer.taxService);
+        taxEntity.setLocalData({ name: 'Test tax rate', taxRate: 99.98 });
+        productEntity.tax = taxEntity.getChanges();
+        productEntity.tax.id = taxEntity.id;
+
+        const manufacturerEntity = new EntityProxy('product_manufacturer', serviceContainer.productManufacturerService);
+        manufacturerEntity.setLocalData({ name: 'Test manufacturer' });
+        productEntity.manufacturer = manufacturerEntity.getChanges();
+        productEntity.manufacturer.id = manufacturerEntity.id;
+
+        const categoryEntity = productEntity.getAssociation('categories').create();
+        categoryEntity.name = 'Test category';
+
+        productEntity.save().then(() => {
+            serviceContainer.productService.getList({
+                page: 1,
+                limit: 1,
+                criteria: CriteriaFactory.equals('id', productEntity.id),
+                associations: {
+                    categories: {
+                        page: 1,
+                        limit: 1
+                    }
+                }
+            }).then((response) => {
+                const data = response.data[0];
+                const loadedProduct = new EntityProxy('product', serviceContainer.productService);
+
+                loadedProduct.setData(data, false, true);
+                const category = loadedProduct.categories[0];
+
+                expect(category.draft).to.be.an('object');
+                expect(Object.getOwnPropertyDescriptor(category, 'draft')).to.be.an('undefined');
+
+                productEntity.delete(true)
+                    .then(() => {
+                        return manufacturerEntity.delete(true);
+                    })
+                    .then(() => {
+                        return taxEntity.delete(true);
+                    })
+                    .then(() => {
+                        return serviceContainer.categoryService.delete(category.id);
+                    })
+                    .then(() => {
+                        done();
+                    })
+                    .catch((error) => {
+                        done(error);
+                    });
+            }).catch((err) => {
+                done(err);
+            });
+        }).catch((err) => {
+            done(err);
+        });
     });
 });

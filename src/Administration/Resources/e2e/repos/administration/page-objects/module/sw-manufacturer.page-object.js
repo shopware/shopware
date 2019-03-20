@@ -5,7 +5,8 @@ class ManufacturerPageObject extends GeneralPageObject {
         super(browser);
 
         this.elements = {
-            ...this.elements, ...{
+            ...this.elements,
+            ...{
                 manufacturerSave: '.sw-manufacturer-detail__save-action'
             }
         };

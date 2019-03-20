@@ -31,7 +31,6 @@ module.exports = {
             .expect.element(page.elements.smartBarHeader).to.have.text.that.equals(fixture.name);
     },
     'change language to german': (browser) => {
-        const page = productPage(browser);
         browser
             .click('.sw-language-switch')
             .waitForElementNotPresent('.sw-field__select-load-placeholder');

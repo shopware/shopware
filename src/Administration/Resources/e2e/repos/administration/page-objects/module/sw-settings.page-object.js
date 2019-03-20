@@ -5,7 +5,8 @@ class CustomerPageObject extends GeneralPageObject {
         super(browser);
 
         this.elements = {
-            ...this.elements, ...{
+            ...this.elements,
+            ...{
                 countrySaveAction: '.sw-settings-country-detail__save-action',
                 countryColumnName: '.sw-country-list__column-name',
 

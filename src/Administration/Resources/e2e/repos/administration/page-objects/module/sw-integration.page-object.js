@@ -5,7 +5,8 @@ class IntegrationPageObject extends GeneralPageObject {
         super(browser);
 
         this.elements = {
-            ...this.elements, ...{
+            ...this.elements,
+            ...{
                 integrationName: 'input[name=sw-field--currentIntegration-label]',
                 integrationSaveAction: '.sw-integration-detail-modal__save-action',
                 apiAccessKeyField: 'input[name=sw-field--currentIntegration-accessKey]',
@@ -21,7 +22,7 @@ class IntegrationPageObject extends GeneralPageObject {
     checkClipboard() {
         const me = this;
 
-        this.browser.getValue(this.elements.apiAccessKeyField, function checkValuePresent(result) {
+        this.browser.getValue(this.elements.apiAccessKeyField, (result) => {
             me.accessKeyId = result.value;
 
             me.browser
@@ -45,7 +46,7 @@ class IntegrationPageObject extends GeneralPageObject {
             .waitForElementPresent('.sw-button--danger')
             .click('.sw-button--danger');
 
-        this.browser.getValue(this.elements.apiAccessKeyField, function checkValuePresent(result) {
+        this.browser.getValue(this.elements.apiAccessKeyField, (result) => {
             me.newAccessKeyId = result.value;
         });
         this.newAccessKeyId = me.newAccessKeyId;
@@ -62,7 +63,7 @@ class IntegrationPageObject extends GeneralPageObject {
     verifyChangedApiCredentials() {
         const me = this;
 
-        this.browser.getValue(this.elements.apiAccessKeyField, function checkValuePresent(result) {
+        this.browser.getValue(this.elements.apiAccessKeyField, (result) => {
             me.newAccessKeyId = result.value;
 
             me.browser.expect.element(me.elements.apiAccessKeyField).value.that.equals(me.newAccessKeyId);

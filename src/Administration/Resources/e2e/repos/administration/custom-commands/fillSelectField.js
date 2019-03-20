@@ -9,7 +9,7 @@ const loadingIndicator = '.sw-field__select-load-placeholder';
  * @returns {exports}
  */
 exports.command = function fillSelectField(selector, value) {
-    let xpath = `//option[contains(text(), '${value}')]`;
+    const xpath = `//option[contains(text(), '${value}')]`;
 
     this
         .waitForElementVisible(selector)

@@ -17,6 +17,19 @@ Component.register('sw-tree-input-field', {
         currentValue: {
             type: String,
             required: false
+        },
+
+        disabled: {
+            type: Boolean,
+            default: false
+        }
+    },
+
+    computed: {
+        classes() {
+            return {
+                'is--disabled': this.disabled
+            };
         }
     },
 

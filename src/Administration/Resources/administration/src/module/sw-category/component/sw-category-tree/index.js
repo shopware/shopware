@@ -20,6 +20,11 @@ Component.register('sw-category-tree', {
             type: [Object, null],
             required: false,
             default: null
+        },
+
+        disableContextMenu: {
+            type: Boolean,
+            default: false
         }
     },
 
@@ -57,10 +62,6 @@ Component.register('sw-category-tree', {
     },
 
     methods: {
-        disableContextMenu() {
-            return this.languageStore.getCurrentId() !== this.languageStore.systemLanguageId;
-        },
-
         onUpdatePositions() {
             this.saveCategories();
         },

@@ -22,7 +22,8 @@ Component.register('sw-category-detail', {
             isMobileViewport: null,
             splitBreakpoint: 1024,
             isDisplayingLeavePageWarning: false,
-            nextRoute: null
+            nextRoute: null,
+            disableContextMenu: false
         };
     },
 
@@ -76,6 +77,8 @@ Component.register('sw-category-detail', {
             this.isLoading = true;
             this.checkViewport();
             this.registerListener();
+
+            this.disableContextMenu = this.languageStore.getCurrentId() !== this.languageStore.systemLanguageId;
 
             this.getCategories().then(() => {
                 this.setCategory();
@@ -195,6 +198,7 @@ Component.register('sw-category-detail', {
         },
 
         onChangeLanguage() {
+            this.disableContextMenu = this.languageStore.getCurrentId() !== this.languageStore.systemLanguageId;
             this.getCategories().then(() => {
                 this.setCategory();
             });

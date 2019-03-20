@@ -111,8 +111,5 @@ module.exports = {
             .click('.sw-customer-detail__tab-general')
             .assert.containsText(`${page.elements.customerMetaData}-customer-name`, 'Mr. Cran Berry')
             .assert.containsText('.sw-customer-base__label-is-active', 'Inactive');
-    },
-    after: (browser) => {
-        browser.end();
     }
 };

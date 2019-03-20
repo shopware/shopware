@@ -40,8 +40,5 @@ module.exports = {
         const page = settingsPage(browser);
 
         browser.expect.element(`${page.elements.gridRow}--0 ${page.elements.currencyColumnName}`).to.have.text.that.contains('Galactic Credits');
-    },
-    after: (browser) => {
-        browser.end();
     }
 };

@@ -28,15 +28,11 @@ module.exports = {
             .expect.element(page.elements.smartBarHeader).to.have.text.that.equals(global.ProductFixtureService.productFixture.name);
     },
     'find tag component': (browser) => {
-        const page = productPage(browser);
-
         browser
             .getLocationInView('.sw-product-category-form')
             .waitForElementVisible('.sw-tag-field');
     },
     'add existing tag': (browser) => {
-        const page = productPage(browser);
-
         browser
             .fillSwSelectComponent(
                 '.sw-tag-field .sw-select--multi',
@@ -80,8 +76,5 @@ module.exports = {
 
         page.createProductTag('Lorem ipsum dolor sit amet consetetur sadipscing elitr sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat sed diam voluptua At vero eos et accusam', 1);
         browser.expect.element(`${page.elements.selectSelectedItem}--1 .sw-select__selection-item`).to.have.css('text-overflow').which.equals('ellipsis');
-    },
-    after: (browser) => {
-        browser.end();
     }
 };

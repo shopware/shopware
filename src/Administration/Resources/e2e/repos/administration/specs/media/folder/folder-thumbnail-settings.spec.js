@@ -121,8 +121,5 @@ module.exports = {
 
         browser.expect.element('.sw-media-modal-folder-settings__thumbnail-size-entry label').to.have.text.that.equals('1920x1080');
         browser.expect.element('input[name=thumbnail-size-active]').to.be.selected;
-    },
-    after: (browser) => {
-        browser.end();
     }
 };

@@ -34,8 +34,5 @@ module.exports = {
             .waitForElementNotPresent('.is--inline-edit')
             .refresh()
             .expect.element(page.elements.productListName).to.have.text.that.contains('Cyberdyne Systems T800');
-    },
-    after: (browser) => {
-        browser.end();
     }
 };

@@ -34,8 +34,5 @@ module.exports = {
         page.openSalesChannel(fixture.name);
         browser.waitForElementNotPresent(page.elements.loader);
         page.verifyChangedApiCredentials();
-    },
-    after: (browser) => {
-        browser.end();
     }
 };

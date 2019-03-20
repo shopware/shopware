@@ -33,8 +33,5 @@ module.exports = {
         const page = integrationPage(browser);
 
         browser.expect.element(`${page.elements.gridRow}--0 ${page.elements.listColumnName}`).to.have.text.that.contains('My very own integration');
-    },
-    after: (browser) => {
-        browser.end();
     }
 };

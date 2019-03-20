@@ -37,8 +37,5 @@ module.exports = {
             .waitForElementNotPresent('.sw-modal')
             .waitForElementVisible(page.elements.emptyState)
             .expect.element(page.elements.smartBarAmount).to.have.text.that.contains('(0)');
-    },
-    after: (browser) => {
-        browser.end();
     }
 };

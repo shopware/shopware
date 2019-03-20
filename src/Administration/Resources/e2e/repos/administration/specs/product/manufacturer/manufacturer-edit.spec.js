@@ -26,8 +26,5 @@ module.exports = {
             .clickContextMenuItem('.sw-manufacturer-list__edit-action', page.elements.contextMenuButton, `${page.elements.gridRow}--0`)
             .waitForElementNotPresent(page.elements.loader)
             .expect.element(page.elements.smartBarHeader).to.have.text.that.equals('MAN-U-FACTURE');
-    },
-    after: (browser) => {
-        browser.end();
     }
 };

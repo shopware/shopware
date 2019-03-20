@@ -67,8 +67,5 @@ module.exports = {
             .getLocationInView('.sw-order-detail-base__summary')
             .clickContextMenuItem('.sw-context-menu__content', page.elements.contextMenuButton)
             .expect.element(page.elements.smartBarHeader).to.have.text.that.contains(global.ProductFixtureService.productFixture.name);
-    },
-    after: (browser) => {
-        browser.end();
     }
 };

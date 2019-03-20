@@ -45,8 +45,5 @@ module.exports = {
             .clickContextMenuItem('.sw_product_stream_list__edit-action', page.elements.contextMenuButton, `${page.elements.gridRow}--0`)
             .waitForElementNotPresent(page.elements.loader)
             .expect.element(page.elements.smartBarHeader).to.have.text.that.contains('Product stream 1st');
-    },
-    after: (browser) => {
-        browser.end();
     }
 };

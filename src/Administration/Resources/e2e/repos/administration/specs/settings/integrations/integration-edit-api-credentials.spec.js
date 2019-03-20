@@ -50,8 +50,5 @@ module.exports = {
             .waitForElementVisible(page.elements.integrationName);
 
         page.verifyChangedApiCredentials();
-    },
-    after: (browser) => {
-        browser.end();
     }
 };

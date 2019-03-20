@@ -156,8 +156,5 @@ module.exports = {
     },
     'delete all containers': (browser) => {
         browser.click('.sw-condition-and-container__actions--delete');
-    },
-    after: (browser) => {
-        browser.end();
     }
 };

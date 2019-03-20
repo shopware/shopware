@@ -34,8 +34,5 @@ module.exports = {
             .expect.element(page.elements.smartBarHeader).to.have.text.that.equals('Your profile');
         browser
             .expect.element('input[name=sw-field--user-email]').to.have.value.that.equals('test@test.de');
-    },
-    after: (browser) => {
-        browser.end();
     }
 };

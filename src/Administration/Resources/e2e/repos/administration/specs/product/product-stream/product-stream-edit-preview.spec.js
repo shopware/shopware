@@ -86,8 +86,5 @@ module.exports = {
         browser
             .click('.sw-product-stream-modal-preview__close-action')
             .waitForElementNotPresent(page.elements.modal);
-    },
-    after: (browser) => {
-        browser.end();
     }
 };

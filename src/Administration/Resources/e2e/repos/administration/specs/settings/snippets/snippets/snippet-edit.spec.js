@@ -63,8 +63,5 @@ module.exports = {
         browser
             .click(page.elements.smartBarBack)
             .expect.element(`${page.elements.gridRow}--0`).to.have.text.that.contains('Mine yours theirs');
-    },
-    after: (browser) => {
-        browser.end();
     }
 };

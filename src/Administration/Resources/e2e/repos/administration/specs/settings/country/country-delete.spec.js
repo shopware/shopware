@@ -29,8 +29,5 @@ module.exports = {
         browser
             .click(`${page.elements.modal}__footer button${page.elements.primaryButton}`)
             .checkNotification(`Country "${global.AdminFixtureService.basicFixture.name}" has been deleted successfully.`);
-    },
-    after: (browser) => {
-        browser.end();
     }
 };

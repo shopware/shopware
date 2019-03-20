@@ -158,8 +158,5 @@ module.exports = {
             .click(page.elements.ruleSaveAction)
             .checkNotification(`An error occurred while saving rule "${global.AdminFixtureService.basicFixture.name}".`)
             .expect.element('.sw-condition-base__error-container').to.have.text.that.equals('This "type" value (NULL) is invalid.');
-    },
-    after: (browser) => {
-        browser.end();
     }
 };

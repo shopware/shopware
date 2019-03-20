@@ -49,8 +49,5 @@ module.exports = {
         browser
             .getLocationInView('.sw-media-quickinfo-usage')
             .expect.element('.sw-media-quickinfo-usage__item').to.have.text.that.equals('Ultimate Product');
-    },
-    after: (browser) => {
-        browser.end();
     }
 };

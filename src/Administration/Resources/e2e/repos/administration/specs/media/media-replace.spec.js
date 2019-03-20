@@ -88,8 +88,5 @@ module.exports = {
             .assert.containsText(page.elements.smartBarHeader, 'Products')
             .clickContextMenuItem('.sw-product-list__edit-action', page.elements.contextMenuButton, `${page.elements.dataGridRow}--0`)
             .expect.element(page.elements.previewItem).to.have.attribute('alt').equals('sw-test-image');
-    },
-    after: (browser) => {
-        browser.end();
     }
 };

@@ -35,8 +35,5 @@ module.exports = {
         browser.expect.element(`${page.elements.gridItem}--1 ${page.elements.baseItemName}`).to.have.text.that.equals('sw-login-background.png');
 
         page.createFolder('German crowd');
-    },
-    after: (browser) => {
-        browser.end();
     }
 };

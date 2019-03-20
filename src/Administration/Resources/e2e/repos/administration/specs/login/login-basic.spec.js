@@ -30,8 +30,5 @@ module.exports = {
     'verify login': (browser) => {
         const page = loginPage(browser);
         page.verifyLogin('admin');
-    },
-    after: (browser) => {
-        browser.end();
     }
 };

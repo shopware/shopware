@@ -63,8 +63,5 @@ module.exports = {
         page.changeTranslation('Product name', 'Philippine English', 3);
 
         browser.expect.element('.sw-language-info').to.have.text.that.contains('"Product name" displayed in the language "Philippine English", which inherits from "English".');
-    },
-    after: (browser) => {
-        browser.end();
     }
 };

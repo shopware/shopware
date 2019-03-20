@@ -23,8 +23,5 @@ module.exports = {
         browser
             .refresh()
             .expect.element('.sw-search-bar__input').to.have.attribute('placeholder').that.equals('Finde Produkte, Kunden, Bestellungen');
-    },
-    after: (browser) => {
-        browser.end();
     }
 };

@@ -50,8 +50,5 @@ module.exports = {
             })
             .click('.smart-bar__actions a[href="#/sw/customer/create"]')
             .fillSelectField('select[name=sw-field--customer-salesChannelId]', '1st Epic Sales Channel');
-    },
-    after: (browser) => {
-        browser.end();
     }
 };

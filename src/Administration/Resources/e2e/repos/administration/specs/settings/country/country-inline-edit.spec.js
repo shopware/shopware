@@ -31,8 +31,5 @@ module.exports = {
         browser
             .refresh()
             .expect.element(`${page.elements.gridRow}--0 ${page.elements.countryColumnName}`).to.have.text.that.contains('1. Valhalla');
-    },
-    after: (browser) => {
-        browser.end();
     }
 };

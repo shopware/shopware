@@ -29,8 +29,5 @@ module.exports = {
         browser
             .click('a.smart-bar__back-btn')
             .expect.element(`${page.elements.gridRow}--5 ${page.elements.taxColumnName}`).to.have.text.that.equals('High tax');
-    },
-    after: (browser) => {
-        browser.end();
     }
 };

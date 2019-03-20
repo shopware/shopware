@@ -50,8 +50,5 @@ module.exports = {
         const page = settingsPage(browser);
 
         browser.expect.element(`${page.elements.gridRow}--0`).to.have.text.that.not.contains('Mine yours theirs');
-    },
-    after: (browser) => {
-        browser.end();
     }
 };

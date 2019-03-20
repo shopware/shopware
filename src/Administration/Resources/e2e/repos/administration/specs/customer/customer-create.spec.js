@@ -71,8 +71,5 @@ module.exports = {
             .waitForElementNotPresent(page.elements.loader)
             .expect.element(page.elements.smartBarAmount).to.have.text.that.equals('(1)');
         browser.expect.element(page.elements.columnName).to.have.text.that.equals('Pep Eroni');
-    },
-    after: (browser) => {
-        browser.end();
     }
 };

@@ -51,6 +51,12 @@ export default {
         },
         errorStore() {
             return State.getStore('error');
+        },
+        isApiCLass() {
+            return this.isApi() ? 'is--api' : '';
+        },
+        hasErrorsClass() {
+            return this.hasErrors ? 'has--error' : '';
         }
     },
 

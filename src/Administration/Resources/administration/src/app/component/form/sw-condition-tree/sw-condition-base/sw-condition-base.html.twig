@@ -1,5 +1,5 @@
 {% block sw_condition_base %}
-<div class="sw-condition-base" :class="[conditionClass, { 'has--error': hasErrors }, {'is--api' : isApi()}]">
+<div class="sw-condition-base" :class="[conditionClass, hasErrorsClass, isApiCLass]">
     <div class="sw-condition-base__container">
         {% block sw_condition_base_field_condition %}
             <sw-select :id="createId()"

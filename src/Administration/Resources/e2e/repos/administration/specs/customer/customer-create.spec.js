@@ -30,8 +30,7 @@ module.exports = {
             .waitForElementNotPresent('.sw-field--customer-salesChannelId .sw-field__select-load-placeholder')
             .fillSelectField('select[name=sw-field--customer-salesChannelId]', 'Storefront API')
             .waitForElementNotPresent('.sw-field--customer-defaultPaymentMethodId .sw-field__select-load-placeholder')
-            .fillSelectField('select[name=sw-field--customer-defaultPaymentMethodId]', 'Invoice')
-            .fillField('input[name=sw-field--customer-customerNumber]', 'cn-1234321', true);
+            .fillSelectField('select[name=sw-field--customer-defaultPaymentMethodId]', 'Invoice');
     },
     'add customer address': (browser) => {
         const page = customerPage(browser);
@@ -59,7 +58,7 @@ module.exports = {
             .waitForElementVisible(page.elements.customerMetaData)
             .assert.containsText(`${page.elements.customerMetaData}-customer-name`, 'Mr. Pep Eroni')
             .assert.containsText('.sw-customer-card-email-link', 'test@example.com')
-            .assert.containsText('.sw-customer-base__label-customer-number', 'cn-1234321')
+            .assert.containsText('.sw-customer-base__label-customer-number', '1')
             .assert.containsText('.sw-address__location', '48624');
     },
     'go back to listing und verify data there': (browser) => {

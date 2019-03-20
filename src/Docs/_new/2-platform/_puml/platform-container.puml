@@ -1,6 +1,8 @@
 @startuml LAYOUT_TOP_DOWN
 !includeurl https://raw.githubusercontent.com/RicardoNiepel/C4-PlantUML/master/C4_Container.puml
 
+title Shopware Platform Building Blocks
+
 System_Boundary(c1, "Shopware Platform") {
 
     Container(core, "Core", "PHP", "Handles the data management and manipulation, provides a REST-API and a rich set of PHP Extension points")

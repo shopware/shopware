@@ -1,10 +1,12 @@
 @startuml LAYOUT_TOP_DOWN
 !includeurl https://raw.githubusercontent.com/RicardoNiepel/C4-PlantUML/release/1-0/C4_Context.puml
 
+title Shopware Platform Context
+
 Person_Ext(admin, "Administrator")
 Person_Ext(customer, "Customer")
 
-System(platform, "Shopware Platform", "Containing the Core, Administration and Storefront")
+System(platform, "Shopware Platform", "eCommerce System")
 
 System_Ext(erp, "ERP")
 System_Ext(mailer, "Mailer")
@@ -24,4 +26,3 @@ Rel_U(customComponent, platform, "calls", "REST-API")
 Rel_U(paymentProvider, platform, "calls", "REST-API")
 
 @enduml
-

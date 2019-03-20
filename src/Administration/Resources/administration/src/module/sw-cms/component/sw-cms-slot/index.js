@@ -38,13 +38,7 @@ Component.register('sw-cms-slot', {
         }
     },
 
-    created() {
-        this.createdComponent();
-    },
-
     methods: {
-        createdComponent() {},
-
         onSettingsButtonClick() {
             this.showElementSettings = true;
         },

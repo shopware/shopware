@@ -1,13 +1,37 @@
-<div class="sw-cms-block-config">
-    <sw-text-field label="Block name" tooltipText="Name your block for better usage..." v-model="block.config.name"></sw-text-field>
+{% block sw_cms_block_config %}
+    <div class="sw-cms-block-config">
+        {% block sw_cms_block_config_name_field %}
+            <sw-text-field :label="$tc('sw-cms.detail.labelBlockNameField')"
+                           :tooltipText="$tc('sw-cms.detail.tooltipBlockNameField')"
+                           v-model="block.config.name">
+            </sw-text-field>
+        {% endblock %}
 
-    <sw-select-field label="Size mode" v-model="block.config.sizingMode">
-        <option value="boxed">Boxed</option>
-        <option value="full_width">Full width</option>
-    </sw-select-field>
+        {% block sw_cms_block_config_sizing_field %}
+            <sw-select-field :label="$tc('sw-cms.detail.labelBlockSizingField')" v-model="block.config.sizingMode">
+                <option value="boxed">{{ $tc('sw-cms.detail.labelBlockSizingOptionBoxed') }}</option>
+                <option value="full_width">{{ $tc('sw-cms.detail.labelBlockSizingOptionFull') }}</option>
+            </sw-select-field>
+        {% endblock %}
 
-    <sw-colorpicker label="Background color" v-model="block.config.backgroundColor"></sw-colorpicker>
+        {% block sw_cms_block_config_background_color_field %}
+            <sw-colorpicker :label="$tc('sw-cms.detail.labelBlockBackgroundColorField')" v-model="block.config.backgroundColor"></sw-colorpicker>
+        {% endblock %}
 
-    <sw-text-field label="Top margin" v-model="block.config.marginTop"></sw-text-field>
-    <sw-text-field label="Bottom margin" v-model="block.config.marginBottom"></sw-text-field>
-</div>
+        {% block sw_cms_block_config_top_margin_field %}
+            <sw-text-field :label="$tc('sw-cms.detail.labelBlockTopMarginField')" v-model="block.config.marginTop"></sw-text-field>
+        {% endblock %}
+
+        {% block sw_cms_block_config_bottom_margin_field %}
+            <sw-text-field :label="$tc('sw-cms.detail.labelBlockBottomMarginField')" v-model="block.config.marginBottom"></sw-text-field>
+        {% endblock %}
+
+        {% block sw_cms_block_config_left_margin_field %}
+            <sw-text-field :label="$tc('sw-cms.detail.labelBlockLeftMarginField')" v-model="block.config.marginLeft"></sw-text-field>
+        {% endblock %}
+
+        {% block sw_cms_block_config_right_margin_field %}
+            <sw-text-field :label="$tc('sw-cms.detail.labelBlockRightMarginField')" v-model="block.config.marginRight"></sw-text-field>
+        {% endblock %}
+    </div>
+{% endblock %}

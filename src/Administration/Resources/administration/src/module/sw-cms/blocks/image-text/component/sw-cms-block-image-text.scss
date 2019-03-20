@@ -1,10 +1,5 @@
 .sw-cms-block-image-text {
     display: grid;
-    grid-template-columns: 1fr;
-    grid-gap: 30px;
-
-    .min-width-600 & {
-        grid-template-columns: 1fr 1fr;
-        grid-gap: 40px;
-    }
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    grid-gap: 40px;
 }

@@ -1,7 +1,13 @@
-<div class="sw-cms-block" :class="blockClasses" :style="blockStyles">
-    <div class="sw-cms-block__content">
-        <slot></slot>
-    </div>
+{% block sw_cms_block %}
+    <div class="sw-cms-block" :class="blockClasses" :style="blockStyles">
+        {% block sw_cms_block_content %}
+            <div class="sw-cms-block__content">
+                <slot>{% block sw_cms_block_slot_default %}{% endblock %}</slot>
+            </div>
+        {% endblock %}
 
-    <div class="sw-cms-block__config-overlay" :class="overlayClasses" @click="onBlockOverlayClick"></div>
-</div>
+        {% block sw_cms_block_overlay %}
+            <div class="sw-cms-block__config-overlay" :class="overlayClasses" @click="onBlockOverlayClick"></div>
+        {% endblock %}
+    </div>
+{% endblock %}

@@ -50,6 +50,8 @@ class CmsBlockDefinition extends EntityDefinition
                 new StringField('sizingMode', 'sizingMode'),
                 new StringField('marginTop', 'marginTop'),
                 new StringField('marginBottom', 'marginBottom'),
+                new StringField('marginLeft', 'marginLeft'),
+                new StringField('marginRight', 'marginRight'),
                 new StringField('backgroundColor', 'backgroundColor'),
                 new StringField('backgroundMode', 'backgroundMode'),
                 new StringField('cssClass', 'cssClass'),

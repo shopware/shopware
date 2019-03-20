@@ -70,20 +70,12 @@ export default function createRouter(Router, View, moduleFactory, LoginService) 
         router.beforeEach((to, from, next) => {
             const loggedIn = LoginService.isLoggedIn();
             const tokenHandler = new RefreshTokenHelper();
-            const newTabBlacklist = ['/', '/login'];
             const loginWhitelist = [
                 '/login', '/login/info', '/login/recovery'
             ];
 
             if (to.meta && to.meta.forceRoute === true) {
                 return next();
-            }
-
-            // Make it possible to open routes in a new browser tab.
-            if (to.meta && to.meta.newTab === true && !newTabBlacklist.includes(from.path) && to.path !== from.path) {
-                const route = router.resolve(to.path);
-                window.open(route.href, '_blank');
-                return next(false);
             }
 
             // The login route will be called and the user is not logged in, let him see the login.

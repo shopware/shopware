@@ -20,10 +20,6 @@ Component.register('sw-cms-el-image', {
         }
     },
 
-    data() {
-        return {};
-    },
-
     computed: {
         mediaStore() {
             return State.getStore('media');
@@ -31,39 +27,29 @@ Component.register('sw-cms-el-image', {
 
         uploadStore() {
             return State.getStore('upload');
+        },
+
+        uploadTag() {
+            return `cms-element-media-${this.element.id}`;
         }
     },
 
-    created() {
-        this.createdComponent();
-    },
-
     methods: {
-        createdComponent() {},
+        onChangeMedia() {
+            return this.uploadStore.runUploads(this.uploadTag);
+        },
 
-        onChangeMedia({ uploadTag }) {
-            this.mediaStore.sync().then(() => {
-                return this.uploadStore.runUploads(uploadTag);
+        onImageUpload({ targetId }) {
+            this.mediaStore.getByIdAsync(targetId).then((mediaEntity) => {
+                this.$set(this.element.config, 'mediaId', mediaEntity.id);
+                this.$set(this.element.data, 'mediaId', mediaEntity.id);
+                this.$set(this.element.data, 'media', mediaEntity);
+
+                this.$emit('element-update', this.element);
             });
         },
 
-        onImageUpload(mediaEntity) {
-            // this.element.config.mediaId = mediaEntity.id;
-            // this.element.data.mediaId = mediaEntity.id;
-            // this.element.data.media = mediaEntity;
-
-            this.$set(this.element.config, 'mediaId', mediaEntity.id);
-            this.$set(this.element.data, 'mediaId', mediaEntity.id);
-            this.$set(this.element.data, 'media', mediaEntity);
-
-            this.$emit('element-update', this.element);
-        },
-
         onImageRemove() {
-            // this.element.config.mediaId = null;
-            // this.element.data.mediaId = null;
-            // this.element.data.media = null;
-
             this.$set(this.element.config, 'mediaId', null);
             this.$set(this.element.data, 'mediaId', null);
             this.$set(this.element.data, 'media', null);

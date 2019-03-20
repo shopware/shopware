@@ -24,13 +24,13 @@
         background: rgba($color-shopware-blue, 0.2);
         border: 1px solid $color-shopware-blue;
 
-        .add-block__handle,
-        .add-block__button {
+        .sw-cms-stage-add-block__handle,
+        .sw-cms-stage-add-block__button {
             display: none;
         }
     }
 
-    .add-block__handle {
+    .sw-cms-stage-add-block__handle {
         display: none;
         height: 2px;
         width: 100%;
@@ -38,7 +38,7 @@
         position: relative;
     }
 
-    .add-block__button {
+    .sw-cms-stage-add-block__button {
         display: none;
         width: 40px;
         height: 40px;

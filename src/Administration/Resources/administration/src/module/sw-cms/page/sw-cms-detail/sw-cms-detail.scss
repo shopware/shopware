@@ -14,7 +14,30 @@
         grid-template-rows: auto 1fr;
     }
 
-    .sw-cms-detail--actions {
+    .sw-cms-detail__device-actions {
+        display: grid;
+        grid-template-columns: 24px 24px 24px;
+        grid-column-gap: 20px;
+        align-content: center;
+        align-items: center;
+        justify-content: start;
+        justify-items: center;
+
+        .sw-icon {
+            color: $color-steam-cloud;
+            cursor: pointer;
+
+            &:hover {
+                color: $color-kashmir;
+            }
+
+            &.is--active {
+                color: $color-shopware-blue;
+            }
+        }
+    }
+
+    .sw-cms-detail__actions {
         display: grid;
         grid-template-columns: 2fr 1fr;
         grid-column-gap: 20px;
@@ -49,13 +72,67 @@
             overflow-x: hidden;
             position: relative;
             padding: 50px 30px;
-            background: $color-light-gray;
+            background: #fafbfc;
+        }
+
+        .sw-cms-detail__empty-stage {
+            width: 100%;
+            height: 400px;
+            display: grid;
+            align-items: center;
+            align-content: center;
+            justify-items: center;
+            justify-content: center;
+            border: 2px dashed #d1d9e0;
+            border-radius: 10px;
+            cursor: auto;
+
+            &.is--valid-drop {
+                background-color: $color-cadet-blue;
+                border-color: $color-shopware-blue;
+            }
+
+            h2.empty-stage__headline {
+                margin-bottom: 5px;
+            }
+
+            p.empty-stage__claim {
+                margin-bottom: 20px;
+            }
         }
 
         .sw-cms-stage {
             background: $color-white;
             box-shadow: 0 0 5px 0 $color-steam-cloud;
+            border: 0 none;
             position: relative;
+            margin: auto;
+            transition: max-width 0.4s ease-in-out, border-width 0.4s ease-in-out;
+            box-sizing: content-box;
+
+            &.is--mobile,
+            &.is--tablet-portrait,
+            &.is--tablet-landscape {
+                border: 30px solid #f0f2f5;
+                border-radius: 15px;
+                box-shadow: 0 0 0 1px #d1d9e0;
+            }
+
+            &.is--mobile {
+                max-width: 460px;
+            }
+
+            &.is--tablet-portrait {
+                max-width: 768px;
+            }
+
+            &.is--tablet-landscape {
+                max-width: 1024px;
+            }
+
+            &.is--desktop {
+                max-width: 100%;
+            }
         }
     }
 

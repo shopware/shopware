@@ -16,6 +16,9 @@
             transform: rotate(180deg);
         }
 
+        a:hover .sw-icon {
+            color: $color-kashmir;
+        }
     }
 
     .sw-cms-toolbar__title h2 {

@@ -1,59 +1,94 @@
-<sw-page class="sw-cms-list" :showSearchBar="false" :showSmartBar="false" @scroll="handleScroll">
-    <template slot="content">
-        <sw-cms-toolbar>
-            <sw-language-switch slot="language-switch" @on-change="onChangeLanguage"></sw-language-switch>
-            <h2 slot="title">Content Management</h2>
-            <sw-button slot="actions" variant="primary">{{ $tc('sw-cms.general.createNewLayout') }}</sw-button>
-        </sw-cms-toolbar>
+{% block sw_cms_list %}
+    <sw-page class="sw-cms-list" :showSearchBar="false" :showSmartBar="false" @scroll="handleScroll">
 
-        <div class="sw-cms-list__content">
-            <div class="sw-cms-list__sidebar">
-                <h3>{{ $tc('sw-cms.general.greeting') }}.</h3>
+        {% block sw_cms_list_container %}
+            <template slot="content">
+                {% block sw_cms_list_toolbar %}
+                    <sw-cms-toolbar>
+                        <sw-language-switch slot="language-switch" @on-change="onChangeLanguage"></sw-language-switch>
+                        <h2 slot="title">{{ $tc('sw-cms.general.moduleTitle') }}</h2>
+                        <sw-button slot="actions" variant="primary" @click="onCreateNewLayout">{{ $tc('sw-cms.general.createNewLayout') }}</sw-button>
+                    </sw-cms-toolbar>
+                {% endblock %}
 
-                <sw-tabs isVertical small class="sw-cms-list__type-nav">
-                    <sw-tabs-item
-                        v-for="pageType in sortPageTypes"
-                        @click="onSortPageType(pageType.value)"
-                        :key="pageType.name"
-                        :active="pageType.active">
-                            {{ pageType.name }}
-                    </sw-tabs-item>
-                </sw-tabs>
-            </div>
+                {% block sw_cms_list_content %}
+                    <div class="sw-cms-list__content">
 
-            <div class="sw-cms-list__listing">
-                <div class="sw-cms-list__actions">
-                    <sw-search-bar :placeholder="$tc('sw-cms.general.placeholderSearchBar')"
-                                   :searchType="$tc('sw-cms.general.mainMenuItemGeneral')"
-                                   :showTag="false"
-                                   :allowGlobalSearch="false"
-                                   @search="onSearch">
-                    </sw-search-bar>
+                        {% block sw_cms_list_sidebar %}
+                            <div class="sw-cms-list__sidebar">
+                                {% block sw_cms_list_sidebar_headline %}
+                                    <h3>{{ $tc('sw-cms.general.greeting') }}.</h3>
+                                {% endblock %}
 
-                    <div class="actions__sorting">
-                        <sw-field type="select"
-                                  name="sortType"
-                                  :label="$tc('sw-cms.sorting.labelSort')"
-                                  :value="sortingConCat"
-                                  @input="onSortingChanged">
+                                {% block sw_cms_list_sidebar_tabs %}
+                                    <sw-tabs isVertical small class="sw-cms-list__type-nav">
+                                        <sw-tabs-item
+                                            v-for="pageType in sortPageTypes"
+                                            @click="onSortPageType(pageType.value)"
+                                            :key="pageType.name"
+                                            :active="pageType.active">
+                                                {{ pageType.name }}
+                                        </sw-tabs-item>
+                                    </sw-tabs>
+                                {% endblock %}
+                            </div>
+                        {% endblock %}
 
-                            <option v-for="sortOption in sortOptions"
-                                    :value="sortOption.value">
-                                {{ sortOption.name }}
-                            </option>
-                        </sw-field>
+                        {% block sw_cms_list_listing %}
+                            <div class="sw-cms-list__listing">
+
+                                {% block sw_cms_list_listing_actions %}
+                                    <div class="sw-cms-list__actions">
+                                        {% block sw_cms_list_listing_actions_search %}
+                                            <sw-search-bar :placeholder="$tc('sw-cms.general.placeholderSearchBar')"
+                                                           :searchType="$tc('sw-cms.general.mainMenuItemGeneral')"
+                                                           :showTag="false"
+                                                           :allowGlobalSearch="false"
+                                                           @search="onSearch">
+                                            </sw-search-bar>
+                                        {% endblock %}
+
+                                        {% block sw_cms_list_listing_actions_sorting %}
+                                            <div class="sw-cms-list__actions-sorting">
+                                                <sw-field type="select"
+                                                          name="sortType"
+                                                          :label="$tc('sw-cms.sorting.labelSort')"
+                                                          :value="sortingConCat"
+                                                          @input="onSortingChanged">
+
+                                                    {% block sw_cms_list_listing_actions_sorting_options %}
+                                                        <option v-for="sortOption in sortOptions"
+                                                                :value="sortOption.value">
+                                                            {{ sortOption.name }}
+                                                        </option>
+                                                    {% endblock %}
+                                                </sw-field>
+                                            </div>
+                                        {% endblock %}
+                                    </div>
+                                {% endblock %}
+
+                                {% block sw_cms_list_listing_list %}
+                                    <div class="sw-cms-list__list">
+                                        {% block sw_cms_list_listing_list_loader %}
+                                            <sw-loader v-if="isLoading && this.pages.length < 1"></sw-loader>
+                                        {% endblock %}
+
+                                        {% block sw_cms_list_listing_list_item %}
+                                            <sw-cms-list-item v-else
+                                                              v-for="cmsPage in pages"
+                                                              :page="cmsPage"
+                                                              :key="cmsPage.id"
+                                                              @onItemClick="onListItemClick">
+                                            </sw-cms-list-item>
+                                        {% endblock %}
+                                    </div>
+                                {% endblock %}
+                            </div>
+                        {% endblock %}
                     </div>
-                </div>
-
-                <div class="sw-cms-list__list">
-                    <sw-loader v-if="isLoading && this.pages.length < 1"></sw-loader>
-                    <sw-cms-list-item v-else
-                                      v-for="cmsPage in pages"
-                                      :page="cmsPage"
-                                      :key="cmsPage.id"
-                                      @onItemClick="onListItemClick"></sw-cms-list-item>
-                </div>
-            </div>
-        </div>
-    </template>
-</sw-page>
+                {% endblock %}
+            </template>
+        {% endblock %}
+    </sw-page>
+{% endblock %}

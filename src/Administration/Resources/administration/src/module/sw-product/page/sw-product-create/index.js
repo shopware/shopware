@@ -6,6 +6,7 @@ Component.extend('sw-product-create', 'sw-product-detail', {
     template,
 
     inject: ['numberRangeService'],
+
     beforeRouteEnter(to, from, next) {
         if (to.name.includes('sw.product.create') && !to.params.id) {
             to.params.id = utils.createId();

@@ -1,21 +1,56 @@
 {
-    "sw-cms": {
-        "general": {
-            "placeholderSearchBar": "Search for a Layout",
-            "mainMenuItemGeneral": "CMS",
-            "greeting": "Welcome",
-            "createNewLayout": "Create new Layout"
-        },
-        "sorting": {
-            "labelSort": "Sort by:",
-            "labelSortByCreatedAsc": "Creation date, ascending",
-            "labelSortByCreatedDsc": "Creation date, descending",
-            "labelSortByUpdatedAsc": "Modification date, ascending",
-            "labelSortByUpdatedDsc": "Modification date, descending",
-            "labelSortByAllPages": "All Types",
-            "labelSortByShopPages": "Shop Pages",
-            "labelSortByLandingPages": "Landing Pages",
-            "labelSortByBlogArticles": "Blog Articles"
-        }
+  "sw-cms": {
+    "general": {
+      "placeholderSearchBar": "Search for a Layout",
+      "mainMenuItemGeneral": "Pages",
+      "moduleTitle": "Content Management",
+      "greeting": "Welcome",
+      "createNewLayout": "Create new Layout"
+    },
+    "sorting": {
+      "labelSort": "Sort by:",
+      "labelSortByCreatedAsc": "Creation date, ascending",
+      "labelSortByCreatedDsc": "Creation date, descending",
+      "labelSortByUpdatedAsc": "Modification date, ascending",
+      "labelSortByUpdatedDsc": "Modification date, descending",
+      "labelSortByAllPages": "All types",
+      "labelSortByShopPages": "Shop pages",
+      "labelSortByLandingPages": "Landingpages",
+      "labelSortByProductPages": "Product pages",
+      "labelSortByCategoryPages": "Category pages"
+    },
+    "detail": {
+      "labelButtonSave": "Save",
+      "headlineEmptyState": "Space for creativity",
+      "claimEmptyState": "Design you layout by placing new blocks on the stage.",
+      "actionEmptyState": "Add first block",
+      "sidebarTitlePageSettings": "Settings",
+      "sidebarHeaderPageSettings": "Basic information",
+      "labelPageTypeLandingpage": "Landingpage",
+      "labelPageTypeCategory": "Listing page",
+      "labelPageTypeProduct": "Product page",
+      "sidebarTitleBlockOverview": "Blocks",
+      "sidebarTitleBlockSettings": "Block settings",
+      "sidebarHeaderBlockSettings": "Block:",
+      "sidebarTitleNavigator": "Navigator",
+      "titleElementSettingsModal": "Element settings",
+      "labelButtonElementSettingsConfirm": "Ok",
+      "titleElementChangeModal": "Change element",
+      "labelButtonElementChangeAbort": "Cancel",
+      "labelBlockNameField": "Block name",
+      "tooltipBlockNameField": "You can define a name for your block, for better usage.",
+      "labelBlockSizingField": "Sizing mode",
+      "labelBlockSizingOptionBoxed": "Boxed content",
+      "labelBlockSizingOptionFull": "Full width",
+      "labelBlockBackgroundColorField": "Background color",
+      "labelBlockTopMarginField": "Top margin",
+      "labelBlockBottomMarginField": "Bottom margin",
+      "labelBlockLeftMarginField": "Left margin",
+      "labelBlockRightMarginField": "Right margin"
+    },
+    "elements": {
+      "captionMediaUpload": "Upload an image",
+      "labelTextElementContent": "Text content"
     }
+  }
 }

@@ -669,7 +669,7 @@ export default class EntityProxy {
                     return;
                 }
 
-                entity.discardChanges();
+                entity.discardChanges(true);
             });
         });
     }

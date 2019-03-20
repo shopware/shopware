@@ -10,7 +10,7 @@
         grid-column-gap: 30px;
 
         .sw-search-bar {
-            background: #FAFBFC;
+            background: $color-iron;
             z-index:9;
         }
     }
@@ -33,21 +33,21 @@
         .sw-field {
             margin: 0;
         }
+    }
 
-        .actions__sorting {
+    .sw-cms-list__actions-sorting {
+        display: grid;
+
+        .sw-field {
             display: grid;
+            width: auto;
+            grid-template-columns: auto auto;
+            align-items: center;
+            margin-bottom: 0;
 
-            .sw-field {
-                display: grid;
-                width: auto;
-                grid-template-columns: auto auto;
-                align-items: center;
-                margin-bottom: 0;
-
-                label {
-                    margin: 8px 10px 8px 0;
-                    text-align: right;
-                }
+            label {
+                margin: 8px 10px 8px 0;
+                text-align: right;
             }
         }
     }

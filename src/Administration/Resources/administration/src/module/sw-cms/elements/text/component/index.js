@@ -15,7 +15,11 @@ Component.register('sw-cms-el-text', {
             type: Object,
             required: true,
             default() {
-                return {};
+                return {
+                    config: {
+                        content: ''
+                    }
+                };
             }
         }
     },
@@ -49,6 +53,10 @@ Component.register('sw-cms-el-text', {
 
     methods: {
         componentCreated() {
+            if (!this.element.config || this.element.config === null) {
+                this.element.config = {};
+            }
+
             if (!this.element.config.content || !this.element.config.content.length) {
                 this.element.config.content = this.defaultContent;
             }

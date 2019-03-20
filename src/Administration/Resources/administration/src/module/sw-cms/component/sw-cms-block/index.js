@@ -35,7 +35,9 @@ Component.register('sw-cms-block', {
             return {
                 'background-color': this.block.config.backgroundColor || 'transparent',
                 'padding-top': this.block.config.marginTop || '0px',
-                'padding-bottom': this.block.config.marginBottom || '0px'
+                'padding-bottom': this.block.config.marginBottom || '0px',
+                'padding-left': this.block.config.marginLeft || '0px',
+                'padding-right': this.block.config.marginRight || '0px'
             };
         },
 

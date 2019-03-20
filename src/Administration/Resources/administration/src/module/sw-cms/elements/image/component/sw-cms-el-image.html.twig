@@ -1,13 +1,19 @@
-<div class="sw-cms-el-image">
-    <img :src="element.data.media.url" v-if="element.data.media">
+{% block sw_cms_element_image %}
+    <div class="sw-cms-el-image">
+        <img :src="element.data.media.url" v-if="element.data.media">
 
-    <sw-media-upload v-else
-                     variant="regular"
-                     :source="element.data.media"
-                     :allowMultiSelect="false"
-                     caption="Upload an image"
-                     @sw-media-upload-new-uploads-added="onChangeMedia"
-                     @sw-media-upload-media-upload-success="onImageUpload"
-                     @sw-media-upload-remove-image="onImageRemove">
-    </sw-media-upload>
-</div>
+        <sw-media-upload v-else
+                         variant="regular"
+                         :uploadTag="uploadTag"
+                         :source="element.data.media"
+                         :allowMultiSelect="false"
+                         :caption="$tc('sw-cms.elements.captionMediaUpload')"
+                         @sw-media-upload-remove-image="onImageRemove">
+        </sw-media-upload>
+        <sw-upload-store-listener
+                :uploadTag="uploadTag"
+                @sw-media-upload-added="onChangeMedia"
+                @sw-media-upload-finished="onImageUpload">
+        </sw-upload-store-listener>
+    </div>
+{% endblock %}

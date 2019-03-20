@@ -1,5 +1,7 @@
-<div class="sw-cms-el-config-text">
-    <sw-text-editor label="Text content"
-                    v-model="element.config.content">
-    </sw-text-editor>
-</div>
+{% block sw_cms_element_text_config %}
+    <div class="sw-cms-el-config-text">
+        <sw-text-editor :label="$tc('sw-cms.elements.labelTextElementContent')"
+                        v-model="element.config.content">
+        </sw-text-editor>
+    </div>
+{% endblock %}

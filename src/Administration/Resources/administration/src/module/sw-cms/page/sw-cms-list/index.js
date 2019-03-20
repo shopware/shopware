@@ -5,6 +5,17 @@ import './sw-cms-list.scss';
 
 Component.register('sw-cms-list', {
     template,
+
+    beforeRouteEnter(to, from, next) {
+        if (!from.path.includes('/cms') && to.path !== from.path && from.path !== '/') {
+            window.open(`${window.origin}/#${to.path}`, '_blank');
+            return next(false);
+        }
+
+        return next();
+    },
+
+
     mixins: [
         Mixin.getByName('listing')
     ],
@@ -41,7 +52,8 @@ Component.register('sw-cms-list', {
                 { value: '', name: this.$tc('sw-cms.sorting.labelSortByAllPages'), active: true },
                 { value: 'landing_page', name: this.$tc('sw-cms.sorting.labelSortByLandingPages') },
                 { value: 'shop_page', name: this.$tc('sw-cms.sorting.labelSortByShopPages') },
-                { value: 'blog_article', name: this.$tc('sw-cms.sorting.labelSortByBlogArticles') }
+                { value: 'product_page', name: this.$tc('sw-cms.sorting.labelSortByProductPages') },
+                { value: 'category_page', name: this.$tc('sw-cms.sorting.labelSortByCategoryPages') }
             ];
         },
 
@@ -122,6 +134,10 @@ Component.register('sw-cms-list', {
 
             this.criteria = CriteriaFactory.equals('cms_page.type', value);
             this.getList();
+        },
+
+        onCreateNewLayout() {
+            this.$router.push({ name: 'sw.cms.create' });
         }
     }
 });

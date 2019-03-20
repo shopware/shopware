@@ -5,6 +5,7 @@ import './elements';
 import './component';
 import './page/sw-cms-list';
 import './page/sw-cms-detail';
+import './page/sw-cms-create';
 
 import deDE from './snippet/de_DE.json';
 import enGB from './snippet/en_GB.json';
@@ -27,8 +28,7 @@ Module.register('sw-cms', {
             component: 'sw-cms-list',
             path: 'index',
             meta: {
-                noNav: true,
-                newTab: true
+                noNav: true
             }
         },
         detail: {
@@ -38,12 +38,20 @@ Module.register('sw-cms', {
                 parentPath: 'sw.cms.index',
                 noNav: true
             }
+        },
+        create: {
+            component: 'sw-cms-create',
+            path: 'create',
+            meta: {
+                parentPath: 'sw.cms.index',
+                noNav: true
+            }
         }
     },
 
     navigation: [{
         id: 'sw-cms',
-        label: 'Content Management',
+        label: 'sw-cms.general.mainMenuItemGeneral',
         color: '#ff68b4',
         path: 'sw.cms.index',
         icon: 'default-object-marketing',

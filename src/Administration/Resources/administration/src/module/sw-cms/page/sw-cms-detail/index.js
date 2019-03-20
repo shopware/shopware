@@ -1,6 +1,5 @@
-import { Component, State, Application } from 'src/core/shopware';
+import { Component, State, Application, Mixin } from 'src/core/shopware';
 import cmsService from 'src/module/sw-cms/service/cms.service';
-import CriteriaFactory from 'src/core/factory/criteria.factory';
 import template from './sw-cms-detail.html.twig';
 import './sw-cms-detail.scss';
 
@@ -9,22 +8,19 @@ Component.register('sw-cms-detail', {
 
     inject: ['loginService'],
 
+    mixins: [Mixin.getByName('placeholder')],
+
     data() {
         return {
             pageId: null,
-            isLoading: true,
             page: {
-                isLoading: false,
-                elements: []
+                blocks: []
             },
             salesChannels: [],
+            isLoading: false,
             currentSalesChannelKey: null,
-            currentBlock: null,
-            blockConfigDefaults: {
-                marginBottom: '40px',
-                marginTop: '40px',
-                sizingMode: 'boxed'
-            }
+            currentDeviceView: 'desktop',
+            currentBlock: null
         };
     },
 
@@ -43,6 +39,27 @@ Component.register('sw-cms-detail', {
 
         cmsElements() {
             return cmsService.getCmsElementRegistry();
+        },
+
+        blockConfigDefaults() {
+            return {
+                name: null,
+                marginBottom: '40px',
+                marginTop: '40px',
+                marginLeft: '20px',
+                marginRight: '20px',
+                sizingMode: 'boxed'
+            };
+        }
+    },
+
+    watch: {
+        'page.blocks': {
+            handler() {
+                if (this.page.blocks.length <= 0) {
+                    this.currentBlock = null;
+                }
+            }
         }
     },
 
@@ -54,6 +71,7 @@ Component.register('sw-cms-detail', {
         createdComponent() {
             if (this.$route.params.id) {
                 this.pageId = this.$route.params.id;
+                this.isLoading = true;
 
                 this.salesChannelStore.getList({ page: 1, limit: 25 }).then((response) => {
                     this.salesChannels = response.items;
@@ -71,16 +89,25 @@ Component.register('sw-cms-detail', {
 
             const initContainer = Application.getContainer('init');
             const httpClient = initContainer.httpClient;
+            const currentLanguageId = State.getStore('language').getCurrentId();
 
-            httpClient.get(`/_storefront-proxy/${this.currentSalesChannelKey}/storefront-api/v1/cms-page/${pageId}`, {
-                headers: { Authorization: `Bearer ${this.loginService.getToken()}` }
+            httpClient.get(`/_proxy/storefront-api/${this.currentSalesChannelKey}/v1/cms-page/${pageId}`, {
+                headers: {
+                    Authorization: `Bearer ${this.loginService.getToken()}`,
+                    'x-sw-language-id': currentLanguageId
+                }
             }).then((response) => {
                 if (response.data.data) {
+                    this.pageStore.removeById(response.data.data.id);
                     this.page = this.pageStore.create(response.data.data.id);
-                    this.page.setData(response.data.data, false, true, true);
+                    this.page.setData(response.data.data, false, true, false, currentLanguageId);
 
                     this.page.blocks.forEach((block, index) => {
                         block.position = index;
+
+                        if (block.config === null) {
+                            block.config = { ...this.blockConfigDefaults };
+                        }
                     });
 
                     this.isLoading = false;
@@ -88,29 +115,16 @@ Component.register('sw-cms-detail', {
             });
         },
 
-        loadPageFromApi(pageId) {
-            this.isLoading = true;
-            const params = {
-                criteria: CriteriaFactory.equals('cms_page.id', pageId),
-                associations: {
-                    blocks: {
-                        limit: 500,
-                        associations: {
-                            slots: { limit: 500 }
-                        }
-                    }
-                }
-            };
-
-            return this.pageStore.getList(params, true).then((response) => {
-                const cmsPages = response.items;
-                this.page = cmsPages[0];
-                this.isLoading = false;
-            });
+        onDeviceViewChange(view) {
+            this.currentDeviceView = view;
         },
 
         onChangeLanguage() {
-            return this.loadPage(this.pageId);
+            this.isLoading = true;
+            return this.salesChannelStore.getList({ page: 1, limit: 25 }).then((response) => {
+                this.salesChannels = response.items;
+                return this.loadPage(this.pageId);
+            });
         },
 
         abortOnLanguageChange() {
@@ -174,6 +188,8 @@ Component.register('sw-cms-detail', {
 
             this.page.blocks.splice(dropData.dropIndex, 0, newBlock);
             this.updateBlockPositions();
+
+            this.onBlockSelection(newBlock);
         },
 
         onBlockDragSort(dragData, dropData, validDrop) {

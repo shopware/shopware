@@ -1,27 +1,30 @@
 {% block sw_text_field %}
     <div class="sw-colorpicker" :class="fieldClasses" xmlns:v-bind="http://www.w3.org/1999/xhtml">
 
-        <!-- Label -->
-        {% block sw_colorpicker_label %}
-            <label class="sw-colorpicker__label" v-if="getInlineSnippet(label).length > 0">
-                {{ getInlineSnippet(label) }}
-            </label>
-        {% endblock %}
-
-        <!-- colorpicker -->
         {% block sw_colorpicker_field %}
             <div class="sw-colorpicker__field">
+                {% block sw_colorpicker_text_field %}
+                    <sw-text-field class="sw-colorpicker__textfield" v-model="color" :label="label" :disabled="disabled">
+                        {% block sw_colorpicker_preview %}
+                            <div slot="prefix" class="sw-colorpicker__previewWrapper">
+                                {% block sw_colorpicker_preview_color %}
+                                    <div class="sw-colorpicker__previewColor" :style="{ background: color }"></div>
+                                {% endblock %}
+                                {% block sw_colorpicker_preview_background %}
+                                    <div class="sw-colorpicker__previewBackground" :class="{'sw-colorpicker__previewBackground--empty': emptyColor}"></div>
+                                {% endblock %}
+                            </div>
+                        {% endblock %}
 
-                {% block sw_colorpicker_preview %}
-                    <div class="sw-colorpicker__preview" v-bind:style="{ background: color }"></div>
+                        {% block sw_colorpicker_trigger %}
+                            <div slot="suffix" class="sw-colorpicker__trigger">
+                                {% block sw_colorpicker_trigger_icon %}
+                                    <sw-icon class="sw-colorpicker__icon" name="default-tools-colorpicker"></sw-icon>
+                                {% endblock %}
+                            </div>
+                        {% endblock %}
+                    </sw-text-field>
                 {% endblock %}
-
-                {% block sw_colorpicker_trigger %}
-                    <div class="sw-colorpicker__trigger">
-                        <sw-icon class="sw-colorpicker__icon" name="default-tools-colorpicker"></sw-icon>
-                    </div>
-                {% endblock %}
-
             </div>
         {% endblock %}
 

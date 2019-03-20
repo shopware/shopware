@@ -10,6 +10,7 @@ import './sw-colorpicker.scss';
  * @component-example
  * <sw-colorpicker label="Color picker" value="#dd4800"></sw-colorpicker>
  */
+
 export default {
     name: 'sw-colorpicker',
     extendsFrom: 'sw-text-field',
@@ -28,17 +29,24 @@ export default {
             default: false
         },
 
-        config: {
-            type: Object,
+        alpha: {
+            type: Boolean,
             required: false,
-            default() {
-                return {
-                    popup: 'left',
-                    alpha: false,
-                    editor: true,
-                    editorFormat: 'hex'
-                };
-            }
+            default: false
+        },
+
+        editorFormat: {
+            type: String,
+            required: false,
+            default: 'hex',
+            validValues: ['hex', 'hsl', 'rgb']
+        },
+
+        colorCallback: {
+            type: String,
+            required: false,
+            default: 'hex',
+            validValues: ['hex', 'rgbString', 'rgbaString']
         }
     },
 
@@ -63,12 +71,29 @@ export default {
                 'is--disabled': !!this.$props.disabled,
                 'is--open': !!this.open
             };
+        },
+
+        emptyColor() {
+            return !this.color;
+        },
+
+        config() {
+            return {
+                popup: 'left',
+                alpha: this.alpha || false,
+                editorFormat: this.editorFormat || 'hex',
+                colorCallback: this.colorCallback || 'hex'
+            };
         }
     },
 
     watch: {
         value(value) {
             this.setColor(value);
+        },
+
+        color() {
+            this.$emit('input', this.color);
         }
     },
 
@@ -77,8 +102,14 @@ export default {
             this.colorPicker = new Picker({
                 parent: this.$el.querySelector('.sw-colorpicker__trigger'),
                 onClose: this.onClose,
-                onOpen: this.onOpen
+                onOpen: this.onOpen,
+                onChange: this.onChange
             });
+
+            this.setColorpickerValues();
+        },
+
+        setColorpickerValues() {
             this.colorPicker.setOptions(this.config);
             this.setColor(this.value, true);
         },
@@ -106,10 +137,14 @@ export default {
             }
         },
 
+        onChange(value) {
+            this.color = value[this.colorCallback];
+        },
+
         onClose(value) {
             this.open = false;
-            this.color = value.hex.substring(0, 7);
-            this.$emit('input', this.color);
+            this.color = value[this.colorCallback];
+            this.$emit('sw-colorpicker-closed');
         }
     }
 };

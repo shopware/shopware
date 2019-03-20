@@ -18,6 +18,12 @@ Component.register('sw-tag-field', {
             default: false
         },
 
+        label: {
+            type: Boolean,
+            required: false,
+            default: true
+        },
+
         size: {
             type: String,
             required: false,

@@ -97,7 +97,11 @@
                                         {% endblock %}
 
                                         {% block sw_customer_card_metadata_customer_tag %}
-                                            <sw-tag-field :entity="customer" :disabled="!editMode" size="small"></sw-tag-field>
+                                            <sw-tag-field :entity="customer"
+                                                          :disabled="!editMode"
+                                                          :label="false"
+                                                          size="small">
+                                            </sw-tag-field>
                                         {% endblock %}
 
                                         {% block sw_customer_card_metadata_additional %}

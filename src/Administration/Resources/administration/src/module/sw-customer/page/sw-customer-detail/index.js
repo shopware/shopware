@@ -1,7 +1,6 @@
 import { Component, Mixin, State } from 'src/core/shopware';
 import CriteriaFactory from 'src/core/factory/criteria.factory';
 import template from './sw-customer-detail.html.twig';
-import './sw-cusomer-detail.scss';
 
 Component.register('sw-customer-detail', {
     template,

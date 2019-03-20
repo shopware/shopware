@@ -35,6 +35,14 @@
                                         {{ currentOrder.orderCustomer | salutation }}
                                     </div>
                                 {% endblock %}
+                                {% block sw_order_user_card_metadata_tags %}
+                                    <sw-tag-field size="small"
+                                                  :entity="currentOrder"
+                                                  :disabled="!isEditing"
+                                                  :label="false"
+                                                  @input="emitChange">
+                                    </sw-tag-field>
+                                {% endblock %}
                             </div>
                         {% endblock %}
                         {% block sw_order_detail_base_info_summary %}

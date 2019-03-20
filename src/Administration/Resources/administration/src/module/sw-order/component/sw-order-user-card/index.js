@@ -103,7 +103,7 @@ Component.register('sw-order-user-card', {
 
         onAddressModalSave() {
             this.addressBeingEdited = null;
-            this.$emit('order-changed');
+            this.emitChange();
         },
 
         onAddressModalAddressSelected(address) {
@@ -116,7 +116,7 @@ Component.register('sw-order-user-card', {
                     {},
                     ApiService.getVersionHeader(this.currentOrder.versionId)
                 ).then(() => {
-                    this.$emit('order-changed');
+                    this.emitChange();
                 }).catch((error) => {
                     this.$emit('error', error);
                 });
@@ -141,11 +141,14 @@ Component.register('sw-order-user-card', {
                     return orderAddress.save();
                 })
                 .then(() => {
-                    this.$emit('order-changed');
+                    this.emitChange();
                 })
                 .catch((error) => {
                     this.$emit('error', error);
                 });
+        },
+        emitChange() {
+            this.$emit('order-changed');
         }
     }
 

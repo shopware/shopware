@@ -33,7 +33,7 @@ class SEPAPayment implements PaymentHandlerInterface
         $completeStateId = $this->stateMachineRegistry->getStateByTechnicalName(Defaults::ORDER_TRANSACTION_STATE_MACHINE, Defaults::ORDER_TRANSACTION_STATES_PAID, $context)->getId();
 
         $data = [
-            'id' => $transaction->getTransactionId(),
+            'id' => $transaction->getOrderTransaction()->getId(),
             'stateId' => $completeStateId,
         ];
 

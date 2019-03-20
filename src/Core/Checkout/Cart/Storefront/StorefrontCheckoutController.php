@@ -5,7 +5,7 @@ namespace Shopware\Core\Checkout\Cart\Storefront;
 use Shopware\Core\Checkout\Cart\Exception\CartTokenNotFoundException;
 use Shopware\Core\Checkout\Cart\Exception\OrderNotFoundException;
 use Shopware\Core\Checkout\CheckoutContext;
-use Shopware\Core\Checkout\Context\CheckoutContextFactory;
+use Shopware\Core\Checkout\Context\CheckoutContextFactoryInterface;
 use Shopware\Core\Checkout\Context\CheckoutContextPersister;
 use Shopware\Core\Checkout\Context\CheckoutContextService;
 use Shopware\Core\Checkout\Customer\Storefront\AccountService;
@@ -43,7 +43,7 @@ class StorefrontCheckoutController extends AbstractController
     private $contextPersister;
 
     /**
-     * @var CheckoutContextFactory
+     * @var CheckoutContextFactoryInterface
      */
     private $checkoutContextFactory;
 
@@ -66,7 +66,7 @@ class StorefrontCheckoutController extends AbstractController
         PaymentService $paymentService,
         CartService $cartService,
         CheckoutContextPersister $contextPersister,
-        CheckoutContextFactory $checkoutContextFactory,
+        CheckoutContextFactoryInterface $checkoutContextFactory,
         AccountService $accountService,
         Serializer $serializer,
         EntityRepositoryInterface $orderRepository
@@ -96,9 +96,7 @@ class StorefrontCheckoutController extends AbstractController
 
         $this->contextPersister->save($context->getToken(), ['cartToken' => null]);
 
-        return new JsonResponse(
-            $this->serialize($order)
-        );
+        return new JsonResponse($this->serialize($order));
     }
 
     /**
@@ -116,15 +114,13 @@ class StorefrontCheckoutController extends AbstractController
 
         $customerId = $this->accountService->createNewCustomer($internal, $context);
 
-        $orderContext = $this->createOrderContext($customerId, $context);
+        $orderContext = $this->createCheckoutContext($customerId, $context);
 
         $cart = $this->cartService->getCart($token, $orderContext);
         $orderId = $this->cartService->order($cart, $orderContext);
         $this->contextPersister->save($context->getToken(), ['cartToken' => null]);
 
-        return new JsonResponse(
-            $this->serialize($this->getOrderById($orderId, $context))
-        );
+        return new JsonResponse($this->serialize($this->getOrderById($orderId, $context)));
     }
 
     /**
@@ -132,14 +128,12 @@ class StorefrontCheckoutController extends AbstractController
      *
      * @throws OrderNotFoundException
      */
-    public function getDeepLinkOrder(string $id, Request $request, Context $context): Response
+    public function getDeepLinkOrder(string $id, Request $request, Context $context): JsonResponse
     {
         $deepLinkCode = (string) $request->query->get('accessCode');
         $order = $this->cartService->getOrderByDeepLinkCode($id, $deepLinkCode, $context);
 
-        return new JsonResponse(
-            $this->serialize($order)
-        );
+        return new JsonResponse($this->serialize($order));
     }
 
     /**
@@ -157,7 +151,7 @@ class StorefrontCheckoutController extends AbstractController
             return new JsonResponse(['paymentUrl' => $response->getTargetUrl()]);
         }
 
-        return new JsonResponse(null, Response::HTTP_NO_CONTENT);
+        return new Response('', Response::HTTP_NO_CONTENT);
     }
 
     /**
@@ -168,22 +162,20 @@ class StorefrontCheckoutController extends AbstractController
         $criteria = new Criteria([$orderId]);
         $order = $this->orderRepository->search($criteria, $context->getContext())->get($orderId);
 
-        if (!$order) {
+        if ($order === null) {
             throw new OrderNotFoundException($orderId);
         }
 
         return $order;
     }
 
-    private function createOrderContext(string $customerId, CheckoutContext $context): CheckoutContext
+    private function createCheckoutContext(string $customerId, CheckoutContext $context): CheckoutContext
     {
-        $orderContext = $this->checkoutContextFactory->create(
+        return $this->checkoutContextFactory->create(
             $context->getToken(),
             $context->getSalesChannel()->getId(),
             [CheckoutContextService::CUSTOMER_ID => $customerId]
         );
-
-        return $orderContext;
     }
 
     private function serialize($data): array

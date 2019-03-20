@@ -21,9 +21,6 @@
         "searchButton": "Search",
         "searchPlaceholder": "Search term..."
     },
-    "header": {
-        "logoLink": "zur Startseite wechseln"
-    },
     "meta": {
         "xmlLang": "en-GB",
         "author": "",
@@ -97,10 +94,10 @@
         "paymentChangeSubmit": "Change",
         "profilePersonalTitle": "Profile",
         "profileMailTitle": "Email address",
+        "profileCurrentMail": "Current email address",
         "profilePasswordTitle": "Password",
         "orRegister": "or",
         "orRegisterLink": "register",
-        "profileCurrentMail": "Current email address",
         "profilePasswordCreateNew": "New password",
         "profilePasswordCurrent": "Your current password",
         "profileSaveChanges": "Save Changes",

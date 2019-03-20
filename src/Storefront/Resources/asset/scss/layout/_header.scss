@@ -20,23 +20,10 @@
     margin-right: $spacer-xs;
 }
 
-.account-widget-dropdown {
-    padding-bottom: 0;
-    font-size: $font-size-sm;
-
-    &.show {
-        display: none;
-    }
-}
-
 .account-widget-title,
 .account-widget-btn::after,
 .cart-widget-total {
     display: none;
-}
-
-.login-submit-widget {
-    padding: $spacer;
 }
 
 .cart-widget-display {
@@ -46,8 +33,8 @@
 
 .cart-widget .cart-widget-badge {
     position: absolute;
-    top: -10px;
-    left: 5px;
+    top: -8px;
+    left: 17px;
 }
 
 .account-widget .account-widget-btn,
@@ -68,10 +55,6 @@
     .header-search {
         max-width: 350px;
         margin: auto;
-    }
-
-    .account-widget-dropdown.show {
-        display: block;
     }
 
     .account-widget-title,

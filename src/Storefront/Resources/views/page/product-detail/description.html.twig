@@ -1,14 +1,5 @@
 {% sw_extends '@Storefront/base/_utilities/offcanvas.html.twig' %}
 
-{% block base_utilities_offcanvas_close %}
-    <a href="#off-canvas-close" class="off-canvas-close text-left">
-        {% block base_utilities_offcanvas_close_icon %}
-            <i class="fas fa-chevron-left close-icon"></i>
-        {% endblock %}
-        {{ "general.offcanvasCloseMenu"|trans }}
-    </a>
-{% endblock %}
-
 {% block base_utilities_offcanvas_content %}
     {% block page_product_detail_description_container %}
         <div class="product-detail-description tab-pane-container">

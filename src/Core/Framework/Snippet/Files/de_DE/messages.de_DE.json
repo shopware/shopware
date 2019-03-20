@@ -17,10 +17,9 @@
         "noscriptNotice": "Um unseren Shop in vollem Umfang nutzen zu k&ouml;nnen, empfehlen wir Ihnen Javascript in Ihrem Browser zu aktiveren."
     },
     "header": {
-        "logoLink": "Switch to homepage"
-    },
-    "header": {
-        "logoLink": "Switch to homepage"
+        "logoLink": "Switch to homepage",
+        "searchButton": "Suchen",
+        "searchPlaceholder": "Suchbegriff..."
     },
     "meta": {
         "xmlLang": "de-DE",
@@ -97,6 +96,8 @@
         "profileMailTitle": "E-Mail Adresse",
         "profileCurrentMail": "Aktuelle E-Mail Adresse",
         "profilePasswordTitle": "Passwort",
+        "orRegister": "oder",
+        "orRegisterLink": "registrieren",
         "profilePasswordCreateNew": "Neues Passwort",
         "profilePasswordCurrent": "Ihr Aktuelles Passwort",
         "profileSaveChanges": "Änderungen Speichern",
@@ -112,8 +113,6 @@
         "addressEditWelcome": "Adresse bearbeiten",
         "addressSaveChange": "Adresse speichern",
         "requiredFields": "* hierbei handelt es sich um ein Pflichtfeld"
-        "orRegister": "oder",
-        "orRegisterLink": "registrieren"
     },
     "address": {
         "streetLabel": "Straße und Nr.",

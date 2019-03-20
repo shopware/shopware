@@ -1,11 +1,3 @@
-.account-sidebar {
-    margin-bottom: $spacer-lg;
-}
-
-.account-sidebar-footer .btn {
-    padding: 0;
-}
-
 .account-welcome {
     margin-bottom: $spacer-lg;
 }
@@ -22,10 +14,4 @@
 .account-card-actions {
     align-items: flex-start;
     margin-top: auto;
-}
-
-@include media-breakpoint-up(md) {
-    .account-sidebar {
-        margin-bottom: 0;
-    }
 }

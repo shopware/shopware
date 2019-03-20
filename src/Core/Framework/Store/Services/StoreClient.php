@@ -67,19 +67,6 @@ final class StoreClient
         return $accessTokenStruct;
     }
 
-    public function checkLogin(string $token): bool
-    {
-        $response = $this->client->get(
-            '/accesstokens/' . $token,
-            [
-                'query' => $this->getDefaultQueryParameters(),
-            ]
-        );
-        $this->verifyResponseSignature($response);
-
-        return true;
-    }
-
     /**
      * @return StoreLicenseStruct[]
      */

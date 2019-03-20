@@ -81,6 +81,8 @@
       "columnExpirationDate":"Gültig bis",
       "columnType":"Variante",
       "messageEmpty":"Es sind keine Lizenzen vorhanden",
+      "messageNotLoggedIn": "Shopware Account Login benötigt",
+      "labelAccountLogin": "Login in meinen Shopware Account",
       "labelType_buy":"Kauf",
       "labelType_rent":"Miete",
       "labelType_test":"Test",

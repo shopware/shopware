@@ -16,7 +16,8 @@ Component.register('sw-plugin-license-list', {
         return {
             licenses: [],
             isLoading: false,
-            showLoginModal: false
+            showLoginModal: false,
+            isLoggedIn: false
         };
     },
 
@@ -45,25 +46,42 @@ Component.register('sw-plugin-license-list', {
         },
 
         getList() {
-            this.isLoading = true;
-            this.storeService.checkLogin().then(() => {
-                this.loadLicenses();
-            }).catch(() => {
-                this.showLoginModal = true;
-            });
+            this.loadLicenses();
         },
 
         loadLicenses() {
+            this.isLoading = true;
             this.storeService.getLicenseList().then((response) => {
                 this.licenses = response.items;
-                this.total = response.total;
+                this.total = 0;
                 this.isLoading = false;
-            });
+                this.isLoggedIn = true;
+            })
+                .catch((exception) => {
+                    this.isLoading = false;
+                    this.isLoggedIn = false;
+                    if (exception.response && exception.response.data && exception.response.data.errors) {
+                        const unauthorized = exception.response.data.errors.find((error) => {
+                            return parseInt(error.code, 10) === 401 || error.code === 'STORE-TOKEN-MISSING';
+                        });
+                        if (unauthorized) {
+                            this.openLoginModal();
+                        }
+                    }
+                });
+        },
+
+        openLoginModal() {
+            this.showLoginModal = true;
         },
 
         loginSuccess() {
             this.showLoginModal = false;
             this.loadLicenses();
+        },
+
+        loginAbort() {
+            this.showLoginModal = false;
         }
     }
 });

@@ -67,6 +67,8 @@
       "columnExpirationDate":"Valid until",
       "columnType":"Variant",
       "messageEmpty":"No licenses existing",
+      "messageNotLoggedIn": "Shopware account login required",
+      "labelAccountLogin": "Login with my shopware account",
       "labelType_buy":"Buy",
       "labelType_rent":"Rent",
       "labelType_test":"Test",

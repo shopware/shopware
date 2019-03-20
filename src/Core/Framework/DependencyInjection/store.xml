@@ -9,6 +9,7 @@
             <argument type="service" id="plugin.repository" />
             <argument type="service" id="Shopware\Core\Framework\Plugin\PluginManagementService" />
             <argument type="service" id="Shopware\Core\Framework\Plugin\PluginLifecycleService" />
+            <argument type="service" id="user.repository" />
         </service>
 
         <service class="GuzzleHttp\Client" id="shopware.store.api_client">

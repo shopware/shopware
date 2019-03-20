@@ -1,0 +1,15 @@
+@startuml LAYOUT_TOP_DOWN
+!includeurl https://raw.githubusercontent.com/RicardoNiepel/C4-PlantUML/master/C4_Component.puml
+
+LAYOUT_TOP_DOWN
+
+title Core structure
+
+Container(eCommerce, "eCommerce", "eCommerce specific", "Contains the System settings, different content types and the checkout process")
+Container(config,  "Config", "Configuration", "Contains migrations feature flags and sane defaults")
+Container(framework, "Framework", "Technical Core", "Abstractions on technical use cases.")
+
+Rel_D(eCommerce, framework, "uses")
+Rel_L(config, framework, "uses")
+Rel_L(config, eCommerce, "uses")
+@enduml

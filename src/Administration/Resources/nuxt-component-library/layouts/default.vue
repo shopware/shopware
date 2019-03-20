@@ -3,7 +3,7 @@
         <aside class="sidebar--main">
             <div class="logo">
                 <nuxt-link to="/">
-                    <img src="~/assets/img/logo-white.svg" alt="Shopware Component library logo" width="120px" height="120px">
+                    <img src="~/assets/img/component-library-logo.svg" alt="Shopware Component library logo" width="120px" height="120px">
                 </nuxt-link>
             </div>
             <nav class="navigation--main">
@@ -35,6 +35,9 @@
 <style>
     .search-wrapper {
         padding: 0 40px;
+    }
+    .logo {
+        margin-bottom: 1.5rem;
     }
     .search-query {
         display: block;

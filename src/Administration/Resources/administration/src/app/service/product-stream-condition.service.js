@@ -50,7 +50,9 @@ export default function conditionService() {
         'coverId',
         'productMediaVersionId',
         'datasheetIds',
-        'variationIds'
+        'variationIds',
+        'orders',
+        'customers'
     ];
 
     const entityBlacklist = {
@@ -62,6 +64,9 @@ export default function conditionService() {
             'name',
             'products',
             'productServices'
+        ],
+        tag: [
+            'categories'
         ],
         category: [
             'displayNestedProducts',
@@ -134,8 +139,6 @@ export default function conditionService() {
             'paymentMethods',
             'shippingMethods',
             'country',
-            'orders',
-            'customers',
             'domains',
             'systemConfigs',
             'navigation',

@@ -169,7 +169,7 @@ Component.extend('sw-product-stream-filter', 'sw-condition-base', {
         filterProperties(definition) {
             const store = {};
             Object.keys(definition.properties).forEach((key) => {
-                if (this.isPropertyInAnyBlacklist(definition.name, key)) {
+                if (this.isPropertyInAnyBlacklist(definition.name, key, definition.properties[key])) {
                     return;
                 }
 
@@ -195,11 +195,18 @@ Component.extend('sw-product-stream-filter', 'sw-condition-base', {
             return store;
         },
 
-        isPropertyInAnyBlacklist(definitionName, property) {
-            return this.productStreamConditionService.isPropertyInBlacklist(definitionName, property)
-                || (this.definitionBlacklist
-                    && this.definitionBlacklist[definitionName]
-                    && this.definitionBlacklist[definitionName].includes(property));
+        isPropertyInAnyBlacklist(definitionName, property, field) {
+            if (this.productStreamConditionService.isPropertyInBlacklist(definitionName, property)) {
+                return true;
+            }
+
+            if (this.isEntityDefinition(field)) {
+                property = field.entity;
+            }
+
+            return this.definitionBlacklist
+                   && this.definitionBlacklist[definitionName]
+                   && this.definitionBlacklist[definitionName].includes(field);
         },
 
         getDefinitionStore(definition) {

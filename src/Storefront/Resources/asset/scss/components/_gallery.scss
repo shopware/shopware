@@ -42,7 +42,7 @@
 
 .gallery-slider-item {
     backface-visibility: hidden;
-    cursor: pointer;
+    cursor: default;
     display: inline-block;
     height: 100%;
     position: relative;
@@ -56,12 +56,16 @@
 
 .gallery-controls {
     list-style: none;
+    margin: 0;
     padding: 0;
 }
 
 .gallery-controls-prev,
 .gallery-controls-next {
-    color: $gray-600;
+    &,
+    &:focus {
+        color: $gray-600;
+    }
 
     &:hover {
         color: $primary;

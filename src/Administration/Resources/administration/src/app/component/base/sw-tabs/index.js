@@ -11,11 +11,11 @@ import './sw-tabs.scss';
  * @component-example
  * <sw-tabs>
  *
- *     <sw-tabs-item href="https://www.google.com">
+ *     <sw-tabs-item>
  *         Explore
  *     </sw-tabs-item>
  *
- *     <sw-tabs-item href="https://www.shopware.com">
+ *     <sw-tabs-item>
  *         My Plugins
  *     </sw-tabs-item>
  *

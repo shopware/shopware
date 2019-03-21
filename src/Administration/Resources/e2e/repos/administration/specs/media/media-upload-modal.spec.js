@@ -72,9 +72,6 @@ module.exports = {
 
         browser.expect.element('.sw-media-grid-item__item--0').to.have.text.that.equals('sw-login-background_(1).png');
         browser.expect.element('.sw-media-grid-item__item--1').to.have.text.that.equals('sw-login-background.png');
-    },
-    after: (browser) => {
-        browser.end();
     }
 };
 

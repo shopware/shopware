@@ -87,8 +87,5 @@ module.exports = {
             .expect.element(page.elements.smartBarHeader).to.have.text.that.equals(fixtures.name);
 
         browser.expect.element(page.elements.mediaNameLabel).to.have.text.that.equals('sw-login-background.png');
-    },
-    after: (browser) => {
-        browser.end();
     }
 };

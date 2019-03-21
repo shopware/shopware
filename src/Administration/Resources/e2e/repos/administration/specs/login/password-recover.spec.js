@@ -32,8 +32,5 @@ module.exports = {
         browser
             .click('.sw-login__back')
             .waitForElementVisible('.sw-login');
-    },
-    after: (browser) => {
-        browser.end();
     }
 };

@@ -21,8 +21,5 @@ module.exports = {
             .waitForElementPresent(`${page.elements.gridItem}--0 .sw-media-base-item__loader`)
             .waitForElementNotPresent(`${page.elements.gridItem}--0 .sw-media-base-item__loader`)
             .expect.element(`${page.elements.gridItem}--0 ${page.elements.baseItemName}`).to.have.text.that.contains('new file name');
-    },
-    after: (browser) => {
-        browser.end();
     }
 };

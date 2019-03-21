@@ -76,8 +76,5 @@ module.exports = {
             .expect.element('.smart-bar__header').to.have.text.that.equals('First folder');
 
         browser.expect.element(`${page.elements.gridItem}--0 ${page.elements.baseItemName}`).to.have.text.that.equals('sw-login-background.png');
-    },
-    after: (browser) => {
-        browser.end();
     }
 };

@@ -41,8 +41,5 @@ module.exports = {
             .click('.smart-bar__actions a[href="#/sw/product/create"]')
             .click('.sw-sidebar-navigation-item')
             .expect.element(page.elements.folderNameLabel).to.have.text.that.equals(global.MediaFixtureService.mediaFolderFixture.name);
-    },
-    after: (browser) => {
-        browser.end();
     }
 };

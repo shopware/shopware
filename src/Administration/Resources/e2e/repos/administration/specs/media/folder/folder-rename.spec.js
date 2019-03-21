@@ -68,8 +68,5 @@ module.exports = {
             .click('.icon--folder-breadcrumbs-back-to-root')
             .waitForElementNotPresent(page.elements.loader)
             .expect.element(page.elements.folderNameLabel).to.have.text.that.equals('What remains of Ediths Name');
-    },
-    after: (browser) => {
-        browser.end();
     }
 };

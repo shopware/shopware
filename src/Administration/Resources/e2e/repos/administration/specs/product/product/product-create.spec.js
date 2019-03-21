@@ -72,8 +72,5 @@ module.exports = {
             .getLocationInView('.sw-select__selection-item')
             .expect.element('.sw-select__selection-item').to.have.text.that.equals(global.AdminFixtureService.basicFixture.name);
         browser.click(page.elements.smartBarBack);
-    },
-    after: (browser) => {
-        browser.end();
     }
 };

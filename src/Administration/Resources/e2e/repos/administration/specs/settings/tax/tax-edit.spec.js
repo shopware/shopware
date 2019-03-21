@@ -38,8 +38,5 @@ module.exports = {
         browser
             .click(page.elements.smartBarBack)
             .expect.element(`${page.elements.gridRow}--5 ${page.elements.taxColumnName}`).to.have.text.that.equals('Even higher tax rate');
-    },
-    after: (browser) => {
-        browser.end();
     }
 };

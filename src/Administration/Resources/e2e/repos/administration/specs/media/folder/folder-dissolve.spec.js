@@ -57,8 +57,5 @@ module.exports = {
             .waitForElementVisible(page.elements.mediaNameLabel)
             .waitForElementNotPresent(page.elements.folderNameLabel)
             .expect.element(page.elements.mediaNameLabel).to.have.text.that.equals('sw-login-background.png');
-    },
-    after: (browser) => {
-        browser.end();
     }
 };

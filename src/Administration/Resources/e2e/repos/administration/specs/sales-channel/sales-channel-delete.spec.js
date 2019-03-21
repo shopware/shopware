@@ -17,8 +17,5 @@ module.exports = {
         const page = salesChannelPage(browser);
         page.openSalesChannel(fixture.name);
         page.deleteSingleSalesChannel(fixture.name);
-    },
-    after: (browser) => {
-        browser.end();
     }
 };

@@ -41,8 +41,5 @@ module.exports = {
         browser
             .click('.sw-context-menu-item')
             .expect.element(page.elements.smartBarHeader).to.have.text.that.contains('English');
-    },
-    after: (browser) => {
-        browser.end();
     }
 };

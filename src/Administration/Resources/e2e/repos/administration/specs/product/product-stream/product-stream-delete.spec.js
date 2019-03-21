@@ -50,8 +50,5 @@ module.exports = {
         browser
             .waitForElementNotPresent(page.elements.loader)
             .expect.element(page.elements.smartBarAmount).to.have.text.that.contains('(1)');
-    },
-    after: (browser) => {
-        browser.end();
     }
 };

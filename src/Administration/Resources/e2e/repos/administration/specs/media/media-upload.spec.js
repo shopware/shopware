@@ -31,8 +31,5 @@ module.exports = {
             .assert.containsText('.sw-media-quickinfo-metadata-mimeType', 'image/png')
             .assert.containsText('.sw-media-quickinfo-metadata-item__term:nth-of-type(6)', 'Size:')
             .assert.containsText('.sw-media-quickinfo-metadata-size', '501.38KB');
-    },
-    after: (browser) => {
-        browser.end();
     }
 };

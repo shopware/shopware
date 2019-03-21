@@ -37,8 +37,5 @@ module.exports = {
             .waitForElementNotPresent(page.elements.loader)
             .checkNotification('Files have been deleted successfully', `${page.elements.notification}--1`)
             .checkNotification('File "sw-login-background.png" has been deleted successfully');
-    },
-    after: (browser) => {
-        browser.end();
     }
 };

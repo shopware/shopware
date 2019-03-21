@@ -30,8 +30,5 @@ module.exports = {
             .waitForElementNotPresent('.is--inline-editing ')
             .refresh()
             .expect.element('.sw-grid-column.sw-grid__cell.sw-grid-column--left').to.have.text.that.contains('Stream it');
-    },
-    after: (browser) => {
-        browser.end();
     }
 };

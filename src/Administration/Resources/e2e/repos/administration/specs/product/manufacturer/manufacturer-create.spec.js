@@ -56,8 +56,5 @@ module.exports = {
                     searchTerm: 'MAN-U-FACTURE'
                 }
             );
-    },
-    after: (browser) => {
-        browser.end();
     }
 };

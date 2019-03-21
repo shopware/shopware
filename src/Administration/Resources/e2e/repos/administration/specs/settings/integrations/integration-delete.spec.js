@@ -21,8 +21,5 @@ module.exports = {
     'delete integration and verify deletion': (browser) => {
         const page = integrationPage(browser);
         page.deleteSingleIntegration(global.IntegrationFixtureService.integrationFixture.name);
-    },
-    after: (browser) => {
-        browser.end();
     }
 };

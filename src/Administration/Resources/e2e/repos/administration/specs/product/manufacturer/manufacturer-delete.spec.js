@@ -55,8 +55,5 @@ module.exports = {
             .expect.element(`${page.elements.gridRow}--0`).to.have.text.that.equals('shopware AG');
 
         browser.expect.element('.sw-page__smart-bar-amount').to.have.text.that.equals('(1)');
-    },
-    after: (browser) => {
-        browser.end();
     }
 };

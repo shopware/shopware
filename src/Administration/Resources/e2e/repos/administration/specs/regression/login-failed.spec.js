@@ -49,8 +49,5 @@ module.exports = {
         const page = loginPage(browser);
         page.login(`<img src="${process.env.APP_URL}/bundles/administration/static/fixtures/sw-login-background.png" alt="Some image" height="42" width="42">`, `<img src="${process.env.APP_URL}/bundles/administration/static/fixtures/sw-login-background.png" alt="Some image" height="42" width="42">`);
         page.verifyFailedLogin('Incorrect user credentials.');
-    },
-    after: (browser) => {
-        browser.end();
     }
 };

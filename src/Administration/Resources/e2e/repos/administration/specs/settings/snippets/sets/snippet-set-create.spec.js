@@ -28,8 +28,5 @@ module.exports = {
         browser
             .refresh()
             .expect.element(`${page.elements.gridRow}--2 a`).to.have.text.that.equals('Snip Snap');
-    },
-    after: (browser) => {
-        browser.end();
     }
 };

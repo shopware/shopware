@@ -21,8 +21,5 @@ module.exports = {
             .waitForElementVisible('.sw-login__submit')
             .url(`${browser.launch_url}#/sw/dashboard/index`)
             .waitForElementVisible('.sw-login');
-    },
-    after: (browser) => {
-        browser.end();
     }
 };

@@ -30,8 +30,5 @@ module.exports = {
             .waitForElementNotPresent('.is--inline-edit')
             .refresh()
             .expect.element(page.elements.columnName).to.have.text.that.equals('Meghan Markle');
-    },
-    after: (browser) => {
-        browser.end();
     }
 };

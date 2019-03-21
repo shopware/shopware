@@ -38,8 +38,5 @@ module.exports = {
         browser
             .click('a.smart-bar__back-btn')
             .expect.element(`${page.elements.gridRow}--3 ${page.elements.currencyColumnName}`).to.have.text.that.contains('Yen but true');
-    },
-    after: (browser) => {
-        browser.end();
     }
 };

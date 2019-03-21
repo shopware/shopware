@@ -51,7 +51,9 @@ module.exports = {
             done();
         });
     },
-    afterEach(client, done) {
+    afterEach(browser, done) {
+        browser.end();
+
         global.logger.lineBreak();
         global.logger.title('Resetting database and cache to clean state...');
 

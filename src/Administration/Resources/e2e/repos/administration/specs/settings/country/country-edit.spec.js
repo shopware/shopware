@@ -35,8 +35,5 @@ module.exports = {
         browser
             .click(page.elements.smartBarBack)
             .expect.element(`${page.elements.gridRow}--0 ${page.elements.countryColumnName}`).to.have.text.that.contains('1.Niemandsland x2');
-    },
-    after: (browser) => {
-        browser.end();
     }
 };

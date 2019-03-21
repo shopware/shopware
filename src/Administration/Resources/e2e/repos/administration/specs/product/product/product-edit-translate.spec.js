@@ -70,8 +70,5 @@ module.exports = {
             .waitForElementNotPresent('.sw-field__select-load-placeholder')
             .waitForElementNotPresent(page.elements.loader)
             .expect.element(`${page.elements.dataGridRow}--0  ${page.elements.productListName}`).to.have.text.that.equals(fixture.name).before(5000);
-    },
-    after: (browser) => {
-        browser.end();
     }
 };

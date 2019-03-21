@@ -36,8 +36,5 @@ module.exports = {
         const page = settingsPage(browser);
 
         browser.expect.element(`${page.elements.gridRow}--0 a`).to.have.text.that.not.equals('A Set Name Snippet');
-    },
-    after: (browser) => {
-        browser.end();
     }
 };

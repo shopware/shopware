@@ -35,8 +35,5 @@ module.exports = {
         const page = settingsPage(browser);
 
         browser.expect.element(`${page.elements.gridRow}--0 a`).to.have.text.that.equals('Nordfriesisch');
-    },
-    after: (browser) => {
-        browser.end();
     }
 };

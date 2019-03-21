@@ -32,8 +32,5 @@ module.exports = {
             .waitForElementNotPresent(page.elements.modal)
             .waitForElementPresent(page.elements.emptyState)
             .expect.element(page.elements.smartBarAmount).to.have.text.that.equals('(0)');
-    },
-    after: (browser) => {
-        browser.end();
     }
 };

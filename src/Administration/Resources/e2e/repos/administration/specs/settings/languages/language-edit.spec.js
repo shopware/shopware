@@ -35,8 +35,5 @@ module.exports = {
         browser
             .click(page.elements.smartBarBack)
             .expect.element(`${page.elements.gridRow}--2 ${page.elements.languageColumnName}`).to.have.text.that.contains('Very Philippine English');
-    },
-    after: (browser) => {
-        browser.end();
     }
 };

@@ -108,7 +108,7 @@ abstract class Plugin extends Bundle
     private function registerEvents(ContainerBuilder $container): void
     {
         $definition = $container->getDefinition(BusinessEventRegistry::class);
-        $definition->addMethodCall('add', $this->getActionEvents());
+        $definition->addMethodCall('addMultiple', [$this->getActionEvents()]);
     }
 
     private function registerFilesystem(ContainerBuilder $container, string $key): void

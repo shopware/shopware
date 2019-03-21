@@ -5,9 +5,13 @@ $sw-condition-or-container-background-odd: #F0F2F5;
 $sw-condition-or-container-border: #788A9B;
 
 .sw-condition-or-container {
+    &.container-condition-level__is--even {
+        background-color: $sw-condition-or-container-background-even;
+    }
 
     &.container-condition-level__is--odd {
         background-color: $sw-condition-or-container-background-odd;
+        border-radius: 4px;
     }
 
     .sw-condition-or-container__condition-content {

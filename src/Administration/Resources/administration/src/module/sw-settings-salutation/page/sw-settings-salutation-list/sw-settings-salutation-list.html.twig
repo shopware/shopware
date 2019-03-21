@@ -21,7 +21,7 @@
                         {% endblock %}
 
                         {% block sw_settings_salutation_list_smart_bar_header_amount %}
-                            <span v-if="!isLoading && salutations && salutations.length"
+                            <span v-if="!isLoading && items && items.length"
                                   class="sw-page__smart-bar-amount">
                                 ({{ total }})
                             </span>
@@ -57,95 +57,85 @@
 
                             {% block sw_settings_salutation_list_grid %}
                                 <template slot="grid">
-                                    <sw-grid class="sw-settings-salutation-list-grid"
-                                             :sortBy="sortBy"
-                                             :sortDirection="sortDirection"
-                                             :items="salutations"
-                                             :selectable="false"
-                                             @sort-column="onSortColumn"
-                                             @inline-edit-cancel="onInlineEditCancel"
-                                             @inline-edit-finish="onInlineEditSave"
-                                             table>
+                                    <sw-data-grid :isLoading="isLoading"
+                                                  :dataSource="items"
+                                                  :columns="columns"
+                                                  class="sw-settings-salutation-list-grid"
+                                                  identifier="sw-settings-salutation-list"
+                                                  :skeletonItemAmount="skeletonItemAmount"
+                                                  :sortBy="sortBy"
+                                                  :sortDirection="sortDirection"
+                                                  :allowInlineEdit="true"
+                                                  :allowColumnEdit="true"
+                                                  :showSettings="true"
+                                                  :showSelection="false"
+                                                  @column-sort="onSortColumn"
+                                                  @inline-edit-cancel="onInlineEditCancel"
+                                                  @inline-edit-save="onInlineEditSave">
 
-                                        {% block sw_settings_salutation_list_columns %}
-                                            <template slot="columns" slot-scope="{ item }">
+                                        {% block sw_settings_salutations_list_columns %}
+                                            {% block sw_settings_salutation_list_column_key %}
+                                                <template slot="column-salutationKey" slot-scope="{ item, compact, isInlineEdit }">
+                                                    {% block sw_settings_salutation_list_column_key_inline_edit %}
+                                                        <template v-if="isInlineEdit">
+                                                            <sw-text-field v-model="item.salutationKey"
+                                                                           :placeholder="$tc('sw-settings-salutation.list.fieldSalutationKeyPlaceholder')"
+                                                                           :size="compact ? 'small' : 'default'">
+                                                            </sw-text-field>
+                                                        </template>
+                                                    {% endblock %}
 
-                                                {% block sw_settings_salutation_list_column_key %}
-                                                    <sw-grid-column flex="minmax(120px, 1fr)"
-                                                                    class="sw-settings-salutation-list__column-key"
-                                                                    :label="$tc('sw-settings-salutation.list.columnSalutationKey')"
-                                                                    dataIndex="salutationKey"
-                                                                    truncate
-                                                                    editable
-                                                                    sortable>
-                                                        {% block sw_settings_salutation_list_column_key_content %}
-                                                            <router-link class="sw-settings-salutation-list__columns"
-                                                                         :title="$tc('sw-settings-salutation.general.contextMenuEdit')"
-                                                                         :to="{ name: 'sw.settings.salutation.detail', params: { id: item.id } }">
-                                                                {{ item.meta.viewData.salutationKey }}
-                                                            </router-link>
-                                                        {% endblock %}
+                                                    {% block sw_settings_salutation_column_key_content %}
+                                                        <router-link v-else
+                                                                     class="sw-settings-salutation-list__columns"
+                                                                     :to="{ name: 'sw.settings.salutation.detail', params: { id: item.id } }">
+                                                            {{ item.salutationKey }}
+                                                        </router-link>
+                                                    {% endblock %}
+                                                </template>
+                                            {% endblock %}
 
-                                                        {% block sw_settings_salutation_list_column_key_editor %}
-                                                            <template slot="inline-edit">
-                                                                <sw-field type="text"
-                                                                          v-model="item.salutationKey"
-                                                                          :placeholder="$tc('sw-settings-salutation.list.fieldSalutationKeyPlaceholder')">
-                                                                </sw-field>
-                                                            </template>
-                                                        {% endblock %}
-                                                    </sw-grid-column>
+                                            {% block sw_settings_salutation_list_column_name %}
+                                                <template slot="column-name" slot-scope="{ item, compact, isInlineEdit }">
+                                                    {% block sw_settings_salutation_list_column_name_inline_edit %}
+                                                        <template v-if="isInlineEdit">
+                                                            <sw-text-field v-model="item.name"
+                                                                           :placeholder="getInlinePlaceholder(item)"
+                                                                           :size="compact ? 'small' : 'default'">
+                                                            </sw-text-field>
+                                                        </template>
+                                                    {% endblock %}
+
+                                                    {% block sw_settings_salutation_column_name_content %}
+                                                        <template v-else
+                                                                  class="sw-settings-salutation-list__columns">
+                                                            {{ item.meta.viewData.name }}
+                                                        </template>
+                                                    {% endblock %}
+                                                </template>
+                                            {% endblock %}
+                                        {% endblock %}
+
+                                        {% block sw_settings_salutation_list_column_actions %}
+                                            <template slot="actions" slot-scope="{ item }">
+                                                {% block sw_settings_salutation_list_column_menu_edit %}
+                                                    <sw-context-menu-item :routerLink="{ name: 'sw.settings.salutation.detail', params: { id: item.id } }">
+                                                        {{ $tc('sw-settings-salutation.general.contextMenuEdit') }}
+                                                    </sw-context-menu-item>
                                                 {% endblock %}
 
-                                                {% block sw_settings_salutation_list_column_name %}
-                                                    <sw-grid-column flex="minmax(120px, 1fr)"
-                                                                    class="sw-settings-salutation-list__columns"
-                                                                    :label="$tc('sw-settings-salutation.list.columnName')"
-                                                                    dataIndex="name"
-                                                                    truncate
-                                                                    sortable>
-                                                        {% block sw_settings_salutation_list_column_name_content %}
-                                                            <span class="sw-settings-salutation-list__columns">
-                                                                {{ item.meta.viewData.name }}
-                                                            </span>
-                                                        {% endblock %}
-
-                                                        {% block sw_settings_salutation_list_column_name_editor %}
-                                                            <template slot="inline-edit">
-                                                                <sw-field type="text"
-                                                                          v-model="item.name"
-                                                                          :placeholder="getInlinePlaceholder(item)">
-                                                                </sw-field>
-                                                            </template>
-                                                        {% endblock %}
-                                                    </sw-grid-column>
+                                                {% block sw_settings_salutation_list_column_menu_delete %}
+                                                    <sw-context-menu-item @click="onDelete(item.id)"
+                                                                          variant="danger">
+                                                        {{ $tc('sw-settings-salutation.general.contextMenuDelete') }}
+                                                    </sw-context-menu-item>
                                                 {% endblock %}
+                                            </template>
+                                        {% endblock %}
 
-                                                {% block sw_settings_salutation_list_column_actions %}
-                                                    <sw-grid-column flex="minmax(100px, 100px)"
-                                                                    dataIndex="actions"
-                                                                    align="center"
-                                                                    truncate>
-                                                        {% block sw_settings_salutation_list_column_actions_menu %}
-                                                            <sw-context-button :menuWidth="290">
-                                                                {% block sw_settings_salutation_list_column_menu_edit %}
-                                                                    <sw-context-menu-item :routerLink="{ name: 'sw.settings.salutation.detail', params: { id: item.id } }">
-                                                                        {{ $tc('sw-settings-salutation.general.contextMenuEdit') }}
-                                                                    </sw-context-menu-item>
-                                                                {% endblock %}
-
-                                                                {% block sw_settings_salutation_list_column_menu_delete %}
-                                                                    <sw-context-menu-item @click="onDelete(item.id)"
-                                                                                          variant="danger">
-                                                                        {{ $tc('sw-settings-salutation.general.contextMenuDelete') }}
-                                                                    </sw-context-menu-item>
-                                                                {% endblock %}
-                                                            </sw-context-button>
-                                                        {% endblock %}
-                                                    </sw-grid-column>
-                                                {% endblock %}
-
-                                                {% block sw_settings_salutation_list_delete_modal %}
+                                        {% block sw_settings_salutation_list_action_modals %}
+                                            {% block sw_settings_salutation_list_delete_modal %}
+                                                <template slot="action-modals" slot-scope="{ item }">
                                                     <sw-modal v-if="showDeleteModal === item.id"
                                                               @closeModal="onCloseDeleteModal"
                                                               :title="$tc('sw-settings-salutation.general.mainMenuItemGeneral')"
@@ -175,10 +165,10 @@
                                                             </template>
                                                         {% endblock %}
                                                     </sw-modal>
-                                                {% endblock %}
-
-                                            </template>
+                                                </template>
+                                            {% endblock %}
                                         {% endblock %}
+
 
                                         {% block sw_settings_salutation_list_grid_pagination %}
                                             <template slot="pagination">
@@ -191,7 +181,8 @@
                                                 </sw-pagination>
                                             </template>
                                         {% endblock %}
-                                    </sw-grid>
+
+                                    </sw-data-grid>
                                 </template>
                             {% endblock %}
 

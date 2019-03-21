@@ -84,11 +84,6 @@
             <tag name="shopware.entity.definition" entity="product_category_tree"/>
         </service>
 
-        <service id="Shopware\Core\Content\Product\Util\VariantGenerator">
-            <argument type="service" id="product.repository"/>
-            <argument type="service" id="product_configurator.repository"/>
-        </service>
-
         <service id="Shopware\Core\Content\Product\Cart\ProductGateway">
             <argument type="service" id="product.repository"/>
         </service>
@@ -115,8 +110,7 @@
         </service>
 
         <service id="Shopware\Core\Content\Product\ProductActionController" public="true">
-            <argument type="service" id="Shopware\Core\Content\Product\Util\VariantGenerator"/>
-            <argument type="service" id="Doctrine\DBAL\Connection" />
+            <argument type="service" id="Shopware\Core\Content\Product\Util\VariantCombinationLoader"/>
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>
@@ -133,6 +127,10 @@
 
         <service id="Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition">
             <tag name="shopware.entity.definition" entity="product_visibility"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Product\Util\VariantCombinationLoader">
+            <argument id="Doctrine\DBAL\Connection" type="service"/>
         </service>
     </services>
 </container>                

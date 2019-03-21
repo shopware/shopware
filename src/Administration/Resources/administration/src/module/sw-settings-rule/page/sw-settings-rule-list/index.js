@@ -14,7 +14,8 @@ Component.register('sw-settings-rule-list', {
             rules: [],
             showDeleteModal: false,
             isLoading: false,
-            entityName: 'rule'
+            entityName: 'rule',
+            sortBy: 'name'
         };
     },
 

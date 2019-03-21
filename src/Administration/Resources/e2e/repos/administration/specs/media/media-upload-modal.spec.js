@@ -15,6 +15,7 @@ module.exports = {
 
         browser
             .waitForElementNotPresent(page.elements.loader)
+            .waitForElementVisible(`${page.elements.gridItem}--0 .sw-media-base-item__preview-container`)
             .clickContextMenuItem('.sw-media-upload__button-url-upload', '.sw-media-upload__button-context-menu')
             .fillField('input[name=sw-field--url]', `${process.env.APP_URL}/bundles/administration/static/fixtures/sw-login-background.png`)
             .click(`${page.elements.modalFooter} ${page.elements.primaryButton}`);
@@ -36,6 +37,7 @@ module.exports = {
 
         browser
             .waitForElementNotPresent(page.elements.loader)
+            .waitForElementVisible(`${page.elements.gridItem}--0 .sw-media-base-item__preview-container`)
             .clickContextMenuItem('.sw-media-upload__button-url-upload', '.sw-media-upload__button-context-menu')
             .fillField('input[name=sw-field--url]', `${process.env.APP_URL}/bundles/administration/static/fixtures/sw-login-background.png`)
             .click(`${page.elements.modalFooter} ${page.elements.primaryButton}`);
@@ -57,6 +59,7 @@ module.exports = {
 
         browser
             .waitForElementNotPresent(page.elements.loader)
+            .waitForElementVisible(`${page.elements.gridItem}--0 .sw-media-base-item__preview-container`)
             .clickContextMenuItem('.sw-media-upload__button-url-upload', '.sw-media-upload__button-context-menu')
             .fillField('input[name=sw-field--url]', `${process.env.APP_URL}/bundles/administration/static/fixtures/sw-login-background.png`)
             .click(`${page.elements.modalFooter} ${page.elements.primaryButton}`);

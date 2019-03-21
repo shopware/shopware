@@ -78,7 +78,8 @@ class MediaPageObject extends GeneralPageObject {
 
         this.browser
             .click('.sw-media-folder-content__folder-listing')
-            .click('.sw-media-modal-move__confirm');
+            .expect.element('.sw-media-modal-move__confirm').to.be.enabled;
+        this.browser.click('.sw-media-modal-move__confirm');
 
         if (itemType === 'folder') {
             this.browser

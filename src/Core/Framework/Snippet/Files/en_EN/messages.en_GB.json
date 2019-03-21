@@ -17,15 +17,9 @@
         "noscriptNotice": "To be able to use our shop in full range, we recommend activating Javascript in your browser."
     },
     "header": {
-        "logoLink": "zur Startseite wechseln",
+        "logoLink": "Switch to homepage",
         "searchButton": "Search",
         "searchPlaceholder": "Search term..."
-    },
-    "header": {
-        "logoLink": "zur Startseite wechseln"
-    },
-    "header": {
-        "logoLink": "zur Startseite wechseln"
     },
     "meta": {
         "xmlLang": "en-GB",

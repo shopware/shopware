@@ -56,4 +56,13 @@ export default class LoadingIndicator {
                     <span class="sr-only">Loading...</span>
                 </div>`;
     }
+
+    /**
+     * Return the constant
+     * @returns {string}
+     * @constructor
+     */
+    static SELECTOR_CLASS() {
+        return SELECTOR_CLASS;
+    }
 }

@@ -1,15 +1,26 @@
 {% block base_header_search %}
-    <form class="header-search">
-        <div class="input-group">
+    <div class="header-search">
+        <form action="{{ path('frontend.search.page') }}"
+              method="get"
+              data-url="{{ path('frontend.search.suggest') }}?search="
+              class="search-form">
+
             {% block base_header_search_input %}
-                <input type="text" class="form-control" placeholder="{{ "header.searchPlaceholder"|trans }}">
+                <input type="search"
+                       name="search"
+                       class="form-control"
+                       autocomplete="off"
+                       autocapitalize="off"
+                       placeholder="{{ "header.searchPlaceholder"|trans }}"
+                       maxlength="30">
             {% endblock %}
 
             {% block base_header_search_button %}
-                <div class="input-group-append">
-                    <button type="button" class="btn btn-light"><i class="fas fa-search fa-lg"></i></button>
-                </div>
+                <button type="submit"
+                        class="btn btn-light">
+                    <i class="fas fa-search fa-lg"></i>
+                </button>
             {% endblock %}
-        </div>
-    </form>
+        </form>
+    </div>
 {% endblock %}

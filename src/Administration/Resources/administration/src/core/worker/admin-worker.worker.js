@@ -8,8 +8,9 @@ import MessageQueueService from 'src/core/service/api/message-queue.api.service'
 import Axios from 'axios';
 
 onmessage = ({ data: { context, bearerAuth, host, pollingConfig } }) => {
+    const baseURL = process.env.NODE_ENV !== 'production' ? `${host}${context.apiResourcePath}` : context.apiResourcePath;
     const client = Axios.create({
-        baseURL: `${host}${context.apiResourcePath}`
+        baseURL: baseURL
     });
 
     const loginService = LoginService(client, context, bearerAuth);

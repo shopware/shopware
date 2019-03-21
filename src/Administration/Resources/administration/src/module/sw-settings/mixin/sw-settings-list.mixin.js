@@ -76,7 +76,7 @@ Mixin.register('sw-settings-list', {
             this.deleteEntity = this.store.store[id];
 
             this.onCloseDeleteModal();
-            this.store.store[id].delete(true).then(() => {
+            return this.store.store[id].delete(true).then(() => {
                 this.createNotificationSuccess({
                     title: this.titleSaveSuccess,
                     message: this.messageSaveSuccess

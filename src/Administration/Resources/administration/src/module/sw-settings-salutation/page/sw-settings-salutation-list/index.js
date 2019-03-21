@@ -1,4 +1,4 @@
-import { Component, State, Mixin } from 'src/core/shopware';
+import { Component, Mixin } from 'src/core/shopware';
 import template from './sw-settings-salutation-list.html.twig';
 
 Component.register('sw-settings-salutation-list', {
@@ -6,28 +6,23 @@ Component.register('sw-settings-salutation-list', {
 
     mixins: [
         Mixin.getByName('sw-settings-list'),
-        Mixin.getByName('placeholder'),
-        Mixin.getByName('notification')
+        Mixin.getByName('placeholder')
     ],
 
     data() {
         return {
             entityName: 'salutation',
-            disableRouteParams: true,
-            total: 0,
-            page: 1,
+            isLoading: false,
             limit: 10,
             sortBy: 'salutationKey',
             sortDirection: 'ASC',
-            term: '',
-            isLoading: false,
-            salutations: []
+            skeletonItemAmount: 5
         };
     },
 
     computed: {
-        salutationStore() {
-            return State.getStore('salutation');
+        columns() {
+            return this.getColumns();
         }
     },
 
@@ -40,16 +35,20 @@ Component.register('sw-settings-salutation-list', {
             this.getList();
         },
 
-        getList() {
-            this.isLoading = true;
-            const params = this.getListingParams();
-
-            this.salutationStore.getList(params).then(({ items, total }) => {
-                this.salutations = items;
-                this.total = total;
-            }).finally(() => {
-                this.isLoading = false;
-            });
+        getColumns() {
+            return [{
+                property: 'salutationKey',
+                label: this.$tc('sw-settings-salutation.list.columnSalutationKey'),
+                dataIndex: 'salutationKey',
+                inlineEdit: 'string',
+                primary: true
+            }, {
+                property: 'name',
+                label: this.$tc('sw-settings-salutation.list.columnName'),
+                dataIndex: 'name',
+                inlineEdit: 'string',
+                primary: true
+            }];
         },
 
         getInlinePlaceholder(entity) {
@@ -58,15 +57,6 @@ Component.register('sw-settings-salutation-list', {
                 'name',
                 this.$tc('sw-settings-salutation.list.fieldNamePlaceholder')
             );
-        },
-
-        onSearch(term) {
-            this.term = term;
-            this.getList();
-        },
-
-        onChangeLanguage() {
-            this.getList();
         },
 
         onInlineEditSave(item) {
@@ -82,6 +72,26 @@ Component.register('sw-settings-salutation-list', {
             }).catch(() => {
                 item.discardChanges();
                 this.inlineError();
+            });
+        },
+
+        onConfirmDelete(id) {
+            const salutation = this.store.getById(id);
+            const key = salutation.salutationKey;
+
+            this.onCloseDeleteModal();
+            return salutation.delete(true).then(() => {
+                this.getList();
+
+                this.createNotificationSuccess({
+                    title: this.$tc('sw-settings-salutation.general.titleSuccess'),
+                    message: this.$tc('sw-settings-salutation.list.messageDeleteSuccess', 0, { key })
+                });
+            }).catch(() => {
+                this.createNotificationError({
+                    title: this.$tc('sw-settings-salutation.general.titleError'),
+                    message: this.$tc('sw-settings-salutation.list.messageDeleteError')
+                });
             });
         },
 
@@ -101,35 +111,6 @@ Component.register('sw-settings-salutation-list', {
             });
 
             this.isLoading = false;
-        },
-
-        onDelete(id) {
-            this.showDeleteModal = id;
-        },
-
-        onConfirmDelete(id) {
-            const salutation = this.salutationStore.getById(id);
-            const key = salutation.salutationKey;
-
-            salutation.delete(true).then(() => {
-                this.getList();
-
-                this.createNotificationSuccess({
-                    title: this.$tc('sw-settings-salutation.general.titleSuccess'),
-                    message: this.$tc('sw-settings-salutation.list.messageDeleteSuccess', 0, { key })
-                });
-            }).catch(() => {
-                this.createNotificationError({
-                    title: this.$tc('sw-settings-salutation.general.titleError'),
-                    message: this.$tc('sw-settings-salutation.list.messageDeleteError')
-                });
-            });
-
-            this.onCloseDeleteModal();
-        },
-
-        onCloseDeleteModal() {
-            this.showDeleteModal = false;
         }
     }
 });

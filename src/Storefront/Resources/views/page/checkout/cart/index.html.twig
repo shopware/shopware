@@ -4,6 +4,8 @@
 	{% sw_include '@Storefront/page/checkout/cart/meta.html.twig' %}
 {% endblock %}
 
+{% block page_checkout_steps %}{% endblock %}
+
 {% block page_checkout_container %}
 	{% if not page.cart.lineItems.elements %}
 		{% sw_include '@Storefront/base/_utilities/alert.html.twig' with {

@@ -163,11 +163,8 @@
         "finishHeader": "Thank you for your order with %shop%!",
         "finishInfoHeader": "Information",
         "finishInfoOrdernumber": "Order number: ",
-        "finishTeaserPrintNotice": "Please notice that the print functionality is not supported on all available devices.",
         "finishInfoConfirmationMail": "We have sent you the order confirmation by email.",
-        "finishInfoPrintOrder": "We recommend to print the order confirmation below.",
-        "finishButtonBackToShop": "Back to the shop",
-        "finishLinkPrint": "Print order confirmation"
+        "finishButtonBackToShop": "Back to the shop"
     },
     "detail": {
         "ordernumberLabel": "Order number: ",

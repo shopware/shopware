@@ -1,7 +1,10 @@
 import { Component, State } from 'src/core/shopware';
 import utils from 'src/core/service/util.service';
+import template from './sw-product-stream-create.html.twig';
 
 Component.extend('sw-product-stream-create', 'sw-product-stream-detail', {
+    template,
+
     beforeRouteEnter(to, from, next) {
         if (to.name.includes('sw.product.stream.create') && !to.params.id) {
             to.params.id = utils.createId();

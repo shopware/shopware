@@ -16,12 +16,12 @@ const pluginSourceDirectories = pluginList.reduce((accumulator, plugin) => {
 }, []);
 
 function resolve(dir) {
-    return path.join(__dirname, '..', dir)
+    return path.join(__dirname, '..', dir);
 }
 
 // Refactor the usage of eslint
 const eslintDisable = (process.env.ESLINT_DISABLE === 'true');
-const includeDirectories =  [...[ resolve('src'), resolve('test') ], ...pluginSourceDirectories];
+const includeDirectories = [...[resolve('src'), resolve('test')], ...pluginSourceDirectories];
 
 module.exports = {
     performance: {
@@ -30,8 +30,8 @@ module.exports = {
             : config.dev.performanceHints
     },
     entry: {
-        commons: [ resolve('src') + '/core/common.js', resolve('src') + '/core/shopware.js' ],
-        app: resolve('src') + '/app/main.js'
+        commons: [`${resolve('src')}/core/common.js`, `${resolve('src')}/core/shopware.js`],
+        app: `${resolve('src')}/app/main.js`
     },
     output: {
         path: config.build.assetsRoot,
@@ -43,14 +43,14 @@ module.exports = {
         globalObject: 'this'
     },
     resolve: {
-        extensions: [ '.js', '.vue', '.json', '.less', '.twig' ],
+        extensions: ['.js', '.vue', '.json', '.less', '.twig'],
         alias: {
-            'vue$': 'vue/dist/vue.esm.js',
-            'src': resolve('src'),
-            'module': resolve('src/module'),
-            'less': resolve('src/app/assets/less'),
-            'scss': resolve('src/app/assets/scss'),
-            'assets': resolve('static')
+            vue$: 'vue/dist/vue.esm.js',
+            src: resolve('src'),
+            module: resolve('src/module'),
+            less: resolve('src/app/assets/less'),
+            scss: resolve('src/app/assets/scss'),
+            assets: resolve('static')
         }
     },
     module: {
@@ -80,14 +80,15 @@ module.exports = {
                 loader: 'babel-loader',
                 include: includeDirectories,
                 options: {
+                    compact: true,
                     presets: [[
                         '@babel/preset-env', {
                             modules: false,
                             targets: {
-                                node: "current"
+                                node: 'current'
                             }
                         }
-                    ]],
+                    ]]
                 }
             },
             {
@@ -115,8 +116,13 @@ module.exports = {
             },
             {
                 test: /\.worker\.(js|tsx?|vue)$/,
-                use: { loader: 'worker-loader' }
+                use: {
+                    loader: 'worker-loader',
+                    options: {
+                        inline: true
+                    }
+                }
             }
-        ],
+        ]
     }
 };

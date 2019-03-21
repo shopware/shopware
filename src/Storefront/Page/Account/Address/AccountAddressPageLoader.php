@@ -46,6 +46,8 @@ class AccountAddressPageLoader implements PageLoaderInterface
             $this->accountService->getCountryList($context)
         );
 
+        $page->setSalutations($this->accountService->getSalutationList($context));
+
         $addressId = $request->optionalGet('addressId');
         if ($addressId) {
             $address = $this->accountService->getAddressById((string) $addressId, $context);

@@ -19,11 +19,13 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Exception\InvalidUuidException;
 use Shopware\Core\Framework\Routing\InternalRequest;
 use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\System\Country\CountryCollection;
 use Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInterface;
+use Shopware\Core\System\Salutation\SalutationCollection;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
 
@@ -45,6 +47,11 @@ class AccountService
     private $customerRepository;
 
     /**
+     * @var EntityRepositoryInterface
+     */
+    private $salutationRepository;
+
+    /**
      * @var CheckoutContextPersister
      */
     private $contextPersister;
@@ -62,6 +69,7 @@ class AccountService
         EntityRepositoryInterface $countryRepository,
         EntityRepositoryInterface $customerAddressRepository,
         EntityRepositoryInterface $customerRepository,
+        EntityRepositoryInterface $salutationRepository,
         CheckoutContextPersister $contextPersister,
         NumberRangeValueGeneratorInterface $numberRangeValueGenerator,
         EventDispatcherInterface $eventDispatcher
@@ -69,6 +77,7 @@ class AccountService
         $this->countryRepository = $countryRepository;
         $this->customerAddressRepository = $customerAddressRepository;
         $this->customerRepository = $customerRepository;
+        $this->salutationRepository = $salutationRepository;
         $this->contextPersister = $contextPersister;
         $this->eventDispatcher = $eventDispatcher;
         $this->numberRangeValueGenerator = $numberRangeValueGenerator;
@@ -184,6 +193,18 @@ class AccountService
         $countries->sortCountryAndStates();
 
         return $countries;
+    }
+
+    public function getSalutationList(CheckoutContext $context): SalutationCollection
+    {
+        $criteria = new Criteria([]);
+        $criteria->addSorting(new FieldSorting('salutationKey', 'DESC'));
+
+        /** @var SalutationCollection $salutations */
+        $salutations = $this->salutationRepository->search($criteria, $context->getContext())
+            ->getEntities();
+
+        return $salutations;
     }
 
     /**

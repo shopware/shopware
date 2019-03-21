@@ -4,6 +4,7 @@ namespace Shopware\Storefront\Page\Account\Profile;
 
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Checkout\CheckoutContext;
+use Shopware\Core\Checkout\Customer\Storefront\AccountService;
 use Shopware\Core\Framework\Routing\InternalRequest;
 use Shopware\Storefront\Framework\Page\PageLoaderInterface;
 use Shopware\Storefront\Framework\Page\PageWithHeaderLoader;
@@ -21,12 +22,19 @@ class AccountProfilePageLoader implements PageLoaderInterface
      */
     private $pageWithHeaderLoader;
 
+    /**
+     * @var AccountService
+     */
+    private $accountService;
+
     public function __construct(
         PageLoaderInterface $pageWithHeaderLoader,
-        EventDispatcherInterface $eventDispatcher
+        EventDispatcherInterface $eventDispatcher,
+        AccountService $accountService
     ) {
         $this->eventDispatcher = $eventDispatcher;
         $this->pageWithHeaderLoader = $pageWithHeaderLoader;
+        $this->accountService = $accountService;
     }
 
     public function load(InternalRequest $request, CheckoutContext $context): AccountProfilePage
@@ -40,6 +48,7 @@ class AccountProfilePageLoader implements PageLoaderInterface
             throw new CustomerNotLoggedInException();
         }
         $page->setCustomer($customer);
+        $page->setSalutations($this->accountService->getSalutationList($context));
 
         $this->eventDispatcher->dispatch(
             AccountProfilePageLoadedEvent::NAME,

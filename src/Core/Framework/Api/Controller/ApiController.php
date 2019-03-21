@@ -90,11 +90,9 @@ class ApiController extends AbstractController
     public function compositeSearch(Request $request, Context $context): JsonResponse
     {
         $term = $request->query->get('term');
-        $limit = $request->query->getInt('limit', 20);
+        $limit = $request->query->getInt('limit', 5);
 
-        /** @var AdminApiSource $source */
-        $source = $context->getSource();
-        $result = $this->compositeEntitySearcher->search($term, $limit, $context, $source->getUserId());
+        $result = $this->compositeEntitySearcher->search($term, $limit, $context);
 
         $result = json_decode(json_encode($result), true);
 

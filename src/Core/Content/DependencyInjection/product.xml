@@ -29,7 +29,7 @@
 
         <service id="Shopware\Core\Content\Product\ProductDefinition">
             <tag name="shopware.entity.definition" entity="product"/>
-            <tag name="shopware.composite_search.definition" />
+            <tag name="shopware.composite_search.definition"  priority="600"/>
         </service>
 
         <service id="Shopware\Core\Content\Product\Aggregate\ProductCategory\ProductCategoryDefinition">
@@ -54,6 +54,7 @@
 
         <service id="Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerDefinition">
             <tag name="shopware.entity.definition" entity="product_manufacturer"/>
+            <tag name="shopware.composite_search.definition"  priority="300"/>
         </service>
 
         <service id="Shopware\Core\Content\Product\Aggregate\ProductManufacturerTranslation\ProductManufacturerTranslationDefinition">

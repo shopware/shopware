@@ -66,8 +66,8 @@ class MediaDefinition extends EntityDefinition
             new FkField('user_id', 'userId', UserDefinition::class),
             new FkField('media_folder_id', 'mediaFolderId', MediaFolderDefinition::class),
 
-            (new StringField('mime_type', 'mimeType'))->addFlags(new SearchRanking(SearchRanking::LOW_SEARCH_RAKING), new WriteProtected(Context::SYSTEM_SCOPE)),
-            (new StringField('file_extension', 'fileExtension'))->addFlags(new SearchRanking(SearchRanking::MIDDLE_SEARCH_RANKING), new WriteProtected(Context::SYSTEM_SCOPE)),
+            (new StringField('mime_type', 'mimeType'))->addFlags(new WriteProtected(Context::SYSTEM_SCOPE)),
+            (new StringField('file_extension', 'fileExtension'))->addFlags(new WriteProtected(Context::SYSTEM_SCOPE)),
             (new DateField('uploaded_at', 'uploadedAt'))->addFlags(new WriteProtected(Context::SYSTEM_SCOPE)),
             (new LongTextField('file_name', 'fileName'))->addFlags(new WriteProtected(Context::SYSTEM_SCOPE), new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
             (new IntField('file_size', 'fileSize'))->addFlags(new WriteProtected(Context::SYSTEM_SCOPE)),
@@ -93,7 +93,7 @@ class MediaDefinition extends EntityDefinition
             (new BoolField('has_file', 'hasFile'))->addFlags(new Deferred()),
             new ManyToOneAssociationField('mediaFolder', 'media_folder_id', MediaFolderDefinition::class, false),
             new OneToManyAssociationField('configurationGroupOptions', ConfigurationGroupOptionDefinition::class, 'media_id', false),
-            (new ManyToManyAssociationField('tags', TagDefinition::class, MediaTagDefinition::class, false, 'media_id', 'tag_id')),
+            new ManyToManyAssociationField('tags', TagDefinition::class, MediaTagDefinition::class, false, 'media_id', 'tag_id'),
             (new OneToManyAssociationField('mailTemplateMedia', MailTemplateMediaDefinition::class, 'media_id', false, 'id'))->addFlags(new CascadeDelete()),
         ]);
     }

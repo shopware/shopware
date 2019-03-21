@@ -129,8 +129,8 @@ class ProductDefinition extends EntityDefinition
             (new PriceField('price', 'price'))->addFlags(new Inherited(), new Required()),
             (new PriceRulesJsonField('listing_prices', 'listingPrices'))->addFlags(new Inherited(), new WriteProtected()),
 
-            (new StringField('manufacturer_number', 'manufacturerNumber'))->addFlags(new Inherited(), new SearchRanking(SearchRanking::LOW_SEARCH_RAKING)),
-            (new StringField('ean', 'ean'))->addFlags(new Inherited(), new SearchRanking(SearchRanking::LOW_SEARCH_RAKING)),
+            (new StringField('manufacturer_number', 'manufacturerNumber'))->addFlags(new Inherited()),
+            (new StringField('ean', 'ean'))->addFlags(new Inherited(), new SearchRanking(SearchRanking::MIDDLE_SEARCH_RANKING)),
             (new NumberRangeField('product_number', 'productNumber'))->addFlags(new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
             (new BoolField('is_closeout', 'isCloseout'))->addFlags(new Inherited()),
             (new IntField('purchase_steps', 'purchaseSteps'))->addFlags(new Inherited()),
@@ -157,7 +157,7 @@ class ProductDefinition extends EntityDefinition
             //translatable fields
             (new TranslatedField('additionalText'))->addFlags(new Inherited()),
             (new TranslatedField('name'))->addFlags(new Inherited(), new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
-            (new TranslatedField('keywords'))->addFlags(new Inherited(), new SearchRanking(SearchRanking::MIDDLE_SEARCH_RANKING)),
+            (new TranslatedField('keywords'))->addFlags(new Inherited()),
             (new TranslatedField('description'))->addFlags(new Inherited()),
             (new TranslatedField('metaTitle'))->addFlags(new Inherited()),
             (new TranslatedField('packUnit'))->addFlags(new Inherited()),
@@ -169,7 +169,7 @@ class ProductDefinition extends EntityDefinition
 
             //inherited associations and associations which are loaded immediately
             (new ManyToOneAssociationField('tax', 'tax_id', TaxDefinition::class, true, 'id'))->addFlags(new Inherited()),
-            (new ManyToOneAssociationField('manufacturer', 'product_manufacturer_id', ProductManufacturerDefinition::class, true, 'id'))->addFlags(new Inherited(), new SearchRanking(SearchRanking::ASSOCIATION_SEARCH_RANKING)),
+            (new ManyToOneAssociationField('manufacturer', 'product_manufacturer_id', ProductManufacturerDefinition::class, true, 'id'))->addFlags(new Inherited()),
             (new ManyToOneAssociationField('unit', 'unit_id', UnitDefinition::class, true, 'id'))->addFlags(new Inherited()),
             (new ManyToOneAssociationField('cover', 'product_media_id', ProductMediaDefinition::class, true, 'id'))->addFlags(new Inherited()),
             (new OneToManyAssociationField('priceRules', ProductPriceRuleDefinition::class, 'product_id', true))->addFlags(new CascadeDelete(), new Inherited()),

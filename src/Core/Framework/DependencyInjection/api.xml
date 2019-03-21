@@ -47,8 +47,8 @@
 
         <service id="Shopware\Core\Framework\Search\CompositeEntitySearcher">
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionRegistry"/>
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\SearchBuilder"/>
-            <argument type="service" id="version_commit_data.repository"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\Term\SearchTermInterpreter"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\Term\EntityScoreQueryBuilder"/>
             <argument type="tagged" tag="shopware.composite_search.definition"/>
         </service>
 

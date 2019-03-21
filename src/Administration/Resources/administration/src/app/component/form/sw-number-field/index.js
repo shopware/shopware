@@ -128,7 +128,7 @@ export default {
             value = value.replace(/^(-)?0+(?=\d)/, '$1');
 
             // remove all '-' characters which are not in front
-            value = value.replace(/(?<!^)-/, '');
+            value = value.replace(/(?!^)-/g, '');
 
             // Dont parse and emit anything that is not a valid number
             if (!value.match(/^(-?\d+[.,]\d*[1-9])$|^(-?\d+)$/)) {

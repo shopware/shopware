@@ -27,14 +27,14 @@
                 {% endblock %}
                 {% block sw_condition_and_container_actions %}
                     <div class="sw-condition-and-container__actions">
-                        <sw-button class="sw-condition-and-container__actions--and" @click="onAddAndClick">
+                        <sw-button class="sw-condition-and-container__actions--and" @click="onAddAndClick" :disabled="isApi()">
                             {{ $tc('global.sw-condition.condition.and') }}
                         </sw-button>
-                        <sw-button class="sw-condition-and-container__actions--sub" @click="onAddChildClick">
+                        <sw-button class="sw-condition-and-container__actions--sub" @click="onAddChildClick" :disabled="isApi()">
                             {{ $tc('global.sw-condition.condition.subCondition') }}
                         </sw-button>
                         <sw-button class="sw-condition-and-container__actions--delete"
-                                   :disabled="disabledDeleteButton"
+                                   :disabled="disabledDeleteButton || isApi()"
                                    @click="onDeleteAll">
                             {{ $tc('global.sw-condition.condition.deleteConditions') }}
                         </sw-button>

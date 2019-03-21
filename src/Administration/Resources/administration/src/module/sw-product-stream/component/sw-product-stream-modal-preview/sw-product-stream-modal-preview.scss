@@ -4,35 +4,54 @@ $sw-product-stream-modal-color-error: $color-crimson;
 $sw-product-stream-modal-color-success: $color-emerald;
 
 .sw-product-stream-modal-preview {
-  .sw-modal__dialog {
-    .sw-modal__body{
-      height: 900px;
-      padding: 0;
+    .sw-modal__dialog {
+        .sw-grid__header {
+            padding-left: 15px;
+        }
+        .sw-modal__body {
+            height: 900px;
+            padding: 0;
+            display: flex;
+
+            .sw-grid-row {
+                padding-left: 15px;
+            }
+        }
     }
-  }
-  .sw-product-stream-modal-preview__content {
-    display: grid;
-    grid-template-columns: 1fr;
-    grid-template-rows: [search-field] 96px [product-grid] 664px;
 
-  }
-  .sw-product-stream-modal-preview__search-field-label {
-    width: 100%;
-    height: 100%;
-    grid-row: search-field;
-
-    .sw-product-stream-modal-preview__search-field {
-      margin: 24px 32px;
+    .sw-product-stream-modal-preview__content {
+        display: grid;
+        grid-template-columns: 1fr;
+        grid-template-rows: [search-field] 80px [product-grid] auto;
+        position: relative;
+        width: 100%;
     }
-  }
-  .sw-product-stream-modal-preview__grid {
-    grid-row: product-grid;
-  }
-  .is--inactive {
-    color: $sw-product-stream-modal-color-error;
-  }
 
-  .is--active {
-    color: $sw-product-stream-modal-color-success;
-  }
+    .sw-product-stream-modal-preview__search-field-label {
+        width: 100%;
+        height: 100%;
+        grid-row: search-field;
+        background: $color-light-gray;
+        -webkit-border-radius: 0;
+        -moz-border-radius: 0;
+        border-radius: 0;
+        padding: 0;
+        border-bottom: 1px solid $color-steam-cloud;
+
+        .sw-product-stream-modal-preview__search-field {
+            margin: 24px 32px;
+        }
+    }
+
+    .sw-product-stream-modal-preview__grid {
+        grid-row: product-grid;
+    }
+
+    .is--inactive {
+        color: $sw-product-stream-modal-color-error;
+    }
+
+    .is--active {
+        color: $sw-product-stream-modal-color-success;
+    }
 }

@@ -76,6 +76,26 @@ Component.extend('sw-product-stream-filter', 'sw-condition-base', {
         },
         actualCondition() {
             return this.negatedCondition || this.condition;
+        },
+        conditionFieldPath() {
+            return this.actualCondition.field.split('.');
+        },
+        selectValues() {
+            const values = [
+                {
+                    label: this.$tc('global.sw-condition.condition.yes'),
+                    value: 'true'
+                },
+                {
+                    label: this.$tc('global.sw-condition.condition.no'),
+                    value: 'false'
+                }
+            ];
+
+            return new LocalStore(values, 'value');
+        },
+        conditionClass() {
+            return 'sw-product-stream-filter';
         }
     },
 
@@ -228,7 +248,7 @@ Component.extend('sw-product-stream-filter', 'sw-condition-base', {
                 return fields;
             }
 
-            this.actualCondition.field.split('.').forEach((path) => {
+            this.conditionFieldPath.forEach((path) => {
                 const field = definition[path];
                 // return if Element is product
                 if (path === productDefinitionName) {
@@ -308,7 +328,7 @@ Component.extend('sw-product-stream-filter', 'sw-condition-base', {
         },
 
         selectFilter(index, newValue) {
-            let path = this.actualCondition.field.split('.');
+            let path = this.conditionFieldPath;
             path = path.slice(0, index);
             path.push(newValue);
             this.actualCondition.field = path.join('.');
@@ -393,6 +413,7 @@ Component.extend('sw-product-stream-filter', 'sw-condition-base', {
             case 'string':
                 return 'text';
             case 'integer':
+                this.actualCondition.value = Number(this.actualCondition.value);
                 return 'number';
             default:
                 return type;

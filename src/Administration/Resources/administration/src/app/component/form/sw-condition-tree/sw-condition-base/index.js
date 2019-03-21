@@ -15,7 +15,7 @@ export default {
     name: 'sw-condition-base',
     template,
 
-    inject: ['config', 'conditionStore'],
+    inject: ['config', 'conditionStore', 'isApi'],
 
     mixins: [
         Mixin.getByName('validation'),
@@ -51,6 +51,12 @@ export default {
         },
         errorStore() {
             return State.getStore('error');
+        },
+        isApiCLass() {
+            return this.isApi() ? 'is--api' : '';
+        },
+        hasErrorsClass() {
+            return this.hasErrors ? 'has--error' : '';
         }
     },
 

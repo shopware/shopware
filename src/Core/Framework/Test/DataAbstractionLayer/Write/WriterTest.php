@@ -706,7 +706,7 @@ class WriterTest extends TestCase
         $mediaId = Uuid::uuid4()->getHex();
         $context = Context::createDefaultContext();
         $context = new Context(
-            $context->getSourceContext(),
+            $context->getSource(),
             $context->getRules(),
             $context->getCurrencyId(),
             [Defaults::LANGUAGE_SYSTEM_DE, Defaults::LANGUAGE_SYSTEM]

@@ -10,6 +10,7 @@ use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Context\SystemSource;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -21,7 +22,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException\WriteStack
 use Shopware\Core\Framework\Pricing\Price;
 use Shopware\Core\Framework\Pricing\PriceRuleEntity;
 use Shopware\Core\Framework\Rule\Container\AndRule;
-use Shopware\Core\Framework\SourceContext;
 use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\System\Tax\TaxDefinition;
@@ -422,13 +422,7 @@ class ProductRepositoryTest extends TestCase
         $criteria->addSorting(new FieldSorting('product.priceRules.price', FieldSorting::ASCENDING));
         $criteria->addFilter(new EqualsFilter('product.ean', $filterId));
 
-        $sourceContext = new SourceContext();
-        $sourceContext->setSalesChannelId(Defaults::SALES_CHANNEL);
-
-        $context = new Context(
-            $sourceContext,
-            [$ruleA]
-        );
+        $context = $this->createContext([$ruleA]);
 
         $products = $this->repository->searchIds($criteria, $context);
 
@@ -1825,10 +1819,7 @@ class ProductRepositoryTest extends TestCase
 
     private function createContext(array $ruleIds = []): Context
     {
-        $sourceContext = new SourceContext();
-        $sourceContext->setSalesChannelId(Defaults::SALES_CHANNEL);
-
-        return new Context($sourceContext, $ruleIds);
+        return new Context(new SystemSource(), $ruleIds);
     }
 }
 

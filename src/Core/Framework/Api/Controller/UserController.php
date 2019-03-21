@@ -31,7 +31,7 @@ class UserController extends AbstractController
      */
     public function me(Context $context, Request $request, ResponseFactoryInterface $responseFactory): Response
     {
-        $userId = $context->getSourceContext()->getUserId();
+        $userId = $context->getUserId();
 
         /** @var UserEntity|null $user */
         $user = $this->userRepository->search(new Criteria([$userId]), $context)->first();

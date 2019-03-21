@@ -7,8 +7,11 @@ use Doctrine\DBAL\FetchMode;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Context\AdminApiSource;
+use Shopware\Core\Framework\Context\ContextSource;
+use Shopware\Core\Framework\Context\SalesChannelApiSource;
+use Shopware\Core\Framework\Context\SystemSource;
 use Shopware\Core\Framework\Routing\Exception\LanguageNotFoundException;
-use Shopware\Core\Framework\SourceContext;
 use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\StorefrontRequest;
@@ -38,12 +41,11 @@ class ApiRequestContextResolver implements RequestContextResolverInterface
             return;
         }
 
-        $sourceContext = $this->resolveSourceContext($request);
-        $params = $this->getContextParameters($master, $sourceContext);
+        $params = $this->getContextParameters($master);
         $languageIdChain = $this->getLanguageIdChain($params);
 
         $context = new Context(
-            $sourceContext,
+            $this->resolveContextOrigin($request),
             [],
             $params['currencyId'],
             $languageIdChain,
@@ -55,7 +57,7 @@ class ApiRequestContextResolver implements RequestContextResolverInterface
         $request->attributes->set(PlatformRequest::ATTRIBUTE_CONTEXT_OBJECT, $context);
     }
 
-    private function getContextParameters(Request $master, SourceContext $sourceContext)
+    private function getContextParameters(Request $master)
     {
         $params = [
             'currencyId' => Defaults::CURRENCY,
@@ -87,35 +89,42 @@ class ApiRequestContextResolver implements RequestContextResolverInterface
         return $parameters;
     }
 
-    private function resolveSourceContext(Request $request): SourceContext
+    private function resolveContextOrigin(Request $request): ContextSource
     {
-        $origin = SourceContext::ORIGIN_API;
         if ($request->attributes->has(StorefrontRequest::ATTRIBUTE_IS_STOREFRONT_REQUEST)) {
-            $origin = SourceContext::ORIGIN_STOREFRONT_API;
+            return new SalesChannelApiSource(Defaults::SALES_CHANNEL);
         }
 
-        $sourceContext = new SourceContext($origin);
-
         if (!$request->attributes->has(PlatformRequest::ATTRIBUTE_OAUTH_ACCESS_TOKEN_ID)) {
-            return $sourceContext;
+            return new SystemSource();
         }
 
         if ($userId = $request->attributes->get(PlatformRequest::ATTRIBUTE_OAUTH_USER_ID)) {
-            $sourceContext->setUserId($userId);
-
-            return $sourceContext;
+            return new AdminApiSource($userId);
         }
 
         $clientId = $request->attributes->get(PlatformRequest::ATTRIBUTE_OAUTH_CLIENT_ID);
         $keyOrigin = AccessKeyHelper::getOrigin($clientId);
 
         if ($keyOrigin === 'user') {
-            $sourceContext->setUserId($this->getUserIdByAccessKey($clientId));
-        } elseif ($keyOrigin === 'integration') {
-            $sourceContext->setIntegrationId($this->getIntegrationIdByAccessKey($clientId));
+            $userId = $this->getUserIdByAccessKey($clientId);
+
+            return new AdminApiSource($userId);
         }
 
-        return $sourceContext;
+        if ($keyOrigin === 'integration') {
+            $integrationId = $this->getIntegrationIdByAccessKey($clientId);
+
+            return new AdminApiSource(null, $integrationId);
+        }
+
+        if ($keyOrigin === 'sales-channel') {
+            $salesChannelId = $this->getSalesChannelIdByAccessKey($clientId);
+
+            return new SalesChannelApiSource($salesChannelId);
+        }
+
+        return new SystemSource();
     }
 
     private function getLanguageIdChain(array $params): array
@@ -156,6 +165,19 @@ class ApiRequestContextResolver implements RequestContextResolverInterface
         $id = $this->connection->createQueryBuilder()
             ->select(['user_id'])
             ->from('user_access_key')
+            ->where('access_key = :accessKey')
+            ->setParameter('accessKey', $clientId)
+            ->execute()
+            ->fetchColumn();
+
+        return Uuid::fromBytesToHex($id);
+    }
+
+    private function getSalesChannelIdByAccessKey(string $clientId): string
+    {
+        $id = $this->connection->createQueryBuilder()
+            ->select(['id'])
+            ->from('sales_channel')
             ->where('access_key = :accessKey')
             ->setParameter('accessKey', $clientId)
             ->execute()

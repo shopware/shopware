@@ -3,7 +3,7 @@
 namespace Shopware\Core\Framework\Api\Response;
 
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\SourceContext;
+use Shopware\Core\Framework\Context\SalesChannelApiSource;
 use Shopware\Core\PlatformRequest;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\UnsupportedMediaTypeHttpException;
@@ -27,18 +27,17 @@ class ResponseFactoryRegistry
     {
         /** @var Context $context */
         $context = $request->attributes->get(PlatformRequest::ATTRIBUTE_CONTEXT_OBJECT);
-        $origin = $context->getSourceContext()->getOrigin();
 
         $contentTypes = $request->getAcceptableContentTypes();
         if (\in_array('*/*', $contentTypes, true)) {
-            $contentTypes[] = $origin === SourceContext::ORIGIN_STOREFRONT_API
+            $contentTypes[] = ($context->getSource() instanceof SalesChannelApiSource)
                 ? self::STOREFRONT_DEFAULT_RESPONSE_TYPE
                 : self::DEFAULT_RESPONSE_TYPE;
         }
 
         foreach ($contentTypes as $contentType) {
             foreach ($this->responseFactories as $factory) {
-                if ($factory->supports($contentType, $origin)) {
+                if ($factory->supports($contentType, $context->getSource())) {
                     return $factory;
                 }
             }

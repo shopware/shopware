@@ -63,7 +63,7 @@ final class StoreClient
                 'body' => \json_encode([
                     'shopwareId' => $shopwareId,
                     'password' => $password,
-                    'shopwareUserId' => $context->getSourceContext()->getUserId(),
+                    'shopwareUserId' => $context->getUserId(),
                 ]),
                 'query' => $this->getDefaultQueryParameters($context),
             ]

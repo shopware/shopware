@@ -11,10 +11,10 @@ use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Context\SalesChannelApiSource;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Routing\Exception\LanguageNotFoundException;
-use Shopware\Core\Framework\SourceContext;
 use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Core\System\Tax\TaxCollection;
@@ -172,7 +172,7 @@ class CheckoutContextFactory implements CheckoutContextFactoryInterface
         $delivery = $this->getShippingMethod($options, $context, $salesChannel);
 
         $context = new Context(
-            $context->getSourceContext(),
+            $context->getSource(),
             [],
             $currency->getId(),
             $context->getLanguageIdChain(),
@@ -232,8 +232,6 @@ class CheckoutContextFactory implements CheckoutContextFactoryInterface
 
     private function getContext(string $salesChannelId, array $session): Context
     {
-        $origin = $session['origin'] ?? SourceContext::ORIGIN_STOREFRONT_API;
-
         $sql = '
         SELECT 
           sales_channel.id as sales_channel_id, 
@@ -254,8 +252,7 @@ class CheckoutContextFactory implements CheckoutContextFactoryInterface
             'id' => Uuid::fromHexToBytes($salesChannelId),
         ]);
 
-        $sourceContext = new SourceContext($origin);
-        $sourceContext->setSalesChannelId($salesChannelId);
+        $origin = new SalesChannelApiSource($salesChannelId);
 
         //explode all available languages for the provided sales channel
         $languageIds = $data['sales_channel_language_ids'] ? explode(',', $data['sales_channel_language_ids']) : null;
@@ -267,7 +264,7 @@ class CheckoutContextFactory implements CheckoutContextFactoryInterface
         $languageChain = $this->buildLanguageChain($session, $defaultLanguageId, $languageIds);
 
         return new Context(
-            $sourceContext,
+            $origin,
             [],
             Uuid::fromBytesToHex($data['sales_channel_currency_id']),
             $languageChain,

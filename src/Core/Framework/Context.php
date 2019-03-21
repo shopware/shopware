@@ -3,10 +3,17 @@
 namespace Shopware\Core\Framework;
 
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Context\AdminApiSource;
+use Shopware\Core\Framework\Context\ContextSource;
+use Shopware\Core\Framework\Context\SalesChannelApiSource;
+use Shopware\Core\Framework\Context\SystemSource;
 use Shopware\Core\Framework\Struct\Struct;
 
 class Context extends Struct
 {
+    public const SYSTEM_SCOPE = 'system';
+    public const USER_SCOPE = 'user';
+
     /**
      * @var string[]
      */
@@ -16,11 +23,6 @@ class Context extends Struct
      * @var string
      */
     protected $versionId;
-
-    /**
-     * @var SourceContext
-     */
-    protected $sourceContext;
 
     /**
      * @var string
@@ -38,12 +40,22 @@ class Context extends Struct
     protected $currencyPrecision;
 
     /**
+     * @var string
+     */
+    protected $scope = self::USER_SCOPE;
+
+    /**
      * @var array
      */
     protected $rules;
 
+    /**
+     * @var ContextSource
+     */
+    private $source;
+
     public function __construct(
-        SourceContext $sourceContext,
+        ContextSource $source,
         array $rules = [],
         string $currencyId = Defaults::CURRENCY,
         array $languageIdChain = [Defaults::LANGUAGE_SYSTEM],
@@ -51,7 +63,12 @@ class Context extends Struct
         float $currencyFactor = 1.0,
         int $currencyPrecision = 2
     ) {
-        $this->sourceContext = $sourceContext;
+        $this->source = $source;
+
+        if ($source instanceof SystemSource) {
+            $this->scope = self::SYSTEM_SCOPE;
+        }
+
         $this->rules = $rules;
         $this->currencyId = $currencyId;
 
@@ -65,14 +82,16 @@ class Context extends Struct
         $this->currencyPrecision = $currencyPrecision;
     }
 
-    public static function createDefaultContext(): self
+    public static function createDefaultContext(?ContextSource $source = null): self
     {
-        return new self(new SourceContext());
+        $source = $source ?? new SystemSource();
+
+        return new self($source);
     }
 
-    public function getSourceContext(): SourceContext
+    public function getSource(): ContextSource
     {
-        return $this->sourceContext;
+        return $this->source;
     }
 
     public function getVersionId(): string
@@ -108,7 +127,7 @@ class Context extends Struct
     public function createWithVersionId(string $versionId): self
     {
         $context = new self(
-            $this->sourceContext,
+            $this->source,
             $this->rules,
             $this->currencyId,
             $this->languageIdChain,
@@ -124,14 +143,37 @@ class Context extends Struct
         return $context;
     }
 
-    public function scope(string $origin, callable $callback): void
+    public function scope(string $scope, callable $callback): void
     {
-        $currentScope = $this->sourceContext->getOrigin();
-        $this->sourceContext->setOrigin($origin);
+        $currentScope = $this->getScope();
+        $this->scope = $scope;
 
         $callback($this);
 
-        $this->sourceContext->setOrigin($currentScope);
+        $this->scope = $currentScope;
+    }
+
+    public function getScope(): string
+    {
+        return $this->scope;
+    }
+
+    public function getSalesChannelId(): string
+    {
+        if ($this->source instanceof SalesChannelApiSource) {
+            return $this->source->getSalesChannelId();
+        }
+
+        return Defaults::SALES_CHANNEL;
+    }
+
+    public function getUserId(): ?string
+    {
+        if ($this->source instanceof AdminApiSource) {
+            return $this->source->getUserId();
+        }
+
+        return null;
     }
 
     public function getCurrencyPrecision(): int

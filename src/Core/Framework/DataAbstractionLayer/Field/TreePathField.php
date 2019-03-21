@@ -2,8 +2,8 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Field;
 
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\WriteProtected;
-use Shopware\Core\Framework\SourceContext;
 
 class TreePathField extends LongTextField
 {
@@ -14,7 +14,7 @@ class TreePathField extends LongTextField
         $this->pathField = $pathField;
         parent::__construct($storageName, $propertyName);
 
-        $this->addFlags(new WriteProtected(SourceContext::ORIGIN_SYSTEM));
+        $this->addFlags(new WriteProtected(Context::SYSTEM_SCOPE));
     }
 
     public function getPathField(): string

@@ -5,6 +5,7 @@ namespace Shopware\Core\Content\Navigation;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Cms\CmsPageDefinition;
 use Shopware\Core\Content\Navigation\Aggregate\NavigationTranslation\NavigationTranslationDefinition;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ChildCountField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ChildrenAssociationField;
@@ -26,7 +27,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\TreePathField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\UpdatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
-use Shopware\Core\Framework\SourceContext;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 
 class NavigationDefinition extends EntityDefinition
@@ -65,8 +65,8 @@ class NavigationDefinition extends EntityDefinition
             new TranslatedField('name'),
             new TranslatedField('slotConfig'),
 
-            (new TreeLevelField('level', 'level'))->addFlags(new WriteProtected(SourceContext::ORIGIN_SYSTEM)),
-            (new TreePathField('path', 'path'))->addFlags(new WriteProtected(SourceContext::ORIGIN_SYSTEM)),
+            (new TreeLevelField('level', 'level'))->addFlags(new WriteProtected(Context::SYSTEM_SCOPE)),
+            (new TreePathField('path', 'path'))->addFlags(new WriteProtected(Context::SYSTEM_SCOPE)),
             new ChildCountField(),
 
             new CreatedAtField(),

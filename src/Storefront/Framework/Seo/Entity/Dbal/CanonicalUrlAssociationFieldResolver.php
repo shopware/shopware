@@ -4,11 +4,11 @@ namespace Shopware\Storefront\Framework\Seo\Entity\Dbal;
 
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Context\SalesChannelApiSource;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\FieldResolver\FieldResolverInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\QueryBuilder;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
-use Shopware\Core\Framework\SourceContext;
 use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Storefront\Framework\Seo\Entity\Field\CanonicalUrlAssociationField;
 use Shopware\Storefront\Framework\Seo\SeoUrl\SeoUrlDefinition;
@@ -27,10 +27,11 @@ class CanonicalUrlAssociationFieldResolver implements FieldResolverInterface
             return false;
         }
 
-        if ($context->getSourceContext()->getOrigin() !== SourceContext::ORIGIN_STOREFRONT_API) {
-            $salesChannelId = Uuid::fromHexToBytes(Defaults::SALES_CHANNEL);
+        $source = $context->getSource();
+        if ($source instanceof SalesChannelApiSource) {
+            $salesChannelId = Uuid::fromHexToBytes($source->getSalesChannelId());
         } else {
-            $salesChannelId = Uuid::fromHexToBytes($context->getSourceContext()->getSalesChannelId());
+            $salesChannelId = Uuid::fromHexToBytes(Defaults::SALES_CHANNEL);
         }
 
         $table = SeoUrlDefinition::getEntityName();

@@ -7,22 +7,22 @@ class WriteProtected extends Flag
     /**
      * @var array[string]bool
      */
-    private $allowedOrigins = [];
+    private $allowedScopes = [];
 
-    public function __construct(string ...$allowedOrigins)
+    public function __construct(string ...$allowedScopes)
     {
-        foreach ($allowedOrigins as $origin) {
-            $this->allowedOrigins[$origin] = true;
+        foreach ($allowedScopes as $scope) {
+            $this->allowedScopes[$scope] = true;
         }
     }
 
-    public function getAllowedOrigins(): array
+    public function getAllowedScopes(): array
     {
-        return array_keys($this->allowedOrigins);
+        return array_keys($this->allowedScopes);
     }
 
-    public function isAllowed(string $origin): bool
+    public function isAllowed(string $scope): bool
     {
-        return isset($this->allowedOrigins[$origin]);
+        return isset($this->allowedScopes[$scope]);
     }
 }

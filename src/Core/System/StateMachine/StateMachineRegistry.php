@@ -242,7 +242,7 @@ class StateMachineRegistry
                 'fromStateId' => $fromPlace->getId(),
                 'toStateId' => $toPlace->getId(),
                 'transitionActionName' => $transitionName,
-                'userId' => $context->getSourceContext()->getUserId(),
+                'userId' => $context->getUserId(),
             ],
         ], $context);
     }

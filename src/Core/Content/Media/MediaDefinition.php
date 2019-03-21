@@ -10,6 +10,7 @@ use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailDefinitio
 use Shopware\Core\Content\Media\Aggregate\MediaTranslation\MediaTranslationDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaDefinition;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BlobField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
@@ -36,7 +37,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\UpdatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
-use Shopware\Core\Framework\SourceContext;
 use Shopware\Core\Framework\Tag\TagDefinition;
 use Shopware\Core\System\User\UserDefinition;
 
@@ -65,13 +65,13 @@ class MediaDefinition extends EntityDefinition
             new FkField('user_id', 'userId', UserDefinition::class),
             new FkField('media_folder_id', 'mediaFolderId', MediaFolderDefinition::class),
 
-            (new StringField('mime_type', 'mimeType'))->addFlags(new SearchRanking(SearchRanking::LOW_SEARCH_RAKING), new WriteProtected(SourceContext::ORIGIN_SYSTEM)),
-            (new StringField('file_extension', 'fileExtension'))->addFlags(new SearchRanking(SearchRanking::MIDDLE_SEARCH_RANKING), new WriteProtected(SourceContext::ORIGIN_SYSTEM)),
-            (new DateField('uploaded_at', 'uploadedAt'))->addFlags(new WriteProtected(SourceContext::ORIGIN_SYSTEM)),
-            (new LongTextField('file_name', 'fileName'))->addFlags(new WriteProtected(SourceContext::ORIGIN_SYSTEM), new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
-            (new IntField('file_size', 'fileSize'))->addFlags(new WriteProtected(SourceContext::ORIGIN_SYSTEM)),
-            (new BlobField('meta_data', 'metaDataRaw'))->addFlags(new Internal(), new WriteProtected(SourceContext::ORIGIN_SYSTEM)),
-            (new BlobField('media_type', 'mediaTypeRaw'))->addFlags(new Internal(), new WriteProtected(SourceContext::ORIGIN_SYSTEM)),
+            (new StringField('mime_type', 'mimeType'))->addFlags(new SearchRanking(SearchRanking::LOW_SEARCH_RAKING), new WriteProtected(Context::SYSTEM_SCOPE)),
+            (new StringField('file_extension', 'fileExtension'))->addFlags(new SearchRanking(SearchRanking::MIDDLE_SEARCH_RANKING), new WriteProtected(Context::SYSTEM_SCOPE)),
+            (new DateField('uploaded_at', 'uploadedAt'))->addFlags(new WriteProtected(Context::SYSTEM_SCOPE)),
+            (new LongTextField('file_name', 'fileName'))->addFlags(new WriteProtected(Context::SYSTEM_SCOPE), new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
+            (new IntField('file_size', 'fileSize'))->addFlags(new WriteProtected(Context::SYSTEM_SCOPE)),
+            (new BlobField('meta_data', 'metaDataRaw'))->addFlags(new Internal(), new WriteProtected(Context::SYSTEM_SCOPE)),
+            (new BlobField('media_type', 'mediaTypeRaw'))->addFlags(new Internal(), new WriteProtected(Context::SYSTEM_SCOPE)),
             (new JsonField('meta_data', 'metaData'))->addFlags(new WriteProtected(), new Deferred()),
             (new JsonField('media_type', 'mediaType'))->addFlags(new WriteProtected(), new Deferred()),
             new CreatedAtField(),

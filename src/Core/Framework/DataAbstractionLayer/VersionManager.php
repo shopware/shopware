@@ -259,12 +259,10 @@ class VersionManager
             ];
         }, $allChanges);
 
-        $sourceContext = $writeContext->getContext()->getSourceContext();
         $commit = [
             'versionId' => Defaults::LIVE_VERSION,
             'data' => $newData,
-            'integrationId' => $sourceContext->getIntegrationId(),
-            'userId' => $sourceContext->getUserId(),
+            'userId' => $writeContext->getContext()->getUserId(),
             'isMerge' => true,
             'message' => 'merge commit ' . (new \DateTime())->format(Defaults::DATE_FORMAT),
         ];
@@ -339,7 +337,7 @@ class VersionManager
         foreach ($fields as $field) {
             /** @var WriteProtected|null $writeProtection */
             $writeProtection = $field->getFlag(WriteProtected::class);
-            if ($writeProtection && !$writeProtection->isAllowed($context->getSourceContext()->getOrigin())) {
+            if ($writeProtection && !$writeProtection->isAllowed($context->getScope())) {
                 continue;
             }
 
@@ -451,27 +449,17 @@ class VersionManager
 
     private function writeAuditLog(array $writtenEvents, WriteContext $writeContext, string $action, ?string $versionId = null): void
     {
-        $sourceContext = $writeContext->getContext()->getSourceContext();
         $versionId = $versionId ?? $writeContext->getContext()->getVersionId();
-
-        if ($userId = $sourceContext->getUserId()) {
-            $userId = Uuid::fromHexToBytes($sourceContext->getUserId());
-        }
-
-        if ($integrationId = $sourceContext->getIntegrationId()) {
-            $integrationId = Uuid::fromHexToBytes($sourceContext->getIntegrationId());
-        }
-
         $commitId = Uuid::uuid4();
 
         $date = (new \DateTime())->format(Defaults::DATE_FORMAT);
 
+        $userId = $writeContext->getContext()->getUserId() ? Uuid::fromHexToBytes($writeContext->getContext()->getUserId()) : null;
         $insert = new InsertCommand(
             VersionCommitDefinition::class,
             [
                 'id' => $commitId->getBytes(),
                 'user_id' => $userId,
-                'integration_id' => $integrationId,
                 'version_id' => Uuid::fromStringToBytes($versionId),
                 'created_at' => $date,
             ],
@@ -521,7 +509,6 @@ class VersionManager
                         'entity_id' => JsonFieldSerializer::encodeJson($primary),
                         'payload' => JsonFieldSerializer::encodeJson($payload),
                         'user_id' => $userId,
-                        'integration_id' => $integrationId,
                         'action' => $action,
                         'created_at' => $date,
                     ],

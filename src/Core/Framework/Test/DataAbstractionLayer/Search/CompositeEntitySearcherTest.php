@@ -8,6 +8,7 @@ use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Context\AdminApiSource;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\Search\CompositeEntitySearcher;
 use Shopware\Core\Framework\Struct\Uuid;
@@ -48,10 +49,11 @@ class CompositeEntitySearcherTest extends TestCase
 
         $this->productRepository = $this->getContainer()->get('product.repository');
         $this->search = $this->getContainer()->get(CompositeEntitySearcher::class);
-        $this->context = $context = Context::createDefaultContext();
 
         $this->userId = Uuid::uuid4()->getHex();
-        $this->context->getSourceContext()->setUserId($this->userId);
+
+        $origin = new AdminApiSource($this->userId);
+        $this->context = Context::createDefaultContext($origin);
 
         $repo = $this->getContainer()->get('user.repository');
         $repo->upsert([
@@ -63,7 +65,7 @@ class CompositeEntitySearcherTest extends TestCase
                 'email' => Uuid::uuid4()->getHex() . '@example.com',
                 'password' => 'shopware',
             ],
-        ], $context);
+        ], $this->context);
     }
 
     public function testProductRanking(): void

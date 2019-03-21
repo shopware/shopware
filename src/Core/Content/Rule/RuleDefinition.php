@@ -10,6 +10,7 @@ use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodRules\ShippingMethod
 use Shopware\Core\Checkout\Shipping\ShippingMethodDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductPriceRule\ProductPriceRuleDefinition;
 use Shopware\Core\Content\Rule\Aggregate\RuleCondition\RuleConditionDefinition;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AttributesField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BlobField;
@@ -30,7 +31,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\UpdatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
-use Shopware\Core\Framework\SourceContext;
 
 class RuleDefinition extends EntityDefinition
 {
@@ -56,8 +56,8 @@ class RuleDefinition extends EntityDefinition
             (new StringField('name', 'name'))->addFlags(new Required()),
             (new IntField('priority', 'priority'))->addFlags(new Required()),
             new LongTextField('description', 'description'),
-            (new BlobField('payload', 'payload'))->addFlags(new WriteProtected(SourceContext::ORIGIN_SYSTEM), new Internal(), new Deferred()),
-            (new BoolField('invalid', 'invalid'))->addFlags(new WriteProtected(SourceContext::ORIGIN_SYSTEM)),
+            (new BlobField('payload', 'payload'))->addFlags(new WriteProtected(Context::SYSTEM_SCOPE), new Internal(), new Deferred()),
+            (new BoolField('invalid', 'invalid'))->addFlags(new WriteProtected(Context::SYSTEM_SCOPE)),
             new AttributesField(),
             new CreatedAtField(),
             new UpdatedAtField(),

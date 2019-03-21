@@ -3,16 +3,18 @@
 namespace Shopware\Core\Framework\Test\Api;
 
 use PHPUnit\Framework\TestCase;
-use Ramsey\Uuid\Uuid;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Category\CategoryEntity;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Response\ResponseFactoryInterface;
 use Shopware\Core\Framework\Api\Response\ResponseFactoryRegistry;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Context\AdminApiSource;
+use Shopware\Core\Framework\Context\SalesChannelApiSource;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
-use Shopware\Core\Framework\SourceContext;
+use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\Framework\Test\TestCaseBase\StorefrontFunctionalTestBehaviour;
 use Shopware\Core\PlatformRequest;
 use Symfony\Component\HttpFoundation\ParameterBag;
@@ -36,9 +38,7 @@ class ResponseTypeRegistryTest extends TestCase
 
     public function getAdminContext(): Context
     {
-        $sourceContext = new SourceContext(SourceContext::ORIGIN_API);
-
-        return new Context($sourceContext);
+        return new Context(new AdminApiSource(Uuid::uuid4()->getHex()));
     }
 
     public function testAdminApi(): void
@@ -213,9 +213,7 @@ class ResponseTypeRegistryTest extends TestCase
 
     private function getStorefrontContext(): Context
     {
-        $sourceContext = new SourceContext(SourceContext::ORIGIN_STOREFRONT_API);
-
-        return new Context($sourceContext);
+        return new Context(new SalesChannelApiSource(Defaults::SALES_CHANNEL));
     }
 
     private function getDetailResponse(Context $context, $id, $path, $version = '', $accept, $setLocationHeader): Response

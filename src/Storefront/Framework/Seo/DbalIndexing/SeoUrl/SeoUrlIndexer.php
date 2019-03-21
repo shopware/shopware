@@ -13,7 +13,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Event\ProgressAdvancedEvent;
 use Shopware\Core\Framework\Event\ProgressFinishedEvent;
 use Shopware\Core\Framework\Event\ProgressStartedEvent;
-use Shopware\Core\Framework\SourceContext;
 use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
@@ -147,7 +146,6 @@ abstract class SeoUrlIndexer implements IndexerInterface
             ->search(new Criteria([$salesChannelId]), Context::createDefaultContext())
             ->first();
         $options = $salesChannel->jsonSerialize();
-        $options['origin'] = SourceContext::ORIGIN_SYSTEM;
 
         return $this->checkoutContextFactory->create(
             Uuid::uuid4()->getHex(),

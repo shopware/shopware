@@ -52,19 +52,30 @@ module.exports = {
         });
     },
     afterEach(browser, done) {
-        browser.end();
-
-        global.logger.lineBreak();
-        global.logger.title('Resetting database and cache to clean state...');
-
-        const startTime = new Date();
-        clearDatabase()
+        let startTime;
+        getBrowserLog(browser)
+            .then(() => {
+                return new Promise((resolve) => {
+                    browser.end(() => {
+                        resolve();
+                    });
+                });
+            })
+            .then(() => {
+                global.logger.lineBreak();
+                global.logger.title('Resetting database and cache to clean state...');
+            })
+            .then(() => {
+                startTime = new Date();
+                return clearDatabase();
+            })
             .then(global.AdminFixtureService.apiClient.clearCache())
             .then(() => {
                 const endTime = new Date() - startTime;
                 global.logger.success(`Successfully reset database and cache! (${endTime / 1000}s)`);
                 done();
-            }).catch((err) => {
+            })
+            .catch((err) => {
                 global.logger.error(err);
                 done(err);
             });
@@ -91,4 +102,30 @@ function renderWatcherUsage() {
  */
 function clearDatabase() {
     return exec(`${process.env.PROJECT_ROOT}psh.phar e2e:restore-db`);
+}
+
+/**
+ * Gets the last log entries from the browser. Please keep in mind that the current session
+ * needs to be open to grab the logs of the browser.
+ *
+ * @params {NightwatchClient} browser
+ * @returns {Promise<T>}
+ */
+function getBrowserLog(browser) {
+    return new Promise((resolve) => {
+        browser.isLogAvailable('browser', (isAvailable) => {
+            if (!isAvailable) {
+                resolve();
+                return;
+            }
+
+            global.logger.title('Browser log from last test suite');
+            browser.getLog('browser', (logEntries) => {
+                logEntries.forEach((log) => {
+                    console.log(`[${log.level}.${log.source}]: ${log.message}`);
+                });
+            });
+            resolve();
+        });
+    });
 }

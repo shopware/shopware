@@ -2337,7 +2337,7 @@ export interface NightwatchCustomCommands {
      * @param {String} selector
      * @param callback
      */
-    checkIfElementExists(selector: string, callback: () => boolean): this,
+    checkIfElementExists(selector: string, callback: () => boolean): this
 }
 
 /* tslint:disable-next-line:no-empty-interface */

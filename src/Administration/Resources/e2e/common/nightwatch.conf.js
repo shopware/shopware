@@ -36,6 +36,9 @@ module.exports = {
                 browserName: 'chrome',
                 javascriptEnabled: true,
                 acceptSslCerts: true,
+                loggingPrefs: {
+                    browser: 'ALL'
+                },
                 chromeOptions: {
                     prefs: {
                         'intl.accept_languages': 'en_GB,en'
@@ -56,6 +59,9 @@ module.exports = {
                 browserName: 'chrome',
                 javascriptEnabled: true,
                 acceptSslCerts: true,
+                loggingPrefs: {
+                    browser: 'ALL'
+                },
                 chromeOptions: {
                     prefs: {
                         'intl.accept_languages': 'en_GB,en'

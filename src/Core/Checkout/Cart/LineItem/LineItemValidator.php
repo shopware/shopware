@@ -1,0 +1,26 @@
+<?php declare(strict_types=1);
+
+namespace Shopware\Core\Checkout\Cart\LineItem;
+
+use Shopware\Core\Checkout\Cart\Cart;
+use Shopware\Core\Checkout\Cart\CartValidatorInterface;
+use Shopware\Core\Checkout\Cart\Error\ErrorCollection;
+use Shopware\Core\Checkout\Cart\Error\IncompleteLineItemError;
+use Shopware\Core\Checkout\CheckoutContext;
+
+class LineItemValidator implements CartValidatorInterface
+{
+    public function validate(Cart $cart, ErrorCollection $errorCollection, CheckoutContext $checkoutContext): void
+    {
+        /** @var LineItem $lineItem */
+        foreach ($cart->getLineItems()->getFlat() as $lineItem) {
+            if ($lineItem->getLabel() === null) {
+                $errorCollection->add(new IncompleteLineItemError($lineItem->getKey(), 'label'));
+            }
+
+            if ($lineItem->getPrice() === null) {
+                $errorCollection->add(new IncompleteLineItemError($lineItem->getKey(), 'price'));
+            }
+        }
+    }
+}

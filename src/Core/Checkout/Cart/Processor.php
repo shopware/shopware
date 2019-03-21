@@ -68,16 +68,16 @@ class Processor
             )
         );
 
-        $cart->addErrors(
-            $this->validator->validate($cart)
-        );
-
         $cart->setPrice(
             $this->amountCalculator->calculate(
                 $cart->getLineItems()->getPrices(),
                 $cart->getDeliveries()->getShippingCosts(),
                 $context
             )
+        );
+
+        $cart->addErrors(
+            $this->validator->validate($cart, $context)
         );
 
         $cart->setTransactions(

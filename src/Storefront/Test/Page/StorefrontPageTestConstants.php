@@ -12,6 +12,8 @@ final class StorefrontPageTestConstants
 
     public const SHIPPING_METHOD_COUNT = 2;
 
+    public const AVAILABLE_SHIPPING_METHOD_COUNT = 1;
+
     public const COUNTRY_COUNT = 34;
 
     private function __construct()

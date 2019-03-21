@@ -13,7 +13,7 @@ class LastNameRuleTest extends TestCase
 {
     public function testExactMatch(): void
     {
-        $rule = new LastNameRule();
+        $rule = (new LastNameRule())->assign(['lastName' => 'shopware']);
 
         $cart = $this->createMock(Cart::class);
 
@@ -33,32 +33,12 @@ class LastNameRuleTest extends TestCase
 
     public function testCaseInsensitive(): void
     {
-        $rule = new LastNameRule();
+        $rule = (new LastNameRule())->assign(['lastName' => 'shopware']);
 
         $cart = $this->createMock(Cart::class);
 
         $customer = new CustomerEntity();
         $customer->setLastName('ShopWare');
-
-        $context = $this->createMock(CheckoutContext::class);
-
-        $context
-            ->method('getCustomer')
-            ->willReturn($customer);
-
-        static::assertTrue(
-            $rule->match(new CartRuleScope($cart, $context))->matches()
-        );
-    }
-
-    public function testContains(): void
-    {
-        $rule = new LastNameRule();
-
-        $cart = $this->createMock(Cart::class);
-
-        $customer = new CustomerEntity();
-        $customer->setLastName('dolore magna aliquyam');
 
         $context = $this->createMock(CheckoutContext::class);
 

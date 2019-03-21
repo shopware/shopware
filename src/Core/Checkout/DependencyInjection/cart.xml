@@ -143,7 +143,13 @@
             <argument type="service" id="Shopware\Core\Checkout\Cart\Delivery\DeliveryCalculator"/>
         </service>
 
-        <service id="Shopware\Core\Checkout\Cart\Validator"/>
+        <service id="Shopware\Core\Checkout\Cart\LineItem\LineItemValidator">
+            <tag name="Shopware\Core\Checkout\Cart\CartValidatorInterface"/>
+        </service>
+
+        <service id="Shopware\Core\Checkout\Cart\Validator">
+            <argument type="tagged" tag="Shopware\Core\Checkout\Cart\CartValidatorInterface"/>
+        </service>
 
         <service id="Shopware\Core\Checkout\Cart\Processor">
             <argument type="service" id="Shopware\Core\Checkout\Cart\Calculator"/>

@@ -27,11 +27,12 @@ module.exports = {
         browser
             .click(page.elements.smartBarBack)
             .waitForElementNotPresent(page.elements.loader)
-            .expect.element(page.elements.columnName).to.have.text.that.contains('Rule 1st');
+            .expect.element(`${page.elements.gridRow}--1 ${page.elements.columnName}`).to.have.text.that.contains('Rule 1st');
 
         browser
             .fillGlobalSearchField('Rule 1st')
             .waitForElementNotPresent(page.elements.loader)
+            .waitForElementPresent(page.elements.smartBarAmount)
             .expect.element(page.elements.smartBarAmount).to.have.text.that.contains('(1)');
         browser.expect.element(page.elements.columnName).to.have.text.that.contains('Rule 1st');
     }

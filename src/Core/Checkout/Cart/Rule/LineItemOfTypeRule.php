@@ -40,12 +40,12 @@ class LineItemOfTypeRule extends Rule
         switch ($this->operator) {
             case self::OPERATOR_EQ:
                 return new Match(
-                    $scope->getLineItem()->getType() === $this->lineItemType,
+                    strcasecmp($scope->getLineItem()->getType(), $this->lineItemType) === 0,
                     ['LineItem type does not match']
                 );
             case self::OPERATOR_NEQ:
                 return new Match(
-                    $scope->getLineItem()->getType() !== $this->lineItemType,
+                    strcasecmp($scope->getLineItem()->getType(), $this->lineItemType) !== 0,
                     ['LineItem type does match']
                 );
             default:

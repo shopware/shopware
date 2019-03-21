@@ -42,12 +42,12 @@ class LastNameRule extends Rule
         switch ($this->operator) {
             case Rule::OPERATOR_EQ:
                 return new Match(
-                    (bool) preg_match("/$this->lastName/", strtolower($customer->getLastName())),
+                    strcasecmp($this->lastName, $customer->getLastName()) === 0,
                     ['Last name not matched']
                 );
             case Rule::OPERATOR_NEQ:
                 return new Match(
-                    !(bool) preg_match("/$this->lastName/", strtolower($customer->getLastName())),
+                    strcasecmp($this->lastName, $customer->getLastName()) !== 0,
                     ['Last name matched']
                 );
             default:

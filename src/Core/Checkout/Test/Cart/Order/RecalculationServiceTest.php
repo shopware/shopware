@@ -30,10 +30,12 @@ use Shopware\Core\Checkout\Context\CheckoutContextService;
 use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressEntity;
 use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Checkout\Order\OrderEntity;
+use Shopware\Core\Checkout\Test\Cart\Common\TrueRule;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Rule\Collector\RuleConditionRegistry;
 use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -67,8 +69,10 @@ class RecalculationServiceTest extends TestCase
         parent::setUp();
         $this->context = Context::createDefaultContext();
 
+        $ruleId = Uuid::uuid4()->getHex();
+
         $this->customerId = $this->createCustomer();
-        $shippingMethodId = $this->createShippingMethod();
+        $shippingMethodId = $this->createShippingMethod($ruleId);
         $this->checkoutContext = $this->getContainer()->get(CheckoutContextFactory::class)->create(
             Uuid::uuid4()->getHex(),
             Defaults::SALES_CHANNEL,
@@ -77,6 +81,8 @@ class RecalculationServiceTest extends TestCase
                 CheckoutContextService::SHIPPING_METHOD_ID => $shippingMethodId,
             ]
         );
+
+        $this->checkoutContext->setRuleIds([$ruleId]);
     }
 
     public function testPersistOrderAndConvertToCart(): void
@@ -126,7 +132,7 @@ class RecalculationServiceTest extends TestCase
             $lineItem->setDeliveryInformation(null);
         }
 
-        static::assertEquals($cart, $convertedCart, print_r(['original' => $cart, 'converted' => $convertedCart], true));
+        static::assertEquals($cart, $convertedCart);
     }
 
     public function testOrderConverterController(): void
@@ -747,10 +753,14 @@ class RecalculationServiceTest extends TestCase
         static::assertSame($calculatedTaxes->getTax(), 53.18);
     }
 
-    private function createShippingMethod(): string
+    private function createShippingMethod(string $ruleId): string
     {
         $shippingMethodId = Uuid::uuid4()->getHex();
         $repository = $this->getContainer()->get('shipping_method.repository');
+
+        $ruleRegistry = $this->getContainer()->get(RuleConditionRegistry::class);
+        $prop = ReflectionHelper::getProperty(RuleConditionRegistry::class, 'rules');
+        $prop->setValue($ruleRegistry, array_merge($prop->getValue($ruleRegistry), ['true' => new TrueRule()]));
 
         $data = [
             'id' => $shippingMethodId,
@@ -764,6 +774,18 @@ class RecalculationServiceTest extends TestCase
                     'quantityFrom' => 0,
                     'price' => '10.00',
                     'factor' => 0,
+                ],
+            ],
+            'availabilityRules' => [
+                [
+                    'id' => $ruleId,
+                    'name' => 'true',
+                    'priority' => 0,
+                    'conditions' => [
+                        [
+                            'type' => 'true',
+                        ],
+                    ],
                 ],
             ],
         ];

@@ -4,11 +4,14 @@ namespace Shopware\Core\System\Test\SalesChannel\Storefront;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Context\CheckoutRuleLoader;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\Framework\Test\TestCaseBase\AssertArraySubsetBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\StorefrontFunctionalTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
 
 class StorefrontSalesChannelControllerTest extends TestCase
 {
@@ -37,6 +40,11 @@ class StorefrontSalesChannelControllerTest extends TestCase
         $this->connection = $this->getContainer()->get(Connection::class);
         $this->salesChannelRepository = $this->getContainer()->get('sales_channel.repository');
         $this->context = Context::createDefaultContext();
+
+        // reset rules
+        $ruleLoader = $this->getContainer()->get(CheckoutRuleLoader::class);
+        $rulesProperty = ReflectionHelper::getProperty(CheckoutRuleLoader::class, 'rules');
+        $rulesProperty->setValue($ruleLoader, null);
     }
 
     public function testGetSalesChannelCurrencies(): void
@@ -162,7 +170,7 @@ class StorefrontSalesChannelControllerTest extends TestCase
         $content = json_decode($response->getContent(), true);
 
         foreach ($content['data'] as $shippingMethod) {
-            if (!$shippingMethod['id'] === $originalShippingMethod['id']) {
+            if ($shippingMethod['id'] !== $originalShippingMethod['id']) {
                 continue;
             }
 
@@ -172,6 +180,71 @@ class StorefrontSalesChannelControllerTest extends TestCase
         }
 
         static::fail('Unable to find shipping method');
+    }
+
+    public function testGetSalesChannelShippingMethodsWithoutUnavailable(): void
+    {
+        $originalShippingMethod = $this->addShippingMethod();
+        $this->addUnavailableShippingMethod();
+
+        $this->getStorefrontClient()->request('GET', '/storefront-api/v1/shipping-method');
+        $response = $this->getStorefrontClient()->getResponse();
+        static::assertEquals(200, $response->getStatusCode());
+
+        $content = json_decode($response->getContent(), true);
+
+        foreach ($content['data'] as $shippingMethod) {
+            if ($shippingMethod['id'] !== $originalShippingMethod['id']) {
+                continue;
+            }
+
+            $this->silentAssertArraySubset($originalShippingMethod, $shippingMethod);
+
+            return;
+        }
+
+        static::fail('Unable to find shipping method');
+    }
+
+    public function testGetMultiSalesChannelShippingMethods(): void
+    {
+        $originalShippingMethod = $this->addShippingMethod();
+        $this->addShippingMethod();
+
+        $this->getStorefrontClient()->request('GET', '/storefront-api/v1/shipping-method');
+        $response = $this->getStorefrontClient()->getResponse();
+        static::assertEquals(200, $response->getStatusCode());
+
+        $content = json_decode($response->getContent(), true);
+
+        static::assertGreaterThanOrEqual(3, count($content['data']));
+        static::assertCount($content['total'], $content['data']);
+
+        foreach ($content['data'] as $shippingMethod) {
+            if ($shippingMethod['id'] !== $originalShippingMethod['id']) {
+                continue;
+            }
+
+            $this->silentAssertArraySubset($originalShippingMethod, $shippingMethod);
+
+            return;
+        }
+
+        static::fail('Unable to find shipping method');
+    }
+
+    public function testGetDefaultSalesChannelShippingMethod(): void
+    {
+        $this->addUnavailableShippingMethod();
+        $this->getStorefrontClient()->request('GET', '/storefront-api/v1/shipping-method');
+        $response = $this->getStorefrontClient()->getResponse();
+        static::assertEquals(200, $response->getStatusCode());
+
+        $content = json_decode($response->getContent(), true);
+        static::assertCount(1, $content['data']);
+        static::assertEquals(1, $content['total']);
+
+        static::assertSame(Defaults::SHIPPING_METHOD, $content['data'][0]['id']);
     }
 
     private function sortById(&$array): void
@@ -305,10 +378,47 @@ class StorefrontSalesChannelControllerTest extends TestCase
             'id' => Uuid::uuid4()->getHex(),
             'name' => 'Express shipping',
             'bindShippingfree' => false,
+            'availabilityRules' => [
+                [
+                    'id' => Uuid::uuid4()->getHex(),
+                    'name' => 'Rule',
+                    'priority' => 100,
+                    'conditions' => [
+                        [
+                            'type' => 'cartCartAmount',
+                            'value' => [
+                                'operator' => '>=',
+                                'amount' => 0,
+                            ],
+                        ],
+                    ],
+                ],
+            ],
         ];
         $data = [
             'id' => $this->getStorefrontApiSalesChannelId(),
             'shippingMethods' => [
+                ['id' => Defaults::SHIPPING_METHOD],
+                $shippingMethod,
+            ],
+        ];
+        $this->salesChannelRepository->update([$data], $this->context);
+        unset($shippingMethod['availabilityRules']);
+
+        return $shippingMethod;
+    }
+
+    private function addUnavailableShippingMethod(): array
+    {
+        $shippingMethod = [
+            'id' => Uuid::uuid4()->getHex(),
+            'name' => 'Special shipping',
+            'bindShippingfree' => false,
+        ];
+        $data = [
+            'id' => $this->getStorefrontApiSalesChannelId(),
+            'shippingMethods' => [
+                ['id' => Defaults::SHIPPING_METHOD],
                 $shippingMethod,
             ],
         ];

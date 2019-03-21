@@ -215,15 +215,6 @@ class RuleEntity extends Entity
         $this->moduleTypes = $moduleTypes;
     }
 
-    public function getViewData()
-    {
-        /** @var self $data */
-        $data = parent::getViewData();
-        $data->payload = null;
-
-        return $data;
-    }
-
     public function getAttributes(): ?array
     {
         return $this->attributes;

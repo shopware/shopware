@@ -45,6 +45,7 @@ class CheckoutConfigPageLoader implements PageLoaderInterface
 
         /** @var ShippingMethodCollection $shippingMethods */
         $shippingMethods = $this->shippingMethodRepository->search(new Criteria(), $context->getContext())->getEntities();
+        $shippingMethods = $shippingMethods->filterByActiveRules($context);
 
         $page = new CheckoutConfigPage($context, $paymentMethods, $shippingMethods, $context->getPaymentMethod(), $context->getShippingMethod());
 

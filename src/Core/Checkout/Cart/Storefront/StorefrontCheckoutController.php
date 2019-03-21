@@ -171,11 +171,16 @@ class StorefrontCheckoutController extends AbstractController
 
     private function createCheckoutContext(string $customerId, CheckoutContext $context): CheckoutContext
     {
-        return $this->checkoutContextFactory->create(
+        $checkoutContext = $this->checkoutContextFactory->create(
             $context->getToken(),
             $context->getSalesChannel()->getId(),
             [CheckoutContextService::CUSTOMER_ID => $customerId]
         );
+
+        // todo: load matching rules
+        $checkoutContext->setRuleIds($context->getRuleIds());
+
+        return $checkoutContext;
     }
 
     private function serialize($data): array

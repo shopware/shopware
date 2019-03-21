@@ -1,0 +1,197 @@
+{% block sw_settings_customer_group_list %}
+    <sw-page class="sw-settings-customer-group-list">
+
+        {% block sw_settings_customer_group_list_search_bar %}
+            <template slot="search-bar">
+                <sw-search-bar :placeholder="$tc('sw-settings-customer-group.general.placeholderSearchBar')"
+                               :searchType="$tc('sw-settings-customer-group.general.mainMenuItemGeneral')"
+                               @search="onSearch">
+                </sw-search-bar>
+            </template>
+        {% endblock %}
+
+        {% block sw_settings_customer_group_list_smart_bar_header %}
+            <template slot="smart-bar-header">
+                {% block sw_settings_customer_group_list_smart_bar_header_title %}
+                    <h2>
+                        {% block sw_settings_customer_group_list_smart_bar_header_title_text %}
+                            {{ $tc('sw-settings.index.title') }}
+                            <sw-icon name="small-arrow-medium-right" small></sw-icon>
+                            {{ $tc('sw-settings-customer-group.general.mainMenuItemGeneral') }}
+                        {% endblock %}
+
+                        {% block sw_settings_customer_group_list_smart_bar_header_amount %}
+                            <span v-if="!isLoading && items && items.length"
+                                  class="sw-page__smart-bar-amount">
+                                ({{ total }})
+                            </span>
+                        {% endblock %}
+                    </h2>
+                {% endblock %}
+            </template>
+        {% endblock %}
+
+        {% block sw_settings_customer_group_list_language_switch %}
+            <template slot="language-switch">
+                <sw-language-switch @on-change="onChangeLanguage"></sw-language-switch>
+            </template>
+        {% endblock %}
+
+        {% block sw_settings_customer_group_list_actions %}
+            <template slot="smart-bar-actions">
+                {% block sw_settings_customer_group_list_actions_create %}
+                    <sw-button class="sw-settings-customer-group-list__create"
+                               variant="primary"
+                               :routerLink="{ name: 'sw.settings.customer.group.create' }">
+                        {{ $tc('sw-settings-customer-group.general.buttonCreate') }}
+                    </sw-button>
+                {% endblock %}
+            </template>
+        {% endblock %}
+
+        {% block sw_settings_customer_group_list_cardview %}
+            <template slot="content">
+                <sw-card-view>
+                    {% block sw_settings_customer_group_list_card_content %}
+                        <sw-card :isLoading="isLoading">
+
+                            {% block sw_settings_customer_group_list_grid %}
+                                <template slot="grid">
+                                    <sw-data-grid :isLoading="isLoading"
+                                                  :dataSource="items"
+                                                  :columns="columns"
+                                                  class="sw-settings-customer-group-list-grid"
+                                                  identifier="sw-settings-customer-group-list"
+                                                  :skeletonItemAmount="skeletonItemAmount"
+                                                  :sortBy="sortBy"
+                                                  :sortDirection="sortDirection"
+                                                  :allowInlineEdit="true"
+                                                  :allowColumnEdit="true"
+                                                  :showSettings="true"
+                                                  :showSelection="false"
+                                                  @column-sort="onSortColumn"
+                                                  @inline-edit-cancel="onInlineEditCancel"
+                                                  @inline-edit-save="onInlineEditSave">
+
+                                        {% block sw_settings_customer_group_list_columns %}
+                                            {% block sw_settings_customer_group_list_column_name %}
+                                                <template slot="column-name" slot-scope="{ item, compact, isInlineEdit }">
+
+                                                    {% block sw_settings_customer_group_list_column_name_inline_edit %}
+                                                        <template v-if="isInlineEdit">
+                                                            <sw-text-field v-model="item.name"
+                                                                           :placeholder="getInlinePlaceholder(item)"
+                                                                           :size="compact ? 'small' : 'default'">
+                                                            </sw-text-field>
+                                                        </template>
+                                                    {% endblock %}
+
+                                                    {% block sw_settings_customer_group_list_column_name_content %}
+                                                        <router-link v-else
+                                                                     class="sw-settings-customer-group-list__columns"
+                                                                     :to="{ name: 'sw.settings.customer.group.detail', params: { id: item.id } }">
+                                                            {{ item.meta.viewData.name }}
+                                                        </router-link>
+                                                    {% endblock %}
+
+                                                </template>
+                                            {% endblock %}
+
+                                            {% block sw_settings_customer_group_list_column_display_gross %}
+                                                <template slot="column-displayGross" slot-scope="{ item, compact, isInlineEdit }">
+
+                                                    {% block sw_settings_customer_group_list_column_display_gross_inline_edit %}
+                                                        <sw-field v-if="isInlineEdit"
+                                                                  type="switch"
+                                                                  v-model="item.displayGross"
+                                                                  :label="$tc('sw-settings-customer-group.list.textNetGross', item.displayGross)">
+                                                        </sw-field>
+                                                    {% endblock %}
+
+                                                    {% block sw_settings_customer_group_list_column_display_gross_content %}
+                                                        <template v-else>
+                                                            {{ $tc('sw-settings-customer-group.list.textNetGross', item.displayGross) }}
+                                                        </template>
+                                                    {% endblock %}
+
+                                                </template>
+                                            {% endblock %}
+                                        {% endblock %}
+
+                                        {% block sw_settings_customer_group_list_column_actions %}
+                                            <template slot="actions" slot-scope="{ item }">
+                                                {% block sw_settings_customer_group_list_column_menu_edit %}
+                                                    <sw-context-menu-item :routerLink="{ name: 'sw.settings.customer.group.detail', params: { id: item.id } }">
+                                                        {{ $tc('sw-settings-customer-group.general.contextMenuEdit') }}
+                                                    </sw-context-menu-item>
+                                                {% endblock %}
+
+                                                {% block sw_settings_customer_group_list_column_menu_delete %}
+                                                    <sw-context-menu-item @click="onDelete(item.id)"
+                                                                          variant="danger">
+                                                        {{ $tc('sw-settings-customer-group.general.contextMenuDelete') }}
+                                                    </sw-context-menu-item>
+                                                {% endblock %}
+                                            </template>
+                                        {% endblock %}
+
+                                        {% block sw_settings_customer_group_list_action_modals %}
+                                            {% block sw_settings_customer_group_list_delete_modal %}
+                                                <template slot="action-modals" slot-scope="{ item }">
+                                                    <sw-modal v-if="showDeleteModal === item.id"
+                                                              @closeModal="onCloseDeleteModal"
+                                                              :title="$tc('sw-settings-customer-group.general.mainMenuItemGeneral')"
+                                                              variant="small">
+                                                        {% block sw_settings_customer_group_list_delete_modal_confirm_delete_text %}
+                                                            <p class="sw-settings-customer-group-list__confirm-delete-text">
+                                                                {{ $tc('sw-settings-customer-group.list.textDeleteConfirm', 0, { name: item.meta.viewData.name }) }}
+                                                            </p>
+                                                        {% endblock %}
+
+                                                        {% block sw_settings_customer_group_list_delete_modal_footer %}
+                                                            <template slot="modal-footer">
+                                                                {% block sw_settings_customer_group_list_delete_modal_cancel %}
+                                                                    <sw-button @click="onCloseDeleteModal"
+                                                                               size="small">
+                                                                        {{ $tc('sw-settings-customer-group.general.buttonCancel') }}
+                                                                    </sw-button>
+                                                                {% endblock %}
+
+                                                                {% block sw_settings_customer_group_list_delete_modal_confirm %}
+                                                                    <sw-button @click="onConfirmDelete(item.id)"
+                                                                               variant="primary"
+                                                                               size="small">
+                                                                        {{ $tc('sw-settings-customer-group.general.buttonDelete') }}
+                                                                    </sw-button>
+                                                                {% endblock %}
+                                                            </template>
+                                                        {% endblock %}
+                                                    </sw-modal>
+                                                </template>
+                                            {% endblock %}
+                                        {% endblock %}
+
+                                        {% block sw_settings_customer_group_list_grid_pagination %}
+                                            <template slot="pagination">
+                                                <sw-pagination :page="page"
+                                                               :limit="limit"
+                                                               :total="total"
+                                                               :total-visible="7"
+                                                               :steps="steps"
+                                                               @page-change="onPageChange">
+                                                </sw-pagination>
+                                            </template>
+                                        {% endblock %}
+
+                                    </sw-data-grid>
+                                </template>
+                            {% endblock %}
+
+                        </sw-card>
+                    {% endblock %}
+                </sw-card-view>
+            </template>
+        {% endblock %}
+
+    </sw-page>
+{% endblock %}

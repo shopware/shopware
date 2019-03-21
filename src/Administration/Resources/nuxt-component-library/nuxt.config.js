@@ -5,7 +5,7 @@ const fileParser = require(`${__dirname}/lib/file-parser`); // eslint-disable-li
 const process = require('process');
 
 function getPathFromRoot(directory) {
-    const projectRoot = process.env.PROJECT_ROOT;
+    const projectRoot = process.env.PROJECT_ROOT || '/Applications/MAMP/htdocs/sw-next-development';
     return path.join(projectRoot, directory);
 }
 

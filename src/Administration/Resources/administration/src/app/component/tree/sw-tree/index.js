@@ -6,10 +6,34 @@ import './sw-tree.scss';
 /**
  * @public
  * @status ready
- * @example-type code-only
+ * @example-type static
  * @description you need to declare the functions createNewElement, getChildrenFromParent in the parent.
  * @component-example
- * <sw-tree>
+ * <sw-tree
+ *     :searchable="false"
+ *     :disableContextMenu="() => { return true; }"
+ *     :onChangeRoute="() => { return false; }"
+ *     :items="[
+ *         { id: 1, name: 'Example #1', childCount: 4, parentId: null, afterId: null, isDeleted: false },
+ *             { id: 6, name: 'Example #6', childCount: 0, parentId: 1, afterId: null },
+ *             { id: 7, name: 'Example #7', childCount: 0, parentId: 1, afterId: 6 },
+ *             { id: 8, name: 'Example #8', childCount: 0, parentId: 1, afterId: 7 },
+ *             { id: 9, name: 'Example #9', childCount: 0, parentId: 1, afterId: 8 },
+ *         { id: 2, name: 'Example #2', childCount: 0, parentId: null, afterId: 1 },
+ *         { id: 3, name: 'Example #3', childCount: 0, parentId: null, afterId: 2 },
+ *         { id: 4, name: 'Example #4', childCount: 0, parentId: null, afterId: 3 },
+ *         { id: 5, name: 'Example #5', childCount: 0, parentId: null, afterId: 4 },
+ *     ]"
+ *     :sortable="true">
+ *     <template slot="items" slot-scope="{ treeItems, sortable, draggedItem, disableContextMenu, onChangeRoute }">
+ *         <sw-tree-item
+ *             v-for="(item, index) in treeItems"
+ *             :key="item.id"
+ *             :item="item"
+ *             :disableContextMenu="disableContextMenu"
+ *             :onChangeRoute="onChangeRoute"
+ *             :sortable="true"></sw-tree-item>
+ *     </template>
  * </sw-tree>
  */
 export default {
@@ -95,8 +119,11 @@ export default {
     },
 
     watch: {
-        items() {
-            this.treeItems = this.getTreeItems(this.isSearched ? null : this.rootParentId);
+        items: {
+            immediate: true,
+            handler() {
+                this.treeItems = this.getTreeItems(this.isSearched ? null : this.rootParentId);
+            }
         },
 
         activeTreeItemId(val) {

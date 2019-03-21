@@ -1,0 +1,96 @@
+<div class="sw-multi-select"
+     :class="selectClasses"
+     tabindex="0"
+     ref="swSelect"
+     @click="setFocus"
+     @focus="setFocus"
+     @keyup.esc="closeResultList"
+     @keyup.enter.prevent="onKeyUpEnter"
+     @keydown.up.prevent="navigateUpResults"
+     @keydown.down.prevent="navigateDownResults">
+
+    <label v-if="getInlineSnippet(label)" :for="selectId" class="sw-multi-select__label">
+        {{ getInlineSnippet(label) }}
+    </label>
+
+    <div class="sw-multi-select__inner">
+
+        <ul class="sw-multi-select__selections">
+            <li class="sw-multi-select__selection-item-holder"
+                v-for="selection in visibleValues"
+                :key="selection.id"
+                :data-id="selection.id">
+
+                <sw-label dismissAble @selected="changeDefaultItemId(selection.id)" @dismiss="remove(selection[keyProperty])">
+                    <template>
+                        <span class="sw-multi-select__selection-item">
+                            <slot name="valueProperty" :item="selection">
+                                {{ getInlineSnippet(selection[valueProperty]) }}
+                            </slot>
+                        </span>
+                    </template>
+                    <template slot="dismiss-icon">
+                        <sw-icon name="small-default-x-line-medium"></sw-icon>
+                    </template>
+                </sw-label>
+            </li>
+
+            <li class="sw-multi-select__load-more-list-item is--clickAble">
+                <sw-button v-if="invisibleValueCount > 0"
+                           class="sw-multi-select__load-more-list-item-button"
+                           @click="expandValues"
+                >
+                    +{{ invisibleValueCount }}
+                </sw-button>
+            </li>
+
+            <li class="sw-multi-select__selection-item-input" key="listInput">
+                <input ref="swSelectInput"
+                       class="sw-multi-select__input"
+                       type="text"
+                       :placeholder="getInlineSnippet(placeholder)"
+                       v-model="searchTerm"
+                       @input="onSearchTermChange"
+                       @focus="openResultList"
+                       @keydown.delete="removeLastItem">
+            </li>
+        </ul>
+
+        <div class="sw-multi-select__indicators">
+            <sw-loader class="sw-multi-select__indicator" v-if="isLoading" size="16px"></sw-loader>
+
+            <sw-help-text v-if="getInlineSnippet(helpText)"
+                          class="sw-multi-select__indicator"
+                          :text="getInlineSnippet(helpText)">
+            </sw-help-text>
+        </div>
+
+        <transition name="sw-multi-select-fade-down">
+            <div @scroll="onScroll" class="sw-multi-select__results" v-if="isExpanded">
+                <ul class="sw-multi-select__results-list">
+                    <slot name="sw_multi_select_list_before"></slot>
+
+                    <template v-for="(item, index) in currentOptions">
+                        <slot name="result_items" :item="item" :index="index">
+                            <sw-multi-select-option ref="swSelectOption" :index="index" :item="item">
+                                <slot name="valueProperty" :item="item">
+                                    <span v-html="getInlineSnippet(item[valueProperty])">
+                                        {{ getInlineSnippet(item[valueProperty]) }}
+                                    </span>
+                                </slot>
+                            </sw-multi-select-option>
+                        </slot>
+                    </template>
+
+                    <slot name="sw_multi_select_list_after"></slot>
+                </ul>
+
+                <div v-if="currentOptions.length <= 0 && !isLoading" class="sw-multi-select__results-empty-message">
+                    <sw-icon name="default-action-search" size="20px"></sw-icon>
+
+                    {{ $tc('global.sw-multi-select.messageNoResults', searchTerm, { term: searchTerm }) }}
+                </div>
+            </div>
+        </transition>
+    </div>
+</div>

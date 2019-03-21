@@ -60,6 +60,7 @@ class SearchKeywordIndexer implements IndexerInterface
      * @var DefinitionRegistry
      */
     private $registry;
+
     /**
      * @var DefinitionRegistry
      */

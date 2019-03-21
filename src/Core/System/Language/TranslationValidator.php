@@ -24,6 +24,10 @@ class TranslationValidator implements WriteCommandValidatorInterface
 
     public function preValidate(array $writeCommands, WriteContext $context): void
     {
+        if ($context->getContext()->getVersionId() !== Defaults::LIVE_VERSION) {
+            return;
+        }
+
         $violations = new ConstraintViolationList();
         $violations->addAll($this->getDeletedSystemTranslationViolations($writeCommands));
 

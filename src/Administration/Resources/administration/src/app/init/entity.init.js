@@ -61,7 +61,7 @@ export default function initializeEntities(container) {
         return apiService;
     }
 
-    return httpClient.get('_info/entity-schema.json').then((response) => {
+    return httpClient.get('_info/open-api-schema.json').then((response) => {
         Object.keys(response.data).forEach((entityName) => {
             const entityDefinition = response.data[entityName];
 

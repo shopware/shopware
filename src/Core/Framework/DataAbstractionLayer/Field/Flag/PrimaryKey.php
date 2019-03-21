@@ -4,4 +4,8 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Field\Flag;
 
 class PrimaryKey extends Flag
 {
+    public function parse(): \Generator
+    {
+        yield 'primary_key' => true;
+    }
 }

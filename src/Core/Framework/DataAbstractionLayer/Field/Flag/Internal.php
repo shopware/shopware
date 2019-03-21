@@ -7,4 +7,8 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Field\Flag;
  */
 class Internal extends Flag
 {
+    public function parse(): \Generator
+    {
+        yield 'internal' => true;
+    }
 }

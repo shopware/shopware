@@ -33,8 +33,9 @@ Application
         return MenuService(factoryContainer.module);
     })
     .addServiceProvider('loginService', () => {
+        const serviceContainer = Application.getContainer('service');
         const initContainer = Application.getContainer('init');
-        return LoginService(initContainer.httpClient, initContainer.contextService);
+        return LoginService(initContainer.httpClient, serviceContainer.context);
     })
     .addServiceProvider('jsonApiParserService', () => {
         return JsonApiParser;

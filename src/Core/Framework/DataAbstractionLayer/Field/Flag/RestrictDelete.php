@@ -7,4 +7,8 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Field\Flag;
  */
 class RestrictDelete extends Flag
 {
+    public function parse(): \Generator
+    {
+        yield 'restrict_delete' => true;
+    }
 }

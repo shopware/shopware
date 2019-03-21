@@ -49,6 +49,12 @@
       "buttonInlineEditSave": "Speichern"
     },
     "sw-data-grid": {
+      "deleteMessage": "Möchtest du wirklich löschen?",
+      "deleteCancel": "Abbrechen",
+      "deleteConfirm": "Löschen",
+      "deleteTitle": "Datensatz löschen",
+      "deleteAction": "Löschen",
+      "editAction": "Editieren",
       "tooltipListSettings": "Listeneinstellungen",
       "labelSettingsCompactMode": "Kompaktmodus verwenden",
       "labelSettingsPreviewImages": "Vorschaubilder anzeigen",

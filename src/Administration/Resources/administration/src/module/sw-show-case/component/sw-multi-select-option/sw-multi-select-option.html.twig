@@ -1,0 +1,17 @@
+<li
+    class="sw-multi-select-option"
+    :class="componentClasses"
+    @mouseenter="onMouseEnter($event)"
+    @click.stop="onClicked($event)">
+
+    <span class="sw-multi-select-option__result-item-text">
+        <slot></slot>
+    </span>
+
+    <transition name="sw-multi-select-appear">
+        <sw-icon v-if="isSelected(item) && !selected || selected"
+                 name="small-default-checkmark-line-medium"
+                 size="16px">
+        </sw-icon>
+    </transition>
+</li>

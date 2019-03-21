@@ -7,4 +7,8 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Field\Flag;
  */
 class Extension extends Flag
 {
+    public function parse(): \Generator
+    {
+        yield 'extension' => true;
+    }
 }

@@ -1,0 +1,41 @@
+{% block sw_data_grid_slot_pagination %}
+    <sw-pagination :page="page" :limit="limit" :total="total" :total-visible="7" @page-change="paginate" />
+{% endblock %}
+
+{% block sw_data_grid_slot_actions %}
+    <slot name="detail-action" :item="item">
+        <sw-context-menu-item v-if="detailRoute" :routerLink="{ name: detailRoute, params: { id: item.id } }">
+            {{ $tc('global.sw-data-grid.editAction') }}
+        </sw-context-menu-item>
+    </slot>
+
+    <slot name="more-actions" :item="item"></slot>
+
+    <slot name="delete-action" :item="item">
+        <sw-context-menu-item @click="showDelete(item.id)" variant="danger">
+            {{ $tc('global.sw-data-grid.deleteAction') }}
+        </sw-context-menu-item>
+    </slot>
+{% endblock %}
+
+{% block sw_data_grid_slot_action_modals %}
+    <sw-modal v-if="deleteId === item.id" @closeModal="closeModal" :title="$tc('global.sw-data-grid.deleteTitle')" variant="small">
+        <p class="sw-listing__confirm-delete-text">
+            <slot name="delete-confirm-text">
+                {{ $tc('global.sw-data-grid.deleteMessage') }}
+            </slot>
+        </p>
+
+        <template slot="modal-footer">
+            <slot name="delete-modal-footer">
+                <sw-button @click="closeModal" size="small">
+                    {{ $tc('global.sw-data-grid.deleteCancel') }}
+                </sw-button>
+
+                <sw-button @click="deleteItem(item.id)" variant="primary" size="small">
+                    {{ $tc('global.sw-data-grid.deleteConfirm') }}
+                </sw-button>
+            </slot>
+        </template>
+    </sw-modal>
+{% endblock %}

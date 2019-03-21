@@ -8,4 +8,8 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Field\Flag;
  */
 class Deferred extends Flag
 {
+    public function parse(): \Generator
+    {
+        yield 'deferred' => true;
+    }
 }

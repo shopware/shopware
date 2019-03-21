@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Api\Controller;
 
 use Shopware\Core\Framework\Api\ApiDefinition\DefinitionService;
+use Shopware\Core\Framework\Api\ApiDefinition\Generator\EntitySchemaGenerator;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi3Generator;
 use Shopware\Core\Framework\Event\BusinessEventRegistry;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -48,11 +49,21 @@ class InfoController extends AbstractController
     }
 
     /**
+     * @Route("/api/v{version}/_info/open-api-schema.json", name="api.info.open-api-schema", methods={"GET"})
+     */
+    public function openApiSchema(): JsonResponse
+    {
+        $data = $this->definitionService->getSchema(OpenApi3Generator::FORMAT);
+
+        return $this->json($data);
+    }
+
+    /**
      * @Route("/api/v{version}/_info/entity-schema.json", name="api.info.entity-schema", methods={"GET"})
      */
     public function entitySchema(): JsonResponse
     {
-        $data = $this->definitionService->getSchema(OpenApi3Generator::FORMAT);
+        $data = $this->definitionService->getSchema(EntitySchemaGenerator::FORMAT);
 
         return $this->json($data);
     }

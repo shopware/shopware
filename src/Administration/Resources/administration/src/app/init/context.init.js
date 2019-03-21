@@ -5,5 +5,11 @@ import ContextFactory from 'src/core/factory/context.factory';
  * assets path and api path.
  */
 export default function initializeContext(container) {
-    return ContextFactory(container.context);
+    const context = ContextFactory(container.context);
+
+    this.addServiceProvider('context', () => {
+        return context;
+    });
+
+    return context;
 }

@@ -152,8 +152,6 @@ class VersionManager
 
         if ($name) {
             $versionData['name'] = $name;
-        } else {
-            $versionData['name'] = $definition::getEntityName() . (new \DateTime())->format(Defaults::DATE_FORMAT);
         }
 
         $this->entityWriter->upsert(VersionDefinition::class, [$versionData], $context);
@@ -181,7 +179,6 @@ class VersionManager
 
         $allChanges = [];
         $entities = [];
-        $cascades = [];
 
         $versionContext = $writeContext->createWithVersionId($versionId);
         $liveContext = $writeContext->createWithVersionId(Defaults::LIVE_VERSION);
@@ -190,21 +187,14 @@ class VersionManager
         $deletedEvents = [];
 
         /** @var VersionCommitCollection $commits */
+        // merge all commits into a single write operation
         foreach ($commits as $commit) {
             foreach ($commit->getData() as $data) {
                 $dataDefinition = $this->entityDefinitionRegistry->get($data->getEntityName());
 
+                // skip clone action, otherwise the payload would contain all data
                 if ($data->getAction() !== 'clone') {
                     $allChanges[] = $data;
-                }
-
-                /** @var AssociationInterface[] $cascadeFields */
-                $cascadeFields = $dataDefinition::getFields()
-                    ->filterByFlag(CascadeDelete::class)
-                    ->filterInstance(AssociationInterface::class);
-
-                foreach ($cascadeFields as $field) {
-                    $cascades[$field->getReferenceClass()] = 1;
                 }
 
                 $entity = [
@@ -267,15 +257,13 @@ class VersionManager
             'message' => 'merge commit ' . (new \DateTime())->format(Defaults::DATE_FORMAT),
         ];
 
+        // create new version commit for merge commit
         $this->entityWriter->insert(VersionCommitDefinition::class, [$commit], $writeContext);
+
+        // delete version
         $this->entityWriter->delete(VersionDefinition::class, [['id' => $versionId]], $writeContext);
 
         foreach ($entities as $entity) {
-            // this entity will be deleted because of it's constraint
-            if (isset($cascades[$entity['definition']])) {
-                continue;
-            }
-
             /** @var EntityDefinition|string $definition */
             $definition = $entity['definition'];
             $primary = $entity['primary'];

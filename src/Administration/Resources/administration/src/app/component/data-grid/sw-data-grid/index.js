@@ -31,18 +31,12 @@ export default {
     props: {
         dataSource: {
             type: [Array, Object],
-            required: true,
-            default() {
-                return [];
-            }
+            required: true
         },
 
         columns: {
             type: Array,
-            required: true,
-            default() {
-                return [];
-            }
+            required: true
         },
 
         identifier: {
@@ -119,6 +113,10 @@ export default {
 
     data() {
         return {
+            records: this.dataSource,
+            currentSortBy: this.sortBy,
+            currentSortDirection: this.sortDirection,
+            loading: this.isLoading,
             currentColumns: [],
             columnIndex: null,
             selection: {},
@@ -155,6 +153,28 @@ export default {
         }
     },
 
+    watch: {
+        columns() {
+            this.currentColumns = this.columns;
+        },
+
+        dataSource() {
+            this.records = this.dataSource;
+        },
+
+        sortBy() {
+            this.currentSortBy = this.sortBy;
+        },
+
+        sortDirection() {
+            this.currentSortDirection = this.sortDirection;
+        },
+
+        isLoading() {
+            this.loading = this.isLoading;
+        }
+    },
+
     methods: {
         createdComponent() {
             this.initGridColumns();
@@ -170,13 +190,17 @@ export default {
         },
 
         initGridColumns() {
-            const storageItem = window.localStorage.getItem(this.localStorageItemKey);
+            let columns = this.getDefaultColumns();
 
-            if (this.identifier && storageItem !== null) {
-                this.currentColumns = JSON.parse(storageItem);
-            } else {
-                this.currentColumns = this.getDefaultColumns();
+            if (this.identifier) {
+                const storageItem = window.localStorage.getItem(this.localStorageItemKey);
+
+                if (storageItem !== null) {
+                    columns = JSON.parse(storageItem);
+                }
             }
+
+            this.currentColumns = columns;
 
             this.findResizeColumns();
         },
@@ -271,16 +295,13 @@ export default {
         },
 
         renderColumn(item, column) {
-            if (column.rawData) {
-                return utils.get(item, column.property);
-            }
-            return utils.get(item, `meta.viewData.${column.property}`);
+            return utils.get(item, column.property);
         },
 
         selectAll(selected) {
             this.$delete(this.selection);
 
-            this.dataSource.forEach((item) => {
+            this.records.forEach((item) => {
                 if (this.isSelected(item.id) !== selected) {
                     this.selectItem(selected, item);
                 }
@@ -311,21 +332,27 @@ export default {
         },
 
         checkSelection() {
-            this.allSelectedChecked = !this.dataSource.some((item) => {
-                return this.selection[item.id] === undefined;
+            let selected = false;
+            this.records.forEach((item) => {
+                if (this.selection[item.id] !== undefined) {
+                    selected = true;
+                    return false;
+                }
+                return true;
             });
+            this.allSelectedChecked = selected;
         },
 
         onClickSaveInlineEdit(item) {
             this.$emit('inline-edit-assign');
-            this.$emit('inline-edit-save', item);
+            this.save(item);
 
             this.disableInlineEdit();
         },
 
         onClickCancelInlineEdit(item) {
             this.$emit('inline-edit-assign');
-            this.$emit('inline-edit-cancel', item);
+            this.revert(item);
 
             this.disableInlineEdit();
         },
@@ -355,7 +382,7 @@ export default {
 
             this.setAllColumnElementWidths();
 
-            this.$emit('column-sort', column);
+            this.sort(column);
         },
 
         onStartResize(event, column, columnIndex) {
@@ -455,6 +482,18 @@ export default {
             } else {
                 el.classList.remove('is--scroll-x');
             }
+        },
+
+        save(item) {
+            this.$emit('inline-edit-save', item);
+        },
+
+        revert(item) {
+            this.$emit('inline-edit-cancel', item);
+        },
+
+        sort(column) {
+            this.$emit('column-sort', column);
         }
     }
 };

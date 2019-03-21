@@ -57,11 +57,11 @@
                                                         {% endblock %}
 
                                                         {% block sw_data_grid_sort_indicator %}
-                                                            <span v-if="column.dataIndex && sortBy === column.dataIndex" class="sw-data-grid__sort-indicator">
+                                                            <span v-if="column.dataIndex && currentSortBy === column.dataIndex" class="sw-data-grid__sort-indicator">
                                                                 {% block sw_data_grid_sort_indicator_transition %}
                                                                     <transition name="sort-indicator" mode="out-in">
                                                                         {% block sw_data_grid_sort_indicator_icon_asc %}
-                                                                            <sw-icon key="ASC" name="small-arrow-small-up" size="16px" v-if="sortDirection === 'ASC'"></sw-icon>
+                                                                            <sw-icon key="ASC" name="small-arrow-small-up" size="16px" v-if="currentSortDirection === 'ASC'"></sw-icon>
                                                                         {% endblock %}
 
                                                                         {% block sw_data_grid_sort_indicator_icon_desc %}
@@ -94,7 +94,7 @@
                                         {% block sw_data_grid_header_cell_actions %}
                                             <th v-if="showActions"
                                                 class="sw-data-grid__cell sw-data-grid__cell--header sw-data-gird__cell--actions sw-data-grid__cell-settings"
-                                                :class="{ 'is--loading': isLoading }">
+                                                :class="{ 'is--loading': loading }">
                                                 {% block sw_data_grid_header_cell_actions_content %}
                                                     <div class="sw-data-grid__cell-content">
                                                         {% block sw_data_grid_settings %}
@@ -118,10 +118,10 @@
                         {% endblock %}
 
                         {% block sw_data_grid_body %}
-                            <tbody v-if="!isLoading" class="sw-data-grid__body">
+                            <tbody v-if="!loading" class="sw-data-grid__body">
 
                                 {% block sw_data_grid_body_row %}
-                                    <tr v-for="(item, itemIndex) in dataSource"
+                                    <tr v-for="(item, itemIndex) in records"
                                         class="sw-data-grid__row"
                                         :class="getRowClasses(item, itemIndex)"
                                         :key="item.id">

@@ -141,6 +141,8 @@ export default function createLoginService(httpClient, context, bearerAuth = nul
         }
         notifyOnTokenChangedListener(authObject);
 
+        context.authToken = authObject;
+
         return authObject;
     }
 
@@ -160,6 +162,8 @@ export default function createLoginService(httpClient, context, bearerAuth = nul
         if (!bearerAuth) {
             return false;
         }
+
+        context.authToken = bearerAuth;
 
         if (!section) {
             return bearerAuth;

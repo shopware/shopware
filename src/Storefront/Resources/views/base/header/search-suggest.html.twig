@@ -1,3 +1,47 @@
 {% block base_search_suggest %}
+    <div class="search-results">
+        <ul class="results">
 
+            {# List of found fuzzy results #}
+            {% set fuzzyTerms = {"searchTerm": "test", "searchTerm2": "test2"} %}
+
+            {% if fuzzyTerms|length > 0 %}
+                <li class="result-label label-fuzzy">
+                    <span>Oder meinten Sie:</span>
+                </li>
+                {% for term in fuzzyTerms %}
+                    <li class="result result-fuzzy">
+                        <a href="{{ path('frontend.search.page') }}?search={{ term.searchTerm }}"
+                           class="result-link">
+                            <span class="result-name">Fuzzy Search Term</span>
+                        </a>
+                    </li>
+                {% endfor %}
+            {% endif %}
+
+            {# List of found product results #}
+            {% for product in page.listing.elements %}
+                <li class="result result-product">
+                    <a href="{{ path('frontend.detail.page', {'productId': product.id}) }}"
+                       title="{{ product.name }}"
+                       class="result-link">
+                    <span class="result-image">
+                        <img srcset="{{ product.cover.media.url }}" alt="{{ product.name }}">
+                    </span>
+                        <span class="result-name">{{ product.name }}</span>
+                        <span class="result-price">{{ product.price.gross }}</span>
+                    </a>
+                </li>
+            {% endfor %}
+
+            {# Total results link #}
+            <li class="result result-total">
+                <a href="{{ path('frontend.search.page') }}?search={{ page.searchTerm }}"
+                   class="total-link">
+                    <i class="fas fa-chevron-right"></i> Alle Ergebnisse anzeigen
+                </a>
+                <span class="total-count">{{ page.listing.total }} Treffer</span>
+            </li>
+        </ul>
+    </div>
 {% endblock %}

@@ -26,6 +26,7 @@ import ViewportDetection from "./helper/viewport-detection.helper";
 import CollapseFooterColumns from "./plugin/collapse/collapse-footer.plugin";
 import Logout from "./plugin/logout/logout.plugin";
 import OffCanvasAccountMenu from "./plugin/off-canvas-account-menu/offcanvas-account-menu.plugin";
+import SearchWidget from "./plugin/actions/search-widget/search-widget.plugin";
 
 // Expose jQuery and plugin manager to the global window object
 window.jQuery = jQuery;
@@ -39,6 +40,9 @@ client.get('/storefront-api/v1/product?page=1&limit=10', (response) => {
     console.log('client response', JSON.parse(response));
 });
 
+/**
+ * REGISTER PLUGINS
+ */
 pluginManager.register('simplePlugin', {
     plugin: SimplePlugin,
     selector: '*[data-simple-plugin="true"]'
@@ -49,6 +53,15 @@ pluginManager.register('extendedPlugin', {
     selector: '*[data-extended-plugin="true"]'
 });
 
+pluginManager.register('searchWidgetPlugin', {
+    plugin: SearchWidget,
+    selector: document
+});
+
+
+/**
+ * APPLY PLUGINS AS JQUERY
+ */
 document.addEventListener('DOMContentLoaded', () => {
     const jQueryInstance = window.$;
     const plugins = pluginManager.run(jQueryInstance);

@@ -1,0 +1,127 @@
+.search-form {
+    color: #000;
+    position: relative;
+
+    button {
+        position: absolute;
+        top: 0;
+        right: 0;
+        height: 100%;
+        color: #5f7285;
+        background: none;
+        border: 0;
+    }
+
+    input {
+        padding-right: ($spacer*2);
+    }
+
+    .spinner-border {
+        right: 35px;
+    }
+}
+
+.search-results {
+    top: 110px;
+    position: absolute;
+    width: 100%;
+    left: 0;
+    text-align: left;
+    z-index: 3500;
+
+    @include media-breakpoint-up(md) {
+        width: 450px;
+        top: 70px;
+        left: 50%;
+        transform: translateX(-50%);
+    }
+
+    &::after {
+        content: '';
+        display: table;
+        clear: both;
+    }
+
+    .results {
+        padding: 10px;
+        box-shadow: 0 10px 25px -15px #000;
+        border-top: 1px solid #dadae5;
+        border-bottom: 1px solid #dadae5;
+        background: #fff;
+        touch-action: manipulation;
+        @include media-breakpoint-up(md) {
+            border-radius: 3px;
+            background-clip: padding-box;
+            border: 1px solid #dadae5;
+            background: #fff;
+        }
+
+        &::after {
+            transform: rotate(135deg);
+            width: 12px;
+            height: 12px;
+            top: -6px;
+            content: '';
+            display: block;
+            position: absolute;
+            background: #fff;
+            left: 48%;
+            border: 1px solid #dadae5;
+            border-top: 0 none;
+            border-right: 0 none;
+        }
+    }
+
+    .result-label {
+        padding-top: 0;
+        padding-bottom: 6px;
+
+        &.label-fuzzy {
+            line-height: 20px;
+            padding: 5px 0 10px;
+            border-bottom: 0;
+            list-style: none;
+            font-size: 12px;
+            color: #5f7285;
+            font-weight: bold;
+        }
+    }
+
+    .result {
+        &.active {
+            background: #f00 !important;
+        }
+
+        &.result-fuzzy {
+            line-height: 20px;
+            padding: 5px 0 10px;
+            border-bottom: 0;
+            list-style: none;
+
+            &:last-child {
+                padding-bottom: 15px;
+                border-bottom: 1px solid #dadae5;
+            }
+        }
+
+        .result-link {
+            padding: 6px 0;
+            display: block;
+            color: #5f7285;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+    }
+
+    .result-total {
+        .total-link {
+            float: left;
+        }
+
+        .total-count {
+            float: right;
+        }
+    }
+}
+

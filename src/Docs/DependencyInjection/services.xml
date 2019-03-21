@@ -5,6 +5,16 @@
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
 
     <services>
+        <service id="Shopware\Docs\Command\DocsDumpErd">
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionRegistry"/>
+            <argument type="service" id="Shopware\Docs\Inspection\ErdGenerator"/>
+            <tag name="console.command"/>
+        </service>
+        <service id="Shopware\Docs\Inspection\ErdTypeMap" />
+        <service id="Shopware\Docs\Inspection\ErdGenerator">
+            <argument type="service" id="Shopware\Docs\Inspection\ErdTypeMap"/>
+        </service>
+
         <service id="Shopware\Docs\Command\DocsModuleCharacteristics">
             <argument type="service" id="Shopware\Docs\Inspection\ModuleInspector"/>
             <tag name="console.command"/>

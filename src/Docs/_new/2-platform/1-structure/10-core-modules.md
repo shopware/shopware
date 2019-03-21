@@ -9,7 +9,7 @@ All core modules encapsulate domain concepts and provide a varying number of ext
   : These modules are related to database tables and are manageable through the API. Simple CRUD actions will be available.
   
 **Maintenance**
-  : Provide commands executable through CLI to trigger maintance tasks.
+  : Provide commands executable through CLI to trigger maintenance tasks.
   
 **Custom actions**
   : These modules contain more then simple CRUD actions. They provide special actions and services that ease management and additionally check consistency.
@@ -59,7 +59,7 @@ Abstract translations
 
 ### [Framework/Pricing](https://github.com/shopware/platform/tree/master/src/Core/Framework/Pricing) *[Extension]*
 
-Princing
+Pricing
 
 ### [Framework/Filesystem](https://github.com/shopware/platform/tree/master/src/Core/Framework/Filesystem) *[Custom Extendable]*
 

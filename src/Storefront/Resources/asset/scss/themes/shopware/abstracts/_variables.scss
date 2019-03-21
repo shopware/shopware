@@ -1,5 +1,8 @@
 // Bootstrap
 
+// Options
+$enable-rounded: false;
+
 // Color system
 $gray-100: #f8f8fa; // ~ 'sw5 gray-light'
 $gray-200: #f5f5f8; // ~ 'sw5 gray'
@@ -7,13 +10,13 @@ $gray-300: #dadae5; // ~ 'sw5 gray-dark'
 $gray-600: #5f7285; // ~ 'sw5 brand-secondary'
 $gray-800: #3f4c58; // ~ 'sw5 brand-secondary-dark'
 
-$primary: #d9400b;
-$secondary: #5f7285;
+$primary: #00d2d3;
+$secondary: $primary;
 
-$success: #2ecc71;
-$info: #4aa3df;
-$warning: #f1c40f;
-$danger: #e74c3c;
+$success: #1dd1a1;
+$info: #54a0ff;
+$warning: #feca57;
+$danger: #ee5253;
 
 $light: $gray-100;
 $dark: $gray-800;
@@ -22,11 +25,15 @@ $border-color: $gray-300;
 $headings-color: $gray-800;
 
 // Body
-$body-color: $gray-600;
-$body-bg: #e9e9f0;
+$body-color: #545454;
+$body-bg: #d1d9da;
+
+// Components
+$border-color: #eee;
 
 // Typography
-$font-family-base: 'Open Sans', 'Helvetica Neue', Helvetica, Arial, 'Lucida Grande', sans-serif;
+$font-family-base: 'Nunito Sans', sans-serif;
+
 $font-size-base: 0.875rem;
 $font-size-lg: 1rem;
 $font-size-sm: 0.75rem;
@@ -82,8 +89,5 @@ $breadcrumb-bg: transparent;
 $breadcrumb-border-radius: 0;
 
 // Shopware
-$primary-light: saturate(lighten($primary, 12%), 5%);
-$success-light: saturate(lighten($success, 12%), 5%);
-$warning-light: saturate(lighten($warning, 12%), 5%);
-$info-light: saturate(lighten($info, 12%), 5%);
-$danger-light: saturate(lighten($danger, 12%), 5%);
+$buy-button-bg: #10ac84;
+$buy-button-color: #fdfdfd;

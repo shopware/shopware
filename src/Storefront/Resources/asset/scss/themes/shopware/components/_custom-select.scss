@@ -7,11 +7,9 @@ https://getbootstrap.com/docs/4.3/components/forms/#select-menu
 */
 
 .custom-select {
-    background: $custom-select-background, linear-gradient(to bottom, $white 0%, $gray-100 100%);
     cursor: pointer;
 
     &:hover {
-        background: $custom-select-background;
         border-color: $primary;
         color: $primary;
     }

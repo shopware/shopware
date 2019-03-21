@@ -42,6 +42,22 @@ Component.extend('sw-product-stream-filter', 'sw-condition-base', {
                     name: this.$tc('sw-product-stream.filter.type.contains')
                 },
                 {
+                    type: TYPES.TYPE_GREATER_THAN,
+                    name: this.$tc('sw-product-stream.filter.type.greaterThan')
+                },
+                {
+                    type: TYPES.TYPE_LOWER_THAN,
+                    name: this.$tc('sw-product-stream.filter.type.lowerThan')
+                },
+                {
+                    type: TYPES.TYPE_GREATER_THAN_EQUALS,
+                    name: this.$tc('sw-product-stream.filter.type.greaterThanEquals')
+                },
+                {
+                    type: TYPES.TYPE_LOWER_THAN_EQUALS,
+                    name: this.$tc('sw-product-stream.filter.type.lowerThanEquals')
+                },
+                {
                     type: TYPES.TYPE_EQUALS_ANY,
                     name: this.$tc('sw-product-stream.filter.type.equalsAny')
                 },
@@ -150,9 +166,30 @@ Component.extend('sw-product-stream-filter', 'sw-condition-base', {
         mountComponent() {
             this.loadNegatedCondition();
 
+            this.type = this.findCorrectAbstractionForRangeType();
+
             if (this.isApi()) {
                 this.lastField = {};
             }
+        },
+
+        findCorrectAbstractionForRangeType() {
+            if (this.type === TYPES.TYPE_RANGE) {
+                const params = this.actualCondition.parameters;
+                if (params.lt !== undefined && !params.gt && !params.lte && !params.gte) {
+                    return TYPES.TYPE_LOWER_THAN;
+                }
+                if (!params.lt && params.gt !== undefined && !params.lte && !params.gte) {
+                    return TYPES.TYPE_GREATER_THAN;
+                }
+                if (!params.lt && !params.gt && params.lte !== undefined && !params.gte) {
+                    return TYPES.TYPE_LOWER_THAN_EQUALS;
+                }
+                if (!params.lt && !params.gt && !params.lte && params.gte !== undefined) {
+                    return TYPES.TYPE_GREATER_THAN_EQUALS;
+                }
+            }
+            return this.type;
         },
 
         getDefinitions() {
@@ -362,9 +399,79 @@ Component.extend('sw-product-stream-filter', 'sw-condition-base', {
             this.mapValues();
         },
         getType(newValue) {
+            const rangeTypes = [
+                TYPES.TYPE_LOWER_THAN_EQUALS,
+                TYPES.TYPE_LOWER_THAN,
+                TYPES.TYPE_GREATER_THAN_EQUALS,
+                TYPES.TYPE_GREATER_THAN
+            ];
+
+            if (rangeTypes.includes(newValue)) {
+                if (this.actualCondition.type !== newValue) {
+                    this.actualCondition.parameters = {};
+                }
+
+                this.mapParametersForType(newValue);
+                return TYPES.TYPE_RANGE;
+            }
             const types = this.types.find(type => type.type === newValue);
 
             return types.not || types.type;
+        },
+
+        isTypeRange() {
+            return this.actualCondition.type === TYPES.TYPE_RANGE;
+        },
+        isTypeLower() {
+            return this.type === TYPES.TYPE_LOWER_THAN;
+        },
+        isTypeGreater() {
+            return this.type === TYPES.TYPE_GREATER_THAN;
+        },
+        isTypeLowerEquals() {
+            return this.type === TYPES.TYPE_LOWER_THAN_EQUALS;
+        },
+        isTypeGreaterEquals() {
+            return this.type === TYPES.TYPE_GREATER_THAN_EQUALS;
+        },
+
+        mapParametersForType(type) {
+            switch (type) {
+            case TYPES.TYPE_LOWER_THAN_EQUALS:
+                this.actualCondition.parameters = {
+                    lt: undefined,
+                    gt: undefined,
+                    lte: 0,
+                    gte: undefined
+                };
+                break;
+            case TYPES.TYPE_LOWER_THAN:
+                this.actualCondition.parameters = {
+                    lt: 0,
+                    gt: undefined,
+                    lte: undefined,
+                    gte: undefined
+                };
+                break;
+            case TYPES.TYPE_GREATER_THAN_EQUALS:
+                this.actualCondition.parameters = {
+                    lt: undefined,
+                    gt: undefined,
+                    lte: undefined,
+                    gte: 0
+                };
+                break;
+            case TYPES.TYPE_GREATER_THAN:
+                this.actualCondition.parameters = {
+                    lt: undefined,
+                    gt: 0,
+                    lte: undefined,
+                    gte: undefined
+                };
+                break;
+            default:
+                break;
+            }
         },
 
         createNegatedCondition() {
@@ -462,6 +569,10 @@ Component.extend('sw-product-stream-filter', 'sw-condition-base', {
                 return [
                     TYPES.TYPE_EQUALS,
                     TYPES.TYPE_EQUALS_ANY,
+                    TYPES.TYPE_GREATER_THAN,
+                    TYPES.TYPE_GREATER_THAN_EQUALS,
+                    TYPES.TYPE_LOWER_THAN,
+                    TYPES.TYPE_LOWER_THAN_EQUALS,
                     TYPES.TYPE_NOT_EQUALS,
                     TYPES.TYPE_NOT_EQUALS_ANY,
                     TYPES.TYPE_RANGE

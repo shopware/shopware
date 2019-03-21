@@ -51,10 +51,10 @@
   },
   "dependencies": {
     "@babel/polyfill": "7.2.5",
+    "@fortawesome/fontawesome-free": "^5.7.2",
     "bootstrap": "4.3.1",
     "jquery": "3.3.1",
-    "open-sans-fontface": "^1.4.0",
-    "@fortawesome/fontawesome-free": "^5.7.2",
+    "nunito-fontface": "^0.7.3",
     "popper.js": "1.14.7",
     "tiny-slider": "^2.9.1"
   }

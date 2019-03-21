@@ -4,12 +4,11 @@
  *
  * Vendors
  * ------- */
-@import 'vendors/open-sans-fontface';
+@import 'vendors/nunito-fontface';
 
 /*
  * Variables, Mixins, Functions
  * ---------------------------- */
-@import 'abstracts/mixins/gradient';
 
 /*
  * Base stuff
@@ -28,7 +27,6 @@
 /*
  * Components
  * ---------- */
-@import 'components/alert';
 @import 'components/badge';
 @import 'components/breadcrumb';
 @import 'components/button';

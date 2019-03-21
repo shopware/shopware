@@ -21,7 +21,6 @@ https://getbootstrap.com/docs/4.3/components/card/#navigation
     }
 
     .nav-link {
-        @include linear-gradient($white, $gray-100);
         border-color: $border-color;
         color: $gray-600;
 

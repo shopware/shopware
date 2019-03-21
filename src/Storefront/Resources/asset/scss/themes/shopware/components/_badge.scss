@@ -16,32 +16,3 @@ https://getbootstrap.com/docs/4.3/components/badge/
     min-width: 10px;
     padding: 0 5px;
 }
-
-.badge-primary {
-    @include primary-gradient();
-}
-
-.badge-secondary,
-.badge-dark {
-    @include secondary-gradient();
-}
-
-.badge-success {
-    @include success-gradient();
-}
-
-.badge-info {
-    @include info-gradient();
-}
-
-.badge-warning {
-    @include warning-gradient();
-}
-
-.badge-danger {
-    @include danger-gradient();
-}
-
-.badge-light {
-    @include light-gradient();
-}

@@ -1,5 +1,7 @@
 .buy-widget-submit {
     @extend .btn-lg;
+    @include button-variant($buy-button-bg, $buy-button-bg);
+    color: $buy-button-color;
 }
 
 .product-detail-name {

@@ -163,11 +163,8 @@
         "finishHeader": "Vielen Dank für Ihre Bestellung bei %shop%!",
         "finishInfoHeader": "Informationen",
         "finishInfoOrdernumber": "Bestellnummer:",
-        "finishTeaserPrintNotice": "Bitte beachten Sie, dass die Druck-Funktion nicht auf allen verfügbaren Endgeräten zur Verfügung steht.",
         "finishInfoConfirmationMail": "Wir haben Ihnen eine Bestellbestätigung per E-Mail geschickt.",
-        "finishInfoPrintOrder": "Wir empfehlen die unten aufgeführte Bestellbestätigung auszudrucken.",
-        "finishButtonBackToShop": "Zurück zum Shop",
-        "finishLinkPrint": "Bestellbestätigung drucken"
+        "finishButtonBackToShop": "Zurück zum Shop"
     },
     "detail": {
         "ordernumberLabel": "Artikel-Nr.:",

@@ -1,5 +1,7 @@
 {% sw_extends '@Storefront/page/checkout/_page.html.twig' %}
 
+{% block page_checkout_steps %}{% endblock %}
+
 {% block page_checkout_container %}
 	{% block page_checkout_finish_teaser %}
 		<div class="card finish-teaser">
@@ -14,12 +16,8 @@
 
 				{% block page_checkout_finish_teaser_content %}
 					{% block page_checkout_finish_teaser_text %}
-						<p>
-							{#TODO: NEXT-1945 - check if confirmMailDeliveryFailed should be checked here #}
-							{{ "checkout.finishInfoConfirmationMail"|trans }}
-							<br />
-							{{ "checkout.finishInfoPrintOrder"|trans }}
-						</p>
+						{#TODO: NEXT-1945 - check if confirmMailDeliveryFailed should be checked here #}
+						<p>{{ "checkout.finishInfoConfirmationMail"|trans }}</p>
 					{% endblock %}
 
 					{% block page_checkout_finish_teaser_actions %}
@@ -31,20 +29,7 @@
 									{{ "checkout.finishButtonBackToShop"|trans }}
 								</a>
 							{% endblock %}
-
-							{% block page_checkout_finish_teaser_actions_print %}
-								<a href="#"
-								   class="btn btn-primary"
-								   onclick="self.print()"
-								   title="{{ "checkout.finishLinkPrint"|trans }}">
-									{{ "checkout.finishLinkPrint"|trans }}
-								</a>
-							{% endblock %}
 						</div>
-					{% endblock %}
-
-					{% block page_checkout_finish_teaser_print_notice %}
-						<p>{{ "checkout.finishTeaserPrintNotice"|trans }}</p>
 					{% endblock %}
 				{% endblock %}
 			</div>
@@ -103,9 +88,8 @@
 	{% block page_checkout_finish %}
 		<div class="checkout-finish">
 			{% block page_checkout_finish_main %}
-				{#TODO: NEXT-1954 - print order#}
 				{% if page.order.lineItems.elements %}
-					<div class="d-print-block card cart-table">
+					<div class="card cart-table">
 						<div class="card-body cart-table-body">
 							{% block page_checkout_finish_table_header %}
 								{% sw_include '@Storefront/page/checkout/confirm/confirm-header.html.twig' %}

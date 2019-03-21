@@ -58,4 +58,9 @@ class NumberRangeEvents
      * @Event("Shopware\Core\Framework\DataAbstractionLayer\Event\EntityAggregationResultLoadedEvent")
      */
     public const NUMBER_RANGE_STATE_AGGREGATION_LOADED_EVENT = 'number_range_state.aggregation.result.loaded';
+
+    /**
+     * @Event("Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeGeneratedEvent")
+     */
+    public const NUMBER_RANGE_GENERATED = 'number_range.generated';
 }

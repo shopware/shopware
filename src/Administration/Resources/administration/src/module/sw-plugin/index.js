@@ -22,7 +22,7 @@ Module.register('sw-plugin', {
     version: '1.0.0',
     targetVersion: '1.0.0',
     color: '#9AA8B5',
-    icon: 'default-object-plug',
+    icon: 'default-action-settings',
     entity: 'plugin',
 
     snippets: {
@@ -42,15 +42,24 @@ Module.register('sw-plugin', {
             children: {
                 list: {
                     component: 'sw-plugin-list',
-                    path: 'list'
+                    path: 'list',
+                    meta: {
+                        parentPath: 'sw.settings.index'
+                    }
                 },
                 licenses: {
                     component: 'sw-plugin-license-list',
-                    path: 'licenses'
+                    path: 'licenses',
+                    meta: {
+                        parentPath: 'sw.settings.index'
+                    }
                 },
                 updates: {
                     component: 'sw-plugin-updates',
-                    path: 'updates'
+                    path: 'updates',
+                    meta: {
+                        parentPath: 'sw.settings.index'
+                    }
                 }
             }
         }

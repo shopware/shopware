@@ -7,22 +7,27 @@ use Shopware\Core\Framework\Struct\Struct;
 class AccessTokenStruct extends Struct
 {
     /**
-     * @var string
+     * @var ShopUserTokenStruct
      */
-    protected $token;
+    protected $shopUserToken;
 
     /**
-     * @var \DateTimeInterface
+     * @var string
      */
-    protected $expirationDate;
+    protected $shopSecret;
 
-    public function getToken(): string
+    public function setShopUserToken(ShopUserTokenStruct $shopUserToken): void
     {
-        return $this->token;
+        $this->shopUserToken = $shopUserToken;
     }
 
-    public function getExpirationDate(): \DateTimeInterface
+    public function getShopUserToken(): ShopUserTokenStruct
     {
-        return $this->expirationDate;
+        return $this->shopUserToken;
+    }
+
+    public function getShopSecret(): string
+    {
+        return $this->shopSecret;
     }
 }

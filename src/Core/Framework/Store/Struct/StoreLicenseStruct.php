@@ -19,7 +19,7 @@ class StoreLicenseStruct extends Struct
     /**
      * @var string
      */
-    protected $producer;
+    protected $producerName;
 
     /**
      * @var string

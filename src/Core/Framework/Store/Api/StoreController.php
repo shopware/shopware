@@ -12,6 +12,7 @@ use Shopware\Core\Framework\Plugin\PluginLifecycleService;
 use Shopware\Core\Framework\Plugin\PluginManagementService;
 use Shopware\Core\Framework\Store\Exception\StoreTokenMissingException;
 use Shopware\Core\Framework\Store\Services\StoreClient;
+use Shopware\Core\Framework\Store\StoreSettingsEntity;
 use Shopware\Core\System\User\UserEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -46,18 +47,25 @@ class StoreController extends AbstractController
      */
     private $userRepository;
 
+    /**
+     * @var EntityRepositoryInterface
+     */
+    private $storeSettingsRepo;
+
     public function __construct(
         StoreClient $storeClient,
         EntityRepositoryInterface $pluginRepo,
         PluginManagementService $pluginManagementService,
         PluginLifecycleService $pluginLifecycleService,
-        EntityRepositoryInterface $userRepository
+        EntityRepositoryInterface $userRepository,
+        EntityRepositoryInterface $storeSettingsRepo
     ) {
         $this->storeClient = $storeClient;
         $this->pluginRepo = $pluginRepo;
         $this->pluginManagementService = $pluginManagementService;
         $this->pluginLifecycleService = $pluginLifecycleService;
         $this->userRepository = $userRepository;
+        $this->storeSettingsRepo = $storeSettingsRepo;
     }
 
     /**
@@ -68,12 +76,42 @@ class StoreController extends AbstractController
         $shopwareId = $request->request->get('shopwareId');
         $password = $request->request->get('password');
 
-        $accessTokenStruct = $this->storeClient->loginWithShopwareId($shopwareId, $password);
+        $accessTokenStruct = $this->storeClient->loginWithShopwareId($shopwareId, $password, $context);
 
         $userId = $context->getSourceContext()->getUserId();
 
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('key', 'shopSecret'));
+
+        /** @var StoreSettingsEntity|null $shopSecret */
+        $shopSecret = $this->storeSettingsRepo->search($criteria, $context)->first();
+
+        $data = [
+            [
+                'id' => $shopSecret !== null ? $shopSecret->getId() : null,
+                'key' => 'shopSecret',
+                'value' => $accessTokenStruct->getShopSecret(),
+            ],
+        ];
+        $this->storeSettingsRepo->upsert($data, $context);
+
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('key', 'shopwareId'));
+
+        /** @var StoreSettingsEntity|null $shopSecret */
+        $shopSecret = $this->storeSettingsRepo->search($criteria, $context)->first();
+
+        $data = [
+            [
+                'id' => $shopSecret !== null ? $shopSecret->getId() : null,
+                'key' => 'shopwareId',
+                'value' => $shopwareId,
+            ],
+        ];
+        $this->storeSettingsRepo->upsert($data, $context);
+
         $this->userRepository->update([
-            ['id' => $userId, 'storeToken' => $accessTokenStruct->getToken()],
+            ['id' => $userId, 'storeToken' => $accessTokenStruct->getShopUserToken()->getToken()],
         ], $context);
 
         return new JsonResponse();
@@ -101,8 +139,9 @@ class StoreController extends AbstractController
     {
         /** @var PluginCollection $plugins */
         $plugins = $this->pluginRepo->search(new Criteria(), $context)->getEntities();
+        $storeToken = $this->getUserStoreToken($context);
 
-        $updatesList = $this->storeClient->getUpdatesList($plugins);
+        $updatesList = $this->storeClient->getUpdatesList($storeToken, $plugins, $context);
 
         return new JsonResponse([
             'items' => $updatesList,
@@ -117,7 +156,7 @@ class StoreController extends AbstractController
     {
         $storeToken = $this->getUserStoreToken($context);
 
-        $data = $this->storeClient->getDownloadDataForPlugin($request->query->get('pluginName'), $storeToken);
+        $data = $this->storeClient->getDownloadDataForPlugin($request->query->get('pluginName'), $storeToken, $context);
 
         $statusCode = $this->pluginManagementService->downloadStorePlugin($data->getLocation(), $context);
         if ($statusCode !== Response::HTTP_OK) {

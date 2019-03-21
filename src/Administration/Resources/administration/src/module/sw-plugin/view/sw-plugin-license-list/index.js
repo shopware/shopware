@@ -46,29 +46,24 @@ Component.register('sw-plugin-license-list', {
         },
 
         getList() {
-            this.loadLicenses();
-        },
-
-        loadLicenses() {
             this.isLoading = true;
             this.storeService.getLicenseList().then((response) => {
                 this.licenses = response.items;
-                this.total = 0;
+                this.total = response.total;
                 this.isLoading = false;
                 this.isLoggedIn = true;
-            })
-                .catch((exception) => {
-                    this.isLoading = false;
-                    this.isLoggedIn = false;
-                    if (exception.response && exception.response.data && exception.response.data.errors) {
-                        const unauthorized = exception.response.data.errors.find((error) => {
-                            return parseInt(error.code, 10) === 401 || error.code === 'STORE-TOKEN-MISSING';
-                        });
-                        if (unauthorized) {
-                            this.openLoginModal();
-                        }
+            }).catch((exception) => {
+                this.isLoading = false;
+                this.isLoggedIn = false;
+                if (exception.response && exception.response.data && exception.response.data.errors) {
+                    const unauthorized = exception.response.data.errors.find((error) => {
+                        return parseInt(error.code, 10) === 401 || error.code === 'STORE-TOKEN-MISSING';
+                    });
+                    if (unauthorized) {
+                        this.openLoginModal();
                     }
-                });
+                }
+            });
         },
 
         openLoginModal() {
@@ -77,7 +72,7 @@ Component.register('sw-plugin-license-list', {
 
         loginSuccess() {
             this.showLoginModal = false;
-            this.loadLicenses();
+            this.getList();
         },
 
         loginAbort() {

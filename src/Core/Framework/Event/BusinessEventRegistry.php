@@ -5,19 +5,34 @@ namespace Shopware\Core\Framework\Event;
 class BusinessEventRegistry
 {
     /**
-     * @var bool[]
+     * @var array
      */
     private $events = [];
 
     public function getEvents(): array
     {
+        return $this->events;
+    }
+
+    public function getEventNames(): array
+    {
         return array_keys($this->events);
     }
 
-    public function add(string ...$eventNames): void
+    public function getAvailableDataByEvent(string $eventName): array
     {
-        foreach ($eventNames as $event) {
-            $this->events[$event] = true;
+        return $this->events[$eventName] ?? [];
+    }
+
+    public function add(string $event, array $availableData): void
+    {
+        $this->events[$event] = $availableData;
+    }
+
+    public function addMultiple(array $events): void
+    {
+        foreach ($events as $event => $data) {
+            $this->add($event, $data);
         }
 
         ksort($this->events);

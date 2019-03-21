@@ -2,9 +2,11 @@
 
 namespace Shopware\Core\Framework\Event;
 
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Event\EventData\EventDataCollection;
 use Symfony\Component\EventDispatcher\Event;
 
-class BusinessEvent extends Event
+class BusinessEvent extends Event implements BusinessEventInterface
 {
     /**
      * @var BusinessEventInterface
@@ -41,5 +43,20 @@ class BusinessEvent extends Event
     public function getActionName(): string
     {
         return $this->actionName;
+    }
+
+    public static function getAvailableData(): EventDataCollection
+    {
+        return new EventDataCollection();
+    }
+
+    public function getName(): string
+    {
+        return $this->event->getName();
+    }
+
+    public function getContext(): Context
+    {
+        return $this->event->getContext();
     }
 }

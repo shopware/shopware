@@ -1,0 +1,71 @@
+{% block sw_product_modal_delivery %}
+    <sw-modal :title="$tc('sw-product.variations.deliveryModal.modalHeadline')"
+              @closeModal="$emit('modal-close')"
+              class="sw-product-modal-delivery"
+              :isLoading="isLoading">
+
+        {% block sw_product_modal_delivery_sidebar %}
+            <div class="sw-product-modal-delivery__sidebar">
+                {% block sw_product_modal_delivery_sidebar_tabs %}
+                    <sw-tabs isVertical>
+                        {% block sw_product_modal_delivery_sidebar_tabs_items %}
+                            <sw-tabs-item :active="activeTab == 'order'" @click="activeTab = 'order'">{{ $tc('sw-product.variations.deliveryModal.order') }}</sw-tabs-item>
+                            <sw-tabs-item :active="activeTab == 'media'" @click="activeTab = 'media'">{{ $tc('sw-product.variations.deliveryModal.media') }}</sw-tabs-item>
+                        {% endblock %}
+                    </sw-tabs>
+                {% endblock %}
+
+                {% block sw_product_modal_delivery_sidebar_descriptions %}
+                    <p v-if="activeTab == 'order'">
+                        {{ $tc('sw-product.variations.deliveryModal.orderExplanation') }}
+                    </p>
+                    <p v-if="activeTab == 'media'">
+                        {{ $tc('sw-product.variations.deliveryModal.mediaExplanation') }}
+                    </p>
+                {% endblock %}
+            </div>
+        {% endblock %}
+
+        {% block sw_product_modal_delivery_main %}
+            <div class="sw-product-modal-delivery__main">
+                {% block sw_product_modal_delivery_main_order %}
+                    <sw-product-variants-delivery-order
+                        v-if="activeTab == 'order'"
+                        :product="product"
+                        :selectedGroups="selectedGroups">
+                    </sw-product-variants-delivery-order>
+                {% endblock %}
+
+                {% block sw_product_modal_delivery_media %}
+                    <sw-product-variants-delivery-media
+                        v-if="activeTab == 'media'"
+                        :product="product"
+                        :selectedGroups="selectedGroups">
+                    </sw-product-variants-delivery-media>
+                {% endblock %}
+            </div>
+        {% endblock %}
+
+
+        {% block sw_product_modal_delivery_footer %}
+            <template slot="modal-footer">
+                {% block sw_product_modal_delivery_footer_button_cancel %}
+                    <sw-button @click="cancelDeliveryConfiguration"
+                               size="small">
+                        {{ $tc('sw-product.variations.deliveryModal.cancel') }}
+                    </sw-button>
+                {% endblock %}
+
+                {% block sw_product_modal_delivery_footer_button_save %}
+                    <sw-button
+                            @click="saveDeliveryConfiguration"
+                            variant="primary"
+                            size="small">
+                        {{ $tc('sw-product.variations.deliveryModal.save') }}
+                    </sw-button>
+                {% endblock %}
+            </template>
+        {% endblock %}
+
+    </sw-modal>
+{% endblock %}

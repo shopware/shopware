@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Product\Aggregate\ProductConfiguratorSetting;
 
+use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOptionDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
@@ -11,9 +12,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\IntField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\PriceField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\PriceRulesJsonField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\UpdatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
@@ -48,12 +49,14 @@ class ProductConfiguratorSettingDefinition extends EntityDefinition
             new VersionField(),
             (new FkField('product_id', 'productId', ProductDefinition::class))->addFlags(new Required()),
             (new ReferenceVersionField(ProductDefinition::class))->addFlags(new Required()),
+            new FkField('media_id', 'mediaId', MediaDefinition::class),
             (new FkField('property_group_option_id', 'optionId', PropertyGroupOptionDefinition::class))->addFlags(new Required()),
-            new PriceField('price', 'price'),
-            new PriceRulesJsonField('prices', 'prices'),
+            new JsonField('price', 'price'),
+            new IntField('position', 'position'),
             new CreatedAtField(),
             new UpdatedAtField(),
             new ManyToOneAssociationField('product', 'product_id', ProductDefinition::class, 'id', false),
+            new ManyToOneAssociationField('media', 'media_id', MediaDefinition::class, 'id', false),
             new ManyToOneAssociationField('option', 'property_group_option_id', PropertyGroupOptionDefinition::class, 'id', true),
             new AttributesField(),
         ]);

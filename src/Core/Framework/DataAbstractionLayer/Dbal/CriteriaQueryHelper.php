@@ -130,42 +130,6 @@ trait CriteriaQueryHelper
     }
 
     /**
-     * @param string|EntityDefinition $definition
-     */
-    protected function addGroupBy(EntityDefinitionQueryHelper $queryHelper, string $definition, Criteria $criteria, QueryBuilder $query, Context $context): void
-    {
-        $table = $definition::getEntityName();
-
-        if (!$query->hasState(EntityDefinitionQueryHelper::HAS_TO_MANY_JOIN)) {
-            return;
-        }
-
-        $fields = [
-            EntityDefinitionQueryHelper::escape($table) . '.' . EntityDefinitionQueryHelper::escape('id'),
-        ];
-
-        // each order by column has to be inside the group by statement (sql_mode=only_full_group_by)
-        foreach ($criteria->getSorting() as $sorting) {
-            if ($sorting->getField() === '_score') {
-                continue;
-            }
-
-            $fields[] = $queryHelper->getFieldAccessor(
-                $sorting->getField(),
-                $definition,
-                $definition::getEntityName(),
-                $context
-            );
-        }
-
-        $fields = array_unique($fields);
-
-        foreach ($fields as $field) {
-            $query->addGroupBy($field);
-        }
-    }
-
-    /**
      * @return string[]
      */
     protected function getFieldsByCriteria(Criteria $criteria): array

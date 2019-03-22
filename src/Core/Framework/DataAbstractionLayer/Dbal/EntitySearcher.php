@@ -65,7 +65,12 @@ class EntitySearcher implements EntitySearcherInterface
         }
 
         $query = $this->buildQueryByCriteria($query, $this->queryHelper, $this->queryParser, $definition, $criteria, $context);
-        $this->addGroupBy($this->queryHelper, $definition, $criteria, $query, $context);
+
+        if ($query->hasState(EntityDefinitionQueryHelper::HAS_TO_MANY_JOIN)) {
+            $query->addGroupBy(
+                EntityDefinitionQueryHelper::escape($table) . '.' . EntityDefinitionQueryHelper::escape('id')
+            );
+        }
 
         //add pagination
         if ($criteria->getOffset() !== null) {

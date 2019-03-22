@@ -3,36 +3,27 @@
         padding: 0;
         background: #f8f9fa;
     }
+    .sw-product-detail-variants__generated-variants.is--loading .sw-card__content{
+        min-height: 250px;
+    }
 
-    .sw-card__generated-variants .sw-card__content{
+    .sw-product-detail-variants__generated-variants .sw-card__content{
         padding: 0;
         height: 100%;
 
-        .sw-card__generated-variants__emptyState {
+        .sw-product-detail-variants__generated-variants__empty-state {
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            height: 300px;
+            height: 400px;
 
-            .sw-card__generated-variants__emptyState--label {
+            .sw-product-detail-variants__generated-variants__empty-state--label {
                 max-width: 240px;
                 margin-top: 25px;
+                margin-bottom: 25px;
                 text-align: center;
             }
-        }
-    }
-
-    .sw-property-search .sw-property-search__toolbar {
-        grid-template-columns: 1fr 1fr;
-        padding: 30px 30px 0 30px;
-    }
-
-    .generate-variant-button-container {
-        display: flex;
-
-        .sw-button {
-            margin-left: auto;
         }
     }
 }

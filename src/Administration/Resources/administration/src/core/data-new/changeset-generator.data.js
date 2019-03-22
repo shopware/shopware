@@ -146,7 +146,16 @@ export default class ChangesetGenerator {
             const entity = draft[key];
             // new record?
             if (!originIds.includes(key)) {
-                changes.push(entity.getDraft());
+                let change = this.recursion(entity, []);
+
+                if (change === null) {
+                    change = { id: entity.id };
+                } else {
+                    change.id = entity.id;
+                }
+
+                changes.push(change);
+
                 return true;
             }
 

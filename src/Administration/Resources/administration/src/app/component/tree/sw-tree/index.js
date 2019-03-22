@@ -97,6 +97,11 @@ export default {
             default: false
         },
 
+        bindItemsToFolder: {
+            type: Boolean,
+            default: false
+        },
+
         sortable: {
             type: Boolean,
             default: true
@@ -286,12 +291,12 @@ export default {
 
             droppedComponent = targetTree[dropItemIdx];
 
-            if (draggedComponent.parentId !== droppedComponent.parentId) {
+            if (!this.bindItemsToFolder && draggedComponent.parentId !== droppedComponent.parentId) {
                 sourceTree.splice(dragItemIdx, 1);
                 targetTree.splice(dropItemIdx, 1, draggedComponent);
                 targetTree.splice(dropItemIdx + 1, 0, droppedComponent);
                 draggedComponent.parentId = droppedComponent.parentId;
-            } else {
+            } else if (draggedComponent.parentId === droppedComponent.parentId) {
                 targetTree.splice(dropItemIdx, 1, draggedComponent);
                 sourceTree.splice(dragItemIdx, 1, droppedComponent);
             }

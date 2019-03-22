@@ -145,6 +145,12 @@ class ProductCollector implements CollectorInterface
                     )
                 );
             }
+
+            $lineItem->replacePayload([
+                'tags' => $product->getTagIds(),
+                'categories' => $product->getCategoryTree(),
+                'datasheet' => $product->getDatasheetIds(),
+            ]);
         }
     }
 
@@ -154,6 +160,15 @@ class ProductCollector implements CollectorInterface
             && $lineItem->getLabel() !== null
             && $lineItem->getCover() !== null
             && $lineItem->getDescription() !== null
-            && $lineItem->getDeliveryInformation() !== null;
+            && $lineItem->getDeliveryInformation() !== null
+            && $this->isPayloadSatisfied($lineItem);
+    }
+
+    private function isPayloadSatisfied(LineItem $lineItem): bool
+    {
+        return $lineItem->getPayload() !== null
+            && $lineItem->hasPayloadValue('tags')
+            && $lineItem->hasPayloadValue('categories')
+            && $lineItem->hasPayloadValue('datasheet');
     }
 }

@@ -96,5 +96,8 @@
             <tag name="rule.definition"/>
         </service>
 
+        <service id="Shopware\Core\Checkout\Cart\Rule\LineItemTagRule">
+            <tag name="rule.definition"/>
+        </service>
     </services>
 </container>

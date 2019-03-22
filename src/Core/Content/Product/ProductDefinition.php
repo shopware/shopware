@@ -159,6 +159,7 @@ class ProductDefinition extends EntityDefinition
             (new IntField('min_delivery_time', 'minDeliveryTime'))->addFlags(new Inherited()),
             (new IntField('max_delivery_time', 'maxDeliveryTime'))->addFlags(new Inherited()),
             (new IntField('restock_time', 'restockTime'))->addFlags(new Inherited()),
+            new ListField('tag_ids', 'tagIds', IdField::class),
 
             //translatable fields
             (new TranslatedField('additionalText'))->addFlags(new Inherited()),

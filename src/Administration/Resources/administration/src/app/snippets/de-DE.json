@@ -372,7 +372,8 @@
         "shippingFreeRule": "Versandfreie Artikel",
         "timeRangeRule": "Zeitraum",
         "weightOfCartRule": "Warenkorb Gewicht",
-        "dayOfWeekRule": "Wochentag"
+        "dayOfWeekRule": "Wochentag",
+        "lineItemTagRule": "Positionen mit Tag"
       }
     },
     "sw-product-image": {

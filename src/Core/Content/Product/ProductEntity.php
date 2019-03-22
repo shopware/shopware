@@ -372,6 +372,11 @@ class ProductEntity extends Entity
      */
     protected $visibilities;
 
+    /**
+     * @var array|null
+     */
+    protected $tagIds;
+
     public function __construct()
     {
         $this->priceRules = new ProductPriceRuleCollection();
@@ -1163,5 +1168,15 @@ class ProductEntity extends Entity
     public function setProductNumber(string $productNumber): void
     {
         $this->productNumber = $productNumber;
+    }
+
+    public function getTagIds(): ?array
+    {
+        return $this->tagIds;
+    }
+
+    public function setTagIds(array $tagIds): void
+    {
+        $this->tagIds = $tagIds;
     }
 }

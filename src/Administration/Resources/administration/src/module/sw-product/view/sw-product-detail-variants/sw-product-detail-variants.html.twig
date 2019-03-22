@@ -1,0 +1,34 @@
+<div class="sw-product-detail-variants">
+    <sw-card class="sw-card__configurator" :title="$tc('sw-product.variations.configuratorCardTitle')">
+        <sw-product-variants-configurator-selection
+                :product="product"
+                :options="configuratorStore"
+                :overlay="false"
+                :collapsible="false"
+                @variationsGenerated="updateVariations">
+        </sw-product-variants-configurator-selection>
+    </sw-card>
+
+    <sw-card class="sw-card__generated-variants" :title="$tc('sw-product.variations.generatedVariationCardTitle')" large>
+
+        <sw-product-variants-overview
+            v-show="variantListHasContent"
+            :product="product"
+            ref="generatedVariants"
+            @variantListUpdated="updateVariantListHasContent"
+        >
+        </sw-product-variants-overview>
+
+        <template v-if="!variantListHasContent">
+
+            <div class="sw-card__generated-variants__emptyState">
+                <img :src="'/administration/static/img/empty-states/media-empty-state.svg' | asset" alt="Bla">
+                <div class="sw-card__generated-variants__emptyState--label">
+                    Für dieses Produkt existieren noch keine Varianten.
+                </div>
+            </div>
+
+        </template>
+
+    </sw-card>
+</div>

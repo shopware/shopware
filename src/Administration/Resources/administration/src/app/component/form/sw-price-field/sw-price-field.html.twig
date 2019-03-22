@@ -1,11 +1,15 @@
 {% block sw_price_field %}
-    <div class="sw-price-field">
+    <div class="sw-price-field" :class="{
+        'sw-price-field--label': label,
+        'sw-price-field--compact': compact,
+    }">
 
         {% block sw_price_field_gross %}
             <sw-field type="number"
-                      :label="$tc('global.sw-price-field.labelPriceGross')"
+                      :label="label ? $tc('global.sw-price-field.labelPriceGross') : false"
                       :suffix="currency.symbol"
                       :validation="validation"
+                      :size="compact ? 'small' : 'default'"
                       :min="0"
                       @input="onPriceGrossChange"
                       @change="onPriceGrossChange"
@@ -23,9 +27,10 @@
 
         {% block sw_price_field_net %}
             <sw-field type="number"
-                      :label="$tc('global.sw-price-field.labelPriceNet')"
+                      :label="label ? $tc('global.sw-price-field.labelPriceNet') : false"
                       :suffix="currency.symbol"
                       :validation="validation"
+                      :size="compact ? 'small' : 'default'"
                       :min="0"
                       @input="onPriceNetChange"
                       @change="onPriceNetChange"

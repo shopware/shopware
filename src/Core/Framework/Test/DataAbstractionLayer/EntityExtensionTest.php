@@ -458,6 +458,7 @@ class EntityExtensionTest extends TestCase
 
         $data = [
             'id' => $id,
+            'stock' => 1,
             'name' => 'price test',
             'ean' => 'test',
             'price' => ['gross' => 15, 'net' => 10, 'linked' => false],
@@ -499,6 +500,7 @@ class EntityExtensionTest extends TestCase
 
         $data = [
             'id' => $id,
+            'stock' => 1,
             'name' => 'category test',
             'ean' => 'test',
             'price' => ['gross' => 15, 'net' => 10, 'linked' => false],

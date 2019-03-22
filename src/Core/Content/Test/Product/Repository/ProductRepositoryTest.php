@@ -66,6 +66,7 @@ class ProductRepositoryTest extends TestCase
 
         $data = [
             'id' => $id->getHex(),
+            'stock' => 10,
             'name' => 'test',
             'price' => ['gross' => 15, 'net' => 10, 'linked' => false],
             'manufacturer' => ['name' => 'test'],
@@ -94,6 +95,7 @@ class ProductRepositoryTest extends TestCase
         $data = [
             [
                 'id' => Uuid::uuid4()->getHex(),
+                'stock' => 10,
                 'name' => 'Test',
                 'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
                 'manufacturer' => ['name' => 'test'],
@@ -101,6 +103,7 @@ class ProductRepositoryTest extends TestCase
             ],
             [
                 'id' => Uuid::uuid4()->getHex(),
+                'stock' => 10,
                 'name' => 'Test',
                 'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
                 'manufacturer' => ['name' => 'test'],
@@ -108,6 +111,7 @@ class ProductRepositoryTest extends TestCase
             ],
             [
                 'id' => Uuid::uuid4()->getHex(),
+                'stock' => 10,
                 'name' => 'Test',
                 'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
                 'manufacturer' => ['name' => 'test'],
@@ -115,6 +119,7 @@ class ProductRepositoryTest extends TestCase
             ],
             [
                 'id' => Uuid::uuid4()->getHex(),
+                'stock' => 10,
                 'name' => 'Test',
                 'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
                 'manufacturer' => ['name' => 'test'],
@@ -166,6 +171,7 @@ class ProductRepositoryTest extends TestCase
         $data = [
             [
                 'id' => Uuid::uuid4()->getHex(),
+                'stock' => 10,
                 'name' => 'Test',
                 'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
                 'tax' => ['taxRate' => 17, 'name' => 'test'],
@@ -173,6 +179,7 @@ class ProductRepositoryTest extends TestCase
             ],
             [
                 'id' => Uuid::uuid4()->getHex(),
+                'stock' => 10,
                 'name' => 'Test',
                 'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
                 'tax' => ['taxRate' => 17, 'name' => 'test'],
@@ -180,6 +187,7 @@ class ProductRepositoryTest extends TestCase
             ],
             [
                 'id' => Uuid::uuid4()->getHex(),
+                'stock' => 10,
                 'name' => 'Test',
                 'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
                 'tax' => ['taxRate' => 17, 'name' => 'test'],
@@ -187,6 +195,7 @@ class ProductRepositoryTest extends TestCase
             ],
             [
                 'id' => Uuid::uuid4()->getHex(),
+                'stock' => 10,
                 'name' => 'Test',
                 'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
                 'tax' => ['taxRate' => 17, 'name' => 'test'],
@@ -241,6 +250,7 @@ class ProductRepositoryTest extends TestCase
         $this->repository->create([
             [
                 'id' => $id->getHex(),
+                'stock' => 10,
                 'name' => 'Test',
                 'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
                 'tax' => ['name' => 'test', 'taxRate' => 19],
@@ -288,6 +298,7 @@ class ProductRepositoryTest extends TestCase
         $id = Uuid::uuid4();
         $data = [
             'id' => $id->getHex(),
+            'stock' => 10,
             'name' => 'price test',
             'price' => ['gross' => 15, 'net' => 10, 'linked' => false],
             'manufacturer' => ['name' => 'test'],
@@ -355,6 +366,7 @@ class ProductRepositoryTest extends TestCase
             [
                 'id' => $id->getHex(),
                 'name' => 'price test 1',
+                'stock' => 10,
                 'price' => ['gross' => 500, 'net' => 400, 'linked' => false],
                 'manufacturer' => ['name' => 'test'],
                 'tax' => ['name' => 'test', 'taxRate' => 15],
@@ -371,6 +383,7 @@ class ProductRepositoryTest extends TestCase
             [
                 'id' => $id2->getHex(),
                 'name' => 'price test 2',
+                'stock' => 10,
                 'price' => ['gross' => 500, 'net' => 400, 'linked' => false],
                 'manufacturer' => ['name' => 'test'],
                 'tax' => ['name' => 'test', 'taxRate' => 15],
@@ -387,6 +400,7 @@ class ProductRepositoryTest extends TestCase
             [
                 'id' => $id3->getHex(),
                 'name' => 'price test 3',
+                'stock' => 10,
                 'price' => ['gross' => 500, 'net' => 400, 'linked' => false],
                 'manufacturer' => ['name' => 'test'],
                 'tax' => ['name' => 'test', 'taxRate' => 15],
@@ -451,6 +465,7 @@ class ProductRepositoryTest extends TestCase
         $products = [
             [
                 'id' => $parentId,
+                'stock' => 10,
                 'name' => $parentName,
                 'price' => $parentPrice,
                 'tax' => ['name' => 'test', 'taxRate' => 15],
@@ -458,10 +473,10 @@ class ProductRepositoryTest extends TestCase
             ],
 
             //price should be inherited
-            ['id' => $redId, 'name' => $redName, 'parentId' => $parentId],
+            ['id' => $redId, 'stock' => 10, 'name' => $redName, 'parentId' => $parentId],
 
             //name should be inherited
-            ['id' => $greenId, 'price' => $greenPrice, 'parentId' => $parentId],
+            ['id' => $greenId, 'stock' => 10, 'price' => $greenPrice, 'parentId' => $parentId],
         ];
 
         $this->repository->create($products, Context::createDefaultContext());
@@ -522,6 +537,7 @@ class ProductRepositoryTest extends TestCase
         $data = [
             [
                 'id' => $id,
+                'stock' => 10,
                 'name' => 'Insert',
                 'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
                 'tax' => ['name' => 'test', 'taxRate' => 10],
@@ -530,6 +546,7 @@ class ProductRepositoryTest extends TestCase
             ],
             [
                 'id' => $id,
+                'stock' => 10,
                 'name' => 'Update',
                 'price' => ['gross' => 12, 'net' => 10, 'linked' => false],
                 'ean' => $filterId,
@@ -558,8 +575,8 @@ class ProductRepositoryTest extends TestCase
 
         $filterId = Uuid::uuid4()->getHex();
         $data = [
-            ['id' => $id, 'name' => 'Insert', 'price' => ['gross' => 10, 'net' => 9, 'linked' => false], 'tax' => ['name' => 'test', 'taxRate' => 10], 'manufacturer' => ['name' => 'test'], 'ean' => $filterId],
-            ['id' => $child, 'parentId' => $id, 'name' => 'Update', 'price' => ['gross' => 12, 'net' => 11, 'linked' => false], 'ean' => $filterId],
+            ['id' => $id, 'stock' => 10, 'name' => 'Insert', 'price' => ['gross' => 10, 'net' => 9, 'linked' => false], 'tax' => ['name' => 'test', 'taxRate' => 10], 'manufacturer' => ['name' => 'test'], 'ean' => $filterId],
+            ['id' => $child, 'stock' => 10, 'parentId' => $id, 'name' => 'Update', 'price' => ['gross' => 12, 'net' => 11, 'linked' => false], 'ean' => $filterId],
         ];
 
         $this->repository->upsert($data, Context::createDefaultContext());
@@ -595,6 +612,7 @@ class ProductRepositoryTest extends TestCase
         $data = [
             [
                 'id' => $child,
+                'stock' => 10,
                 'parentId' => null,
                 'name' => 'Child transformed to parent',
                 'price' => ['gross' => 13, 'net' => 12, 'linked' => false],
@@ -716,6 +734,7 @@ class ProductRepositoryTest extends TestCase
         $products = [
             [
                 'id' => $parentId,
+                'stock' => 10,
                 'price' => ['gross' => 10, 'net' => 9, 'linked' => true],
                 'manufacturer' => ['name' => 'test'],
                 'name' => 'parent',
@@ -723,10 +742,10 @@ class ProductRepositoryTest extends TestCase
             ],
 
             //price should be inherited
-            ['id' => $redId, 'parentId' => $parentId],
+            ['id' => $redId, 'stock' => 10, 'parentId' => $parentId],
 
             //name should be inherited
-            ['id' => $greenId, 'parentId' => $parentId, 'tax' => ['id' => $greenTax, 'taxRate' => 13, 'name' => 'green']],
+            ['id' => $greenId, 'stock' => 10, 'parentId' => $parentId, 'tax' => ['id' => $greenTax, 'taxRate' => 13, 'name' => 'green']],
         ];
 
         $context = Context::createDefaultContext();
@@ -779,11 +798,11 @@ class ProductRepositoryTest extends TestCase
         $tax = ['id' => Uuid::uuid4()->getHex(), 'taxRate' => 19, 'name' => 'test'];
         $price = ['gross' => 10, 'net' => 9, 'linked' => false];
         $data = [
-            ['name' => 'test', 'tax' => $tax, 'price' => $price, 'manufacturer' => ['name' => 'test']],
-            ['name' => 'test', 'tax' => $tax, 'price' => $price, 'manufacturer' => ['name' => 'test']],
-            ['name' => 'test', 'tax' => $tax, 'price' => $price, 'manufacturer' => ['name' => 'test']],
-            ['name' => 'test', 'tax' => $tax, 'price' => $price, 'manufacturer' => ['name' => 'test']],
-            ['name' => 'test', 'tax' => $tax, 'price' => $price, 'manufacturer' => ['name' => 'test']],
+            ['name' => 'test', 'stock' => 10, 'tax' => $tax, 'price' => $price, 'manufacturer' => ['name' => 'test']],
+            ['name' => 'test', 'stock' => 10, 'tax' => $tax, 'price' => $price, 'manufacturer' => ['name' => 'test']],
+            ['name' => 'test', 'stock' => 10, 'tax' => $tax, 'price' => $price, 'manufacturer' => ['name' => 'test']],
+            ['name' => 'test', 'stock' => 10, 'tax' => $tax, 'price' => $price, 'manufacturer' => ['name' => 'test']],
+            ['name' => 'test', 'stock' => 10, 'tax' => $tax, 'price' => $price, 'manufacturer' => ['name' => 'test']],
         ];
 
         $taxes = $this->repository->create($data, Context::createDefaultContext())->getEventByDefinition(TaxDefinition::class);
@@ -807,6 +826,7 @@ class ProductRepositoryTest extends TestCase
                 'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
                 'manufacturer' => ['name' => 'test'],
                 'tax' => ['name' => 'test', 'taxRate' => 15],
+                'stock' => 10,
                 'media' => [
                     [
                         'id' => $parentMedia,
@@ -817,10 +837,11 @@ class ProductRepositoryTest extends TestCase
                     ],
                 ],
             ],
-            ['id' => $redId, 'parentId' => $parentId, 'name' => 'red'],
+            ['id' => $redId, 'parentId' => $parentId, 'name' => 'red', 'stock' => 10],
             [
                 'id' => $greenId,
                 'parentId' => $parentId,
+                'stock' => 10,
                 'name' => 'green',
                 'media' => [
                     [
@@ -892,6 +913,7 @@ class ProductRepositoryTest extends TestCase
         $products = [
             [
                 'id' => $parentId,
+                'stock' => 10,
                 'name' => 'T-shirt',
                 'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
                 'tax' => ['name' => 'test', 'taxRate' => 15],
@@ -900,9 +922,10 @@ class ProductRepositoryTest extends TestCase
                     ['id' => $parentCategory, 'name' => 'parent'],
                 ],
             ],
-            ['id' => $redId, 'parentId' => $parentId, 'name' => 'red'],
+            ['id' => $redId, 'stock' => 10, 'parentId' => $parentId, 'name' => 'red'],
             [
                 'id' => $greenId,
+                'stock' => 10,
                 'parentId' => $parentId,
                 'name' => 'green',
                 'categories' => [
@@ -968,6 +991,7 @@ class ProductRepositoryTest extends TestCase
         $products = [
             [
                 'id' => $parentId,
+                'stock' => 10,
                 'name' => $parentName,
                 'manufacturer' => ['name' => 'test'],
                 'tax' => ['name' => 'test', 'taxRate' => 15],
@@ -975,10 +999,10 @@ class ProductRepositoryTest extends TestCase
             ],
 
             //price should be inherited
-            ['id' => $redId, 'name' => $redName, 'parentId' => $parentId],
+            ['id' => $redId, 'stock' => 10, 'name' => $redName, 'parentId' => $parentId],
 
             //name should be inherited
-            ['id' => $greenId, 'price' => $greenPrice, 'parentId' => $parentId],
+            ['id' => $greenId, 'stock' => 10, 'price' => $greenPrice, 'parentId' => $parentId],
         ];
 
         $this->repository->create($products, Context::createDefaultContext());
@@ -1015,6 +1039,7 @@ class ProductRepositoryTest extends TestCase
         $products = [
             [
                 'id' => $parentId,
+                'stock' => 10,
                 'manufacturer' => ['name' => 'test', 'id' => $manufacturerId],
                 'tax' => ['name' => 'test', 'taxRate' => 15],
                 'name' => $parentName,
@@ -1022,10 +1047,10 @@ class ProductRepositoryTest extends TestCase
             ],
 
             //price should be inherited
-            ['id' => $redId,    'name' => $redName, 'parentId' => $parentId],
+            ['id' => $redId, 'stock' => 10, 'name' => $redName, 'parentId' => $parentId],
 
             //name should be inherited
-            ['id' => $greenId,  'price' => $greenPrice, 'parentId' => $parentId],
+            ['id' => $greenId, 'stock' => 10, 'price' => $greenPrice, 'parentId' => $parentId],
         ];
 
         $this->repository->create($products, Context::createDefaultContext());
@@ -1063,6 +1088,7 @@ class ProductRepositoryTest extends TestCase
         $products = [
             [
                 'id' => $parentId,
+                'stock' => 10,
                 'tax' => ['name' => 'test', 'taxRate' => 15],
                 'name' => $parentName,
                 'price' => $parentPrice,
@@ -1073,10 +1099,10 @@ class ProductRepositoryTest extends TestCase
             ],
 
             //price should be inherited
-            ['id' => $redId,    'name' => $redName, 'parentId' => $parentId],
+            ['id' => $redId, 'stock' => 10, 'name' => $redName, 'parentId' => $parentId],
 
             //name should be inherited
-            ['id' => $greenId,  'price' => $greenPrice, 'parentId' => $parentId],
+            ['id' => $greenId, 'stock' => 10, 'price' => $greenPrice, 'parentId' => $parentId],
         ];
 
         $this->repository->create($products, Context::createDefaultContext());
@@ -1118,6 +1144,7 @@ class ProductRepositoryTest extends TestCase
         $products = [
             [
                 'id' => $parentId,
+                'stock' => 10,
                 'tax' => ['name' => 'test', 'taxRate' => 15],
                 'name' => 'Parent',
                 'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
@@ -1126,6 +1153,7 @@ class ProductRepositoryTest extends TestCase
             ],
             [
                 'id' => $redId,
+                'stock' => 10,
                 'name' => 'Red',
                 'parentId' => $parentId,
                 'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
@@ -1133,7 +1161,7 @@ class ProductRepositoryTest extends TestCase
                 'categories' => $redCategories,
             ],
 
-            ['id' => $greenId, 'parentId' => $parentId],
+            ['id' => $greenId, 'stock' => 10, 'parentId' => $parentId],
         ];
 
         $this->repository->upsert($products, $this->context);
@@ -1170,6 +1198,7 @@ class ProductRepositoryTest extends TestCase
         $products = [
             [
                 'id' => $parentId,
+                'stock' => 10,
                 'tax' => ['name' => 'test', 'taxRate' => 15],
                 'name' => $parentName,
                 'price' => $parentPrice,
@@ -1181,6 +1210,7 @@ class ProductRepositoryTest extends TestCase
             //price should be inherited
             [
                 'id' => $redId,
+                'stock' => 10,
                 'name' => $redName,
                 'parentId' => $parentId,
                 'manufacturer' => [
@@ -1190,7 +1220,7 @@ class ProductRepositoryTest extends TestCase
             ],
 
             //manufacturer should be inherited
-            ['id' => $greenId, 'price' => $greenPrice, 'parentId' => $parentId],
+            ['id' => $greenId, 'stock' => 10, 'price' => $greenPrice, 'parentId' => $parentId],
         ];
 
         $this->repository->create($products, Context::createDefaultContext());
@@ -1216,6 +1246,7 @@ class ProductRepositoryTest extends TestCase
                 'products' => [
                     [
                         'id' => $productId,
+                        'stock' => 10,
                         'tax' => ['name' => 'test', 'taxRate' => 15],
                         'name' => 'test',
                         'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
@@ -1253,6 +1284,7 @@ class ProductRepositoryTest extends TestCase
                 'products' => [
                     [
                         'id' => $productId,
+                        'stock' => 10,
                         'name' => 'test',
                         'tax' => ['name' => 'test', 'taxRate' => 15],
                         'manufacturerId' => $manufacturerId,
@@ -1288,6 +1320,7 @@ class ProductRepositoryTest extends TestCase
         $data = [
             'id' => $id,
             'name' => 'test',
+            'stock' => 10,
             'tax' => ['name' => 'test', 'taxRate' => 15],
             'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
             'manufacturer' => ['name' => 'test'],
@@ -1338,6 +1371,7 @@ class ProductRepositoryTest extends TestCase
 
         $data = [
             'id' => $id,
+            'stock' => 10,
             'name' => 'test',
             'tax' => ['name' => 'test', 'taxRate' => 15],
             'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
@@ -1390,6 +1424,7 @@ class ProductRepositoryTest extends TestCase
         $data = [
             'id' => $id,
             'name' => 'test',
+            'stock' => 10,
             'tax' => ['name' => 'test', 'taxRate' => 15],
             'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
             'manufacturer' => ['name' => 'test'],
@@ -1451,6 +1486,7 @@ class ProductRepositoryTest extends TestCase
 
         $data = [
             'id' => $id,
+            'stock' => 10,
             'name' => 'Test product service: ' . (new \DateTime())->format(Defaults::DATE_FORMAT),
             'tax' => ['name' => 'test', 'taxRate' => 15],
             'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
@@ -1523,6 +1559,7 @@ class ProductRepositoryTest extends TestCase
 
         $data = [
             'id' => $id,
+            'stock' => 10,
             'name' => 'price test',
             'price' => ['gross' => 15, 'net' => 10, 'linked' => false],
             'manufacturer' => ['name' => 'test'],
@@ -1588,6 +1625,7 @@ class ProductRepositoryTest extends TestCase
 
         $data = [
             'id' => $id,
+            'stock' => 10,
             'name' => 'price test',
             'price' => ['gross' => 15, 'net' => 10, 'linked' => false],
             'manufacturer' => ['name' => 'test'],
@@ -1698,6 +1736,7 @@ class ProductRepositoryTest extends TestCase
         $ruleId2 = Uuid::uuid4()->getHex();
 
         $default = [
+            'stock' => 10,
             'tax' => ['name' => 'test', 'taxRate' => 15, 'id' => $manufacturerId],
             'name' => 'test product',
             'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
@@ -1766,6 +1805,7 @@ class ProductRepositoryTest extends TestCase
         $data = [
             'id' => $id,
             'name' => 'product',
+            'stock' => 10,
             'ean' => 'test',
             'price' => ['gross' => 15, 'net' => 10, 'linked' => false],
             'manufacturer' => ['name' => 'manufacturer'],

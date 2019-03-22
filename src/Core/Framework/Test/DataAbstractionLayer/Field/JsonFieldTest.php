@@ -111,6 +111,7 @@ EOF;
 
         $data = [
             'id' => $id->getHex(),
+            'stock' => 1,
             'name' => 'test',
             'price' => ['gross' => 15, 'linked' => false],
             'manufacturer' => ['name' => 'test'],
@@ -141,6 +142,7 @@ EOF;
 
         $data = [
             'id' => $id->getHex(),
+            'stock' => 1,
             'name' => 'test',
             'price' => ['foo' => 'bar', 'linked' => false],
             'manufacturer' => ['name' => 'test'],
@@ -179,6 +181,7 @@ EOF;
 
         $data = [
             'id' => $id->getHex(),
+            'stock' => 1,
             'name' => 'test',
             'price' => ['gross' => 15, 'net' => 'strings are not allowed', 'linked' => false],
             'manufacturer' => ['name' => 'test'],
@@ -209,6 +212,7 @@ EOF;
 
         $data = [
             'id' => $id->getHex(),
+            'stock' => 1,
             'name' => 'test',
             'price' => ['gross' => 15, 'net' => 13.2, 'linked' => false, 'fail' => 'me'],
             'manufacturer' => ['name' => 'test'],

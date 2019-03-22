@@ -494,6 +494,7 @@ class RecalculationServiceTest extends TestCase
         $productId = Uuid::uuid4()->getHex();
         $data = [
             'id' => $productId,
+            'stock' => 1,
             'name' => $name,
             'price' => ['gross' => $price + ($price * $taxRate / 100), 'net' => $price, 'linked' => false],
             'manufacturer' => ['name' => 'create'],

@@ -11,7 +11,6 @@ $sw-price-field-suffix-font-weight: 400;
 
     .sw-price-field__lock {
         height: 45px;
-        margin-top: 24px;
         background: none;
         border: none;
         color: $sw-price-field-lock-color-default;
@@ -28,5 +27,12 @@ $sw-price-field-suffix-font-weight: 400;
             font-weight: $sw-price-field-suffix-font-weight;
             font-size: $sw-price-field-suffix-font-size;
         }
+    }
+
+    &.sw-price-field--label .sw-price-field__lock {
+        margin-top: 24px;
+    }
+    &.sw-price-field--compact .sw-price-field__lock {
+        height: 32px;
     }
 }

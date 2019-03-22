@@ -164,6 +164,7 @@ describe('core/data/EntityProxy.js', () => {
         // Trigger changes
         productEntity.tax = taxEntity.getChanges();
         productEntity.tax.id = taxEntity.id;
+        productEntity.stock = 10;
         productEntity.manufacturer = manufacturerEntity.getChanges();
         productEntity.manufacturer.id = manufacturerEntity.id;
 
@@ -217,6 +218,7 @@ describe('core/data/EntityProxy.js', () => {
         // Trigger changes
         productEntity.tax = taxEntity.getChanges();
         productEntity.tax.id = taxEntity.id;
+        productEntity.stock = 10;
         productEntity.manufacturer = manufacturerEntity.getChanges();
         productEntity.manufacturer.id = manufacturerEntity.id;
 
@@ -354,6 +356,7 @@ describe('core/data/EntityProxy.js', () => {
         taxEntity.setLocalData({ name: 'Test tax rate', taxRate: 99.98 });
         productEntity.tax = taxEntity.getChanges();
         productEntity.tax.id = taxEntity.id;
+        productEntity.stock = 1;
 
         const manufacturerEntity = new EntityProxy('product_manufacturer', serviceContainer.productManufacturerService);
         manufacturerEntity.setLocalData({ name: 'Test manufacturer' });

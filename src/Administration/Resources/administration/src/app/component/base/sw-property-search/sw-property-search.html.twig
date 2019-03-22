@@ -1,8 +1,22 @@
 {% block sw_property_search %}
     <div class="sw-property-search" :class="swPropertySearchClasses">
 
+        {% block sw_property_search_inner_before %}{% endblock %}
+
         {% block sw_property_search_field %}
-            <sw-field :placeholder="$tc('sw-property-search.placeholderSearch')"  autocomplete="off" class="sw-property-search__search-field" ref="searchField" @focus="onFocusSearch" @input="onSearchOptions"></sw-field>
+            <div class="sw-property-search__toolbar">
+                <slot name="toolbar">
+                    <div class="sw-property-search__search-field-container">
+                        <slot name="toolbar-search-field">
+                            <sw-field :placeholder="$tc('sw-property-search.placeholderSearch')"  autocomplete="off" class="sw-property-search__search-field" ref="searchField" @focus="onFocusSearch" @input="onSearchOptions"></sw-field>
+                        </slot>
+                    </div>
+
+                    <slot name="toolbar-items">
+                        {% block sw_property_toolbar_items %}{% endblock %}
+                    </slot>
+                </slot>
+            </div>
         {% endblock %}
 
         {% block sw_property_search_tree %}
@@ -12,23 +26,30 @@
                     <sw-container columns="50% 50%">
 
                         {% block sw_property_search_tree_group_grid %}
-                            <sw-grid class="sw-property-search__tree-selection__group_grid" ref="groupGrid" :items="groups" :isFullpage="false" table @sw-grid-select-item="onGroupSelect">
+                            <sw-grid class="sw-property-search__tree-selection__group_grid"
+                                     :header="false"
+                                     :allSelectable="false"
+                                     ref="groupGrid"
+                                     :showSelectionCheckbox="false"
+                                     :items="groups"
+                                     :isFullpage="false"
+                                     table>
 
                                 {% block sw_property_search_tree_group_grid_columns %}
                                     <template slot="columns" slot-scope="{ item }">
 
                                         {% block sw_property_search_tree_group_grid_columns_name %}
-                                            <sw-grid-column flex="minmax(200px, 1fr)" dataIndex="name" label="">
+                                            <sw-grid-column truncate class="group_grid__column-name" flex="minmax(200px, 1fr)" dataIndex="name" @click="selectGroup(item)">
+                                                <sw-icon name="folder-breadcrumbs" size="16px" multicolor></sw-icon>
                                                 {{ item.name }}
                                             </sw-grid-column>
                                         {% endblock %}
 
                                         {% block sw_property_search_tree_group_grid_columns_options %}
-                                            <sw-grid-column flex="1fr" dataIndex="assignedOptions">
+                                            <sw-grid-column truncate align="right" flex="1fr" class="sw-property-search__tree-selection__column-items-selected" dataIndex="assignedOptions">
                                                 <span v-if="item.optionCount > 0">{{ $tc('sw-property-search.selected', item.optionCount, { count: item.optionCount }) }}</span>
                                             </sw-grid-column>
                                         {% endblock %}
-
                                     </template>
                                 {% endblock %}
 
@@ -41,7 +62,14 @@
                         {% endblock %}
 
                         {% block sw_property_search_tree_option_grid %}
-                            <sw-grid class="sw-property-search__tree-selection__option_grid" ref="optionGrid" :items="groupOptions" :isFullpage="false" table @sw-grid-select-item="onOptionSelect">
+                            <sw-grid class="sw-property-search__tree-selection__option_grid"
+                                        :header="false"
+                                        ref="optionGrid"
+                                        :allSelectable="false"
+                                        :items="groupOptions"
+                                        :isFullpage="false"
+                                        table
+                                        @sw-grid-select-item="onOptionSelect">
 
                                 {% block sw_property_search_tree_option_grid_columns %}
                                     <template slot="columns" slot-scope="{ item }">
@@ -71,7 +99,13 @@
             <div class="sw-property-search__search-selection" v-if="displaySearch">
 
                 {% block sw_property_search_option_search_grid %}
-                    <sw-grid class="sw-property-search__search-selection__option_grid" ref="optionSearchGrid" :items="groupOptions" :isFullpage="false" table @sw-grid-select-item="onOptionSelect">
+                    <sw-grid class="sw-property-search__search-selection__option_grid"
+                             ref="optionSearchGrid"
+                             :items="groupOptions"
+                             :allSelectable="false"
+                             :isFullpage="false"
+                             table
+                             @sw-grid-select-item="onOptionSelect">
 
                         {% block sw_property_search_option_search_grid_columns %}
                             <template slot="columns" slot-scope="{ item }">
@@ -92,5 +126,8 @@
                 {% endblock %}
             </div>
         {% endblock %}
+
+        {% block sw_property_search_inner_after %}{% endblock %}
+
     </div>
 {% endblock %}

@@ -12,7 +12,6 @@ use Shopware\Core\Content\Media\File\MediaFile;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
-use Shopware\Core\Content\Product\Util\VariantGenerator;
 use Shopware\Core\Content\Rule\RuleDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -50,11 +49,6 @@ class ProductGenerator implements DemodataGeneratorInterface
     private $taxRepository;
 
     /**
-     * @var EntityRepositoryInterface
-     */
-    private $productRepository;
-
-    /**
      * @var FileSaver
      */
     private $fileSaver;
@@ -75,11 +69,6 @@ class ProductGenerator implements DemodataGeneratorInterface
     private $productImages = [];
 
     /**
-     * @var VariantGenerator
-     */
-    private $variantGenerator;
-
-    /**
      * @var Connection
      */
     private $connection;
@@ -88,6 +77,7 @@ class ProductGenerator implements DemodataGeneratorInterface
      * @var EntityRepositoryInterface
      */
     private $folderRepository;
+
     /**
      * @var NumberRangeValueGeneratorInterface
      */
@@ -97,22 +87,18 @@ class ProductGenerator implements DemodataGeneratorInterface
         EntityWriterInterface $writer,
         EntityRepositoryInterface $defaultFolderRepository,
         EntityRepositoryInterface $taxRepository,
-        EntityRepositoryInterface $productRepository,
         EntityRepositoryInterface $folderRepository,
         FileSaver $fileSaver,
         FileNameProvider $fileNameProvider,
-        VariantGenerator $variantGenerator,
         Connection $connection,
         NumberRangeValueGeneratorInterface $numberRangeValueGenerator
     ) {
         $this->writer = $writer;
         $this->defaultFolderRepository = $defaultFolderRepository;
         $this->taxRepository = $taxRepository;
-        $this->productRepository = $productRepository;
         $this->folderRepository = $folderRepository;
         $this->fileSaver = $fileSaver;
         $this->fileNameProvider = $fileNameProvider;
-        $this->variantGenerator = $variantGenerator;
         $this->connection = $connection;
         $this->numberRangeValueGenerator = $numberRangeValueGenerator;
     }
@@ -186,12 +172,6 @@ class ProductGenerator implements DemodataGeneratorInterface
                 $product['services'] = $this->buildProductServices($services, $taxes);
             }
 
-            $isConfigurator = random_int(1, 100) <= 5 && $withConfigurator;
-
-            if ($isConfigurator) {
-                $product['configurators'] = $this->buildProductConfigurator($configurator);
-            }
-
             $productProperties = \array_slice(
                 $properties,
                 random_int(0, max(0, count($properties) - 20)),
@@ -201,38 +181,6 @@ class ProductGenerator implements DemodataGeneratorInterface
             $product['datasheet'] = array_map(function ($config) {
                 return ['id' => $config];
             }, $productProperties);
-
-            if ($isConfigurator) {
-                $context->getConsole()->progressAdvance();
-
-                $this->productRepository->upsert([$product], $context->getContext());
-
-                $variantEvent = $this->variantGenerator->generate($product['id'], $context->getContext());
-                $variantProductIds = $variantEvent->getEventByDefinition(ProductDefinition::class)->getIds();
-
-                $variantImagePayload = [];
-                foreach ($variantProductIds as $y => $variantProductId) {
-                    $imagePath = $this->getRandomImage($context, $product['name'] . ' #' . $y);
-
-                    $mediaId = Uuid::uuid4()->getHex();
-                    $variantImagePayload[] = [
-                        'id' => $variantProductId,
-                        'cover' => [
-                            'media' => [
-                                'id' => $mediaId,
-                                'name' => 'Product image of ' . $product['name'],
-                                'mediaFolderId' => $mediaFolderId,
-                            ],
-                        ],
-                    ];
-
-                    $this->productImages[$mediaId] = $imagePath;
-                }
-
-                $this->productRepository->update($variantImagePayload, $context->getContext());
-
-                continue;
-            }
 
             $payload[] = $product;
 
@@ -462,25 +410,6 @@ class ProductGenerator implements DemodataGeneratorInterface
             '#d8dde6',
             '#333333'
         );
-    }
-
-    private function buildProductConfigurator(array $groups): array
-    {
-        $optionIds = $this->getRandomOptions($groups);
-
-        $options = array_map(
-            function ($id) {
-                $price = random_int(2, 10);
-
-                return [
-                    'optionId' => $id,
-                    'price' => ['gross' => $price, 'net' => $price / 1.19, 'linked' => true],
-                ];
-            },
-            $optionIds
-        );
-
-        return $options;
     }
 
     private function buildProductServices(array $services, array $taxes)

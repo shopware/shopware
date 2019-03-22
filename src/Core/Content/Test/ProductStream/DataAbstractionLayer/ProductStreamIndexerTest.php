@@ -81,6 +81,7 @@ class ProductStreamIndexerTest extends TestCase
             [
                 [
                     'id' => $productId,
+                    'stock' => 10,
                     'name' => 'Test',
                     'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
                     'manufacturer' => ['name' => 'test'],
@@ -123,6 +124,7 @@ class ProductStreamIndexerTest extends TestCase
             [
                 [
                     'id' => $productId,
+                    'stock' => 10,
                     'name' => 'Test',
                     'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
                     'manufacturer' => ['name' => 'test'],
@@ -175,6 +177,7 @@ class ProductStreamIndexerTest extends TestCase
             [
                 [
                     'id' => $productId,
+                    'stock' => 10,
                     'name' => 'Test',
                     'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
                     'manufacturer' => ['name' => 'test'],
@@ -215,6 +218,7 @@ class ProductStreamIndexerTest extends TestCase
             [
                 [
                     'id' => $productId,
+                    'stock' => 10,
                     'name' => 'Test',
                     'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
                     'manufacturer' => ['name' => 'test'],
@@ -255,6 +259,7 @@ class ProductStreamIndexerTest extends TestCase
             [
                 [
                     'id' => $productId,
+                    'stock' => 10,
                     'name' => 'Test',
                     'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
                     'manufacturer' => ['name' => 'test'],
@@ -295,6 +300,7 @@ class ProductStreamIndexerTest extends TestCase
             [
                 [
                     'id' => $productId,
+                    'stock' => 10,
                     'name' => 'Test',
                     'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
                     'manufacturer' => ['name' => 'test'],

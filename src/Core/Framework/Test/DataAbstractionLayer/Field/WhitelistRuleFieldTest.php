@@ -49,6 +49,7 @@ class WhitelistRuleFieldTest extends TestCase
         $products = [
             [
                 'id' => $product1,
+                'stock' => 1,
                 'tax' => ['name' => 'test', 'taxRate' => 15],
                 'name' => 'test product',
                 'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
@@ -57,6 +58,7 @@ class WhitelistRuleFieldTest extends TestCase
             ],
             [
                 'id' => $product2,
+                'stock' => 1,
                 'tax' => ['name' => 'test', 'taxRate' => 15],
                 'name' => 'test product',
                 'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
@@ -65,6 +67,7 @@ class WhitelistRuleFieldTest extends TestCase
             ],
             [
                 'id' => $product3,
+                'stock' => 1,
                 'tax' => ['name' => 'test', 'taxRate' => 15],
                 'name' => 'test product',
                 'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
@@ -134,6 +137,7 @@ class WhitelistRuleFieldTest extends TestCase
         $products = [
             [
                 'id' => $parentId1,
+                'stock' => 1,
                 'tax' => ['name' => 'test', 'taxRate' => 15],
                 'name' => 'test product',
                 'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
@@ -142,11 +146,13 @@ class WhitelistRuleFieldTest extends TestCase
             ],
             [
                 'id' => $productId1,
+                'stock' => 1,
                 'parentId' => $parentId1,
             ],
 
             [
                 'id' => $parentId2,
+                'stock' => 1,
                 'tax' => ['name' => 'test', 'taxRate' => 15],
                 'name' => 'test product',
                 'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
@@ -154,12 +160,14 @@ class WhitelistRuleFieldTest extends TestCase
             ],
             [
                 'id' => $productId2,
+                'stock' => 1,
                 'parentId' => $parentId2,
                 'whitelistIds' => [$rule1, $rule2],
             ],
 
             [
                 'id' => $parentId3,
+                'stock' => 1,
                 'tax' => ['name' => 'test', 'taxRate' => 15],
                 'name' => 'test product',
                 'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
@@ -167,6 +175,7 @@ class WhitelistRuleFieldTest extends TestCase
             ],
             [
                 'id' => $productId3,
+                'stock' => 1,
                 'parentId' => $parentId3,
             ],
         ];
@@ -238,6 +247,7 @@ class WhitelistRuleFieldTest extends TestCase
         $products = [
             [
                 'id' => $parent1,
+                'stock' => 1,
                 'tax' => ['name' => 'test', 'taxRate' => 15],
                 'name' => 'test product',
                 'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
@@ -245,30 +255,33 @@ class WhitelistRuleFieldTest extends TestCase
                 'whitelistIds' => [$rule1, $rule2],
             ],
             //child has inherited whitelist
-            ['id' => $product1, 'parentId' => $parent1],
+            ['id' => $product1, 'stock' => 1, 'parentId' => $parent1],
 
             [
                 'id' => $parent2,
+                'stock' => 1,
                 'tax' => ['name' => 'test', 'taxRate' => 15],
                 'name' => 'test product',
                 'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
                 'manufacturer' => ['name' => 'test', 'id' => $manufacturerId],
             ],
             //child has whitelist, parent not
-            ['id' => $product2, 'parentId' => $parent2, 'whitelistIds' => [$rule1, $rule2]],
+            ['id' => $product2, 'parentId' => $parent2, 'stock' => 1, 'whitelistIds' => [$rule1, $rule2]],
 
             [
                 'id' => $parent3,
+                'stock' => 1,
                 'tax' => ['name' => 'test', 'taxRate' => 15],
                 'name' => 'test product',
                 'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
                 'manufacturer' => ['name' => 'test', 'id' => $manufacturerId],
             ],
             //child and parent have no whitelist
-            ['id' => $product3, 'parentId' => $parent3],
+            ['id' => $product3, 'stock' => 1, 'parentId' => $parent3],
 
             [
                 'id' => $product4,
+                'stock' => 1,
                 'tax' => ['name' => 'test', 'taxRate' => 15],
                 'name' => 'test product',
                 'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
@@ -277,6 +290,7 @@ class WhitelistRuleFieldTest extends TestCase
             ],
             [
                 'id' => $product5,
+                'stock' => 1,
                 'tax' => ['name' => 'test', 'taxRate' => 15],
                 'name' => 'test product',
                 'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
@@ -285,6 +299,7 @@ class WhitelistRuleFieldTest extends TestCase
             ],
             [
                 'id' => $product6,
+                'stock' => 1,
                 'tax' => ['name' => 'test', 'taxRate' => 15],
                 'name' => 'test product',
                 'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
@@ -355,6 +370,7 @@ class WhitelistRuleFieldTest extends TestCase
         $products = [
             [
                 'id' => $product1,
+                'stock' => 1,
                 'tax' => ['name' => 'test', 'taxRate' => 15],
                 'name' => 'test',
                 'ean' => __FUNCTION__,
@@ -364,6 +380,7 @@ class WhitelistRuleFieldTest extends TestCase
             ],
             [
                 'id' => $product2,
+                'stock' => 1,
                 'tax' => ['name' => 'test', 'taxRate' => 15],
                 'name' => 'test',
                 'ean' => __FUNCTION__,
@@ -373,6 +390,7 @@ class WhitelistRuleFieldTest extends TestCase
             ],
             [
                 'id' => $product3,
+                'stock' => 1,
                 'tax' => ['name' => 'test', 'taxRate' => 15],
                 'name' => 'test',
                 'ean' => __FUNCTION__,
@@ -383,6 +401,7 @@ class WhitelistRuleFieldTest extends TestCase
 
             [
                 'id' => $product4,
+                'stock' => 1,
                 'tax' => ['name' => 'test', 'taxRate' => 15],
                 'name' => 'test',
                 'ean' => __FUNCTION__,
@@ -438,6 +457,7 @@ class WhitelistRuleFieldTest extends TestCase
         $products = [
             [
                 'id' => $product1,
+                'stock' => 1,
                 'tax' => ['name' => 'test', 'taxRate' => 15],
                 'name' => 'test',
                 'ean' => __FUNCTION__,
@@ -450,6 +470,7 @@ class WhitelistRuleFieldTest extends TestCase
             ],
             [
                 'id' => $product2,
+                'stock' => 1,
                 'tax' => ['name' => 'test', 'taxRate' => 15],
                 'name' => 'test',
                 'ean' => __FUNCTION__,
@@ -462,6 +483,7 @@ class WhitelistRuleFieldTest extends TestCase
             ],
             [
                 'id' => $product3,
+                'stock' => 1,
                 'tax' => ['name' => 'test', 'taxRate' => 15],
                 'name' => 'test',
                 'ean' => __FUNCTION__,
@@ -475,6 +497,7 @@ class WhitelistRuleFieldTest extends TestCase
 
             [
                 'id' => $product4,
+                'stock' => 1,
                 'tax' => ['name' => 'test', 'taxRate' => 15],
                 'name' => 'test',
                 'ean' => __FUNCTION__,
@@ -530,6 +553,7 @@ class WhitelistRuleFieldTest extends TestCase
         $products = [
             [
                 'id' => $product1,
+                'stock' => 1,
                 'tax' => ['name' => 'test', 'taxRate' => 15],
                 'name' => 'test product',
                 'ean' => $product1,
@@ -539,6 +563,7 @@ class WhitelistRuleFieldTest extends TestCase
             ],
             [
                 'id' => $product2,
+                'stock' => 1,
                 'tax' => ['name' => 'test', 'taxRate' => 15],
                 'name' => 'test product',
                 'ean' => $product2,
@@ -548,6 +573,7 @@ class WhitelistRuleFieldTest extends TestCase
             ],
             [
                 'id' => $product3,
+                'stock' => 1,
                 'tax' => ['name' => 'test', 'taxRate' => 15],
                 'name' => 'test product',
                 'ean' => $product3,
@@ -599,6 +625,7 @@ class WhitelistRuleFieldTest extends TestCase
         $products = [
             [
                 'id' => $product1,
+                'stock' => 1,
                 'tax' => ['name' => 'test', 'taxRate' => 15],
                 'name' => 'test product',
                 'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
@@ -607,6 +634,7 @@ class WhitelistRuleFieldTest extends TestCase
             ],
             [
                 'id' => $product2,
+                'stock' => 1,
                 'tax' => ['name' => 'test', 'taxRate' => 15],
                 'name' => 'test product',
                 'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
@@ -615,6 +643,7 @@ class WhitelistRuleFieldTest extends TestCase
             ],
             [
                 'id' => $product3,
+                'stock' => 1,
                 'tax' => ['name' => 'test', 'taxRate' => 15],
                 'name' => 'test product',
                 'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
@@ -668,6 +697,7 @@ class WhitelistRuleFieldTest extends TestCase
         $products = [
             [
                 'id' => $product1,
+                'stock' => 1,
                 'tax' => ['name' => 'test', 'taxRate' => 15],
                 'name' => 'test product',
                 'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
@@ -679,6 +709,7 @@ class WhitelistRuleFieldTest extends TestCase
             ],
             [
                 'id' => $product2,
+                'stock' => 1,
                 'tax' => ['name' => 'test', 'taxRate' => 15],
                 'name' => 'test product',
                 'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
@@ -690,6 +721,7 @@ class WhitelistRuleFieldTest extends TestCase
             ],
             [
                 'id' => $product3,
+                'stock' => 1,
                 'tax' => ['name' => 'test', 'taxRate' => 15],
                 'name' => 'test product',
                 'price' => ['gross' => 10, 'net' => 9, 'linked' => false],

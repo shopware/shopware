@@ -91,6 +91,7 @@ class StorefrontCartControllerTest extends TestCase
         $this->productRepository->create([
             [
                 'id' => $productId,
+                'stock' => 1,
                 'name' => 'Test',
                 'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
                 'manufacturer' => ['id' => $this->manufacturerId, 'name' => 'test'],
@@ -125,6 +126,7 @@ class StorefrontCartControllerTest extends TestCase
         $this->productRepository->create([
             [
                 'id' => $productId1,
+                'stock' => 1,
                 'name' => 'Test 1',
                 'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
                 'manufacturer' => ['id' => $this->manufacturerId, 'name' => 'test'],
@@ -132,6 +134,7 @@ class StorefrontCartControllerTest extends TestCase
             ],
             [
                 'id' => $productId2,
+                'stock' => 1,
                 'name' => 'Test 2',
                 'price' => ['gross' => 20, 'net' => 9, 'linked' => false],
                 'manufacturerId' => $this->manufacturerId,
@@ -160,6 +163,7 @@ class StorefrontCartControllerTest extends TestCase
         $this->productRepository->create([
             [
                 'id' => $productId1,
+                'stock' => 1,
                 'name' => 'Test 1',
                 'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
                 'manufacturer' => ['id' => $this->manufacturerId, 'name' => 'test'],
@@ -190,6 +194,7 @@ class StorefrontCartControllerTest extends TestCase
         $this->productRepository->create([
             [
                 'id' => $productId1,
+                'stock' => 1,
                 'name' => 'Test 1',
                 'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
                 'manufacturer' => ['id' => $this->manufacturerId, 'name' => 'test'],
@@ -220,6 +225,7 @@ class StorefrontCartControllerTest extends TestCase
         $this->productRepository->create([
             [
                 'id' => $productId1,
+                'stock' => 1,
                 'name' => 'Test 1',
                 'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
                 'manufacturer' => ['id' => $this->manufacturerId, 'name' => 'test'],
@@ -249,6 +255,7 @@ class StorefrontCartControllerTest extends TestCase
         $this->productRepository->create([
             [
                 'id' => $productId1,
+                'stock' => 1,
                 'name' => 'Test 1',
                 'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
                 'manufacturer' => ['id' => $this->manufacturerId, 'name' => 'test'],
@@ -256,6 +263,7 @@ class StorefrontCartControllerTest extends TestCase
             ],
             [
                 'id' => $productId2,
+                'stock' => 1,
                 'name' => 'Test 2',
                 'price' => ['gross' => 20, 'net' => 9, 'linked' => false],
                 'manufacturerId' => $this->manufacturerId,
@@ -311,6 +319,7 @@ class StorefrontCartControllerTest extends TestCase
         $this->productRepository->create([
             [
                 'id' => $productId1,
+                'stock' => 1,
                 'name' => 'Test 1',
                 'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
                 'manufacturer' => ['id' => $this->manufacturerId, 'name' => 'test'],
@@ -318,6 +327,7 @@ class StorefrontCartControllerTest extends TestCase
             ],
             [
                 'id' => $productId2,
+                'stock' => 1,
                 'name' => 'Test 2',
                 'price' => ['gross' => 20, 'net' => 9, 'linked' => false],
                 'manufacturerId' => $this->manufacturerId,
@@ -361,6 +371,7 @@ class StorefrontCartControllerTest extends TestCase
         $this->productRepository->create([
             [
                 'id' => $productId,
+                'stock' => 1,
                 'name' => 'Test',
                 'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
                 'manufacturer' => ['id' => $this->manufacturerId, 'name' => 'test'],
@@ -433,6 +444,7 @@ class StorefrontCartControllerTest extends TestCase
         $this->productRepository->create([
             [
                 'id' => $productId,
+                'stock' => 1,
                 'name' => 'Test',
                 'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
                 'manufacturer' => ['id' => $this->manufacturerId, 'name' => 'test'],

@@ -6,10 +6,13 @@ import './component/sw-product-settings-form';
 import './component/sw-product-media-form';
 import './component/sw-product-visibility-select';
 import './component/sw-product-visibility-detail';
+import './component/sw-product-variants-configurator-selection';
+import './component/sw-product-variants-overview';
 import './view/sw-product-detail-base';
 import './view/sw-product-create-base';
 import './view/sw-product-detail-context-prices';
 import './view/sw-product-detail-properties';
+import './view/sw-product-detail-variants';
 import './page/sw-product-list';
 import './page/sw-product-detail';
 import './page/sw-product-create';
@@ -82,6 +85,13 @@ Module.register('sw-product', {
                 properties: {
                     component: 'sw-product-detail-properties',
                     path: 'properties',
+                    meta: {
+                        parentPath: 'sw.product.index'
+                    }
+                },
+                variants: {
+                    component: 'sw-product-detail-variants',
+                    path: 'variants',
                     meta: {
                         parentPath: 'sw.product.index'
                     }

@@ -131,6 +131,7 @@
       "tabGeneral": "Allgemein",
       "tabAdvancedPrices": "Erweiterte Preise",
       "tabProperties": "Eigenschaften",
+      "tabVariation": "Varianten",
       "titleSaveSuccess": "Erfolg",
       "messageSaveSuccess": "Das Produkt \"{name}\" wurde erfolgreich gespeichert.",
       "messageUploadSuccess": "{count} von {total} Dateien erfolgreich gespeichert."
@@ -141,6 +142,37 @@
     },
     "properties": {
       "cardTitleProperties": "Eigenschaften"
+    },
+    "variations": {
+      "generateVariationsButton": "Varianten generieren",
+      "configuratorCardTitle": "Varianten generieren",
+      "generatedVariationCardTitle": "Generierte Varianten",
+      "progressTypeOf": "von",
+      "progressTypeDeleted": "gelöscht",
+      "progressTypeGenerated": "generiert",
+      "progressTypeCalculated": "berechnet",
+      "progressTypeVariation": "Varianten",
+      "generationWarningPartBefore": "Du möchtest folgende Anzahl an Produkt-Varianten erstellen:",
+      "generationWarningPartAfter": "Die Generierung dieser großen Anzahl an Varianten kann sehr lange dauern und zu einem Browserabsturz führen.",
+      "generationWarningPartContinue": "Willst du wirklich fortfahren?",
+      "generationWarningButtonCancel": "Abbrechen",
+      "generationWarningButtonContinue": "Trotzdem generieren",
+      "generatedFilterList": "Liste filtern",
+      "generatedListColumnVariation": "Variante",
+      "generatedListColumnPrice": "Preis",
+      "generatedListColumnProductNumber": "Produktnummer",
+      "generatedListColumnStock": "Lagerbestand",
+      "generatedListContextMenuEdit": "Bearbeiten",
+      "generatedListContextMenuDelete": "Löschen",
+      "generatedListDeleteModalMessage": "Möchtest du die Variante löschen?",
+      "generatedListDeleteModalButtonCancel": "Abbrechen",
+      "generatedListDeleteModalButtonDelete": "Löschen",
+      "generatedListTitleSaveSuccess": "Gespeichert",
+      "generatedListTitleSaveError": "Fehler",
+      "generatedListMessageSaveSuccess": "Die Variation wurde gespeichert.",
+      "generatedListMessageSaveError": "Die Variation konnte nicht gespeichert werden.",
+      "generatedListTitleDeleteError": "Gelöscht",
+      "generatedListMessageDeleteSuccess": "Die Variation wurde gelöscht."
     }
   }
 }

@@ -48,11 +48,9 @@
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriter" />
             <argument type="service" id="media_default_folder.repository" />
             <argument type="service" id="tax.repository" />
-            <argument type="service" id="product.repository" />
             <argument type="service" id="media_folder.repository" />
             <argument type="service" id="Shopware\Core\Content\Media\File\FileSaver" />
             <argument type="service" id="Shopware\Core\Content\Media\File\FileNameProvider" />
-            <argument type="service" id="Shopware\Core\Content\Product\Util\VariantGenerator" />
             <argument type="service" id="Doctrine\DBAL\Connection" />
             <argument type="service" id="Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInterface" />
             <tag name="shopware.demodata_generator"/>

@@ -37,6 +37,7 @@ class SyncControllerTest extends TestCase
                 'payload' => [
                     [
                         'id' => $id1->getHex(),
+                        'stock' => 1,
                         'manufacturer' => ['name' => 'test'],
                         'tax' => ['name' => 'test', 'taxRate' => 15],
                         'name' => 'CREATE-1',
@@ -44,6 +45,7 @@ class SyncControllerTest extends TestCase
                     ],
                     [
                         'id' => $id2->getHex(),
+                        'stock' => 1,
                         'manufacturer' => ['name' => 'test'],
                         'name' => 'CREATE-2',
                         'tax' => ['name' => 'test', 'taxRate' => 15],
@@ -83,6 +85,7 @@ class SyncControllerTest extends TestCase
                     [
                         'id' => $id,
                         'active' => true,
+                        'stock' => 1,
                         'tax' => ['name' => 'test', 'taxRate' => 15],
                         'name' => 'CREATE-1',
                         'manufacturer' => ['name' => 'test'],
@@ -91,6 +94,7 @@ class SyncControllerTest extends TestCase
                     [
                         'id' => $id,
                         'manufacturer' => ['name' => 'test'],
+                        'stock' => 1,
                         'tax' => ['name' => 'test', 'taxRate' => 15],
                         'active' => false,
                         'price' => ['gross' => 50, 'net' => 25, 'linked' => false],
@@ -135,6 +139,7 @@ class SyncControllerTest extends TestCase
                 'payload' => [
                     [
                         'id' => $productId,
+                        'stock' => 1,
                         'tax' => ['name' => 'test', 'taxRate' => 15],
                         'name' => 'PROD-1',
                         'price' => ['gross' => 50, 'net' => 25, 'linked' => false],
@@ -182,6 +187,7 @@ class SyncControllerTest extends TestCase
                     [
                         'id' => $product,
                         'name' => 'PROD-1',
+                        'stock' => 1,
                         'manufacturer' => ['name' => 'test'],
                         'price' => ['gross' => 50, 'net' => 25, 'linked' => false],
                         'tax' => ['name' => 'test', 'taxRate' => 15],
@@ -192,6 +198,7 @@ class SyncControllerTest extends TestCase
                     [
                         'id' => $product2,
                         'name' => 'PROD-2',
+                        'stock' => 1,
                         'tax' => ['name' => 'test', 'taxRate' => 15],
                         'price' => ['gross' => 50, 'net' => 25, 'linked' => false],
                         'manufacturer' => ['name' => 'test'],
@@ -240,6 +247,7 @@ class SyncControllerTest extends TestCase
                 'payload' => [
                     [
                         'id' => $product->getHex(),
+                        'stock' => 1,
                         'name' => 'PROD-1',
                         'tax' => ['name' => 'test', 'taxRate' => 15],
                         'price' => ['gross' => 50, 'net' => 25, 'linked' => false],
@@ -247,6 +255,7 @@ class SyncControllerTest extends TestCase
                     ],
                     [
                         'id' => $product2->getHex(),
+                        'stock' => 1,
                         'tax' => ['name' => 'test', 'taxRate' => 15],
                         'name' => 'PROD-2',
                         'price' => ['gross' => 50, 'net' => 25, 'linked' => false],

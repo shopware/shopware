@@ -1,0 +1,38 @@
+.sw-product-detail-variants {
+    .sw-card__configurator .sw-card__content {
+        padding: 0;
+        background: #f8f9fa;
+    }
+
+    .sw-card__generated-variants .sw-card__content{
+        padding: 0;
+        height: 100%;
+
+        .sw-card__generated-variants__emptyState {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 300px;
+
+            .sw-card__generated-variants__emptyState--label {
+                max-width: 240px;
+                margin-top: 25px;
+                text-align: center;
+            }
+        }
+    }
+
+    .sw-property-search .sw-property-search__toolbar {
+        grid-template-columns: 1fr 1fr;
+        padding: 30px 30px 0 30px;
+    }
+
+    .generate-variant-button-container {
+        display: flex;
+
+        .sw-button {
+            margin-left: auto;
+        }
+    }
+}

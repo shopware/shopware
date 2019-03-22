@@ -4,7 +4,8 @@ const fixture = {
     shortName: 'AD',
     name: 'Aserbaidschanische Drachme',
     factor: '0.12',
-    symbol: 'A'
+    symbol: 'A',
+    decimalPrecision: '2'
 };
 
 module.exports = {

@@ -11,6 +11,7 @@
       "columnShortName": "Short name",
       "columnSymbol": "Symbol",
       "columnFactor": "Factor",
+      "columnDecimalPrecision": "Decimal place",
       "buttonAddCurrency": "Add currency",
       "contextMenuEdit": "Edit",
       "modalTitleDelete": "Delete currency",
@@ -21,6 +22,8 @@
     },
     "detail": {
       "textHeadline": "New currency",
+      "labelPrecision": "Decimal place",
+      "placeholderPrecision": "Enter decimal place",
       "titleCard": "Settings",
       "titleSaveSuccess": "Success",
       "messageSaveSuccess": "Currency \"{name}\" has been saved successfully.",

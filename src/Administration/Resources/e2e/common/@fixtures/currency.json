@@ -2,5 +2,6 @@
   "shortName": "JPY",
   "name": "Yen",
   "factor": "01",
-  "symbol": "¥"
+  "symbol": "¥",
+  "decimalPrecision": 2
 }

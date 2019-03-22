@@ -184,6 +184,13 @@
         "priceUnitName": "Inhalt:"
     },
     "footer": {
+        "serviceHotlineHeadline": "Service Hotline",
+        "shopServiceHeadline": "Shop Service",
+        "informationHeadline": "Informationen",
+        "newsletterHeadline": "Newsletter",
+        "serviceHotline": "Telefonische Unterst&uuml;tzung und Beratung unter: <a href='tel:+49180000000'>0180 - 000000</a> Mo-Fr, 09:00 - 17:00 Uhr",
+        "newsletterInput": "Ihre E-Mail Adresse",
+        "newsletter": "Abonnieren Sie jetzt einfach unseren regelmäßig erscheinenden Newsletter und Sie werden stets als Erster über neue Artikel und Angebote informiert.",
         "includeVat": "* Alle Preise inkl. gesetzl. Mehrwertsteuer zzgl. <a href='#'>Versandkosten</a> und ggf. Nachnahmegebühren, wenn nicht anders beschrieben",
         "excludeVat": "* Alle Preise verstehen sich zzgl. Mehrwertsteuer und <a href='#'>Versandkosten</a> und ggf. Nachnahmegebühren, wenn nicht anders beschrieben"
     },

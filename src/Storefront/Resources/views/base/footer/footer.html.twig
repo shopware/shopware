@@ -1,75 +1,172 @@
 {% block base_footer %}
     {% block base_footer_navigation %}
         <div id="footerColumns" class="row footer-columns">
-            {# @todo: NEXT-1988 - replace example code with footer menu #}
-            <div class="col-md-3 footer-column">
-                <div class="column-headline"
-                     data-target="#collapseOne"
-                     aria-expanded="true"
-                     aria-controls="collapseOne">
-                    collapse 1
-                    <div class="toggle-icon">
-                        <i class="fas fa-plus"></i>
-                        <i class="fas fa-minus"></i>
-                    </div>
+            {% block base_footer_navigation_hotline %}
+                <div class="col-md-3 footer-column">
+                    {% block base_footer_navigation_hotline_headline %}
+                        <div class="column-headline footer-headline"
+                             data-target="#collapseOneFooter"
+                             aria-expanded="true"
+                             aria-controls="collapseOneFooter">
+                            {{ 'footer.serviceHotlineHeadline'|trans }}
+                            {% block base_footer_navigation_hotline_icons %}
+                                <div class="toggle-icon">
+                                    <i class="fas fa-plus"></i>
+                                    <i class="fas fa-minus"></i>
+                                </div>
+                            {% endblock %}
+                        </div>
+                    {% endblock %}
+
+                    {% block base_footer_navigation_hotline_content %}
+                        <div id="collapseOneFooterFooter"
+                             class="column-content footer-hotline"
+                             aria-labelledby="headingOne">
+                            {{ 'footer.serviceHotline'|trans|raw }}
+                        </div>
+                    {% endblock %}
                 </div>
-                <div id="collapseOne"
-                     class="column-content"
-                     aria-labelledby="headingOne">
-                    Lorem ipsum dolor sit amet, consectetur adipisicing elit. Amet asperiores assumenda beatae blanditiis cumque deserunt, distinctio, doloremque error esse explicabo fugiat harum, laborum optio provident quo quod vel veniam vero!
+            {% endblock %}
+
+            {% block base_footer_navigation_service %}
+                <div class="col-md-3 footer-column">
+                    {% block base_footer_navigation_service_headline %}
+                        <div class="column-headline footer-headline"
+                             data-target="#collapseTwoFooter"
+                             aria-expanded="true"
+                             aria-controls="collapseTwoFooter">
+                            {{ 'footer.shopServiceHeadline'|trans }}
+                            {% block base_footer_navigation_service_icons %}
+                                <div class="toggle-icon">
+                                    <i class="fas fa-plus"></i>
+                                    <i class="fas fa-minus"></i>
+                                </div>
+                            {% endblock %}
+                        </div>
+                    {% endblock %}
+
+                    {% block base_footer_navigation_service_content %}
+                        <div id="collapseTwoFooter"
+                             class="column-content"
+                             aria-labelledby="headingTwo">
+                            {% block base_footer_navigation_service_links %}
+                                <ul class="list-group">
+                                    {#TODO: NEXT-1988 - Replace NAV Links through Footer Links#}
+                                    {% for treeItem in page.header.navigation.tree %}
+                                        {% block base_footer_navigation_service_link_item %}
+                                            <li class="footer-link-list list-group-item">
+                                                {% block base_footer_navigation_service_link %}
+                                                    <a class="footer-link"
+                                                       href="{{ path('frontend.navigation.page', {'navigationId': treeItem.entity.id}) }}"
+                                                       title="{{ treeItem.entity.name }}">
+                                                        {{ treeItem.entity.name }}
+                                                    </a>
+                                                {% endblock %}
+                                            </li>
+                                        {% endblock %}
+                                    {% endfor %}
+                                </ul>
+                            {% endblock %}
+                        </div>
+                    {% endblock %}
                 </div>
-            </div>
-            <div class="col-md-3 footer-column">
-                <div class="column-headline"
-                     data-target="#collapseTwo"
-                     aria-expanded="true"
-                     aria-controls="collapseTwo">
-                    collapse 2
-                    <div class="toggle-icon">
-                        <i class="fas fa-plus"></i>
-                        <i class="fas fa-minus"></i>
-                    </div>
+            {% endblock %}
+
+            {% block base_footer_navigation_information %}
+                <div class="col-md-3 footer-column">
+                    {% block base_footer_navigation_information_headline %}
+                        <div class="column-headline footer-headline"
+                             data-target="#collapseThreeFooter"
+                             aria-expanded="true"
+                             aria-controls="collapseThreeFooter">
+                            {{ 'footer.informationHeadline'|trans }}
+                            {% block base_footer_navigation_information_icons %}
+                                <div class="toggle-icon">
+                                    <i class="fas fa-plus"></i>
+                                    <i class="fas fa-minus"></i>
+                                </div>
+                            {% endblock %}
+                        </div>
+                    {% endblock %}
+
+                    {% block base_footer_navigation_information_content %}
+                        <div id="collapseThreeFooter"
+                             class="column-content"
+                             aria-labelledby="headingThree">
+                            {% block base_footer_navigation_information_links %}
+                                <ul class="list-group">
+                                    {% for treeItem in page.header.navigation.tree %}
+                                        {% block base_footer_navigation_information_link_item %}
+                                            <li class="footer-link-list list-group-item">
+                                                {% block base_footer_navigation_information_link %}
+                                                    <a class="footer-link"
+                                                       href="{{ path('frontend.navigation.page', {'navigationId': treeItem.entity.id}) }}"
+                                                       title="{{ treeItem.entity.name }}">
+                                                        {{ treeItem.entity.name }}
+                                                    </a>
+                                                {% endblock %}
+                                            </li>
+                                        {% endblock %}
+                                    {% endfor %}
+                                </ul>
+                            {% endblock %}
+                        </div>
+                    {% endblock %}
                 </div>
-                <div id="collapseTwo"
-                     class="column-content"
-                     aria-labelledby="headingTwo">
-                    Lorem ipsum dolor sit amet, consectetur adipisicing elit. Amet asperiores assumenda beatae blanditiis cumque deserunt, distinctio, doloremque error esse explicabo fugiat harum, laborum optio provident quo quod vel veniam vero!
+            {% endblock %}
+
+            {% block base_footer_navigation_newsletter %}
+                <div class="col-md-3 footer-column">
+                    {% block base_footer_navigation_newsletter_headline %}
+                        <div class="column-headline footer-headline"
+                             data-target="#collapseFourFooter"
+                             aria-expanded="true"
+                             aria-controls="collapseFourFooter">
+                            {{ 'footer.newsletterHeadline'|trans }}
+                            {% block base_footer_navigation_newsletter_icons %}
+                                <div class="toggle-icon">
+                                    <i class="fas fa-plus"></i>
+                                    <i class="fas fa-minus"></i>
+                                </div>
+                            {% endblock %}
+                        </div>
+                    {% endblock %}
+
+                    {% block base_footer_navigation_newsletter_content %}
+                        <div id="collapseFourFooter"
+                             class="column-content"
+                             aria-labelledby="headingFour">
+                            {% block base_footer_navigation_newsletter_text %}
+                                <div class="footer-newsletter-text">
+                                    {{ 'footer.newsletter'|trans }}
+                                </div>
+                            {% endblock %}
+
+                            {% block base_footer_navigation_newsletter_form %}
+                                {#TODO: NEXT-1989 - add newsletter form action#}
+                                <form action="" method="post">
+                                    {% block base_footer_navigation_newsletter_form_input %}
+                                        <div class="input-group">
+                                            <input type="text"
+                                                   class="form-control"
+                                                   placeholder="{{ "footer.newsletterInput"|trans }}"
+                                                   aria-label="{{ "footer.newsletterInput"|trans }}"
+                                                   aria-describedby="newsletterSubscriptionButton">
+                                            <div class="input-group-append">
+                                                <button class="btn btn-light"
+                                                        type="button"
+                                                        id="newsletterSubscriptionButton">
+                                                    <i class="far fa-envelope"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    {% endblock %}
+                                </form>
+                            {% endblock %}
+                        </div>
+                    {% endblock %}
                 </div>
-            </div>
-            <div class="col-md-3 footer-column">
-                <div class="column-headline"
-                     data-target="#collapseThree"
-                     aria-expanded="true"
-                     aria-controls="collapseThree">
-                    collapse 3
-                    <div class="toggle-icon">
-                        <i class="fas fa-plus"></i>
-                        <i class="fas fa-minus"></i>
-                    </div>
-                </div>
-                <div id="collapseThree"
-                     class="column-content"
-                     aria-labelledby="headingThree">
-                    Lorem ipsum dolor sit amet, consectetur adipisicing elit. Amet asperiores assumenda beatae blanditiis cumque deserunt, distinctio, doloremque error esse explicabo fugiat harum, laborum optio provident quo quod vel veniam vero!
-                </div>
-            </div>
-            <div class="col-md-3 footer-column">
-                <div class="column-headline"
-                     data-target="#collapseFour"
-                     aria-expanded="true"
-                     aria-controls="collapseFour">
-                    collapse 4
-                    <div class="toggle-icon">
-                        <i class="fas fa-plus"></i>
-                        <i class="fas fa-minus"></i>
-                    </div>
-                </div>
-                <div id="collapseFour"
-                     class="column-content"
-                     aria-labelledby="headingFour">
-                    Lorem ipsum dolor sit amet, consectetur adipisicing elit. Amet asperiores assumenda beatae blanditiis cumque deserunt, distinctio, doloremque error esse explicabo fugiat harum, laborum optio provident quo quod vel veniam vero!
-                </div>
-            </div>
+            {% endblock %}
         </div>
     {% endblock %}
 
@@ -85,4 +182,3 @@
     </div>
     {% block base_footer_copyright %}{% endblock %}
 {% endblock %}
-

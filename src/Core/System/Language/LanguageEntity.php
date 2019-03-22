@@ -14,6 +14,7 @@ use Shopware\Core\Content\MailTemplate\Aggregate\MailHeaderFooter\MailHeaderFoot
 use Shopware\Core\Content\MailTemplate\MailTemplateCollection;
 use Shopware\Core\Content\Media\Aggregate\MediaTranslation\MediaTranslationCollection;
 use Shopware\Core\Content\Navigation\Aggregate\NavigationTranslation\NavigationTranslationCollection;
+use Shopware\Core\Content\NewsletterReceiver\NewsletterReceiverCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturerTranslation\ProductManufacturerTranslationCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductTranslation\ProductTranslationCollection;
 use Shopware\Core\Content\ProductStream\Aggregate\ProductStreamTranslation\ProductStreamTranslationCollection;
@@ -266,6 +267,11 @@ class LanguageEntity extends Entity
      * @var MailHeaderFooterCollection|null
      */
     protected $mailHeaderFooterTranslations;
+
+    /**
+     * @var NewsletterReceiverCollection|null
+     */
+    protected $newsletterReceivers;
 
     public function getMailHeaderFooterTranslations(): ?MailHeaderFooterCollection
     {
@@ -715,5 +721,15 @@ class LanguageEntity extends Entity
     public function setMailTemplateTranslations(?MailTemplateCollection $mailTemplateTranslations): void
     {
         $this->mailTemplateTranslations = $mailTemplateTranslations;
+    }
+
+    public function getNewsletterReceivers(): ?NewsletterReceiverCollection
+    {
+        return $this->newsletterReceivers;
+    }
+
+    public function setNewsletterReceivers(NewsletterReceiverCollection $newsletterReceivers): void
+    {
+        $this->newsletterReceivers = $newsletterReceivers;
     }
 }

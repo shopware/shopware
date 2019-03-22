@@ -6,6 +6,7 @@ use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressDef
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressDefinition;
 use Shopware\Core\Checkout\Order\Aggregate\OrderCustomer\OrderCustomerDefinition;
+use Shopware\Core\Content\NewsletterReceiver\NewsletterReceiverDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CreatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
@@ -52,6 +53,7 @@ class SalutationDefinition extends EntityDefinition
             (new OneToManyAssociationField('customerAddresses', CustomerAddressDefinition::class, 'salutation_id', false, 'id'))->addFlags(new RestrictDelete()),
             (new OneToManyAssociationField('orderCustomers', OrderCustomerDefinition::class, 'salutation_id', false, 'id'))->addFlags(new RestrictDelete()),
             (new OneToManyAssociationField('orderAddresses', OrderAddressDefinition::class, 'salutation_id', false, 'id'))->addFlags(new RestrictDelete()),
+            (new OneToManyAssociationField('newsletterReceivers', NewsletterReceiverDefinition::class, 'salutation_id', false, 'id'))->addFlags(new RestrictDelete()),
         ]);
     }
 }

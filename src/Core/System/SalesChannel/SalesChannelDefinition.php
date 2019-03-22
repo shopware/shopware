@@ -11,6 +11,7 @@ use Shopware\Core\Content\MailTemplate\Aggregate\MailHeaderFooter\MailHeaderFoot
 use Shopware\Core\Content\MailTemplate\Aggregate\MailTemplateSalesChannel\MailTemplateSalesChannelDefinition;
 use Shopware\Core\Content\MailTemplate\MailTemplateDefinition;
 use Shopware\Core\Content\Navigation\NavigationDefinition;
+use Shopware\Core\Content\NewsletterReceiver\NewsletterReceiverDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
@@ -105,6 +106,7 @@ class SalesChannelDefinition extends EntityDefinition
             (new OneToManyAssociationField('systemConfigs', SystemConfigDefinition::class, 'sales_channel_id', false))->addFlags(new CascadeDelete()),
             new ManyToOneAssociationField('navigation', 'navigation_id', NavigationDefinition::class, false),
             (new OneToManyAssociationField('productVisibilities', ProductVisibilityDefinition::class, 'sales_channel_id', false))->addFlags(new CascadeDelete()),
+            new OneToManyAssociationField('newsletterReceivers', NewsletterReceiverDefinition::class, 'sales_channel_id', false, 'id'),
             new ManyToOneAssociationField('mailHeaderFooter', 'mail_header_footer_id', MailHeaderFooterDefinition::class, true),
             new ManyToManyAssociationField('mailTemplates', MailTemplateDefinition::class, MailTemplateSalesChannelDefinition::class, false, 'sales_channel_id', 'mail_template_id'),
             new ManyToManyAssociationField('numberRanges', NumberRangeDefinition::class, NumberRangeSalesChannelDefinition::class, false, 'sales_channel_id', 'number_range_id'),

@@ -59,6 +59,7 @@ npm-debug.log
 
 # User configurations
 app/config/parameters.yml
+src/Docs/Command/wiki.secret
 
 # tooling
 /dev-ops/docker/_volumes

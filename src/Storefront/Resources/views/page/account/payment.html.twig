@@ -38,31 +38,11 @@
                         {% block page_account_payment_form %}
                             {#TODO: NEXT-1936 - add form action and funcionality#}
                             <form action="#" method="post">
-                                {% block page_account_payment_methods %}
-                                    {% for payment in page.paymentMethods.elements %}
-                                        {% block page_account_payment_method %}
-                                            <div class="account-payment-form-group form-group">
-                                                <div class="custom-control custom-radio">
-                                                    <input type="radio"
-                                                           id="paymentMethod{{ loop.index }}"
-                                                           name="paymentMethod"
-                                                           value="{{ payment.id }}"
-                                                           {% if payment.id is same as(page.customer.defaultPaymentMethodId) %}checked="checked"{% endif %}
-                                                           class="custom-control-input">
-                                                    <label class="custom-control-label"
-                                                           for="paymentMethod{{ loop.index }}">
-                                                        <strong>{{ payment.name }}</strong>
-                                                        <p>{{ payment.additionalDescription }}</p>
-                                                    </label>
-                                                </div>
-                                            </div>
-                                        {% endblock %}
-
-                                        {% block page_account_payment_fieldset_template %}
-                                            {#TODO: NEXT-1936 - include fieldset template#}
-                                        {% endblock %}
-                                    {% endfor %}
-                                {% endblock %}
+	                            {% block page_account_payment_fields %}
+                                    {% sw_include '@Storefront/component/payment/payment-fields.html.twig' with {
+                                        'defaultPaymentMethodId': page.customer.defaultPaymentMethodId,
+                                    } %}
+	                            {% endblock %}
 
                                 {% block page_account_payment_actions %}
                                     <button class="btn btn-primary"

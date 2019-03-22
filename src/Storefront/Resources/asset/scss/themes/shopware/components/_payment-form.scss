@@ -1,5 +1,6 @@
-.account-payment-form-group {
+.payment-method {
     border-bottom: 1px solid $border-color;
+    margin-bottom: $spacer;
 
     &:last-of-type {
         border-bottom: 0;

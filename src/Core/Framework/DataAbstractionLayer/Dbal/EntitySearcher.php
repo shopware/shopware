@@ -63,10 +63,10 @@ class EntitySearcher implements EntitySearcherInterface
         $this->addGroupBy($this->queryHelper, $definition, $criteria, $query, $context);
 
         //add pagination
-        if ($criteria->getOffset() >= 0) {
+        if ($criteria->getOffset() !== null) {
             $query->setFirstResult($criteria->getOffset());
         }
-        if ($criteria->getLimit() >= 0) {
+        if ($criteria->getLimit() !== null) {
             $query->setMaxResults($criteria->getLimit());
         }
 

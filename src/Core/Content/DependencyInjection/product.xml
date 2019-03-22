@@ -130,7 +130,7 @@
         </service>
 
         <service id="Shopware\Core\Content\Product\Util\VariantCombinationLoader">
-            <argument id="Doctrine\DBAL\Connection" type="service"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
         </service>
     </services>
 </container>                

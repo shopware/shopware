@@ -76,7 +76,7 @@ class EntitySearcher implements EntitySearcherInterface
         $data = $query->execute()->fetchAll();
         $data = FetchModeHelper::groupUnique($data);
 
-        $total = $this->getTotalCount($criteria, $data);
+        $total = $this->getTotalCount($table, $query, $criteria, $data);
 
         if ($criteria->getTotalCountMode() === Criteria::TOTAL_COUNT_MODE_NEXT_PAGES) {
             $data = \array_slice($data, 0, $criteria->getLimit());
@@ -104,17 +104,37 @@ class EntitySearcher implements EntitySearcherInterface
             return;
         }
 
-        $selects = $query->getQueryPart('select');
-        $selects[0] = 'SQL_CALC_FOUND_ROWS ' . $selects[0];
-        $query->select($selects);
+        if ($query->hasState('_score')) {
+            $selects = $query->getQueryPart('select');
+            $selects[0] = 'SQL_CALC_FOUND_ROWS ' . $selects[0];
+            $query->select($selects);
+        }
     }
 
-    private function getTotalCount(Criteria $criteria, array $data): int
+    private function getTotalCount(string $table, QueryBuilder $query, Criteria $criteria, array $data): int
     {
-        if ($criteria->getTotalCountMode() === Criteria::TOTAL_COUNT_MODE_EXACT) {
+        if ($criteria->getTotalCountMode() !== Criteria::TOTAL_COUNT_MODE_EXACT) {
+            return \count($data);
+        }
+
+        if ($query->hasState('_score')) {
             return (int) $this->connection->fetchColumn('SELECT FOUND_ROWS()');
         }
 
-        return \count($data);
+        $id = EntityDefinitionQueryHelper::escape($table) . '.' . EntityDefinitionQueryHelper::escape('id');
+
+        $selects = $query->getQueryPart('select');
+        $selects[0] = 'DISTINCT ' . $selects[0];
+
+        $query->select([
+            'COUNT(DISTINCT ' . $id . ') as total',
+        ]);
+
+        $query->setMaxResults(1);
+        $query->setFirstResult(0);
+        $query->resetQueryPart('groupBy');
+        $query->resetQueryPart('orderBy');
+
+        return (int) $query->execute()->fetchColumn();
     }
 }

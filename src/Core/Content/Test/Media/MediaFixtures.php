@@ -94,6 +94,7 @@ trait MediaFixtures
                         'product' => [
                             'id' => Uuid::uuid4()->getHex(),
                             'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
+                            'stock' => 10,
                             'manufacturer' => [
                                 'name' => 'test',
                             ],

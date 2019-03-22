@@ -100,6 +100,7 @@ trait CriteriaQueryHelper
 
         $query->andHaving('_score >= :_minScore');
         $query->setParameter('_minScore', $minScore);
+        $query->addState('_score');
 
         foreach ($queries->getParameters() as $key => $value) {
             $query->setParameter($key, $value, $queries->getType($key));
@@ -114,6 +115,7 @@ trait CriteriaQueryHelper
 
             if ($sorting->getField() === '_score') {
                 $query->addOrderBy('_score', $sorting->getDirection());
+                $query->addState('_score');
                 continue;
             }
 

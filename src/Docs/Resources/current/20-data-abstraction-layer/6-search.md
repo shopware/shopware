@@ -1,3 +1,5 @@
+[titleEn]: <>(Search)
+[titleDe]: <>(Search)
 [wikiUrl]: <>(../data-abstract-layer/search?category=shopware-platform-en/data-abstraction-layer)
 
 # Search

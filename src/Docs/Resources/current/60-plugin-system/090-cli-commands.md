@@ -1,4 +1,5 @@
 [titleEn]: <>(CLI Commands)
+[titleDe]: <>(CLI Commands)
 [wikiUrl]: <>(../plugin-system/cli-commands?category=shopware-platform-en/plugin-system)
 
 Creating your own `CLI Commands` in Shopware is straightforward and goes analogous to [Symfony - Console Commands](https://symfony.com/doc/current/console.html).

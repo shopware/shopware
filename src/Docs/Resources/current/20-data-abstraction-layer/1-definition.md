@@ -1,3 +1,5 @@
+[titleEn]: <>(Definition)
+[titleDe]: <>(Definition)
 [wikiUrl]: <>(../data-abstract-layer/definition?category=shopware-platform-en/data-abstraction-layer)
 
 # Definition

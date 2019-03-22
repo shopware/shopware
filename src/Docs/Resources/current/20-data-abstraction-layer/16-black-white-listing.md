@@ -1,3 +1,5 @@
+[titleEn]: <>(Black-/Whitelisting)
+[titleDe]: <>(Black-/Whitelisting)
 # Black-/White Listing
 
 Black-/Whitelisting is an extension to define the visibility of Entities for certain Rules.

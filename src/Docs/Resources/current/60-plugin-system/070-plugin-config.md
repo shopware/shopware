@@ -1,4 +1,5 @@
 [titleEn]: <>(Plugin configuration)
+[titleDe]: <>(Plugin configuration)
 [wikiUrl]: <>(../plugin-system/plugin-configuration?category=shopware-platform-en/plugin-system)
 
 The `Shopware plugin system` provides you with the option,

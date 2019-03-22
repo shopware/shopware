@@ -1,3 +1,5 @@
+[titleEn]: <>(Write Protection)
+[titleDe]: <>(Write Protection)
 # WriteProtected flag
 
 In some cases you want to restrict the write access to individual fields, so that they can't be manipulated through the entities CRUD-API.

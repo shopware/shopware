@@ -1,3 +1,5 @@
+[titleEn]: <>(Create a module)
+[titleDe]: <>(Create a module)
 [wikiUrl]: <>(../administration/creating-modules)
 
 # Create a module

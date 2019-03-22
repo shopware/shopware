@@ -1,4 +1,5 @@
 [titleEn]: <>(Migrations)
+[titleDe]: <>(Migrations)
 [wikiUrl]: <>(../plugin-system/migrations?category=shopware-platform-en/plugin-system)
 
 In this guide, you will learn what migrations are and how to use them.

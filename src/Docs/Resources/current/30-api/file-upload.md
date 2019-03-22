@@ -1,3 +1,5 @@
+[titleEn]: <>('File Upload API')
+[titleDe]: <>('File Upload API')
 # File Upload API
 
 To Upload a File you first have to create a Media-Entity with a POST-Request to `api/media` with

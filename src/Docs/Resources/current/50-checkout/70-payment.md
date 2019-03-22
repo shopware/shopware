@@ -1,4 +1,5 @@
 [titleEn]: <>(Payment)
+[titleDe]: <>(Payment)
 [wikiUrl]: <>(../checkout/payment?category=shopware-platform-en/checkout)
 
 Payments are an essential part of the checkout process. That's the reason why Shopware offers an easy platform

@@ -1,3 +1,5 @@
+[titleEn]: <>(Writing your first E2E test)
+[titleDe]: <>(Writing your first E2E test)
 In this guide, you will learn how to write your first e2e test. With e2e testing we are able to put our UI under constant stress and ensure that Shopware's main functionalities 
 are always working correctly. As we are using Nightwatch.js as testing framework, please refer to <http://nightwatchjs.org/> for further documentation.
 

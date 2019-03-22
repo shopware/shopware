@@ -1,4 +1,5 @@
 [titleEn]: <>(Plugin - Unit testing)
+[titleDe]: <>(Plugin - Unit testing)
 [wikiUrl]: <>(../plugin-system/unit-testing?category=shopware-platform-en/plugin-system)
 
 In this guide, you will learn how to use `PHPUnit by Sebastian Bergmann` to test your plugin with `Shopware`.

@@ -1,3 +1,5 @@
+[titleEn]: <>(Types)
+[titleDe]: <>(Types)
 [wikiUrl]: <>(../data-abstract-layer/field-types?category=shopware-platform-en/data-abstraction-layer)
 
 # Types

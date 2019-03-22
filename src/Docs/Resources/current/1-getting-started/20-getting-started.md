@@ -1,5 +1,7 @@
 [titleEn]: <>(Getting started with the platform)
+[titleDe]: <>(Getting started with the platform)
 [wikiUrl]: <>(../getting-started/platform?category=shopware-platform-en/getting-started)
+
 ## Platform structure
 
 The platform is divided into three components. 

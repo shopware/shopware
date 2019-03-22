@@ -1,4 +1,5 @@
 [titleEn]: <>(Filesystem)
+[titleDe]: <>(Filesystem)
 [wikiUrl]: <>(../plugin-system/filesystem?category=shopware-platform-en/plugin-system)
 
 Shopware has a build-in [filesystem](http://flysystem.thephpleague.com/docs/), which is also usable in your plugin.

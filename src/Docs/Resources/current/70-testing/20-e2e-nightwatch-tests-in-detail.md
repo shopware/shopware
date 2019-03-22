@@ -1,3 +1,5 @@
+[titleEn]: <>(E2E Nightwatch in detail)
+[titleDe]: <>(E2E Nightwatch in detail)
 In this guide, you will get to know all important details on end to end (e2e) testing in Shopware. 
 These e2e tests are used in order to test the ui and ensure that the main functionalities of Shopware are always working correctly.
 

@@ -1,3 +1,5 @@
+[titleEn]: <>(Create a component)
+[titleDe]: <>(Create a component)
 [wikiUrl]: <>(../components/create-a-new-component)
 
 # Create a component

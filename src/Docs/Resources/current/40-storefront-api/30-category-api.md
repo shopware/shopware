@@ -1,5 +1,8 @@
+
+[titleEn]: <>(Category endpoint)
+[titleDe]: <>(Category endpoint)
 [wikiUrl]: <>(../using-the-storefront-api/category-endpoint?category=shopware-platform-en/using-the-storefront-api)
-[titleEn]: <>(['Category endpoint'])
+
 The category endpoint is used to get category information e.g. for a
 navigation.
 

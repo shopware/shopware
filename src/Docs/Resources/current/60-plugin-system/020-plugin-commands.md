@@ -1,4 +1,5 @@
 [titleEn]: <>(Plugin - Commands)
+[titleDe]: <>(Plugin - Commands)
 [wikiUrl]: <>(../plugin-system/plugin-commands?category=shopware-platform-en/plugin-system)
 
 ## Listing

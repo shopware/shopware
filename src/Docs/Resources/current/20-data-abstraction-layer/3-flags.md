@@ -1,3 +1,5 @@
+[titleEn]: <>(Flags)
+[titleDe]: <>(Flags)
 [wikiUrl]: <>(../data-abstract-layer/flags?category=shopware-platform-en/data-abstraction-layer)
 
 # Flags

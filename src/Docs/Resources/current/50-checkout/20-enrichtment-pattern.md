@@ -1,4 +1,5 @@
 [titleEn]: <>(Enrichment pattern)
+[titleDe]: <>(Enrichment pattern)
 [wikiUrl]: <>(../checkout/enrichment?category=shopware-platform-en/checkout)
 
 Shopware has an enrichtment process which allows adding additional information to line items like

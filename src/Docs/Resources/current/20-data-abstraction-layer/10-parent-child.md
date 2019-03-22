@@ -1,3 +1,5 @@
+[titleEn]: <>(Parent/Child)
+[titleDe]: <>(Parent/Child)
 [wikiUrl]: <>(../data-abstract-layer/parent-child?category=shopware-platform-en/data-abstraction-layer)
 
 # Parent/Child

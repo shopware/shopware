@@ -1,3 +1,5 @@
+[titleEn]: <>(Indexing)
+[titleDe]: <>(Indexing)
 [wikiUrl]: <>(../data-abstract-layer/indexing?category=shopware-platform-en/data-abstraction-layer)
 
 # Indexing

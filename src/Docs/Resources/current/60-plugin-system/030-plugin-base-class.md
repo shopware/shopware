@@ -1,4 +1,5 @@
 [titleEn]: <>(Plugin - Base Class)
+[titleDe]: <>(Plugin - Base Class)
 [wikiUrl]: <>(../plugin-system/plugin-base-class?category=shopware-platform-en/plugin-system)
 
 ## Overview

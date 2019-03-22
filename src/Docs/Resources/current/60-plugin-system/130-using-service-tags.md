@@ -1,4 +1,5 @@
 [titleEn]: <>(Using Service Tags)
+[titleDe]: <>(Using Service Tags)
 [wikiUrl]: <>(../plugin-system/using-service-tags?category=shopware-platform-en/plugin-system)
 
 In this guide, you will learn how to use service tags in `Shopware`, which service tags exist and what they are used for.

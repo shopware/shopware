@@ -1,4 +1,5 @@
 [titleEn]: <>(Plugin changelog)
+[titleDe]: <>(Plugin changelog)
 [wikiUrl]: <>(../plugin-system/plugin-changelog?category=shopware-platform-en/plugin-system)
 
 ## Overview

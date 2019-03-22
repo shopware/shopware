@@ -1,4 +1,5 @@
 [titleEn]: <>(Line item)
+[titleDe]: <>(Line item)
 [wikiUrl]: <>(../checkout/line-item?category=shopware-platform-en/checkout)
 
 Every position in the cart is called `line item`. A line item can be a product, voucher, surcharge, bundle 

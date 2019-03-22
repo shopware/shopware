@@ -1,0 +1,65 @@
+{% block sw_theme_manager_list %}
+    <sw-page class="sw-theme-manager-list">
+
+        {% block sw_theme_manager_list_search_bar %}
+            <template slot="search-bar">
+                <sw-search-bar :placeholder="$tc('sw-theme-manager.general.placeholderSearchBar')"
+                               :searchType="$tc('sw-theme-manager.general.mainMenuItemIndex')"
+                               @search="this.onSearch">
+                </sw-search-bar>
+            </template>
+        {% endblock %}
+
+        {% block sw_theme_manager_list_smart_bar_header %}
+            <template slot="smart-bar-header">
+                {% block sw_theme_manager_list_smart_bar_header_title %}
+                    <h2>
+                        {% block sw_theme_manager_list_smart_bar_header_title_text %}
+                            {{ $tc('sw-theme-manager.list.textThemeOverview') }}
+                        {% endblock %}
+
+                        {% block sw_theme_manager_list_smart_bar_header_amount %}
+                            <span v-if="!isLoading" class="sw-page__smart-bar-amount">
+                                ({{ total }})
+                            </span>
+                        {% endblock %}
+                    </h2>
+                {% endblock %}
+            </template>
+        {% endblock %}
+
+        {% block sw_theme_manager_list_smart_bar_actions %}
+            <template slot="smart-bar-actions">
+            {% block sw_theme_manager_list_smart_bar_actions_add %}
+                <sw-button :routerLink="{ name: 'sw.theme.manager.create' }" variant="primary">
+                    {{ $tc('sw-theme-manager.list.buttonAddtheme') }}
+                </sw-button>
+            {% endblock %}
+            </template>
+        {% endblock %}
+
+        {% block sw_theme_manager_list_language_switch %}
+            <sw-language-switch slot="language-switch" @on-change="onChangeLanguage"></sw-language-switch>
+        {% endblock %}
+
+        <template slot="content">
+            {% block sw_theme_manager_list_content %}
+                <div class="sw-theme-manager-list__content">
+                    <b>Hier kommt der Content hin</b>
+                </div>
+            {% endblock %}
+        </template>
+
+        {% block sw_theme_manager_list_sidebar %}
+            <sw-sidebar slot="sidebar">
+                {% block sw_theme_manager_list_sidebar_refresh %}
+                    <sw-sidebar-item
+                        icon="default-arrow-360-left"
+                        :title="$tc('sw-theme-manager.list.titleSidebarItemRefresh')"
+                        @click="onRefresh">
+                    </sw-sidebar-item>
+                {% endblock %}
+            </sw-sidebar>
+        {% endblock %}
+    </sw-page>
+{% endblock %}

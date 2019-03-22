@@ -39,6 +39,13 @@
             <tag name="shopware.demodata_generator"/>
         </service>
 
+        <service id="Shopware\Core\Framework\Demodata\Generator\ThemeGenerator">
+            <argument type="service" id="theme.repository"/>
+            <argument type="service" id="sales_channel.repository"/>
+            <argument type="service" id="sales_channel_theme.repository"/>
+            <tag name="shopware.demodata_generator"/>
+        </service>
+
         <service id="Shopware\Core\Framework\Demodata\Generator\ProductManufacturerGenerator">
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriter" />
             <tag name="shopware.demodata_generator"/>

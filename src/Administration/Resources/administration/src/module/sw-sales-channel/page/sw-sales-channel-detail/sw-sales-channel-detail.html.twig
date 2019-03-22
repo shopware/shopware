@@ -38,7 +38,7 @@
                 {% block sw_sales_channel_detail_content_tabs %}
                     <sw-tabs class="sw-sales-channel-detail-__tabs">
                         {%  block sw_sales_channel_detail_content_tabs_general %}
-                            <sw-tabs-item :route="{ name: 'sw.sales.channel.detail', params: { id: $route.params.id } }"
+                            <sw-tabs-item :route="{ name: 'sw.sales.channel.detail.base', params: { id: $route.params.id } }"
                                           :title="$tc('sw-sales-channel.detail.tabBase')">
                                 {{ $tc('sw-sales-channel.detail.tabBase') }}
                             </sw-tabs-item>

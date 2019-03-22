@@ -35,6 +35,10 @@
             <!--<tag name="shopware.dbal_indexing.indexer"/>-->
         </service>
 
+        <service id="Shopware\Storefront\Framework\Theme\ThemeDefinition" >
+            <tag name="shopware.entity.definition" entity="theme" />
+        </service>
+
         <service id="Shopware\Storefront\Framework\Twig\ErrorTemplateResolver" public="false">
             <argument type="service" id="twig"/>
         </service>
@@ -70,6 +74,9 @@
         </service>
 
         <service id="Shopware\Storefront\Framework\Seo\SalesChannelExtension">
+            <tag name="shopware.entity.extension"/>
+        </service>
+        <service id="Shopware\Storefront\Framework\Theme\SalesChannelExtension">
             <tag name="shopware.entity.extension"/>
         </service>
 

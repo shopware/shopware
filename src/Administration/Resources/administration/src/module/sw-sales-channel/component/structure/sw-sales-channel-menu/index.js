@@ -72,6 +72,16 @@ Component.register('sw-sales-channel-menu', {
             });
 
             this.menuItems = flatTree.convertToTree();
+            // ToDo: only show theme manager in the storefront
+            this.menuItems.forEach((item) => {
+                item.children = [{
+                    children: [],
+                    label: this.$tc('sw-theme-manager.general.mainMenuItemIndex'),
+                    parent: 'sw-sales-channel',
+                    path: 'sw.theme.manager.index',
+                    position: 1000
+                }];
+            });
         }
     }
 });

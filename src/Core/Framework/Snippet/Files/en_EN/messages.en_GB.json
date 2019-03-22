@@ -184,6 +184,13 @@
         "priceUnitName": "Content:"
     },
     "footer": {
+        "serviceHotlineHeadline": "Service Hotline",
+        "shopServiceHeadline": "Shop Service",
+        "informationHeadline": "Information",
+        "newsletterHeadline": "Newsletter",
+        "serviceHotline": "Telephone support and counselling under: <a href='tel:+49180000000'>0180 - 000000</a> Mon-Fri, 9 am - 5 pm",
+        "newsletterInput": "Your E-Mail Address",
+        "newsletter": "Subscribe now to our regularly released newsletter and be informed about the latest products and special offers.",
         "includeVat": "* All prices incl. value added tax",
         "excludeVat": "* All prices are quoted net of the statutory value-added tax and <a href='#'>shipping costs</a> and possibly delivery charges, if not otherwise described"
     },

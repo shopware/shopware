@@ -27,7 +27,7 @@ class VariantCombinationLoader
         $query->where('product.parent_id = :id');
         $query->andWhere('product.version_id = :versionId');
         $query->setParameter('id', Uuid::fromHexToBytes($productId));
-        $query->setParameter('id', Uuid::fromHexToBytes($context->getVersionId()));
+        $query->setParameter('versionId', Uuid::fromHexToBytes($context->getVersionId()));
         $query->andWhere('product.variation_ids IS NOT NULL');
 
         $combinations = $query->execute()->fetchAll();

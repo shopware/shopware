@@ -70,6 +70,11 @@ class StorefrontCheckoutControllerTest extends TestCase
      */
     private $shippingMethodRepository;
 
+    /**
+     * @var EntityRepositoryInterface
+     */
+    private $paymentMethodRepository;
+
     protected function setUp(): void
     {
         parent::setUp();
@@ -80,9 +85,15 @@ class StorefrontCheckoutControllerTest extends TestCase
         $this->mediaRepository = $this->getContainer()->get('media.repository');
         $this->currencyRepository = $this->getContainer()->get('currency.repository');
         $this->shippingMethodRepository = $this->getContainer()->get('shipping_method.repository');
+        $this->paymentMethodRepository = $this->getContainer()->get('payment_method.repository');
         $this->taxId = Uuid::uuid4()->getHex();
         $this->manufacturerId = Uuid::uuid4()->getHex();
         $this->context = Context::createDefaultContext();
+
+        // reset rules
+        $ruleLoader = $this->getContainer()->get(CheckoutRuleLoader::class);
+        $rulesProperty = ReflectionHelper::getProperty(CheckoutRuleLoader::class, 'rules');
+        $rulesProperty->setValue($ruleLoader, null);
     }
 
     public function testOrderProcess(): void
@@ -648,6 +659,73 @@ class StorefrontCheckoutControllerTest extends TestCase
         static::assertCount(0, $content['data']['errors']);
     }
 
+    public function testUnavailablePaymentMethodIsBlock(): void
+    {
+        static::markTestSkipped('This tests needs the recalculation of the cart');
+
+        $productId = Uuid::uuid4()->getHex();
+        $context = Context::createDefaultContext();
+
+        $this->productRepository->create([
+            [
+                'id' => $productId,
+                'name' => 'Test',
+                'price' => ['gross' => 10, 'net' => 9],
+                'manufacturer' => ['id' => $this->manufacturerId, 'name' => 'test'],
+                'tax' => ['id' => $this->taxId, 'taxRate' => 17, 'name' => 'with id'],
+            ],
+        ], $context);
+
+        $unavailablePaymentMethodId = Uuid::uuid4()->getHex();
+
+        $this->paymentMethodRepository->create([
+            [
+                'id' => $unavailablePaymentMethodId,
+                'technicalName' => 'Unavailable',
+                'name' => 'Unavailable',
+                'position' => 0,
+                'active' => true,
+                'availabilityRules' => [
+                    [
+                        'name' => 'Cart > 50',
+                        'priority' => 100,
+                        'conditions' => [
+                            [
+                                'type' => (new CartAmountRule())->getName(),
+                                'value' => [
+                                    'amount' => 50,
+                                    'operator' => '>',
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+        ], $context);
+
+        $ruleLoader = $this->getContainer()->get(CheckoutRuleLoader::class);
+        $rulesProperty = ReflectionHelper::getProperty(CheckoutRuleLoader::class, 'rules');
+        $rulesProperty->setValue($ruleLoader, null);
+
+        $client = $this->createCart();
+        $this->addProduct($client, $productId);
+        $content = json_decode($client->getResponse()->getContent(), true);
+        static::assertArrayHasKey('errors', $content['data']);
+        static::assertCount(0, $content['data']['errors']);
+
+        $this->setPaymentMethod($unavailablePaymentMethodId, $client);
+        $this->addProduct($client, $productId);
+        $content = json_decode($client->getResponse()->getContent(), true);
+        static::assertArrayHasKey('errors', $content['data']);
+        static::assertCount(1, $content['data']['errors']);
+
+        // add products with amount > 50
+        $this->addProduct($client, $productId, 10);
+        $content = json_decode($client->getResponse()->getContent(), true);
+        static::assertArrayHasKey('errors', $content['data']);
+        static::assertCount(0, $content['data']['errors']);
+    }
+
     private function createGuestOrder()
     {
         $productId = Uuid::uuid4()->getHex();
@@ -734,6 +812,22 @@ class StorefrontCheckoutControllerTest extends TestCase
                     'name' => 'test',
                     'additionalDescription' => 'test',
                     'technicalName' => Uuid::uuid4()->getHex(),
+                    'availabilityRules' => [
+                        [
+                            'id' => Uuid::uuid4()->getHex(),
+                            'name' => 'true',
+                            'priority' => 0,
+                            'conditions' => [
+                                [
+                                    'type' => 'cartCartAmount',
+                                    'value' => [
+                                        'operator' => '>=',
+                                        'amount' => 0,
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
                 ],
                 'groupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
                 'email' => $mail,
@@ -800,6 +894,13 @@ class StorefrontCheckoutControllerTest extends TestCase
     {
         $client->request('PATCH', '/storefront-api/v1/context', [
             'shippingMethodId' => $shippingId,
+        ]);
+    }
+
+    private function setPaymentMethod(string $paymentMethodId, Client $client): void
+    {
+        $client->request('PATCH', '/storefront-api/v1/context', [
+            'paymentMethodId' => $paymentMethodId,
         ]);
     }
 }

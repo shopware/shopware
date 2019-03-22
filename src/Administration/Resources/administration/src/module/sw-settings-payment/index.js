@@ -1,10 +1,10 @@
 import { Module } from 'src/core/shopware';
+import { NEXT687 } from 'src/flag/feature_next687';
 
 import './extension/sw-settings-index';
 import './page/sw-settings-payment-list';
 import './page/sw-settings-payment-detail';
 import './page/sw-settings-payment-create';
-import { NEXT687 } from 'src/flag/feature_next687';
 
 import deDE from './snippet/de_DE.json';
 import enGB from './snippet/en_GB.json';
@@ -45,5 +45,13 @@ Module.register('sw-settings-payment', {
                 parentPath: 'sw.settings.payment.index'
             }
         }
-    }
+    },
+    navigation: [{
+        label: 'sw-settings-payment.general.mainMenuItemGeneral',
+        id: 'sw-settings-payment',
+        color: '#9AA8B5',
+        icon: 'default-action-settings',
+        path: 'sw.settings.payment.index',
+        parent: 'sw-settings'
+    }]
 });

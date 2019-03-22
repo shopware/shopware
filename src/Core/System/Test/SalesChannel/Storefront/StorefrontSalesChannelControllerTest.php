@@ -147,7 +147,7 @@ class StorefrontSalesChannelControllerTest extends TestCase
         $content = json_decode($response->getContent(), true);
 
         foreach ($content['data'] as $paymentMethod) {
-            if (!$paymentMethod['id'] === $originalPaymentMethod['id']) {
+            if ($paymentMethod['id'] !== $originalPaymentMethod['id']) {
                 continue;
             }
 
@@ -245,6 +245,59 @@ class StorefrontSalesChannelControllerTest extends TestCase
         static::assertEquals(1, $content['total']);
 
         static::assertSame(Defaults::SHIPPING_METHOD, $content['data'][0]['id']);
+    }
+
+    public function testGetSalesChannelPaymentMethodsWithoutUnavailable(): void
+    {
+        $originalPaymentMethod = $this->addPaymentMethod();
+        $this->addUnavailablePaymentMethod();
+
+        $this->getStorefrontClient()->request('GET', '/storefront-api/v1/payment-method');
+        $response = $this->getStorefrontClient()->getResponse();
+        static::assertEquals(200, $response->getStatusCode());
+
+        $content = json_decode($response->getContent(), true);
+
+        static::assertCount(4, $content['data'], print_r($content['data'], true));
+
+        foreach ($content['data'] as $shippingMethod) {
+            if ($shippingMethod['id'] !== $originalPaymentMethod['id']) {
+                continue;
+            }
+
+            $this->silentAssertArraySubset($originalPaymentMethod, $shippingMethod);
+
+            return;
+        }
+
+        static::fail('Unable to find payment method');
+    }
+
+    public function testGetMultiSalesChannelPaymentMethods(): void
+    {
+        $originalPaymentMethod = $this->addPaymentMethod();
+        $this->addPaymentMethod();
+
+        $this->getStorefrontClient()->request('GET', '/storefront-api/v1/payment-method');
+        $response = $this->getStorefrontClient()->getResponse();
+        static::assertEquals(200, $response->getStatusCode());
+
+        $content = json_decode($response->getContent(), true);
+
+        static::assertGreaterThanOrEqual(5, count($content['data']));
+        static::assertCount($content['total'], $content['data']);
+
+        foreach ($content['data'] as $shippingMethod) {
+            if ($shippingMethod['id'] !== $originalPaymentMethod['id']) {
+                continue;
+            }
+
+            $this->silentAssertArraySubset($originalPaymentMethod, $shippingMethod);
+
+            return;
+        }
+
+        static::fail('Unable to find payment method');
     }
 
     private function sortById(&$array): void
@@ -361,14 +414,34 @@ class StorefrontSalesChannelControllerTest extends TestCase
             'name' => 'PayPal',
             'technicalName' => Uuid::uuid4()->getHex(),
             'description' => 'My payment method',
+            'availabilityRules' => [
+                [
+                    'id' => Uuid::uuid4()->getHex(),
+                    'name' => 'Rule',
+                    'priority' => 100,
+                    'conditions' => [
+                        [
+                            'type' => 'cartCartAmount',
+                            'value' => [
+                                'operator' => '>=',
+                                'amount' => 0,
+                            ],
+                        ],
+                    ],
+                ],
+            ],
         ];
         $data = [
             'id' => $this->getStorefrontApiSalesChannelId(),
             'paymentMethods' => [
+                ['id' => Defaults::PAYMENT_METHOD_INVOICE],
+                ['id' => Defaults::PAYMENT_METHOD_DEBIT],
+                ['id' => Defaults::PAYMENT_METHOD_SEPA],
                 $paymentMethod,
             ],
         ];
         $this->salesChannelRepository->update([$data], $this->context);
+        unset($paymentMethod['availabilityRules']);
 
         return $paymentMethod;
     }
@@ -420,6 +493,28 @@ class StorefrontSalesChannelControllerTest extends TestCase
             'id' => $this->getStorefrontApiSalesChannelId(),
             'shippingMethods' => [
                 ['id' => Defaults::SHIPPING_METHOD],
+                $shippingMethod,
+            ],
+        ];
+        $this->salesChannelRepository->update([$data], $this->context);
+
+        return $shippingMethod;
+    }
+
+    private function addUnavailablePaymentMethod(): array
+    {
+        $shippingMethod = [
+            'id' => Uuid::uuid4()->getHex(),
+            'technicalName' => 'Unavailable',
+            'name' => 'Special payment',
+            'position' => 4,
+            'active' => true,
+        ];
+        $data = [
+            'id' => $this->getStorefrontApiSalesChannelId(),
+            'paymentMethodId' => Defaults::PAYMENT_METHOD_INVOICE,
+            'paymentMethods' => [
+                ['id' => Defaults::PAYMENT_METHOD_INVOICE],
                 $shippingMethod,
             ],
         ];

@@ -18,6 +18,7 @@ use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Context\CheckoutContextFactory;
 use Shopware\Core\Checkout\Context\CheckoutContextService;
 use Shopware\Core\Checkout\Order\OrderDefinition;
+use Shopware\Core\Checkout\Test\Cart\Common\TrueRule;
 use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductPriceRule\ProductPriceRuleEntity;
@@ -38,10 +39,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\EntityAggregatorInterfac
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\VersionManager;
+use Shopware\Core\Framework\Rule\Collector\RuleConditionRegistry;
 use Shopware\Core\Framework\Rule\Container\AndRule;
 use Shopware\Core\Framework\Struct\ArrayEntity;
 use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
 use Shopware\Core\System\Tax\TaxDefinition;
 
 class VersioningTest extends TestCase
@@ -1670,15 +1673,19 @@ class VersioningTest extends TestCase
                 ->setPriceDefinition(new QuantityPriceDefinition(10, new TaxRuleCollection(), 2))
         );
 
+        $ruleId = Uuid::uuid4()->getHex();
         $customerId = $this->createCustomer();
+        $paymentMethodId = $this->createPaymentMethod($ruleId);
 
         $context = $this->checkoutContextFactory->create(
             Uuid::uuid4()->getHex(),
             Defaults::SALES_CHANNEL,
             [
                 CheckoutContextService::CUSTOMER_ID => $customerId,
+                CheckoutContextService::PAYMENT_METHOD_ID => $paymentMethodId,
             ]
         );
+        $context->setRuleIds([$ruleId]);
 
         $cart = $this->processor->process($cart, $context, new CartBehaviorContext());
 
@@ -1783,5 +1790,39 @@ class VersioningTest extends TestCase
         }, $data);
 
         return $data;
+    }
+
+    private function createPaymentMethod(string $ruleId): string
+    {
+        $paymentMethodId = Uuid::uuid4()->getHex();
+        $repository = $this->getContainer()->get('payment_method.repository');
+
+        $ruleRegistry = $this->getContainer()->get(RuleConditionRegistry::class);
+        $prop = ReflectionHelper::getProperty(RuleConditionRegistry::class, 'rules');
+        $prop->setValue($ruleRegistry, array_merge($prop->getValue($ruleRegistry), ['true' => new TrueRule()]));
+
+        $data = [
+            'id' => $paymentMethodId,
+            'technicalName' => 'Payment',
+            'name' => 'Payment',
+            'active' => true,
+            'position' => 0,
+            'availabilityRules' => [
+                [
+                    'id' => $ruleId,
+                    'name' => 'true',
+                    'priority' => 0,
+                    'conditions' => [
+                        [
+                            'type' => 'true',
+                        ],
+                    ],
+                ],
+            ],
+        ];
+
+        $repository->create([$data], $this->context);
+
+        return $paymentMethodId;
     }
 }

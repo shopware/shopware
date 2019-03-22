@@ -26,8 +26,7 @@ module.exports = {
 
         browser
             .click(page.elements.smartBarBack)
-            .waitForElementNotPresent(page.elements.loader)
-            .expect.element(`${page.elements.gridRow}--1 ${page.elements.columnName}`).to.have.text.that.contains('Rule 1st');
+            .waitForElementNotPresent(page.elements.loader);
 
         browser
             .fillGlobalSearchField('Rule 1st')

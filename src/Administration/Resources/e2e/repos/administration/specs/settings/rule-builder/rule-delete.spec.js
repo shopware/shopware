@@ -18,24 +18,26 @@ module.exports = {
     'find rule to be deleted': (browser) => {
         const page = ruleBuilderPage(browser);
 
-        browser.expect.element(`${page.elements.gridRow}--1 ${page.elements.columnName}`).to.have.text.that.contains(global.AdminFixtureService.basicFixture.name);
+        browser
+            .fillGlobalSearchField(global.AdminFixtureService.basicFixture.name)
+            .expect.element(`${page.elements.gridRow}--0 ${page.elements.columnName}`).to.have.text.that.contains(global.AdminFixtureService.basicFixture.name);
     },
     'delete rule': (browser) => {
         const page = ruleBuilderPage(browser);
 
         browser
-            .expect.element(`${page.elements.gridRow}--1 ${page.elements.columnName}`).to.have.text.that.contains(global.AdminFixtureService.basicFixture.name);
+            .expect.element(`${page.elements.gridRow}--0 ${page.elements.columnName}`).to.have.text.that.contains(global.AdminFixtureService.basicFixture.name);
 
 
         browser
-            .clickContextMenuItem('.sw-context-menu-item--danger', `${page.elements.gridRow}--1 ${page.elements.contextMenuButton}`)
+            .clickContextMenuItem('.sw-context-menu-item--danger', `${page.elements.gridRow}--0 ${page.elements.contextMenuButton}`)
             .waitForElementVisible('.sw-modal')
             .expect.element('.sw-settings-rule-list__confirm-delete-text').to.have.text.that.contains(`Are you sure you want to delete the rule "${global.AdminFixtureService.basicFixture.name}"?`);
 
 
         browser.click('.sw-modal__footer button.sw-button--primary')
             .waitForElementNotPresent('.sw-modal')
-            .expect.element(page.elements.smartBarAmount).to.have.text.that.contains('(1)');
+            .expect.element(page.elements.smartBarAmount).to.have.text.that.contains('(0)');
     },
     after: (browser) => {
         browser.end();

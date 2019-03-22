@@ -19,6 +19,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\SearchRanking;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FloatField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IntField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\ListField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
@@ -27,6 +28,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\UpdatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\Plugin\PluginDefinition;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelPaymentMethod\SalesChannelPaymentMethodDefinition;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
@@ -48,6 +50,17 @@ class PaymentMethodDefinition extends EntityDefinition
         return PaymentMethodEntity::class;
     }
 
+    public static function getDefaults(EntityExistence $existence): array
+    {
+        if ($existence->exists()) {
+            return [];
+        }
+
+        return [
+            'availabilityRuleIds' => [],
+        ];
+    }
+
     protected static function defineFields(): FieldCollection
     {
         return new FieldCollection([
@@ -65,6 +78,7 @@ class PaymentMethodDefinition extends EntityDefinition
             new IntField('position', 'position'),
             new BoolField('active', 'active'),
             new TranslatedField('attributes'),
+            new ListField('availability_rule_ids', 'availabilityRuleIds', IdField::class),
             new CreatedAtField(),
             new UpdatedAtField(),
             (new OneToManyAssociationField('salesChannelDefaultAssignments', SalesChannelDefinition::class, 'payment_method_id', false, 'id'))->addFlags(new RestrictDelete()),

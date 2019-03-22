@@ -81,7 +81,7 @@ class CheckoutConfirmPageLoader implements PageLoaderInterface
         /** @var PaymentMethodCollection $paymentMethods */
         $paymentMethods = $this->paymentMethodRepository->search($criteria, $context->getContext())->getEntities();
 
-        return $paymentMethods;
+        return $paymentMethods->filterByActiveRules($context);
     }
 
     private function getShippingMethods(CheckoutContext $context): ShippingMethodCollection

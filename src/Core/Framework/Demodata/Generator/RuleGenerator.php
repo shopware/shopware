@@ -9,6 +9,7 @@ use Shopware\Core\Content\Rule\RuleDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriterInterface;
@@ -50,7 +51,18 @@ class RuleGenerator implements DemodataGeneratorInterface
     {
         $criteria = (new Criteria())->addFilter(
             new NotFilter(
-                NotFilter::CONNECTION_AND, [new EqualsFilter('rule.shippingMethods.id', Defaults::SHIPPING_METHOD)]
+                NotFilter::CONNECTION_AND, [
+                    new EqualsFilter('rule.shippingMethods.id', Defaults::SHIPPING_METHOD),
+                    new EqualsAnyFilter(
+                        'rule.paymentMethods.id', [
+                            Defaults::PAYMENT_METHOD_SEPA,
+                            Defaults::PAYMENT_METHOD_PAID_IN_ADVANCE,
+                            Defaults::PAYMENT_METHOD_INVOICE,
+                            Defaults::PAYMENT_METHOD_DEBIT,
+                            Defaults::PAYMENT_METHOD_CASH_ON_DELIVERY,
+                        ]
+                    ),
+                ]
             )
         );
 

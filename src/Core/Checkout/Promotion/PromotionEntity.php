@@ -7,6 +7,7 @@ use Shopware\Core\Checkout\Promotion\Aggregate\PromotionSalesChannel\PromotionSa
 use Shopware\Core\Content\Rule\RuleEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 class PromotionEntity extends Entity
 {
@@ -14,6 +15,7 @@ class PromotionEntity extends Entity
     public const CODE_TYPE_NO_CODE = 'no_code';
     public const CODE_TYPE_STANDARD = 'standard';
     public const CODE_TYPE_INDIVIDUAL = 'individual';
+
     /**
      * @var string|null
      */
@@ -104,9 +106,7 @@ class PromotionEntity extends Entity
      */
     protected $promotionSalesChannels;
 
-    /**
-     * @var string|null
-     */
+    /** @var string|null */
     protected $code;
 
     /**
@@ -284,16 +284,6 @@ class PromotionEntity extends Entity
         $this->codeType = $codeType;
     }
 
-    public function getCode(): ?string
-    {
-        return $this->code;
-    }
-
-    public function setCode(string $code): void
-    {
-        $this->code = $code;
-    }
-
     public function getDiscounts(): ?PromotionDiscountCollection
     {
         return $this->discounts;
@@ -312,5 +302,49 @@ class PromotionEntity extends Entity
     public function setPromotionSalesChannels(PromotionSalesChannelCollection $promotionSalesChannels): void
     {
         $this->promotionSalesChannels = $promotionSalesChannels;
+    }
+
+    public function getCode(): ?string
+    {
+        return $this->code;
+    }
+
+    public function setCode(?string $code): void
+    {
+        $this->code = $code;
+    }
+
+    /**
+     * Gets if the promotion is valid in the current context
+     * based on its Persona Rule configuration.
+     */
+    public function isPersonaValid(SalesChannelContext $context): bool
+    {
+        if ($this->getPersonaRule() === null) {
+            return true;
+        }
+
+        // verify if our persona rule from our promotion
+        // is part of our existing rules within the checkout context
+        if (!in_array($this->getPersonaRule()->getId(), $context->getRuleIds(), true)) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Gets if the promotion is valid in the current context
+     * based on its Scope Rule configuration.
+     */
+    public function isScopeValid(SalesChannelContext $context): bool
+    {
+        if ($this->getScopeRule() === null) {
+            return true;
+        }
+
+        // verify if our scope rule from our promotion
+        // is part of our existing rules within the checkout context
+        return in_array($this->getScopeRule()->getId(), $context->getRuleIds(), true);
     }
 }

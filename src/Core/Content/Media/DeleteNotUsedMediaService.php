@@ -30,7 +30,7 @@ class DeleteNotUsedMediaService
     public function countNotUsedMedia(Context $context): int
     {
         $criteria = $this->createFilterForNotUsedMedia($context);
-        $criteria->setLimit(0);
+        $criteria->setLimit(1);
         $criteria->setTotalCountMode(Criteria::TOTAL_COUNT_MODE_EXACT);
 
         return $this->mediaRepo->search($criteria, $context)->getTotal();

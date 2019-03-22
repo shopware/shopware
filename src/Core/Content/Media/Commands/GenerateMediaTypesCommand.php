@@ -93,7 +93,7 @@ class GenerateMediaTypesCommand extends Command
     {
         $criteria = new Criteria();
         $criteria->setTotalCountMode(Criteria::TOTAL_COUNT_MODE_EXACT);
-        $criteria->setLimit(0);
+        $criteria->setLimit(1);
         $result = $this->mediaRepository->search($criteria, $context);
 
         return $result->getTotal();

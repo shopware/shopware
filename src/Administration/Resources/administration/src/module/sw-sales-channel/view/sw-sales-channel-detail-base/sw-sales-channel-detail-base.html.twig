@@ -88,6 +88,16 @@
                                v-if="!next1387 || !isStoreFront">
                     </sw-select>
                 {% endblock %}
+
+                {% block sw_sales_channel_detail_base_general_input_customer_group %}
+                    <sw-select id="customerGroup"
+                               class="sw-sales-channel-detail__select-customer-group"
+                               validation="required"
+                               :label="$tc('sw-sales-channel.detail.customerGroup')"
+                               :store="customerGroupStore"
+                               v-model="salesChannel.customerGroupId">
+                    </sw-select>
+                {% endblock %}
             </sw-card>
         {% endblock %}
 

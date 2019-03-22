@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\SalesChannel;
 
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupEntity;
 use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
@@ -219,6 +220,16 @@ class SalesChannelEntity extends Entity
      * @var MailHeaderFooterEntity|null
      */
     protected $mailHeaderFooter;
+
+    /**
+     * @var string
+     */
+    protected $customerGroupId;
+
+    /**
+     * @var CustomerGroupEntity
+     */
+    protected $customerGroup;
 
     public function getMailHeaderFooter(): ?MailHeaderFooterEntity
     {
@@ -598,5 +609,25 @@ class SalesChannelEntity extends Entity
     public function setNumberRanges(?NumberRangeCollection $numberRanges): void
     {
         $this->numberRanges = $numberRanges;
+    }
+
+    public function getCustomerGroupId(): string
+    {
+        return $this->customerGroupId;
+    }
+
+    public function setCustomerGroupId(string $customerGroupId): void
+    {
+        $this->customerGroupId = $customerGroupId;
+    }
+
+    public function getCustomerGroup(): CustomerGroupEntity
+    {
+        return $this->customerGroup;
+    }
+
+    public function setCustomerGroup(CustomerGroupEntity $customerGroup): void
+    {
+        $this->customerGroup = $customerGroup;
     }
 }

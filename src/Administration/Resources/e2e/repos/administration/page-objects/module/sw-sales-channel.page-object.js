@@ -24,7 +24,7 @@ class SalesChannelPageObject extends GeneralPageObject {
         this.browser
             .fillField(this.elements.salesChannelNameInput, salesChannelName)
             .fillSwSelectComponent(
-                '.sw-sales-channel-detail__select-payment-method ',
+                '.sw-sales-channel-detail__select-payment-method',
                 {
                     value: 'Direct Debit',
                     isMulti: true,
@@ -32,7 +32,7 @@ class SalesChannelPageObject extends GeneralPageObject {
                 }
             )
             .fillSwSelectComponent(
-                '.sw-sales-channel-detail__select-shipping-method ',
+                '.sw-sales-channel-detail__select-shipping-method',
                 {
                     value: 'Standard',
                     isMulti: true,
@@ -40,7 +40,7 @@ class SalesChannelPageObject extends GeneralPageObject {
                 }
             )
             .fillSwSelectComponent(
-                '.sw-sales-channel-detail__select-countries ',
+                '.sw-sales-channel-detail__select-countries',
                 {
                     value: 'Germany',
                     isMulti: true,
@@ -48,7 +48,7 @@ class SalesChannelPageObject extends GeneralPageObject {
                 }
             )
             .fillSwSelectComponent(
-                '.sw-sales-channel-detail__select-currencies ',
+                '.sw-sales-channel-detail__select-currencies',
                 {
                     value: 'Euro',
                     isMulti: true,
@@ -56,11 +56,19 @@ class SalesChannelPageObject extends GeneralPageObject {
                 }
             )
             .fillSwSelectComponent(
-                '.sw-sales-channel-detail__select-languages ',
+                '.sw-sales-channel-detail__select-languages',
                 {
                     value: 'Deutsch',
                     isMulti: true,
                     searchTerm: 'Deutsch'
+                }
+            )
+            .fillSwSelectComponent(
+                '.sw-sales-channel-detail__select-customer-group',
+                {
+                    value: 'Standard customer group',
+                    isMulti: false,
+                    searchTerm: 'Standard'
                 }
             )
             .click(this.elements.salesChannelSaveAction)

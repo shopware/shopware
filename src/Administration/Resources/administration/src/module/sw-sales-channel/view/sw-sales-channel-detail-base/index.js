@@ -62,6 +62,10 @@ Component.register('sw-sales-channel-detail-base', {
             return this.salesChannel.getAssociation('currencies');
         },
 
+        customerGroupStore() {
+            return State.getStore('customer_group');
+        },
+
         languageStore() {
             return State.getStore('language');
         },

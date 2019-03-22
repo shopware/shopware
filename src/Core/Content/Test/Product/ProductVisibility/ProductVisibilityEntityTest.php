@@ -167,6 +167,7 @@ class ProductVisibilityEntityTest extends TestCase
             'paymentMethods' => [['id' => Defaults::PAYMENT_METHOD_INVOICE]],
             'countries' => [['id' => Defaults::COUNTRY]],
             'name' => 'first sales-channel',
+            'customerGroupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
         ];
 
         $this->getContainer()->get('sales_channel.repository')->create([$data], Context::createDefaultContext());

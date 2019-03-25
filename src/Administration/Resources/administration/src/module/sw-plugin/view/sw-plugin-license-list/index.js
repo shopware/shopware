@@ -42,6 +42,7 @@ Component.register('sw-plugin-license-list', {
                     });
                 }
                 this.getList();
+                this.$root.$emit('sw-plugin-refresh-last-updates');
             });
         },
 

@@ -17,6 +17,10 @@
     .plugin-manager-sidebar {
         position: absolute;
         top: 100px;
+
+        .external-icon {
+            margin-left: 6px;
+        }
     }
 
     .sw-empty-state {

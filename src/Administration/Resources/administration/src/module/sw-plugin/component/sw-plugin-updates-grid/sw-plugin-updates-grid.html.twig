@@ -5,9 +5,14 @@
                 {% block sw_plugin_updates_grid_top_actions_header %}
                     <h1>{{ $tc('sw-plugin.updates.updateHeader') }}</h1>
                 {% endblock %}
-                {% block sw_plugin_updates_grid_top_actions_updateAll %}
-                    <sw-button variant="ghost" @click="updateAll()">
+                {% block sw_plugin_updates_grid_top_actions_update_all %}
+                    <sw-button v-if="updateQueue.length === 0" variant="ghost" @click="updateAll()">
                         {{ $tc('sw-plugin.updates.updateAllButton') }}
+                    </sw-button>
+                {% endblock %}
+                {% block sw_plugin_updates_grid_top_actions_cancel_updates %}
+                    <sw-button v-if="updateQueue.length !== 0" variant="ghost" @click="cancelUpdates()">
+                        {{ $tc('sw-plugin.updates.cancelUpdates') }}
                     </sw-button>
                 {% endblock %}
             </div>

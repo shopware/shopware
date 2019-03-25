@@ -10,6 +10,7 @@ import './component/sw-plugin-store-login-status';
 import './component/sw-plugin-updates-grid';
 import './component/sw-plugin-last-updates-grid';
 import './component/sw-plugin-table-entry';
+import './extension/sw-settings-index';
 
 import deDE from './snippet/de_DE.json';
 import enGB from './snippet/en_GB.json';

@@ -21,13 +21,18 @@ $sw-media-modal-non-grid-margin: 0 24px;
     }
 
     .sw-media-modal__tabs {
-        display: grid;
-        grid-template-rows: auto 1fr;
+        max-width: unset;
+        width: 100%;
+        padding: 15px 30px;
 
         .sw-tabs__bar {
             margin: 0 24px 40px;
             max-width: unset;
         }
+    }
+
+    .sw-tabs .sw-tabs__custom-Content {
+        height: 100%;
     }
 
     .sw-media-modal__tab-content {

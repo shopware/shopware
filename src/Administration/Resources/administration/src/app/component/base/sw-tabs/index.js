@@ -171,13 +171,17 @@ export default {
             this.$nextTick().then(() => {
                 this.$children.forEach((item, i) => {
                     const firstChild = item.$children[0] || item;
-                    const linkIsActive = firstChild ? firstChild.$el.classList.contains('sw-tabs-item--active') : undefined;
-                    if (linkIsActive) {
-                        this.activeItem = i;
-                        if (!this.firstScroll) {
-                            this.scrollToItem(firstChild);
+                    if (firstChild.$el.classList) {
+                        const linkIsActive = firstChild
+                            ? firstChild.$el.classList.contains('sw-tabs-item--active')
+                            : undefined;
+                        if (linkIsActive) {
+                            this.activeItem = i;
+                            if (!this.firstScroll) {
+                                this.scrollToItem(firstChild);
+                            }
+                            this.firstScroll = true;
                         }
-                        this.firstScroll = true;
                     }
                 });
             });

@@ -15,7 +15,12 @@ class SalutationTranslationEntity extends TranslationEntity
     /**
      * @var string|null
      */
-    protected $name;
+    protected $displayName;
+
+    /**
+     * @var string|null
+     */
+    protected $letterName;
 
     /**
      * @var SalutationEntity|null
@@ -32,14 +37,24 @@ class SalutationTranslationEntity extends TranslationEntity
         $this->salutationId = $salutationId;
     }
 
-    public function getName(): ?string
+    public function getDisplayName(): ?string
     {
-        return $this->name;
+        return $this->displayName;
     }
 
-    public function setName(?string $name): void
+    public function setDisplayName(?string $displayName): void
     {
-        $this->name = $name;
+        $this->displayName = $displayName;
+    }
+
+    public function getLetterName(): ?string
+    {
+        return $this->letterName;
+    }
+
+    public function setLetterName(?string $letterName): void
+    {
+        $this->letterName = $letterName;
     }
 
     public function getSalutation(): ?SalutationEntity

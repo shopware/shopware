@@ -23,7 +23,7 @@ export default class OrderFixtureService extends StorefrontFixtureService {
         return global.AdminFixtureService.getClientId().then((result) => {
             return this.apiClient.setAccessKey(result);
         }).then(() => {
-            return this.search('salutation', { value: 'Mr.' });
+            return this.search('salutation', { identifier: 'displayName', value: 'Mr.' });
         }).then((salutation) => {
             salutationId = salutation.id;
         }).then(() => {

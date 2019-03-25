@@ -33,7 +33,8 @@ class SalutationTranslationDefinition extends EntityTranslationDefinition
     protected static function defineFields(): FieldCollection
     {
         return new FieldCollection([
-            (new StringField('name', 'name'))->addFlags(new Required()),
+            (new StringField('display_name', 'displayName'))->addFlags(new Required()),
+            (new StringField('letter_name', 'letterName'))->addFlags(new Required()),
         ]);
     }
 }

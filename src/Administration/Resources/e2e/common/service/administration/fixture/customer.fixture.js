@@ -65,7 +65,7 @@ export default class CustomerFixtureService extends AdminFixtureService {
         }).then(() => {
             return this.apiClient.post('/v1/search/salutation?response=true', {
                 filter: [{
-                    field: 'name',
+                    field: 'displayName',
                     type: 'equals',
                     value: 'Mr.'
                 }]

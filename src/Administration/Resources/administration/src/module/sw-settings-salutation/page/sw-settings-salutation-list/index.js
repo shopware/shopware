@@ -43,19 +43,24 @@ Component.register('sw-settings-salutation-list', {
                 inlineEdit: 'string',
                 primary: true
             }, {
-                property: 'name',
-                label: this.$tc('sw-settings-salutation.list.columnName'),
-                dataIndex: 'name',
+                property: 'displayName',
+                label: this.$tc('sw-settings-salutation.list.columnDisplayName'),
+                dataIndex: 'displayName',
                 inlineEdit: 'string',
                 primary: true
+            }, {
+                property: 'letterName',
+                label: this.$tc('sw-settings-salutation.list.columnLetterName'),
+                dataIndex: 'letterName',
+                inlineEdit: 'string'
             }];
         },
 
-        getInlinePlaceholder(entity) {
+        getInlinePlaceholder(entity, field = 'displayName') {
             return this.placeholder(
                 entity,
-                'name',
-                this.$tc('sw-settings-salutation.list.fieldNamePlaceholder')
+                field,
+                this.$tc('sw-settings-salutation.list.fieldDisplayNamePlaceholder')
             );
         },
 

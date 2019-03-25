@@ -63,21 +63,6 @@ Component.register('sw-customer-detail', {
             return State.getStore('payment_method');
         },
 
-        customerName() {
-            const customer = this.customer;
-
-            if (!customer || (!customer.salutation && !customer.title && !customer.firstName && !customer.lastName)) {
-                return '';
-            }
-
-            const salutation = customer.salutation ? customer.salutation : '';
-            const title = customer.title ? customer.title : '';
-            const firstName = customer.firstName ? customer.firstName : '';
-            const lastName = customer.lastName ? customer.lastName : '';
-
-            return `${salutation} ${title} ${firstName} ${lastName}`.trim();
-        },
-
         isCreateCustomer() {
             return this.$route.name.includes('sw.customer.create');
         },

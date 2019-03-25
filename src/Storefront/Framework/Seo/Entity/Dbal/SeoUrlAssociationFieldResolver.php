@@ -2,18 +2,16 @@
 
 namespace Shopware\Storefront\Framework\Seo\Entity\Dbal;
 
-use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\FieldResolver\FieldResolverInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\QueryBuilder;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
-use Shopware\Core\Framework\SourceContext;
 use Shopware\Core\Framework\Struct\Uuid;
-use Shopware\Storefront\Framework\Seo\Entity\Field\CanonicalUrlAssociationField;
+use Shopware\Storefront\Framework\Seo\Entity\Field\SeoUrlAssociationField;
 use Shopware\Storefront\Framework\Seo\SeoUrl\SeoUrlDefinition;
 
-class CanonicalUrlAssociationFieldResolver implements FieldResolverInterface
+class SeoUrlAssociationFieldResolver implements FieldResolverInterface
 {
     public function resolve(
         string $definition,
@@ -23,14 +21,8 @@ class CanonicalUrlAssociationFieldResolver implements FieldResolverInterface
         Context $context,
         EntityDefinitionQueryHelper $queryHelper
     ): bool {
-        if (!$field instanceof CanonicalUrlAssociationField) {
+        if (!$field instanceof SeoUrlAssociationField) {
             return false;
-        }
-
-        if ($context->getSourceContext()->getOrigin() !== SourceContext::ORIGIN_STOREFRONT_API) {
-            $salesChannelId = Uuid::fromHexToBytes(Defaults::SALES_CHANNEL);
-        } else {
-            $salesChannelId = Uuid::fromHexToBytes($context->getSourceContext()->getSalesChannelId());
         }
 
         $table = SeoUrlDefinition::getEntityName();
@@ -45,7 +37,7 @@ class CanonicalUrlAssociationFieldResolver implements FieldResolverInterface
         $routeParamKey = 'route_' . Uuid::uuid4()->getHex();
         $parameters = [
             '#root#' => EntityDefinitionQueryHelper::escape($root),
-            '#source_column#' => EntityDefinitionQueryHelper::escape($field->getStorageName()),
+            '#source_column#' => EntityDefinitionQueryHelper::escape($field->getLocalField()),
             '#alias#' => EntityDefinitionQueryHelper::escape($alias),
             '#reference_column#' => EntityDefinitionQueryHelper::escape($field->getReferenceField()),
         ];
@@ -56,15 +48,12 @@ class CanonicalUrlAssociationFieldResolver implements FieldResolverInterface
             str_replace(
                 array_keys($parameters),
                 array_values($parameters),
-                '#alias#.`sales_channel_id` = :salesChannelId
-                 AND #alias#.#reference_column# = #root#.#source_column#  
+                '#alias#.#reference_column# = #root#.#source_column#  
                  AND #alias#.route_name = :' . $routeParamKey . '
-                 AND #alias#.is_canonical = 1
                  AND #alias#.is_valid = 1'
             )
         );
         $query->setParameter($routeParamKey, $field->getRouteName());
-        $query->setParameter('salesChannelId', $salesChannelId);
 
         return true;
     }

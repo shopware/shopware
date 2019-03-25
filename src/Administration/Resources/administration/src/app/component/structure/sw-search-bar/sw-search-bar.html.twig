@@ -30,7 +30,7 @@
                     <div v-if="isSearchBarShown" class="sw-search-bar__field" :class="searchBarFieldClasses">
 
                         {% block sw_search_bar_type %}
-                            <span v-if="useTypeSearch" class="sw-search-bar__type" :style="searchTypeColor">
+                            <span v-if="useTypeSearch && showTag" class="sw-search-bar__type" :style="searchTypeColor">
                                 {{ searchType }}
                             </span>
                         {% endblock %}

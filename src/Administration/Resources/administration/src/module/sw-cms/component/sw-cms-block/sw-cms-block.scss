@@ -1,0 +1,37 @@
+@import "~scss/variables";
+
+.sw-cms-block {
+    position: relative;
+
+    &:hover {
+        .sw-cms-block__config-overlay {
+            display: block;
+        }
+    }
+
+    &.is--boxed .sw-cms-block__content {
+        max-width: 1000px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .sw-cms-block__config-overlay {
+        display: none;
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        margin: auto;
+        border: 1px solid $color-shopware-blue;
+        cursor: pointer;
+        z-index: 50;
+
+        &.is--active {
+            display: block;
+            border: 1px solid #d1d9e0;
+            pointer-events: none;
+            z-index: 10;
+        }
+    }
+}

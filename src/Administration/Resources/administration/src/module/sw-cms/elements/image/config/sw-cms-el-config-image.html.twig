@@ -1,0 +1,16 @@
+{% block sw_cms_element_image_config %}
+    <div class="sw-cms-el-config-image">
+        <sw-media-upload variant="regular"
+                         :uploadTag="uploadTag"
+                         :source="element.data.media"
+                         :allowMultiSelect="false"
+                         :caption="$tc('sw-cms.elements.captionMediaUpload')"
+                         @sw-media-upload-remove-image="onImageRemove">
+        </sw-media-upload>
+        <sw-upload-store-listener
+                :uploadTag="uploadTag"
+                @sw-media-upload-added="onChangeMedia"
+                @sw-media-upload-finished="onImageUpload">
+        </sw-upload-store-listener>
+    </div>
+{% endblock %}

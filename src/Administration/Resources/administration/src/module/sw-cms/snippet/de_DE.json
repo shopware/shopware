@@ -1,0 +1,56 @@
+{
+  "sw-cms": {
+    "general": {
+      "placeholderSearchBar": "Suche nach einem Layout",
+      "mainMenuItemGeneral": "Seiten",
+      "moduleTitle": "Content Management",
+      "greeting": "Willkommen",
+      "createNewLayout": "Neues Layout anlegen"
+    },
+    "sorting": {
+      "labelSort": "Sortieren nach:",
+      "labelSortByCreatedAsc": "Erstellungsdatum aufsteigend",
+      "labelSortByCreatedDsc": "Erstellungsdatum absteigend",
+      "labelSortByUpdatedAsc": "Bearbeitungsdatum, aufsteigend",
+      "labelSortByUpdatedDsc": "Bearbeitungsdatum, absteigend",
+      "labelSortByAllPages": "Alle Typen",
+      "labelSortByShopPages": "Shopseiten",
+      "labelSortByLandingPages": "Landingpages",
+      "labelSortByProductPages": "Produktseiten",
+      "labelSortByCategoryPages": "Kategorieseiten"
+    },
+    "detail": {
+      "labelButtonSave": "Speichern",
+      "headlineEmptyState": "Raum für Kreativität",
+      "claimEmptyState": "Gestalte Dein Layout in dem Du Blöcke auf der Bühne platzierst.",
+      "actionEmptyState": "Block hinzufügen",
+      "sidebarTitlePageSettings": "Einstellungen",
+      "sidebarHeaderPageSettings": "Basis Informationen",
+      "labelPageTypeLandingpage": "Einkaufswelt",
+      "labelPageTypeCategory": "Kategorieseite",
+      "labelPageTypeProduct": "Produktseite",
+      "sidebarTitleBlockOverview": "Blöcke",
+      "sidebarTitleBlockSettings": "Block Einstellungen",
+      "sidebarHeaderBlockSettings": "Block:",
+      "sidebarTitleNavigator": "Navigator",
+      "titleElementSettingsModal": "Element Einstellungen",
+      "labelButtonElementSettingsConfirm": "Ok",
+      "titleElementChangeModal": "Element austauschen",
+      "labelButtonElementChangeAbort": "Abbrechen",
+      "labelBlockNameField": "Block Name",
+      "tooltipBlockNameField": "Du kannst einen Namen für Deinen Block vergeben, für eine bessere Verwendung.",
+      "labelBlockSizingField": "Größenmodus",
+      "labelBlockSizingOptionBoxed": "Zentrierter Inhalt",
+      "labelBlockSizingOptionFull": "Volle Breite",
+      "labelBlockBackgroundColorField": "Hintergrundfarbe",
+      "labelBlockTopMarginField": "Oberer Abstand",
+      "labelBlockBottomMarginField": "Unterer Abstand",
+      "labelBlockLeftMarginField": "Linker Abstand",
+      "labelBlockRightMarginField": "Rechter Abstand"
+    },
+    "elements": {
+      "captionMediaUpload": "Lade ein Bild hoch",
+      "labelTextElementContent": "Text Inhalt"
+    }
+  }
+}

@@ -99,7 +99,7 @@ $sw-login-error-animation-duration: .15s;
         position: absolute;
         top: -10px;
         right: -10px;
-        z-index: 20;
+        z-index: 420;
         background: $sw-login-badge-color-background;
         transition: top $sw-login-media-query-animation-duration ease-in-out,
                     right $sw-login-media-query-animation-duration ease-in-out;

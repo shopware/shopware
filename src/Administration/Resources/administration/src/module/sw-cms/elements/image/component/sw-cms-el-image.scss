@@ -1,0 +1,11 @@
+@import "~scss/variables";
+
+.sw-cms-el-image {
+    display: block;
+    max-width: 100%;
+
+    img {
+        display: block;
+        max-width: 100%;
+    }
+}

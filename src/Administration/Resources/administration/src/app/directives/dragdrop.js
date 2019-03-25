@@ -229,13 +229,19 @@ function stopDrag() {
         return;
     }
 
-    if (validateDrag() === true) {
+    const validDrag = validateDrag();
+    const validDrop = validateDrop();
+
+    if (validDrag === true) {
         if (types.isFunction(currentDrag.dragConfig.onDrop)) {
-            currentDrag.dragConfig.onDrop(currentDrag.dragConfig.data);
+            currentDrag.dragConfig.onDrop(
+                currentDrag.dragConfig.data,
+                validDrop ? currentDrop.dropConfig.data : null
+            );
         }
     }
 
-    if (validateDrop() === true) {
+    if (validDrop === true) {
         if (types.isFunction(currentDrop.dropConfig.onDrop)) {
             currentDrop.dropConfig.onDrop(currentDrag.dragConfig.data, currentDrop.dropConfig.data);
         }

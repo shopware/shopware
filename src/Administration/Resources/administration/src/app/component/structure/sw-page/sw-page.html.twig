@@ -80,7 +80,7 @@
                     </div>
                 </div>
                 <div class="sw-page__main-content">
-                    <div class="sw-page__main-content-inner">
+                    <div class="sw-page__main-content-inner" v-on="additionalEventListeners">
                         <slot name="content">
                             {% block sw_page_slot_content %}{% endblock %}
                         </slot>

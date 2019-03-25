@@ -12,7 +12,6 @@ use Shopware\Core\Framework\Routing\InternalRequest;
 use Shopware\Storefront\Framework\Controller\StorefrontController;
 use Shopware\Storefront\Framework\Page\PageLoaderInterface;
 use Shopware\Storefront\Page\Checkout\Cart\CheckoutCartPageLoader;
-use Shopware\Storefront\Page\Checkout\Config\CheckoutConfigPageLoader;
 use Shopware\Storefront\Page\Checkout\Confirm\CheckoutConfirmPageLoader;
 use Shopware\Storefront\Page\Checkout\Finish\CheckoutFinishPageLoader;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -25,11 +24,6 @@ class CheckoutPageController extends StorefrontController
      * @var CartService
      */
     private $cartService;
-
-    /**
-     * @var CheckoutConfigPageLoader|PageLoaderInterface
-     */
-    private $configPageLoader;
 
     /**
      * @var CheckoutCartPageLoader|PageLoaderInterface
@@ -50,11 +44,9 @@ class CheckoutPageController extends StorefrontController
         CartService $cartService,
         PageLoaderInterface $cartPageLoader,
         PageLoaderInterface $confirmPageLoader,
-        PageLoaderInterface $finishPageLoader,
-        PageLoaderInterface $configPageLoader
+        PageLoaderInterface $finishPageLoader
     ) {
         $this->cartService = $cartService;
-        $this->configPageLoader = $configPageLoader;
         $this->cartPageLoader = $cartPageLoader;
         $this->confirmPageLoader = $confirmPageLoader;
         $this->finishPageLoader = $finishPageLoader;
@@ -78,20 +70,6 @@ class CheckoutPageController extends StorefrontController
         $page = $this->cartPageLoader->load($request, $context);
 
         return $this->renderStorefront('@Storefront/page/checkout/cart/index.html.twig', ['page' => $page]);
-    }
-
-    /**
-     * @Route("/checkout/config", name="frontend.checkout.config.page", options={"seo"="false"}, methods={"GET"})
-     *
-     * @throws CustomerNotLoggedInException
-     */
-    public function config(InternalRequest $request, CheckoutContext $context): Response
-    {
-        $this->denyAccessUnlessLoggedIn();
-
-        $page = $this->configPageLoader->load($request, $context);
-
-        return $this->renderStorefront('@Storefront/page/checkout/configuration/index.html.twig', ['page' => $page]);
     }
 
     /**

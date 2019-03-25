@@ -7,7 +7,8 @@
     padding: $spacer;
 }
 
-.footer-vat {
+.footer-vat,
+.footer-copyright {
     text-align: center;
 }
 
@@ -90,6 +91,34 @@
             }
         }
     }
+}
 
+.minimal-footer-list {
+    list-style-type: none;
+    padding: 0;
+    text-align: center;
+}
 
+.minimal-footer-item,
+.minimal-footer-link {
+    display: inline-block;
+}
+
+.minimal-footer-item-link {
+    padding: 10px 0;
+}
+
+.minimal-footer-item {
+    &::after {
+        display: inline-block;
+        height: 10px;
+        width: 1px;
+        border-left: 1px solid $gray-500;
+        content: '';
+        margin: 0 $spacer-sm;
+    }
+
+    &:last-child::after {
+        content: none;
+    }
 }

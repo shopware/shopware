@@ -1,4 +1,4 @@
-{% block base_footer %}
+{% block base_footer_inner_container %}
     {% block base_footer_navigation %}
         <div id="footerColumns" class="row footer-columns">
             {% block base_footer_navigation_hotline %}
@@ -170,15 +170,24 @@
         </div>
     {% endblock %}
 
-    <div class="footer-bottom">
-        {#TODO: NEXT-1990 - footer VAT links#}
-        <div class="footer-vat">
-            {% if page.context.taxState == "gross" %}
-                <p>{{ "footer.includeVat"|trans|raw }}</p>
-            {% else %}
-                <p>{{ "footer.excludeVat"|trans|raw }}</p>
-            {% endif %}
+    {% block base_footer_bottom %}
+        <div class="footer-bottom">
+            {% block base_footer_vat %}
+                {#TODO: NEXT-1990 - footer VAT links#}
+                <div class="footer-vat">
+                    {% if page.context.taxState == "gross" %}
+                        <p>{{ "footer.includeVat"|trans|raw }}</p>
+                    {% else %}
+                        <p>{{ "footer.excludeVat"|trans|raw }}</p>
+                    {% endif %}
+                </div>
+            {% endblock %}
+
+            {% block base_footer_copyright %}
+                <div class="footer-copyright">
+                    {{ "footer.copyrightInfo"|trans }}
+                </div>
+            {% endblock %}
         </div>
-    </div>
-    {% block base_footer_copyright %}{% endblock %}
+    {% endblock %}
 {% endblock %}

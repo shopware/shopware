@@ -16,6 +16,7 @@ use Shopware\Core\Content\MailTemplate\Aggregate\MailHeaderFooterTranslation\Mai
 use Shopware\Core\Content\MailTemplate\Aggregate\MailTemplateTranslation\MailTemplateTranslationDefinition;
 use Shopware\Core\Content\Media\Aggregate\MediaTranslation\MediaTranslationDefinition;
 use Shopware\Core\Content\Navigation\Aggregate\NavigationTranslation\NavigationTranslationDefinition;
+use Shopware\Core\Content\NewsletterReceiver\NewsletterReceiverDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturerTranslation\ProductManufacturerTranslationDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductTranslation\ProductTranslationDefinition;
 use Shopware\Core\Content\ProductStream\Aggregate\ProductStreamTranslation\ProductStreamTranslationDefinition;
@@ -95,6 +96,7 @@ class LanguageDefinition extends EntityDefinition
             (new OneToManyAssociationField('salesChannelDomains', SalesChannelDomainDefinition::class, 'language_id', false))->addFlags(new RestrictDelete()),
 
             (new OneToManyAssociationField('customers', CustomerDefinition::class, 'language_id', false))->addFlags(new RestrictDelete()),
+            (new OneToManyAssociationField('newsletterReceivers', NewsletterReceiverDefinition::class, 'language_id', false, 'id'))->addFlags(new RestrictDelete()),
 
             (new OneToManyAssociationField('categoryTranslations', CategoryTranslationDefinition::class, 'language_id', false))->addFlags(new CascadeDelete()),
             (new OneToManyAssociationField('countryStateTranslations', CountryStateTranslationDefinition::class, 'language_id', false))->addFlags(new CascadeDelete()),

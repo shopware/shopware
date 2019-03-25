@@ -6,6 +6,7 @@ use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressCol
 use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderCustomer\OrderCustomerCollection;
+use Shopware\Core\Content\NewsletterReceiver\NewsletterReceiverCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\System\Salutation\Aggregate\SalutationTranslation\SalutationTranslationCollection;
@@ -58,6 +59,11 @@ class SalutationEntity extends Entity
      * @return OrderAddressCollection|null
      */
     protected $orderAddresses;
+
+    /**
+     * @var NewsletterReceiverCollection|null
+     */
+    protected $newsletterReceivers;
 
     public function getSalutationKey(): string
     {
@@ -147,5 +153,15 @@ class SalutationEntity extends Entity
     public function setOrderAddresses(?OrderAddressCollection $orderAddresses): void
     {
         $this->orderAddresses = $orderAddresses;
+    }
+
+    public function getNewsletterReceivers(): ?NewsletterReceiverCollection
+    {
+        return $this->newsletterReceivers;
+    }
+
+    public function setNewsletterReceivers(NewsletterReceiverCollection $newsletterReceivers): void
+    {
+        $this->newsletterReceivers = $newsletterReceivers;
     }
 }

@@ -12,6 +12,7 @@ use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\Content\MailTemplate\Aggregate\MailHeaderFooter\MailHeaderFooterEntity;
 use Shopware\Core\Content\MailTemplate\MailTemplateCollection;
 use Shopware\Core\Content\Navigation\NavigationEntity;
+use Shopware\Core\Content\NewsletterReceiver\NewsletterReceiverCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
@@ -230,6 +231,11 @@ class SalesChannelEntity extends Entity
      * @var CustomerGroupEntity
      */
     protected $customerGroup;
+
+    /**
+     * @var NewsletterReceiverCollection|null
+     */
+    protected $newsletterReceivers;
 
     public function getMailHeaderFooter(): ?MailHeaderFooterEntity
     {
@@ -629,5 +635,15 @@ class SalesChannelEntity extends Entity
     public function setCustomerGroup(CustomerGroupEntity $customerGroup): void
     {
         $this->customerGroup = $customerGroup;
+    }
+
+    public function getNewsletterReceivers(): ?NewsletterReceiverCollection
+    {
+        return $this->newsletterReceivers;
+    }
+
+    public function setNewsletterReceivers(NewsletterReceiverCollection $newsletterReceivers): void
+    {
+        $this->newsletterReceivers = $newsletterReceivers;
     }
 }

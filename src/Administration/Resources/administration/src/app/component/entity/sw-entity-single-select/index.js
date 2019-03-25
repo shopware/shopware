@@ -1,8 +1,10 @@
-import { Component } from 'src/core/shopware';
 import Criteria from 'src/core/data-new/criteria.data';
 import utils from 'src/core/service/util.service';
 
-Component.extend('sw-entity-single-select', 'sw-single-select', {
+export default {
+    name: 'sw-entity-single-select',
+    extendsFrom: 'sw-single-select',
+
     inject: ['repositoryFactory', 'context'],
 
     props: {
@@ -105,4 +107,4 @@ Component.extend('sw-entity-single-select', 'sw-single-select', {
             this.load();
         }, 400)
     }
-});
+};

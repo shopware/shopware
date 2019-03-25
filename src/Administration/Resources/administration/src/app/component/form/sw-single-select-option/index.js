@@ -1,11 +1,11 @@
-import { Component } from 'src/core/shopware';
 import './sw-single-select-option.scss';
 import template from './sw-single-select-option.html.twig';
 
 /**
  * @private
  */
-Component.register('sw-single-select-option', {
+export default {
+    name: 'sw-single-select-option',
     template,
 
     props: {
@@ -118,4 +118,4 @@ Component.register('sw-single-select-option', {
             this.isActive = true;
         }
     }
-});
+};

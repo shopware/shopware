@@ -1,8 +1,9 @@
-import { Component } from 'src/core/shopware';
 import Criteria from 'src/core/data-new/criteria.data';
 import template from './sw-one-to-many-grid.html.twig';
 
-Component.extend('sw-one-to-many-grid', 'sw-data-grid', {
+export default {
+    name: 'sw-one-to-many-grid',
+    extendsFrom: 'sw-data-grid',
     template,
 
     inject: ['repositoryFactory'],
@@ -139,4 +140,4 @@ Component.extend('sw-one-to-many-grid', 'sw-data-grid', {
             return this.repository.search(this.records.criteria, this.records.context);
         }
     }
-});
+};

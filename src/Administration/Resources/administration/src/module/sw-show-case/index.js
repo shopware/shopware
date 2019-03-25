@@ -1,13 +1,5 @@
 import { Module } from 'src/core/shopware';
 
-import './component/sw-listing';
-import './component/sw-one-to-many-grid';
-import './component/sw-single-select';
-import './component/sw-single-select-option';
-import './component/sw-entity-single-select';
-import './component/sw-entity-multi-select';
-import './component/sw-multi-select';
-import './component/sw-multi-select-option';
 import './page/sw-show-case-list';
 import './page/sw-show-case-detail';
 import './view/sw-show-case-detail-base';

@@ -16,6 +16,14 @@
     "sw-address": {
       "edit": "Bearbeiten"
     },
+    "entity-components": {
+      "editAction": "Editieren",
+      "deleteAction": "Löschen",
+      "deleteMessage": "Soll der Eintrag wirklich gelöscht werden?",
+      "deleteCancel": "Abbrechen",
+      "deleteConfirm": "Löschen",
+      "deleteTitle": "Eintrag löschen"
+    },
     "sw-field": {
       "notification": {
         "notificationCopySuccessTitle": "Erfolg",
@@ -49,12 +57,6 @@
       "buttonInlineEditSave": "Speichern"
     },
     "sw-data-grid": {
-      "deleteMessage": "Möchtest du wirklich löschen?",
-      "deleteCancel": "Abbrechen",
-      "deleteConfirm": "Löschen",
-      "deleteTitle": "Datensatz löschen",
-      "deleteAction": "Löschen",
-      "editAction": "Editieren",
       "tooltipListSettings": "Listeneinstellungen",
       "labelSettingsCompactMode": "Kompaktmodus verwenden",
       "labelSettingsPreviewImages": "Vorschaubilder anzeigen",

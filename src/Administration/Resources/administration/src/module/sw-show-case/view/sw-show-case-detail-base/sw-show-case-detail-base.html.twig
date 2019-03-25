@@ -22,17 +22,6 @@
         </sw-one-to-many-grid>
     </sw-card>
 
-    <sw-card title="1:N - media (loaded lazy)">
-
-        <sw-one-to-many-grid slot="grid"
-                             :collection="record.media"
-                             :localMode="record.isNew()"
-                             :columns="mediaColumns">
-
-        </sw-one-to-many-grid>
-    </sw-card>
-
-
     <sw-card title="1:N - categories (loaded lazy)">
 
         <sw-one-to-many-grid slot="grid"

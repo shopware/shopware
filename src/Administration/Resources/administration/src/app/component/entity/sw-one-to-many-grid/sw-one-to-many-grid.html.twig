@@ -7,7 +7,7 @@
 
     <slot name="delete-action" :item="item">
         <sw-context-menu-item @click="deleteItem(item.id)" variant="danger">
-            {{ $tc('global.sw-data-grid.deleteAction') }}
+            {{ $tc('global.entity-components.deleteAction') }}
         </sw-context-menu-item>
     </slot>
 {% endblock %}

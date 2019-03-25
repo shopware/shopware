@@ -1,11 +1,8 @@
-import { Component } from 'src/core/shopware';
 import './sw-multi-select-option.scss';
 import template from './sw-multi-select-option.html.twig';
 
-/**
- * @private
- */
-Component.register('sw-multi-select-option', {
+export default {
+    name: 'sw-multi-select-option',
     template,
 
     props: {
@@ -118,4 +115,4 @@ Component.register('sw-multi-select-option', {
             this.isActive = true;
         }
     }
-});
+};

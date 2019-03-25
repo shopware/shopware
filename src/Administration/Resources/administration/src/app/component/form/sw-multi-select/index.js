@@ -1,9 +1,10 @@
-import { Mixin, Component } from 'src/core/shopware';
+import { Mixin } from 'src/core/shopware';
 import utils from 'src/core/service/util.service';
 import './sw-multi-select.scss';
 import template from './sw-multi-select.html.twig';
 
-Component.register('sw-multi-select', {
+export default {
+    name: 'sw-multi-select',
     template,
 
     mixins: [
@@ -407,4 +408,4 @@ Component.register('sw-multi-select', {
             }
         }
     }
-});
+};

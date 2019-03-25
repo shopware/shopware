@@ -16,6 +16,14 @@
     "sw-address": {
       "edit": "Edit"
     },
+    "entity-components": {
+      "editAction": "Edit",
+      "deleteAction": "Delete",
+      "deleteMessage": "Are you sure you want to delete the entry?",
+      "deleteCancel": "Cancel",
+      "deleteConfirm": "Delete",
+      "deleteTitle": "Delete entry"
+    },
     "sw-field": {
       "notification": {
         "notificationCopySuccessTitle": "Success",

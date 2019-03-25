@@ -1,8 +1,9 @@
-import { Component } from 'src/core/shopware';
 import Criteria from 'src/core/data-new/criteria.data';
-import template from './sw-listing.html.twig';
+import template from './sw-entity-listing.html.twig';
 
-Component.extend('sw-listing', 'sw-data-grid', {
+export default {
+    name: 'sw-entity-listing',
+    extendsFrom: 'sw-data-grid',
     template,
 
     props: {
@@ -123,4 +124,4 @@ Component.extend('sw-listing', 'sw-data-grid', {
             this.deleteId = null;
         }
     }
-});
+};

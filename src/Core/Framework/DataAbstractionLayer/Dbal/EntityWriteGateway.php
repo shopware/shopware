@@ -18,6 +18,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldAware\StorageAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
+use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\Framework\Validation\WriteCommandValidatorInterface;
 
 class EntityWriteGateway implements EntityWriteGatewayInterface
@@ -83,14 +84,18 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
                     if (!$command->isValid()) {
                         continue;
                     }
-                    $this->connection->update(EntityDefinitionQueryHelper::escape($table), $command->getPayload(), $command->getPrimaryKey());
+                    $this->connection->update(
+                        EntityDefinitionQueryHelper::escape($table),
+                        $this->escapeColumnKeys($command->getPayload()),
+                        $command->getPrimaryKey()
+                    );
                     continue;
                 }
 
                 if ($command instanceof InsertCommand) {
                     $this->connection->insert(
                         EntityDefinitionQueryHelper::escape($table),
-                        $command->getPayload()
+                        $this->escapeColumnKeys($command->getPayload())
                     );
                     continue;
                 }
@@ -163,15 +168,28 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
         $storageName = $command->getStorageName();
         $query->set(
             $storageName,
-            sprintf('JSON_SET(IFNULL(%s, "{}"), %s)', $storageName, implode(', ', $sets))
+            sprintf('JSON_SET(IFNULL(%s, "{}"), %s)',
+                EntityDefinitionQueryHelper::escape($storageName),
+                implode(', ', $sets)
+            )
         );
 
         $identifier = $command->getPrimaryKey();
         foreach ($identifier as $key => $value) {
-            $query->andWhere($key . ' = ?');
+            $query->andWhere(EntityDefinitionQueryHelper::escape($key) . ' = ?');
         }
         $query->setParameters(array_merge($values, array_values($identifier)));
         $query->execute();
+    }
+
+    private function escapeColumnKeys($payload): array
+    {
+        $escaped = [];
+        foreach ($payload as $key => $value) {
+            $escaped[EntityDefinitionQueryHelper::escape($key)] = $value;
+        }
+
+        return $escaped;
     }
 
     /**
@@ -305,8 +323,9 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
                 unset($primaryKey[$field->getPropertyName()]);
             }
 
-            $query->andWhere($field->getStorageName() . ' = :' . $field->getPropertyName());
-            $query->setParameter($field->getPropertyName(), $primaryKey[$field->getStorageName()]);
+            $param = 'param_' . Uuid::uuid4()->getHex();
+            $query->andWhere(EntityDefinitionQueryHelper::escape($field->getStorageName()) . ' = :' . $param);
+            $query->setParameter($param, $primaryKey[$field->getStorageName()]);
         }
 
         $query->addSelect('1 as `exists`');

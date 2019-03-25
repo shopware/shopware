@@ -26,9 +26,15 @@ class SqlQueryParser
      */
     private $queryHelper;
 
-    public function __construct(EntityDefinitionQueryHelper $queryHelper)
+    /**
+     * @var Connection
+     */
+    private $connection;
+
+    public function __construct(EntityDefinitionQueryHelper $queryHelper, Connection $connection)
     {
         $this->queryHelper = $queryHelper;
+        $this->connection = $connection;
     }
 
     public function parseRanking(array $queries, string $definition, string $root, Context $context): ParseResult
@@ -49,13 +55,13 @@ class SqlQueryParser
                     );
 
                     $result->addWhere(
-                        sprintf('IF(%s , %s * %s, 0)', $where, $query->getScore(), $field)
+                        sprintf('IF(%s , %s * %s, 0)', $where, $this->connection->quote($query->getScore()), $field)
                     );
                     continue;
                 }
 
                 $result->addWhere(
-                    sprintf('IF(%s , %s, 0)', $where, $query->getScore())
+                    sprintf('IF(%s , %s, 0)', $where, $this->connection->quote($query->getScore()))
                 );
             }
 
@@ -135,8 +141,10 @@ class SqlQueryParser
         $field = $this->queryHelper->getFieldAccessor($query->getField(), $definition, $root, $context);
 
         $result = new ParseResult();
-        $result->addWhere($field . ' LIKE :' . $key);
-        $result->addParameter($key, '%' . $query->getValue() . '%');
+        $result->addWhere($field . ' LIKE :' . $key . '');
+
+        $escaped = str_replace('%', '\\%', $query->getValue());
+        $result->addParameter($key, '%' . $escaped . '%');
 
         return $result;
     }
@@ -232,6 +240,7 @@ class SqlQueryParser
         $result->resetWheres();
 
         $glue = ' ' . $query->getOperator() . ' ';
+
         if (!empty($wheres)) {
             $result->addWhere('NOT (' . implode($glue, $wheres) . ')');
         }

@@ -91,15 +91,15 @@ class SearchKeywordIndexer implements IndexerInterface
         $this->indexTableOperator->createTable(self::DICTIONARY, $dictionary);
         $this->indexTableOperator->createTable(self::DOCUMENT_TABLE, $document);
 
-        $this->connection->executeUpdate('ALTER TABLE `' . $dictionary . '` ADD PRIMARY KEY `language_keyword` (`keyword`, `scope`, `language_id`);');
-        $this->connection->executeUpdate('ALTER TABLE `' . $dictionary . '` ADD INDEX `keyword` (`keyword`, `language_id`);');
-        $this->connection->executeUpdate('ALTER TABLE `' . $dictionary . '` ADD FOREIGN KEY (`language_id`) REFERENCES `language` (`id`) ON DELETE CASCADE ON UPDATE CASCADE');
-        $this->connection->executeUpdate('ALTER TABLE `' . $dictionary . '` ADD INDEX `scope_language_id` (`scope`, `language_id`);');
+        $this->connection->executeUpdate('ALTER TABLE ' . EntityDefinitionQueryHelper::escape($dictionary) . ' ADD PRIMARY KEY `language_keyword` (`keyword`, `scope`, `language_id`);');
+        $this->connection->executeUpdate('ALTER TABLE ' . EntityDefinitionQueryHelper::escape($dictionary) . ' ADD INDEX `keyword` (`keyword`, `language_id`);');
+        $this->connection->executeUpdate('ALTER TABLE ' . EntityDefinitionQueryHelper::escape($dictionary) . ' ADD FOREIGN KEY (`language_id`) REFERENCES `language` (`id`) ON DELETE CASCADE ON UPDATE CASCADE');
+        $this->connection->executeUpdate('ALTER TABLE ' . EntityDefinitionQueryHelper::escape($dictionary) . ' ADD INDEX `scope_language_id` (`scope`, `language_id`);');
 
-        $this->connection->executeUpdate('ALTER TABLE `' . $document . '` ADD PRIMARY KEY (`id`);');
-        $this->connection->executeUpdate('ALTER TABLE `' . $document . '` ADD UNIQUE  KEY (`language_id`, `keyword`, `entity`, `entity_id`, `ranking`);');
-        $this->connection->executeUpdate('ALTER TABLE `' . $document . '` ADD FOREIGN KEY (`language_id`) REFERENCES `language` (`id`) ON DELETE CASCADE ON UPDATE CASCADE');
-        $this->connection->executeUpdate('ALTER TABLE `' . $document . '` ADD INDEX (`entity_id`)');
+        $this->connection->executeUpdate('ALTER TABLE ' . EntityDefinitionQueryHelper::escape($document) . ' ADD PRIMARY KEY (`id`);');
+        $this->connection->executeUpdate('ALTER TABLE ' . EntityDefinitionQueryHelper::escape($document) . ' ADD UNIQUE  KEY (`language_id`, `keyword`, `entity`, `entity_id`, `ranking`);');
+        $this->connection->executeUpdate('ALTER TABLE ' . EntityDefinitionQueryHelper::escape($document) . ' ADD FOREIGN KEY (`language_id`) REFERENCES `language` (`id`) ON DELETE CASCADE ON UPDATE CASCADE');
+        $this->connection->executeUpdate('ALTER TABLE ' . EntityDefinitionQueryHelper::escape($document) . ' ADD INDEX (`entity_id`)');
 
         $languages = $this->languageRepository->search(new Criteria(), Context::createDefaultContext());
 
@@ -120,14 +120,14 @@ class SearchKeywordIndexer implements IndexerInterface
         }
 
         $this->connection->transactional(function () use ($dictionary, $document) {
-            $this->connection->executeUpdate('DELETE FROM ' . self::DOCUMENT_TABLE);
-            $this->connection->executeUpdate('DELETE FROM ' . self::DICTIONARY);
+            $this->connection->executeUpdate('DELETE FROM ' . EntityDefinitionQueryHelper::escape(self::DOCUMENT_TABLE));
+            $this->connection->executeUpdate('DELETE FROM ' . EntityDefinitionQueryHelper::escape(self::DICTIONARY));
 
-            $this->connection->executeUpdate('REPLACE INTO ' . self::DOCUMENT_TABLE . ' SELECT * FROM ' . $document);
-            $this->connection->executeUpdate('REPLACE INTO ' . self::DICTIONARY . ' SELECT * FROM ' . $dictionary);
+            $this->connection->executeUpdate('REPLACE INTO ' . EntityDefinitionQueryHelper::escape(self::DOCUMENT_TABLE) . ' SELECT * FROM ' . EntityDefinitionQueryHelper::escape($document));
+            $this->connection->executeUpdate('REPLACE INTO ' . EntityDefinitionQueryHelper::escape(self::DICTIONARY) . ' SELECT * FROM ' . EntityDefinitionQueryHelper::escape($dictionary));
 
-            $this->connection->executeUpdate('DROP TABLE ' . $dictionary);
-            $this->connection->executeUpdate('DROP TABLE ' . $document);
+            $this->connection->executeUpdate('DROP TABLE ' . EntityDefinitionQueryHelper::escape($dictionary));
+            $this->connection->executeUpdate('DROP TABLE ' . EntityDefinitionQueryHelper::escape($document));
         });
     }
 

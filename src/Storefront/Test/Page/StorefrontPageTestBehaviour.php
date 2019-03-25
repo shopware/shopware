@@ -9,6 +9,7 @@ use Shopware\Core\Checkout\Cart\Storefront\CartService;
 use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Context\CheckoutContextFactory;
 use Shopware\Core\Checkout\Context\CheckoutContextService;
+use Shopware\Core\Checkout\Context\CheckoutRuleLoader;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\Cart\ProductCollector;
@@ -22,6 +23,7 @@ use Shopware\Core\Framework\Exception\MissingParameterException;
 use Shopware\Core\Framework\Routing\InternalRequest;
 use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\Framework\Struct\Uuid;
+use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
 use Shopware\Storefront\Framework\Page\PageLoaderInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\EventDispatcher\Event;
@@ -261,8 +263,15 @@ trait StorefrontPageTestBehaviour
 
         $salesChannelRepository->create([$salesChannel], Context::createDefaultContext());
 
-        return $factory
+        $context = $factory
             ->create(Uuid::uuid4()->getHex(), $salesChannelId, $options);
+
+        $ruleLoader = $this->getContainer()->get(CheckoutRuleLoader::class);
+        $rulesProperty = ReflectionHelper::getProperty(CheckoutRuleLoader::class, 'rules');
+        $rulesProperty->setValue($ruleLoader, null);
+        $ruleLoader->loadMatchingRules($context, $context->getToken());
+
+        return $context;
     }
 
     private function getNavigationId(): string

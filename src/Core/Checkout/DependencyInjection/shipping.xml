@@ -17,5 +17,23 @@
             <tag name="shopware.entity.definition" entity="shipping_method_translation"/>
         </service>
 
+        <service id="Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodRules\ShippingMethodRuleDefinition">
+            <tag name="shopware.entity.definition" entity="shipping_method_rule"/>
+        </service>
+
+        <service id="Shopware\Core\Checkout\Shipping\Cart\ShippingMethodValidator">
+            <tag name="Shopware\Core\Checkout\Cart\CartValidatorInterface"/>
+        </service>
+
+        <service id="Shopware\Core\Checkout\Shipping\DataAbstractionLayer\Indexing\ShippingMethodIndexer">
+            <argument type="service" id="shipping_method.repository"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="Shopware\Core\Checkout\Shipping\Util\EventIdExtractor"/>
+
+            <tag name="shopware.dbal_indexing.indexer"/>
+        </service>
+
+        <service id="Shopware\Core\Checkout\Shipping\Util\EventIdExtractor"/>
     </services>
 </container>                

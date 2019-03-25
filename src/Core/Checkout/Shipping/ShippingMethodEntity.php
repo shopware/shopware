@@ -103,6 +103,16 @@ class ShippingMethodEntity extends Entity
      */
     protected $availabilityRules;
 
+    /**
+     * @var array
+     */
+    protected $availabilityRuleIds;
+
+    public function __construct()
+    {
+        $this->availabilityRuleIds = [];
+    }
+
     public function getBindShippingfree(): bool
     {
         return $this->bindShippingfree;
@@ -281,5 +291,15 @@ class ShippingMethodEntity extends Entity
     public function setAvailabilityRules(?RuleCollection $availabilityRules): void
     {
         $this->availabilityRules = $availabilityRules;
+    }
+
+    public function getAvailabilityRuleIds(): array
+    {
+        return $this->availabilityRuleIds;
+    }
+
+    public function setAvailabilityRuleIds(array $availabilityRuleIds): void
+    {
+        $this->availabilityRuleIds = $availabilityRuleIds;
     }
 }

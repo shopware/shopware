@@ -39,20 +39,18 @@ class BillingStreetRule extends Rule
             return new Match(false, ['Not logged in customer']);
         }
 
-        $value = strtolower($this->streetName);
-
         $street = $customer->getActiveBillingAddress()->getStreet();
 
         switch ($this->operator) {
             case self::OPERATOR_EQ:
                 return new Match(
-                    (bool) preg_match("/$value/", strtolower($street)),
-                    ["Billing street not match /$value/"]
+                    strcasecmp($this->streetName, $street) === 0,
+                    ["Billing street not match /$this->streetName/"]
                 );
             case self::OPERATOR_NEQ:
                 return new Match(
-                    !preg_match("/$value/", strtolower($street)),
-                    ["Billing street match /$value/"]
+                    strcasecmp($this->streetName, $street) !== 0,
+                    ["Billing street match /$this->streetName/"]
                 );
             default:
                 throw new UnsupportedOperatorException($this->operator, __CLASS__);

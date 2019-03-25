@@ -4,11 +4,13 @@ namespace Shopware\Core\System\SalesChannel\Storefront;
 
 use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Payment\PaymentMethodDefinition;
+use Shopware\Core\Checkout\Shipping\ShippingMethodCollection;
 use Shopware\Core\Checkout\Shipping\ShippingMethodDefinition;
 use Shopware\Core\Framework\Api\Response\ResponseFactoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Exception\InvalidParameterException;
 use Shopware\Core\Framework\Struct\Uuid;
@@ -170,14 +172,33 @@ class StorefrontSalesChannelController extends AbstractController
      */
     public function getShippingMethods(Request $request, CheckoutContext $context, ResponseFactoryInterface $responseFactory): Response
     {
-        $criteria = $this->createCriteria($request, ShippingMethodDefinition::class, $context);
-        $shippingMethods = $this->shippingMethodRepository->search($criteria, $context->getContext());
+        $shippingMethods = $this->filterShippingMethodsByRules($request, $context);
 
         return $responseFactory->createListingResponse(
             $shippingMethods,
             ShippingMethodDefinition::class,
             $request,
             $context->getContext()
+        );
+    }
+
+    private function filterShippingMethodsByRules(
+        Request $request,
+        CheckoutContext $context
+    ): EntitySearchResult {
+        $criteria = $this->createCriteria($request, ShippingMethodDefinition::class, $context);
+
+        $shippingMethods = $this->shippingMethodRepository->search($criteria, $context->getContext());
+        /** @var ShippingMethodCollection $shippingMethodEntities */
+        $shippingMethodEntities = $shippingMethods->getEntities();
+        $shippingMethodEntities = $shippingMethodEntities->filterByActiveRules($context);
+
+        return new EntitySearchResult(
+            $shippingMethods->getTotal() - ($shippingMethods->getEntities()->count() - $shippingMethodEntities->count()),
+            $shippingMethodEntities,
+            $shippingMethods->getAggregations(),
+            $shippingMethods->getCriteria(),
+            $shippingMethods->getContext()
         );
     }
 

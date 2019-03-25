@@ -42,17 +42,15 @@ class ShippingStreetRule extends Rule
             );
         }
 
-        $value = strtolower($this->streetName);
-
         switch ($this->operator) {
             case self::OPERATOR_EQ:
                 return new Match(
-                    (bool) preg_match("/$value/", strtolower($location->getStreet())),
+                    strcasecmp($this->streetName, $location->getStreet()) === 0,
                     ['Shipping street not matched']
                 );
             case self::OPERATOR_NEQ:
                 return new Match(
-                    !preg_match("/$value/", strtolower($location->getStreet())),
+                    strcasecmp($this->streetName, $location->getStreet()) !== 0,
                     ['Shipping street matched']
                 );
             default:

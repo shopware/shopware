@@ -5,6 +5,8 @@ namespace Shopware\Core\Checkout\Test\Cart;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Ramsey\Uuid\Uuid;
+use Shopware\Core\Checkout\Cart\Rule\CartAmountRule;
+use Shopware\Core\Checkout\Context\CheckoutRuleLoader;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -12,6 +14,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\AssertArraySubsetBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\StorefrontFunctionalTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\PlatformRequest;
 use Symfony\Bundle\FrameworkBundle\Client;
@@ -62,6 +65,11 @@ class StorefrontCheckoutControllerTest extends TestCase
      */
     private $context;
 
+    /**
+     * @var EntityRepositoryInterface
+     */
+    private $shippingMethodRepository;
+
     protected function setUp(): void
     {
         parent::setUp();
@@ -71,6 +79,7 @@ class StorefrontCheckoutControllerTest extends TestCase
         $this->customerRepository = $this->getContainer()->get('customer.repository');
         $this->mediaRepository = $this->getContainer()->get('media.repository');
         $this->currencyRepository = $this->getContainer()->get('currency.repository');
+        $this->shippingMethodRepository = $this->getContainer()->get('shipping_method.repository');
         $this->taxId = Uuid::uuid4()->getHex();
         $this->manufacturerId = Uuid::uuid4()->getHex();
         $this->context = Context::createDefaultContext();
@@ -573,6 +582,71 @@ class StorefrontCheckoutControllerTest extends TestCase
         static::assertEquals(sprintf('Order with id "%s" not found', $orderId), $content['errors'][0]['detail']);
     }
 
+    public function testUnavailableShippingMethodIsBlock(): void
+    {
+        static::markTestSkipped('This tests needs the recalculation of the cart');
+        $productId = Uuid::uuid4()->getHex();
+        $context = Context::createDefaultContext();
+
+        $this->productRepository->create([
+            [
+                'id' => $productId,
+                'name' => 'Test',
+                'price' => ['gross' => 10, 'net' => 9],
+                'manufacturer' => ['id' => $this->manufacturerId, 'name' => 'test'],
+                'tax' => ['id' => $this->taxId, 'taxRate' => 17, 'name' => 'with id'],
+            ],
+        ], $context);
+
+        $unavailableShippingMethodId = Uuid::uuid4()->getHex();
+
+        $this->shippingMethodRepository->create([
+            [
+                'id' => $unavailableShippingMethodId,
+                'name' => 'Unavailable',
+                'calculation' => 0,
+                'bindShippingfree' => false,
+                'availabilityRules' => [
+                    [
+                        'name' => 'Cart > 50',
+                        'priority' => 100,
+                        'conditions' => [
+                            [
+                                'type' => (new CartAmountRule())->getName(),
+                                'value' => [
+                                    'amount' => 50,
+                                    'operator' => '>',
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+        ], $context);
+
+        $ruleLoader = $this->getContainer()->get(CheckoutRuleLoader::class);
+        $rulesProperty = ReflectionHelper::getProperty(CheckoutRuleLoader::class, 'rules');
+        $rulesProperty->setValue($ruleLoader, null);
+
+        $client = $this->createCart();
+        $this->addProduct($client, $productId);
+        $content = json_decode($client->getResponse()->getContent(), true);
+        static::assertArrayHasKey('errors', $content['data']);
+        static::assertCount(0, $content['data']['errors']);
+
+        $this->setShippingMethod($unavailableShippingMethodId, $client);
+        $this->addProduct($client, $productId);
+        $content = json_decode($client->getResponse()->getContent(), true);
+        static::assertArrayHasKey('errors', $content['data']);
+        static::assertCount(1, $content['data']['errors']);
+
+        // add products with amount > 50
+        $this->addProduct($client, $productId, 10);
+        $content = json_decode($client->getResponse()->getContent(), true);
+        static::assertArrayHasKey('errors', $content['data']);
+        static::assertCount(0, $content['data']['errors']);
+    }
+
     private function createGuestOrder()
     {
         $productId = Uuid::uuid4()->getHex();
@@ -620,6 +694,10 @@ class StorefrontCheckoutControllerTest extends TestCase
         $quantity = 5;
         $this->addProduct($client, $productId, $quantity);
         static::assertSame(200, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
+
+        $ruleLoader = $this->getContainer()->get(CheckoutRuleLoader::class);
+        $rulesProperty = ReflectionHelper::getProperty(CheckoutRuleLoader::class, 'rules');
+        $rulesProperty->setValue($ruleLoader, null);
 
         $this->guestOrder($client, array_merge($personal, $billing));
         static::assertSame(200, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
@@ -714,6 +792,13 @@ class StorefrontCheckoutControllerTest extends TestCase
         $client->request('POST', '/storefront-api/v1/customer/login', [
             'username' => $email,
             'password' => $password,
+        ]);
+    }
+
+    private function setShippingMethod(string $shippingId, Client $client): void
+    {
+        $client->request('PATCH', '/storefront-api/v1/context', [
+            'shippingMethodId' => $shippingId,
         ]);
     }
 }

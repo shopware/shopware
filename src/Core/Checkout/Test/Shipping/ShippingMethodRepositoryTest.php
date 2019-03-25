@@ -51,8 +51,9 @@ class ShippingMethodRepositoryTest extends TestCase
         /** @var ShippingMethodCollection $resultSet */
         $resultSet = $this->shippingRepository->search($criteria, $defaultContext);
 
-        static::assertEquals($this->shippingMethodId, $resultSet->first()->getId());
-        static::assertEquals($this->ruleId, $resultSet->first()->getAvailabilityRules()->first()->getId());
+        static::assertSame($this->shippingMethodId, $resultSet->first()->getId());
+        static::assertSame($this->ruleId, $resultSet->first()->getAvailabilityRules()->first()->getId());
+        static::assertSame([$this->ruleId], $resultSet->first()->getAvailabilityRuleIds());
     }
 
     public function testUpdateShippingMethod(): void

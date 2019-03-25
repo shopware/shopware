@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Shipping;
 
+use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodPrice\ShippingMethodPriceCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
@@ -16,6 +17,17 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
  */
 class ShippingMethodCollection extends EntityCollection
 {
+    public function filterByActiveRules(CheckoutContext $checkoutContext): ShippingMethodCollection
+    {
+        return $this->filter(
+            function (ShippingMethodEntity $shippingMethod) use ($checkoutContext) {
+                $matches = array_intersect($shippingMethod->getAvailabilityRuleIds(), $checkoutContext->getRuleIds());
+
+                return !empty($matches);
+            }
+        );
+    }
+
     public function getPriceIds(): array
     {
         $ids = [[]];

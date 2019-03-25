@@ -3,26 +3,27 @@
 namespace Shopware\Core\Checkout\Cart;
 
 use Shopware\Core\Checkout\Cart\Error\ErrorCollection;
-use Shopware\Core\Checkout\Cart\Error\IncompleteLineItemError;
-use Shopware\Core\Checkout\Cart\LineItem\LineItem;
+use Shopware\Core\Checkout\CheckoutContext;
 
 class Validator
 {
-    public function validate(Cart $cart): ErrorCollection
+    /**
+     * @var CartValidatorInterface[]
+     */
+    private $validators;
+
+    public function __construct(iterable $validators)
     {
-        $errors = [];
+        $this->validators = $validators;
+    }
 
-        /** @var LineItem $lineItem */
-        foreach ($cart->getLineItems()->getFlat() as $lineItem) {
-            if ($lineItem->getLabel() === null) {
-                $errors[] = new IncompleteLineItemError($lineItem->getKey(), 'label');
-            }
-
-            if ($lineItem->getPrice() === null) {
-                $errors[] = new IncompleteLineItemError($lineItem->getKey(), 'price');
-            }
+    public function validate(Cart $cart, CheckoutContext $context): ErrorCollection
+    {
+        $errors = new ErrorCollection();
+        foreach ($this->validators as $validator) {
+            $validator->validate($cart, $errors, $context);
         }
 
-        return new ErrorCollection($errors);
+        return $errors;
     }
 }

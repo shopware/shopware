@@ -9,6 +9,8 @@ use Shopware\Core\Content\Rule\RuleDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriterInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\Demodata\DemodataContext;
@@ -46,7 +48,13 @@ class RuleGenerator implements DemodataGeneratorInterface
 
     public function generate(int $numberOfItems, DemodataContext $context, array $options = []): void
     {
-        $ids = $this->ruleRepository->searchIds(new Criteria(), $context->getContext());
+        $criteria = (new Criteria())->addFilter(
+            new NotFilter(
+                NotFilter::CONNECTION_AND, [new EqualsFilter('rule.shippingMethods.id', Defaults::SHIPPING_METHOD)]
+            )
+        );
+
+        $ids = $this->ruleRepository->searchIds($criteria, $context->getContext());
 
         if (!empty($ids->getIds())) {
             $context->add(RuleDefinition::class, ...$ids->getIds());

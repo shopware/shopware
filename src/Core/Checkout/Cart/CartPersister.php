@@ -3,6 +3,7 @@
 namespace Shopware\Core\Checkout\Cart;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Checkout\Cart\Error\ErrorCollection;
 use Shopware\Core\Checkout\Cart\Exception\CartDeserializeFailedException;
 use Shopware\Core\Checkout\Cart\Exception\CartTokenNotFoundException;
 use Shopware\Core\Checkout\CheckoutContext;
@@ -75,7 +76,7 @@ class CartPersister implements CartPersisterInterface
             'customer_id' => $customerId,
             'price' => $cart->getPrice()->getTotalPrice(),
             'line_item_count' => $cart->getLineItems()->count(),
-            'cart' => $this->serializer->serialize($cart, 'json'),
+            'cart' => $this->serializeCart($cart),
             'created_at' => (new \DateTime())->format(Defaults::DATE_FORMAT),
         ];
 
@@ -88,5 +89,15 @@ class CartPersister implements CartPersisterInterface
             'DELETE FROM cart WHERE `token` = :token',
             ['token' => $token]
         );
+    }
+
+    private function serializeCart(Cart $cart): string
+    {
+        $errors = $cart->getErrors();
+        $cart->setErrors(new ErrorCollection());
+        $serializedCart = $this->serializer->serialize($cart, 'json');
+        $cart->setErrors($errors);
+
+        return $serializedCart;
     }
 }

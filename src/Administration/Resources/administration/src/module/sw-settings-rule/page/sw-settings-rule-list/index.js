@@ -32,6 +32,10 @@ Component.register('sw-settings-rule-list', {
     methods: {
         getList() {
             this.isLoading = true;
+            if (!this.sortBy) {
+                this.sortBy = 'createdAt';
+            }
+
             const params = this.getListingParams();
 
             this.rules = [];

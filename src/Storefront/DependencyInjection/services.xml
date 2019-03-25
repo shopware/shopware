@@ -202,15 +202,11 @@
         </service>
 
         <service id="Shopware\Storefront\Page\Checkout\Confirm\CheckoutConfirmPageLoader">
+            <argument type="service" id="payment_method.repository"/>
+            <argument type="service" id="shipping_method.repository"/>
             <argument type="service" id="Shopware\Storefront\Framework\Page\PageWithHeaderLoader"/>
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\Storefront\CartService"/>
-        </service>
-
-        <service id="Shopware\Storefront\Page\Checkout\Config\CheckoutConfigPageLoader">
-            <argument type="service" id="payment_method.repository"/>
-            <argument type="service" id="shipping_method.repository"/>
-            <argument type="service" id="event_dispatcher"/>
         </service>
 
         <service id="Shopware\Storefront\Page\Checkout\Cart\CheckoutCartPageLoader">
@@ -287,7 +283,6 @@
             <argument type="service" id="Shopware\Storefront\Page\Checkout\Cart\CheckoutCartPageLoader"/>
             <argument type="service" id="Shopware\Storefront\Page\Checkout\Confirm\CheckoutConfirmPageLoader"/>
             <argument type="service" id="Shopware\Storefront\Page\Checkout\Finish\CheckoutFinishPageLoader"/>
-            <argument type="service" id="Shopware\Storefront\Page\Checkout\Config\CheckoutConfigPageLoader"/>
         </service>
 
         <service id="Shopware\Storefront\PageController\ErrorPageController" public="true">

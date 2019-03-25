@@ -71,14 +71,6 @@
         </service>
 
         <service class="Shopware\Storefront\Framework\Page\PageLoaderProfiler"
-            id="CheckoutConfigPageLoaderProfiler"
-            decorates="Shopware\Storefront\Page\Checkout\Config\CheckoutConfigPageLoader">
-
-            <argument type="service" id="CheckoutConfigPageLoaderProfiler.inner" />
-            <argument type="service" id="debug.stopwatch" />
-        </service>
-
-        <service class="Shopware\Storefront\Framework\Page\PageLoaderProfiler"
             id="CheckoutCartPageLoaderProfiler"
             decorates="Shopware\Storefront\Page\Checkout\Cart\CheckoutCartPageLoader">
 

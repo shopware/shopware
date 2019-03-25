@@ -251,5 +251,9 @@
         <service id="Shopware\Storefront\PageController\NavigationPageController" public="true">
             <argument type="service" id="Shopware\Storefront\Page\Navigation\NavigationPageLoader"/>
         </service>
+
+        <service id="Shopware\Storefront\Framework\Theme\SalesChannelExtension">
+            <tag name="shopware.entity.extension"/>
+        </service>
     </services>
 </container>

@@ -7,7 +7,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\DefinitionRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Storefront\Framework\Seo\Exception\InvalidTemplateException;
 use Shopware\Storefront\Framework\Seo\SeoServiceInterface;
-use Shopware\Storefront\Framework\Seo\SeoUrlTemplate\SeoUrlTemplateEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -36,10 +35,10 @@ class SeoActionController extends AbstractController
      */
     public function validate(Request $request, Context $context): JsonResponse
     {
-        $data = $request->request->all();
-        $seoUrlTemplate = $this->hydrateSeoUrlTemplate($data);
+        $this->validateSeoUrlTemplate($request);
+        $seoUrlTemplate = $request->request->all();
 
-        // just call it to validate
+        // just call it to validate the template
         $this->getPreview($seoUrlTemplate, $context);
 
         return new JsonResponse();
@@ -50,38 +49,36 @@ class SeoActionController extends AbstractController
      */
     public function preview(Request $request, Context $context): JsonResponse
     {
-        $data = $request->request->all();
-        $seoUrlTemplate = $this->hydrateSeoUrlTemplate($data);
+        $this->validateSeoUrlTemplate($request);
+        $seoUrlTemplate = $request->request->all();
         $preview = $this->getPreview($seoUrlTemplate, $context);
 
         return new JsonResponse($preview);
     }
 
-    private function hydrateSeoUrlTemplate(array $data): SeoUrlTemplateEntity
+    private function validateSeoUrlTemplate(Request $request): void
     {
-        if (!isset($data['template']) || !$data['template']) {
-            throw new InvalidTemplateException('Empty template');
+        $keys = ['template', 'salesChannelId', 'routeName', 'entityName'];
+        foreach ($keys as $key) {
+            if (!$request->request->has($key)) {
+                throw new InvalidTemplateException($key . ' is required');
+            }
         }
-
-        $seoUrlTemplate = new SeoUrlTemplateEntity();
-        $seoUrlTemplate->assign($data);
-
-        return $seoUrlTemplate;
     }
 
-    private function getPreview(SeoUrlTemplateEntity $seoUrlTemplate, Context $context): iterable
+    private function getPreview(array $seoUrlTemplate, Context $context): iterable
     {
-        $repo = $this->definitionRegistry->getRepository($seoUrlTemplate->getEntityName());
+        $repo = $this->definitionRegistry->getRepository($seoUrlTemplate['entityName']);
 
         $criteria = new Criteria();
         $criteria->setLimit(10);
         $ids = $repo->searchIds($criteria, $context)->getIds();
 
         return $this->seoService->generateSeoUrls(
-            $seoUrlTemplate->getSalesChannelId(),
-            $seoUrlTemplate->getRouteName(),
+            $seoUrlTemplate['salesChannelId'],
+            $seoUrlTemplate['routeName'],
             $ids,
-            $seoUrlTemplate->getTemplate()
+            $seoUrlTemplate['template']
         );
     }
 }

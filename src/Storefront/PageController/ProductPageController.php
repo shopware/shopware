@@ -2,7 +2,6 @@
 
 namespace Shopware\Storefront\PageController;
 
-use function Flag\next741;
 use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Framework\Routing\InternalRequest;
 use Shopware\Storefront\Framework\Controller\StorefrontController;
@@ -29,19 +28,6 @@ class ProductPageController extends StorefrontController
     public function index(CheckoutContext $context, InternalRequest $request): Response
     {
         $page = $this->detailPageLoader->load($request, $context);
-
-        /*
-         * TODO: remove debug code
-         */
-        if (next741()) {
-            $name = $page->getProduct()->getName();
-            $description = $page->getProduct()->getDescription();
-            $descriptionLong = $page->getProduct()->getDescriptionLong();
-
-            $content = "<html><head><title>$name</title></head><body><h1>$name</h1><p>$description</p><p>$descriptionLong</p></body>";
-
-            return new Response($content);
-        }
 
         return $this->renderStorefront('@Storefront/page/product-detail/index.html.twig', ['page' => $page]);
     }

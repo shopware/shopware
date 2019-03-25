@@ -3,20 +3,27 @@
 namespace Shopware\Core\Framework\Plugin\Helper;
 
 use Shopware\Core\Framework\Plugin\Composer\Factory;
+use Shopware\Core\Framework\Plugin\Struct\PluginFromFileSystemStruct;
 use Symfony\Component\Finder\Finder;
 
 class PluginFinder
 {
     /**
-     * @return string[]
+     * @return PluginFromFileSystemStruct[]
      */
     public static function findPlugins(string $pluginDir, string $projectDir): array
     {
-        $filesystemPlugins = (new Finder())->directories()->depth(0)->in($pluginDir)->getIterator();
+        $pluginsFromFileSystem = [];
 
-        $pluginNamesWithPaths = [];
+        $filesystemPlugins = (new Finder())->directories()->depth(0)->in($pluginDir)->getIterator();
         foreach ($filesystemPlugins as $filesystemPlugin) {
-            $pluginNamesWithPaths[$filesystemPlugin->getFilename()] = $filesystemPlugin->getPathname();
+            $pluginFromFileSystem = new PluginFromFileSystemStruct();
+            $pluginFromFileSystem->assign([
+                'name' => $filesystemPlugin->getFilename(),
+                'path' => $filesystemPlugin->getPathname(),
+                'managedByComposer' => false,
+            ]);
+            $pluginsFromFileSystem[] = $pluginFromFileSystem;
         }
 
         $composer = Factory::createComposer($projectDir);
@@ -26,10 +33,16 @@ class PluginFinder
             if ($composerPackage->getType() === 'shopware-plugin') {
                 $pluginName = $composerPackage->getExtra()['installer-name'];
                 $pluginPath = $composer->getConfig()->get('vendor-dir') . '/' . $composerPackage->getPrettyName();
-                $pluginNamesWithPaths[$pluginName] = $pluginPath;
+                $pluginFromFileSystem = new PluginFromFileSystemStruct();
+                $pluginFromFileSystem->assign([
+                    'name' => $pluginName,
+                    'path' => $pluginPath,
+                    'managedByComposer' => true,
+                ]);
+                $pluginsFromFileSystem[] = $pluginFromFileSystem;
             }
         }
 
-        return $pluginNamesWithPaths;
+        return $pluginsFromFileSystem;
     }
 }

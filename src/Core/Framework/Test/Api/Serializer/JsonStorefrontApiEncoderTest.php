@@ -43,7 +43,7 @@ class JsonStorefrontApiEncoderTest extends TestCase
     {
         $this->expectException(UnsupportedEncoderInputException::class);
 
-        $this->encoder->encode(ProductDefinition::class, $input, '/storefront-api');
+        $this->encoder->encode(ProductDefinition::class, $input);
     }
 
     public function testEncodeStruct(): void
@@ -88,7 +88,7 @@ class JsonStorefrontApiEncoderTest extends TestCase
             'included' => [],
         ];
 
-        $actual = $this->encoder->encode(MediaDefinition::class, $struct, '/api');
+        $actual = $this->encoder->encode(MediaDefinition::class, $struct);
         static::assertEquals($expected, json_decode($actual, true));
     }
 
@@ -98,7 +98,7 @@ class JsonStorefrontApiEncoderTest extends TestCase
         $expected = include __DIR__ . '/fixtures/testBasicWithToOneRelationshipExpectation.php';
         $expected = $this->removeRelationships($expected);
 
-        $actual = $this->encoder->encode(MediaDefinition::class, $struct, '/api');
+        $actual = $this->encoder->encode(MediaDefinition::class, $struct);
         static::assertEquals($expected, json_decode($actual, true));
     }
 
@@ -108,7 +108,7 @@ class JsonStorefrontApiEncoderTest extends TestCase
         $expected = include __DIR__ . '/fixtures/testBasicWithToManyRelationshipsExpectation.php';
         $expected = $this->removeRelationships($expected);
 
-        $actual = $this->encoder->encode(UserDefinition::class, $struct, '/api');
+        $actual = $this->encoder->encode(UserDefinition::class, $struct);
 
         static::assertEquals($expected, json_decode($actual, true));
     }
@@ -119,7 +119,7 @@ class JsonStorefrontApiEncoderTest extends TestCase
         $expected = include __DIR__ . '/fixtures/testCollectionWithToOneRelationshipExpectation.php';
         $expected = $this->removeRelationships($expected);
 
-        $actual = $this->encoder->encode(MediaDefinition::class, $collection, '/api');
+        $actual = $this->encoder->encode(MediaDefinition::class, $collection);
         static::assertEquals($expected, json_decode($actual, true));
     }
 
@@ -129,7 +129,7 @@ class JsonStorefrontApiEncoderTest extends TestCase
         $expected = include __DIR__ . '/fixtures/testMainResourceShouldNotBeInIncludedExpectation.php';
         $expected = $this->removeRelationships($expected);
 
-        $actual = $this->encoder->encode(UserDefinition::class, $struct, '/api');
+        $actual = $this->encoder->encode(UserDefinition::class, $struct);
 
         static::assertEquals($expected, json_decode($actual, true));
     }

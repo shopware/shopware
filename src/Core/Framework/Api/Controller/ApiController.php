@@ -26,7 +26,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
 use Shopware\Core\Framework\Search\CompositeEntitySearcher;
@@ -255,20 +254,17 @@ class ApiController extends AbstractController
     {
         [$criteria, $repository] = $this->resolveSearch($request, $context, $entityName, $path);
 
-        /** @var EntityRepositoryInterface $repository */
         $result = $repository->searchIds($criteria, $context);
 
         return new JsonResponse([
             'total' => $result->getTotal(),
-            'data' => array_values($result->getIds())
+            'data' => array_values($result->getIds()),
         ]);
     }
 
     public function search(Request $request, Context $context, ResponseFactoryInterface $responseFactory, string $entityName, string $path): Response
     {
         [$criteria, $repository] = $this->resolveSearch($request, $context, $entityName, $path);
-
-        error_log(print_r($request->getRequestUri() . ' => ' . $criteria->getLimit(), true) . "\n", 3, '/var/log/test.log');
 
         $result = $repository->search($criteria, $context);
 
@@ -412,6 +408,7 @@ class ApiController extends AbstractController
         $criteria = new Criteria();
         if (empty($pathSegments)) {
             $criteria = $this->searchCriteriaBuilder->handleRequest($request, $criteria, $definition, $context);
+
             return [$criteria, $repository];
         }
 

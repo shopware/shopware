@@ -30,7 +30,7 @@ class AbsolutePriceCalculator
     {
         $taxRules = $this->percentageTaxRuleBuilder->buildRules($prices->sum());
 
-        $priceDefinition = new QuantityPriceDefinition($price, $taxRules, 1, true);
+        $priceDefinition = new QuantityPriceDefinition($price, $taxRules, $context->getContext()->getCurrencyPrecision(), 1, true);
 
         return $this->priceCalculator->calculate($priceDefinition, $context);
     }

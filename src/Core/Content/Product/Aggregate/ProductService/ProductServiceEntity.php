@@ -164,14 +164,26 @@ class ProductServiceEntity extends Entity
             /** @var PriceRuleEntity $price */
             $price = $this->getPrices()->first();
 
-            return new QuantityPriceDefinition($price->getPrice()->getGross(), $taxRules, $quantity, true);
+            return new QuantityPriceDefinition(
+                $price->getPrice()->getGross(),
+                $taxRules,
+                $context->getCurrencyPrecision(),
+                $quantity,
+                true
+            );
         }
 
         if (!$this->getPrice()) {
-            return new QuantityPriceDefinition(0, $taxRules, $quantity, true);
+            return new QuantityPriceDefinition(0, $taxRules, $context->getCurrencyPrecision(), $quantity, true);
         }
 
-        return new QuantityPriceDefinition($this->getPrice()->getGross(), $taxRules, $quantity, true);
+        return new QuantityPriceDefinition(
+            $this->getPrice()->getGross(),
+            $taxRules,
+            $context->getCurrencyPrecision(),
+            $quantity,
+            true
+        );
     }
 
     public function getTaxRuleCollection(): TaxRuleCollection

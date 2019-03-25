@@ -51,9 +51,9 @@ class TaxAmountCalculator implements TaxAmountCalculatorInterface
         $rules = $this->percentageTaxRuleBuilder->buildRules($price);
 
         if ($this->taxDetector->useGross($context)) {
-            return $this->taxCalculator->calculateGrossTaxes($price->getTotalPrice(), $rules);
+            return $this->taxCalculator->calculateGrossTaxes($price->getTotalPrice(), $context->getContext()->getCurrencyPrecision(), $rules);
         }
 
-        return $this->taxCalculator->calculateNetTaxes($price->getTotalPrice(), $rules);
+        return $this->taxCalculator->calculateNetTaxes($price->getTotalPrice(), $context->getContext()->getCurrencyPrecision(), $rules);
     }
 }

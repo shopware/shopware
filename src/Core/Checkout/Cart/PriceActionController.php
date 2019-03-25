@@ -76,6 +76,7 @@ class PriceActionController extends AbstractController
         $definition = new QuantityPriceDefinition(
             $price,
             new TaxRuleCollection([new TaxRule($tax->getTaxRate())]),
+            $context->getCurrencyPrecision(),
             $quantity,
             $preCalculated
         );

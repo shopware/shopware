@@ -562,7 +562,7 @@ class RecalculationServiceTest extends TestCase
         );
         $cart->add(
             (new LineItem('1', 'product_', 5))
-                ->setPriceDefinition(new QuantityPriceDefinition(10, new TaxRuleCollection([new TaxRule(19)]), 5))
+                ->setPriceDefinition(new QuantityPriceDefinition(10, new TaxRuleCollection([new TaxRule(19)]), 2, 5))
                 ->setLabel('First product')
                 ->setPayloadValue('id', '1')
                 ->setStackable(true)
@@ -572,7 +572,7 @@ class RecalculationServiceTest extends TestCase
             (new LineItem('2', 'custom_absolute', 1))
                 // todo should be supported SOON
 //                ->setPriceDefinition(new AbsolutePriceDefinition(3))
-                ->setPriceDefinition(new QuantityPriceDefinition(3, new TaxRuleCollection([new TaxRule(7)]), 1))
+                ->setPriceDefinition(new QuantityPriceDefinition(3, new TaxRuleCollection([new TaxRule(7)]), 2, 1))
                 ->setLabel('Second custom line item with absolute price definition')
                 ->setDeliveryInformation($deliveryInformation)
         );
@@ -586,7 +586,7 @@ class RecalculationServiceTest extends TestCase
                         ->setLabel('Custom child depth 1 of the third line item')
                         ->addChild(
                             (new LineItem('3-1-1', 'product_', 1))
-                                ->setPriceDefinition(new QuantityPriceDefinition(9, new TaxRuleCollection([new TaxRule(5)]), 1))
+                                ->setPriceDefinition(new QuantityPriceDefinition(9, new TaxRuleCollection([new TaxRule(5)]), 2, 1))
                                 ->setLabel('Product depth 2 of third line item')
                                 ->setPayloadValue('id', '3-1-1')
                         )
@@ -697,6 +697,7 @@ class RecalculationServiceTest extends TestCase
                 'price' => 27.99,
                 'quantity' => 10,
                 'isCalculated' => false,
+                'precision' => 2,
                 'taxRules' => [
                     [
                         'taxRate' => 19,

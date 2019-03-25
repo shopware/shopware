@@ -44,11 +44,14 @@ class PercentagePriceCalculator
     {
         $price = $prices->sum();
 
-        $discount = $this->rounding->round($price->getTotalPrice() / 100 * $percentage);
+        $discount = $this->rounding->round(
+            $price->getTotalPrice() / 100 * $percentage,
+            $context->getContext()->getCurrencyPrecision()
+        );
 
         $rules = $this->percentageTaxRuleBuilder->buildRules($price);
 
-        $definition = new QuantityPriceDefinition($discount, $rules, 1, true);
+        $definition = new QuantityPriceDefinition($discount, $rules, $context->getContext()->getCurrencyPrecision(), 1, true);
 
         return $this->priceCalculator->calculate($definition, $context);
     }

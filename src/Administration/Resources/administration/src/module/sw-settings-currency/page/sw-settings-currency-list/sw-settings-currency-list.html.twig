@@ -122,6 +122,20 @@
                                                 </sw-grid-column>
                                             {% endblock %}
 
+                                        {% block sw_settings_currency_list_columns_decimal_precision %}
+                                            <sw-grid-column flex="minmax(100px, 1fr)"
+                                                            editable
+                                                            :label="$tc('sw-settings-currency.list.columnDecimalPrecision')">
+                                                {% block sw_settings_currency_list_columns_decimal_precision_label %}
+                                                    {{ item.decimalPrecision }}
+                                                {% endblock %}
+
+                                                {% block sw_settings_currency_list_grid_columns_decimal_precision_editor %}
+                                                    <sw-field type="number" v-model="item.decimalPrecision" slot="inline-edit"></sw-field>
+                                                {% endblock %}
+                                            </sw-grid-column>
+                                        {% endblock %}
+
                                             {% block sw_settings_currency_list_columns_actions %}
                                                 <sw-grid-column flex="minmax(70px, 70px)"
                                                                 align="center"

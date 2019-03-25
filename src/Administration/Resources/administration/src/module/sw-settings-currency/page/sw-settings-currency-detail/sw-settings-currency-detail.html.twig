@@ -76,6 +76,14 @@
                                           v-model="currency.factor">
                                 </sw-field>
                             {% endblock %}
+
+                            {% block sw_settings_currency_detail_content_field_decimal_precision %}
+                                <sw-field type="number"
+                                          :label="$tc('sw-settings-currency.detail.labelPrecision')"
+                                          :placeholder="$tc('sw-settings-currency.detail.placeholderPrecision')"
+                                          v-model="currency.decimalPrecision">
+                                </sw-field>
+                            {% endblock %}
                         </sw-container>
                     </sw-card>
                 {% endblock %}

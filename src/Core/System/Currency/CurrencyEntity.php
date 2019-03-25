@@ -49,6 +49,11 @@ class CurrencyEntity extends Entity
     protected $position;
 
     /**
+     * @var int
+     */
+    protected $decimalPrecision;
+
+    /**
      * @var \DateTimeInterface|null
      */
     protected $createdAt;
@@ -251,5 +256,15 @@ class CurrencyEntity extends Entity
     public function setAttributes(?array $attributes): void
     {
         $this->attributes = $attributes;
+    }
+
+    public function getDecimalPrecision(): int
+    {
+        return $this->decimalPrecision;
+    }
+
+    public function setDecimalPrecision(int $decimalPrecision): void
+    {
+        $this->decimalPrecision = $decimalPrecision;
     }
 }

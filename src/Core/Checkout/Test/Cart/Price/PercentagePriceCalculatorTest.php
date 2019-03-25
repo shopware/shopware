@@ -26,11 +26,11 @@ class PercentagePriceCalculatorTest extends TestCase
      */
     public function testCalculatePercentagePriceOfGrossPrices(float $percentage, CalculatedPrice $expected, PriceCollection $prices): void
     {
-        $rounding = new PriceRounding(2);
+        $rounding = new PriceRounding();
 
         $taxCalculator = new TaxCalculator(
             $rounding,
-            new TaxRuleCalculator(new PriceRounding(2))
+            new TaxRuleCalculator(new PriceRounding())
         );
 
         $calculator = new PercentagePriceCalculator(

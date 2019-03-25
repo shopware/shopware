@@ -50,7 +50,7 @@ class ProcessorTest extends TestCase
 
         $cart->add(
             (new LineItem('A', 'test'))
-                ->setPriceDefinition(new QuantityPriceDefinition(100, new TaxRuleCollection()))
+                ->setPriceDefinition(new QuantityPriceDefinition(100, new TaxRuleCollection(), 2))
         );
 
         $calculated = $this->processor->process($cart, $this->context, new CartBehaviorContext());
@@ -66,7 +66,7 @@ class ProcessorTest extends TestCase
 
         $cart->add(
             (new LineItem('A', 'test'))
-                ->setPriceDefinition(new QuantityPriceDefinition(100, new TaxRuleCollection()))
+                ->setPriceDefinition(new QuantityPriceDefinition(100, new TaxRuleCollection(), 2))
                 ->setDeliveryInformation(
                     new DeliveryInformation(
                         100,

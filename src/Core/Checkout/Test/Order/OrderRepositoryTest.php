@@ -97,7 +97,7 @@ class OrderRepositoryTest extends TestCase
             (new LineItem('test', 'test'))
                 ->setLabel('test')
                 ->setGood(true)
-                ->setPriceDefinition(new QuantityPriceDefinition(10, new TaxRuleCollection()))
+                ->setPriceDefinition(new QuantityPriceDefinition(10, new TaxRuleCollection(), 2))
         );
 
         $customerId = $this->createCustomer();
@@ -219,7 +219,7 @@ class OrderRepositoryTest extends TestCase
                         'type' => 'test',
                         'label' => 'test',
                         'price' => new CalculatedPrice(10, 10, new CalculatedTaxCollection(), new TaxRuleCollection()),
-                        'priceDefinition' => new QuantityPriceDefinition(10, new TaxRuleCollection()),
+                        'priceDefinition' => new QuantityPriceDefinition(10, new TaxRuleCollection(), 2),
                         'priority' => 100,
                         'good' => true,
                     ],

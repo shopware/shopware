@@ -19,10 +19,16 @@ class AbsolutePriceDefinition extends Struct implements PriceDefinitionInterface
      */
     protected $filter;
 
-    public function __construct(float $price, ?Rule $filter = null)
+    /**
+     * @var int
+     */
+    protected $precision;
+
+    public function __construct(float $price, int $precision, ?Rule $filter = null)
     {
         $this->price = $price;
         $this->filter = $filter;
+        $this->precision = $precision;
     }
 
     public function getFilter(): ?Rule
@@ -33,5 +39,10 @@ class AbsolutePriceDefinition extends Struct implements PriceDefinitionInterface
     public function getPrice(): float
     {
         return $this->price;
+    }
+
+    public function getPrecision(): int
+    {
+        return $this->precision;
     }
 }

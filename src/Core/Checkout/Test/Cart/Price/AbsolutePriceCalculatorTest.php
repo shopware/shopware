@@ -29,10 +29,10 @@ class AbsolutePriceCalculatorTest extends TestCase
         CalculatedPrice $expected,
         PriceCollection $prices
     ): void {
-        $rounding = new PriceRounding(2);
+        $rounding = new PriceRounding();
 
         $taxCalculator = new TaxCalculator(
-            new PriceRounding(2),
+            new PriceRounding(),
             new TaxRuleCalculator($rounding)
         );
 

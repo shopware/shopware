@@ -20,6 +20,7 @@ module.exports = {
             .fillField('input[name=sw-field--currency-name]', 'Yen')
             .fillField('input[name=sw-field--currency-shortName]', 'JPY')
             .fillField('input[name=sw-field--currency-symbol]', '¥')
+            .fillField('input[name=sw-field--currency-decimalPrecision]', '2')
             .fillField('input[name=sw-field--currency-factor]', '1.0076')
             .click(page.elements.currencySaveAction)
             .checkNotification('Currency "Yen" has been saved successfully.')

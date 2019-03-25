@@ -42,10 +42,11 @@ class GrossPriceCalculator
         $unitPrice = $this->getUnitPrice($definition);
 
         $price = $this->priceRounding->round(
-            $unitPrice * $definition->getQuantity()
+            $unitPrice * $definition->getQuantity(),
+            $definition->getPrecision()
         );
 
-        $calculatedTaxes = $this->taxCalculator->calculateGrossTaxes($price, $definition->getTaxRules());
+        $calculatedTaxes = $this->taxCalculator->calculateGrossTaxes($price, $definition->getPrecision(), $definition->getTaxRules());
 
         return new CalculatedPrice(
             $unitPrice,
@@ -65,9 +66,10 @@ class GrossPriceCalculator
 
         $price = $this->taxCalculator->calculateGross(
             $definition->getPrice(),
+            $definition->getPrecision(),
             $definition->getTaxRules()
         );
 
-        return $this->priceRounding->round($price);
+        return $this->priceRounding->round($price, $definition->getPrecision());
     }
 }

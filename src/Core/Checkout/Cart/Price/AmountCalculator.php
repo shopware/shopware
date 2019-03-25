@@ -86,7 +86,7 @@ class AmountCalculator
         $taxes = $this->taxAmountCalculator->calculate($allPrices, $context);
 
         $net = $total->getTotalPrice() - $taxes->getAmount();
-        $net = $this->rounding->round($net);
+        $net = $this->rounding->round($net, $context->getContext()->getCurrencyPrecision());
 
         return new CartPrice(
             $net,
@@ -113,7 +113,7 @@ class AmountCalculator
         $taxes = $this->taxAmountCalculator->calculate($all, $context);
 
         $gross = $total->getTotalPrice() + $taxes->getAmount();
-        $gross = $this->rounding->round($gross);
+        $gross = $this->rounding->round($gross, $context->getContext()->getCurrencyPrecision());
 
         return new CartPrice(
             $total->getTotalPrice(),

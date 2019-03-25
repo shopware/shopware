@@ -847,18 +847,30 @@ class ProductEntity extends Entity
 
         $prices->sortByQuantity();
 
-        $definitions = $prices->map(function (ProductPriceRuleEntity $rule) use ($taxRules) {
+        $definitions = $prices->map(function (ProductPriceRuleEntity $rule) use ($taxRules, $context) {
             $quantity = $rule->getQuantityEnd() ?? $rule->getQuantityStart();
 
-            return new QuantityPriceDefinition($rule->getPrice()->getGross(), $taxRules, $quantity, true);
+            return new QuantityPriceDefinition(
+                $rule->getPrice()->getGross(),
+                $taxRules,
+                $context->getCurrencyPrecision(),
+                $quantity,
+                true
+            );
         });
 
         return new PriceDefinitionCollection($definitions);
     }
 
-    public function getPriceDefinition(): QuantityPriceDefinition
+    public function getPriceDefinition(Context $context): QuantityPriceDefinition
     {
-        return new QuantityPriceDefinition($this->getPrice()->getGross(), $this->getTaxRuleCollection(), 1, true);
+        return new QuantityPriceDefinition(
+            $this->getPrice()->getGross(),
+            $this->getTaxRuleCollection(),
+            $context->getCurrencyPrecision(),
+            1,
+            true
+        );
     }
 
     public function getListingPriceDefinition(Context $context): QuantityPriceDefinition
@@ -878,17 +890,35 @@ class ProductEntity extends Entity
         $prices = $prices->getPriceRulesForContext($context);
 
         if (!$prices) {
-            return new QuantityPriceDefinition($this->getPrice()->getGross(), $taxRules, 1, true);
+            return new QuantityPriceDefinition(
+                $this->getPrice()->getGross(),
+                $taxRules,
+                $context->getCurrencyPrecision(),
+                1,
+                true
+            );
         }
 
         if ($prices->count() <= 0) {
-            return new QuantityPriceDefinition($this->getPrice()->getGross(), $taxRules, 1, true);
+            return new QuantityPriceDefinition(
+                $this->getPrice()->getGross(),
+                $taxRules,
+                $context->getCurrencyPrecision(),
+                1,
+                true
+            );
         }
 
         /** @var ProductPriceRuleEntity $price */
         $price = $prices->first();
 
-        return new QuantityPriceDefinition($price->getPrice()->getGross(), $taxRules, 1, true);
+        return new QuantityPriceDefinition(
+            $price->getPrice()->getGross(),
+            $taxRules,
+            $context->getCurrencyPrecision(),
+            1,
+            true
+        );
     }
 
     public function getPriceDefinitionForQuantity(Context $context, int $quantity): QuantityPriceDefinition
@@ -903,12 +933,24 @@ class ProductEntity extends Entity
         $prices = $rules->getPriceRulesForContext($context);
 
         if (!$prices) {
-            return new QuantityPriceDefinition($this->getPrice()->getGross(), $taxRules, $quantity, true);
+            return new QuantityPriceDefinition(
+                $this->getPrice()->getGross(),
+                $taxRules,
+                $context->getCurrencyPrecision(),
+                $quantity,
+                true
+            );
         }
 
         $price = $prices->getQuantityPrice($quantity);
 
-        return new QuantityPriceDefinition($price->getPrice()->getGross(), $taxRules, $quantity, true);
+        return new QuantityPriceDefinition(
+            $price->getPrice()->getGross(),
+            $taxRules,
+            $context->getCurrencyPrecision(),
+            $quantity,
+            true
+        );
     }
 
     public function getTaxRuleCollection(): TaxRuleCollection

@@ -103,16 +103,6 @@ class ProductEntity extends Entity
     protected $restockTime;
 
     /**
-     * @var bool|null
-     */
-    protected $isCloseout;
-
-    /**
-     * @var int|null
-     */
-    protected $minStock;
-
-    /**
      * @var int|null
      */
     protected $purchaseSteps;
@@ -153,16 +143,6 @@ class ProductEntity extends Entity
     protected $markAsTopseller;
 
     /**
-     * @var int|null
-     */
-    protected $sales;
-
-    /**
-     * @var int|null
-     */
-    protected $position;
-
-    /**
      * @var float|null
      */
     protected $weight;
@@ -186,11 +166,6 @@ class ProductEntity extends Entity
      * @var string|null
      */
     protected $template;
-
-    /**
-     * @var bool|null
-     */
-    protected $allowNotification;
 
     /**
      * @var \DateTimeInterface|null
@@ -241,11 +216,6 @@ class ProductEntity extends Entity
      * @var string|null
      */
     protected $description;
-
-    /**
-     * @var string|null
-     */
-    protected $descriptionLong;
 
     /**
      * @var string|null
@@ -472,26 +442,6 @@ class ProductEntity extends Entity
         $this->stock = $stock;
     }
 
-    public function getIsCloseout(): bool
-    {
-        return (bool) $this->isCloseout;
-    }
-
-    public function setIsCloseout(?bool $isCloseout): void
-    {
-        $this->isCloseout = $isCloseout;
-    }
-
-    public function getMinStock(): ?int
-    {
-        return $this->minStock;
-    }
-
-    public function setMinStock(?int $minStock): void
-    {
-        $this->minStock = $minStock;
-    }
-
     public function getPurchaseSteps(): ?int
     {
         return $this->purchaseSteps;
@@ -572,26 +522,6 @@ class ProductEntity extends Entity
         $this->markAsTopseller = $markAsTopseller;
     }
 
-    public function getSales(): ?int
-    {
-        return $this->sales;
-    }
-
-    public function setSales(?int $sales): void
-    {
-        $this->sales = $sales;
-    }
-
-    public function getPosition(): ?int
-    {
-        return $this->position;
-    }
-
-    public function setPosition(?int $position): void
-    {
-        $this->position = $position;
-    }
-
     public function getWeight(): ?float
     {
         return $this->weight;
@@ -630,16 +560,6 @@ class ProductEntity extends Entity
     public function setLength(?float $length): void
     {
         $this->length = $length;
-    }
-
-    public function getAllowNotification(): ?bool
-    {
-        return $this->allowNotification;
-    }
-
-    public function setAllowNotification(?bool $allowNotification): void
-    {
-        $this->allowNotification = $allowNotification;
     }
 
     public function getReleaseDate(): ?\DateTimeInterface
@@ -720,16 +640,6 @@ class ProductEntity extends Entity
     public function setDescription(?string $description): void
     {
         $this->description = $description;
-    }
-
-    public function getDescriptionLong(): ?string
-    {
-        return $this->descriptionLong;
-    }
-
-    public function setDescriptionLong(?string $descriptionLong): void
-    {
-        $this->descriptionLong = $descriptionLong;
     }
 
     public function getMetaTitle(): ?string

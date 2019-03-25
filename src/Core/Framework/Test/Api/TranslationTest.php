@@ -272,24 +272,26 @@ class TranslationTest extends TestCase
         $this->assertTranslation(
             [
                 'name' => 'translated',
-                'metaTitle' => null,
+                'territory' => null,
                 'viewData' => [
-                    'metaTitle' => 'translated by fallback',
+                    'territory' => 'translated by fallback',
                 ],
             ],
             [
+                'code' => 'test',
                 'translations' => [
-                    Defaults::LANGUAGE_SYSTEM => ['name' => 'default'],
+                    Defaults::LANGUAGE_SYSTEM => ['name' => 'default', 'territory' => 'translated by default'],
                     $langId => [
                         'name' => 'translated',
                     ],
                     $fallbackId => [
                         'name' => 'translated by fallback',
-                        'metaTitle' => 'translated by fallback',
+                        'territory' => 'translated by fallback',
                     ],
                 ],
             ],
-            $langId
+            $langId,
+            'locale'
         );
     }
 
@@ -302,66 +304,40 @@ class TranslationTest extends TestCase
         $this->assertTranslation(
             [
                 'name' => null,
-                'metaTitle' => 'translated',
+                'territory' => 'translated',
                 'viewData' => [
                     'name' => 'only translated by fallback',
-                    'metaTitle' => 'translated',
+                    'territory' => 'translated',
                 ],
             ],
             [
+                'code' => 'test',
                 'translations' => [
-                    Defaults::LANGUAGE_SYSTEM => ['name' => 'default'],
+                    Defaults::LANGUAGE_SYSTEM => ['name' => 'default', 'territory' => 'translated by default'],
                     $langId => [
-                        'metaTitle' => 'translated',
+                        'territory' => 'translated',
                     ],
                     $fallbackId => [
                         'name' => 'only translated by fallback',
                     ],
                 ],
             ],
-            $langId
-        );
-    }
-
-    public function testChildTranslationLongText(): void
-    {
-        $langId = Uuid::uuid4()->getHex();
-        $fallbackId = Uuid::uuid4()->getHex();
-        $this->createLanguage($langId, $fallbackId);
-
-        $this->assertTranslation(
-            [
-                'metaDescription' => 'translated',
-                'name' => null,
-                'viewData' => [
-                    'name' => 'only translated by fallback',
-                ],
-            ],
-            [
-                'translations' => [
-                    Defaults::LANGUAGE_SYSTEM => ['name' => 'default'],
-                    $langId => [
-                        'metaDescription' => 'translated',
-                    ],
-                    $fallbackId => [
-                        'name' => 'only translated by fallback',
-                    ],
-                ],
-            ],
-            $langId
+            $langId,
+            'locale'
         );
     }
 
     public function testWithOverrideInPatch(): void
     {
-        $baseResource = '/api/v' . PlatformRequest::API_VERSION . '/category';
+        $baseResource = '/api/v' . PlatformRequest::API_VERSION . '/locale';
         $id = Uuid::uuid4()->getHex();
         $langId = Uuid::uuid4()->getHex();
 
         $notTranslated = [
             'id' => $id,
+            'code' => 'test',
             'name' => 'not translated',
-            'metaDescription' => 'not translated',
+            'territory' => 'not translated',
         ];
 
         $this->createLanguage($langId);
@@ -372,7 +348,7 @@ class TranslationTest extends TestCase
         $response = $this->getClient()->getResponse();
         static::assertEquals(204, $response->getStatusCode());
 
-        $this->assertEntityExists($this->getClient(), 'category', $id);
+        $this->assertEntityExists($this->getClient(), 'locale', $id);
 
         $translated = [
             'id' => $id,
@@ -388,9 +364,9 @@ class TranslationTest extends TestCase
         $responseData = json_decode($response->getContent(), true);
 
         static::assertEquals($translated['name'], $responseData['data']['attributes']['name']);
-        static::assertNull($responseData['data']['attributes']['metaDescription']);
+        static::assertNull($responseData['data']['attributes']['territory']);
 
-        static::assertEquals($notTranslated['metaDescription'], $responseData['data']['meta']['viewData']['metaDescription']);
+        static::assertEquals($notTranslated['territory'], $responseData['data']['meta']['viewData']['territory']);
     }
 
     public function testDelete(): void
@@ -668,7 +644,6 @@ class TranslationTest extends TestCase
         $system = [
             'id' => $idSystem,
             'name' => '1. system',
-            'metaTitle' => 'only system',
         ];
         $this->getClient()->request('POST', $baseResource, $system);
         $this->assertEntityExists($this->getClient(), 'category', $idSystem);
@@ -677,8 +652,8 @@ class TranslationTest extends TestCase
         $root = [
             'id' => $idRoot,
             'translations' => [
-                Defaults::LANGUAGE_SYSTEM => ['name' => '2. system', 'metaTitle' => 'only system'],
-                $rootLangId => ['name' => '2. root', 'metaDescription' => 'only root'],
+                Defaults::LANGUAGE_SYSTEM => ['name' => '2. system'],
+                $rootLangId => ['name' => '2. root'],
             ],
         ];
         $this->getClient()->request('POST', $baseResource, $root);
@@ -688,8 +663,8 @@ class TranslationTest extends TestCase
         $childAndRoot = [
             'id' => $idChild,
             'translations' => [
-                Defaults::LANGUAGE_SYSTEM => ['name' => '3. system', 'metaTitle' => 'only system'],
-                $rootLangId => ['name' => '3. root', 'metaDescription' => 'only root'],
+                Defaults::LANGUAGE_SYSTEM => ['name' => '3. system'],
+                $rootLangId => ['name' => '3. root'],
                 $childLangId => ['name' => '3. child'],
             ],
         ];
@@ -710,25 +685,9 @@ class TranslationTest extends TestCase
         static::assertNull($data[1]['name']);
         static::assertEquals('3. child', $data[2]['name']);
 
-        static::assertNull($data[0]['metaTitle']);
-        static::assertNull($data[1]['metaTitle']);
-        static::assertNull($data[2]['metaTitle']);
-
-        static::assertNull($data[0]['metaDescription']);
-        static::assertNull($data[1]['metaDescription']);
-        static::assertNull($data[2]['metaDescription']);
-
         static::assertEquals('1. system', $data[0]['viewData']['name']);
         static::assertEquals('2. root', $data[1]['viewData']['name']);
         static::assertEquals('3. child', $data[2]['viewData']['name']);
-
-        static::assertEquals('only system', $data[0]['viewData']['metaTitle']);
-        static::assertEquals('only system', $data[1]['viewData']['metaTitle']);
-        static::assertEquals('only system', $data[2]['viewData']['metaTitle']);
-
-        static::assertNull($data[0]['viewData']['metaDescription']);
-        static::assertEquals('only root', $data[1]['viewData']['metaDescription']);
-        static::assertEquals('only root', $data[2]['viewData']['metaDescription']);
     }
 
     private function getLangHeaderName(): string
@@ -768,28 +727,28 @@ class TranslationTest extends TestCase
         static::assertEquals($errors, $actualErrors);
     }
 
-    private function assertTranslation(array $expectedTranslations, array $data, $langOverride = null): void
+    private function assertTranslation(array $expectedTranslations, array $data, $langOverride = null, string $entity = 'category'): void
     {
-        $baseResource = '/api/v' . PlatformRequest::API_VERSION . '/category';
+        $baseResource = '/api/v' . PlatformRequest::API_VERSION . '/' . $entity;
 
-        $categoryData = $data;
-        if (!isset($categoryData['id'])) {
-            $categoryData['id'] = Uuid::uuid4()->getHex();
+        $requestData = $data;
+        if (!isset($requestData['id'])) {
+            $requestData['id'] = Uuid::uuid4()->getHex();
         }
 
-        $this->getClient()->request('POST', $baseResource, $categoryData);
+        $this->getClient()->request('POST', $baseResource, $requestData);
         $response = $this->getClient()->getResponse();
 
         static::assertEquals(204, $response->getStatusCode(), $response->getContent());
 
-        $this->assertEntityExists($this->getClient(), 'category', $categoryData['id']);
+        $this->assertEntityExists($this->getClient(), $entity, $requestData['id']);
 
         $headers = ['HTTP_ACCEPT' => 'application/json'];
         if ($langOverride) {
             $headers[$this->getLangHeaderName()] = $langOverride;
         }
 
-        $this->getClient()->request('GET', $baseResource . '/' . $categoryData['id'], [], [], $headers);
+        $this->getClient()->request('GET', $baseResource . '/' . $requestData['id'], [], [], $headers);
 
         $response = $this->getClient()->getResponse();
         static::assertSame(Response::HTTP_OK, $response->getStatusCode(), $response->getContent());

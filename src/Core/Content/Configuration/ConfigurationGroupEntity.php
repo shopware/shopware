@@ -17,16 +17,6 @@ class ConfigurationGroupEntity extends Entity
     protected $name;
 
     /**
-     * @var bool
-     */
-    protected $filterable;
-
-    /**
-     * @var bool
-     */
-    protected $comparable;
-
-    /**
      * @var string
      */
     protected $displayType;
@@ -40,11 +30,6 @@ class ConfigurationGroupEntity extends Entity
      * @var string|null
      */
     protected $description;
-
-    /**
-     * @var int
-     */
-    protected $position;
 
     /**
      * @var ConfigurationGroupOptionCollection|null
@@ -99,36 +84,6 @@ class ConfigurationGroupEntity extends Entity
     public function setName(?string $name): void
     {
         $this->name = $name;
-    }
-
-    public function getFilterable(): bool
-    {
-        return $this->filterable;
-    }
-
-    public function setFilterable(bool $filterable): void
-    {
-        $this->filterable = $filterable;
-    }
-
-    public function getComparable(): bool
-    {
-        return $this->comparable;
-    }
-
-    public function setComparable(bool $comparable): void
-    {
-        $this->comparable = $comparable;
-    }
-
-    public function getPosition(): int
-    {
-        return $this->position;
-    }
-
-    public function setPosition(int $position): void
-    {
-        $this->position = $position;
     }
 
     public function getOptions(): ?ConfigurationGroupOptionCollection

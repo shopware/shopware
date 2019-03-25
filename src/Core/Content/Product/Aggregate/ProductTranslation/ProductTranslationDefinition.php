@@ -43,8 +43,7 @@ class ProductTranslationDefinition extends EntityTranslationDefinition
             new StringField('additional_text', 'additionalText'),
             new StringField('name', 'name'),
             new LongTextField('keywords', 'keywords'),
-            new LongTextField('description', 'description'),
-            new LongTextWithHtmlField('description_long', 'descriptionLong'),
+            new LongTextWithHtmlField('description', 'description'),
             new StringField('meta_title', 'metaTitle'),
             new StringField('pack_unit', 'packUnit'),
 

@@ -12,9 +12,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityDeletedEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\EntityScoreQueryBuilder;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\SearchTermInterpreter;
 use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
@@ -179,44 +176,6 @@ class CategoryRepositoryTest extends TestCase
 
         static::assertContains($parentId->getHex(), $event->getIds());
         static::assertContains($childId->getHex(), $event->getIds(), 'Category children id did not detected by delete');
-    }
-
-    public function testSearchRanking(): void
-    {
-        $parent = Uuid::uuid4()->getHex();
-        $recordA = Uuid::uuid4()->getHex();
-        $recordB = Uuid::uuid4()->getHex();
-
-        $categories = [
-            ['id' => $parent, 'name' => 'test'],
-            ['id' => $recordA, 'name' => 'match', 'parentId' => $parent],
-            ['id' => $recordB, 'name' => 'not', 'metaKeywords' => 'match', 'parentId' => $parent],
-        ];
-
-        $this->repository->create($categories, Context::createDefaultContext());
-
-        $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('category.parentId', $parent));
-
-        $builder = $this->getContainer()->get(EntityScoreQueryBuilder::class);
-
-        $pattern = $this->getContainer()->get(SearchTermInterpreter::class)->interpret('match');
-        $queries = $builder->buildScoreQueries($pattern, CategoryDefinition::class, 'category');
-        $criteria->addQuery(...$queries);
-
-        $result = $this->repository->searchIds($criteria, Context::createDefaultContext());
-
-        static::assertCount(2, $result->getIds());
-
-        static::assertEquals(
-            [$recordA, $recordB],
-            $result->getIds()
-        );
-
-        static::assertGreaterThan(
-            $result->getDataFieldOfId($recordB, '_score'),
-            $result->getDataFieldOfId($recordA, '_score')
-        );
     }
 
     public function testCreateNesting(): void

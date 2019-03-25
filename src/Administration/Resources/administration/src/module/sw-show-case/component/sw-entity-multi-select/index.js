@@ -1,6 +1,5 @@
 import { Component } from 'src/core/shopware';
 import Criteria from 'src/core/data-new/criteria.data';
-import utils from 'src/core/service/util.service';
 
 Component.extend('sw-entity-multi-select', 'sw-multi-select', {
     inject: ['repositoryFactory', 'context'],
@@ -27,7 +26,7 @@ Component.extend('sw-entity-multi-select', 'sw-multi-select', {
         resultLimit: {
             type: Number,
             required: false,
-            default: 10
+            default: 25
         }
     },
 
@@ -42,7 +41,6 @@ Component.extend('sw-entity-multi-select', 'sw-multi-select', {
     },
 
     methods: {
-
         initData() {
             this.repository = this.repositoryFactory.create(this.collection.entity, this.collection.source);
             this.searchRepository = this.repositoryFactory.create(this.collection.entity);
@@ -56,7 +54,7 @@ Component.extend('sw-entity-multi-select', 'sw-multi-select', {
                 this._displayAssigned(result);
             });
 
-            this.repository.search(this.collection.criteria, this.collection.context);
+            return this.repository.search(this.collection.criteria, this.collection.context);
         },
 
         loadVisibleItems() {
@@ -64,16 +62,17 @@ Component.extend('sw-entity-multi-select', 'sw-multi-select', {
                 this.collection.criteria.page + 1
             );
 
-            this.repository.search(
+            return this.repository.search(
                 this.collection.criteria,
                 this.collection.context
-            )
+            );
         },
 
         search() {
             this.searchCriteria.setTerm(this.searchTerm);
             this.searchCriteria.setPage(1);
-            this._sendSearchRequest();
+            this.currentOptions = [];
+            return this._sendSearchRequest();
         },
 
         isSelected(item) {
@@ -95,24 +94,33 @@ Component.extend('sw-entity-multi-select', 'sw-multi-select', {
 
         loadResultList() {
             this.searchCriteria = new Criteria(1, this.resultLimit);
-            this._sendSearchRequest();
+            return this._sendSearchRequest();
         },
 
         paginate() {
             this.searchCriteria.setPage(this.searchCriteria.page + 1);
-            this._sendSearchRequest();
+            return this._sendSearchRequest();
         },
 
         remove(identifier) {
-            this.repository.delete(identifier, this.collection.context);
-
             // remove identifier from visible element list
             this.visibleValues = this.visibleValues.filter((item) => {
                 return item[this.keyProperty] !== identifier;
             });
+
+            this.selectedIds = this.selectedIds.filter((id) => {
+                return id !== identifier;
+            });
+
+            return this.repository.delete(identifier, this.collection.context);
         },
 
         addItem({ item }) {
+            if (this.isSelected(item)) {
+                this.remove(item[this.keyProperty]);
+                return Promise.resolve();
+            }
+
             this.visibleValues.push(item);
             this.selectedIds.push(item[this.keyProperty]);
 
@@ -122,8 +130,6 @@ Component.extend('sw-entity-multi-select', 'sw-multi-select', {
         _sendSearchRequest() {
             return this.searchRepository.search(this.searchCriteria, this.context)
                 .then((searchResult) => {
-
-                    console.log(this.searchCriteria.limit, searchResult.length);
                     if (searchResult.length <= 0) {
                         return searchResult;
                     }

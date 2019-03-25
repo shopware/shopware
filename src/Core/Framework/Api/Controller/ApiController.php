@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Api\Controller;
 
 use Shopware\Core\Framework\Api\Exception\InvalidVersionNameException;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Exception\NoEntityClonedException;
 use Shopware\Core\Framework\Api\Exception\ResourceNotFoundException;
 use Shopware\Core\Framework\Api\OAuth\Scope\WriteScope;
@@ -358,6 +359,19 @@ class ApiController extends AbstractController
                 $local->getPropertyName() => $parent['value'],
                 $reference->getPropertyName() => $id,
             ];
+            /** @var EntityDefinition $parentDefinition */
+            $parentDefinition = $parent['definition'];
+
+            if ($parentDefinition::isVersionAware()) {
+                $versionField = $parentDefinition::getEntityName() . 'VersionId';
+                $mapping[$versionField] = $context->getVersionId();
+            }
+
+            if ($association->getReferenceDefinition()::isVersionAware()) {
+                $versionField = $association->getReferenceDefinition()::getEntityName() . 'VersionId';
+
+                $mapping[$versionField] = Defaults::LIVE_VERSION;
+            }
 
             $this->doDelete($context, $definition, $mapping);
 
@@ -448,6 +462,16 @@ class ApiController extends AbstractController
                     $parent['value']
                 )
             );
+
+            /** @var EntityDefinition $parentDefinition */
+            if ($parentDefinition::isVersionAware()) {
+                $criteria->addFilter(
+                    new EqualsFilter(
+                        sprintf('%s.%s.versionId', $definition::getEntityName(), $reverse->getPropertyName()),
+                        $context->getVersionId()
+                    )
+                );
+            }
         } elseif ($association instanceof OneToManyAssociationField) {
             /*
              * Example

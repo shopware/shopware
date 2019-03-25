@@ -594,12 +594,12 @@ class VersionManager
 
             if ($cascade instanceof ChildrenAssociationField) {
                 //break endless loop
-                if ($childCounter >= 30) {
-                    continue;
-                }
+//                if ($childCounter >= 30) {
+//                    continue;
+//                }
 
-                ++$childCounter;
-                $this->addCloneAssociations($reference, $nested, $childCounter);
+//                ++$childCounter;
+//                $this->addCloneAssociations($reference, $nested, $childCounter);
 
                 continue;
             }

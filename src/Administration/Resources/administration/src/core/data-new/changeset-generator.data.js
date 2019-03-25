@@ -112,7 +112,7 @@ export default class ChangesetGenerator {
         // check for new and updated items
         Object.entries(draft).forEach(([key, entity]) => {
             // new record?
-            if (!originIds.includes(entity.id)) {
+            if (!originIds.includes(key)) {
                 changes.push(entity.getDraft());
                 return true;
             }

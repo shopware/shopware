@@ -87,7 +87,7 @@ export default class Repository extends EventEmitter {
     assign(id, context) {
         const headers = this._buildHeaders(context);
 
-        return this.httpClient.post(`${this.route}`, {id}, { headers });
+        return this.httpClient.post(`${this.route}`, { id }, { headers });
     }
 
     delete(id, context) {

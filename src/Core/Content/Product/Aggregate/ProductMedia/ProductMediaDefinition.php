@@ -38,7 +38,7 @@ class ProductMediaDefinition extends EntityDefinition
 
     public static function getParentDefinitionClass(): ?string
     {
-        return MediaDefinition::class;
+        return ProductDefinition::class;
     }
 
     protected static function defineFields(): FieldCollection

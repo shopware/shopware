@@ -272,7 +272,7 @@ class StorefrontCustomerController extends AbstractController
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('order.orderCustomer.customerId', $context->getCustomer()->getId()));
-        $criteria->addSorting(new FieldSorting('order.date', FieldSorting::DESCENDING));
+        $criteria->addSorting(new FieldSorting('order.createdAt', FieldSorting::DESCENDING));
         $criteria->setLimit($limit);
         $criteria->setOffset($page * $limit);
         $criteria->setTotalCountMode(Criteria::TOTAL_COUNT_MODE_NEXT_PAGES);

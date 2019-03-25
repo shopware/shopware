@@ -31,7 +31,7 @@ class DocumentEntity extends Entity
     protected $config;
 
     /**
-     * @var int
+     * @var bool
      */
     protected $sent;
 
@@ -75,12 +75,12 @@ class DocumentEntity extends Entity
         $this->config = $config;
     }
 
-    public function getSent(): int
+    public function getSent(): bool
     {
         return $this->sent;
     }
 
-    public function setSent(int $sent): void
+    public function setSent(bool $sent): void
     {
         $this->sent = $sent;
     }

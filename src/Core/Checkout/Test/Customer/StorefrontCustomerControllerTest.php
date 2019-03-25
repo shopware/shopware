@@ -465,7 +465,7 @@ class StorefrontCustomerControllerTest extends TestCase
         $response = $this->getStorefrontClient()->getResponse();
         $content = json_decode($response->getContent(), true);
 
-        static::assertEquals(Response::HTTP_OK, $response->getStatusCode());
+        static::assertEquals(Response::HTTP_OK, $response->getStatusCode(), print_r($content, true));
         static::assertNotNull($content);
         static::assertCount(1, $content['data']);
     }

@@ -176,7 +176,6 @@ class OrderRepositoryTest extends TestCase
         $order = [
             [
                 'id' => $orderId,
-                'date' => date(DATE_ISO8601),
                 'price' => new CartPrice(10, 10, 10, new CalculatedTaxCollection(), new TaxRuleCollection(), CartPrice::TAX_STATE_NET),
                 'shippingCosts' => new CalculatedPrice(10, 10, new CalculatedTaxCollection(), new TaxRuleCollection()),
                 'stateId' => $this->stateMachineRegistry->getInitialState(Defaults::ORDER_STATE_MACHINE, $context)->getId(),

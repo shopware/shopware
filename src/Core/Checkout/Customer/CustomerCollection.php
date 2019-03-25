@@ -103,20 +103,6 @@ class CustomerCollection extends EntityCollection
         });
     }
 
-    public function getSessionIds(): array
-    {
-        return $this->fmap(function (CustomerEntity $customer) {
-            return $customer->getSessionId();
-        });
-    }
-
-    public function filterBySessionId(string $id): self
-    {
-        return $this->filter(function (CustomerEntity $customer) use ($id) {
-            return $customer->getSessionId() === $id;
-        });
-    }
-
     public function getGroups(): CustomerGroupCollection
     {
         return new CustomerGroupCollection(

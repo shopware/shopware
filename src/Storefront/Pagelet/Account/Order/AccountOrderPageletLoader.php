@@ -56,7 +56,7 @@ class AccountOrderPageletLoader implements PageLoaderInterface
     {
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('order.orderCustomer.customerId', $customerId));
-        $criteria->addSorting(new FieldSorting('order.date', FieldSorting::DESCENDING));
+        $criteria->addSorting(new FieldSorting('order.createdAt', FieldSorting::DESCENDING));
 
         $criteria->setTotalCountMode(Criteria::TOTAL_COUNT_MODE_NEXT_PAGES);
 

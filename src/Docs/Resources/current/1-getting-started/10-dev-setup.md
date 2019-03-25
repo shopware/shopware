@@ -41,7 +41,6 @@ xmlwriter, zip
 SQL
 - MySQL 5.7.21 or greater
 - MariaDB 10.3 or greater
-    - The mysql configutation `group_concat_max_len` must be set to at least `320000`
     
 JavaScript
 - Node.js 8.10.0 or greater
@@ -141,6 +140,7 @@ Open a mysql shell `sudo mysql ` and add a new user:
 CREATE USER 'app'@'localhost' IDENTIFIED BY 'app';
 GRANT ALL PRIVILEGES ON shopware.* TO 'app'@'localhost';
 GRANT ALL PRIVILEGES ON shopware_test.* TO 'app'@'localhost';
+GRANT ALL PRIVILEGES ON shopware_e2e.* TO 'app'@'localhost';
 FLUSH PRIVILEGES;
 QUIT
 ```

@@ -201,7 +201,7 @@ Component.extend('sw-product-stream-filter', 'sw-condition-base', {
 
             const definitions = [];
             const blackListedDefinitions = [];
-            let definition = Entity.getDefinition(productDefinitionName);
+            let definition = Object.assign({}, Entity.getDefinition(productDefinitionName));
             this.addDefinitionToStack(definition, definitions, blackListedDefinitions);
 
             this.fields.forEach((field) => {
@@ -231,16 +231,17 @@ Component.extend('sw-product-stream-filter', 'sw-condition-base', {
                 }
 
                 store[key] = definition.properties[key];
-                let label = '';
-                if (key === 'id' && definition.name === productDefinitionName) {
-                    label = this.$tc('sw-product-stream.filter.values.product');
-                } else if (key === 'id') {
-                    label = this.$tc('sw-product-stream.filter.values.choose');
-                } else {
-                    label = this.$tc(`sw-product-stream.filter.values.${key}`);
+                if (!store[key].label) {
+                    let label = '';
+                    if (key === 'id' && definition.name === productDefinitionName) {
+                        label = this.$tc('sw-product-stream.filter.values.product');
+                    } else if (key === 'id') {
+                        label = this.$tc('sw-product-stream.filter.values.choose');
+                    } else {
+                        label = this.$tc(`sw-product-stream.filter.values.${key}`);
+                    }
+                    store[key].label = label;
                 }
-
-                store[key].label = label;
                 store[key].name = key;
                 store[key].meta = {
                     viewData: {
@@ -279,6 +280,10 @@ Component.extend('sw-product-stream-filter', 'sw-condition-base', {
         getPathFields() {
             const fields = [];
             let definition = this.filterProperties(Entity.getDefinition(productDefinitionName));
+            const productAttributes = this.productStreamConditionService.productAttributes;
+            if (Object.keys(productAttributes).length && !definition.attributes.properties) {
+                definition.attributes.properties = productAttributes;
+            }
             if (!this.actualCondition.field) {
                 this.actualCondition.field = 'id';
                 fields.push(definition.id);

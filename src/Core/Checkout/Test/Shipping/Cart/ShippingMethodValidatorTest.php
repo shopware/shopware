@@ -14,6 +14,7 @@ use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Shipping\Cart\Error\ShippingMethodBlockedError;
 use Shopware\Core\Checkout\Shipping\Cart\ShippingMethodValidator;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
+use Shopware\Core\Content\DeliveryTime\DeliveryTimeEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 class ShippingMethodValidatorTest extends TestCase
@@ -32,13 +33,14 @@ class ShippingMethodValidatorTest extends TestCase
 
     public function testValidateWithoutRules(): void
     {
+        $deliveryTime = $this->generateDeliveryTimeDummy();
+
         $cart = $this->createMock(Cart::class);
         $context = $this->createMock(SalesChannelContext::class);
         $shippingMethod = new ShippingMethodEntity();
         $shippingMethod->setId('1');
         $shippingMethod->setAvailabilityRuleId('1');
-        $shippingMethod->setMinDeliveryTime(1);
-        $shippingMethod->setMaxDeliveryTime(3);
+        $shippingMethod->setDeliveryTime($deliveryTime);
         $deliveryDate = new DeliveryDate(new \DateTime(), new \DateTime());
         $delivery = new Delivery(
             new DeliveryPositionCollection(),
@@ -61,10 +63,12 @@ class ShippingMethodValidatorTest extends TestCase
     {
         $cart = $this->createMock(Cart::class);
         $context = $this->createMock(SalesChannelContext::class);
+
+        $deliveryTime = $this->generateDeliveryTimeDummy();
+
         $shippingMethod = new ShippingMethodEntity();
         $shippingMethod->setId('1');
-        $shippingMethod->setMinDeliveryTime(1);
-        $shippingMethod->setMaxDeliveryTime(3);
+        $shippingMethod->setDeliveryTime($deliveryTime);
         $deliveryDate = new DeliveryDate(new \DateTime(), new \DateTime());
         $delivery = new Delivery(
             new DeliveryPositionCollection(),
@@ -88,11 +92,12 @@ class ShippingMethodValidatorTest extends TestCase
         $cart = $this->createMock(Cart::class);
         $context = $this->createMock(SalesChannelContext::class);
 
+        $deliveryTime = $this->generateDeliveryTimeDummy();
+
         $shippingMethod = new ShippingMethodEntity();
         $shippingMethod->setId('1');
         $shippingMethod->setAvailabilityRuleId('1');
-        $shippingMethod->setMinDeliveryTime(1);
-        $shippingMethod->setMaxDeliveryTime(3);
+        $shippingMethod->setDeliveryTime($deliveryTime);
 
         $deliveryDate = new DeliveryDate(new \DateTime(), new \DateTime());
         $delivery = new Delivery(
@@ -117,11 +122,12 @@ class ShippingMethodValidatorTest extends TestCase
         $cart = $this->createMock(Cart::class);
         $context = $this->createMock(SalesChannelContext::class);
 
+        $deliveryTime = $this->generateDeliveryTimeDummy();
+
         $shippingMethod = new ShippingMethodEntity();
         $shippingMethod->setId('1');
         $shippingMethod->setName('Express');
-        $shippingMethod->setMinDeliveryTime(1);
-        $shippingMethod->setMaxDeliveryTime(3);
+        $shippingMethod->setDeliveryTime($deliveryTime);
         $shippingMethod->setAvailabilityRuleId('1');
         $deliveryDate = new DeliveryDate(new \DateTime(), new \DateTime());
         $delivery = new Delivery(
@@ -148,11 +154,12 @@ class ShippingMethodValidatorTest extends TestCase
         $cart = $this->createMock(Cart::class);
         $context = $this->createMock(SalesChannelContext::class);
 
+        $deliveryTime = $this->generateDeliveryTimeDummy();
+
         $shippingMethod = new ShippingMethodEntity();
         $shippingMethod->setId('1');
         $shippingMethod->setName('Express');
-        $shippingMethod->setMinDeliveryTime(1);
-        $shippingMethod->setMaxDeliveryTime(3);
+        $shippingMethod->setDeliveryTime($deliveryTime);
         $deliveryDate = new DeliveryDate(new \DateTime(), new \DateTime());
         $delivery = new Delivery(
             new DeliveryPositionCollection(),
@@ -186,11 +193,12 @@ class ShippingMethodValidatorTest extends TestCase
         $cart = $this->createMock(Cart::class);
         $context = $this->createMock(SalesChannelContext::class);
 
+        $deliveryTime = $this->generateDeliveryTimeDummy();
+
         $shippingMethod = new ShippingMethodEntity();
         $shippingMethod->setId('1');
         $shippingMethod->setName('Express');
-        $shippingMethod->setMinDeliveryTime(1);
-        $shippingMethod->setMaxDeliveryTime(3);
+        $shippingMethod->setDeliveryTime($deliveryTime);
         $deliveryDate = new DeliveryDate(new \DateTime(), new \DateTime());
         $delivery = new Delivery(
             new DeliveryPositionCollection(),
@@ -203,8 +211,7 @@ class ShippingMethodValidatorTest extends TestCase
         $shippingMethod2 = new ShippingMethodEntity();
         $shippingMethod2->setId('3');
         $shippingMethod2->setName('Standard');
-        $shippingMethod2->setMinDeliveryTime(1);
-        $shippingMethod2->setMaxDeliveryTime(3);
+        $shippingMethod2->setDeliveryTime($deliveryTime);
 
         $delivery2 = new Delivery(
             new DeliveryPositionCollection(),
@@ -224,5 +231,15 @@ class ShippingMethodValidatorTest extends TestCase
         static::assertInstanceOf(ShippingMethodBlockedError::class, $errors->first());
         static::assertSame('shipping-method-blocked-Express', $errors->first()->getKey());
         static::assertSame('shipping-method-blocked-Standard', $errors->last()->getKey());
+    }
+
+    private function generateDeliveryTimeDummy(): DeliveryTimeEntity
+    {
+        $deliveryTime = new DeliveryTimeEntity();
+        $deliveryTime->setMin(1);
+        $deliveryTime->setMax(3);
+        $deliveryTime->setUnit(DeliveryTimeEntity::DELIVERY_TIME_DAY);
+
+        return $deliveryTime;
     }
 }

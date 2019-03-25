@@ -34,6 +34,7 @@
       "labelBindShippingfree": "Free shipping",
       "labelMinDeliveryTime": "Min. delivery time",
       "labelMaxDeliveryTime": "Max. delivery time",
+      "labelDeliveryTime": "Delivery time",
       "placeholderName": "Enter name",
       "placeholderDescription": "Enter description",
       "placeholderComment": "Enter comment",

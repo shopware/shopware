@@ -4,6 +4,7 @@ namespace Shopware\Core\Checkout\Test\Shipping;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Shipping\ShippingMethodCollection;
+use Shopware\Core\Content\DeliveryTime\DeliveryTimeEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -144,7 +145,19 @@ class ShippingMethodRepositoryTest extends TestCase
                     'name' => 'asd',
                     'priority' => 2,
                 ],
+                'deliveryTime' => $this->createDeliveryTimeData(),
             ],
+        ];
+    }
+
+    private function createDeliveryTimeData(): array
+    {
+        return [
+            'id' => Uuid::randomHex(),
+            'name' => 'testDeliveryTime',
+            'min' => 1,
+            'max' => 90,
+            'unit' => DeliveryTimeEntity::DELIVERY_TIME_DAY,
         ];
     }
 }

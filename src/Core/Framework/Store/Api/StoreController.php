@@ -10,9 +10,11 @@ use Shopware\Core\Framework\Plugin\PluginCollection;
 use Shopware\Core\Framework\Plugin\PluginEntity;
 use Shopware\Core\Framework\Plugin\PluginLifecycleService;
 use Shopware\Core\Framework\Plugin\PluginManagementService;
+use Shopware\Core\Framework\Store\Exception\StoreTokenMissingException;
 use Shopware\Core\Framework\Store\Services\StoreClient;
+use Shopware\Core\Framework\Store\StoreSettingsEntity;
+use Shopware\Core\System\User\UserEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\Cookie;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -40,44 +42,77 @@ class StoreController extends AbstractController
      */
     private $pluginLifecycleService;
 
+    /**
+     * @var EntityRepositoryInterface
+     */
+    private $userRepository;
+
+    /**
+     * @var EntityRepositoryInterface
+     */
+    private $storeSettingsRepo;
+
     public function __construct(
         StoreClient $storeClient,
         EntityRepositoryInterface $pluginRepo,
         PluginManagementService $pluginManagementService,
-        PluginLifecycleService $pluginLifecycleService
+        PluginLifecycleService $pluginLifecycleService,
+        EntityRepositoryInterface $userRepository,
+        EntityRepositoryInterface $storeSettingsRepo
     ) {
         $this->storeClient = $storeClient;
         $this->pluginRepo = $pluginRepo;
         $this->pluginManagementService = $pluginManagementService;
         $this->pluginLifecycleService = $pluginLifecycleService;
+        $this->userRepository = $userRepository;
+        $this->storeSettingsRepo = $storeSettingsRepo;
     }
 
     /**
      * @Route("/api/v{version}/_action/store/login", name="api.custom.store.login", methods={"POST"})
      */
-    public function login(Request $request): JsonResponse
+    public function login(Request $request, Context $context): JsonResponse
     {
         $shopwareId = $request->request->get('shopwareId');
         $password = $request->request->get('password');
 
-        $accessTokenStruct = $this->storeClient->loginWithShopwareId($shopwareId, $password);
+        $accessTokenStruct = $this->storeClient->loginWithShopwareId($shopwareId, $password, $context);
 
-        $response = new JsonResponse($accessTokenStruct->toArray());
-        $response->headers->setCookie(new Cookie('store_token', $accessTokenStruct->getToken()));
+        $userId = $context->getSourceContext()->getUserId();
 
-        return $response;
-    }
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('key', 'shopSecret'));
 
-    /**
-     * @Route("/api/v{version}/_action/store/checklogin", name="api.custom.store.checklogin", methods={"GET"})
-     */
-    public function checkLogin(Request $request): JsonResponse
-    {
-        $token = $request->cookies->get('store_token');
-        if ($token === null) {
-            return new JsonResponse([], Response::HTTP_UNAUTHORIZED);
-        }
-        $this->storeClient->checkLogin($token);
+        /** @var StoreSettingsEntity|null $shopSecret */
+        $shopSecret = $this->storeSettingsRepo->search($criteria, $context)->first();
+
+        $data = [
+            [
+                'id' => $shopSecret !== null ? $shopSecret->getId() : null,
+                'key' => 'shopSecret',
+                'value' => $accessTokenStruct->getShopSecret(),
+            ],
+        ];
+        $this->storeSettingsRepo->upsert($data, $context);
+
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('key', 'shopwareId'));
+
+        /** @var StoreSettingsEntity|null $shopSecret */
+        $shopSecret = $this->storeSettingsRepo->search($criteria, $context)->first();
+
+        $data = [
+            [
+                'id' => $shopSecret !== null ? $shopSecret->getId() : null,
+                'key' => 'shopwareId',
+                'value' => $shopwareId,
+            ],
+        ];
+        $this->storeSettingsRepo->upsert($data, $context);
+
+        $this->userRepository->update([
+            ['id' => $userId, 'storeToken' => $accessTokenStruct->getShopUserToken()->getToken()],
+        ], $context);
 
         return new JsonResponse();
     }
@@ -87,9 +122,9 @@ class StoreController extends AbstractController
      */
     public function getLicenseList(Request $request, Context $context): JsonResponse
     {
-        $token = $request->cookies->get('store_token', '');
+        $storeToken = $this->getUserStoreToken($context);
 
-        $licenseList = $this->storeClient->getLicenseList($token, $context);
+        $licenseList = $this->storeClient->getLicenseList($storeToken, $context);
 
         return new JsonResponse([
             'items' => $licenseList,
@@ -104,8 +139,9 @@ class StoreController extends AbstractController
     {
         /** @var PluginCollection $plugins */
         $plugins = $this->pluginRepo->search(new Criteria(), $context)->getEntities();
+        $storeToken = $this->getUserStoreToken($context);
 
-        $updatesList = $this->storeClient->getUpdatesList($plugins);
+        $updatesList = $this->storeClient->getUpdatesList($storeToken, $plugins, $context);
 
         return new JsonResponse([
             'items' => $updatesList,
@@ -118,9 +154,9 @@ class StoreController extends AbstractController
      */
     public function downloadPlugin(Request $request, Context $context): JsonResponse
     {
-        $token = $request->cookies->get('store_token', '');
+        $storeToken = $this->getUserStoreToken($context);
 
-        $data = $this->storeClient->getDownloadDataForPlugin($request->query->get('pluginName'), $token);
+        $data = $this->storeClient->getDownloadDataForPlugin($request->query->get('pluginName'), $storeToken, $context);
 
         $statusCode = $this->pluginManagementService->downloadStorePlugin($data->getLocation(), $context);
         if ($statusCode !== Response::HTTP_OK) {
@@ -138,5 +174,19 @@ class StoreController extends AbstractController
         }
 
         return new JsonResponse();
+    }
+
+    private function getUserStoreToken(Context $context): string
+    {
+        $userId = $context->getSourceContext()->getUserId();
+
+        /** @var UserEntity|null $user */
+        $user = $this->userRepository->search(new Criteria([$userId]), $context)->first();
+
+        if ($user->getStoreToken() === null) {
+            throw new StoreTokenMissingException('the user does not have a store token');
+        }
+
+        return $user->getStoreToken();
     }
 }

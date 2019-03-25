@@ -106,6 +106,11 @@ class UserEntity extends Entity
     protected $recoveryUser;
 
     /**
+     * @var string|null
+     */
+    protected $storeToken;
+
+    /**
      * @var array|null
      */
     protected $attributes;
@@ -298,5 +303,15 @@ class UserEntity extends Entity
     public function setRecoveryUser(UserRecoveryEntity $recoveryUser): void
     {
         $this->recoveryUser = $recoveryUser;
+    }
+
+    public function getStoreToken(): ?string
+    {
+        return $this->storeToken;
+    }
+
+    public function setStoreToken(?string $storeToken): void
+    {
+        $this->storeToken = $storeToken;
     }
 }

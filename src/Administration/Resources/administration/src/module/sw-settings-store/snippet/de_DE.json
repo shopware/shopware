@@ -1,0 +1,16 @@
+{
+  "sw-settings-store": {
+    "general": {
+        "mainMenuItemGeneral": "Shopware Account",
+        "textHeadline": "Shopware Account",
+        "buttonSave": "Speichern",
+        "titleSave": "Speichern erfolgreich",
+        "messageSave": "Deine Shopware Account Daten wurden erfolgreich gespeichert"
+    },
+    "detail": {
+        "titleCard": "Einstellungen",
+        "labelHost": "Lizenzierungshost",
+        "placeholderHost": "Trage hier deinen Hostnamen an, der im Shopware Account hinterlegt ist"
+    }
+  }
+}

@@ -14,8 +14,7 @@ Component.register('sw-plugin-store-login', {
     data() {
         return {
             shopwareId: '',
-            password: '',
-            showModal: true
+            password: ''
         };
     },
 
@@ -31,7 +30,7 @@ Component.register('sw-plugin-store-login', {
         },
 
         onCloseModal() {
-            this.showModal = false;
+            this.$emit('sw-plugin-store-login-abort');
         }
     }
 });

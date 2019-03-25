@@ -9,6 +9,8 @@
             <argument type="service" id="plugin.repository" />
             <argument type="service" id="Shopware\Core\Framework\Plugin\PluginManagementService" />
             <argument type="service" id="Shopware\Core\Framework\Plugin\PluginLifecycleService" />
+            <argument type="service" id="user.repository" />
+            <argument type="service" id="store_settings.repository" />
         </service>
 
         <service class="GuzzleHttp\Client" id="shopware.store.api_client">
@@ -18,9 +20,6 @@
                     <argument key="Content-Type" type="string">application/json</argument>
                     <argument key="ACCEPT" type="string">application/vnd.api+json,application/json</argument>
                 </argument>
-                <argument key="query" type="collection">
-                    <argument key="domain" type="string">%shopware.store.host%</argument>
-                </argument>
             </argument>
         </service>
 
@@ -28,10 +27,15 @@
             <argument type="service" id="shopware.store.api_client" />
             <argument type="service" id="Shopware\Core\Framework\Store\Services\OpenSSLVerifier" />
             <argument type="service" id="plugin.repository"/>
+            <argument type="service" id="store_settings.repository"/>
         </service>
 
         <service id="Shopware\Core\Framework\Store\Services\OpenSSLVerifier">
             <argument>%kernel.project_dir%/vendor/shopware/platform/src/Core/Framework/Store/public.key</argument>
+        </service>
+
+        <service id="Shopware\Core\Framework\Store\StoreSettingsDefinition">
+            <tag name="shopware.entity.definition" entity="store_settings" />
         </service>
     </services>
 </container>

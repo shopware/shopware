@@ -90,8 +90,8 @@ Component.register('sw-category-view', {
             this.$emit('sw-category-view-on-upload-media', uploadTag);
         },
 
-        setMediaItem({ targetId }) {
-            this.$emit('sw-category-view-on-set-media', targetId);
+        setMediaItem({ media }) {
+            this.$emit('sw-category-view-on-set-media', media);
         },
 
         removeMediaItem() {

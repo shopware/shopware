@@ -185,11 +185,14 @@ Component.register('sw-category-detail', {
             this.$refs.mediaSidebarItem.openContent();
         },
 
-        setMediaItem(mediaId) {
-            this.mediaStore.getByIdAsync(mediaId).then((updatedEntity) => {
-                this.mediaItem = updatedEntity;
-            });
-            this.category.mediaId = mediaId;
+        setMediaItem(media) {
+            this.mediaItem = media;
+            this.category.mediaId = media.id;
+        },
+
+        removeMediaItem() {
+            this.category.mediaId = null;
+            this.mediaItem = null;
         },
 
         onUnlinkLogo() {

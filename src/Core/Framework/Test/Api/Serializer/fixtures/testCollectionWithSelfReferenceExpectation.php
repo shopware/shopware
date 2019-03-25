@@ -17,13 +17,13 @@ return [
                 'attributes' => null,
             ],
             'links' => [
-                'self' => '/api/media-folder/3e352be2d85846dd97529c0f6b544870',
+                'self' => '/media-folder/3e352be2d85846dd97529c0f6b544870',
             ],
             'relationships' => [
                 'parent' => [
                     'data' => null,
                     'links' => [
-                        'related' => '/api/media-folder/3e352be2d85846dd97529c0f6b544870/parent',
+                        'related' => '/media-folder/3e352be2d85846dd97529c0f6b544870/parent',
                     ],
                 ],
                 'children' => [
@@ -34,25 +34,25 @@ return [
                         ],
                     ],
                     'links' => [
-                        'related' => '/api/media-folder/3e352be2d85846dd97529c0f6b544870/children',
+                        'related' => '/media-folder/3e352be2d85846dd97529c0f6b544870/children',
                     ],
                 ],
                 'media' => [
                     'data' => [],
                     'links' => [
-                        'related' => '/api/media-folder/3e352be2d85846dd97529c0f6b544870/media',
+                        'related' => '/media-folder/3e352be2d85846dd97529c0f6b544870/media',
                     ],
                 ],
                 'defaultFolder' => [
                     'data' => null,
                     'links' => [
-                        'related' => '/api/media-folder/3e352be2d85846dd97529c0f6b544870/default-folder',
+                        'related' => '/media-folder/3e352be2d85846dd97529c0f6b544870/default-folder',
                     ],
                 ],
                 'configuration' => [
                     'data' => null,
                     'links' => [
-                        'related' => '/api/media-folder/3e352be2d85846dd97529c0f6b544870/configuration',
+                        'related' => '/media-folder/3e352be2d85846dd97529c0f6b544870/configuration',
                     ],
                 ],
             ],
@@ -75,37 +75,37 @@ return [
                 'attributes' => null,
             ],
             'links' => [
-                'self' => '/api/media-folder/5846dd97529c0f6b5448713e352be2d8',
+                'self' => '/media-folder/5846dd97529c0f6b5448713e352be2d8',
             ],
             'relationships' => [
                 'parent' => [
                     'data' => null,
                     'links' => [
-                        'related' => '/api/media-folder/5846dd97529c0f6b5448713e352be2d8/parent',
+                        'related' => '/media-folder/5846dd97529c0f6b5448713e352be2d8/parent',
                     ],
                 ],
                 'children' => [
                     'data' => [],
                     'links' => [
-                        'related' => '/api/media-folder/5846dd97529c0f6b5448713e352be2d8/children',
+                        'related' => '/media-folder/5846dd97529c0f6b5448713e352be2d8/children',
                     ],
                 ],
                 'media' => [
                     'data' => [],
                     'links' => [
-                        'related' => '/api/media-folder/5846dd97529c0f6b5448713e352be2d8/media',
+                        'related' => '/media-folder/5846dd97529c0f6b5448713e352be2d8/media',
                     ],
                 ],
                 'defaultFolder' => [
                     'data' => null,
                     'links' => [
-                        'related' => '/api/media-folder/5846dd97529c0f6b5448713e352be2d8/default-folder',
+                        'related' => '/media-folder/5846dd97529c0f6b5448713e352be2d8/default-folder',
                     ],
                 ],
                 'configuration' => [
                     'data' => null,
                     'links' => [
-                        'related' => '/api/media-folder/5846dd97529c0f6b5448713e352be2d8/configuration',
+                        'related' => '/media-folder/5846dd97529c0f6b5448713e352be2d8/configuration',
                     ],
                 ],
             ],

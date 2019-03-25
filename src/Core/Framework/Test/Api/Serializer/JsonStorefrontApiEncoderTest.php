@@ -80,7 +80,7 @@ class JsonStorefrontApiEncoderTest extends TestCase
                     'attributes' => null,
                 ],
                 'links' => [
-                    'self' => '/api/media/1d23c1b015bf43fb97e89008cf42d6fe',
+                    'self' => '/media/1d23c1b015bf43fb97e89008cf42d6fe',
                 ],
                 'relationships' => [],
                 'meta' => null,

@@ -15,23 +15,23 @@ return [
                 'updatedAt' => null,
                 'moduleTypes' => null,
             ],
-            'links' => ['self' => '/api/rule/f343a3c119cf42a7841aa0ac5094908c'],
+            'links' => ['self' => '/rule/f343a3c119cf42a7841aa0ac5094908c'],
             'relationships' => [
                 'conditions' => [
                     'data' => [],
-                    'links' => ['related' => '/api/rule/f343a3c119cf42a7841aa0ac5094908c/conditions'],
+                    'links' => ['related' => '/rule/f343a3c119cf42a7841aa0ac5094908c/conditions'],
                 ],
                 'discountSurcharges' => [
                     'data' => [],
-                    'links' => ['related' => '/api/rule/f343a3c119cf42a7841aa0ac5094908c/discount-surcharges'],
+                    'links' => ['related' => '/rule/f343a3c119cf42a7841aa0ac5094908c/discount-surcharges'],
                 ],
                 'productPriceRules' => [
                     'data' => [],
-                    'links' => ['related' => '/api/rule/f343a3c119cf42a7841aa0ac5094908c/product-price-rules'],
+                    'links' => ['related' => '/rule/f343a3c119cf42a7841aa0ac5094908c/product-price-rules'],
                 ],
                 'shippingMethods' => [
                     'data' => [],
-                    'links' => ['related' => '/api/rule/f343a3c119cf42a7841aa0ac5094908c/shipping-methods'],
+                    'links' => ['related' => '/rule/f343a3c119cf42a7841aa0ac5094908c/shipping-methods'],
                 ],
                 'shippingMethodPriceRules' => [
                     'data' => [],
@@ -39,7 +39,7 @@ return [
                 ],
                 'paymentMethods' => [
                     'data' => [],
-                    'links' => ['related' => '/api/rule/f343a3c119cf42a7841aa0ac5094908c/payment-methods'],
+                    'links' => ['related' => '/rule/f343a3c119cf42a7841aa0ac5094908c/payment-methods'],
                 ],
                 'personaPromotions' => [
                     'data' => [],

@@ -82,67 +82,67 @@ class JsonApiEncoderTest extends TestCase
                     'hasFile' => false,
                 ],
                 'links' => [
-                    'self' => '/api/media/1d23c1b015bf43fb97e89008cf42d6fe',
+                    'self' => '/media/1d23c1b015bf43fb97e89008cf42d6fe',
                 ],
                 'relationships' => [
                     'user' => [
                         'data' => null,
                         'links' => [
-                            'related' => '/api/media/1d23c1b015bf43fb97e89008cf42d6fe/user',
+                            'related' => '/media/1d23c1b015bf43fb97e89008cf42d6fe/user',
                         ],
                     ],
                     'categories' => [
                         'data' => [],
                         'links' => [
-                            'related' => '/api/media/1d23c1b015bf43fb97e89008cf42d6fe/categories',
+                            'related' => '/media/1d23c1b015bf43fb97e89008cf42d6fe/categories',
                         ],
                     ],
                     'productManufacturers' => [
                         'data' => [],
                         'links' => [
-                            'related' => '/api/media/1d23c1b015bf43fb97e89008cf42d6fe/product-manufacturers',
+                            'related' => '/media/1d23c1b015bf43fb97e89008cf42d6fe/product-manufacturers',
                         ],
                     ],
                     'productMedia' => [
                         'data' => [],
                         'links' => [
-                            'related' => '/api/media/1d23c1b015bf43fb97e89008cf42d6fe/product-media',
+                            'related' => '/media/1d23c1b015bf43fb97e89008cf42d6fe/product-media',
                         ],
                     ],
                     'avatarUser' => [
                         'data' => null,
                         'links' => [
-                            'related' => '/api/media/1d23c1b015bf43fb97e89008cf42d6fe/avatar-user',
+                            'related' => '/media/1d23c1b015bf43fb97e89008cf42d6fe/avatar-user',
                         ],
                     ],
                     'translations' => [
                         'data' => [],
                         'links' => [
-                            'related' => '/api/media/1d23c1b015bf43fb97e89008cf42d6fe/translations',
+                            'related' => '/media/1d23c1b015bf43fb97e89008cf42d6fe/translations',
                         ],
                     ],
                     'thumbnails' => [
                         'data' => [],
                         'links' => [
-                            'related' => '/api/media/1d23c1b015bf43fb97e89008cf42d6fe/thumbnails',
+                            'related' => '/media/1d23c1b015bf43fb97e89008cf42d6fe/thumbnails',
                         ],
                     ],
                     'mediaFolder' => [
                         'data' => null,
                         'links' => [
-                            'related' => '/api/media/1d23c1b015bf43fb97e89008cf42d6fe/media-folder',
+                            'related' => '/media/1d23c1b015bf43fb97e89008cf42d6fe/media-folder',
                         ],
                     ],
                     'configurationGroupOptions' => [
                         'data' => [],
                         'links' => [
-                            'related' => '/api/media/1d23c1b015bf43fb97e89008cf42d6fe/configuration-group-options',
+                            'related' => '/media/1d23c1b015bf43fb97e89008cf42d6fe/configuration-group-options',
                         ],
                     ],
                     'tags' => [
                         'data' => [],
                         'links' => [
-                            'related' => '/api/media/1d23c1b015bf43fb97e89008cf42d6fe/tags',
+                            'related' => '/media/1d23c1b015bf43fb97e89008cf42d6fe/tags',
                         ],
                     ],
                 ],

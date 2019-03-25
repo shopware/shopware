@@ -109,7 +109,7 @@
         </service>
 
         <service id="Shopware\Core\Framework\Api\ApiDefinition\Generator\EntitySchemaGenerator">
-            <argument id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionRegistry" type="service"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionRegistry"/>
             <tag name="shopware.rest.definition_generator"/>
         </service>
 

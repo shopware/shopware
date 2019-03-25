@@ -859,7 +859,7 @@ class RecalculationServiceTest extends TestCase
 
         static::assertEquals(Response::HTTP_OK, $response->getStatusCode());
         $content = json_decode($response->getContent(), true);
-        $versionId = $content['version_id'];
+        $versionId = $content['versionId'];
         static::assertEquals($orderId, $content['id']);
         static::assertEquals('order', $content['entity']);
         static::assertTrue(Uuid::isValid($versionId));

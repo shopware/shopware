@@ -156,7 +156,7 @@ class VersionManager
 
         $this->entityWriter->upsert(VersionDefinition::class, [$versionData], $context);
 
-        $affected = $this->clone($definition, $primaryKey['id'], $primaryKey['id'], $versionId, $context);
+        $affected = $this->clone($definition, $primaryKey['id'], $primaryKey['id'], $versionId, $context, false);
 
         $versionContext = $context->createWithVersionId($versionId);
 
@@ -287,10 +287,11 @@ class VersionManager
         string $id,
         string $newId,
         string $versionId,
-        WriteContext $context
+        WriteContext $context,
+        bool $cloneChildren = true
     ): array {
         $criteria = new Criteria([$id]);
-        $this->addCloneAssociations($definition, $criteria);
+        $this->addCloneAssociations($definition, $criteria, $cloneChildren);
 
         $detail = $this->entityReader->read($definition, $criteria, $context->getContext())->first();
 
@@ -562,8 +563,12 @@ class VersionManager
     /**
      * @param string|EntityDefinition $definition
      */
-    private function addCloneAssociations(string $definition, Criteria $criteria, int $childCounter = 1): void
-    {
+    private function addCloneAssociations(
+        string $definition,
+        Criteria $criteria,
+        bool $cloneChildren,
+        int $childCounter = 1
+    ): void {
         //add all cascade delete associations
         $cascades = $definition::getFields()->filterByFlag(CascadeDelete::class);
 
@@ -594,17 +599,17 @@ class VersionManager
 
             if ($cascade instanceof ChildrenAssociationField) {
                 //break endless loop
-//                if ($childCounter >= 30) {
-//                    continue;
-//                }
+                if ($childCounter >= 30 || !$cloneChildren) {
+                    continue;
+                }
 
-//                ++$childCounter;
-//                $this->addCloneAssociations($reference, $nested, $childCounter);
+                ++$childCounter;
+                $this->addCloneAssociations($reference, $nested, $cloneChildren, $childCounter);
 
                 continue;
             }
 
-            $this->addCloneAssociations($reference, $nested);
+            $this->addCloneAssociations($reference, $nested, $cloneChildren);
         }
     }
 }

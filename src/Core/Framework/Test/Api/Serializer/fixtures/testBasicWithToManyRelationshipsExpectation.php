@@ -17,12 +17,12 @@ return [
             'avatarId' => null,
         ],
         'links' => [
-            'self' => '/api/user/6f51622eb3814c75ae0263cece27ce72',
+            'self' => '/user/6f51622eb3814c75ae0263cece27ce72',
         ],
         'relationships' => [
             'media' => [
                 'links' => [
-                    'related' => '/api/user/6f51622eb3814c75ae0263cece27ce72/media',
+                    'related' => '/user/6f51622eb3814c75ae0263cece27ce72/media',
                 ],
                 'data' => [
                     [
@@ -33,32 +33,32 @@ return [
             ],
             'accessKeys' => [
                 'links' => [
-                    'related' => '/api/user/6f51622eb3814c75ae0263cece27ce72/access-keys',
+                    'related' => '/user/6f51622eb3814c75ae0263cece27ce72/access-keys',
                 ],
                 'data' => [],
             ],
             'locale' => [
                 'data' => null,
                 'links' => [
-                    'related' => '/api/user/6f51622eb3814c75ae0263cece27ce72/locale',
+                    'related' => '/user/6f51622eb3814c75ae0263cece27ce72/locale',
                 ],
             ],
             'stateMachineHistoryEntries' => [
                 'data' => [],
                 'links' => [
-                    'related' => '/api/user/6f51622eb3814c75ae0263cece27ce72/state-machine-history-entries',
+                    'related' => '/user/6f51622eb3814c75ae0263cece27ce72/state-machine-history-entries',
                 ],
             ],
             'recoveryUser' => [
                 'data' => null,
                 'links' => [
-                    'related' => '/api/user/6f51622eb3814c75ae0263cece27ce72/recovery-user',
+                    'related' => '/user/6f51622eb3814c75ae0263cece27ce72/recovery-user',
                 ],
             ],
             'avatarMedia' => [
                 'data' => null,
                 'links' => [
-                    'related' => '/api/user/6f51622eb3814c75ae0263cece27ce72/avatar-media',
+                    'related' => '/user/6f51622eb3814c75ae0263cece27ce72/avatar-media',
                 ],
             ],
         ],
@@ -87,13 +87,13 @@ return [
                 'attributes' => null,
             ],
             'links' => [
-                'self' => '/api/media/548faa1f7846436c85944f4aea792d96',
+                'self' => '/media/548faa1f7846436c85944f4aea792d96',
             ],
             'relationships' => [
                 'translations' => [
                     'data' => [],
                     'links' => [
-                        'related' => '/api/media/548faa1f7846436c85944f4aea792d96/translations',
+                        'related' => '/media/548faa1f7846436c85944f4aea792d96/translations',
                     ],
                 ],
                 'user' => [
@@ -102,55 +102,55 @@ return [
                         'type' => 'user',
                     ],
                     'links' => [
-                        'related' => '/api/media/548faa1f7846436c85944f4aea792d96/user',
+                        'related' => '/media/548faa1f7846436c85944f4aea792d96/user',
                     ],
                 ],
                 'categories' => [
                     'data' => [],
                     'links' => [
-                        'related' => '/api/media/548faa1f7846436c85944f4aea792d96/categories',
+                        'related' => '/media/548faa1f7846436c85944f4aea792d96/categories',
                     ],
                 ],
                 'productManufacturers' => [
                     'data' => [],
                     'links' => [
-                        'related' => '/api/media/548faa1f7846436c85944f4aea792d96/product-manufacturers',
+                        'related' => '/media/548faa1f7846436c85944f4aea792d96/product-manufacturers',
                     ],
                 ],
                 'productMedia' => [
                     'data' => [],
                     'links' => [
-                        'related' => '/api/media/548faa1f7846436c85944f4aea792d96/product-media',
+                        'related' => '/media/548faa1f7846436c85944f4aea792d96/product-media',
                     ],
                 ],
                 'thumbnails' => [
                     'data' => [],
                     'links' => [
-                        'related' => '/api/media/548faa1f7846436c85944f4aea792d96/thumbnails',
+                        'related' => '/media/548faa1f7846436c85944f4aea792d96/thumbnails',
                     ],
                 ],
                 'mediaFolder' => [
                     'data' => null,
                     'links' => [
-                        'related' => '/api/media/548faa1f7846436c85944f4aea792d96/media-folder',
+                        'related' => '/media/548faa1f7846436c85944f4aea792d96/media-folder',
                     ],
                 ],
                 'configurationGroupOptions' => [
                     'data' => [],
                     'links' => [
-                        'related' => '/api/media/548faa1f7846436c85944f4aea792d96/configuration-group-options',
+                        'related' => '/media/548faa1f7846436c85944f4aea792d96/configuration-group-options',
                     ],
                 ],
                 'tags' => [
                     'data' => [],
                     'links' => [
-                        'related' => '/api/media/548faa1f7846436c85944f4aea792d96/tags',
+                        'related' => '/media/548faa1f7846436c85944f4aea792d96/tags',
                     ],
                 ],
                 'avatarUser' => [
                     'data' => null,
                     'links' => [
-                        'related' => '/api/media/548faa1f7846436c85944f4aea792d96/avatar-user',
+                        'related' => '/media/548faa1f7846436c85944f4aea792d96/avatar-user',
                     ],
                 ],
             ],

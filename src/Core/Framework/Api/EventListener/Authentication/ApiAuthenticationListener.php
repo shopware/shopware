@@ -27,23 +27,6 @@ class ApiAuthenticationListener implements EventSubscriberInterface
     private static $routePrefix = '/api/';
 
     /**
-     * @var string[]
-     */
-    private static $unprotectedRoutes = [
-        '/api/oauth/',
-        '/api/v1/_info/swagger.html',
-        '/api/v1/_info/openapi3.json',
-        '/api/v1/_info/entity-schema.json',
-        '/api/v1/_info/open-api-schema.json',
-        '/api/v1/_info/events.json',
-        '/api/v1/_action/user/user-recovery',
-        '/api/v1/_action/user/user-recovery/hash',
-        '/api/v1/_action/user/user-recovery/password',
-        // todo create custom public listener?
-        '/api/v1/_action/document/',
-    ];
-
-    /**
      * @var AuthorizationServer
      */
     private $authorizationServer;
@@ -111,10 +94,8 @@ class ApiAuthenticationListener implements EventSubscriberInterface
     {
         $request = $event->getRequest();
 
-        foreach (self::$unprotectedRoutes as $route) {
-            if (stripos($request->getPathInfo(), $route) === 0) {
-                return;
-            }
+        if ($request->attributes->get('authentification_required', null) === false) {
+            return;
         }
 
         if (stripos($request->getPathInfo(), self::$routePrefix) !== 0) {

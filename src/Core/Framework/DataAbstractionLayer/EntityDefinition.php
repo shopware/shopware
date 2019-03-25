@@ -9,7 +9,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Extension;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\SearchRanking;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ParentAssociationField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\SearchKeywordAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TreeLevelField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TreePathField;
@@ -55,21 +54,6 @@ abstract class EntityDefinition
     }
 
     abstract public static function getEntityName(): string;
-
-    public static function useKeywordSearch(): bool
-    {
-        if (isset(static::$keywordSearchDefinitions[static::class])) {
-            return static::$keywordSearchDefinitions[static::class];
-        }
-
-        foreach (static::getFields() as $field) {
-            if ($field instanceof SearchKeywordAssociationField) {
-                return static::$keywordSearchDefinitions[static::class] = true;
-            }
-        }
-
-        return static::$keywordSearchDefinitions[static::class] = false;
-    }
 
     /**
      * @return Field[]

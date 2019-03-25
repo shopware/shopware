@@ -56,7 +56,7 @@
 
         <service id="Shopware\Storefront\Pagelet\Listing\Subscriber\SearchTermSubscriber">
             <tag name="kernel.event_subscriber"/>
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\SearchBuilder"/>
+            <argument type="service" id="Shopware\Core\Framework\Search\Util\KeywordSearchTermInterpreterInterface"/>
         </service>
 
         <service id="Shopware\Storefront\Page\Navigation\NavigationPageLoader">

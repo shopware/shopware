@@ -25,7 +25,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationFiel
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\PasswordField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\SearchKeywordAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\UpdatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;

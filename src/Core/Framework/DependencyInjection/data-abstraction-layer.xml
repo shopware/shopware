@@ -111,7 +111,8 @@
         </service>
 
         <service id="Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder">
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\SearchBuilder"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\Term\SearchTermInterpreter"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\Term\EntityScoreQueryBuilder"/>
             <argument>%shopware.api.max_limit%</argument>
             <argument>%shopware.api.allowed_limits%</argument>
         </service>

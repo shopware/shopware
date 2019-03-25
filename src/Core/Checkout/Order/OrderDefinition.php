@@ -29,7 +29,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\SearchKeywordAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\UpdatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
@@ -102,7 +101,6 @@ class OrderDefinition extends EntityDefinition
             (new OneToManyAssociationField('transactions', OrderTransactionDefinition::class, 'order_id', false))->addFlags(new CascadeDelete()),
             new OneToManyAssociationField('documents', DocumentDefinition::class, 'order_id', false),
             new ManyToManyAssociationField('tags', TagDefinition::class, OrderTagDefinition::class, false, 'order_id', 'tag_id'),
-            new SearchKeywordAssociationField(),
         ]);
     }
 }

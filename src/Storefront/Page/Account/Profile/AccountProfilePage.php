@@ -3,6 +3,7 @@
 namespace Shopware\Storefront\Page\Account\Profile;
 
 use Shopware\Core\Checkout\Customer\CustomerEntity;
+use Shopware\Core\System\Salutation\SalutationCollection;
 use Shopware\Storefront\Framework\Page\PageWithHeader;
 
 class AccountProfilePage extends PageWithHeader
@@ -12,6 +13,11 @@ class AccountProfilePage extends PageWithHeader
      */
     protected $customer;
 
+    /**
+     * @var SalutationCollection
+     */
+    protected $salutations;
+
     public function getCustomer(): CustomerEntity
     {
         return $this->customer;
@@ -20,5 +26,15 @@ class AccountProfilePage extends PageWithHeader
     public function setCustomer(CustomerEntity $customer): void
     {
         $this->customer = $customer;
+    }
+
+    public function getSalutations(): SalutationCollection
+    {
+        return $this->salutations;
+    }
+
+    public function setSalutations(SalutationCollection $salutations): void
+    {
+        $this->salutations = $salutations;
     }
 }

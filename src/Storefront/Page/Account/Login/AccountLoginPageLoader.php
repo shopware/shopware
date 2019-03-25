@@ -43,6 +43,7 @@ class AccountLoginPageLoader implements PageLoaderInterface
         $page = AccountLoginPage::createFrom($page);
 
         $page->setCountries($this->accountService->getCountryList($context));
+        $page->setSalutations($this->accountService->getSalutationList($context));
 
         $this->eventDispatcher->dispatch(
             AccountLoginPageLoadedEvent::NAME,

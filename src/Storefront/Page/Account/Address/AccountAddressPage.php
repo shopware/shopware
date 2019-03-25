@@ -4,6 +4,7 @@ namespace Shopware\Storefront\Page\Account\Address;
 
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
 use Shopware\Core\System\Country\CountryCollection;
+use Shopware\Core\System\Salutation\SalutationCollection;
 use Shopware\Storefront\Framework\Page\PageWithHeader;
 
 class AccountAddressPage extends PageWithHeader
@@ -17,6 +18,11 @@ class AccountAddressPage extends PageWithHeader
      * @var CustomerAddressEntity|null
      */
     protected $address;
+
+    /**
+     * @var SalutationCollection
+     */
+    protected $salutations;
 
     public function getCountries(): CountryCollection
     {
@@ -36,5 +42,15 @@ class AccountAddressPage extends PageWithHeader
     public function setAddress(CustomerAddressEntity $address): void
     {
         $this->address = $address;
+    }
+
+    public function getSalutations(): SalutationCollection
+    {
+        return $this->salutations;
+    }
+
+    public function setSalutations(SalutationCollection $salutations): void
+    {
+        $this->salutations = $salutations;
     }
 }

@@ -58,6 +58,11 @@ pluginManager.register('searchWidgetPlugin', {
     selector: document
 });
 
+pluginManager.register('cartWidgetPlugin', {
+    plugin: CartWidget,
+    selector: document
+});
+
 pluginManager.register('cartMiniPlugin', {
     plugin: CartMini,
     selector: document
@@ -87,9 +92,6 @@ document.addEventListener('DOMContentLoaded', () => {
 if (module.hot) {
     module.hot.accept();
 }
-
-// Header Cart Widget
-new CartWidget();
 
 // Modal Extension
 new ModalExtension();

@@ -12,23 +12,27 @@ Mixin.register('plugin-error-handler', {
     data() {
         return {
             prefix: 'sw-plugin.errors.',
-            storeCode: 'STORE-API',
+            storeCode: 'FRAMEWORK__STORE_ERROR',
             errors: {
-                'NO-PLUGIN-FOUND-IN-ZIP': {
+                FRAMEWORK__PLUGIN_NO_PLUGIN_FOUND_IN_ZIP: {
                     title: 'titleUploadFailure',
                     message: 'messageUploadFailureNoPluginFoundInZipFile'
                 },
-                'PLUGIN-NOT-A-ZIP-FILE': {
+                FRAMEWORK__PLUGIN_NOT_A_ZIP_FILE: {
                     title: 'titleUploadFailure',
                     message: 'messageUploadFailureNotAZipFile'
                 },
-                'PLUGIN-EXTRACTION': {
+                FRAMEWORK__PLUGIN_EXTRACTION_FAILED: {
                     title: 'titleUploadFailure',
                     message: 'messageUploadFailureUnzipFailed'
                 },
-                'INVALID-CREDENTIALS': {
+                FRAMEWORK__STORE_INVALID_CREDENTIALS: {
                     title: 'titleLoginDataInvalid',
                     message: 'messageLoginDataInvalid'
+                },
+                FRAMEWORK__STORE_HOST_IS_MISSING: {
+                    title: 'titleStoreHostMissing',
+                    message: 'messageStoreHostMissing'
                 }
             }
         };

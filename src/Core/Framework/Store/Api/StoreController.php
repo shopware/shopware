@@ -144,6 +144,51 @@ class StoreController extends AbstractController
     }
 
     /**
+     * @Route("/api/v{version}/_action/store/logout", name="api.custom.store.logout", methods={"POST"})
+     */
+    public function logout(Context $context): Response
+    {
+        $userId = $context->getUserId();
+
+        $this->userRepository->update([
+            ['id' => $userId, 'storeToken' => null],
+        ], $context);
+
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('key', 'shopSecret'));
+
+        /** @var StoreSettingsEntity|null $shopSecret */
+        $shopSecret = $this->storeSettingsRepo->search($criteria, $context)->first();
+
+        if ($shopSecret !== null) {
+            $data = [
+                [
+                    'id' => $shopSecret->getId(),
+                    'key' => 'shopSecret',
+                ],
+            ];
+            $this->storeSettingsRepo->delete($data, $context);
+        }
+
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('key', 'shopwareId'));
+
+        $shopwareId = $this->storeSettingsRepo->search($criteria, $context)->first();
+
+        if ($shopwareId !== null) {
+            $data = [
+                [
+                    'id' => $shopwareId->getId(),
+                    'key' => 'shopwareId',
+                ],
+            ];
+            $this->storeSettingsRepo->delete($data, $context);
+        }
+
+        return new Response();
+    }
+
+    /**
      * @Route("/api/v{version}/_action/store/licenses", name="api.custom.store.licenses", methods={"GET"})
      */
     public function getLicenseList(Request $request, Context $context): JsonResponse
@@ -232,7 +277,7 @@ class StoreController extends AbstractController
         $user = $this->userRepository->search(new Criteria([$userId]), $context)->first();
 
         if ($user->getStoreToken() === null) {
-            throw new StoreTokenMissingException('the user does not have a store token');
+            throw new StoreTokenMissingException();
         }
 
         return $user->getStoreToken();

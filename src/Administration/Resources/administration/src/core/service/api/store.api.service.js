@@ -31,11 +31,11 @@ class StoreApiService extends ApiService {
             });
     }
 
-    checkLogin() {
+    logout() {
         const headers = this.getBasicHeaders();
 
         return this.httpClient
-            .get(`/_action/${this.getApiBasePath()}/checklogin`, { headers })
+            .post(`/_action/${this.getApiBasePath()}/logout`, {}, { headers })
             .then((response) => {
                 return ApiService.handleResponse(response);
             });

@@ -39,11 +39,17 @@ Component.register('sw-settings-store', {
         },
 
         onClickSave() {
-            return this.settings.save().then(() => {
-                this.createNotificationSuccess({
-                    title: this.$tc('sw-settings-store.general.titleSave'),
-                    message: this.$tc('sw-settings-store.general.messageSave')
-                });
+            if (this.settings.value === null) {
+                this.settings.delete(true).then(this.sendNotification);
+            } else {
+                this.settings.save().then(this.sendNotification);
+            }
+        },
+
+        sendNotification() {
+            this.createNotificationSuccess({
+                title: this.$tc('sw-settings-store.general.titleSave'),
+                message: this.$tc('sw-settings-store.general.messageSave')
             });
         }
     }

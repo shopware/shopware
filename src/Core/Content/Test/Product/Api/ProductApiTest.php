@@ -163,7 +163,7 @@ class ProductApiTest extends TestCase
             'price' => ['gross' => 15, 'net' => 10, 'linked' => false],
             'manufacturer' => ['name' => 'test'],
             'tax' => ['name' => 'test', 'taxRate' => 15],
-            'descriptionLong' => $description,
+            'description' => $description,
         ];
 
         $this->getClient()->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/product', $data);
@@ -180,6 +180,6 @@ class ProductApiTest extends TestCase
 
         static::assertNotEmpty($product);
         static::assertArrayHasKey('data', $product);
-        static::assertSame($description, $product['data']['descriptionLong']);
+        static::assertSame($description, $product['data']['description']);
     }
 }

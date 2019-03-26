@@ -417,8 +417,7 @@ class WriterTest extends TestCase
                     'stock' => 1,
                     'the_unknown_field' => 'do nothing?',
                     'tax' => ['name' => 'test', 'taxRate' => 5],
-                    'description' => '<p>no html</p>',
-                    'descriptionLong' => '<p>html</p>',
+                    'description' => '<p>html</p>',
                     'availableFrom' => new \DateTime('2011-01-01T15:03:01.012345Z'),
                     'availableTo' => new \DateTime('2011-01-01T15:03:01.012345Z'),
                     'price' => ['gross' => 10, 'net' => 8.10, 'linked' => false],
@@ -437,8 +436,7 @@ class WriterTest extends TestCase
         $productTranslation = $this->connection->fetchAssoc('SELECT * FROM product_translation WHERE product_id=:id', ['id' => $this->idBytes]);
 
         static::assertSame('_THE_TITLE_', $productTranslation['name'], print_r($productTranslation, true));
-        static::assertSame('no html', $productTranslation['description']);
-        static::assertSame('<p>html</p>', $productTranslation['description_long']);
+        static::assertSame('<p>html</p>', $productTranslation['description']);
         static::assertSame('Another Company', $productManufacturerTranslation['name']);
         static::assertSame('http://www.shopware.com', $productManufacturer['link']);
     }
@@ -565,9 +563,6 @@ class WriterTest extends TestCase
                         '2d905256e75149678dd5a32a81b94f1f' => '2ABC',
                     ],
                     'description' => 'foo', // implicit FFA32A50E2D04CF38389A53F8D6CD594
-                    'descriptionLong' => [
-                        '2d905256e75149678dd5a32a81b94f1f' => '2CBA',
-                    ],
                     'translations' => [
                         '2d905256e75149678dd5a32a81b94f1f' => [
                             'name' => 'bar',
@@ -628,13 +623,11 @@ class WriterTest extends TestCase
             if ($translation['language_id'] === Defaults::LANGUAGE_SYSTEM) {
                 static::assertSame('1ABC', $translation['name']);
                 static::assertSame('foo', $translation['description']);
-                static::assertNull($translation['description_long']);
                 static::assertNull($translation['meta_title']);
                 static::assertNull($translation['keywords']);
             } else {
                 static::assertSame('2ABC', $translation['name']);
                 static::assertSame('foo', $translation['description']);
-                static::assertSame('2CBA', $translation['description_long']);
                 static::assertSame('bar', $translation['meta_title']);
                 static::assertSame('fiz,baz', $translation['keywords']);
             }

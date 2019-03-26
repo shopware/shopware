@@ -6,7 +6,7 @@ use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufactu
 use Shopware\Core\Framework\DataAbstractionLayer\EntityTranslationDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AttributesField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\LongTextField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\LongTextWithHtmlField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 
@@ -36,10 +36,7 @@ class ProductManufacturerTranslationDefinition extends EntityTranslationDefiniti
     {
         return new FieldCollection([
             (new StringField('name', 'name'))->addFlags(new Required()),
-            new LongTextField('description', 'description'),
-            new StringField('meta_title', 'metaTitle'),
-            new StringField('meta_description', 'metaDescription'),
-            new StringField('meta_keywords', 'metaKeywords'),
+            new LongTextWithHtmlField('description', 'description'),
 
             new AttributesField(),
         ]);

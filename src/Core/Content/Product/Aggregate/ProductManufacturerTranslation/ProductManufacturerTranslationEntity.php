@@ -23,21 +23,6 @@ class ProductManufacturerTranslationEntity extends TranslationEntity
     protected $description;
 
     /**
-     * @var string|null
-     */
-    protected $metaTitle;
-
-    /**
-     * @var string|null
-     */
-    protected $metaDescription;
-
-    /**
-     * @var string|null
-     */
-    protected $metaKeywords;
-
-    /**
      * @var ProductManufacturerEntity|null
      */
     protected $productManufacturer;
@@ -75,36 +60,6 @@ class ProductManufacturerTranslationEntity extends TranslationEntity
     public function setDescription(?string $description): void
     {
         $this->description = $description;
-    }
-
-    public function getMetaTitle(): ?string
-    {
-        return $this->metaTitle;
-    }
-
-    public function setMetaTitle(?string $metaTitle): void
-    {
-        $this->metaTitle = $metaTitle;
-    }
-
-    public function getMetaDescription(): ?string
-    {
-        return $this->metaDescription;
-    }
-
-    public function setMetaDescription(?string $metaDescription): void
-    {
-        $this->metaDescription = $metaDescription;
-    }
-
-    public function getMetaKeywords(): ?string
-    {
-        return $this->metaKeywords;
-    }
-
-    public function setMetaKeywords(?string $metaKeywords): void
-    {
-        $this->metaKeywords = $metaKeywords;
     }
 
     public function getProductManufacturer(): ?ProductManufacturerEntity

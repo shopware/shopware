@@ -6,7 +6,6 @@ use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityTranslationDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AttributesField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\LongTextField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 
@@ -36,11 +35,6 @@ class CategoryTranslationDefinition extends EntityTranslationDefinition
     {
         return new FieldCollection([
             (new StringField('name', 'name'))->addFlags(new Required()),
-            new LongTextField('meta_keywords', 'metaKeywords'),
-            new StringField('meta_title', 'metaTitle'),
-            new LongTextField('meta_description', 'metaDescription'),
-            new StringField('cms_headline', 'cmsHeadline'),
-            new LongTextField('cms_description', 'cmsDescription'),
 
             new AttributesField(),
         ]);

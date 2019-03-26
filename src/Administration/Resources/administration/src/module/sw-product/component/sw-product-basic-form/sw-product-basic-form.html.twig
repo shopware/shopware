@@ -19,8 +19,8 @@
 
         {% block sw_product_basic_form_description_field %}
             <sw-text-editor :label="$tc('sw-product.basicForm.labelDescription')"
-                            :placeholder="placeholder(product, 'descriptionLong', $tc('sw-product.basicForm.placeholderDescriptionLong'))"
-                            v-model="product.descriptionLong">
+                            :placeholder="placeholder(product, 'description', $tc('sw-product.basicForm.placeholderDescriptionLong'))"
+                            v-model="product.description">
             </sw-text-editor>
         {% endblock %}
 

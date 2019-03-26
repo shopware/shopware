@@ -23,14 +23,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\SearchRanking;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\WriteProtected;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IntField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\LongTextField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ParentAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ParentFkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TreeLevelField;
@@ -85,26 +83,12 @@ class CategoryDefinition extends EntityDefinition
             (new IntField('auto_increment', 'autoIncrement'))->addFlags(new WriteProtected()),
             new TreePathField('path', 'path'),
             new TreeLevelField('level', 'level'),
-            new StringField('template', 'template'),
             new BoolField('active', 'active'),
-            new BoolField('is_blog', 'isBlog'),
-            new StringField('external', 'external'),
-            new BoolField('hide_filter', 'hideFilter'),
-            new BoolField('hide_top', 'hideTop'),
-            new StringField('product_box_layout', 'productBoxLayout'),
-            new BoolField('hide_sortings', 'hideSortings'),
-            new LongTextField('sorting_ids', 'sortingIds'),
-            new LongTextField('facet_ids', 'facetIds'),
             new ChildCountField(),
             new CreatedAtField(),
             new UpdatedAtField(),
 
             (new TranslatedField('name'))->addFlags(new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
-            (new TranslatedField('metaKeywords'))->addFlags(new SearchRanking(SearchRanking::LOW_SEARCH_RAKING)),
-            new TranslatedField('metaTitle'),
-            new TranslatedField('metaDescription'),
-            new TranslatedField('cmsHeadline'),
-            new TranslatedField('cmsDescription'),
             new TranslatedField('attributes'),
 
             new ParentAssociationField(self::class, false),

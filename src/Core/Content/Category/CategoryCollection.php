@@ -44,34 +44,6 @@ class CategoryCollection extends EntityCollection
         });
     }
 
-    public function getSortingIds(): array
-    {
-        return $this->fmap(function (CategoryEntity $category) {
-            return $category->getSortingIds();
-        });
-    }
-
-    public function filterBySortingIds(string $id): self
-    {
-        return $this->filter(function (CategoryEntity $category) use ($id) {
-            return $category->getSortingIds() === $id;
-        });
-    }
-
-    public function getFacetIds(): array
-    {
-        return $this->fmap(function (CategoryEntity $category) {
-            return $category->getFacetIds();
-        });
-    }
-
-    public function filterByFacetIds(string $id): self
-    {
-        return $this->filter(function (CategoryEntity $category) use ($id) {
-            return $category->getFacetIds() === $id;
-        });
-    }
-
     public function sortByPosition(): self
     {
         $this->elements = AfterSort::sort($this->elements, 'afterCategoryId');

@@ -125,10 +125,10 @@ class StorefrontProxyControllerTest extends TestCase
         );
 
         $this->assertTranslation(
-            ['name' => 'translated', 'metaTitle' => null, 'viewData' => ['name' => 'translated', 'metaTitle' => 'foo']],
+            ['name' => 'translated', 'viewData' => ['name' => 'translated']],
             [
                 'translations' => [
-                    Defaults::LANGUAGE_SYSTEM => ['name' => 'not translated', 'metaTitle' => 'foo'],
+                    Defaults::LANGUAGE_SYSTEM => ['name' => 'not translated'],
                     $langId => ['name' => 'translated'],
                 ],
             ],

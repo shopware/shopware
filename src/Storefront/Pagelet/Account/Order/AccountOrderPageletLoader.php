@@ -38,7 +38,7 @@ class AccountOrderPageletLoader implements PageLoaderInterface
             throw new CustomerNotLoggedInException();
         }
 
-        $criteria = $this->createCriteria($customer->getId());
+        $criteria = $this->createCriteria($customer->getId(), $request);
 
         $orders = $this->orderRepository->search($criteria, $context->getContext());
 
@@ -52,11 +52,16 @@ class AccountOrderPageletLoader implements PageLoaderInterface
         return $pagelet;
     }
 
-    private function createCriteria(string $customerId): Criteria
+    private function createCriteria(string $customerId, InternalRequest $request): Criteria
     {
+        $limit = (int) $request->optionalGet('limit', 10);
+        $page = (int) $request->optionalGet('p', 1);
+
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('order.orderCustomer.customerId', $customerId));
         $criteria->addSorting(new FieldSorting('order.createdAt', FieldSorting::DESCENDING));
+        $criteria->setLimit($limit);
+        $criteria->setOffset(($page - 1) * $limit);
 
         $criteria->setTotalCountMode(Criteria::TOTAL_COUNT_MODE_NEXT_PAGES);
 

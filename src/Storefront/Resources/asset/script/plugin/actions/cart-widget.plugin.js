@@ -1,15 +1,17 @@
 import HttpClient from "../../service/http-client.service";
 import DomAccess from "../../helper/dom-access.helper";
+import Plugin from '../../helper/plugin.helper';
 
 const CART_WIDGET_ITEM_SELECTOR = '*[data-cart-widget=true]';
 const CART_WIDGET_STORAGE_KEY = 'cart-widget-template';
 
-export default class CartWidget {
+export default class CartWidget extends Plugin {
 
     /**
      * Constructor.
      */
     constructor() {
+        super();
         CartWidget.fetch();
     }
 

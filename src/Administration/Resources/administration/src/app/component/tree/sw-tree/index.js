@@ -473,7 +473,9 @@ export default {
 
             Object.values(this.checkedElements).forEach((itemId) => {
                 const item = this.findById(itemId);
-                this.deleteElement(item);
+                if (item) {
+                    this.deleteElement(item);
+                }
             });
 
             this.checkedElements = {};

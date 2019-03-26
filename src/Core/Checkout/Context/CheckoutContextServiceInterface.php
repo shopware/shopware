@@ -4,11 +4,6 @@ namespace Shopware\Core\Checkout\Context;
 
 use Shopware\Core\Checkout\CheckoutContext;
 
-/**
- * @category  Shopware\Core
- *
- * @copyright Copyright (c) shopware AG (http://www.shopware.de)
- */
 interface CheckoutContextServiceInterface
 {
     public function get(string $salesChannelId, string $token, ?string $languageId): CheckoutContext;

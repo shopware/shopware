@@ -6,11 +6,6 @@ use Psr\Cache\CacheItemInterface;
 use Psr\Cache\CacheItemPoolInterface;
 use Shopware\Core\Checkout\CheckoutContext;
 
-/**
- * @category  Shopware\Core
- *
- * @copyright Copyright (c) shopware AG (http://www.shopware.de)
- */
 class CheckoutContextService implements CheckoutContextServiceInterface
 {
     public const CURRENCY_ID = 'currencyId';

@@ -95,11 +95,6 @@ class CustomerEntity extends Entity
     protected $title;
 
     /**
-     * @var string
-     */
-    protected $encoder;
-
-    /**
      * @var bool
      */
     protected $active;
@@ -108,11 +103,6 @@ class CustomerEntity extends Entity
      * @var bool
      */
     protected $guest;
-
-    /**
-     * @var string|null
-     */
-    protected $confirmationKey;
 
     /**
      * @var \DateTimeInterface|null
@@ -125,44 +115,9 @@ class CustomerEntity extends Entity
     protected $lastLogin;
 
     /**
-     * @var string|null
-     */
-    protected $sessionId;
-
-    /**
      * @var bool
      */
     protected $newsletter;
-
-    /**
-     * @var string|null
-     */
-    protected $validation;
-
-    /**
-     * @var bool|null
-     */
-    protected $affiliate;
-
-    /**
-     * @var string|null
-     */
-    protected $referer;
-
-    /**
-     * @var string|null
-     */
-    protected $internalComment;
-
-    /**
-     * @var int
-     */
-    protected $failedLogins;
-
-    /**
-     * @var \DateTimeInterface|null
-     */
-    protected $lockedUntil;
 
     /**
      * @var \DateTimeInterface|null
@@ -414,16 +369,6 @@ class CustomerEntity extends Entity
         $this->title = $title;
     }
 
-    public function getEncoder(): string
-    {
-        return $this->encoder;
-    }
-
-    public function setEncoder(string $encoder): void
-    {
-        $this->encoder = $encoder;
-    }
-
     public function getActive(): bool
     {
         return $this->active;
@@ -442,16 +387,6 @@ class CustomerEntity extends Entity
     public function setGuest(bool $guest): void
     {
         $this->guest = $guest;
-    }
-
-    public function getConfirmationKey(): ?string
-    {
-        return $this->confirmationKey;
-    }
-
-    public function setConfirmationKey(?string $confirmationKey): void
-    {
-        $this->confirmationKey = $confirmationKey;
     }
 
     public function getFirstLogin(): ?\DateTimeInterface
@@ -474,16 +409,6 @@ class CustomerEntity extends Entity
         $this->lastLogin = $lastLogin;
     }
 
-    public function getSessionId(): ?string
-    {
-        return $this->sessionId;
-    }
-
-    public function setSessionId(?string $sessionId): void
-    {
-        $this->sessionId = $sessionId;
-    }
-
     public function getNewsletter(): bool
     {
         return $this->newsletter;
@@ -492,66 +417,6 @@ class CustomerEntity extends Entity
     public function setNewsletter(bool $newsletter): void
     {
         $this->newsletter = $newsletter;
-    }
-
-    public function getValidation(): ?string
-    {
-        return $this->validation;
-    }
-
-    public function setValidation(?string $validation): void
-    {
-        $this->validation = $validation;
-    }
-
-    public function getAffiliate(): ?bool
-    {
-        return $this->affiliate;
-    }
-
-    public function setAffiliate(?bool $affiliate): void
-    {
-        $this->affiliate = $affiliate;
-    }
-
-    public function getReferer(): ?string
-    {
-        return $this->referer;
-    }
-
-    public function setReferer(?string $referer): void
-    {
-        $this->referer = $referer;
-    }
-
-    public function getInternalComment(): ?string
-    {
-        return $this->internalComment;
-    }
-
-    public function setInternalComment(?string $internalComment): void
-    {
-        $this->internalComment = $internalComment;
-    }
-
-    public function getFailedLogins(): int
-    {
-        return $this->failedLogins;
-    }
-
-    public function setFailedLogins(int $failedLogins): void
-    {
-        $this->failedLogins = $failedLogins;
-    }
-
-    public function getLockedUntil(): ?\DateTimeInterface
-    {
-        return $this->lockedUntil;
-    }
-
-    public function setLockedUntil(?\DateTimeInterface $lockedUntil): void
-    {
-        $this->lockedUntil = $lockedUntil;
     }
 
     public function getBirthday(): ?\DateTimeInterface

@@ -21,7 +21,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\SearchRanking;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\WriteProtected;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IntField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\LongTextField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
@@ -82,20 +81,11 @@ class CustomerDefinition extends EntityDefinition
             new PasswordField('password', 'password'),
             (new StringField('email', 'email'))->addFlags(new Required(), new SearchRanking(SearchRanking::MIDDLE_SEARCH_RANKING)),
             new StringField('title', 'title'),
-            new StringField('encoder', 'encoder'),
             new BoolField('active', 'active'),
             new BoolField('guest', 'guest'),
-            new StringField('confirmation_key', 'confirmationKey'),
             new DateField('first_login', 'firstLogin'),
             new DateField('last_login', 'lastLogin'),
-            new StringField('session_id', 'sessionId'),
             new BoolField('newsletter', 'newsletter'),
-            new StringField('validation', 'validation'),
-            new BoolField('affiliate', 'affiliate'),
-            new StringField('referer', 'referer'),
-            new LongTextField('internal_comment', 'internalComment'),
-            new IntField('failed_logins', 'failedLogins'),
-            new DateField('locked_until', 'lockedUntil'),
             new DateField('birthday', 'birthday'),
             new AttributesField(),
             new CreatedAtField(),

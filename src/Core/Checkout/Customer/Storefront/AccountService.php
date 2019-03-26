@@ -375,13 +375,13 @@ class AccountService
             'lastName' => $request->requirePost('lastName'),
             'email' => $request->requirePost('email'),
             'title' => $request->optionalPost('title'),
-            'encoder' => 'bcrypt',
             'active' => true,
             'defaultBillingAddressId' => $billingAddressId,
             'defaultShippingAddressId' => $shippingAddressId ?? $billingAddressId,
             'addresses' => $addresses,
             'birthday' => $this->getBirthday($request),
             'guest' => $guest,
+            'firstLogin' => new \DateTimeImmutable(),
         ];
 
         if (!$guest) {
@@ -425,6 +425,13 @@ class AccountService
                 'shippingAddressId' => null,
             ]
         );
+
+        $this->customerRepository->update([
+            [
+                'id' => $user->getId(),
+                'lastLogin' => new \DateTimeImmutable(),
+            ],
+        ], $context->getContext());
 
         $event = new CustomerLoginEvent($context->getContext(), $user);
         $this->eventDispatcher->dispatch($event->getName(), $event);

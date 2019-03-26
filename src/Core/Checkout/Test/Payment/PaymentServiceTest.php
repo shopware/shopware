@@ -197,7 +197,6 @@ class PaymentServiceTest extends TestCase
 
         $order = [
             'id' => $orderId,
-            'date' => (new \DateTime())->format(Defaults::DATE_FORMAT),
             'price' => new CartPrice(10, 10, 10, new CalculatedTaxCollection(), new TaxRuleCollection(), CartPrice::TAX_STATE_NET),
             'shippingCosts' => new CalculatedPrice(10, 10, new CalculatedTaxCollection(), new TaxRuleCollection()),
             'orderCustomer' => [

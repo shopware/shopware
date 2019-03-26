@@ -24,15 +24,6 @@
                     {% endblock %}
                 </sw-container>
 
-                {% block sw_category_view_information_description %}
-                    <sw-text-editor
-                        :label="$tc('sw-category.general.descriptionLabel')"
-                        name="categoryDescription"
-                        :placeholder="placeholder(category, 'cmsDescription')"
-                        v-model="category.cmsDescription">
-                    </sw-text-editor>
-                {% endblock %}
-
                 {% block sw_category_content_information_subcategories %}
                     <sw-field
                         name="categoryShowSubcategories"

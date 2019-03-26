@@ -2,9 +2,9 @@
     {% block base_footer_navigation %}
         <div id="footerColumns" class="row footer-columns">
             {% block base_footer_navigation_hotline %}
-                <div class="col-md-3 footer-column">
+                <div class="col-md-3 footer-column js-footer-column">
                     {% block base_footer_navigation_hotline_headline %}
-                        <div class="column-headline footer-headline"
+                        <div class="column-headline footer-headline js-footer-column-headline"
                              data-target="#collapseOneFooter"
                              aria-expanded="true"
                              aria-controls="collapseOneFooter">
@@ -20,7 +20,7 @@
 
                     {% block base_footer_navigation_hotline_content %}
                         <div id="collapseOneFooterFooter"
-                             class="column-content footer-hotline"
+                             class="column-content js-footer-column-content footer-hotline"
                              aria-labelledby="headingOne">
                             {{ 'footer.serviceHotline'|trans|raw }}
                         </div>
@@ -29,9 +29,9 @@
             {% endblock %}
 
             {% block base_footer_navigation_service %}
-                <div class="col-md-3 footer-column">
+                <div class="col-md-3 footer-column js-footer-column">
                     {% block base_footer_navigation_service_headline %}
-                        <div class="column-headline footer-headline"
+                        <div class="column-headline footer-headline js-footer-column-headline"
                              data-target="#collapseTwoFooter"
                              aria-expanded="true"
                              aria-controls="collapseTwoFooter">
@@ -47,7 +47,7 @@
 
                     {% block base_footer_navigation_service_content %}
                         <div id="collapseTwoFooter"
-                             class="column-content"
+                             class="column-content js-footer-column-content"
                              aria-labelledby="headingTwo">
                             {% block base_footer_navigation_service_links %}
                                 <ul class="list-group">
@@ -73,9 +73,9 @@
             {% endblock %}
 
             {% block base_footer_navigation_information %}
-                <div class="col-md-3 footer-column">
+                <div class="col-md-3 footer-column js-footer-column">
                     {% block base_footer_navigation_information_headline %}
-                        <div class="column-headline footer-headline"
+                        <div class="column-headline footer-headline js-footer-column-headline"
                              data-target="#collapseThreeFooter"
                              aria-expanded="true"
                              aria-controls="collapseThreeFooter">
@@ -91,7 +91,7 @@
 
                     {% block base_footer_navigation_information_content %}
                         <div id="collapseThreeFooter"
-                             class="column-content"
+                             class="column-content js-footer-column-content"
                              aria-labelledby="headingThree">
                             {% block base_footer_navigation_information_links %}
                                 <ul class="list-group">
@@ -116,9 +116,9 @@
             {% endblock %}
 
             {% block base_footer_navigation_newsletter %}
-                <div class="col-md-3 footer-column">
+                <div class="col-md-3 footer-column js-footer-column">
                     {% block base_footer_navigation_newsletter_headline %}
-                        <div class="column-headline footer-headline"
+                        <div class="column-headline footer-headline js-footer-column-headline"
                              data-target="#collapseFourFooter"
                              aria-expanded="true"
                              aria-controls="collapseFourFooter">
@@ -134,7 +134,7 @@
 
                     {% block base_footer_navigation_newsletter_content %}
                         <div id="collapseFourFooter"
-                             class="column-content"
+                             class="column-content js-footer-column-content"
                              aria-labelledby="headingFour">
                             {% block base_footer_navigation_newsletter_text %}
                                 <div class="footer-newsletter-text">

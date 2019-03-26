@@ -42,7 +42,7 @@ abstract class Bundle extends \Symfony\Component\HttpKernel\Bundle\Bundle
     public function configureRoutes(RouteCollectionBuilder $routes, string $environment): void
     {
         $fileSystem = new Filesystem();
-        $confDir = $this->getPath() . '/Resources';
+        $confDir = $this->getPath() . '/Resources/config';
 
         if ($fileSystem->exists($confDir)) {
             $routes->import($confDir . '/{routes}/*' . Kernel::CONFIG_EXTS, '/', 'glob');

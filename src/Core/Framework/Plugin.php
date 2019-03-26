@@ -22,7 +22,7 @@ abstract class Plugin extends Bundle
         $this->path = $path;
     }
 
-    public function isActive(): bool
+    final public function isActive(): bool
     {
         return $this->active;
     }

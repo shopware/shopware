@@ -2,15 +2,11 @@
 
 namespace Shopware\Core\Checkout\Document;
 
-use Shopware\Core\Checkout\Document\Exception\DocumentGenerationException;
-use Shopware\Core\Checkout\Document\Exception\InvalidDocumentException;
-use Shopware\Core\Checkout\Document\Exception\InvalidDocumentGeneratorTypeException;
-use Shopware\Core\Checkout\Document\Exception\InvalidFileGeneratorTypeException;
-use Shopware\Core\Checkout\Payment\Exception\InvalidOrderException;
+use Shopware\Core\Checkout\Document\FileGenerator\FileTypes;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\HeaderUtils;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -27,31 +23,61 @@ class DocumentController extends AbstractController
     }
 
     /**
-     * @Route("/api/v{version}/_action/document/{documentId}/{token}", name="api.action.download.document", methods={"GET"})
-     *
-     * @throws InvalidDocumentGeneratorTypeException
-     * @throws InvalidFileGeneratorTypeException
-     * @throws InvalidOrderException
-     * @throws InconsistentCriteriaIdsException
-     * @throws DocumentGenerationException
-     * @throws InvalidDocumentException
+     * @Route("/api/v{version}/_action/document/{documentId}/{deepLinkCode}", defaults={"authentification_required"=false}, name="api.action.download.document", methods={"GET"})
      */
-    public function downloadDocument(string $documentId, string $token, Context $context): Response
+    public function downloadDocument(Request $request, string $documentId, string $deepLinkCode, Context $context): Response
     {
-        $document = $this->documentService->getDocumentByIdAndToken($documentId, $token, $context);
+        $download = $request->query->getBoolean('download', false);
+        $document = $this->documentService->getDocumentByIdAndToken($documentId, $deepLinkCode, $context);
 
         // todo generate useful name
-        return $this->createResponse('foo.pdf', $document);
+        return $this->createResponse('foo.pdf', $document, $download);
     }
 
-    private function createResponse(string $filename, string $content): Response
+    /**
+     * @Route(
+     *     "/api/v{version}/_action/order/{orderId}/{deepLinkCode}/document/{documentTypeId}/preview",
+     *     defaults={"authentification_required"=false},
+     *     name="api.action.document.preview",
+     *     methods={"GET"}
+     * )
+     */
+    public function previewDocument(
+        Request $request,
+        string $orderId,
+        string $deepLinkCode,
+        string $documentTypeId,
+        Context $context
+    ): Response {
+        $config = $request->query->has('config') ? json_decode($request->query->get('config'), true) : [];
+        $documentConfig = DocumentConfigurationFactory::createConfiguration($config);
+
+        $fileType = $request->query->getAlnum('fileType', FileTypes::PDF);
+        $download = $request->query->getBoolean('download', false);
+
+        $document = $this->documentService->getPreview(
+            $orderId,
+            $deepLinkCode,
+            $documentTypeId,
+            $fileType,
+            $documentConfig,
+            $context
+        );
+
+        return $this->createResponse('foo.pdf', $document, $download);
+    }
+
+    private function createResponse(string $filename, string $content, bool $forceDownload): Response
     {
         $response = new Response($content);
 
         $disposition = HeaderUtils::makeDisposition(
-            HeaderUtils::DISPOSITION_ATTACHMENT,
+            $forceDownload ? HeaderUtils::DISPOSITION_ATTACHMENT : HeaderUtils::DISPOSITION_INLINE,
             $filename
         );
+
+        // todo get from generator
+        $response->headers->set('Content-Type', 'application/pdf');
 
         $response->headers->set('Content-Disposition', $disposition);
 

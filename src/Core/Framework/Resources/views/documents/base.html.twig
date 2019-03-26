@@ -207,7 +207,7 @@
                     {% endblock %}
                 </span>
                  {# todo support companys #}
-                {{ customer.salutation }} {{ customer.firstName }} {{ customer.lastName }}<br>
+                {{ customer.salutation.name }} {{ customer.firstName }} {{ customer.lastName }}<br>
                 {{ billingAddress.street }}<br>
                 {{ billingAddress.zipcode }} {{ billingAddress.city }}<br>
                 {{ billingAddress.country.name }}<br>

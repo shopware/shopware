@@ -100,12 +100,15 @@ Component.register('sw-order-document-card', {
             this.currentDocumentType = documentType;
             this.showModal = true;
         },
-
         onCreateDocument(params) {
             this.showModal = false;
             this.$nextTick().then(() => {
                 this.createDocument(this.order.id, this.currentDocumentType.id, params);
             });
+        },
+        onPreview(params) {
+            const config = JSON.stringify(params);
+            window.open(`/api/v1/_action/order/${this.order.id}/${this.order.deepLinkCode}/document/${this.currentDocumentType.id}/preview?config=${config}`, '_blank');
         }
     }
 });

@@ -39,6 +39,11 @@ Component.extend('sw-order-document-settings-delivery-note-modal', 'sw-order-doc
                 this.documentConfig.custom.deliveryNoteNumber = this.documentConfig.documentNumber;
             }
             this.$emit('document-modal-create-document', this.documentConfig, mode);
+        },
+        onPreview() {
+            // todo fix :-)
+            this.documentConfig.custom.deliveryNoteNumber = this.documentConfig.documentNumber;
+            this.$super.onPreview();
         }
     }
 });

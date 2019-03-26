@@ -14,7 +14,6 @@ use Shopware\Core\Checkout\Payment\Exception\InvalidOrderException;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
-use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
@@ -70,10 +69,6 @@ class DocumentService
         $this->documentConfigurationService = $documentConfigurationService;
     }
 
-    /**
-     * @throws InvalidDocumentGeneratorTypeException
-     * @throws InvalidFileGeneratorTypeException
-     */
     public function create(
         string $orderId,
         string $documentTypeId,
@@ -83,7 +78,7 @@ class DocumentService
     ): string {
         $documentType = $this->getDocumentTypeById($documentTypeId, $context);
 
-        if (!$documentTypeId || !$this->documentGeneratorRegistry->hasGenerator($documentType->getTechnicalName())) {
+        if (!$documentTypeId || !$documentType || !$this->documentGeneratorRegistry->hasGenerator($documentType->getTechnicalName())) {
             throw new InvalidDocumentGeneratorTypeException($documentType ? $documentType->getTechnicalName() : $documentTypeId);
         }
 
@@ -119,20 +114,12 @@ class DocumentService
         return $documentId;
     }
 
-    /**
-     * @throws InconsistentCriteriaIdsException
-     * @throws InvalidDocumentGeneratorTypeException
-     * @throws InvalidFileGeneratorTypeException
-     * @throws DocumentGenerationException
-     * @throws InvalidOrderException
-     * @throws InvalidDocumentException
-     */
-    public function getDocumentByIdAndToken(string $documentId, string $token, Context $context): string
+    public function getDocumentByIdAndToken(string $documentId, string $deepLinkCode, Context $context): string
     {
         $criteria = new Criteria();
         $criteria->addFilter(new MultiFilter(MultiFilter::CONNECTION_AND, [
             new EqualsFilter('id', $documentId),
-            new EqualsFilter('deepLinkCode', $token),
+            new EqualsFilter('deepLinkCode', $deepLinkCode),
         ]));
         $document = $this->documentRepository->search($criteria, $context)->get($documentId);
 
@@ -143,14 +130,6 @@ class DocumentService
         return $this->renderDocument($document, $context);
     }
 
-    /**
-     * @throws InvalidDocumentGeneratorTypeException
-     * @throws InvalidOrderException
-     * @throws InconsistentCriteriaIdsException
-     * @throws InvalidFileGeneratorTypeException
-     * @throws DocumentGenerationException
-     * @throws InvalidDocumentException
-     */
     public function getDocumentByOrder(
         string $orderId,
         string $documentType,
@@ -174,13 +153,14 @@ class DocumentService
         $documentGenerator = $this->documentGeneratorRegistry->getGenerator($document->getDocumentType()->getTechnicalName());
         $fileGenerator = $this->fileGeneratorRegistry->getGenerator($document->getFileType());
 
+        $this->validateVersion($document->getOrderVersionId());
+
         $order = $this->getOrderById($document->getOrderId(), $document->getOrderVersionId(), $context);
 
         if (!$order) {
             throw new InvalidOrderException($document->getOrderId());
         }
 
-        // todo create custom serializer
         $config = DocumentConfigurationFactory::createConfiguration($document->getConfig());
 
         $rendered = $documentGenerator->generateFromTemplate($order, $config, $context);
@@ -189,16 +169,57 @@ class DocumentService
         return $fileGenerator->generate($rendered);
     }
 
-    /**
-     * @throws InconsistentCriteriaIdsException
-     * @throws DocumentGenerationException
-     */
-    private function getOrderById(string $orderId, string $versionId, Context $context): ?OrderEntity
-    {
-        if ($versionId === Defaults::LIVE_VERSION) {
-            throw new DocumentGenerationException('Only versioned orders can be used for document generation.');
+    public function getPreview(
+        string $orderId,
+        string $deepLinkCode,
+        string $documentTypeId,
+        string $fileType,
+        DocumentConfiguration $config,
+        Context $context
+    ): string {
+        $documentType = $this->getDocumentTypeById($documentTypeId, $context);
+
+        if (!$documentTypeId || !$documentType || !$this->documentGeneratorRegistry->hasGenerator($documentType->getTechnicalName())) {
+            throw new InvalidDocumentGeneratorTypeException($documentType ? $documentType->getTechnicalName() : $documentTypeId);
+        }
+        $fileGenerator = $this->fileGeneratorRegistry->getGenerator($fileType);
+
+        $order = $this->getOrderByIdAndToken($orderId, $deepLinkCode, Defaults::LIVE_VERSION, $context);
+
+        if (!$order) {
+            throw new InvalidOrderException($orderId);
         }
 
+        $documentConfiguration = $this->documentConfigurationService->getConfiguration(
+            $context,
+            $documentTypeId,
+            $config->toArray()
+        );
+
+        $rendered = $this->documentGeneratorRegistry->getGenerator($documentType->getTechnicalName())->generateFromTemplate($order, $documentConfiguration, $context);
+
+        return $fileGenerator->generate($rendered);
+    }
+
+    private function getOrderByIdAndToken(
+        string $orderId,
+        string $deepLinkCode,
+        string $versionId,
+        Context $context
+    ): ?OrderEntity {
+        $criteria = (new Criteria([$orderId]))
+            ->addFilter(new EqualsFilter('deepLinkCode', $deepLinkCode))
+            ->addAssociation('lineItems')
+            ->addAssociation('transactions');
+
+        return $this->orderRepository->search($criteria, $context->createWithVersionId($versionId))->get($orderId);
+    }
+
+    private function getOrderById(
+        string $orderId,
+        string $versionId,
+        Context $context
+    ): ?OrderEntity {
         $criteria = (new Criteria([$orderId]))
             ->addAssociation('lineItems')
             ->addAssociation('transactions');
@@ -209,5 +230,12 @@ class DocumentService
     private function getDocumentTypeById(string $documentTypeId, Context $context): ?DocumentTypeEntity
     {
         return $this->documentTypeRepository->search(new Criteria([$documentTypeId]), $context)->get($documentTypeId);
+    }
+
+    private function validateVersion(string $versionId): void
+    {
+        if ($versionId === Defaults::LIVE_VERSION) {
+            throw new DocumentGenerationException('Only versioned orders can be used for document generation.');
+        }
     }
 }

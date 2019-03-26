@@ -31,6 +31,10 @@ Component.extend('sw-order-document-settings-invoice-modal', 'sw-order-document-
                 this.documentConfig.custom.invoiceNumber = this.documentConfig.documentNumber;
             }
             this.$emit('document-modal-create-document', this.documentConfig, mode);
+        },
+        onPreview() {
+            this.documentConfig.custom.invoiceNumber = this.documentConfig.documentNumber;
+            this.$super.onPreview();
         }
     }
 });

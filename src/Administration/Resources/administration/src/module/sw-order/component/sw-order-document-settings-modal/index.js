@@ -55,6 +55,9 @@ Component.register('sw-order-document-settings-modal', {
         onCreateDocument(mode = false) {
             this.$emit('document-modal-create-document', this.documentConfig, mode);
         },
+        onPreview() {
+            this.$emit('document-modal-show-preview', this.documentConfig);
+        },
         onConfirm() {
             this.$emit('leave-page-confirm');
         },

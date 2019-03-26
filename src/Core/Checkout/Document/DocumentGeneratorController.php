@@ -33,7 +33,7 @@ class DocumentGeneratorController extends AbstractController
     public function createDocument(Request $request, string $orderId, string $documentTypeId, Context $context): JsonResponse
     {
         $fileType = $request->query->getAlnum('fileType', FileTypes::PDF);
-        $config = DocumentConfigurationFactory::createConfiguration($request->get('config', []));
+        $config = DocumentConfigurationFactory::createConfiguration($request->request->get('config', []));
 
         $documentId = $this->documentService->create(
             $orderId,

@@ -1,0 +1,3 @@
+storefront-seo-url:
+  resource: ../../Framework/Seo/Controller/
+  type: annotation

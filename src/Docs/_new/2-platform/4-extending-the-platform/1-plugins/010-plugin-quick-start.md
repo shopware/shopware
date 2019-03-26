@@ -176,6 +176,7 @@ An example of a subscriber could look like this:
 
 namespace PluginQuickStart\Subscriber;
 
+use Shopware\Core\Content\Product\ProductEvents;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityLoadedEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
@@ -184,7 +185,7 @@ class MySubscriber implements EventSubscriberInterface
     public static function getSubscribedEvents(): array
     {
         return[
-            'product.loaded' => 'onProductsLoaded'
+            ProductEvents::PRODUCT_LOADED_EVENT => 'onProductsLoaded'
         ];
     }
 
@@ -287,7 +288,9 @@ An example of the `MyController` controller could look like this:
 
 namespace PluginQuickStart\Controller;
 
+use Shopware\Core\Framework\Context;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\JsonResponse;
 
@@ -296,7 +299,7 @@ class MyController extends AbstractController
     /**
      * @Route("/api/v{version}/_action/swag/my-api-action", name="api.action.swag.my-api-action", methods={"GET"})
      */
-    public function myFirstApi(): JsonResponse
+    public function myFirstApi(Request $request, Context $context): JsonResponse
     {
         return new JsonResponse(['You successfully created your first controller route']);
     }
@@ -388,7 +391,9 @@ An example usage would be in your new controller.
 namespace PluginQuickStart\Controller;
 
 use PluginQuickStart\Service\MyService;
+use Shopware\Core\Framework\Context;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\JsonResponse;
 
@@ -407,7 +412,7 @@ class MyController extends AbstractController
     /**
      * @Route("/api/v{version}/_action/swag/my-api-action", name="api.action.swag.my-api-action", methods={"GET"})
      */
-    public function myFirstApi(): JsonResponse
+    public function myFirstApi(Request $request, Context $context): JsonResponse
     {
         $this->myService->doSomething();
         return new JsonResponse(['You successfully created your first controller route']);

@@ -11,7 +11,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Framework;
 use Shopware\Core\Framework\Plugin\PluginCollection;
 use Shopware\Core\Framework\Plugin\PluginEntity;
-use Shopware\Core\Framework\Store\Exception\StoreHostMissingException;
+use Shopware\Core\Framework\Store\Exception\StoreInvalidCredentials;
 use Shopware\Core\Framework\Store\Exception\StoreSignatureValidationException;
 use Shopware\Core\Framework\Store\Struct\AccessTokenStruct;
 use Shopware\Core\Framework\Store\Struct\PluginDownloadDataStruct;
@@ -244,7 +244,7 @@ final class StoreClient
 
         $storeSettings = $this->storeSettingsRepo->search($criteria, $context)->first();
         if ($storeSettings === null) {
-            throw new StoreHostMissingException();
+            throw new StoreInvalidCredentials();
         }
 
         return [

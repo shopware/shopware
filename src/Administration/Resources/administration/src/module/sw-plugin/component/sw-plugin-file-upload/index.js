@@ -8,7 +8,8 @@ Component.register('sw-plugin-file-upload', {
     inject: ['pluginService'],
 
     mixins: [
-        Mixin.getByName('notification')
+        Mixin.getByName('notification'),
+        Mixin.getByName('plugin-error-handler')
     ],
 
     methods: {
@@ -32,6 +33,8 @@ Component.register('sw-plugin-file-upload', {
                     title: this.$tc('sw-plugin.fileUpload.titleUploadSuccess'),
                     message: this.$tc('sw-plugin.fileUpload.messageUploadSuccess')
                 });
+            }).catch((exception) => {
+                this.handleErrorResponse(exception);
             });
         }
     }

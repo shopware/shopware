@@ -9,7 +9,8 @@ Component.register('sw-plugin-updates-grid', {
 
     mixins: [
         Mixin.getByName('listing'),
-        Mixin.getByName('notification')
+        Mixin.getByName('notification'),
+        Mixin.getByName('plugin-error-handler')
     ],
 
     data() {
@@ -36,6 +37,9 @@ Component.register('sw-plugin-updates-grid', {
                     });
                     this.getList();
                     this.$root.$emit('sw-plugin-refresh-updates');
+                    this.updateQueue = this.updateQueue.filter(queueObj => queueObj.pluginName !== update.pluginName);
+                }).catch((exception) => {
+                    this.handleErrorResponse(exception);
                     this.updateQueue = this.updateQueue.filter(queueObj => queueObj.pluginName !== update.pluginName);
                 });
             });
@@ -75,11 +79,9 @@ Component.register('sw-plugin-updates-grid', {
                 this.updates = data.items;
                 this.total = data.total;
                 this.isLoading = false;
-            }).catch(() => {
+            }).catch((exception) => {
+                this.handleErrorResponse(exception);
                 this.isLoading = false;
-                this.createNotificationError({
-                    message: this.$tc('sw-plugin.updates.updateError')
-                });
             });
         }
     }

@@ -9,7 +9,8 @@ Component.register('sw-plugin-license-list', {
 
     mixins: [
         Mixin.getByName('listing'),
-        Mixin.getByName('notification')
+        Mixin.getByName('notification'),
+        Mixin.getByName('plugin-error-handler')
     ],
 
     data() {

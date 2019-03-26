@@ -8,7 +8,8 @@ Component.register('sw-plugin-last-updates-grid', {
 
     mixins: [
         Mixin.getByName('listing'),
-        Mixin.getByName('notification')
+        Mixin.getByName('notification'),
+        Mixin.getByName('plugin-error-handler')
     ],
 
     data() {
@@ -52,11 +53,9 @@ Component.register('sw-plugin-last-updates-grid', {
                 this.lastUpdates = response.items;
                 this.total = response.total;
                 this.isLoading = false;
-            }).catch(() => {
+            }).catch((exception) => {
+                this.handleErrorResponse(exception);
                 this.isLoading = false;
-                this.createNotificationError({
-                    message: this.$tc('sw-plugin.updates.updateError')
-                });
             });
         },
 

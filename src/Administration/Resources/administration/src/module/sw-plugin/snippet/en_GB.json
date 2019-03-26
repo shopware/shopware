@@ -19,6 +19,16 @@
       "storeLink": "https://store.shopware.com/en",
       "storeLabel": "Shopware Store"
     },
+    "errors": {
+      "titleGenericFailure": "Unknown error occured",
+      "messageGenericFailure": "An unknown error has occurred",
+      "titleUploadFailure": "Upload failed",
+      "messageUploadFailureNotAZipFile": "The uploaded file is not a zip file",
+      "messageUploadFailureUnzipFailed": "The zip file could not be extracted.",
+      "messageUploadFailureNoPluginFoundInZipFile": "No plugin found in the uploaded zip file",
+      "titleLoginDataInvalid": "Logindaten unvollständig",
+      "messageLoginDataInvalid": "Logindaten wurden nicht vollständig angegeben"
+    },
     "fileUpload":{
       "buttonFileUpload":"Upload plugin"
     },

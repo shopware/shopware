@@ -9,8 +9,6 @@ use Symfony\Component\Console\Tester\CommandTester;
 
 class ConvertMarkdownDocsCommandTest extends TestCase
 {
-    //use IntegrationTestBehaviour;
-
     public function testMetadataIsGeneratedForEmptyFiles(): void
     {
         $commandTester = new ConvertMarkdownDocsCommand();
@@ -62,15 +60,15 @@ class ConvertMarkdownDocsCommandTest extends TestCase
         static::assertEmpty($metadata[__FILE__]);
     }
 
-    public function testShouldUseOutputPathForHtmlFiles(): void
+    public function testShouldUseRootPathInternally(): void
     {
         $commandTester = new ConvertMarkdownDocsCommand();
 
         $data = ['/tmp/a.md' => 'My _awesome_ markdown!'];
-        $converted = $commandTester->convertMarkdownFiles($data, [], '/tmp/', '/tmp/out/');
+        $converted = $commandTester->convertMarkdownFiles($data, [], '/tmp/');
 
         static::assertNotEmpty($converted);
-        static::assertTrue(key_exists('/tmp/out/a.html', $converted));
+        static::assertTrue(key_exists('/a', $converted));
     }
 
     /**
@@ -117,6 +115,26 @@ class ConvertMarkdownDocsCommandTest extends TestCase
         static::assertStringContainsString('href="google.de#some-awesome-headliner"', $converted);
     }
 
+    public function testShouldBuildWikiUrlFromTitletag()
+    {
+        $commandTester = new ConvertMarkdownDocsCommand();
+
+        $fileA = realpath(__DIR__ . '/Fixtures/relFileLinksA.md');
+        $fileB = realpath(__DIR__ . '/Fixtures/relFileLinksB.md');
+
+        $data = [
+            $fileA => file_get_contents($fileA),
+            $fileB => file_get_contents($fileB),
+        ];
+
+        $metadata = $commandTester->gatherMetadata($data);
+        $metadata = $commandTester->enrichMetadata($metadata, __DIR__ . '/Fixtures/', '/base/url');
+        static::assertEquals($metadata[$fileA]['wikiUrl'], '/base/url/Great+Title');
+
+        $converted = $commandTester->convertMarkdownToHtml($data[$fileB], $fileB, $metadata);
+        static::assertStringContainsString('href="/base/url/Great+Title#some-awesome-headliner"', $converted);
+    }
+
     public function testShouldNotModifyLocalAnchors(): void
     {
         $fileA = realpath(__DIR__ . '/Fixtures/relFileLinksA.md');
@@ -127,7 +145,8 @@ class ConvertMarkdownDocsCommandTest extends TestCase
             $fileA => file_get_contents($fileA),
         ];
 
-        $converted = $commandTester->convertMarkdownToHtml($data[$fileA], $fileA, []);
+        $metadata = [];
+        $converted = $commandTester->convertMarkdownToHtml($data[$fileA], $fileA, $metadata);
         static::assertStringContainsString('href="#some-awesome-headliner"', $converted);
     }
 
@@ -142,7 +161,7 @@ class ConvertMarkdownDocsCommandTest extends TestCase
         $warnings = $commandTester->getWarningStack();
 
         static::assertNotEmpty($warnings);
-        $unknownTagWarning = $warnings[1];
+        $unknownTagWarning = $warnings[0];
 
         static::assertStringContainsStringIgnoringCase('unknown metatag', $unknownTagWarning);
         static::assertStringContainsStringIgnoringCase('"wusel" in file A', $unknownTagWarning);
@@ -152,7 +171,7 @@ class ConvertMarkdownDocsCommandTest extends TestCase
     {
         $tags = [];
         $commandTester = new ConvertMarkdownDocsCommand();
-        foreach (ConvertMarkdownDocsCommand::requiredMetatags as $tag) {
+        foreach (ConvertMarkdownDocsCommand::REQUIRED_METATAGS as $tag) {
             $tags[$tag] = 'A';
         }
 
@@ -173,10 +192,10 @@ class ConvertMarkdownDocsCommandTest extends TestCase
             '__LongUniqueFileName__' => [],
         ]);
 
-        $warnings = $commandTester->getWarningStack();
+        $errors = $commandTester->getErrorStack();
 
-        static::assertCount(1, $warnings);
-        $missingTagWarning = $warnings[0];
+        static::assertCount(1, $errors);
+        $missingTagWarning = $errors[0];
 
         static::assertStringContainsString('"titleEn" in', $missingTagWarning);
         static::assertStringContainsString('__LongUniqueFileName__', $missingTagWarning);
@@ -208,13 +227,14 @@ class ConvertMarkdownDocsCommandTest extends TestCase
     {
         $commandTester = new ConvertMarkdownDocsCommand();
 
-        $converted = $commandTester->convertMarkdownToHtml(
-            "[titleEn]: <>(Hello World)\n--Nothing to see here, move along--",
-            'A',
-            ['titleEn' => 'Hello World']
+        $filename = __DIR__ . '/Fixtures/relFileLinksA.md';
+        $converted = $commandTester->processFiles(
+            [$filename => "[titleEn]: <>(Hello World)\n--Nothing to see here, move along--"],
+            __DIR__ . '/Fixtures/',
+            '/base'
         );
 
-        static::assertStringNotContainsString('[titleEn]', $converted);
+        static::assertStringNotContainsString('[titleEn]', $converted['/relFileLinksA']['content']);
     }
 
     public function testHtmlCodeblockIsEscaped(): void
@@ -226,10 +246,10 @@ class ConvertMarkdownDocsCommandTest extends TestCase
             . '```'
             . 'This is some valid text';
 
+        $metadata = ['titleEn' => 'Hello World'];
         $converted = $commandTester->convertMarkdownToHtml(
             $content,
-            'A',
-            ['titleEn' => 'Hello World']
+            'A', $metadata
         );
 
         static::assertStringContainsString('This is some valid text', $converted);
@@ -243,13 +263,12 @@ class ConvertMarkdownDocsCommandTest extends TestCase
 
         $filename = __DIR__ . '/Fixtures/relFileLinksA.md';
         $metadata = $commandTester->enrichMetadata([
-            $filename => [],
+            $filename => ['titleEn' => 'titel'],
         ],
             realpath(__DIR__ . '/'),
             '/'
         );
 
-        var_dump($metadata);
         static::assertNotEmpty($metadata);
         static::assertArrayHasKey($filename, $metadata);
         $data = $metadata[$filename];

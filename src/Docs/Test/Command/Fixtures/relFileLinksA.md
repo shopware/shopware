@@ -1,4 +1,6 @@
 [wikiUrl]: <>(google.de)
+[titleDe]: <>(Toller Title)
+[titleEn]: <>(Great Title)
 
 this is some awesome href to [B](./relFileLinksB.md)
 

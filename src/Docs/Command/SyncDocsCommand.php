@@ -38,7 +38,7 @@ class SyncDocsCommand extends Command
 
     public function syncFilesWithServer(array $convertedFiles): void
     {
-        echo 'Syncing categories ...' . PHP_EOL;
+        echo 'Syncing markdownfiles ...' . PHP_EOL;
         [$globalCategoryList, $articleList] = $this->gatherCategoryChildrenAndArticles(self::ROOT_CATEGORY_ID, $this->getAllCategories());
         $categoryFiles = [];
 
@@ -48,20 +48,24 @@ class SyncDocsCommand extends Command
             $this->deleteArticle($article);
         }
 
+        $this->deleteCategoryChildren();
+        $globalCategoryList = [];
+
         $i = 0;
         foreach ($convertedFiles as $file => $information) {
+            ++$i;
             if (strpos($file, self::CATEGORY_SITE_FILENAME) !== false) {
                 // we handle category sites below
                 $categoryFiles[$file] = $information;
+                echo 'Postponing sync of categoryfile ' . $file . PHP_EOL;
                 continue;
             }
-
-            echo 'Syncing file ' . $i . ' ' . $file . '  of ' . count($convertedFiles) . PHP_EOL;
-            ++$i;
 
             if (strpos($file, '_') !== false) {
                 continue;
             }
+
+            echo 'Syncing file ' . $i . ' ' . $file . ' of ' . count($convertedFiles) . PHP_EOL;
 
             $fileMetadata = $information['metadata'];
             $html = $information['content'];
@@ -72,26 +76,41 @@ class SyncDocsCommand extends Command
 
             // handle media files
             if (key_exists('media', $fileMetadata)) {
+                echo '=> Uploading ' . count($fileMetadata['media']) . ' mediafiles ...';
                 foreach ($fileMetadata['media'] as $key => $mediaFile) {
                     $mediaLink = $this->uploadMedia($articleInfo['en_GB'], $mediaFile);
                     $html = str_replace($key, $mediaLink, $html);
                 }
             }
 
-            $this->updateArticle($articleInfo['en_GB'],
+            $this->updateArticleLocale($articleInfo['en_GB'],
+                [
+                    'seoUrl' => $fileMetadata['seoUrl'],
+                    'searchableInAllLanguages' => true,
+                ]
+            );
+
+            $this->updateArticleVersion($articleInfo['en_GB'],
                 [
                     'content' => $html,
                     'title' => $fileMetadata['titleEn'],
                     'navigationTitle' => $fileMetadata['titleEn'],
                     'searchableInAllLanguages' => true,
-                    'fromProductVersion' => self::INITIAL_VERSION,
                     'active' => true,
+                    'fromProductVersion' => self::INITIAL_VERSION,
+                    'metaTitle' => self::META_TITLE_PREFIX . $fileMetadata['titleEn'],
+                    'metaDescription' => array_key_exists('metaDescription', $fileMetadata) ? $fileMetadata['metaDescription'] : '',
                 ]
             );
 
-            $this->insertGermanStubArticle($articleInfo['de_DE'], $fileMetadata['titleDe']);
+            if (array_key_exists('priority', $fileMetadata)) {
+                $this->updateArticlePriority($articleInfo['en_GB'], $fileMetadata['priority']);
+            }
+
+            $this->insertGermanStubArticle($articleInfo['de_DE'], $fileMetadata);
         }
 
+        echo 'Syncing ' . count($categoryFiles) . ' category files ...' . PHP_EOL;
         $oldCategories = $this->getAllCategories();
         $categoryIds = array_column($oldCategories, 'id');
 
@@ -108,36 +127,60 @@ class SyncDocsCommand extends Command
             $fileMetadata = $information['metadata'];
             $html = $information['content'];
 
+            $categoryPriority = null;
+            if (array_key_exists('priority', $fileMetadata)) {
+                $categoryPriority = $fileMetadata['priority'];
+            }
+
             $this->updateCategory($categoryId,
                 $parentId,
                 $oldCategories[array_search($categoryId, $categoryIds, true)],
-                [],
+                [
+                    'orderPriority' => $categoryPriority,
+                    'active' => true,
+                ],
                 [
                     'title' => $fileMetadata['titleEn'],
                     'navigationTitle' => $fileMetadata['titleEn'],
                     'content' => $html,
                     'searchableInAllLanguages' => true,
+                    'seoUrl' => $fileMetadata['seoUrl'],
                 ],
                 [
                     'title' => $fileMetadata['titleDe'],
                     'navigationTitle' => $fileMetadata['titleDe'],
                     'content' => '<p>Die Entwicklerdokumentation ist nur auf Englisch verfügbar.</p>',
-                    'searchableInAllLanguages' => false,
+                    'searchableInAllLanguages' => true,
+                    'seoUrl' => $fileMetadata['seoUrl'] . '-de',
                 ]
             );
         }
     }
 
-    public function insertGermanStubArticle(array $articleInfoDe, string $title): void
+    public function insertGermanStubArticle(array $articleInfoDe, array $fileMetadata): void
     {
-        $this->updateArticle($articleInfoDe, [
-            'title' => $title,
-            'navigationTitle' => $title,
-            'content' => '<p>Die Entwicklerdokumentation ist nur auf Englisch verfügbar.</p>',
-            'searchableInAllLanguages' => false,
-            'fromProductVersion' => self::INITIAL_VERSION,
-            'active' => true,
-        ]);
+        $this->updateArticleLocale($articleInfoDe,
+            [
+                'seoUrl' => $fileMetadata['seoUrl'] . '-de',
+                'searchableInAllLanguages' => true,
+            ]
+        );
+
+        $title = array_key_exists('titleDe', $fileMetadata) ? $fileMetadata['titleDe'] : $fileMetadata['titleEn'];
+        $this->updateArticleVersion($articleInfoDe,
+            [
+                'title' => $title,
+                'navigationTitle' => $title,
+                'content' => '<p>Die Entwicklerdokumentation ist nur auf Englisch verfügbar.</p>',
+                'searchableInAllLanguages' => true,
+                'fromProductVersion' => self::INITIAL_VERSION,
+                'active' => true,
+                'metaTitle' => self::META_TITLE_PREFIX . $title,
+            ]);
+
+        if (array_key_exists('priority', $fileMetadata)) {
+            $this->updateArticlePriority($articleInfoDe, $fileMetadata['priority']);
+        }
     }
 
     public function buildArticleVersionUrl(array $articleInfo)
@@ -170,7 +213,7 @@ class SyncDocsCommand extends Command
         return json_decode($responseContents, true);
     }
 
-    public function updateArticle(array $articleInfo, array $payload): void
+    public function updateArticleVersion(array $articleInfo, array $payload): void
     {
         $currentArticleVersionContents = $this->getLocalizedVersionedArticle($articleInfo);
         $articleInLocaleWithVersionUrl = $this->buildArticleVersionUrl($articleInfo);
@@ -192,6 +235,39 @@ class SyncDocsCommand extends Command
                 'headers' => $this->getBasicHeaders(),
             ]
         );
+    }
+
+    public function updateArticleLocale(array $articleInfo, array $payload): void
+    {
+        // create english lang
+        $articleLocalUrl = vsprintf('/wiki/entries/%d/localizations/%d',
+            [
+                $articleInfo['articleId'],
+                $articleInfo['localeId'],
+            ]
+        );
+
+        $response = $this->client->get(
+            $articleLocalUrl, ['headers' => $this->getBasicHeaders()]
+        );
+        $responseJson = $response->getBody()->getContents();
+
+        $articleContents = array_merge(json_decode($responseJson, true), $payload);
+
+        $this->client->put(
+            $articleLocalUrl,
+            [
+                'json' => $articleContents,
+                'headers' => $this->getBasicHeaders(),
+            ]
+        );
+    }
+
+    public function updateArticlePriority(array $articleInfo, int $priority): void
+    {
+        $priorityUrl = vsprintf('/wiki/entries/%d/orderPriority/%d', [$articleInfo['articleId'], $priority]);
+
+        $this->client->put($priorityUrl, ['headers' => $this->getBasicHeaders()]);
     }
 
     public function uploadMedia(array $articleInfo, string $filePath): string
@@ -522,7 +598,7 @@ class SyncDocsCommand extends Command
 
             foreach ($locale['versions'] as $version) {
                 $versionId = $version['id'];
-                $this->updateArticle(['articleId' => $articleId, 'localeId' => $localId, 'versionId' => $versionId],
+                $this->updateArticleVersion(['articleId' => $articleId, 'localeId' => $localId, 'versionId' => $versionId],
                     ['active' => false]);
             }
         }

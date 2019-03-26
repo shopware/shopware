@@ -14,7 +14,6 @@ class SyncDocsCommandTest extends TestCase
 
     public function testCreateAndDeleteCategory(): void
     {
-        //static::markTestIncomplete('missing permissions');
         $commandTester = new SyncDocsCommand();
 
         $categoryId = $commandTester->createCategory(
@@ -24,7 +23,6 @@ class SyncDocsCommandTest extends TestCase
             '/testSeo'
         );
 
-        var_dump($categoryId);
         $category = $this->getCategoryContents($commandTester, $categoryId);
 
         //static::assertFalse($category['active']);
@@ -32,7 +30,6 @@ class SyncDocsCommandTest extends TestCase
         static::assertEquals(SyncDocsCommand::ROOT_CATEGORY_ID, $category['parent']['id']);
 
         foreach ($category['localizations'] as $localizations) {
-            var_dump($localizations);
             if ($localizations['locale']['name'] === 'en_GB') {
                 static::assertEquals('Test', $localizations['title']);
                 static::assertEquals('/testTest', $localizations['seoUrl']);
@@ -46,7 +43,6 @@ class SyncDocsCommandTest extends TestCase
 
         $commandTester->deleteCategory($categoryId);
 
-        //$this->expectExceptionCode(404);
         $this->expectExceptionMessage('category not found');
         $this->getCategoryContents($commandTester, $categoryId);
     }
@@ -99,7 +95,7 @@ class SyncDocsCommandTest extends TestCase
         $articleInfo = $articleInfos['en_GB'];
 
         $expectedContents = '<p>Hello World!</p>';
-        $commandTester->updateArticle($articleInfo,
+        $commandTester->updateArticleVersion($articleInfo,
             ['content' => $expectedContents]
         );
 
@@ -108,7 +104,7 @@ class SyncDocsCommandTest extends TestCase
         );
 
         $expectedTitle = 'Best Article 2019';
-        $commandTester->updateArticle($articleInfo,
+        $commandTester->updateArticleVersion($articleInfo,
             ['title' => $expectedTitle]
         );
 
@@ -133,7 +129,7 @@ class SyncDocsCommandTest extends TestCase
         $articleInfo = $articleInfos['en_GB'];
 
         // these are the minimum known requirements to be able to activate an article
-        $commandTester->updateArticle($articleInfo,
+        $commandTester->updateArticleVersion($articleInfo,
             [
                 'content' => '<p>Hello World!</p>',
                 'title' => 'Best Article 2019',
@@ -142,7 +138,7 @@ class SyncDocsCommandTest extends TestCase
             ]
         );
 
-        $commandTester->updateArticle($articleInfo, ['active' => true]);
+        $commandTester->updateArticleVersion($articleInfo, ['active' => true]);
 
         static::assertTrue($commandTester->getLocalizedVersionedArticle($articleInfo)['active']);
 

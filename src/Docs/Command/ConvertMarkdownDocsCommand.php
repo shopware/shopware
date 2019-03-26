@@ -12,22 +12,24 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class ConvertMarkdownDocsCommand extends Command
 {
-    public const wikiUrlTag = 'wikiUrl';
-    public const requiredMetatags = ['titleDe', 'titleEn'];
-    public const optionalMetatags = [self::wikiUrlTag];
+    public const CATEGORY_SITE_FILENAME = '__categoryInfo.md';
+    public const WIKI_URL_TAG = 'wikiUrl';
+    public const REQUIRED_METATAGS = ['titleDe', 'titleEn'];
+    public const OPTIONAL_METATAGS = [self::WIKI_URL_TAG, 'metaDescription'];
 
-    private const metaDataTagRegex = '/^\[(.*?)\]:\s*<>\((.*?)\)\s*?$/m';
+    private const METATAG_REGEX = '/^\[(.*?)\]:\s*<>\((.*?)\)\s*?$/m';
     private $errorStack = [];
     private $warningStack = [];
 
-    public function processFiles($fileContents, $inPath, $outPath): array
+    public function processFiles($fileContents, $inPath, $baseUrl): array
     {
         $metadata = $this->gatherMetadata($fileContents);
         $this->checkMetadata($metadata);
-        $metadata = $this->enrichMetadata($metadata, $inPath, $outPath);
+        $metadata = $this->enrichMetadata($metadata, $inPath, $baseUrl, self::CATEGORY_SITE_FILENAME);
+        $metadata = $this->enrichMetadata($metadata, $inPath, $baseUrl);
         $fileContents = $this->stripMetatags($fileContents);
 
-        return $this->convertMarkdownFiles($fileContents, $metadata, $inPath, $outPath);
+        return $this->convertMarkdownFiles($fileContents, $metadata, $inPath);
     }
 
     public function gatherMetadata(array $fileContents): array
@@ -37,7 +39,7 @@ class ConvertMarkdownDocsCommand extends Command
         foreach ($fileContents as $file => $contents) {
             $matches = [];
             $tmpDict = [];
-            if (preg_match_all(self::metaDataTagRegex, $contents, $matches, PREG_SET_ORDER)) {
+            if (preg_match_all(self::METATAG_REGEX, $contents, $matches, PREG_SET_ORDER)) {
                 foreach ($matches as $match) {
                     $key = $match[1];
                     if (key_exists($key, $tmpDict)) {
@@ -64,15 +66,15 @@ class ConvertMarkdownDocsCommand extends Command
         $filesWithWeirdTags = [];
 
         foreach ($metadata as $file => $tags) {
-            foreach (self::requiredMetatags as $requiredTag) {
+            foreach (self::REQUIRED_METATAGS as $requiredTag) {
                 if (!key_exists($requiredTag, $tags)) {
                     $filesWithoutRequiredTags[] = [$requiredTag => $file];
                 }
             }
 
             foreach ($tags as $tag => $value) {
-                if (!in_array($tag, self::requiredMetatags, true)
-                    && !in_array($tag, self::optionalMetatags, true)) {
+                if (!in_array($tag, self::REQUIRED_METATAGS, true)
+                    && !in_array($tag, self::OPTIONAL_METATAGS, true)) {
                     $filesWithWeirdTags[$file] = $tag;
                 }
             }
@@ -87,7 +89,7 @@ class ConvertMarkdownDocsCommand extends Command
                 $message .= vsprintf("\t\"%s\" in \"%s\" \n", [$tag, $occurance[$tag]]);
             }
 
-            $this->warningStack[] = $message;
+            $this->errorStack[] = $message;
         }
 
         if (count($filesWithWeirdTags) !== 0) {
@@ -101,24 +103,48 @@ class ConvertMarkdownDocsCommand extends Command
         }
     }
 
-    public function enrichMetadata(array $metadata, string $inputPath, string $outputPath): array
+    public function enrichMetadata(array $metadata, string $inputPath, string $baseUrl, string $filename = ''): array
     {
         //Todo: Print a warning when we are about to replace existing metadata
 
-        $inputPath = realpath($inputPath);
         foreach ($metadata as $file => &$data) {
-            $data[self::wikiUrlTag] = str_replace($inputPath, $outputPath, $file);
+            if ($filename !== '') {
+                if (strpos($file, $filename) === false) {
+                    continue;
+                }
+            }
+            $categoryFile = pathinfo($file, PATHINFO_DIRNAME) . '/' . self::CATEGORY_SITE_FILENAME;
+
+            $wikiUrl = urlencode($data['titleEn']);
+
+            // get category name
+            if (array_key_exists($categoryFile, $metadata) && $categoryFile !== $file) {
+                $wikiUrl = $metadata[$categoryFile]['seoUrl'] . '/' . $wikiUrl;
+            }
+
+            $seoUrl = str_replace('//', '/', '/' . $wikiUrl);
+            $data['seoUrl'] = $seoUrl;
+            $wikiUrl = $baseUrl . $seoUrl;
+
+            $wikiUrl = str_replace('//', '/', $wikiUrl);
+            $data[self::WIKI_URL_TAG] = $wikiUrl;
+
+            //get priority
+            $matches = [];
+            if (preg_match_all('/([0-9]+)-/', $file, $matches) !== 0) {
+                $data['priority'] = intval($matches[1][count($matches[1]) - 1]);
+            }
         }
 
         return $metadata;
     }
 
-    public function convertMarkdownFiles(array $fileContents, $metadata, string $srcPath, string $outPath): array
+    public function convertMarkdownFiles(array $fileContents, $metadata, string $srcPath): array
     {
         $convertedFilesMap = [];
         foreach ($fileContents as $file => $content) {
-            $convertedFilename = preg_replace('/.md$/', '.html', $file);
-            $convertedFilename = str_replace(realpath($srcPath), $outPath, $convertedFilename);
+            $convertedFilename = preg_replace('/.md$/', '', $file);
+            $convertedFilename = str_replace(realpath($srcPath), '', $convertedFilename);
             $convertedFilename = str_replace('//', '/', $convertedFilename);
 
             $html = $this->convertMarkdownToHtml($content, $file, $metadata);
@@ -136,7 +162,7 @@ class ConvertMarkdownDocsCommand extends Command
     {
         $filecontentStripped = [];
         foreach ($fileContents as $file => $contents) {
-            $contents = preg_replace(self::metaDataTagRegex, '', $contents);
+            $contents = preg_replace(self::METATAG_REGEX, '', $contents);
             $filecontentStripped[$file] = $contents;
         }
 
@@ -145,7 +171,7 @@ class ConvertMarkdownDocsCommand extends Command
 
     public function convertMarkdownToHtml(string $contents, string $file, array &$metadata): string
     {
-        $parsedown = new \Parsedown();
+        $parsedown = new \ParsedownExtra();
 
         $html = $parsedown->parse($contents);
 
@@ -176,10 +202,10 @@ class ConvertMarkdownDocsCommand extends Command
             return $this->replaceLinkToMarkdown($matches, $file, $metadata, $linkAnchor, $referencedFile);
         }
 
-        return $this->replaceLinkToMedia($metadata, $file, $referencedFile);
+        return $this->replaceLinkToMedia($metadata, $matches, $file, $referencedFile);
     }
 
-    public function replaceLinkToMedia(array &$metadata, string $file, string $referencedFile): string
+    public function replaceLinkToMedia(array &$metadata, array $matches, string $file, string $referencedFile): string
     {
         if (!key_exists('media', $metadata[$file])) {
             $metadata[$file]['media'] = [];
@@ -189,7 +215,7 @@ class ConvertMarkdownDocsCommand extends Command
         $mediaStub = '__MEDIAITEM' . $mediaId;
         $metadata[$file]['media'][$mediaStub] = $referencedFile;
 
-        return $mediaStub;
+        return str_replace($matches[1], $mediaStub, $matches[0]);
     }
 
     public function replaceLinkToMarkdown(array $matches, string $file, array $metadata, string $linkAnchor, $referencedFile): string
@@ -203,7 +229,7 @@ class ConvertMarkdownDocsCommand extends Command
 
         if ($referencedFile !== false && is_file($referencedFile)) {
             // If the link is another markdown file, check if we previously extracted a wikiUrl from it
-            if (!key_exists($referencedFile, $metadata) || !key_exists(self::wikiUrlTag, $metadata[$referencedFile])) {
+            if (!key_exists($referencedFile, $metadata) || !key_exists(self::WIKI_URL_TAG, $metadata[$referencedFile])) {
                 $this->errorStack[]
                     = vsprintf('Unable to resolve wikiUrl for the file %s referenced in %s. The resulting link will be broken.', [$referencedFile, $file]);
                 // Return the original href tag
@@ -211,7 +237,7 @@ class ConvertMarkdownDocsCommand extends Command
             }
 
             // Resolve the markdown filepath and append the anchor if there is any
-            $resolvedLink = $metadata[$referencedFile][self::wikiUrlTag] . $linkAnchor;
+            $resolvedLink = $metadata[$referencedFile][self::WIKI_URL_TAG] . $linkAnchor;
 
             return str_replace($matches[1], $resolvedLink, $matches[0]);
         }
@@ -225,18 +251,19 @@ class ConvertMarkdownDocsCommand extends Command
         return $matches[0];
     }
 
-    public function writeConvertedMarkdownFiles(array $convertedFiles): void
+    public function writeConvertedMarkdownFiles(array $convertedFiles, string $outPath): void
     {
         foreach ($convertedFiles as $convertedFile => $convertedInformation) {
+            $convertedFile = $outPath . '/' . $convertedFile . '.html';
             $path = pathinfo($convertedFile, PATHINFO_DIRNAME) . '/';
             if (!file_exists($path)) {
                 if (!mkdir($path, 0777, true) && !is_dir($path)) {
-                    $this->errorStack[] = sprintf('Could not creating parent directory "%s" for file "%s".', $path, $convertedFile);
+                    $this->errorStack[] = sprintf('Could not create parent directory "%s" for file "%s".', $path, $convertedFile);
                 }
             }
             $ret = file_put_contents($convertedFile, $convertedInformation['content']);
-            if (!$ret) {
-                $this->errorStack[] = sprintf('Could not creating or write file "%s".', $convertedFile);
+            if ($ret === false) {
+                $this->errorStack[] = sprintf('Could not create or write file "%s".', $convertedFile);
             }
         }
     }
@@ -263,10 +290,10 @@ class ConvertMarkdownDocsCommand extends Command
     protected function configure(): void
     {
         $this->setName('docs:convert')
-            ->addOption('input', 'i', InputOption::VALUE_REQUIRED, 'The path to parse for markdown files.', '/Docs/')
-            ->addOption('output', 'o', InputOption::VALUE_REQUIRED, 'The path in which the resultung hmtl files will be saved.', '/')
-            ->addOption('blacklist', 'b', InputOption::VALUE_REQUIRED, 'Path to a file containing blacklisted items (files or paths). Each line must contain one entry.')
-            ->addOption('dump', 'd', InputOption::VALUE_NONE, 'Controls whether the created files are written or not.')
+            ->addOption('input', 'i', InputOption::VALUE_REQUIRED, 'The path to parse for markdown files.', './platform/src/Docs/Resources/current/')
+            ->addOption('output', 'o', InputOption::VALUE_REQUIRED, 'The path in which the resulting hmtl files will be saved.')
+            ->addOption('blacklist', 'b', InputOption::VALUE_REQUIRED, 'Path to a file containing blacklisted items (files or paths). Each line must contain one entry.', './platform/src/Docs/Resources/current/article.blacklist')
+            ->addOption('baseurl', 'u', InputOption::VALUE_REQUIRED, '', '/en/shopware-platform-en/')
             ->addOption('sync', 's', InputOption::VALUE_NONE)
             ->setDescription('Converts Markdown to Wikihtml');
     }
@@ -275,7 +302,7 @@ class ConvertMarkdownDocsCommand extends Command
     {
         $inPath = $input->getOption('input');
         $outPath = $input->getOption('output');
-        $isDump = $input->getOption('dump');
+        $baseUrl = $input->getOption('baseurl');
         $isSync = $input->getOption('sync');
         $blackListFile = $input->getOption('blacklist');
 
@@ -294,10 +321,10 @@ class ConvertMarkdownDocsCommand extends Command
         $fileContents = $this->readAllFiles($files);
         $output->writeln('Read ' . count(array_keys($fileContents)) . ' markdown files');
 
-        $converted = $this->processFiles($fileContents, $inPath, $outPath);
+        $converted = $this->processFiles($fileContents, $inPath, $baseUrl);
 
-        if ($isDump) {
-            $this->writeConvertedMarkdownFiles($converted);
+        if ($outPath !== null) {
+            $this->writeConvertedMarkdownFiles($converted, $outPath);
         }
 
         $warningStyle = new OutputFormatterStyle('yellow');

@@ -301,13 +301,14 @@ class Kernel extends HttpKernel
     private function initializeDatabaseConnectionVariables(): void
     {
         /** @var Connection $connection */
-        $connection = $this->container->get(Connection::class);
+        $connection = self::getConnection();
 
         $nonDestructiveMigrations = $connection->executeQuery('
             SELECT `creation_timestamp`
             FROM `migration`
             WHERE `update_destructive` IS NULL
         ')->fetchAll(FetchMode::COLUMN);
+
         $activeMigrations = $this->container->getParameter('migration.active');
 
         $activeNonDestructiveMigrations = array_intersect($activeMigrations, $nonDestructiveMigrations);

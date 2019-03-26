@@ -73,6 +73,11 @@ pluginManager.register('cookiePermissionPlugin', {
     selector: document
 });
 
+pluginManager.register('collapseFooterColumnsPlugin', {
+    plugin: CollapseFooterColumns,
+    selector: document
+});
+
 
 /**
  * APPLY PLUGINS AS JQUERY
@@ -95,9 +100,6 @@ if (module.hot) {
 
 // Modal Extension
 new ModalExtension();
-
-// Collapse Footer Columns
-new CollapseFooterColumns();
 
 // Logout
 new Logout();

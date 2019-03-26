@@ -2,17 +2,24 @@ import $ from 'jquery';
 import DomAccess from "../../helper/dom-access.helper";
 import DeviceDetection from "../../helper/device-detection.helper";
 import ViewportDetection from "../../helper/viewport-detection.helper";
+import Plugin from "../../helper/plugin.helper";
 
 const COLLAPSE_SHOW_CLASS = "show";
 
-export default class CollapseFooterColumns {
+const COLLAPSE_COLUMN_SELECTOR = '.js-footer-column';
+const COLLAPSE_COLUMN_HEADLINE_SELECTOR = '.js-footer-column-headline';
+const COLLAPSE_COLUMN_CONTENT_SELECTOR = '.js-footer-column-content';
+
+export default class CollapseFooterColumns extends Plugin {
 
     /**
      * Constructor.
      */
     constructor() {
+        super();
+
         this._footer = DomAccess.querySelector(document, '#footerColumns');
-        this._columns = this._footer.querySelectorAll('.footer-column');
+        this._columns = this._footer.querySelectorAll(COLLAPSE_COLUMN_SELECTOR);
         this._registerEvents();
     }
 
@@ -33,7 +40,7 @@ export default class CollapseFooterColumns {
         const event = (DeviceDetection.isTouchDevice()) ? 'touchstart' : 'click';
 
         this._columns.forEach((column) => {
-            let trigger = DomAccess.querySelector(column, '.column-headline');
+            let trigger = DomAccess.querySelector(column, COLLAPSE_COLUMN_HEADLINE_SELECTOR);
 
             // remove possibly existing event listeners
             trigger.removeEventListener(event, this._onClickCollapseTrigger);
@@ -48,12 +55,12 @@ export default class CollapseFooterColumns {
     /**
      * On clicking the collapse trigger (column headline) the columns
      * content area shall be toggled open/close
-     * @param e
+     * @param {Event} e
      * @private
      */
     _onClickCollapseTrigger(e) {
         let trigger = e.srcElement;
-        let collapse = trigger.parentNode.querySelector('.column-content');
+        let collapse = trigger.parentNode.querySelector(COLLAPSE_COLUMN_CONTENT_SELECTOR);
 
         $(collapse).collapse('toggle');
 

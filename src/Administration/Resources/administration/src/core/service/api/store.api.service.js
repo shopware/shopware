@@ -11,6 +11,16 @@ class StoreApiService extends ApiService {
         this.name = 'storeService';
     }
 
+    ping() {
+        const headers = this.getBasicHeaders();
+
+        return this.httpClient
+            .get(`/_action/${this.getApiBasePath()}/ping`, { headers })
+            .then((response) => {
+                return ApiService.handleResponse(response);
+            });
+    }
+
     login(shopwareId, password) {
         const headers = this.getBasicHeaders();
 

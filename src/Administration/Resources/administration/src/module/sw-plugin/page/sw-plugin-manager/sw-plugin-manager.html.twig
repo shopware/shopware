@@ -32,6 +32,11 @@
         {% block sw_plugin_manager_content %}
             <template slot="content">
                 <sw-card-view slot="content">
+                    {% block sw_plugin_manger_content_alert %}
+                        <sw-alert class="sw-plugin-manager__top-actions" v-if="!storeAvailable" variant="warning">
+                            {{ $tc('sw-plugin.general.storeNotAvailable') }}
+                        </sw-alert>
+                    {% endblock %}
                     {% block sw_plugin_manager_content_sidebar %}
                         <div class="plugin-manager-sidebar">
                             {% block sw_plugin_manager_content_sidebar_tabs %}

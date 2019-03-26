@@ -12,7 +12,8 @@ use Shopware\Core\Framework\Plugin\PluginEntity;
 use Shopware\Core\Framework\Plugin\PluginLifecycleService;
 use Shopware\Core\Framework\Plugin\PluginManagementService;
 use Shopware\Core\Framework\Store\Exception\StoreApiException;
-use Shopware\Core\Framework\Store\Exception\StoreInvalidCredentials;
+use Shopware\Core\Framework\Store\Exception\StoreInvalidCredentialsException;
+use Shopware\Core\Framework\Store\Exception\StoreNotAvailableException;
 use Shopware\Core\Framework\Store\Exception\StoreTokenMissingException;
 use Shopware\Core\Framework\Store\Services\StoreClient;
 use Shopware\Core\Framework\Store\StoreSettingsEntity;
@@ -72,6 +73,20 @@ class StoreController extends AbstractController
     }
 
     /**
+     * @Route("/api/v{version}/_action/store/ping", name="api.custom.store.ping", methods={"GET"})
+     */
+    public function pingStoreAPI(): Response
+    {
+        try {
+            $this->storeClient->ping();
+        } catch (ClientException $exception) {
+            throw new StoreNotAvailableException();
+        }
+
+        return new Response();
+    }
+
+    /**
      * @Route("/api/v{version}/_action/store/login", name="api.custom.store.login", methods={"POST"})
      */
     public function login(Request $request, Context $context): JsonResponse
@@ -80,7 +95,7 @@ class StoreController extends AbstractController
         $password = $request->request->get('password');
 
         if ($shopwareId === null || $password === null) {
-            throw new StoreInvalidCredentials();
+            throw new StoreInvalidCredentialsException();
         }
 
         $userId = $context->getSourceContext()->getUserId();
@@ -153,7 +168,11 @@ class StoreController extends AbstractController
     {
         /** @var PluginCollection $plugins */
         $plugins = $this->pluginRepo->search(new Criteria(), $context)->getEntities();
-        $storeToken = $this->getUserStoreToken($context);
+        try {
+            $storeToken = $this->getUserStoreToken($context);
+        } catch (StoreTokenMissingException $e) {
+            $storeToken = null;
+        }
 
         try {
             $updatesList = $this->storeClient->getUpdatesList($storeToken, $plugins, $context);

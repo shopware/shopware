@@ -10,7 +10,8 @@ Component.register('sw-plugin-manager', {
     data() {
         return {
             searchTerm: '',
-            availableUpdates: 0
+            availableUpdates: 0,
+            storeAvailable: true
         };
     },
 
@@ -27,6 +28,12 @@ Component.register('sw-plugin-manager', {
             this.fetchAvailableUpdates();
             this.$root.$on('sw-plugin-refresh-updates', () => {
                 this.fetchAvailableUpdates();
+            });
+
+            this.storeService.ping().then(() => {
+                this.storeAvailable = true;
+            }).catch(() => {
+                this.storeAvailable = false;
             });
         },
 

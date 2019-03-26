@@ -1,4 +1,4 @@
-.search-form {
+.js-search-form {
     color: #000;
     position: relative;
 
@@ -21,7 +21,7 @@
     }
 }
 
-.search-results {
+.js-search-results {
     top: 110px;
     position: absolute;
     width: 100%;
@@ -87,7 +87,7 @@
         }
     }
 
-    .result {
+    .js-result {
         &.active {
             background: #f00 !important;
         }

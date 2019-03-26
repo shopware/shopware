@@ -1,5 +1,5 @@
 {% block base_search_suggest %}
-    <div class="search-results">
+    <div class="js-search-results">
         <ul class="results">
 
             {# List of found fuzzy results #}
@@ -10,7 +10,7 @@
                     <span>Oder meinten Sie:</span>
                 </li>
                 {% for term in fuzzyTerms %}
-                    <li class="result result-fuzzy">
+                    <li class="js-result result-fuzzy">
                         <a href="{{ path('frontend.search.page') }}?search={{ term.searchTerm }}"
                            class="result-link">
                             <span class="result-name">Fuzzy Search Term</span>
@@ -21,7 +21,7 @@
 
             {# List of found product results #}
             {% for product in page.listing.elements %}
-                <li class="result result-product">
+                <li class="js-result result-product">
                     <a href="{{ path('frontend.detail.page', {'productId': product.id}) }}"
                        title="{{ product.name }}"
                        class="result-link">
@@ -35,7 +35,7 @@
             {% endfor %}
 
             {# Total results link #}
-            <li class="result result-total">
+            <li class="js-result result-total">
                 <a href="{{ path('frontend.search.page') }}?search={{ page.searchTerm }}"
                    class="total-link">
                     <i class="fas fa-chevron-right"></i> Alle Ergebnisse anzeigen

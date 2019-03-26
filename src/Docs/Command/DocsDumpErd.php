@@ -12,7 +12,6 @@ use Shopware\Core\Content\MailTemplate\Aggregate\MailHeaderFooterTranslation\Mai
 use Shopware\Core\Content\MailTemplate\Aggregate\MailTemplateSalesChannel\MailTemplateSalesChannelDefinition;
 use Shopware\Core\Content\MailTemplate\Aggregate\MailTemplateTranslation\MailTemplateTranslationDefinition;
 use Shopware\Core\Content\MailTemplate\MailTemplateDefinition;
-use Shopware\Core\Content\Product\Aggregate\ProductService\ProductServiceDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionRegistry;
 use Shopware\Core\Framework\Version\Aggregate\VersionCommit\VersionCommitDefinition;
 use Shopware\Core\Framework\Version\Aggregate\VersionCommitData\VersionCommitDataDefinition;
@@ -39,8 +38,6 @@ class DocsDumpErd extends Command
         CmsSlotDefinition::class,
         CmsPageTranslationDefinition::class,
         CmsSlotTranslationDefinition::class,
-
-        ProductServiceDefinition::class,
 
         MailHeaderFooterTranslationDefinition::class,
         MailHeaderFooterDefinition::class,

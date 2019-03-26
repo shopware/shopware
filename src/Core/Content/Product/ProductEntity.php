@@ -15,7 +15,6 @@ use Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductPriceRule\ProductPriceRuleCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductPriceRule\ProductPriceRuleEntity;
-use Shopware\Core\Content\Product\Aggregate\ProductService\ProductServiceCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductTranslation\ProductTranslationCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityCollection;
 use Shopware\Core\Framework\Context;
@@ -306,11 +305,6 @@ class ProductEntity extends Entity
      * @var ProductConfiguratorCollection|null
      */
     protected $configurators;
-
-    /**
-     * @var ProductServiceCollection|null
-     */
-    protected $services;
 
     /**
      * @var CategoryCollection|null
@@ -1025,16 +1019,6 @@ class ProductEntity extends Entity
     public function setConfigurators(ProductConfiguratorCollection $configurators): void
     {
         $this->configurators = $configurators;
-    }
-
-    public function getServices(): ?ProductServiceCollection
-    {
-        return $this->services;
-    }
-
-    public function setServices(ProductServiceCollection $services): void
-    {
-        $this->services = $services;
     }
 
     public function getCategoriesRo(): ?CategoryCollection

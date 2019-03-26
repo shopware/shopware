@@ -4,7 +4,6 @@ namespace Shopware\Core\Framework\Demodata\Generator;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Category\CategoryDefinition;
-use Shopware\Core\Content\Configuration\ConfigurationGroupDefinition;
 use Shopware\Core\Content\Media\Aggregate\MediaDefaultFolder\MediaDefaultFolderEntity;
 use Shopware\Core\Content\Media\File\FileNameProvider;
 use Shopware\Core\Content\Media\File\FileSaver;
@@ -30,8 +29,6 @@ use Symfony\Component\Finder\Finder;
 class ProductGenerator implements DemodataGeneratorInterface
 {
     public const OPTIONS_WITH_MEDIA = 'with_media';
-    public const OPTIONS_WITH_CONFIGURATOR = 'with_configurator';
-    public const OPTIONS_WITH_SERVICES = 'with_services';
 
     /**
      * @var EntityWriterInterface
@@ -113,9 +110,7 @@ class ProductGenerator implements DemodataGeneratorInterface
         $this->createProduct(
             $context,
             $numberOfItems,
-            isset($options[self::OPTIONS_WITH_MEDIA]),
-            isset($options[self::OPTIONS_WITH_CONFIGURATOR]),
-            isset($options[self::OPTIONS_WITH_SERVICES])
+            isset($options[self::OPTIONS_WITH_MEDIA])
         );
 
         $context->getConsole()->comment('Deleting temporary images...');
@@ -125,20 +120,8 @@ class ProductGenerator implements DemodataGeneratorInterface
     private function createProduct(
         DemodataContext $context,
         $count = 500,
-        bool $withMedia = false,
-        bool $withConfigurator = false,
-        bool $withServices = false
+        bool $withMedia = false
     ): void {
-        $configurator = [];
-        if ($withConfigurator) {
-            $configurator = $this->createConfigurators($context);
-        }
-
-        $services = [];
-        if ($withServices) {
-            $services = $this->createServices($context);
-        }
-
         $mediaFolderId = $this->getOrCreateDefaultFolder($context);
 
         $visibilities = $this->buildVisibilities();
@@ -165,11 +148,6 @@ class ProductGenerator implements DemodataGeneratorInterface
                 ];
 
                 $this->productImages[$mediaId] = $imagePath;
-            }
-
-            $hasServices = random_int(1, 100) <= 5 && $withServices;
-            if ($hasServices) {
-                $product['services'] = $this->buildProductServices($services, $taxes);
             }
 
             $productProperties = \array_slice(
@@ -228,36 +206,6 @@ class ProductGenerator implements DemodataGeneratorInterface
                 $context->getContext()
             );
         }
-    }
-
-    private function createServices(DemodataContext $context): array
-    {
-        $data = [
-            [
-                'id' => Uuid::uuid4()->getHex(),
-                'name' => 'warranty',
-                'options' => [
-                    ['id' => Uuid::uuid4()->getHex(), 'name' => '1 year'],
-                    ['id' => Uuid::uuid4()->getHex(), 'name' => '2 years'],
-                    ['id' => Uuid::uuid4()->getHex(), 'name' => '3 years'],
-                ],
-            ],
-            [
-                'id' => Uuid::uuid4()->getHex(),
-                'name' => 'assembly',
-                'options' => [
-                    ['id' => Uuid::uuid4()->getHex(), 'name' => 'full assembly'],
-                    ['id' => Uuid::uuid4()->getHex(), 'name' => 'half assembly'],
-                ],
-            ],
-        ];
-
-        $writeContext = WriteContext::createFromContext($context->getContext());
-        $this->writer->insert(ConfigurationGroupDefinition::class, $data, $writeContext);
-
-        $context->add(ConfigurationGroupDefinition::class, ...array_column($data, 'id'));
-
-        return $data;
     }
 
     private function getOrCreateDefaultFolder(DemodataContext $context): ?string
@@ -412,89 +360,11 @@ class ProductGenerator implements DemodataGeneratorInterface
         );
     }
 
-    private function buildProductServices(array $services, array $taxes)
-    {
-        $optionIds = $this->getRandomOptions($services);
-
-        return array_map(function ($optionId) use ($taxes) {
-            $price = random_int(5, 100);
-
-            return [
-                'price' => ['gross' => $price, 'net' => $price / 1.19, 'linked' => true],
-                'taxId' => $taxes[array_rand($taxes)],
-                'optionId' => $optionId,
-            ];
-        }, $optionIds);
-    }
-
-    private function getRandomOptions(array $groups)
-    {
-        $optionIds = [];
-        foreach ($groups as $group) {
-            $ids = array_column($group['options'], 'id');
-
-            $count = random_int(2, \count($ids));
-
-            $x = (int) round(\count($ids) / 3);
-
-            $offset = random_int(0, $x);
-
-            $optionIds = array_merge(
-                $optionIds,
-                \array_slice($ids, $offset, $count)
-            );
-        }
-
-        return $optionIds;
-    }
-
     private function cleanupImages(): void
     {
         foreach ($this->tmpImages as $image) {
             unlink($image);
         }
-    }
-
-    private function createConfigurators(DemodataContext $context): array
-    {
-        $data = [
-            [
-                'id' => Uuid::uuid4()->getHex(),
-                'name' => 'color',
-                'options' => [
-                    ['id' => Uuid::uuid4()->getHex(), 'name' => 'red'],
-                    ['id' => Uuid::uuid4()->getHex(), 'name' => 'blue'],
-                    ['id' => Uuid::uuid4()->getHex(), 'name' => 'green'],
-                    ['id' => Uuid::uuid4()->getHex(), 'name' => 'black'],
-                    ['id' => Uuid::uuid4()->getHex(), 'name' => 'white'],
-                    ['id' => Uuid::uuid4()->getHex(), 'name' => 'coral'],
-                    ['id' => Uuid::uuid4()->getHex(), 'name' => 'brown'],
-                    ['id' => Uuid::uuid4()->getHex(), 'name' => 'orange'],
-                    ['id' => Uuid::uuid4()->getHex(), 'name' => 'violet'],
-                ],
-            ],
-            [
-                'id' => Uuid::uuid4()->getHex(),
-                'name' => 'size',
-                'options' => [
-                    ['id' => Uuid::uuid4()->getHex(), 'name' => '32'],
-                    ['id' => Uuid::uuid4()->getHex(), 'name' => '34'],
-                    ['id' => Uuid::uuid4()->getHex(), 'name' => '36'],
-                    ['id' => Uuid::uuid4()->getHex(), 'name' => '38'],
-                    ['id' => Uuid::uuid4()->getHex(), 'name' => '40'],
-                    ['id' => Uuid::uuid4()->getHex(), 'name' => '42'],
-                    ['id' => Uuid::uuid4()->getHex(), 'name' => '44'],
-                    ['id' => Uuid::uuid4()->getHex(), 'name' => '46'],
-                    ['id' => Uuid::uuid4()->getHex(), 'name' => '48'],
-                ],
-            ],
-        ];
-
-        $this->writer->insert(ConfigurationGroupDefinition::class, $data, WriteContext::createFromContext($context->getContext()));
-
-        $context->add(ConfigurationGroupDefinition::class, ...array_column($data, 'id'));
-
-        return $data;
     }
 
     private function getProperties()

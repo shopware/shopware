@@ -1,24 +1,27 @@
 import DomAccess from "../../helper/dom-access.helper";
 import OffCanvas from "../../plugin/off-canvas/offcanvas.plugin";
 import DeviceDetection from "../../helper/device-detection.helper";
+import Plugin from "../../helper/plugin.helper";
 
 const OFFCANVAS_TAB_DATA_ATTRIBUTE = 'data-offcanvas-tab';
 const OFFCANVAS_TAB_POSITION = 'right';
 
-export default class OffcanvasTabs {
+export default class OffcanvasTabs extends Plugin {
 
     /**
-    * Constructor.
-    */
+     * Constructor.
+     */
     constructor() {
+        super();
+
         this._registerEventListeners();
     }
 
     /**
-    * Register events to handle opening the Detail Tab OffCanvas
-    * by clicking a defined trigger selector
-    * @private
-    */
+     * Register events to handle opening the Detail Tab OffCanvas
+     * by clicking a defined trigger selector
+     * @private
+     */
     _registerEventListeners() {
         let event = (DeviceDetection.isTouchDevice()) ? 'touchstart' : 'click';
 
@@ -39,7 +42,7 @@ export default class OffcanvasTabs {
      * @private
      */
     _onOpenOffcanvasTab(e) {
-        let targetElement = e.target;
+        let targetElement = e.srcElement;
 
         if (DomAccess.hasAttribute(targetElement, 'href')) {
             let contentID = targetElement.getAttribute('href').replace(/^#/, '');

@@ -58,6 +58,11 @@ pluginManager.register('searchWidgetPlugin', {
     selector: document
 });
 
+pluginManager.register('cartMiniPlugin', {
+    plugin: CartMini,
+    selector: document
+});
+
 pluginManager.register('cookiePermissionPlugin', {
     plugin: CookiePermission,
     selector: document
@@ -85,9 +90,6 @@ if (module.hot) {
 
 // Header Cart Widget
 new CartWidget();
-
-// Cart Mini OffCanvas
-new CartMini();
 
 // Modal Extension
 new ModalExtension();

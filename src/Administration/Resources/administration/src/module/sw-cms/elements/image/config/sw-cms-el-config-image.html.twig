@@ -1,16 +1,34 @@
 {% block sw_cms_element_image_config %}
     <div class="sw-cms-el-config-image">
-        <sw-media-upload variant="regular"
-                         :uploadTag="uploadTag"
-                         :source="element.data.media"
-                         :allowMultiSelect="false"
-                         :caption="$tc('sw-cms.elements.captionMediaUpload')"
-                         @sw-media-upload-remove-image="onImageRemove">
-        </sw-media-upload>
-        <sw-upload-store-listener
+        {% block sw_cms_element_image_config_media_upload %}
+            <sw-media-upload variant="regular"
+                             :uploadTag="uploadTag"
+                             :source="element.data.media"
+                             :allowMultiSelect="false"
+                             :defaultFolder="pageContext.entityName"
+                             :caption="$tc('sw-cms.elements.captionMediaUpload')"
+                             @sw-media-upload-open-sidebar="onOpenMediaModal"
+                             @sw-media-upload-remove-image="onImageRemove">
+            </sw-media-upload>
+            <sw-upload-store-listener
                 :uploadTag="uploadTag"
                 @sw-media-upload-added="onChangeMedia"
                 @sw-media-upload-finished="onImageUpload">
-        </sw-upload-store-listener>
+            </sw-upload-store-listener>
+        {% endblock %}
+
+        {% block sw_cms_element_image_config_media_modal %}
+            <sw-media-modal
+                variant="regular"
+                v-if="mediaModalIsOpen"
+                :caption="$tc('sw-cms.elements.captionMediaUpload')"
+                :entityContext="pageContext.entityName"
+                :allowMultiSelect="false"
+                :initialFolderId="pageContext.defaultFolderId"
+                @sw-media-upload-remove-image="onImageRemove"
+                @sw-media-modal-selection-changed="onSelectionChanges"
+                @closeModal="onCloseModal">
+            </sw-media-modal>
+        {% endblock %}
     </div>
 {% endblock %}

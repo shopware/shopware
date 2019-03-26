@@ -1,4 +1,5 @@
 import { Component, State, Application, Mixin } from 'src/core/shopware';
+import CriteriaFactory from 'src/core/factory/criteria.factory';
 import cmsService from 'src/module/sw-cms/service/cms.service';
 import template from './sw-cms-detail.html.twig';
 import './sw-cms-detail.scss';
@@ -20,7 +21,8 @@ Component.register('sw-cms-detail', {
             isLoading: false,
             currentSalesChannelKey: null,
             currentDeviceView: 'desktop',
-            currentBlock: null
+            currentBlock: null,
+            pageContext: {}
         };
     },
 
@@ -31,6 +33,10 @@ Component.register('sw-cms-detail', {
 
         salesChannelStore() {
             return State.getStore('sales_channel');
+        },
+
+        defaultFolderStore() {
+            return State.getStore('media_default_folder');
         },
 
         cmsBlocks() {
@@ -82,6 +88,36 @@ Component.register('sw-cms-detail', {
                     }
                 });
             }
+
+            this.getPageContext();
+        },
+
+        getPageContext() {
+            this.pageContext.entityName = this.pageStore.getEntityName();
+            this.getDefaultFolderId().then((folderId) => {
+                this.pageContext.defaultFolderId = folderId;
+            });
+        },
+
+        getDefaultFolderId() {
+            return this.defaultFolderStore.getList({
+                limit: 1,
+                criteria: CriteriaFactory.equals('entity', this.pageContext.entityName),
+                associations: {
+                    folder: {}
+                }
+            }).then(({ items }) => {
+                if (items.length !== 1) {
+                    return null;
+                }
+
+                const defaultFolder = items[0];
+                if (defaultFolder.folder.id) {
+                    return defaultFolder.folder.id;
+                }
+
+                return null;
+            });
         },
 
         loadPage(pageId) {

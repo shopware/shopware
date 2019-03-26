@@ -62,6 +62,12 @@ Component.register('sw-media-library', {
             type: Boolean,
             required: false,
             default: false
+        },
+
+        allowMultiSelect: {
+            type: Boolean,
+            required: false,
+            default: true
         }
     },
 
@@ -152,10 +158,24 @@ Component.register('sw-media-library', {
     },
 
     created() {
-        this.refreshList();
+        this.createdComponent();
     },
 
     methods: {
+        createdComponent() {
+            this.refreshList();
+
+            if (this.allowMultiSelect) {
+                return;
+            }
+
+            this.handleMediaItemClicked = ({ item }) => {
+                this._singleSelect(item);
+            };
+
+            this.handleMediaGridItemSelected = () => {};
+        },
+
         /*
          * Object fetching
          */

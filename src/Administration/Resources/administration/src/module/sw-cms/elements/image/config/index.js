@@ -17,7 +17,18 @@ Component.register('sw-cms-el-config-image', {
             default() {
                 return {};
             }
+        },
+        pageContext: {
+            type: Object,
+            required: true
         }
+    },
+
+    data() {
+        return {
+            mediaModalIsOpen: false,
+            initialFolderId: null
+        };
     },
 
     computed: {
@@ -55,6 +66,29 @@ Component.register('sw-cms-el-config-image', {
             this.$set(this.element.data, 'media', null);
 
             this.$emit('element-update', this.element);
+        },
+
+        onCloseModal() {
+            this.mediaModalIsOpen = false;
+        },
+
+        onSelectionChanges(mediaEntity) {
+            if (!this.element.config) {
+                this.element.config = {};
+            }
+
+            this.$set(this.element.config, 'mediaId', mediaEntity[0].id);
+
+            if (this.element.data) {
+                this.$set(this.element.data, 'mediaId', mediaEntity[0].id);
+                this.$set(this.element.data, 'media', mediaEntity[0]);
+            }
+
+            this.$emit('element-update', this.element);
+        },
+
+        onOpenMediaModal() {
+            this.mediaModalIsOpen = true;
         }
     }
 });

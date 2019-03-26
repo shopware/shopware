@@ -65,6 +65,12 @@ export default {
             type: Boolean,
             required: false,
             default: true
+        },
+
+        allowMultiSelect: {
+            type: Boolean,
+            required: false,
+            default: true
         }
     },
 
@@ -92,7 +98,8 @@ export default {
             return {
                 'selected-indicator--visible': this.showSelectionIndicator,
                 'selected-indicator--list': this.isList,
-                'selected-indicator--checked': this.listSelected
+                'selected-indicator--checked': this.listSelected,
+                'selected-indicator--is-allowed': this.allowMultiSelect
             };
         }
     },
@@ -132,7 +139,6 @@ export default {
             if (this.isSelectionIndicatorClicked(originalDomEvent.composedPath())) {
                 return;
             }
-
             this.$emit('sw-media-item-clicked', originalDomEvent);
         },
 
@@ -146,11 +152,10 @@ export default {
         },
 
         onClickedItem(originalDomEvent) {
-            if (!this.listSelected) {
+            if (!this.listSelected || !this.allowMultiSelect) {
                 this.selectItem(originalDomEvent);
                 return;
             }
-
             this.removeFromSelection(originalDomEvent);
         },
 

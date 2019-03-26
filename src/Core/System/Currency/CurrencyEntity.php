@@ -3,6 +3,7 @@
 namespace Shopware\Core\System\Currency;
 
 use Shopware\Core\Checkout\Order\OrderCollection;
+use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodPriceRule\ShippingMethodPriceRuleCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductPriceRule\ProductPriceRuleCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
@@ -97,6 +98,11 @@ class CurrencyEntity extends Entity
      * @var array|null
      */
     protected $attributes;
+
+    /**
+     * @var ShippingMethodPriceRuleCollection|null
+     */
+    protected $shippingMethodPriceRules;
 
     public function getFactor(): float
     {
@@ -266,5 +272,15 @@ class CurrencyEntity extends Entity
     public function setDecimalPrecision(int $decimalPrecision): void
     {
         $this->decimalPrecision = $decimalPrecision;
+    }
+
+    public function getShippingMethodPriceRules(): ?ShippingMethodPriceRuleCollection
+    {
+        return $this->shippingMethodPriceRules;
+    }
+
+    public function setShippingMethodPriceRules(?ShippingMethodPriceRuleCollection $shippingMethodPriceRules): void
+    {
+        $this->shippingMethodPriceRules = $shippingMethodPriceRules;
     }
 }

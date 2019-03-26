@@ -5,7 +5,6 @@ namespace Shopware\Core\Checkout\Test\Cart\Common;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
-use Shopware\Core\Checkout\Cart\Delivery\DeliveryCalculator;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingLocation;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
@@ -109,7 +108,6 @@ class Generator extends TestCase
 
         $shippingMethod = new ShippingMethodEntity();
         $shippingMethod->setId('8beeb66e9dda46b18891a059257a590e');
-        $shippingMethod->setCalculation(DeliveryCalculator::CALCULATION_BY_PRICE);
         $shippingMethod->setMinDeliveryTime(1);
         $shippingMethod->setMaxDeliveryTime(2);
 

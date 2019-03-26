@@ -33,6 +33,10 @@ return [
                     'data' => [],
                     'links' => ['related' => '/api/rule/f343a3c119cf42a7841aa0ac5094908c/shipping-methods'],
                 ],
+                'shippingMethodPriceRules' => [
+                    'data' => [],
+                    'links' => ['related' => '/api/rule/f343a3c119cf42a7841aa0ac5094908c/shipping-method-price-rules'],
+                ],
                 'paymentMethods' => [
                     'data' => [],
                     'links' => ['related' => '/api/rule/f343a3c119cf42a7841aa0ac5094908c/payment-methods'],
@@ -59,6 +63,7 @@ return [
                     'attributes' => null,
                     'shippingMethods' => null,
                     'paymentMethods' => null,
+                    'shippingMethodPriceRules' => null,
                     '_class' => 'Shopware\Core\Content\Rule\RuleEntity',
                 ],
             ],

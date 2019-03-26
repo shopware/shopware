@@ -3,7 +3,7 @@
 namespace Shopware\Core\Checkout\Shipping;
 
 use Shopware\Core\Checkout\CheckoutContext;
-use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodPrice\ShippingMethodPriceCollection;
+use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodPriceRule\ShippingMethodPriceRuleCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 /**
@@ -33,23 +33,23 @@ class ShippingMethodCollection extends EntityCollection
         $ids = [[]];
 
         foreach ($this->getIterator() as $element) {
-            $ids[] = $element->getPrices()->getIds();
+            $ids[] = $element->getPriceRules()->getIds();
         }
 
         return array_merge(...$ids);
     }
 
-    public function getPrices(): ShippingMethodPriceCollection
+    public function getPriceRules(): ShippingMethodPriceRuleCollection
     {
         $prices = [[]];
 
         foreach ($this->getIterator() as $element) {
-            $prices[] = $element->getPrices();
+            $prices[] = $element->getPriceRules();
         }
 
         $prices = array_merge(...$prices);
 
-        return new ShippingMethodPriceCollection($prices);
+        return new ShippingMethodPriceRuleCollection($prices);
     }
 
     protected function getExpectedClass(): string

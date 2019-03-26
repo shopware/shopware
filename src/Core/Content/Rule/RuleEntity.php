@@ -4,6 +4,7 @@ namespace Shopware\Core\Content\Rule;
 
 use Shopware\Core\Checkout\DiscountSurcharge\DiscountSurchargeCollection;
 use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
+use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodPriceRule\ShippingMethodPriceRuleCollection;
 use Shopware\Core\Checkout\Shipping\ShippingMethodCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductPriceRule\ProductPriceRuleCollection;
 use Shopware\Core\Content\Rule\Aggregate\RuleCondition\RuleConditionCollection;
@@ -84,6 +85,11 @@ class RuleEntity extends Entity
      * @var array|null
      */
     protected $attributes;
+
+    /**
+     * @var ShippingMethodPriceRuleCollection|null
+     */
+    protected $shippingMethodPriceRules;
 
     public function getName(): string
     {
@@ -223,5 +229,15 @@ class RuleEntity extends Entity
     public function setAttributes(?array $attributes): void
     {
         $this->attributes = $attributes;
+    }
+
+    public function getShippingMethodPriceRules(): ?ShippingMethodPriceRuleCollection
+    {
+        return $this->shippingMethodPriceRules;
+    }
+
+    public function setShippingMethodPriceRules(?ShippingMethodPriceRuleCollection $shippingMethodPriceRules): void
+    {
+        $this->shippingMethodPriceRules = $shippingMethodPriceRules;
     }
 }

@@ -1,0 +1,33 @@
+.sw-settings-shipping-detail-advanced-prices {
+    .sw-settings-shipping-detail-advanced-prices__toolbar {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(200px, auto));
+        grid-gap: 10px 20px;
+        margin-bottom: 30px;
+
+        .sw-select__inner {
+            padding: 6px 50px 0 6px;
+        }
+
+        .sw-context-button {
+            .sw-button {
+                width: 100%;
+                height: 100%;
+            }
+        }
+    }
+
+    .sw-settings-shipping-detail-advanced-prices__prices {
+        margin-top: 30px;
+    }
+
+    .sw-settings-shipping-detail-advanced-prices__actions {
+        max-width: 800px;
+        margin: 40px auto;
+        display: grid;
+        grid-auto-flow: column;
+        justify-content: center;
+        justify-items: center;
+        align-items: center;
+    }
+}

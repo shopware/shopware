@@ -223,7 +223,6 @@ class ShippingMethodIndexerTest extends TestCase
             'shipping_method', [
                 'id' => $id,
                 'active' => 1,
-                'calculation' => 0,
                 'bind_shippingfree' => 0,
                 'created_at' => date('Y-m-d H:i:s'),
             ]

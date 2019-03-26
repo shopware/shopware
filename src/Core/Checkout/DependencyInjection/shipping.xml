@@ -9,8 +9,8 @@
             <tag name="shopware.entity.definition" entity="shipping_method"/>
         </service>
 
-        <service id="Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodPrice\ShippingMethodPriceDefinition">
-            <tag name="shopware.entity.definition" entity="shipping_method_price"/>
+        <service id="Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodPriceRule\ShippingMethodPriceRuleDefinition">
+            <tag name="shopware.entity.definition" entity="shipping_method_price_rule"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodTranslation\ShippingMethodTranslationDefinition">

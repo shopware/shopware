@@ -26,8 +26,8 @@
       "labelName": "Name",
       "labelActive": "Active",
       "labelBindShippingfree": "Free shipping",
-      "labelMinDeliveryTime": "min deliverytime",
-      "labelMaxDeliveryTime": "max deliverytime",
+      "labelMinDeliveryTime": "Min. delivery time",
+      "labelMaxDeliveryTime": "Max. delivery time",
       "placeholderName": "Enter name",
       "placeholderDescription": "Enter description",
       "placeholderComment": "Enter comment",
@@ -48,6 +48,26 @@
       "weight": "Weight",
       "price": "Price",
       "lineItemCount": "Line item count"
+    },
+    "priceRules": {
+      "cardTitlePriceRule": "New price rule",
+      "placeholderRule": "Please choose ...",
+      "placeholderQuantityEnd": "Infinite",
+      "buttonPriceRuleDelete": "Delete price rule",
+      "buttonPriceRuleDuplicate": "Duplicate price rule",
+      "buttonPriceRuleCurrencyAdd": "Add currency",
+      "buttonAddAdditionalPriceRule": "Add additionally price rule",
+      "textCurrencyDefault": "(Default)",
+      "textPriceRuleForCurrency": "Price rule for currency",
+      "columnQuantityStart": "Amount from",
+      "columnQuantityEnd": "Amount to",
+      "columnWeightStart": "Weight from",
+      "columnWeightEnd": "Weight to",
+      "columnPriceStart": "Price from",
+      "columnPriceEnd": "Price to",
+      "columnPrice": "Price (Gross)",
+      "contextMenuDuplicate": "Duplicate",
+      "contextMenuDelete": "Delete"
     }
   }
 }

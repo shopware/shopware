@@ -276,8 +276,7 @@ class CustomTranslationEntity extends TranslationEntity
 
 ### Translation entity collection
 
-Your custom translation entity also has to come with a respective collection class.
-It still extends from `EntityCollection`, but comes with some more helper methods besides the `getExpectedClass` method.
+Your custom translation entity also has to come with a respective collection class, which also extends from `EntityCollection`.
 
 ```php
 <?php declare(strict_types = 1);
@@ -297,27 +296,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
  */
 class CustomEntityTranslationCollection extends EntityCollection
 {
-    public function getCustomEntityIds(): array
-    {
-        return $this->fmap(function (CustomTranslationEntity $customTranslationEntity) {
-            return $customTranslationEntity->getCustomEntityId();
-        });
-    }
-
-    public function filterByCustomEntityId(string $id): self
-    {
-        return $this->filter(function (CustomTranslationEntity $customTranslationEntity) use ($id) {
-            return $customTranslationEntity->getCustomEntityId() === $id;
-        });
-    }
-
-    public function getLanguageIds(): array
-    {
-        return $this->fmap(function (CustomTranslationEntity $customTranslationEntity) {
-            return $customTranslationEntity->getLanguageId();
-        });
-    }
-
     public function filterByLanguageId(string $id): self
     {
         return $this->filter(function (CustomTranslationEntity $customTranslationEntity) use ($id) {
@@ -332,7 +310,8 @@ class CustomEntityTranslationCollection extends EntityCollection
 }
 ```
 
-The methods `getLanguageIds` and `filterByLanguageId` should always be part of your translated entity collection.
+Note the helper method `filterByLanguageId`, which is **not required**.
+It comes in handy, when searching for the translation for a given language.
 
 ## Migration for the translation table
 

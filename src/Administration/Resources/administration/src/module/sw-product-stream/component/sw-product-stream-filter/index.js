@@ -219,8 +219,11 @@ Component.extend('sw-product-stream-filter', 'sw-condition-base', {
         addDefinitionToStack(definition, definitions, blackListedDefinitions) {
             blackListedDefinitions.push(definition.name);
             this.definitionBlacklist[definition.name] = blackListedDefinitions.slice(0);
-            definition.properties = this.filterProperties(definition);
-            definitions.push(definition);
+            definitions.push({
+                name: definition.name,
+                type: definition.type,
+                properties: this.filterProperties(definition)
+            });
         },
 
         filterProperties(definition) {

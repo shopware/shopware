@@ -8,7 +8,7 @@
                                      v-model="customer.salutationId"
                                      validation="required">
                         <option v-for="salutation in salutations" :key="salutation.id" :value="salutation.id">
-                            {{ salutation.meta.viewData.name }}
+                            {{ salutation.meta.viewData.displayName }}
                         </option>
                     </sw-select-field>
                 {% endblock %}

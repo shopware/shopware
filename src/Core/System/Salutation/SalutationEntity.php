@@ -23,7 +23,12 @@ class SalutationEntity extends Entity
     /**
      * @var string|null
      */
-    protected $name;
+    protected $displayName;
+
+    /**
+     * @var string|null
+     */
+    protected $letterName;
 
     /**
      * @var \DateTimeInterface|null
@@ -75,14 +80,24 @@ class SalutationEntity extends Entity
         $this->salutationKey = $salutationKey;
     }
 
-    public function getName(): ?string
+    public function getDisplayName(): ?string
     {
-        return $this->name;
+        return $this->displayName;
     }
 
-    public function setName(?string $name): void
+    public function setDisplayName(?string $displayName): void
     {
-        $this->name = $name;
+        $this->displayName = $displayName;
+    }
+
+    public function getLetterName(): ?string
+    {
+        return $this->letterName;
+    }
+
+    public function setLetterName(?string $letterName): void
+    {
+        $this->letterName = $letterName;
     }
 
     public function getCreatedAt(): ?\DateTimeInterface

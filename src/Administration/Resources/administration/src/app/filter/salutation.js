@@ -6,7 +6,7 @@ Filter.register('salutation', (entity, fallbackSnippet = '') => {
     }
 
     const params = {
-        salutation: entity.salutation.name || '',
+        salutation: entity.salutation.displayName || '',
         title: entity.title || '',
         firstName: entity.firstName || '',
         lastName: entity.lastName || ''

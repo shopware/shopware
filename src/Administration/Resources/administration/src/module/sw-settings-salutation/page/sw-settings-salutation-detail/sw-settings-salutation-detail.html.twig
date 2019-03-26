@@ -67,11 +67,19 @@
                                 </sw-field>
                             {% endblock %}
 
-                            {% block sw_settings_salutation_detail_content_card_name %}
-                                <sw-field v-model="salutation.name"
-                                          class="sw-settings-salutation-detail__name"
-                                          :label="$tc('sw-settings-salutation.detail.fieldNameLabel')"
-                                          :placeholder="$tc('sw-settings-salutation.detail.fieldNamePlaceholder')">
+                            {% block sw_settings_salutation_detail_content_card_display_name %}
+                                <sw-field v-model="salutation.displayName"
+                                          class="sw-settings-salutation-detail__displayName"
+                                          :label="$tc('sw-settings-salutation.detail.fieldDisplayNameLabel')"
+                                          :placeholder="$tc('sw-settings-salutation.detail.fieldDisplayNamePlaceholder')">
+                                </sw-field>
+                            {% endblock %}
+
+                            {% block sw_settings_salutation_detail_content_card_letter_name %}
+                                <sw-field v-model="salutation.letterName"
+                                          class="sw-settings-salutation-detail__letterName"
+                                          :label="$tc('sw-settings-salutation.detail.fieldLetterNameLabel')"
+                                          :placeholder="$tc('sw-settings-salutation.detail.fieldLetterNamePlaceholder')">
                                 </sw-field>
                             {% endblock %}
 

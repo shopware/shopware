@@ -21,7 +21,7 @@
                         {% endblock %}
 
                         {% block sw_settings_salutation_list_smart_bar_header_amount %}
-                            <span v-if="!isLoading && items && items.length"
+                            <span v-if="!isLoading && items && total"
                                   class="sw-page__smart-bar-amount">
                                 ({{ total }})
                             </span>
@@ -95,21 +95,41 @@
                                                 </template>
                                             {% endblock %}
 
-                                            {% block sw_settings_salutation_list_column_name %}
-                                                <template slot="column-name" slot-scope="{ item, compact, isInlineEdit }">
-                                                    {% block sw_settings_salutation_list_column_name_inline_edit %}
+                                            {% block sw_settings_salutation_list_column_display_name %}
+                                                <template slot="column-displayName" slot-scope="{ item, compact, isInlineEdit }">
+                                                    {% block sw_settings_salutation_list_column_display_name_inline_edit %}
                                                         <template v-if="isInlineEdit">
-                                                            <sw-text-field v-model="item.name"
-                                                                           :placeholder="getInlinePlaceholder(item)"
+                                                            <sw-text-field v-model="item.displayName"
+                                                                           :placeholder="getInlinePlaceholder(item, 'displayName')"
                                                                            :size="compact ? 'small' : 'default'">
                                                             </sw-text-field>
                                                         </template>
                                                     {% endblock %}
 
-                                                    {% block sw_settings_salutation_column_name_content %}
+                                                    {% block sw_settings_salutation_column_display_name_content %}
                                                         <template v-else
                                                                   class="sw-settings-salutation-list__columns">
-                                                            {{ item.meta.viewData.name }}
+                                                            {{ item.meta.viewData.displayName }}
+                                                        </template>
+                                                    {% endblock %}
+                                                </template>
+                                            {% endblock %}
+
+                                            {% block sw_settings_salutation_list_column_letter_name %}
+                                                <template slot="column-letterName" slot-scope="{ item, compact, isInlineEdit }">
+                                                    {% block sw_settings_salutation_list_column_letter_name_inline_edit %}
+                                                        <template v-if="isInlineEdit">
+                                                            <sw-text-field v-model="item.letterName"
+                                                                           :placeholder="getInlinePlaceholder(item, 'letterName')"
+                                                                           :size="compact ? 'small' : 'default'">
+                                                            </sw-text-field>
+                                                        </template>
+                                                    {% endblock %}
+
+                                                    {% block sw_settings_salutation_column_letter_name_content %}
+                                                        <template v-else
+                                                                  class="sw-settings-salutation-list__columns">
+                                                            {{ item.meta.viewData.letterName }}
                                                         </template>
                                                     {% endblock %}
                                                 </template>

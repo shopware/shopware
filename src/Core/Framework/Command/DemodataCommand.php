@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\Command;
 
-use function Flag\next1271;
 use function Flag\next739;
 use function Flag\next754;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
@@ -24,7 +23,6 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Demodata\DemodataRequest;
 use Shopware\Core\Framework\Demodata\DemodataService;
 use Shopware\Core\Framework\Demodata\Generator\ProductGenerator;
-use Shopware\Storefront\Framework\Theme\ThemeDefinition;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -81,10 +79,6 @@ class DemodataCommand extends Command
             $this->addOption('customer-attributes', null, InputOption::VALUE_REQUIRED, 'Customer attribute count');
             $this->addOption('media-attributes', null, InputOption::VALUE_REQUIRED, 'Media attribute count');
         }
-
-        if (next1271()) {
-            $this->addOption('themes', null, InputOption::VALUE_REQUIRED, 'Default themes', 1);
-        }
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
@@ -125,10 +119,6 @@ class DemodataCommand extends Command
                 (int) $input->getOption('attribute-sets'),
                 $this->getAttributeOptions($input)
             );
-        }
-
-        if (next1271()) {
-            $request->add(ThemeDefinition::class, 2);
         }
 
         $request->add(MailTemplateDefinition::class, (int) $input->getOption('mail-template'));

@@ -3,7 +3,6 @@
 namespace Shopware\Storefront\PageController;
 
 use Shopware\Core\Checkout\Cart\Exception\CartTokenNotFoundException;
-use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Checkout\Cart\Exception\OrderNotFoundException;
 use Shopware\Core\Checkout\Cart\Storefront\CartService;
 use Shopware\Core\Checkout\CheckoutContext;
@@ -14,6 +13,7 @@ use Shopware\Storefront\Framework\Page\PageLoaderInterface;
 use Shopware\Storefront\Page\Checkout\Cart\CheckoutCartPageLoader;
 use Shopware\Storefront\Page\Checkout\Confirm\CheckoutConfirmPageLoader;
 use Shopware\Storefront\Page\Checkout\Finish\CheckoutFinishPageLoader;
+use Shopware\Storefront\Page\Checkout\Register\CheckoutRegisterPageLoader;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -40,16 +40,23 @@ class CheckoutPageController extends StorefrontController
      */
     private $finishPageLoader;
 
+    /**
+     * @var CheckoutRegisterPageLoader|PageLoaderInterface
+     */
+    private $registerPageLoader;
+
     public function __construct(
         CartService $cartService,
         PageLoaderInterface $cartPageLoader,
         PageLoaderInterface $confirmPageLoader,
-        PageLoaderInterface $finishPageLoader
+        PageLoaderInterface $finishPageLoader,
+        PageLoaderInterface $registerPageLoader
     ) {
         $this->cartService = $cartService;
         $this->cartPageLoader = $cartPageLoader;
         $this->confirmPageLoader = $confirmPageLoader;
         $this->finishPageLoader = $finishPageLoader;
+        $this->registerPageLoader = $registerPageLoader;
     }
 
     /**
@@ -75,12 +82,13 @@ class CheckoutPageController extends StorefrontController
     /**
      * @Route("/checkout/confirm", name="frontend.checkout.confirm.page", options={"seo"="false"}, methods={"GET"})
      *
-     * @throws CustomerNotLoggedInException
      * @throws CartTokenNotFoundException
      */
     public function confirm(InternalRequest $request, CheckoutContext $context): Response
     {
-        $this->denyAccessUnlessLoggedIn();
+        if (!$context->getCustomer()) {
+            return $this->redirectToRoute('frontend.checkout.register.page');
+        }
 
         if ($this->cartService->getCart($context->getToken(), $context)->getLineItems()->count() === 0) {
             return $this->redirectToRoute('frontend.checkout.cart.page');
@@ -94,17 +102,33 @@ class CheckoutPageController extends StorefrontController
     /**
      * @Route("/checkout/finish", name="frontend.checkout.finish.page", options={"seo"="false"}, methods={"GET"})
      *
-     * @throws CustomerNotLoggedInException
      * @throws OrderNotFoundException
      * @throws InvalidParameterException
      * @throws \Shopware\Core\Framework\Exception\MissingParameterException
      */
     public function finish(InternalRequest $request, CheckoutContext $context): Response
     {
-        $this->denyAccessUnlessLoggedIn();
+        if (!$context->getCustomer()) {
+            return $this->redirectToRoute('frontend.checkout.register.page');
+        }
 
         $page = $this->finishPageLoader->load($request, $context);
 
         return $this->renderStorefront('@Storefront/page/checkout/finish/index.html.twig', ['page' => $page]);
+    }
+
+    /**
+     * @Route("/checkout/register", name="frontend.checkout.register.page", options={"seo"="false"}, methods={"GET"})
+     */
+    public function register(InternalRequest $request, CheckoutContext $context): Response
+    {
+        if ($context->getCustomer()) {
+            return $this->redirectToRoute('frontend.checkout.confirm.page');
+        }
+
+        $page = $this->registerPageLoader->load($request, $context);
+
+        // TODO change template NEXT-1930
+        return $this->renderStorefront('@Storefront/page/account/register/index.html.twig', ['page' => $page]);
     }
 }

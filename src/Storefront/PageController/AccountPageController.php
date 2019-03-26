@@ -79,7 +79,9 @@ class AccountPageController extends StorefrontController
      */
     public function index(InternalRequest $request, CheckoutContext $context): Response
     {
-        $this->denyAccessUnlessLoggedIn();
+        if (!$context->getCustomer()) {
+            return $this->redirectToRoute('frontend.account.login.page');
+        }
 
         $page = $this->overviewPageLoader->load($request, $context);
 

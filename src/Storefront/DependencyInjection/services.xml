@@ -221,11 +221,18 @@
             <argument type="service" id="Shopware\Storefront\Page\Account\Address\AccountAddressPageLoader"/>
         </service>
 
+        <service id="Shopware\Storefront\Page\Checkout\Register\CheckoutRegisterPageLoader" public="true">
+            <argument type="service" id="Shopware\Storefront\Framework\Page\PageWithHeaderLoader"/>
+            <argument type="service" id="Shopware\Core\Checkout\Customer\Storefront\AccountService"/>
+            <argument type="service" id="event_dispatcher"/>
+        </service>
+
         <service id="Shopware\Storefront\PageController\CheckoutPageController" public="true">
             <argument type="service" id="Shopware\Core\Checkout\Cart\Storefront\CartService"/>
             <argument type="service" id="Shopware\Storefront\Page\Checkout\Cart\CheckoutCartPageLoader"/>
             <argument type="service" id="Shopware\Storefront\Page\Checkout\Confirm\CheckoutConfirmPageLoader"/>
             <argument type="service" id="Shopware\Storefront\Page\Checkout\Finish\CheckoutFinishPageLoader"/>
+            <argument type="service" id="Shopware\Storefront\Page\Checkout\Register\CheckoutRegisterPageLoader"/>
         </service>
 
         <service id="Shopware\Storefront\PageController\ErrorPageController" public="true">

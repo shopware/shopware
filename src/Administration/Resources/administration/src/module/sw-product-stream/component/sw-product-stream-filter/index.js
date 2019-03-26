@@ -46,16 +46,16 @@ Component.extend('sw-product-stream-filter', 'sw-condition-base', {
                     name: this.$tc('sw-product-stream.filter.type.greaterThan')
                 },
                 {
-                    type: TYPES.TYPE_LOWER_THAN,
-                    name: this.$tc('sw-product-stream.filter.type.lowerThan')
+                    type: TYPES.TYPE_LESS_THAN,
+                    name: this.$tc('sw-product-stream.filter.type.lessThan')
                 },
                 {
                     type: TYPES.TYPE_GREATER_THAN_EQUALS,
                     name: this.$tc('sw-product-stream.filter.type.greaterThanEquals')
                 },
                 {
-                    type: TYPES.TYPE_LOWER_THAN_EQUALS,
-                    name: this.$tc('sw-product-stream.filter.type.lowerThanEquals')
+                    type: TYPES.TYPE_LESS_THAN_EQUALS,
+                    name: this.$tc('sw-product-stream.filter.type.lessThanEquals')
                 },
                 {
                     type: TYPES.TYPE_EQUALS_ANY,
@@ -177,13 +177,13 @@ Component.extend('sw-product-stream-filter', 'sw-condition-base', {
             if (this.type === TYPES.TYPE_RANGE) {
                 const params = this.actualCondition.parameters;
                 if (params.lt !== undefined && !params.gt && !params.lte && !params.gte) {
-                    return TYPES.TYPE_LOWER_THAN;
+                    return TYPES.TYPE_LESS_THAN;
                 }
                 if (!params.lt && params.gt !== undefined && !params.lte && !params.gte) {
                     return TYPES.TYPE_GREATER_THAN;
                 }
                 if (!params.lt && !params.gt && params.lte !== undefined && !params.gte) {
-                    return TYPES.TYPE_LOWER_THAN_EQUALS;
+                    return TYPES.TYPE_LESS_THAN_EQUALS;
                 }
                 if (!params.lt && !params.gt && !params.lte && params.gte !== undefined) {
                     return TYPES.TYPE_GREATER_THAN_EQUALS;
@@ -400,10 +400,11 @@ Component.extend('sw-product-stream-filter', 'sw-condition-base', {
         },
         getType(newValue) {
             const rangeTypes = [
-                TYPES.TYPE_LOWER_THAN_EQUALS,
-                TYPES.TYPE_LOWER_THAN,
+                TYPES.TYPE_LESS_THAN_EQUALS,
+                TYPES.TYPE_LESS_THAN,
                 TYPES.TYPE_GREATER_THAN_EQUALS,
-                TYPES.TYPE_GREATER_THAN
+                TYPES.TYPE_GREATER_THAN,
+                TYPES.TYPE_RANGE
             ];
 
             if (rangeTypes.includes(newValue)) {
@@ -423,13 +424,13 @@ Component.extend('sw-product-stream-filter', 'sw-condition-base', {
             return this.actualCondition.type === TYPES.TYPE_RANGE;
         },
         isTypeLower() {
-            return this.type === TYPES.TYPE_LOWER_THAN;
+            return this.type === TYPES.TYPE_LESS_THAN;
         },
         isTypeGreater() {
             return this.type === TYPES.TYPE_GREATER_THAN;
         },
         isTypeLowerEquals() {
-            return this.type === TYPES.TYPE_LOWER_THAN_EQUALS;
+            return this.type === TYPES.TYPE_LESS_THAN_EQUALS;
         },
         isTypeGreaterEquals() {
             return this.type === TYPES.TYPE_GREATER_THAN_EQUALS;
@@ -437,7 +438,7 @@ Component.extend('sw-product-stream-filter', 'sw-condition-base', {
 
         mapParametersForType(type) {
             switch (type) {
-            case TYPES.TYPE_LOWER_THAN_EQUALS:
+            case TYPES.TYPE_LESS_THAN_EQUALS:
                 this.actualCondition.parameters = {
                     lt: undefined,
                     gt: undefined,
@@ -445,7 +446,7 @@ Component.extend('sw-product-stream-filter', 'sw-condition-base', {
                     gte: undefined
                 };
                 break;
-            case TYPES.TYPE_LOWER_THAN:
+            case TYPES.TYPE_LESS_THAN:
                 this.actualCondition.parameters = {
                     lt: 0,
                     gt: undefined,
@@ -470,6 +471,12 @@ Component.extend('sw-product-stream-filter', 'sw-condition-base', {
                 };
                 break;
             default:
+                this.actualCondition.parameters = {
+                    lt: undefined,
+                    gt: undefined,
+                    lte: undefined,
+                    gte: undefined
+                };
                 break;
             }
         },
@@ -571,8 +578,8 @@ Component.extend('sw-product-stream-filter', 'sw-condition-base', {
                     TYPES.TYPE_EQUALS_ANY,
                     TYPES.TYPE_GREATER_THAN,
                     TYPES.TYPE_GREATER_THAN_EQUALS,
-                    TYPES.TYPE_LOWER_THAN,
-                    TYPES.TYPE_LOWER_THAN_EQUALS,
+                    TYPES.TYPE_LESS_THAN,
+                    TYPES.TYPE_LESS_THAN_EQUALS,
                     TYPES.TYPE_NOT_EQUALS,
                     TYPES.TYPE_NOT_EQUALS_ANY,
                     TYPES.TYPE_RANGE

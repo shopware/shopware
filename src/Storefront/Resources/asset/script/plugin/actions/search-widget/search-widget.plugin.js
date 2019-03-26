@@ -6,8 +6,9 @@ import InputLoadingIndicator from "../../loading-indicator/input-loading-indicat
 import DeviceDetection from "../../../helper/device-detection.helper";
 import ArrowNavigationHelper from "./helper/arrow-navigation.helper";
 
-const SEARCH_WIDGET_SELECTOR = '.search-form';
-const SEARCH_WIDGET_RESULTS_SELECTOR = '.search-results';
+const SEARCH_WIDGET_SELECTOR = '.js-search-form';
+const SEARCH_WIDGET_RESULTS_SELECTOR = '.js-search-results';
+const SEARCH_WIDGET_RESULT_ITEM_SELECTOR = '.js-result';
 const SEARCH_WIDGET_INPUT_FIELD_SELECTOR = "input[type=search]";
 const SEARCH_WIDGET_URL_DATA_ATTRIBUTE = 'data-url';
 
@@ -32,7 +33,7 @@ export default class SearchWidget extends Plugin {
         this._navigationHelper = new ArrowNavigationHelper(
             this._inputField,
             SEARCH_WIDGET_RESULTS_SELECTOR,
-            '.result',
+            SEARCH_WIDGET_RESULT_ITEM_SELECTOR,
             true
         );
 

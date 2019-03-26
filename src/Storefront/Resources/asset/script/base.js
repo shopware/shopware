@@ -58,6 +58,11 @@ pluginManager.register('searchWidgetPlugin', {
     selector: document
 });
 
+pluginManager.register('cookiePermissionPlugin', {
+    plugin: CookiePermission,
+    selector: document
+});
+
 
 /**
  * APPLY PLUGINS AS JQUERY
@@ -83,9 +88,6 @@ new CartWidget();
 
 // Cart Mini OffCanvas
 new CartMini();
-
-// Cookie Permission
-new CookiePermission();
 
 // Modal Extension
 new ModalExtension();

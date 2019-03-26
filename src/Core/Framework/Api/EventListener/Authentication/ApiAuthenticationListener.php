@@ -9,7 +9,7 @@ use League\OAuth2\Server\Grant\RefreshTokenGrant;
 use League\OAuth2\Server\Repositories\RefreshTokenRepositoryInterface;
 use League\OAuth2\Server\Repositories\UserRepositoryInterface;
 use League\OAuth2\Server\ResourceServer;
-use Symfony\Bridge\PsrHttpMessage\Factory\DiactorosFactory;
+use Symfony\Bridge\PsrHttpMessage\Factory\PsrHttpFactory;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpKernel\Event\GetResponseEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
@@ -55,16 +55,23 @@ class ApiAuthenticationListener implements EventSubscriberInterface
      */
     private $refreshTokenRepository;
 
+    /**
+     * @var PsrHttpFactory
+     */
+    private $psrHttpFactory;
+
     public function __construct(
         ResourceServer $resourceServer,
         AuthorizationServer $authorizationServer,
         UserRepositoryInterface $userRepository,
-        RefreshTokenRepositoryInterface $refreshTokenRepository
+        RefreshTokenRepositoryInterface $refreshTokenRepository,
+        PsrHttpFactory $psrHttpFactory
     ) {
         $this->resourceServer = $resourceServer;
         $this->authorizationServer = $authorizationServer;
         $this->userRepository = $userRepository;
         $this->refreshTokenRepository = $refreshTokenRepository;
+        $this->psrHttpFactory = $psrHttpFactory;
     }
 
     public static function getSubscribedEvents(): array
@@ -111,8 +118,7 @@ class ApiAuthenticationListener implements EventSubscriberInterface
             return;
         }
 
-        $psr7Factory = new DiactorosFactory();
-        $psr7Request = $psr7Factory->createRequest($event->getRequest());
+        $psr7Request = $this->psrHttpFactory->createRequest($event->getRequest());
         $psr7Request = $this->resourceServer->validateAuthenticatedRequest($psr7Request);
 
         $request->attributes->add($psr7Request->getAttributes());

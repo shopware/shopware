@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\Test\Snippet\Files;
 
-use Doctrine\Common\Collections\ArrayCollection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Snippet\Exception\InvalidSnippetFileException;
 use Shopware\Core\Framework\Snippet\Files\de_DE\SnippetFile_de_DE;
@@ -97,7 +96,7 @@ class SnippetFileCollectionTest extends TestCase
 
     private function getCollection(): SnippetFileCollection
     {
-        $collection = new SnippetFileCollection(new ArrayCollection([]));
+        $collection = new SnippetFileCollection([]);
         $collection->add(new TestSnippetExtensionFile_de_DE());
         $collection->add(new SnippetFile_de_DE());
         $collection->add(new SnippetFile_en_GB());

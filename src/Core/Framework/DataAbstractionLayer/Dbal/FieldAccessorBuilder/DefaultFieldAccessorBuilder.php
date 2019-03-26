@@ -6,7 +6,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Exception\FieldNotStorageAwareException;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldAware\StorageAware;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\StorageAware;
 
 class DefaultFieldAccessorBuilder implements FieldAccessorBuilderInterface
 {

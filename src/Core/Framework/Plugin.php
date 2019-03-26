@@ -16,7 +16,7 @@ abstract class Plugin extends Bundle
      */
     private $active;
 
-    public function __construct(bool $active = true, ?string $path = null)
+    final public function __construct(bool $active = true, ?string $path = null)
     {
         $this->active = $active;
         $this->path = $path;

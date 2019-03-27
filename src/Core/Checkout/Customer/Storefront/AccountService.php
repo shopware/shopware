@@ -11,9 +11,9 @@ use Shopware\Core\Checkout\Customer\CustomerEvents;
 use Shopware\Core\Checkout\Customer\Event\CustomerLoginEvent;
 use Shopware\Core\Checkout\Customer\Event\CustomerLogoutEvent;
 use Shopware\Core\Checkout\Customer\Exception\BadCredentialsException;
+use Shopware\Core\Checkout\Customer\Exception\CustomerNotFoundException;
 use Shopware\Core\Checkout\Customer\Validation\CustomerValidationService;
 use Shopware\Core\Checkout\Exception\AddressNotFoundException;
-use Shopware\Core\Checkout\Exception\CustomerNotFoundException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -88,7 +88,7 @@ class AccountService
     }
 
     /**
-     * @throws CustomerNotFoundException
+     * @throws \Shopware\Core\Checkout\Customer\Exception\CustomerNotFoundException
      * @throws BadCredentialsException
      */
     public function getCustomerByLogin(string $email, string $password, CheckoutContext $context): CustomerEntity
@@ -103,7 +103,7 @@ class AccountService
     }
 
     /**
-     * @throws CustomerNotFoundException
+     * @throws \Shopware\Core\Checkout\Customer\Exception\CustomerNotFoundException
      */
     public function getCustomerByEmail(string $email, CheckoutContext $context, bool $includeGuest = false): CustomerEntity
     {

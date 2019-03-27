@@ -38,7 +38,7 @@ class MenuOffcanvasPageletLoader implements PageLoaderInterface
             throw new MissingParameterException('navigationId');
         }
 
-        $navigation = $this->getCategoryTree($navigationId, $activeId, $context);
+        $navigation = $this->getCategoryTree((string) $navigationId, $context);
 
         $page = new MenuOffcanvasPagelet($navigation);
 
@@ -56,10 +56,10 @@ class MenuOffcanvasPageletLoader implements PageLoaderInterface
      * if the category has no children,
      * the parent category will be used
      */
-    private function getCategoryTree(string $navigationId, string $activeId, CheckoutContext $context)
+    private function getCategoryTree(string $navigationId, CheckoutContext $context)
     {
         /** @var Tree $navigation */
-        $navigation = $this->navigationLoader->getCategory((string) $navigationId, $activeId, $context);
+        $navigation = $this->navigationLoader->loadLevel($navigationId, $context);
 
         /** @var NavigationEntity $active */
         $active = $navigation->getActive();
@@ -68,6 +68,6 @@ class MenuOffcanvasPageletLoader implements PageLoaderInterface
             return $navigation;
         }
 
-        return $this->navigationLoader->getCategory($active->getParentId(), $activeId, $context);
+        return $this->navigationLoader->loadLevel($active->getParentId(), $context);
     }
 }

@@ -56,6 +56,16 @@
                     {{ error.detail }}
                 </span>
             </div>
+            <div v-for="error in condition.errors">
+                <template v-if="error.id === 'clientValidationError'">
+                    <span v-if="error.type === 'placeholder'">
+                        {{ $tc('global.sw-condition.placeholderErrorMessage') }}
+                    </span>
+                    <span v-else-if="error.type === 'data'">
+                        {{ $tc('global.sw-condition.dataErrorMessage') }}
+                    </span>
+                </template>
+            </div>
         </div>
     {% endblock %}
 </div>

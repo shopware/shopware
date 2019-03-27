@@ -89,7 +89,8 @@ export default {
         },
         checkErrors() {
             const values = Object.values(this.formErrors);
-            this.hasErrors = values.length && values.filter(error => error.detail.length > 0).length;
+            this.hasErrors = (values.length && values.filter(error => error.detail.length > 0).length)
+                || this.condition.errors.map(obj => obj.id).includes('clientValidationError');
         },
         mountComponent() {
             if (!this.condition.value) {
@@ -130,11 +131,20 @@ export default {
         },
 
         deleteError(fieldName) {
-            if (!this.formErrors[fieldName].detail) {
+            if (!this.formErrors[fieldName].detail
+                && (this.condition.errors.length === 0
+                    || !this.condition.errors.map(obj => obj.id).includes('clientValidationError'))) {
                 return;
             }
 
-            this.errorStore.deleteError(this.formErrors[fieldName]);
+            this.condition.errors = this.condition.errors.filter((error) => {
+                return error.id !== 'clientValidationError';
+            });
+
+            if (this.formErrors[fieldName].detail) {
+                this.errorStore.deleteError(this.formErrors[fieldName]);
+            }
+
             this.checkErrors();
         },
 
@@ -154,6 +164,26 @@ export default {
             this.locateConditionTreeComponent();
 
             this.conditionTreeComponent.$on('on-save', this.checkErrors);
+            this.addClientFieldValidationMethod();
+        },
+        addClientFieldValidationMethod() {
+            this.config.dataCheckMethods[this.condition.type] = (condition) => {
+                let dataSet = true;
+                this.fieldNames.forEach((fieldName) => {
+                    if (fieldName === 'type') {
+                        return;
+                    }
+
+                    if (typeof condition.value[fieldName] === 'undefined'
+                        || condition.value[fieldName] === null
+                        || (condition.value[fieldName] instanceof Array
+                            && condition.value[fieldName].length === 0)) {
+                        dataSet = false;
+                    }
+                });
+
+                return dataSet;
+            };
         },
         locateConditionTreeComponent() {
             let parent = this.$parent;

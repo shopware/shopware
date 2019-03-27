@@ -55,18 +55,22 @@ export default {
             if (!this.condition[this.config.childName]) {
                 return [];
             }
-            return this.condition[this.config.childName]
+            return this.filterDeletedChildren(this.condition)
                 .sort((child1, child2) => { return child1.position - child2.position; });
         },
         disabledDeleteButton() {
-            if (this.level === 0
-                && this.condition
-                && this.condition[this.config.childName]
-                && this.condition[this.config.childName].length === 1
-                && this.config.isAndContainer(this.condition[this.config.childName][0])
-                && this.condition[this.config.childName][0][this.config.childName].length === 1
-                && this.config.isPlaceholder(this.condition[this.config.childName][0][this.config.childName][0])) {
-                return true;
+            if (this.level === 0 && this.condition && this.condition[this.config.childName]) {
+                const firstLevelChildren = this.filterDeletedChildren(this.condition);
+
+                if (firstLevelChildren.length === 1
+                    && this.config.isAndContainer(firstLevelChildren[0])) {
+                    const secondLevelChildren = this.filterDeletedChildren(firstLevelChildren[0]);
+
+                    if (secondLevelChildren.length === 1
+                        && this.config.isPlaceholder(secondLevelChildren[0])) {
+                        return true;
+                    }
+                }
             }
 
             if (this.level === 1) {
@@ -166,7 +170,8 @@ export default {
         },
         onDeleteCondition(condition) {
             const originalPosition = condition.position;
-            this.condition[this.config.childName].forEach(child => {
+            const children = this.filterDeletedChildren(this.condition);
+            children.forEach(child => {
                 if (child.position < originalPosition) {
                     return;
                 }
@@ -174,14 +179,14 @@ export default {
                 child.position -= 1;
             });
 
-            if (this.condition[this.config.childName].length === 1) {
+            if (children.length === 1) {
                 this.onDeleteAll();
                 return;
             }
 
             condition.delete();
 
-            if (this.condition[this.config.childName].length <= 0) {
+            if (children.length <= 0) {
                 this.$nextTick(() => {
                     if (this.level === 0) {
                         this.onAddChildClick();
@@ -190,6 +195,9 @@ export default {
                     }
                 });
             }
+        },
+        filterDeletedChildren(condition) {
+            return condition[this.config.childName].filter(child => !child.isDeleted);
         }
     }
 };

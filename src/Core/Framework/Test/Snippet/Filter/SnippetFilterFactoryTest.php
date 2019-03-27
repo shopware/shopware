@@ -3,7 +3,7 @@
 namespace Shopware\Core\Framework\Test\Snippet\Filter;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\Exception\FilterNotFoundException;
+use Shopware\Core\Framework\Snippet\Exception\FilterNotFoundException;
 use Shopware\Core\Framework\Snippet\Filter\AuthorFilter;
 use Shopware\Core\Framework\Snippet\Filter\CustomFilter;
 use Shopware\Core\Framework\Snippet\Filter\EmptySnippetFilter;

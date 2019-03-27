@@ -4,7 +4,7 @@ namespace Shopware\Core\Framework\Test\Snippet\Files;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\Exception\InvalidSnippetFileException;
+use Shopware\Core\Framework\Snippet\Exception\InvalidSnippetFileException;
 use Shopware\Core\Framework\Snippet\Files\de_DE\SnippetFile_de_DE;
 use Shopware\Core\Framework\Snippet\Files\en_EN\SnippetFile_en_GB;
 use Shopware\Core\Framework\Snippet\Files\SnippetFileCollection;

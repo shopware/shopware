@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Framework\Snippet\Files;
 
-use Shopware\Core\Framework\Exception\InvalidSnippetFileException;
+use Shopware\Core\Framework\Snippet\Exception\InvalidSnippetFileException;
 use Shopware\Core\Framework\Struct\Collection;
 
 /**

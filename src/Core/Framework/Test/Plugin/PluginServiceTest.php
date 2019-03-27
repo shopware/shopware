@@ -9,6 +9,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Plugin\Exception\PluginNotFoundException;
+use Shopware\Core\Framework\Plugin\Helper\PluginFinder;
 use Shopware\Core\Framework\Plugin\PluginEntity;
 use Shopware\Core\Framework\Plugin\PluginService;
 use Shopware\Core\Framework\SourceContext;
@@ -41,7 +42,8 @@ class PluginServiceTest extends TestCase
         $this->pluginService = $this->createPluginService(
             $this->pluginRepo,
             $this->getContainer()->get('language.repository'),
-            $this->getContainer()->getParameter('kernel.project_dir')
+            $this->getContainer()->getParameter('kernel.project_dir'),
+            $this->getContainer()->get(PluginFinder::class)
         );
         $this->context = Context::createDefaultContext();
     }

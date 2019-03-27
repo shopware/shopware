@@ -139,11 +139,11 @@ export default {
             value = this.parseValue(value);
 
             if (value !== '') {
-                if (this.min && this.max && value <= this.max && value >= this.min) {
+                if (this.min !== null && this.max !== null && value <= this.max && value >= this.min) {
                     this.currentValue = value;
                 } else if (this.min !== null && value < this.min) {
                     this.currentValue = this.min;
-                } else if (this.max && value > this.max) {
+                } else if (this.max !== null && value > this.max) {
                     this.currentValue = this.max;
                 } else {
                     this.currentValue = value;

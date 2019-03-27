@@ -27,13 +27,13 @@
         </service>
 
         <service id="Shopware\Core\Checkout\Customer\Storefront\AccountService">
-            <argument type="service" id="country.repository"/>
             <argument type="service" id="customer_address.repository"/>
             <argument type="service" id="customer.repository"/>
             <argument type="service" id="salutation.repository"/>
             <argument type="service" id="Shopware\Core\Checkout\Context\CheckoutContextPersister"/>
-            <argument type="service" id="Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInterface"/>
             <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="Shopware\Core\Framework\Validation\DataValidator"/>
+            <argument type="service" id="Shopware\Core\Checkout\Customer\Validation\CustomerValidationService"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Customer\Storefront\StorefrontCustomerController" public="true">
@@ -41,6 +41,8 @@
             <argument type="service" id="Shopware\Core\Checkout\Customer\Storefront\AccountService"/>
             <argument type="service" id="Shopware\Core\Checkout\Context\CheckoutContextService"/>
             <argument type="service" id="order.repository"/>
+            <argument type="service" id="Shopware\Core\Checkout\Customer\Storefront\AccountRegistrationService"/>
+            <argument type="service" id="Shopware\Core\Checkout\Customer\Storefront\AddressService"/>
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>
@@ -90,6 +92,31 @@
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>
+        </service>
+
+        <service id="Shopware\Core\Checkout\Customer\Storefront\AccountRegistrationService">
+            <argument type="service" id="customer.repository"/>
+            <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInterface"/>
+            <argument type="service" id="Shopware\Core\Framework\Validation\DataValidator"/>
+            <argument type="service" id="Shopware\Core\Checkout\Customer\Validation\CustomerValidationService"/>
+            <argument type="service" id="Shopware\Core\Checkout\Customer\Validation\AddressValidationService"/>
+        </service>
+
+        <service id="Shopware\Core\Checkout\Customer\Storefront\AddressService">
+            <argument type="service" id="country.repository" />
+            <argument type="service" id="customer_address.repository"/>
+            <argument type="service" id="Shopware\Core\Checkout\Customer\Validation\AddressValidationService"/>
+            <argument type="service" id="Shopware\Core\Framework\Validation\DataValidator"/>
+            <argument type="service" id="event_dispatcher"/>
+        </service>
+
+        <service id="Shopware\Core\Checkout\Customer\Validation\AddressValidationService"/>
+        <service id="Shopware\Core\Checkout\Customer\Validation\CustomerValidationService"/>
+
+        <service id="Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerEmailUniqueValidator">
+            <argument type="service" id="customer.repository"/>
+            <tag name="validator.constraint_validator"/>
         </service>
     </services>
 </container>

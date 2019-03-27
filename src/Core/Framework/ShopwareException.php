@@ -4,4 +4,7 @@ namespace Shopware\Core\Framework;
 
 interface ShopwareException extends \Throwable
 {
+    public function getErrorCode(): string;
+
+    public function getParameters(): array;
 }

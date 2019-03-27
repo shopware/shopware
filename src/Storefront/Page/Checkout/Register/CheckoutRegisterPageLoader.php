@@ -4,6 +4,7 @@ namespace Shopware\Storefront\Page\Checkout\Register;
 
 use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Customer\Storefront\AccountService;
+use Shopware\Core\Checkout\Customer\Storefront\AddressService;
 use Shopware\Core\Framework\Routing\InternalRequest;
 use Shopware\Storefront\Framework\Page\PageLoaderInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -23,14 +24,21 @@ class CheckoutRegisterPageLoader implements PageLoaderInterface
      */
     private $eventDispatcher;
 
+    /**
+     * @var AddressService
+     */
+    private $addressService;
+
     public function __construct(
         PageLoaderInterface $pageWithHeaderLoader,
         AccountService $accountService,
+        AddressService $addressService,
         EventDispatcherInterface $eventDispatcher
     ) {
         $this->pageWithHeaderLoader = $pageWithHeaderLoader;
         $this->accountService = $accountService;
         $this->eventDispatcher = $eventDispatcher;
+        $this->addressService = $addressService;
     }
 
     public function load(InternalRequest $request, CheckoutContext $context): CheckoutRegisterPage
@@ -40,14 +48,14 @@ class CheckoutRegisterPageLoader implements PageLoaderInterface
         $page = CheckoutRegisterPage::createFrom($page);
 
         $page->setCountries(
-            $this->accountService->getCountryList($context)
+            $this->addressService->getCountryList($context)
         );
 
         $page->setSalutations($this->accountService->getSalutationList($context));
 
         $addressId = $request->optionalGet('addressId');
         if ($addressId) {
-            $address = $this->accountService->getAddressById((string) $addressId, $context);
+            $address = $this->addressService->getById((string) $addressId, $context);
             $page->setAddress($address);
         }
 

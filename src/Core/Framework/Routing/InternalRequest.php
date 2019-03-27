@@ -27,11 +27,11 @@ class InternalRequest
      */
     protected $params = [];
 
-    public function __construct(array $query = [], array $post = [], array $routing = [])
+    public function __construct(?array $query = [], ?array $post = [], ?array $routing = [])
     {
-        $this->query = $query;
-        $this->post = $post;
-        $this->routing = $routing;
+        $this->query = $query ?? [];
+        $this->post = $post ?? [];
+        $this->routing = $routing ?? [];
     }
 
     public static function createFromHttpRequest(Request $request): InternalRequest

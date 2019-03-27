@@ -66,7 +66,7 @@ class CheckoutFinishPageLoader implements PageLoaderInterface
         try {
             $searchResult = $this->orderRepository->search($criteria, $context->getContext());
         } catch (InvalidUuidException $e) {
-            throw new OrderNotFoundException($orderId, 0, $e);
+            throw new OrderNotFoundException($orderId);
         }
 
         if ($searchResult->count() !== 1) {

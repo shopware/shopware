@@ -292,7 +292,7 @@ class MediaUploadControllerTest extends TestCase
         $responseData = json_decode($response->getContent(), true);
 
         static::assertEquals(400, $response->getStatusCode());
-        static::assertEquals('EMPTY_MEDIA_FILE_EXCEPTION', $responseData['errors'][0]['code']);
+        static::assertEquals('CONTENT__MEDIA_EMPTY_FILE', $responseData['errors'][0]['code']);
     }
 
     public function testRenameMediaFileHappyPath(): void

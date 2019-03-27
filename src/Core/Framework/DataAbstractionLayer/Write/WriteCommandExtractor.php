@@ -21,7 +21,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\JsonUpdateCommand
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\UpdateCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommandQueue;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\DataStack;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\ExceptionNoStackItemFound;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\ItemNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException\InsufficientWritePermissionException;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException\InvalidJsonFieldException;
@@ -112,7 +112,7 @@ class WriteCommandExtractor
         foreach ($fields as $field) {
             try {
                 $kvPair = $stack->pop($field->getPropertyName());
-            } catch (ExceptionNoStackItemFound $e) {
+            } catch (ItemNotFoundException $e) {
                 if ($field->is(Inherited::class) && $existence->isChild()) {
                     //inherited field of a child is never required
                     continue;

@@ -6,24 +6,23 @@ use Symfony\Component\Validator\ConstraintViolationList;
 
 class InsufficientWritePermissionException extends WriteFieldException
 {
-    private const CONCERN = 'insufficient-permission';
-
     /**
      * @var ConstraintViolationList
      */
     private $constraintViolationList;
+
     /**
      * @var string
      */
     private $path;
 
-    public function __construct(string $path, ConstraintViolationList $constraintViolationList, $code = 0, ?\Throwable $previous = null)
+    public function __construct(string $path, ConstraintViolationList $constraintViolationList)
     {
         parent::__construct(
-            sprintf('Caught %s permission errors.', \count($constraintViolationList)),
-            $code,
-            $previous
+            'Caught {{ count }} permission errors.',
+            ['count' => count($constraintViolationList)]
         );
+
         $this->constraintViolationList = $constraintViolationList;
         $this->path = $path;
     }
@@ -56,6 +55,6 @@ class InsufficientWritePermissionException extends WriteFieldException
 
     public function getConcern(): string
     {
-        return self::CONCERN;
+        return 'insufficient-permission';
     }
 }

@@ -2,37 +2,55 @@
 
 namespace Shopware\Core\Checkout\Cart\Exception;
 
-use Shopware\Core\Checkout\Cart\Error\Error;
 use Shopware\Core\Checkout\Cart\Error\ErrorCollection;
 use Shopware\Core\Framework\ShopwareHttpException;
+use Symfony\Component\HttpFoundation\Response;
 
 class InvalidCartException extends ShopwareHttpException
 {
-    protected $code = 'INVALID-CART';
-
     /**
      * @var ErrorCollection
      */
-    private $errors;
+    private $cartErrors;
 
     public function __construct(ErrorCollection $errors)
     {
-        $this->errors = $errors;
-        parent::__construct(sprintf(
-            'The cart is invalid, got %s error(s). %s',
-            $errors->count(),
-            print_r($this->formatErrors(), true)
-        ));
+        $this->cartErrors = $errors;
+
+        parent::__construct(
+            'The cart is invalid, got {{ errorCount }} error(s).',
+            ['errorCount' => $errors->count()]
+        );
     }
 
-    private function formatErrors(): array
+    public function getErrorCode(): string
     {
-        $output = [];
-        /** @var Error $error */
-        foreach ($this->errors as $error) {
-            $output[$error->getKey()][] = $error->jsonSerialize();
-        }
+        return 'CHECKOUT__CART_INVALID';
+    }
 
-        return $output;
+    public function getErrors(bool $withTrace = false): \Generator
+    {
+        foreach ($this->cartErrors as $item) {
+            $error = [
+                'status' => '400',
+                'code' => $item->getCode(),
+                'title' => Response::$statusTexts[400] ?? 'unknown status',
+                'detail' => $item->getMessage(),
+                'meta' => [
+                    'parameters' => $item->jsonSerialize(),
+                ],
+            ];
+
+            if ($withTrace) {
+                $error['trace'] = $item->getTrace();
+            }
+
+            yield $error;
+        }
+    }
+
+    public function getCartErrors(): ErrorCollection
+    {
+        return $this->cartErrors;
     }
 }

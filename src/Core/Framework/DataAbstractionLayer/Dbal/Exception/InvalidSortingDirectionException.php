@@ -7,15 +7,21 @@ use Symfony\Component\HttpFoundation\Response;
 
 class InvalidSortingDirectionException extends ShopwareHttpException
 {
-    public function __construct(string $direction, int $code = 0, ?\Throwable $previous = null)
+    public function __construct(string $direction)
     {
-        $message = sprintf('The given sorting direction "%s" is invalid.', $direction);
-
-        parent::__construct($message, $code, $previous);
+        parent::__construct(
+            'The given sort direction "{{ direction }}" is invalid.',
+            ['direction' => $direction]
+        );
     }
 
     public function getStatusCode(): int
     {
         return Response::HTTP_BAD_REQUEST;
+    }
+
+    public function getErrorCode(): string
+    {
+        return 'FRAMEWORK__INVALID_SORT_DIRECTION';
     }
 }

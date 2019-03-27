@@ -216,5 +216,9 @@
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionRegistry"/>
             <tag name="routing.loader"/>
         </service>
+
+        <service id="Shopware\Core\Framework\Validation\DataValidator">
+            <argument type="service" id="validator"/>
+        </service>
     </services>
 </container>

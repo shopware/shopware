@@ -2,14 +2,17 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Exception;
 
-use Shopware\Core\Framework\ShopwareException;
+use Shopware\Core\Framework\ShopwareHttpException;
 
-class MappingEntityClassesException extends \RuntimeException implements ShopwareException
+class MappingEntityClassesException extends ShopwareHttpException
 {
-    public function __construct(int $code = 0, ?\Throwable $previous = null)
+    public function __construct()
     {
-        $message = 'Mapping definition neither have entities nor collection.';
+        parent::__construct('Mapping definition neither have entities nor collection.');
+    }
 
-        parent::__construct($message, $code, $previous);
+    public function getErrorCode(): string
+    {
+        return 'FRAMEWORK__MAPPING_ENTITY_DEFINITION_CLASSES';
     }
 }

@@ -2,12 +2,23 @@
 
 namespace Shopware\Core\Checkout\DiscountSurcharge\Exception;
 
-class ContextRulesLockedException extends \RuntimeException
-{
-    public const CODE = 200001;
+use Shopware\Core\Framework\ShopwareHttpException;
+use Symfony\Component\HttpFoundation\Response;
 
-    public function __construct(?\Throwable $previous = null)
+class ContextRulesLockedException extends ShopwareHttpException
+{
+    public function __construct()
     {
-        parent::__construct('Context rules in application context already locked.', self::CODE, $previous);
+        parent::__construct('Context rules in application context already locked.');
+    }
+
+    public function getErrorCode(): string
+    {
+        return 'CHECKOUT__CONTEXT_RULES_LOCKED';
+    }
+
+    public function getStatusCode(): int
+    {
+        return Response::HTTP_BAD_REQUEST;
     }
 }

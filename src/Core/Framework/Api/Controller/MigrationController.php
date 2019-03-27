@@ -83,7 +83,7 @@ class MigrationController extends AbstractController
                 $generator->next();
             }
         } catch (\Exception $e) {
-            throw new MigrateException('Migration Error: "' . $e->getMessage() . '"');
+            throw new MigrateException($e->getMessage());
         }
 
         return new JsonResponse(['message' => 'Migrations executed']);

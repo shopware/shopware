@@ -8,7 +8,7 @@ use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Context\CheckoutContextFactoryInterface;
 use Shopware\Core\Checkout\Context\CheckoutContextPersister;
 use Shopware\Core\Checkout\Context\CheckoutContextService;
-use Shopware\Core\Checkout\Customer\Storefront\AccountService;
+use Shopware\Core\Checkout\Customer\Storefront\AccountRegistrationService;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Payment\Exception\InvalidOrderException;
 use Shopware\Core\Checkout\Payment\Exception\UnknownPaymentMethodException;
@@ -17,7 +17,7 @@ use Shopware\Core\Framework\Api\Response\Type\Storefront\JsonType;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Routing\InternalRequest;
+use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -48,9 +48,9 @@ class StorefrontCheckoutController extends AbstractController
     private $checkoutContextFactory;
 
     /**
-     * @var AccountService
+     * @var AccountRegistrationService
      */
-    private $accountService;
+    private $accountRegisterService;
 
     /**
      * @var Serializer
@@ -67,17 +67,17 @@ class StorefrontCheckoutController extends AbstractController
         CartService $cartService,
         CheckoutContextPersister $contextPersister,
         CheckoutContextFactoryInterface $checkoutContextFactory,
-        AccountService $accountService,
         Serializer $serializer,
-        EntityRepositoryInterface $orderRepository
+        EntityRepositoryInterface $orderRepository,
+        AccountRegistrationService $accountRegisterService
     ) {
         $this->paymentService = $paymentService;
         $this->cartService = $cartService;
         $this->contextPersister = $contextPersister;
         $this->checkoutContextFactory = $checkoutContextFactory;
-        $this->accountService = $accountService;
         $this->orderRepository = $orderRepository;
         $this->serializer = $serializer;
+        $this->accountRegisterService = $accountRegisterService;
     }
 
     /**
@@ -105,14 +105,12 @@ class StorefrontCheckoutController extends AbstractController
      * @throws OrderNotFoundException
      * @throws CartTokenNotFoundException
      */
-    public function createGuestOrder(Request $request, CheckoutContext $context): JsonResponse
+    public function createGuestOrder(Request $request, RequestDataBag $data, CheckoutContext $context): JsonResponse
     {
         $token = $request->request->getAlnum('token', $context->getToken());
         $request->request->remove('token');
-        $internal = InternalRequest::createFromHttpRequest($request);
-        $internal->addParam('guest', true);
 
-        $customerId = $this->accountService->createNewCustomer($internal, $context);
+        $customerId = $this->accountRegisterService->register($data, true, $context);
 
         $orderContext = $this->createCheckoutContext($customerId, $context);
 

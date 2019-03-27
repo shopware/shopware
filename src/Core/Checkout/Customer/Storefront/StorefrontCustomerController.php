@@ -14,8 +14,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Exception\InvalidUuidException;
-use Shopware\Core\Framework\Routing\InternalRequest;
 use Shopware\Core\Framework\Struct\Uuid;
+use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\PlatformRequest;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -37,6 +37,11 @@ class StorefrontCustomerController extends AbstractController
     private $accountService;
 
     /**
+     * @var AccountRegistrationService
+     */
+    private $accountRegisterService;
+
+    /**
      * @var CheckoutContextServiceInterface
      */
     private $checkoutContextService;
@@ -46,24 +51,33 @@ class StorefrontCustomerController extends AbstractController
      */
     private $orderRepository;
 
+    /**
+     * @var AddressService
+     */
+    private $addressService;
+
     public function __construct(
         Serializer $serializer,
         AccountService $accountService,
         CheckoutContextServiceInterface $checkoutContextService,
-        EntityRepositoryInterface $orderRepository
+        EntityRepositoryInterface $orderRepository,
+        AccountRegistrationService $accountRegisterService,
+        AddressService $addressService
     ) {
         $this->serializer = $serializer;
         $this->accountService = $accountService;
         $this->checkoutContextService = $checkoutContextService;
         $this->orderRepository = $orderRepository;
+        $this->accountRegisterService = $accountRegisterService;
+        $this->addressService = $addressService;
     }
 
     /**
      * @Route("/storefront-api/v{version}/customer/login", name="storefront-api.customer.login", methods={"POST"})
      */
-    public function login(InternalRequest $request, CheckoutContext $context): JsonResponse
+    public function login(RequestDataBag $requestData, CheckoutContext $context): JsonResponse
     {
-        $token = $this->accountService->login($request, $context);
+        $token = $this->accountService->loginWithPassword($requestData, $context);
 
         return new JsonResponse([
             PlatformRequest::HEADER_CONTEXT_TOKEN => $token,
@@ -96,11 +110,11 @@ class StorefrontCustomerController extends AbstractController
     /**
      * @Route("/storefront-api/v{version}/customer", name="storefront-api.customer.create", methods={"POST"})
      */
-    public function register(InternalRequest $request, CheckoutContext $context): JsonResponse
+    public function register(RequestDataBag $requestData, CheckoutContext $context): JsonResponse
     {
-        $request->addParam('guest', $request->optionalPost('guest'));
+        $isGuest = $requestData->getBoolean('guest');
 
-        $customerId = $this->accountService->createNewCustomer($request, $context);
+        $customerId = $this->accountRegisterService->register($requestData, $isGuest, $context);
 
         return new JsonResponse($this->serialize($customerId));
     }
@@ -108,9 +122,10 @@ class StorefrontCustomerController extends AbstractController
     /**
      * @Route("/storefront-api/v{version}/customer/email", name="storefront-api.customer.email.update", methods={"PATCH"})
      */
-    public function saveEmail(InternalRequest $request, CheckoutContext $context): JsonResponse
+    public function saveEmail(RequestDataBag $requestData, CheckoutContext $context): JsonResponse
     {
-        $this->accountService->saveEmail($request, $context);
+        $this->accountService->saveEmail($requestData, $context);
+
         $this->checkoutContextService->refresh(
             $context->getSalesChannel()->getId(),
             $context->getToken(),
@@ -123,15 +138,10 @@ class StorefrontCustomerController extends AbstractController
     /**
      * @Route("/storefront-api/v{version}/customer/password", name="storefront-api.customer.password.update", methods={"PATCH"})
      */
-    public function savePassword(InternalRequest $request, CheckoutContext $context): JsonResponse
+    public function savePassword(RequestDataBag $requestData, CheckoutContext $context): JsonResponse
     {
-        $password = (string) $request->optionalPost('password');
+        $this->accountService->savePassword($requestData, $context);
 
-        if (empty($password)) {
-            return new JsonResponse($this->serialize('Invalid password'));
-        }
-
-        $this->accountService->savePassword($request, $context);
         $this->checkoutContextService->refresh(
             $context->getSalesChannel()->getId(),
             $context->getToken(),
@@ -144,9 +154,9 @@ class StorefrontCustomerController extends AbstractController
     /**
      * @Route("/storefront-api/v{version}/customer", name="storefront-api.customer.update", methods={"PATCH"})
      */
-    public function saveProfile(InternalRequest $request, CheckoutContext $context): JsonResponse
+    public function saveProfile(RequestDataBag $requestData, CheckoutContext $context): JsonResponse
     {
-        $this->accountService->saveProfile($request, $context);
+        $this->accountService->saveProfile($requestData, $context);
         $this->checkoutContextService->refresh(
             $context->getSalesChannel()->getId(),
             $context->getToken(),
@@ -179,7 +189,7 @@ class StorefrontCustomerController extends AbstractController
     public function getAddresses(CheckoutContext $context): JsonResponse
     {
         return new JsonResponse(
-            $this->serialize($this->accountService->getAddressesByCustomer($context))
+            $this->serialize($this->addressService->getAddressByContext($context))
         );
     }
 
@@ -193,7 +203,7 @@ class StorefrontCustomerController extends AbstractController
     public function getAddress(string $id, CheckoutContext $context): JsonResponse
     {
         return new JsonResponse(
-            $this->serialize($this->accountService->getAddressById($id, $context))
+            $this->serialize($this->addressService->getById($id, $context))
         );
     }
 
@@ -204,9 +214,9 @@ class StorefrontCustomerController extends AbstractController
      * @throws CustomerNotLoggedInException
      * @throws InvalidUuidException
      */
-    public function createAddress(InternalRequest $request, CheckoutContext $context): JsonResponse
+    public function createAddress(RequestDataBag $requestData, CheckoutContext $context): JsonResponse
     {
-        $addressId = $this->accountService->saveAddress($request, $context);
+        $addressId = $this->addressService->create($requestData, $context);
 
         $this->checkoutContextService->refresh(
             $context->getSalesChannel()->getId(),
@@ -226,7 +236,7 @@ class StorefrontCustomerController extends AbstractController
      */
     public function deleteAddress(string $id, CheckoutContext $context): JsonResponse
     {
-        $this->accountService->deleteAddress($id, $context);
+        $this->addressService->delete($id, $context);
 
         return new JsonResponse($this->serialize($id));
     }

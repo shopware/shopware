@@ -2,18 +2,17 @@
 
 namespace Shopware\Core\Framework\Rule\Exception;
 
-use Shopware\Core\Framework\ShopwareException;
+use Shopware\Core\Framework\ShopwareHttpException;
 
-class InvalidConditionException extends \RuntimeException implements ShopwareException
+class InvalidConditionException extends ShopwareHttpException
 {
-    /**
-     * @var string
-     */
-    protected $conditionName;
-
     public function __construct(string $conditionName)
     {
-        parent::__construct();
-        $this->conditionName = $conditionName;
+        parent::__construct('The condition "{{ condition }}" is invalid.', ['condition' => $conditionName]);
+    }
+
+    public function getErrorCode(): string
+    {
+        return 'FRAMEWORK__INVALID_CONDITION_ERROR';
     }
 }

@@ -7,18 +7,24 @@ use Symfony\Component\HttpFoundation\Response;
 
 class OrderRecalculationException extends ShopwareHttpException
 {
-    protected $code = 'ORDER-RECALCULATION-FAILED';
-
     /**
      * @var string
      */
     protected $orderId;
 
-    public function __construct(string $orderId, string $details, $code = 0, ?\Throwable $previous = null)
+    public function __construct(string $orderId, string $details)
     {
-        $message = sprintf('Order with id "%s" could not be recalculated. %s', $orderId, $details);
-        parent::__construct($message, $code, $previous);
+        parent::__construct(
+            'Order with id "{{ orderId }}" could not be recalculated. {{ details }}',
+            ['orderId' => $orderId, 'details' => $details]
+        );
+
         $this->orderId = $orderId;
+    }
+
+    public function getErrorCode(): string
+    {
+        return 'CHECKOUT__ORDER_RECALCULATION_FAILED';
     }
 
     public function getStatusCode(): int

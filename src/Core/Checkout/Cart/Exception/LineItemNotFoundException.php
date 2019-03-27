@@ -7,13 +7,17 @@ use Symfony\Component\HttpFoundation\Response;
 
 class LineItemNotFoundException extends ShopwareHttpException
 {
-    protected $code = 'CART-LINE-ITEM-NOT-FOUND';
-
-    public function __construct(string $identifier, int $code = 0, ?\Throwable $previous = null)
+    public function __construct(string $identifier)
     {
-        $message = sprintf('Line item with identifier %s not found', $identifier);
+        parent::__construct(
+            'Line item with identifier {{ identifier }} not found.',
+            ['identifier' => $identifier]
+        );
+    }
 
-        parent::__construct($message, $code, $previous);
+    public function getErrorCode(): string
+    {
+        return 'CHECKOUT__CART_LINEITEM_NOT_FOUND';
     }
 
     public function getStatusCode(): int

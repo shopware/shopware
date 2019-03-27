@@ -10,8 +10,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\Rule\Collector\RuleConditionRegistry;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Struct\Uuid;
-use Shopware\Core\Framework\Validation\ConstraintViolationException;
 use Shopware\Core\Framework\Validation\WriteCommandValidatorInterface;
+use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\ConstraintViolationInterface;
 use Symfony\Component\Validator\ConstraintViolationList;
@@ -87,7 +87,7 @@ class RuleValidator implements WriteCommandValidatorInterface
     private function tryToThrow(ConstraintViolationListInterface $violations): void
     {
         if ($violations->count() > 0) {
-            throw new ConstraintViolationException($violations);
+            throw new WriteConstraintViolationException($violations);
         }
     }
 

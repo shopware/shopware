@@ -6,15 +6,16 @@ use Shopware\Core\Framework\ShopwareHttpException;
 
 class CouldNotRenameFileException extends ShopwareHttpException
 {
-    protected $code = 'COULD_NOT_RENAME_FILE_EXCEPTION';
-
-    public function __construct(string $mediaId, string $oldFileName, int $code = 0, ?\Throwable $previous = null)
+    public function __construct(string $mediaId, string $oldFileName)
     {
-        $message = sprintf(
-            'Could not rename File for media with id: %s. Rollback to filename: "%s"',
-            $mediaId,
-            $oldFileName
+        parent::__construct(
+            'Could not rename File for media with id: {{ mediaId }}. Rollback to filename: "{{ oldFileName }}"',
+            ['mediaId' => $mediaId, 'oldFileName' => $oldFileName]
         );
-        parent::__construct($message, $code, $previous);
+    }
+
+    public function getErrorCode(): string
+    {
+        return 'CONTENT__MEDIA_COULD_NOT_RENAME_FILE';
     }
 }

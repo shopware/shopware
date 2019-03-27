@@ -6,10 +6,13 @@ use Shopware\Core\Framework\ShopwareHttpException;
 
 class RepositoryNotFoundException extends ShopwareHttpException
 {
-    public function __construct(string $entity, int $code = 0, ?\Throwable $previous = null)
+    public function __construct(string $entity)
     {
-        $message = sprintf('Repository for entity "%s" does not exist.', $entity);
+        parent::__construct('Repository for entity "{{ entityName }}" does not exist.', ['entityName' => $entity]);
+    }
 
-        parent::__construct($message, $code, $previous);
+    public function getErrorCode(): string
+    {
+        return 'FRAMEWORK__REPOSITORY_NOT_FOUND';
     }
 }

@@ -7,11 +7,14 @@ use Symfony\Component\HttpFoundation\Response;
 
 class CustomerNotLoggedInException extends ShopwareHttpException
 {
-    protected $code = 'CUSTOMER-NOT-LOGGED-IN';
-
-    public function __construct($code = 0, ?\Throwable $previous = null)
+    public function __construct()
     {
-        parent::__construct('Customer is not logged in', $code, $previous);
+        parent::__construct('Customer is not logged in.');
+    }
+
+    public function getErrorCode(): string
+    {
+        return 'CHECKOUT__CUSTOMER_NOT_LOGGED_IN';
     }
 
     public function getStatusCode(): int

@@ -6,7 +6,7 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException\MalformatDataException;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException\ExpectedArrayException;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException\WriteStackException;
 use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -56,7 +56,7 @@ class ParentChildTest extends TestCase
         static::assertCount(1, $e->getExceptions());
         $first = $e->getExceptions()[0];
 
-        static::assertInstanceOf(MalformatDataException::class, $first);
+        static::assertInstanceOf(ExpectedArrayException::class, $first);
         static::assertEquals('/children', $first->getPath());
     }
 
@@ -253,6 +253,6 @@ class ParentChildTest extends TestCase
 
         static::assertCount(1, $e->getExceptions());
         $first = $e->getExceptions()[0];
-        static::assertInstanceOf(MalformatDataException::class, $first);
+        static::assertInstanceOf(ExpectedArrayException::class, $first);
     }
 }

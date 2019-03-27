@@ -34,7 +34,7 @@ class MigrationCollection
                     continue;
                 }
                 if (!class_exists($className)) {
-                    throw new InvalidMigrationClassException('Unable to load "' . $className . '" at "' . $path . '"');
+                    throw new InvalidMigrationClassException($className, $path);
                 }
 
                 if (!is_a($className, MigrationStep::class, true)) {

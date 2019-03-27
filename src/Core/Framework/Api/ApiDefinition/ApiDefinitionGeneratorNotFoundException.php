@@ -2,12 +2,26 @@
 
 namespace Shopware\Core\Framework\Api\ApiDefinition;
 
-class ApiDefinitionGeneratorNotFoundException extends \Exception
-{
-    public function __construct(string $format, int $code = 0, ?\Throwable $previous = null)
-    {
-        $message = sprintf('A definition generator for format "%s" was not found.', $format);
+use Shopware\Core\Framework\ShopwareHttpException;
+use Symfony\Component\HttpFoundation\Response;
 
-        parent::__construct($message, $code, $previous);
+class ApiDefinitionGeneratorNotFoundException extends ShopwareHttpException
+{
+    public function __construct(string $format)
+    {
+        parent::__construct(
+            'A definition generator for format "{{ format }}" was not found.',
+            ['format' => $format]
+        );
+    }
+
+    public function getStatusCode(): int
+    {
+        return Response::HTTP_BAD_REQUEST;
+    }
+
+    public function getErrorCode(): string
+    {
+        return 'FRAMEWORK__API_DEFINITION_GENERATOR_NOT_SUPPORTED';
     }
 }

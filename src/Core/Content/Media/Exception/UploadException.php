@@ -6,10 +6,13 @@ use Shopware\Core\Framework\ShopwareHttpException;
 
 class UploadException extends ShopwareHttpException
 {
-    protected $code = 'SHOPWARE_UPLOAD_EXCEPTION';
-
     public function __construct(string $message = '')
     {
-        parent::__construct($message);
+        parent::__construct('{{ message }}', ['message' => $message]);
+    }
+
+    public function getErrorCode(): string
+    {
+        return 'CONTENT__MEDIA_UPLOAD';
     }
 }

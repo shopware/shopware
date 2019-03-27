@@ -7,13 +7,17 @@ use Symfony\Component\HttpFoundation\Response;
 
 class BundleNotFoundException extends ShopwareHttpException
 {
-    protected $code = 'BUNDLE-NOT-FOUND';
-
-    public function __construct(string $bundleName, int $code = 0, ?\Throwable $previous = null)
+    public function __construct(string $bundleName)
     {
-        $message = sprintf('Bundle by name "%s" not found', $bundleName);
+        parent::__construct(
+            'Bundle by name "{{ bundle }}" not found.',
+            ['bundle' => $bundleName]
+        );
+    }
 
-        parent::__construct($message, $code, $previous);
+    public function getErrorCode(): string
+    {
+        return 'SYSTEM__BUNDLE_NOT_FOUND';
     }
 
     public function getStatusCode(): int

@@ -91,12 +91,12 @@ class RetryMessageHandlerTest extends TestCase
         $catched = null;
         try {
             ($this->retryMessageHandler)(new RetryMessage($deadMessageId));
-        } catch (\Exception $exception) {
+        } catch (MessageFailedException $exception) {
             $catched = $exception;
         }
 
         static::assertInstanceOf(MessageFailedException::class, $catched);
-        static::assertEquals($e, $catched->getPrevious());
+        static::assertEquals($e, $catched->getException());
         $messages = $this->deadMessageRepository->search(new Criteria(), $this->context)->getEntities();
         static::assertCount(1, $messages);
 

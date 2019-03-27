@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Exception;
 
+use Shopware\Core\Framework\ShopwareException;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -12,11 +13,11 @@ class SearchRequestException extends ShopwareHttpException
      */
     private $exceptions;
 
-    public function __construct(iterable $exceptions = [], int $code = 0, ?\Throwable $previous = null)
+    public function __construct(array $exceptions = [])
     {
         $this->exceptions = $exceptions;
 
-        parent::__construct(sprintf('Mapping failed, got %s failure(s).', \count($exceptions)), $code, $previous);
+        parent::__construct('Mapping failed, got {{ numberOfFailures }} failure(s).', ['numberOfFailures' => count($exceptions)]);
     }
 
     public function add(\Throwable $exception, string $pointer): void
@@ -41,14 +42,22 @@ class SearchRequestException extends ShopwareHttpException
     public function getErrors(bool $withTrace = false): \Generator
     {
         foreach ($this->exceptions as $pointer => $innerExceptions) {
-            /** @var \Throwable $exception */
+            /** @var ShopwareException $exception */
             foreach ($innerExceptions as $exception) {
+                $parameters = [];
+                if ($exception instanceof ShopwareException) {
+                    $parameters = $exception->getParameters();
+                }
+
                 $error = [
-                    'code' => (string) $exception->getCode(),
                     'status' => (string) $this->getStatusCode(),
+                    'code' => $exception->getErrorCode(),
                     'title' => Response::$statusTexts[Response::HTTP_BAD_REQUEST],
                     'detail' => $exception->getMessage(),
                     'source' => ['pointer' => $pointer],
+                    'meta' => [
+                        'parameters' => $parameters,
+                    ],
                 ];
 
                 if ($withTrace) {
@@ -58,5 +67,10 @@ class SearchRequestException extends ShopwareHttpException
                 yield $error;
             }
         }
+    }
+
+    public function getErrorCode(): string
+    {
+        return 'FRAMEWORK__SEARCH_REQUEST_MAPPING';
     }
 }

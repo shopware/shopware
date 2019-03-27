@@ -9,7 +9,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException\MalformatDataException;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException\ExpectedArrayException;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteCommandExtractor;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
 use Shopware\Core\Framework\Struct\Uuid;
@@ -42,7 +42,7 @@ class OneToOneAssociationFieldSerializer implements FieldSerializerInterface
         }
 
         if (!\is_array($data->getValue())) {
-            throw new MalformatDataException($parameters->getPath(), 'Expected array');
+            throw new ExpectedArrayException($parameters->getPath());
         }
 
         $keyField = $parameters->getDefinition()::getFields()->getByStorageName($field->getStorageName());
@@ -62,7 +62,7 @@ class OneToOneAssociationFieldSerializer implements FieldSerializerInterface
         $value = $data->getValue();
 
         if (!\is_array($value)) {
-            throw new MalformatDataException($parameters->getPath() . '/' . $data->getKey(), 'Value must be an array.');
+            throw new ExpectedArrayException($parameters->getPath() . '/' . $data->getKey());
         }
 
         $keyField = $field->getReferenceClass()::getFields()->getByStorageName(

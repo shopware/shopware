@@ -20,11 +20,11 @@ class GetId3Loader implements MetadataLoaderInterface
             $metadata = $this->getGetId3()
                 ->analyze($filePath);
         } catch (\getid3_exception $e) {
-            throw new CanNotLoadMetadataException('Unable to use getId3 in this environment', 0, $e);
+            throw new CanNotLoadMetadataException('Unable to use getId3 in this environment');
         }
 
         if (isset($metadata['error'])) {
-            throw new CanNotLoadMetadataException(sprintf('File %s is not supported by library getId3', $filePath));
+            throw new CanNotLoadMetadataException('File {{ filePath }} is not supported by library getId3', ['filePath' => $filePath]);
         }
 
         return $metadata;

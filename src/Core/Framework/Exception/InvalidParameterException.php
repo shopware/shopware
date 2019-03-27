@@ -7,13 +7,17 @@ use Symfony\Component\HttpFoundation\Response;
 
 class InvalidParameterException extends ShopwareHttpException
 {
-    protected $code = 'INVALID-PARAMETER';
-
-    public function __construct(string $name, int $code = 0, ?\Throwable $previous = null)
+    public function __construct(string $name)
     {
-        $message = sprintf('The parameter "%s" is invalid', $name);
+        parent::__construct(
+            'The parameter "{{ parameter }}" is invalid.',
+            ['parameter' => $name]
+        );
+    }
 
-        parent::__construct($message, $code, $previous);
+    public function getErrorCode(): string
+    {
+        return 'FRAMEWORK__INVALID_PARAMETER';
     }
 
     public function getStatusCode(): int

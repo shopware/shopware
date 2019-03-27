@@ -2,10 +2,17 @@
 
 namespace Shopware\Core\Framework\Filesystem\Exception;
 
-class DuplicateFilesystemFactoryException extends \Exception
+use Shopware\Core\Framework\ShopwareHttpException;
+
+class DuplicateFilesystemFactoryException extends ShopwareHttpException
 {
-    public static function fromAdapterType(string $type): self
+    public function __construct(string $type)
     {
-        return new self(sprintf('The type of factory "%s" must be unique.', $type));
+        parent::__construct('The type of factory "{{ type }}" must be unique.', ['type' => $type]);
+    }
+
+    public function getErrorCode(): string
+    {
+        return 'FRAMEWORK__DUPLICATE_FILESYSTEM_FACTORY';
     }
 }

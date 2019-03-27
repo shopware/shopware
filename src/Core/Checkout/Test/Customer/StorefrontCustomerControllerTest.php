@@ -217,7 +217,7 @@ class StorefrontCustomerControllerTest extends TestCase
         $response = $this->getStorefrontClient()->getResponse();
         $content = json_decode($response->getContent(), true);
 
-        static::assertEquals(Response::HTTP_OK, $response->getStatusCode());
+        static::assertEquals(Response::HTTP_OK, $response->getStatusCode(), $response->getContent());
         static::assertNotEmpty($content);
         static::assertArrayHasKey('data', $content);
 
@@ -288,7 +288,6 @@ class StorefrontCustomerControllerTest extends TestCase
     {
         $personal = [
             'salutationId' => Defaults::SALUTATION_ID_MR,
-            'salutation' => 'Mr.',
             'firstName' => 'Max',
             'lastName' => 'Mustermann',
             'password' => 'test',
@@ -298,34 +297,31 @@ class StorefrontCustomerControllerTest extends TestCase
             'birthdayYear' => 2000,
             'birthdayMonth' => 1,
             'birthdayDay' => 22,
+            'billingAddress' => [
+                'countryId' => Defaults::COUNTRY,
+                'street' => 'Examplestreet 11',
+                'zipcode' => '48441',
+                'city' => 'Cologne',
+                'phoneNumber' => '0123456789',
+                'vatId' => 'DE999999999',
+                'additionalAddressLine1' => 'Additional address line 1',
+                'additionalAddressLine2' => 'Additional address line 2',
+            ],
+            'shippingAddress' => [
+                'countryId' => Defaults::COUNTRY,
+                'salutationId' => Defaults::SALUTATION_ID_MISS,
+                'firstName' => 'Test 2',
+                'lastName' => 'Example 2',
+                'street' => 'Examplestreet 111',
+                'zipcode' => '12341',
+                'city' => 'Berlin',
+                'phoneNumber' => '987654321',
+                'additionalAddressLine1' => 'Additional address line 01',
+                'additionalAddressLine2' => 'Additional address line 02',
+            ],
         ];
 
-        $billing = [
-            'billingAddress.country' => Defaults::COUNTRY,
-            'billingAddress.street' => 'Examplestreet 11',
-            'billingAddress.zipcode' => '48441',
-            'billingAddress.city' => 'Cologne',
-            'billingAddress.phone' => '0123456789',
-            'billingAddress.vatId' => 'DE999999999',
-            'billingAddress.additionalAddressLine1' => 'Additional address line 1',
-            'billingAddress.additionalAddressLine2' => 'Additional address line 2',
-        ];
-
-        $shipping = [
-            'shippingAddress.country' => Defaults::COUNTRY,
-            'shippingAddress.salutationId' => Defaults::SALUTATION_ID_MISS,
-            'shippingAddress.salutation' => 'Miss',
-            'shippingAddress.firstName' => 'Test 2',
-            'shippingAddress.lastName' => 'Example 2',
-            'shippingAddress.street' => 'Examplestreet 111',
-            'shippingAddress.zipcode' => '12341',
-            'shippingAddress.city' => 'Berlin',
-            'shippingAddress.phone' => '987654321',
-            'shippingAddress.additionalAddressLine1' => 'Additional address line 01',
-            'shippingAddress.additionalAddressLine2' => 'Additional address line 02',
-        ];
-
-        $this->getStorefrontClient()->request('POST', '/storefront-api/v1/customer', array_merge($personal, $billing, $shipping));
+        $this->getStorefrontClient()->request('POST', '/storefront-api/v1/customer', $personal);
 
         $response = $this->getStorefrontClient()->getResponse();
         $content = json_decode($response->getContent(), true);
@@ -339,7 +335,7 @@ class StorefrontCustomerControllerTest extends TestCase
         $customer = $this->readCustomer($uuid);
 
         // verify personal data
-        static::assertEquals($personal['salutation'], $customer->getSalutation()->getDisplayName());
+        static::assertEquals($personal['salutationId'], $customer->getSalutation()->getId());
         static::assertEquals($personal['firstName'], $customer->getFirstName());
         static::assertEquals($personal['lastName'], $customer->getLastName());
         static::assertTrue(password_verify($personal['password'], $customer->getPassword()));
@@ -358,31 +354,31 @@ class StorefrontCustomerControllerTest extends TestCase
         // verify billing address
         $billingAddress = $customer->getDefaultBillingAddress();
 
-        static::assertEquals($billing['billingAddress.country'], $billingAddress->getCountryId());
-        static::assertEquals($personal['salutation'], $billingAddress->getSalutation()->getDisplayName());
+        static::assertEquals($personal['billingAddress']['countryId'], $billingAddress->getCountryId());
+        static::assertEquals($personal['salutationId'], $billingAddress->getSalutation()->getId());
         static::assertEquals($personal['firstName'], $billingAddress->getFirstName());
         static::assertEquals($personal['lastName'], $billingAddress->getLastName());
-        static::assertEquals($billing['billingAddress.street'], $billingAddress->getStreet());
-        static::assertEquals($billing['billingAddress.zipcode'], $billingAddress->getZipcode());
-        static::assertEquals($billing['billingAddress.city'], $billingAddress->getCity());
-        static::assertEquals($billing['billingAddress.phone'], $billingAddress->getPhoneNumber());
-        static::assertEquals($billing['billingAddress.vatId'], $billingAddress->getVatId());
-        static::assertEquals($billing['billingAddress.additionalAddressLine1'], $billingAddress->getAdditionalAddressLine1());
-        static::assertEquals($billing['billingAddress.additionalAddressLine2'], $billingAddress->getAdditionalAddressLine2());
+        static::assertEquals($personal['billingAddress']['street'], $billingAddress->getStreet());
+        static::assertEquals($personal['billingAddress']['zipcode'], $billingAddress->getZipcode());
+        static::assertEquals($personal['billingAddress']['city'], $billingAddress->getCity());
+        static::assertEquals($personal['billingAddress']['phoneNumber'], $billingAddress->getPhoneNumber());
+        static::assertEquals($personal['billingAddress']['vatId'], $billingAddress->getVatId());
+        static::assertEquals($personal['billingAddress']['additionalAddressLine1'], $billingAddress->getAdditionalAddressLine1());
+        static::assertEquals($personal['billingAddress']['additionalAddressLine2'], $billingAddress->getAdditionalAddressLine2());
 
         // verify shipping address
         $shippingAddress = $customer->getDefaultShippingAddress();
 
-        static::assertEquals($shipping['shippingAddress.country'], $shippingAddress->getCountryId());
-        static::assertEquals($shipping['shippingAddress.salutation'], $shippingAddress->getSalutation()->getDisplayName());
-        static::assertEquals($shipping['shippingAddress.firstName'], $shippingAddress->getFirstName());
-        static::assertEquals($shipping['shippingAddress.lastName'], $shippingAddress->getLastName());
-        static::assertEquals($shipping['shippingAddress.street'], $shippingAddress->getStreet());
-        static::assertEquals($shipping['shippingAddress.zipcode'], $shippingAddress->getZipcode());
-        static::assertEquals($shipping['shippingAddress.city'], $shippingAddress->getCity());
-        static::assertEquals($shipping['shippingAddress.phone'], $shippingAddress->getPhoneNumber());
-        static::assertEquals($shipping['shippingAddress.additionalAddressLine1'], $shippingAddress->getAdditionalAddressLine1());
-        static::assertEquals($shipping['shippingAddress.additionalAddressLine2'], $shippingAddress->getAdditionalAddressLine2());
+        static::assertEquals($personal['shippingAddress']['countryId'], $shippingAddress->getCountryId());
+        static::assertEquals($personal['shippingAddress']['salutationId'], $shippingAddress->getSalutation()->getId());
+        static::assertEquals($personal['shippingAddress']['firstName'], $shippingAddress->getFirstName());
+        static::assertEquals($personal['shippingAddress']['lastName'], $shippingAddress->getLastName());
+        static::assertEquals($personal['shippingAddress']['street'], $shippingAddress->getStreet());
+        static::assertEquals($personal['shippingAddress']['zipcode'], $shippingAddress->getZipcode());
+        static::assertEquals($personal['shippingAddress']['city'], $shippingAddress->getCity());
+        static::assertEquals($personal['shippingAddress']['phoneNumber'], $shippingAddress->getPhoneNumber());
+        static::assertEquals($personal['shippingAddress']['additionalAddressLine1'], $shippingAddress->getAdditionalAddressLine1());
+        static::assertEquals($personal['shippingAddress']['additionalAddressLine2'], $shippingAddress->getAdditionalAddressLine2());
     }
 
     public function testChangeEmail(): void
@@ -426,7 +422,6 @@ class StorefrontCustomerControllerTest extends TestCase
             'lastName' => 'User',
             'title' => 'PHD',
             'salutationId' => Defaults::SALUTATION_ID_MRS,
-            'salutation' => 'Mrs.',
             'birthdayYear' => 1900,
             'birthdayMonth' => 5,
             'birthdayDay' => 3,
@@ -442,7 +437,7 @@ class StorefrontCustomerControllerTest extends TestCase
         static::assertEquals($data['firstName'], $customer->getFirstName());
         static::assertEquals($data['lastName'], $customer->getLastName());
         static::assertEquals($data['title'], $customer->getTitle());
-        static::assertEquals($data['salutation'], $customer->getSalutation()->getDisplayName());
+        static::assertEquals($data['salutationId'], $customer->getSalutation()->getId());
         static::assertEquals(
             $this->formatBirthday(
                 $data['birthdayDay'],
@@ -460,7 +455,7 @@ class StorefrontCustomerControllerTest extends TestCase
 
         static::assertEquals(Response::HTTP_FORBIDDEN, $response->getStatusCode());
         static::assertNotNull($content);
-        static::assertEquals('Customer is not logged in', $content['errors'][0]['detail'] ?? '');
+        static::assertEquals('Customer is not logged in.', $content['errors'][0]['detail'] ?? '');
     }
 
     public function testGetOrders(): void

@@ -7,12 +7,17 @@ use Symfony\Component\HttpFoundation\Response;
 
 class InvalidLocaleCodeException extends ShopwareHttpException
 {
-    protected $code = 'INVALID-LOCALE-CODE';
-
-    public function __construct(string $localeCode, int $code = 0, ?\Throwable $previous = null)
+    public function __construct(string $localeCode)
     {
-        $message = sprintf('Locale with code "%s" could not be found.', $localeCode);
-        parent::__construct($message, $code, $previous);
+        parent::__construct(
+            'Locale with code "{{ locale }}" could not be found.',
+            ['locale' => $localeCode]
+        );
+    }
+
+    public function getErrorCode(): string
+    {
+        return 'SYSTEM__INVALID_LOCALE_CODE';
     }
 
     public function getStatusCode(): int

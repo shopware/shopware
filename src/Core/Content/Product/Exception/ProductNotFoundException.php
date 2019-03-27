@@ -7,12 +7,17 @@ use Symfony\Component\HttpFoundation\Response;
 
 class ProductNotFoundException extends ShopwareHttpException
 {
-    protected $code = 'PRODUCT-NOT-FOUND';
-
-    public function __construct(string $productId, $code = 0, ?\Throwable $previous = null)
+    public function __construct(string $productId)
     {
-        $message = sprintf('Product for id %s not found', $productId);
-        parent::__construct($message, $code, $previous);
+        parent::__construct(
+            'Product for id {{ productId }} not found.',
+            ['productId' => $productId]
+        );
+    }
+
+    public function getErrorCode(): string
+    {
+        return 'CONTENT__PRODUCT_NOT_FOUND';
     }
 
     public function getStatusCode(): int

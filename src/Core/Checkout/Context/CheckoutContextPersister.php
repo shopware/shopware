@@ -3,6 +3,7 @@
 namespace Shopware\Core\Checkout\Context;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Framework\Api\Exception\InvalidContextTokenException;
 use Shopware\Core\Framework\Struct\Uuid;
 
 class CheckoutContextPersister
@@ -35,7 +36,7 @@ class CheckoutContextPersister
     public function load(string $token): array
     {
         if (!Uuid::isValid($token)) {
-            return [];
+            throw new InvalidContextTokenException($token);
         }
 
         $parameter = $this->connection->fetchColumn(

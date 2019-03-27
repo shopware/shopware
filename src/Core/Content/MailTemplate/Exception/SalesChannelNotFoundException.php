@@ -7,7 +7,18 @@ use Symfony\Component\HttpFoundation\Response;
 
 class SalesChannelNotFoundException extends ShopwareHttpException
 {
-    protected $code = 'SALES-CHANNEL-NOT-FOUND';
+    public function __construct(string $salesChannelId)
+    {
+        parent::__construct(
+            'Sales channel with id "{{ salesChannelId }}" was not found.',
+            ['salesChannelId' => $salesChannelId]
+        );
+    }
+
+    public function getErrorCode(): string
+    {
+        return 'CONTENT__SALES_CHANNEL_NOT_FOUND';
+    }
 
     public function getStatusCode(): int
     {

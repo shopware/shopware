@@ -152,12 +152,7 @@ class WriteCommandQueue
 
         foreach ($commands as $command) {
             if (!$command instanceof $class) {
-                throw new WriteTypeIntendException(sprintf(
-                    'Expected command for "%s" to be "%s". (Got: %s)',
-                    $definition,
-                    $class,
-                    get_class($command)
-                ));
+                throw new WriteTypeIntendException($definition, $class, get_class($command));
             }
         }
     }

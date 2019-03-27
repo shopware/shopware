@@ -6,12 +6,16 @@ use Shopware\Core\Framework\ShopwareHttpException;
 
 class PluginExtractionException extends ShopwareHttpException
 {
-    protected $code = 'PLUGIN-EXTRACTION';
-
-    public function __construct(string $reason, int $code = 0, ?\Throwable $previous = null)
+    public function __construct(string $reason)
     {
-        $message = sprintf('Plugin extraction failed. Error: %s', $reason);
+        parent::__construct(
+            'Plugin extraction failed. Error: {{ error }}',
+            ['error' => $reason]
+        );
+    }
 
-        parent::__construct($message, $code, $previous);
+    public function getErrorCode(): string
+    {
+        return 'FRAMEWORK__PLUGIN_EXTRACTION_FAILED';
     }
 }

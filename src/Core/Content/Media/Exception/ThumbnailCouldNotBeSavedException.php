@@ -6,11 +6,16 @@ use Shopware\Core\Framework\ShopwareHttpException;
 
 class ThumbnailCouldNotBeSavedException extends ShopwareHttpException
 {
-    protected $code = 'THUMBNAIL_NOT_SAVED_EXCEPTION';
-
-    public function __construct(string $url, int $code = 0, ?\Throwable $previous = null)
+    public function __construct(string $url)
     {
-        $message = 'Thumbnail could not be saved to location: ' . $url;
-        parent::__construct($message, $code, $previous);
+        parent::__construct(
+            'Thumbnail could not be saved to location: {{ location }}',
+            ['location' => $url]
+        );
+    }
+
+    public function getErrorCode(): string
+    {
+        return 'CONTENT__MEDIA_THUMBNAIL_NOT_SAVED';
     }
 }

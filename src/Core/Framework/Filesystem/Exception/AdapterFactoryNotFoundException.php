@@ -2,10 +2,20 @@
 
 namespace Shopware\Core\Framework\Filesystem\Exception;
 
-class AdapterFactoryNotFoundException extends \Exception
+use Shopware\Core\Framework\ShopwareHttpException;
+
+class AdapterFactoryNotFoundException extends ShopwareHttpException
 {
-    public static function fromAdapterType(string $type): self
+    public function __construct(string $type)
     {
-        return new self(sprintf('Adapter factory for type "%s" was not found.', $type));
+        parent::__construct(
+            'Adapter factory for type "{{ type }}" was not found.',
+            ['type' => $type]
+        );
+    }
+
+    public function getErrorCode(): string
+    {
+        return 'FRAMEWORK__FILESYSTEM_ADAPTER_NOT_FOUND';
     }
 }

@@ -2,15 +2,15 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException;
 
-use Shopware\Core\Framework\Validation\ConstraintViolationException;
+use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 use Symfony\Component\Validator\ConstraintViolationListInterface;
 
-class InvalidFieldException extends ConstraintViolationException
+class InvalidFieldException extends WriteConstraintViolationException
 {
     private const CONCERN = 'validation-error';
 
-    public function __construct(ConstraintViolationListInterface $constraintViolationList, string $path, int $code = 0, ?\Throwable $previous = null)
+    public function __construct(ConstraintViolationListInterface $constraintViolationList, string $path)
     {
-        parent::__construct($constraintViolationList, $path, $code, $previous, self::CONCERN);
+        parent::__construct($constraintViolationList, $path, self::CONCERN);
     }
 }

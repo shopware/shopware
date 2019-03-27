@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Content\MailTemplate\Api;
 
-use Shopware\Core\Content\MailTemplate\Exception\MailAddressValidationException;
 use Shopware\Core\Content\MailTemplate\Exception\MailTransportFailedException;
 use Shopware\Core\Content\MailTemplate\Service\MailBuilder;
 use Shopware\Core\Content\MailTemplate\Service\MailSender;
@@ -51,17 +50,15 @@ class MailActionController extends AbstractController
     /**
      * @Route("/api/v{version}/_action/mail-template/send", name="api.action.mail_template.send", methods={"POST"})
      *
-     * @throws MailAddressValidationException
      * @throws MissingParameterException
      * @throws StringTemplateRenderingException
      * @throws MailTransportFailedException
      */
-    public function send(Request $request, Context $context): JsonResponse
+    public function send(InternalRequest $request, Context $context): JsonResponse
     {
-        $internalRequest = InternalRequest::createFromHttpRequest($request);
-        $recipient = $internalRequest->requirePost('recipient');
-        $template = $internalRequest->requirePost('mailTemplate');
-        $salesChannelId = $internalRequest->requirePost('salesChannelId');
+        $recipient = $request->requirePost('recipient');
+        $template = $request->requirePost('mailTemplate');
+        $salesChannelId = $request->requirePost('salesChannelId');
 
         $bodies = ['text/html' => $template['contentHtml'], 'text/plain' => $template['contentPlain']];
 

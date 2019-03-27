@@ -6,10 +6,13 @@ use Shopware\Core\Framework\ShopwareHttpException;
 
 class StoreInvalidCredentialsException extends ShopwareHttpException
 {
-    protected $code = 'INVALID-CREDENTIALS';
-
-    public function __construct(int $code = 0, ?\Throwable $previous = null)
+    public function __construct()
     {
-        parent::__construct('Invalid credentials', $code, $previous);
+        parent::__construct('Invalid credentials');
+    }
+
+    public function getErrorCode(): string
+    {
+        return 'FRAMEWORK__STORE_INVALID_CREDENTIALS';
     }
 }

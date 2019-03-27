@@ -7,13 +7,17 @@ use Symfony\Component\HttpFoundation\Response;
 
 class InvalidUuidLengthException extends ShopwareHttpException
 {
-    protected $code = 'UUID-INVALID-LENGTH';
-
-    public function __construct(int $length, string $hex, $code = 0, ?\Throwable $previous = null)
+    public function __construct(int $length, string $hex)
     {
-        $message = sprintf('UUID has a invalid length. 16 bytes expected, %s given. Hexadecimal reprensentation: %s', $length, $hex);
+        parent::__construct(
+            'UUID has a invalid length. 16 bytes expected, {{ length }} given. Hexadecimal reprensentation: {{ hex }}',
+            ['length' => $length, 'hex' => $hex]
+        );
+    }
 
-        parent::__construct($message, $code, $previous);
+    public function getErrorCode(): string
+    {
+        return 'FRAMEWORK__UUID_INVALID_LENGTH';
     }
 
     public function getStatusCode(): int

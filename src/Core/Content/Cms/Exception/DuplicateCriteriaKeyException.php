@@ -6,10 +6,16 @@ use Shopware\Core\Framework\ShopwareHttpException;
 
 class DuplicateCriteriaKeyException extends ShopwareHttpException
 {
-    public function __construct(string $key, int $code = 0, ?\Throwable $previous = null)
+    public function __construct(string $key)
     {
-        $message = sprintf('The key "%s" is duplicated in the criteria collection.', $key);
+        parent::__construct(
+            'The key "{{ key }}" is duplicated in the criteria collection.',
+            ['key' => $key]
+        );
+    }
 
-        parent::__construct($message, $code, $previous);
+    public function getErrorCode(): string
+    {
+        return 'CONTENT__DUPLICATE_CRITERIA_KEY';
     }
 }

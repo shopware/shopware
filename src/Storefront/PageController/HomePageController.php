@@ -25,9 +25,9 @@ class HomePageController extends StorefrontController
     /**
      * @Route("/", name="frontend.home.page", options={"seo"="false"}, methods={"GET"})
      */
-    public function index(InternalRequest $request, CheckoutContext $context): ?Response
+    public function index(InternalRequest $internal, CheckoutContext $context): ?Response
     {
-        $data = $this->homePageLoader->load($request, $context);
+        $data = $this->homePageLoader->load($internal, $context);
 
         return $this->renderStorefront('@Storefront/page/home/index.html.twig', ['page' => $data]);
     }

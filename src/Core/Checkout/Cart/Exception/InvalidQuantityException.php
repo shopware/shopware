@@ -7,13 +7,17 @@ use Symfony\Component\HttpFoundation\Response;
 
 class InvalidQuantityException extends ShopwareHttpException
 {
-    protected $code = 'CART-INVALID-QUANTITY';
-
-    public function __construct(int $quantity, int $code = 0, ?\Throwable $previous = null)
+    public function __construct(int $quantity)
     {
-        $message = sprintf('The quantity must be a positive integer. Given: "%s" ', $quantity);
+        parent::__construct(
+            'The quantity must be a positive integer. Given: "{{ quantity }}"',
+            ['quantity' => $quantity]
+        );
+    }
 
-        parent::__construct($message, $code, $previous);
+    public function getErrorCode(): string
+    {
+        return 'CHECKOUT__CART_INVALID_LINEITEM_QUANTITY';
     }
 
     public function getStatusCode(): int

@@ -7,13 +7,17 @@ use Symfony\Component\HttpFoundation\Response;
 
 class InvalidOrderException extends ShopwareHttpException
 {
-    protected $code = 'INVALID-ORDER-ID';
-
-    public function __construct(string $orderId, $code = 0, ?\Throwable $previous = null)
+    public function __construct(string $orderId)
     {
-        $message = sprintf('The order with id %s is invalid or could not be found.', $orderId);
+        parent::__construct(
+            'The order with id {{ orderId }} is invalid or could not be found.',
+            ['orderId' => $orderId]
+        );
+    }
 
-        parent::__construct($message, $code, $previous);
+    public function getErrorCode(): string
+    {
+        return 'CHECKOUT__INVALID_ORDER_ID';
     }
 
     public function getStatusCode(): int

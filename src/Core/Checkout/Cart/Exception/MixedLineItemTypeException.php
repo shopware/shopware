@@ -7,13 +7,17 @@ use Symfony\Component\HttpFoundation\Response;
 
 class MixedLineItemTypeException extends ShopwareHttpException
 {
-    protected $code = 'CART-MIXED-LINE-ITEM-TYPE';
-
-    public function __construct(string $key, string $type, int $code = 0, ?\Throwable $previous = null)
+    public function __construct(string $key, string $type)
     {
-        $message = sprintf('Line item with key %s already exists with different type %s', $key, $type);
+        parent::__construct(
+            'Line item with key {{ identifier }} already exists with different type {{ type }}.',
+            ['identifier' => $key, 'type' => $type]
+        );
+    }
 
-        parent::__construct($message, $code, $previous);
+    public function getErrorCode(): string
+    {
+        return 'CHECKOUT__CART_MIXED_LINEITEM_TYPE';
     }
 
     public function getStatusCode(): int

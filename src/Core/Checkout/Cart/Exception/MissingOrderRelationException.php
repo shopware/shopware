@@ -7,13 +7,14 @@ use Symfony\Component\HttpFoundation\Response;
 
 class MissingOrderRelationException extends ShopwareHttpException
 {
-    protected $code = 'MISSING-ORDER-RELATION';
-
-    public function __construct(string $relation, int $code = 0, ?\Throwable $previous = null)
+    public function __construct(string $relation)
     {
-        $message = sprintf('The required relation "%s" is missing .', $relation);
+        parent::__construct('The required relation "{{ relation }}" is missing .', ['relation' => $relation]);
+    }
 
-        parent::__construct($message, $code, $previous);
+    public function getErrorCode(): string
+    {
+        return 'CHECKOUT__CART_MISSING_ORDER_RELATION';
     }
 
     public function getStatusCode(): int

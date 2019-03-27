@@ -153,4 +153,29 @@ class CustomerEvents
      * @Event("Shopware\Core\Framework\DataAbstractionLayer\Event\EntityIdSearchResultLoadedEvent")
      */
     public const CUSTOMER_GROUP_TRANSLATION_ID_SEARCH_RESULT_LOADED_EVENT = 'customer_group_translation.id.search.result.loaded';
+
+    /**
+     * @Event("Shopware\Core\Framework\Event\DataMappingEvent")
+     */
+    public const MAPPING_REGISTER_ADDRESS_BILLING = 'checkout.customer.storefront.register.billing_address';
+
+    /**
+     * @Event("Shopware\Core\Framework\Event\DataMappingEvent")
+     */
+    public const MAPPING_REGISTER_ADDRESS_SHIPPING = 'checkout.customer.storefront.register.shipping_address';
+
+    /**
+     * @Event("Shopware\Core\Framework\Event\DataMappingEvent")
+     */
+    public const MAPPING_REGISTER_CUSTOMER = 'checkout.customer.storefront.register.customer';
+
+    /**
+     * @Event("Shopware\Core\Framework\Event\DataMappingEvent")
+     */
+    public const MAPPING_CUSTOMER_PROFILE_SAVE = 'checkout.customer.storefront.profile.update';
+
+    /**
+     * @Event("Shopware\Core\Framework\Event\DataMappingEvent")
+     */
+    public const MAPPING_ADDRESS_CREATE = 'checkout.customer.storefront.address.create';
 }

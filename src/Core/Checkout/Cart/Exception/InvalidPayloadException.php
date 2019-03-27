@@ -8,19 +8,17 @@ use Symfony\Component\HttpFoundation\Response;
 
 class InvalidPayloadException extends ShopwareHttpException
 {
-    protected $code = 'INVALID-PAYLOAD';
-
-    public function __construct(string $key, string $lineItemId, int $code = 0, ?\Throwable $previous = null)
+    public function __construct(string $key, string $lineItemId)
     {
-        $message = sprintf(
-            'Unable to save payload with key `%s` on line item `%s`. 
-            Only scalar data types with a max length of %s are allowed.',
-            $key,
-            $lineItemId,
-            LineItem::PAYLOAD_LIMIT
+        parent::__construct(
+            'Unable to save payload with key `{{ key }}` on line item `{{ lineItemId }}`. Only scalar data types with a max length of {{ limit }} are allowed.',
+            ['key' => $key, 'lineItemId' => $lineItemId, 'limit' => LineItem::PAYLOAD_LIMIT]
         );
+    }
 
-        parent::__construct($message, $code, $previous);
+    public function getErrorCode(): string
+    {
+        return 'CHECKOUT__CART_INVALID_LINEITEM_PAYLOAD';
     }
 
     public function getStatusCode(): int

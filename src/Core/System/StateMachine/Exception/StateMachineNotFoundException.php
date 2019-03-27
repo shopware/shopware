@@ -7,13 +7,17 @@ use Symfony\Component\HttpFoundation\Response;
 
 class StateMachineNotFoundException extends ShopwareHttpException
 {
-    protected $code = 'STATE-MACHINE-NOT-FOUND';
-
-    public function __construct(string $stateMachineName, int $code = 0, ?\Throwable $previous = null)
+    public function __construct(string $stateMachineName)
     {
-        $message = sprintf('The StateMachine named "%s" was not found.', $stateMachineName);
+        parent::__construct(
+            'The StateMachine named "{{ name }}" was not found.',
+            ['name' => $stateMachineName]
+        );
+    }
 
-        parent::__construct($message, $code, $previous);
+    public function getErrorCode(): string
+    {
+        return 'SYSTEM__STATE_MACHINE_NOT_FOUND';
     }
 
     public function getStatusCode(): int

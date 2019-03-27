@@ -7,13 +7,17 @@ use Symfony\Component\HttpFoundation\Response;
 
 class TokenExpiredException extends ShopwareHttpException
 {
-    protected $code = 'PAYMENT-TOKEN-EXPIRED';
-
-    public function __construct(string $token, $code = 0, ?\Throwable $previous = null)
+    public function __construct(string $token)
     {
-        $message = sprintf('The provided token %s is expired and the payment could not be processed.', $token);
+        parent::__construct(
+            'The provided token {{ token }} is expired and the payment could not be processed.',
+            ['token' => $token]
+        );
+    }
 
-        parent::__construct($message, $code, $previous);
+    public function getErrorCode(): string
+    {
+        return 'CHECKOUT__PAYMENT_TOKEN_EXPIRED';
     }
 
     public function getStatusCode(): int

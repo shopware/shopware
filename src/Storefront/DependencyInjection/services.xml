@@ -183,6 +183,7 @@
 
         <service id="Shopware\Storefront\Page\Account\Login\AccountLoginPageLoader">
             <argument type="service" id="Shopware\Storefront\Framework\Page\PageWithHeaderLoader"/>
+            <argument type="service" id="Shopware\Core\Checkout\Customer\Storefront\AddressService"/>
             <argument type="service" id="Shopware\Core\Checkout\Customer\Storefront\AccountService"/>
             <argument type="service" id="event_dispatcher"/>
         </service>
@@ -195,6 +196,7 @@
 
         <service id="Shopware\Storefront\Page\Account\Address\AccountAddressPageLoader">
             <argument type="service" id="Shopware\Storefront\Framework\Page\PageWithHeaderLoader"/>
+            <argument type="service" id="Shopware\Core\Checkout\Customer\Storefront\AddressService"/>
             <argument type="service" id="Shopware\Core\Checkout\Customer\Storefront\AccountService"/>
             <argument type="service" id="event_dispatcher"/>
         </service>
@@ -229,6 +231,7 @@
         <service id="Shopware\Storefront\Page\Checkout\Register\CheckoutRegisterPageLoader" public="true">
             <argument type="service" id="Shopware\Storefront\Framework\Page\PageWithHeaderLoader"/>
             <argument type="service" id="Shopware\Core\Checkout\Customer\Storefront\AccountService"/>
+            <argument type="service" id="Shopware\Core\Checkout\Customer\Storefront\AddressService"/>
             <argument type="service" id="event_dispatcher"/>
         </service>
 
@@ -246,6 +249,8 @@
 
         <service id="Shopware\Storefront\PageController\HomePageController" public="true">
             <argument type="service" id="Shopware\Storefront\Page\Home\HomePageLoader"/>
+            <argument type="service" id="Shopware\Core\Checkout\Customer\Storefront\AccountRegistrationService"/>
+            <argument type="service" id="Shopware\Core\Checkout\Context\CheckoutContextPersister"/>
         </service>
 
         <service id="Shopware\Storefront\PageController\ProductPageController" public="true">

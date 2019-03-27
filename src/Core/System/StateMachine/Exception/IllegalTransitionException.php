@@ -7,18 +7,22 @@ use Symfony\Component\HttpFoundation\Response;
 
 class IllegalTransitionException extends ShopwareHttpException
 {
-    protected $code = 'ILLEGAL-STATE-TRANSITION';
-
-    public function __construct(string $currentState, string $transition, array $possibleTransitions, int $code = 0, ?\Throwable $previous = null)
+    public function __construct(string $currentState, string $transition, array $possibleTransitions)
     {
-        $message = sprintf(
-            'Illegal transition "%s" from state "%s". Possible transitions are: %s',
-            $transition,
-            $currentState,
-            implode(', ', $possibleTransitions)
+        parent::__construct(
+            'Illegal transition "{{ transition }}" from state "{{ currentState }}". Possible transitions are: {{ possibleTransitionsString }}',
+            [
+                'transition' => $transition,
+                'currentState' => $currentState,
+                'possibleTransitionsString' => implode(', ', $possibleTransitions),
+                'possibleTransitions' => $possibleTransitions,
+            ]
         );
+    }
 
-        parent::__construct($message, $code, $previous);
+    public function getErrorCode(): string
+    {
+        return 'SYSTEM__ILLEGAL_STATE_TRANSITION';
     }
 
     public function getStatusCode(): int

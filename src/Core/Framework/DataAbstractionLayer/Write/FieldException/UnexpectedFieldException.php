@@ -4,24 +4,23 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException;
 
 class UnexpectedFieldException extends WriteFieldException
 {
-    private const CONCERN = 'unexpected-field';
-
     /**
      * @var string
      */
     private $path;
+
     /**
      * @var string
      */
     private $fieldName;
 
-    public function __construct(string $path, string $fieldName, $code = 0, ?\Throwable $previous = null)
+    public function __construct(string $path, string $fieldName)
     {
         parent::__construct(
-            sprintf('Unexpected field: %s', $fieldName),
-            $code,
-            $previous
+            'Unexpected field: {{ field }}',
+            ['field' => $fieldName]
         );
+
         $this->path = $path;
         $this->fieldName = $fieldName;
     }
@@ -38,7 +37,7 @@ class UnexpectedFieldException extends WriteFieldException
 
     public function getConcern(): string
     {
-        return self::CONCERN;
+        return 'unexpected-field';
     }
 
     public function toArray(): array

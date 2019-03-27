@@ -174,7 +174,7 @@ class RequestCriteriaBuilder
         $parts = array_filter(explode(',', $query));
 
         if (empty($parts)) {
-            throw new InvalidSortQueryException('A value for the sort parameter is required.');
+            throw new InvalidSortQueryException();
         }
 
         $sorting = [];

@@ -7,8 +7,6 @@ use Symfony\Component\HttpFoundation\Response;
 
 class UnsupportedOperatorException extends ShopwareHttpException
 {
-    public const CODE = 200002;
-
     /**
      * @var string
      */
@@ -23,9 +21,10 @@ class UnsupportedOperatorException extends ShopwareHttpException
     {
         $this->operator = $operator;
         $this->class = $class;
+
         parent::__construct(
-            sprintf('Unsupported operator %s in %s', $this->operator, $this->class),
-            self::CODE
+            'Unsupported operator {{ operator }} in {{ class }}',
+            ['operator' => $operator, 'class' => $class]
         );
     }
 
@@ -42,5 +41,10 @@ class UnsupportedOperatorException extends ShopwareHttpException
     public function getStatusCode(): int
     {
         return Response::HTTP_BAD_REQUEST;
+    }
+
+    public function getErrorCode(): string
+    {
+        return 'CONTENT__RULE_OPERATOR_NOT_SUPPORTED';
     }
 }

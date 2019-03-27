@@ -45,7 +45,7 @@ class MailBuilder
         $criteria = new Criteria([$id]);
         $entity = $this->salesChannelRepo->search($criteria, $context)->getEntities()->first();
         if ($entity === null) {
-            throw new SalesChannelNotFoundException();
+            throw new SalesChannelNotFoundException($id);
         }
 
         return $entity;

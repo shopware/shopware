@@ -54,7 +54,7 @@ class MediaFolderControllerTest extends TestCase
         $responseData = json_decode($response->getContent(), true);
 
         static::assertEquals(404, $response->getStatusCode());
-        static::assertEquals('MEDIA_FOLDER_NOT_FOUND_EXCEPTION', $responseData['errors'][0]['code']);
+        static::assertEquals('CONTENT__MEDIA_FOLDER_NOT_FOUND', $responseData['errors'][0]['code']);
     }
 
     public function testDissolve(): void

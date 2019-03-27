@@ -7,24 +7,24 @@ use Symfony\Component\HttpFoundation\Response;
 
 class RequirementStackException extends ShopwareHttpException
 {
-    protected $code = 'PLUGIN-REQUIREMENTS-FAILED';
-
     /**
      * @var RequirementException[]
      */
-    private $exceptions;
+    private $requirements;
 
-    public function __construct(string $method, RequirementException ...$exceptions)
+    public function __construct(string $method, RequirementException ...$requirements)
     {
-        $this->exceptions = $exceptions;
+        $this->requirements = $requirements;
+
         parent::__construct(
-            sprintf(
-                "Could not %s plugin, got %d failure(s).\n%s",
-                $method,
-                \count($exceptions),
-                print_r($this->toArray(), true)
-            )
+            'Could not {{ method }} plugin, got {{ failureCount }} failure(s).',
+            ['method' => $method, 'failureCount' => \count($requirements)]
         );
+    }
+
+    public function getErrorCode(): string
+    {
+        return 'FRAMEWORK__PLUGIN_REQUIREMENTS_FAILED';
     }
 
     public function getStatusCode(): int
@@ -32,11 +32,19 @@ class RequirementStackException extends ShopwareHttpException
         return Response::HTTP_FAILED_DEPENDENCY;
     }
 
+    /**
+     * @return RequirementException[]
+     */
+    public function getRequirements(): array
+    {
+        return $this->requirements;
+    }
+
     public function toArray(): array
     {
         $result = [];
 
-        foreach ($this->exceptions as $exception) {
+        foreach ($this->requirements as $exception) {
             $result[] = $exception->getMessage();
         }
 
@@ -45,7 +53,7 @@ class RequirementStackException extends ShopwareHttpException
 
     public function getErrors(bool $withTrace = false): \Generator
     {
-        foreach ($this->exceptions as $exception) {
+        foreach ($this->requirements as $exception) {
             $error = [
                 'code' => (string) $exception->getCode(),
                 'status' => (string) $exception->getStatusCode(),

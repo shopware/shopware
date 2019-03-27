@@ -2,8 +2,8 @@
 
 namespace Shopware\Core\Content\MailTemplate\Service;
 
-use Shopware\Core\Content\MailTemplate\Exception\MailAddressValidationException;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\ConstraintBuilder;
+use Shopware\Core\Framework\Exception\ConstraintViolationException;
 use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
@@ -23,8 +23,6 @@ class MessageFactory
      * @param array $sender     e.g. ['shopware@example.com' => 'Shopware AG', 'symfony@example.com' => 'Symfony']
      * @param array $recipients e.g. ['shopware@example.com' => 'Shopware AG', 'symfony@example.com' => 'Symfony']
      * @param array $contents   e.g. ['text/plain' => 'Foo', 'text/html' => '<h1>Bar</h1>']
-     *
-     * @throws MailAddressValidationException
      */
     public function createMessage(string $subject, array $sender, array $recipients, array $contents): \Swift_Message
     {
@@ -42,7 +40,7 @@ class MessageFactory
     }
 
     /**
-     * @throws MailAddressValidationException
+     * @throws ConstraintViolationException
      */
     private function assertValidAddresses(array $addresses): void
     {
@@ -57,7 +55,7 @@ class MessageFactory
         }
 
         if ($violations->count() > 0) {
-            throw new MailAddressValidationException($violations->__toString());
+            throw new ConstraintViolationException($violations, $addresses);
         }
     }
 }

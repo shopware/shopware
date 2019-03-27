@@ -2,10 +2,11 @@
 
 namespace Shopware\Core\Checkout\DiscountSurcharge\Exception;
 
-class UnsupportedModifierTypeException extends \Exception
-{
-    public const CODE = 5000;
+use Shopware\Core\Framework\ShopwareHttpException;
+use Symfony\Component\HttpFoundation\Response;
 
+class UnsupportedModifierTypeException extends ShopwareHttpException
+{
     /**
      * @var string
      */
@@ -20,9 +21,10 @@ class UnsupportedModifierTypeException extends \Exception
     {
         $this->type = $type;
         $this->class = $class;
+
         parent::__construct(
-            sprintf('Unsupported type %s in %s', $this->type, $this->class),
-            self::CODE
+            'Unsupported type "{{ type }}" in {{ class }}.',
+            ['type' => $type, 'class' => $class]
         );
     }
 
@@ -34,5 +36,15 @@ class UnsupportedModifierTypeException extends \Exception
     public function getClass(): string
     {
         return $this->class;
+    }
+
+    public function getErrorCode(): string
+    {
+        return 'CHECKOUT__DISCOUNT_SURCHARGE_MODIFIER_TYPE_NOT_SUPPORTED';
+    }
+
+    public function getStatusCode(): int
+    {
+        return Response::HTTP_BAD_REQUEST;
     }
 }

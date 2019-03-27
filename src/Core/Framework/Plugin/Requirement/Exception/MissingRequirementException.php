@@ -4,12 +4,16 @@ namespace Shopware\Core\Framework\Plugin\Requirement\Exception;
 
 class MissingRequirementException extends RequirementException
 {
-    protected $code = 'PLUGIN-REQUIREMENT-MISSING';
-
-    public function __construct(string $requirement, string $requiredVersion, int $code = 0, ?\Throwable $previous = null)
+    public function __construct(string $requirement, string $requiredVersion)
     {
-        $message = sprintf('Required plugin/package "%s %s" is missing', $requirement, $requiredVersion);
+        parent::__construct(
+            'Required plugin/package "{{ requirement }} {{ version }}" is missing',
+            ['requirement' => $requirement, 'version' => $requiredVersion]
+        );
+    }
 
-        parent::__construct($message, $code, $previous);
+    public function getErrorCode(): string
+    {
+        return 'FRAMEWORK__PLUGIN_REQUIREMENT_MISSING';
     }
 }

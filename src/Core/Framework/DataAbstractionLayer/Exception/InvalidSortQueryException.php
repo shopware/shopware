@@ -7,13 +7,18 @@ use Symfony\Component\HttpFoundation\Response;
 
 class InvalidSortQueryException extends ShopwareHttpException
 {
-    public function __construct(string $message, int $code = 0, ?\Throwable $previous = null)
+    public function __construct()
     {
-        parent::__construct($message, $code, $previous);
+        parent::__construct('A value for the sort parameter is required.');
     }
 
     public function getStatusCode(): int
     {
         return Response::HTTP_BAD_REQUEST;
+    }
+
+    public function getErrorCode(): string
+    {
+        return 'FRAMEWORK__INVALID_SORT_QUERY';
     }
 }

@@ -21,7 +21,7 @@ class PackageProvider
         [$errors, $publishErrors, $warnings] = $validator->validate($composerJsonPath);
         $errors = array_merge($errors, $publishErrors);
         if (\count($errors) !== 0) {
-            throw new PluginComposerJsonInvalidException($composerJsonPath, implode("\n", $errors));
+            throw new PluginComposerJsonInvalidException($composerJsonPath, $errors);
         }
 
         if (\count($warnings) !== 0) {

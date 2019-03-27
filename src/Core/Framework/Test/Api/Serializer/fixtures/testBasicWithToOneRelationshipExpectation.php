@@ -23,7 +23,7 @@ return [
             'hasFile' => false,
         ],
         'links' => [
-            'self' => '/media/548faa1f7846436c85944f4aea792d96',
+            'self' => '/api/media/548faa1f7846436c85944f4aea792d96',
         ],
         'relationships' => [
             'user' => [
@@ -32,61 +32,61 @@ return [
                     'id' => '6f51622eb3814c75ae0263cece27ce72',
                 ],
                 'links' => [
-                    'related' => '/media/548faa1f7846436c85944f4aea792d96/user',
+                    'related' => '/api/media/548faa1f7846436c85944f4aea792d96/user',
                 ],
             ],
             'categories' => [
                 'data' => [],
                 'links' => [
-                    'related' => '/media/548faa1f7846436c85944f4aea792d96/categories',
+                    'related' => '/api/media/548faa1f7846436c85944f4aea792d96/categories',
                 ],
             ],
             'productManufacturers' => [
                 'data' => [],
                 'links' => [
-                    'related' => '/media/548faa1f7846436c85944f4aea792d96/product-manufacturers',
+                    'related' => '/api/media/548faa1f7846436c85944f4aea792d96/product-manufacturers',
                 ],
             ],
             'productMedia' => [
                 'data' => [],
                 'links' => [
-                    'related' => '/media/548faa1f7846436c85944f4aea792d96/product-media',
+                    'related' => '/api/media/548faa1f7846436c85944f4aea792d96/product-media',
                 ],
             ],
             'avatarUser' => [
                 'data' => null,
                 'links' => [
-                    'related' => '/media/548faa1f7846436c85944f4aea792d96/avatar-user',
+                    'related' => '/api/media/548faa1f7846436c85944f4aea792d96/avatar-user',
                 ],
             ],
             'translations' => [
                 'data' => [],
                 'links' => [
-                    'related' => '/media/548faa1f7846436c85944f4aea792d96/translations',
+                    'related' => '/api/media/548faa1f7846436c85944f4aea792d96/translations',
                 ],
             ],
             'thumbnails' => [
                 'data' => [],
                 'links' => [
-                    'related' => '/media/548faa1f7846436c85944f4aea792d96/thumbnails',
+                    'related' => '/api/media/548faa1f7846436c85944f4aea792d96/thumbnails',
                 ],
             ],
             'mediaFolder' => [
                 'data' => null,
                 'links' => [
-                    'related' => '/media/548faa1f7846436c85944f4aea792d96/media-folder',
+                    'related' => '/api/media/548faa1f7846436c85944f4aea792d96/media-folder',
                 ],
             ],
             'configurationGroupOptions' => [
                 'data' => [],
                 'links' => [
-                    'related' => '/media/548faa1f7846436c85944f4aea792d96/configuration-group-options',
+                    'related' => '/api/media/548faa1f7846436c85944f4aea792d96/configuration-group-options',
                 ],
             ],
             'tags' => [
                 'data' => [],
                 'links' => [
-                    'related' => '/media/548faa1f7846436c85944f4aea792d96/tags',
+                    'related' => '/api/media/548faa1f7846436c85944f4aea792d96/tags',
                 ],
             ],
         ],
@@ -109,43 +109,43 @@ return [
                 'updatedAt' => null,
             ],
             'links' => [
-                'self' => '/user/6f51622eb3814c75ae0263cece27ce72',
+                'self' => '/api/user/6f51622eb3814c75ae0263cece27ce72',
             ],
             'relationships' => [
                 'locale' => [
                     'data' => null,
                     'links' => [
-                        'related' => '/user/6f51622eb3814c75ae0263cece27ce72/locale',
+                        'related' => '/api/user/6f51622eb3814c75ae0263cece27ce72/locale',
                     ],
                 ],
                 'avatarMedia' => [
                     'data' => null,
                     'links' => [
-                        'related' => '/user/6f51622eb3814c75ae0263cece27ce72/avatar-media',
+                        'related' => '/api/user/6f51622eb3814c75ae0263cece27ce72/avatar-media',
                     ],
                 ],
                 'media' => [
                     'data' => [],
                     'links' => [
-                        'related' => '/user/6f51622eb3814c75ae0263cece27ce72/media',
+                        'related' => '/api/user/6f51622eb3814c75ae0263cece27ce72/media',
                     ],
                 ],
                 'accessKeys' => [
                     'data' => [],
                     'links' => [
-                        'related' => '/user/6f51622eb3814c75ae0263cece27ce72/access-keys',
+                        'related' => '/api/user/6f51622eb3814c75ae0263cece27ce72/access-keys',
                     ],
                 ],
                 'stateMachineHistoryEntries' => [
                     'data' => [],
                     'links' => [
-                        'related' => '/user/6f51622eb3814c75ae0263cece27ce72/state-machine-history-entries',
+                        'related' => '/api/user/6f51622eb3814c75ae0263cece27ce72/state-machine-history-entries',
                     ],
                 ],
                 'recoveryUser' => [
                     'data' => null,
                     'links' => [
-                        'related' => '/user/6f51622eb3814c75ae0263cece27ce72/recovery-user',
+                        'related' => '/api/user/6f51622eb3814c75ae0263cece27ce72/recovery-user',
                     ],
                 ],
             ],

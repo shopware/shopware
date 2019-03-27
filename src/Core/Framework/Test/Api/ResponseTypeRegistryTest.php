@@ -57,7 +57,7 @@ class ResponseTypeRegistryTest extends TestCase
     {
         $id = Uuid::randomHex();
         $accept = 'application/vnd.api+json';
-        $self = '/category/' . $id;
+        $self = 'http://localhost/api/v1/category/' . $id;
         $context = $this->getAdminContext();
         $response = $this->getDetailResponse($context, $id, $self, 1, $accept, false);
 
@@ -74,7 +74,7 @@ class ResponseTypeRegistryTest extends TestCase
     {
         $id = Uuid::randomHex();
         $accept = '*/*';
-        $self = '/category/' . $id;
+        $self = 'http://localhost/api/v1/category/' . $id;
         $context = $this->getAdminContext();
         $response = $this->getDetailResponse($context, $id, $self, 1, $accept, false);
 
@@ -92,7 +92,7 @@ class ResponseTypeRegistryTest extends TestCase
         $this->expectException(UnsupportedMediaTypeHttpException::class);
         $id = Uuid::randomHex();
         $accept = 'text/plain';
-        $self = '/category/' . $id;
+        $self = 'http://localhost/api/v1/category/' . $id;
         $context = $this->getAdminContext();
         $this->getDetailResponse($context, $id, $self, 1, $accept, false);
     }
@@ -179,7 +179,7 @@ class ResponseTypeRegistryTest extends TestCase
     {
         $id = Uuid::randomHex();
         $accept = 'application/vnd.api+json';
-        $self = '/category';
+        $self = 'http://localhost/api/v1/category';
         $context = $this->getAdminContext();
         $response = $this->getListResponse($context, $id, $self, 1, $accept);
 

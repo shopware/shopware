@@ -82,67 +82,67 @@ class JsonApiEncoderTest extends TestCase
                     'hasFile' => false,
                 ],
                 'links' => [
-                    'self' => '/media/1d23c1b015bf43fb97e89008cf42d6fe',
+                    'self' => '/api/media/1d23c1b015bf43fb97e89008cf42d6fe',
                 ],
                 'relationships' => [
                     'user' => [
                         'data' => null,
                         'links' => [
-                            'related' => '/media/1d23c1b015bf43fb97e89008cf42d6fe/user',
+                            'related' => '/api/media/1d23c1b015bf43fb97e89008cf42d6fe/user',
                         ],
                     ],
                     'categories' => [
                         'data' => [],
                         'links' => [
-                            'related' => '/media/1d23c1b015bf43fb97e89008cf42d6fe/categories',
+                            'related' => '/api/media/1d23c1b015bf43fb97e89008cf42d6fe/categories',
                         ],
                     ],
                     'productManufacturers' => [
                         'data' => [],
                         'links' => [
-                            'related' => '/media/1d23c1b015bf43fb97e89008cf42d6fe/product-manufacturers',
+                            'related' => '/api/media/1d23c1b015bf43fb97e89008cf42d6fe/product-manufacturers',
                         ],
                     ],
                     'productMedia' => [
                         'data' => [],
                         'links' => [
-                            'related' => '/media/1d23c1b015bf43fb97e89008cf42d6fe/product-media',
+                            'related' => '/api/media/1d23c1b015bf43fb97e89008cf42d6fe/product-media',
                         ],
                     ],
                     'avatarUser' => [
                         'data' => null,
                         'links' => [
-                            'related' => '/media/1d23c1b015bf43fb97e89008cf42d6fe/avatar-user',
+                            'related' => '/api/media/1d23c1b015bf43fb97e89008cf42d6fe/avatar-user',
                         ],
                     ],
                     'translations' => [
                         'data' => [],
                         'links' => [
-                            'related' => '/media/1d23c1b015bf43fb97e89008cf42d6fe/translations',
+                            'related' => '/api/media/1d23c1b015bf43fb97e89008cf42d6fe/translations',
                         ],
                     ],
                     'thumbnails' => [
                         'data' => [],
                         'links' => [
-                            'related' => '/media/1d23c1b015bf43fb97e89008cf42d6fe/thumbnails',
+                            'related' => '/api/media/1d23c1b015bf43fb97e89008cf42d6fe/thumbnails',
                         ],
                     ],
                     'mediaFolder' => [
                         'data' => null,
                         'links' => [
-                            'related' => '/media/1d23c1b015bf43fb97e89008cf42d6fe/media-folder',
+                            'related' => '/api/media/1d23c1b015bf43fb97e89008cf42d6fe/media-folder',
                         ],
                     ],
                     'configurationGroupOptions' => [
                         'data' => [],
                         'links' => [
-                            'related' => '/media/1d23c1b015bf43fb97e89008cf42d6fe/configuration-group-options',
+                            'related' => '/api/media/1d23c1b015bf43fb97e89008cf42d6fe/configuration-group-options',
                         ],
                     ],
                     'tags' => [
                         'data' => [],
                         'links' => [
-                            'related' => '/media/1d23c1b015bf43fb97e89008cf42d6fe/tags',
+                            'related' => '/api/media/1d23c1b015bf43fb97e89008cf42d6fe/tags',
                         ],
                     ],
                 ],

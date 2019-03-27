@@ -8,7 +8,6 @@ use Shopware\Core\Content\Navigation\NavigationEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Util\Tree\Tree;
@@ -25,42 +24,16 @@ class NavigationTreeLoader
     }
 
     /**
-     * returns category tree while
-     * only the active navigation entry has children
+     * Returns the full navigation tree. The provided active id will be marked as selected
      *
      * @throws NavigationNotFoundException
      * @throws \Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException
      * @throws \Shopware\Core\Framework\Exception\InvalidParameterException
      */
-    public function read(string $activeId, CheckoutContext $context): ?Tree
+    public function load(string $activeId, CheckoutContext $context): ?Tree
     {
         /** @var NavigationEntity $active */
-        $active = $this->getActiveCategory($activeId, $context);
-        $parentIds = $this->getParentIds($active, $activeId);
-        $rootId = $this->getRootId($active, $activeId);
-
-        $criteria = new Criteria();
-        $filters = $criteria->getFilters();
-        $criteria->addFilter(new EqualsAnyFilter('navigation.parentId', $parentIds));
-
-        $navigations = $this->navigationRepository->search($criteria, $context->getContext());
-        $navigations->add($active);
-
-        return $this->buildTree($rootId, $navigations, $active);
-    }
-
-    /**
-     * returns complete category tree
-     * with all children
-     *
-     * @throws NavigationNotFoundException
-     * @throws \Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException
-     * @throws \Shopware\Core\Framework\Exception\InvalidParameterException
-     */
-    public function getCategories(string $activeId, CheckoutContext $context): ?Tree
-    {
-        /** @var NavigationEntity $active */
-        $active = $this->getActiveCategory($activeId, $context);
+        $active = $this->loadActive($activeId, $context);
         $rootId = $this->getRootId($active, $activeId);
 
         $navigations = $this->navigationRepository->search(new Criteria(), $context->getContext());
@@ -69,18 +42,16 @@ class NavigationTreeLoader
     }
 
     /**
-     * returns a single category
-     * with all its children
+     * Returns the navigation tree level for the provided navigation id.
      *
      * @throws NavigationNotFoundException
      * @throws \Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException
      * @throws \Shopware\Core\Framework\Exception\InvalidParameterException
      */
-    public function getCategory(string $navigationId, string $activeId, CheckoutContext $context): ?Tree
+    public function loadLevel(string $navigationId, CheckoutContext $context): ?Tree
     {
         /** @var NavigationEntity $active */
-        $active = $this->getActiveCategory($navigationId, $context);
-        $rootId = $this->getRootId($active, $navigationId);
+        $active = $this->loadActive($navigationId, $context);
 
         $criteria = new Criteria();
         $criteria->addFilter(new MultiFilter(
@@ -111,7 +82,7 @@ class NavigationTreeLoader
      * @throws NavigationNotFoundException
      * @throws \Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException
      */
-    private function getActiveCategory(string $activeId, CheckoutContext $context): NavigationEntity
+    private function loadActive(string $activeId, CheckoutContext $context): NavigationEntity
     {
         $criteria = new Criteria([$activeId]);
 
@@ -124,17 +95,6 @@ class NavigationTreeLoader
         }
 
         return $active;
-    }
-
-    private function getParentIds(NavigationEntity $active, string $activeId): array
-    {
-        if ($active->getPath() !== null) {
-            $path = array_filter(explode('|', $active->getPath()));
-
-            return array_merge([$activeId], $path);
-        }
-
-        return [$activeId];
     }
 
     private function getRootId(NavigationEntity $active, string $activeId): string

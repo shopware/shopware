@@ -22,7 +22,6 @@ class Migration1553523201CleanUpProduct extends MigrationStep
             'ALTER TABLE `product`
             DROP COLUMN `sales`,
             DROP COLUMN `allow_notification`,
-            DROP COLUMN `is_closeout`,
             DROP COLUMN `min_stock`,
             DROP COLUMN `position`,
             MODIFY COLUMN `shipping_free` TINYINT(1) NULL

@@ -18,12 +18,16 @@ onmessage = ({ data: { context, bearerAuth, host, pollingConfig } }) => {
     const messageQueueService = new MessageQueueService(client, loginService);
 
     scheduledTaskService.getMinRunInterval().then((response) => {
-        const timeout = response.minRunInterval * 1000;
-        runTasks(scheduledTaskService, timeout);
+        if (response.minRunInterval > 0) {
+            const timeout = response.minRunInterval * 1000;
+            runTasks(scheduledTaskService, timeout);
+        }
     });
 
     Object.keys(pollingConfig).forEach((receiver) => {
-        consumeMessages(messageQueueService, receiver, pollingConfig[receiver] * 100);
+        if (pollingConfig[receiver] > 0) {
+            consumeMessages(messageQueueService, receiver, pollingConfig[receiver] * 1000);
+        }
     });
 };
 

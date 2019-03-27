@@ -60,7 +60,7 @@ class HeaderPageletLoader implements PageLoaderInterface
             throw new MissingParameterException('navigationId');
         }
 
-        $navigation = $this->navigationLoader->read((string) $navigationId, $context);
+        $navigation = $this->navigationLoader->getCategories((string) $navigationId, $context);
 
         /** @var LanguageCollection $languages */
         $languages = $this->loadLanguages($context);

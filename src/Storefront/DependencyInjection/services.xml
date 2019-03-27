@@ -70,6 +70,11 @@
             <argument type="service" id="event_dispatcher"/>
         </service>
 
+        <service id="Shopware\Storefront\Pagelet\Menu\Offcanvas\MenuOffcanvasPageletLoader">
+            <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="Shopware\Core\Content\Navigation\Service\NavigationTreeLoader"/>
+        </service>
+
         <service id="Shopware\Storefront\Pagelet\Suggest\SuggestPageletLoader">
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Storefront\Pagelet\Listing\ListingPageletLoader"/>
@@ -201,6 +206,10 @@
 
         <service id="Shopware\Storefront\PageletController\ListingPageletController" public="true">
             <argument type="service" id="Shopware\Storefront\Pagelet\Listing\ListingPageletLoader"/>
+        </service>
+
+        <service id="Shopware\Storefront\PageletController\MenuPageletController" public="true">
+            <argument type="service" id="Shopware\Storefront\Pagelet\Menu\Offcanvas\MenuOffcanvasPageletLoader"/>
         </service>
 
         <service id="Shopware\Storefront\PageletController\SuggestPageletController" public="true">

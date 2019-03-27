@@ -311,11 +311,9 @@ class StorefrontSalesChannelControllerTest extends TestCase
     {
         $currency = [
             'id' => Uuid::uuid4()->getHex(),
-            'isDefault' => false,
             'factor' => 1.23,
             'decimalPrecision' => 2,
             'symbol' => 'USD',
-            'placedInFront' => false,
             'position' => 10,
             'shortName' => 'USD',
             'name' => 'US Dollar',

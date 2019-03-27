@@ -14,8 +14,6 @@ $user->setPassword('password');
 $user->setUsername('user1');
 $user->setActive(true);
 $user->setEmail('user1@shop.de');
-$user->setFailedLogins(0);
-$user->setLastLogin(new \DateTime('2018-01-15T08:01:16+00:00'));
 $user->setCreatedAt(new \DateTime('2018-01-15T08:01:16+00:00'));
 
 $media = new MediaEntity();

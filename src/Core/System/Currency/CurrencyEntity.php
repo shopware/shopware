@@ -35,16 +35,6 @@ class CurrencyEntity extends Entity
     protected $name;
 
     /**
-     * @var bool
-     */
-    protected $isDefault;
-
-    /**
-     * @var bool
-     */
-    protected $placedInFront;
-
-    /**
      * @var int
      */
     protected $position;
@@ -142,26 +132,6 @@ class CurrencyEntity extends Entity
     public function setName(?string $name): void
     {
         $this->name = $name;
-    }
-
-    public function getIsDefault(): bool
-    {
-        return $this->isDefault;
-    }
-
-    public function setIsDefault(bool $isDefault): void
-    {
-        $this->isDefault = $isDefault;
-    }
-
-    public function getPlacedInFront(): bool
-    {
-        return $this->placedInFront;
-    }
-
-    public function setPlacedInFront(bool $placedInFront): void
-    {
-        $this->placedInFront = $placedInFront;
     }
 
     public function getPosition(): int

@@ -46,24 +46,9 @@ class UserEntity extends Entity
     protected $email;
 
     /**
-     * @var \DateTimeInterface|null
-     */
-    protected $lastLogin;
-
-    /**
      * @var bool
      */
     protected $active;
-
-    /**
-     * @var int
-     */
-    protected $failedLogins;
-
-    /**
-     * @var \DateTimeInterface|null
-     */
-    protected $lockedUntil;
 
     /**
      * @var \DateTimeInterface|null
@@ -185,16 +170,6 @@ class UserEntity extends Entity
         $this->email = $email;
     }
 
-    public function getLastLogin(): ?\DateTimeInterface
-    {
-        return $this->lastLogin;
-    }
-
-    public function setLastLogin(?\DateTimeInterface $lastLogin): void
-    {
-        $this->lastLogin = $lastLogin;
-    }
-
     public function getActive(): bool
     {
         return $this->active;
@@ -203,26 +178,6 @@ class UserEntity extends Entity
     public function setActive(bool $active): void
     {
         $this->active = $active;
-    }
-
-    public function getFailedLogins(): int
-    {
-        return $this->failedLogins;
-    }
-
-    public function setFailedLogins(int $failedLogins): void
-    {
-        $this->failedLogins = $failedLogins;
-    }
-
-    public function getLockedUntil(): ?\DateTimeInterface
-    {
-        return $this->lockedUntil;
-    }
-
-    public function setLockedUntil(?\DateTimeInterface $lockedUntil): void
-    {
-        $this->lockedUntil = $lockedUntil;
     }
 
     public function getCreatedAt(): ?\DateTimeInterface

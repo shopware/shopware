@@ -15,20 +15,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
  */
 class CountryCollection extends EntityCollection
 {
-    public function getTaxfreeForVatIds(): array
-    {
-        return $this->fmap(function (CountryEntity $country) {
-            return $country->getTaxfreeForVatId();
-        });
-    }
-
-    public function filterByTaxfreeForVatId(bool $vatFree): self
-    {
-        return $this->filter(function (CountryEntity $country) use ($vatFree) {
-            return $country->getTaxfreeForVatId() === $vatFree;
-        });
-    }
-
     public function sortCountryAndStates(): void
     {
         $this->sortByPositionAndName();

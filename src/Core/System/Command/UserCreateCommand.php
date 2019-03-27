@@ -29,7 +29,7 @@ class UserCreateCommand extends Command
      */
     protected function configure(): void
     {
-        $this->setName('rest:user:create')
+        $this->setName('user:create')
             ->addArgument('username', InputArgument::REQUIRED, 'Username for the user')
             ->addOption('password', 'p', InputOption::VALUE_REQUIRED, 'Password for the user')
             ->addOption('name', null, InputOption::VALUE_REQUIRED, 'Name for the user')

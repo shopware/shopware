@@ -266,6 +266,13 @@ class LineItem extends Struct
         return $this;
     }
 
+    public function replacePayload(array $payload): self
+    {
+        $this->payload = array_replace_recursive($this->payload, $payload);
+
+        return $this;
+    }
+
     public function getPriceDefinition(): ?PriceDefinitionInterface
     {
         return $this->priceDefinition;

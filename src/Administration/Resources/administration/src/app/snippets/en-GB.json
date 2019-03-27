@@ -371,7 +371,8 @@
         "shippingFreeRule": "Shipping free product",
         "timeRangeRule": "Time range",
         "weightOfCartRule": "Weight of cart",
-        "dayOfWeekRule": "Day of the week"
+        "dayOfWeekRule": "Day of the week",
+        "lineItemTagRule": "Line item tag"
       }
     },
     "sw-product-image": {

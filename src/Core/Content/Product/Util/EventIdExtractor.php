@@ -4,6 +4,7 @@ namespace Shopware\Core\Content\Product\Util;
 
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductCategory\ProductCategoryDefinition;
+use Shopware\Core\Content\Product\Aggregate\ProductTag\ProductTagDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 
@@ -19,6 +20,13 @@ class EventIdExtractor
         }
 
         $event = $generic->getEventByDefinition(ProductCategoryDefinition::class);
+        if ($event) {
+            foreach ($event->getIds() as $id) {
+                $ids[] = $id['productId'];
+            }
+        }
+
+        $event = $generic->getEventByDefinition(ProductTagDefinition::class);
         if ($event) {
             foreach ($event->getIds() as $id) {
                 $ids[] = $id['productId'];

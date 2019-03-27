@@ -26,6 +26,7 @@ import 'src/module/sw-settings-rule/component/sw-condition-shipping-street';
 import 'src/module/sw-settings-rule/component/sw-condition-shipping-zip-code';
 import 'src/module/sw-settings-rule/component/sw-condition-time-range';
 import 'src/module/sw-settings-rule/component/sw-condition-weight-of-cart';
+import 'src/module/sw-settings-rule/component/sw-condition-line-item-tag';
 
 Application.addServiceProviderDecorator('ruleConditionDataProviderService', (ruleConditionService) => {
     ruleConditionService.addCondition('dateRange', {
@@ -135,6 +136,10 @@ Application.addServiceProviderDecorator('ruleConditionDataProviderService', (rul
     ruleConditionService.addCondition('cartWeight', {
         component: 'sw-condition-weight-of-cart',
         label: 'global.sw-condition.condition.weightOfCartRule'
+    });
+    ruleConditionService.addCondition('cartLineItemTag', {
+        component: 'sw-condition-line-item-tag',
+        label: 'global.sw-condition.condition.lineItemTagRule'
     });
     return ruleConditionService;
 });

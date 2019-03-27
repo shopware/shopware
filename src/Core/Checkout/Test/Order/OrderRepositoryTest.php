@@ -16,6 +16,7 @@ use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Context\CheckoutContextFactory;
 use Shopware\Core\Checkout\Context\CheckoutContextService;
+use Shopware\Core\Checkout\Context\CheckoutRuleLoader;
 use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -108,6 +109,8 @@ class OrderRepositoryTest extends TestCase
             [
                 CheckoutContextService::CUSTOMER_ID => $customerId,
             ]);
+
+        $this->getContainer()->get(CheckoutRuleLoader::class)->loadMatchingRules($context, $context->getToken());
 
         $cart = $this->processor->process($cart, $context, new CartBehaviorContext());
 

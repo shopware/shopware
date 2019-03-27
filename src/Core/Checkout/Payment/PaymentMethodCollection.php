@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Payment;
 
+use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 /**
@@ -15,6 +16,17 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
  */
 class PaymentMethodCollection extends EntityCollection
 {
+    public function filterByActiveRules(CheckoutContext $checkoutContext): PaymentMethodCollection
+    {
+        return $this->filter(
+            function (PaymentMethodEntity $paymentMethod) use ($checkoutContext) {
+                $matches = array_intersect($paymentMethod->getAvailabilityRuleIds(), $checkoutContext->getRuleIds());
+
+                return !empty($matches);
+            }
+        );
+    }
+
     public function getPluginIds(): array
     {
         return $this->fmap(function (PaymentMethodEntity $paymentMethod) {

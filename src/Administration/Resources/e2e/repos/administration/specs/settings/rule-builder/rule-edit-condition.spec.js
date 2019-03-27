@@ -19,13 +19,15 @@ module.exports = {
     },
     'find rule to be edited': (browser) => {
         const page = ruleBuilderPage(browser);
-        browser.expect.element(`${page.elements.gridRow}--1 ${page.elements.columnName}`).to.have.text.that.contains(global.AdminFixtureService.basicFixture.name);
+        browser
+            .fillGlobalSearchField(global.AdminFixtureService.basicFixture.name)
+            .expect.element(`${page.elements.gridRow}--0 ${page.elements.columnName}`).to.have.text.that.contains(global.AdminFixtureService.basicFixture.name);
     },
     'edit rule and add first condition': (browser) => {
         const page = ruleBuilderPage(browser);
 
         browser
-            .clickContextMenuItem('.sw-rule-list__rule-edit-action', page.elements.contextMenuButton, `${page.elements.gridRow}--1`)
+            .clickContextMenuItem('.sw-rule-list__rule-edit-action', page.elements.contextMenuButton, `${page.elements.gridRow}--0`)
             .expect.element(page.elements.smartBarHeader).to.have.text.that.contains(global.AdminFixtureService.basicFixture.name);
 
         page.createDateRangeCondition({

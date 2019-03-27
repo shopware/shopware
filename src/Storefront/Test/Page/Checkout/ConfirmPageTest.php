@@ -3,6 +3,7 @@
 namespace Shopware\Storefront\Test\Page\Checkout;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
@@ -79,6 +80,41 @@ class ConfirmPageTest extends TestCase
 
         static::assertInstanceOf(CheckoutConfirmPage::class, $page);
         static::assertSame(0, $page->getShippingMethods()->count());
+        self::assertPageEvent(CheckoutConfirmPageLoadedEvent::class, $event, $context, $request, $page);
+    }
+
+    public function testItIgnoresUnavailablePaymentMethods(): void
+    {
+        $request = new InternalRequest();
+        $context = $this->createCheckoutContextWithNavigation();
+
+        $paymentMethodRepository = $this->getContainer()->get('payment_method.repository');
+        $paymentMethodRuleRepository = $this->getContainer()->get('payment_method_rule.repository');
+        /** @var PaymentMethodEntity $paymentMethod */
+        $paymentMethod = $paymentMethodRepository->search(new Criteria([Defaults::PAYMENT_METHOD_DEBIT]), $context->getContext())->get(Defaults::PAYMENT_METHOD_DEBIT);
+
+        $ruleToDelete = [];
+
+        foreach ($paymentMethod->getAvailabilityRuleIds() as $availabilityRuleId) {
+            $ruleToDelete[] = [
+                'paymentMethodId' => Defaults::PAYMENT_METHOD_DEBIT,
+                'ruleId' => $availabilityRuleId,
+            ];
+        }
+
+        $paymentMethodRuleRepository->delete($ruleToDelete, $context->getContext());
+
+        /** @var CheckoutConfirmPageLoadedEvent $event */
+        $event = null;
+        $this->catchEvent(CheckoutConfirmPageLoadedEvent::NAME, $event);
+
+        $context = $this->createCheckoutContextWithNavigation();
+
+        /** @var CheckoutConfirmPage $page */
+        $page = $this->getPageLoader()->load($request, $context);
+
+        static::assertInstanceOf(CheckoutConfirmPage::class, $page);
+        static::assertSame(StorefrontPageTestConstants::PAYMENT_METHOD_COUNT - 1, $page->getPaymentMethods()->count());
         self::assertPageEvent(CheckoutConfirmPageLoadedEvent::class, $event, $context, $request, $page);
     }
 

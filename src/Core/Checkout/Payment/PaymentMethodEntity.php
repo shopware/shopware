@@ -126,6 +126,16 @@ class PaymentMethodEntity extends Entity
      */
     protected $attributes;
 
+    /**
+     * @var array
+     */
+    protected $availabilityRuleIds;
+
+    public function __construct()
+    {
+        $this->availabilityRuleIds = [];
+    }
+
     public function getPluginId(): ?string
     {
         return $this->pluginId;
@@ -344,5 +354,15 @@ class PaymentMethodEntity extends Entity
     public function setAttributes(?array $attributes): void
     {
         $this->attributes = $attributes;
+    }
+
+    public function getAvailabilityRuleIds(): array
+    {
+        return $this->availabilityRuleIds;
+    }
+
+    public function setAvailabilityRuleIds(array $availabilityRuleIds): void
+    {
+        $this->availabilityRuleIds = $availabilityRuleIds;
     }
 }

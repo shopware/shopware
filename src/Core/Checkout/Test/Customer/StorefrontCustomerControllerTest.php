@@ -3,6 +3,7 @@
 namespace Shopware\Core\Checkout\Test\Customer;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Context\CheckoutRuleLoader;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Defaults;
@@ -12,6 +13,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\Framework\Test\TestCaseBase\StorefrontFunctionalTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Serializer\Serializer;
 
@@ -63,6 +65,11 @@ class StorefrontCustomerControllerTest extends TestCase
         $this->customerAddressRepository = $this->getContainer()->get('customer_address.repository');
         $this->countryStateRepository = $this->getContainer()->get('country_state.repository');
         $this->context = Context::createDefaultContext();
+
+        // reset rules
+        $ruleLoader = $this->getContainer()->get(CheckoutRuleLoader::class);
+        $rulesProperty = ReflectionHelper::getProperty(CheckoutRuleLoader::class, 'rules');
+        $rulesProperty->setValue($ruleLoader, null);
     }
 
     public function testLogin(): void
@@ -539,6 +546,22 @@ class StorefrontCustomerControllerTest extends TestCase
                     'name' => 'Invoice',
                     'additionalDescription' => 'Default payment method',
                     'technicalName' => Uuid::uuid4()->getHex(),
+                    'availabilityRules' => [
+                        [
+                            'id' => Uuid::uuid4()->getHex(),
+                            'name' => 'true',
+                            'priority' => 0,
+                            'conditions' => [
+                                [
+                                    'type' => 'cartCartAmount',
+                                    'value' => [
+                                        'operator' => '>=',
+                                        'amount' => 0,
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
                 ],
                 'groupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
                 'email' => $email,

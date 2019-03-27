@@ -75,13 +75,14 @@ class RecalculationServiceTest extends TestCase
 
         $this->customerId = $this->createCustomer();
         $shippingMethodId = $this->createShippingMethod($priceRuleId);
-
+        $paymentMethodId = $this->createPaymentMethod($priceRuleId);
         $this->checkoutContext = $this->getContainer()->get(CheckoutContextFactory::class)->create(
             Uuid::uuid4()->getHex(),
             Defaults::SALES_CHANNEL,
             [
                 CheckoutContextService::CUSTOMER_ID => $this->customerId,
                 CheckoutContextService::SHIPPING_METHOD_ID => $shippingMethodId,
+                CheckoutContextService::PAYMENT_METHOD_ID => $paymentMethodId,
             ]
         );
 
@@ -1228,5 +1229,39 @@ class RecalculationServiceTest extends TestCase
         $repository->upsert([$data], $this->context);
 
         return $repository->search(new Criteria([$shippingMethodId]), $this->context)->get($shippingMethodId);
+    }
+
+    private function createPaymentMethod(string $ruleId): string
+    {
+        $paymentMethodId = Uuid::uuid4()->getHex();
+        $repository = $this->getContainer()->get('payment_method.repository');
+
+        $ruleRegistry = $this->getContainer()->get(RuleConditionRegistry::class);
+        $prop = ReflectionHelper::getProperty(RuleConditionRegistry::class, 'rules');
+        $prop->setValue($ruleRegistry, array_merge($prop->getValue($ruleRegistry), ['true' => new TrueRule()]));
+
+        $data = [
+            'id' => $paymentMethodId,
+            'technicalName' => 'Payment',
+            'name' => 'Payment',
+            'active' => true,
+            'position' => 0,
+            'availabilityRules' => [
+                [
+                    'id' => $ruleId,
+                    'name' => 'true',
+                    'priority' => 0,
+                    'conditions' => [
+                        [
+                            'type' => 'true',
+                        ],
+                    ],
+                ],
+            ],
+        ];
+
+        $repository->create([$data], $this->context);
+
+        return $paymentMethodId;
     }
 }

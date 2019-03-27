@@ -3,6 +3,7 @@
 namespace Shopware\Core\System\SalesChannel\Storefront;
 
 use Shopware\Core\Checkout\CheckoutContext;
+use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
 use Shopware\Core\Checkout\Payment\PaymentMethodDefinition;
 use Shopware\Core\Checkout\Shipping\ShippingMethodCollection;
 use Shopware\Core\Checkout\Shipping\ShippingMethodDefinition;
@@ -157,7 +158,7 @@ class StorefrontSalesChannelController extends AbstractController
     public function getPaymentMethods(Request $request, CheckoutContext $context, ResponseFactoryInterface $responseFactory): Response
     {
         $criteria = $this->createCriteria($request, PaymentMethodDefinition::class, $context);
-        $paymentMethods = $this->paymentMethodRepository->search($criteria, $context->getContext());
+        $paymentMethods = $this->filterMethodsByRules($criteria, $context, $this->paymentMethodRepository);
 
         return $responseFactory->createListingResponse(
             $paymentMethods,
@@ -172,7 +173,8 @@ class StorefrontSalesChannelController extends AbstractController
      */
     public function getShippingMethods(Request $request, CheckoutContext $context, ResponseFactoryInterface $responseFactory): Response
     {
-        $shippingMethods = $this->filterShippingMethodsByRules($request, $context);
+        $criteria = $this->createCriteria($request, ShippingMethodDefinition::class, $context);
+        $shippingMethods = $this->filterMethodsByRules($criteria, $context, $this->shippingMethodRepository);
 
         return $responseFactory->createListingResponse(
             $shippingMethods,
@@ -182,23 +184,22 @@ class StorefrontSalesChannelController extends AbstractController
         );
     }
 
-    private function filterShippingMethodsByRules(
-        Request $request,
-        CheckoutContext $context
+    private function filterMethodsByRules(
+        Criteria $criteria,
+        CheckoutContext $context,
+        EntityRepositoryInterface $entityRepository
     ): EntitySearchResult {
-        $criteria = $this->createCriteria($request, ShippingMethodDefinition::class, $context);
-
-        $shippingMethods = $this->shippingMethodRepository->search($criteria, $context->getContext());
-        /** @var ShippingMethodCollection $shippingMethodEntities */
-        $shippingMethodEntities = $shippingMethods->getEntities();
-        $shippingMethodEntities = $shippingMethodEntities->filterByActiveRules($context);
+        $searchResult = $entityRepository->search($criteria, $context->getContext());
+        /** @var ShippingMethodCollection|PaymentMethodCollection $entities */
+        $entities = $searchResult->getEntities();
+        $entities = $entities->filterByActiveRules($context);
 
         return new EntitySearchResult(
-            $shippingMethods->getTotal() - ($shippingMethods->getEntities()->count() - $shippingMethodEntities->count()),
-            $shippingMethodEntities,
-            $shippingMethods->getAggregations(),
-            $shippingMethods->getCriteria(),
-            $shippingMethods->getContext()
+            $searchResult->getTotal() - ($searchResult->getEntities()->count() - $entities->count()),
+            $entities,
+            $searchResult->getAggregations(),
+            $searchResult->getCriteria(),
+            $searchResult->getContext()
         );
     }
 

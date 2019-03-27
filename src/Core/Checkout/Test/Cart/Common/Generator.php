@@ -103,7 +103,7 @@ class Generator extends TestCase
         }
 
         if (!$paymentMethod) {
-            $paymentMethod = (new PaymentMethodEntity())->assign(['id' => '19d144ffe15f4772860d59fca7f207c1']);
+            $paymentMethod = (new PaymentMethodEntity())->assign(['id' => '19d144ffe15f4772860d59fca7f207c1', 'technicalName' => Uuid::uuid4()->getHex()]);
         }
 
         $shippingMethod = new ShippingMethodEntity();

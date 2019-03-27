@@ -7,6 +7,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Attribute\AttributeTypes;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Context\SystemSource;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -14,7 +15,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\EntityAggregatorInterfac
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\VersionManager;
-use Shopware\Core\Framework\SourceContext;
 use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\AttributesTestDefinition;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\AttributesTestTranslationDefinition;
@@ -132,7 +132,7 @@ class AttributesFieldTranslationTest extends TestCase
         static::assertEquals($expectedViewData, $result->getViewData()->get('translatedAttributes'));
 
         $chain = [Defaults::LANGUAGE_SYSTEM_DE, Defaults::LANGUAGE_SYSTEM];
-        $context = new Context(new SourceContext(), [], Defaults::CURRENCY, $chain);
+        $context = new Context(new SystemSource(), [], Defaults::CURRENCY, $chain);
         $result = $repo->search(new Criteria([$id]), $context)->first();
         $expected = ['code' => 'de_DE', 'de' => 'de'];
         static::assertEquals($expected, $result->get('translatedAttributes'));
@@ -140,7 +140,7 @@ class AttributesFieldTranslationTest extends TestCase
         static::assertEquals($expectedViewData, $result->getViewData()->get('translatedAttributes'));
 
         $chain = [$rootLanguageId, Defaults::LANGUAGE_SYSTEM];
-        $context = new Context(new SourceContext(), [], Defaults::CURRENCY, $chain);
+        $context = new Context(new SystemSource(), [], Defaults::CURRENCY, $chain);
         $result = $repo->search(new Criteria([$id]), $context)->first();
         $expected = ['code' => 'root', 'root' => 'root'];
         static::assertEquals($expected, $result->get('translatedAttributes'));
@@ -148,7 +148,7 @@ class AttributesFieldTranslationTest extends TestCase
         static::assertEquals($expectedViewData, $result->getViewData()->get('translatedAttributes'));
 
         $chain = [$childLanguageId, $rootLanguageId, Defaults::LANGUAGE_SYSTEM];
-        $context = new Context(new SourceContext(), [], Defaults::CURRENCY, $chain);
+        $context = new Context(new SystemSource(), [], Defaults::CURRENCY, $chain);
         $result = $repo->search(new Criteria([$id]), $context)->first();
         $expected = ['code' => 'child', 'child' => 'child'];
         static::assertEquals($expected, $result->get('translatedAttributes'));
@@ -201,7 +201,7 @@ class AttributesFieldTranslationTest extends TestCase
         $repo->create([$entity], Context::createDefaultContext());
 
         // system
-        $context = new Context(new SourceContext(), [], Defaults::CURRENCY, [Defaults::LANGUAGE_SYSTEM]);
+        $context = new Context(new SystemSource(), [], Defaults::CURRENCY, [Defaults::LANGUAGE_SYSTEM]);
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('translatedAttributes.systemFloat', 1.0));
@@ -236,7 +236,7 @@ class AttributesFieldTranslationTest extends TestCase
         static::assertEquals(array_combine($expected, $expected), $result->getIds());
 
         // root -> system
-        $context = new Context(new SourceContext(), [], Defaults::CURRENCY, [$rootId, Defaults::LANGUAGE_SYSTEM]);
+        $context = new Context(new SystemSource(), [], Defaults::CURRENCY, [$rootId, Defaults::LANGUAGE_SYSTEM]);
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('translatedAttributes.systemFloat', 1.0));
@@ -271,7 +271,7 @@ class AttributesFieldTranslationTest extends TestCase
         static::assertEquals(array_combine($expected, $expected), $result->getIds());
 
         // child -> root -> system
-        $context = new Context(new SourceContext(), [], Defaults::CURRENCY, [$childId, $rootId, Defaults::LANGUAGE_SYSTEM]);
+        $context = new Context(new SystemSource(), [], Defaults::CURRENCY, [$childId, $rootId, Defaults::LANGUAGE_SYSTEM]);
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('translatedAttributes.systemFloat', 1.0));
@@ -362,7 +362,7 @@ class AttributesFieldTranslationTest extends TestCase
         $repo->create($entities, Context::createDefaultContext());
 
         // system
-        $context = new Context(new SourceContext(), [], Defaults::CURRENCY, [Defaults::LANGUAGE_SYSTEM]);
+        $context = new Context(new SystemSource(), [], Defaults::CURRENCY, [Defaults::LANGUAGE_SYSTEM]);
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('translatedAttributes.parent', 'inherited attribute'));
@@ -404,7 +404,7 @@ class AttributesFieldTranslationTest extends TestCase
         static::assertEquals(array_combine($expected, $expected), $result->getIds());
 
         // root -> system
-        $context = new Context(new SourceContext(), [], Defaults::CURRENCY, [$rootId, Defaults::LANGUAGE_SYSTEM]);
+        $context = new Context(new SystemSource(), [], Defaults::CURRENCY, [$rootId, Defaults::LANGUAGE_SYSTEM]);
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('translatedAttributes.parent', 'inherited attribute'));
@@ -446,7 +446,7 @@ class AttributesFieldTranslationTest extends TestCase
         static::assertEquals(array_combine($expected, $expected), $result->getIds());
 
         // child -> root -> system
-        $context = new Context(new SourceContext(), [], Defaults::CURRENCY, [$childId, $rootId, Defaults::LANGUAGE_SYSTEM]);
+        $context = new Context(new SystemSource(), [], Defaults::CURRENCY, [$childId, $rootId, Defaults::LANGUAGE_SYSTEM]);
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('translatedAttributes.parent', 'inherited attribute'));

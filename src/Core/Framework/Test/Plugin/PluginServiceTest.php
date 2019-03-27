@@ -6,12 +6,12 @@ use Composer\IO\NullIO;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Context\SystemSource;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Plugin\Exception\PluginNotFoundException;
 use Shopware\Core\Framework\Plugin\PluginEntity;
 use Shopware\Core\Framework\Plugin\PluginService;
-use Shopware\Core\Framework\SourceContext;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
 class PluginServiceTest extends TestCase
@@ -70,7 +70,7 @@ class PluginServiceTest extends TestCase
 
     public function testRefreshPluginsWithGermanContext(): void
     {
-        $context = new Context(new SourceContext(), [], Defaults::CURRENCY, [Defaults::LANGUAGE_SYSTEM_DE]);
+        $context = new Context(new SystemSource(), [], Defaults::CURRENCY, [Defaults::LANGUAGE_SYSTEM_DE]);
 
         $this->pluginService->refreshPlugins($context, new NullIO());
 

@@ -128,7 +128,7 @@ class OrderPersisterTest extends TestCase
         $checkoutContext->method('getCustomer')->willReturn($customer);
 
         $context = Context::createDefaultContext();
-        $salesChannel->setId($context->getSourceContext()->getSalesChannelId());
+        $salesChannel->setId($context->getSalesChannelId());
         $checkoutContext->method('getSalesChannel')->willReturn($salesChannel);
         $checkoutContext->method('getContext')->willReturn($context);
 

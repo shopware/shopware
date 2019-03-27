@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Framework\Seo\SeoUrl;
 
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AttributesField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
@@ -16,7 +17,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\UpdatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
-use Shopware\Core\Framework\SourceContext;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 
 class SeoUrlDefinition extends EntityDefinition
@@ -52,7 +52,7 @@ class SeoUrlDefinition extends EntityDefinition
             new BoolField('is_deleted', 'isDeleted'),
             new BoolField('is_valid', 'isValid'),
 
-            (new IntField('auto_increment', 'autoIncrement'))->addFlags(new WriteProtected(SourceContext::ORIGIN_SYSTEM)),
+            (new IntField('auto_increment', 'autoIncrement'))->addFlags(new WriteProtected(Context::SYSTEM_SCOPE)),
 
             new AttributesField(),
             new CreatedAtField(),

@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Api\ApiDefinition\Generator;
 
 use Shopware\Core\Framework\Api\ApiDefinition\ApiDefinitionGeneratorInterface;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationInterface;
@@ -27,7 +28,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\MappingEntityDefinition;
-use Shopware\Core\Framework\SourceContext;
 use Shopware\Core\Framework\Struct\Uuid;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -281,7 +281,7 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
 
         /** @var WriteProtected|null $writeProtection */
         $writeProtection = $jsonField->getFlag(WriteProtected::class);
-        if ($writeProtection && !$writeProtection->isAllowed(SourceContext::ORIGIN_API)) {
+        if ($writeProtection && !$writeProtection->isAllowed(Context::USER_SCOPE)) {
             $definition['readOnly'] = true;
         }
 
@@ -382,7 +382,7 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
 
             /** @var WriteProtected|null $writeProtectedFlag */
             $writeProtectedFlag = $field->getFlag(WriteProtected::class);
-            if (\in_array($field->getPropertyName(), ['createdAt', 'updatedAt'], true) || ($writeProtectedFlag && !$writeProtectedFlag->isAllowed(SourceContext::ORIGIN_API))) {
+            if (\in_array($field->getPropertyName(), ['createdAt', 'updatedAt'], true) || ($writeProtectedFlag && !$writeProtectedFlag->isAllowed(Context::USER_SCOPE))) {
                 $attr['readOnly'] = true;
             }
 
@@ -1083,7 +1083,7 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
 
                 /** @var WriteProtected|null $writeProtectedFlag */
                 $writeProtectedFlag = $field->getFlag(WriteProtected::class);
-                if ($writeProtectedFlag && !$writeProtectedFlag->isAllowed(SourceContext::ORIGIN_API)) {
+                if ($writeProtectedFlag && !$writeProtectedFlag->isAllowed(Context::USER_SCOPE)) {
                     $schema['readOnly'] = true;
                 }
 
@@ -1097,7 +1097,7 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
 
                 /** @var WriteProtected|null $writeProtectedFlag */
                 $writeProtectedFlag = $field->getFlag(WriteProtected::class);
-                if ($writeProtectedFlag && !$writeProtectedFlag->isAllowed(SourceContext::ORIGIN_API)) {
+                if ($writeProtectedFlag && !$writeProtectedFlag->isAllowed(Context::USER_SCOPE)) {
                     $schema['readOnly'] = true;
                 }
 
@@ -1111,7 +1111,7 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
 
                 /** @var WriteProtected|null $writeProtectedFlag */
                 $writeProtectedFlag = $field->getFlag(WriteProtected::class);
-                if ($writeProtectedFlag && !$writeProtectedFlag->isAllowed(SourceContext::ORIGIN_API)) {
+                if ($writeProtectedFlag && !$writeProtectedFlag->isAllowed(Context::USER_SCOPE)) {
                     $schema['readOnly'] = true;
                 }
 
@@ -1125,7 +1125,7 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
 
                 /** @var WriteProtected|null $writeProtectedFlag */
                 $writeProtectedFlag = $field->getFlag(WriteProtected::class);
-                if ($writeProtectedFlag && !$writeProtectedFlag->isAllowed(SourceContext::ORIGIN_API)) {
+                if ($writeProtectedFlag && !$writeProtectedFlag->isAllowed(Context::USER_SCOPE)) {
                     $schema['readOnly'] = true;
                 }
 

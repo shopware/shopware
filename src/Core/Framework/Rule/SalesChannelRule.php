@@ -32,14 +32,14 @@ class SalesChannelRule extends Rule
             case self::OPERATOR_EQ:
 
                 return new Match(
-                    \in_array($context->getSourceContext()->getSalesChannelId(), $this->salesChannelIds, true),
+                    \in_array($context->getSalesChannelId(), $this->salesChannelIds, true),
                     ['SalesChannel not matched']
                 );
 
             case self::OPERATOR_NEQ:
 
                 return new Match(
-                    !\in_array($context->getSourceContext()->getSalesChannelId(), $this->salesChannelIds, true),
+                    !\in_array($context->getSalesChannelId(), $this->salesChannelIds, true),
                     ['SalesChannel matched']
                 );
 

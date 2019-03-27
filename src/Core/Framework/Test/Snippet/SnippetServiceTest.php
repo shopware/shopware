@@ -6,10 +6,10 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Context\SystemSource;
 use Shopware\Core\Framework\Snippet\Files\SnippetFileCollection;
 use Shopware\Core\Framework\Snippet\Filter\SnippetFilterFactory;
 use Shopware\Core\Framework\Snippet\SnippetService;
-use Shopware\Core\Framework\SourceContext;
 use Shopware\Core\Framework\Test\Snippet\_fixtures\SnippetFileMock;
 use Shopware\Core\Framework\Test\Snippet\_fixtures\testEmptyList\EmptySnippetFile;
 use Shopware\Core\Framework\Test\Snippet\_fixtures\testGetList\SnippetFile_bar_bar;
@@ -252,7 +252,7 @@ class SnippetServiceTest extends TestCase
         $collection->add(new SnippetFile_foo_foo());
         $collection->add(new SnippetFile_bar_bar());
 
-        $context = new Context(new SourceContext());
+        $context = new Context(new SystemSource());
 
         $service = new SnippetService(
             $this->getContainer()->get(Connection::class),
@@ -323,7 +323,7 @@ class SnippetServiceTest extends TestCase
             $this->getContainer()->get(SnippetFilterFactory::class)
         );
 
-        $result = $service->getList(0, 25, new Context(new SourceContext()), [], []);
+        $result = $service->getList(0, 25, new Context(new SystemSource()), [], []);
 
         static::assertSame(['total' => 0, 'data' => []], $result);
     }

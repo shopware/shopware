@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\MessageQueue;
 
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
@@ -11,7 +12,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\IntField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
-use Shopware\Core\Framework\SourceContext;
 
 class MessageQueueStatsDefinition extends EntityDefinition
 {
@@ -40,9 +40,9 @@ class MessageQueueStatsDefinition extends EntityDefinition
     protected static function defineFields(): FieldCollection
     {
         return new FieldCollection([
-            (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required(), new WriteProtected(SourceContext::ORIGIN_SYSTEM)),
-            (new StringField('name', 'name'))->setFlags(new Required(), new WriteProtected(SourceContext::ORIGIN_SYSTEM)),
-            (new IntField('size', 'size', 0))->setFlags(new Required(), new WriteProtected(SourceContext::ORIGIN_SYSTEM)),
+            (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required(), new WriteProtected(Context::SYSTEM_SCOPE)),
+            (new StringField('name', 'name'))->setFlags(new Required(), new WriteProtected(Context::SYSTEM_SCOPE)),
+            (new IntField('size', 'size', 0))->setFlags(new Required(), new WriteProtected(Context::SYSTEM_SCOPE)),
         ]);
     }
 }

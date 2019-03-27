@@ -8,7 +8,6 @@ use Shopware\Core\Content\Media\TypeDetector\TypeDetector;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\SourceContext;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -129,7 +128,7 @@ class GenerateMediaTypesCommand extends Command
         $type = $this->typeDetector->detect($file);
         $changeSet = ['id' => $media->getId(), 'mediaTypeRaw' => serialize($type)];
 
-        $context->scope(SourceContext::ORIGIN_SYSTEM, function (Context $context) use ($changeSet) {
+        $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($changeSet) {
             $this->mediaRepository->upsert([$changeSet], $context);
         });
     }

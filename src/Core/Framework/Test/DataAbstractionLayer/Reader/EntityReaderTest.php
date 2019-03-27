@@ -94,7 +94,7 @@ class EntityReaderTest extends TestCase
         $this->productRepository->create([$product], $context);
 
         $context = new Context(
-            $context->getSourceContext(),
+            $context->getSource(),
             $context->getRules(),
             $context->getCurrencyId(),
             [$subLanguageId, Defaults::LANGUAGE_SYSTEM]
@@ -153,7 +153,7 @@ class EntityReaderTest extends TestCase
         $this->productRepository->create([$product], $context);
 
         $context = new Context(
-            $context->getSourceContext(),
+            $context->getSource(),
             $context->getRules(),
             $context->getCurrencyId(),
             [$subLanguageId, Defaults::LANGUAGE_SYSTEM]

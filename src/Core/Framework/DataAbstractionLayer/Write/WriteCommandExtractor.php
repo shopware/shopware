@@ -346,15 +346,15 @@ class WriteCommandExtractor
         /** @var WriteProtected $flag */
         $flag = $field->getFlag(WriteProtected::class);
 
-        if ($flag->isAllowed($parameters->getContext()->getContext()->getSourceContext()->getOrigin())) {
+        if ($flag->isAllowed($parameters->getContext()->getContext()->getScope())) {
             return;
         }
 
         $message = 'This field is write-protected.';
         $allowedOrigins = '';
-        if ($flag->getAllowedOrigins()) {
+        if ($flag->getAllowedScopes()) {
             $message .= ' (Got: %s and %s is required)';
-            $allowedOrigins = implode(' or ', $flag->getAllowedOrigins());
+            $allowedOrigins = implode(' or ', $flag->getAllowedScopes());
         }
 
         $violationList = new ConstraintViolationList();
@@ -362,12 +362,12 @@ class WriteCommandExtractor
             new ConstraintViolation(
                 sprintf(
                     $message,
-                    $parameters->getContext()->getContext()->getSourceContext()->getOrigin(),
+                    $parameters->getContext()->getContext()->getScope(),
                     $allowedOrigins
                 ),
                 $message,
                 [
-                    $parameters->getContext()->getContext()->getSourceContext()->getOrigin(),
+                    $parameters->getContext()->getContext()->getScope(),
                     $allowedOrigins,
                 ],
                 $data->getValue(),

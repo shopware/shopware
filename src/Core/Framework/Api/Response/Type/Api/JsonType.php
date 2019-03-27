@@ -4,10 +4,11 @@ namespace Shopware\Core\Framework\Api\Response\Type\Api;
 
 use Shopware\Core\Framework\Api\Response\Type\JsonFactoryBase;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Context\AdminApiSource;
+use Shopware\Core\Framework\Context\ContextSource;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
-use Shopware\Core\Framework\SourceContext;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -25,9 +26,9 @@ class JsonType extends JsonFactoryBase
         $this->serializer = $serializer;
     }
 
-    public function supports(string $contentType, string $origin): bool
+    public function supports(string $contentType, ContextSource $origin): bool
     {
-        return $contentType === 'application/json' && $origin === SourceContext::ORIGIN_API;
+        return $contentType === 'application/json' && $origin instanceof AdminApiSource;
     }
 
     public function createDetailResponse(Entity $entity, string $definition, Request $request, Context $context, bool $setLocationHeader = false): Response

@@ -2,8 +2,8 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Field;
 
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\WriteProtected;
-use Shopware\Core\Framework\SourceContext;
 
 class TreeLevelField extends IntField
 {
@@ -11,6 +11,6 @@ class TreeLevelField extends IntField
     {
         parent::__construct($storageName, $propertyName);
 
-        $this->addFlags(new WriteProtected(SourceContext::ORIGIN_SYSTEM));
+        $this->addFlags(new WriteProtected(Context::SYSTEM_SCOPE));
     }
 }

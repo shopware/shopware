@@ -10,7 +10,6 @@ use Shopware\Core\Framework\MessageQueue\Exception\MessageFailedException;
 use Shopware\Core\Framework\MessageQueue\Message\RetryMessage;
 use Shopware\Core\Framework\MessageQueue\Stamp\DecryptedStamp;
 use Shopware\Core\Framework\ScheduledTask\ScheduledTask;
-use Shopware\Core\Framework\SourceContext;
 use Shopware\Core\Framework\Struct\Uuid;
 use Symfony\Component\Messenger\Envelope;
 use Symfony\Component\Messenger\Middleware\MiddlewareInterface;
@@ -61,7 +60,7 @@ class RetryMiddleware implements MiddlewareInterface
 
     private function createDeadMessageFromEnvelope(Envelope $envelope, MessageFailedException $e): void
     {
-        $this->context->scope(SourceContext::ORIGIN_SYSTEM, function () use ($envelope, $e) {
+        $this->context->scope(Context::SYSTEM_SCOPE, function () use ($envelope, $e) {
             $encrypted = count($envelope->all(DecryptedStamp::class)) > 0;
             $scheduledTaskId = null;
             if ($envelope->getMessage() instanceof ScheduledTask) {
@@ -113,7 +112,7 @@ class RetryMiddleware implements MiddlewareInterface
 
     private function incrementErrorCount(DeadMessageEntity $deadMessage): void
     {
-        $this->context->scope(SourceContext::ORIGIN_SYSTEM, function () use ($deadMessage) {
+        $this->context->scope(Context::SYSTEM_SCOPE, function () use ($deadMessage) {
             $this->deadMessageRepository->update([
                 [
                     'id' => $deadMessage->getId(),
@@ -126,7 +125,7 @@ class RetryMiddleware implements MiddlewareInterface
 
     private function createDeadMessageFromExistingMessage(DeadMessageEntity $message, MessageFailedException $e): void
     {
-        $this->context->scope(SourceContext::ORIGIN_SYSTEM, function () use ($message, $e) {
+        $this->context->scope(Context::SYSTEM_SCOPE, function () use ($message, $e) {
             $id = Uuid::uuid4()->getHex();
             $this->deadMessageRepository->create([
                 [

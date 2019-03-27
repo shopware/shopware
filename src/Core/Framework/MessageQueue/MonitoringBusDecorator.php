@@ -6,7 +6,6 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\SourceContext;
 use Symfony\Component\Messenger\Envelope;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Messenger\Stamp\ReceivedStamp;
@@ -75,7 +74,7 @@ class MonitoringBusDecorator implements MessageBusInterface
         $queueSize = $this->messageQueueRepository->search($criteria, $context)->first();
 
         if (!$queueSize) {
-            $context->scope(SourceContext::ORIGIN_SYSTEM, function () use ($name, $context) {
+            $context->scope(Context::SYSTEM_SCOPE, function () use ($name, $context) {
                 $this->messageQueueRepository->create([
                     [
                         'name' => $name,
@@ -87,7 +86,7 @@ class MonitoringBusDecorator implements MessageBusInterface
             return;
         }
 
-        $context->scope(SourceContext::ORIGIN_SYSTEM, function () use ($queueSize, $context) {
+        $context->scope(Context::SYSTEM_SCOPE, function () use ($queueSize, $context) {
             $this->messageQueueRepository->update([
                 [
                     'id' => $queueSize->getId(),
@@ -110,7 +109,7 @@ class MonitoringBusDecorator implements MessageBusInterface
             return;
         }
 
-        $context->scope(SourceContext::ORIGIN_SYSTEM, function () use ($queueSize, $context) {
+        $context->scope(Context::SYSTEM_SCOPE, function () use ($queueSize, $context) {
             $this->messageQueueRepository->update([
                 [
                     'id' => $queueSize->getId(),

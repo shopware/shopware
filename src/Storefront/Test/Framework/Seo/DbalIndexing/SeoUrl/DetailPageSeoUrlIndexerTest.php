@@ -8,10 +8,10 @@ use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Context\SalesChannelApiSource;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\SourceContext;
 use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
@@ -242,9 +242,7 @@ class DetailPageSeoUrlIndexerTest extends TestCase
         $this->upsertProduct(['id' => $id, 'name' => 'awesome product improved']);
         $this->upsertProduct(['id' => $id, 'name' => 'awesome product improved']);
 
-        $sourceContext = new SourceContext(SourceContext::ORIGIN_STOREFRONT_API);
-        $sourceContext->setSalesChannelId($salesChannel->getId());
-        $context = new Context($sourceContext);
+        $context = new Context(new SalesChannelApiSource($salesChannel->getId()));
         /** @var ProductEntity $first */
         $first = $this->productRepository->search(new Criteria([$id]), $context)->first();
 
@@ -320,10 +318,7 @@ class DetailPageSeoUrlIndexerTest extends TestCase
 
     private function createContext(SalesChannelEntity $salesChannel): Context
     {
-        $sourceContext = new SourceContext(SourceContext::ORIGIN_STOREFRONT_API);
-        $sourceContext->setSalesChannelId($salesChannel->getId());
-
-        return new Context($sourceContext);
+        return new Context(new SalesChannelApiSource($salesChannel->getId()));
     }
 
     private function getSeoUrls(string $salesChannelId, string $productId): SeoUrlCollection

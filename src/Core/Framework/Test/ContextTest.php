@@ -5,7 +5,7 @@ namespace Shopware\Core\Framework\Test;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\SourceContext;
+use Shopware\Core\Framework\Context\SystemSource;
 use Shopware\Core\Framework\Struct\ArrayEntity;
 use Shopware\Core\Framework\Struct\Uuid;
 
@@ -15,7 +15,8 @@ class ContextTest extends TestCase
     {
         $context = Context::createDefaultContext();
 
-        static::assertEquals(SourceContext::ORIGIN_SYSTEM, $context->getSourceContext()->getOrigin());
+        static::assertInstanceOf(SystemSource::class, $context->getSource());
+        static::assertEquals(Context::SYSTEM_SCOPE, $context->getScope());
         static::assertEquals([], $context->getRules());
         static::assertEquals(Defaults::LIVE_VERSION, $context->getVersionId());
     }
@@ -24,13 +25,13 @@ class ContextTest extends TestCase
     {
         $context = Context::createDefaultContext();
 
-        static::assertEquals(SourceContext::ORIGIN_SYSTEM, $context->getSourceContext()->getOrigin());
+        static::assertEquals(Context::SYSTEM_SCOPE, $context->getScope());
 
         $context->scope('foo', function (Context $context) {
-            static::assertEquals('foo', $context->getSourceContext()->getOrigin());
+            static::assertEquals('foo', $context->getScope());
         });
 
-        static::assertEquals(SourceContext::ORIGIN_SYSTEM, $context->getSourceContext()->getOrigin());
+        static::assertEquals(Context::SYSTEM_SCOPE, $context->getScope());
     }
 
     public function testVersionChange(): void

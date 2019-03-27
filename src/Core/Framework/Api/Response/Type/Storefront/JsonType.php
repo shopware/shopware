@@ -3,14 +3,15 @@
 namespace Shopware\Core\Framework\Api\Response\Type\Storefront;
 
 use Shopware\Core\Framework\Api\Response\Type\Api;
-use Shopware\Core\Framework\SourceContext;
+use Shopware\Core\Framework\Context\ContextSource;
+use Shopware\Core\Framework\Context\SalesChannelApiSource;
 use Symfony\Component\HttpFoundation\Request;
 
 class JsonType extends Api\JsonType
 {
-    public function supports(string $contentType, string $origin): bool
+    public function supports(string $contentType, ContextSource $origin): bool
     {
-        return $contentType === 'application/json' && $origin === SourceContext::ORIGIN_STOREFRONT_API;
+        return $contentType === 'application/json' && $origin instanceof SalesChannelApiSource;
     }
 
     protected function getApiBaseUrl(Request $request): string

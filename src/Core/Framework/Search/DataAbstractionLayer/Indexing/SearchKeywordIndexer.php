@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\Search\DataAbstractionLayer\Indexing;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Context\SystemSource;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IndexTableOperator;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\LastIdQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
@@ -20,7 +21,6 @@ use Shopware\Core\Framework\Event\ProgressAdvancedEvent;
 use Shopware\Core\Framework\Event\ProgressFinishedEvent;
 use Shopware\Core\Framework\Event\ProgressStartedEvent;
 use Shopware\Core\Framework\Search\Util\SearchAnalyzerRegistry;
-use Shopware\Core\Framework\SourceContext;
 use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\System\Language\LanguageEntity;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -103,13 +103,10 @@ class SearchKeywordIndexer implements IndexerInterface
 
         $languages = $this->languageRepository->search(new Criteria(), Context::createDefaultContext());
 
-        $sourceContext = new SourceContext();
-        $sourceContext->setSalesChannelId(Defaults::SALES_CHANNEL);
-
         /** @var LanguageEntity $language */
         foreach ($languages as $language) {
             $context = new Context(
-                $sourceContext,
+                new SystemSource(),
                 [],
                 Defaults::CURRENCY,
                 [$language->getId(), $language->getParent(), Defaults::LANGUAGE_SYSTEM],

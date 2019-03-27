@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\Media\Aggregate\MediaThumbnail;
 
 use Shopware\Core\Content\Media\MediaDefinition;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AttributesField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CreatedAtField;
@@ -17,7 +18,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\UpdatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
-use Shopware\Core\Framework\SourceContext;
 
 class MediaThumbnailDefinition extends EntityDefinition
 {
@@ -50,8 +50,8 @@ class MediaThumbnailDefinition extends EntityDefinition
 
             new CreatedAtField(),
             new UpdatedAtField(),
-            (new IntField('width', 'width'))->addFlags(new Required(), new WriteProtected(SourceContext::ORIGIN_SYSTEM)),
-            (new IntField('height', 'height'))->addFlags(new Required(), new WriteProtected(SourceContext::ORIGIN_SYSTEM)),
+            (new IntField('width', 'width'))->addFlags(new Required(), new WriteProtected(Context::SYSTEM_SCOPE)),
+            (new IntField('height', 'height'))->addFlags(new Required(), new WriteProtected(Context::SYSTEM_SCOPE)),
             (new StringField('url', 'url'))->addFlags(new Deferred()),
 
             new ManyToOneAssociationField('media', 'media_id', MediaDefinition::class, false),

@@ -99,7 +99,7 @@ class StoreController extends AbstractController
             throw new StoreInvalidCredentialsException();
         }
 
-        $userId = $context->getSourceContext()->getUserId();
+        $userId = $context->getUserId();
         try {
             $accessTokenStruct = $this->storeClient->loginWithShopwareId($shopwareId, $password, $context);
         } catch (ClientException $exception) {
@@ -226,7 +226,7 @@ class StoreController extends AbstractController
 
     private function getUserStoreToken(Context $context): string
     {
-        $userId = $context->getSourceContext()->getUserId();
+        $userId = $context->getUserId();
 
         /** @var UserEntity|null $user */
         $user = $this->userRepository->search(new Criteria([$userId]), $context)->first();

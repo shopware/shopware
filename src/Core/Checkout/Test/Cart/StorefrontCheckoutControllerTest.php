@@ -778,7 +778,7 @@ class StorefrontCheckoutControllerTest extends TestCase
 
         $this->customerRepository->create([
             [
-                'salesChannelId' => $context->getSourceContext()->getSalesChannelId(),
+                'salesChannelId' => $context->getSalesChannelId(),
                 'defaultShippingAddress' => [
                     'id' => $addressId,
                     'firstName' => 'not',

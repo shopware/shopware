@@ -28,7 +28,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
-use Shopware\Core\Framework\SourceContext;
 use Symfony\Component\Messenger\MessageBusInterface;
 
 class FileSaver
@@ -212,7 +211,7 @@ class FileSaver
         ];
 
         try {
-            $context->scope(SourceContext::ORIGIN_SYSTEM, function (Context $context) use ($updateData) {
+            $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($updateData) {
                 $this->mediaRepository->update([$updateData], $context);
             });
         } catch (\Exception $e) {
@@ -285,7 +284,7 @@ class FileSaver
     ): MediaEntity {
         $data = [
             'id' => $media->getId(),
-            'userId' => $context->getSourceContext()->getUserId(),
+            'userId' => $context->getUserId(),
             'mimeType' => $mediaFile->getMimeType(),
             'fileExtension' => $mediaFile->getFileExtension(),
             'fileSize' => $mediaFile->getFileSize(),
@@ -295,7 +294,7 @@ class FileSaver
             'uploadedAt' => new \DateTime(),
         ];
 
-        $context->scope(SourceContext::ORIGIN_SYSTEM, function (Context $context) use ($data) {
+        $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($data) {
             $this->mediaRepository->update([$data], $context);
         });
 

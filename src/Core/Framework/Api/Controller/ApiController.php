@@ -8,6 +8,7 @@ use Shopware\Core\Framework\Api\OAuth\Scope\WriteScope;
 use Shopware\Core\Framework\Api\Response\ResponseFactoryInterface;
 use Shopware\Core\Framework\Api\Response\Type\Api\JsonType;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Context\AdminApiSource;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
@@ -91,7 +92,9 @@ class ApiController extends AbstractController
         $term = $request->query->get('term');
         $limit = $request->query->getInt('limit', 20);
 
-        $result = $this->compositeEntitySearcher->search($term, $limit, $context, $context->getSourceContext()->getUserId());
+        /** @var AdminApiSource $source */
+        $source = $context->getSource();
+        $result = $this->compositeEntitySearcher->search($term, $limit, $context, $source->getUserId());
 
         $result = json_decode(json_encode($result), true);
 

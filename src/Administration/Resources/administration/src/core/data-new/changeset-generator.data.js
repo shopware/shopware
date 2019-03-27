@@ -2,25 +2,38 @@ export default class ChangesetGenerator {
     constructor(schema) {
         this.schema = schema;
         this.scalar = ['uuid', 'int', 'text', 'password', 'float', 'string', 'blob', 'boolean', 'date'];
+        this.jsonTypes = ['json_list', 'json_object'];
     }
 
-    generate(entity, deletionQueue = []) {
+    generate(entity) {
+        const deletionQueue = [];
+        const changes = this.recursion(entity, deletionQueue);
+
+        return { changes, deletionQueue };
+    }
+
+    /**
+     * @private
+     * @param {Entity} entity
+     * @param deletionQueue
+     * @returns {null}
+     */
+    recursion(entity, deletionQueue) {
         const definition = this.schema[entity.getEntityName()];
         const changes = {};
-
-        const jsonTypes = ['json_list', 'json_object'];
 
         const origin = entity.getOrigin();
         const draft = entity.getDraft();
 
-        Object.entries(definition.properties).forEach(([property, type]) => {
-            const draftValue = draft[property];
-            const originValue = origin[property];
-
+        Object.keys(definition.properties).forEach((property) => {
+            const type = definition.properties[property];
             // skip read only
             if (type.readOnly) {
                 return true;
             }
+
+            const draftValue = draft[property];
+            const originValue = origin[property];
 
             if (this.scalar.includes(type.type)) {
                 if (draftValue !== originValue) {
@@ -29,7 +42,7 @@ export default class ChangesetGenerator {
                 }
             }
 
-            if (jsonTypes.includes(type.type)) {
+            if (this.jsonTypes.includes(type.type)) {
                 const equals = JSON.stringify(originValue) === JSON.stringify(draftValue);
 
                 if (!equals) {
@@ -83,16 +96,23 @@ export default class ChangesetGenerator {
         return null;
     }
 
+    /**
+     * @private
+     * @param draft
+     * @param origin
+     * @param deletionQueue
+     * @returns {Array}
+     */
     handleManyToMany(draft, origin, deletionQueue) {
         const changes = [];
         const originIds = Object.keys(origin);
 
-        Object.entries(draft).forEach((entity) => {
+        Object.keys(draft).forEach((key) => {
+            const entity = draft[key];
+
             if (!originIds.includes(entity.id)) {
                 changes.push({ id: entity.id });
             }
-
-            return true;
         });
 
         originIds.forEach((id) => {
@@ -110,7 +130,8 @@ export default class ChangesetGenerator {
         const originIds = Object.keys(origin);
 
         // check for new and updated items
-        Object.entries(draft).forEach(([key, entity]) => {
+        Object.keys(draft).forEach((key) => {
+            const entity = draft[key];
             // new record?
             if (!originIds.includes(key)) {
                 changes.push(entity.getDraft());

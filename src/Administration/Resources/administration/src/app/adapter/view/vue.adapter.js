@@ -33,7 +33,9 @@ export default function VueAdapter(context, componentFactory, stateFactory, filt
         getComponent,
         getComponents,
         getWrapper,
-        getName
+        getName,
+        setReactive,
+        deleteReactive
     };
 
     /**
@@ -291,5 +293,20 @@ export default function VueAdapter(context, componentFactory, stateFactory, filt
      */
     function getName() {
         return 'Vue.js';
+    }
+
+    /**
+     * Allows to set a object property over Vue
+     * @param {Object} object
+     * @param {String} property
+     * @param {*} value
+     * @returns {*}
+     */
+    function setReactive(object, property, value) {
+        return Vue.set(object, property, value);
+    }
+
+    function deleteReactive(object, key) {
+        return Vue.delete(object, key);
     }
 }

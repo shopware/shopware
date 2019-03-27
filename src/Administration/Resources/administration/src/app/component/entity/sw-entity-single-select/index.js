@@ -19,13 +19,11 @@ export default {
             required: true,
             type: String
         },
-
         keyProperty: {
             type: String,
             required: false,
             default: 'id'
         },
-
         valueProperty: {
             type: String,
             required: false,
@@ -45,13 +43,15 @@ export default {
         createdComponent() {
             this.repository = this.repositoryFactory.create(this.entity);
 
-            this.repository.on('loaded', (result) => {
+            this.repository.on('finish.loading', (result) => {
                 if (this.silent) {
                     return;
                 }
 
                 this.applyResult(result);
             });
+
+            this.$on('scroll', this.paginate);
 
             this.$super.createdComponent();
         },
@@ -65,7 +65,11 @@ export default {
             });
         },
 
-        paginate() {
+        paginate(event) {
+            if (this.getDistFromBottom(event.target) !== 0) {
+                return;
+            }
+
             this.page += 1;
             this.load();
         },
@@ -105,6 +109,10 @@ export default {
             this.currentOptions = [];
             this.page = 1;
             this.load();
-        }, 400)
+        }, 400),
+
+        getDistFromBottom(element) {
+            return element.scrollHeight - element.clientHeight - element.scrollTop;
+        }
     }
 };

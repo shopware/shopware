@@ -31,10 +31,9 @@ class JsonApiEncoder
      *
      * @throws UnsupportedEncoderInputException
      */
-    public function encode(string $definition, $data, array $metaData = []): string
+    public function encode(string $definition, $data, string $baseUrl, array $metaData = []): string
     {
-        //todo remove base url
-        $result = new JsonApiEncodingResult('');
+        $result = new JsonApiEncodingResult($baseUrl);
 
         if (!$data instanceof EntityCollection && !$data instanceof Entity) {
             throw new UnsupportedEncoderInputException();

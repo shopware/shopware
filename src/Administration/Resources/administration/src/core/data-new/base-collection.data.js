@@ -1,15 +1,14 @@
-import Vue from 'vue';
-import EventEmitter from 'events';
+import { warn } from 'src/core/service/utils/debug.utils';
 import types from 'src/core/service/utils/types.utils';
 
-export default class BaseCollection extends EventEmitter {
-    constructor(source, entity, context, criteria) {
-        super();
+export default class BaseCollection {
+    constructor(source, entity, context, criteria, view) {
         this.source = source;
         this.context = context;
         this.criteria = criteria;
         this.elements = {};
         this.entity = entity;
+        this.view = view;
 
         // makes the collection iterable via for(const item of collection)
         this[Symbol.iterator] = function* iterator() {
@@ -47,11 +46,7 @@ export default class BaseCollection extends EventEmitter {
 
         const entity = this.get(id);
 
-        this.emit('removing', entity);
-
-        Vue.delete(this.elements, id);
-
-        this.emit('removed', entity);
+        this.view.deleteReactive(this.elements, entity.id);
 
         return true;
     }
@@ -71,7 +66,10 @@ export default class BaseCollection extends EventEmitter {
      * @returns {Object|null}
      */
     get(id) {
-        return this.elements[id];
+        if (this.elements[id]) {
+            return this.elements[id];
+        }
+        return null;
     }
 
     getIds() {
@@ -84,17 +82,13 @@ export default class BaseCollection extends EventEmitter {
      * @returns {boolean}
      */
     add(entity) {
-        this.emit('adding', entity);
-
-        Vue.set(this.elements, entity.id, entity);
-
-        this.emit('added', entity);
-
-        return true;
+        return this.view.setReactive(this.elements, entity.id, entity);
     }
 
     forEach(iterator, scope = this) {
         if (!types.isFunction(iterator)) {
+            warn('Base collection', 'No function provided to forEach function');
+
             return this.elements;
         }
 

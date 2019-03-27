@@ -1,3 +1,4 @@
+{% block sw_mult_select %}
 <div class="sw-multi-select"
      :class="selectClasses"
      tabindex="0"
@@ -9,88 +10,129 @@
      @keydown.up.prevent="navigateUpResults"
      @keydown.down.prevent="navigateDownResults">
 
-    <label v-if="getInlineSnippet(label)" :for="selectId" class="sw-multi-select__label">
-        {{ getInlineSnippet(label) }}
-    </label>
+    {% block sw_mult_select_label %}
+        <label v-if="getInlineSnippet(label)" :for="selectId" class="sw-multi-select__label">
+            {{ getInlineSnippet(label) }}
+        </label>
+    {% endblock %}
 
-    <div class="sw-multi-select__inner">
-
+    {% block sw_mult_select_inner %}
+        <div class="sw-multi-select__inner">
         <ul class="sw-multi-select__selections">
             <li class="sw-multi-select__selection-item-holder"
                 v-for="selection in visibleValues"
                 :key="selection.id"
                 :data-id="selection.id">
 
-                <sw-label dismissAble @selected="changeDefaultItemId(selection.id)" @dismiss="remove(selection[keyProperty])">
-                    <template>
-                        <span class="sw-multi-select__selection-item">
-                            <slot name="valueProperty" :item="selection">
-                                {{ getInlineSnippet(selection[valueProperty]) }}
-                            </slot>
-                        </span>
-                    </template>
-                    <template slot="dismiss-icon">
-                        <sw-icon name="small-default-x-line-medium"></sw-icon>
-                    </template>
-                </sw-label>
+                {% block sw_mult_select_selection_item %}
+                    <sw-label dismissAble @selected="changeDefaultItemId(selection.id)" @dismiss="remove(selection[keyProperty])">
+                        <template>
+                            {% block sw_mult_select_selection_item_text %}
+                                <span class="sw-multi-select__selection-item">
+                                    <slot name="valueProperty" :item="selection">
+                                        {{ getInlineSnippet(selection[valueProperty]) }}
+                                    </slot>
+                                </span>
+                            {% endblock %}
+                        </template>
+                        <template slot="dismiss-icon">
+                            <sw-icon name="small-default-x-line-medium"></sw-icon>
+                        </template>
+                    </sw-label>
+                {% endblock %}
             </li>
 
-            <li class="sw-multi-select__load-more-list-item is--clickAble">
-                <sw-button v-if="invisibleValueCount > 0"
-                           class="sw-multi-select__load-more-list-item-button"
-                           @click="expandValues"
-                >
-                    +{{ invisibleValueCount }}
-                </sw-button>
-            </li>
+            {% block sw_mult_select_selection_load_more_item %}
+                <li class="sw-multi-select__load-more-list-item is--clickAble">
+                    {% block sw_mult_select_selection_load_more_item_button %}
+                        <sw-button v-if="invisibleValueCount > 0"
+                                   class="sw-multi-select__load-more-list-item-button"
+                                   @click="expandValues">
+                            +{{ invisibleValueCount }}
+                        </sw-button>
+                    {% endblock %}
+                </li>
+            {% endblock %}
 
-            <li class="sw-multi-select__selection-item-input" key="listInput">
-                <input ref="swSelectInput"
-                       class="sw-multi-select__input"
-                       type="text"
-                       :placeholder="getInlineSnippet(placeholder)"
-                       v-model="searchTerm"
-                       @input="onSearchTermChange"
-                       @focus="openResultList"
-                       @keydown.delete="removeLastItem">
-            </li>
+            {% block sw_mult_select_list_item_input %}
+                <li class="sw-multi-select__selection-item-input" key="listInput">
+                    {% block sw_mult_select_input %}
+                    <input ref="swSelectInput"
+                           class="sw-multi-select__input"
+                           type="text"
+                           :placeholder="getInlineSnippet(placeholder)"
+                           v-model="searchTerm"
+                           @input="onSearchTermChange"
+                           @focus="openResultList"
+                           @keydown.delete="removeLastItem">
+                    {% endblock %}
+                </li>
+            {% endblock %}
         </ul>
 
-        <div class="sw-multi-select__indicators">
-            <sw-loader class="sw-multi-select__indicator" v-if="isLoading" size="16px"></sw-loader>
+        {% block sw_mult_select_indicators %}
+            <div class="sw-multi-select__indicators">
+                {% block sw_mult_select_indicators_loader %}
+                    <sw-loader class="sw-multi-select__indicator" v-if="isLoading" size="16px"></sw-loader>
+                {% endblock %}
 
-            <sw-help-text v-if="getInlineSnippet(helpText)"
-                          class="sw-multi-select__indicator"
-                          :text="getInlineSnippet(helpText)">
-            </sw-help-text>
-        </div>
-
-        <transition name="sw-multi-select-fade-down">
-            <div @scroll="onScroll" class="sw-multi-select__results" v-if="isExpanded">
-                <ul class="sw-multi-select__results-list">
-                    <slot name="sw_multi_select_list_before"></slot>
-
-                    <template v-for="(item, index) in currentOptions">
-                        <slot name="result_items" :item="item" :index="index">
-                            <sw-multi-select-option ref="swSelectOption" :index="index" :item="item">
-                                <slot name="valueProperty" :item="item">
-                                    <span v-html="getInlineSnippet(item[valueProperty])">
-                                        {{ getInlineSnippet(item[valueProperty]) }}
-                                    </span>
-                                </slot>
-                            </sw-multi-select-option>
-                        </slot>
-                    </template>
-
-                    <slot name="sw_multi_select_list_after"></slot>
-                </ul>
-
-                <div v-if="currentOptions.length <= 0 && !isLoading" class="sw-multi-select__results-empty-message">
-                    <sw-icon name="default-action-search" size="20px"></sw-icon>
-
-                    {{ $tc('global.sw-multi-select.messageNoResults', searchTerm, { term: searchTerm }) }}
-                </div>
+                {% block sw_mult_select_indicators_helptext %}
+                    <sw-help-text v-if="getInlineSnippet(helpText)"
+                                  class="sw-multi-select__indicator"
+                                  :text="getInlineSnippet(helpText)">
+                    </sw-help-text>
+                {% endblock %}
             </div>
-        </transition>
+        {% endblock %}
+
+        {% block sw_mult_select_results_transition %}
+            <transition name="sw-multi-select-fade-down">
+                {% block sw_mult_select_results %}
+                    <div @scroll="onScroll" class="sw-multi-select__results" v-if="isExpanded">
+                        {% block sw_mult_select_results_list %}
+                            <ul class="sw-multi-select__results-list">
+                                {% block sw_mult_select_results_list_before %}
+                                    <slot name="sw_multi_select_list_before"></slot>
+                                {% endblock %}
+
+                                {% block sw_mult_select_results_list_item %}
+                                    <template v-for="(item, index) in currentOptions">
+                                        <slot name="result_items" :item="item" :index="index">
+                                            {% block sw_mult_select_results_list_item_slot %}
+                                                <sw-multi-select-option ref="swSelectOption" :index="index" :item="item">
+                                                    <slot name="valueProperty" :item="item">
+                                                        <span v-html="getInlineSnippet(item[valueProperty])">
+                                                            {{ getInlineSnippet(item[valueProperty]) }}
+                                                        </span>
+                                                    </slot>
+                                                </sw-multi-select-option>
+                                            {% endblock %}
+                                        </slot>
+                                    </template>
+                                {% endblock %}
+        
+                                {% block sw_mult_select_results_list_after %}
+                                    <slot name="sw_multi_select_list_after"></slot>
+                                {% endblock %}
+                            </ul>
+                        {% endblock %}
+
+                        {% block sw_mult_select_results_empty %}
+                            <div v-if="currentOptions.length <= 0 && !isLoading" class="sw-multi-select__results-empty-message">
+                                {% block sw_mult_select_results_empty_icon %}
+                                    <sw-icon name="default-action-search" size="20px"></sw-icon>
+                                {% endblock %}
+
+                                {% block sw_mult_select_results_empty_text %}
+                                    {{ $tc('global.sw-select.messageNoResults', searchTerm, { term: searchTerm }) }}
+                                {% endblock %}
+                            </div>
+                        {% endblock %}
+                    </div>
+                {% endblock %}
+            </transition>
+        {% endblock %}
     </div>
+    {% endblock %}
 </div>
+{% endblock %}

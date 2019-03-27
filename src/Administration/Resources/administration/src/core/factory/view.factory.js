@@ -17,6 +17,8 @@ export default function createViewFactory(viewAdapter) {
         createComponent: viewAdapter.createComponent,
         initComponents: viewAdapter.initComponents,
         getComponent: viewAdapter.getComponent,
-        getComponents: viewAdapter.getComponents
+        getComponents: viewAdapter.getComponents,
+        setReactive: viewAdapter.setReactive,
+        deleteReactive: viewAdapter.deleteReactive
     };
 }

@@ -20,25 +20,25 @@ export default {
         value: {
             required: true
         },
-
         placeholder: {
+            type: String,
             required: false,
             default: ''
         },
         label: {
+            type: String,
             default: ''
         },
         helpText: {
+            type: String,
             required: false,
             default: ''
         },
-
         valueProperty: {
             type: String,
             required: false,
             default: 'value'
         },
-
         keyProperty: {
             type: String,
             required: false,
@@ -49,13 +49,11 @@ export default {
             required: false,
             default: false
         },
-
         disabled: {
             type: Boolean,
             required: false,
             default: false
         },
-
         showSearch: {
             type: Boolean,
             required: false,
@@ -144,10 +142,6 @@ export default {
             this.$emit('sw-single-select-search-term-change', this.searchTerm);
         },
 
-        paginate() {
-
-        },
-
         unsetValue() {
             this.singleSelection = null;
             this.updateInputElement();
@@ -220,8 +214,10 @@ export default {
             if (!this.showSearch) {
                 return;
             }
-            // since the input is not visible at first we need to wait a tick until the
-            // result list with the input is visible
+            /*
+             * since the input is not visible at first we need to wait a tick until the
+             * result list with the input is visible
+             */
             this.$nextTick(() => {
                 if (!this.$refs.swSelectInput) {
                     return;
@@ -303,15 +299,7 @@ export default {
         },
 
         onScroll(event) {
-            if (this.getDistFromBottom(event.target) !== 0) {
-                return;
-            }
-
-            this.paginate();
-        },
-
-        getDistFromBottom(element) {
-            return element.scrollHeight - element.clientHeight - element.scrollTop;
+            this.$emit('scroll', event);
         },
 
         scrollToResultsTop() {

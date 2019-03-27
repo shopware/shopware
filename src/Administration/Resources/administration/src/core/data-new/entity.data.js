@@ -1,10 +1,7 @@
-import Vue from 'vue';
-import EventEmitter from 'events';
 import { cloneDeep } from 'src/core/service/utils/object.utils';
 
-export default class Entity extends EventEmitter {
-    constructor(id, entityName, data) {
-        super();
+export default class Entity {
+    constructor(id, entityName, data, view) {
         this.id = id;
         this._origin = cloneDeep(data);
         this._entityName = entityName;
@@ -23,17 +20,8 @@ export default class Entity extends EventEmitter {
             },
 
             set(target, property, value) {
-                let before = null;
-                if (Object.prototype.hasOwnProperty.call(that._draft, property)) {
-                    before = that._draft[property];
-                }
-
-                that.emit('changing', property, before, value);
-
-                Vue.set(that._draft, property, value);
+                view.setReactive(that._draft, property, value);
                 this._isDirty = true;
-
-                that.emit('changed', property, before, value);
 
                 return true;
             }
@@ -45,7 +33,6 @@ export default class Entity extends EventEmitter {
      */
     markAsNew() {
         this._isNew = true;
-        this.emit('marked-as-new');
     }
 
     /**
@@ -56,13 +43,6 @@ export default class Entity extends EventEmitter {
      */
     isNew() {
         return this._isNew;
-    }
-
-    revert() {
-        this.emit('reverting');
-        this._draft = cloneDeep(this._origin);
-        this._isDirty = false;
-        this.emit('reverted');
     }
 
     /**

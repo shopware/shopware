@@ -54,11 +54,11 @@ export default {
         createdComponent() {
             this.$super.createdComponent();
 
-            this.repository.on('loading', () => {
+            this.repository.on('start.loading', () => {
                 this.loading = true;
             });
 
-            this.repository.on('loaded', (result) => {
+            this.repository.on('finish.loading', (result) => {
                 this.loading = false;
                 this.applyResult(result);
             });
@@ -85,8 +85,8 @@ export default {
             });
         },
 
-        revert(record) {
-            record.revert();
+        revert() {
+            // todo fetch record from server
         },
 
         sort(column) {

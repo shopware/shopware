@@ -52,9 +52,11 @@ export default {
 
             this.selectedIds = this.collection.getIds();
 
-            this.repository.on('loaded', (result) => {
-                this._displayAssigned(result);
+            this.repository.on('finish.loading', (result) => {
+                this.displayAssigned(result);
             });
+
+            this.$on('scroll', this.paginate);
 
             return this.repository.search(this.collection.criteria, this.collection.context);
         },
@@ -74,7 +76,7 @@ export default {
             this.searchCriteria.setTerm(this.searchTerm);
             this.searchCriteria.setPage(1);
             this.currentOptions = [];
-            return this._sendSearchRequest();
+            return this.sendSearchRequest();
         },
 
         isSelected(item) {
@@ -96,12 +98,16 @@ export default {
 
         loadResultList() {
             this.searchCriteria = new Criteria(1, this.resultLimit);
-            return this._sendSearchRequest();
+            return this.sendSearchRequest();
         },
 
-        paginate() {
+        paginate(event) {
+            if (this.getDistFromBottom(event.target) !== 0) {
+                return Promise.resolve();
+            }
+
             this.searchCriteria.setPage(this.searchCriteria.page + 1);
-            return this._sendSearchRequest();
+            return this.sendSearchRequest();
         },
 
         remove(identifier) {
@@ -129,7 +135,7 @@ export default {
             return this.repository.assign(item[this.keyProperty], this.collection.context);
         },
 
-        _sendSearchRequest() {
+        sendSearchRequest() {
             return this.searchRepository.search(this.searchCriteria, this.context)
                 .then((searchResult) => {
                     if (searchResult.length <= 0) {
@@ -144,14 +150,18 @@ export default {
                             this.selectedIds.push(id);
                         });
 
-                        this._displaySearch(searchResult);
+                        this.displaySearch(searchResult);
 
                         return searchResult;
                     });
                 });
         },
 
-        _displayAssigned(result) {
+        getDistFromBottom(element) {
+            return element.scrollHeight - element.clientHeight - element.scrollTop;
+        },
+
+        displayAssigned(result) {
             result.forEach((item) => {
                 this.selectedIds.push(item[this.keyProperty]);
                 this.visibleValues.push(item);
@@ -160,7 +170,7 @@ export default {
             this.invisibleValueCount = result.total - this.visibleValues.length;
         },
 
-        _displaySearch(result) {
+        displaySearch(result) {
             result.forEach((item) => {
                 this.currentOptions.push(item);
             });

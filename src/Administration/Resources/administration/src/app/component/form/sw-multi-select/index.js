@@ -17,7 +17,6 @@ export default {
             type: Array,
             required: true
         },
-
         valueProperty: {
             type: String,
             required: false,
@@ -28,23 +27,23 @@ export default {
             required: false,
             default: 'key'
         },
-
         value: {
             required: false
         },
-
         label: {
+            type: String,
             default: ''
         },
         placeholder: {
+            type: String,
             required: false,
             default: ''
         },
         helpText: {
+            type: String,
             required: false,
             default: ''
         },
-
         disabled: {
             type: Boolean,
             required: false,
@@ -55,7 +54,6 @@ export default {
             required: false,
             default: false
         },
-
         possibleMinPosition: {
             type: Number,
             required: false,
@@ -162,10 +160,6 @@ export default {
             });
         },
 
-        paginate() {
-
-        },
-
         isSelected(item) {
             return !this.currentValue.every((key) => {
                 return key !== item[this.keyProperty];
@@ -253,15 +247,7 @@ export default {
         },
 
         onScroll(event) {
-            if (this.getDistFromBottom(event.target) !== 0) {
-                return;
-            }
-
-            this.paginate();
-        },
-
-        getDistFromBottom(element) {
-            return element.scrollHeight - element.clientHeight - element.scrollTop;
+            this.$emit('scroll', event);
         },
 
         onSearchTermChange() {

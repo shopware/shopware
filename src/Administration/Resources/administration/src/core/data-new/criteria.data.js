@@ -1,6 +1,6 @@
 export default class Criteria {
-    constructor(offset, limit) {
-        this.page = offset || 1;
+    constructor(page, limit) {
+        this.page = page || 1;
         this.limit = limit || 25;
         this.term = null;
         this.filters = [];
@@ -169,9 +169,7 @@ export default class Criteria {
         this.associations.forEach((association) => {
             if (association.association === property) {
                 criteria = association.criteria;
-                return false;
             }
-            return true;
         });
 
         return criteria;

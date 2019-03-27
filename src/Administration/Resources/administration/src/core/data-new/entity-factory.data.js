@@ -1,22 +1,39 @@
 import utils from 'src/core/service/util.service';
+import { warn } from 'src/core/service/utils/debug.utils';
 import Entity from './entity.data';
 import EntityCollection from './entity-collection.data';
 import Criteria from './criteria.data';
 
 export default class EntityFactory {
-    constructor(schema) {
+    constructor(schema, view) {
         this.schema = schema;
+        this.view = view;
     }
 
+    /**
+     * Creates a new entity for the provided entity name.
+     * Returns null for unknown entities.
+     *
+     * @param {String} entityName
+     * @param {String} id
+     * @param {Object} context
+     * @returns {Entity|null}
+     */
     create(entityName, id, context) {
         id = id || utils.createId();
 
         const definition = this.schema[entityName];
+
+        if (!definition) {
+            warn('Entity factory', `No schema found for entity ${entityName}`);
+            return null;
+        }
         const toMany = ['one_to_many', 'many_to_many'];
 
         const data = {};
 
-        Object.entries(definition.properties).forEach(([property, type]) => {
+        Object.keys(definition.properties).forEach((property) => {
+            const type = definition.properties[property];
             if (type.type !== 'association') {
                 return true;
             }
@@ -27,12 +44,21 @@ export default class EntityFactory {
             return true;
         });
 
-        const entity = new Entity(id, entityName, data);
+        const entity = new Entity(id, entityName, data, this.view);
         entity.markAsNew();
 
         return entity;
     }
 
+    /**
+     * @private
+     * @param {String} entity
+     * @param {String} id
+     * @param {String} property
+     * @param {String} related
+     * @param {Object} context
+     * @returns {EntityCollection}
+     */
     createCollection(entity, id, property, related, context) {
         const subRoute = property.replace(/_/g, '-');
         const route = entity.replace(/_/g, '-');

@@ -332,13 +332,11 @@ export default {
         },
 
         checkSelection() {
-            let selected = false;
+            let selected = true;
             this.records.forEach((item) => {
-                if (this.selection[item.id] !== undefined) {
-                    selected = true;
-                    return false;
+                if (this.selection[item.id] === undefined) {
+                    selected = false;
                 }
-                return true;
             });
             this.allSelectedChecked = selected;
         },

@@ -6,7 +6,7 @@ Component.register('sw-settings-seo', {
 
     methods: {
         onClickSave() {
-            this.$emit('saved');
+            this.$emit('finish.save');
         }
     }
 });

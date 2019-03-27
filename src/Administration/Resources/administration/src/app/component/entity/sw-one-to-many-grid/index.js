@@ -55,7 +55,7 @@ export default {
 
             // listen to start-loading event to notify sw-data-grid
             // listen to association grid loaded event to apply new results
-            this.repository.on('loaded', (result) => {
+            this.repository.on('finish.loading', (result) => {
                 this.applyResult(result);
             });
 
@@ -91,8 +91,8 @@ export default {
             });
         },
 
-        revert(record) {
-            record.revert();
+        revert() {
+            // todo fetch record from server
         },
 
         deleteItem(id) {

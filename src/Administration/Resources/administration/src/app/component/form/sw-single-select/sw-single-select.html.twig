@@ -1,4 +1,4 @@
-{% block sw_select %}
+{% block sw_single_select %}
     <div class="sw-single-select"
          :class="selectClasses"
          tabindex="0"
@@ -10,19 +10,19 @@
          @keydown.up.prevent="navigateUpResults"
          @keydown.down.prevent="navigateDownResults">
 
-        {% block sw_select_label %}
+        {% block sw_single_select_label %}
             <label v-if="getInlineSnippet(label)" :for="selectId" class="sw-single-select__label">
                 {{ getInlineSnippet(label) }}
             </label>
         {% endblock %}
 
-        {% block sw_select_inner %}
+        {% block sw_single_select_inner %}
             <div class="sw-single-select__inner">
 
                 <div class="sw-single-select__single-selection">
-                    {% block sw_select_single_selection_inner %}
+                    {% block sw_single_select_single_selection_inner %}
                         <slot v-if="singleSelection !== null" name="selected_option" :item="singleSelection">
-                            {% block sw_select_single_selection_slot_label %}
+                            {% block sw_single_select_single_selection_slot_label %}
                                 <slot name="valueProperty" :item="singleSelection">
                                     {{ getInlineSnippet(singleSelection[valueProperty]) }}
                                 </slot>
@@ -36,13 +36,13 @@
                     {% endblock %}
                 </div>
 
-                {% block sw_select_indicators %}
+                {% block sw_single_select_indicators %}
                     <div class="sw-single-select__indicators">
-                        {% block sw_select__indicators_loader %}
+                        {% block sw_single_select__indicators_loader %}
                             <sw-loader class="sw-single-select__indicator" v-if="isLoading" size="16px"></sw-loader>
                         {% endblock %}
 
-                        {% block sw_select_indicators_dismiss %}
+                        {% block sw_single_select_indicators_dismiss %}
                             <sw-icon v-if="!required"
                                      class="sw-single-select__indicator sw-single-select__indicator--button"
                                      name="small-default-x-line-small"
@@ -51,14 +51,14 @@
                             </sw-icon>
                         {% endblock %}
 
-                        {% block sw_select_indicators_helptext %}
+                        {% block sw_single_select_indicators_helptext %}
                             <sw-help-text v-if="getInlineSnippet(helpText)"
                                           class="sw-single-select__indicator"
                                           :text="getInlineSnippet(helpText)">
                             </sw-help-text>
                         {% endblock %}
 
-                        {% block sw_select_indicators_arrow %}
+                        {% block sw_single_select_indicators_arrow %}
                             <sw-icon class="sw-single-select__indicator sw-single-select__indicator-button"
                                      name="small-arrow-medium-down"
                                      small>
@@ -67,11 +67,11 @@
                     </div>
                 {% endblock %}
 
-                {% block sw_select_results_transition %}
+                {% block sw_single_select_results_transition %}
                     <transition name="sw-single-select-fade-down">
-                        {% block sw_select_results %}
+                        {% block sw_single_select_results %}
                         <div @scroll="onScroll" class="sw-single-select__results" v-if="isExpanded">
-                                {% block sw_select_results_single_input %}
+                                {% block sw_single_select_results_single_input %}
                                     <div v-if="showSearch"
                                          class="sw-single-select__input-single-wrapper">
                                         <input ref="swSelectInput"
@@ -84,17 +84,17 @@
                                     </div>
                                 {% endblock %}
 
-                                {% block sw_select_results_list %}
+                                {% block sw_single_select_results_list %}
                                     <ul class="sw-single-select__results-list">
-                                        {% block sw_select_result_item %}
-                                           {% block sw_select_result_item_list_before %}
-                                               <slot name="sw_select_list_before"></slot>
+                                        {% block sw_single_select_result_item %}
+                                           {% block sw_single_select_result_item_list_before %}
+                                               <slot name="sw_single_select_list_before"></slot>
                                            {% endblock %}
 
-                                            {% block sw_select_result_item_list %}
+                                            {% block sw_single_select_result_item_list %}
                                              <template v-if="currentOptions" v-for="(item, index) in currentOptions">
                                                  <slot name="result_items" :item="item" :index="index">
-                                                     {% block sw_select_result_item_slot %}
+                                                     {% block sw_single_select_result_item_slot %}
                                                          <sw-single-select-option ref="swSelectOption" :index="index" :item="item">
                                                             <slot name="valueProperty" :item="item">
 
@@ -109,22 +109,22 @@
                                              </template>
                                             {% endblock %}
 
-                                            {% block sw_select_result_item_list_after %}
-                                                <slot name="sw_select_list_after"></slot>
+                                            {% block sw_single_select_result_item_list_after %}
+                                                <slot name="sw_single_select_list_after"></slot>
                                             {% endblock %}
                                         {% endblock %}
                                     </ul>
 
                                 {% endblock %}
 
-                                {% block sw_select_results_empty %}
+                                {% block sw_single_select_results_empty %}
                                     <div v-if="currentOptions.length <= 0 && !isLoading" class="sw-single-select__results-empty-message">
-                                        {% block sw_select_results_empty_icon %}
+                                        {% block sw_single_select_results_empty_icon %}
                                             <sw-icon name="default-action-search" size="20px"></sw-icon>
                                         {% endblock %}
 
-                                        {% block sw_select_results_empty_text %}
-                                            {{ $tc('global.sw-single-select.messageNoResults', searchTerm, { term: searchTerm }) }}
+                                        {% block sw_single_select_results_empty_text %}
+                                            {{ $tc('global.sw-select.messageNoResults', searchTerm, { term: searchTerm }) }}
                                         {% endblock %}
                                     </div>
                                 {% endblock %}

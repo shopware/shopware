@@ -102,6 +102,11 @@ class ProductEntity extends Entity
     protected $restockTime;
 
     /**
+     * @var bool|null
+     */
+    protected $isCloseout;
+
+    /**
      * @var int|null
      */
     protected $purchaseSteps;
@@ -439,6 +444,16 @@ class ProductEntity extends Entity
     public function setStock(?int $stock): void
     {
         $this->stock = $stock;
+    }
+
+    public function getIsCloseout(): bool
+    {
+        return (bool) $this->isCloseout;
+    }
+
+    public function setIsCloseout(?bool $isCloseout): void
+    {
+        $this->isCloseout = $isCloseout;
     }
 
     public function getPurchaseSteps(): ?int

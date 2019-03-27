@@ -25,6 +25,10 @@ class StorefrontProductEntity extends ApiStruct
 
     public function isAvailable(): bool
     {
+        if (!$this->getIsCloseout()) {
+            return true;
+        }
+
         return $this->getStock() >= $this->getMinPurchase();
     }
 

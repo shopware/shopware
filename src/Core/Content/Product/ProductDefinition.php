@@ -132,6 +132,7 @@ class ProductDefinition extends EntityDefinition
             (new StringField('manufacturer_number', 'manufacturerNumber'))->addFlags(new Inherited(), new SearchRanking(SearchRanking::LOW_SEARCH_RAKING)),
             (new StringField('ean', 'ean'))->addFlags(new Inherited(), new SearchRanking(SearchRanking::LOW_SEARCH_RAKING)),
             (new NumberRangeField('product_number', 'productNumber'))->addFlags(new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
+            (new BoolField('is_closeout', 'isCloseout'))->addFlags(new Inherited()),
             (new IntField('purchase_steps', 'purchaseSteps'))->addFlags(new Inherited()),
             (new IntField('max_purchase', 'maxPurchase'))->addFlags(new Inherited()),
             (new IntField('min_purchase', 'minPurchase'))->addFlags(new Inherited()),

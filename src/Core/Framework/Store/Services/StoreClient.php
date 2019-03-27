@@ -11,7 +11,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Framework;
 use Shopware\Core\Framework\Plugin\PluginCollection;
 use Shopware\Core\Framework\Plugin\PluginEntity;
-use Shopware\Core\Framework\Store\Exception\StoreInvalidCredentials;
+use Shopware\Core\Framework\Store\Exception\StoreInvalidCredentialsException;
 use Shopware\Core\Framework\Store\Exception\StoreSignatureValidationException;
 use Shopware\Core\Framework\Store\Struct\AccessTokenStruct;
 use Shopware\Core\Framework\Store\Struct\PluginDownloadDataStruct;
@@ -23,6 +23,10 @@ use Shopware\Core\Framework\Store\Struct\StoreUpdatesStruct;
 
 final class StoreClient
 {
+    private const SHOPWARE_PLATFORM_TOKEN_HEADER = 'X-Shopware-Platform-Token';
+    private const SHOPWARE_SHOP_SECRET_HEADER = 'X-Shopware-Shop-Secret';
+    private const SHOPWARE_SIGNATURE_HEADER = 'x-shopware-signature';
+
     /**
      * @var Client
      */
@@ -53,6 +57,12 @@ final class StoreClient
         $this->openSSLVerifier = $openSSLVerifier;
         $this->pluginRepo = $pluginRepo;
         $this->storeSettingsRepo = $storeSettingsRepo;
+    }
+
+    public function ping(): void
+    {
+        $response = $this->client->get('/ping');
+        $this->verifyResponseSignature($response);
     }
 
     public function loginWithShopwareId(string $shopwareId, string $password, Context $context): AccessTokenStruct
@@ -90,10 +100,10 @@ final class StoreClient
         $shopSecret = $this->getShopSecret($context);
 
         $headers = [
-            'X-Shopware-Platform-Token' => $storeToken,
+            self::SHOPWARE_PLATFORM_TOKEN_HEADER => $storeToken,
         ];
         if ($shopSecret) {
-            $headers['X-Shopware-Shop-Secret'] = $shopSecret;
+            $headers[self::SHOPWARE_SHOP_SECRET_HEADER] = $shopSecret;
         }
 
         $response = $this->client->get(
@@ -155,7 +165,7 @@ final class StoreClient
     /**
      * @return StoreUpdatesStruct[]
      */
-    public function getUpdatesList(string $storeToken, PluginCollection $pluginCollection, Context $context): array
+    public function getUpdatesList(?string $storeToken, PluginCollection $pluginCollection, Context $context): array
     {
         $pluginArray = [];
 
@@ -173,11 +183,12 @@ final class StoreClient
 
         $shopSecret = $this->getShopSecret($context);
 
-        $headers = [
-            'X-Shopware-Platform-Token' => $storeToken,
-        ];
+        $headers = [];
+        if ($storeToken) {
+            $headers[self::SHOPWARE_PLATFORM_TOKEN_HEADER] = $storeToken;
+        }
         if ($shopSecret) {
-            $headers['X-Shopware-Shop-Secret'] = $shopSecret;
+            $headers[self::SHOPWARE_SHOP_SECRET_HEADER] = $shopSecret;
         }
 
         $response = $this->client->post(
@@ -212,10 +223,10 @@ final class StoreClient
         $shopSecret = $this->getShopSecret($context);
 
         $headers = [
-            'X-Shopware-Platform-Token' => $storeToken,
+            self::SHOPWARE_PLATFORM_TOKEN_HEADER => $storeToken,
         ];
         if ($shopSecret) {
-            $headers['X-Shopware-Shop-Secret'] = $shopSecret;
+            $headers[self::SHOPWARE_SHOP_SECRET_HEADER] = $shopSecret;
         }
 
         $response = $this->client->get(
@@ -244,7 +255,7 @@ final class StoreClient
 
         $storeSettings = $this->storeSettingsRepo->search($criteria, $context)->first();
         if ($storeSettings === null) {
-            throw new StoreInvalidCredentials();
+            throw new StoreInvalidCredentialsException();
         }
 
         return [
@@ -270,7 +281,7 @@ final class StoreClient
 
     private function verifyResponseSignature(ResponseInterface $response): void
     {
-        $signatureHeaderName = 'x-shopware-signature';
+        $signatureHeaderName = self::SHOPWARE_SIGNATURE_HEADER;
         $signature = $response->getHeader($signatureHeaderName)[0];
 
         if (empty($signature)) {

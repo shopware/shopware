@@ -17,7 +17,8 @@
       "titleDownloadSuccess":"Plugin downloaded",
       "downloadButton":"Download",
       "storeLink": "https://store.shopware.com/en",
-      "storeLabel": "Shopware Store"
+      "storeLabel": "Shopware Store",
+      "storeNotAvailable": "Could not connect to the Shopware Store"
     },
     "errors": {
       "titleGenericFailure": "Unknown error occured",

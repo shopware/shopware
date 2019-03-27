@@ -4,12 +4,12 @@ namespace Shopware\Core\Framework\Store\Exception;
 
 use Shopware\Core\Framework\ShopwareHttpException;
 
-class StoreInvalidCredentials extends ShopwareHttpException
+class StoreNotAvailableException extends ShopwareHttpException
 {
-    protected $code = 'INVALID-CREDENTIALS';
+    protected $code = 'STORE-NOT-AVAILABLE';
 
     public function __construct(int $code = 0, ?\Throwable $previous = null)
     {
-        parent::__construct('Invalid credentials', $code, $previous);
+        parent::__construct('Store is not available', $code, $previous);
     }
 }

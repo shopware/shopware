@@ -22,6 +22,8 @@ At the very end, your plugin structure should look something like this:
             ├── DependendencyInjection
             │   └── services.xml
             ├── Resources
+            │   ├── config
+            │   │   └── routes.xml
             │   └── config.xml
             ├── Service
             │   └──  MyService.php
@@ -311,10 +313,10 @@ Important to notice is the `@Route` annotation above the `myFirstApi`, which bas
 the actual route to access the controller.
 
 Additional to that, the Shopware platform needs to learn where to search for your controller in the first place.
-This is done by adding a `routes.xml` file into the `Resources` directory.
-The naming is not only suggested, it is highly recommended here.
-With this way, the Shopware platform finds the `routes.xml` automatically, just like the `config.xml`.
-This is done by looking for any .xml file, whose path contains `routes`, so the path `routes/foo.xml` would also work.
+This is done by adding a `routes.xml` file into a `Resources/config/` directory.
+The naming for the directory is not only suggested, it is highly recommended here.
+With this way, the Shopware platform finds the `routes.xml` automatically.
+This is done by looking for any .xml file, whose path contains `routes`, so the path `Resources/config/routes/example.xml` would also work.
 
 The XML file then simply points to the directory containing your controller, in this example it would be `Controller`.
 
@@ -327,10 +329,10 @@ Here's the example for the `routes.xml` content:
     xsi:schemaLocation="http://symfony.com/schema/routing
     http://symfony.com/schema/routing/routing-1.0.xsd">
 
-    <import resource="../Controller" type="annotation" />
+    <import resource="../../Controller" type="annotation" />
 </routes>
 ```
-*PluginQuickStart/Resources/routes.xml*
+*PluginQuickStart/Resources/config/routes.xml*
 
 Since the Shopware platform uses Symfony fullstack, it's also supporting configuration files written in YML or PHP. 
 An representation of the same routes configuration using a YAML or PHP file instead, can be found in the Symfony documentation
@@ -380,7 +382,7 @@ In order to access it via the [DI container](https://symfony.com/doc/current/ser
     </services>
 </container>
 ```
-*PluginQuickStart/Resources/services.xml*
+*PluginQuickStart/DependencyInjection/services.xml*
 
 Your service is now part of the DI container, but only as a [private service](https://symfony.com/doc/current/service_container/alias_private.html).
 An example usage would be in your new controller.

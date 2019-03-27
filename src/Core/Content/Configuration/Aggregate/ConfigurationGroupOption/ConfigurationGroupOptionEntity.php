@@ -6,7 +6,6 @@ use Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupOptionTransl
 use Shopware\Core\Content\Configuration\ConfigurationGroupEntity;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductConfigurator\ProductConfiguratorCollection;
-use Shopware\Core\Content\Product\Aggregate\ProductService\ProductServiceCollection;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
@@ -54,11 +53,6 @@ class ConfigurationGroupOptionEntity extends Entity
      * @var ProductConfiguratorCollection|null
      */
     protected $productConfigurators;
-
-    /**
-     * @var ProductServiceCollection|null
-     */
-    protected $productServices;
 
     /**
      * @var ProductCollection|null
@@ -178,16 +172,6 @@ class ConfigurationGroupOptionEntity extends Entity
     public function setProductConfigurators(ProductConfiguratorCollection $productConfigurators): void
     {
         $this->productConfigurators = $productConfigurators;
-    }
-
-    public function getProductServices(): ?ProductServiceCollection
-    {
-        return $this->productServices;
-    }
-
-    public function setProductServices(ProductServiceCollection $productServices): void
-    {
-        $this->productServices = $productServices;
     }
 
     public function getProductDatasheets(): ?ProductCollection

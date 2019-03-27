@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\System\Tax;
 
-use Shopware\Core\Content\Product\Aggregate\ProductService\ProductServiceCollection;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
@@ -35,11 +34,6 @@ class TaxEntity extends Entity
      * @var ProductCollection|null
      */
     protected $products;
-
-    /**
-     * @var ProductServiceCollection|null
-     */
-    protected $productServices;
 
     /**
      * @var array|null
@@ -94,16 +88,6 @@ class TaxEntity extends Entity
     public function setProducts(ProductCollection $products): void
     {
         $this->products = $products;
-    }
-
-    public function getProductServices(): ?ProductServiceCollection
-    {
-        return $this->productServices;
-    }
-
-    public function setProductServices(ProductServiceCollection $productServices): void
-    {
-        $this->productServices = $productServices;
     }
 
     public function getAttributes(): ?array

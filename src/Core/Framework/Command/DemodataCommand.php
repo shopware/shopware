@@ -66,8 +66,6 @@ class DemodataCommand extends Command
         $this->addOption('mail-template', 'mt', InputOption::VALUE_REQUIRED, 'Mail template count', 10);
         $this->addOption('mail-header-footer', 'mhf', InputOption::VALUE_REQUIRED, 'Mail header/footer count', 3);
 
-        $this->addOption('with-configurator', 'w', InputOption::VALUE_OPTIONAL, 'Enables configurator products', 0);
-        $this->addOption('with-services', 'x', InputOption::VALUE_OPTIONAL, 'Enables services for products', 1);
         $this->addOption('with-media', 'y', InputOption::VALUE_OPTIONAL, 'Enables media for products', 1);
 
         if (next754()) {
@@ -139,14 +137,6 @@ class DemodataCommand extends Command
 
         if ($input->getOption('with-media')) {
             $productOptions[ProductGenerator::OPTIONS_WITH_MEDIA] = true;
-        }
-
-        if ($input->getOption('with-configurator')) {
-            $productOptions[ProductGenerator::OPTIONS_WITH_CONFIGURATOR] = true;
-        }
-
-        if ($input->getOption('with-services')) {
-            $productOptions[ProductGenerator::OPTIONS_WITH_SERVICES] = true;
         }
 
         return $productOptions;

@@ -11,7 +11,6 @@ use Shopware\Core\Content\Product\Aggregate\ProductDatasheet\ProductDatasheetDef
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductPriceRule\ProductPriceRuleDefinition;
-use Shopware\Core\Content\Product\Aggregate\ProductService\ProductServiceDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductTag\ProductTagDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductTranslation\ProductTranslationDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductVariation\ProductVariationDefinition;
@@ -175,7 +174,6 @@ class ProductDefinition extends EntityDefinition
 
             //inherited associations which are not loaded immediately
             (new OneToManyAssociationField('media', ProductMediaDefinition::class, 'product_id', false))->addFlags(new CascadeDelete(), new Inherited()),
-            (new OneToManyAssociationField('services', ProductServiceDefinition::class, 'product_id', false, 'id'))->addFlags(new CascadeDelete(), new Inherited()),
 
             //associations which are not loaded immediately
             (new ManyToManyAssociationField('datasheet', ConfigurationGroupOptionDefinition::class, ProductDatasheetDefinition::class, false, 'product_id', 'configuration_group_option_id'))->addFlags(new CascadeDelete(), new Inherited()),

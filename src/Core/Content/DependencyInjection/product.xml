@@ -68,10 +68,6 @@
             <tag name="shopware.entity.definition" entity="search_document"/>
         </service>
 
-        <service id="Shopware\Core\Content\Product\Aggregate\ProductService\ProductServiceDefinition">
-            <tag name="shopware.entity.definition" entity="product_service"/>
-        </service>
-
         <service id="Shopware\Core\Content\Product\Aggregate\ProductTranslation\ProductTranslationDefinition">
             <tag name="shopware.entity.definition" entity="product_translation"/>
         </service>

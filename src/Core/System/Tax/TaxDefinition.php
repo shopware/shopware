@@ -2,12 +2,10 @@
 
 namespace Shopware\Core\System\Tax;
 
-use Shopware\Core\Content\Product\Aggregate\ProductService\ProductServiceDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AttributesField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CreatedAtField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\CascadeDelete;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\RestrictDelete;
@@ -47,7 +45,6 @@ class TaxDefinition extends EntityDefinition
             new CreatedAtField(),
             new UpdatedAtField(),
             (new OneToManyAssociationField('products', ProductDefinition::class, 'tax_id', false, 'id'))->addFlags(new RestrictDelete(), new ReverseInherited('tax')),
-            (new OneToManyAssociationField('productServices', ProductServiceDefinition::class, 'tax_id', false, 'id'))->addFlags(new CascadeDelete()),
         ]);
     }
 }

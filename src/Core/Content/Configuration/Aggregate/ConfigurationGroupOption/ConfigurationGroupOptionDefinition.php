@@ -7,7 +7,6 @@ use Shopware\Core\Content\Configuration\ConfigurationGroupDefinition;
 use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductConfigurator\ProductConfiguratorDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductDatasheet\ProductDatasheetDefinition;
-use Shopware\Core\Content\Product\Aggregate\ProductService\ProductServiceDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductVariation\ProductVariationDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
@@ -71,7 +70,6 @@ class ConfigurationGroupOptionDefinition extends EntityDefinition
             new ManyToOneAssociationField('group', 'configuration_group_id', ConfigurationGroupDefinition::class, false),
             (new TranslationsAssociationField(ConfigurationGroupOptionTranslationDefinition::class, 'configuration_group_option_id'))->addFlags(new Required()),
             (new OneToManyAssociationField('productConfigurators', ProductConfiguratorDefinition::class, 'configuration_group_option_id', false, 'id'))->addFlags(new CascadeDelete()),
-            (new OneToManyAssociationField('productServices', ProductServiceDefinition::class, 'configuration_group_option_id', false, 'id'))->addFlags(new CascadeDelete()),
             (new ManyToManyAssociationField('productDatasheets', ProductDefinition::class, ProductDatasheetDefinition::class, false, 'configuration_group_option_id', 'product_id'))->addFlags(new CascadeDelete(), new ReverseInherited('datasheet')),
             (new ManyToManyAssociationField('productVariations', ProductDefinition::class, ProductVariationDefinition::class, false, 'configuration_group_option_id', 'product_id'))->addFlags(new CascadeDelete()),
         ]);

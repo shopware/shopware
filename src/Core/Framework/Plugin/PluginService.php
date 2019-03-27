@@ -69,13 +69,15 @@ class PluginService
      */
     public function refreshPlugins(Context $shopwareContext, IOInterface $composerIO): array
     {
-        $pluginNamesWithPaths = PluginFinder::findPlugins($this->pluginDir, $this->projectDir);
+        $pluginsFromFileSystem = PluginFinder::findPlugins($this->pluginDir, $this->projectDir);
 
         $installedPlugins = $this->getPlugins(new Criteria(), $shopwareContext);
 
         $plugins = [];
         $errors = [];
-        foreach ($pluginNamesWithPaths as $pluginName => $pluginPath) {
+        foreach ($pluginsFromFileSystem as $pluginFromFileSystem) {
+            $pluginName = $pluginFromFileSystem->getName();
+            $pluginPath = $pluginFromFileSystem->getPath();
             try {
                 $info = $this->composerPackageProvider->getPluginInformation($pluginPath, $composerIO);
             } catch (PluginComposerJsonInvalidException $e) {
@@ -104,6 +106,7 @@ class PluginService
                 'license' => implode(', ', $license),
                 'version' => $pluginVersion,
                 'iconRaw' => $this->getPluginIconRaw($pluginPath),
+                'managedByComposer' => $pluginFromFileSystem->getManagedByComposer(),
             ];
 
             $pluginData = $this->getTranslation($extra, $pluginData, 'label', 'label', $shopwareContext);

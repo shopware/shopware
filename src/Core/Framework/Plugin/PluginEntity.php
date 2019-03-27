@@ -27,6 +27,11 @@ class PluginEntity extends Entity
     protected $active;
 
     /**
+     * @var bool
+     */
+    protected $managedByComposer;
+
+    /**
      * @var string|null
      */
     protected $path;
@@ -154,6 +159,16 @@ class PluginEntity extends Entity
     public function setActive(bool $active): void
     {
         $this->active = $active;
+    }
+
+    public function isManagedByComposer(): bool
+    {
+        return $this->managedByComposer;
+    }
+
+    public function setManagedByComposer(bool $managedByComposer): void
+    {
+        $this->managedByComposer = $managedByComposer;
     }
 
     public function getPath(): ?string

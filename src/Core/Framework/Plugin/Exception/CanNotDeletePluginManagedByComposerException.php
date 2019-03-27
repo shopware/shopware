@@ -4,13 +4,13 @@ namespace Shopware\Core\Framework\Plugin\Exception;
 
 use Shopware\Core\Framework\ShopwareHttpException;
 
-class CantDeletePluginException extends ShopwareHttpException
+class CanNotDeletePluginManagedByComposerException extends ShopwareHttpException
 {
-    protected $code = 'CANT-DELETE-PLUGIN';
+    protected $code = 'CAN-NOT-DELETE-PLUGIN-MANAGED-BY-SHOPWARE';
 
     public function __construct(string $reason, int $code = 0, ?\Throwable $previous = null)
     {
-        $message = sprintf('Cant delete plugin. Error: %s', $reason);
+        $message = sprintf('Can not delete plugin. Please contact your system administrator. Error: %s', $reason);
 
         parent::__construct($message, $code, $previous);
     }

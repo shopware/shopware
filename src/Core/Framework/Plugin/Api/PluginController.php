@@ -5,7 +5,8 @@ namespace Shopware\Core\Framework\Plugin\Api;
 use Composer\IO\NullIO;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
-use Shopware\Core\Framework\Plugin\Exception\CantDeletePluginException;
+use Shopware\Core\Framework\Plugin\Exception\CanNotDeleteInstalledPluginException;
+use Shopware\Core\Framework\Plugin\Exception\CanNotDeletePluginManagedByComposerException;
 use Shopware\Core\Framework\Plugin\Exception\PluginNotAZipFileException;
 use Shopware\Core\Framework\Plugin\PluginLifecycleService;
 use Shopware\Core\Framework\Plugin\PluginManagementService;
@@ -84,7 +85,11 @@ class PluginController extends AbstractController
         $plugin = $this->pluginService->getPluginByName($pluginName, $context);
 
         if ($plugin->getInstalledAt() !== null) {
-            throw new CantDeletePluginException('can not delete installed plugins');
+            throw new CanNotDeleteInstalledPluginException('can not delete installed plugins');
+        }
+
+        if ($plugin->isManagedByComposer()) {
+            throw new CanNotDeletePluginManagedByComposerException('can not delete plugins managed by composer');
         }
 
         $this->pluginManagementService->deletePlugin($plugin);

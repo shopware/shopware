@@ -11,6 +11,7 @@ use Shopware\Core\Framework\Plugin\PluginCollection;
 use Shopware\Core\Framework\Plugin\PluginEntity;
 use Shopware\Core\Framework\Plugin\PluginLifecycleService;
 use Shopware\Core\Framework\Plugin\PluginManagementService;
+use Shopware\Core\Framework\Store\Exception\CanNotDownloadPluginManagedByComposerException;
 use Shopware\Core\Framework\Store\Exception\StoreApiException;
 use Shopware\Core\Framework\Store\Exception\StoreInvalidCredentials;
 use Shopware\Core\Framework\Store\Exception\StoreTokenMissingException;
@@ -172,10 +173,22 @@ class StoreController extends AbstractController
      */
     public function downloadPlugin(Request $request, Context $context): JsonResponse
     {
+        $pluginName = $request->query->get('pluginName');
+
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('plugin.name', $pluginName));
+
+        /** @var PluginEntity|null $plugin */
+        $plugin = $this->pluginRepo->search($criteria, $context)->first();
+
+        if ($plugin !== null && $plugin->isManagedByComposer()) {
+            throw new CanNotDownloadPluginManagedByComposerException('can not downloads plugins managed by composer from store api');
+        }
+
         $storeToken = $this->getUserStoreToken($context);
 
         try {
-            $data = $this->storeClient->getDownloadDataForPlugin($request->query->get('pluginName'), $storeToken, $context);
+            $data = $this->storeClient->getDownloadDataForPlugin($pluginName, $storeToken, $context);
         } catch (ClientException $exception) {
             throw new StoreApiException($exception);
         }
@@ -184,12 +197,6 @@ class StoreController extends AbstractController
         if ($statusCode !== Response::HTTP_OK) {
             return new JsonResponse([], $statusCode);
         }
-
-        $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('plugin.name', $request->query->get('pluginName')));
-
-        /** @var PluginEntity $plugin */
-        $plugin = $this->pluginRepo->search($criteria, $context)->first();
 
         if ($plugin->getUpgradeVersion()) {
             $this->pluginLifecycleService->updatePlugin($plugin, $context);

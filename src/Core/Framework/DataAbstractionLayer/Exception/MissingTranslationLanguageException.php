@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\System\Exception;
 
-namespace Shopware\Core\System\Exception;
+namespace Shopware\Core\Framework\DataAbstractionLayer\Exception;
 
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 use Symfony\Component\HttpFoundation\Response;

@@ -22,7 +22,7 @@ skinparam backgroundColor #FFFFFF
 
 ' entities
 
-Table(ShopwareCoreFrameworkAttribute, "Shopware\Core\Framework\Attribute\n(Attrbutes/EAV)") {
+Table(ShopwareCoreFrameworkAttribute, "Shopware\Core\Framework\Attribute\n(attributes/EAV)") {
    attribute Table
    attribute_set Table
    attribute_set_relation Table

@@ -43,7 +43,7 @@ Table(ShopwareCoreCheckoutShippingAggregateShippingMethodPriceShippingMethodPric
    not_null(quantityFrom) float
    not_null(price) float
    not_null(factor) float
-   attributes attrbutes
+   attributes attributes
    not_null(createdAt) createdAt
    not_null(updatedAt) updatedAt
 }
@@ -51,7 +51,7 @@ TranslationTable(ShopwareCoreCheckoutShippingAggregateShippingMethodTranslationS
    not_null(name) string
    description longText
    comment string
-   attributes attrbutes
+   attributes attributes
    primary_key(shippingMethodId) foreignKey
    primary_key(languageId) foreignKey
    not_null(createdAt) createdAt

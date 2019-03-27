@@ -33,7 +33,7 @@ Table(ShopwareCoreSystemUnitUnitDefinition, "unit\n(Measuring unit)") {
 TranslationTable(ShopwareCoreSystemUnitAggregateUnitTranslationUnitTranslationDefinition, "unit_translation\n((Translations))") {
    not_null(shortCode) string
    not_null(name) string
-   attributes attrbutes
+   attributes attributes
    primary_key(unitId) foreignKey
    primary_key(languageId) foreignKey
    not_null(createdAt) createdAt

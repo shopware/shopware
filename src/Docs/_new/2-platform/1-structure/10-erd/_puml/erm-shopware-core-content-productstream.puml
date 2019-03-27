@@ -35,7 +35,7 @@ Table(ShopwareCoreContentProductStreamProductStreamDefinition, "product_stream\n
 TranslationTable(ShopwareCoreContentProductStreamAggregateProductStreamTranslationProductStreamTranslationDefinition, "product_stream_translation\n((Translations))") {
    name string
    description longText
-   attributes attrbutes
+   attributes attributes
    primary_key(productStreamId) foreignKey
    primary_key(languageId) foreignKey
    not_null(createdAt) createdAt
@@ -53,7 +53,7 @@ Table(ShopwareCoreContentProductStreamAggregateProductStreamFilterProductStreamF
    position int
    not_null(createdAt) createdAt
    not_null(updatedAt) updatedAt
-   attributes attrbutes
+   attributes attributes
 }
 ForeignTable(ShopwareCoreSystemLanguageLanguageDefinition, "language") {
 }

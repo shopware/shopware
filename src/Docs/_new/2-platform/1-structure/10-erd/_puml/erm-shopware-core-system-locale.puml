@@ -34,7 +34,7 @@ Table(ShopwareCoreSystemLocaleLocaleDefinition, "locale\n(A locale)") {
 TranslationTable(ShopwareCoreSystemLocaleAggregateLocaleTranslationLocaleTranslationDefinition, "locale_translation\n((Translations))") {
    not_null(name) string
    not_null(territory) string
-   attributes attrbutes
+   attributes attributes
    primary_key(localeId) foreignKey
    primary_key(languageId) foreignKey
    not_null(createdAt) createdAt

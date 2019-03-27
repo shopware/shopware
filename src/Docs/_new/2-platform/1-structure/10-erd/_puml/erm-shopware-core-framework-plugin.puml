@@ -52,7 +52,7 @@ TranslationTable(ShopwareCoreFrameworkPluginAggregatePluginTranslationPluginTran
    manufacturerLink string
    supportLink string
    changelog json
-   attributes attrbutes
+   attributes attributes
    primary_key(pluginId) foreignKey
    primary_key(languageId) foreignKey
    not_null(createdAt) createdAt

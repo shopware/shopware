@@ -51,7 +51,7 @@ use Shopware\Storefront\Framework\Seo\Entity\Field\CanonicalUrlAssociationField;
 class ErdTypeMap
 {
     private $fieldTypeMap = [
-        AttributesField::class => 'attrbutes',
+        AttributesField::class => 'attributes',
         BlacklistRuleField::class => 'blacklistRule',
         BlobField::class => 'blob',
         BoolField::class => 'bool',

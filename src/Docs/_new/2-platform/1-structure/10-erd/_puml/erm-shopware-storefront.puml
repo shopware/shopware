@@ -31,7 +31,7 @@ Table(ShopwareStorefrontFrameworkSeoSeoUrlDefinition, "seo_url\n(SEO urls)") {
    not_null(seoPathInfo) string
    isCanonical bool
    isModified bool
-   attributes attrbutes
+   attributes attributes
    not_null(createdAt) createdAt
    not_null(updatedAt) updatedAt
    url string

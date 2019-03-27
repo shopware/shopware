@@ -3,7 +3,7 @@
 namespace Shopware\Core\Content\MailTemplate\Service;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\ConstraintBuilder;
-use Shopware\Core\Framework\Exception\ConstraintViolationException;
+use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
 use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
@@ -40,7 +40,7 @@ class MessageFactory
     }
 
     /**
-     * @throws ConstraintViolationException
+     * @throws \Shopware\Core\Framework\Validation\Exception\ConstraintViolationException
      */
     private function assertValidAddresses(array $addresses): void
     {

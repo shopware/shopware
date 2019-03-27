@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Framework\Validation;
 
-use Shopware\Core\Framework\Exception\ConstraintViolationException;
+use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
 use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Component\Validator\Validator\ValidatorInterface;

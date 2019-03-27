@@ -174,7 +174,7 @@ export default {
 
         isDuplicatedNameError(error) {
             return error.response.data.errors.some((err) => {
-                return err.code === 'DUPLICATED_MEDIA_FILE_NAME_EXCEPTION';
+                return err.code === 'CONTENT__MEDIA_DUPLICATED_FILE_NAME';
             });
         },
 

@@ -35,9 +35,7 @@ module.exports = {
 
         browser
             .waitForElementNotPresent(page.elements.loader)
-            .assert.urlContains('#/sw/media/index')
-            .moveToElement(`${page.elements.gridItem}--0 .sw-media-base-item__preview-container`, 5, 5).doubleClick()
-            .waitForElementVisible('.icon--folder-breadcrumbs-back-to-root');
+            .assert.urlContains('#/sw/media/index');
     },
     'open replace modal': (browser) => {
         const page = mediaPage(browser);

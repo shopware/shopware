@@ -4,19 +4,20 @@ namespace Shopware\Core\Framework\ScheduledTask\Subscriber;
 
 use Shopware\Core\Framework\Plugin\Event\PluginPostActivateEvent;
 use Shopware\Core\Framework\Plugin\Event\PluginPostDeactivateEvent;
-use Shopware\Core\Framework\ScheduledTask\Registry\TaskRegistry;
+use Shopware\Core\Framework\ScheduledTask\MessageQueue\RegisterScheduledTaskMessage;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Component\Messenger\MessageBusInterface;
 
 class PluginLifecycleSubscriber implements EventSubscriberInterface
 {
     /**
-     * @var TaskRegistry
+     * @var MessageBusInterface
      */
-    private $registry;
+    private $messageBus;
 
-    public function __construct(TaskRegistry $registry)
+    public function __construct(MessageBusInterface $messageBus)
     {
-        $this->registry = $registry;
+        $this->messageBus = $messageBus;
     }
 
     public static function getSubscribedEvents(): array
@@ -29,6 +30,6 @@ class PluginLifecycleSubscriber implements EventSubscriberInterface
 
     public function registerScheduledTasked(): void
     {
-        $this->registry->registerTasks();
+        $this->messageBus->dispatch(new RegisterScheduledTaskMessage());
     }
 }

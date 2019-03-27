@@ -20,8 +20,13 @@
         </service>
 
         <service id="Shopware\Core\Framework\ScheduledTask\Subscriber\PluginLifecycleSubscriber">
-            <argument type="service" id="Shopware\Core\Framework\ScheduledTask\Registry\TaskRegistry"/>
+            <argument type="service" id="messenger.bus.shopware"/>
             <tag name="kernel.event_subscriber"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\ScheduledTask\MessageQueue\RegisterScheduledTaskHandler">
+            <argument type="service" id="Shopware\Core\Framework\ScheduledTask\Registry\TaskRegistry"/>
+            <tag name="messenger.message_handler"/>
         </service>
 
         <service id="Shopware\Core\Framework\Command\RegisterScheduledTasksCommand">

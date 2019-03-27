@@ -5,8 +5,10 @@ namespace Shopware\Core\Framework\Test\ScheduledTask\Subscriber;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Plugin\Event\PluginPostActivateEvent;
 use Shopware\Core\Framework\Plugin\Event\PluginPostDeactivateEvent;
-use Shopware\Core\Framework\ScheduledTask\Registry\TaskRegistry;
+use Shopware\Core\Framework\ScheduledTask\MessageQueue\RegisterScheduledTaskMessage;
 use Shopware\Core\Framework\ScheduledTask\Subscriber\PluginLifecycleSubscriber;
+use Symfony\Component\Messenger\Envelope;
+use Symfony\Component\Messenger\MessageBusInterface;
 
 class PluginLifecycleSubscriberTest extends TestCase
 {
@@ -23,11 +25,12 @@ class PluginLifecycleSubscriberTest extends TestCase
 
     public function testRegisterScheduledTasks(): void
     {
-        $registry = $this->createMock(TaskRegistry::class);
-        $registry->expects(static::once())
-            ->method('registerTasks');
+        $messageBus = $this->createMock(MessageBusInterface::class);
+        $messageBus->expects(static::once())
+            ->method('dispatch')->with(static::isInstanceOf(RegisterScheduledTaskMessage::class))
+            ->willReturn(new Envelope(new RegisterScheduledTaskMessage()));
 
-        $subscriber = new PluginLifecycleSubscriber($registry);
+        $subscriber = new PluginLifecycleSubscriber($messageBus);
         $subscriber->registerScheduledTasked();
     }
 }

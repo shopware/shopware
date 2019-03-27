@@ -5,6 +5,12 @@
     },
     "index": {
       "title": "Settings"
+    },
+    "sw-system-config": {
+      "titleSaveSuccess":"Config saved",
+      "messageSaveSuccess":"The configuration has been saved successfully.",
+      "save": "Save",
+      "title": "{namespace} config"
     }
   }
 }

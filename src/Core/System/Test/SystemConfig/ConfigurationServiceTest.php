@@ -4,11 +4,9 @@ namespace Shopware\Core\System\Test\SystemConfig;
 
 use Composer\Autoload\ClassLoader;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
 use Shopware\Core\System\SystemConfig\Exception\BundleConfigNotFoundException;
 use Shopware\Core\System\SystemConfig\Exception\BundleNotFoundException;
 use Shopware\Core\System\SystemConfig\Service\ConfigurationService;
@@ -65,57 +63,24 @@ class ConfigurationServiceTest extends TestCase
     public function testThatWrongNamespaceThrowsException(): void
     {
         $this->expectException(BundleNotFoundException::class);
-        $this->configurationService->getConfiguration('InvalidNamespace', $this->context, Defaults::SALES_CHANNEL);
+        $this->configurationService->getConfiguration('InvalidNamespace');
     }
 
     public function testThatBundleWithoutConfigThrowsException(): void
     {
         $this->expectException(BundleConfigNotFoundException::class);
         $this->configurationService->getConfiguration(
-            \SwagInvalidTest\SwagInvalidTest::PLUGIN_NAME,
-            $this->context,
-            Defaults::SALES_CHANNEL
+            \SwagInvalidTest\SwagInvalidTest::PLUGIN_NAME
         );
     }
 
     public function testGetConfigurationFromBundleWithoutExistingValues(): void
     {
         $actualConfig = $this->configurationService->getConfiguration(
-            \SwagExampleTest\SwagExampleTest::PLUGIN_NAME,
-            $this->context,
-            Defaults::SALES_CHANNEL
+            \SwagExampleTest\SwagExampleTest::PLUGIN_NAME
         );
 
         static::assertSame($this->getConfigWithoutValues(), $actualConfig);
-    }
-
-    public function testPatchValuesIntoConfig(): void
-    {
-        $this->initializeRepo();
-
-        $method = ReflectionHelper::getMethod(ConfigurationService::class, 'patchValuesIntoConfig');
-
-        $actualConfig = $method->invoke(
-            $this->configurationService,
-            $this->getConfigWithoutValues(),
-            \SwagExampleTest\SwagExampleTest::PLUGIN_NAME,
-            Defaults::SALES_CHANNEL,
-            $this->context
-        );
-
-        foreach ($actualConfig as $card) {
-            foreach ($card['fields'] as $field) {
-                static::assertNotNull($field['value']);
-
-                if ($field['name'] === 'email') {
-                    static::assertSame('test@example.com', $field['value']);
-                }
-
-                if ($field['name'] === 'mailMethod') {
-                    static::assertSame('smtp', $field['value']);
-                }
-            }
-        }
     }
 
     private function getConfigWithoutValues(): array
@@ -123,76 +88,56 @@ class ConfigurationServiceTest extends TestCase
         return [
             0 => [
                 'title' => [
-                    'en_GB' => 'Basic configuration',
-                    'de_DE' => 'Grundeinstellungen',
+                    'en-GB' => 'Basic configuration',
+                    'de-DE' => 'Grundeinstellungen',
                 ],
-                'fields' => [
+                'elements' => [
                     0 => [
                         'type' => 'text',
-                        'name' => 'email',
+                        'name' => 'bundle.SwagExampleTest.email',
                         'copyable' => true,
                         'label' => [
-                            'en_GB' => 'eMail',
-                            'de_DE' => 'E-Mail',
+                            'en-GB' => 'eMail',
+                            'de-DE' => 'E-Mail',
                         ],
                         'placeholder' => [
-                            'en_GB' => 'Enter your eMail address',
-                            'de_DE' => 'Bitte gib deine E-Mail Adresse ein',
+                            'en-GB' => 'Enter your eMail address',
+                            'de-DE' => 'Bitte gib deine E-Mail Adresse ein',
                         ],
-                        'value' => null,
                     ],
                     1 => [
                         'type' => 'select',
-                        'name' => 'mailMethod',
+                        'name' => 'bundle.SwagExampleTest.mailMethod',
                         'options' => [
                             0 => [
-                                'value' => 'smtp',
-                                'label' => [
-                                    'en_GB' => 'SMTP',
+                                'id' => 'smtp',
+                                'name' => [
+                                    'en-GB' => 'SMTP',
                                 ],
                             ],
                             1 => [
-                                'value' => 'pop3',
-                                'label' => [
-                                    'en_GB' => 'POP3',
+                                'id' => 'pop3',
+                                'name' => [
+                                    'en-GB' => 'POP3',
                                 ],
                             ],
                         ],
                         'label' => [
-                            'en_GB' => 'Mailing protocol',
-                            'de_DE' => 'E-Mail Versand Protokoll',
+                            'en-GB' => 'Mailing protocol',
+                            'de-DE' => 'E-Mail Versand Protokoll',
                         ],
                         'placeholder' => [
-                            'en_GB' => 'Choose your preferred transfer method',
-                            'de_DE' => 'Bitte wähle dein bevorzugtes Versand Protokoll',
+                            'en-GB' => 'Choose your preferred transfer method',
+                            'de-DE' => 'Bitte wähle dein bevorzugtes Versand Protokoll',
                         ],
-                        'value' => null,
                     ],
                 ],
             ],
         ];
     }
 
-    private function initializeRepo(): void
-    {
-        $this->systemConfigRepository->upsert([
-            [
-                'namespace' => \SwagExampleTest\SwagExampleTest::PLUGIN_NAME,
-                'configurationKey' => 'email',
-                'configurationValue' => 'test@example.com',
-                'salesChannelId' => Defaults::SALES_CHANNEL,
-            ],
-            [
-                'namespace' => \SwagExampleTest\SwagExampleTest::PLUGIN_NAME,
-                'configurationKey' => 'mailMethod',
-                'configurationValue' => 'smtp',
-                'salesChannelId' => Defaults::SALES_CHANNEL,
-            ],
-        ], $this->context);
-    }
-
     private function getConfigurationService(): ConfigurationService
     {
-        return new ConfigurationService($this->systemConfigRepository, $this->container->get('kernel'), new ConfigReader());
+        return new ConfigurationService($this->container->get('kernel'), new ConfigReader());
     }
 }

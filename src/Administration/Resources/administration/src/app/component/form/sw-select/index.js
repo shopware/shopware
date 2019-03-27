@@ -622,7 +622,7 @@ export default {
             }
 
             item = JSON.parse(JSON.stringify(item));
-            if (item[this.displayName]) {
+            if (item[this.displayName] && typeof item[this.displayName] === 'string') {
                 item[this.displayName] = item[this.displayName].replace(/<[^>]+>/g, '');
             }
 

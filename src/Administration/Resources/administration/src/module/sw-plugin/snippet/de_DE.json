@@ -93,7 +93,8 @@
       "titleUpdateSuccess":"Plugin aktualisiert",
       "messageUpdateSuccess":"Das Plugin wurde erfolgreich aktualisiert",
       "deactivated": "Deaktiviert",
-      "activated": "Aktiviert"
+      "activated": "Aktiviert",
+      "config": "Konfiguration"
     },
     "license-list":{
       "textMyPurchases":"Einkäufe",

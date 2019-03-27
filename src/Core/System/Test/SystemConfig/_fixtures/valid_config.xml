@@ -3,32 +3,32 @@
 
     <card>
         <title>Basic configuration</title>
-        <title lang="de_DE">Grundeinstellungen</title>
+        <title lang="de-DE">Grundeinstellungen</title>
         <input-field>
             <name>email</name>
             <copyable>true</copyable>
             <label>eMail</label>
-            <label lang="de_DE">E-Mail</label>
+            <label lang="de-DE">E-Mail</label>
             <placeholder>Enter your eMail address</placeholder>
-            <placeholder lang="de_DE">Bitte gib deine E-Mail Adresse ein</placeholder>
+            <placeholder lang="de-DE">Bitte gib deine E-Mail Adresse ein</placeholder>
         </input-field>
 
         <input-field type="select">
             <name>mailMethod</name>
             <options>
                 <option>
-                    <value>smtp</value>
-                    <label>SMTP</label>
+                    <id>smtp</id>
+                    <name>SMTP</name>
                 </option>
                 <option>
-                    <value>pop3</value>
-                    <label>POP3</label>
+                    <id>pop3</id>
+                    <name>POP3</name>
                 </option>
             </options>
             <label>Mailing protocol</label>
-            <label lang="de_DE">E-Mail Versand Protokoll</label>
+            <label lang="de-DE">E-Mail Versand Protokoll</label>
             <placeholder>Choose your preferred transfer method</placeholder>
-            <placeholder lang="de_DE">Bitte wähle dein bevorzugtes Versand Protokoll</placeholder>
+            <placeholder lang="de-DE">Bitte wähle dein bevorzugtes Versand Protokoll</placeholder>
         </input-field>
     </card>
 </config>

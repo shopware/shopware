@@ -12,7 +12,7 @@ Component.register('sw-plugin-list', {
         }
     },
 
-    inject: ['pluginService'],
+    inject: ['pluginService', 'systemConfigApiService'],
 
     mixins: [
         Mixin.getByName('listing'),
@@ -118,6 +118,14 @@ Component.register('sw-plugin-list', {
             });
         },
 
+        onPluginSettings(plugin) {
+            this.$router.push({ name: 'sw.plugin.settings', params: { namespace: plugin.name } });
+        },
+
+        successfulUpload() {
+            this.getList();
+        },
+
         getList() {
             this.isLoading = true;
 
@@ -125,6 +133,7 @@ Component.register('sw-plugin-list', {
 
             this.pluginsStore.getList(params).then((response) => {
                 this.plugins = response.items;
+                this.isConfigAvailableForPlugins();
                 this.total = response.total;
                 this.isLoading = false;
             });
@@ -146,6 +155,27 @@ Component.register('sw-plugin-list', {
             this.sortType = event;
             this.page = 1;
             this.getList();
+        },
+
+        isConfigAvailableForPlugins() {
+            this.plugins.forEach((plugin) => {
+                if (!plugin.active) {
+                    return;
+                }
+
+                // TODO: replace n requests with one request
+                this.getConfig(plugin.name).then((returnedConfig) => {
+                    plugin.attributes = {
+                        config: returnedConfig[0]
+                    };
+                }).catch(() => {
+                    // nth
+                });
+            });
+        },
+
+        getConfig(pluginName) {
+            return this.systemConfigApiService.getConfig(`bundle.${pluginName}`);
         }
     }
 });

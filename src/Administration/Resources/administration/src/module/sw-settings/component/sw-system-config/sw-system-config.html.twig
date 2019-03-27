@@ -1,0 +1,41 @@
+{% block sw_system_config %}
+    <sw-page :showSearchBar="false"
+             :showSmartBar="true">
+
+        {% block sw_system_config_header %}
+            <template slot="smart-bar-header">
+                <div class="header">
+                    {% block sw_system_config_header %}
+                        <h2>{{ $tc('sw-settings.sw-system-config.title', 1, { title }) }}</h2>
+                    {% endblock %}
+                    <sw-button variant="primary" @click="saveAll">
+                        {{ $tc('sw-settings.sw-system-config.save') }}
+                    </sw-button>
+                </div>
+            </template>
+        {% endblock %}
+
+        {% block sw_system_config_content %}
+            <template slot="content">
+                <sw-card-view slot="content">
+                    {% block sw_system_config_content_card %}
+                        <sw-card v-for="card, index in config"
+                                 :key="index"
+                                 :title="getInlineSnippet(card.title)">
+                            <div v-for="element in card.elements"
+                                 class="sw-system-config__config-element">
+                                {% block sw_system_config_content_card_field %}
+                                    <sw-form-field-renderer :config="element"
+                                                            :key="element.name"
+                                                            v-model="actualConfigData[element.name]"
+                                                            v-bind="element">
+                                    </sw-form-field-renderer>
+                                {% endblock %}
+                            </div>
+                        </sw-card>
+                    {% endblock %}
+                </sw-card-view>
+            </template>
+        {% endblock %}
+    </sw-page>
+{% endblock %}

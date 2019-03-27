@@ -10,15 +10,22 @@
         </service>
 
         <service id="Shopware\Core\System\SystemConfig\Service\ConfigurationService">
-            <argument type="service" id="system_config.repository"/>
             <argument type="service" id="kernel"/>
             <argument type="service" id="Shopware\Core\System\SystemConfig\Util\ConfigReader"/>
+
         </service>
 
         <service id="Shopware\Core\System\SystemConfig\Util\ConfigReader"/>
 
         <service id="Shopware\Core\System\SystemConfig\SystemConfigController" public="true">
             <argument type="service" id="Shopware\Core\System\SystemConfig\Service\ConfigurationService"/>
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+        </service>
+
+
+        <service id="Shopware\Core\System\SystemConfig\SystemConfigService">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="system_config.repository"/>
         </service>
     </services>
 </container>

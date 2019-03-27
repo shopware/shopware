@@ -2,14 +2,9 @@
 
 namespace Shopware\Core\Framework\Snippet\Filter;
 
-use Shopware\Core\Framework\Exception\MethodNotOverriddenException;
-
 abstract class AbstractFilter
 {
-    public function getName(): string
-    {
-        throw new MethodNotOverriddenException(__METHOD__, __CLASS__);
-    }
+    abstract public function getName(): string;
 
     public function supports(string $name): bool
     {

@@ -72,7 +72,7 @@ class Trigger
 
     private function validateArgumentTime(string $time): string
     {
-        if (!in_array(
+        if (!\in_array(
             $time,
             [
                 self::TIME_AFTER,
@@ -88,7 +88,7 @@ class Trigger
 
     private function validateArgumentEvent(string $event): string
     {
-        if (!in_array(
+        if (!\in_array(
             $event,
             [
                 self::EVENT_INSERT,

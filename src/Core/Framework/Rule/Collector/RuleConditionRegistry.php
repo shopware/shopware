@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Framework\Rule\Collector;
 
-use Shopware\Core\Framework\Rule\InvalidConditionException;
+use Shopware\Core\Framework\Rule\Exception\InvalidConditionException;
 use Shopware\Core\Framework\Rule\Rule;
 
 class RuleConditionRegistry

@@ -7,8 +7,8 @@ use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressCollection;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
 use Shopware\Core\Checkout\Customer\CustomerEvents;
+use Shopware\Core\Checkout\Customer\Exception\AddressNotFoundException;
 use Shopware\Core\Checkout\Customer\Validation\AddressValidationService;
-use Shopware\Core\Checkout\Exception\AddressNotFoundException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -65,7 +65,7 @@ class AddressService
     }
 
     /**
-     * @throws AddressNotFoundException
+     * @throws \Shopware\Core\Checkout\Customer\Exception\AddressNotFoundException
      * @throws InvalidUuidException
      */
     public function getById(string $addressId, CheckoutContext $context): CustomerAddressEntity
@@ -104,7 +104,7 @@ class AddressService
     }
 
     /**
-     * @throws AddressNotFoundException
+     * @throws \Shopware\Core\Checkout\Customer\Exception\AddressNotFoundException
      * @throws CustomerNotLoggedInException
      * @throws InvalidUuidException
      */
@@ -153,7 +153,7 @@ class AddressService
     /**
      * @throws CustomerNotLoggedInException
      * @throws InvalidUuidException
-     * @throws AddressNotFoundException
+     * @throws \Shopware\Core\Checkout\Customer\Exception\AddressNotFoundException
      */
     public function delete(string $addressId, CheckoutContext $context): void
     {
@@ -173,7 +173,7 @@ class AddressService
     }
 
     /**
-     * @throws AddressNotFoundException
+     * @throws \Shopware\Core\Checkout\Customer\Exception\AddressNotFoundException
      * @throws InvalidUuidException
      */
     private function validateAddressId(string $addressId, CheckoutContext $context): CustomerAddressEntity

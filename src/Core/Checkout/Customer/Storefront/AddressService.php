@@ -65,7 +65,7 @@ class AddressService
     }
 
     /**
-     * @throws \Shopware\Core\Checkout\Customer\Exception\AddressNotFoundException
+     * @throws AddressNotFoundException
      * @throws InvalidUuidException
      */
     public function getById(string $addressId, CheckoutContext $context): CustomerAddressEntity
@@ -104,7 +104,7 @@ class AddressService
     }
 
     /**
-     * @throws \Shopware\Core\Checkout\Customer\Exception\AddressNotFoundException
+     * @throws AddressNotFoundException
      * @throws CustomerNotLoggedInException
      * @throws InvalidUuidException
      */
@@ -153,7 +153,7 @@ class AddressService
     /**
      * @throws CustomerNotLoggedInException
      * @throws InvalidUuidException
-     * @throws \Shopware\Core\Checkout\Customer\Exception\AddressNotFoundException
+     * @throws AddressNotFoundException
      */
     public function delete(string $addressId, CheckoutContext $context): void
     {
@@ -173,7 +173,7 @@ class AddressService
     }
 
     /**
-     * @throws \Shopware\Core\Checkout\Customer\Exception\AddressNotFoundException
+     * @throws AddressNotFoundException
      * @throws InvalidUuidException
      */
     private function validateAddressId(string $addressId, CheckoutContext $context): CustomerAddressEntity

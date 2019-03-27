@@ -17,7 +17,7 @@ class XmlParsingException extends ShopwareHttpException
 
     public function getErrorCode(): string
     {
-        return 'FRAMEWORK__XML_PARSE_ERROR';
+        return 'SYSTEM__XML_PARSE_ERROR';
     }
 
     public function getStatusCode(): int

@@ -88,7 +88,7 @@ class AccountService
     }
 
     /**
-     * @throws \Shopware\Core\Checkout\Customer\Exception\CustomerNotFoundException
+     * @throws CustomerNotFoundException
      * @throws BadCredentialsException
      */
     public function getCustomerByLogin(string $email, string $password, CheckoutContext $context): CustomerEntity
@@ -103,7 +103,7 @@ class AccountService
     }
 
     /**
-     * @throws \Shopware\Core\Checkout\Customer\Exception\CustomerNotFoundException
+     * @throws CustomerNotFoundException
      */
     public function getCustomerByEmail(string $email, CheckoutContext $context, bool $includeGuest = false): CustomerEntity
     {

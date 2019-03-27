@@ -16,6 +16,6 @@ class XmlElementNotFoundException extends ShopwareHttpException
 
     public function getErrorCode(): string
     {
-        return 'FRAMEWORK__XML_ELEMENT_NOT_FOUND';
+        return 'SYSTEM__XML_ELEMENT_NOT_FOUND';
     }
 }

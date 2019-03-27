@@ -40,7 +40,7 @@ class MessageFactory
     }
 
     /**
-     * @throws \Shopware\Core\Framework\Validation\Exception\ConstraintViolationException
+     * @throws ConstraintViolationException
      */
     private function assertValidAddresses(array $addresses): void
     {

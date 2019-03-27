@@ -9,7 +9,6 @@ import MenuService from 'src/app/service/menu.service';
 import LoginService from 'src/core/service/login.service';
 import JsonApiParser from 'src/core/service/jsonapi-parser.service';
 import ValidationService from 'src/core/service/validation.service';
-import MediaUploadService from 'src/core/service/media-upload.service';
 import RuleConditionService from 'src/app/service/rule-condition.service';
 import ProductStreamConditionService from 'src/app/service/product-stream-condition.service';
 import StateStyleService from 'src/app/service/state-style.service';
@@ -42,10 +41,6 @@ Application
     })
     .addServiceProvider('validationService', () => {
         return ValidationService;
-    })
-    .addServiceProvider('mediaUploadService', () => {
-        const init = Application.getContainer('service');
-        return MediaUploadService(init.mediaService);
     })
     .addServiceProvider('ruleConditionDataProviderService', () => {
         return RuleConditionService();

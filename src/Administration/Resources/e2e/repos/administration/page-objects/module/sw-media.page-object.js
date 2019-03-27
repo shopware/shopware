@@ -60,7 +60,7 @@ class MediaPageObject extends GeneralPageObject {
             .waitForElementVisible(`${this.elements.gridItem}--${itemPosition} ${this.elements.baseItem}`)
             .moveToElement(this.elements.baseItem, 5, 5)
             .clickContextMenuItem(action, '.sw-context-button__button', `${this.elements.gridItem}--0`)
-            .waitForElementVisible('.sw-modal__title');
+            .waitForElementVisible('.sw-modal__title')
     }
 
     moveMediaItem(name, itemType, position = 0) {
@@ -100,6 +100,20 @@ class MediaPageObject extends GeneralPageObject {
             .waitForElementNotPresent('.sw-media-base-item__loader');
 
         this.browser.expect.element(`${this.elements.gridItem}--${position} ${this.elements.baseItemName}`).to.have.text.that.equals(name);
+    }
+
+    createDefaultFolder(defaultFolderEntity, name, position = 0) {
+        this.createFolder(name, position);
+        this.openMediaModal(this.elements.showSettingsAction, position);
+
+        this.browser.click('.sw-media-folder-settings-modal__default-folder-select')
+            .waitForElementVisible('.sw-select__results')
+            .setValue('.sw-select__input-single', defaultFolderEntity)
+            .waitForElementNotPresent('.sw-loader')
+            .click('.sw-select-option--0')
+            .click('.sw-media-modal-folder-settings__confirm')
+            .waitForElementNotPresent('.sw-media-modal-folder-settings')
+            .checkNotification('Settings have been saved successfully.');
     }
 
     setThumbnailSize(width, height) {

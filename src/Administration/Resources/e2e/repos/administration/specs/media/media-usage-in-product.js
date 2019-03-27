@@ -13,6 +13,11 @@ module.exports = {
             done();
         });
     },
+    'create default folder for manufacturer': (browser) => {
+        const page = mediaPage(browser);
+        page.openMediaIndex();
+        page.createDefaultFolder('product', 'Product Media');
+    },
     'open product listing and select product': (browser) => {
         const page = productPage(browser);
 

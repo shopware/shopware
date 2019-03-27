@@ -23,11 +23,6 @@ export default {
     name: 'sw-media-upload',
     template,
 
-    inject: [
-        'mediaUploadService',
-        'mediaService'
-    ],
-
     mixins: [
         Mixin.getByName('notification')
     ],
@@ -63,12 +58,6 @@ export default {
         label: {
             type: String,
             required: false
-        },
-
-        scrollTarget: {
-            type: HTMLElement,
-            required: false,
-            default: null
         },
 
         defaultFolder: {
@@ -231,10 +220,6 @@ export default {
         },
 
         onDragEnter() {
-            if (this.scrollTarget !== null && !this.isElementInViewport(this.$refs.dropzone)) {
-                this.scrollTarget.scrollIntoView();
-            }
-
             this.isDragActive = true;
         },
 
@@ -311,17 +296,6 @@ export default {
         /*
          * Helper functions
          */
-        isElementInViewport(el) {
-            const rect = el.getBoundingClientRect();
-
-            return (
-                rect.top >= 0 &&
-                rect.left >= 0 &&
-                rect.bottom <= (window.innerHeight || document.documentElement.clientHeight) &&
-                rect.right <= (window.innerWidth || document.documentElement.clientWidth)
-            );
-        },
-
         handleUpload(newMediaFiles) {
             if (!this.multiSelect) {
                 this.uploadStore.removeByTag(this.uploadTag);
@@ -361,59 +335,7 @@ export default {
                     return null;
                 }
                 const defaultFolder = items[0];
-                if (defaultFolder.folder.id) {
-                    return defaultFolder.folder.id;
-                }
-
-                return this.createFolder(defaultFolder);
-            });
-        },
-
-        createFolder(defaultFolder) {
-            const entityNameIdentifier = `global.entities.${defaultFolder.entity}`;
-
-            const configuration = this.folderConfigurationStore.create();
-            configuration.createThumbnails = true;
-            configuration.keepProportions = true;
-            configuration.thumbnailQuality = 80;
-
-            const folder = this.folderStore.create();
-            folder.name = `${this.$tc(entityNameIdentifier)} ${this.$tc('global.entities.media', 2)}`;
-            folder.configuration = configuration;
-            folder.useParentConfiguration = false;
-            folder.defaultFolderId = defaultFolder.id;
-
-            return folder.save().then(() => {
-                if (defaultFolder.thumbnailSizes.length > 0) {
-                    this.folderConfigurationStore.getByIdAsync(configuration.id).then((refreshed) => {
-                        this.addThumbnailsToFolderConfig(refreshed, defaultFolder);
-                    });
-                }
-                return folder.id;
-            });
-        },
-
-        addThumbnailsToFolderConfig(configuration, defaultFolder) {
-            this.thumbnailSizesStore.getList({ limit: 50 }).then((response) => {
-                defaultFolder.thumbnailSizes.forEach((size) => {
-                    let thumbnailSize = response.items.find((savedSize) => {
-                        return savedSize.width === size.width && savedSize.height === size.height;
-                    });
-
-                    if (thumbnailSize) {
-                        thumbnailSize.getAssociation('mediaFolderConfigurations').add(configuration);
-                        thumbnailSize.mediaFolderConfigurations.push(configuration);
-                    } else {
-                        thumbnailSize = this.thumbnailSizesStore.create();
-                        thumbnailSize.width = size.width;
-                        thumbnailSize.height = size.height;
-                    }
-
-                    configuration.getAssociation('mediaThumbnailSizes').add(thumbnailSize);
-                    configuration.mediaThumbnailSizes.push(thumbnailSize);
-                });
-
-                return configuration.save();
+                return defaultFolder.folder.id;
             });
         },
 

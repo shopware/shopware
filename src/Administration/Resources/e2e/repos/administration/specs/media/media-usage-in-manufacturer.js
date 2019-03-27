@@ -8,6 +8,11 @@ module.exports = {
             done();
         });
     },
+    'create default folder for manufacturer': (browser) => {
+        const page = mediaPage(browser);
+        page.openMediaIndex();
+        page.createDefaultFolder('manufacturer', 'Manufacturer Media');
+    },
     'open manufacturer listing and select manufacturer': (browser) => {
         const page = manufacturerPage(browser);
 

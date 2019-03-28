@@ -9,22 +9,28 @@ Shopware platform has a few default payment handler which can be found under `Sh
 
 ## Creating a custom payment handler
 
-You can create your own payment handler by implementing the `Shopware\Core\Checkout\Payment\Cart\PaymentHandler\PaymentHandlerInterface` 
-and adding the `payment.method` tag.
+You can create your own payment handler by implementing one of the following interfaces:
 
-The interface requires two methods:
+|               Interface             |   DI container tag   |                               Usage                                 |
+|-------------------------------------|----------------------|---------------------------------------------------------------------|
+| SynchronousPaymentHandlerInterface  | payment.method.sync  | A redirect to an external payment provider is required, e.g. PayPal |
+| AsynchronousPaymentHandlerInterface | payment.method.async | Payment can be handled locally, e.g. SEPA payment                   |
+
+Depending on the interface, those two methods are required:
 
 * `pay`: This method will be called after an order has been placed. 
 You receive a `Shopware\Core\Checkout\Payment\Cart\PaymentTransactionStruct` which contains the transactionId, order details, the amount for the transaction, a return URL, 
 payment method information and language information.
 Please be aware, Shopware platform supports multiple transactions and you have to use the amount provided and not the total order amount.
-The `pay` method can return a `RedirectResponse` to redirect the customer to an external payment provider.
+If you're using the `AsynchronousPaymentHandlerInterface`, the `pay` method has to return a `RedirectResponse` to redirect the customer to an external payment provider.
 Note: The `PaymentTransactionStruct` contains a return URL. Pass this URL to the external payment provider to ensure that the customer will be redirected to this URL.
 
-* `finalize`: The `finalize` method will only be called if you returned a `RedirectResponse` in your `pay` method and the customer has been redirected from the payment provider back to the Shopware platform. 
+* `finalize`: The `finalize` method is only required if you implemented the `AsynchronousPaymentHandlerInterface`, returned a `RedirectResponse` in your `pay` method and the customer has been redirected from the payment provider back to the Shopware platform. 
 You must check here if the payment was successful or not and update the order transaction state accordingly.
 
-An implementation of your custom payment handler could look like this:
+### Asynchronous example
+
+An implementation of your custom asynchronous payment handler could look like this:
 
 ```php
 <?php declare(strict_types=1);
@@ -32,7 +38,7 @@ An implementation of your custom payment handler could look like this:
 namespace PaymentPlugin\Service;
 
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\AsynchronousPaymentHandlerInterface;
-use Shopware\Core\Checkout\Payment\Cart\PaymentTransactionStruct;
+use Shopware\Core\Checkout\Payment\Cart\AsyncPaymentTransactionStruct;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
@@ -58,7 +64,7 @@ class ExamplePayment implements AsynchronousPaymentHandlerInterface
         $this->stateMachineRegistry = $stateMachineRegistry;
     }
 
-    public function pay(PaymentTransactionStruct $transaction, Context $context): RedirectResponse
+    public function pay(AsyncPaymentTransactionStruct $transaction, Context $context): RedirectResponse
     {
         // Method that sends the return URL to the external gateway and gets a redirect URL back
         $redirectUrl = $this->sendReturnUrlToExternalGateway($transaction->getReturnUrl());
@@ -103,25 +109,53 @@ class ExamplePayment implements AsynchronousPaymentHandlerInterface
 }
 ```
 
-This example is working with a redirect to an external payment provider.
-If that's not necessary for your payment method, you can also return `null` instead.
-In that case, changing the `stateId` of the order should be done in the `pay` method already.
+### Synchronous example
+
+In this example, changing the `stateId` of the order should be done in the `pay` method already, since there will be no `finalize` method.
 
 ```php
-<?php
+<?php declare(strict_types=1);
 
-public function pay(PaymentTransactionStruct $transaction, Context $context): ?RedirectResponse
+namespace PaymentPlugin\Service;
+
+use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\SynchronousPaymentHandlerInterface;
+use Shopware\Core\Checkout\Payment\Cart\SyncPaymentTransactionStruct;
+use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\System\StateMachine\StateMachineRegistry;
+
+class ExamplePayment implements SynchronousPaymentHandlerInterface
 {
-    $stateId = $this->stateMachineRegistry->getStateByTechnicalName(Defaults::ORDER_TRANSACTION_STATE_MACHINE, Defaults::ORDER_TRANSACTION_STATES_PAID, $context)->getId();
+    /**
+     * @var EntityRepositoryInterface
+     */
+    private $orderTransactionRepo;
 
-    $transactionData = [
-        'id' => $transaction->getTransactionId(),
-        'stateId' => $stateId,
-    ];
+    /**
+     * @var StateMachineRegistry
+     */
+    private $stateMachineRegistry;
 
-    $this->orderTransactionRepo->update([$transactionData], $context);
+    public function __construct(EntityRepositoryInterface $orderTransactionRepo, StateMachineRegistry $stateMachineRegistry)
+    {
+        $this->orderTransactionRepo = $orderTransactionRepo;
+        $this->stateMachineRegistry = $stateMachineRegistry;
+    }
 
-    return null;
+    public function pay(SyncPaymentTransactionStruct $transaction, Context $context): void
+    {
+        $stateId = $this->stateMachineRegistry->getStateByTechnicalName(Defaults::ORDER_TRANSACTION_STATE_MACHINE, Defaults::ORDER_TRANSACTION_STATES_PAID, $context)->getId();
+    
+        $transactionData = [
+            'id' => $transaction->getTransactionId(),
+            'stateId' => $stateId,
+        ];
+    
+        $this->orderTransactionRepo->update([$transactionData], $context);
+    
+        return null;
+    }
 }
 ```
 
@@ -250,4 +284,5 @@ class PaymentPlugin extends Plugin
 
         return $paymentIds[0];
     }
+}
 ```

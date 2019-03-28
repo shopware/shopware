@@ -22,6 +22,7 @@ return [
                 'url' => '',
                 'attributes' => null,
                 'hasFile' => false,
+                'translated' => [],
             ],
             'links' => [
                 'self' => '/api/media/3e352be2d85846dd97529c0f6b544870',
@@ -119,6 +120,7 @@ return [
                 'url' => '',
                 'attributes' => null,
                 'hasFile' => false,
+                'translated' => [],
             ],
             'links' => [
                 'self' => '/api/media/f1ad1d0c02454a40abf250f764d16248',

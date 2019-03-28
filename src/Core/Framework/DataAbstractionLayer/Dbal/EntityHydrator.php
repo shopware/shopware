@@ -9,6 +9,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AttributesField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Extension;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Inherited;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToOneAssociationField;
@@ -17,6 +18,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StorageAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
+use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\FieldSerializerRegistry;
 use Shopware\Core\Framework\Struct\ArrayEntity;
 
@@ -43,13 +45,13 @@ class EntityHydrator
     /**
      * @param string|EntityDefinition $definition
      */
-    public function hydrate(string $entity, string $definition, array $rows, string $root, Context $context): array
+    public function hydrate(string $entity, string $definition, array $rows, string $root, Context $context, bool $considerInheritance): array
     {
         $collection = [];
         $this->objects = [];
 
         foreach ($rows as $row) {
-            $collection[] = $this->hydrateEntity(new $entity(), $definition, $row, $root, $context);
+            $collection[] = $this->hydrateEntity(new $entity(), $definition, $row, $root, $context, $considerInheritance);
         }
 
         return $collection;
@@ -58,7 +60,7 @@ class EntityHydrator
     /**
      * @param string|EntityDefinition $definition
      */
-    private function hydrateEntity(Entity $entity, string $definition, array $row, string $root, Context $context): Entity
+    private function hydrateEntity(Entity $entity, string $definition, array $row, string $root, Context $context, bool $considerInheritance): Entity
     {
         $fields = $definition::getFields();
 
@@ -102,7 +104,7 @@ class EntityHydrator
 
             if ($field instanceof ManyToOneAssociationField || $field instanceof OneToOneAssociationField) {
                 //hydrated contains now the associated entity (eg. currently hydrating the product, hydrated contains now the manufacturer or tax or ...)
-                $hydrated = $this->hydrateManyToOne($row, $root, $context, $field);
+                $hydrated = $this->hydrateManyToOne($row, $root, $context, $field, $considerInheritance);
 
                 if ($field->is(Extension::class)) {
                     $entity->addExtension($propertyName, $hydrated);
@@ -125,14 +127,24 @@ class EntityHydrator
 
             $value = $row[$originalKey];
 
-            //handle resolved language inheritance
+            $typedField = $field;
             if ($field instanceof TranslatedField) {
-                $translatedField = EntityDefinitionQueryHelper::getTranslatedField($definition, $field);
-                $decoded = $this->fieldHandler->decode($translatedField, $value);
+                $typedField = EntityDefinitionQueryHelper::getTranslatedField($definition, $field);
+            }
+
+            if ($typedField instanceof AttributesField) {
+                $this->hydrateAttributes($root, $field, $typedField, $entity, $row, $context, $considerInheritance);
+                continue;
+            }
+
+            if ($field instanceof TranslatedField) {
+                // contains the resolved translation chain value
+                $decoded = $this->fieldHandler->decode($typedField, $value);
                 $entity->addTranslated($propertyName, $decoded);
 
+                // assign translated value of the first language
                 $key = $root . '.translation.' . $propertyName;
-                $decoded = $this->fieldHandler->decode($translatedField, $row[$key]);
+                $decoded = $this->fieldHandler->decode($typedField, $row[$key]);
                 $entity->assign([$propertyName => $decoded]);
 
                 continue;
@@ -142,11 +154,8 @@ class EntityHydrator
             $entity->assign([$propertyName => $decoded]);
         }
 
-//        $translations = $this->hydrateTranslations($definition, $root, $row, $context);
-//
-//        if ($translations !== null) {
-//            $entity->assign(['translations' => $translations]);
-//            $this->mergeTranslatedAttributes($entity->getViewData(), $definition, $root, $row, $context);
+//        if ($definition::getTranslationDefinitionClass()) {
+//            $this->mergeTranslatedAttributes($entity, $definition, $root, $row, $context, $considerInheritance);
 //        }
 
         //write object cache key to prevent multiple hydration for the same entity
@@ -157,56 +166,67 @@ class EntityHydrator
         return $entity;
     }
 
-//    /**
-//     * @param string[] $jsonStrings
-//     */
-//    private function mergeJson(array $jsonStrings): ?string
-//    {
-//        // remove empty strings and nulls
-//        $filtered = \array_filter($jsonStrings);
-//        if (empty($filtered)) {
-//            return null;
-//        }
-//        $decoded = \array_map(function ($jsonString) { return \json_decode($jsonString, true); }, $filtered);
-//
-//        return \json_encode(\array_merge(...$decoded), JSON_PRESERVE_ZERO_FRACTION);
-//    }
+    /**
+     * @param string[] $jsonStrings
+     */
+    private function mergeJson(array $jsonStrings): ?string
+    {
+        $merged = [];
+        foreach ($jsonStrings as $string) {
+            $decoded = json_decode((string) $string, true);
+            if (!$decoded) {
+                continue;
+            }
+            foreach ($decoded as $key => $value) {
+                $merged[$key] = $value;
+            }
+        }
 
-//    /**
-//     * @param string|EntityDefinition $definition
-//     */
-//    private function mergeTranslatedAttributes(Entity $viewData, string $definition, string $root, array $row, Context $context): void
-//    {
-//        $translationDefinition = $definition::getTranslationDefinitionClass();
-//        $translatedAttributeFields = $translationDefinition::getFields()->filterInstance(AttributesField::class);
-//        $chain = EntityDefinitionQueryHelper::buildTranslationChain($root, $context, true);
-//
-//        /*
-//         * The translations are order like this:
-//         * [0] => current language -> highest priority
-//         * [1] => root language -> lower priority
-//         * [2] => system language -> lowest priority
-//         */
-//        foreach ($translatedAttributeFields as $field) {
-//            $property = $field->getPropertyName();
-//
-//            $values = [];
-//            foreach ($chain as $part) {
-//                $key = $part['alias'] . '.' . $property;
-//                $values[] = $row[$key] ?? null;
-//            }
-//            if (empty($values)) {
-//                continue;
-//            }
-//
-//            /**
-//             * `array_merge`s ordering is reversed compared to the translations array.
-//             * In other terms: The first argument has the lowest 'priority', so we need to reverse the array
-//             */
-//            $merged = $this->mergeJson(\array_reverse($values, false));
-//            $viewData->assign([$property => $this->fieldHandler->decode($field, $merged)]);
-//        }
-//    }
+        return json_encode($merged, JSON_PRESERVE_ZERO_FRACTION);
+    }
+
+    /**
+     * @param string|EntityDefinition $definition
+     */
+    private function mergeTranslatedAttributes(
+        Entity $entity,
+        string $definition,
+        string $root,
+        array $row,
+        Context $context,
+        bool $considerInheritance
+    ): void {
+        $translationDefinition = $definition::getTranslationDefinitionClass();
+        $translatedAttributeFields = $translationDefinition::getFields()->filterInstance(AttributesField::class);
+        $chain = EntityDefinitionQueryHelper::buildTranslationChain($root, $context, $definition::isInheritanceAware() && $considerInheritance);
+
+        /*
+         * The translations are order like this:
+         * [0] => current language -> highest priority
+         * [1] => root language -> lower priority
+         * [2] => system language -> lowest priority
+         */
+        /** @var FieldCollection $translatedAttributeFields */
+        foreach ($translatedAttributeFields as $field) {
+            $property = $field->getPropertyName();
+
+            $values = [];
+            foreach ($chain as $part) {
+                $key = $part['alias'] . '.' . $property;
+                $values[] = $row[$key] ?? null;
+            }
+            if (empty($values)) {
+                continue;
+            }
+
+            /**
+             * `array_merge`s ordering is reversed compared to the translations array.
+             * In other terms: The first argument has the lowest 'priority', so we need to reverse the array
+             */
+            $merged = $this->mergeJson(\array_reverse($values, false));
+            $entity->assign([$property => $this->fieldHandler->decode($field, $merged)]);
+        }
+    }
 
     private function extractManyToManyIds(string $root, ManyToManyAssociationField $field, array $row): ?array
     {
@@ -245,7 +265,7 @@ class EntityHydrator
         return $primaryKey;
     }
 
-    private function hydrateManyToOne(array $row, string $root, Context $context, AssociationInterface $field): ?Entity
+    private function hydrateManyToOne(array $row, string $root, Context $context, AssociationInterface $field, bool $considerInheritance): ?Entity
     {
         /** @var OneToOneAssociationField $field */
         if (!$field instanceof OneToOneAssociationField && !$field instanceof ManyToOneAssociationField) {
@@ -265,6 +285,77 @@ class EntityHydrator
 
         $structClass = $field->getReferenceClass()::getEntityClass();
 
-        return $this->hydrateEntity(new $structClass(), $field->getReferenceClass(), $row, $root . '.' . $field->getPropertyName(), $context);
+        return $this->hydrateEntity(
+            new $structClass(),
+            $field->getReferenceClass(),
+            $row,
+            $root . '.' . $field->getPropertyName(),
+            $context,
+            $considerInheritance
+        );
+    }
+
+    private function hydrateAttributes(string $root, Field $field, AttributesField $attributesField, Entity $entity, array $row, Context $context, bool $considerInheritance): void
+    {
+        $inherited = $field->is(Inherited::class) && $considerInheritance;
+
+        $propertyName = $field->getPropertyName();
+
+        $key = $root . '.' . $propertyName;
+
+        $value = $row[$key];
+
+        if ($field instanceof TranslatedField) {
+            $entity->assign([
+                $propertyName => $this->fieldHandler->decode($attributesField, $value),
+            ]);
+
+            $chain = EntityDefinitionQueryHelper::buildTranslationChain($root, $context, $inherited);
+
+            $values = [];
+            foreach ($chain as $part) {
+                $key = $part['alias'] . '.' . $propertyName;
+                $values[] = $row[$key] ?? null;
+            }
+
+            if (empty($values)) {
+                return;
+            }
+
+            /**
+             * `array_merge`s ordering is reversed compared to the translations array.
+             * In other terms: The first argument has the lowest 'priority', so we need to reverse the array
+             */
+            $merged = $this->mergeJson(\array_reverse($values, false));
+            $entity->addTranslated($propertyName, $this->fieldHandler->decode($attributesField, $merged));
+
+            return;
+        }
+
+        // field is not inherited or request should work with raw data? decode child attributes and return
+        if (!$inherited) {
+            $value = $this->fieldHandler->decode($attributesField, $value);
+            $entity->assign([$propertyName => $value]);
+
+            return;
+        }
+
+        $parentKey = $root . '.' . $propertyName . '.inherited';
+
+        // parent has no attributes? decode only child attributes and return
+        if (!isset($row[$parentKey])) {
+            $value = $this->fieldHandler->decode($attributesField, $value);
+
+            $entity->assign([$propertyName => $value]);
+
+            return;
+        }
+
+        // merge child attributes with parent attributes and assign
+        $mergedJson = $this->mergeJson([$row[$parentKey], $value]);
+
+        $merged = $this->fieldHandler->decode($attributesField, $mergedJson);
+
+        $entity->assign([$propertyName => $merged]);
     }
 }

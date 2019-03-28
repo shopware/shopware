@@ -611,12 +611,7 @@ class EntityDefinitionQueryHelper
     {
         $sqlExps = [];
         foreach ($chain as $part) {
-            $sqlExps[] = $this->buildFieldSelector(
-                $part['alias'],
-                $field,
-                $context,
-                $accessor
-            );
+            $sqlExps[] = $this->buildFieldSelector($part['alias'], $field, $context, $accessor);
         }
 
         /*
@@ -653,12 +648,7 @@ class EntityDefinitionQueryHelper
             return $select;
         }
 
-        $parentSelect = $this->buildFieldSelector(
-            $root . '.parent',
-            $field,
-            $context,
-            $original
-        );
+        $parentSelect = $this->buildFieldSelector($root . '.parent', $field, $context, $original);
 
         return sprintf('IFNULL(%s, %s)', $select, $parentSelect);
     }

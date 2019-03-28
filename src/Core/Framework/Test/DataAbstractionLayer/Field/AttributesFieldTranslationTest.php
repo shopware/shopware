@@ -132,9 +132,10 @@ class AttributesFieldTranslationTest extends TestCase
         /** @var Entity $result */
         $result = $repo->search(new Criteria([$id]), $context)->first();
         $expected = ['code' => 'en_GB', 'system' => 'system'];
-        static::assertEquals($expected, $result->get('translatedAttributes'));
+        static::assertEquals($expected, $result->getTranslated()['translatedAttributes']);
+
         $expectedViewData = $expected;
-        static::assertEquals($expectedViewData, $result->get('translatedAttributes'));
+        static::assertEquals($expectedViewData, $result->getTranslated()['translatedAttributes']);
 
         $chain = [Defaults::LANGUAGE_SYSTEM_DE, Defaults::LANGUAGE_SYSTEM];
         $context = new Context(new SystemSource(), [], Defaults::CURRENCY, $chain);
@@ -144,7 +145,7 @@ class AttributesFieldTranslationTest extends TestCase
         static::assertEquals($expected, $result->get('translatedAttributes'));
 
         $expectedViewData = ['code' => 'de_DE', 'de' => 'de', 'system' => 'system'];
-        static::assertEquals($expectedViewData, $result->get('translatedAttributes'));
+        static::assertEquals($expectedViewData, $result->getTranslated()['translatedAttributes']);
 
         $chain = [$rootLanguageId, Defaults::LANGUAGE_SYSTEM];
         $context = new Context(new SystemSource(), [], Defaults::CURRENCY, $chain);
@@ -153,7 +154,7 @@ class AttributesFieldTranslationTest extends TestCase
         $expected = ['code' => 'root', 'root' => 'root'];
         static::assertEquals($expected, $result->get('translatedAttributes'));
         $expectedViewData = ['code' => 'root', 'root' => 'root', 'system' => 'system'];
-        static::assertEquals($expectedViewData, $result->get('translatedAttributes'));
+        static::assertEquals($expectedViewData, $result->getTranslated()['translatedAttributes']);
 
         $chain = [$childLanguageId, $rootLanguageId, Defaults::LANGUAGE_SYSTEM];
         $context = new Context(new SystemSource(), [], Defaults::CURRENCY, $chain);
@@ -161,7 +162,7 @@ class AttributesFieldTranslationTest extends TestCase
         $expected = ['code' => 'child', 'child' => 'child'];
         static::assertEquals($expected, $result->get('translatedAttributes'));
         $expectedViewData = ['code' => 'child', 'child' => 'child', 'root' => 'root', 'system' => 'system'];
-        static::assertEquals($expectedViewData, $result->get('translatedAttributes'));
+        static::assertEquals($expectedViewData, $result->getTranslated()['translatedAttributes']);
     }
 
     public function testTranslationChainOnFilter(): void
@@ -219,10 +220,10 @@ class AttributesFieldTranslationTest extends TestCase
 
         /** @var Entity $first */
         $first = $result->first();
-        static::assertEquals(1.0, $first->get('translatedAttributes')['systemFloat']);
-        static::assertArrayNotHasKey('root', $first->get('translatedAttributes'));
-        static::assertArrayNotHasKey('child', $first->get('translatedAttributes'));
-        static::assertEquals(1, $first->get('translatedAttributes')['int']);
+        static::assertEquals(1.0, $first->getTranslated()['translatedAttributes']['systemFloat']);
+        static::assertArrayNotHasKey('root', $first->getTranslated()['translatedAttributes']);
+        static::assertArrayNotHasKey('child', $first->getTranslated()['translatedAttributes']);
+        static::assertEquals(1, $first->getTranslated()['translatedAttributes']['int']);
 
         /** @var array $translated */
         $translated = $first->getTranslated();
@@ -264,10 +265,10 @@ class AttributesFieldTranslationTest extends TestCase
 
         /** @var Entity $first */
         $first = $result->first();
-        static::assertArrayNotHasKey('system', $first->get('translatedAttributes'));
-        static::assertTrue($first->get('translatedAttributes')['root']);
-        static::assertArrayNotHasKey('child', $first->get('translatedAttributes'));
-        static::assertEquals(2, $first->get('translatedAttributes')['int']);
+        static::assertArrayNotHasKey('system', $first->getTranslated()['translatedAttributes']);
+        static::assertTrue($first->getTranslated()['translatedAttributes']['root']);
+        static::assertArrayNotHasKey('child', $first->getTranslated()['translatedAttributes']);
+        static::assertEquals(2, $first->getTranslated()['translatedAttributes']['int']);
 
         /** @var array $translated */
         $translated = $first->getTranslated();
@@ -295,12 +296,15 @@ class AttributesFieldTranslationTest extends TestCase
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('translatedAttributes.root', true));
+        $criteria->setInherited(true);
         $result = $repo->search($criteria, $context);
         $expected = [$id];
         static::assertEquals(array_combine($expected, $expected), $result->getIds());
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('translatedAttributes.child', $now));
+        $criteria->setInherited(true);
+
         $result = $repo->search($criteria, $context);
         $expected = [$id];
         static::assertEquals(array_combine($expected, $expected), $result->getIds());
@@ -387,16 +391,17 @@ class AttributesFieldTranslationTest extends TestCase
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('translatedAttributes.systemFloat', 1.0));
+        $criteria->setInherited(true);
         $result = $repo->search($criteria, $context);
         $expected = [$childId];
         static::assertEquals(array_combine($expected, $expected), $result->getIds());
 
         /** @var Entity $first */
         $first = $result->first();
-        static::assertEquals(1.0, $first->get('translatedAttributes')['systemFloat']);
-        static::assertArrayNotHasKey('root', $first->get('translatedAttributes'));
-        static::assertArrayNotHasKey('sub', $first->get('translatedAttributes'));
-        static::assertEquals(1, $first->get('translatedAttributes')['int']);
+        static::assertEquals(1.0, $first->getTranslated()['translatedAttributes']['systemFloat']);
+        static::assertArrayNotHasKey('root', $first->getTranslated()['translatedAttributes']);
+        static::assertArrayNotHasKey('sub', $first->getTranslated()['translatedAttributes']);
+        static::assertEquals(1, $first->getTranslated()['translatedAttributes']['int']);
 
         /** @var Entity $translated */
         $translated = $first->getTranslated();
@@ -423,6 +428,7 @@ class AttributesFieldTranslationTest extends TestCase
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('translatedAttributes.parent', 'inherited attribute'));
+        $criteria->setInherited(true);
         $result = $repo->search($criteria, $context);
         $expected = [$parentId, $childId];
         static::assertEquals(array_combine($expected, $expected), $result->getIds());
@@ -435,16 +441,17 @@ class AttributesFieldTranslationTest extends TestCase
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('translatedAttributes.root', true));
+        $criteria->setInherited(true);
         $result = $repo->search($criteria, $context);
         $expected = [$childId];
         static::assertEquals(array_combine($expected, $expected), $result->getIds());
 
         /** @var Entity $first */
         $first = $result->first();
-        static::assertArrayNotHasKey('system', $first->get('translatedAttributes'));
-        static::assertEquals(1, $first->get('translatedAttributes')['root']);
-        static::assertArrayNotHasKey('sub', $first->get('translatedAttributes'));
-        static::assertEquals(2, $first->get('translatedAttributes')['int']);
+        static::assertArrayNotHasKey('system', $first->getTranslated()['translatedAttributes']);
+        static::assertEquals(1, $first->getTranslated()['translatedAttributes']['root']);
+        static::assertArrayNotHasKey('sub', $first->getTranslated()['translatedAttributes']);
+        static::assertEquals(2, $first->getTranslated()['translatedAttributes']['int']);
 
         $translated = $first->getTranslated();
         static::assertEquals(1.0, $translated['translatedAttributes']['systemFloat']);
@@ -464,6 +471,7 @@ class AttributesFieldTranslationTest extends TestCase
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('translatedAttributes.parent', 'inherited attribute'));
+        $criteria->setInherited(true);
         $result = $repo->search($criteria, $context);
         $expected = [$parentId, $childId];
         static::assertEquals(array_combine($expected, $expected), $result->getIds());
@@ -482,6 +490,7 @@ class AttributesFieldTranslationTest extends TestCase
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('translatedAttributes.sub', $now));
+        $criteria->setInherited(true);
         $result = $repo->search($criteria, $context);
         $expected = [$childId];
         static::assertEquals(array_combine($expected, $expected), $result->getIds());

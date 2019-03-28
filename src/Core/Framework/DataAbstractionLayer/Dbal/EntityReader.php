@@ -121,7 +121,7 @@ class EntityReader implements EntityReaderInterface
 
         $rows = $this->fetch($criteria, $definition, $context, $fields);
 
-        $entities = $this->hydrator->hydrate($entity, $definition, $rows, $definition::getEntityName(), $context);
+        $entities = $this->hydrator->hydrate($entity, $definition, $rows, $definition::getEntityName(), $context, $considerInheritance);
 
         foreach ($entities as $row) {
             $collection->add($row);

@@ -502,40 +502,6 @@ class TranslationTest extends TestCase
         static::assertEquals('system', $catDeDe->getTranslated()['name']);
     }
 
-    public function testCascadeDeleteRootTranslation(): void
-    {
-        $rootId = Uuid::randomHex();
-        $id = Uuid::randomHex();
-
-        $this->addLanguage($id, $rootId);
-
-        $categoryRepository = $this->getContainer()->get('category.repository');
-
-        $catId = Uuid::randomHex();
-        $category = [
-            'id' => $catId,
-            'name' => 'system',
-            'translations' => [
-                $rootId => ['name' => 'root'],
-                $id => ['name' => 'child'],
-            ],
-        ];
-
-        $categoryRepository->create([$category], $this->context);
-
-        $categoryTranslationRepository = $this->getContainer()->get('category_translation.repository');
-        $deleteId = ['categoryId' => $catId, 'languageId' => $rootId];
-        $categoryTranslationRepository->delete([$deleteId], $this->context);
-
-        $translations = $this->connection->fetchAll(
-            'SELECT LOWER(HEX(language_id)) as language_id FROM category_translation WHERE category_id = :id',
-            ['id' => Uuid::fromHexToBytes($catId)]
-        );
-
-        static::assertCount(1, $translations);
-        static::assertEquals(Defaults::LANGUAGE_SYSTEM, $translations[0]['language_id']);
-    }
-
     public function testUpsert(): void
     {
         $data = [

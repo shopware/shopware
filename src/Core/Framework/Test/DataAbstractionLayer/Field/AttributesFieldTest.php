@@ -809,15 +809,12 @@ class AttributesFieldTest extends TestCase
         ];
         $repo->create($entities, Context::createDefaultContext());
 
-        $criteria = new Criteria([$parentId]);
-        $criteria->setInherited(true);
-        $parent = $repo->search($criteria, Context::createDefaultContext())->first();
+        /** @var ArrayEntity $parent */
+        $parent = $repo->search(new Criteria([$parentId]), Context::createDefaultContext())->first();
         static::assertNotNull($parent);
 
         static::assertEquals('parent', $parent->get('name'));
         static::assertEquals(['foo' => 'bar'], $parent->get('attributes'));
-        static::assertEquals('parent', $parent->getTranslated()['name']);
-        static::assertEquals(['foo' => 'bar'], $parent->getTranslated()['attributes']);
 
         /** @var ArrayEntity $child */
         $child = $repo->search(new Criteria([$childId]), Context::createDefaultContext())->first();
@@ -825,6 +822,26 @@ class AttributesFieldTest extends TestCase
 
         static::assertEquals('child', $child->get('name'));
         static::assertNull($child->get('attributes'));
+
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('attributes.foo', 'bar'));
+
+        $results = $repo->search($criteria, Context::createDefaultContext());
+        $expected = [$parentId];
+        static::assertEquals(array_combine($expected, $expected), $results->getIds());
+
+        /** @var ArrayEntity $parent */
+        $parent = $repo->search(new Criteria([$parentId]), Context::createDefaultContext())->first();
+        static::assertNotNull($parent);
+
+        static::assertEquals('parent', $parent->get('name'));
+        static::assertEquals(['foo' => 'bar'], $parent->get('attributes'));
+
+        $criteria = new Criteria([$childId]);
+        $criteria->setInherited(true);
+        $child = $repo->search($criteria, Context::createDefaultContext())->first();
+        static::assertNotNull($child);
+
         static::assertEquals('child', $child->get('name'));
         static::assertEquals(['foo' => 'bar'], $child->get('attributes'));
 
@@ -839,10 +856,7 @@ class AttributesFieldTest extends TestCase
 
     public function testInheritanceAttributesAreMerged(): void
     {
-        $this->addAttributes([
-            'foo' => AttributeTypes::TEXT,
-            'child' => AttributeTypes::TEXT,
-        ]);
+        $this->addAttributes(['foo' => AttributeTypes::TEXT]);
 
         $parentId = Uuid::randomHex();
         $childId = Uuid::randomHex();
@@ -851,25 +865,51 @@ class AttributesFieldTest extends TestCase
 
         $entities = [
             ['id' => $parentId, 'name' => 'parent', 'attributes' => ['foo' => 'bar']],
-            ['id' => $childId, 'name' => 'child', 'parentId' => $parentId, 'attributes' => ['child' => 'value']],
+            ['id' => $childId, 'name' => 'child', 'parentId' => $parentId],
         ];
         $repo->create($entities, Context::createDefaultContext());
 
-        $criteria = new Criteria([$parentId]);
-        $criteria->setInherited(true);
-        $parent = $repo->search($criteria, Context::createDefaultContext())->first();
+        /** @var ArrayEntity $parent */
+        $parent = $repo->search(new Criteria([$parentId]), Context::createDefaultContext())->first();
         static::assertNotNull($parent);
 
         static::assertEquals('parent', $parent->get('name'));
         static::assertEquals(['foo' => 'bar'], $parent->get('attributes'));
-        static::assertEquals('parent', $parent->getTranslated()['name']);
+        static::assertEquals('parent', $parent->get('name'));
+        static::assertEquals(['foo' => 'bar'], $parent->get('attributes'));
+
+        $criteria = new Criteria([$childId]);
+        $criteria->setInherited(true);
+        $child = $repo->search($criteria, Context::createDefaultContext())->first();
+
+        static::assertNotNull($child);
+        static::assertEquals('child', $child->get('name'));
+        static::assertEquals('child', $child->get('name'));
+        static::assertEquals(['foo' => 'bar'], $child->get('attributes'));
+
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('attributes.foo', 'bar'));
+        $criteria->setInherited(true);
+        $results = $repo->search($criteria, Context::createDefaultContext());
+        $expected = [$parentId, $childId];
+        static::assertEquals(array_combine($expected, $expected), $results->getIds());
+
+        //#####
 
         /** @var ArrayEntity $child */
         $child = $repo->search(new Criteria([$childId]), Context::createDefaultContext())->first();
         static::assertNotNull($child);
 
         static::assertEquals('child', $child->get('name'));
-        static::assertEquals(['child' => 'value'], $child->get('attributes'));
+        static::assertNull($child->get('attributes'));
+        static::assertEquals('child', $child->get('name'));
+
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('attributes.foo', 'bar'));
+
+        $results = $repo->search($criteria, Context::createDefaultContext());
+        $expected = [$parentId];
+        static::assertEquals(array_combine($expected, $expected), $results->getIds());
     }
 
     public function testAttributeAssoc(): void
@@ -1028,7 +1068,7 @@ class AttributesFieldTest extends TestCase
     private function getTestRepository(): EntityRepository
     {
         return new EntityRepository(
-          AttributesTestDefinition::class,
+            AttributesTestDefinition::class,
             $this->getContainer()->get(EntityReaderInterface::class),
             $this->getContainer()->get(VersionManager::class),
             $this->getContainer()->get(EntitySearcherInterface::class),

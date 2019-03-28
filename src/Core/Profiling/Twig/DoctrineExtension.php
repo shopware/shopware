@@ -3,11 +3,13 @@
 namespace Shopware\Core\Profiling\Twig;
 
 use Symfony\Component\VarDumper\Cloner\Data;
+use Twig\Extension\AbstractExtension;
+use Twig\TwigFilter;
 
 /**
  * This class contains the needed functions in order to do the query highlighting
  */
-class DoctrineExtension extends \Twig_Extension
+class DoctrineExtension extends AbstractExtension
 {
     /**
      * Number of maximum characters that one single line can hold in the interface
@@ -19,25 +21,21 @@ class DoctrineExtension extends \Twig_Extension
     /**
      * Define our functions
      *
-     * @return \Twig_SimpleFilter[]
+     * @return TwigFilter[]
      */
-    public function getFilters()
+    public function getFilters(): array
     {
         return [
-            new \Twig_SimpleFilter('doctrine_minify_query', [$this, 'minifyQuery'], ['deprecated' => true]),
-            new \Twig_SimpleFilter('doctrine_pretty_query', [$this, 'formatQuery'], ['is_safe' => ['html']]),
-            new \Twig_SimpleFilter('doctrine_replace_query_parameters', [$this, 'replaceQueryParameters']),
+            new TwigFilter('doctrine_minify_query', [$this, 'minifyQuery'], ['deprecated' => true]),
+            new TwigFilter('doctrine_pretty_query', [$this, 'formatQuery'], ['is_safe' => ['html']]),
+            new TwigFilter('doctrine_replace_query_parameters', [$this, 'replaceQueryParameters']),
         ];
     }
 
     /**
      * Minify the query
-     *
-     * @param string $query
-     *
-     * @return string
      */
-    public function minifyQuery($query)
+    public function minifyQuery(string $query): string
     {
         $result = '';
         $keywords = [];
@@ -83,10 +81,8 @@ class DoctrineExtension extends \Twig_Extension
      * DON'T USE THIS FUNCTION OUTSIDE ITS INTENDED SCOPE
      *
      * @internal
-     *
-     * @return string
      */
-    public static function escapeFunction($parameter)
+    public static function escapeFunction($parameter): string
     {
         $result = $parameter;
 
@@ -127,12 +123,9 @@ class DoctrineExtension extends \Twig_Extension
     /**
      * Return a query with the parameters replaced
      *
-     * @param string     $query
      * @param array|Data $parameters
-     *
-     * @return string
      */
-    public function replaceQueryParameters($query, $parameters)
+    public function replaceQueryParameters(string $query, $parameters): string
     {
         $values = $parameters;
 
@@ -167,12 +160,9 @@ class DoctrineExtension extends \Twig_Extension
     /**
      * Formats and/or highlights the given SQL statement.
      *
-     * @param string $sql
-     * @param bool   $highlightOnly If true the query is not formatted, just highlighted
-     *
-     * @return string
+     * @param bool $highlightOnly If true the query is not formatted, just highlighted
      */
-    public function formatQuery($sql, $highlightOnly = false)
+    public function formatQuery(string $sql, bool $highlightOnly = false): string
     {
         \SqlFormatter::$pre_attributes = 'class="highlight highlight-sql"';
         \SqlFormatter::$quote_attributes = 'class="string"';
@@ -198,22 +188,16 @@ class DoctrineExtension extends \Twig_Extension
 
     /**
      * Get the name of the extension
-     *
-     * @return string
      */
-    public function getName()
+    public function getName(): string
     {
         return 'doctrine_extension';
     }
 
     /**
      * Get the possible combinations of elements from the given array
-     *
-     * @param int $combinationsLevel
-     *
-     * @return array
      */
-    private function getPossibleCombinations(array $elements, $combinationsLevel)
+    private function getPossibleCombinations(array $elements, int $combinationsLevel): array
     {
         $baseCount = count($elements);
         $result = [];
@@ -254,11 +238,8 @@ class DoctrineExtension extends \Twig_Extension
 
     /**
      * Shrink the values of parameters from a combination
-     *
-     *
-     * @return string
      */
-    private function shrinkParameters(array $parameters, array $combination)
+    private function shrinkParameters(array $parameters, array $combination): string
     {
         array_shift($parameters);
         $result = '';
@@ -295,13 +276,8 @@ class DoctrineExtension extends \Twig_Extension
 
     /**
      * Attempt to compose the best scenario minified query so that a user could find it without expanding it
-     *
-     * @param string $query
-     * @param int    $required
-     *
-     * @return string
      */
-    private function composeMiniQuery($query, array $keywords, $required)
+    private function composeMiniQuery(string $query, array $keywords, int $required): string
     {
         // Extract the mandatory keywords and consider the rest as optional keywords
         $mandatoryKeywords = array_splice($keywords, 0, $required);

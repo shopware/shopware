@@ -119,6 +119,7 @@
 
         <service id="Shopware\Core\Framework\Api\Controller\AuthController" public="true">
             <argument type="service" id="shopware.api.authorization_server"/>
+            <argument type="service" id="Symfony\Bridge\PsrHttpMessage\Factory\PsrHttpFactory"/>
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>
@@ -198,6 +199,7 @@
             <argument type="service" id="shopware.api.authorization_server"/>
             <argument type="service" id="Shopware\Core\Framework\Api\OAuth\UserRepository"/>
             <argument type="service" id="Shopware\Core\Framework\Api\OAuth\RefreshTokenRepository"/>
+            <argument type="service" id="Symfony\Bridge\PsrHttpMessage\Factory\PsrHttpFactory"/>
         </service>
 
         <service id="Shopware\Core\Framework\Api\Controller\UserController" public="true">
@@ -220,5 +222,14 @@
         <service id="Shopware\Core\Framework\Validation\DataValidator">
             <argument type="service" id="validator"/>
         </service>
+
+        <service id="Symfony\Bridge\PsrHttpMessage\Factory\PsrHttpFactory">
+            <argument type="service" id="Nyholm\Psr7\Factory\Psr17Factory"/>
+            <argument type="service" id="Nyholm\Psr7\Factory\Psr17Factory"/>
+            <argument type="service" id="Nyholm\Psr7\Factory\Psr17Factory"/>
+            <argument type="service" id="Nyholm\Psr7\Factory\Psr17Factory"/>
+        </service>
+
+        <service id="Nyholm\Psr7\Factory\Psr17Factory"/>
     </services>
 </container>

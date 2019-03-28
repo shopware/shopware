@@ -10,5 +10,10 @@
         "exclude-from-classmap": [
             "/Test/"
         ]
+    },
+    "require": {
+        "symfony/framework-bundle": "4.2.4",
+        "symfony/http-foundation": "4.2.4",
+        "symfony/routing": "4.2.4"
     }
 }

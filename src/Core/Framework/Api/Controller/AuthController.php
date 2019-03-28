@@ -3,8 +3,8 @@
 namespace Shopware\Core\Framework\Api\Controller;
 
 use League\OAuth2\Server\AuthorizationServer;
-use Psr\Http\Message\ResponseInterface;
-use Symfony\Bridge\PsrHttpMessage\Factory\DiactorosFactory;
+use Symfony\Bridge\PsrHttpMessage\Factory\HttpFoundationFactory;
+use Symfony\Bridge\PsrHttpMessage\Factory\PsrHttpFactory;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -17,9 +17,15 @@ class AuthController extends AbstractController
      */
     private $authorizationServer;
 
-    public function __construct(AuthorizationServer $authorizationServer)
+    /**
+     * @var PsrHttpFactory
+     */
+    private $psrHttpFactory;
+
+    public function __construct(AuthorizationServer $authorizationServer, PsrHttpFactory $psrHttpFactory)
     {
         $this->authorizationServer = $authorizationServer;
+        $this->psrHttpFactory = $psrHttpFactory;
     }
 
     /**
@@ -32,14 +38,15 @@ class AuthController extends AbstractController
     /**
      * @Route("/api/oauth/token", name="api.oauth.token", methods={"POST"})
      */
-    public function token(Request $request): ResponseInterface
+    public function token(Request $request): Response
     {
         $response = new Response();
 
-        $psr7Factory = new DiactorosFactory();
-        $psr7Request = $psr7Factory->createRequest($request);
-        $psr7Response = $psr7Factory->createResponse($response);
+        $psr7Request = $this->psrHttpFactory->createRequest($request);
+        $psr7Response = $this->psrHttpFactory->createResponse($response);
 
-        return $this->authorizationServer->respondToAccessTokenRequest($psr7Request, $psr7Response);
+        $response = $this->authorizationServer->respondToAccessTokenRequest($psr7Request, $psr7Response);
+
+        return (new HttpFoundationFactory())->createResponse($response);
     }
 }

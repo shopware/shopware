@@ -275,8 +275,7 @@ class OrderDeliveryActionControllerTest extends TestCase
             'orderId' => $orderId,
             'shippingDateEarliest' => (new \DateTime())->format(Defaults::DATE_FORMAT),
             'shippingDateLatest' => (new \DateTime())->format(Defaults::DATE_FORMAT),
-            'shippingMethodId' => Defaults::SHIPPING_METHOD,
-            'shippingOrderAddressId' => Defaults::SHIPPING_METHOD,
+            'shippingMethodId' => $this->getValidShippingMethodId(),
             'shippingCosts' => new CalculatedPrice(10, 10, new CalculatedTaxCollection(), new TaxRuleCollection()),
             'stateId' => $stateId,
             'shippingOrderAddress' => [

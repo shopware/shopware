@@ -6,8 +6,10 @@ use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodPriceRule\ShippingMe
 use Shopware\Core\Content\Rule\RuleDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Demodata\DemodataContext;
 use Shopware\Core\Framework\Demodata\DemodataGeneratorInterface;
+use Shopware\Core\Framework\Struct\Uuid;
 
 class ShippingMethodPriceGenerator implements DemodataGeneratorInterface
 {
@@ -15,10 +17,15 @@ class ShippingMethodPriceGenerator implements DemodataGeneratorInterface
      * @var EntityRepositoryInterface
      */
     private $shippingMethodPriceRepository;
+    /**
+     * @var EntityRepositoryInterface
+     */
+    private $shippingMethodRepository;
 
-    public function __construct(EntityRepositoryInterface $shippingMethodPriceRepository)
+    public function __construct(EntityRepositoryInterface $shippingMethodPriceRepository, EntityRepositoryInterface $shippingMethodRepository)
     {
         $this->shippingMethodPriceRepository = $shippingMethodPriceRepository;
+        $this->shippingMethodRepository = $shippingMethodRepository;
     }
 
     public function getDefinition(): string
@@ -29,19 +36,22 @@ class ShippingMethodPriceGenerator implements DemodataGeneratorInterface
     public function generate(int $numberOfItems, DemodataContext $context, array $options = []): void
     {
         $rules = $context->getIds(RuleDefinition::class);
-        $data = [
-            'id' => '572decf9581e4de0acd52f80499f0e9b',
-            'shippingMethodId' => Defaults::SHIPPING_METHOD,
-            'price' => '10.00',
-            'currencyId' => Defaults::CURRENCY,
-            'ruleId' => $rules[0],
-            'calculation' => 1,
-            'quantityStart' => 1,
-            '$createdAt' => 0,
-        ];
+        $shippingMethodIds = $this->shippingMethodRepository->searchIds(new Criteria(), $context->getContext())->getIds();
 
-        $this->shippingMethodPriceRepository->upsert([$data], $context->getContext());
+        foreach ($shippingMethodIds as $shippingMethodId) {
+            $data = [
+                'id' => Uuid::uuid4()->getHex(),
+                'shippingMethodId' => $shippingMethodId,
+                'price' => sprintf('%d.00', random_int(1, 50)),
+                'currencyId' => Defaults::CURRENCY,
+                'ruleId' => $rules[random_int(0, \count($rules) - 1)],
+                'calculation' => 1,
+                'quantityStart' => 1,
+            ];
 
-        $context->add(ShippingMethodPriceRuleDefinition::class, $data['id']);
+            $this->shippingMethodPriceRepository->upsert([$data], $context->getContext());
+
+            $context->add(ShippingMethodPriceRuleDefinition::class, $data['id']);
+        }
     }
 }

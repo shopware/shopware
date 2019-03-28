@@ -192,7 +192,7 @@ class OrderRepositoryTest extends TestCase
                 'deliveries' => [
                     [
                         'stateId' => $this->stateMachineRegistry->getInitialState(OrderDeliveryStateMachine::NAME, $context)->getId(),
-                        'shippingMethodId' => Defaults::SHIPPING_METHOD,
+                        'shippingMethodId' => $this->getValidShippingMethodId(),
                         'shippingCosts' => new CalculatedPrice(10, 10, new CalculatedTaxCollection(), new TaxRuleCollection()),
                         'shippingDateEarliest' => date(DATE_ISO8601),
                         'shippingDateLatest' => date(DATE_ISO8601),

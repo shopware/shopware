@@ -372,6 +372,8 @@ class DetailPageSeoUrlIndexerTest extends TestCase
         }
 
         $paymentMethod = $this->getValidPaymentMethodId();
+        $shippingMethod = $this->getValidShippingMethodId();
+
         $repo->upsert([[
             'id' => $id,
             'name' => $name,
@@ -382,12 +384,12 @@ class DetailPageSeoUrlIndexerTest extends TestCase
             'snippetSetId' => Defaults::SNIPPET_BASE_SET_EN,
             'currencyId' => Defaults::CURRENCY,
             'paymentMethodId' => $paymentMethod,
-            'shippingMethodId' => Defaults::SHIPPING_METHOD,
+            'shippingMethodId' => $shippingMethod,
             'countryId' => Defaults::COUNTRY,
             'currencies' => [['id' => Defaults::CURRENCY]],
             'languages' => $languages,
             'paymentMethods' => [['id' => $paymentMethod]],
-            'shippingMethods' => [['id' => Defaults::SHIPPING_METHOD]],
+            'shippingMethods' => [['id' => $shippingMethod]],
             'countries' => [['id' => Defaults::COUNTRY]],
             'customerGroupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
         ]], Context::createDefaultContext());

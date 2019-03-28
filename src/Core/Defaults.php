@@ -30,8 +30,6 @@ final class Defaults
 
     public const COUNTRY = '20080911ffff4fffafffffff19830531';
 
-    public const SHIPPING_METHOD = '20080911ffff4fffafffffff19830531';
-
     public const SALUTATION_ID_MR = '0ddcfee7912c4f57b7f8560f4fc35e08';
     public const SALUTATION_ID_MRS = '1902982d717a4e97ab371326693d73df';
     public const SALUTATION_ID_MISS = '6fdf0912858540b89a774919593d1b3a';

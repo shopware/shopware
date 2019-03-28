@@ -5,7 +5,6 @@ namespace Shopware\Storefront\Test\Page\Checkout;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
-use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -58,13 +57,13 @@ class ConfirmPageTest extends TestCase
         $shippingMethodRepository = $this->getContainer()->get('shipping_method.repository');
         $shippingMethodRuleRepository = $this->getContainer()->get('shipping_method_rule.repository');
         /** @var ShippingMethodEntity $shippingMethod */
-        $shippingMethod = $shippingMethodRepository->search(new Criteria([Defaults::SHIPPING_METHOD]), $context->getContext())->get(Defaults::SHIPPING_METHOD);
+        $shippingMethod = $shippingMethodRepository->search(new Criteria(), $context->getContext())->first();
 
         $ruleToDelete = [];
 
         foreach ($shippingMethod->getAvailabilityRuleIds() as $availabilityRuleId) {
             $ruleToDelete[] = [
-                'shippingMethodId' => Defaults::SHIPPING_METHOD,
+                'shippingMethodId' => $shippingMethod->getId(),
                 'ruleId' => $availabilityRuleId,
             ];
         }

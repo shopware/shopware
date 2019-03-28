@@ -360,7 +360,7 @@ class Migration1536233420BasicData extends MigrationStep
 
     private function createShippingMethod(Connection $connection): void
     {
-        $standard = Uuid::fromHexToBytes(Defaults::SHIPPING_METHOD);
+        $standard = Uuid::randomBytes();
         $express = Uuid::randomBytes();
 
         $languageEN = Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM);
@@ -417,7 +417,8 @@ class Migration1536233420BasicData extends MigrationStep
         $languages = $connection->executeQuery('SELECT id FROM language')->fetchAll(FetchMode::COLUMN);
         $shippingMethods = $connection->executeQuery('SELECT id FROM shipping_method')->fetchAll(FetchMode::COLUMN);
         $paymentMethods = $connection->executeQuery('SELECT id FROM payment_method')->fetchAll(FetchMode::COLUMN);
-        $defaultPaymentMethod = $connection->executeQuery('SELECT id FROM payment_method WHERE active = 1')->fetchColumn();
+        $defaultPaymentMethod = $connection->executeQuery('SELECT id FROM payment_method WHERE active = 1 ORDER BY `position`')->fetchColumn();
+        $defaultShippingMethod = $connection->executeQuery('SELECT id FROM shipping_method WHERE active = 1 ORDER BY `position`')->fetchColumn();
 
         $id = Uuid::randomBytes();
         $languageEN = Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM);
@@ -431,7 +432,7 @@ class Migration1536233420BasicData extends MigrationStep
             'language_id' => Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM),
             'currency_id' => Uuid::fromHexToBytes(Defaults::CURRENCY),
             'payment_method_id' => $defaultPaymentMethod,
-            'shipping_method_id' => Uuid::fromHexToBytes(Defaults::SHIPPING_METHOD),
+            'shipping_method_id' => $defaultShippingMethod,
             'country_id' => Uuid::fromHexToBytes(Defaults::COUNTRY),
             'created_at' => date(Defaults::DATE_FORMAT),
         ]);

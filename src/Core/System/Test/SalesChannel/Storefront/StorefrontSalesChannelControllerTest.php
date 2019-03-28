@@ -7,7 +7,6 @@ use Doctrine\DBAL\FetchMode;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Context\CheckoutRuleLoader;
 use Shopware\Core\Checkout\Test\Payment\Handler\SyncTestPaymentHandler;
-use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\Test\TestCaseBase\AssertArraySubsetBehaviour;
@@ -246,8 +245,6 @@ class StorefrontSalesChannelControllerTest extends TestCase
         $content = json_decode($response->getContent(), true);
         static::assertCount(1, $content['data']);
         static::assertEquals(1, $content['total']);
-
-        static::assertSame(Defaults::SHIPPING_METHOD, $content['data'][0]['id']);
     }
 
     public function testGetSalesChannelPaymentMethodsWithoutUnavailable(): void
@@ -476,7 +473,7 @@ class StorefrontSalesChannelControllerTest extends TestCase
         $data = [
             'id' => $this->getStorefrontApiSalesChannelId(),
             'shippingMethods' => [
-                ['id' => Defaults::SHIPPING_METHOD],
+                ['id' => $this->getValidShippingMethodId()],
                 $shippingMethod,
             ],
         ];
@@ -496,7 +493,7 @@ class StorefrontSalesChannelControllerTest extends TestCase
         $data = [
             'id' => $this->getStorefrontApiSalesChannelId(),
             'shippingMethods' => [
-                ['id' => Defaults::SHIPPING_METHOD],
+                ['id' => $this->getValidShippingMethodId()],
                 $shippingMethod,
             ],
         ];

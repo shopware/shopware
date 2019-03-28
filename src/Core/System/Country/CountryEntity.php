@@ -32,22 +32,7 @@ class CountryEntity extends Entity
     /**
      * @var bool
      */
-    protected $shippingFree;
-
-    /**
-     * @var bool
-     */
     protected $taxFree;
-
-    /**
-     * @var bool
-     */
-    protected $taxfreeForVatId;
-
-    /**
-     * @var bool
-     */
-    protected $taxfreeVatidChecked;
 
     /**
      * @var bool
@@ -144,16 +129,6 @@ class CountryEntity extends Entity
         $this->position = $position;
     }
 
-    public function getShippingFree(): bool
-    {
-        return $this->shippingFree;
-    }
-
-    public function setShippingFree(bool $shippingFree): void
-    {
-        $this->shippingFree = $shippingFree;
-    }
-
     public function getTaxFree(): bool
     {
         return $this->taxFree;
@@ -162,26 +137,6 @@ class CountryEntity extends Entity
     public function setTaxFree(bool $taxFree): void
     {
         $this->taxFree = $taxFree;
-    }
-
-    public function getTaxfreeForVatId(): bool
-    {
-        return $this->taxfreeForVatId;
-    }
-
-    public function setTaxfreeForVatId(bool $taxfreeForVatId): void
-    {
-        $this->taxfreeForVatId = $taxfreeForVatId;
-    }
-
-    public function getTaxfreeVatidChecked(): bool
-    {
-        return $this->taxfreeVatidChecked;
-    }
-
-    public function setTaxfreeVatidChecked(bool $taxfreeVatidChecked): void
-    {
-        $this->taxfreeVatidChecked = $taxfreeVatidChecked;
     }
 
     public function getActive(): bool

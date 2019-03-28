@@ -66,7 +66,7 @@ class OrderingProcessTest extends TestCase
 
         $this->removeProductFromCart($product2);
 
-        $this->changePaymentMethod(Defaults::PAYMENT_METHOD_PAID_IN_ADVANCE);
+        $this->changePaymentMethod(Defaults::PAYMENT_METHOD_INVOICE);
 
         $orderId = $this->payOrder();
         static::assertTrue(Uuid::isValid($orderId));
@@ -75,7 +75,7 @@ class OrderingProcessTest extends TestCase
         $order = $this->orderRepository->search(new Criteria([$orderId]), Context::createDefaultContext())
             ->get($orderId);
 
-        static::assertEquals(Defaults::PAYMENT_METHOD_PAID_IN_ADVANCE, $order->getPaymentMethodId());
+        static::assertEquals(Defaults::PAYMENT_METHOD_INVOICE, $order->getPaymentMethodId());
         static::assertEquals(25, $order->getAmountTotal());
         static::assertEquals($customerId, $order->getOrderCustomer()->getId());
     }

@@ -5,11 +5,9 @@ namespace Shopware\Core\Content\Rule\DataAbstractionLayer\Indexing;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Rule\RuleDefinition;
 use Shopware\Core\Content\Rule\Util\EventIdExtractor;
-use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
-use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\RepositoryIterator;
+use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\OffsetQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Indexing\IndexerInterface;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\Doctrine\FetchModeHelper;
 use Shopware\Core\Framework\Event\ProgressAdvancedEvent;
@@ -47,11 +45,6 @@ class RulePayloadIndexer implements IndexerInterface, EventSubscriberInterface
     private $eventIdExtractor;
 
     /**
-     * @var EntityRepositoryInterface
-     */
-    private $ruleRepository;
-
-    /**
      * @var RuleConditionRegistry
      */
     private $ruleConditionRegistry;
@@ -70,7 +63,6 @@ class RulePayloadIndexer implements IndexerInterface, EventSubscriberInterface
         Connection $connection,
         EventDispatcherInterface $eventDispatcher,
         EventIdExtractor $eventIdExtractor,
-        EntityRepositoryInterface $ruleRepository,
         RuleConditionRegistry $ruleConditionRegistry,
         EntityCacheKeyGenerator $cacheKeyGenerator,
         TagAwareAdapter $cache
@@ -78,7 +70,6 @@ class RulePayloadIndexer implements IndexerInterface, EventSubscriberInterface
         $this->connection = $connection;
         $this->eventDispatcher = $eventDispatcher;
         $this->eventIdExtractor = $eventIdExtractor;
-        $this->ruleRepository = $ruleRepository;
         $this->ruleConditionRegistry = $ruleConditionRegistry;
         $this->cache = $cache;
         $this->cacheKeyGenerator = $cacheKeyGenerator;
@@ -97,16 +88,18 @@ class RulePayloadIndexer implements IndexerInterface, EventSubscriberInterface
 
     public function index(\DateTimeInterface $timestamp): void
     {
-        $context = Context::createDefaultContext();
-
-        $iterator = $this->createIterator($context);
+        $iterator = $this->createIterator();
 
         $this->eventDispatcher->dispatch(
             ProgressStartedEvent::NAME,
-            new ProgressStartedEvent('Start indexing rules', $iterator->getTotal())
+            new ProgressStartedEvent('Start indexing rules', $iterator->fetchCount())
         );
 
-        while ($ids = $iterator->fetchIds()) {
+        while ($ids = $iterator->fetch()) {
+            $ids = array_map(function ($id) {
+                return Uuid::fromBytesToHex($id);
+            }, $ids);
+
             $this->update($ids);
             $this->eventDispatcher->dispatch(
                 ProgressAdvancedEvent::NAME,
@@ -186,9 +179,15 @@ class RulePayloadIndexer implements IndexerInterface, EventSubscriberInterface
         return $updated;
     }
 
-    private function createIterator(Context $context): RepositoryIterator
+    private function createIterator(): OffsetQuery
     {
-        return new RepositoryIterator($this->ruleRepository, $context);
+        $query = $this->connection->createQueryBuilder();
+
+        $query->select('id', 'id AS entityId');
+        $query->from('rule');
+        $query->setMaxResults(50);
+
+        return new OffsetQuery($query);
     }
 
     private function clearCache(): void

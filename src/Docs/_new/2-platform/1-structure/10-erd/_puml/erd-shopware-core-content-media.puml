@@ -1,0 +1,146 @@
+@startuml
+' uncomment the line below if you're using computer with a retina display
+' skinparam dpi 300
+!define Table(name,desc) class name as "desc" << (T,#FFAAAA) >>
+!define ForeignTable(name,desc) class name as "desc" << (T,#ada6a6) >>
+!define TranslationTable(name,desc) class name as "desc" << (I,#4286f4) >>
+' we use bold for primary key
+' green color for unique
+' and underscore for not_null
+!define primary_key(x) <b>x</b>
+!define unique(x) <color:green>x</color>
+!define not_null(x) <u>x</u>
+' other tags available:
+' <i></i>
+' <back:COLOR></color>, where color is a color name or html color code
+' (#FFAACC)
+' see: http://plantuml.com/classes.html#More
+hide methods
+hide stereotypes
+hide empty members
+skinparam backgroundColor #FFFFFF
+
+' entities
+
+Table(ShopwareCoreContentMediaMediaDefinition, "media\n(Media / Files)") {
+   primary_key(id) id
+   userId foreignKey
+   mediaFolderId foreignKey
+   mimeType string
+   fileExtension string
+   uploadedAt date
+   fileName longText
+   fileSize int
+   metaDataRaw blob
+   mediaTypeRaw blob
+   metaData json
+   mediaType json
+   not_null(createdAt) createdAt
+   not_null(updatedAt) updatedAt
+   alt translated
+   title translated
+   url string
+   attributes translated
+   hasFile bool
+}
+Table(ShopwareCoreContentMediaAggregateMediaDefaultFolderMediaDefaultFolderDefinition, "media_default_folder\n(Default folders)") {
+   primary_key(id) id
+   not_null(associationFields) list
+   not_null(entity) string
+   not_null(createdAt) createdAt
+   not_null(updatedAt) updatedAt
+   attributes attributes
+}
+Table(ShopwareCoreContentMediaAggregateMediaThumbnailMediaThumbnailDefinition, "media_thumbnail\n(Generated Thumbnail)") {
+   primary_key(id) id
+   not_null(mediaId) foreignKey
+   not_null(createdAt) createdAt
+   not_null(updatedAt) updatedAt
+   not_null(width) int
+   not_null(height) int
+   url string
+   attributes attributes
+}
+TranslationTable(ShopwareCoreContentMediaAggregateMediaTranslationMediaTranslationDefinition, "media_translation\n((Translations))") {
+   title string
+   alt longText
+   attributes attributes
+   primary_key(mediaId) foreignKey
+   primary_key(languageId) foreignKey
+   not_null(createdAt) createdAt
+   not_null(updatedAt) updatedAt
+}
+Table(ShopwareCoreContentMediaAggregateMediaFolderMediaFolderDefinition, "media_folder\n(Folder structure)") {
+   primary_key(id) id
+   useParentConfiguration bool
+   not_null(configurationId) foreignKey
+   defaultFolderId foreignKey
+   parentId parentFk
+   childCount childCount
+   not_null(name) string
+   not_null(createdAt) createdAt
+   not_null(updatedAt) updatedAt
+   attributes attributes
+}
+Table(ShopwareCoreContentMediaAggregateMediaThumbnailSizeMediaThumbnailSizeDefinition, "media_thumbnail_size\n(Generated Thumbnails)") {
+   primary_key(id) id
+   not_null(width) int
+   not_null(height) int
+   attributes attributes
+   not_null(createdAt) createdAt
+   not_null(updatedAt) updatedAt
+}
+Table(ShopwareCoreContentMediaAggregateMediaFolderConfigurationMediaFolderConfigurationDefinition, "media_folder_configuration\n(Configuration)") {
+   primary_key(id) id
+   createThumbnails bool
+   keepAspectRatio bool
+   thumbnailQuality int
+   not_null(createdAt) createdAt
+   not_null(updatedAt) updatedAt
+   attributes attributes
+}
+Table(ShopwareCoreContentMediaAggregateMediaFolderConfigurationMediaThumbnailSizeMediaFolderConfigurationMediaThumbnailSizeDefinition, "media_folder_configuration_media_thumbnail_size\n(M:N Mapping)") {
+   primary_key(mediaFolderConfigurationId) foreignKey
+   primary_key(mediaThumbnailSizeId) foreignKey
+   not_null(createdAt) createdAt
+}
+Table(ShopwareCoreContentMediaAggregateMediaTagMediaTagDefinition, "media_tag\n(M:N Mapping)") {
+   primary_key(mediaId) foreignKey
+   primary_key(tagId) foreignKey
+   not_null(createdAt) createdAt
+   not_null(updatedAt) updatedAt
+}
+ForeignTable(ShopwareCoreSystemUserUserDefinition, "user") {
+}
+ForeignTable(ShopwareCoreContentCategoryCategoryDefinition, "category") {
+}
+ForeignTable(ShopwareCoreContentProductAggregateProductManufacturerProductManufacturerDefinition, "product_manufacturer") {
+}
+ForeignTable(ShopwareCoreContentProductAggregateProductMediaProductMediaDefinition, "product_media") {
+}
+ForeignTable(ShopwareCoreContentConfigurationAggregateConfigurationGroupOptionConfigurationGroupOptionDefinition, "configuration_group_option") {
+}
+ForeignTable(ShopwareCoreSystemLanguageLanguageDefinition, "language") {
+}
+ForeignTable(ShopwareCoreFrameworkTagTagDefinition, "tag") {
+}
+
+' relationshipd
+
+ShopwareCoreContentMediaMediaDefinition --> ShopwareCoreSystemUserUserDefinition
+ShopwareCoreContentMediaMediaDefinition --> ShopwareCoreContentCategoryCategoryDefinition
+ShopwareCoreContentMediaMediaDefinition --> ShopwareCoreContentProductAggregateProductManufacturerProductManufacturerDefinition
+ShopwareCoreContentMediaMediaDefinition --> ShopwareCoreContentProductAggregateProductMediaProductMediaDefinition
+ShopwareCoreContentMediaAggregateMediaTranslationMediaTranslationDefinition --> ShopwareCoreContentMediaMediaDefinition
+ShopwareCoreContentMediaAggregateMediaThumbnailMediaThumbnailDefinition --> ShopwareCoreContentMediaMediaDefinition
+ShopwareCoreContentMediaAggregateMediaFolderMediaFolderDefinition --> ShopwareCoreContentMediaMediaDefinition
+ShopwareCoreContentMediaMediaDefinition --> ShopwareCoreContentConfigurationAggregateConfigurationGroupOptionConfigurationGroupOptionDefinition
+ShopwareCoreContentMediaAggregateMediaTagMediaTagDefinition --> ShopwareCoreContentMediaMediaDefinition
+ShopwareCoreContentMediaAggregateMediaFolderMediaFolderDefinition --> ShopwareCoreContentMediaAggregateMediaDefaultFolderMediaDefaultFolderDefinition
+ShopwareCoreContentMediaAggregateMediaTranslationMediaTranslationDefinition --> ShopwareCoreSystemLanguageLanguageDefinition
+ShopwareCoreContentMediaAggregateMediaFolderMediaFolderDefinition --> ShopwareCoreContentMediaAggregateMediaFolderMediaFolderDefinition
+ShopwareCoreContentMediaAggregateMediaFolderConfigurationMediaFolderConfigurationDefinition --> ShopwareCoreContentMediaAggregateMediaFolderMediaFolderDefinition
+ShopwareCoreContentMediaAggregateMediaFolderConfigurationMediaThumbnailSizeMediaFolderConfigurationMediaThumbnailSizeDefinition --> ShopwareCoreContentMediaAggregateMediaThumbnailSizeMediaThumbnailSizeDefinition
+ShopwareCoreContentMediaAggregateMediaFolderConfigurationMediaThumbnailSizeMediaFolderConfigurationMediaThumbnailSizeDefinition --> ShopwareCoreContentMediaAggregateMediaFolderConfigurationMediaFolderConfigurationDefinition
+ShopwareCoreContentMediaAggregateMediaTagMediaTagDefinition --> ShopwareCoreFrameworkTagTagDefinition
+@enduml

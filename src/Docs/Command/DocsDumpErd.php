@@ -12,7 +12,9 @@ use Shopware\Core\Content\MailTemplate\Aggregate\MailHeaderFooterTranslation\Mai
 use Shopware\Core\Content\MailTemplate\Aggregate\MailTemplateSalesChannel\MailTemplateSalesChannelDefinition;
 use Shopware\Core\Content\MailTemplate\Aggregate\MailTemplateTranslation\MailTemplateTranslationDefinition;
 use Shopware\Core\Content\MailTemplate\MailTemplateDefinition;
+use Shopware\Core\Content\NewsletterReceiver\NewsletterReceiverDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionRegistry;
+use Shopware\Core\Framework\Store\StoreSettingsDefinition;
 use Shopware\Core\Framework\Version\Aggregate\VersionCommit\VersionCommitDefinition;
 use Shopware\Core\Framework\Version\Aggregate\VersionCommitData\VersionCommitDataDefinition;
 use Shopware\Core\Framework\Version\VersionDefinition;
@@ -45,6 +47,10 @@ class DocsDumpErd extends Command
         MailTemplateSalesChannelDefinition::class,
         MailTemplateTranslationDefinition::class,
         MailTemplateDefinition::class,
+
+        StoreSettingsDefinition::class,
+
+        NewsletterReceiverDefinition::class,
     ];
 
     /**
@@ -128,7 +134,7 @@ class DocsDumpErd extends Command
         foreach ($modules as $moduleName => $moduleDefinition) {
             $dump = $this->erdGenerator->generateFromDefinitions($moduleDefinition, new PlantUmlErdDumper(), $descriptionsShort);
             file_put_contents(
-                $destPath . '/_puml/erm-' . $this->toFileName($moduleName) . '.puml',
+                $destPath . '/_puml/erd-' . $this->toFileName($moduleName) . '.puml',
                 $dump
             );
 
@@ -138,7 +144,7 @@ class DocsDumpErd extends Command
                 'dist/erm-' . $this->toFileName($moduleName) . '.svg'
             ), $descriptionsLong);
             file_put_contents(
-                $destPath . '/erm-' . $this->toFileName($moduleName) . '.md',
+                $destPath . '/erd-' . $this->toFileName($moduleName) . '.md',
                 $dump
             );
         }
@@ -189,13 +195,13 @@ class DocsDumpErd extends Command
     {
         $dump = $this->erdGenerator->generateFromModules($modules, new PlantUmlErdDumper(), $descriptionsShort);
         file_put_contents(
-            $destPath . '/_puml/erm-overview.puml',
+            $destPath . '/_puml/erd-overview.puml',
             $dump
         );
 
         $dump = $this->erdGenerator->generateFromDefinitions($definitions, new PlantUmlErdDumper(), $descriptionsShort);
         file_put_contents(
-            $destPath . '/_puml/erm-all.puml',
+            $destPath . '/_puml/erd-all.puml',
             $dump
         );
     }

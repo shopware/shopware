@@ -54,4 +54,6 @@ return [
     'Checkout/Cart' => 'Cart processes',
     'Checkout/Context' => 'SalesChannel API context',
     'Framework/Store' => 'Plugin store',
+    'Framework/Context' => 'Main context',
+    'Content/NewsletterReceiver' => 'Newsletter',
 ];

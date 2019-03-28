@@ -8,8 +8,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 class MarkdownErdDumper implements ErdDumper
 {
     const TEMPALE_HEAD = <<<EOD
-%s
----------------------------------------
+[titleEn]: <>(%s)
 
 %s
 

@@ -1,5 +1,4 @@
-Glossary
------------------------------------------
+[titleEn]: <>(Glossary)
 
 eCommerce and Shopware specific terms explained
 

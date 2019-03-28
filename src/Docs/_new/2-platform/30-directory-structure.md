@@ -1,6 +1,5 @@
-Directory Structure 
------------------------------------
-
+[titleEn]: <>(Directory Structure)
+ 
 After setting up the Shopware Platform you should import the project into your favorite IDE and take a deeper look into the directory structure of the application.
 
 This guide will give you a brief initial overview onto the structure. We take this step before diving deeper into the architecture, general concepts and detailed specification to give you some sense of familiarity.

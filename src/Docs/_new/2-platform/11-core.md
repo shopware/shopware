@@ -1,5 +1,4 @@
-Shopware Core
---------------------------
+[titleEn]: <>(Shopware Core)
 
 Repository Link: `https://github.com/shopware/platform/tree/master/src/Core`
 

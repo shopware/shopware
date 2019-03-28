@@ -7,6 +7,7 @@ use Cocur\Slugify\Slugify;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -57,13 +58,18 @@ class SeoService implements SeoServiceInterface
         $this->seoUrlGenerators = $seoUrlGenerators;
     }
 
+    public function getSeoUrlContext(string $routeName, Entity $entity): array
+    {
+        $generator = $this->getGenerator($routeName);
+
+        return $generator->getSeoUrlContext($entity);
+    }
+
     public function generateSeoUrls(string $salesChannelId, string $routeName, array $ids, ?string $templateOverride = null): iterable
     {
         $generator = $this->getGenerator($routeName);
         $template = $templateOverride ?? $this->getTemplateString($salesChannelId, $routeName, $generator->getDefaultTemplate());
         $this->validateTemplateString($template);
-
-        $template = "{% autoescape 'url' %}$template{% endautoescape %}";
 
         return $generator->generateSeoUrls($salesChannelId, $ids, $template);
     }

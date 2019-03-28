@@ -294,7 +294,7 @@ class DetailPageSeoUrlIndexerTest extends TestCase
         static::assertCount(0, $seoUrls->filterByProperty('isDeleted', false));
     }
 
-    public function testSpecialCharactersAreEscaped(): void
+    public function testAutoSlugify(): void
     {
         $salesChannel = $this->createSalesChannel(Uuid::randomHex(), 'test');
         $this->upsertTemplate([
@@ -304,7 +304,7 @@ class DetailPageSeoUrlIndexerTest extends TestCase
         ]);
 
         $id = Uuid::randomHex();
-        $this->upsertProduct(['id' => $id, 'name' => 'foo-&+ /*\\-bar']);
+        $this->upsertProduct(['id' => $id, 'name' => 'foo bar']);
 
         $context = $this->createContext($salesChannel);
         $product = $this->productRepository->search(new Criteria([$id]), $context)->first();
@@ -312,7 +312,37 @@ class DetailPageSeoUrlIndexerTest extends TestCase
         static::assertNotNull($product->getExtension('canonicalUrl'));
         /** @var SeoUrlEntity $seoUrl */
         $seoUrl = $product->getExtension('canonicalUrl');
-        static::assertEquals('foo-%26%2B%20%2F%2A%5C-bar', $seoUrl->getSeoPathInfo());
+        static::assertEquals('foo-bar', $seoUrl->getSeoPathInfo());
+        static::assertFalse($seoUrl->getIsDeleted());
+    }
+
+    public function testShortProperties(): void
+    {
+        $salesChannel = $this->createSalesChannel(Uuid::randomHex(), 'test');
+        $this->upsertTemplate([
+            'id' => Uuid::randomHex(),
+            'salesChannelId' => $salesChannel->getId(),
+            'template' => '{{ manufacturerName }}/{{ productName }}/{{ manufacturerNumber }}',
+        ]);
+
+        $id = Uuid::randomHex();
+        $this->upsertProduct([
+            'id' => $id,
+            'name' => 'awesome product',
+            'manufacturerNumber' => 'foo',
+            'manufacturer' => [
+                'id' => Uuid::randomHex(),
+                'name' => 'amazing ag',
+            ],
+        ]);
+
+        $context = $this->createContext($salesChannel);
+        $childProduct = $this->productRepository->search(new Criteria([$id]), $context)->first();
+
+        static::assertNotNull($childProduct->getExtension('canonicalUrl'));
+        /** @var SeoUrlEntity $seoUrl */
+        $seoUrl = $childProduct->getExtension('canonicalUrl');
+        static::assertEquals('amazing-ag/awesome-product/foo', $seoUrl->getSeoPathInfo());
         static::assertFalse($seoUrl->getIsDeleted());
     }
 

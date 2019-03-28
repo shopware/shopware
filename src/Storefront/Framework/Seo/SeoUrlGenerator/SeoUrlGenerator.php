@@ -12,10 +12,12 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Symfony\Component\Routing\RouterInterface;
 use Twig\Environment;
+use Twig\Extension\CoreExtension;
 use Twig\Loader\ArrayLoader;
 
 abstract class SeoUrlGenerator implements SeoUrlGeneratorInterface
 {
+    public const ESCAPE_SLUGIFY = 'slugifyurlencode';
     /**
      * @var RouterInterface
      */
@@ -47,6 +49,15 @@ abstract class SeoUrlGenerator implements SeoUrlGeneratorInterface
         $this->twig->setCache(false);
         $this->twig->enableStrictVariables();
         $this->twig->addExtension(new SlugifyExtension($slugify));
+
+        /** @var CoreExtension $coreExtension */
+        $coreExtension = $this->twig->getExtension(CoreExtension::class);
+        $coreExtension->setEscaper(self::ESCAPE_SLUGIFY,
+            function ($twig, $string) use ($slugify) {
+                $result = rawurlencode($slugify->slugify($string));
+
+                return $result;
+            });
 
         $this->checkoutContextFactory = $checkoutContextFactory;
         $this->salesChannelRepository = $salesChannelRepository;

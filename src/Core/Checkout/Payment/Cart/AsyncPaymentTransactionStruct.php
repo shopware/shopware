@@ -7,7 +7,7 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionEnti
 class AsyncPaymentTransactionStruct extends SyncPaymentTransactionStruct
 {
     /**
-     * @var string|null
+     * @var string
      */
     private $returnUrl;
 
@@ -17,7 +17,7 @@ class AsyncPaymentTransactionStruct extends SyncPaymentTransactionStruct
         $this->returnUrl = $returnUrl;
     }
 
-    public function getReturnUrl(): ?string
+    public function getReturnUrl(): string
     {
         return $this->returnUrl;
     }

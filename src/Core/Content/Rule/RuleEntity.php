@@ -95,17 +95,17 @@ class RuleEntity extends Entity
     /**
      * @var PromotionCollection|null
      */
-    protected $personaRuleReferencingPromotions;
+    protected $personaPromotions;
 
     /**
      * @var PromotionCollection|null
      */
-    protected $scopeRuleReferencingPromotions;
+    protected $scopePromotions;
 
     /**
      * @var PromotionCollection|null
      */
-    protected $discountRuleReferencingPromotions;
+    protected $discountPromotions;
 
     public function getName(): string
     {
@@ -257,33 +257,33 @@ class RuleEntity extends Entity
         $this->shippingMethodPriceRules = $shippingMethodPriceRules;
     }
 
-    public function getPersonaRuleReferencingPromotions(): ?PromotionCollection
+    public function getPersonaPromotions(): ?PromotionCollection
     {
-        return $this->personaRuleReferencingPromotions;
+        return $this->personaPromotions;
     }
 
-    public function setPersonaRuleReferencingPromotions(PromotionCollection $personaRuleReferencingPromotions): void
+    public function setPersonaPromotions(PromotionCollection $personaPromotions): void
     {
-        $this->personaRuleReferencingPromotions = $personaRuleReferencingPromotions;
+        $this->personaPromotions = $personaPromotions;
     }
 
-    public function getScopeRuleReferencingPromotions(): ?PromotionCollection
+    public function getScopePromotions(): ?PromotionCollection
     {
-        return $this->scopeRuleReferencingPromotions;
+        return $this->scopePromotions;
     }
 
-    public function setScopeRuleReferencingPromotions(PromotionCollection $scopeRuleReferencingPromotions): void
+    public function setScopePromotions(PromotionCollection $scopePromotions): void
     {
-        $this->scopeRuleReferencingPromotions = $scopeRuleReferencingPromotions;
+        $this->scopePromotions = $scopePromotions;
     }
 
-    public function getDiscountRuleReferencingPromotions(): ?PromotionCollection
+    public function getDiscountPromotions(): ?PromotionCollection
     {
-        return $this->discountRuleReferencingPromotions;
+        return $this->discountPromotions;
     }
 
-    public function setDiscountRuleReferencingPromotions(PromotionCollection $discountRuleReferencingPromotions): void
+    public function setDiscountPromotions(PromotionCollection $discountPromotions): void
     {
-        $this->discountRuleReferencingPromotions = $discountRuleReferencingPromotions;
+        $this->discountPromotions = $discountPromotions;
     }
 }

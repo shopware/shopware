@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\System\StateMachine\StateMachineRegistry;
 
-class SEPAPayment implements SynchronousPaymentHandlerInterface
+class DefaultPayment implements SynchronousPaymentHandlerInterface
 {
     /**
      * @var EntityRepositoryInterface

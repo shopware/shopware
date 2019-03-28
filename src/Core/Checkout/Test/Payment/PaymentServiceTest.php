@@ -9,7 +9,9 @@ use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionEntity;
+use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\DefaultPayment;
 use Shopware\Core\Checkout\Payment\Cart\Token\JWTFactory;
+use Shopware\Core\Checkout\Payment\Exception\CustomerCanceledAsyncPaymentException;
 use Shopware\Core\Checkout\Payment\Exception\InvalidOrderException;
 use Shopware\Core\Checkout\Payment\Exception\InvalidTokenException;
 use Shopware\Core\Checkout\Payment\Exception\TokenExpiredException;
@@ -143,7 +145,22 @@ class PaymentServiceTest extends TestCase
         static::assertSame('testFinishUrl', $tokenStruct->getFinishUrl());
         /** @var OrderTransactionEntity $transactionEntity */
         $transactionEntity = $this->orderTransactionRepository->search(new Criteria([$transactionId]), $this->context)->first();
-        static::assertSame(Defaults::ORDER_TRANSACTION_STATES_PAID, $transactionEntity->getStateMachineState()->getTechnicalName());
+        static::assertSame(
+            Defaults::ORDER_TRANSACTION_STATES_PAID,
+            $transactionEntity->getStateMachineState()->getTechnicalName()
+        );
+    }
+
+    public function testHandlePaymentByOrderDefaultPayment(): void
+    {
+        $paymentMethodId = $this->createPaymentMethod($this->context, DefaultPayment::class);
+        $customerId = $this->createCustomer($this->context);
+        $orderId = $this->createOrder($customerId, $paymentMethodId, $this->context);
+        $this->createTransaction($orderId, $paymentMethodId, $this->context);
+
+        $checkoutContext = $this->getCheckoutContext($paymentMethodId);
+
+        static::assertNull($this->paymentService->handlePaymentByOrder($orderId, $checkoutContext));
     }
 
     public function testFinalizeTransactionWithInvalidToken(): void
@@ -151,11 +168,7 @@ class PaymentServiceTest extends TestCase
         $token = Uuid::randomHex();
         $request = new Request();
         $this->expectException(InvalidTokenException::class);
-        $this->paymentService->finalizeTransaction(
-            $token,
-            $request,
-            $this->context
-        );
+        $this->paymentService->finalizeTransaction($token, $request, $this->context);
     }
 
     public function testFinalizeTransactionWithExpiredToken(): void
@@ -167,6 +180,40 @@ class PaymentServiceTest extends TestCase
 
         $this->expectException(TokenExpiredException::class);
         $this->paymentService->finalizeTransaction($token, $request, $this->context);
+    }
+
+    public function testFinalizeTransactionCustomerCanceled(): void
+    {
+        $paymentMethodId = $this->createPaymentMethod($this->context);
+        $customerId = $this->createCustomer($this->context);
+        $orderId = $this->createOrder($customerId, $paymentMethodId, $this->context);
+        $transactionId = $this->createTransaction($orderId, $paymentMethodId, $this->context);
+
+        $checkoutContext = $this->getCheckoutContext($paymentMethodId);
+
+        $response = $this->paymentService->handlePaymentByOrder($orderId, $checkoutContext);
+
+        static::assertEquals(AsyncTestPaymentHandler::REDIRECT_URL, $response->getTargetUrl());
+
+        $transaction = JWTFactoryTest::createTransaction();
+        $transaction->setId($transactionId);
+        $transaction->setPaymentMethodId($paymentMethodId);
+        $transaction->setOrderId($orderId);
+
+        $token = $this->tokenFactory->generateToken($transaction, $this->context, 'testFinishUrl');
+        $request = new Request();
+        $request->query->set('cancel', true);
+        try {
+            $this->paymentService->finalizeTransaction($token, $request, $this->context);
+            static::fail('exception should be thrown');
+        } catch (CustomerCanceledAsyncPaymentException $e) {
+        }
+        /** @var OrderTransactionEntity $transactionEntity */
+        $transactionEntity = $this->orderTransactionRepository->search(new Criteria([$transactionId]), $this->context)->first();
+        static::assertSame(
+            Defaults::ORDER_TRANSACTION_STATES_CANCELLED,
+            $transactionEntity->getStateMachineState()->getTechnicalName()
+        );
     }
 
     private function getCheckoutContext(string $paymentMethodId): CheckoutContext

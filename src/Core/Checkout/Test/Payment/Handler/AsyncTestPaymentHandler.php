@@ -4,6 +4,7 @@ namespace Shopware\Core\Checkout\Test\Payment\Handler;
 
 use Shopware\Core\Checkout\Payment\Cart\AsyncPaymentTransactionStruct;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\AsynchronousPaymentHandlerInterface;
+use Shopware\Core\Checkout\Payment\Exception\CustomerCanceledAsyncPaymentException;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
@@ -38,19 +39,26 @@ class AsyncTestPaymentHandler implements AsynchronousPaymentHandlerInterface
         return new RedirectResponse(self::REDIRECT_URL);
     }
 
-    public function finalize(string $transactionId, Request $request, Context $context): void
+    public function finalize(AsyncPaymentTransactionStruct $transaction, Request $request, Context $context): void
     {
+        if ($request->query->getBoolean('cancel')) {
+            throw new CustomerCanceledAsyncPaymentException(
+                $transaction->getOrderTransaction()->getId(),
+                'Async Test Payment canceled'
+            );
+        }
+
         $completeStateId = $this->stateMachineRegistry->getStateByTechnicalName(
             Defaults::ORDER_TRANSACTION_STATE_MACHINE,
             Defaults::ORDER_TRANSACTION_STATES_PAID,
             $context
         )->getId();
 
-        $transaction = [
-            'id' => $transactionId,
+        $transactionData = [
+            'id' => $transaction->getOrderTransaction()->getId(),
             'stateId' => $completeStateId,
         ];
 
-        $this->transactionRepository->update([$transaction], $context);
+        $this->transactionRepository->update([$transactionData], $context);
     }
 }

@@ -3,6 +3,9 @@
 namespace Shopware\Core\Checkout\Payment\Cart\PaymentHandler;
 
 use Shopware\Core\Checkout\Payment\Cart\AsyncPaymentTransactionStruct;
+use Shopware\Core\Checkout\Payment\Exception\AsyncPaymentFinalizeException;
+use Shopware\Core\Checkout\Payment\Exception\AsyncPaymentProcessException;
+use Shopware\Core\Checkout\Payment\Exception\CustomerCanceledAsyncPaymentException;
 use Shopware\Core\Framework\Context;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -14,11 +17,22 @@ interface AsynchronousPaymentHandlerInterface
      * Allows to process the order and store additional information.
      *
      * A redirect to the url will be performed
+     *
+     * Throw a @see AsyncPaymentProcessException exception if an error ocurres while processing the payment
+     *
+     * @throws AsyncPaymentProcessException
      */
     public function pay(AsyncPaymentTransactionStruct $transaction, Context $context): RedirectResponse;
 
     /**
      * The finalize function will be called when the user is redirected back to shop from the payment gateway.
+     *
+     * Throw a @see AsyncPaymentFinalizeException exception if an error ocurres while calling an external payment API
+     * Throw a @see CustomerCanceledAsyncPaymentException exception if the customer canceled the payment process on
+     * payment provider page
+     *
+     * @throws AsyncPaymentFinalizeException
+     * @throws CustomerCanceledAsyncPaymentException
      */
-    public function finalize(string $transactionId, Request $request, Context $context): void;
+    public function finalize(AsyncPaymentTransactionStruct $transaction, Request $request, Context $context): void;
 }

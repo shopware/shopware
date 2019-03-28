@@ -12,6 +12,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Test\TestCaseBase\StorefrontApiTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Symfony\Component\HttpFoundation\Response;
 
 class StorefrontCheckoutContextControllerTest extends TestCase
 {
@@ -49,7 +50,7 @@ class StorefrontCheckoutContextControllerTest extends TestCase
          * Shipping method
          */
         $this->getStorefrontClient()->request('PATCH', '/storefront-api/v1/context', ['shippingMethodId' => $testId]);
-        static::assertSame(400, $this->getStorefrontClient()->getResponse()->getStatusCode());
+        static::assertSame(Response::HTTP_BAD_REQUEST, $this->getStorefrontClient()->getResponse()->getStatusCode());
         $content = json_decode($this->getStorefrontClient()->getResponse()->getContent(), true);
 
         static::assertEquals(
@@ -61,11 +62,11 @@ class StorefrontCheckoutContextControllerTest extends TestCase
          * Payment method
          */
         $this->getStorefrontClient()->request('PATCH', '/storefront-api/v1/context', ['paymentMethodId' => $testId]);
-        static::assertSame(400, $this->getStorefrontClient()->getResponse()->getStatusCode());
+        static::assertSame(Response::HTTP_NOT_FOUND, $this->getStorefrontClient()->getResponse()->getStatusCode());
         $content = json_decode($this->getStorefrontClient()->getResponse()->getContent(), true);
 
         static::assertEquals(
-            sprintf('Payment method with id %s not found.', $testId),
+            sprintf('The payment method %s could not be found.', $testId),
             $content['errors'][0]['detail'] ?? null
         );
     }
@@ -78,7 +79,7 @@ class StorefrontCheckoutContextControllerTest extends TestCase
          * Billing address
          */
         $this->getStorefrontClient()->request('PATCH', '/storefront-api/v1/context', ['billingAddressId' => $testId]);
-        static::assertSame(403, $this->getStorefrontClient()->getResponse()->getStatusCode());
+        static::assertSame(Response::HTTP_FORBIDDEN, $this->getStorefrontClient()->getResponse()->getStatusCode());
         $content = json_decode($this->getStorefrontClient()->getResponse()->getContent(), true);
 
         static::assertEquals(
@@ -90,7 +91,7 @@ class StorefrontCheckoutContextControllerTest extends TestCase
          * Shipping address
          */
         $this->getStorefrontClient()->request('PATCH', '/storefront-api/v1/context', ['shippingAddressId' => $testId]);
-        static::assertSame(403, $this->getStorefrontClient()->getResponse()->getStatusCode());
+        static::assertSame(Response::HTTP_FORBIDDEN, $this->getStorefrontClient()->getResponse()->getStatusCode());
         $content = json_decode($this->getStorefrontClient()->getResponse()->getContent(), true);
 
         static::assertEquals(
@@ -110,7 +111,7 @@ class StorefrontCheckoutContextControllerTest extends TestCase
          */
         $this->getStorefrontClient()->request('PATCH', '/storefront-api/v1/context', ['billingAddressId' => $testId]);
 
-        static::assertSame(400, $this->getStorefrontClient()->getResponse()->getStatusCode());
+        static::assertSame(Response::HTTP_BAD_REQUEST, $this->getStorefrontClient()->getResponse()->getStatusCode());
         $content = json_decode($this->getStorefrontClient()->getResponse()->getContent(), true);
 
         static::assertEquals(
@@ -122,7 +123,7 @@ class StorefrontCheckoutContextControllerTest extends TestCase
          * Shipping address
          */
         $this->getStorefrontClient()->request('PATCH', '/storefront-api/v1/context', ['shippingAddressId' => $testId]);
-        static::assertSame(400, $this->getStorefrontClient()->getResponse()->getStatusCode());
+        static::assertSame(Response::HTTP_BAD_REQUEST, $this->getStorefrontClient()->getResponse()->getStatusCode());
         $content = json_decode($this->getStorefrontClient()->getResponse()->getContent(), true);
 
         static::assertEquals(
@@ -142,14 +143,14 @@ class StorefrontCheckoutContextControllerTest extends TestCase
          */
         $this->getStorefrontClient()
             ->request('PATCH', '/storefront-api/v1/context', ['billingAddressId' => $billingId]);
-        static::assertSame(200, $this->getStorefrontClient()->getResponse()->getStatusCode());
+        static::assertSame(Response::HTTP_OK, $this->getStorefrontClient()->getResponse()->getStatusCode());
 
         /*
          * Shipping address
          */
         $this->getStorefrontClient()
             ->request('PATCH', '/storefront-api/v1/context', ['shippingAddressId' => $shippingId]);
-        static::assertSame(200, $this->getStorefrontClient()->getResponse()->getStatusCode());
+        static::assertSame(Response::HTTP_OK, $this->getStorefrontClient()->getResponse()->getStatusCode());
     }
 
     private function createCustomerAndLogin(?string $email = null, string $password = 'shopware'): string
@@ -161,7 +162,7 @@ class StorefrontCheckoutContextControllerTest extends TestCase
             'username' => $email,
             'password' => $password,
         ]);
-        static::assertSame(200, $this->getStorefrontClient()->getResponse()->getStatusCode());
+        static::assertSame(Response::HTTP_OK, $this->getStorefrontClient()->getResponse()->getStatusCode());
 
         return $customerId;
     }

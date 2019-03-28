@@ -3,9 +3,11 @@
 namespace Shopware\Core\Checkout\Test\Payment;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\DefaultPayment;
 use Shopware\Core\Checkout\Payment\DataAbstractionLayer\PaymentMethodRepositoryDecorator;
 use Shopware\Core\Checkout\Payment\Exception\PluginPaymentMethodsDeleteRestrictionException;
 use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
+use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Shopware\Core\Checkout\Test\Payment\Handler\AsyncTestPaymentHandler;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
@@ -154,6 +156,27 @@ class PaymentMethodRepositoryTest extends TestCase
         $resultSet = $this->paymentRepository->search($criteria, $defaultContext);
 
         static::assertCount(0, $resultSet);
+    }
+
+    public function testDefaultHandlerWrittenAtCreateIfNoHandlerIdentifierGiven(): void
+    {
+        $defaultContext = Context::createDefaultContext();
+        $paymentMethod = $this->createPaymentMethodDummyArray();
+
+        unset($paymentMethod[0]['handlerIdentifier']);
+
+        $this->paymentRepository->create($paymentMethod, $defaultContext);
+
+        $criteria = new Criteria([$this->paymentMethodId]);
+
+        /** @var PaymentMethodCollection $resultSet */
+        $resultSet = $this->paymentRepository->search($criteria, $defaultContext);
+
+        /** @var PaymentMethodEntity $paymentMethod */
+        $paymentMethod = $resultSet->filterByProperty('id', $this->paymentMethodId)
+            ->getElements()[$this->paymentMethodId];
+
+        static::assertSame(DefaultPayment::class, $paymentMethod->getHandlerIdentifier());
     }
 
     public function testThrowsExceptionIfNotAllRequiredValuesAreGiven(): void

@@ -5,14 +5,14 @@ namespace Shopware\Storefront\Test;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Context\CheckoutContextFactory;
+use Shopware\Core\Checkout\Customer\Exception\CustomerNotFoundException;
 use Shopware\Core\Checkout\Customer\Storefront\AccountRegistrationService;
 use Shopware\Core\Checkout\Customer\Storefront\AccountService;
-use Shopware\Core\Checkout\Exception\CustomerNotFoundException;
 use Shopware\Core\Defaults;
-use Shopware\Core\Framework\Exception\ConstraintViolationException;
 use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
+use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
 
 class AccountRegistrationServiceTest extends TestCase
 {

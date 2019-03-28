@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Framework\Snippet\Filter;
 
-use Shopware\Core\Framework\Exception\FilterNotFoundException;
+use Shopware\Core\Framework\Snippet\Exception\FilterNotFoundException;
 
 class SnippetFilterFactory implements SnippetFilterFactoryInterface
 {

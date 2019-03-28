@@ -2,8 +2,8 @@
 
 namespace Shopware\Core\Framework\Util;
 
-use Shopware\Core\Framework\Exception\XmlElementNotFoundException;
-use Shopware\Core\Framework\Exception\XmlParsingException;
+use Shopware\Core\System\SystemConfig\Exception\XmlElementNotFoundException;
+use Shopware\Core\System\SystemConfig\Exception\XmlParsingException;
 use Symfony\Component\Config\Util\XmlUtils;
 
 abstract class XmlReader implements XmlReaderInterface

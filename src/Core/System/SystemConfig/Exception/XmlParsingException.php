@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\Exception;
+namespace Shopware\Core\System\SystemConfig\Exception;
 
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
@@ -17,7 +17,7 @@ class XmlParsingException extends ShopwareHttpException
 
     public function getErrorCode(): string
     {
-        return 'FRAMEWORK__XML_PARSE_ERROR';
+        return 'SYSTEM__XML_PARSE_ERROR';
     }
 
     public function getStatusCode(): int

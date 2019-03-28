@@ -1,23 +1,23 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Checkout\Exception;
+namespace Shopware\Core\Framework\Snippet\Exception;
 
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
-class AddressNotFoundException extends ShopwareHttpException
+class InvalidSnippetFileException extends ShopwareHttpException
 {
-    public function __construct(string $id)
+    public function __construct(string $locale)
     {
         parent::__construct(
-            'Customer address with id "{{ customerId }}" not found.',
-            ['customerId' => $id]
+            'The base snippet file for locale {{ locale }} is not registered.',
+            ['locale' => $locale]
         );
     }
 
     public function getErrorCode(): string
     {
-        return 'CHECKOUT__CUSTOMER_ADDRESS_NOT_FOUND';
+        return 'FRAMEWORK__INVALID_SNIPPET_FILE';
     }
 
     public function getStatusCode(): int

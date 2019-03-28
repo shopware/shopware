@@ -5,6 +5,10 @@ namespace Shopware\Core\Framework\Exception;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * @todo some kind of controller namespace?
+ * @todo give internalRequest it's own exception
+ */
 class MissingParameterException extends ShopwareHttpException
 {
     /**

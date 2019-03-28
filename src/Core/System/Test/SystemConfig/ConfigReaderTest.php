@@ -3,7 +3,7 @@
 namespace Shopware\Core\System\Test\SystemConfig;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\Exception\XmlParsingException;
+use Shopware\Core\System\SystemConfig\Exception\XmlParsingException;
 use Shopware\Core\System\SystemConfig\Helper\ConfigReader;
 
 class ConfigReaderTest extends TestCase

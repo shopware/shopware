@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Framework\Twig;
 
-use Shopware\Core\Framework\Exception\StringTemplateRenderingException;
+use Shopware\Core\Framework\Twig\Exception\StringTemplateRenderingException;
 use Twig\Environment;
 use Twig\Error\Error;
 use Twig\Loader\ArrayLoader;

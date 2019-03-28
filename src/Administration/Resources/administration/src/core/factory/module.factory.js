@@ -4,6 +4,7 @@
 import { warn } from 'src/core/service/utils/debug.utils';
 import { hasOwnProperty } from 'src/core/service/utils/object.utils';
 import types from 'src/core/service/utils/types.utils';
+import MiddlewareHelper from 'src/core/helper/middleware.helper';
 
 export default {
     getModuleRoutes,
@@ -18,6 +19,8 @@ export default {
  * @type {Map<String, Object>}
  */
 const modules = new Map();
+
+const middlewareHelper = new MiddlewareHelper();
 
 /**
  * Returns the registry of all modules mounted in the application.
@@ -147,6 +150,10 @@ function registerModule(moduleId, module) {
             module.routes
         );
         return false;
+    }
+
+    if (module.routeMiddleware && types.isFunction(module.routeMiddleware)) {
+        middlewareHelper.use(module.routeMiddleware);
     }
 
     const moduleDefinition = {
@@ -309,7 +316,7 @@ function getModuleRoutes() {
             if (route.isChildren) {
                 return;
             }
-
+            middlewareHelper.go(route);
             moduleRoutes.push(route);
         });
     });

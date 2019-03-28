@@ -8,5 +8,11 @@ cmsService.registerCmsElement({
     label: 'Image',
     component: 'sw-cms-el-image',
     configComponent: 'sw-cms-el-config-image',
-    previewComponent: 'sw-cms-el-preview-image'
+    previewComponent: 'sw-cms-el-preview-image',
+    defaultConfig: {
+        media: {
+            source: 'static',
+            value: null
+        }
+    }
 });

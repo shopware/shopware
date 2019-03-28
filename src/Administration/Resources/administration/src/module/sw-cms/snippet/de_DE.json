@@ -26,6 +26,10 @@
       "actionEmptyState": "Block hinzufügen",
       "sidebarTitlePageSettings": "Einstellungen",
       "sidebarHeaderPageSettings": "Basis Informationen",
+      "labelPageName": "Name",
+      "labelPageType": "Layout Typ",
+      "labelDemoEntity": "Demodatensatz",
+      "placeholderDemoEntity": "Wähle einen Demodatensatz",
       "labelPageTypeLandingpage": "Einkaufswelt",
       "labelPageTypeCategory": "Kategorieseite",
       "labelPageTypeProduct": "Produktseite",
@@ -46,7 +50,10 @@
       "labelBlockTopMarginField": "Oberer Abstand",
       "labelBlockBottomMarginField": "Unterer Abstand",
       "labelBlockLeftMarginField": "Linker Abstand",
-      "labelBlockRightMarginField": "Rechter Abstand"
+      "labelBlockRightMarginField": "Rechter Abstand",
+      "labelButtonMappingAction": "Datenzuordnung",
+      "labelButtonMappingRemoveAction": "Datenzuordnung entfernen",
+      "labelMappingPreview": "Datenzuordnung:"
     },
     "elements": {
       "captionMediaUpload": "Lade ein Bild hoch",

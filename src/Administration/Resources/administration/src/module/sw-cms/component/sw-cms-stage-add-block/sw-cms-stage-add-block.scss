@@ -10,8 +10,8 @@
     cursor: pointer;
 
     &:hover {
-        .add-block__handle,
-        .add-block__button {
+        .sw-cms-stage-add-block__handle,
+        .sw-cms-stage-add-block__button {
             display: grid;
         }
     }

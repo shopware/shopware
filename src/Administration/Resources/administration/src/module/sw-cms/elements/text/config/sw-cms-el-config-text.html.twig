@@ -1,7 +1,11 @@
 {% block sw_cms_element_text_config %}
     <div class="sw-cms-el-config-text">
-        <sw-text-editor :label="$tc('sw-cms.elements.labelTextElementContent')"
-                        v-model="element.config.content">
-        </sw-text-editor>
+        <sw-cms-mapping-field :label="$tc('sw-cms.elements.labelTextElementContent')" valueTypes="string" v-model="element.config.content">
+            <sw-text-editor v-model="element.config.content.value"></sw-text-editor>
+
+            <div class="sw-cms-el-config-text__mapping-preview" slot="preview" slot-scope="{ demoValue }">
+                <div v-html="demoValue"></div>
+            </div>
+        </sw-cms-mapping-field>
     </div>
 {% endblock %}

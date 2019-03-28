@@ -1,28 +1,13 @@
-import { Component } from 'src/core/shopware';
+import { Component, Mixin } from 'src/core/shopware';
 import template from './sw-cms-el-text.html.twig';
 import './sw-cms-el-text.scss';
 
 Component.register('sw-cms-el-text', {
     template,
 
-    model: {
-        prop: 'element',
-        event: 'element-update'
-    },
-
-    props: {
-        element: {
-            type: Object,
-            required: true,
-            default() {
-                return {
-                    config: {
-                        content: ''
-                    }
-                };
-            }
-        }
-    },
+    mixins: [
+        Mixin.getByName('cms-element')
+    ],
 
     data() {
         return {
@@ -31,35 +16,13 @@ Component.register('sw-cms-el-text', {
         };
     },
 
-    computed: {
-        defaultContent() {
-            return `
-                <h2>Lorem Ipsum dolor sit amet</h2>
-                <p>Lorem ipsum dolor sit amet, consetetur sadipscing elitr, 
-                sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, 
-                sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. 
-                Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. 
-                Lorem ipsum dolor sit amet, consetetur sadipscing elitr, 
-                sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. 
-                At vero eos et accusam et justo duo dolores et ea rebum. 
-                Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.</p>
-            `;
-        }
-    },
-
     created() {
-        this.componentCreated();
+        this.createdComponent();
     },
 
     methods: {
-        componentCreated() {
-            if (!this.element.config || this.element.config === null) {
-                this.element.config = {};
-            }
-
-            if (!this.element.config.content || !this.element.config.content.length) {
-                this.element.config.content = this.defaultContent;
-            }
+        createdComponent() {
+            this.initElementConfig('text');
         },
 
         getContent() {
@@ -76,7 +39,7 @@ Component.register('sw-cms-el-text', {
         },
 
         onBlur() {
-            this.element.config.content = this.getContent();
+            this.element.config.content.value = this.getContent();
             this.$emit('element-update', this.element);
         },
 

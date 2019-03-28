@@ -1,3 +1,18 @@
 {% block sw_cms_element_product_box_config %}
-    <div class="sw-cms-el-config-product-box"></div>
+    <div class="sw-cms-el-config-product-box">
+        <sw-select :multi="false"
+                   ref="cmsProductSelection"
+                   label="Product"
+                   placeholder="Select a product"
+                   :store="productStore"
+                   @input="onProductChange"
+                   v-model="element.config.product.value">
+        </sw-select>
+
+        <sw-select-field label="Box layout" v-model="element.config.boxLayout.value">
+            <option value="standard">Standard</option>
+            <option value="image">Big image</option>
+            <option value="minimal">Minimal content</option>
+        </sw-select-field>
+    </div>
 {% endblock %}

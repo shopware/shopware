@@ -1,5 +1,6 @@
 import { NEXT134 } from 'src/flag/feature_next134';
 import { Module } from 'src/core/shopware';
+import './mixin/sw-cms-element.mixin';
 import './blocks';
 import './elements';
 import './component';

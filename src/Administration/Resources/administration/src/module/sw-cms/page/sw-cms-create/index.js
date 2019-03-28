@@ -1,4 +1,5 @@
 import { Component, State } from 'src/core/shopware';
+import EntityProxy from 'src/core/data/EntityProxy';
 import utils from 'src/core/service/util.service';
 import template from './sw-cms-create.html.twig';
 
@@ -38,7 +39,7 @@ Component.extend('sw-cms-create', 'sw-cms-detail', {
             });
 
             if (this.$route.params.id) {
-                this.page = this.pageStore.create(this.$route.params.id);
+                this.page = new EntityProxy('cms_page', this.cmsPageService, this.$route.params.id, null);
             }
         },
 

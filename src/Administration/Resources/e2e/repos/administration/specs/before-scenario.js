@@ -11,8 +11,8 @@ module.exports = {
     loginIfSessionFailed: (browser, username, password) => {
         const page = loginPage(browser);
 
-        browser.checkIfElementExists(page.elements.adminMenu, (result) => {
-            console.log('result :', result);
+        browser.checkIfElementExists(page.elements.loginForm, (result) => {
+            browser.waitForElementVisible('#app');
             if (result.value) {
                 global.logger.error(`Login check: ${result.value}, which means the session is broken. Trying again.`);
                 page.fastLogin(username, password);

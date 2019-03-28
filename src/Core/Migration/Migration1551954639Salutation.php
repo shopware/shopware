@@ -62,7 +62,7 @@ class Migration1551954639Salutation extends MigrationStep
         // Inserts for: Mr.
         $connection->insert('salutation', [
             'id' => $mr,
-            'salutation_key' => Defaults::SALUTATION_KEY_MR,
+            'salutation_key' => 'mr',
             'created_at' => date(Defaults::DATE_FORMAT),
         ]);
         $connection->insert('salutation_translation', [
@@ -81,7 +81,7 @@ class Migration1551954639Salutation extends MigrationStep
         // Inserts for: Mrs.
         $connection->insert('salutation', [
             'id' => $mrs,
-            'salutation_key' => Defaults::SALUTATION_KEY_MRS,
+            'salutation_key' => 'mrs',
             'created_at' => date(Defaults::DATE_FORMAT),
         ]);
         $connection->insert('salutation_translation', [
@@ -100,7 +100,7 @@ class Migration1551954639Salutation extends MigrationStep
         // Inserts for: Miss
         $connection->insert('salutation', [
             'id' => $miss,
-            'salutation_key' => Defaults::SALUTATION_KEY_MISS,
+            'salutation_key' => 'miss',
             'created_at' => date(Defaults::DATE_FORMAT),
         ]);
         $connection->insert('salutation_translation', [

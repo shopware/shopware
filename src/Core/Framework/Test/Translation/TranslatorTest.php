@@ -78,7 +78,7 @@ class TranslatorTest extends TestCase
             'translationKey' => 'new.unit.test.key',
             'value' => 'Realisiert mit Unit test',
             'setId' => Defaults::SNIPPET_BASE_SET_EN,
-            'author' => Defaults::SNIPPET_AUTHOR,
+            'author' => 'Shopware',
         ];
         $this->snippetRepository->create([$snippet], $context);
 
@@ -109,7 +109,7 @@ class TranslatorTest extends TestCase
             'translationKey' => 'foo',
             'value' => 'bar',
             'setId' => Defaults::SNIPPET_BASE_SET_EN,
-            'author' => Defaults::SNIPPET_AUTHOR,
+            'author' => 'Shopware',
         ];
 
         $created = $snippetRepository->create([$snippet], Context::createDefaultContext())->getEventByDefinition(SnippetDefinition::class);

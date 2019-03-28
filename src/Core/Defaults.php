@@ -14,8 +14,6 @@ final class Defaults
 
     public const SNIPPET_BASE_SET_DE = 'b8d2230a7b324e448c9c8b22ed1b89d8';
 
-    public const SNIPPET_AUTHOR = 'Shopware';
-
     public const LOCALE_SYSTEM = '20080911ffff4fffafffffff19830531';
 
     public const LOCALE_SYSTEM_DE = '2f3663edb7614308a60188c21c7963d5';
@@ -57,11 +55,6 @@ final class Defaults
     public const ORDER_TRANSACTION_STATES_CANCELLED = 'cancelled';
     public const ORDER_TRANSACTION_STATES_REMINDED = 'reminded';
 
-    public const SALUTATION_KEY_MR = 'mr';
-    public const SALUTATION_KEY_MRS = 'mrs';
-    public const SALUTATION_KEY_MISS = 'miss';
-    public const SALUTATION_KEY_DIVERSE = 'diverse';
-
     public const SALUTATION_ID_MR = '0ddcfee7912c4f57b7f8560f4fc35e08';
     public const SALUTATION_ID_MRS = '1902982d717a4e97ab371326693d73df';
     public const SALUTATION_ID_MISS = '6fdf0912858540b89a774919593d1b3a';
@@ -71,43 +64,4 @@ final class Defaults
 
     public const SALES_CHANNEL_STOREFRONT = '8a243080f92e4c719546314b577cf82b';
     public const DATE_FORMAT = 'Y-m-d H:i:s.v';
-
-    public const NUMBER_RANGE_TYPES = [
-        'product' => [
-            'id' => '20080911ffff4fffafffffff19830531',
-            'global' => 1,
-        ],
-        'order' => [
-            'id' => 'a6ddadce4cb441f3976a32505049f037',
-            'global' => 0,
-        ],
-        'customer' => [
-            'id' => '8a243080f92e4c719546314b577cf82b',
-            'global' => 0,
-        ],
-    ];
-
-    public const NUMBER_RANGES = [
-        'product' => [
-            'id' => '1194a493806742c9b85e61f1f2cf9be8',
-            'name' => 'Products',
-            'typeId' => '20080911ffff4fffafffffff19830531',
-            'pattern' => '{n}',
-            'start' => 1,
-        ],
-        'order' => [
-            'id' => '60025b03849340ba8d1abf7e58aa2b9f',
-            'name' => 'Orders',
-            'typeId' => 'a6ddadce4cb441f3976a32505049f037',
-            'pattern' => '{n}',
-            'start' => 1,
-        ],
-        'customer' => [
-            'id' => '099e79dbfa9f43e4876b172ff58359f2',
-            'name' => 'Customers',
-            'typeId' => '8a243080f92e4c719546314b577cf82b',
-            'pattern' => '{n}',
-            'start' => 1,
-        ],
-    ];
 }

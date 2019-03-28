@@ -151,6 +151,24 @@ The following two routes will be generated:
 
 For more information, head over to the [redirect documentation of the `vue-router` plugin](https://router.vuejs.org/en/essentials/redirect-and-alias.html).
 
+#### Intercept route generation
+In rare cases it's mandatory for a plugin to intercept the generation of routes before they'll be injected into the router. The module definition can feature a method called `routeMiddleware`
+which will be called for each registered route. Using the middleware method it's possible to modify any existing route as well as adding new child routes:
+
+```js
+Module.register('swag-multimedia', {
+    // ...
+
+    routeMiddleware(currentRoute, next) {
+        if (currentRoute.name === 'sw.product.detail') {
+            currentRoute.components.default = 'sw-error';
+        }
+        next(currentRoute);
+    }
+});
+```
+*Using `routeMiddleware` to replace the product detail page with an error page*
+
 ### Navigation
 To access the module using the main menu in the administration we have to register a main menu entry. The property `navigation` accepts an array of menu entries:
 

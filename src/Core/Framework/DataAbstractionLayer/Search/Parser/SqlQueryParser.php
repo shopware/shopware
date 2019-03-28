@@ -37,13 +37,18 @@ class SqlQueryParser
         $this->connection = $connection;
     }
 
-    public function parseRanking(array $queries, string $definition, string $root, Context $context): ParseResult
-    {
+    public function parseRanking(
+        array $queries,
+        string $definition,
+        string $root,
+        Context $context,
+        bool $considerInheritance
+    ): ParseResult {
         $result = new ParseResult();
 
         /** @var ScoreQuery $query */
         foreach ($queries as $query) {
-            $parsed = $this->parse($query->getQuery(), $definition, $context, $root);
+            $parsed = $this->parse($query->getQuery(), $definition, $context, $considerInheritance, $root);
 
             foreach ($parsed->getWheres() as $where) {
                 if ($query->getScoreField()) {
@@ -51,7 +56,8 @@ class SqlQueryParser
                         $query->getScoreField(),
                         $definition,
                         $root,
-                        $context
+                        $context,
+                        $considerInheritance
                     );
 
                     $result->addWhere(
@@ -76,37 +82,47 @@ class SqlQueryParser
     /**
      * @param string|EntityDefinition $definition
      */
-    public function parse(Filter $query, string $definition, Context $context, ?string $root = null): ParseResult
-    {
+    public function parse(
+        Filter $query,
+        string $definition,
+        Context $context,
+        bool $considerInheritance,
+        ?string $root = null
+    ): ParseResult {
         if ($root === null) {
             $root = $definition::getEntityName();
         }
 
         switch (true) {
             case $query instanceof NotFilter:
-                return $this->parseNotFilter($query, $definition, $root, $context);
+                return $this->parseNotFilter($query, $definition, $root, $context, $considerInheritance);
             case $query instanceof MultiFilter:
-                return $this->parseMultiFilter($query, $definition, $root, $context);
+                return $this->parseMultiFilter($query, $definition, $root, $context, $considerInheritance);
             case $query instanceof EqualsFilter:
-                return $this->parseEqualsFilter($query, $definition, $root, $context);
+                return $this->parseEqualsFilter($query, $definition, $root, $context, $considerInheritance);
             case $query instanceof EqualsAnyFilter:
-                return $this->parseEqualsAnyFilter($query, $definition, $root, $context);
+                return $this->parseEqualsAnyFilter($query, $definition, $root, $context, $considerInheritance);
             case $query instanceof ContainsFilter:
-                return $this->parseContainsFilter($query, $definition, $root, $context);
+                return $this->parseContainsFilter($query, $definition, $root, $context, $considerInheritance);
             case $query instanceof RangeFilter:
-                return $this->parseRangeFilter($query, $definition, $root, $context);
+                return $this->parseRangeFilter($query, $definition, $root, $context, $considerInheritance);
             default:
                 throw new \RuntimeException(sprintf('Unsupported query %s', \get_class($query)));
         }
     }
 
-    private function parseRangeFilter(RangeFilter $query, string $definition, string $root, Context $context): ParseResult
-    {
+    private function parseRangeFilter(
+        RangeFilter $query,
+        string $definition,
+        string $root,
+        Context $context,
+        bool $considerInheritance
+    ): ParseResult {
         $result = new ParseResult();
 
         $key = $this->getKey();
 
-        $field = $this->queryHelper->getFieldAccessor($query->getField(), $definition, $root, $context);
+        $field = $this->queryHelper->getFieldAccessor($query->getField(), $definition, $root, $context, $considerInheritance);
 
         $where = [];
 
@@ -134,11 +150,11 @@ class SqlQueryParser
         return $result;
     }
 
-    private function parseContainsFilter(ContainsFilter $query, string $definition, string $root, Context $context): ParseResult
+    private function parseContainsFilter(ContainsFilter $query, string $definition, string $root, Context $context, bool $considerInheritance): ParseResult
     {
         $key = $this->getKey();
 
-        $field = $this->queryHelper->getFieldAccessor($query->getField(), $definition, $root, $context);
+        $field = $this->queryHelper->getFieldAccessor($query->getField(), $definition, $root, $context, $considerInheritance);
 
         $result = new ParseResult();
         $result->addWhere($field . ' LIKE :' . $key . '');
@@ -149,10 +165,10 @@ class SqlQueryParser
         return $result;
     }
 
-    private function parseEqualsAnyFilter(EqualsAnyFilter $query, string $definition, string $root, Context $context): ParseResult
+    private function parseEqualsAnyFilter(EqualsAnyFilter $query, string $definition, string $root, Context $context, bool $considerInheritance): ParseResult
     {
         $key = $this->getKey();
-        $select = $this->queryHelper->getFieldAccessor($query->getField(), $definition, $root, $context);
+        $select = $this->queryHelper->getFieldAccessor($query->getField(), $definition, $root, $context, $considerInheritance);
         $field = $this->queryHelper->getField($query->getField(), $definition, $root);
 
         $result = new ParseResult();
@@ -183,10 +199,10 @@ class SqlQueryParser
         return $result;
     }
 
-    private function parseEqualsFilter(EqualsFilter $query, string $definition, string $root, Context $context): ParseResult
+    private function parseEqualsFilter(EqualsFilter $query, string $definition, string $root, Context $context, bool $considerInheritance): ParseResult
     {
         $key = $this->getKey();
-        $select = $this->queryHelper->getFieldAccessor($query->getField(), $definition, $root, $context);
+        $select = $this->queryHelper->getFieldAccessor($query->getField(), $definition, $root, $context, $considerInheritance);
         $field = $this->queryHelper->getField($query->getField(), $definition, $root);
 
         $result = new ParseResult();
@@ -215,9 +231,9 @@ class SqlQueryParser
         return $result;
     }
 
-    private function parseMultiFilter(MultiFilter $query, string $definition, string $root, Context $context): ParseResult
+    private function parseMultiFilter(MultiFilter $query, string $definition, string $root, Context $context, bool $considerInheritance): ParseResult
     {
-        $result = $this->iterateNested($query, $definition, $root, $context);
+        $result = $this->iterateNested($query, $definition, $root, $context, $considerInheritance);
 
         $wheres = $result->getWheres();
 
@@ -231,9 +247,9 @@ class SqlQueryParser
         return $result;
     }
 
-    private function parseNotFilter(NotFilter $query, string $definition, string $root, Context $context): ParseResult
+    private function parseNotFilter(NotFilter $query, string $definition, string $root, Context $context, bool $considerInheritance): ParseResult
     {
-        $result = $this->iterateNested($query, $definition, $root, $context);
+        $result = $this->iterateNested($query, $definition, $root, $context, $considerInheritance);
 
         $wheres = $result->getWheres();
 
@@ -248,12 +264,12 @@ class SqlQueryParser
         return $result;
     }
 
-    private function iterateNested(MultiFilter $query, string $definition, string $root, Context $context): ParseResult
+    private function iterateNested(MultiFilter $query, string $definition, string $root, Context $context, bool $considerInheritance): ParseResult
     {
         $result = new ParseResult();
         foreach ($query->getQueries() as $multiFilter) {
             $result = $result->merge(
-                $this->parse($multiFilter, $definition, $context, $root)
+                $this->parse($multiFilter, $definition, $context, $considerInheritance, $root)
             );
         }
 

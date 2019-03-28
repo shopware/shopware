@@ -53,12 +53,78 @@ class EntityReaderTest extends TestCase
      */
     private $languageRepository;
 
+    /**
+     * @var EntityRepositoryInterface
+     */
+    private $taxRepository;
+
     protected function setUp(): void
     {
         $this->connection = $this->getContainer()->get(Connection::class);
         $this->productRepository = $this->getContainer()->get('product.repository');
         $this->categoryRepository = $this->getContainer()->get('category.repository');
         $this->languageRepository = $this->getContainer()->get('language.repository');
+    }
+
+    public function testTranslated()
+    {
+        $id = Uuid::uuid4()->getHex();
+        $data = [
+            ['id' => $id, 'name' => 'test'],
+        ];
+
+        $context = Context::createDefaultContext();
+        $this->categoryRepository->create($data, $context);
+
+        $context = new Context(
+            new SourceContext(SourceContext::ORIGIN_SYSTEM),
+            [],
+            Defaults::CURRENCY,
+            [
+                Defaults::LANGUAGE_SYSTEM,
+                Defaults::LANGUAGE_SYSTEM_DE,
+            ]
+        );
+
+        $categories = $this->categoryRepository->search(new Criteria([$id]), $context);
+        /** @var CategoryEntity $category */
+        $category = $categories->first();
+
+        static::assertSame('test', $category->getName());
+        static::assertSame('test', $category->getTranslated()['name']);
+
+        $context = new Context(
+            new SourceContext(SourceContext::ORIGIN_SYSTEM),
+            [],
+            Defaults::CURRENCY,
+            [
+                Defaults::LANGUAGE_SYSTEM_DE,
+                Defaults::LANGUAGE_SYSTEM,
+            ]
+        );
+
+        $categories = $this->categoryRepository->search(new Criteria([$id]), $context);
+        /** @var CategoryEntity $category */
+        $category = $categories->first();
+
+        static::assertNull($category->getName());
+        static::assertSame('test', $category->getTranslated()['name']);
+
+        $context = new Context(
+            new SourceContext(SourceContext::ORIGIN_SYSTEM),
+            [],
+            Defaults::CURRENCY,
+            [
+                Defaults::LANGUAGE_SYSTEM_DE,
+            ]
+        );
+
+        $categories = $this->categoryRepository->search(new Criteria([$id]), $context);
+        /** @var CategoryEntity $category */
+        $category = $categories->first();
+
+        static::assertNull($category->getName());
+        static::assertNull($category->getTranslated()['name']);
     }
 
     public function testTranslatedFieldsContainsNoInheritance(): void

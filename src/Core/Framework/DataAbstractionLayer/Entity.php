@@ -21,6 +21,11 @@ class Entity extends Struct
      */
     protected $versionId;
 
+    /**
+     * @var array
+     */
+    protected $translated = [];
+
     public function setUniqueIdentifier(string $identifier): void
     {
         $this->_uniqueIdentifier = $identifier;
@@ -68,5 +73,20 @@ class Entity extends Struct
     public function has(string $property): bool
     {
         return property_exists($this, $property);
+    }
+
+    public function getTranslated(): array
+    {
+        return $this->translated;
+    }
+
+    public function setTranslated(array $translated): void
+    {
+        $this->translated = $translated;
+    }
+
+    public function addTranslated(string $key, $value): void
+    {
+        $this->translated[$key] = $value;
     }
 }

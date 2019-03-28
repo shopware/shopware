@@ -19,7 +19,8 @@ class SeoUrlAssociationFieldResolver implements FieldResolverInterface
         Field $field,
         QueryBuilder $query,
         Context $context,
-        EntityDefinitionQueryHelper $queryHelper
+        EntityDefinitionQueryHelper $queryHelper,
+        bool $considerInheritance
     ): bool {
         if (!$field instanceof SeoUrlAssociationField) {
             return false;

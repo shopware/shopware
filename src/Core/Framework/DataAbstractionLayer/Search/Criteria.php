@@ -81,6 +81,11 @@ class Criteria extends Struct
      */
     protected $states = [];
 
+    /**
+     * @var bool
+     */
+    protected $inherited = false;
+
     public function __construct(array $ids = [])
     {
         if (\count($ids) > \count(array_filter($ids))) {
@@ -316,6 +321,16 @@ class Criteria extends Struct
     public function hasState(string $state): bool
     {
         return isset($this->states[$state]);
+    }
+
+    public function considerInheritance(): bool
+    {
+        return $this->inherited;
+    }
+
+    public function setInherited(bool $inherited): void
+    {
+        $this->inherited = $inherited;
     }
 
     private function collectFields(array $parts): array

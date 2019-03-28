@@ -15,6 +15,7 @@ interface FieldResolverInterface
         Field $field,
         QueryBuilder $query,
         Context $context,
-        EntityDefinitionQueryHelper $queryHelper
+        EntityDefinitionQueryHelper $queryHelper,
+        bool $considerInheritance
     ): bool;
 }

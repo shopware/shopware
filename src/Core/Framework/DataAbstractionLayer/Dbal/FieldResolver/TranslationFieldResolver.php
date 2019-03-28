@@ -17,13 +17,14 @@ class TranslationFieldResolver implements FieldResolverInterface
         Field $field,
         QueryBuilder $query,
         Context $context,
-        EntityDefinitionQueryHelper $queryHelper
+        EntityDefinitionQueryHelper $queryHelper,
+        bool $considerInheritance
     ): bool {
         if (!$field instanceof TranslatedField) {
             return false;
         }
 
-        $chain = EntityDefinitionQueryHelper::buildTranslationChain($root, $context, $definition::isInheritanceAware());
+        $chain = EntityDefinitionQueryHelper::buildTranslationChain($root, $context, $definition::isInheritanceAware() && $considerInheritance);
         foreach ($chain as $part) {
             $this->joinTranslationTable($part, $definition, $query);
         }

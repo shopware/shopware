@@ -86,7 +86,7 @@ export default {
         },
 
         revert() {
-            // todo fetch record from server
+            return this.repository.search(this.records.criteria, this.records.context);
         },
 
         sort(column) {

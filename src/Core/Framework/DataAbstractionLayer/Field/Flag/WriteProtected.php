@@ -29,7 +29,7 @@ class WriteProtected extends Flag
     public function parse(): \Generator
     {
         yield 'write_protected' => [
-            array_keys($this->allowedOrigins),
+            array_keys($this->allowedScopes),
         ];
     }
 }

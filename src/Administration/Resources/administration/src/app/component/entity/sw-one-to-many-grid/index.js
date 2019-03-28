@@ -92,7 +92,11 @@ export default {
         },
 
         revert() {
-            // todo fetch record from server
+            if (this.localMode) {
+                return Promise.resolve();
+            }
+
+            return this.repository.search(this.records.criteria, this.records.context);
         },
 
         deleteItem(id) {

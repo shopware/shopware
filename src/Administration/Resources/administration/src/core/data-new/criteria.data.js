@@ -1,3 +1,5 @@
+import { types } from 'src/core/service/util.service';
+
 export default class Criteria {
     constructor(page, limit) {
         this.page = page || 1;
@@ -75,14 +77,11 @@ export default class Criteria {
      * @param {int} mode
      */
     setTotalCountMode(mode) {
-        if (mode === null) {
+        if (!types.isNumeric(mode)) {
             this.totalCountMode = null;
         }
-        if (mode < 0 || mode > 2) {
-            return;
-        }
 
-        this.totalCountMode = mode;
+        this.totalCountMode = (mode < 0 || mode > 2) ? null : mode;
     }
 
     setPage(page) {

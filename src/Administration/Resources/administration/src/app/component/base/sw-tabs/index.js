@@ -128,7 +128,7 @@ export default {
                 transform: translate(${this.sliderMovement}px, 0) rotate(0deg);
                 width: ${this.sliderLength}px;
                 bottom: ${this.scrollbarOffset}px;
-                `;
+            `;
         },
 
         tabContentStyle() {
@@ -161,6 +161,13 @@ export default {
                 },
                 component: this
             });
+
+            // Force to recalculate the slider position
+            window.setTimeout(() => {
+                const activeItem = this.activeItem;
+                this.activeItem = null;
+                this.activeItem = activeItem;
+            }, 0);
         },
 
         createdComponent() {
@@ -169,21 +176,19 @@ export default {
 
         updateActiveItem() {
             this.$nextTick().then(() => {
-                this.$children.forEach((item, i) => {
-                    const firstChild = item.$children[0] || item;
-                    if (firstChild.$el.classList) {
-                        const linkIsActive = firstChild
-                            ? firstChild.$el.classList.contains('sw-tabs-item--active')
-                            : undefined;
-                        if (linkIsActive) {
-                            this.activeItem = i;
-                            if (!this.firstScroll) {
-                                this.scrollToItem(firstChild);
-                            }
-                            this.firstScroll = true;
-                        }
-                    }
+                const firstActiveTabItem = this.$children.find((child) => {
+                    return child.$el.nodeType === 1 && child.$el.classList.contains('sw-tabs-item--active');
                 });
+
+                if (!firstActiveTabItem) {
+                    return;
+                }
+
+                this.activeItem = this.$children.indexOf(firstActiveTabItem);
+                if (!this.firstScroll) {
+                    this.scrollToItem(firstActiveTabItem);
+                }
+                this.firstScroll = true;
             });
         },
 

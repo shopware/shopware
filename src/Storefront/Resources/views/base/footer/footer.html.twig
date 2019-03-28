@@ -116,56 +116,7 @@
             {% endblock %}
 
             {% block base_footer_navigation_newsletter %}
-                <div class="col-md-3 footer-column js-footer-column">
-                    {% block base_footer_navigation_newsletter_headline %}
-                        <div class="column-headline footer-headline js-footer-column-headline"
-                             data-target="#collapseFourFooter"
-                             aria-expanded="true"
-                             aria-controls="collapseFourFooter">
-                            {{ 'footer.newsletterHeadline'|trans }}
-                            {% block base_footer_navigation_newsletter_icons %}
-                                <div class="toggle-icon">
-                                    <i class="fas fa-plus"></i>
-                                    <i class="fas fa-minus"></i>
-                                </div>
-                            {% endblock %}
-                        </div>
-                    {% endblock %}
-
-                    {% block base_footer_navigation_newsletter_content %}
-                        <div id="collapseFourFooter"
-                             class="column-content js-footer-column-content"
-                             aria-labelledby="headingFour">
-                            {% block base_footer_navigation_newsletter_text %}
-                                <div class="footer-newsletter-text">
-                                    {{ 'footer.newsletter'|trans }}
-                                </div>
-                            {% endblock %}
-
-                            {% block base_footer_navigation_newsletter_form %}
-                                {#TODO: NEXT-1989 - add newsletter form action#}
-                                <form action="" method="post">
-                                    {% block base_footer_navigation_newsletter_form_input %}
-                                        <div class="input-group">
-                                            <input type="text"
-                                                   class="form-control"
-                                                   placeholder="{{ "footer.newsletterInput"|trans }}"
-                                                   aria-label="{{ "footer.newsletterInput"|trans }}"
-                                                   aria-describedby="newsletterSubscriptionButton">
-                                            <div class="input-group-append">
-                                                <button class="btn btn-light"
-                                                        type="button"
-                                                        id="newsletterSubscriptionButton">
-                                                    <i class="far fa-envelope"></i>
-                                                </button>
-                                            </div>
-                                        </div>
-                                    {% endblock %}
-                                </form>
-                            {% endblock %}
-                        </div>
-                    {% endblock %}
-                </div>
+                <div class="col-md-3 footer-column js-footer-column"></div>
             {% endblock %}
         </div>
     {% endblock %}

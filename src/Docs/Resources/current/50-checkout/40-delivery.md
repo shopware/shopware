@@ -1,4 +1,5 @@
 [titleEn]: <>(Delivery)
+[titleDe]: <>(Delivery)
 [wikiUrl]: <>(../checkout/delivery?category=shopware-platform-en/checkout)
 
 Line items can contain `Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryInformation` 

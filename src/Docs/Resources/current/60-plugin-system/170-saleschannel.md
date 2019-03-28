@@ -1,4 +1,5 @@
 [titleEn]: <>(Creating a sales channel)
+[titleDe]: <>(Creating a sales channel)
 [wikiUrl]: <>(../plugin-system/saleschannel?category=shopware-platform-en/plugin-system)
 
 Sales channels are grouped by sales channel types.

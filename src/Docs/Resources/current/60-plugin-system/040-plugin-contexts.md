@@ -1,4 +1,5 @@
 [titleEn]: <>(Plugin - Contexts)
+[titleDe]: <>(Plugin - Contexts)
 [wikiUrl]: <>(../plugin-system/plugin-contexts?category=shopware-platform-en/plugin-system)
 
 ## Overview

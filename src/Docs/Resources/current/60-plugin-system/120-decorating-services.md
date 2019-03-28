@@ -1,4 +1,5 @@
 [titleEn]: <>(Decorating Services)
+[titleDe]: <>(Decorating Services)
 [wikiUrl]: <>(../plugin-system/decorating-services?category=shopware-platform-en/plugin-system)
 
 Decorating `Services` in Shopware goes analogous to [Symfony - How to Decorate Services](https://symfony.com/doc/current/service_container/service_decoration.html).

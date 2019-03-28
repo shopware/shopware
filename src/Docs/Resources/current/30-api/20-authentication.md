@@ -1,5 +1,8 @@
+
+[titleEn]: <>(Authentication)
+[titleDe]: <>(Authentication)
 [wikiUrl]: <>(../using-the-api/authentication?category=shopware-platform-en/using-the-api)
-[titleEn]: <>(['Authentication'])
+
 The API uses the [oauth2](https://oauth.net/2/) standard to authenticate
 clients.
 

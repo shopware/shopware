@@ -1,6 +1,7 @@
 [titleEn]: <>(Attribute system)
 [titleDe]: <>(Attributsystem)
 [wikiUrl]: <>(../framework/attribute-system?category=shopware-platform-en/framework)
+
 # Attribute System
 
 The attribute system allows extending existing entities, without creating

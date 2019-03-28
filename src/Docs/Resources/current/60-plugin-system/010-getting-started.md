@@ -1,4 +1,5 @@
 [titleEn]: <>(Getting started with plugins)
+[titleDe]: <>(Getting started with plugins)
 [wikiUrl]: <>(../plugin-system/getting-started?category=shopware-platform-en/plugin-system)
 
 To be able to introduce extensions into the system, the core comes with an integrated plugin system.

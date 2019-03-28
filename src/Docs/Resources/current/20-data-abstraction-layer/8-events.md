@@ -1,3 +1,5 @@
+[titleEn]: <>(Events)
+[titleDe]: <>(Events)
 [wikiUrl]: <>(../data-abstract-layer/events?category=shopware-platform-en/data-abstraction-layer)
 
 # Events

@@ -1,4 +1,5 @@
 [titleEn]: <>(Custom Attributes)
+[titleDe]: <>(Custom Attributes)
 [wikiUrl]: <>(../plugin-system/custom-attributes?category=shopware-platform-en/plugin-system)
 
 Before starting you should read [Attribute System](../80-framework/20-attribute.md) first, then

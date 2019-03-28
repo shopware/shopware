@@ -1,5 +1,8 @@
+
+[titleEn]: <>(Introduction)
+[titleDe]: <>(Introduction)
 [wikiUrl]: <>(../shopware-platform-en/using-the-api/introduction?category=shopware-platform-en/using-the-api)
-[titleEn]: <>(['Introduction'])
+
 The API can be used to complete all administrative tasks, like creating
 products, updating prices and much more. For building a storefront or
 extending it, you can use the [Storefront

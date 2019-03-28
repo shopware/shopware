@@ -1,4 +1,5 @@
 [titleEn]: <>(Custom Rules)
+[titleDe]: <>(Custom Rules)
 [wikiUrl]: <>(../plugin-system/custom-rules?category=shopware-platform-en/plugin-system)
 
 Before starting you should read 

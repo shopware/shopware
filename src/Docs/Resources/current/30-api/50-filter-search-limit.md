@@ -1,5 +1,8 @@
+
+[titleEn]: <>(Filter, search, limit and sorting)
+[titleDe]: <>(Filter, search, limit and sorting)
 [wikiUrl]: <>(../using-the-api/filter-search-limit?category=shopware-platform-en/using-the-api)
-[titleEn]: <>(['Filter, search, limit and sorting'])
+
 ## Introduction
 
 The whole admin API and some endpoints of the storefront API support

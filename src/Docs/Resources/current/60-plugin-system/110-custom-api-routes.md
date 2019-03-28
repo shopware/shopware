@@ -1,4 +1,5 @@
 [titleEn]: <>(Custom API routes)
+[titleDe]: <>(Custom API routes)
 [wikiUrl]: <>(../plugin-system/custom-api-routes?category=shopware-platform-en/plugin-system)
 
 Defining custom `API routes` in `Shopware` is straightforward and goes analogous to [Symfony - Routing](https://symfony.com/doc/current/routing.html).

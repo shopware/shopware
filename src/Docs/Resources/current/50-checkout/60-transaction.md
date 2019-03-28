@@ -1,4 +1,5 @@
 [titleEn]: <>(Transaction)
+[titleDe]: <>(Transaction)
 [wikiUrl]: <>(../checkout/transaction?category=shopware-platform-en/checkout)
 
 Shopware will support multiple transactions per order. As of right now, 

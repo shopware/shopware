@@ -1,5 +1,8 @@
+
+[titleEn]: <>(Special Resources)
+[titleDe]: <>(Special Resources)
 [wikiUrl]: <>(../using-the-api/special-resources?category=shopware-platform-en/using-the-api)
-[titleEn]: <>(['Special Resources'])
+
 ## General search
 
 **GET /api/v1/_search**

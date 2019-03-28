@@ -1,3 +1,5 @@
+[titleEn]: <>(Read)
+[titleDe]: <>(Read)
 [wikiUrl]: <>(../data-abstract-layer/read?category=shopware-platform-en/data-abstraction-layer)
 
 # Read

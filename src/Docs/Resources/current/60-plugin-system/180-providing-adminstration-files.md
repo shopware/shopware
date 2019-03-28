@@ -1,4 +1,5 @@
 [titleEn]: <>(Providing files for the Administration)
+[titleDe]: <>(Providing files for the Administration)
 [wikiUrl]: <>(../plugin-system/provide-admin-files?category=shopware-platform-en/plugin-system)
 
 Once you created an [extension for the administration](../10-administration/01-administration-start-development.md#create-your-first-plugin),

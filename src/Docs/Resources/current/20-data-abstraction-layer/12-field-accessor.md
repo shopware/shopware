@@ -1,3 +1,5 @@
+[titleEn]: <>(Field Accessor)
+[titleDe]: <>(Field Accessor)
 [wikiUrl]: <>(../data-abstract-layer/field-accessor?category=shopware-platform-en/data-abstraction-layer)
 
 # FieldAccessor

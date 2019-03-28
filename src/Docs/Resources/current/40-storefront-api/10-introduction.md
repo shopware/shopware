@@ -1,5 +1,8 @@
+
+[titleEn]: <>(Introduction)
+[titleDe]: <>(Introduction)
 [wikiUrl]: <>(../using-the-storefront-api/introduction?category=shopware-platform-en/using-the-storefront-api)
-[titleEn]: <>(['Introduction'])
+
 The Storefront API is part of our API family. It allows access to all
 storefront operations, like creating new customers, customer login
 and logout, various cart operations and a lot more.

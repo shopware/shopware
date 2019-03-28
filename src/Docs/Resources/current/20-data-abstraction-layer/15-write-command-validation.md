@@ -1,3 +1,5 @@
+[titleEn]: <>(Write Command Validation)
+[titleDe]: <>(Write Command Validation)
 # WriteCommand validation
 
 The `WriteCommand` validation is used to validate data at the lowest level.

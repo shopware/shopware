@@ -1,4 +1,5 @@
 [titleEn]: <>(Plugin meta information)
+[titleDe]: <>(Plugin meta information)
 [wikiUrl]: <>(../plugin-system/plugin-meta-information?category=shopware-platform-en/plugin-system)
 
 To provide Shopware and the shop owner with information about your plugin, you have to supply a `composer.json` with your plugin.

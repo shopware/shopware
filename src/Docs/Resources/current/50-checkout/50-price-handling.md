@@ -1,4 +1,5 @@
 [titleEn]: <>(Price handling)
+[titleDe]: <>(Price handling)
 [wikiUrl]: <>(../checkout/price-handling?category=shopware-platform-en/checkout)
 
 Shopware offers three different ways to define how a price of a line item will be calculated. 

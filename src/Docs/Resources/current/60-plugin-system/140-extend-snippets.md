@@ -1,4 +1,5 @@
 [titleEn]: <>(Extend snippets using plugins)
+[titleDe]: <>(Extend snippets using plugins)
 
 Extending snippets is very simple in `Shopware`. You can add complete language packs or just provide translatable content
 for your plugin using simple `json` files and `tagged services`.

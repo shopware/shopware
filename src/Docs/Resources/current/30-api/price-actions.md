@@ -1,3 +1,5 @@
+[titleEn]: <>('Price Actions')
+[titleDe]: <>('Price Actions')
 # Price actions api
 
 The price actions api endpoint is a simple api endpoint which allows different price operations.

@@ -1,5 +1,6 @@
+[titleEn]: <>(Customer endpoint)
+[titleDe]: <>(Customer endpoint)
 [wikiUrl]: <>(../using-the-storefront-api/customer-endpoint?category=shopware-platform-en/using-the-storefront-api)
-[titleEn]: <>(['Customer endpoint'])
 The customer endpoint is used to register and log in customers. It can
 also be used to change and receive customer related information.
 

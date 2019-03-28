@@ -1,3 +1,5 @@
+[titleEn]: <>(Translations)
+[titleDe]: <>(Translations)
 [wikiUrl]: <>(../data-abstract-layer/translations?category=shopware-platform-en/data-abstraction-layer)
 
 # Translations

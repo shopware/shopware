@@ -1,5 +1,8 @@
+
+[titleEn]: <>(Cart endpoint)
+[titleDe]: <>(Cart endpoint)
 [wikiUrl]: <>(../using-the-storefront-api/cart-endpoint?category=shopware-platform-en/using-the-storefront-api)
-[titleEn]: <>(['Cart endpoint'])
+
 The cart endpoint is used for various cart operations like adding line
 items to the cart, removing them, change their quantity and placing an
 order.

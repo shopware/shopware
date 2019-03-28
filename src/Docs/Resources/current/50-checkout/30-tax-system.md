@@ -1,4 +1,5 @@
-[titleEn]: <>(Transaction)
+[titleEn]: <>(Tax System)
+[titleDe]: <>(Tax System)
 [wikiUrl]: <>(../checkout/tax?category=shopware-platform-en/checkout)
 
 Shopware provides a comprehensive tax system. It allows you to define multiple tax definitions 

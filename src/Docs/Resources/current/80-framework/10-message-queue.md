@@ -1,4 +1,5 @@
 [titleEn]: <>(Message Queue)
+[titleDe]: <>(Message Queue)
 [wikiUrl]: <>(../framework/message-queue?category=shopware-platform-en/framework)
 
 Shopware integrates with the [Symfony Messenger](https://symfony.com/doc/current/components/messenger.html) component 

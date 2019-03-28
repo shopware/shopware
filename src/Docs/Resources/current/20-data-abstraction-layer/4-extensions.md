@@ -1,3 +1,5 @@
+[titleEn]: <>(Extensions)
+[titleDe]: <>(Extensions)
 [wikiUrl]: <>(../data-abstract-layer/extensions?category=shopware-platform-en/data-abstraction-layer)
 
 # Extensions

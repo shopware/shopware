@@ -1,5 +1,8 @@
+
+[titleEn]: <>(Standard Resources)
+[titleDe]: <>(Standard Resources)
 [wikiUrl]: <>(../using-the-api/standard-resources?category=shopware-platform-en/using-the-api)
-[titleEn]: <>(['Standard Resources'])
+
 All standard resources follow the same schema. There are only a few
 exceptions not following this schema. They are documented under [Special
 Resources](40-special-resources.md).

@@ -1,4 +1,5 @@
 [titleEn]: <>(Creating payment methods)
+[titleDe]: <>(Creating payment methods)
 [wikiUrl]: <>(../plugin-system/payment-methods?category=shopware-platform-en/plugin-system)
 
 To create a new payment method you can simply use the repository for the payment method entity.

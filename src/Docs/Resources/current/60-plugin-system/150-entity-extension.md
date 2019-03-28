@@ -1,4 +1,5 @@
 [titleEn]: <>(Entity extension)
+[titleDe]: <>(Entity extension)
 [wikiUrl]: <>(../plugin-system/entity-extension?category=shopware-platform-en/plugin-system)
 
 Own entities can be integrated into the core via the corresponding entry in the `services.xml`.

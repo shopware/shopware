@@ -1,4 +1,5 @@
 [titleEn]: <>(Number Range)
+[titleDe]: <>(Number Range)
 [wikiUrl]: <>(../framework/number-range?category=shopware-platform-en/framework)
 
 Shopware integrates a configurable number range.

@@ -1,3 +1,5 @@
+[titleEn]: <>(Working with E2E fixture services)
+[titleDe]: <>(Working with E2E fixture services)
 To keep all tests isolated, it's utmost important that a test suite creates mandatory test data by itself and for their own scope respectively. 
 In Shopware platform we use SHOPWARE's REST API to request and in response, to create the data we need. As a result, our tests are able to focus on one single workflow without having to test the routines which should only provide the data we need.
 

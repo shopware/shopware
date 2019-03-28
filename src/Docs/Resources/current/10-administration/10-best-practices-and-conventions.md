@@ -1,4 +1,6 @@
-[wikiUrl]: <>(../best-practices-and-conventions?category=shopware-platform-en/administration/getting-started)
+[titleEn]: <>(Best Practices And Conventions)
+[titleDe]: <>(Best Practices And Conventions)
+
 
 # Best practices and conventions
 This guide contains best practices and conventions for building an administration extension.

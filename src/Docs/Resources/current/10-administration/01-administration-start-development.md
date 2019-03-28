@@ -1,3 +1,6 @@
+[titleEn]: <>(Getting Started)
+[titleDe]: <>(Getting Started)
+
 This guide will teach you how to start developing with the shopware administration.
 
 All commands which are necessary for administration development can be accessed from the root directory of your shopware instance.

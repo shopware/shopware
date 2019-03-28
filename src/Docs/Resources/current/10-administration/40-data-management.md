@@ -1,3 +1,5 @@
+[titleEn]: <>(Data Management)
+[titleDe]: <>(Data Management)
 [wikiUrl]: <>(../administration/data-management)
 
 # Data management

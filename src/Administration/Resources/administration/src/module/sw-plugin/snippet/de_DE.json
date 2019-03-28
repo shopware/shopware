@@ -23,6 +23,7 @@
       "loggedIn": "Angemeldet als"
     },
     "errors": {
+      "messageToTheShopwareDocumentation": "Zur Shopware Dokumentation",
       "titleGenericFailure": "Unbekannter Fehler aufgetreten",
       "messageGenericFailure": "Es ist ein unbekannter Fehler aufgetreten",
       "titleUploadFailure": "Hochladen fehlgeschlagen",
@@ -52,13 +53,13 @@
       "buttonCancel":"Abbrechen",
       "footerNoAccount":"Du hast noch keinen Account?",
       "footerRegisterAccount":"Neuen Account erstellen",
-      "forgotPasswordUrl":"https://account2.shopware.com/recovery?lang=de",
-      "registerAccountUrl":"https://account2.shopware.com/register?lang=de"
+      "forgotPasswordUrl":"https://account.shopware.com/recovery?lang=de",
+      "registerAccountUrl":"https://account.shopware.com/register?lang=de"
     },
     "list":{
       "textPluginManager":"Plugin Manager",
       "messageEmpty":"Du hast noch keine Plugins hochgeladen",
-      "columnPluginName":"Pluginname",
+      "columnPluginName":"Plugin",
       "columnVersion":"Version",
       "columnInstalledAt":"Installiert am",
       "columnUpdatedAt":"Aktualisiert am",
@@ -81,8 +82,8 @@
       "sortLabel":"Sortieren nach:",
       "titleActivateSuccess":"Plugin aktiviert",
       "messageActivateSuccess":"Das Plugin wurde erfolgreich aktiviert",
-      "titleDeactivateSuccess":"Plugin deinstalliert",
-      "messageDeactivateSuccess":"Das Plugin wurde erfolgreich deinstalliert",
+      "titleDeactivateSuccess":"Plugin deaktiviert",
+      "messageDeactivateSuccess":"Das Plugin wurde erfolgreich deaktiviert",
       "titleInstallSuccess":"Plugin installiert",
       "messageInstallSuccess":"Das Plugin wurde erfolgreich installiert",
       "titleUninstallSuccess":"Plugin deinstalliert",
@@ -94,7 +95,7 @@
     },
     "license-list":{
       "textMyPurchases":"Einkäufe",
-      "columnName":"Pluginname",
+      "columnName":"Plugin",
       "columnCreationDate":"Gekauft am",
       "columnExpirationDate":"Gültig bis",
       "columnType":"Variante",

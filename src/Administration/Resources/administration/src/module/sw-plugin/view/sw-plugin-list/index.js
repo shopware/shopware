@@ -97,26 +97,6 @@ Component.register('sw-plugin-list', {
             });
         },
 
-        onActivatePlugin(plugin) {
-            this.pluginService.activate(plugin.name).then(() => {
-                this.createNotificationSuccess({
-                    title: this.$tc('sw-plugin.list.titleActivateSuccess'),
-                    message: this.$tc('sw-plugin.list.messageActivateSuccess')
-                });
-                this.getList();
-            });
-        },
-
-        onDeactivatePlugin(plugin) {
-            this.pluginService.deactivate(plugin.name).then(() => {
-                this.createNotificationSuccess({
-                    title: this.$tc('sw-plugin.list.titleDeactivateSuccess'),
-                    message: this.$tc('sw-plugin.list.messageDeactivateSuccess')
-                });
-                this.getList();
-            });
-        },
-
         onUpdatePlugin(plugin) {
             this.pluginService.update(plugin.name).then(() => {
                 this.createNotificationSuccess({

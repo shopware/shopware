@@ -108,19 +108,6 @@
                                                         </sw-context-menu-item>
                                                      {% endblock %}
 
-                                                     {% block sw_plugin_list_grid_columns_actions_activate %}
-                                                        <sw-context-menu-item v-if="item.installedAt && !item.active"
-                                                                              @click="onActivatePlugin(item)">
-                                                            {{ $tc('sw-plugin.list.contextActivate') }}
-                                                        </sw-context-menu-item>
-                                                     {% endblock %}
-
-                                                     {% block sw_plugin_list_grid_columns_actions_deactivate %}
-                                                        <sw-context-menu-item v-if="item.active" @click="onDeactivatePlugin(item)">
-                                                            {{ $tc('sw-plugin.list.contextDeactivate') }}
-                                                        </sw-context-menu-item>
-                                                     {% endblock %}
-
                                                      {% block sw_plugin_list_grid_columns_actions_update %}
                                                         <sw-context-menu-item v-if="item.upgradeVersion" @click="onUpdatePlugin(item)">
                                                             {{ $tc('sw-plugin.list.contextUpdate') }} {{ item.upgradeVersion }}

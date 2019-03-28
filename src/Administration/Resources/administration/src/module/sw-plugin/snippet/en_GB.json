@@ -23,7 +23,8 @@
       "loggedIn": "Logged in as"
     },
     "errors": {
-      "titleGenericFailure": "Unknown error occured",
+      "messageToTheShopwareDocumentation": "Open Shopware documentation",
+      "titleGenericFailure": "Unknown error occurred",
       "messageGenericFailure": "An unknown error has occurred",
       "titleUploadFailure": "Upload failed",
       "messageUploadFailureNotAZipFile": "The uploaded file is not a zip file",
@@ -35,7 +36,9 @@
       "messageStoreHostMissing": "To be able to log in, you must first set your licensing host in the settings"
     },
     "fileUpload":{
-      "buttonFileUpload":"Upload plugin"
+      "buttonFileUpload":"Upload plugin",
+      "titleUploadSuccess":"Plugin uploaded",
+      "messageUploadSuccess":"The plugin was successfully uploaded"
     },
     "store-login":{
       "headline":"Shopware Account",
@@ -50,13 +53,13 @@
       "buttonCancel":"Cancel",
       "footerNoAccount":"You don't have an account yet?",
       "footerRegisterAccount":"Create new account",
-      "forgotPasswordUrl":"https://account2.shopware.com/recovery?lang=en",
-      "registerAccountUrl":"https://account2.shopware.com/register?lang=en"
+      "forgotPasswordUrl":"https://account.shopware.com/recovery?lang=en",
+      "registerAccountUrl":"https://account.shopware.com/register?lang=en"
     },
     "list":{
       "textPluginManager":"Plugin Manager",
       "messageEmpty":"You have not yet uploaded a plugin",
-      "columnPluginName":"Pluginname",
+      "columnPluginName":"Plugin",
       "columnVersion":"Version",
       "columnInstalledAt":"Installed on",
       "columnUpdatedAt":"Updated on",
@@ -76,11 +79,23 @@
       "sortUpgradedAtAsc":"Last updated",
       "sortPluginNameAsc":"Plugin names ascending",
       "sortPluginNameDsc":"Plugin names descending",
-      "sortLabel":"Sort by:"
+      "sortLabel":"Sort by:",
+      "titleActivateSuccess":"Plugin activated",
+      "messageActivateSuccess":"The plugin was successfully activated",
+      "titleDeactivateSuccess":"Plugin deactivated",
+      "messageDeactivateSuccess":"The plugin was successfully deactivated",
+      "titleInstallSuccess":"Plugin installed",
+      "messageInstallSuccess":"The plugin was successfully installed",
+      "titleUninstallSuccess":"Plugin uninstalled",
+      "messageUninstallSuccess":"The plugin was successfully uninstalled",
+      "titleDeleteSuccess":"Plugin deleted",
+      "messageDeleteSuccess":"The plugin was successfully deleted",
+      "titleUpdateSuccess":"Plugin updated",
+      "messageUpdateSuccess":"The plugin was successfully updated"
     },
     "license-list":{
       "textMyPurchases":"Purchases",
-      "columnName":"Plugin name",
+      "columnName":"Plugin",
       "columnCreationDate":"Purchased on",
       "columnExpirationDate":"Valid until",
       "columnType":"Variant",

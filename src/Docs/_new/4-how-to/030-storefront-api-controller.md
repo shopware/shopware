@@ -24,13 +24,13 @@ class StorefrontApiController extends Plugin
 ## Loading the controllers via routes.xml
 
 The `routes.xml` file is necessary to introduce your controllers to the Shopware platform.
-The Shopware platform automatically searches for an `xml` file in a `Resources` folder, whose path contains `routes`.
+The Shopware platform automatically searches for an `xml` file in a `Resources/config/` folder, whose path contains `routes`.
 Therefore possible default locations would be:
-- <plugin-root>/Resources/**routes**.xml
-- <plugin-root>/Resources/**routes**/my_controller.xml
+- <plugin-root>/Resources/config/**routes**.xml
+- <plugin-root>/Resources/config/**routes**/my_controller.xml
 
 Since only a single `xml` file is necessary for this example, the file is called `routes.xml` and will be put
-into the `<plugin root>/Resources` directory.
+into the `<plugin root>/Resources/config` directory.
 
 It only has to contain the path to the plugins controllers.
 This example will have it's API controller inside a `Controller` folder.
@@ -43,7 +43,7 @@ This example will have it's API controller inside a `Controller` folder.
         xsi:schemaLocation="http://symfony.com/schema/routing
         http://symfony.com/schema/routing/routing-1.0.xsd">
 
-    <import resource="../Controller" type="annotation" />
+    <import resource="../../Controller" type="annotation" />
 </routes>
 ```
 

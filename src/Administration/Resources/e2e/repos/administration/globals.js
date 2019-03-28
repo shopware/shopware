@@ -22,10 +22,9 @@ module.exports = {
             launchUrl = launchUrl.replace('8000', process.env.DEVPORT);
         }
         browser.url(launchUrl);
+        const startTime = new Date();
 
         return global.AdminFixtureService.apiClient.loginToAdministration().then((result) => {
-            const startTime = new Date();
-
             return browser.execute(function onExecuteOnBrowser(loginResult) {
                 localStorage.setItem('bearerAuth', JSON.stringify(loginResult));
 
@@ -36,17 +35,20 @@ module.exports = {
                 return localStorage.getItem('bearerAuth');
             }, [result], (data) => {
                 if (!data.value) {
-                    beforeScenarioActions.login(browser, 'admin', 'shopware');
+                    beforeScenarioActions.loginIfSessionFailed(browser, 'admin', 'shopware');
                 }
-
-                const endTime = new Date() - startTime;
-                global.logger.success(`Logged in successfully! (${endTime / 1000}s)`);
-                global.logger.lineBreak();
             });
         }).then(() => {
+            beforeScenarioActions.loginIfSessionFailed(browser, 'admin', 'shopware');
+
             if (!browser.checkIfElementExists('.sw-admin-menu__header-logo')) {
                 browser.waitForElementVisible('.sw-admin-menu__header-logo');
             }
+
+            const endTime = new Date() - startTime;
+            global.logger.success(`Logged in successfully! (${endTime / 1000}s)`);
+            global.logger.lineBreak();
+
             beforeScenarioActions.hideToolbarIfVisible(browser);
             done();
         });

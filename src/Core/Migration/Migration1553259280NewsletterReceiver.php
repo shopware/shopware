@@ -23,7 +23,7 @@ class Migration1553259280NewsletterReceiver extends MigrationStep
               `zip_code` VARCHAR(255) COLLATE utf8mb4_unicode_ci NULL,
               `city` VARCHAR(255) COLLATE utf8mb4_unicode_ci NULL,
               `street` VARCHAR(255) COLLATE utf8mb4_unicode_ci NULL,
-              `state` VARCHAR(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+              `status` VARCHAR(255) COLLATE utf8mb4_unicode_ci NOT NULL,
               `salutation_id` BINARY(16) NOT NULL,
               `language_id` BINARY(16) NOT NULL,
               `sales_channel_id` BINARY(16) NOT NULL,

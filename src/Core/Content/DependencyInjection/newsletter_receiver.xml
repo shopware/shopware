@@ -8,5 +8,15 @@
         <service id="Shopware\Core\Content\NewsletterReceiver\NewsletterReceiverDefinition">
             <tag name="shopware.entity.definition" entity="newsletter_receiver"/>
         </service>
+
+        <service id="Shopware\Core\Content\NewsletterReceiver\ScheduledTask\NewsletterReceiverTask">
+            <tag name="shopware.scheduled.task" />
+        </service>
+
+        <service id="Shopware\Core\Content\NewsletterReceiver\ScheduledTask\NewsletterReceiverTaskHandler">
+            <argument type="service" id="scheduled_task.repository" />
+            <argument type="service" id="newsletter_receiver.repository" />
+            <tag name="messenger.message_handler" />
+        </service>
     </services>
 </container>

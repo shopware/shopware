@@ -45,7 +45,7 @@ class NewsletterReceiverEntity extends Entity
     /**
      * @var string|null
      */
-    protected $state;
+    protected $status;
 
     /**
      * @var string
@@ -152,14 +152,14 @@ class NewsletterReceiverEntity extends Entity
         $this->street = $street;
     }
 
-    public function getState(): ?string
+    public function getStatus(): ?string
     {
-        return $this->state;
+        return $this->status;
     }
 
-    public function setState(string $state): void
+    public function setStatus(string $status): void
     {
-        $this->state = $state;
+        $this->status = $status;
     }
 
     public function getSalutationId(): string

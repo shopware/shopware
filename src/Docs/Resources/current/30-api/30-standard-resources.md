@@ -4,8 +4,7 @@
 [wikiUrl]: <>(../using-the-api/standard-resources?category=shopware-platform-en/using-the-api)
 
 All standard resources follow the same schema. There are only a few
-exceptions not following this schema. They are documented under [Special
-Resources](40-special-resources.md).
+exceptions not following this schema. They are documented under [Special Resources](40-special-resources.md).
 The API is versioned by adding a version string to the query path.
 Currently, the only available version is **v1**.
 
@@ -38,14 +37,23 @@ is allowed for sub-resources.
 
 ### Identifier
 
-All identifiers are [UUIDs
-Version 4](https://en.wikipedia.org/wiki/Universally_unique_identifier#Version_4_\(random\)).
-You can generate the UUIDs yourself or let the API backend generate them
-for you.
+All identifiers are [UUIDs Version 4](https://en.wikipedia.org/wiki/Universally_unique_identifier#Version_4_\(random\)).
+You can generate the UUIDs yourself or let the API backend generate them for you.
 
 ## Examples
 
 The examples use the simple JSON format for brevity.
+To get the examples running, you have to set the Authorization and Accept Header as shown below:
+
+```javascript
+const headers = { 
+    "Authorization": "Bearer " + token,
+    "Accept": "application/json"
+};
+fetch(`${baseUrl}/api/v1/product`, { headers })
+    .then((response) => response.json())
+    .then((products) => console.log('Products', products));
+```
 
 ### GET /api/v1/category?limit=1
 
@@ -512,5 +520,4 @@ Get a list of products belonging to the category.
 
 ## Full schema
 
-The full schema can be explored with the swagger client in the
-administration client under **Documentation → Platform API**.
+The full schema can be explored with the swagger client in the administration client under **Documentation → Platform API**.

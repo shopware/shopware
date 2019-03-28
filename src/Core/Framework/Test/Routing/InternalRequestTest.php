@@ -3,7 +3,7 @@
 namespace Shopware\Core\Framework\Test\Routing;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\Exception\MissingParameterException;
+use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\Framework\Routing\InternalRequest;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -12,7 +12,7 @@ class InternalRequestTest extends TestCase
     public function testRequireGetThrowsException(): void
     {
         $request = new InternalRequest();
-        $this->expectException(MissingParameterException::class);
+        $this->expectException(MissingRequestParameterException::class);
 
         $request->requireGet('test');
     }
@@ -20,7 +20,7 @@ class InternalRequestTest extends TestCase
     public function testRequirePostThrowsException(): void
     {
         $request = new InternalRequest();
-        $this->expectException(MissingParameterException::class);
+        $this->expectException(MissingRequestParameterException::class);
 
         $request->requirePost('test');
     }
@@ -28,7 +28,7 @@ class InternalRequestTest extends TestCase
     public function testRequireRoutingThrowsException(): void
     {
         $request = new InternalRequest();
-        $this->expectException(MissingParameterException::class);
+        $this->expectException(MissingRequestParameterException::class);
 
         $request->requireRouting('test');
     }

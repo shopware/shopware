@@ -3,7 +3,7 @@
 namespace Shopware\Core\System\SystemConfig;
 
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Exception\MissingParameterException;
+use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\System\SystemConfig\Service\ConfigurationService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -25,7 +25,7 @@ class SystemConfigController extends AbstractController
     /**
      * @Route("/api/v{version}/_action/core/system-config", name="api.action.core.system-config", methods={"GET"})
      *
-     * @throws MissingParameterException
+     * @throws MissingRequestParameterException
      */
     public function getConfiguration(Request $request, Context $context): JsonResponse
     {
@@ -33,7 +33,7 @@ class SystemConfigController extends AbstractController
         $salesChannelId = $request->query->get('sales_channel_id');
 
         if (!$namespace) {
-            throw new MissingParameterException('namespace');
+            throw new MissingRequestParameterException('namespace');
         }
 
         return new JsonResponse($this->configurationService->getConfiguration($namespace, $context, $salesChannelId));

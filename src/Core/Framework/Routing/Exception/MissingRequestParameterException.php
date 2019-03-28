@@ -1,15 +1,11 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\Exception;
+namespace Shopware\Core\Framework\Routing\Exception;
 
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
-/**
- * @todo some kind of controller namespace?
- * @todo give internalRequest it's own exception
- */
-class MissingParameterException extends ShopwareHttpException
+class MissingRequestParameterException extends ShopwareHttpException
 {
     /**
      * @var string
@@ -41,7 +37,7 @@ class MissingParameterException extends ShopwareHttpException
 
     public function getErrorCode(): string
     {
-        return 'FRAMEWORK__MISSING_PARAMETER';
+        return 'FRAMEWORK__MISSING_REQUEST_PARAMETER';
     }
 
     public function getStatusCode(): int

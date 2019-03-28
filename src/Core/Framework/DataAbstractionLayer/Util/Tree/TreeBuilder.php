@@ -3,12 +3,11 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer\Util\Tree;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
-use Shopware\Core\Framework\Exception\InvalidParameterException;
 
 class TreeBuilder
 {
     /**
-     * @throws InvalidParameterException
+     * @throws \LogicException
      *
      * @return TreeItem[]
      */
@@ -19,7 +18,8 @@ class TreeBuilder
         /** @var TreeAwareInterface $entity */
         foreach ($entities as $entity) {
             if (!$entity instanceof TreeAwareInterface) {
-                throw new InvalidParameterException(sprintf('Expected instance of %s got %s', TreeAwareInterface::class, get_class($entity)));
+                // @todo this is clearly something different :)
+                throw new \LogicException(sprintf('Expected instance of %s got %s', TreeAwareInterface::class, get_class($entity)));
             }
 
             if ($entity->getParentId() !== $parentId) {

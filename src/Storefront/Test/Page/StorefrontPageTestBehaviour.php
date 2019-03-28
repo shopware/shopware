@@ -19,7 +19,7 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Exception\MissingParameterException;
+use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\Framework\Routing\InternalRequest;
 use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
@@ -70,7 +70,7 @@ trait StorefrontPageTestBehaviour
 
     protected function expectParamMissingException(string $paramName)
     {
-        TestCase::expectException(MissingParameterException::class);
+        TestCase::expectException(MissingRequestParameterException::class);
         TestCase::expectExceptionMessage('Parameter "' . $paramName . '" is missing');
     }
 

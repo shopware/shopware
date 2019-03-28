@@ -3,7 +3,7 @@
 namespace Shopware\Core\Framework\Api\Controller;
 
 use Psr\Cache\InvalidArgumentException;
-use Shopware\Core\Framework\Exception\InvalidParameterException;
+use Shopware\Core\Framework\Routing\Exception\InvalidRequestParameterException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Cache\Adapter\TagAwareAdapterInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -42,26 +42,26 @@ class CacheController extends AbstractController
     /**
      * @Route("/api/v{version}/_action/cache/item", name="api.action.cache.delete-items", methods={"DELETE"})
      *
-     * @throws InvalidParameterException
+     * @throws InvalidRequestParameterException
      */
     public function deleteCacheItems(Request $request): JsonResponse
     {
-        $keys = $this->serializer->decode($request->getContent(), 'json');
+        $tags = $this->serializer->decode($request->getContent(), 'json');
 
-        if (!is_array($keys) || empty($keys)) {
-            throw new InvalidParameterException('Expected keys as payload array');
+        if (!is_array($tags) || empty($tags)) {
+            throw new InvalidRequestParameterException('tags');
         }
 
-        $keys = array_map(function ($key) {
-            if (!is_string($key)) {
-                throw new InvalidParameterException(sprintf('Expected key of type string for %s', $key));
+        $tags = array_map(function ($tag) {
+            if (!is_string($tag)) {
+                throw new InvalidRequestParameterException('tags');
             }
 
-            return $key;
-        }, $keys);
+            return $tag;
+        }, $tags);
 
         try {
-            $response = $this->cache->deleteItems($keys);
+            $response = $this->cache->deleteItems($tags);
         } catch (InvalidArgumentException $e) {
             return new JsonResponse(['success' => false, 'error' => $e->getMessage()]);
         }
@@ -72,19 +72,19 @@ class CacheController extends AbstractController
     /**
      * @Route("/api/v{version}/_action/cache/tag", name="api.action.cache.invalidate-tags", methods={"DELETE"})
      *
-     * @throws InvalidParameterException
+     * @throws InvalidRequestParameterException
      */
     public function invalidateTags(Request $request): JsonResponse
     {
         $tags = $this->serializer->decode($request->getContent(), 'json');
 
         if (!is_array($tags) || empty($tags)) {
-            throw new InvalidParameterException('Expected tags as payload array');
+            throw new InvalidRequestParameterException('tags');
         }
 
         $tags = array_map(function ($tag) {
             if (!is_string($tag)) {
-                throw new InvalidParameterException(sprintf('Expected tag of type string for %s', $tag));
+                throw new InvalidRequestParameterException('tags');
             }
 
             return $tag;

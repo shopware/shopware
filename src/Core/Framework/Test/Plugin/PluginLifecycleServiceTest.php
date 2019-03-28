@@ -14,6 +14,7 @@ use Shopware\Core\Framework\Migration\MigrationRuntime;
 use Shopware\Core\Framework\Plugin\Composer\CommandExecutor;
 use Shopware\Core\Framework\Plugin\Exception\PluginNotActivatedException;
 use Shopware\Core\Framework\Plugin\Exception\PluginNotInstalledException;
+use Shopware\Core\Framework\Plugin\Helper\PluginFinder;
 use Shopware\Core\Framework\Plugin\KernelPluginCollection;
 use Shopware\Core\Framework\Plugin\PluginEntity;
 use Shopware\Core\Framework\Plugin\PluginLifecycleService;
@@ -73,7 +74,8 @@ class PluginLifecycleServiceTest extends TestCase
         $this->pluginService = $this->createPluginService(
             $this->pluginRepo,
             $this->container->get('language.repository'),
-            $this->container->getParameter('kernel.project_dir')
+            $this->container->getParameter('kernel.project_dir'),
+            $this->container->get(PluginFinder::class)
         );
         $this->pluginCollection = $this->container->get(KernelPluginCollection::class);
         $this->connection = $this->container->get(Connection::class);

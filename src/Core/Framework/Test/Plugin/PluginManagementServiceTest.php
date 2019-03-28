@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Test\Plugin;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Plugin\Helper\PluginFinder;
 use Shopware\Core\Framework\Plugin\KernelPluginCollection;
 use Shopware\Core\Framework\Plugin\PluginExtractor;
 use Shopware\Core\Framework\Plugin\PluginManagementService;
@@ -39,7 +40,8 @@ class PluginManagementServiceTest extends TestCase
         $pluginService = $this->createPluginService(
             $this->getContainer()->get('plugin.repository'),
             $this->getContainer()->get('language.repository'),
-            $this->getContainer()->getParameter('kernel.project_dir')
+            $this->getContainer()->getParameter('kernel.project_dir'),
+            $this->getContainer()->get(PluginFinder::class)
         );
 
         $this->managementService = new PluginManagementService(__DIR__ . '/_fixture/plugins', new PluginZipDetector(), $extractor, $pluginService, $this->filesystem);

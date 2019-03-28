@@ -48,13 +48,19 @@ class PluginService
      */
     private $changelogService;
 
+    /**
+     * @var PluginFinder
+     */
+    private $pluginFinder;
+
     public function __construct(
         string $pluginDir,
         string $projectDir,
         EntityRepositoryInterface $pluginRepo,
         EntityRepositoryInterface $languageRepo,
         PackageProvider $composerPackageProvider,
-        ChangelogService $changelogService
+        ChangelogService $changelogService,
+        PluginFinder $pluginFinder
     ) {
         $this->pluginDir = $pluginDir;
         $this->projectDir = $projectDir;
@@ -62,6 +68,7 @@ class PluginService
         $this->languageRepo = $languageRepo;
         $this->composerPackageProvider = $composerPackageProvider;
         $this->changelogService = $changelogService;
+        $this->pluginFinder = $pluginFinder;
     }
 
     /**
@@ -69,7 +76,8 @@ class PluginService
      */
     public function refreshPlugins(Context $shopwareContext, IOInterface $composerIO): array
     {
-        $pluginsFromFileSystem = PluginFinder::findPlugins($this->pluginDir, $this->projectDir);
+        $pluginsFromFileSystem = $this->pluginFinder
+            ->findPlugins($this->pluginDir, $this->projectDir);
 
         $installedPlugins = $this->getPlugins(new Criteria(), $shopwareContext);
 

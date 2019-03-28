@@ -7,6 +7,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\Plugin\Changelog\ChangelogParser;
 use Shopware\Core\Framework\Plugin\Changelog\ChangelogService;
 use Shopware\Core\Framework\Plugin\Composer\PackageProvider;
+use Shopware\Core\Framework\Plugin\Helper\PluginFinder;
 use Shopware\Core\Framework\Plugin\PluginService;
 
 trait PluginTestsHelper
@@ -14,7 +15,8 @@ trait PluginTestsHelper
     protected function createPluginService(
         EntityRepositoryInterface $pluginRepo,
         EntityRepositoryInterface $languageRepo,
-        string $projectDir
+        string $projectDir,
+        PluginFinder $pluginFinder
     ): PluginService {
         return new PluginService(
             __DIR__ . '/_fixture/plugins',
@@ -22,7 +24,8 @@ trait PluginTestsHelper
             $pluginRepo,
             $languageRepo,
             new PackageProvider(),
-            new ChangelogService(new ChangelogParser())
+            new ChangelogService(new ChangelogParser()),
+            $pluginFinder
         );
     }
 

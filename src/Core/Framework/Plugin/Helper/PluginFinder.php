@@ -2,47 +2,103 @@
 
 namespace Shopware\Core\Framework\Plugin\Helper;
 
+use Composer\Composer;
+use Composer\Package\PackageInterface;
 use Shopware\Core\Framework\Plugin\Composer\Factory;
 use Shopware\Core\Framework\Plugin\Struct\PluginFromFileSystemStruct;
 use Symfony\Component\Finder\Finder;
+use Symfony\Component\Finder\SplFileInfo;
 
 class PluginFinder
 {
     /**
      * @return PluginFromFileSystemStruct[]
      */
-    public static function findPlugins(string $pluginDir, string $projectDir): array
+    public function findPlugins(string $pluginDir, string $projectDir): array
     {
-        $pluginsFromFileSystem = [];
+        return array_merge(
+            $this->loadLocalPlugins($pluginDir),
+            $this->loadVendorInstalledPlugins($projectDir)
+        );
+    }
 
-        $filesystemPlugins = (new Finder())->directories()->depth(0)->in($pluginDir)->getIterator();
+    private function loadLocalPlugins(string $pluginDir): array
+    {
+        $plugins = [];
+        $filesystemPlugins = (new Finder())
+            ->directories()
+            ->depth(0)
+            ->in($pluginDir)
+            ->sortByName()
+            ->getIterator();
+
         foreach ($filesystemPlugins as $filesystemPlugin) {
-            $pluginFromFileSystem = new PluginFromFileSystemStruct();
-            $pluginFromFileSystem->assign([
-                'name' => $filesystemPlugin->getFilename(),
+            $pluginName = $this->determinePluginName($filesystemPlugin);
+
+            $plugins[] = (new PluginFromFileSystemStruct())->assign([
+                'name' => $pluginName,
                 'path' => $filesystemPlugin->getPathname(),
                 'managedByComposer' => false,
             ]);
-            $pluginsFromFileSystem[] = $pluginFromFileSystem;
         }
 
+        return $plugins;
+    }
+
+    private function loadVendorInstalledPlugins(string $projectDir): array
+    {
+        $plugins = [];
         $composer = Factory::createComposer($projectDir);
 
-        $composerPackages = $composer->getRepositoryManager()->getLocalRepository()->getPackages();
+        $composerPackages = $composer
+            ->getRepositoryManager()
+            ->getLocalRepository()
+            ->getPackages();
+
         foreach ($composerPackages as $composerPackage) {
-            if ($composerPackage->getType() === 'shopware-plugin') {
-                $pluginName = $composerPackage->getExtra()['installer-name'];
-                $pluginPath = $composer->getConfig()->get('vendor-dir') . '/' . $composerPackage->getPrettyName();
-                $pluginFromFileSystem = new PluginFromFileSystemStruct();
-                $pluginFromFileSystem->assign([
-                    'name' => $pluginName,
-                    'path' => $pluginPath,
+            if ($this->isShopwarePluginPackage($composerPackage)) {
+                $plugins[] = (new PluginFromFileSystemStruct())->assign([
+                    'name' => $this->getPluginNameFromPackage($composerPackage),
+                    'path' => $this->getVendorPluginPath($composerPackage, $composer),
                     'managedByComposer' => true,
                 ]);
-                $pluginsFromFileSystem[] = $pluginFromFileSystem;
             }
         }
 
-        return $pluginsFromFileSystem;
+        return $plugins;
+    }
+
+    private function isShopwarePluginPackage(PackageInterface $package): bool
+    {
+        return $package->getType() === 'shopware-plugin'
+            && isset($package->getExtra()['installer-name']);
+    }
+
+    private function getPluginNameFromPackage(PackageInterface $composerPackage): string
+    {
+        return $composerPackage->getExtra()['installer-name'];
+    }
+
+    private function getVendorPluginPath(PackageInterface $package, Composer $composer): string
+    {
+        return $composer->getConfig()->get('vendor-dir') . '/' . $package->getPrettyName();
+    }
+
+    private function determinePluginName(SplFileInfo $filesystemPlugin): string
+    {
+        $default = $filesystemPlugin->getFilename();
+
+        try {
+            $rootPackage = Factory::createComposer($filesystemPlugin->getRealPath())
+                ->getPackage();
+        } catch (\InvalidArgumentException $e) {
+            return $default;
+        }
+
+        if (!$this->isShopwarePluginPackage($rootPackage)) {
+            return $default;
+        }
+
+        return $this->getPluginNameFromPackage($rootPackage);
     }
 }

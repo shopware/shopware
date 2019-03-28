@@ -2,8 +2,8 @@
 
 namespace Shopware\Core\Framework\Api\Controller;
 
-use Shopware\Core\Framework\Api\Exception\InvalidVersionNameException;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Api\Exception\InvalidVersionNameException;
 use Shopware\Core\Framework\Api\Exception\NoEntityClonedException;
 use Shopware\Core\Framework\Api\Exception\ResourceNotFoundException;
 use Shopware\Core\Framework\Api\OAuth\Scope\WriteScope;

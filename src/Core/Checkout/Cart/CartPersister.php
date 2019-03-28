@@ -8,8 +8,8 @@ use Shopware\Core\Checkout\Cart\Exception\CartDeserializeFailedException;
 use Shopware\Core\Checkout\Cart\Exception\CartTokenNotFoundException;
 use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Defaults;
-use Shopware\Core\Framework\Exception\InvalidUuidException;
 use Shopware\Core\Framework\Struct\Uuid;
+use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
 use Symfony\Component\Serializer\SerializerInterface;
 
 class CartPersister implements CartPersisterInterface

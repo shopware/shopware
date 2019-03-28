@@ -2,19 +2,25 @@
 
 namespace Shopware\Core\Framework\Uuid;
 
+use Ramsey\Uuid\Uuid as RamseyUuid;
 use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
 use Shopware\Core\Framework\Uuid\Exception\InvalidUuidLengthException;
 
-class Uuid4Converter
+class Uuid
 {
     /**
      * Regular expression pattern for matching a valid UUID of any variant.
      */
     public const VALID_PATTERN = '^[0-9A-Fa-f]{8}-?[0-9A-Fa-f]{4}-?[0-9A-Fa-f]{4}-?[0-9A-Fa-f]{4}-?[0-9A-Fa-f]{12}$';
 
-    public static function uuid4(): Uuid4Value
+    public static function randomHex(): string
     {
-        return Uuid4Value::random();
+        return RamseyUuid::uuid4()->getHex();
+    }
+
+    public static function randomBytes(): string
+    {
+        return RamseyUuid::uuid4()->getBytes();
     }
 
     /**
@@ -68,25 +74,5 @@ class Uuid4Converter
         }
 
         return true;
-    }
-
-    /**
-     * @throws InvalidUuidLengthException
-     */
-    public static function fromHexToString(string $hex): string
-    {
-        if (\strlen($hex) !== 32) {
-            throw new InvalidUuidLengthException(\strlen($hex), $hex);
-        }
-
-        return \substr($hex, 0, 8)
-            . '-'
-            . \substr($hex, 8, 4)
-            . '-'
-            . \substr($hex, 12, 4)
-            . '-'
-            . \substr($hex, 16, 4)
-            . '-'
-            . \substr($hex, 20);
     }
 }

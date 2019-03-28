@@ -9,8 +9,7 @@
                                 {% block sw_media_modal_tab_item_library %}
                                     <sw-tabs-item
                                         :name="tabNameLibrary"
-                                        variant="minimal"
-                                        :active="active"
+                                        :activeTab="active"
                                         :disabled="hasUploads">
                                         {{ $tc('sw-media.sw-media-modal.labelTabItemLibrary') }}
                                     </sw-tabs-item>
@@ -19,8 +18,7 @@
                                 {% block sw_media_modal_tab_item_upload %}
                                     <sw-tabs-item
                                         :name="tabNameUpload"
-                                        variant="minimal"
-                                        :active="active"
+                                        :activeTab="active"
                                         @click="resetSelection">
                                         {{ $tc('sw-media.sw-media-modal.labelTabItemUpload') }}
                                     </sw-tabs-item>

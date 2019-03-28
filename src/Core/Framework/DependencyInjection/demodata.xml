@@ -20,6 +20,7 @@
 
         <service id="Shopware\Core\Framework\Demodata\Generator\CustomerGenerator">
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriter" />
+            <argument type="service" id="Doctrine\DBAL\Connection" />
             <argument type="service" id="customer_group.repository" />
             <argument type="service" id="Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInterface" />
             <tag name="shopware.demodata_generator"/>

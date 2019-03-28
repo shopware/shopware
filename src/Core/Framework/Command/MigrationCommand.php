@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\Command;
 use Shopware\Core\Framework\Migration\Exception\MigrateException;
 use Shopware\Core\Framework\Migration\MigrationCollectionLoader;
 use Shopware\Core\Framework\Migration\MigrationRuntime;
+use Symfony\Component\Cache\Adapter\TagAwareAdapterInterface;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -28,15 +29,21 @@ class MigrationCommand extends Command
      * @var SymfonyStyle
      */
     protected $io;
+    /**
+     * @var TagAwareAdapterInterface
+     */
+    private $cache;
 
     public function __construct(
         MigrationCollectionLoader $loader,
-        MigrationRuntime $runner
+        MigrationRuntime $runner,
+        TagAwareAdapterInterface $cache
     ) {
         parent::__construct();
 
         $this->loader = $loader;
         $this->runner = $runner;
+        $this->cache = $cache;
     }
 
     protected function getMigrationCommandName(): string
@@ -100,6 +107,9 @@ class MigrationCommand extends Command
 
         $this->finishProgress($migratedCounter, $total);
         $this->io->writeln('all migrations executed');
+
+        $this->cache->clear();
+        $this->io->writeln('cleared the shopware cache');
     }
 
     private function finishProgress(int $migrated, int $total): void

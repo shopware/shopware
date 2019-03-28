@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Demodata\Generator;
 
+use Doctrine\DBAL\Connection;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -28,15 +29,21 @@ class CustomerGenerator implements DemodataGeneratorInterface
      * @var NumberRangeValueGeneratorInterface
      */
     private $numberRangeValueGenerator;
+    /**
+     * @var Connection
+     */
+    private $connection;
 
     public function __construct(
         EntityWriterInterface $writer,
+        Connection $connection,
         EntityRepositoryInterface $customerGroupRepository,
         NumberRangeValueGeneratorInterface $numberRangeValueGenerator)
     {
         $this->writer = $writer;
         $this->customerGroupRepository = $customerGroupRepository;
         $this->numberRangeValueGenerator = $numberRangeValueGenerator;
+        $this->connection = $connection;
     }
 
     public function getDefinition(): string
@@ -93,7 +100,7 @@ class CustomerGenerator implements DemodataGeneratorInterface
             'lastName' => 'Mustermann',
             'email' => 'test@example.com',
             'password' => 'shopware',
-            'defaultPaymentMethodId' => Defaults::PAYMENT_METHOD_INVOICE,
+            'defaultPaymentMethodId' => $this->getDefaultPaymentMethod(),
             'groupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
             'salesChannelId' => Defaults::SALES_CHANNEL,
             'defaultBillingAddressId' => $billingAddressId,
@@ -173,7 +180,7 @@ class CustomerGenerator implements DemodataGeneratorInterface
                 'lastName' => $lastName,
                 'email' => $id . $context->getFaker()->safeEmail,
                 'password' => 'shopware',
-                'defaultPaymentMethodId' => Defaults::PAYMENT_METHOD_INVOICE,
+                'defaultPaymentMethodId' => $this->getDefaultPaymentMethod(),
                 'groupId' => $customerGroups[array_rand($customerGroups)],
                 'salesChannelId' => Defaults::SALES_CHANNEL,
                 'defaultBillingAddressId' => $addresses[array_rand($addresses)]['id'],
@@ -220,5 +227,12 @@ class CustomerGenerator implements DemodataGeneratorInterface
         ];
 
         return $salutationIds[array_rand($salutationIds)];
+    }
+
+    private function getDefaultPaymentMethod(): string
+    {
+        return $$this->connection->executeQuery(
+            'SELECT `id` FROM `payment_method` WHERE `active` = 1 ORDER BY `position` ASC'
+        )->fetchColumn();
     }
 }

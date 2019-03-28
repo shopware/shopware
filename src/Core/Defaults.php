@@ -57,10 +57,6 @@ final class Defaults
     public const ORDER_TRANSACTION_STATES_CANCELLED = 'cancelled';
     public const ORDER_TRANSACTION_STATES_REMINDED = 'reminded';
 
-    public const PAYMENT_METHOD_DEBIT = 'e84976ace9ab4928a3dcc387b66dbaa6';
-    public const PAYMENT_METHOD_INVOICE = '19d144ffe15f4772860d59fca7f207c1';
-    public const PAYMENT_METHOD_SEPA = 'a6ddadce4cb441f3976a32505049f037';
-
     public const SALUTATION_KEY_MR = 'mr';
     public const SALUTATION_KEY_MRS = 'mrs';
     public const SALUTATION_KEY_MISS = 'miss';

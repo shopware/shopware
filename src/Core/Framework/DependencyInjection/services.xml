@@ -92,12 +92,14 @@
             <tag name="console.command"/>
             <argument type="service" id="Shopware\Core\Framework\Migration\MigrationCollectionLoader"/>
             <argument type="service" id="Shopware\Core\Framework\Migration\MigrationRuntime"/>
+            <argument type="service" id="shopware.cache"/>
         </service>
 
         <service id="Shopware\Core\Framework\Command\MigrationDestructiveCommand">
             <tag name="console.command"/>
             <argument type="service" id="Shopware\Core\Framework\Migration\MigrationCollectionLoader"/>
             <argument type="service" id="Shopware\Core\Framework\Migration\MigrationRuntime"/>
+            <argument type="service" id="shopware.cache"/>
         </service>
 
         <service id="Shopware\Core\Framework\Command\DumpSchemaCommand">

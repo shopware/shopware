@@ -47,6 +47,7 @@
 
         <service id="Shopware\Core\System\Command\SalesChannelCreateCommand">
             <argument type="service" id="sales_channel.repository"/>
+            <argument type="service" id="payment_method.repository"/>
             <tag name="console.command"/>
         </service>
 

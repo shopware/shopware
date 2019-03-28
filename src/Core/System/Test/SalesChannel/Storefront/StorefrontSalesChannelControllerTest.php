@@ -3,6 +3,7 @@
 namespace Shopware\Core\System\Test\SalesChannel\Storefront;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\FetchMode;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Context\CheckoutRuleLoader;
 use Shopware\Core\Checkout\Test\Payment\Handler\SyncTestPaymentHandler;
@@ -13,6 +14,7 @@ use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\Framework\Test\TestCaseBase\AssertArraySubsetBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\StorefrontFunctionalTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
+use Shopware\Storefront\Test\Page\StorefrontPageTestConstants;
 
 class StorefrontSalesChannelControllerTest extends TestCase
 {
@@ -259,14 +261,14 @@ class StorefrontSalesChannelControllerTest extends TestCase
 
         $content = json_decode($response->getContent(), true);
 
-        static::assertCount(4, $content['data'], print_r($content['data'], true));
+        static::assertCount(StorefrontPageTestConstants::PAYMENT_METHOD_COUNT + 1, $content['data'], print_r($content['data'], true));
 
-        foreach ($content['data'] as $shippingMethod) {
-            if ($shippingMethod['id'] !== $originalPaymentMethod['id']) {
+        foreach ($content['data'] as $paymentMethod) {
+            if ($paymentMethod['id'] !== $originalPaymentMethod['id']) {
                 continue;
             }
 
-            $this->silentAssertArraySubset($originalPaymentMethod, $shippingMethod);
+            $this->silentAssertArraySubset($originalPaymentMethod, $paymentMethod);
 
             return;
         }
@@ -408,6 +410,12 @@ class StorefrontSalesChannelControllerTest extends TestCase
 
     private function addPaymentMethod(): array
     {
+        $connection = $this->getContainer()->get(Connection::class);
+        $paymentMethods = $connection->executeQuery('SELECT id FROM payment_method')->fetchAll(FetchMode::COLUMN);
+        $paymentMethods = array_map(function (string $id) {
+            return ['id' => Uuid::fromBytesToHex($id)];
+        }, $paymentMethods);
+
         $paymentMethod = [
             'id' => Uuid::uuid4()->getHex(),
             'name' => 'PayPal',
@@ -430,14 +438,11 @@ class StorefrontSalesChannelControllerTest extends TestCase
                 ],
             ],
         ];
+
+        $paymentMethods[] = $paymentMethod;
         $data = [
             'id' => $this->getStorefrontApiSalesChannelId(),
-            'paymentMethods' => [
-                ['id' => Defaults::PAYMENT_METHOD_INVOICE],
-                ['id' => Defaults::PAYMENT_METHOD_DEBIT],
-                ['id' => Defaults::PAYMENT_METHOD_SEPA],
-                $paymentMethod,
-            ],
+            'paymentMethods' => $paymentMethods,
         ];
         $this->salesChannelRepository->update([$data], $this->context);
         unset($paymentMethod['availabilityRules']);
@@ -509,11 +514,12 @@ class StorefrontSalesChannelControllerTest extends TestCase
             'position' => 4,
             'active' => true,
         ];
+        $paymentMethodId = $this->getValidPaymentMethodId();
         $data = [
             'id' => $this->getStorefrontApiSalesChannelId(),
-            'paymentMethodId' => Defaults::PAYMENT_METHOD_INVOICE,
+            'paymentMethodId' => $paymentMethodId,
             'paymentMethods' => [
-                ['id' => Defaults::PAYMENT_METHOD_INVOICE],
+                ['id' => $paymentMethodId],
                 $paymentMethod,
             ],
         ];

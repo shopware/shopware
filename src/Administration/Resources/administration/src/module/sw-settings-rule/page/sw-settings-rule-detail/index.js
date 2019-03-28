@@ -185,29 +185,30 @@ Component.register('sw-settings-rule-detail', {
                     error = this.conditionsClientValidation(condition.children, error);
                 }
 
-                if (!this.treeConfig.isAndContainer(condition)
-                    && !this.treeConfig.isOrContainer(condition)) {
-                    if (this.treeConfig.isPlaceholder(condition)) {
-                        if (!condition.errors.map(obj => obj.id).includes('clientValidationError')) {
-                            condition.errors.push({
-                                id: 'clientValidationError',
-                                type: 'placeholder'
-                            });
-                        }
+                if (this.treeConfig.isAndContainer(condition) || this.treeConfig.isOrContainer(condition)) {
+                    return;
+                }
 
-                        error = true;
-                    }
+                if (condition.errors.map(obj => obj.id).includes('clientValidationError')) {
+                    return;
+                }
 
-                    if (!this.treeConfig.isDataSet(condition)) {
-                        if (!condition.errors.map(obj => obj.id).includes('clientValidationError')) {
-                            condition.errors.push({
-                                id: 'clientValidationError',
-                                type: 'data'
-                            });
-                        }
+                if (this.treeConfig.isPlaceholder(condition)) {
+                    condition.errors.push({
+                        id: 'clientValidationError',
+                        type: 'placeholder'
+                    });
 
-                        error = true;
-                    }
+                    error = true;
+                }
+
+                if (!this.treeConfig.isDataSet(condition)) {
+                    condition.errors.push({
+                        id: 'clientValidationError',
+                        type: 'data'
+                    });
+
+                    error = true;
                 }
             });
 

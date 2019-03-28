@@ -59,25 +59,23 @@ export default {
                 .sort((child1, child2) => { return child1.position - child2.position; });
         },
         disabledDeleteButton() {
-            if (this.level === 0 && this.condition && this.condition[this.config.childName]) {
-                const firstLevelChildren = this.filterDeletedChildren(this.condition);
-
-                if (firstLevelChildren.length === 1
-                    && this.config.isAndContainer(firstLevelChildren[0])) {
-                    const secondLevelChildren = this.filterDeletedChildren(firstLevelChildren[0]);
-
-                    if (secondLevelChildren.length === 1
-                        && this.config.isPlaceholder(secondLevelChildren[0])) {
-                        return true;
-                    }
-                }
-            }
-
             if (this.level === 1) {
                 return this.parentDisabledDelete;
             }
 
-            return false;
+            if (this.level > 0 || !this.condition || !this.condition[this.config.childName]) {
+                return false;
+            }
+
+            const firstLevelChildren = this.filterDeletedChildren(this.condition);
+
+            if (firstLevelChildren.length !== 1 || !this.config.isAndContainer(firstLevelChildren[0])) {
+                return false;
+            }
+
+            const secondLevelChildren = this.filterDeletedChildren(firstLevelChildren[0]);
+
+            return (secondLevelChildren.length === 1 && this.config.isPlaceholder(secondLevelChildren[0]));
         }
     },
 

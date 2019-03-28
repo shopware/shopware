@@ -163,8 +163,8 @@ export default {
 
             this.locateConditionTreeComponent();
 
-            this.conditionTreeComponent.$on('on-save', this.checkErrors);
             this.addClientFieldValidationMethod();
+            this.conditionTreeComponent.$on('on-save', this.checkErrors);
         },
         addClientFieldValidationMethod() {
             this.config.dataCheckMethods[this.condition.type] = (condition) => {

@@ -4,7 +4,6 @@ namespace Shopware\Core\Checkout\Order;
 
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryDefinition;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryEntity;
-use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Exception\ResourceNotFoundException;
 use Shopware\Core\Framework\Api\Response\ResponseFactoryInterface;
 use Shopware\Core\Framework\Context;
@@ -13,6 +12,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaI
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\System\StateMachine\Exception\IllegalTransitionException;
 use Shopware\Core\System\StateMachine\Exception\StateMachineNotFoundException;
+use Shopware\Core\System\StateMachine\OrderDeliveryStateMachine;
+use Shopware\Core\System\StateMachine\OrderTransactionStateMachine;
 use Shopware\Core\System\StateMachine\StateMachineRegistry;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -53,7 +54,7 @@ class OrderDeliveryActionController extends AbstractController
             'version' => $request->get('version'),
         ]);
 
-        return $this->stateMachineRegistry->buildAvailableTransitionsJsonResponse(Defaults::ORDER_DELIVERY_STATE_MACHINE,
+        return $this->stateMachineRegistry->buildAvailableTransitionsJsonResponse(OrderDeliveryStateMachine::NAME,
             $delivery->getStateMachineState()->getTechnicalName(),
             $baseUrl,
             $context);
@@ -76,7 +77,7 @@ class OrderDeliveryActionController extends AbstractController
     ): Response {
         $delivery = $this->getOrderDelivery($deliveryId, $context);
 
-        $toPlace = $this->stateMachineRegistry->transition($this->stateMachineRegistry->getStateMachine(Defaults::ORDER_TRANSACTION_STATE_MACHINE, $context),
+        $toPlace = $this->stateMachineRegistry->transition($this->stateMachineRegistry->getStateMachine(OrderTransactionStateMachine::NAME, $context),
             $delivery->getStateMachineState(),
             OrderDeliveryDefinition::getEntityName(),
             $delivery->getId(),

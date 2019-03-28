@@ -26,6 +26,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\StateMachine\OrderStateMachine;
+use Shopware\Core\System\StateMachine\OrderTransactionStateMachine;
 use Shopware\Core\System\StateMachine\StateMachineRegistry;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -146,7 +148,7 @@ class PaymentServiceTest extends TestCase
         /** @var OrderTransactionEntity $transactionEntity */
         $transactionEntity = $this->orderTransactionRepository->search(new Criteria([$transactionId]), $this->context)->first();
         static::assertSame(
-            Defaults::ORDER_TRANSACTION_STATES_PAID,
+            OrderTransactionStateMachine::STATE_PAID,
             $transactionEntity->getStateMachineState()->getTechnicalName()
         );
     }
@@ -242,7 +244,7 @@ class PaymentServiceTest extends TestCase
             'id' => $id,
             'orderId' => $orderId,
             'paymentMethodId' => $paymentMethodId,
-            'stateId' => $this->stateMachineRegistry->getInitialState(Defaults::ORDER_TRANSACTION_STATE_MACHINE, $context)->getId(),
+            'stateId' => $this->stateMachineRegistry->getInitialState(OrderTransactionStateMachine::NAME, $context)->getId(),
             'amount' => new CalculatedPrice(100, 100, new CalculatedTaxCollection(), new TaxRuleCollection(), 1),
             'payload' => '{}',
         ];
@@ -259,7 +261,7 @@ class PaymentServiceTest extends TestCase
     ): string {
         $orderId = Uuid::randomHex();
         $addressId = Uuid::randomHex();
-        $stateId = $this->stateMachineRegistry->getInitialState(Defaults::ORDER_STATE_MACHINE, $context)->getId();
+        $stateId = $this->stateMachineRegistry->getInitialState(OrderStateMachine::NAME, $context)->getId();
 
         $order = [
             'id' => $orderId,

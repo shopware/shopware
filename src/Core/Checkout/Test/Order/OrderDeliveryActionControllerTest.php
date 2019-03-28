@@ -19,6 +19,7 @@ use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineHistory\StateMachineHistoryCollection;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineHistory\StateMachineHistoryEntity;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateDefinition;
+use Shopware\Core\System\StateMachine\OrderDeliveryStateMachine;
 use Shopware\Core\System\StateMachine\StateMachineRegistry;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -86,7 +87,7 @@ class OrderDeliveryActionControllerTest extends TestCase
         $response = json_decode($response, true);
 
         static::assertNotNull($response['currentState']);
-        static::assertEquals(Defaults::ORDER_DELIVERY_STATES_OPEN, $response['currentState']['technicalName']);
+        static::assertEquals(OrderDeliveryStateMachine::STATE_OPEN, $response['currentState']['technicalName']);
 
         static::assertCount(3, $response['transitions']);
         static::assertEquals('cancel', $response['transitions'][0]['actionName']);
@@ -182,7 +183,7 @@ class OrderDeliveryActionControllerTest extends TestCase
     private function createOrder(string $customerId, Context $context): string
     {
         $orderId = Uuid::randomHex();
-        $stateId = $this->stateMachineRegistry->getInitialState(Defaults::ORDER_DELIVERY_STATE_MACHINE, $context)->getId();
+        $stateId = $this->stateMachineRegistry->getInitialState(OrderDeliveryStateMachine::NAME, $context)->getId();
         $billingAddressId = Uuid::randomHex();
 
         $order = [
@@ -267,7 +268,7 @@ class OrderDeliveryActionControllerTest extends TestCase
     private function createOrderDelivery(string $orderId, Context $context): string
     {
         $deliveryId = Uuid::randomHex();
-        $stateId = $this->stateMachineRegistry->getInitialState(Defaults::ORDER_DELIVERY_STATE_MACHINE, $context)->getId();
+        $stateId = $this->stateMachineRegistry->getInitialState(OrderDeliveryStateMachine::NAME, $context)->getId();
 
         $delivery = [
             'id' => $deliveryId,

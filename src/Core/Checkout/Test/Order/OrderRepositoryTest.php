@@ -24,6 +24,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\StateMachine\OrderDeliveryStateMachine;
+use Shopware\Core\System\StateMachine\OrderStateMachine;
 use Shopware\Core\System\StateMachine\StateMachineRegistry;
 
 class OrderRepositoryTest extends TestCase
@@ -182,14 +184,14 @@ class OrderRepositoryTest extends TestCase
                 'orderDate' => (new \DateTimeImmutable())->format(Defaults::DATE_FORMAT),
                 'price' => new CartPrice(10, 10, 10, new CalculatedTaxCollection(), new TaxRuleCollection(), CartPrice::TAX_STATE_NET),
                 'shippingCosts' => new CalculatedPrice(10, 10, new CalculatedTaxCollection(), new TaxRuleCollection()),
-                'stateId' => $this->stateMachineRegistry->getInitialState(Defaults::ORDER_STATE_MACHINE, $context)->getId(),
+                'stateId' => $this->stateMachineRegistry->getInitialState(OrderStateMachine::NAME, $context)->getId(),
                 'paymentMethodId' => $this->getValidPaymentMethodId(),
                 'currencyId' => Defaults::CURRENCY,
                 'currencyFactor' => 1,
                 'salesChannelId' => Defaults::SALES_CHANNEL,
                 'deliveries' => [
                     [
-                        'stateId' => $this->stateMachineRegistry->getInitialState(Defaults::ORDER_DELIVERY_STATE_MACHINE, $context)->getId(),
+                        'stateId' => $this->stateMachineRegistry->getInitialState(OrderDeliveryStateMachine::NAME, $context)->getId(),
                         'shippingMethodId' => Defaults::SHIPPING_METHOD,
                         'shippingCosts' => new CalculatedPrice(10, 10, new CalculatedTaxCollection(), new TaxRuleCollection()),
                         'shippingDateEarliest' => date(DATE_ISO8601),

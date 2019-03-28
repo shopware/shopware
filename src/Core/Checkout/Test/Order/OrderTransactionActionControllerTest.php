@@ -19,6 +19,8 @@ use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineHistory\StateMachineHistoryCollection;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineHistory\StateMachineHistoryEntity;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateDefinition;
+use Shopware\Core\System\StateMachine\OrderStateMachine;
+use Shopware\Core\System\StateMachine\OrderTransactionStateMachine;
 use Shopware\Core\System\StateMachine\StateMachineRegistry;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -87,7 +89,7 @@ class OrderTransactionActionControllerTest extends TestCase
 
         static::assertEquals(Response::HTTP_OK, $this->getClient()->getResponse()->getStatusCode());
         static::assertNotNull($response['currentState']);
-        static::assertEquals(Defaults::ORDER_TRANSACTION_STATES_OPEN, $response['currentState']['technicalName']);
+        static::assertEquals(OrderTransactionStateMachine::STATE_OPEN, $response['currentState']['technicalName']);
 
         static::assertCount(4, $response['transitions']);
         static::assertEquals('cancel', $response['transitions'][0]['actionName']);
@@ -183,7 +185,7 @@ class OrderTransactionActionControllerTest extends TestCase
     private function createOrder(string $customerId, Context $context): string
     {
         $orderId = Uuid::randomHex();
-        $stateId = $this->stateMachineRegistry->getInitialState(Defaults::ORDER_STATE_MACHINE, $context)->getId();
+        $stateId = $this->stateMachineRegistry->getInitialState(OrderStateMachine::NAME, $context)->getId();
         $billingAddressId = Uuid::randomHex();
 
         $order = [
@@ -268,7 +270,7 @@ class OrderTransactionActionControllerTest extends TestCase
     private function createOrderTransaction(string $orderId, Context $context): string
     {
         $transactionId = Uuid::randomHex();
-        $stateId = $this->stateMachineRegistry->getInitialState(Defaults::ORDER_TRANSACTION_STATE_MACHINE, $context)->getId();
+        $stateId = $this->stateMachineRegistry->getInitialState(OrderTransactionStateMachine::NAME, $context)->getId();
 
         $transaction = [
             'id' => $transactionId,

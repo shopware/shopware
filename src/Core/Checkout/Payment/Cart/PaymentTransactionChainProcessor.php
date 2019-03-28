@@ -9,10 +9,10 @@ use Shopware\Core\Checkout\Payment\Exception\AsyncPaymentProcessException;
 use Shopware\Core\Checkout\Payment\Exception\InvalidOrderException;
 use Shopware\Core\Checkout\Payment\Exception\SyncPaymentProcessException;
 use Shopware\Core\Checkout\Payment\Exception\UnknownPaymentMethodException;
-use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\System\StateMachine\OrderTransactionStateMachine;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Routing\RouterInterface;
@@ -74,7 +74,7 @@ class PaymentTransactionChainProcessor
             throw new InvalidOrderException($orderId);
         }
 
-        $transactions = $transactions->filterByState(Defaults::ORDER_TRANSACTION_STATES_OPEN);
+        $transactions = $transactions->filterByState(OrderTransactionStateMachine::STATE_OPEN);
 
         foreach ($transactions as $transaction) {
             $paymentMethod = $transaction->getPaymentMethod();

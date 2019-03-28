@@ -4,9 +4,9 @@ namespace Shopware\Core\Checkout\Test\Payment\Handler;
 
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\SynchronousPaymentHandlerInterface;
 use Shopware\Core\Checkout\Payment\Cart\SyncPaymentTransactionStruct;
-use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\System\StateMachine\OrderTransactionStateMachine;
 use Shopware\Core\System\StateMachine\StateMachineRegistry;
 
 class SyncTestPaymentHandler implements SynchronousPaymentHandlerInterface
@@ -32,8 +32,8 @@ class SyncTestPaymentHandler implements SynchronousPaymentHandlerInterface
     public function pay(SyncPaymentTransactionStruct $transaction, Context $context): void
     {
         $completeStateId = $this->stateMachineRegistry->getStateByTechnicalName(
-            Defaults::ORDER_TRANSACTION_STATE_MACHINE,
-            Defaults::ORDER_TRANSACTION_STATES_PAID,
+            OrderTransactionStateMachine::NAME,
+            OrderTransactionStateMachine::STATE_PAID,
             $context
         )->getId();
 

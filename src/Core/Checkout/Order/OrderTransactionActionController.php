@@ -4,7 +4,6 @@ namespace Shopware\Core\Checkout\Order;
 
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionDefinition;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionEntity;
-use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Exception\ResourceNotFoundException;
 use Shopware\Core\Framework\Api\Response\ResponseFactoryInterface;
 use Shopware\Core\Framework\Context;
@@ -13,6 +12,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaI
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\System\StateMachine\Exception\IllegalTransitionException;
 use Shopware\Core\System\StateMachine\Exception\StateMachineNotFoundException;
+use Shopware\Core\System\StateMachine\OrderTransactionStateMachine;
 use Shopware\Core\System\StateMachine\StateMachineRegistry;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -55,7 +55,7 @@ class OrderTransactionActionController extends AbstractController
             'version' => $request->get('version'),
         ]);
 
-        return $this->stateMachineRegistry->buildAvailableTransitionsJsonResponse(Defaults::ORDER_TRANSACTION_STATE_MACHINE,
+        return $this->stateMachineRegistry->buildAvailableTransitionsJsonResponse(OrderTransactionStateMachine::NAME,
             $transaction->getStateMachineState()->getTechnicalName(),
             $baseUrl,
             $context);
@@ -78,7 +78,7 @@ class OrderTransactionActionController extends AbstractController
     ): Response {
         $transaction = $this->getOrderTransaction($transactionId, $context);
 
-        $toPlace = $this->stateMachineRegistry->transition($this->stateMachineRegistry->getStateMachine(Defaults::ORDER_TRANSACTION_STATE_MACHINE, $context),
+        $toPlace = $this->stateMachineRegistry->transition($this->stateMachineRegistry->getStateMachine(OrderTransactionStateMachine::NAME, $context),
             $transaction->getStateMachineState(),
             OrderTransactionDefinition::getEntityName(),
             $transaction->getId(),

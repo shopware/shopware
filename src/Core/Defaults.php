@@ -32,29 +32,6 @@ final class Defaults
 
     public const SHIPPING_METHOD = '20080911ffff4fffafffffff19830531';
 
-    public const ORDER_STATE_MACHINE = 'order.state';
-    public const ORDER_STATE_STATES_OPEN = 'open';
-    public const ORDER_STATE_STATES_IN_PROGRESS = 'in_progress';
-    public const ORDER_STATE_STATES_COMPLETED = 'completed';
-    public const ORDER_STATE_STATES_CANCELLED = 'cancelled';
-
-    public const ORDER_DELIVERY_STATE_MACHINE = 'order_delivery.state';
-    public const ORDER_DELIVERY_STATES_OPEN = 'open';
-    public const ORDER_DELIVERY_STATES_PARTIALLY_SHIPPED = 'shipped_partially';
-    public const ORDER_DELIVERY_STATES_SHIPPED = 'shipped';
-    public const ORDER_DELIVERY_STATES_RETURNED = 'returned';
-    public const ORDER_DELIVERY_STATES_PARTIALLY_RETURNED = 'returned_partially';
-    public const ORDER_DELIVERY_STATES_CANCELLED = 'cancelled';
-
-    public const ORDER_TRANSACTION_STATE_MACHINE = 'order_transaction.state';
-    public const ORDER_TRANSACTION_STATES_OPEN = 'open';
-    public const ORDER_TRANSACTION_STATES_PAID = 'paid';
-    public const ORDER_TRANSACTION_STATES_PARTIALLY_PAID = 'paid_partially';
-    public const ORDER_TRANSACTION_STATES_REFUNDED = 'refunded';
-    public const ORDER_TRANSACTION_STATES_PARTIALLY_REFUNDED = 'refunded_partially';
-    public const ORDER_TRANSACTION_STATES_CANCELLED = 'cancelled';
-    public const ORDER_TRANSACTION_STATES_REMINDED = 'reminded';
-
     public const SALUTATION_ID_MR = '0ddcfee7912c4f57b7f8560f4fc35e08';
     public const SALUTATION_ID_MRS = '1902982d717a4e97ab371326693d73df';
     public const SALUTATION_ID_MISS = '6fdf0912858540b89a774919593d1b3a';

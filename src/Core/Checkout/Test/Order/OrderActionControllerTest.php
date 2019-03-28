@@ -19,6 +19,7 @@ use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineHistory\StateMachineHistoryCollection;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineHistory\StateMachineHistoryEntity;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateDefinition;
+use Shopware\Core\System\StateMachine\OrderStateMachine;
 use Shopware\Core\System\StateMachine\StateMachineRegistry;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -80,7 +81,7 @@ class OrderActionControllerTest extends TestCase
         $response = json_decode($response, true);
 
         static::assertNotNull($response['currentState']);
-        static::assertEquals(Defaults::ORDER_STATE_STATES_OPEN, $response['currentState']['technicalName']);
+        static::assertEquals(OrderStateMachine::STATE_OPEN, $response['currentState']['technicalName']);
 
         static::assertCount(2, $response['transitions']);
         static::assertEquals('cancel', $response['transitions'][0]['actionName']);
@@ -173,7 +174,7 @@ class OrderActionControllerTest extends TestCase
     private function createOrder(string $customerId, Context $context): string
     {
         $orderId = Uuid::randomHex();
-        $stateId = $this->stateMachineRegistry->getInitialState(Defaults::ORDER_STATE_MACHINE, $context)->getUniqueIdentifier();
+        $stateId = $this->stateMachineRegistry->getInitialState(OrderStateMachine::NAME, $context)->getUniqueIdentifier();
         $billingAddressId = Uuid::randomHex();
 
         $order = [

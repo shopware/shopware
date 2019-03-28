@@ -341,9 +341,9 @@ class Migration1536233420BasicData extends MigrationStep
     {
         $languageEN = Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM);
 
-        $debit = Uuid::fromHexToBytes(Defaults::PAYMENT_METHOD_DEBIT);
-        $invoice = Uuid::fromHexToBytes(Defaults::PAYMENT_METHOD_INVOICE);
-        $sepa = Uuid::fromHexToBytes(Defaults::PAYMENT_METHOD_SEPA);
+        $debit = Uuid::uuid4()->getBytes();
+        $invoice = Uuid::uuid4()->getBytes();
+        $sepa = Uuid::uuid4()->getBytes();
 
         $connection->insert('payment_method', ['id' => $debit, 'technical_name' => 'debit', 'template' => 'debit.tpl', 'class' => DebitPayment::class, 'percentage_surcharge' => -10, 'position' => 4, 'active' => 0, 'created_at' => date(Defaults::DATE_FORMAT)]);
         $connection->insert('payment_method_translation', ['payment_method_id' => $debit, 'language_id' => $languageEN, 'name' => 'Direct Debit', 'additional_description' => 'Additional text', 'created_at' => date(Defaults::DATE_FORMAT)]);
@@ -414,6 +414,7 @@ class Migration1536233420BasicData extends MigrationStep
         $languages = $connection->executeQuery('SELECT id FROM language')->fetchAll(FetchMode::COLUMN);
         $shippingMethods = $connection->executeQuery('SELECT id FROM shipping_method')->fetchAll(FetchMode::COLUMN);
         $paymentMethods = $connection->executeQuery('SELECT id FROM payment_method')->fetchAll(FetchMode::COLUMN);
+        $defaultPaymentMethod = $connection->executeQuery('SELECT id FROM payment_method WHERE active = 1')->fetchColumn();
 
         $id = Uuid::uuid4()->getBytes();
         $languageEN = Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM);
@@ -426,7 +427,7 @@ class Migration1536233420BasicData extends MigrationStep
             'tax_calculation_type' => 'vertical',
             'language_id' => Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM),
             'currency_id' => Uuid::fromHexToBytes(Defaults::CURRENCY),
-            'payment_method_id' => Uuid::fromHexToBytes(Defaults::PAYMENT_METHOD_INVOICE),
+            'payment_method_id' => $defaultPaymentMethod,
             'shipping_method_id' => Uuid::fromHexToBytes(Defaults::SHIPPING_METHOD),
             'country_id' => Uuid::fromHexToBytes(Defaults::COUNTRY),
             'created_at' => date(Defaults::DATE_FORMAT),

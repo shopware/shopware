@@ -371,6 +371,7 @@ class DetailPageSeoUrlIndexerTest extends TestCase
             $languages[] = ['id' => $langId];
         }
 
+        $paymentMethod = $this->getValidPaymentMethodId();
         $repo->upsert([[
             'id' => $id,
             'name' => $name,
@@ -380,12 +381,12 @@ class DetailPageSeoUrlIndexerTest extends TestCase
             'languageId' => $defaultLanguageId,
             'snippetSetId' => Defaults::SNIPPET_BASE_SET_EN,
             'currencyId' => Defaults::CURRENCY,
-            'paymentMethodId' => Defaults::PAYMENT_METHOD_DEBIT,
+            'paymentMethodId' => $paymentMethod,
             'shippingMethodId' => Defaults::SHIPPING_METHOD,
             'countryId' => Defaults::COUNTRY,
             'currencies' => [['id' => Defaults::CURRENCY]],
             'languages' => $languages,
-            'paymentMethods' => [['id' => Defaults::PAYMENT_METHOD_DEBIT]],
+            'paymentMethods' => [['id' => $paymentMethod]],
             'shippingMethods' => [['id' => Defaults::SHIPPING_METHOD]],
             'countries' => [['id' => Defaults::COUNTRY]],
             'customerGroupId' => Defaults::FALLBACK_CUSTOMER_GROUP,

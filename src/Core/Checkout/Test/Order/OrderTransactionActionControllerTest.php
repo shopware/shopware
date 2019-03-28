@@ -198,7 +198,7 @@ class OrderTransactionActionControllerTest extends TestCase
                 'lastName' => 'Mustermann',
             ],
             'stateId' => $stateId,
-            'paymentMethodId' => Defaults::PAYMENT_METHOD_DEBIT,
+            'paymentMethodId' => $this->getValidPaymentMethodId(),
             'currencyId' => Defaults::CURRENCY,
             'currencyFactor' => 1.0,
             'salesChannelId' => Defaults::SALES_CHANNEL,
@@ -239,7 +239,7 @@ class OrderTransactionActionControllerTest extends TestCase
             'lastName' => 'Mustermann',
             'email' => Uuid::uuid4()->getHex() . '@example.com',
             'password' => 'shopware',
-            'defaultPaymentMethodId' => Defaults::PAYMENT_METHOD_INVOICE,
+            'defaultPaymentMethodId' => $this->getValidPaymentMethodId(),
             'groupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
             'salesChannelId' => Defaults::SALES_CHANNEL,
             'defaultBillingAddressId' => $addressId,
@@ -272,7 +272,7 @@ class OrderTransactionActionControllerTest extends TestCase
         $transaction = [
             'id' => $transactionId,
             'orderId' => $orderId,
-            'paymentMethodId' => Defaults::PAYMENT_METHOD_DEBIT,
+            'paymentMethodId' => $this->getValidPaymentMethodId(),
             'stateId' => $stateId,
             'amount' => new CalculatedPrice(
                 100,

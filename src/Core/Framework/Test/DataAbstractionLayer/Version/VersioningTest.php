@@ -1712,7 +1712,7 @@ class VersioningTest extends TestCase
             'customerNumber' => '1337',
             'email' => Uuid::uuid4()->getHex() . '@example.com',
             'password' => 'shopware',
-            'defaultPaymentMethodId' => Defaults::PAYMENT_METHOD_INVOICE,
+            'defaultPaymentMethodId' => $this->getValidPaymentMethodId(),
             'groupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
             'salesChannelId' => Defaults::SALES_CHANNEL,
             'defaultBillingAddressId' => $addressId,

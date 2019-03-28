@@ -8,6 +8,7 @@ use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Routing\InternalRequest;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Storefront\Framework\Page\PageLoaderInterface;
@@ -88,16 +89,18 @@ class ConfirmPageTest extends TestCase
         $request = new InternalRequest();
         $context = $this->createCheckoutContextWithNavigation();
 
+        /** @var EntityRepositoryInterface $paymentMethodRepository */
         $paymentMethodRepository = $this->getContainer()->get('payment_method.repository');
         $paymentMethodRuleRepository = $this->getContainer()->get('payment_method_rule.repository');
+        $criteria = (new Criteria())->addFilter(new EqualsFilter('active', true));
         /** @var PaymentMethodEntity $paymentMethod */
-        $paymentMethod = $paymentMethodRepository->search(new Criteria([Defaults::PAYMENT_METHOD_SEPA]), $context->getContext())->get(Defaults::PAYMENT_METHOD_SEPA);
+        $paymentMethod = $paymentMethodRepository->search($criteria, $context->getContext())->first();
 
         $ruleToDelete = [];
 
         foreach ($paymentMethod->getAvailabilityRuleIds() as $availabilityRuleId) {
             $ruleToDelete[] = [
-                'paymentMethodId' => Defaults::PAYMENT_METHOD_SEPA,
+                'paymentMethodId' => $paymentMethod->getId(),
                 'ruleId' => $availabilityRuleId,
             ];
         }

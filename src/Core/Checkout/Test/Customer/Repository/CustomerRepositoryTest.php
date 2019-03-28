@@ -12,14 +12,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\EntityScoreQueryBuilder;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\SearchTermInterpreter;
 use Shopware\Core\Framework\Struct\Uuid;
-use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
-use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Util\Random;
 
 class CustomerRepositoryTest extends TestCase
 {
-    use KernelTestBehaviour,
-        DatabaseTransactionBehaviour;
+    use IntegrationTestBehaviour;
 
     /**
      * @var Connection
@@ -56,12 +54,13 @@ class CustomerRepositoryTest extends TestCase
 
         $matchTerm = Random::getAlphanumericString(20);
 
+        $paymentMethod = $this->getValidPaymentMethodId();
         $records = [
             [
                 'id' => $recordA,
                 'salesChannelId' => Defaults::SALES_CHANNEL,
                 'defaultShippingAddress' => $address,
-                'defaultPaymentMethodId' => 'e84976ace9ab4928a3dcc387b66dbaa6',
+                'defaultPaymentMethodId' => $paymentMethod,
                 'groupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
                 'email' => Uuid::uuid4()->getHex() . '@example.com',
                 'password' => 'not',
@@ -74,7 +73,7 @@ class CustomerRepositoryTest extends TestCase
                 'id' => $recordB,
                 'salesChannelId' => Defaults::SALES_CHANNEL,
                 'defaultShippingAddress' => $address,
-                'defaultPaymentMethodId' => 'e84976ace9ab4928a3dcc387b66dbaa6',
+                'defaultPaymentMethodId' => $paymentMethod,
                 'groupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
                 'email' => Uuid::uuid4()->getHex() . '@example.com',
                 'password' => 'not',
@@ -87,7 +86,7 @@ class CustomerRepositoryTest extends TestCase
                 'id' => $recordC,
                 'salesChannelId' => Defaults::SALES_CHANNEL,
                 'defaultShippingAddress' => $address,
-                'defaultPaymentMethodId' => 'e84976ace9ab4928a3dcc387b66dbaa6',
+                'defaultPaymentMethodId' => $paymentMethod,
                 'groupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
                 'email' => Uuid::uuid4()->getHex() . '@example.com',
                 'password' => 'not',
@@ -100,7 +99,7 @@ class CustomerRepositoryTest extends TestCase
                 'id' => $recordD,
                 'salesChannelId' => Defaults::SALES_CHANNEL,
                 'defaultShippingAddress' => $address,
-                'defaultPaymentMethodId' => 'e84976ace9ab4928a3dcc387b66dbaa6',
+                'defaultPaymentMethodId' => $paymentMethod,
                 'groupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
                 'email' => $matchTerm,
                 'password' => 'not',

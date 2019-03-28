@@ -10,7 +10,7 @@ use Shopware\Storefront\Page\Navigation\NavigationPage;
 use Shopware\Storefront\Page\Navigation\NavigationPageLoadedEvent;
 use Shopware\Storefront\Page\Navigation\NavigationPageLoader;
 
-class NavigatioPageTest extends TestCase
+class NavigationPageTest extends TestCase
 {
     use IntegrationTestBehaviour,
         StorefrontPageTestBehaviour;

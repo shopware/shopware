@@ -7,5 +7,6 @@ trait IntegrationTestBehaviour
     use KernelTestBehaviour,
         DatabaseTransactionBehaviour,
         FilesystemBehaviour,
-        CacheTestBehaviour;
+        CacheTestBehaviour,
+        DemoDataTestBehaviour;
 }

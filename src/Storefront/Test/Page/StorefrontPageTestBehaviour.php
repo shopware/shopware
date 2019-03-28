@@ -125,6 +125,7 @@ trait StorefrontPageTestBehaviour
 
     protected function createCheckoutContextWithNavigation(): CheckoutContext
     {
+        $paymentMethodId = $this->getValidPaymentMethodId();
         $data = [
             'typeId' => Defaults::SALES_CHANNEL_STOREFRONT,
             'name' => 'store front',
@@ -134,7 +135,7 @@ trait StorefrontPageTestBehaviour
             'snippetSetId' => Defaults::SNIPPET_BASE_SET_EN,
             'currencyId' => Defaults::CURRENCY,
             'currencyVersionId' => Defaults::LIVE_VERSION,
-            'paymentMethodId' => Defaults::PAYMENT_METHOD_DEBIT,
+            'paymentMethodId' => $paymentMethodId,
             'paymentMethodVersionId' => Defaults::LIVE_VERSION,
             'shippingMethodId' => Defaults::SHIPPING_METHOD,
             'shippingMethodVersionId' => Defaults::LIVE_VERSION,
@@ -142,7 +143,7 @@ trait StorefrontPageTestBehaviour
             'countryVersionId' => Defaults::LIVE_VERSION,
             'currencies' => [['id' => Defaults::CURRENCY]],
             'languages' => [['id' => Defaults::LANGUAGE_SYSTEM]],
-            'paymentMethods' => [['id' => Defaults::PAYMENT_METHOD_DEBIT]],
+            'paymentMethods' => [['id' => $paymentMethodId]],
             'shippingMethods' => [['id' => Defaults::SHIPPING_METHOD]],
             'countries' => [['id' => Defaults::COUNTRY]],
         ];
@@ -152,6 +153,7 @@ trait StorefrontPageTestBehaviour
 
     protected function createCheckoutContextWithLoggedInCustomerAndWithNavigation(): CheckoutContext
     {
+        $paymentMethodId = $this->getValidPaymentMethodId();
         $data = [
             'typeId' => Defaults::SALES_CHANNEL_STOREFRONT,
             'name' => 'store front',
@@ -161,7 +163,7 @@ trait StorefrontPageTestBehaviour
             'snippetSetId' => Defaults::SNIPPET_BASE_SET_EN,
             'currencyId' => Defaults::CURRENCY,
             'currencyVersionId' => Defaults::LIVE_VERSION,
-            'paymentMethodId' => Defaults::PAYMENT_METHOD_DEBIT,
+            'paymentMethodId' => $paymentMethodId,
             'paymentMethodVersionId' => Defaults::LIVE_VERSION,
             'shippingMethodId' => Defaults::SHIPPING_METHOD,
             'shippingMethodVersionId' => Defaults::LIVE_VERSION,
@@ -169,7 +171,7 @@ trait StorefrontPageTestBehaviour
             'countryVersionId' => Defaults::LIVE_VERSION,
             'currencies' => [['id' => Defaults::CURRENCY]],
             'languages' => [['id' => Defaults::LANGUAGE_SYSTEM]],
-            'paymentMethods' => [['id' => Defaults::PAYMENT_METHOD_DEBIT]],
+            'paymentMethods' => [['id' => $paymentMethodId]],
             'shippingMethods' => [['id' => Defaults::SHIPPING_METHOD]],
             'countries' => [['id' => Defaults::COUNTRY]],
         ];
@@ -181,6 +183,7 @@ trait StorefrontPageTestBehaviour
 
     protected function createCheckoutContext(): CheckoutContext
     {
+        $paymentMethodId = $this->getValidPaymentMethodId();
         $data = [
             'typeId' => Defaults::SALES_CHANNEL_STOREFRONT,
             'name' => 'store front',
@@ -189,7 +192,7 @@ trait StorefrontPageTestBehaviour
             'snippetSetId' => Defaults::SNIPPET_BASE_SET_EN,
             'currencyId' => Defaults::CURRENCY,
             'currencyVersionId' => Defaults::LIVE_VERSION,
-            'paymentMethodId' => Defaults::PAYMENT_METHOD_DEBIT,
+            'paymentMethodId' => $paymentMethodId,
             'paymentMethodVersionId' => Defaults::LIVE_VERSION,
             'shippingMethodId' => Defaults::SHIPPING_METHOD,
             'shippingMethodVersionId' => Defaults::LIVE_VERSION,
@@ -197,7 +200,7 @@ trait StorefrontPageTestBehaviour
             'countryVersionId' => Defaults::LIVE_VERSION,
             'currencies' => [['id' => Defaults::CURRENCY]],
             'languages' => [['id' => Defaults::LANGUAGE_SYSTEM]],
-            'paymentMethods' => [['id' => Defaults::PAYMENT_METHOD_DEBIT]],
+            'paymentMethods' => [['id' => $paymentMethodId]],
             'shippingMethods' => [['id' => Defaults::SHIPPING_METHOD]],
             'countries' => [['id' => Defaults::COUNTRY]],
         ];
@@ -234,7 +237,7 @@ trait StorefrontPageTestBehaviour
                     'country' => ['name' => 'Germany'],
                 ],
                 'defaultBillingAddressId' => $addressId,
-                'defaultPaymentMethodId' => Defaults::PAYMENT_METHOD_DEBIT,
+                'defaultPaymentMethodId' => $this->getValidPaymentMethodId(),
                 'groupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
                 'email' => 'foo@bar.de',
                 'password' => 'password',

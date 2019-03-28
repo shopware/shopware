@@ -659,7 +659,7 @@ class EntityReaderTest extends TestCase
                 'defaultShippingAddressId' => $defaultAddressId,
                 'defaultBillingAddressId' => $defaultAddressId,
                 'salesChannelId' => Defaults::SALES_CHANNEL,
-                'defaultPaymentMethodId' => Defaults::PAYMENT_METHOD_INVOICE,
+                'defaultPaymentMethodId' => $this->getValidPaymentMethodId(),
                 'group' => ['name' => 'test'],
                 'addresses' => [
                     array_merge(['id' => $defaultAddressId], $address),
@@ -708,7 +708,7 @@ class EntityReaderTest extends TestCase
                 'defaultShippingAddressId' => $defaultAddressId,
                 'defaultBillingAddressId' => $defaultAddressId,
                 'salesChannelId' => Defaults::SALES_CHANNEL,
-                'defaultPaymentMethodId' => Defaults::PAYMENT_METHOD_INVOICE,
+                'defaultPaymentMethodId' => $this->getValidPaymentMethodId(),
                 'group' => ['name' => 'test'],
                 'addresses' => [
                     array_merge(['id' => $defaultAddressId], $address),
@@ -759,7 +759,7 @@ class EntityReaderTest extends TestCase
             'password' => 'A',
             'email' => 'test@test.com',
             'salesChannelId' => Defaults::SALES_CHANNEL,
-            'defaultPaymentMethodId' => Defaults::PAYMENT_METHOD_INVOICE,
+            'defaultPaymentMethodId' => $this->getValidPaymentMethodId(),
             'group' => ['name' => 'test'],
         ];
 
@@ -855,7 +855,7 @@ class EntityReaderTest extends TestCase
             'customerNumber' => 'A',
             'password' => 'A',
             'salesChannelId' => Defaults::SALES_CHANNEL,
-            'defaultPaymentMethodId' => Defaults::PAYMENT_METHOD_INVOICE,
+            'defaultPaymentMethodId' => $this->getValidPaymentMethodId(),
             'group' => ['name' => 'test'],
         ];
 
@@ -978,7 +978,7 @@ class EntityReaderTest extends TestCase
                 'defaultShippingAddressId' => $defaultAddressId,
                 'defaultBillingAddressId' => $defaultAddressId,
                 'salesChannelId' => Defaults::SALES_CHANNEL,
-                'defaultPaymentMethodId' => Defaults::PAYMENT_METHOD_INVOICE,
+                'defaultPaymentMethodId' => $this->getValidPaymentMethodId(),
                 'group' => ['name' => 'test'],
                 'addresses' => [
                     array_merge(['id' => $defaultAddressId], $address),

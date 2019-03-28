@@ -6,6 +6,9 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException\InvalidFieldException;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException\WriteStackException;
 use Shopware\Core\Framework\Struct\Uuid;
@@ -23,11 +26,19 @@ class SalesChannelCreateCommand extends Command
      */
     private $salesChannelRepository;
 
-    public function __construct(EntityRepositoryInterface $salesChannelRepository)
-    {
-        parent::__construct();
+    /**
+     * @var EntityRepositoryInterface
+     */
+    private $paymentMethodRepository;
 
+    public function __construct(
+        EntityRepositoryInterface $salesChannelRepository,
+        EntityRepositoryInterface $paymentMethodRepository
+    ) {
         $this->salesChannelRepository = $salesChannelRepository;
+        $this->paymentMethodRepository = $paymentMethodRepository;
+
+        parent::__construct();
     }
 
     protected function configure(): void
@@ -38,7 +49,7 @@ class SalesChannelCreateCommand extends Command
             ->addOption('languageId', null, InputOption::VALUE_REQUIRED, 'Default language', Defaults::LANGUAGE_SYSTEM)
             ->addOption('snippetSetId', null, InputOption::VALUE_REQUIRED, 'Default snippet set', Defaults::SNIPPET_BASE_SET_EN)
             ->addOption('currencyId', null, InputOption::VALUE_REQUIRED, 'Default currency', Defaults::CURRENCY)
-            ->addOption('paymentMethodId', null, InputOption::VALUE_REQUIRED, 'Default payment method', Defaults::PAYMENT_METHOD_DEBIT)
+            ->addOption('paymentMethodId', null, InputOption::VALUE_REQUIRED, 'Default payment method')
             ->addOption('shippingMethodId', null, InputOption::VALUE_REQUIRED, 'Default shipping method', Defaults::SHIPPING_METHOD)
             ->addOption('countryId', null, InputOption::VALUE_REQUIRED, 'Default country', Defaults::COUNTRY)
             ->addOption('typeId', null, InputOption::VALUE_OPTIONAL, 'Sales channel type id')
@@ -53,6 +64,8 @@ class SalesChannelCreateCommand extends Command
 
         $io = new SymfonyStyle($input, $output);
 
+        $paymentMethod = $input->getOption('paymentMethodId') ?? $this->getFirstActivePaymentMethodId();
+
         $data = [
             'id' => $id,
             'typeId' => $typeId ?? $this->getTypeId(),
@@ -61,7 +74,7 @@ class SalesChannelCreateCommand extends Command
             'snippetSetId' => $input->getOption('snippetSetId'),
             'currencyId' => $input->getOption('currencyId'),
             'currencyVersionId' => Defaults::LIVE_VERSION,
-            'paymentMethodId' => $input->getOption('paymentMethodId'),
+            'paymentMethodId' => $paymentMethod,
             'paymentMethodVersionId' => Defaults::LIVE_VERSION,
             'shippingMethodId' => $input->getOption('shippingMethodId'),
             'shippingMethodVersionId' => Defaults::LIVE_VERSION,
@@ -70,7 +83,7 @@ class SalesChannelCreateCommand extends Command
             'currencies' => [['id' => $input->getOption('currencyId')]],
             'languages' => [['id' => Defaults::LANGUAGE_SYSTEM]],
             'shippingMethods' => [['id' => $input->getOption('shippingMethodId')]],
-            'paymentMethods' => [['id' => $input->getOption('paymentMethodId')]],
+            'paymentMethods' => [['id' => $paymentMethod]],
             'countries' => [['id' => $input->getOption('countryId')]],
             'name' => $input->getOption('name'),
             'customerGroupId' => $input->getOption('customerGroupId'),
@@ -118,5 +131,15 @@ class SalesChannelCreateCommand extends Command
     protected function getTypeId(): string
     {
         return Defaults::SALES_CHANNEL_STOREFRONT_API;
+    }
+
+    protected function getFirstActivePaymentMethodId(): string
+    {
+        $criteria = (new Criteria())
+            ->setLimit(1)
+            ->addFilter(new EqualsFilter('active', true))
+            ->addSorting(new FieldSorting('position'));
+
+        return $this->paymentMethodRepository->searchIds($criteria, Context::createDefaultContext())->getIds()[0];
     }
 }

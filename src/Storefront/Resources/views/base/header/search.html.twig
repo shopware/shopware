@@ -3,23 +3,28 @@
         <form action="{{ path('frontend.search.page') }}"
               method="get"
               data-url="{{ path('frontend.search.suggest') }}?search="
-              class="js-search-form">
+              class="js-search-form search-form">
+            {% block base_header_search_input_group %}
+                <div class="input-group">
+                    {% block base_header_search_input %}
+                        <input type="search"
+                               name="search"
+                               class="form-control search-form-input"
+                               autocomplete="off"
+                               autocapitalize="off"
+                               placeholder="{{ "header.searchPlaceholder"|trans }}"
+                               maxlength="30">
+                    {% endblock %}
 
-            {% block base_header_search_input %}
-                <input type="search"
-                       name="search"
-                       class="form-control"
-                       autocomplete="off"
-                       autocapitalize="off"
-                       placeholder="{{ "header.searchPlaceholder"|trans }}"
-                       maxlength="30">
-            {% endblock %}
-
-            {% block base_header_search_button %}
-                <button type="submit"
-                        class="btn btn-light">
-                    <i class="fas fa-search fa-lg"></i>
-                </button>
+                    {% block base_header_search_button %}
+                        <div class="input-group-append">
+                            <button type="submit"
+                                    class="btn btn-light">
+                                <i class="fas fa-search fa-lg"></i>
+                            </button>
+                        </div>
+                    {% endblock %}
+                </div>
             {% endblock %}
         </form>
     </div>

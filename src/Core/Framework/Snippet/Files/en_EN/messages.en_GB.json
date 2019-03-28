@@ -27,6 +27,8 @@
         "logoLink": "Switch to homepage",
         "searchButton": "Search",
         "searchPlaceholder": "Search term...",
+        "searchAllResults": "Show all search results",
+        "searchResults": "Results",
         "indexLinkService": "Service/Help"
     },
     "meta": {

@@ -10,7 +10,6 @@ use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Media\MediaEvents;
 use Shopware\Core\Content\Media\Subscriber\MediaLoadedSubscriber;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityLoadedEvent;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
@@ -38,7 +37,7 @@ class MediaLoadedSubscriberTest extends TestCase
         $mediaEntity->setFileName($mediaId . '-134578345');
         $mediaEntity->setThumbnails(new MediaThumbnailCollection());
 
-        $mediaLoadedEvent = new EntityLoadedEvent(MediaDefinition::class, new EntityCollection([$mediaEntity]), $context);
+        $mediaLoadedEvent = new EntityLoadedEvent(MediaDefinition::class, [$mediaEntity], $context);
         $subscriber->addUrls($mediaLoadedEvent);
 
         static::assertStringEndsWith(
@@ -67,7 +66,7 @@ class MediaLoadedSubscriberTest extends TestCase
         $mediaEntity->setFileName($mediaId . '-134578345');
         $mediaEntity->setThumbnails(new MediaThumbnailCollection([$thumbnailEntity]));
 
-        $mediaLoadedEvent = new EntityLoadedEvent(MediaDefinition::class, new EntityCollection([$mediaEntity]), $context);
+        $mediaLoadedEvent = new EntityLoadedEvent(MediaDefinition::class, [$mediaEntity], $context);
         $subscriber->addUrls($mediaLoadedEvent);
 
         static::assertStringEndsWith(

@@ -209,7 +209,7 @@ class EntityRepository implements EntityRepositoryInterface
         /** @var EntityCollection $entities */
         $entities = $this->reader->read($this->definition, $criteria, $context);
 
-        $event = new EntityLoadedEvent($this->definition, $entities, $context);
+        $event = new EntityLoadedEvent($this->definition, $entities->getElements(), $context);
         $this->eventDispatcher->dispatch($event->getName(), $event);
 
         return $entities;

@@ -25,10 +25,6 @@
     font-weight: $font-weight-bold;
 }
 
-.footer-newsletter-text {
-    margin-bottom: $spacer;
-}
-
 @include media-breakpoint-up(md) {
     .footer-link-list {
         padding: 0;

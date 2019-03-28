@@ -1,0 +1,12 @@
+@startuml
+
+hide empty members
+
+class index as "index.js"
+class scss as ".scss"
+class tpl as ".html.twig"
+
+scss --> tpl: //styles//
+index --> tpl: //renders//
+index <-- tpl: //notifies//
+@enduml

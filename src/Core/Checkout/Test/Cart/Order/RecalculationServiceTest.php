@@ -33,6 +33,7 @@ use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\Checkout\Test\Cart\Common\TrueRule;
+use Shopware\Core\Checkout\Test\Payment\Handler\SyncTestPaymentHandler;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -1242,7 +1243,7 @@ class RecalculationServiceTest extends TestCase
 
         $data = [
             'id' => $paymentMethodId,
-            'technicalName' => 'Payment',
+            'handlerIdentifier' => SyncTestPaymentHandler::class,
             'name' => 'Payment',
             'active' => true,
             'position' => 0,

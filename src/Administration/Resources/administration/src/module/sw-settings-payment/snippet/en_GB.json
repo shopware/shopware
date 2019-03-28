@@ -16,7 +16,8 @@
       "titleDeleteSuccess": "Success",
       "messageDeleteSuccess": "Payment method \"{name}\" has been deleted successfully.",
       "buttonCancel": "Cancel",
-      "buttonDelete": "Delete"
+      "buttonDelete": "Delete",
+      "pluginDeleteTitleText": "Plugin payment methods can not be deleted."
     },
     "detail": {
       "textHeadline": "New Payment method",

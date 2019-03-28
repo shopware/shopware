@@ -36,10 +36,19 @@ class RuleGenerator implements DemodataGeneratorInterface
      */
     private $writer;
 
-    public function __construct(EntityRepositoryInterface $ruleRepository, EntityWriterInterface $writer)
-    {
+    /**
+     * @var EntityRepositoryInterface
+     */
+    private $paymentMethodRepository;
+
+    public function __construct(
+        EntityRepositoryInterface $ruleRepository,
+        EntityWriterInterface $writer,
+        EntityRepositoryInterface $paymentMethodRepository
+    ) {
         $this->ruleRepository = $ruleRepository;
         $this->writer = $writer;
+        $this->paymentMethodRepository = $paymentMethodRepository;
     }
 
     public function getDefinition(): string
@@ -49,19 +58,13 @@ class RuleGenerator implements DemodataGeneratorInterface
 
     public function generate(int $numberOfItems, DemodataContext $context, array $options = []): void
     {
+        $paymentMethodIds = $this->paymentMethodRepository->searchIds(new Criteria(), $context->getContext());
         $criteria = (new Criteria())->addFilter(
             new NotFilter(
-                NotFilter::CONNECTION_AND, [
+                NotFilter::CONNECTION_AND,
+                [
                     new EqualsFilter('rule.shippingMethods.id', Defaults::SHIPPING_METHOD),
-                    new EqualsAnyFilter(
-                        'rule.paymentMethods.id', [
-                            Defaults::PAYMENT_METHOD_SEPA,
-                            Defaults::PAYMENT_METHOD_PAID_IN_ADVANCE,
-                            Defaults::PAYMENT_METHOD_INVOICE,
-                            Defaults::PAYMENT_METHOD_DEBIT,
-                            Defaults::PAYMENT_METHOD_CASH_ON_DELIVERY,
-                        ]
-                    ),
+                    new EqualsAnyFilter('rule.paymentMethods.id', $paymentMethodIds->getIds()),
                 ]
             )
         );

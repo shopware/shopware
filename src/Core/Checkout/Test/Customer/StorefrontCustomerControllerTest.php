@@ -6,6 +6,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Context\CheckoutRuleLoader;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
+use Shopware\Core\Checkout\Test\Payment\Handler\SyncTestPaymentHandler;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Response\Type\Storefront\JsonType;
 use Shopware\Core\Framework\Context;
@@ -539,8 +540,8 @@ class StorefrontCustomerControllerTest extends TestCase
                 'defaultBillingAddressId' => $addressId,
                 'defaultPaymentMethod' => [
                     'name' => 'Invoice',
-                    'additionalDescription' => 'Default payment method',
-                    'technicalName' => Uuid::uuid4()->getHex(),
+                    'description' => 'Default payment method',
+                    'handlerIdentifier' => SyncTestPaymentHandler::class,
                     'availabilityRules' => [
                         [
                             'id' => Uuid::uuid4()->getHex(),

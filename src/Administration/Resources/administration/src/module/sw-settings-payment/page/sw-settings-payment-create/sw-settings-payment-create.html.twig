@@ -1,0 +1,12 @@
+{% block sw_settings_payment_detail_language_switch %}
+    <sw-language-switch slot="language-switch"
+                        disabled>
+    </sw-language-switch>
+{% endblock %}
+
+{% block sw_product_stream_detail_content_language_info %}
+    <sw-language-info
+            :entityDescription="placeholder(paymentMethod, 'name', $tc('sw-settings-payment.detail.textHeadline'))"
+            isNewEntity>
+    </sw-language-info>
+{% endblock %}

@@ -55,13 +55,13 @@ Table(ShopwareCoreCheckoutCustomerCustomerDefinition, "customer\n(The sales chan
    failedLogins int
    lockedUntil date
    birthday date
-   attributes attrbutes
+   attributes attributes
    not_null(createdAt) createdAt
    not_null(updatedAt) updatedAt
 }
 TranslationTable(ShopwareCoreCheckoutCustomerAggregateCustomerGroupTranslationCustomerGroupTranslationDefinition, "customer_group_translation\n((Translations))") {
    not_null(name) string
-   attributes attrbutes
+   attributes attributes
    primary_key(customerGroupId) foreignKey
    primary_key(languageId) foreignKey
    not_null(createdAt) createdAt
@@ -85,7 +85,7 @@ Table(ShopwareCoreCheckoutCustomerAggregateCustomerAddressCustomerAddressDefinit
    phoneNumber string
    additionalAddressLine1 string
    additionalAddressLine2 string
-   attributes attrbutes
+   attributes attributes
    not_null(createdAt) createdAt
    not_null(updatedAt) updatedAt
 }
@@ -107,7 +107,7 @@ Table(ShopwareCoreCheckoutCustomerAggregateCustomerGroupDiscountCustomerGroupDis
    not_null(customerGroupId) foreignKey
    not_null(percentageDiscount) float
    not_null(minimumCartAmount) float
-   attributes attrbutes
+   attributes attributes
    not_null(createdAt) createdAt
    not_null(updatedAt) updatedAt
 }

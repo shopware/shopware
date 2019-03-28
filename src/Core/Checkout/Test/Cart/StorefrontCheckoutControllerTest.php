@@ -8,6 +8,7 @@ use Ramsey\Uuid\Uuid;
 use Shopware\Core\Checkout\Cart\Rule\CartAmountRule;
 use Shopware\Core\Checkout\Context\CheckoutRuleLoader;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
+use Shopware\Core\Checkout\Test\Payment\Handler\SyncTestPaymentHandler;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
@@ -669,7 +670,7 @@ class StorefrontCheckoutControllerTest extends TestCase
         $this->paymentMethodRepository->create([
             [
                 'id' => $unavailablePaymentMethodId,
-                'technicalName' => 'Unavailable',
+                'handlerIdentifier' => SyncTestPaymentHandler::class,
                 'name' => 'Unavailable',
                 'position' => 0,
                 'active' => true,
@@ -792,8 +793,8 @@ class StorefrontCheckoutControllerTest extends TestCase
                 'defaultBillingAddressId' => $addressId,
                 'defaultPaymentMethod' => [
                     'name' => 'test',
-                    'additionalDescription' => 'test',
-                    'technicalName' => Uuid::uuid4()->getHex(),
+                    'description' => 'test',
+                    'handlerIdentifier' => SyncTestPaymentHandler::class,
                     'availabilityRules' => [
                         [
                             'id' => Uuid::uuid4()->getHex(),

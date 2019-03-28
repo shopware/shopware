@@ -37,7 +37,6 @@ class PaymentMethodTranslationDefinition extends EntityTranslationDefinition
         return new FieldCollection([
             (new StringField('name', 'name'))->addFlags(new Required()),
             new LongTextField('description', 'description'),
-            new LongTextField('surcharge_text', 'surchargeText'),
             new AttributesField(),
         ]);
     }

@@ -19,6 +19,7 @@ use Shopware\Core\Checkout\Context\CheckoutContextFactory;
 use Shopware\Core\Checkout\Context\CheckoutContextService;
 use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Checkout\Test\Cart\Common\TrueRule;
+use Shopware\Core\Checkout\Test\Payment\Handler\SyncTestPaymentHandler;
 use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductPriceRule\ProductPriceRuleEntity;
@@ -1803,7 +1804,7 @@ class VersioningTest extends TestCase
 
         $data = [
             'id' => $paymentMethodId,
-            'technicalName' => 'Payment',
+            'handlerIdentifier' => SyncTestPaymentHandler::class,
             'name' => 'Payment',
             'active' => true,
             'position' => 0,

@@ -3,7 +3,7 @@
 namespace Shopware\Core\Checkout\Payment;
 
 use Shopware\Core\Checkout\CheckoutContext;
-use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\PaymentHandlerInterface;
+use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\AsynchronousPaymentHandlerInterface;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\PaymentHandlerRegistry;
 use Shopware\Core\Checkout\Payment\Cart\PaymentTransactionChainProcessor;
 use Shopware\Core\Checkout\Payment\Cart\Token\TokenFactoryInterface;
@@ -98,7 +98,7 @@ class PaymentService
     /**
      * @throws UnknownPaymentMethodException
      */
-    private function getPaymentHandlerById(string $paymentMethodId, Context $context): PaymentHandlerInterface
+    private function getPaymentHandlerById(string $paymentMethodId, Context $context): AsynchronousPaymentHandlerInterface
     {
         $paymentMethods = $this->paymentMethodRepository->search(new Criteria([$paymentMethodId]), $context);
 
@@ -108,6 +108,6 @@ class PaymentService
             throw new UnknownPaymentMethodException($paymentMethodId);
         }
 
-        return $this->paymentHandlerRegistry->get($paymentMethod->getClass());
+        return $this->paymentHandlerRegistry->getAsync($paymentMethod->getHandlerIdentifier());
     }
 }

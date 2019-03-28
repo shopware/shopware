@@ -62,7 +62,7 @@ TranslationTable(ShopwareCoreContentCategoryAggregateCategoryTranslationCategory
    metaDescription longText
    cmsHeadline string
    cmsDescription longText
-   attributes attrbutes
+   attributes attributes
    primary_key(categoryId) foreignKey
    primary_key(languageId) foreignKey
    not_null(createdAt) createdAt

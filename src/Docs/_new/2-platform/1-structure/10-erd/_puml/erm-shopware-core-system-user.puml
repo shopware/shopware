@@ -34,7 +34,7 @@ Table(ShopwareCoreSystemUserUserDefinition, "user\n(Administration/ Management A
    active bool
    failedLogins int
    lockedUntil date
-   attributes attrbutes
+   attributes attributes
    not_null(createdAt) createdAt
    not_null(updatedAt) updatedAt
 }
@@ -45,7 +45,7 @@ Table(ShopwareCoreSystemUserAggregateUserAccessKeyUserAccessKeyDefinition, "user
    not_null(secretAccessKey) password
    writeAccess bool
    lastUsageAt date
-   attributes attrbutes
+   attributes attributes
    not_null(createdAt) createdAt
 }
 Table(ShopwareCoreSystemUserAggregateUserRecoveryUserRecoveryDefinition, "user_recovery\n(User / Account recovery process)") {

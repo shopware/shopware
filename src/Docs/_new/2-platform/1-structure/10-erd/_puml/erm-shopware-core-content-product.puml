@@ -103,7 +103,7 @@ Table(ShopwareCoreContentProductAggregateProductConfiguratorProductConfiguratorD
    prices priceRulesJson
    not_null(createdAt) createdAt
    not_null(updatedAt) updatedAt
-   attributes attrbutes
+   attributes attributes
 }
 Table(ShopwareCoreContentProductAggregateProductPriceRuleProductPriceRuleDefinition, "product_price_rule\n(Staggered pricing)") {
    primary_key(id) id
@@ -117,7 +117,7 @@ Table(ShopwareCoreContentProductAggregateProductPriceRuleProductPriceRuleDefinit
    quantityEnd int
    not_null(createdAt) createdAt
    not_null(updatedAt) updatedAt
-   attributes attrbutes
+   attributes attributes
 }
 Table(ShopwareCoreContentProductAggregateProductDatasheetProductDatasheetDefinition, "product_datasheet\n(M:N Mapping)") {
    primary_key(productId) foreignKey
@@ -144,7 +144,7 @@ TranslationTable(ShopwareCoreContentProductAggregateProductManufacturerTranslati
    metaTitle string
    metaDescription string
    metaKeywords string
-   attributes attrbutes
+   attributes attributes
    primary_key(productManufacturerId) foreignKey
    primary_key(languageId) foreignKey
    not_null(createdAt) createdAt
@@ -160,7 +160,7 @@ Table(ShopwareCoreContentProductAggregateProductMediaProductMediaDefinition, "pr
    position int
    not_null(createdAt) createdAt
    not_null(updatedAt) updatedAt
-   attributes attrbutes
+   attributes attributes
 }
 TranslationTable(ShopwareCoreContentProductAggregateProductTranslationProductTranslationDefinition, "product_translation\n((Translations))") {
    additionalText string
@@ -170,7 +170,7 @@ TranslationTable(ShopwareCoreContentProductAggregateProductTranslationProductTra
    descriptionLong longTextWithHtml
    metaTitle string
    packUnit string
-   attributes attrbutes
+   attributes attributes
    primary_key(productId) foreignKey
    primary_key(languageId) foreignKey
    not_null(createdAt) createdAt

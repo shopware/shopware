@@ -1,9 +1,9 @@
-Attrbutes/EAV
+Attributes/EAV
 ---------------------------------------
 
 Attributes are part of almost every entity of the system. The term describes object attribute-values (see EAV). The configuration of these attributes is stored here.
 
-![Attrbutes/EAV](dist/erm-shopware-core-framework-attribute.svg)
+![Attributes/EAV](dist/erm-shopware-core-framework-attribute.svg)
 
 
 ### Table `attribute`

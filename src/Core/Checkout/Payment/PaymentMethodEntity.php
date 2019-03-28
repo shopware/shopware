@@ -24,7 +24,7 @@ class PaymentMethodEntity extends Entity
     /**
      * @var string
      */
-    protected $technicalName;
+    protected $handlerIdentifier;
 
     /**
      * @var string|null
@@ -35,31 +35,6 @@ class PaymentMethodEntity extends Entity
      * @var string|null
      */
     protected $description;
-
-    /**
-     * @var string|null
-     */
-    protected $template;
-
-    /**
-     * @var string|null
-     */
-    protected $class;
-
-    /**
-     * @var float|null
-     */
-    protected $percentageSurcharge;
-
-    /**
-     * @var float|null
-     */
-    protected $absoluteSurcharge;
-
-    /**
-     * @var string|null
-     */
-    protected $surchargeText;
 
     /**
      * @var int
@@ -146,14 +121,14 @@ class PaymentMethodEntity extends Entity
         $this->pluginId = $pluginId;
     }
 
-    public function getTechnicalName(): string
+    public function getHandlerIdentifier(): string
     {
-        return $this->technicalName;
+        return $this->handlerIdentifier;
     }
 
-    public function setTechnicalName(string $technicalName): void
+    public function setHandlerIdentifier(string $handlerIdentifier): void
     {
-        $this->technicalName = $technicalName;
+        $this->handlerIdentifier = $handlerIdentifier;
     }
 
     public function getName(): ?string
@@ -174,56 +149,6 @@ class PaymentMethodEntity extends Entity
     public function setDescription(?string $description): void
     {
         $this->description = $description;
-    }
-
-    public function getTemplate(): ?string
-    {
-        return $this->template;
-    }
-
-    public function setTemplate(?string $template): void
-    {
-        $this->template = $template;
-    }
-
-    public function getClass(): ?string
-    {
-        return $this->class;
-    }
-
-    public function setClass(?string $class): void
-    {
-        $this->class = $class;
-    }
-
-    public function getPercentageSurcharge(): ?float
-    {
-        return $this->percentageSurcharge;
-    }
-
-    public function setPercentageSurcharge(?float $percentageSurcharge): void
-    {
-        $this->percentageSurcharge = $percentageSurcharge;
-    }
-
-    public function getAbsoluteSurcharge(): ?float
-    {
-        return $this->absoluteSurcharge;
-    }
-
-    public function setAbsoluteSurcharge(?float $absoluteSurcharge): void
-    {
-        $this->absoluteSurcharge = $absoluteSurcharge;
-    }
-
-    public function getSurchargeText(): ?string
-    {
-        return $this->surchargeText;
-    }
-
-    public function setSurchargeText(?string $surchargeText): void
-    {
-        $this->surchargeText = $surchargeText;
     }
 
     public function getPosition(): int

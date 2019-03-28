@@ -2,15 +2,13 @@
 
 namespace Shopware\Core\Checkout\Payment\Cart\PaymentHandler;
 
-use Shopware\Core\Checkout\Payment\Cart\PaymentTransactionStruct;
+use Shopware\Core\Checkout\Payment\Cart\SyncPaymentTransactionStruct;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\System\StateMachine\StateMachineRegistry;
-use Symfony\Component\HttpFoundation\RedirectResponse;
-use Symfony\Component\HttpFoundation\Request;
 
-class CashPayment implements PaymentHandlerInterface
+class CashPayment implements SynchronousPaymentHandlerInterface
 {
     /**
      * @var EntityRepositoryInterface
@@ -28,7 +26,7 @@ class CashPayment implements PaymentHandlerInterface
         $this->stateMachineRegistry = $stateMachineRegistry;
     }
 
-    public function pay(PaymentTransactionStruct $transaction, Context $context): ?RedirectResponse
+    public function pay(SyncPaymentTransactionStruct $transaction, Context $context): void
     {
         $completeStateId = $this->stateMachineRegistry->getStateByTechnicalName(Defaults::ORDER_TRANSACTION_STATE_MACHINE, Defaults::ORDER_TRANSACTION_STATES_PAID, $context)->getId();
 
@@ -38,11 +36,5 @@ class CashPayment implements PaymentHandlerInterface
         ];
 
         $this->transactionRepository->update([$data], $context);
-
-        return null;
-    }
-
-    public function finalize(string $transactionId, Request $request, Context $context): void
-    {
     }
 }

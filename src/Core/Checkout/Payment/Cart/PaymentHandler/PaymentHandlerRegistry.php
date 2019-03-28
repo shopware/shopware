@@ -7,28 +7,51 @@ use Shopware\Core\Checkout\Payment\Exception\UnknownPaymentMethodException;
 class PaymentHandlerRegistry
 {
     /**
-     * @var PaymentHandlerInterface[]
+     * @var SynchronousPaymentHandlerInterface[]
      */
-    private $handlers = [];
+    private $syncHandlers = [];
 
-    public function __construct(iterable $handlers)
+    /**
+     * @var AsynchronousPaymentHandlerInterface[]
+     */
+    private $asyncHandlers = [];
+
+    public function __construct(iterable $syncHandlers, iterable $asyncHandlers)
     {
-        foreach ($handlers as $handler) {
-            $this->add($handler);
+        foreach ($syncHandlers as $key => $handler) {
+            $this->addSync($handler);
+        }
+
+        foreach ($asyncHandlers as $key => $handler) {
+            $this->addAsync($handler);
         }
     }
 
-    public function get(string $class): PaymentHandlerInterface
+    public function getSync(string $handlerIdentifier): SynchronousPaymentHandlerInterface
     {
-        if (!array_key_exists($class, $this->handlers)) {
-            throw new UnknownPaymentMethodException($class);
+        if (!array_key_exists($handlerIdentifier, $this->syncHandlers)) {
+            throw new UnknownPaymentMethodException($handlerIdentifier);
         }
 
-        return $this->handlers[$class];
+        return $this->syncHandlers[$handlerIdentifier];
     }
 
-    private function add(PaymentHandlerInterface $handler): void
+    public function getAsync(string $handlerIdentifier): AsynchronousPaymentHandlerInterface
     {
-        $this->handlers[\get_class($handler)] = $handler;
+        if (!array_key_exists($handlerIdentifier, $this->asyncHandlers)) {
+            throw new UnknownPaymentMethodException($handlerIdentifier);
+        }
+
+        return $this->asyncHandlers[$handlerIdentifier];
+    }
+
+    private function addSync(SynchronousPaymentHandlerInterface $handler): void
+    {
+        $this->syncHandlers[\get_class($handler)] = $handler;
+    }
+
+    private function addAsync(AsynchronousPaymentHandlerInterface $handler): void
+    {
+        $this->asyncHandlers[\get_class($handler)] = $handler;
     }
 }

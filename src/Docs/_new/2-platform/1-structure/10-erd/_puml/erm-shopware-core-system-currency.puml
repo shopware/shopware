@@ -38,7 +38,7 @@ Table(ShopwareCoreSystemCurrencyCurrencyDefinition, "currency\n(Currency)") {
 TranslationTable(ShopwareCoreSystemCurrencyAggregateCurrencyTranslationCurrencyTranslationDefinition, "currency_translation\n((Translations))") {
    not_null(shortName) string
    not_null(name) string
-   attributes attrbutes
+   attributes attributes
    primary_key(currencyId) foreignKey
    primary_key(languageId) foreignKey
    not_null(createdAt) createdAt

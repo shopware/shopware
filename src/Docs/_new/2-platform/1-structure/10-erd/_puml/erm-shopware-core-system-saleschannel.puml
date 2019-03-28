@@ -45,7 +45,7 @@ Table(ShopwareCoreSystemSalesChannelSalesChannelDefinition, "sales_channel\n(Sal
 }
 TranslationTable(ShopwareCoreSystemSalesChannelAggregateSalesChannelTranslationSalesChannelTranslationDefinition, "sales_channel_translation\n((Translations))") {
    not_null(name) string
-   attributes attrbutes
+   attributes attributes
    primary_key(salesChannelId) foreignKey
    primary_key(languageId) foreignKey
    not_null(createdAt) createdAt
@@ -72,7 +72,7 @@ Table(ShopwareCoreSystemSalesChannelAggregateSalesChannelDomainSalesChannelDomai
    not_null(snippetSetId) foreignKey
    not_null(createdAt) createdAt
    not_null(updatedAt) updatedAt
-   attributes attrbutes
+   attributes attributes
 }
 Table(ShopwareCoreSystemSalesChannelAggregateSalesChannelLanguageSalesChannelLanguageDefinition, "sales_channel_language\n(M:N Mapping)") {
    primary_key(salesChannelId) foreignKey
@@ -110,7 +110,7 @@ TranslationTable(ShopwareCoreSystemSalesChannelAggregateSalesChannelTypeTranslat
    manufacturer string
    description string
    descriptionLong longTextWithHtml
-   attributes attrbutes
+   attributes attributes
    primary_key(salesChannelTypeId) foreignKey
    primary_key(languageId) foreignKey
    not_null(createdAt) createdAt

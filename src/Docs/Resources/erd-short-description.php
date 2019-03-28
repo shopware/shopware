@@ -1,7 +1,7 @@
 <?php declare(strict_types=1);
 
 return [
-    'Shopware\\Core\\Framework\\Attribute' => 'Attrbutes/EAV',
+    'Shopware\\Core\\Framework\\Attribute' => 'Attributes/EAV',
     'Shopware\\Core\\Framework\\Event' => 'Business events',
     'Shopware\\Core\\Framework\\MessageQueue' => 'Asynchronous messaging',
     Shopware\Core\Framework\Plugin::class => 'Plugins',

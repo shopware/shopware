@@ -104,7 +104,7 @@ TranslationTable(ShopwareCoreFrameworkPluginAggregatePluginTranslationPluginTran
    manufacturerLink string
    supportLink string
    changelog json
-   attributes attrbutes
+   attributes attributes
    primary_key(pluginId) foreignKey
    primary_key(languageId) foreignKey
    not_null(createdAt) createdAt
@@ -148,7 +148,7 @@ Table(ShopwareCoreSystemSalesChannelSalesChannelDefinition, "sales_channel\n(Sal
 }
 TranslationTable(ShopwareCoreSystemSalesChannelAggregateSalesChannelTranslationSalesChannelTranslationDefinition, "sales_channel_translation\n((Translations))") {
    not_null(name) string
-   attributes attrbutes
+   attributes attributes
    primary_key(salesChannelId) foreignKey
    primary_key(languageId) foreignKey
    not_null(createdAt) createdAt
@@ -175,7 +175,7 @@ Table(ShopwareCoreSystemSalesChannelAggregateSalesChannelDomainSalesChannelDomai
    not_null(snippetSetId) foreignKey
    not_null(createdAt) createdAt
    not_null(updatedAt) updatedAt
-   attributes attrbutes
+   attributes attributes
 }
 Table(ShopwareCoreSystemSalesChannelAggregateSalesChannelLanguageSalesChannelLanguageDefinition, "sales_channel_language\n(M:N Mapping)") {
    primary_key(salesChannelId) foreignKey
@@ -213,7 +213,7 @@ TranslationTable(ShopwareCoreSystemSalesChannelAggregateSalesChannelTypeTranslat
    manufacturer string
    description string
    descriptionLong longTextWithHtml
-   attributes attrbutes
+   attributes attributes
    primary_key(salesChannelTypeId) foreignKey
    primary_key(languageId) foreignKey
    not_null(createdAt) createdAt
@@ -249,7 +249,7 @@ Table(ShopwareCoreSystemCountryAggregateCountryStateCountryStateDefinition, "cou
 }
 TranslationTable(ShopwareCoreSystemCountryAggregateCountryStateTranslationCountryStateTranslationDefinition, "country_state_translation\n((Translations))") {
    not_null(name) string
-   attributes attrbutes
+   attributes attributes
    primary_key(countryStateId) foreignKey
    primary_key(languageId) foreignKey
    not_null(createdAt) createdAt
@@ -257,7 +257,7 @@ TranslationTable(ShopwareCoreSystemCountryAggregateCountryStateTranslationCountr
 }
 TranslationTable(ShopwareCoreSystemCountryAggregateCountryTranslationCountryTranslationDefinition, "country_translation\n((Translations))") {
    not_null(name) string
-   attributes attrbutes
+   attributes attributes
    primary_key(countryId) foreignKey
    primary_key(languageId) foreignKey
    not_null(createdAt) createdAt
@@ -279,7 +279,7 @@ Table(ShopwareCoreSystemCurrencyCurrencyDefinition, "currency\n(Currency)") {
 TranslationTable(ShopwareCoreSystemCurrencyAggregateCurrencyTranslationCurrencyTranslationDefinition, "currency_translation\n((Translations))") {
    not_null(shortName) string
    not_null(name) string
-   attributes attrbutes
+   attributes attributes
    primary_key(currencyId) foreignKey
    primary_key(languageId) foreignKey
    not_null(createdAt) createdAt
@@ -297,7 +297,7 @@ Table(ShopwareCoreSystemLocaleLocaleDefinition, "locale\n(A locale)") {
 TranslationTable(ShopwareCoreSystemLocaleAggregateLocaleTranslationLocaleTranslationDefinition, "locale_translation\n((Translations))") {
    not_null(name) string
    not_null(territory) string
-   attributes attrbutes
+   attributes attributes
    primary_key(localeId) foreignKey
    primary_key(languageId) foreignKey
    not_null(createdAt) createdAt
@@ -308,7 +308,7 @@ Table(ShopwareCoreFrameworkSnippetAggregateSnippetSetSnippetSetDefinition, "snip
    not_null(name) string
    not_null(baseFile) string
    not_null(iso) string
-   attributes attrbutes
+   attributes attributes
    not_null(createdAt) createdAt
    not_null(updatedAt) updatedAt
 }
@@ -318,7 +318,7 @@ Table(ShopwareCoreFrameworkSnippetSnippetDefinition, "snippet\n(Translation Stri
    not_null(translationKey) string
    not_null(value) longText
    not_null(author) string
-   attributes attrbutes
+   attributes attributes
    not_null(createdAt) createdAt
    not_null(updatedAt) updatedAt
 }
@@ -340,7 +340,7 @@ Table(ShopwareCoreSystemTaxTaxDefinition, "tax\n(Available tax settings)") {
    primary_key(id) id
    not_null(taxRate) float
    not_null(name) string
-   attributes attrbutes
+   attributes attributes
    not_null(createdAt) createdAt
    not_null(updatedAt) updatedAt
 }
@@ -355,7 +355,7 @@ Table(ShopwareCoreSystemUnitUnitDefinition, "unit\n(Measuring unit)") {
 TranslationTable(ShopwareCoreSystemUnitAggregateUnitTranslationUnitTranslationDefinition, "unit_translation\n((Translations))") {
    not_null(shortCode) string
    not_null(name) string
-   attributes attrbutes
+   attributes attributes
    primary_key(unitId) foreignKey
    primary_key(languageId) foreignKey
    not_null(createdAt) createdAt
@@ -373,7 +373,7 @@ Table(ShopwareCoreSystemUserUserDefinition, "user\n(Administration/ Management A
    active bool
    failedLogins int
    lockedUntil date
-   attributes attrbutes
+   attributes attributes
    not_null(createdAt) createdAt
    not_null(updatedAt) updatedAt
 }
@@ -384,7 +384,7 @@ Table(ShopwareCoreSystemUserAggregateUserAccessKeyUserAccessKeyDefinition, "user
    not_null(secretAccessKey) password
    writeAccess bool
    lastUsageAt date
-   attributes attrbutes
+   attributes attributes
    not_null(createdAt) createdAt
 }
 Table(ShopwareCoreSystemUserAggregateUserRecoveryUserRecoveryDefinition, "user_recovery\n(User / Account recovery process)") {
@@ -399,7 +399,7 @@ Table(ShopwareCoreSystemLanguageLanguageDefinition, "language\n(Language)") {
    not_null(localeId) foreignKey
    translationCodeId foreignKey
    not_null(name) string
-   attributes attrbutes
+   attributes attributes
    not_null(createdAt) createdAt
    not_null(updatedAt) updatedAt
 }
@@ -410,7 +410,7 @@ Table(ShopwareCoreSystemIntegrationIntegrationDefinition, "integration\n(O-Auth 
    not_null(secretAccessKey) password
    writeAccess bool
    lastUsageAt date
-   attributes attrbutes
+   attributes attributes
    not_null(createdAt) createdAt
    not_null(updatedAt) updatedAt
 }
@@ -425,7 +425,7 @@ Table(ShopwareCoreSystemStateMachineStateMachineDefinition, "state_machine\n(Sta
 }
 TranslationTable(ShopwareCoreSystemStateMachineStateMachineTranslationDefinition, "state_machine_translation\n((Translations))") {
    not_null(name) string
-   attributes attrbutes
+   attributes attributes
    primary_key(stateMachineId) foreignKey
    primary_key(languageId) foreignKey
    not_null(createdAt) createdAt
@@ -442,7 +442,7 @@ Table(ShopwareCoreSystemStateMachineAggregationStateMachineStateStateMachineStat
 }
 TranslationTable(ShopwareCoreSystemStateMachineAggregationStateMachineStateStateMachineStateTranslationDefinition, "state_machine_state_translation\n((Translations))") {
    not_null(name) string
-   attributes attrbutes
+   attributes attributes
    primary_key(stateMachineStateId) foreignKey
    primary_key(languageId) foreignKey
    not_null(createdAt) createdAt
@@ -456,7 +456,7 @@ Table(ShopwareCoreSystemStateMachineAggregationStateMachineTransitionStateMachin
    not_null(toStateId) foreignKey
    not_null(createdAt) createdAt
    not_null(updatedAt) updatedAt
-   attributes attrbutes
+   attributes attributes
 }
 Table(ShopwareCoreSystemStateMachineAggregationStateMachineHistoryStateMachineHistoryDefinition, "state_machine_history\n(State transition history)") {
    primary_key(id) id
@@ -541,7 +541,7 @@ TranslationTable(ShopwareCoreContentCategoryAggregateCategoryTranslationCategory
    metaDescription longText
    cmsHeadline string
    cmsDescription longText
-   attributes attrbutes
+   attributes attributes
    primary_key(categoryId) foreignKey
    primary_key(languageId) foreignKey
    not_null(createdAt) createdAt
@@ -583,7 +583,7 @@ Table(ShopwareCoreContentMediaAggregateMediaDefaultFolderMediaDefaultFolderDefin
    not_null(entity) string
    not_null(createdAt) createdAt
    not_null(updatedAt) updatedAt
-   attributes attrbutes
+   attributes attributes
 }
 Table(ShopwareCoreContentMediaAggregateMediaThumbnailMediaThumbnailDefinition, "media_thumbnail\n(Generated Thumbnail)") {
    primary_key(id) id
@@ -593,12 +593,12 @@ Table(ShopwareCoreContentMediaAggregateMediaThumbnailMediaThumbnailDefinition, "
    not_null(width) int
    not_null(height) int
    url string
-   attributes attrbutes
+   attributes attributes
 }
 TranslationTable(ShopwareCoreContentMediaAggregateMediaTranslationMediaTranslationDefinition, "media_translation\n((Translations))") {
    title string
    alt longText
-   attributes attrbutes
+   attributes attributes
    primary_key(mediaId) foreignKey
    primary_key(languageId) foreignKey
    not_null(createdAt) createdAt
@@ -614,13 +614,13 @@ Table(ShopwareCoreContentMediaAggregateMediaFolderMediaFolderDefinition, "media_
    not_null(name) string
    not_null(createdAt) createdAt
    not_null(updatedAt) updatedAt
-   attributes attrbutes
+   attributes attributes
 }
 Table(ShopwareCoreContentMediaAggregateMediaThumbnailSizeMediaThumbnailSizeDefinition, "media_thumbnail_size\n(Generated Thumbnails)") {
    primary_key(id) id
    not_null(width) int
    not_null(height) int
-   attributes attrbutes
+   attributes attributes
    not_null(createdAt) createdAt
    not_null(updatedAt) updatedAt
 }
@@ -631,7 +631,7 @@ Table(ShopwareCoreContentMediaAggregateMediaFolderConfigurationMediaFolderConfig
    thumbnailQuality int
    not_null(createdAt) createdAt
    not_null(updatedAt) updatedAt
-   attributes attrbutes
+   attributes attributes
 }
 Table(ShopwareCoreContentMediaAggregateMediaFolderConfigurationMediaThumbnailSizeMediaFolderConfigurationMediaThumbnailSizeDefinition, "media_folder_configuration_media_thumbnail_size\n(M:N Mapping)") {
    primary_key(mediaFolderConfigurationId) foreignKey
@@ -725,7 +725,7 @@ Table(ShopwareCoreContentProductAggregateProductConfiguratorProductConfiguratorD
    prices priceRulesJson
    not_null(createdAt) createdAt
    not_null(updatedAt) updatedAt
-   attributes attrbutes
+   attributes attributes
 }
 Table(ShopwareCoreContentProductAggregateProductPriceRuleProductPriceRuleDefinition, "product_price_rule\n(Staggered pricing)") {
    primary_key(id) id
@@ -739,7 +739,7 @@ Table(ShopwareCoreContentProductAggregateProductPriceRuleProductPriceRuleDefinit
    quantityEnd int
    not_null(createdAt) createdAt
    not_null(updatedAt) updatedAt
-   attributes attrbutes
+   attributes attributes
 }
 Table(ShopwareCoreContentProductAggregateProductDatasheetProductDatasheetDefinition, "product_datasheet\n(M:N Mapping)") {
    primary_key(productId) foreignKey
@@ -766,7 +766,7 @@ TranslationTable(ShopwareCoreContentProductAggregateProductManufacturerTranslati
    metaTitle string
    metaDescription string
    metaKeywords string
-   attributes attrbutes
+   attributes attributes
    primary_key(productManufacturerId) foreignKey
    primary_key(languageId) foreignKey
    not_null(createdAt) createdAt
@@ -782,7 +782,7 @@ Table(ShopwareCoreContentProductAggregateProductMediaProductMediaDefinition, "pr
    position int
    not_null(createdAt) createdAt
    not_null(updatedAt) updatedAt
-   attributes attrbutes
+   attributes attributes
 }
 Table(ShopwareCoreFrameworkSearchSearchDocumentDefinition, "search_document\n(Composite search)") {
    primary_key(id) id
@@ -791,7 +791,7 @@ Table(ShopwareCoreFrameworkSearchSearchDocumentDefinition, "search_document\n(Co
    not_null(entity) string
    not_null(keyword) string
    not_null(ranking) float
-   attributes attrbutes
+   attributes attributes
 }
 TranslationTable(ShopwareCoreContentProductAggregateProductTranslationProductTranslationDefinition, "product_translation\n((Translations))") {
    additionalText string
@@ -801,7 +801,7 @@ TranslationTable(ShopwareCoreContentProductAggregateProductTranslationProductTra
    descriptionLong longTextWithHtml
    metaTitle string
    packUnit string
-   attributes attrbutes
+   attributes attributes
    primary_key(productId) foreignKey
    primary_key(languageId) foreignKey
    not_null(createdAt) createdAt
@@ -860,7 +860,7 @@ Table(ShopwareCoreContentRuleRuleDefinition, "rule\n(Rule)") {
    description longText
    payload blob
    invalid bool
-   attributes attrbutes
+   attributes attributes
    not_null(createdAt) createdAt
    not_null(updatedAt) updatedAt
    moduleTypes json
@@ -872,7 +872,7 @@ Table(ShopwareCoreContentRuleAggregateRuleConditionRuleConditionDefinition, "rul
    parentId parentFk
    value json
    position int
-   attributes attrbutes
+   attributes attributes
 }
 Table(ShopwareCoreContentProductStreamProductStreamDefinition, "product_stream\n(Product streams)") {
    primary_key(id) id
@@ -887,7 +887,7 @@ Table(ShopwareCoreContentProductStreamProductStreamDefinition, "product_stream\n
 TranslationTable(ShopwareCoreContentProductStreamAggregateProductStreamTranslationProductStreamTranslationDefinition, "product_stream_translation\n((Translations))") {
    name string
    description longText
-   attributes attrbutes
+   attributes attributes
    primary_key(productStreamId) foreignKey
    primary_key(languageId) foreignKey
    not_null(createdAt) createdAt
@@ -905,7 +905,7 @@ Table(ShopwareCoreContentProductStreamAggregateProductStreamFilterProductStreamF
    position int
    not_null(createdAt) createdAt
    not_null(updatedAt) updatedAt
-   attributes attrbutes
+   attributes attributes
 }
 Table(ShopwareCoreContentConfigurationConfigurationGroupDefinition, "configuration_group\n(Product variant configuration)") {
    primary_key(id) id
@@ -934,7 +934,7 @@ Table(ShopwareCoreContentConfigurationAggregateConfigurationGroupOptionConfigura
 TranslationTable(ShopwareCoreContentConfigurationAggregateConfigurationGroupOptionTranslationConfigurationGroupOptionTranslationDefinition, "configuration_group_option_translation\n((Translations))") {
    not_null(name) string
    position int
-   attributes attrbutes
+   attributes attributes
    primary_key(configurationGroupOptionId) foreignKey
    primary_key(languageId) foreignKey
    not_null(createdAt) createdAt
@@ -943,7 +943,7 @@ TranslationTable(ShopwareCoreContentConfigurationAggregateConfigurationGroupOpti
 TranslationTable(ShopwareCoreContentConfigurationAggregateConfigurationGroupTranslationConfigurationGroupTranslationDefinition, "configuration_group_translation\n((Translations))") {
    not_null(name) string
    description longText
-   attributes attrbutes
+   attributes attributes
    primary_key(configurationGroupId) foreignKey
    primary_key(languageId) foreignKey
    not_null(createdAt) createdAt
@@ -982,13 +982,13 @@ Table(ShopwareCoreCheckoutCustomerCustomerDefinition, "customer\n(The sales chan
    failedLogins int
    lockedUntil date
    birthday date
-   attributes attrbutes
+   attributes attributes
    not_null(createdAt) createdAt
    not_null(updatedAt) updatedAt
 }
 TranslationTable(ShopwareCoreCheckoutCustomerAggregateCustomerGroupTranslationCustomerGroupTranslationDefinition, "customer_group_translation\n((Translations))") {
    not_null(name) string
-   attributes attrbutes
+   attributes attributes
    primary_key(customerGroupId) foreignKey
    primary_key(languageId) foreignKey
    not_null(createdAt) createdAt
@@ -1012,7 +1012,7 @@ Table(ShopwareCoreCheckoutCustomerAggregateCustomerAddressCustomerAddressDefinit
    phoneNumber string
    additionalAddressLine1 string
    additionalAddressLine2 string
-   attributes attrbutes
+   attributes attributes
    not_null(createdAt) createdAt
    not_null(updatedAt) updatedAt
 }
@@ -1034,7 +1034,7 @@ Table(ShopwareCoreCheckoutCustomerAggregateCustomerGroupDiscountCustomerGroupDis
    not_null(customerGroupId) foreignKey
    not_null(percentageDiscount) float
    not_null(minimumCartAmount) float
-   attributes attrbutes
+   attributes attributes
    not_null(createdAt) createdAt
    not_null(updatedAt) updatedAt
 }
@@ -1066,7 +1066,7 @@ Table(ShopwareCoreCheckoutOrderOrderDefinition, "order\n(Order root table)") {
    not_null(currencyFactor) float
    deepLinkCode string
    not_null(stateId) foreignKey
-   attributes attrbutes
+   attributes attributes
    not_null(createdAt) createdAt
    not_null(updatedAt) updatedAt
 }
@@ -1090,7 +1090,7 @@ Table(ShopwareCoreCheckoutOrderAggregateOrderAddressOrderAddressDefinition, "ord
    phoneNumber string
    additionalAddressLine1 string
    additionalAddressLine2 string
-   attributes attrbutes
+   attributes attributes
    not_null(createdAt) createdAt
    not_null(updatedAt) updatedAt
 }
@@ -1104,7 +1104,7 @@ Table(ShopwareCoreCheckoutOrderAggregateOrderCustomerOrderCustomerDefinition, "o
    not_null(lastName) string
    title string
    customerNumber string
-   attributes attrbutes
+   attributes attributes
    not_null(createdAt) createdAt
    not_null(updatedAt) updatedAt
 }
@@ -1121,7 +1121,7 @@ Table(ShopwareCoreCheckoutOrderAggregateOrderDeliveryOrderDeliveryDefinition, "o
    not_null(shippingDateEarliest) date
    not_null(shippingDateLatest) date
    shippingCosts calculatedPrice
-   attributes attrbutes
+   attributes attributes
    not_null(createdAt) createdAt
    not_null(updatedAt) updatedAt
 }
@@ -1136,7 +1136,7 @@ Table(ShopwareCoreCheckoutOrderAggregateOrderDeliveryPositionOrderDeliveryPositi
    unitPrice float
    totalPrice float
    quantity int
-   attributes attrbutes
+   attributes attributes
    not_null(createdAt) createdAt
    not_null(updatedAt) updatedAt
 }
@@ -1161,7 +1161,7 @@ Table(ShopwareCoreCheckoutOrderAggregateOrderLineItemOrderLineItemDefinition, "o
    totalPrice float
    description string
    type string
-   attributes attrbutes
+   attributes attributes
    not_null(createdAt) createdAt
    not_null(updatedAt) updatedAt
 }
@@ -1180,7 +1180,7 @@ Table(ShopwareCoreCheckoutOrderAggregateOrderTransactionOrderTransactionDefiniti
    not_null(paymentMethodId) foreignKey
    not_null(amount) calculatedPrice
    not_null(stateId) foreignKey
-   attributes attrbutes
+   attributes attributes
    not_null(createdAt) createdAt
    not_null(updatedAt) updatedAt
 }
@@ -1205,7 +1205,7 @@ TranslationTable(ShopwareCoreCheckoutPaymentAggregatePaymentMethodTranslationPay
    not_null(name) string
    description longText
    surchargeText longText
-   attributes attrbutes
+   attributes attributes
    primary_key(paymentMethodId) foreignKey
    primary_key(languageId) foreignKey
    not_null(createdAt) createdAt
@@ -1232,7 +1232,7 @@ Table(ShopwareCoreCheckoutShippingAggregateShippingMethodPriceShippingMethodPric
    not_null(quantityFrom) float
    not_null(price) float
    not_null(factor) float
-   attributes attrbutes
+   attributes attributes
    not_null(createdAt) createdAt
    not_null(updatedAt) updatedAt
 }
@@ -1240,7 +1240,7 @@ TranslationTable(ShopwareCoreCheckoutShippingAggregateShippingMethodTranslationS
    not_null(name) string
    description longText
    comment string
-   attributes attrbutes
+   attributes attributes
    primary_key(shippingMethodId) foreignKey
    primary_key(languageId) foreignKey
    not_null(createdAt) createdAt
@@ -1258,7 +1258,7 @@ Table(ShopwareCoreCheckoutDiscountSurchargeDiscountSurchargeDefinition, "discoun
 }
 TranslationTable(ShopwareCoreCheckoutDiscountSurchargeAggregateDiscountSurchargeTranslationDiscountSurchargeTranslationDefinition, "discount_surcharge_translation\n((Translations))") {
    not_null(name) string
-   attributes attrbutes
+   attributes attributes
    primary_key(discountSurchargeId) foreignKey
    primary_key(languageId) foreignKey
    not_null(createdAt) createdAt
@@ -1273,7 +1273,7 @@ Table(ShopwareStorefrontFrameworkSeoSeoUrlDefinition, "seo_url\n(SEO urls)") {
    not_null(seoPathInfo) string
    isCanonical bool
    isModified bool
-   attributes attrbutes
+   attributes attributes
    not_null(createdAt) createdAt
    not_null(updatedAt) updatedAt
    url string

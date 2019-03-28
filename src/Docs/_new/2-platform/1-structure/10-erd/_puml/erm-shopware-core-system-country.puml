@@ -52,7 +52,7 @@ Table(ShopwareCoreSystemCountryAggregateCountryStateCountryStateDefinition, "cou
 }
 TranslationTable(ShopwareCoreSystemCountryAggregateCountryStateTranslationCountryStateTranslationDefinition, "country_state_translation\n((Translations))") {
    not_null(name) string
-   attributes attrbutes
+   attributes attributes
    primary_key(countryStateId) foreignKey
    primary_key(languageId) foreignKey
    not_null(createdAt) createdAt
@@ -60,7 +60,7 @@ TranslationTable(ShopwareCoreSystemCountryAggregateCountryStateTranslationCountr
 }
 TranslationTable(ShopwareCoreSystemCountryAggregateCountryTranslationCountryTranslationDefinition, "country_translation\n((Translations))") {
    not_null(name) string
-   attributes attrbutes
+   attributes attributes
    primary_key(countryId) foreignKey
    primary_key(languageId) foreignKey
    not_null(createdAt) createdAt

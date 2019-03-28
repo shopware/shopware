@@ -20,9 +20,6 @@ use SwagPayPal\Core\Checkout\Payment\Cart\PaymentHandler\PayPalPayment;
 
 class SwagPayPal extends Plugin
 {
-    public const PAYPAL_PAYMENT_METHOD_ID = 'b8759d49b8a244ab8283f4a53f3e81fd';
-    public const PAYPAL_PAYMENT_METHOD_NAME = 'SwagPayPal';
-
     public function install(InstallContext $context): void
     {
         $this->addPaymentMethod($context->getContext());
@@ -35,15 +32,13 @@ class SwagPayPal extends Plugin
         $pluginId = $pluginIdProvider->getPluginIdByTechnicalName($this->getName(), $context);
 
         $paypal = [
-            'id' => self::PAYPAL_PAYMENT_METHOD_ID,
-            'technicalName' => self::PAYPAL_PAYMENT_METHOD_NAME,
+            'handlerIdentifier' => PayPalPayment::class,
             'name' => 'PayPal',
-            'additionalDescription' => 'Bezahlung per PayPal - einfach, schnell und sicher.',
-            'class' => PayPalPayment::class,
+            'description' => 'Bezahlung per PayPal - einfach, schnell und sicher.',
             'pluginId' => $pluginId,
         ];
 
-        /** @var RepositoryInterface $paymentRepository */
+        /** @var EntityRepositoryInterface $paymentRepository */
         $paymentRepository = $this->container->get('payment_method.repository');
         $paymentRepository->upsert([$paypal], $context);
     }

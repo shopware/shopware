@@ -95,11 +95,11 @@
                                                 </sw-grid-column>
                                             {% endblock %}
 
-                                            {% block sw_settings_payment_list_columns_additional_description %}
+                                            {% block sw_settings_payment_list_columns_description %}
                                                 <sw-grid-column flex="minmax(120px, 1fr)"
                                                                 :label="$tc('sw-settings-payment.list.columnDescription')">
-                                                    {% block sw_settings_payment_list_columns_short_tax_rate_label %}
-                                                        {{ item.additionalDescription | striphtml | truncate(25) }}
+                                                    {% block sw_settings_payment_list_columns_description_label %}
+                                                        {{ item.description | striphtml | truncate(25) }}
                                                     {% endblock %}
                                                 </sw-grid-column>
                                             {% endblock %}
@@ -117,7 +117,10 @@
                                                         {% endblock %}
 
                                                         {% block sw_settings_payment_list_columns_actions_delete %}
-                                                            <sw-context-menu-item variant="danger" @click="onDelete(item.id)">
+                                                            <sw-context-menu-item variant="danger"
+                                                                                  @click="onDelete(item.id)"
+                                                                                  :disabled="!!item.pluginId"
+                                                                                  :title="!!item.pluginId ? $tc('sw-settings-payment.list.pluginDeleteTitleText') : ''">
                                                                 {{ $tc('sw-settings-payment.list.buttonDelete') }}
                                                             </sw-context-menu-item>
                                                         {% endblock %}

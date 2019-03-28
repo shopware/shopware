@@ -49,7 +49,7 @@ Table(ShopwareCoreContentConfigurationAggregateConfigurationGroupOptionConfigura
 TranslationTable(ShopwareCoreContentConfigurationAggregateConfigurationGroupOptionTranslationConfigurationGroupOptionTranslationDefinition, "configuration_group_option_translation\n((Translations))") {
    not_null(name) string
    position int
-   attributes attrbutes
+   attributes attributes
    primary_key(configurationGroupOptionId) foreignKey
    primary_key(languageId) foreignKey
    not_null(createdAt) createdAt
@@ -58,7 +58,7 @@ TranslationTable(ShopwareCoreContentConfigurationAggregateConfigurationGroupOpti
 TranslationTable(ShopwareCoreContentConfigurationAggregateConfigurationGroupTranslationConfigurationGroupTranslationDefinition, "configuration_group_translation\n((Translations))") {
    not_null(name) string
    description longText
-   attributes attrbutes
+   attributes attributes
    primary_key(configurationGroupId) foreignKey
    primary_key(languageId) foreignKey
    not_null(createdAt) createdAt

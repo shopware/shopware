@@ -73,24 +73,28 @@ class PaymentTransactionChainProcessor
         $transactions = $transactions->filterByState(Defaults::ORDER_TRANSACTION_STATES_OPEN);
 
         foreach ($transactions as $transaction) {
-            $token = $this->tokenFactory->generateToken($transaction, $context, $finishUrl);
-            $returnUrl = $this->assembleReturnUrl($token);
-
-            $paymentTransaction = new PaymentTransactionStruct($transaction, $returnUrl);
-
             $paymentMethod = $transaction->getPaymentMethod();
             if ($paymentMethod === null) {
                 throw new UnknownPaymentMethodException($transaction->getPaymentMethodId());
             }
 
-            $response = $this->paymentHandlerRegistry->get($paymentMethod->getClass())->pay(
-                $paymentTransaction,
-                $context
-            );
+            try {
+                $paymentHandler = $this->paymentHandlerRegistry->getSync($paymentMethod->getHandlerIdentifier());
+                $paymentTransaction = new SyncPaymentTransactionStruct($transaction);
+                $paymentHandler->pay($paymentTransaction, $context);
 
-            if ($response) {
-                return $response;
+                return null;
+            } catch (UnknownPaymentMethodException $e) {
+                // intentionally empty, try to get an async payment handler instead
             }
+
+            $token = $this->tokenFactory->generateToken($transaction, $context, $finishUrl);
+            $returnUrl = $this->assembleReturnUrl($token);
+            $paymentTransaction = new AsyncPaymentTransactionStruct($transaction, $returnUrl);
+
+            $paymentHandler = $this->paymentHandlerRegistry->getAsync($paymentMethod->getHandlerIdentifier());
+
+            return $paymentHandler->pay($paymentTransaction, $context);
         }
 
         return null;

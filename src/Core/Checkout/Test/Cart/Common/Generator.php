@@ -21,6 +21,7 @@ use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupEntity;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
+use Shopware\Core\Checkout\Test\Payment\Handler\SyncTestPaymentHandler;
 use Shopware\Core\Content\Product\Cart\ProductGateway;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -103,7 +104,13 @@ class Generator extends TestCase
         }
 
         if (!$paymentMethod) {
-            $paymentMethod = (new PaymentMethodEntity())->assign(['id' => '19d144ffe15f4772860d59fca7f207c1', 'technicalName' => Uuid::uuid4()->getHex()]);
+            $paymentMethod = (new PaymentMethodEntity())->assign(
+                [
+                    'id' => '19d144ffe15f4772860d59fca7f207c1',
+                    'handlerIdentifier' => SyncTestPaymentHandler::class,
+                    'name' => 'Generated Payment',
+                ]
+            );
         }
 
         $shippingMethod = new ShippingMethodEntity();
@@ -133,23 +140,17 @@ class Generator extends TestCase
 
     public static function createGrossPriceDetector(): TaxDetector
     {
-        $self = new self();
-
-        return $self->createTaxDetector(true, false);
+        return (new self())->createTaxDetector(true, false);
     }
 
     public static function createNetPriceDetector(): TaxDetector
     {
-        $self = new self();
-
-        return $self->createTaxDetector(false, false);
+        return (new self())->createTaxDetector(false, false);
     }
 
     public static function createNetDeliveryDetector(): TaxDetector
     {
-        $self = new self();
-
-        return $self->createTaxDetector(false, true);
+        return (new self())->createTaxDetector(false, true);
     }
 
     /**

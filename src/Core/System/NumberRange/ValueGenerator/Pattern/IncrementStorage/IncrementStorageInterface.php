@@ -9,10 +9,10 @@ interface IncrementStorageInterface
     /**
      * fetch last used increment and reserves next
      */
-    public function pullState(NumberRangeEntity $configuration, int $incrementBy = 1): string;
+    public function pullState(NumberRangeEntity $configuration): string;
 
     /**
      * fetch next number without increment. Use to preview next Value
      */
-    public function getNext(NumberRangeEntity $configuration, int $incrementBy = 1): string;
+    public function getNext(NumberRangeEntity $configuration): string;
 }

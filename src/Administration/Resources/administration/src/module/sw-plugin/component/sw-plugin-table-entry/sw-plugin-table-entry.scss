@@ -17,12 +17,16 @@
         white-space: initial;
         font-size: $font-size-small;
         font-weight: 600;
-        line-height: 17px;
+
+        .sw-plugin-table-entry__title {
+            line-height: 17px;
+        }
 
         .sw-plugin-table-entry__subtitle {
             color: $color-gray;
             font-size: 12px;
             font-weight: initial;
+            line-height: 17px;
         }
     }
 

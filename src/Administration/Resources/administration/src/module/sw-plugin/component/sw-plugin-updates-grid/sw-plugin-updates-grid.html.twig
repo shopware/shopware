@@ -6,7 +6,7 @@
                     <h1>{{ $tc('sw-plugin.updates.updateHeader') }}</h1>
                 {% endblock %}
                 {% block sw_plugin_updates_grid_top_actions_update_all %}
-                    <sw-button v-if="updateQueue.length === 0" variant="ghost" @click="updateAll()">
+                    <sw-button v-if="total && updateQueue.length === 0" variant="ghost" @click="updateAll()">
                         {{ $tc('sw-plugin.updates.updateAllButton') }}
                     </sw-button>
                 {% endblock %}
@@ -33,9 +33,7 @@
                                     {% block sw_plugin_updates_list_grid_columns_name %}
                                         <sw-grid-column flex="minmax(220px, 220px)"
                                                         :label="$tc('sw-plugin.list.columnPlugin')"
-                                                        dataIndex="name"
-                                                        truncate
-                                                        sortable>
+                                                        dataIndex="name">
                                             {% block sw_plugin_updates_list_grid_columns_name_label %}
                                                 <sw-plugin-table-entry :iconPath="item.iconPath" :title="item.name"
                                                                        :subtitle="item.releaseDate | date">
@@ -47,9 +45,7 @@
                                     {% block sw_plugin_updates_list_grid_columns_changelog %}
                                         <sw-grid-column flex="minmax(100px, 1fr)"
                                                         :label="$tc('sw-plugin.list.columnChangelog')"
-                                                        dataIndex="changelog"
-                                                        truncate
-                                                        sortable>
+                                                        dataIndex="changelog">
                                             {% block sw_plugin_updates_list_grid_columns_changelog_label %}
                                                 <p>{{ item.changelog | striphtml }}</p>
                                             {% endblock %}

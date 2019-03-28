@@ -134,6 +134,7 @@ Component.register('sw-plugin-list', {
                     message: this.$tc('sw-plugin.list.messageDeleteSuccess')
                 });
                 this.getList();
+                this.$root.$emit('sw-plugin-refresh-updates');
             });
         },
 

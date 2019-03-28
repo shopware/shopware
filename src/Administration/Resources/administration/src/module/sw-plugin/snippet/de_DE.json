@@ -46,6 +46,7 @@
       "titleLoginMessage":"Login erfolgreich",
       "labelShopwareId":"Shopware ID",
       "labelShopwareIdHelp":"Wo finde ich meine Shopware ID?",
+      "linkShopwareIdHelp": "https://docs.shopware.com/de/shopware-5-de/erste-schritte/shopware-account#was-ist-eine-shopware-id",
       "labelPassword":"Passwort",
       "buttonLogin":"Anmelden",
       "buttonCancel":"Abbrechen",

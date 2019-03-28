@@ -229,10 +229,16 @@ class CustomerGenerator implements DemodataGeneratorInterface
         return $salutationIds[array_rand($salutationIds)];
     }
 
-    private function getDefaultPaymentMethod(): string
+    private function getDefaultPaymentMethod(): ?string
     {
-        return $$this->connection->executeQuery(
+        $id = $this->connection->executeQuery(
             'SELECT `id` FROM `payment_method` WHERE `active` = 1 ORDER BY `position` ASC'
         )->fetchColumn();
+
+        if (!$id) {
+            return null;
+        }
+
+        return Uuid::fromBytesToHex($id);
     }
 }

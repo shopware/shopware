@@ -2,15 +2,24 @@
 
 .sw-plugin-store-login-status {
 
-    .sw-plugin-store-login-status__name {
+    .sw-plugin-store-login-status__shopware-id {
         font-weight: 600;
         font-size: $font-size-small;
         text-overflow: ellipsis;
         white-space: nowrap;
     }
 
-    .sw-plugin-store-login-status__email {
+    .sw-plugin-store-login-status__text {
         font-size: $font-size-small;
+    }
+
+    .sw-plugin-store-login-status__login {
+        font-weight: 600;
+        font-size: $font-size-small;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        cursor: pointer;
+        margin: auto;
     }
     
     .sw-plugin-store-login-status__title {

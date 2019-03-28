@@ -10,7 +10,8 @@
       "tabLicenses":"Licenses",
       "tabUpdates":"Updates",
       "version":"Version",
-      "accountLink":"Go to account",
+      "accountLink":"https://account.shopware.com/?lang=en",
+      "accountLabel":"Go to account",
       "login":"Login",
       "logout":"Logout",
       "messageDownloadSuccess":"The plugin was downloaded successfully",
@@ -18,7 +19,8 @@
       "downloadButton":"Download",
       "storeLink": "https://store.shopware.com/en",
       "storeLabel": "Shopware Store",
-      "storeNotAvailable": "Could not connect to the Shopware Store"
+      "storeNotAvailable": "Could not connect to the Shopware Store",
+      "loggedIn": "Logged in as"
     },
     "errors": {
       "titleGenericFailure": "Unknown error occured",
@@ -28,7 +30,9 @@
       "messageUploadFailureUnzipFailed": "The zip file could not be extracted.",
       "messageUploadFailureNoPluginFoundInZipFile": "No plugin found in the uploaded zip file",
       "titleLoginDataInvalid": "Logindaten unvollständig",
-      "messageLoginDataInvalid": "Logindaten wurden nicht vollständig angegeben"
+      "messageLoginDataInvalid": "Logindaten wurden nicht vollständig angegeben",
+      "titleStoreHostMissing": "Login failed",
+      "messageStoreHostMissing": "To be able to log in, you must first set your licensing host in the settings"
     },
     "fileUpload":{
       "buttonFileUpload":"Upload plugin"

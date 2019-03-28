@@ -11,21 +11,26 @@
                     <div class="sw-plugin-store-login-status__box-content">
                         <sw-avatar size="36px" color="#E3F3FF" placeholder></sw-avatar>
                         <div class="sw-plugin-store-login-status__account-info">
-                            <span class="sw-plugin-store-login-status__name">Placeholder</span>
-                            <span class="sw-plugin-store-login-status__email">placeholder@test.com</span>
+                            <template v-if="shopwareId">
+                                <span class="sw-plugin-store-login-status__text">{{ $tc('sw-plugin.general.loggedIn') }}</span>
+                                <span class="sw-plugin-store-login-status__shopware-id">{{ shopwareId }}</span>
+                            </template>
+                            <template v-else>
+                                <p @click="login()" class="sw-plugin-store-login-status__login">Anmelden</p>
+                            </template>
                         </div>
                     </div>
                 {% endblock %}
                 {% block sw_plugin_store_login_status_box_actions %}
                     <sw-context-button class="sw-plugin-store-login-status__context-button" icon="default-action-more-vertical" :menuOffsetLeft="17">
                         {% block sw_plugin_store_login_status_box_actions_to_account %}
-                            <sw-context-menu-item>
-                                <a class="account-link" href="https://account.shopware.com" target="_blank">{{ $tc('sw-plugin.general.accountLink') }}</a>
+                            <sw-context-menu-item @click="openAccount()">
+                                {{ $tc('sw-plugin.general.accountLabel') }}
                             </sw-context-menu-item>
                         {% endblock %}
 
                         {% block sw_plugin_store_login_status_box_actions_logout %}
-                            <sw-context-menu-item @click="logout()">
+                            <sw-context-menu-item v-if="shopwareId" @click="logout()">
                                 {{ $tc('sw-plugin.general.logout') }}
                             </sw-context-menu-item>
                         {% endblock %}
@@ -33,5 +38,13 @@
                 {% endblock %}
             </div>
         {% endblock %}
+
+        {% block sw_plugin_store_login_status_login_modal %}
+        <sw-plugin-store-login v-if="showLoginModal"
+                               @sw-plugin-store-login-abort="loginAbort"
+                               @sw-plugin-store-login-success="loginSuccess">
+        </sw-plugin-store-login>
+        {% endblock %}
+
     </div>
 {% endblock %}

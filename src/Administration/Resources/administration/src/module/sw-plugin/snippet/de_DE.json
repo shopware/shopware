@@ -10,7 +10,8 @@
       "tabLicenses":"Einkäufe",
       "tabUpdates":"Updates",
       "version":"Version",
-      "accountLink":"Zum Account",
+      "accountLink":"https://account.shopware.com/?lang=de",
+      "accountLabel":"Zum Account",
       "login":"Anmelden",
       "logout":"Abmelden",
       "messageDownloadSuccess":"Das Plugin wurde erfolgreich heruntergeladen",
@@ -18,7 +19,8 @@
       "downloadButton":"Laden",
       "storeLink": "https://store.shopware.com/",
       "storeLabel": "Shopware Store",
-      "storeNotAvailable": "Es konnte keine Verbindung zum Shopware Store hergestellt werden"
+      "storeNotAvailable": "Es konnte keine Verbindung zum Shopware Store hergestellt werden",
+      "loggedIn": "Angemeldet als"
     },
     "errors": {
       "titleGenericFailure": "Unbekannter Fehler aufgetreten",
@@ -28,7 +30,9 @@
       "messageUploadFailureUnzipFailed": "Die Zip-Datei konnt nicht entpackt werden",
       "messageUploadFailureNoPluginFoundInZipFile": "In der hochgeladenen Zip-Datei wurde kein Plugin gefunden",
       "titleLoginDataInvalid": "Logindaten unvollständig",
-      "messageLoginDataInvalid": "Logindaten wurden nicht vollständig angegeben"
+      "messageLoginDataInvalid": "Logindaten wurden nicht vollständig angegeben",
+      "titleStoreHostMissing": "Anmelden fehlgeschlagen",
+      "messageStoreHostMissing": "Um dich anmelden zu können, musst du zuvor deinen Lizenzierungshost in den Einstellungen setzen"
     },
     "fileUpload":{
       "buttonFileUpload":"Plugin hochladen",

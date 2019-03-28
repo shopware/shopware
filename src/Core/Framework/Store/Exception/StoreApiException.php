@@ -40,7 +40,7 @@ class StoreApiException extends ShopwareHttpException
     public function getErrors(bool $withTrace = false): \Generator
     {
         $error = [
-            'code' => $this->code,
+            'code' => $this->getErrorCode(),
             'status' => (string) $this->getStatusCode(),
             'title' => $this->title,
             'detail' => $this->getMessage(),

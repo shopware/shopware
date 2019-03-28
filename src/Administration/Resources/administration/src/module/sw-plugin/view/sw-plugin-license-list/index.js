@@ -59,7 +59,7 @@ Component.register('sw-plugin-license-list', {
                 this.isLoggedIn = false;
                 if (exception.response && exception.response.data && exception.response.data.errors) {
                     const unauthorized = exception.response.data.errors.find((error) => {
-                        return parseInt(error.code, 10) === 401 || error.code === 'STORE-TOKEN-MISSING';
+                        return parseInt(error.code, 10) === 401 || error.code === 'FRAMEWORK__STORE_TOKEN_IS_MISSING';
                     });
                     if (unauthorized) {
                         this.openLoginModal();
@@ -75,6 +75,7 @@ Component.register('sw-plugin-license-list', {
         loginSuccess() {
             this.showLoginModal = false;
             this.getList();
+            this.$root.$emit('sw-plugin-login');
         },
 
         loginAbort() {

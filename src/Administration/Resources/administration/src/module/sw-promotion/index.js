@@ -1,4 +1,5 @@
 import { Module } from 'src/core/shopware';
+import { NEXT700 } from 'src/flag/feature_next700';
 
 import deDE from './snippet/de_DE.json';
 import enGB from './snippet/en_GB.json';
@@ -20,6 +21,7 @@ import './page/sw-promotion-detail';
 import './page/sw-promotion-list';
 
 Module.register('sw-promotion', {
+    flag: NEXT700,
     type: 'core',
     name: 'Promotion',
     description: 'sw-promotion.general.descriptionModule',

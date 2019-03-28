@@ -16,7 +16,7 @@ class PluginManagementService
     /**
      * @var string
      */
-    private $pluginPath;
+    private $projectDir;
 
     /**
      * @var PluginZipDetector
@@ -39,13 +39,13 @@ class PluginManagementService
     private $filesystem;
 
     public function __construct(
-        string $pluginPath,
+        string $projectDir,
         PluginZipDetector $pluginZipDetector,
         PluginExtractor $pluginExtractor,
         PluginService $pluginService,
         Filesystem $filesystem
     ) {
-        $this->pluginPath = $pluginPath;
+        $this->projectDir = $projectDir;
         $this->pluginZipDetector = $pluginZipDetector;
         $this->pluginExtractor = $pluginExtractor;
         $this->pluginService = $pluginService;
@@ -93,7 +93,7 @@ class PluginManagementService
 
     public function deletePlugin(PluginEntity $plugin): void
     {
-        $path = $this->pluginPath . DIRECTORY_SEPARATOR . $plugin->getName();
+        $path = $this->projectDir . $plugin->getPath();
         $this->filesystem->remove($path);
     }
 }

@@ -91,7 +91,9 @@
       "titleDeleteSuccess":"Plugin deleted",
       "messageDeleteSuccess":"The plugin was successfully deleted",
       "titleUpdateSuccess":"Plugin updated",
-      "messageUpdateSuccess":"The plugin was successfully updated"
+      "messageUpdateSuccess":"The plugin was successfully updated",
+      "deactivated": "Deactivated",
+      "activated": "Activated"
     },
     "license-list":{
       "textMyPurchases":"Purchases",

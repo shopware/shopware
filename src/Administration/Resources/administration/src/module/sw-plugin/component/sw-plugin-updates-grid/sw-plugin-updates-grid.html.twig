@@ -35,7 +35,7 @@
                                                         :label="$tc('sw-plugin.list.columnPlugin')"
                                                         dataIndex="name">
                                             {% block sw_plugin_updates_list_grid_columns_name_label %}
-                                                <sw-plugin-table-entry :iconPath="item.iconPath" :title="item.name"
+                                                <sw-plugin-table-entry :iconPath="item.iconPath" :title="item.label"
                                                                        :subtitle="item.releaseDate | date">
                                                 </sw-plugin-table-entry>
                                             {% endblock %}

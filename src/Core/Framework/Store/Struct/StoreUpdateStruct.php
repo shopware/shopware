@@ -4,12 +4,17 @@ namespace Shopware\Core\Framework\Store\Struct;
 
 use Shopware\Core\Framework\Struct\Struct;
 
-class StoreUpdatesStruct extends Struct
+class StoreUpdateStruct extends Struct
 {
     /**
      * @var string
      */
     protected $name;
+
+    /**
+     * @var string
+     */
+    protected $label;
 
     /**
      * @var string

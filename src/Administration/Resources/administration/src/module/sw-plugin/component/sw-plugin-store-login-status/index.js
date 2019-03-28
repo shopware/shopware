@@ -64,6 +64,7 @@ Component.register('sw-plugin-store-login-status', {
             this.storeService.logout().then(() => {
                 this.shopwareId = null;
                 this.loadShopwareId();
+                this.$root.$emit('sw-plugin-logout');
             });
         },
 

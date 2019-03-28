@@ -1832,15 +1832,13 @@ class VersioningTest extends TestCase
             'name' => 'Payment',
             'active' => true,
             'position' => 0,
-            'availabilityRules' => [
-                [
-                    'id' => $ruleId,
-                    'name' => 'true',
-                    'priority' => 0,
-                    'conditions' => [
-                        [
-                            'type' => 'true',
-                        ],
+            'availabilityRule' => [
+                'id' => $ruleId,
+                'name' => 'true',
+                'priority' => 0,
+                'conditions' => [
+                    [
+                        'type' => 'true',
                     ],
                 ],
             ],

@@ -99,12 +99,12 @@ class PaymentMethodRuleAccessibleTest extends TestCase
         $this->ruleRepository->create($rule, $defaultContext);
 
         $criteria = new Criteria([$rule[0]['paymentMethods'][0]['id']]);
-        $criteria->addAssociation('availabilityRules');
+        $criteria->addAssociation('availabilityRule');
 
         /** @var PaymentMethodEntity $paymentMethod */
         $paymentMethod = $this->getContainer()->get('payment_method.repository')->search($criteria, $defaultContext)->first();
 
-        static::assertSame($rule[0]['id'], $paymentMethod->getAvailabilityRules()->first()->getId());
+        static::assertSame($rule[0]['id'], $paymentMethod->getAvailabilityRule()->getId());
     }
 
     public function testRuleAssociationsStayLikeLinked(): void

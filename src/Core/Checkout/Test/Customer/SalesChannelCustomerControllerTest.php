@@ -580,18 +580,16 @@ class SalesChannelCustomerControllerTest extends TestCase
                     'name' => 'Invoice',
                     'description' => 'Default payment method',
                     'handlerIdentifier' => SyncTestPaymentHandler::class,
-                    'availabilityRules' => [
-                        [
-                            'id' => Uuid::randomHex(),
-                            'name' => 'true',
-                            'priority' => 0,
-                            'conditions' => [
-                                [
-                                    'type' => 'cartCartAmount',
-                                    'value' => [
-                                        'operator' => '>=',
-                                        'amount' => 0,
-                                    ],
+                    'availabilityRule' => [
+                        'id' => Uuid::randomHex(),
+                        'name' => 'true',
+                        'priority' => 0,
+                        'conditions' => [
+                            [
+                                'type' => 'cartCartAmount',
+                                'value' => [
+                                    'operator' => '>=',
+                                    'amount' => 0,
                                 ],
                             ],
                         ],

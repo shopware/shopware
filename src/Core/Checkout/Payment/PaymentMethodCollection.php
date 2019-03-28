@@ -20,13 +20,11 @@ class PaymentMethodCollection extends EntityCollection
     {
         return $this->filter(
             function (PaymentMethodEntity $paymentMethod) use ($salesChannelContext) {
-                if ($paymentMethod->getAvailabilityRuleIds() === null) {
+                if ($paymentMethod->getAvailabilityRuleId() === null) {
                     return true;
                 }
 
-                $matches = array_intersect($paymentMethod->getAvailabilityRuleIds(), $salesChannelContext->getRuleIds());
-
-                return !empty($matches);
+                return in_array($paymentMethod->getAvailabilityRuleId(), $salesChannelContext->getRuleIds(), true);
             }
         );
     }

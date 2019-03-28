@@ -683,17 +683,15 @@ class SalesChannelCheckoutControllerTest extends TestCase
                 'name' => 'Unavailable',
                 'position' => 0,
                 'active' => true,
-                'availabilityRules' => [
-                    [
-                        'name' => 'Cart > 50',
-                        'priority' => 100,
-                        'conditions' => [
-                            [
-                                'type' => (new CartAmountRule())->getName(),
-                                'value' => [
-                                    'amount' => 50,
-                                    'operator' => '>',
-                                ],
+                'availabilityRule' => [
+                    'name' => 'Cart > 50',
+                    'priority' => 100,
+                    'conditions' => [
+                        [
+                            'type' => (new CartAmountRule())->getName(),
+                            'value' => [
+                                'amount' => 50,
+                                'operator' => '>',
                             ],
                         ],
                     ],
@@ -804,18 +802,16 @@ class SalesChannelCheckoutControllerTest extends TestCase
                     'name' => 'test',
                     'description' => 'test',
                     'handlerIdentifier' => SyncTestPaymentHandler::class,
-                    'availabilityRules' => [
-                        [
-                            'id' => Uuid::randomHex(),
-                            'name' => 'true',
-                            'priority' => 0,
-                            'conditions' => [
-                                [
-                                    'type' => 'cartCartAmount',
-                                    'value' => [
-                                        'operator' => '>=',
-                                        'amount' => 0,
-                                    ],
+                    'availabilityRule' => [
+                        'id' => Uuid::randomHex(),
+                        'name' => 'true',
+                        'priority' => 0,
+                        'conditions' => [
+                            [
+                                'type' => 'cartCartAmount',
+                                'value' => [
+                                    'operator' => '>=',
+                                    'amount' => 0,
                                 ],
                             ],
                         ],

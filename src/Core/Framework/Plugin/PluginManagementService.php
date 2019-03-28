@@ -6,7 +6,7 @@ use Composer\IO\NullIO;
 use GuzzleHttp\Client;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Plugin\Exception\NoPluginFoundInZipException;
-use Shopware\Core\Framework\Plugin\Helper\ZipUtils;
+use Shopware\Core\Framework\Plugin\Util\ZipUtils;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Response;

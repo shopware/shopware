@@ -3,11 +3,11 @@
 namespace Shopware\Core\Framework\Test\Plugin;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\Plugin\Helper\PluginFinder;
 use Shopware\Core\Framework\Plugin\KernelPluginCollection;
 use Shopware\Core\Framework\Plugin\PluginExtractor;
 use Shopware\Core\Framework\Plugin\PluginManagementService;
 use Shopware\Core\Framework\Plugin\PluginZipDetector;
+use Shopware\Core\Framework\Plugin\Util\PluginFinder;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Symfony\Component\Filesystem\Filesystem;
 

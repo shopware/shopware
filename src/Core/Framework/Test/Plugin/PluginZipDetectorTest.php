@@ -4,8 +4,8 @@ namespace Shopware\Core\Framework\Test\Plugin;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Plugin\Exception\PluginExtractionException;
-use Shopware\Core\Framework\Plugin\Helper\ZipUtils;
 use Shopware\Core\Framework\Plugin\PluginZipDetector;
+use Shopware\Core\Framework\Plugin\Util\ZipUtils;
 
 class PluginZipDetectorTest extends TestCase
 {

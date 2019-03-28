@@ -3,9 +3,9 @@
 namespace Shopware\Core\Framework\Test\Plugin;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\Plugin\Helper\ZipUtils;
 use Shopware\Core\Framework\Plugin\KernelPluginCollection;
 use Shopware\Core\Framework\Plugin\PluginExtractor;
+use Shopware\Core\Framework\Plugin\Util\ZipUtils;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Symfony\Component\Filesystem\Filesystem;
 

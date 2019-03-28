@@ -12,6 +12,7 @@ use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Storefront\Framework\Seo\SeoUrl\SeoUrlCollection;
 use Shopware\Storefront\Framework\Seo\SeoUrl\SeoUrlEntity;
+use Shopware\Storefront\Framework\Seo\SeoUrlGenerator\DetailPageSeoUrlGenerator;
 
 class SeoUrlExtensionTest extends TestCase
 {
@@ -84,6 +85,10 @@ class SeoUrlExtensionTest extends TestCase
         $seoUrlId = Uuid::uuid4()->getHex();
         $id = Uuid::uuid4()->getHex();
         $this->upsertProduct(['id' => $id, 'name' => 'awesome product']);
+
+        $router = $this->getContainer()->get('router');
+        $pathInfo = $router->generate(DetailPageSeoUrlGenerator::ROUTE_NAME, ['productId' => $id]);
+
         $this->upsertProduct([
             'id' => $id,
             'extensions' => [
@@ -91,6 +96,7 @@ class SeoUrlExtensionTest extends TestCase
                     [
                         'id' => $seoUrlId,
                         'salesChannelId' => Defaults::SALES_CHANNEL,
+                        'pathInfo' => $pathInfo,
                         'seoPathInfo' => 'awesome',
                         'isCanonical' => true,
                     ],
@@ -118,6 +124,7 @@ class SeoUrlExtensionTest extends TestCase
         static::assertFalse($seoUrl->getIsDeleted());
 
         static::assertEquals('/detail/' . $id, $seoUrl->getPathInfo());
+        static::assertEquals($id, $seoUrl->getForeignKey());
     }
 
     private function upsertProduct($data): void

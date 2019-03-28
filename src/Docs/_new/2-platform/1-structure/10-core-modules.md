@@ -1,5 +1,4 @@
-Core Module List
----------------------------
+[titleEn]: <>(Core Module List)
 
 All core modules encapsulate domain concepts and provide a varying number of external interfaces to support this. The following list provides a rough overview what domain concepts offer what kinds of interfaces.  
 
@@ -81,10 +80,6 @@ Cron jobs
 
 Taxonomies
 
-### [Framework/NumberRange](https://github.com/shopware/platform/tree/master/src/Core/Framework/NumberRange) 
-
-Number ranges
-
 ### [Framework/MessageQueue](https://github.com/shopware/platform/tree/master/src/Core/Framework/MessageQueue) *[Data store]*, *[Custom Extendable]*, *[Extension]*
 
 Async processing
@@ -101,6 +96,10 @@ Template extension
 
 Business events
 
+### [Framework/Context](https://github.com/shopware/platform/tree/master/src/Core/Framework/Context) *[Custom Extendable]*
+
+Main context
+
 ### [Framework/Attribute](https://github.com/shopware/platform/tree/master/src/Core/Framework/Attribute) *[Data store]*, *[Custom actions]*, *[Custom Extendable]*, *[Extension]*
 
 Attribute management
@@ -113,7 +112,7 @@ Validation
 
 Rest-API
 
-### [Framework/Store](https://github.com/shopware/platform/tree/master/src/Core/Framework/Store) *[Extension]*
+### [Framework/Store](https://github.com/shopware/platform/tree/master/src/Core/Framework/Store) *[Data store]*, *[Extension]*
 
 Plugin store
 
@@ -184,6 +183,10 @@ Mailing
 ### [Content/Category](https://github.com/shopware/platform/tree/master/src/Core/Content/Category) *[Data store]*, *[SalesChannel-API]*, *[Extension]*
 
 Product Categories
+
+### [Content/NewsletterReceiver](https://github.com/shopware/platform/tree/master/src/Core/Content/NewsletterReceiver) *[Data store]*, *[Extension]*
+
+Newsletter
 
 ### [Content/Rule](https://github.com/shopware/platform/tree/master/src/Core/Content/Rule) *[Data store]*, *[Extension]*
 

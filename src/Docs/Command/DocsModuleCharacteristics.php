@@ -14,8 +14,7 @@ use Symfony\Component\Finder\SplFileInfo;
 class DocsModuleCharacteristics extends Command
 {
     const TEMPLATE_HEADER = <<<EOD
-Core Module List
----------------------------
+[titleEn]: <>(Core Module List)
 
 All core modules encapsulate domain concepts and provide a varying number of external interfaces to support this. The following list provides a rough overview what domain concepts offer what kinds of interfaces.  
 
@@ -144,6 +143,9 @@ EOD;
                     'Framework/Provisioning',
                     'Framework/Exception',
                     'Framework/Demodata',
+                    'Profiling/Doctrine',
+                    'Profiling/Resources',
+                    'Profiling/Twig',
                 ], true);
             })
             ->depth('1');

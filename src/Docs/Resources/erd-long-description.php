@@ -369,10 +369,6 @@ EOD
 Customers can be categorized in different groups. The customer group is used so processes like the cart can incorporate different rules.
 EOD
     ,
-    Shopware\Core\Checkout\Customer\Aggregate\CustomerGroupDiscount\CustomerGroupDiscountDefinition::class => <<<'EOD'
-Stores a fixed percentage order discount for a specific customer group.
-EOD
-    ,
     Shopware\Core\Checkout\Order\OrderDefinition::class => <<<'EOD'
 The root table of the order process. Contains the basic information related to an order and relates to a more detailed model representing the different use cases.
 EOD
@@ -409,16 +405,16 @@ EOD
 Represents a list of available shipping methods for customers to choose from during checkout.
 EOD
     ,
-    Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodPrice\ShippingMethodPriceDefinition::class => <<<'EOD'
-Contains `quantityFrom` as a selection criteria to provide different prices for different orders with the same shipping method.
+    'Shopware\\Core\\Checkout\\Shipping\\Aggregate\\ShippingMethodPrice\\ShippingMethodPriceDefinition' => <<<'EOD'
+
 EOD
     ,
     Shopware\Core\Checkout\DiscountSurcharge\DiscountSurchargeDefinition::class => <<<'EOD'
 Stores discounts or surcharges of a specific amount and is assigned based on a rule set.
 EOD
     ,
-    Shopware\Storefront\Framework\Seo\SeoUrlDefinition::class => <<<'EOD'
-Search engine optimized urls manually created from user input to optimize for different search engines and make the storefronts content a more prominent search result.
+    'Shopware\\Storefront\\Framework\\Seo\\SeoUrlDefinition' => <<<'EOD'
+
 EOD
     ,
     Shopware\Core\Framework\Plugin\Aggregate\PluginTranslation\PluginTranslationDefinition::class => <<<'EOD'
@@ -575,6 +571,26 @@ EOD
     ,
     Shopware\Core\Checkout\Order\Aggregate\OrderTag\OrderTagDefinition::class => <<<'EOD'
 
+EOD
+    ,
+    Shopware\Core\Checkout\Payment\Aggregate\PaymentMethodRules\PaymentMethodRuleDefinition::class => <<<'EOD'
+
+EOD
+    ,
+    Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodPriceRule\ShippingMethodPriceRuleDefinition::class => <<<'EOD'
+Contains `quantityFrom` as a selection criteria to provide different prices for different orders with the same shipping method.
+EOD
+    ,
+    Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodRules\ShippingMethodRuleDefinition::class => <<<'EOD'
+
+EOD
+    ,
+    Shopware\Storefront\Framework\Seo\SeoUrl\SeoUrlDefinition::class => <<<'EOD'
+Search engine optimized urls manually created from user input to optimize for different search engines and make the storefronts content a more prominent search result.
+EOD
+    ,
+    Shopware\Storefront\Framework\Seo\SeoUrlTemplate\SeoUrlTemplateDefinition::class => <<<'EOD'
+A template to generate seo urls from.
 EOD
     ,
 ];

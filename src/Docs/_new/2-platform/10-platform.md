@@ -1,5 +1,4 @@
-Shopware Platform
-----------------------------------------
+[titleEn]: <>(Shopware Platform internals)
 
 The Shopware Platform is an online eCommerce platform. It provides Services through REST-APIs and rich user interfaces to customers and administrators alike.
 

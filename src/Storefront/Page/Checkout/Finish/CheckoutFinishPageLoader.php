@@ -9,8 +9,8 @@ use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\Exception\InvalidUuidException;
 use Shopware\Core\Framework\Routing\InternalRequest;
+use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
 use Shopware\Storefront\Framework\Page\PageLoaderInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 

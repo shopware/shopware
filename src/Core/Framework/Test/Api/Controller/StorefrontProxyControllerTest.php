@@ -101,7 +101,7 @@ class StorefrontProxyControllerTest extends TestCase
         $this->createLanguage($langId, $salesChannel['id']);
 
         $this->assertTranslation(
-            ['name' => 'not translated', 'viewData' => ['name' => 'not translated']],
+            ['name' => 'not translated', 'translated' => ['name' => 'not translated']],
             [
                 'translations' => [
                     Defaults::LANGUAGE_SYSTEM => ['name' => 'not translated'],
@@ -113,7 +113,7 @@ class StorefrontProxyControllerTest extends TestCase
         );
 
         $this->assertTranslation(
-            ['name' => 'translated', 'viewData' => ['name' => 'translated']],
+            ['name' => 'translated', 'translated' => ['name' => 'translated']],
             [
                 'translations' => [
                     Defaults::LANGUAGE_SYSTEM => ['name' => 'not translated'],
@@ -125,7 +125,7 @@ class StorefrontProxyControllerTest extends TestCase
         );
 
         $this->assertTranslation(
-            ['name' => 'translated', 'viewData' => ['name' => 'translated']],
+            ['name' => 'translated', 'translated' => ['name' => 'translated']],
             [
                 'translations' => [
                     Defaults::LANGUAGE_SYSTEM => ['name' => 'not translated'],

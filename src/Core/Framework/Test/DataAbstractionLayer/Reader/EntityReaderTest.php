@@ -172,18 +172,18 @@ class EntityReaderTest extends TestCase
         static::assertNull($product->getName());
         static::assertEquals('test', $product->getDescription());
 
-        static::assertInstanceOf(ProductTranslationCollection::class, $product->getTranslations());
-        static::assertCount(2, $product->getTranslations());
+//        static::assertInstanceOf(ProductTranslationCollection::class, $product->getTranslations());
+//        static::assertCount(2, $product->getTranslations());
 
-        $translation = $product->getTranslations()->get($id . '-' . $subLanguageId);
-        static::assertInstanceOf(ProductTranslationEntity::class, $translation);
-        static::assertEquals('test', $translation->getDescription());
-        static::assertNull($translation->getName());
-
-        $translation = $product->getTranslations()->get($id . '-' . Defaults::LANGUAGE_SYSTEM);
-        static::assertInstanceOf(ProductTranslationEntity::class, $translation);
-        static::assertEquals('EN', $translation->getName());
-        static::assertNull($translation->getDescription());
+//        $translation = $product->getTranslations()->get($id . '-' . $subLanguageId);
+//        static::assertInstanceOf(ProductTranslationEntity::class, $translation);
+//        static::assertEquals('test', $translation->getDescription());
+//        static::assertNull($translation->getName());
+//
+//        $translation = $product->getTranslations()->get($id . '-' . Defaults::LANGUAGE_SYSTEM);
+//        static::assertInstanceOf(ProductTranslationEntity::class, $translation);
+//        static::assertEquals('EN', $translation->getName());
+//        static::assertNull($translation->getDescription());
     }
 
     public function testInheritedTranslationsInViewData(): void
@@ -228,9 +228,8 @@ class EntityReaderTest extends TestCase
         /** @var ProductEntity $product */
         $product = $this->productRepository->search(new Criteria([$id]), $context)->first();
 
-        static::assertInstanceOf(ProductEntity::class, $product->getViewData());
-        static::assertEquals('EN', $product->getViewData()->getName());
-        static::assertEquals('test', $product->getViewData()->getDescription());
+        static::assertEquals('EN', $product->getTranslated()['name']);
+        static::assertEquals('test', $product->getTranslated()['description']);
     }
 
     public function testParentInheritanceInViewData(): void
@@ -269,21 +268,16 @@ class EntityReaderTest extends TestCase
 
         $this->productRepository->create($products, Context::createDefaultContext());
 
-        $products = $this->productRepository->search(new Criteria([$parentId, $greenId, $redId]), Context::createDefaultContext());
+        $criteria = new Criteria([$parentId, $greenId, $redId]);
+        $criteria->setInherited(false);
+        $products = $this->productRepository->search($criteria, Context::createDefaultContext());
 
         /** @var ProductEntity $parent */
         $parent = $products->get($parentId);
         static::assertInstanceOf(ProductEntity::class, $parent);
-        static::assertInstanceOf(ProductEntity::class, $parent->getViewData());
-
         static::assertInstanceOf(TaxEntity::class, $parent->getTax());
-        static::assertInstanceOf(TaxEntity::class, $parent->getViewData()->getTax());
-
         static::assertInstanceOf(Price::class, $parent->getPrice());
-        static::assertInstanceOf(Price::class, $parent->getViewData()->getPrice());
-
         static::assertEquals(50, $parent->getPrice()->getGross());
-        static::assertEquals(50, $parent->getViewData()->getPrice()->getGross());
 
         /** @var ProductEntity $red */
         $red = $products->get($redId);
@@ -296,29 +290,46 @@ class EntityReaderTest extends TestCase
         static::assertNull($red->getTaxId());
         static::assertNull($red->getPrice());
 
+        /** @var ProductEntity $green */
+        $green = $products->get($greenId);
+
+        static::assertInstanceOf(ProductEntity::class, $green);
+        static::assertInstanceOf(TaxEntity::class, $green->getTax());
+        static::assertEquals($greenTax, $green->getTaxId());
+        static::assertInstanceOf(Price::class, $green->getPrice());
+        static::assertEquals(100, $green->getPrice()->getGross());
+
+        $criteria = new Criteria([$parentId, $greenId, $redId]);
+        $criteria->setInherited(true);
+        $products = $this->productRepository->search($criteria, Context::createDefaultContext());
+
+        /** @var ProductEntity $parent */
+        $parent = $products->get($parentId);
+        static::assertInstanceOf(ProductEntity::class, $parent);
+        static::assertInstanceOf(TaxEntity::class, $parent->getTax());
+        static::assertInstanceOf(Price::class, $parent->getPrice());
+        static::assertEquals(50, $parent->getPrice()->getGross());
+
+        /** @var ProductEntity $red */
+        $red = $products->get($redId);
+
+        //check red product contains full inheritance of parent in "viewData"
+        static::assertInstanceOf(ProductEntity::class, $red);
+
         //price and tax are inherited by parent
-        static::assertInstanceOf(Price::class, $red->getViewData()->getPrice());
-        static::assertInstanceOf(TaxEntity::class, $red->getViewData()->getTax());
-        static::assertEquals($parentTax, $red->getViewData()->getTaxId());
-        static::assertInstanceOf(Price::class, $red->getViewData()->getPrice());
-        static::assertEquals(50, $red->getViewData()->getPrice()->getGross());
+        static::assertInstanceOf(Price::class, $red->getPrice());
+        static::assertInstanceOf(TaxEntity::class, $red->getTax());
+        static::assertEquals($parentTax, $red->getTaxId());
+        static::assertInstanceOf(Price::class, $red->getPrice());
+        static::assertEquals(50, $red->getPrice()->getGross());
 
         /** @var ProductEntity $green */
         $green = $products->get($greenId);
         static::assertInstanceOf(ProductEntity::class, $green);
-        static::assertInstanceOf(ProductEntity::class, $green->getViewData());
-
         static::assertInstanceOf(TaxEntity::class, $green->getTax());
-        static::assertInstanceOf(TaxEntity::class, $green->getViewData()->getTax());
-
         static::assertEquals($greenTax, $green->getTaxId());
-        static::assertEquals($greenTax, $green->getViewData()->getTaxId());
-
         static::assertInstanceOf(Price::class, $green->getPrice());
-        static::assertInstanceOf(Price::class, $green->getViewData()->getPrice());
-
         static::assertEquals(100, $green->getPrice()->getGross());
-        static::assertEquals(100, $green->getViewData()->getPrice()->getGross());
     }
 
     public function testInheritanceWithOneToMany(): void
@@ -385,7 +396,10 @@ class EntityReaderTest extends TestCase
 
         $this->productRepository->create($products, $context);
 
-        $products = $this->productRepository->search(new Criteria([$greenId, $parentId, $redId]), $context);
+        $criteria = new Criteria([$greenId, $parentId, $redId]);
+        $criteria->setInherited(true);
+
+        $products = $this->productRepository->search($criteria, $context);
 
         /** @var ProductEntity $parent */
         $parent = $products->get($parentId);
@@ -395,9 +409,8 @@ class EntityReaderTest extends TestCase
         /** @var ProductEntity $red */
         $red = $products->get($redId);
         static::assertInstanceOf(ProductEntity::class, $red);
-        static::assertCount(0, $red->getPrices());
-        static::assertInstanceOf(ProductPriceCollection::class, $red->getViewData()->getPrices());
-        static::assertCount(2, $red->getViewData()->getPrices());
+        static::assertCount(2, $red->getPrices());
+        static::assertInstanceOf(ProductPriceCollection::class, $red->getPrices());
 
         /** @var ProductEntity $green */
         $green = $products->get($greenId);
@@ -471,6 +484,7 @@ class EntityReaderTest extends TestCase
 
         $criteria = new Criteria([$greenId, $parentId, $redId]);
         $criteria->addAssociation('product.prices', new PaginationCriteria(5));
+        $criteria->setInherited(true);
 
         $products = $this->productRepository->search($criteria, $context);
 
@@ -482,9 +496,7 @@ class EntityReaderTest extends TestCase
         /** @var ProductEntity $red */
         $red = $products->get($redId);
         static::assertInstanceOf(ProductEntity::class, $red);
-        static::assertCount(0, $red->getPrices());
-        static::assertInstanceOf(ProductPriceCollection::class, $red->getViewData()->getPrices());
-        static::assertCount(2, $red->getViewData()->getPrices());
+        static::assertCount(2, $red->getPrices());
 
         /** @var ProductEntity $green */
         $green = $products->get($greenId);
@@ -546,6 +558,7 @@ class EntityReaderTest extends TestCase
 
         $criteria = new Criteria([$greenId, $parentId, $redId]);
         $criteria->addAssociation('product.categories');
+        $criteria->setInherited(true);
 
         $products = $this->productRepository->search($criteria, $context);
 
@@ -560,37 +573,57 @@ class EntityReaderTest extends TestCase
         static::assertInstanceOf(ProductEntity::class, $red);
         static::assertInstanceOf(ProductEntity::class, $green);
 
+        //validate parent view data contains same categories
+        static::assertInstanceOf(CategoryCollection::class, $parent->getCategories());
+        static::assertCount(2, $parent->getCategories());
+        static::assertTrue($parent->getCategories()->has($category1));
+        static::assertTrue($parent->getCategories()->has($category3));
+
+        //validate red view data contains the categories of the parent
+        static::assertCount(2, $red->getCategories());
+        static::assertInstanceOf(CategoryCollection::class, $red->getCategories());
+        static::assertTrue($red->getCategories()->has($category1));
+        static::assertTrue($red->getCategories()->has($category3));
+
+        //validate green view data contains same categories
+        static::assertInstanceOf(CategoryCollection::class, $green->getCategories());
+        static::assertCount(1, $green->getCategories());
+        static::assertTrue($green->getCategories()->has($category2));
+
+        //####
+        $criteria = new Criteria([$greenId, $parentId, $redId]);
+        $criteria->addAssociation('product.categories');
+        $criteria->setInherited(false);
+
+        $products = $this->productRepository->search($criteria, $context);
+
+        /** @var ProductEntity $parent */
+        $parent = $products->get($parentId);
+
+        /** @var ProductEntity $red */
+        $red = $products->get($redId);
+
+        /** @var ProductEntity $green */
+        $green = $products->get($greenId);
+
+        static::assertInstanceOf(ProductEntity::class, $parent);
+        static::assertInstanceOf(ProductEntity::class, $red);
+        static::assertInstanceOf(ProductEntity::class, $green);
+
         //validate parent contains own categories
         static::assertCount(2, $parent->getCategories());
         static::assertInstanceOf(CategoryCollection::class, $parent->getCategories());
         static::assertTrue($parent->getCategories()->has($category1));
         static::assertTrue($parent->getCategories()->has($category3));
 
-        //validate parent view data contains same categories
-        static::assertInstanceOf(CategoryCollection::class, $parent->getViewData()->getCategories());
-        static::assertCount(2, $parent->getViewData()->getCategories());
-        static::assertTrue($parent->getViewData()->getCategories()->has($category1));
-        static::assertTrue($parent->getViewData()->getCategories()->has($category3));
-
         //validate red contains no own categories
         static::assertInstanceOf(CategoryCollection::class, $red->getCategories());
         static::assertCount(0, $red->getCategories());
-
-        //validate red view data contains the categories of the parent
-        static::assertCount(2, $red->getViewData()->getCategories());
-        static::assertInstanceOf(CategoryCollection::class, $red->getViewData()->getCategories());
-        static::assertTrue($red->getViewData()->getCategories()->has($category1));
-        static::assertTrue($red->getViewData()->getCategories()->has($category3));
 
         //validate green contains own categories
         static::assertCount(1, $green->getCategories());
         static::assertInstanceOf(CategoryCollection::class, $green->getCategories());
         static::assertTrue($green->getCategories()->has($category2));
-
-        //validate green view data contains same categories
-        static::assertInstanceOf(CategoryCollection::class, $green->getViewData()->getCategories());
-        static::assertCount(1, $green->getViewData()->getCategories());
-        static::assertTrue($green->getViewData()->getCategories()->has($category2));
     }
 
     public function testInheritanceWithPaginatedManyToMany(): void
@@ -647,7 +680,7 @@ class EntityReaderTest extends TestCase
 
         $criteria = new Criteria([$greenId, $parentId, $redId]);
         $criteria->addAssociation('product.categories', new PaginationCriteria(3));
-
+        $criteria->setInherited(true);
         $products = $this->productRepository->search($criteria, $context);
 
         /** @var ProductEntity $parent */
@@ -661,37 +694,49 @@ class EntityReaderTest extends TestCase
         static::assertInstanceOf(ProductEntity::class, $red);
         static::assertInstanceOf(ProductEntity::class, $green);
 
+        //validate parent view data contains same categories
+        static::assertInstanceOf(CategoryCollection::class, $parent->getCategories());
+        static::assertCount(2, $parent->getCategories());
+        static::assertTrue($parent->getCategories()->has($category1));
+        static::assertTrue($parent->getCategories()->has($category3));
+
+        //validate red view data contains the categories of the parent
+        static::assertCount(2, $red->getCategories());
+        static::assertInstanceOf(CategoryCollection::class, $red->getCategories());
+        static::assertTrue($red->getCategories()->has($category1));
+        static::assertTrue($red->getCategories()->has($category3));
+
+        //validate green view data contains same categories
+        static::assertInstanceOf(CategoryCollection::class, $green->getCategories());
+        static::assertCount(1, $green->getCategories());
+        static::assertTrue($green->getCategories()->has($category2));
+
+        $criteria = new Criteria([$greenId, $parentId, $redId]);
+        $criteria->addAssociation('product.categories', new PaginationCriteria(3));
+        $criteria->setInherited(false);
+        $products = $this->productRepository->search($criteria, $context);
+
+        /** @var ProductEntity $parent */
+        $parent = $products->get($parentId);
+        /** @var ProductEntity $red */
+        $red = $products->get($redId);
+        /** @var ProductEntity $green */
+        $green = $products->get($greenId);
+
         //validate parent contains own categories
         static::assertCount(2, $parent->getCategories());
         static::assertInstanceOf(CategoryCollection::class, $parent->getCategories());
         static::assertTrue($parent->getCategories()->has($category1));
         static::assertTrue($parent->getCategories()->has($category3));
 
-        //validate parent view data contains same categories
-        static::assertInstanceOf(CategoryCollection::class, $parent->getViewData()->getCategories());
-        static::assertCount(2, $parent->getViewData()->getCategories());
-        static::assertTrue($parent->getViewData()->getCategories()->has($category1));
-        static::assertTrue($parent->getViewData()->getCategories()->has($category3));
-
-        //validate red contains no own categories
-        static::assertInstanceOf(CategoryCollection::class, $red->getCategories());
-        static::assertCount(0, $red->getCategories());
-
-        //validate red view data contains the categories of the parent
-        static::assertCount(2, $red->getViewData()->getCategories());
-        static::assertInstanceOf(CategoryCollection::class, $red->getViewData()->getCategories());
-        static::assertTrue($red->getViewData()->getCategories()->has($category1));
-        static::assertTrue($red->getViewData()->getCategories()->has($category3));
-
         //validate green contains own categories
         static::assertCount(1, $green->getCategories());
         static::assertInstanceOf(CategoryCollection::class, $green->getCategories());
         static::assertTrue($green->getCategories()->has($category2));
 
-        //validate green view data contains same categories
-        static::assertInstanceOf(CategoryCollection::class, $green->getViewData()->getCategories());
-        static::assertCount(1, $green->getViewData()->getCategories());
-        static::assertTrue($green->getViewData()->getCategories()->has($category2));
+        //validate red contains no own categories
+        static::assertInstanceOf(CategoryCollection::class, $red->getCategories());
+        static::assertCount(0, $red->getCategories());
     }
 
     public function testLoadOneToManyNotLoadedAutomatically(): void

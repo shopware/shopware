@@ -182,6 +182,7 @@ class WhitelistRuleFieldTest extends TestCase
         $this->repository->create($products, Context::createDefaultContext());
 
         $criteria = new Criteria([$productId1, $productId2, $productId3]);
+        $criteria->setInherited(true);
 
         //context without rules should return the product
         $context = $this->createContextWithRules();
@@ -310,6 +311,7 @@ class WhitelistRuleFieldTest extends TestCase
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('product.manufacturerId', $manufacturerId));
+        $criteria->setInherited(true);
 
         //context without rules should return the product
         $context = $this->createContextWithRules();

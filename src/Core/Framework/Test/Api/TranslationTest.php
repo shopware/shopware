@@ -27,7 +27,7 @@ class TranslationTest extends TestCase
         $this->createLanguage($langId);
 
         $this->assertTranslation(
-            ['name' => 'not translated', 'viewData' => ['name' => 'not translated']],
+            ['name' => 'not translated', 'translated' => ['name' => 'not translated']],
             [
                 'translations' => [
                     Defaults::LANGUAGE_SYSTEM => ['name' => 'not translated'],
@@ -80,7 +80,7 @@ class TranslationTest extends TestCase
         $this->createLanguage($langId, $fallbackId);
 
         $this->assertTranslation(
-            ['name' => null, 'viewData' => ['name' => 'translated by fallback']],
+            ['name' => null, 'translated' => ['name' => 'translated by fallback']],
             [
                 'translations' => [
                     Defaults::LANGUAGE_SYSTEM => ['name' => 'default'],
@@ -274,7 +274,7 @@ class TranslationTest extends TestCase
             [
                 'name' => 'translated',
                 'territory' => null,
-                'viewData' => [
+                'translated' => [
                     'territory' => 'translated by fallback',
                 ],
             ],
@@ -306,7 +306,7 @@ class TranslationTest extends TestCase
             [
                 'name' => null,
                 'territory' => 'translated',
-                'viewData' => [
+                'translated' => [
                     'name' => 'only translated by fallback',
                     'territory' => 'translated',
                 ],
@@ -367,7 +367,7 @@ class TranslationTest extends TestCase
         static::assertEquals($translated['name'], $responseData['data']['attributes']['name']);
         static::assertNull($responseData['data']['attributes']['territory']);
 
-        static::assertEquals($notTranslated['territory'], $responseData['data']['meta']['viewData']['territory']);
+        static::assertEquals($notTranslated['territory'], $responseData['data']['attributes']['translated']['territory']);
     }
 
     public function testDelete(): void
@@ -525,115 +525,6 @@ class TranslationTest extends TestCase
         static::assertEquals(204, $response->getStatusCode());
     }
 
-    public function testTranslationAssociation(): void
-    {
-        $baseResource = '/api/v' . PlatformRequest::API_VERSION . '/category';
-        $id = Uuid::randomHex();
-
-        $categoryData = [
-            'id' => $id,
-            'translations' => [
-                Defaults::LANGUAGE_SYSTEM => ['name' => 'test'],
-            ],
-        ];
-
-        $this->getClient()->request('POST', $baseResource, $categoryData);
-        $response = $this->getClient()->getResponse();
-        static::assertEquals(204, $response->getStatusCode(), $response->getContent());
-
-        $this->getClient()->request('GET', $baseResource . '/' . $id);
-        $response = $this->getClient()->getResponse();
-        static::assertEquals(200, $response->getStatusCode(), $response->getContent());
-
-        $data = json_decode($response->getContent(), true);
-        $translations = $data['data']['relationships']['translations']['data'];
-        static::assertCount(1, $translations);
-
-        $expectedCombinedId = $id . '-' . Defaults::LANGUAGE_SYSTEM;
-        static::assertEquals($expectedCombinedId, $translations[0]['id']);
-        static::assertEquals('category_translation', $translations[0]['type']);
-    }
-
-    public function testTranslationAssociationOverride(): void
-    {
-        $baseResource = '/api/v' . PlatformRequest::API_VERSION . '/category';
-        $id = Uuid::randomHex();
-        $langId = Uuid::randomHex();
-        $this->createLanguage($langId);
-
-        $categoryData = [
-            'id' => $id,
-            'translations' => [
-                Defaults::LANGUAGE_SYSTEM => ['name' => 'default'],
-                $langId => ['name' => 'translated'],
-            ],
-        ];
-
-        $this->getClient()->request('POST', $baseResource, $categoryData);
-        $response = $this->getClient()->getResponse();
-        static::assertEquals(204, $response->getStatusCode(), $response->getContent());
-
-        $headers = [$this->getLangHeaderName() => $langId];
-        $this->getClient()->request('GET', $baseResource . '/' . $id, [], [], $headers);
-        $response = $this->getClient()->getResponse();
-        static::assertEquals(200, $response->getStatusCode(), $response->getContent());
-
-        $data = json_decode($response->getContent(), true);
-        $translations = $data['data']['relationships']['translations']['data'];
-        static::assertCount(2, $translations);
-
-        $expectedCombinedId = $id . '-' . $langId;
-        static::assertEquals($expectedCombinedId, $translations[0]['id']);
-        static::assertEquals('category_translation', $translations[0]['type']);
-
-        $expectedCombinedId = $id . '-' . Defaults::LANGUAGE_SYSTEM;
-        static::assertEquals($expectedCombinedId, $translations[1]['id']);
-        static::assertEquals('category_translation', $translations[1]['type']);
-    }
-
-    public function testTranslationAssociationOverrideWithFallback(): void
-    {
-        $baseResource = '/api/v' . PlatformRequest::API_VERSION . '/category';
-        $id = Uuid::randomHex();
-        $langId = Uuid::randomHex();
-        $fallbackId = Uuid::randomHex();
-        $this->createLanguage($langId, $fallbackId);
-
-        $categoryData = [
-            'id' => $id,
-            'translations' => [
-                Defaults::LANGUAGE_SYSTEM => ['name' => 'default'],
-                $fallbackId => ['name' => 'fallback'],
-                $langId => ['name' => 'translated', 'description' => 'translated'],
-            ],
-        ];
-
-        $this->getClient()->request('POST', $baseResource, $categoryData);
-        $response = $this->getClient()->getResponse();
-        static::assertEquals(204, $response->getStatusCode(), $response->getContent());
-
-        $headers = [$this->getLangHeaderName() => $langId];
-        $this->getClient()->request('GET', $baseResource . '/' . $id, [], [], $headers);
-        $response = $this->getClient()->getResponse();
-        static::assertEquals(200, $response->getStatusCode(), $response->getContent());
-
-        $data = json_decode($response->getContent(), true);
-        $translations = $data['data']['relationships']['translations']['data'];
-        static::assertCount(3, $translations);
-
-        $expectedCombinedId = $id . '-' . $langId;
-        static::assertEquals($expectedCombinedId, $translations[0]['id']);
-        static::assertEquals('category_translation', $translations[0]['type']);
-
-        $expectedCombinedId = $id . '-' . $fallbackId;
-        static::assertEquals($expectedCombinedId, $translations[1]['id']);
-        static::assertEquals('category_translation', $translations[1]['type']);
-
-        $expectedCombinedId = $id . '-' . Defaults::LANGUAGE_SYSTEM;
-        static::assertEquals($expectedCombinedId, $translations[2]['id']);
-        static::assertEquals('category_translation', $translations[2]['type']);
-    }
-
     public function testMixedTranslationStatus(): void
     {
         $baseResource = '/api/v' . PlatformRequest::API_VERSION . '/category';
@@ -686,9 +577,9 @@ class TranslationTest extends TestCase
         static::assertNull($data[1]['name']);
         static::assertEquals('3. child', $data[2]['name']);
 
-        static::assertEquals('1. system', $data[0]['viewData']['name']);
-        static::assertEquals('2. root', $data[1]['viewData']['name']);
-        static::assertEquals('3. child', $data[2]['viewData']['name']);
+        static::assertEquals('1. system', $data[0]['translated']['name']);
+        static::assertEquals('2. root', $data[1]['translated']['name']);
+        static::assertEquals('3. child', $data[2]['translated']['name']);
     }
 
     private function getLangHeaderName(): string

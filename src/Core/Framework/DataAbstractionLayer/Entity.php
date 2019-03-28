@@ -12,11 +12,6 @@ class Entity extends Struct
     protected $_uniqueIdentifier;
 
     /**
-     * @var static
-     */
-    protected $viewData;
-
-    /**
      * @var string|null
      */
     protected $versionId;
@@ -55,19 +50,6 @@ class Entity extends Struct
         }
 
         return $this->$property;
-    }
-
-    /**
-     * @return static
-     */
-    public function getViewData()
-    {
-        return $this->viewData;
-    }
-
-    public function setViewData(self $viewData): void
-    {
-        $this->viewData = $viewData;
     }
 
     public function has(string $property): bool

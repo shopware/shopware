@@ -491,8 +491,7 @@ class TranslationTest extends TestCase
 
         static::assertNotNull($catSystem);
         static::assertEquals('system', $catSystem->getName());
-        static::assertEquals('system', $catSystem->getViewData()->getName());
-        static::assertCount(1, $catSystem->getTranslations());
+        static::assertEquals('system', $catSystem->getTranslated()['name']);
 
         $deDeContext = new Context(new SystemSource(), [], Defaults::CURRENCY, [Defaults::LANGUAGE_SYSTEM_DE, Defaults::LANGUAGE_SYSTEM]);
         /** @var CategoryEntity $catDeDe */
@@ -500,9 +499,7 @@ class TranslationTest extends TestCase
 
         static::assertNotNull($catDeDe);
         static::assertNull($catDeDe->getName());
-        static::assertEquals('system', $catDeDe->getViewData()->getName());
-
-        static::assertCount(1, $catDeDe->getTranslations());
+        static::assertEquals('system', $catDeDe->getTranslated()['name']);
     }
 
     public function testCascadeDeleteRootTranslation(): void
@@ -530,12 +527,13 @@ class TranslationTest extends TestCase
         $deleteId = ['categoryId' => $catId, 'languageId' => $rootId];
         $categoryTranslationRepository->delete([$deleteId], $this->context);
 
-        /* @var CategoryEntity $categoryResult */
-        $categoryResult = $categoryRepository->search(new Criteria(['id' => $catId]), $this->context)->first();
+        $translations = $this->connection->fetchAll(
+            'SELECT LOWER(HEX(language_id)) as language_id FROM category_translation WHERE category_id = :id',
+            ['id' => Uuid::fromHexToBytes($catId)]
+        );
 
-        $translations = $categoryResult->getTranslations();
         static::assertCount(1, $translations);
-        static::assertEquals(Defaults::LANGUAGE_SYSTEM, $translations->first()->getLanguageId());
+        static::assertEquals(Defaults::LANGUAGE_SYSTEM, $translations[0]['language_id']);
     }
 
     public function testUpsert(): void

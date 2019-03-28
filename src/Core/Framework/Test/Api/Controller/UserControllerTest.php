@@ -24,6 +24,5 @@ class UserControllerTest extends TestCase
         static::assertSame('user', $content['data']['type']);
         static::assertSame('admin@example.com', $content['data']['attributes']['email']);
         static::assertNotNull($content['data']['relationships']['avatarMedia']['data']);
-        static::assertSame(1024, $content['data']['meta']['viewData']['avatarMedia']['fileSize']);
     }
 }

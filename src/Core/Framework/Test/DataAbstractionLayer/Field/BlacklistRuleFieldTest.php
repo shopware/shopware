@@ -184,6 +184,7 @@ class BlacklistRuleFieldTest extends TestCase
         $this->repository->create($products, Context::createDefaultContext());
 
         $criteria = new Criteria([$productId1, $productId2, $productId3]);
+        $criteria->setInherited(true);
 
         //context without rules should return the product
         $context = $this->createContextWithRules();
@@ -311,6 +312,7 @@ class BlacklistRuleFieldTest extends TestCase
         $this->repository->create($products, Context::createDefaultContext());
 
         $criteria = new Criteria();
+        $criteria->setInherited(true);
         $criteria->addFilter(new EqualsFilter('product.manufacturerId', $manufacturerId));
 
         //context without rules should return the product

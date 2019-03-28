@@ -4,14 +4,11 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Dbal;
 
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AttributesField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Extension;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Inherited;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToOneAssociationField;
@@ -89,14 +86,6 @@ class EntityHydrator
                 continue;
             }
 
-//            if ($field instanceof AssociationInterface && $field->is(Inherited::class)) {
-//                $key = $originalKey . '.owner';
-//
-//                if (array_key_exists($key, $row)) {
-//                    $mappingStorage->set($propertyName . '.owner', $row[$key]);
-//                }
-//            }
-
             //many to many fields contains a group concat id value in the selection, this will be stored in an internal extension to collect them later
             if ($field instanceof ManyToManyAssociationField) {
                 $ids = $this->extractManyToManyIds($root, $field, $row);
@@ -115,21 +104,11 @@ class EntityHydrator
                 //hydrated contains now the associated entity (eg. currently hydrating the product, hydrated contains now the manufacturer or tax or ...)
                 $hydrated = $this->hydrateManyToOne($row, $root, $context, $field);
 
-                //.owner field contains the value of the foreign key of the child row.
-//                $key = $originalKey . '.owner';
-//                if (isset($row[$key]) || !$field->is(Inherited::class)) {
                 if ($field->is(Extension::class)) {
                     $entity->addExtension($propertyName, $hydrated);
                 } else {
                     $entity->assign([$propertyName => $hydrated]);
                 }
-//                }
-//
-//                if ($field->is(Extension::class)) {
-//                    $entity->getViewData()->addExtension($propertyName, $hydrated);
-//                } else {
-//                    $entity->getViewData()->assign([$propertyName => $hydrated]);
-//                }
 
                 continue;
             }
@@ -152,13 +131,6 @@ class EntityHydrator
                 $decoded = $this->fieldHandler->decode($translatedField, $value);
                 $entity->addTranslated($propertyName, $decoded);
 
-//                $entity->assign([$propertyName => $decoded]);
-//                //decode resolved language inheritance (only assigned to `viewData`)
-//                $translatedField = EntityDefinitionQueryHelper::getTranslatedField($definition, $field);
-//                $decoded = $this->fieldHandler->decode($translatedField, $value);
-//                $entity->getViewData()->assign([$propertyName => $decoded]);
-//
-//                //decode raw language data (only assigned to `child` entity)
                 $key = $root . '.translation.' . $propertyName;
                 $decoded = $this->fieldHandler->decode($translatedField, $row[$key]);
                 $entity->assign([$propertyName => $decoded]);
@@ -166,30 +138,8 @@ class EntityHydrator
                 continue;
             }
 
-//            if ($field->is(Inherited::class)) {
-//                //decode raw child value (only assigned to `child` entity)
-//                $key = $root . '.' . $propertyName . '.raw';
-//                $raw = $this->fieldHandler->decode($field, $row[$key]);
-//                $entity->assign([$propertyName => $raw]);
-//
-            ////                $parentKey = $root . '.' . $propertyName . '.inherited';
-            ////                if (isset($row[$parentKey]) && $field instanceof JsonField) {
-            ////                    // merge raw and inherited json values into view data
-            ////                    $mergedJson = $this->mergeJson([$row[$parentKey], $row[$key]]);
-            ////                    $merged = $this->fieldHandler->decode($field, $mergedJson);
-            ////                    $entity->getViewData()->assign([$propertyName => $merged]);
-            ////                } else {
-            ////                    //decode resolved inheritance value (only assigned to `viewData`)
-            ////                    $decoded = $this->fieldHandler->decode($field, $value);
-            ////                    $entity->getViewData()->assign([$propertyName => $decoded]);
-            ////                }
-//
-//                continue;
-//            }
-
             $decoded = $this->fieldHandler->decode($field, $value);
             $entity->assign([$propertyName => $decoded]);
-//            $entity->getViewData()->assign([$propertyName => $decoded]);
         }
 
 //        $translations = $this->hydrateTranslations($definition, $root, $row, $context);
@@ -273,41 +223,6 @@ class EntityHydrator
         //sql do not cast to lower
         return array_map('strtolower', array_filter($ids));
     }
-
-//    /**
-//     * @param string|EntityDefinition $definition
-//     */
-//    private function hydrateTranslations(string $definition, string $root, array $row, Context $context): ?EntityCollection
-//    {
-//        $translationDefinition = $definition::getTranslationDefinitionClass();
-//
-//        if ($translationDefinition === null) {
-//            return null;
-//        }
-//
-//        $chain = EntityDefinitionQueryHelper::buildTranslationChain($root, $context, false);
-//
-//        $structClass = $translationDefinition::getEntityClass();
-//
-//        $collection = $translationDefinition::getCollectionClass();
-//
-//        /** @var EntityCollection $collection */
-//        $collection = new $collection();
-//
-//        //builds a complete collection with translation entities of the current entity
-//        foreach ($chain as $accessor) {
-//            $idAccessor = $accessor['alias'] . '.languageId';
-//            // skip if translation doesn't exist
-//            if (!isset($row[$idAccessor])) {
-//                continue;
-//            }
-//
-//            $entity = $this->hydrateEntity(new $structClass(), $translationDefinition, $row, $accessor['alias'], $context);
-//            $collection->add($entity);
-//        }
-//
-//        return $collection;
-//    }
 
     /**
      * @param string|EntityDefinition $definition

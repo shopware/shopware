@@ -273,10 +273,6 @@ class EntityReader implements EntityReaderInterface
                 //add selection for resolved parent-child inheritance field
                 $query->addSelect(sprintf('COALESCE(%s, %s) as %s', $childAccessor, $parentAccessor, $fieldAlias));
 
-//                //add selection for raw child value
-//                $fieldAlias = EntityDefinitionQueryHelper::escape($root . '.' . $field->getPropertyName() . '.raw');
-//                $query->addSelect(sprintf('%s as %s', $childAccessor, $fieldAlias));
-
                 continue;
             }
 
@@ -748,7 +744,6 @@ class EntityReader implements EntityReaderInterface
             if ($association->is(Extension::class)) {
                 $struct->addExtension($association->getPropertyName(), $structData);
             } else {
-                //view data of the object should contains always the resolved data
                 $struct->assign([$association->getPropertyName() => $structData]);
             }
         }
@@ -896,7 +891,6 @@ class EntityReader implements EntityReaderInterface
             if ($association->is(Extension::class)) {
                 $struct->addExtension($association->getPropertyName(), $structData);
             } else {
-                //view data of the object should contains always the resolved data
                 $struct->assign([$association->getPropertyName() => $structData]);
             }
         }
@@ -1060,6 +1054,7 @@ class EntityReader implements EntityReaderInterface
             return false;
         }
 
+        /** @var Criteria $fieldCriteria */
         $fieldCriteria = $criteria->getAssociation($accessor);
 
         return $fieldCriteria->getOffset() !== null

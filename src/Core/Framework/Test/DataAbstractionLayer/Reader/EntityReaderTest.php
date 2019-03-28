@@ -10,9 +10,6 @@ use Shopware\Core\Content\Category\Aggregate\CategoryTranslation\CategoryTransla
 use Shopware\Core\Content\Category\CategoryCollection;
 use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerEntity;
-use Shopware\Core\Content\Product\Aggregate\ProductPrice\ProductPriceCollection;
-use Shopware\Core\Content\Product\Aggregate\ProductTranslation\ProductTranslationCollection;
-use Shopware\Core\Content\Product\Aggregate\ProductTranslation\ProductTranslationEntity;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Defaults;
@@ -77,7 +74,7 @@ class EntityReaderTest extends TestCase
         $this->categoryRepository->create($data, $context);
 
         $context = new Context(
-            new SourceContext(SourceContext::ORIGIN_SYSTEM),
+            new Context\SystemSource(),
             [],
             Defaults::CURRENCY,
             [
@@ -94,7 +91,7 @@ class EntityReaderTest extends TestCase
         static::assertSame('test', $category->getTranslated()['name']);
 
         $context = new Context(
-            new SourceContext(SourceContext::ORIGIN_SYSTEM),
+            new Context\SystemSource(),
             [],
             Defaults::CURRENCY,
             [
@@ -111,7 +108,7 @@ class EntityReaderTest extends TestCase
         static::assertSame('test', $category->getTranslated()['name']);
 
         $context = new Context(
-            new SourceContext(SourceContext::ORIGIN_SYSTEM),
+            new Context\SystemSource(),
             [],
             Defaults::CURRENCY,
             [
@@ -171,19 +168,6 @@ class EntityReaderTest extends TestCase
 
         static::assertNull($product->getName());
         static::assertEquals('test', $product->getDescription());
-
-//        static::assertInstanceOf(ProductTranslationCollection::class, $product->getTranslations());
-//        static::assertCount(2, $product->getTranslations());
-
-//        $translation = $product->getTranslations()->get($id . '-' . $subLanguageId);
-//        static::assertInstanceOf(ProductTranslationEntity::class, $translation);
-//        static::assertEquals('test', $translation->getDescription());
-//        static::assertNull($translation->getName());
-//
-//        $translation = $product->getTranslations()->get($id . '-' . Defaults::LANGUAGE_SYSTEM);
-//        static::assertInstanceOf(ProductTranslationEntity::class, $translation);
-//        static::assertEquals('EN', $translation->getName());
-//        static::assertNull($translation->getDescription());
     }
 
     public function testInheritedTranslationsInViewData(): void

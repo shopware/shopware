@@ -16,9 +16,9 @@ trait JsonSerializableTrait
                 $value = $value->format(\DateTime::ATOM);
             }
 
-            $data[$property] = $value;
+            $vars[$property] = $value;
         }
 
-        return $data;
+        return $vars;
     }
 }

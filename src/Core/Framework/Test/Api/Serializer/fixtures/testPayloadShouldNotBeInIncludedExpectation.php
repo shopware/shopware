@@ -41,17 +41,17 @@ return [
                     'data' => [],
                     'links' => ['related' => '/api/rule/f343a3c119cf42a7841aa0ac5094908c/payment-methods'],
                 ],
-                'personaRuleReferencingPromotions' => [
+                'personaPromotions' => [
                     'data' => [],
-                    'links' => ['related' => '/api/rule/f343a3c119cf42a7841aa0ac5094908c/persona-rule-referencing-promotions'],
+                    'links' => ['related' => '/api/rule/f343a3c119cf42a7841aa0ac5094908c/persona-promotions'],
                 ],
-                'scopeRuleReferencingPromotions' => [
+                'scopePromotions' => [
                     'data' => [],
-                    'links' => ['related' => '/api/rule/f343a3c119cf42a7841aa0ac5094908c/scope-rule-referencing-promotions'],
+                    'links' => ['related' => '/api/rule/f343a3c119cf42a7841aa0ac5094908c/scope-promotions'],
                 ],
-                'discountRuleReferencingPromotions' => [
+                'discountPromotions' => [
                     'data' => [],
-                    'links' => ['related' => '/api/rule/f343a3c119cf42a7841aa0ac5094908c/discount-rule-referencing-promotions'],
+                    'links' => ['related' => '/api/rule/f343a3c119cf42a7841aa0ac5094908c/discount-promotions'],
                 ],
             ],
             'meta' => [
@@ -76,9 +76,9 @@ return [
                     'shippingMethods' => null,
                     'paymentMethods' => null,
                     'shippingMethodPriceRules' => null,
-                    'personaRuleReferencingPromotions' => null,
-                    'scopeRuleReferencingPromotions' => null,
-                    'discountRuleReferencingPromotions' => null,
+                    'personaPromotions' => null,
+                    'scopePromotions' => null,
+                    'discountPromotions' => null,
                     '_class' => 'Shopware\Core\Content\Rule\RuleEntity',
                 ],
             ],

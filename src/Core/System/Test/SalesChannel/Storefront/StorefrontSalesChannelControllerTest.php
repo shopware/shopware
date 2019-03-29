@@ -513,6 +513,29 @@ class StorefrontSalesChannelControllerTest extends TestCase
             'name' => 'Special payment',
             'position' => 4,
             'active' => true,
+            'availabilityRules' => [
+                [
+                    'id' => Uuid::randomHex(),
+                    'name' => 'Rule',
+                    'priority' => 100,
+                    'conditions' => [
+                        [
+                            'type' => 'cartCartAmount',
+                            'value' => [
+                                'operator' => '=',
+                                'amount' => 0,
+                            ],
+                        ],
+                        [
+                            'type' => 'cartCartAmount',
+                            'value' => [
+                                'operator' => '!=',
+                                'amount' => 0,
+                            ],
+                        ],
+                    ],
+                ],
+            ],
         ];
         $paymentMethodId = $this->getValidPaymentMethodId();
         $data = [

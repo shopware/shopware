@@ -12,6 +12,10 @@ class PaymentMethodValidator implements CartValidatorInterface
 {
     public function validate(Cart $cart, ErrorCollection $errors, CheckoutContext $context): void
     {
+        if ($context->getPaymentMethod()->getAvailabilityRuleIds() === null) {
+            return;
+        }
+
         $matches = array_intersect($context->getPaymentMethod()->getAvailabilityRuleIds(), $context->getRuleIds());
 
         if (!empty($matches)) {

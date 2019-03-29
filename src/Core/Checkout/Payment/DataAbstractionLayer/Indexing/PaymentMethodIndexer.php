@@ -9,7 +9,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\RepositoryIterator;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Indexing\IndexerInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
-use Shopware\Core\Framework\Doctrine\FetchModeHelper;
 use Shopware\Core\Framework\Event\ProgressAdvancedEvent;
 use Shopware\Core\Framework\Event\ProgressFinishedEvent;
 use Shopware\Core\Framework\Event\ProgressStartedEvent;
@@ -89,28 +88,16 @@ class PaymentMethodIndexer implements IndexerInterface
 
         $bytes = array_values(array_map(function ($id) { return Uuid::fromHexToBytes($id); }, $ids));
 
-        $paymentRules = $this->connection->fetchAll(
-            'SELECT id, rule_id 
-             FROM payment_method 
-             LEFT OUTER JOIN payment_method_rule ON payment_method.id = payment_method_rule.payment_method_id 
-             WHERE id IN (:ids) ORDER BY id',
-            ['ids' => $bytes],
-            ['ids' => Connection::PARAM_STR_ARRAY]
-        );
+        $sql = <<<SQL
+UPDATE payment_method SET payment_method.availability_rule_ids = (
+    SELECT CONCAT('[', GROUP_CONCAT(JSON_QUOTE(LOWER(HEX(payment_method_rule.rule_id)))), ']')
+    FROM payment_method_rule
+    WHERE payment_method_rule.payment_method_id = payment_method.id
+)
+WHERE payment_method.id IN (:ids)
+SQL;
 
-        $paymentRules = FetchModeHelper::group($paymentRules);
-        foreach ($paymentRules as $paymentMethodId => $ruleIds) {
-            $ruleIds = $this->mapIds($ruleIds);
-            $serialized = json_encode($ruleIds);
-
-            $this->connection->createQueryBuilder()
-                ->update('payment_method')
-                ->set('availability_rule_ids', ':serialize')
-                ->where('id = :id')
-                ->setParameter('id', $paymentMethodId)
-                ->setParameter('serialize', $serialized)
-                ->execute();
-        }
+        $this->connection->executeUpdate($sql, ['ids' => $bytes], ['ids' => Connection::PARAM_STR_ARRAY]);
     }
 
     protected function mapIds(array $ids): array

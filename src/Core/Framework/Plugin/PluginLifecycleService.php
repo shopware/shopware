@@ -33,7 +33,7 @@ use Shopware\Core\Framework\Plugin\Exception\PluginNotActivatedException;
 use Shopware\Core\Framework\Plugin\Exception\PluginNotInstalledException;
 use Shopware\Core\Framework\Plugin\Requirement\Exception\RequirementStackException;
 use Shopware\Core\Framework\Plugin\Requirement\RequirementsValidator;
-use Shopware\Core\Framework\Util\AssetServiceInterface;
+use Shopware\Core\Framework\Plugin\Util\AssetService;
 use Symfony\Component\DependencyInjection\ContainerAwareTrait;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -81,7 +81,7 @@ class PluginLifecycleService
     private $connection;
 
     /**
-     * @var AssetServiceInterface
+     * @var AssetService
      */
     private $assetInstaller;
 
@@ -104,7 +104,7 @@ class PluginLifecycleService
         MigrationCollectionLoader $migrationLoader,
         MigrationRuntime $migrationRunner,
         Connection $connection,
-        AssetServiceInterface $assetInstaller,
+        AssetService $assetInstaller,
         CommandExecutor $executor,
         RequirementsValidator $requirementValidator
     ) {

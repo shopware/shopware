@@ -36,7 +36,7 @@
             <argument type="service" id="Shopware\Core\Framework\Migration\MigrationCollectionLoader"/>
             <argument type="service" id="Shopware\Core\Framework\Migration\MigrationRuntime"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
-            <argument type="service" id="Shopware\Core\Framework\Util\AssetService"/>
+            <argument type="service" id="Shopware\Core\Framework\Plugin\Util\AssetService"/>
             <argument type="service" id="Shopware\Core\Framework\Plugin\Composer\CommandExecutor"/>
             <argument type="service" id="Shopware\Core\Framework\Plugin\Requirement\RequirementsValidator"/>
         </service>
@@ -128,6 +128,12 @@
             <argument type="service" id="plugin.repository"/>
         </service>
 
+        <service id="Shopware\Core\Framework\Plugin\Util\AssetService">
+            <argument type="service" id="filesystem"/>
+            <argument type="service" id="kernel"/>
+            <argument type="service" id="Shopware\Core\Framework\Plugin\KernelPluginCollection"/>
+        </service>
+
         <!-- Requirement -->
         <service id="Shopware\Core\Framework\Plugin\Requirement\RequirementsValidator">
             <argument type="service" id="plugin.repository"/>
@@ -135,5 +141,7 @@
         </service>
 
         <service id="Shopware\Core\Framework\Plugin\Util\PluginFinder" />
+
+
     </services>
 </container>

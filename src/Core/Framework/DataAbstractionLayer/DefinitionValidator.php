@@ -620,6 +620,26 @@ class DefinitionValidator
             $violations[$mapping][] = sprintf('Field %s in definition %s has to be defined as FkField', $column, $mapping);
         }
 
+        if ($fk->getReferenceClass() !== $association->getReferenceDefinition()) {
+            $violations[$definition][] = sprintf(
+                'Reference column %s of field %s should map to definition %s',
+                $fk->getPropertyName(),
+                $association->getPropertyName(),
+                $association->getReferenceDefinition()
+            );
+        }
+
+        /** @var FkField $localColumn */
+        $localColumn = $mapping::getFields()->getByStorageName($association->getMappingLocalColumn());
+        if ($localColumn->getReferenceClass() !== $definition) {
+            $violations[$definition][] = sprintf(
+                'Local column %s of field %s should map to definition %s',
+                $localColumn->getPropertyName(),
+                $association->getPropertyName(),
+                $definition
+            );
+        }
+
         /** @var string|EntityDefinition $definition */
         if ($definition::isVersionAware() && $reference::isVersionAware()) {
             $versionField = $mapping::getFields()->filter(function (Field $field) use ($definition) {

@@ -40,7 +40,7 @@ class ManyToManyAssociationField extends Field implements AssociationInterface
 
     public function __construct(
         string $propertyName,
-        string $referenceClass,
+        string $referenceDefinition,
         string $mappingDefinition,
         bool $loadInBasic,
         string $mappingLocalColumn,
@@ -49,7 +49,7 @@ class ManyToManyAssociationField extends Field implements AssociationInterface
         string $referenceColumn = 'id'
     ) {
         parent::__construct($propertyName);
-        $this->referenceDefinition = $referenceClass;
+        $this->referenceDefinition = $referenceDefinition;
         $this->referenceClass = $mappingDefinition;
         $this->loadInBasic = $loadInBasic;
         $this->mappingDefinition = $mappingDefinition;

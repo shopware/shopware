@@ -3,7 +3,7 @@
 namespace Shopware\Core\Framework\Test\Plugin;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\Plugin\Helper\PluginFinder;
+use Shopware\Core\Framework\Plugin\Util\PluginFinder;
 
 class PluginFinderTest extends TestCase
 {

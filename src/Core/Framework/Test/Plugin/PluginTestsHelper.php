@@ -7,8 +7,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\Plugin\Changelog\ChangelogParser;
 use Shopware\Core\Framework\Plugin\Changelog\ChangelogService;
 use Shopware\Core\Framework\Plugin\Composer\PackageProvider;
-use Shopware\Core\Framework\Plugin\Helper\PluginFinder;
 use Shopware\Core\Framework\Plugin\PluginService;
+use Shopware\Core\Framework\Plugin\Util\PluginFinder;
 
 trait PluginTestsHelper
 {

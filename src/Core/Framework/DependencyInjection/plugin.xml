@@ -24,7 +24,7 @@
             <argument type="service" id="language.repository"/>
             <argument type="service" id="Shopware\Core\Framework\Plugin\Composer\PackageProvider"/>
             <argument type="service" id="Shopware\Core\Framework\Plugin\Changelog\ChangelogService"/>
-            <argument type="service" id="Shopware\Core\Framework\Plugin\Helper\PluginFinder" />
+            <argument type="service" id="Shopware\Core\Framework\Plugin\Util\PluginFinder" />
         </service>
 
         <service id="Shopware\Core\Framework\Plugin\PluginLifecycleService">
@@ -124,7 +124,7 @@
         </service>
 
         <!-- Helper -->
-        <service id="Shopware\Core\Framework\Plugin\Helper\PluginIdProvider" public="true">
+        <service id="Shopware\Core\Framework\Plugin\Util\PluginIdProvider" public="true">
             <argument type="service" id="plugin.repository"/>
         </service>
 
@@ -134,6 +134,6 @@
             <argument>%kernel.project_dir%</argument>
         </service>
 
-        <service id="Shopware\Core\Framework\Plugin\Helper\PluginFinder" />
+        <service id="Shopware\Core\Framework\Plugin\Util\PluginFinder" />
     </services>
 </container>

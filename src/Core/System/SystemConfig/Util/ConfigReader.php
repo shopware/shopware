@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\System\SystemConfig\Helper;
+namespace Shopware\Core\System\SystemConfig\Util;
 
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Util\XmlReader;

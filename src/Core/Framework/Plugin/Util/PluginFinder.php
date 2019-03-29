@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\Plugin\Helper;
+namespace Shopware\Core\Framework\Plugin\Util;
 
 use Composer\Composer;
 use Composer\Package\PackageInterface;

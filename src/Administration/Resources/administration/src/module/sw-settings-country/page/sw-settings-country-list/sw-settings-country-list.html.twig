@@ -77,6 +77,51 @@
                                                 </sw-grid-column>
                                             {% endblock %}
 
+                                            {% block sw_settings_country_list_columns_position %}
+                                                <sw-grid-column flex="minmax(100px, 1fr)"
+                                                                editable
+                                                                :label="$tc('sw-settings-country.list.columnPosition')">
+
+                                                    {% block sw_settings_country_list_columns_position_label %}
+                                                        {{ item.position }}
+                                                    {% endblock %}
+
+                                                    {% block sw_settings_country_list_columns_position_editor %}
+                                                        <sw-field type="number" number-type="int" v-model="item.position" slot="inline-edit"></sw-field>
+                                                    {% endblock %}
+                                                </sw-grid-column>
+                                            {% endblock %}
+
+                                            {% block sw_settings_country_list_columns_iso %}
+                                                <sw-grid-column flex="minmax(100px, 1fr)"
+                                                                editable
+                                                                :label="$tc('sw-settings-country.list.columnIso')">
+
+                                                    {% block sw_settings_country_list_columns_iso_label %}
+                                                        {{ item.iso }}
+                                                    {% endblock %}
+
+                                                    {% block sw_settings_country_list_columns_iso_editor %}
+                                                        <sw-field type="text" v-model="item.iso" slot="inline-edit"></sw-field>
+                                                    {% endblock %}
+                                                </sw-grid-column>
+                                            {% endblock %}
+
+                                            {% block sw_settings_country_list_columns_iso3 %}
+                                                <sw-grid-column flex="minmax(100px, 1fr)"
+                                                                editable
+                                                                :label="$tc('sw-settings-country.list.columnIso3')">
+
+                                                    {% block sw_settings_country_list_columns_iso3_label %}
+                                                        {{ item.iso3 }}
+                                                    {% endblock %}
+
+                                                    {% block sw_settings_country_list_columns_iso3_editor %}
+                                                        <sw-field type="text" v-model="item.iso3" slot="inline-edit"></sw-field>
+                                                    {% endblock %}
+                                                </sw-grid-column>
+                                            {% endblock %}
+
                                             {% block sw_settings_country_list_columns_active %}
                                                 <sw-grid-column flex="minmax(100px, 1fr)"
                                                                 editable

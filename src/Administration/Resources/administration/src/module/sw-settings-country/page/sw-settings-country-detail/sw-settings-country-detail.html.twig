@@ -53,6 +53,31 @@
                                 </sw-field>
                             {% endblock %}
 
+                            {% block sw_settings_country_detail_content_field_position %}
+                                <sw-field type="number"
+                                          numberType="int"
+                                          :label="$tc('sw-settings-country.detail.labelPosition')"
+                                          :placeholder="placeholder(country, 'position', $tc('sw-settings-country.detail.placeholderPosition'))"
+                                          v-model="country.position">
+                                </sw-field>
+                            {% endblock %}
+
+                            {% block sw_settings_country_detail_content_field_iso %}
+                                <sw-field type="text"
+                                          :label="$tc('sw-settings-country.detail.labelIso')"
+                                          :placeholder="placeholder(country, 'iso', $tc('sw-settings-country.detail.placeholderIso'))"
+                                          v-model="country.iso">
+                                </sw-field>
+                            {% endblock %}
+
+                            {% block sw_settings_country_detail_content_field_iso3 %}
+                                <sw-field type="text"
+                                          :label="$tc('sw-settings-country.detail.labelIso3')"
+                                          :placeholder="placeholder(country, 'iso3', $tc('sw-settings-country.detail.placeholderIso3'))"
+                                          v-model="country.iso3">
+                                </sw-field>
+                            {% endblock %}
+
                             {% block sw_settings_country_detail_content_field_active %}
                                 <sw-field type="boolean"
                                           :label="$tc('sw-settings-country.detail.labelActive')"

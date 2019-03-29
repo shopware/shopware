@@ -1,0 +1,20 @@
+{% block sw_code_editor %}
+    <div class="sw-code-editor">
+
+        {% block sw_text_editor_label %}
+            <div class="sw-code-editor__label"
+                 v-if="getInlineSnippet(label).length">{{ getInlineSnippet(label) }}
+            </div>
+        {% endblock %}
+
+        {% block sw_code_editor_editor %}
+            <div class="sw-code-editor__editor"
+                 ref="editor"
+                 :content="value"
+                 @input="onInput"
+                 @change="onChange">
+            </div>
+        {% endblock %}
+
+    </div>
+{% endblock %}

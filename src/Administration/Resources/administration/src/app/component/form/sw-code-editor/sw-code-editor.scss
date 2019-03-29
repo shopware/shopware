@@ -1,0 +1,23 @@
+@import "~scss/variables";
+
+$sw-text-editor-color-border: $color-steam-cloud;
+$sw-text-editor-color-label: $color-kashmir;
+
+.sw-code-editor {
+    margin-bottom: 22px;
+
+    .sw-code-editor__label {
+        display: block;
+        line-height: 16px;
+        font-size: 14px;
+        margin-bottom: 8px;
+        color: $sw-text-editor-color-label;
+        font-weight: normal;
+        user-select: none;
+    }
+
+    .sw-code-editor__editor {
+		border: 1px solid $sw-text-editor-color-border;
+        height: 260px;
+    }
+}

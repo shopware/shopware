@@ -1,4 +1,4 @@
-import { State, Mixin } from 'src/core/shopware';
+import { State, Mixin, Application } from 'src/core/shopware';
 import dom from 'src/core/service/utils/dom.utils';
 import template from './sw-admin-menu.html.twig';
 import './sw-admin-menu.scss';
@@ -116,28 +116,28 @@ export default {
     methods: {
         createdComponent() {
             this.collapseMenuOnSmallViewports();
-
-            this.userService.getUser().then((response) => {
-                this.userProfile = response.data;
-                this.user = this.userStore.getById(this.userProfile.id);
-            }).catch((error) => {
-                const status = error.response.status;
-                if (status !== 401) {
-                    this.createNotificationError({
-                        title: this._name,
-                        message: error.message
-                    });
-                    return;
-                }
-                this.loginService.logout();
-                this.$router.replace({
-                    name: 'sw.login.index'
-                });
-            });
-
+            this.getUser();
             this.$root.$on('toggleOffCanvas', (state) => {
                 this.isOffCanvasShown = state;
             });
+        },
+
+        getUser() {
+            const initService = Application.getContainer('init');
+            const contextService = initService.contextService;
+            const currentUser = contextService.currentUser;
+
+            if (Object.keys(currentUser).length <= 0) {
+                this.userService.getUser().then((response) => {
+                    this.userProfile = response.data;
+                    this.user = this.userStore.getById(this.userProfile.id);
+                });
+                return true;
+            }
+            this.userProfile = currentUser;
+            this.user = this.userStore.getById(this.userProfile.id);
+
+            return true;
         },
 
         openSubMenu(entry, currentTarget) {

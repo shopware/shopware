@@ -12,6 +12,7 @@ import initLocale from 'src/app/init/locale.init';
 import initApiServices from 'src/app/init/api-services.init';
 import initComponents from 'src/app/init/component.init';
 import initWorker from 'src/app/init/worker.init';
+import initUserContext from 'src/app/init/user-information.init';
 
 export default {
     contextService: initContext,
@@ -27,5 +28,6 @@ export default {
     router: initRouter,
     entity: initEntity,
     locale: initLocale,
-    worker: initWorker
+    worker: initWorker,
+    userInfo: initUserContext
 };

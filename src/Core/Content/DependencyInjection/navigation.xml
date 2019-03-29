@@ -22,6 +22,7 @@
 
         <service id="Shopware\Core\Content\Navigation\Service\NavigationTreeLoader" public="true">
             <argument type="service" id="navigation.repository"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Util\Tree\TreeBuilder"/>
         </service>
     </services>
 </container>

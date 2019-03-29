@@ -13,16 +13,23 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Util\Tree\Tree;
 use Shopware\Core\Framework\DataAbstractionLayer\Util\Tree\TreeBuilder;
-use Shopware\Core\Framework\Routing\Exception\InvalidRequestParameterException;
 
 class NavigationTreeLoader
 {
-    /** @var EntityRepositoryInterface $navigationRepository */
+    /**
+     * @var EntityRepositoryInterface
+     */
     private $navigationRepository;
 
-    public function __construct(EntityRepositoryInterface $repository)
+    /**
+     * @var TreeBuilder
+     */
+    private $treeBuilder;
+
+    public function __construct(EntityRepositoryInterface $repository, TreeBuilder $treeBuilder)
     {
         $this->navigationRepository = $repository;
+        $this->treeBuilder = $treeBuilder;
     }
 
     /**
@@ -30,7 +37,6 @@ class NavigationTreeLoader
      *
      * @throws NavigationNotFoundException
      * @throws InconsistentCriteriaIdsException
-     * @throws InvalidRequestParameterException
      */
     public function load(string $activeId, CheckoutContext $context): ?Tree
     {
@@ -48,7 +54,6 @@ class NavigationTreeLoader
      *
      * @throws NavigationNotFoundException
      * @throws InconsistentCriteriaIdsException
-     * @throws InvalidRequestParameterException
      */
     public function loadLevel(string $navigationId, CheckoutContext $context): ?Tree
     {
@@ -70,12 +75,9 @@ class NavigationTreeLoader
         return $this->buildTree($parentId, $navigations, $active);
     }
 
-    /**
-     * @throws InvalidRequestParameterException
-     */
     private function buildTree(?string $parentId, EntitySearchResult $navigations, NavigationEntity $active): Tree
     {
-        $tree = TreeBuilder::buildTree($parentId, $navigations);
+        $tree = $this->treeBuilder->buildTree($parentId, $navigations);
 
         return new Tree($active, $tree);
     }

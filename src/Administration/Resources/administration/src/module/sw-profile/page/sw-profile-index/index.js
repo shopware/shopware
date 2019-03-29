@@ -16,9 +16,8 @@ Component.register('sw-profile-index', {
     data() {
         return {
             userProfile: {},
-            user: {
-                isLoading: true
-            },
+            user: null,
+            isUserLoading: true,
             imageSize: 140,
             oldPassword: null,
             newPassword: null,
@@ -39,10 +38,6 @@ Component.register('sw-profile-index', {
 
         mediaStore() {
             return State.getStore('media');
-        },
-
-        isUserLoading() {
-            return !this.user.id;
         },
 
         userMediaCriteria() {
@@ -66,20 +61,30 @@ Component.register('sw-profile-index', {
         this.createdComponent();
     },
 
+    beforeMount() {
+        this.userPromise.then((user) => {
+            this.user = user;
+            this.isUserLoading = false;
+        }).catch((err) => {
+            console.dir(err);
+        });
+    },
+
     methods: {
         createdComponent() {
+            this.isUserLoading = true;
             if (this.$route.params.user) {
-                this.setUserData(this.$route.params.user);
+                this.userPromise = this.setUserData(this.$route.params.user);
             } else {
-                this.userService.getUser().then((response) => {
-                    this.setUserData(response.data);
+                this.userPromise = this.userService.getUser().then((response) => {
+                    return this.setUserData(response.data);
                 });
             }
         },
 
         setUserData(userProfile) {
             this.userProfile = userProfile;
-            this.user = this.userStore.getById(this.userProfile.id);
+            return this.userStore.getByIdAsync(this.userProfile.id);
         },
 
         onSave() {

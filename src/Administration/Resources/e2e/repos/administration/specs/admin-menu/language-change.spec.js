@@ -2,12 +2,14 @@ module.exports = {
     '@tags': ['language-change', 'language', 'change', 'admin-menu'],
     'open admin menu': (browser) => {
         browser
+            .waitForElementNotPresent('.sw-admin-menu__user-actions-toggle .sw-loader')
             .waitForElementVisible('.sw-admin-menu__item--sw-dashboard .sw-admin-menu__navigation-link')
             .click('.sw-admin-menu__item--sw-dashboard .sw-admin-menu__navigation-link');
     },
     'toggle different admin menu appearances, change and assert administration language': (browser) => {
         browser
             .waitForElementVisible('.sw-dashboard-index__content')
+            .waitForElementNotPresent('.sw-admin-menu__user-actions-toggle .sw-loader')
             .clickUserActionMenu('admin')
             .click('.sw-admin-menu__toggle')
             .waitForElementNotVisible('.sw-admin-menu__user-type')

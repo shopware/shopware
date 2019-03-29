@@ -9,102 +9,106 @@
 
         <template slot="smart-bar-actions">
             {% block sw_profile_index_actions %}
-                <sw-button variant="primary" :disabled="user.isLoading" @click.prevent="onSave">
+                <sw-button variant="primary" :disabled="isUserLoading" @click.prevent="onSave">
                     {{ $tc('sw-profile.index.buttonSaveLabel') }}
                 </sw-button>
             {% endblock %}
         </template>
 
-        <sw-card-view slot="content">
-            {% block sw_profile_index_content %}
-                {% block sw_profile_index_info_card %}
-                    <sw-card class="sw-profile__card"
-                             :title="$tc('sw-profile.index.titleInfoCard')"
-                             :isLoading="user.isLoading">
-                        <sw-container columns="repeat(auto-fit, minmax(250px, 1fr)" gap="0 30px">
-                            {% block sw_profile_index_info_card_name_field %}
-                                <sw-text-field :label="$tc('sw-profile.index.labelNameField')"
-                                               v-model="user.name"
-                                               :disabled="isDisabled">
+        <template slot="content">
+            <sw-card-view v-if="!isUserLoading">
+                {% block sw_profile_index_content %}
+                    {% block sw_profile_index_info_card %}
+                        <sw-card class="sw-profile__card"
+                                 :title="$tc('sw-profile.index.titleInfoCard')"
+                                 :isLoading="isUserLoading">
+                            <sw-container columns="repeat(auto-fit, minmax(250px, 1fr)" gap="0 30px">
+                                {% block sw_profile_index_info_card_name_field %}
+                                    <sw-text-field :label="$tc('sw-profile.index.labelNameField')"
+                                                   v-model="user.name"
+                                                   :disabled="isDisabled">
+                                    </sw-text-field>
+                                {% endblock %}
+
+                                {% block sw_profile_index_info_card_username_field %}
+                                    <sw-text-field :label="$tc('sw-profile.index.labelUsernameField')"
+                                                   v-model="user.username"
+                                                   :disabled="isDisabled">
+                                    </sw-text-field>
+                                {% endblock %}
+                            </sw-container>
+
+                            {% block sw_profile_index_info_card_email_field %}
+                                <sw-text-field :label="$tc('sw-profile.index.labelEmailField')"
+                                               v-model="user.email"
+                                               validation="email">
                                 </sw-text-field>
                             {% endblock %}
+                        </sw-card>
+                    {% endblock %}
 
-                            {% block sw_profile_index_info_card_username_field %}
-                                <sw-text-field :label="$tc('sw-profile.index.labelUsernameField')"
-                                               v-model="user.username"
-                                               :disabled="isDisabled">
-                                </sw-text-field>
+                    {% block sw_profile_index_image_card %}
+                        <sw-card class="sw-profile__card"
+                                 :title="$tc('sw-profile.index.titleImageCard')"
+                                 :isLoading="isUserLoading">
+                            {% block sw_profile_index_image_card_image %}
+                                <sw-upload-store-listener
+                                    :uploadTag="uploadTag"
+                                    autoUpload
+                                    @sw-media-upload-finished="setMediaItem">
+                                </sw-upload-store-listener>
+                                <sw-media-upload
+                                    :uploadTag="uploadTag"
+                                    :source="avatarMediaItem"
+                                    class="sw-profile-index__user-image-upload"
+                                    :allowMultiSelect="false"
+                                    variant="regular"
+                                    :label="$tc('sw-profile.index.labelUploadAvatar')"
+                                    :defaultFolder="userStore.getEntityName()"
+                                    @sw-media-upload-open-sidebar="openMediaSidebar"
+                                    @sw-media-upload-remove-image="onUnlinkAvatar">
+                                </sw-media-upload>
                             {% endblock %}
-                        </sw-container>
+                        </sw-card>
+                    {% endblock %}
 
-                        {% block sw_profile_index_info_card_email_field %}
-                            <sw-text-field :label="$tc('sw-profile.index.labelEmailField')"
-                                           v-model="user.email"
-                                           validation="email">
-                            </sw-text-field>
-                        {% endblock %}
-                    </sw-card>
+                    {% block sw_profile_index_password_card %}
+                        <sw-card class="sw-profile__card"
+                                 :title="$tc('sw-profile.index.titlePasswordCard')"
+                                 :isLoading="isUserLoading">
+                            {% block sw_profile_index_password_card_old_password_field %}
+                                <sw-password-field :label="$tc('sw-profile.index.labelOldPassword')"
+                                                   v-model="oldPassword"
+                                                   autocomplete="off">
+                                </sw-password-field>
+                            {% endblock %}
+
+                            {% block sw_profile_index_password_card_new_password_field %}
+                                <sw-password-field :label="$tc('sw-profile.index.labelNewPasswordField')"
+                                                   v-model="newPassword"
+                                                   autocomplete="off">
+                                </sw-password-field>
+                            {% endblock %}
+
+                            {% block sw_profile_index_password_card_confirm_new_password_field %}
+                                <sw-password-field :label="$tc('sw-profile.index.labelNewPasswordConfirmField')"
+                                                   v-model="newPasswordConfirm"
+                                                   autocomplete="off"
+                                                   :validation="newPassword === newPasswordConfirm">
+                                </sw-password-field>
+                            {% endblock %}
+                        </sw-card>
+                    {% endblock %}
                 {% endblock %}
-
-                {% block sw_profile_index_image_card %}
-                    <sw-card class="sw-profile__card"
-                             :title="$tc('sw-profile.index.titleImageCard')"
-                             :isLoading="user.isLoading">
-                        {% block sw_profile_index_image_card_image %}
-                            <sw-upload-store-listener
-                                :uploadTag="uploadTag"
-                                autoUpload
-                                @sw-media-upload-finished="setMediaItem">
-                            </sw-upload-store-listener>
-                            <sw-media-upload
-                                :uploadTag="uploadTag"
-                                :source="avatarMediaItem"
-                                class="sw-profile-index__user-image-upload"
-                                :allowMultiSelect="false"
-                                variant="regular"
-                                :label="$tc('sw-profile.index.labelUploadAvatar')"
-                                :defaultFolder="user.getEntityName()"
-                                @sw-media-upload-open-sidebar="openMediaSidebar"
-                                @sw-media-upload-remove-image="onUnlinkAvatar">
-                            </sw-media-upload>
-                        {% endblock %}
-                    </sw-card>
-                {% endblock %}
-
-                {% block sw_profile_index_password_card %}
-                    <sw-card class="sw-profile__card"
-                             :title="$tc('sw-profile.index.titlePasswordCard')"
-                             :isLoading="user.isLoading">
-                        {% block sw_profile_index_password_card_old_password_field %}
-                            <sw-password-field :label="$tc('sw-profile.index.labelOldPassword')"
-                                               v-model="oldPassword"
-                                               autocomplete="off">
-                            </sw-password-field>
-                        {% endblock %}
-
-                        {% block sw_profile_index_password_card_new_password_field %}
-                            <sw-password-field :label="$tc('sw-profile.index.labelNewPasswordField')"
-                                               v-model="newPassword"
-                                               autocomplete="off">
-                            </sw-password-field>
-                        {% endblock %}
-
-                        {% block sw_profile_index_password_card_confirm_new_password_field %}
-                            <sw-password-field :label="$tc('sw-profile.index.labelNewPasswordConfirmField')"
-                                               v-model="newPasswordConfirm"
-                                               autocomplete="off"
-                                               :validation="newPassword === newPasswordConfirm">
-                            </sw-password-field>
-                        {% endblock %}
-                    </sw-card>
-                {% endblock %}
-            {% endblock %}
-        </sw-card-view>
+            </sw-card-view>
+            <sw-empty-state v-else :title="$tc('sw-profile.general.headlineProfile')"></sw-empty-state>
+        </template>
 
         {% block sw_profile_index_sidebar %}
             <template slot="sidebar">
-                <sw-sidebar :propagateWidth="true">
+                <sw-sidebar :propagateWidth="true" >
                     <sw-sidebar-media-item ref="mediaSidebarItem"
+                                           v-if="!isUserLoading"
                                            :isParentLoading="isUserLoading"
                                            :additionalSearchCriteria="userMediaCriteria">
                         <template slot="context-menu-items" slot-scope="media">

@@ -7,6 +7,7 @@ module.exports = {
 
         browser
             .waitForElementVisible('.sw-dashboard-index__content')
+            .waitForElementNotPresent('.sw-admin-menu__user-actions-toggle .sw-loader')
             .clickUserActionMenu('admin')
             .click('.sw-admin-menu__profile-item')
             .expect.element(page.elements.smartBarHeader).to.have.text.that.equals('Your profile');

@@ -13,7 +13,9 @@ module.exports = {
     'log out right away': (browser) => {
         const page = loginPage(browser);
 
-        browser.clickUserActionMenu('admin');
+        browser
+            .waitForElementNotPresent('.sw-admin-menu__user-actions-toggle .sw-loader')
+            .clickUserActionMenu('admin');
         page.logout('admin');
     },
     'verify logout': (browser) => {

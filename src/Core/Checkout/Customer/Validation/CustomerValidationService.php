@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Customer\Validation;
 
+use function date;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Validation\EntityExists;
 use Shopware\Core\Framework\Validation\DataValidationDefinition;
@@ -16,7 +17,7 @@ class CustomerValidationService implements ValidationServiceInterface
 {
     public function buildCreateValidation(Context $context): DataValidationDefinition
     {
-        $definition = new DataValidationDefinition('customer.update');
+        $definition = new DataValidationDefinition('customer.create');
 
         $this->buildCommon($definition, $context)
             ->add('firstName', new NotBlank())
@@ -40,9 +41,9 @@ class CustomerValidationService implements ValidationServiceInterface
             ->add('email', new Email())
             ->add('salutationId', new EntityExists(['entity' => 'salutation', 'context' => $context]))
             ->add('active', new Type(['type' => 'boolean']))
-            ->add('birthdayDay', new Type(['type' => 'integer']), new GreaterThanOrEqual(['value' => 1]), new LessThanOrEqual(['value' => 31]))
-            ->add('birthdayMonth', new Type(['type' => 'integer']), new GreaterThanOrEqual(['value' => 1]), new LessThanOrEqual(['value' => 12]))
-            ->add('birthdayYear', new Type(['type' => 'integer']));
+            ->add('birthdayDay', new GreaterThanOrEqual(['value' => 1]), new LessThanOrEqual(['value' => 31]))
+            ->add('birthdayMonth', new GreaterThanOrEqual(['value' => 1]), new LessThanOrEqual(['value' => 12]))
+            ->add('birthdayYear', new LessThanOrEqual(['value' => date('Y')]));
 
         return $definition;
     }

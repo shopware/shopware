@@ -4,7 +4,11 @@ namespace Shopware\Storefront\PageController;
 
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException as CustomerNotLoggedInExceptionAlias;
 use Shopware\Core\Checkout\CheckoutContext;
+use Shopware\Core\Checkout\Customer\Storefront\AccountRegistrationService;
+use Shopware\Core\Checkout\Customer\Storefront\AccountService;
 use Shopware\Core\Framework\Routing\InternalRequest;
+use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
+use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
 use Shopware\Storefront\Framework\Controller\StorefrontController;
 use Shopware\Storefront\Framework\Page\PageLoaderInterface;
 use Shopware\Storefront\Page\Account\Address\AccountAddressPageLoader;
@@ -14,6 +18,7 @@ use Shopware\Storefront\Page\Account\Order\AccountOrderPageLoader;
 use Shopware\Storefront\Page\Account\Overview\AccountOverviewPageLoader;
 use Shopware\Storefront\Page\Account\PaymentMethod\AccountPaymentMethodPageLoader;
 use Shopware\Storefront\Page\Account\Profile\AccountProfilePageLoader;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -54,6 +59,16 @@ class AccountPageController extends StorefrontController
      */
     private $addressPageLoader;
 
+    /**
+     * @var AccountService
+     */
+    private $accountService;
+
+    /**
+     * @var AccountRegistrationService
+     */
+    private $accountRegistrationService;
+
     public function __construct(
         PageLoaderInterface $accountLoginPageLoader,
         PageLoaderInterface $accountOverviewPageLoader,
@@ -61,7 +76,9 @@ class AccountPageController extends StorefrontController
         PageLoaderInterface $accountProfilePageLoader,
         PageLoaderInterface $accountPaymentMethodPageLoader,
         PageLoaderInterface $accountOrderPageLoader,
-        PageLoaderInterface $addressPageLoader
+        PageLoaderInterface $addressPageLoader,
+        AccountService $accountService,
+        AccountRegistrationService $accountRegistrationService
     ) {
         $this->loginPageLoader = $accountLoginPageLoader;
         $this->addressListPageLoader = $accountAddressPageLoader;
@@ -70,6 +87,8 @@ class AccountPageController extends StorefrontController
         $this->paymentMethodPageLoader = $accountPaymentMethodPageLoader;
         $this->orderPageLoader = $accountOrderPageLoader;
         $this->addressPageLoader = $addressPageLoader;
+        $this->accountService = $accountService;
+        $this->accountRegistrationService = $accountRegistrationService;
     }
 
     /**
@@ -101,7 +120,43 @@ class AccountPageController extends StorefrontController
 
         $page = $this->loginPageLoader->load($request, $context);
 
-        return $this->renderStorefront('@Storefront/page/account/login.html.twig', ['redirectTo' => $redirect, 'page' => $page]);
+        return $this->renderStorefront('@Storefront/page/account/register/index.html.twig', ['redirectTo' => $redirect, 'page' => $page]);
+    }
+
+    /**
+     * @Route("/account/register", name="frontend.account.register.page", methods={"GET"})
+     */
+    public function register(InternalRequest $request, RequestDataBag $data, CheckoutContext $context): Response
+    {
+        if ($context->getCustomer()) {
+            return $this->redirectToRoute('frontend.account.home.page');
+        }
+
+        $redirect = $request->optionalGet('redirectTo', $this->generateUrl('frontend.account.home.page'));
+
+        $page = $this->loginPageLoader->load($request, $context);
+
+        return $this->renderStorefront('@Storefront/page/account/register/index.html.twig', ['redirectTo' => $redirect, 'page' => $page, 'data' => $data]);
+    }
+
+    /**
+     * @Route("/account/register", name="frontend.account.register.save", methods={"POST"})
+     */
+    public function saveRegister(RequestDataBag $data, CheckoutContext $context): Response
+    {
+        if ($context->getCustomer()) {
+            return $this->redirectToRoute('frontend.account.home.page');
+        }
+
+        try {
+            $this->accountRegistrationService->register($data, false, $context);
+        } catch (ConstraintViolationException $errors) {
+            return $this->forward('Shopware\Storefront\PageController\AccountPageController::register', ['errors' => $errors]);
+        }
+
+        $this->accountService->login($data->get('email'), $context);
+
+        return new RedirectResponse($this->generateUrl('frontend.account.home.page'));
     }
 
     /**

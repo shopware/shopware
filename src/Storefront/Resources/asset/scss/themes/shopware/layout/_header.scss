@@ -1,3 +1,67 @@
+.top-bar-select:hover {
+    .top-bar-select-field,
+    .select-arrow-down::before {
+        color: $secondary;
+        border-color: $secondary;
+    }
+}
+
+.top-bar-select-field {
+    cursor: pointer;
+    color: $gray-600;
+    font-size: $font-size-base;
+    border: 0;
+    background: transparent;
+    appearance: none;
+}
+
+.select-arrow-down {
+    line-height: 1.75;
+    color: $gray-600;
+    display: inline-block;
+    padding: 3px;
+}
+
+.language-form {
+    display: flex;
+    align-items: center;
+}
+
+// Service Menu
+.service-menu-btn {
+    color: $gray-600;
+    font-weight: initial;
+    padding: 0;
+
+    &:hover {
+        color: $secondary;
+    }
+}
+
+.service-menu-items {
+    border: 1px solid $gray-300;
+}
+
+.service-menu-items::before {
+    content: '';
+    width: 8px;
+    height: 8px;
+    top: -5px;
+    right: 40px;
+    display: block;
+    position: absolute;
+    background: $white;
+    border-color: $gray-300;
+    border-width: 0 0 1px 1px;
+    border-style: solid;
+    transform: rotate(135deg);
+}
+
+.service-menu-item:hover {
+    color: $secondary;
+    background: initial;
+}
+
 .header-main {
     background: $white;
 }

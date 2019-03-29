@@ -1,3 +1,37 @@
+.top-bar {
+    display: none;
+}
+
+.top-bar-navigation {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.top-bar-nav-item {
+    display: flex;
+    align-items: center;
+    margin-right: $spacer;
+
+    &:last-child {
+        margin-right: 0;
+    }
+}
+
+.top-bar-select {
+    max-width: 100px;
+    display: flex;
+}
+
+.top-bar-select-field {
+    width: 100%;
+    white-space: nowrap;
+    overflow: hidden;
+}
+
+.icon-service {
+    margin-right: $spacer-sm;
+}
+
 .header-row {
     padding-top: $spacer;
 }
@@ -43,6 +77,11 @@
 }
 
 @include media-breakpoint-up(md) {
+    .top-bar {
+        display: block;
+        padding: 5px 0;
+    }
+
     .header-row {
         padding-bottom: $spacer;
     }

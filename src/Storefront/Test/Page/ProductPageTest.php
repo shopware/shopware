@@ -33,7 +33,7 @@ class ProductPageTest extends TestCase
 
     public function testItRequiresAValidProductParam(): void
     {
-        $request = new InternalRequest(['productId' => 'foo']);
+        $request = new InternalRequest(['productId' => '99999911ffff4fffafffffff19830531']);
         $context = $this->createCheckoutContextWithNavigation();
 
         $this->expectException(ProductNotFoundException::class);

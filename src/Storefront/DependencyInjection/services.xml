@@ -127,6 +127,8 @@
             <argument type="service" id="Shopware\Storefront\Framework\Page\PageWithHeaderLoader"/>
             <argument type="service" id="Shopware\Core\Content\Product\Storefront\StorefrontProductRepository"/>
             <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="Shopware\Core\Content\Cms\Storefront\StorefrontCmsPageRepository"/>
+            <argument type="service" id="Shopware\Core\Content\Cms\SlotDataResolver\SlotDataResolver"/>
         </service>
 
         <service id="Shopware\Storefront\Page\Listing\ListingPageLoader" public="true">

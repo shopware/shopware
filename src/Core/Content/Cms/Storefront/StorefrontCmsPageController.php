@@ -6,9 +6,9 @@ use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Content\Cms\CmsPageDefinition;
 use Shopware\Core\Content\Cms\CmsPageEntity;
 use Shopware\Core\Content\Cms\Exception\PageNotFoundException;
+use Shopware\Core\Content\Cms\SlotDataResolver\ResolverContext\ResolverContext;
 use Shopware\Core\Content\Cms\SlotDataResolver\SlotDataResolver;
 use Shopware\Core\Framework\Api\Response\ResponseFactoryInterface;
-use Shopware\Core\Framework\Routing\InternalRequest;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -35,10 +35,10 @@ class StorefrontCmsPageController extends AbstractController
     /**
      * @Route("/storefront-api/v1/cms-page/{pageId}", methods={"GET"})
      */
-    public function getPage(string $pageId, Request $request, InternalRequest $internalRequest, CheckoutContext $context, ResponseFactoryInterface $responseFactory): Response
+    public function getPage(string $pageId, Request $request, CheckoutContext $context, ResponseFactoryInterface $responseFactory): Response
     {
         $cmsPage = $this->getCmsPage($pageId, $context);
-        $this->loadSlotData($cmsPage, $internalRequest, $context);
+        $this->loadSlotData($cmsPage, $context);
 
         return $responseFactory->createDetailResponse(
             $cmsPage,
@@ -48,17 +48,14 @@ class StorefrontCmsPageController extends AbstractController
         );
     }
 
-    private function loadSlotData(CmsPageEntity $page, InternalRequest $request, CheckoutContext $context): void
+    private function loadSlotData(CmsPageEntity $page, CheckoutContext $context): void
     {
         if (!$page->getBlocks()) {
             return;
         }
 
-        $slots = $this->slotDataResolver->resolve(
-            $page->getBlocks()->getSlots(),
-            $request,
-            $context
-        );
+        $resolverContext = new ResolverContext($context);
+        $slots = $this->slotDataResolver->resolve($page->getBlocks()->getSlots(), $resolverContext);
 
         $page->getBlocks()->setSlots($slots);
     }

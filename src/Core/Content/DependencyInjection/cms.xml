@@ -48,6 +48,14 @@
             <tag name="shopware.cms.data_resolver" />
         </service>
 
+        <service id="Shopware\Core\Content\Cms\SlotDataResolver\Type\TextTypeDataResolver">
+            <tag name="shopware.cms.data_resolver"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Cms\SlotDataResolver\Type\ProductSliderTypeDataResolver">
+            <tag name="shopware.cms.data_resolver"/>
+        </service>
+
         <service id="Shopware\Core\Content\Cms\Storefront\StorefrontCmsPageController" public="true">
             <argument type="service" id="Shopware\Core\Content\Cms\Storefront\StorefrontCmsPageRepository" />
             <argument type="service" id="Shopware\Core\Content\Cms\SlotDataResolver\SlotDataResolver" />
@@ -55,7 +63,5 @@
                 <argument type="service" id="service_container" />
             </call>
         </service>
-
-
     </services>
 </container>

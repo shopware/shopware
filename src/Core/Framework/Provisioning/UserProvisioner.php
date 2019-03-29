@@ -4,8 +4,8 @@ namespace Shopware\Core\Framework\Provisioning;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Defaults;
-use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Util\Random;
+use Shopware\Core\Framework\Uuid\Uuid;
 
 class UserProvisioner
 {

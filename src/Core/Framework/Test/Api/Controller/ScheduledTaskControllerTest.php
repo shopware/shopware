@@ -10,10 +10,10 @@ use Shopware\Core\Framework\MessageQueue\Message\RetryMessage;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\RequeueDeadMessagesTask;
 use Shopware\Core\Framework\ScheduledTask\ScheduledTaskDefinition;
 use Shopware\Core\Framework\ScheduledTask\ScheduledTaskEntity;
-use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Test\MessageQueue\fixtures\TestMessage;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\QueueTestBehaviour;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
 
 class ScheduledTaskControllerTest extends TestCase

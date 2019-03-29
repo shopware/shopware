@@ -10,10 +10,10 @@ use Shopware\Core\Framework\MessageQueue\DeadMessage\DeadMessageEntity;
 use Shopware\Core\Framework\MessageQueue\Exception\MessageFailedException;
 use Shopware\Core\Framework\MessageQueue\Handler\RetryMessageHandler;
 use Shopware\Core\Framework\MessageQueue\Message\RetryMessage;
-use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Test\MessageQueue\fixtures\DummyHandler;
 use Shopware\Core\Framework\Test\MessageQueue\fixtures\TestMessage;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Uuid\Uuid;
 
 class RetryMessageHandlerTest extends TestCase
 {

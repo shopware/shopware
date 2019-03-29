@@ -7,8 +7,8 @@ use Shopware\Core\Framework\Attribute\AttributeDefinition;
 use Shopware\Core\Framework\Attribute\AttributeEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Uuid\Uuid;
 
 class AttributeRepositoryTest extends TestCase
 {

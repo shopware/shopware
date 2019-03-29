@@ -9,9 +9,9 @@ use Shopware\Core\Framework\MessageQueue\DeadMessage\RequeueDeadMessagesService;
 use Shopware\Core\Framework\MessageQueue\Handler\EncryptedMessageHandler;
 use Shopware\Core\Framework\MessageQueue\Message\EncryptedMessage;
 use Shopware\Core\Framework\MessageQueue\Message\RetryMessage;
-use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Test\MessageQueue\fixtures\TestMessage;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\Messenger\Envelope;
 use Symfony\Component\Messenger\MessageBusInterface;
 

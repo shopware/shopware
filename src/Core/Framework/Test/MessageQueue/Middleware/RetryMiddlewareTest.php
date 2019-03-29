@@ -13,8 +13,8 @@ use Shopware\Core\Framework\MessageQueue\Middleware\RetryMiddleware;
 use Shopware\Core\Framework\MessageQueue\Stamp\DecryptedStamp;
 use Shopware\Core\Framework\ScheduledTask\ScheduledTask;
 use Shopware\Core\Framework\ScheduledTask\ScheduledTaskDefinition;
-use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\Messenger\Envelope;
 use Symfony\Component\Messenger\Test\Middleware\MiddlewareTestCase;
 

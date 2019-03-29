@@ -66,7 +66,7 @@ class FkFieldSerializer implements FieldSerializerInterface
             return;
         }
 
-        yield $field->getStorageName() => Uuid::fromStringToBytes($value);
+        yield $field->getStorageName() => Uuid::fromHexToBytes($value);
     }
 
     public function decode(Field $field, $value): ?string

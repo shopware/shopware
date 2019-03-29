@@ -230,14 +230,14 @@ class SearchKeywordIndexer implements IndexerInterface
 
         $queue = new MultiInsertQueryQueue($this->connection, 250, false, true);
 
-        $languageId = $this->connection->quote(Uuid::fromStringToBytes($context->getLanguageId()));
+        $languageId = $this->connection->quote(Uuid::fromHexToBytes($context->getLanguageId()));
 
         $entityName = $this->connection->quote($definition::getEntityName());
 
         foreach ($entities as $entity) {
             $keywords = $this->analyzerRegistry->analyze($definition, $entity, $context);
 
-            $entityId = $this->connection->quote(Uuid::fromStringToBytes($entity->getId()));
+            $entityId = $this->connection->quote(Uuid::fromHexToBytes($entity->getId()));
 
             $total = \array_sum($keywords);
 

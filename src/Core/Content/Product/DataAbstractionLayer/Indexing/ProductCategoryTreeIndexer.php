@@ -90,8 +90,8 @@ class ProductCategoryTreeIndexer implements IndexerInterface
 
         $query = new MultiInsertQueryQueue($this->connection, 250, false, true);
 
-        $versionId = Uuid::fromStringToBytes($context->getVersionId());
-        $liveVersionId = Uuid::fromStringToBytes(Defaults::LIVE_VERSION);
+        $versionId = Uuid::fromHexToBytes($context->getVersionId());
+        $liveVersionId = Uuid::fromHexToBytes(Defaults::LIVE_VERSION);
 
         foreach ($categories as $productId => $mapping) {
             $productId = Uuid::fromHexToBytes($productId);
@@ -120,7 +120,7 @@ class ProductCategoryTreeIndexer implements IndexerInterface
                 $query->addInsert('product_category_tree', [
                     'product_id' => $productId,
                     'product_version_id' => $versionId,
-                    'category_id' => Uuid::fromStringToBytes($id),
+                    'category_id' => Uuid::fromHexToBytes($id),
                     'category_version_id' => $liveVersionId,
                 ]);
             }
@@ -166,7 +166,7 @@ class ProductCategoryTreeIndexer implements IndexerInterface
         $query->setParameter('live', Uuid::fromHexToBytes(Defaults::LIVE_VERSION));
 
         $bytes = array_map(function (string $id) {
-            return Uuid::fromStringToBytes($id);
+            return Uuid::fromHexToBytes($id);
         }, $ids);
 
         $query->setParameter('ids', $bytes, Connection::PARAM_STR_ARRAY);

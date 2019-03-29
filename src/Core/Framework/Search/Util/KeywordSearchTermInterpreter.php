@@ -133,7 +133,7 @@ class KeywordSearchTermInterpreter implements KeywordSearchTermInterpreterInterf
         $query->andWhere('language_id = :language');
         $query->andWhere('(' . implode(' OR ', $wheres) . ')');
 
-        $query->setParameter('language', Uuid::fromStringToBytes($context->getLanguageId()));
+        $query->setParameter('language', Uuid::fromHexToBytes($context->getLanguageId()));
         $query->setParameter('scope', $scope);
 
         return $query->execute()->fetchAll(FetchMode::COLUMN);

@@ -181,7 +181,7 @@ class EntityWriter implements EntityWriterInterface
         $skipped = [];
         foreach ($resolved as $mapped) {
             $mappedBytes = array_map(function ($id) {
-                return Uuid::fromStringToBytes($id);
+                return Uuid::fromHexToBytes($id);
             }, $mapped);
 
             $existence = $this->gateway->getExistence($definition, $mappedBytes, [], $commandQueue);

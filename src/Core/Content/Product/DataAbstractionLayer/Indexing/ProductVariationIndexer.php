@@ -95,7 +95,7 @@ AND product.id IN (:ids)
 SQL;
 
         $bytes = array_map(function ($id) {
-            return Uuid::fromStringToBytes($id);
+            return Uuid::fromHexToBytes($id);
         }, $productIds);
 
         $this->connection->executeUpdate(

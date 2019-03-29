@@ -338,7 +338,7 @@ class EntityReader implements EntityReaderInterface
 
         if (!empty($criteria->getIds())) {
             $bytes = array_map(function (string $id) {
-                return Uuid::fromStringToBytes($id);
+                return Uuid::fromHexToBytes($id);
             }, $criteria->getIds());
 
             $query->andWhere(EntityDefinitionQueryHelper::escape($table) . '.`id` IN (:ids)');

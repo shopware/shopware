@@ -260,7 +260,7 @@ class EntityDefinitionQueryHelper
             $versionIdField = array_shift($versionIdField);
 
             $query->andWhere(self::escape($table) . '.' . self::escape($versionIdField->getStorageName()) . ' = :version');
-            $query->setParameter('version', Uuid::fromStringToBytes($context->getVersionId()));
+            $query->setParameter('version', Uuid::fromHexToBytes($context->getVersionId()));
         }
 
         $this->addRuleCondition($query, $definition, $context);
@@ -444,8 +444,8 @@ class EntityDefinitionQueryHelper
         $versionQuery->leftJoin('live', self::escape($table), 'draft', 'draft.`id` = live.`id` AND draft.`version_id` = :version');
         $versionQuery->andWhere('live.`version_id` = :liveVersion OR draft.version_id = :version');
 
-        $query->setParameter('liveVersion', Uuid::fromStringToBytes(Defaults::LIVE_VERSION));
-        $query->setParameter('version', Uuid::fromStringToBytes($context->getVersionId()));
+        $query->setParameter('liveVersion', Uuid::fromHexToBytes(Defaults::LIVE_VERSION));
+        $query->setParameter('version', Uuid::fromHexToBytes($context->getVersionId()));
 
         $versionRoot = $root . '_version';
 

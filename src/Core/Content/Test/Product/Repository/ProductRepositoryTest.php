@@ -501,26 +501,26 @@ class ProductRepositoryTest extends TestCase
         static::assertEquals($parentName, $green->getViewData()->getName());
 
         /** @var array $row */
-        $row = $this->connection->fetchAssoc('SELECT * FROM product WHERE id = :id', ['id' => Uuid::fromStringToBytes($parentId)]);
+        $row = $this->connection->fetchAssoc('SELECT * FROM product WHERE id = :id', ['id' => Uuid::fromHexToBytes($parentId)]);
         static::assertEquals($parentPrice, json_decode($row['price'], true));
 
         /** @var array $row */
-        $row = $this->connection->fetchAssoc('SELECT * FROM product_translation WHERE product_id = :id', ['id' => Uuid::fromStringToBytes($parentId)]);
+        $row = $this->connection->fetchAssoc('SELECT * FROM product_translation WHERE product_id = :id', ['id' => Uuid::fromHexToBytes($parentId)]);
         static::assertEquals($parentName, $row['name']);
 
         /** @var array $row */
-        $row = $this->connection->fetchAssoc('SELECT * FROM product WHERE id = :id', ['id' => Uuid::fromStringToBytes($redId)]);
+        $row = $this->connection->fetchAssoc('SELECT * FROM product WHERE id = :id', ['id' => Uuid::fromHexToBytes($redId)]);
         static::assertNull($row['price']);
 
         /** @var array $row */
-        $row = $this->connection->fetchAssoc('SELECT * FROM product_translation WHERE product_id = :id', ['id' => Uuid::fromStringToBytes($redId)]);
+        $row = $this->connection->fetchAssoc('SELECT * FROM product_translation WHERE product_id = :id', ['id' => Uuid::fromHexToBytes($redId)]);
         static::assertEquals($redName, $row['name']);
 
         /** @var array $row */
-        $row = $this->connection->fetchAssoc('SELECT * FROM product WHERE id = :id', ['id' => Uuid::fromStringToBytes($greenId)]);
+        $row = $this->connection->fetchAssoc('SELECT * FROM product WHERE id = :id', ['id' => Uuid::fromHexToBytes($greenId)]);
         static::assertEquals($greenPrice, json_decode($row['price'], true));
 
-        $row = $this->connection->fetchAssoc('SELECT * FROM product_translation WHERE product_id = :id', ['id' => Uuid::fromStringToBytes($greenId)]);
+        $row = $this->connection->fetchAssoc('SELECT * FROM product_translation WHERE product_id = :id', ['id' => Uuid::fromHexToBytes($greenId)]);
         static::assertEmpty($row);
     }
 
@@ -618,7 +618,7 @@ class ProductRepositoryTest extends TestCase
         $this->repository->upsert($data, Context::createDefaultContext());
 
         $raw = $this->connection->fetchAssoc('SELECT * FROM product WHERE id = :id', [
-            'id' => Uuid::fromStringToBytes($child),
+            'id' => Uuid::fromHexToBytes($child),
         ]);
 
         static::assertNull($raw['parent_id']);
@@ -701,7 +701,7 @@ class ProductRepositoryTest extends TestCase
 
         /** @var array $raw */
         $raw = $this->connection->fetchAssoc('SELECT * FROM product WHERE id = :id', [
-            'id' => Uuid::fromStringToBytes($child),
+            'id' => Uuid::fromHexToBytes($child),
         ]);
 
         static::assertNull($raw['parent_id']);
@@ -772,17 +772,17 @@ class ProductRepositoryTest extends TestCase
         static::assertEquals($greenTax, $green->getTaxId());
 
         /** @var array $row */
-        $row = $this->connection->fetchAssoc('SELECT * FROM product WHERE id = :id', ['id' => Uuid::fromStringToBytes($parentId)]);
+        $row = $this->connection->fetchAssoc('SELECT * FROM product WHERE id = :id', ['id' => Uuid::fromHexToBytes($parentId)]);
         static::assertEquals(['gross' => 10, 'net' => 9, 'linked' => true], json_decode($row['price'], true));
         static::assertEquals($parentTax, Uuid::fromBytesToHex($row['tax_id']));
 
         /** @var array $row */
-        $row = $this->connection->fetchAssoc('SELECT * FROM product WHERE id = :id', ['id' => Uuid::fromStringToBytes($redId)]);
+        $row = $this->connection->fetchAssoc('SELECT * FROM product WHERE id = :id', ['id' => Uuid::fromHexToBytes($redId)]);
         static::assertNull($row['price']);
         static::assertNull($row['tax_id']);
 
         /** @var array $row */
-        $row = $this->connection->fetchAssoc('SELECT * FROM product WHERE id = :id', ['id' => Uuid::fromStringToBytes($greenId)]);
+        $row = $this->connection->fetchAssoc('SELECT * FROM product WHERE id = :id', ['id' => Uuid::fromHexToBytes($greenId)]);
         static::assertNull($row['price']);
         static::assertEquals($greenTax, Uuid::fromBytesToHex($row['tax_id']));
     }
@@ -883,15 +883,15 @@ class ProductRepositoryTest extends TestCase
         static::assertTrue($red->getViewData()->getMedia()->has($parentMedia));
 
         /** @var array $row */
-        $row = $this->connection->fetchAssoc('SELECT * FROM product_media WHERE product_id = :id', ['id' => Uuid::fromStringToBytes($parentId)]);
+        $row = $this->connection->fetchAssoc('SELECT * FROM product_media WHERE product_id = :id', ['id' => Uuid::fromHexToBytes($parentId)]);
         static::assertEquals($parentMedia, Uuid::fromBytesToHex($row['media_id']));
 
         /** @var array $row */
-        $row = $this->connection->fetchAssoc('SELECT * FROM product_media WHERE product_id = :id', ['id' => Uuid::fromStringToBytes($redId)]);
+        $row = $this->connection->fetchAssoc('SELECT * FROM product_media WHERE product_id = :id', ['id' => Uuid::fromHexToBytes($redId)]);
         static::assertEmpty($row['media_id']);
 
         /** @var array $row */
-        $row = $this->connection->fetchAssoc('SELECT * FROM product_media WHERE product_id = :id', ['id' => Uuid::fromStringToBytes($greenId)]);
+        $row = $this->connection->fetchAssoc('SELECT * FROM product_media WHERE product_id = :id', ['id' => Uuid::fromHexToBytes($greenId)]);
         static::assertEquals($greenMedia, Uuid::fromBytesToHex($row['media_id']));
     }
 
@@ -956,17 +956,17 @@ class ProductRepositoryTest extends TestCase
         static::assertEquals([$greenCategory], array_values($green->getCategories()->getIds()));
 
         /** @var array $row */
-        $row = $this->connection->fetchAssoc('SELECT * FROM product WHERE id = :id', ['id' => Uuid::fromStringToBytes($parentId)]);
+        $row = $this->connection->fetchAssoc('SELECT * FROM product WHERE id = :id', ['id' => Uuid::fromHexToBytes($parentId)]);
         static::assertContains($parentCategory, json_decode($row['category_tree'], true));
         static::assertEquals($parentId, Uuid::fromBytesToHex($row['categories']));
 
         /** @var array $row */
-        $row = $this->connection->fetchAssoc('SELECT * FROM product WHERE id = :id', ['id' => Uuid::fromStringToBytes($redId)]);
+        $row = $this->connection->fetchAssoc('SELECT * FROM product WHERE id = :id', ['id' => Uuid::fromHexToBytes($redId)]);
         static::assertContains($parentCategory, json_decode($row['category_tree'], true));
         static::assertEquals($parentId, Uuid::fromBytesToHex($row['categories']));
 
         /** @var array $row */
-        $row = $this->connection->fetchAssoc('SELECT * FROM product WHERE id = :id', ['id' => Uuid::fromStringToBytes($greenId)]);
+        $row = $this->connection->fetchAssoc('SELECT * FROM product WHERE id = :id', ['id' => Uuid::fromHexToBytes($greenId)]);
         static::assertContains($greenCategory, json_decode($row['category_tree'], true));
         static::assertEquals($greenId, Uuid::fromBytesToHex($row['categories']));
     }

@@ -63,16 +63,16 @@ class CartPersister implements CartPersisterInterface
 
         $this->delete($cart->getToken(), $context);
 
-        $customerId = $context->getCustomer() ? Uuid::fromStringToBytes($context->getCustomer()->getId()) : null;
+        $customerId = $context->getCustomer() ? Uuid::fromHexToBytes($context->getCustomer()->getId()) : null;
 
         $data = [
             'token' => $cart->getToken(),
             'name' => $cart->getName(),
-            'currency_id' => Uuid::fromStringToBytes($context->getCurrency()->getId()),
-            'shipping_method_id' => Uuid::fromStringToBytes($context->getShippingMethod()->getId()),
-            'payment_method_id' => Uuid::fromStringToBytes($context->getPaymentMethod()->getId()),
-            'country_id' => Uuid::fromStringToBytes($context->getShippingLocation()->getCountry()->getId()),
-            'sales_channel_id' => Uuid::fromStringToBytes($context->getSalesChannel()->getId()),
+            'currency_id' => Uuid::fromHexToBytes($context->getCurrency()->getId()),
+            'shipping_method_id' => Uuid::fromHexToBytes($context->getShippingMethod()->getId()),
+            'payment_method_id' => Uuid::fromHexToBytes($context->getPaymentMethod()->getId()),
+            'country_id' => Uuid::fromHexToBytes($context->getShippingLocation()->getCountry()->getId()),
+            'sales_channel_id' => Uuid::fromHexToBytes($context->getSalesChannel()->getId()),
             'customer_id' => $customerId,
             'price' => $cart->getPrice()->getTotalPrice(),
             'line_item_count' => $cart->getLineItems()->count(),

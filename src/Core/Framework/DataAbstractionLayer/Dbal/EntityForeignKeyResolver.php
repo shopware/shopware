@@ -124,8 +124,8 @@ class EntityForeignKeyResolver
 
         $this->addWhere($ids, $rootAlias, $query);
 
-        $query->setParameter('version', Uuid::fromStringToBytes($context->getVersionId()));
-        $query->setParameter('liveVersion', Uuid::fromStringToBytes(Defaults::LIVE_VERSION));
+        $query->setParameter('version', Uuid::fromHexToBytes($context->getVersionId()));
+        $query->setParameter('liveVersion', Uuid::fromHexToBytes(Defaults::LIVE_VERSION));
 
         $result = $query->execute()->fetchAll();
         $result = FetchModeHelper::groupUnique($result);
@@ -217,7 +217,7 @@ class EntityForeignKeyResolver
                     $param
                 );
 
-                $query->setParameter($param, Uuid::fromStringToBytes($value));
+                $query->setParameter($param, Uuid::fromHexToBytes($value));
                 ++$counter;
             }
             $query->orWhere(implode(' AND ', $part));

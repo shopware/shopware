@@ -143,7 +143,7 @@ class CompositeEntitySearcherTest extends TestCase
             [
                 'entity' => $entity,
                 'id' => $id,
-                'version' => Uuid::fromStringToBytes($versionId),
+                'version' => Uuid::fromHexToBytes($versionId),
             ]
         );
     }

@@ -460,7 +460,7 @@ class VersionManager
             [
                 'id' => $commitId->getBytes(),
                 'user_id' => $userId,
-                'version_id' => Uuid::fromStringToBytes($versionId),
+                'version_id' => Uuid::fromHexToBytes($versionId),
                 'created_at' => $date,
             ],
             ['id' => $commitId->getBytes()],

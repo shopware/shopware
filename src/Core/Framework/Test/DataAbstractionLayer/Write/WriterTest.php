@@ -39,7 +39,7 @@ class WriterTest extends TestCase
     protected function setUp(): void
     {
         $this->id = Uuid::uuid4()->getHex();
-        $this->idBytes = Uuid::fromStringToBytes($this->id);
+        $this->idBytes = Uuid::fromHexToBytes($this->id);
 
         $this->connection = $this->getContainer()->get(Connection::class);
     }
@@ -431,8 +431,8 @@ class WriterTest extends TestCase
             $this->createWriteContext()
         );
 
-        $productManufacturer = $this->connection->fetchAssoc('SELECT * FROM product_manufacturer WHERE id=:id', ['id' => Uuid::fromStringToBytes($productManufacturerId)]);
-        $productManufacturerTranslation = $this->connection->fetchAssoc('SELECT * FROM product_manufacturer_translation WHERE product_manufacturer_id=:id', ['id' => Uuid::fromStringToBytes($productManufacturerId)]);
+        $productManufacturer = $this->connection->fetchAssoc('SELECT * FROM product_manufacturer WHERE id=:id', ['id' => Uuid::fromHexToBytes($productManufacturerId)]);
+        $productManufacturerTranslation = $this->connection->fetchAssoc('SELECT * FROM product_manufacturer_translation WHERE product_manufacturer_id=:id', ['id' => Uuid::fromHexToBytes($productManufacturerId)]);
         $productTranslation = $this->connection->fetchAssoc('SELECT * FROM product_translation WHERE product_id=:id', ['id' => $this->idBytes]);
 
         static::assertSame('_THE_TITLE_', $productTranslation['name'], print_r($productTranslation, true));

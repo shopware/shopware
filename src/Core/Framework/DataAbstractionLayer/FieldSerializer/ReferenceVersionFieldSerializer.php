@@ -45,7 +45,7 @@ class ReferenceVersionFieldSerializer implements FieldSerializerInterface
             $value = Defaults::LIVE_VERSION;
         }
 
-        yield $field->getStorageName() => Uuid::fromStringToBytes($value);
+        yield $field->getStorageName() => Uuid::fromHexToBytes($value);
     }
 
     public function decode(Field $field, $value): ?string

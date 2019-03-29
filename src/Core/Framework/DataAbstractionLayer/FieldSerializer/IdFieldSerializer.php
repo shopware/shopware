@@ -35,7 +35,7 @@ class IdFieldSerializer implements FieldSerializerInterface
         $parameters->getContext()->set($parameters->getDefinition(), $data->getKey(), $value);
 
         /* @var IdField $field */
-        yield $field->getStorageName() => Uuid::fromStringToBytes($value);
+        yield $field->getStorageName() => Uuid::fromHexToBytes($value);
     }
 
     public function decode(Field $field, $value): ?string

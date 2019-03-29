@@ -44,7 +44,7 @@ class Uuid
     /**
      * @throws InvalidUuidException
      */
-    public static function fromStringToBytes(string $uuid): string
+    public static function fromHexToBytes(string $uuid): string
     {
         $uuid = strtolower($uuid);
         if ($bin = @hex2bin(str_replace('-', '', $uuid))) {
@@ -52,19 +52,6 @@ class Uuid
         }
 
         throw new InvalidUuidException($uuid);
-    }
-
-    /**
-     * @throws InvalidUuidException
-     */
-    public static function fromHexToBytes(string $hex): string
-    {
-        $hex = strtolower($hex);
-        if ($bin = @hex2bin($hex)) {
-            return $bin;
-        }
-
-        throw new InvalidUuidException($hex);
     }
 
     public static function isValid(string $id): bool

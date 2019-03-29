@@ -105,7 +105,7 @@ class ProductListingPriceIndexer implements IndexerInterface
                 'UPDATE product SET listing_prices = :price WHERE id = :id',
                 [
                     'price' => json_encode($listingPrices),
-                    'id' => Uuid::fromStringToBytes($id),
+                    'id' => Uuid::fromHexToBytes($id),
                 ]
             );
         }

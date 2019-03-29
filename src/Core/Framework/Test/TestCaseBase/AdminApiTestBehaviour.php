@@ -128,7 +128,7 @@ trait AdminApiTestBehaviour
             'email' => 'admin@example.com',
             'username' => $username,
             'password' => password_hash($password, PASSWORD_BCRYPT),
-            'locale_id' => Uuid::fromStringToBytes(Defaults::LOCALE_SYSTEM),
+            'locale_id' => Uuid::fromHexToBytes(Defaults::LOCALE_SYSTEM),
             'active' => 1,
             'avatar_id' => $avatarId,
             'created_at' => (new \DateTime())->format(Defaults::DATE_FORMAT),

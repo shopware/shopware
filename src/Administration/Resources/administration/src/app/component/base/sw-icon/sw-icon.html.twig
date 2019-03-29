@@ -1,6 +1,7 @@
 {% block sw_icon %}
     <component
         class="sw-icon"
+        v-on="$listeners"
         :class="classes"
         :is="iconName"
         :style="styles"

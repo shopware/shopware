@@ -14,6 +14,7 @@ export default (() => {
                     class: [data.staticClass, data.class],
                     style: data.style,
                     attrs: data.attrs,
+                    on: data.on,
                     domProps: {
                         innerHTML: context(item)
                     }

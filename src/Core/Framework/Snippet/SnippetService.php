@@ -209,7 +209,7 @@ class SnippetService implements SnippetServiceInterface
             ->execute()
             ->fetchColumn();
 
-        return $locale ?: Defaults::LOCALE_EN_GB_ISO;
+        return $locale;
     }
 
     private function getSnippetFilesByIso(array $isoList): array

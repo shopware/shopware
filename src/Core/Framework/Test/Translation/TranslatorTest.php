@@ -58,7 +58,7 @@ class TranslatorTest extends TestCase
         // fake request
         $request = new Request();
         $request->attributes->set(StorefrontRequest::ATTRIBUTE_DOMAIN_SNIPPET_SET_ID, Defaults::SNIPPET_BASE_SET_EN);
-        $request->attributes->set(StorefrontRequest::ATTRIBUTE_DOMAIN_LOCALE, Defaults::LOCALE_EN_GB_ISO);
+        $request->attributes->set(StorefrontRequest::ATTRIBUTE_DOMAIN_LOCALE, 'en_GB');
 
         $stack->push($request);
         $result = $this->translator->getCatalogue('en_GB')->get('frontend.note.item.NoteLinkZoom');
@@ -86,7 +86,7 @@ class TranslatorTest extends TestCase
         $request = new Request();
 
         $request->attributes->set(StorefrontRequest::ATTRIBUTE_DOMAIN_SNIPPET_SET_ID, Defaults::SNIPPET_BASE_SET_EN);
-        $request->attributes->set(StorefrontRequest::ATTRIBUTE_DOMAIN_LOCALE, Defaults::LOCALE_EN_GB_ISO);
+        $request->attributes->set(StorefrontRequest::ATTRIBUTE_DOMAIN_LOCALE, 'en_GB');
 
         $this->getContainer()->get(RequestStack::class)->push($request);
 

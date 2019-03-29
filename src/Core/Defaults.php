@@ -20,8 +20,6 @@ final class Defaults
 
     public const LOCALE_EN_GB_ISO = 'en_GB';
 
-    public const LOCALE_DE_DE_ISO = 'de_DE';
-
     public const FALLBACK_CUSTOMER_GROUP = '20080911ffff4fffafffffff19830531';
 
     public const LIVE_VERSION = '20080911ffff4fffafffffff19830531';

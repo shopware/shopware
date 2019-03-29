@@ -200,5 +200,5 @@ If you are writing complex applications and have some business logic which is ha
 client-side, you have the option to generate the UUID yourself and send them via the `id` property.
 The only requirement is that it should be unique system-wide and compatible with UUIDv4.
 
-To generate a UUID in the system, you can use `Shopware\Core\Framework\Struct\Uuid` and create
-a new UUID by invoking `Uuid::uuid4()->getHex()`.
+To generate a UUID in the system, you can use `Shopware\Core\Framework\Uuid\Uuid` and create
+a new UUID by invoking `Uuid::randomHex()`.

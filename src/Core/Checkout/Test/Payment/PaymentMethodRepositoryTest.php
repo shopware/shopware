@@ -11,8 +11,8 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException\WriteStackException;
-use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Uuid\Uuid;
 
 class PaymentMethodRepositoryTest extends TestCase
 {
@@ -31,7 +31,7 @@ class PaymentMethodRepositoryTest extends TestCase
     public function setUp(): void
     {
         $this->paymentRepository = $this->getContainer()->get('payment_method.repository');
-        $this->paymentMethodId = Uuid::uuid4()->getHex();
+        $this->paymentMethodId = Uuid::randomHex();
     }
 
     public function testCreatePaymentMethod(): void
@@ -67,7 +67,7 @@ class PaymentMethodRepositoryTest extends TestCase
             'id' => $this->paymentMethodId,
             'availabilityRules' => [
                 [
-                    'id' => Uuid::uuid4()->getHex(),
+                    'id' => Uuid::randomHex(),
                     'name' => 'test update',
                     'priority' => 5,
                     'created_at' => new \DateTime(),
@@ -182,7 +182,7 @@ class PaymentMethodRepositoryTest extends TestCase
                 'handlerIdentifier' => AsyncTestPaymentHandler::class,
                 'availabilityRules' => [
                     [
-                        'id' => Uuid::uuid4()->getHex(),
+                        'id' => Uuid::randomHex(),
                         'name' => 'asd',
                         'priority' => 2,
                     ],
@@ -193,7 +193,7 @@ class PaymentMethodRepositoryTest extends TestCase
 
     private function addPlugin(Context $context): string
     {
-        $pluginId = Uuid::uuid4()->getHex();
+        $pluginId = Uuid::randomHex();
 
         /** @var EntityRepositoryInterface $pluginRepo */
         $pluginRepo = $this->getContainer()->get('plugin.repository');

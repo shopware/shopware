@@ -11,7 +11,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\DefinitionRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\Demodata\DemodataContext;
 use Shopware\Core\Framework\Demodata\DemodataGeneratorInterface;
-use Shopware\Core\Framework\Struct\Uuid;
+use Shopware\Core\Framework\Uuid\Uuid;
 
 class AttributeGenerator implements DemodataGeneratorInterface
 {
@@ -169,7 +169,7 @@ class AttributeGenerator implements DemodataGeneratorInterface
         }
 
         return [
-            'id' => Uuid::uuid4()->getHex(),
+            'id' => Uuid::randomHex(),
             'name' => strtolower($prefix) . '_' . str_replace(' ', '_', $name),
             'type' => $type,
             'config' => $config,
@@ -180,7 +180,7 @@ class AttributeGenerator implements DemodataGeneratorInterface
     {
         $relationNames = array_keys($options['relations']);
         $relations = array_map(function ($rel) {
-            return ['id' => Uuid::uuid4()->getHex(), 'entityName' => $rel];
+            return ['id' => Uuid::randomHex(), 'entityName' => $rel];
         }, $relationNames);
 
         $attributeCount = random_int(1, 5);
@@ -194,7 +194,7 @@ class AttributeGenerator implements DemodataGeneratorInterface
         }
 
         $set = [
-            'id' => Uuid::uuid4()->getHex(),
+            'id' => Uuid::randomHex(),
             'name' => $prefix . $setName,
             'config' => [
                 'label' => [

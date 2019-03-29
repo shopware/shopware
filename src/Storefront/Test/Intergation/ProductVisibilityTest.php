@@ -11,8 +11,8 @@ use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\Routing\InternalRequest;
-use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Storefront\Page\Listing\ListingPage;
 use Shopware\Storefront\Page\Listing\ListingPageLoader;
 use Shopware\Storefront\Page\Product\ProductPageLoader;
@@ -101,7 +101,7 @@ class ProductVisibilityTest extends TestCase
 
     public function testVisibilityInListing()
     {
-        $checkoutContext = $this->contextFactory->create(Uuid::uuid4()->getHex(), $this->salesChannelId1);
+        $checkoutContext = $this->contextFactory->create(Uuid::randomHex(), $this->salesChannelId1);
 
         $request = new InternalRequest();
 
@@ -110,7 +110,7 @@ class ProductVisibilityTest extends TestCase
         static::assertCount(1, $page->getListing());
         static::assertTrue($page->getListing()->has($this->productId3));
 
-        $checkoutContext = $this->contextFactory->create(Uuid::uuid4()->getHex(), $this->salesChannelId2);
+        $checkoutContext = $this->contextFactory->create(Uuid::randomHex(), $this->salesChannelId2);
         $page = $this->listingPageLoader->load($request, $checkoutContext);
         static::assertCount(1, $page->getListing());
         static::assertTrue($page->getListing()->has($this->productId1));
@@ -118,7 +118,7 @@ class ProductVisibilityTest extends TestCase
 
     public function testVisibilityInSearch()
     {
-        $checkoutContext = $this->contextFactory->create(Uuid::uuid4()->getHex(), $this->salesChannelId1);
+        $checkoutContext = $this->contextFactory->create(Uuid::randomHex(), $this->salesChannelId1);
 
         $request = new InternalRequest(['search' => 'test']);
 
@@ -129,7 +129,7 @@ class ProductVisibilityTest extends TestCase
         static::assertTrue($page->getListing()->has($this->productId2));
         static::assertTrue($page->getListing()->has($this->productId3));
 
-        $checkoutContext = $this->contextFactory->create(Uuid::uuid4()->getHex(), $this->salesChannelId2);
+        $checkoutContext = $this->contextFactory->create(Uuid::randomHex(), $this->salesChannelId2);
         $page = $this->searchPageLoader->load($request, $checkoutContext);
 
         static::assertCount(2, $page->getListing());
@@ -151,7 +151,7 @@ class ProductVisibilityTest extends TestCase
         ];
 
         foreach ($cases as $case) {
-            $checkoutContext = $this->contextFactory->create(Uuid::uuid4()->getHex(), $case['salesChannelId']);
+            $checkoutContext = $this->contextFactory->create(Uuid::randomHex(), $case['salesChannelId']);
 
             $request = new InternalRequest([], [], ['productId' => $case['productId']]);
 
@@ -173,7 +173,7 @@ class ProductVisibilityTest extends TestCase
 
     public function testVisibilityInSuggest()
     {
-        $checkoutContext = $this->contextFactory->create(Uuid::uuid4()->getHex(), $this->salesChannelId1);
+        $checkoutContext = $this->contextFactory->create(Uuid::randomHex(), $this->salesChannelId1);
 
         $request = new InternalRequest(['search' => 'test']);
 
@@ -184,7 +184,7 @@ class ProductVisibilityTest extends TestCase
         static::assertTrue($page->getListing()->has($this->productId2));
         static::assertTrue($page->getListing()->has($this->productId3));
 
-        $checkoutContext = $this->contextFactory->create(Uuid::uuid4()->getHex(), $this->salesChannelId2);
+        $checkoutContext = $this->contextFactory->create(Uuid::randomHex(), $this->salesChannelId2);
         $page = $this->searchPageLoader->load($request, $checkoutContext);
 
         static::assertCount(2, $page->getListing());
@@ -197,10 +197,10 @@ class ProductVisibilityTest extends TestCase
         $this->salesChannelId1 = $this->createSalesChannel();
         $this->salesChannelId2 = $this->createSalesChannel();
 
-        $this->productId1 = Uuid::uuid4()->getHex();
-        $this->productId2 = Uuid::uuid4()->getHex();
-        $this->productId3 = Uuid::uuid4()->getHex();
-        $this->productId4 = Uuid::uuid4()->getHex();
+        $this->productId1 = Uuid::randomHex();
+        $this->productId2 = Uuid::randomHex();
+        $this->productId3 = Uuid::randomHex();
+        $this->productId4 = Uuid::randomHex();
 
         $products = [
             $this->createProduct($this->productId1, [
@@ -244,7 +244,7 @@ class ProductVisibilityTest extends TestCase
 
     private function createSalesChannel(): string
     {
-        $id = Uuid::uuid4()->getHex();
+        $id = Uuid::randomHex();
 
         $data = [
             'id' => $id,

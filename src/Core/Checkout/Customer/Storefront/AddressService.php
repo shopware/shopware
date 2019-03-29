@@ -14,8 +14,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Event\DataMappingEvent;
-use Shopware\Core\Framework\Exception\InvalidUuidException;
-use Shopware\Core\Framework\Struct\Uuid;
+use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\BuildValidationEvent;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
 use Shopware\Core\Framework\Validation\DataValidationDefinition;
@@ -118,7 +118,7 @@ class AddressService
         if ($id = $data->get('id')) {
             $this->validateAddressId((string) $id, $context)->getId();
         } else {
-            $id = Uuid::uuid4()->getHex();
+            $id = Uuid::randomHex();
         }
 
         $addressData = [

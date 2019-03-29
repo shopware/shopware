@@ -9,9 +9,9 @@ use Shopware\Core\Framework\MessageQueue\DeadMessage\RequeueDeadMessagesService;
 use Shopware\Core\Framework\MessageQueue\Handler\EncryptedMessageHandler;
 use Shopware\Core\Framework\MessageQueue\Message\EncryptedMessage;
 use Shopware\Core\Framework\MessageQueue\Message\RetryMessage;
-use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\Framework\Test\MessageQueue\fixtures\TestMessage;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\Messenger\Envelope;
 use Symfony\Component\Messenger\MessageBusInterface;
 
@@ -57,9 +57,9 @@ class RequeueDeadMessagesServiceTest extends TestCase
         $msg = new EncryptedMessage('test');
         $e = new \Exception('exception');
 
-        $encryptedId = Uuid::uuid4()->getHex();
-        $plainId = Uuid::uuid4()->getHex();
-        $futureId = Uuid::uuid4()->getHex();
+        $encryptedId = Uuid::randomHex();
+        $plainId = Uuid::randomHex();
+        $futureId = Uuid::randomHex();
 
         $this->deadMessageRepository->create([
             [
@@ -126,9 +126,9 @@ class RequeueDeadMessagesServiceTest extends TestCase
         $msg = new EncryptedMessage('test');
         $e = new \Exception('exception');
 
-        $testMessageId = Uuid::uuid4()->getHex();
-        $id1 = Uuid::uuid4()->getHex();
-        $id2 = Uuid::uuid4()->getHex();
+        $testMessageId = Uuid::randomHex();
+        $id1 = Uuid::randomHex();
+        $id2 = Uuid::randomHex();
 
         $this->deadMessageRepository->create([
             [

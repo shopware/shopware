@@ -50,8 +50,8 @@ Now we create a parent and a child in the storage:
 /** @var EntityRepositoryInterface $repo */
 $repo = $this->get(HumanRepository::class);
 
-$parentId = Uuid::uuid4()->toString();
-$childId = Uuid::uuid4()->toString();
+$parentId = Uuid::randomHex();
+$childId = Uuid::randomHex();
 
 $repo->create([
     [

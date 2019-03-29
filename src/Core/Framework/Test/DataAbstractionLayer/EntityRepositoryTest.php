@@ -27,8 +27,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\PaginationCriteria;
 use Shopware\Core\Framework\DataAbstractionLayer\VersionManager;
 use Shopware\Core\Framework\Rule\Container\AndRule;
-use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Locale\LocaleDefinition;
 
 class EntityRepositoryTest extends TestCase
@@ -46,7 +46,7 @@ class EntityRepositoryTest extends TestCase
 
         $context = Context::createDefaultContext();
 
-        $id = Uuid::uuid4()->getHex();
+        $id = Uuid::randomHex();
 
         $event = $repository->create(
             [
@@ -64,7 +64,7 @@ class EntityRepositoryTest extends TestCase
 
         $context = Context::createDefaultContext();
 
-        $id = Uuid::uuid4()->getHex();
+        $id = Uuid::randomHex();
 
         $dispatcher = $this->getContainer()->get('event_dispatcher');
 
@@ -90,7 +90,7 @@ class EntityRepositoryTest extends TestCase
 
         $context = Context::createDefaultContext();
 
-        $id = Uuid::uuid4()->getHex();
+        $id = Uuid::randomHex();
 
         $repository->create(
             [
@@ -116,7 +116,7 @@ class EntityRepositoryTest extends TestCase
 
         $context = Context::createDefaultContext();
 
-        $id = Uuid::uuid4()->getHex();
+        $id = Uuid::randomHex();
 
         $repository->create(
             [
@@ -148,8 +148,8 @@ class EntityRepositoryTest extends TestCase
 
         $context = Context::createDefaultContext();
 
-        $id = Uuid::uuid4()->getHex();
-        $id2 = Uuid::uuid4()->getHex();
+        $id = Uuid::randomHex();
+        $id2 = Uuid::randomHex();
 
         $repository->create(
             [
@@ -204,8 +204,8 @@ class EntityRepositoryTest extends TestCase
 
         $context = Context::createDefaultContext();
 
-        $id = Uuid::uuid4()->getHex();
-        $id2 = Uuid::uuid4()->getHex();
+        $id = Uuid::randomHex();
+        $id2 = Uuid::randomHex();
 
         $dispatcher = $this->getContainer()->get('event_dispatcher');
 
@@ -326,7 +326,7 @@ class EntityRepositoryTest extends TestCase
 
     public function testClone(): void
     {
-        $id = Uuid::uuid4()->getHex();
+        $id = Uuid::randomHex();
         $data = [
             'id' => $id,
             'stock' => 1,
@@ -340,7 +340,7 @@ class EntityRepositoryTest extends TestCase
         $context = Context::createDefaultContext();
 
         $repository->create([$data], $context);
-        $newId = Uuid::uuid4()->getHex();
+        $newId = Uuid::randomHex();
 
         $result = $repository->clone($id, $context, $newId);
         static::assertInstanceOf(EntityWrittenContainerEvent::class, $result);
@@ -370,7 +370,7 @@ class EntityRepositoryTest extends TestCase
 
     public function testCloneWithUnknownId(): void
     {
-        $id = Uuid::uuid4()->getHex();
+        $id = Uuid::randomHex();
         $data = [
             'id' => $id,
             'stock' => 1,
@@ -417,15 +417,15 @@ class EntityRepositoryTest extends TestCase
 
     public function testCloneWithOneToMany(): void
     {
-        $ruleA = Uuid::uuid4()->getHex();
-        $ruleB = Uuid::uuid4()->getHex();
+        $ruleA = Uuid::randomHex();
+        $ruleB = Uuid::randomHex();
 
         $this->getContainer()->get('rule.repository')->create([
             ['id' => $ruleA, 'name' => 'test', 'payload' => new AndRule(), 'priority' => 1],
             ['id' => $ruleB, 'name' => 'test', 'payload' => new AndRule(), 'priority' => 2],
         ], Context::createDefaultContext());
 
-        $id = Uuid::uuid4()->getHex();
+        $id = Uuid::randomHex();
         $data = [
             'id' => $id,
             'stock' => 1,
@@ -455,7 +455,7 @@ class EntityRepositoryTest extends TestCase
         $context = Context::createDefaultContext();
 
         $repository->create([$data], $context);
-        $newId = Uuid::uuid4()->getHex();
+        $newId = Uuid::randomHex();
 
         $result = $repository->clone($id, $context, $newId);
         static::assertInstanceOf(EntityWrittenContainerEvent::class, $result);
@@ -494,7 +494,7 @@ class EntityRepositoryTest extends TestCase
 
     public function testCloneWithManyToMany(): void
     {
-        $id = Uuid::uuid4()->getHex();
+        $id = Uuid::randomHex();
         $data = [
             'id' => $id,
             'stock' => 1,
@@ -511,7 +511,7 @@ class EntityRepositoryTest extends TestCase
         $context = Context::createDefaultContext();
 
         $repository->create([$data], $context);
-        $newId = Uuid::uuid4()->getHex();
+        $newId = Uuid::randomHex();
 
         $result = $repository->clone($id, $context, $newId);
         static::assertInstanceOf(EntityWrittenContainerEvent::class, $result);
@@ -551,9 +551,9 @@ class EntityRepositoryTest extends TestCase
 
     public function testCloneWithChildren(): void
     {
-        $id = Uuid::uuid4()->getHex();
-        $child1 = Uuid::uuid4()->getHex();
-        $child2 = Uuid::uuid4()->getHex();
+        $id = Uuid::randomHex();
+        $child1 = Uuid::randomHex();
+        $child2 = Uuid::randomHex();
 
         $data = [
             'id' => $id,
@@ -575,7 +575,7 @@ class EntityRepositoryTest extends TestCase
 
         $repo->create([$data], $context);
 
-        $newId = Uuid::uuid4()->getHex();
+        $newId = Uuid::randomHex();
 
         $repo->clone($id, $context, $newId);
 
@@ -598,7 +598,7 @@ class EntityRepositoryTest extends TestCase
 
     public function testCloneWithNestedChildren(): void
     {
-        $id = Uuid::uuid4()->getHex();
+        $id = Uuid::randomHex();
 
         $data = [
             'id' => $id,
@@ -657,7 +657,7 @@ class EntityRepositoryTest extends TestCase
         });
         static::assertCount(6, $withParent);
 
-        $newId = Uuid::uuid4()->getHex();
+        $newId = Uuid::randomHex();
         $repo->clone($id, $context, $newId);
 
         //check that existing rule conditions are not touched
@@ -712,7 +712,7 @@ class EntityRepositoryTest extends TestCase
 
     public function testReadPaginatedOneToManyChildrenAssociation(): void
     {
-        $id = Uuid::uuid4()->getHex();
+        $id = Uuid::randomHex();
 
         $data = [
             'id' => $id,

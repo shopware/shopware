@@ -11,8 +11,8 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Context\AdminApiSource;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\Search\CompositeEntitySearcher;
-use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Uuid\Uuid;
 
 class CompositeEntitySearcherTest extends TestCase
 {
@@ -50,7 +50,7 @@ class CompositeEntitySearcherTest extends TestCase
         $this->productRepository = $this->getContainer()->get('product.repository');
         $this->search = $this->getContainer()->get(CompositeEntitySearcher::class);
 
-        $this->userId = Uuid::uuid4()->getHex();
+        $this->userId = Uuid::randomHex();
 
         $origin = new AdminApiSource($this->userId);
         $this->context = Context::createDefaultContext($origin);
@@ -62,7 +62,7 @@ class CompositeEntitySearcherTest extends TestCase
                 'localeId' => '20080911ffff4fffafffffff19830531',
                 'name' => 'test-user',
                 'username' => 'test-user',
-                'email' => Uuid::uuid4()->getHex() . '@example.com',
+                'email' => Uuid::randomHex() . '@example.com',
                 'password' => 'shopware',
             ],
         ], $this->context);
@@ -70,16 +70,16 @@ class CompositeEntitySearcherTest extends TestCase
 
     public function testProductRanking(): void
     {
-        $productId1 = Uuid::uuid4()->getHex();
-        $productId2 = Uuid::uuid4()->getHex();
+        $productId1 = Uuid::randomHex();
+        $productId2 = Uuid::randomHex();
 
-        $filterId = Uuid::uuid4()->getHex();
+        $filterId = Uuid::randomHex();
 
         $this->productRepository->upsert([
             ['id' => $productId1, 'stock' => 1, 'name' => "${filterId}_test ${filterId}_product 1", 'price' => ['gross' => 10, 'net' => 9, 'linked' => false], 'tax' => ['name' => 'test', 'taxRate' => 5], 'manufacturer' => ['name' => 'test']],
             ['id' => $productId2, 'stock' => 1, 'name' => "${filterId}_test ${filterId}_product 2", 'price' => ['gross' => 10, 'net' => 9, 'linked' => false], 'tax' => ['name' => 'test', 'taxRate' => 5], 'manufacturer' => ['name' => 'test']],
-            ['id' => Uuid::uuid4()->getHex(), 'stock' => 1, 'name' => 'notmatch', 'price' => ['gross' => 10, 'net' => 9, 'linked' => false], 'tax' => ['name' => 'notmatch', 'taxRate' => 5], 'manufacturer' => ['name' => 'notmatch']],
-            ['id' => Uuid::uuid4()->getHex(), 'stock' => 1, 'name' => 'notmatch', 'price' => ['gross' => 10, 'net' => 9, 'linked' => false], 'tax' => ['name' => 'notmatch', 'taxRate' => 5], 'manufacturer' => ['name' => 'notmatch']],
+            ['id' => Uuid::randomHex(), 'stock' => 1, 'name' => 'notmatch', 'price' => ['gross' => 10, 'net' => 9, 'linked' => false], 'tax' => ['name' => 'notmatch', 'taxRate' => 5], 'manufacturer' => ['name' => 'notmatch']],
+            ['id' => Uuid::randomHex(), 'stock' => 1, 'name' => 'notmatch', 'price' => ['gross' => 10, 'net' => 9, 'linked' => false], 'tax' => ['name' => 'notmatch', 'taxRate' => 5], 'manufacturer' => ['name' => 'notmatch']],
         ], $this->context);
 
         $result = $this->search->search("${filterId}_test ${filterId}_product", 20, $this->context, $this->userId);
@@ -143,7 +143,7 @@ class CompositeEntitySearcherTest extends TestCase
             [
                 'entity' => $entity,
                 'id' => $id,
-                'version' => Uuid::fromStringToBytes($versionId),
+                'version' => Uuid::fromHexToBytes($versionId),
             ]
         );
     }

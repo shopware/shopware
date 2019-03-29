@@ -22,8 +22,8 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\StateMachine\StateMachineRegistry;
 
 class OrderRepositoryTest extends TestCase
@@ -72,7 +72,7 @@ class OrderRepositoryTest extends TestCase
 
     public function testCreateOrder(): void
     {
-        $orderId = Uuid::uuid4()->getHex();
+        $orderId = Uuid::randomHex();
         $defaultContext = Context::createDefaultContext();
         $orderData = $this->getOrderData($orderId, $defaultContext);
         $this->orderRepository->create($orderData, $defaultContext);
@@ -91,7 +91,7 @@ class OrderRepositoryTest extends TestCase
 
     public function testDeleteOrder(): void
     {
-        $token = Uuid::uuid4()->getHex();
+        $token = Uuid::randomHex();
         $cart = new Cart('test', $token);
 
         $cart->add(
@@ -104,7 +104,7 @@ class OrderRepositoryTest extends TestCase
         $customerId = $this->createCustomer();
 
         $context = $this->checkoutContextFactory->create(
-            Uuid::uuid4()->getHex(),
+            Uuid::randomHex(),
             Defaults::SALES_CHANNEL,
             [
                 CheckoutContextService::CUSTOMER_ID => $customerId,
@@ -133,8 +133,8 @@ class OrderRepositoryTest extends TestCase
 
     private function createCustomer(): string
     {
-        $customerId = Uuid::uuid4()->getHex();
-        $addressId = Uuid::uuid4()->getHex();
+        $customerId = Uuid::randomHex();
+        $addressId = Uuid::randomHex();
 
         $customer = [
             'id' => $customerId,
@@ -143,7 +143,7 @@ class OrderRepositoryTest extends TestCase
             'firstName' => 'Max',
             'lastName' => 'Mustermann',
             'customerNumber' => '1337',
-            'email' => Uuid::uuid4()->getHex() . '@example.com',
+            'email' => Uuid::randomHex() . '@example.com',
             'password' => 'shopware',
             'defaultPaymentMethodId' => $this->getValidPaymentMethodId(),
             'groupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
@@ -172,9 +172,9 @@ class OrderRepositoryTest extends TestCase
 
     private function getOrderData($orderId, $context): array
     {
-        $addressId = Uuid::uuid4()->getHex();
-        $orderLineItemId = Uuid::uuid4()->getHex();
-        $countryStateId = Uuid::uuid4()->getHex();
+        $addressId = Uuid::randomHex();
+        $orderLineItemId = Uuid::randomHex();
+        $countryStateId = Uuid::randomHex();
 
         $order = [
             [

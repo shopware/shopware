@@ -33,7 +33,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Parser\SqlQueryParser;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Doctrine\FetchModeHelper;
 use Shopware\Core\Framework\Struct\ArrayEntity;
-use Shopware\Core\Framework\Struct\Uuid;
+use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * Reads entities in specify data form (basic, detail, dynamic).
@@ -338,7 +338,7 @@ class EntityReader implements EntityReaderInterface
 
         if (!empty($criteria->getIds())) {
             $bytes = array_map(function (string $id) {
-                return Uuid::fromStringToBytes($id);
+                return Uuid::fromHexToBytes($id);
             }, $criteria->getIds());
 
             $query->andWhere(EntityDefinitionQueryHelper::escape($table) . '.`id` IN (:ids)');

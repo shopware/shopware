@@ -11,7 +11,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriterInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\Demodata\DemodataContext;
 use Shopware\Core\Framework\Demodata\DemodataGeneratorInterface;
-use Shopware\Core\Framework\Struct\Uuid;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInterface;
 
 class CustomerGenerator implements DemodataGeneratorInterface
@@ -64,7 +64,7 @@ class CustomerGenerator implements DemodataGeneratorInterface
 
     private function createNetCustomerGroup(Context $context): string
     {
-        $id = Uuid::uuid4()->getHex();
+        $id = Uuid::randomHex();
         $data = [
             'id' => $id,
             'displayGross' => false,
@@ -87,9 +87,9 @@ class CustomerGenerator implements DemodataGeneratorInterface
 
     private function createDefaultCustomer(Context $context): void
     {
-        $id = Uuid::uuid4()->getHex();
-        $shippingAddressId = Uuid::uuid4()->getHex();
-        $billingAddressId = Uuid::uuid4()->getHex();
+        $id = Uuid::randomHex();
+        $shippingAddressId = Uuid::randomHex();
+        $billingAddressId = Uuid::randomHex();
         $salutationId = Defaults::SALUTATION_ID_MR;
 
         $customer = [
@@ -147,7 +147,7 @@ class CustomerGenerator implements DemodataGeneratorInterface
 
         $payload = [];
         for ($i = 0; $i < $numberOfItems; ++$i) {
-            $id = Uuid::uuid4()->getHex();
+            $id = Uuid::randomHex();
             $firstName = $context->getFaker()->firstName;
             $lastName = $context->getFaker()->lastName;
             $salutationId = $this->getRandomSalutationId();
@@ -159,7 +159,7 @@ class CustomerGenerator implements DemodataGeneratorInterface
             $aCount = random_int(2, 5);
             for ($x = 1; $x < $aCount; ++$x) {
                 $addresses[] = [
-                    'id' => Uuid::uuid4()->getHex(),
+                    'id' => Uuid::randomHex(),
                     'countryId' => $countries[array_rand($countries)],
                     'salutationId' => $salutationId,
                     'title' => $title,

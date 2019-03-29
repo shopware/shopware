@@ -17,7 +17,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\ScoreQuery;
-use Shopware\Core\Framework\Struct\Uuid;
+use Shopware\Core\Framework\Uuid\Uuid;
 
 class SqlQueryParser
 {
@@ -262,6 +262,6 @@ class SqlQueryParser
 
     private function getKey(): string
     {
-        return 'param_' . Uuid::uuid4()->getHex();
+        return 'param_' . Uuid::randomHex();
     }
 }

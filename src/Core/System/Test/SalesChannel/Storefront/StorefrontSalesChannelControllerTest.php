@@ -10,10 +10,10 @@ use Shopware\Core\Checkout\Test\Payment\Handler\SyncTestPaymentHandler;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
-use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\Framework\Test\TestCaseBase\AssertArraySubsetBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\StorefrontFunctionalTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Storefront\Test\Page\StorefrontPageTestConstants;
 
 class StorefrontSalesChannelControllerTest extends TestCase
@@ -313,7 +313,7 @@ class StorefrontSalesChannelControllerTest extends TestCase
     private function addCurrency(): array
     {
         $currency = [
-            'id' => Uuid::uuid4()->getHex(),
+            'id' => Uuid::randomHex(),
             'factor' => 1.23,
             'decimalPrecision' => 2,
             'symbol' => 'USD',
@@ -335,17 +335,17 @@ class StorefrontSalesChannelControllerTest extends TestCase
     private function addLanguage(): array
     {
         $language = [
-            'id' => Uuid::uuid4()->getHex(),
+            'id' => Uuid::randomHex(),
             'name' => 'German',
             'locale' => [
-                'id' => Uuid::uuid4()->getHex(),
-                'code' => 'x-tst_' . Uuid::uuid4()->getHex(),
+                'id' => Uuid::randomHex(),
+                'code' => 'x-tst_' . Uuid::randomHex(),
                 'name' => 'test name',
                 'territory' => 'test territory',
             ],
             'translationCode' => [
-                'id' => Uuid::uuid4()->getHex(),
-                'code' => 'x-tst_' . Uuid::uuid4()->getHex(),
+                'id' => Uuid::randomHex(),
+                'code' => 'x-tst_' . Uuid::randomHex(),
                 'name' => 'test name',
                 'territory' => 'test',
             ],
@@ -365,7 +365,7 @@ class StorefrontSalesChannelControllerTest extends TestCase
     private function addCountry(): array
     {
         $country = [
-            'id' => Uuid::uuid4()->getHex(),
+            'id' => Uuid::randomHex(),
             'name' => 'Germany',
         ];
         $data = [
@@ -382,16 +382,16 @@ class StorefrontSalesChannelControllerTest extends TestCase
     private function addCountryWithStates(): array
     {
         $country = [
-            'id' => Uuid::uuid4()->getHex(),
+            'id' => Uuid::randomHex(),
             'name' => 'Germany',
             'states' => [
                 [
-                    'id' => Uuid::uuid4()->getHex(),
+                    'id' => Uuid::randomHex(),
                     'shortCode' => 'NRW',
                     'name' => 'Northrine westfalia',
                 ],
                 [
-                    'id' => Uuid::uuid4()->getHex(),
+                    'id' => Uuid::randomHex(),
                     'shortCode' => 'HAM',
                     'name' => 'Hamburg',
                 ],
@@ -417,13 +417,13 @@ class StorefrontSalesChannelControllerTest extends TestCase
         }, $paymentMethods);
 
         $paymentMethod = [
-            'id' => Uuid::uuid4()->getHex(),
+            'id' => Uuid::randomHex(),
             'name' => 'PayPal',
             'handlerIdentifier' => SyncTestPaymentHandler::class,
             'description' => 'My payment method',
             'availabilityRules' => [
                 [
-                    'id' => Uuid::uuid4()->getHex(),
+                    'id' => Uuid::randomHex(),
                     'name' => 'Rule',
                     'priority' => 100,
                     'conditions' => [
@@ -453,12 +453,12 @@ class StorefrontSalesChannelControllerTest extends TestCase
     private function addShippingMethod(): array
     {
         $shippingMethod = [
-            'id' => Uuid::uuid4()->getHex(),
+            'id' => Uuid::randomHex(),
             'name' => 'Express shipping',
             'bindShippingfree' => false,
             'availabilityRules' => [
                 [
-                    'id' => Uuid::uuid4()->getHex(),
+                    'id' => Uuid::randomHex(),
                     'name' => 'Rule',
                     'priority' => 100,
                     'conditions' => [
@@ -489,7 +489,7 @@ class StorefrontSalesChannelControllerTest extends TestCase
     private function addUnavailableShippingMethod(): array
     {
         $shippingMethod = [
-            'id' => Uuid::uuid4()->getHex(),
+            'id' => Uuid::randomHex(),
             'name' => 'Special shipping',
             'bindShippingfree' => false,
         ];
@@ -508,7 +508,7 @@ class StorefrontSalesChannelControllerTest extends TestCase
     private function addUnavailablePaymentMethod(): array
     {
         $paymentMethod = [
-            'id' => Uuid::uuid4()->getHex(),
+            'id' => Uuid::randomHex(),
             'handlerIdentifier' => SyncTestPaymentHandler::class,
             'name' => 'Special payment',
             'position' => 4,

@@ -15,8 +15,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEve
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\Event\NestedEventCollection;
-use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Uuid\Uuid;
 
 class ShippingMethodIndexerTest extends TestCase
 {
@@ -218,7 +218,7 @@ class ShippingMethodIndexerTest extends TestCase
 
     private function createShippingMethod(): string
     {
-        $id = Uuid::uuid4()->getBytes();
+        $id = Uuid::randomBytes();
         $this->connection->insert(
             'shipping_method', [
                 'id' => $id,
@@ -233,7 +233,7 @@ class ShippingMethodIndexerTest extends TestCase
 
     private function addShippingMethodRule(string $shippingMethodId): string
     {
-        $ruleId = Uuid::uuid4()->getBytes();
+        $ruleId = Uuid::randomBytes();
         $this->connection->insert(
             'rule',
             ['id' => $ruleId, 'name' => 'Test', 'priority' => 0, 'invalid' => 0, 'created_at' => date('Y-m-d H:i:s')]

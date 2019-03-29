@@ -5,8 +5,8 @@ namespace Shopware\Storefront\Test\Page\Checkout;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Exception\OrderNotFoundException;
 use Shopware\Core\Framework\Routing\InternalRequest;
-use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Storefront\Framework\Page\PageLoaderInterface;
 use Shopware\Storefront\Page\Checkout\Finish\CheckoutFinishPage;
 use Shopware\Storefront\Page\Checkout\Finish\CheckoutFinishPageLoadedEvent;
@@ -29,7 +29,7 @@ class FinishPageTest extends TestCase
 
     public function testLoginRequirement(): void
     {
-        $this->assertLoginRequirement(['orderId' => Uuid::uuid4()->getHex()]);
+        $this->assertLoginRequirement(['orderId' => Uuid::randomHex()]);
     }
 
     public function testMissingOrderThrows(): void

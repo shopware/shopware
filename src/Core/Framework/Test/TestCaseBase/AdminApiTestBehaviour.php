@@ -6,8 +6,8 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DBALException;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
-use Shopware\Core\Framework\Exception\InvalidUuidException;
-use Shopware\Core\Framework\Struct\Uuid;
+use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
 use Symfony\Bundle\FrameworkBundle\Client;
 use Symfony\Component\HttpFoundation\Response;
@@ -106,13 +106,13 @@ trait AdminApiTestBehaviour
      */
     public function authorizeClient(Client $client): void
     {
-        $username = Uuid::uuid4()->getHex();
-        $password = Uuid::uuid4()->getHex();
+        $username = Uuid::randomHex();
+        $password = Uuid::randomHex();
 
         /** @var Connection $connection */
         $connection = $client->getContainer()->get(Connection::class);
-        $userId = Uuid::uuid4()->getBytes();
-        $avatarId = Uuid::uuid4()->getBytes();
+        $userId = Uuid::randomBytes();
+        $avatarId = Uuid::randomBytes();
 
         $connection->insert('media', [
             'id' => $avatarId,
@@ -128,7 +128,7 @@ trait AdminApiTestBehaviour
             'email' => 'admin@example.com',
             'username' => $username,
             'password' => password_hash($password, PASSWORD_BCRYPT),
-            'locale_id' => Uuid::fromStringToBytes(Defaults::LOCALE_SYSTEM),
+            'locale_id' => Uuid::fromHexToBytes(Defaults::LOCALE_SYSTEM),
             'active' => 1,
             'avatar_id' => $avatarId,
             'created_at' => (new \DateTime())->format(Defaults::DATE_FORMAT),

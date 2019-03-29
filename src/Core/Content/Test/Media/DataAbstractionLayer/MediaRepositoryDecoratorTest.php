@@ -8,9 +8,9 @@ use Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\QueueTestBehaviour;
+use Shopware\Core\Framework\Uuid\Uuid;
 
 class MediaRepositoryDecoratorTest extends TestCase
 {
@@ -36,7 +36,7 @@ class MediaRepositoryDecoratorTest extends TestCase
 
     public function testDeleteMediaEntityWithoutThumbnails(): void
     {
-        $mediaId = Uuid::uuid4()->getHex();
+        $mediaId = Uuid::randomHex();
 
         $this->mediaRepository->create(
             [
@@ -65,7 +65,7 @@ class MediaRepositoryDecoratorTest extends TestCase
 
     public function testDeleteMediaEntityWithThumbnails(): void
     {
-        $mediaId = Uuid::uuid4()->getHex();
+        $mediaId = Uuid::randomHex();
 
         $this->mediaRepository->create(
             [
@@ -105,8 +105,8 @@ class MediaRepositoryDecoratorTest extends TestCase
 
     public function testDeleteMediaDeletesOnlyFilesForGivenMediaId(): void
     {
-        $firstId = Uuid::uuid4()->getHex();
-        $secondId = Uuid::uuid4()->getHex();
+        $firstId = Uuid::randomHex();
+        $secondId = Uuid::randomHex();
 
         $this->mediaRepository->create(
             [
@@ -157,7 +157,7 @@ class MediaRepositoryDecoratorTest extends TestCase
 
     public function testDeleteForUnusedIds(): void
     {
-        $firstId = Uuid::uuid4()->getHex();
+        $firstId = Uuid::randomHex();
 
         $event = $this->mediaRepository->delete([['id' => $firstId]], $this->context);
 
@@ -168,7 +168,7 @@ class MediaRepositoryDecoratorTest extends TestCase
 
     public function testDeleteForMediaWithoutFile(): void
     {
-        $firstId = Uuid::uuid4()->getHex();
+        $firstId = Uuid::randomHex();
 
         $this->mediaRepository->create(
             [
@@ -190,7 +190,7 @@ class MediaRepositoryDecoratorTest extends TestCase
 
     public function testDeleteWithAlreadyDeletedFile(): void
     {
-        $firstId = Uuid::uuid4()->getHex();
+        $firstId = Uuid::randomHex();
 
         $this->mediaRepository->create(
             [

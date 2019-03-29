@@ -8,9 +8,9 @@ use Shopware\Core\Content\Navigation\NavigationEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\HttpFoundation\Response;
 
 class NavigationEntityTest extends TestCase
@@ -31,7 +31,7 @@ class NavigationEntityTest extends TestCase
 
     public function testCreateNavigation(): void
     {
-        $id = Uuid::uuid4()->getHex();
+        $id = Uuid::randomHex();
 
         $data = ['id' => $id, 'name' => 'Main'];
 
@@ -52,9 +52,9 @@ class NavigationEntityTest extends TestCase
 
     public function testCreateWithChildren(): void
     {
-        $parentId = Uuid::uuid4()->getHex();
-        $childId1 = Uuid::uuid4()->getHex();
-        $childId2 = Uuid::uuid4()->getHex();
+        $parentId = Uuid::randomHex();
+        $childId1 = Uuid::randomHex();
+        $childId2 = Uuid::randomHex();
 
         $data = [
             'id' => $parentId,
@@ -94,9 +94,9 @@ class NavigationEntityTest extends TestCase
 
     public function testCreateNavigationViaApi(): void
     {
-        $parentId = Uuid::uuid4()->getHex();
-        $childId1 = Uuid::uuid4()->getHex();
-        $childId2 = Uuid::uuid4()->getHex();
+        $parentId = Uuid::randomHex();
+        $childId1 = Uuid::randomHex();
+        $childId2 = Uuid::randomHex();
 
         $data = [
             'id' => $parentId,

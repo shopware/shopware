@@ -9,9 +9,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException\WriteStackException;
 use Shopware\Core\Framework\Rule\Rule;
-use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 use Symfony\Component\Validator\Constraints\Choice;
 use Symfony\Component\Validator\Constraints\NotBlank;
@@ -45,13 +45,13 @@ class ShippingCountryRuleTest extends TestCase
 
     public function testValidateWithMissingParameters(): void
     {
-        $conditionId = Uuid::uuid4()->getHex();
+        $conditionId = Uuid::randomHex();
         try {
             $this->conditionRepository->create([
                 [
                     'id' => $conditionId,
                     'type' => (new ShippingCountryRule())->getName(),
-                    'ruleId' => Uuid::uuid4()->getHex(),
+                    'ruleId' => Uuid::randomHex(),
                 ],
             ], $this->context);
             static::fail('Exception was not thrown');
@@ -69,20 +69,20 @@ class ShippingCountryRuleTest extends TestCase
 
     public function testValidateWithoutOptionalOperator(): void
     {
-        $ruleId = Uuid::uuid4()->getHex();
+        $ruleId = Uuid::randomHex();
         $this->ruleRepository->create(
             [['id' => $ruleId, 'name' => 'Demo rule', 'priority' => 1]],
             Context::createDefaultContext()
         );
 
-        $id = Uuid::uuid4()->getHex();
+        $id = Uuid::randomHex();
         $this->conditionRepository->create([
             [
                 'id' => $id,
                 'type' => (new ShippingCountryRule())->getName(),
                 'ruleId' => $ruleId,
                 'value' => [
-                    'countryIds' => [Uuid::uuid4()->getHex(), Uuid::uuid4()->getHex()],
+                    'countryIds' => [Uuid::randomHex(), Uuid::randomHex()],
                 ],
             ],
         ], $this->context);
@@ -92,13 +92,13 @@ class ShippingCountryRuleTest extends TestCase
 
     public function testValidateWithMissingCountryIds(): void
     {
-        $conditionId = Uuid::uuid4()->getHex();
+        $conditionId = Uuid::randomHex();
         try {
             $this->conditionRepository->create([
                 [
                     'id' => $conditionId,
                     'type' => (new ShippingCountryRule())->getName(),
-                    'ruleId' => Uuid::uuid4()->getHex(),
+                    'ruleId' => Uuid::randomHex(),
                     'value' => [
                         'operator' => Rule::OPERATOR_EQ,
                     ],
@@ -119,13 +119,13 @@ class ShippingCountryRuleTest extends TestCase
 
     public function testValidateWithEmptyCountryIds(): void
     {
-        $conditionId = Uuid::uuid4()->getHex();
+        $conditionId = Uuid::randomHex();
         try {
             $this->conditionRepository->create([
                 [
                     'id' => $conditionId,
                     'type' => (new ShippingCountryRule())->getName(),
-                    'ruleId' => Uuid::uuid4()->getHex(),
+                    'ruleId' => Uuid::randomHex(),
                     'value' => [
                         'operator' => Rule::OPERATOR_EQ,
                         'countryIds' => [],
@@ -147,13 +147,13 @@ class ShippingCountryRuleTest extends TestCase
 
     public function testValidateWithInvalidCountryIdsUuid(): void
     {
-        $conditionId = Uuid::uuid4()->getHex();
+        $conditionId = Uuid::randomHex();
         try {
             $this->conditionRepository->create([
                 [
                     'id' => $conditionId,
                     'type' => (new ShippingCountryRule())->getName(),
-                    'ruleId' => Uuid::uuid4()->getHex(),
+                    'ruleId' => Uuid::randomHex(),
                     'value' => [
                         'operator' => Rule::OPERATOR_EQ,
                         'countryIds' => ['INVALID-UUID', true, 3],
@@ -176,14 +176,14 @@ class ShippingCountryRuleTest extends TestCase
 
     public function testValidateWithValidOperators(): void
     {
-        $ruleId = Uuid::uuid4()->getHex();
+        $ruleId = Uuid::randomHex();
         $this->ruleRepository->create(
             [['id' => $ruleId, 'name' => 'Demo rule', 'priority' => 1]],
             Context::createDefaultContext()
         );
 
-        $conditionIdEq = Uuid::uuid4()->getHex();
-        $conditionIdNEq = Uuid::uuid4()->getHex();
+        $conditionIdEq = Uuid::randomHex();
+        $conditionIdNEq = Uuid::randomHex();
         $this->conditionRepository->create(
             [
                 [
@@ -191,7 +191,7 @@ class ShippingCountryRuleTest extends TestCase
                     'type' => (new ShippingCountryRule())->getName(),
                     'ruleId' => $ruleId,
                     'value' => [
-                        'countryIds' => [Uuid::uuid4()->getHex(), Uuid::uuid4()->getHex()],
+                        'countryIds' => [Uuid::randomHex(), Uuid::randomHex()],
                         'operator' => Rule::OPERATOR_EQ,
                     ],
                 ],
@@ -200,7 +200,7 @@ class ShippingCountryRuleTest extends TestCase
                     'type' => (new ShippingCountryRule())->getName(),
                     'ruleId' => $ruleId,
                     'value' => [
-                        'countryIds' => [Uuid::uuid4()->getHex(), Uuid::uuid4()->getHex()],
+                        'countryIds' => [Uuid::randomHex(), Uuid::randomHex()],
                         'operator' => Rule::OPERATOR_NEQ,
                     ],
                 ],
@@ -216,16 +216,16 @@ class ShippingCountryRuleTest extends TestCase
 
     public function testValidateWithInvalidOperators(): void
     {
-        $conditionId = Uuid::uuid4()->getHex();
+        $conditionId = Uuid::randomHex();
         foreach ([Rule::OPERATOR_LTE, Rule::OPERATOR_GTE, 'Invalid'] as $operator) {
             try {
                 $this->conditionRepository->create([
                     [
                         'id' => $conditionId,
                         'type' => (new ShippingCountryRule())->getName(),
-                        'ruleId' => Uuid::uuid4()->getHex(),
+                        'ruleId' => Uuid::randomHex(),
                         'value' => [
-                            'countryIds' => [Uuid::uuid4()->getHex(), Uuid::uuid4()->getHex()],
+                            'countryIds' => [Uuid::randomHex(), Uuid::randomHex()],
                             'operator' => $operator,
                         ],
                     ],
@@ -246,13 +246,13 @@ class ShippingCountryRuleTest extends TestCase
 
     public function testIfRuleIsConsistent(): void
     {
-        $ruleId = Uuid::uuid4()->getHex();
+        $ruleId = Uuid::randomHex();
         $this->ruleRepository->create(
             [['id' => $ruleId, 'name' => 'Demo rule', 'priority' => 1]],
             Context::createDefaultContext()
         );
 
-        $id = Uuid::uuid4()->getHex();
+        $id = Uuid::randomHex();
         $this->conditionRepository->create([
             [
                 'id' => $id,
@@ -260,7 +260,7 @@ class ShippingCountryRuleTest extends TestCase
                 'ruleId' => $ruleId,
                 'value' => [
                     'operator' => Rule::OPERATOR_EQ,
-                    'countryIds' => [Uuid::uuid4()->getHex(), Uuid::uuid4()->getHex()],
+                    'countryIds' => [Uuid::randomHex(), Uuid::randomHex()],
                 ],
             ],
         ], $this->context);

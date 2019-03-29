@@ -9,7 +9,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
-use Shopware\Core\Framework\Struct\Uuid;
+use Shopware\Core\Framework\Uuid\Uuid;
 
 class IdFieldSerializer implements FieldSerializerInterface
 {
@@ -29,13 +29,13 @@ class IdFieldSerializer implements FieldSerializerInterface
         }
         $value = $data->getValue();
         if (!$value) {
-            $value = Uuid::uuid4()->getHex();
+            $value = Uuid::randomHex();
         }
 
         $parameters->getContext()->set($parameters->getDefinition(), $data->getKey(), $value);
 
         /* @var IdField $field */
-        yield $field->getStorageName() => Uuid::fromStringToBytes($value);
+        yield $field->getStorageName() => Uuid::fromHexToBytes($value);
     }
 
     public function decode(Field $field, $value): ?string

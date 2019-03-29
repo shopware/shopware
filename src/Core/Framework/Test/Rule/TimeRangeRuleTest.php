@@ -8,8 +8,8 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Rule\RuleScope;
 use Shopware\Core\Framework\Rule\TimeRangeRule;
-use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Uuid\Uuid;
 
 class TimeRangeRuleTest extends TestCase
 {
@@ -77,7 +77,7 @@ class TimeRangeRuleTest extends TestCase
 
     public function testIfRuleIsConsistent(): void
     {
-        $ruleId = Uuid::uuid4()->getHex();
+        $ruleId = Uuid::randomHex();
         $context = Context::createDefaultContext();
         $ruleRepository = $this->getContainer()->get('rule.repository');
         $conditionRepository = $this->getContainer()->get('rule_condition.repository');
@@ -87,7 +87,7 @@ class TimeRangeRuleTest extends TestCase
             Context::createDefaultContext()
         );
 
-        $id = Uuid::uuid4()->getHex();
+        $id = Uuid::randomHex();
         $conditionRepository->create([
             [
                 'id' => $id,

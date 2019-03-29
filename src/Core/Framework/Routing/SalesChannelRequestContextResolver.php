@@ -3,7 +3,7 @@
 namespace Shopware\Core\Framework\Routing;
 
 use Shopware\Core\Checkout\Context\CheckoutContextServiceInterface;
-use Shopware\Core\Framework\Struct\Uuid;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Request as SymfonyRequest;
@@ -37,7 +37,7 @@ class SalesChannelRequestContextResolver implements RequestContextResolverInterf
         }
 
         if (!$master->headers->has(PlatformRequest::HEADER_CONTEXT_TOKEN)) {
-            $master->headers->set(PlatformRequest::HEADER_CONTEXT_TOKEN, Uuid::uuid4()->getHex());
+            $master->headers->set(PlatformRequest::HEADER_CONTEXT_TOKEN, Uuid::randomHex());
         }
 
         $contextToken = $master->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN);

@@ -12,9 +12,9 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineHistory\StateMachineHistoryCollection;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineHistory\StateMachineHistoryEntity;
@@ -182,9 +182,9 @@ class OrderTransactionActionControllerTest extends TestCase
 
     private function createOrder(string $customerId, Context $context): string
     {
-        $orderId = Uuid::uuid4()->getHex();
+        $orderId = Uuid::randomHex();
         $stateId = $this->stateMachineRegistry->getInitialState(Defaults::ORDER_STATE_MACHINE, $context)->getId();
-        $billingAddressId = Uuid::uuid4()->getHex();
+        $billingAddressId = Uuid::randomHex();
 
         $order = [
             'id' => $orderId,
@@ -228,8 +228,8 @@ class OrderTransactionActionControllerTest extends TestCase
 
     private function createCustomer(Context $context): string
     {
-        $customerId = Uuid::uuid4()->getHex();
-        $addressId = Uuid::uuid4()->getHex();
+        $customerId = Uuid::randomHex();
+        $addressId = Uuid::randomHex();
 
         $customer = [
             'id' => $customerId,
@@ -237,7 +237,7 @@ class OrderTransactionActionControllerTest extends TestCase
             'salutationId' => Defaults::SALUTATION_ID_MR,
             'firstName' => 'Max',
             'lastName' => 'Mustermann',
-            'email' => Uuid::uuid4()->getHex() . '@example.com',
+            'email' => Uuid::randomHex() . '@example.com',
             'password' => 'shopware',
             'defaultPaymentMethodId' => $this->getValidPaymentMethodId(),
             'groupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
@@ -266,7 +266,7 @@ class OrderTransactionActionControllerTest extends TestCase
 
     private function createOrderTransaction(string $orderId, Context $context): string
     {
-        $transactionId = Uuid::uuid4()->getHex();
+        $transactionId = Uuid::randomHex();
         $stateId = $this->stateMachineRegistry->getInitialState(Defaults::ORDER_TRANSACTION_STATE_MACHINE, $context)->getId();
 
         $transaction = [

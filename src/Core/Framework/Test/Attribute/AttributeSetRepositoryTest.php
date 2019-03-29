@@ -10,8 +10,8 @@ use Shopware\Core\Framework\Attribute\AttributeDefinition;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Uuid\Uuid;
 
 class AttributeSetRepositoryTest extends TestCase
 {
@@ -21,19 +21,19 @@ class AttributeSetRepositoryTest extends TestCase
     {
         $repo = $this->getContainer()->get('attribute_set.repository');
 
-        $id = Uuid::uuid4()->getHex();
+        $id = Uuid::randomHex();
         $attributeSet = [
             'id' => $id,
             'name' => 'test set',
             'config' => ['description' => 'test set'],
             'attributes' => [
                 [
-                    'id' => Uuid::uuid4()->getHex(),
+                    'id' => Uuid::randomHex(),
                     'name' => 'foo.size',
                     'type' => 'int',
                 ],
                 [
-                    'id' => Uuid::uuid4()->getHex(),
+                    'id' => Uuid::randomHex(),
                     'name' => 'foo.description',
                     'type' => 'string',
                 ],
@@ -63,8 +63,8 @@ class AttributeSetRepositoryTest extends TestCase
     {
         $repo = $this->getContainer()->get('attribute_set.repository');
 
-        $id1 = Uuid::uuid4()->getHex();
-        $id2 = Uuid::uuid4()->getHex();
+        $id1 = Uuid::randomHex();
+        $id2 = Uuid::randomHex();
         $attributeSets = [
             [
                 'id' => $id1,
@@ -72,7 +72,7 @@ class AttributeSetRepositoryTest extends TestCase
                 'config' => ['description' => 'test 1'],
                 'attributes' => [
                     [
-                        'id' => Uuid::uuid4()->getHex(),
+                        'id' => Uuid::randomHex(),
                         'name' => 'foo.size',
                         'type' => 'int',
                     ],
@@ -92,7 +92,7 @@ class AttributeSetRepositoryTest extends TestCase
                 'config' => ['description' => 'test 2'],
                 'attributes' => [
                     [
-                        'id' => Uuid::uuid4()->getHex(),
+                        'id' => Uuid::randomHex(),
                         'name' => 'taxId',
                         'type' => 'string',
                     ],
@@ -128,12 +128,12 @@ class AttributeSetRepositoryTest extends TestCase
     {
         $repo = $this->getContainer()->get('attribute_set.repository');
 
-        $id = Uuid::uuid4()->getHex();
-        $attrId1 = Uuid::uuid4()->getHex();
-        $attrId2 = Uuid::uuid4()->getHex();
+        $id = Uuid::randomHex();
+        $attrId1 = Uuid::randomHex();
+        $attrId2 = Uuid::randomHex();
 
-        $entityId1 = Uuid::uuid4()->getHex();
-        $entityId2 = Uuid::uuid4()->getHex();
+        $entityId1 = Uuid::randomHex();
+        $entityId2 = Uuid::randomHex();
 
         $attributeSet = [
             'id' => $id,
@@ -183,19 +183,19 @@ class AttributeSetRepositoryTest extends TestCase
     {
         $repo = $this->getContainer()->get('attribute_set.repository');
 
-        $id = Uuid::uuid4()->getHex();
+        $id = Uuid::randomHex();
         $attributeSet = [
             'id' => $id,
             'name' => 'test set',
             'config' => ['description' => 'test', 'foo' => 'bar'],
             'attributes' => [
                 [
-                    'id' => Uuid::uuid4()->getHex(),
+                    'id' => Uuid::randomHex(),
                     'name' => 'foo.size',
                     'type' => 'int',
                 ],
                 [
-                    'id' => Uuid::uuid4()->getHex(),
+                    'id' => Uuid::randomHex(),
                     'name' => 'foo.description',
                     'type' => 'string',
                 ],
@@ -231,8 +231,8 @@ class AttributeSetRepositoryTest extends TestCase
         /** @var EntityRepositoryInterface $repo */
         $repo = $this->getContainer()->get('attribute_set.repository');
 
-        $id = Uuid::uuid4()->getHex();
-        $nullId = Uuid::uuid4()->getHex();
+        $id = Uuid::randomHex();
+        $nullId = Uuid::randomHex();
         $attributeSets = [
             [
                 'id' => $id,
@@ -240,7 +240,7 @@ class AttributeSetRepositoryTest extends TestCase
                 'config' => ['description' => 'test 1'],
                 'attributes' => [
                     [
-                        'id' => Uuid::uuid4()->getHex(),
+                        'id' => Uuid::randomHex(),
                         'name' => 'foo.size',
                         'type' => 'int',
                     ],

@@ -10,7 +10,7 @@ use Shopware\Core\Framework\MessageQueue\Exception\MessageFailedException;
 use Shopware\Core\Framework\MessageQueue\Message\RetryMessage;
 use Shopware\Core\Framework\MessageQueue\Stamp\DecryptedStamp;
 use Shopware\Core\Framework\ScheduledTask\ScheduledTask;
-use Shopware\Core\Framework\Struct\Uuid;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\Messenger\Envelope;
 use Symfony\Component\Messenger\Middleware\MiddlewareInterface;
 use Symfony\Component\Messenger\Middleware\StackInterface;
@@ -67,7 +67,7 @@ class RetryMiddleware implements MiddlewareInterface
                 $scheduledTaskId = $envelope->getMessage()->getTaskId();
             }
 
-            $id = Uuid::uuid4()->getHex();
+            $id = Uuid::randomHex();
             $this->deadMessageRepository->create([
                 [
                     'id' => $id,
@@ -126,7 +126,7 @@ class RetryMiddleware implements MiddlewareInterface
     private function createDeadMessageFromExistingMessage(DeadMessageEntity $message, MessageFailedException $e): void
     {
         $this->context->scope(Context::SYSTEM_SCOPE, function () use ($message, $e) {
-            $id = Uuid::uuid4()->getHex();
+            $id = Uuid::randomHex();
             $this->deadMessageRepository->create([
                 [
                     'id' => $id,

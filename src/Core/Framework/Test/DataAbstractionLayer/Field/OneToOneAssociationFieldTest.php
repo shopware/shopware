@@ -19,10 +19,10 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\VersionManager;
 use Shopware\Core\Framework\Struct\ArrayEntity;
-use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\RootDefinition;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\SubDefinition;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Uuid\Uuid;
 
 class OneToOneAssociationFieldTest extends TestCase
 {
@@ -113,8 +113,8 @@ DROP TABLE IF EXISTS `root_sub_many`;
 
     public function testWriteRootOverSub()
     {
-        $id = Uuid::uuid4()->getHex();
-        $id2 = Uuid::uuid4()->getHex();
+        $id = Uuid::randomHex();
+        $id2 = Uuid::randomHex();
 
         $data = [
             'id' => $id,
@@ -144,8 +144,8 @@ DROP TABLE IF EXISTS `root_sub_many`;
 
     public function testWriteSubOverRoot(): void
     {
-        $id = Uuid::uuid4()->getHex();
-        $id2 = Uuid::uuid4()->getHex();
+        $id = Uuid::randomHex();
+        $id2 = Uuid::randomHex();
 
         $data = [
             'id' => $id2,
@@ -175,10 +175,10 @@ DROP TABLE IF EXISTS `root_sub_many`;
 
     public function testRead(): void
     {
-        $id = Uuid::uuid4()->getHex();
-        $id2 = Uuid::uuid4()->getHex();
-        $id3 = Uuid::uuid4()->getHex();
-        $id4 = Uuid::uuid4()->getHex();
+        $id = Uuid::randomHex();
+        $id2 = Uuid::randomHex();
+        $id3 = Uuid::randomHex();
+        $id4 = Uuid::randomHex();
 
         $data = [
             'id' => $id,
@@ -225,8 +225,8 @@ DROP TABLE IF EXISTS `root_sub_many`;
 
     public function testSearch(): void
     {
-        $id1 = Uuid::uuid4()->getHex();
-        $id2 = Uuid::uuid4()->getHex();
+        $id1 = Uuid::randomHex();
+        $id2 = Uuid::randomHex();
 
         $data = [
             [
@@ -261,8 +261,8 @@ DROP TABLE IF EXISTS `root_sub_many`;
 
     public function testAggregate(): void
     {
-        $id1 = Uuid::uuid4()->getHex();
-        $id2 = Uuid::uuid4()->getHex();
+        $id1 = Uuid::randomHex();
+        $id2 = Uuid::randomHex();
 
         $data = [
             [
@@ -303,7 +303,7 @@ DROP TABLE IF EXISTS `root_sub_many`;
 
     public function testCreateVersioning(): void
     {
-        $id = Uuid::uuid4()->getHex();
+        $id = Uuid::randomHex();
 
         $data = [
             'id' => $id,
@@ -360,8 +360,8 @@ DROP TABLE IF EXISTS `root_sub_many`;
 
     public function testItInvalidatesTheCacheOnBothSides()
     {
-        $idRoot = Uuid::uuid4()->getHex();
-        $idSub = Uuid::uuid4()->getHex();
+        $idRoot = Uuid::randomHex();
+        $idSub = Uuid::randomHex();
 
         $data = [
             'id' => $idRoot,

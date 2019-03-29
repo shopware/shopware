@@ -10,10 +10,10 @@ use Shopware\Core\Framework\MessageQueue\DeadMessage\DeadMessageEntity;
 use Shopware\Core\Framework\MessageQueue\Exception\MessageFailedException;
 use Shopware\Core\Framework\MessageQueue\Handler\RetryMessageHandler;
 use Shopware\Core\Framework\MessageQueue\Message\RetryMessage;
-use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\Framework\Test\MessageQueue\fixtures\DummyHandler;
 use Shopware\Core\Framework\Test\MessageQueue\fixtures\TestMessage;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Uuid\Uuid;
 
 class RetryMessageHandlerTest extends TestCase
 {
@@ -52,7 +52,7 @@ class RetryMessageHandlerTest extends TestCase
 
     public function testWithMissingDeadMessage(): void
     {
-        ($this->retryMessageHandler)(new RetryMessage(Uuid::uuid4()->getHex()));
+        ($this->retryMessageHandler)(new RetryMessage(Uuid::randomHex()));
 
         $messages = $this->deadMessageRepository->search(new Criteria(), $this->context)->getEntities();
         static::assertCount(0, $messages);
@@ -61,7 +61,7 @@ class RetryMessageHandlerTest extends TestCase
     public function testWithSuccessfulRetry(): void
     {
         $message = new TestMessage();
-        $deadMessageId = Uuid::uuid4()->getHex();
+        $deadMessageId = Uuid::randomHex();
 
         $dummyHandler = new DummyHandler();
         $this->getContainer()->set(DummyHandler::class, $dummyHandler);
@@ -80,7 +80,7 @@ class RetryMessageHandlerTest extends TestCase
     public function testWithFailingRetry(): void
     {
         $message = new TestMessage();
-        $deadMessageId = Uuid::uuid4()->getHex();
+        $deadMessageId = Uuid::randomHex();
         $e = new \Exception('will be thrown');
 
         $dummyHandler = (new DummyHandler())->willThrowException($e);

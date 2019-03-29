@@ -18,9 +18,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\TreePathField;
 use Shopware\Core\Framework\Event\ProgressAdvancedEvent;
 use Shopware\Core\Framework\Event\ProgressFinishedEvent;
 use Shopware\Core\Framework\Event\ProgressStartedEvent;
-use Shopware\Core\Framework\Exception\InvalidUuidException;
-use Shopware\Core\Framework\Exception\InvalidUuidLengthException;
-use Shopware\Core\Framework\Struct\Uuid;
+use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
+use Shopware\Core\Framework\Uuid\Exception\InvalidUuidLengthException;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\Cache\Adapter\TagAwareAdapter;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
@@ -125,9 +125,9 @@ class TreeIndexer implements IndexerInterface
     private function update(string $parentId, $definition, Context $context): void
     {
         $parent = $this->loadParents(
-            Uuid::fromStringToBytes($parentId),
+            Uuid::fromHexToBytes($parentId),
             $definition,
-            Uuid::fromStringToBytes($context->getVersionId()));
+            Uuid::fromHexToBytes($context->getVersionId()));
 
         if ($parent === null) {
             return;
@@ -169,7 +169,7 @@ class TreeIndexer implements IndexerInterface
         $query->select($this->getFieldsToSelect($definition));
         $query->andWhere('parent_id = :id');
         $query->setParameter('id', $parent['id']);
-        $this->makeQueryVersionAware($definition, Uuid::fromStringToBytes($context->getVersionId()), $query);
+        $this->makeQueryVersionAware($definition, Uuid::fromHexToBytes($context->getVersionId()), $query);
 
         return $query->execute()->fetchAll();
     }
@@ -204,7 +204,7 @@ class TreeIndexer implements IndexerInterface
 
         $query->andWhere('id = :id');
         $query->setParameter('id', $entity['id']);
-        $this->makeQueryVersionAware($definition, Uuid::fromStringToBytes($context->getVersionId()), $query);
+        $this->makeQueryVersionAware($definition, Uuid::fromHexToBytes($context->getVersionId()), $query);
 
         $query->execute();
 

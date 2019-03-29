@@ -22,7 +22,7 @@ use Shopware\Core\Framework\Rule\Container\OrRule;
 use Shopware\Core\Framework\Rule\CurrencyRule;
 use Shopware\Core\Framework\Rule\DateRangeRule;
 use Shopware\Core\Framework\Rule\Rule;
-use Shopware\Core\Framework\Struct\Uuid;
+use Shopware\Core\Framework\Uuid\Uuid;
 
 class RuleGenerator implements DemodataGeneratorInterface
 {
@@ -108,7 +108,7 @@ class RuleGenerator implements DemodataGeneratorInterface
             $names = array_column($rules, 'name');
 
             $ruleData = [
-                'id' => Uuid::uuid4()->getHex(),
+                'id' => Uuid::randomHex(),
                 'priority' => $i,
                 'name' => implode(' + ', $names),
                 'description' => $context->getFaker()->text(),
@@ -123,7 +123,7 @@ class RuleGenerator implements DemodataGeneratorInterface
         $nestedRule = new OrRule();
 
         $nestedRuleData = [
-            'id' => Uuid::uuid4()->getHex(),
+            'id' => Uuid::randomHex(),
             'priority' => 20,
             'name' => 'nested rule',
             'description' => $context->getFaker()->text(),
@@ -171,7 +171,7 @@ class RuleGenerator implements DemodataGeneratorInterface
         if (!$data['value']) {
             unset($data['value']);
         }
-        $data['id'] = Uuid::uuid4()->getHex();
+        $data['id'] = Uuid::randomHex();
         $data['parentId'] = $parentId;
         $data['type'] = $rule->getName();
 

@@ -11,7 +11,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEve
 use Shopware\Core\Framework\Event\ProgressAdvancedEvent;
 use Shopware\Core\Framework\Event\ProgressFinishedEvent;
 use Shopware\Core\Framework\Event\ProgressStartedEvent;
-use Shopware\Core\Framework\Struct\Uuid;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class ProductDatasheetIndexer implements IndexerInterface
@@ -95,7 +95,7 @@ AND product.id IN (:ids)
 SQL;
 
         $bytes = array_map(function ($id) {
-            return Uuid::fromStringToBytes($id);
+            return Uuid::fromHexToBytes($id);
         }, $productIds);
 
         $this->connection->executeUpdate($sql, ['ids' => $bytes], ['ids' => Connection::PARAM_STR_ARRAY]);

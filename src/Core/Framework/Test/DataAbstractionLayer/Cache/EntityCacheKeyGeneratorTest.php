@@ -14,7 +14,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
-use Shopware\Core\Framework\Struct\Uuid;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Currency\CurrencyEntity;
 use Shopware\Core\System\Tax\TaxEntity;
 
@@ -35,8 +35,8 @@ class EntityCacheKeyGeneratorTest extends TestCase
     {
         $context = Context::createDefaultContext();
 
-        $id = Uuid::uuid4()->getHex();
-        $id2 = Uuid::uuid4()->getHex();
+        $id = Uuid::randomHex();
+        $id2 = Uuid::randomHex();
         $product = new ProductEntity();
         $product->assign([
             'id' => $id,

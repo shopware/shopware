@@ -4,12 +4,12 @@ namespace Shopware\Storefront\Test;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
-use Ramsey\Uuid\Uuid;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\SearchTerm;
 use Shopware\Core\Framework\Search\Util\KeywordSearchTermInterpreterInterface;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Uuid\Uuid;
 
 class KeywordSearchTermInterpreterTest extends TestCase
 {
@@ -108,7 +108,7 @@ class KeywordSearchTermInterpreterTest extends TestCase
             'netzwerkprotokolle',
         ];
 
-        $languageId = Uuid::fromString(Defaults::LANGUAGE_SYSTEM)->getBytes();
+        $languageId = Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM);
 
         foreach ($keywords as $keyword) {
             preg_match_all('/./us', $keyword, $ar);

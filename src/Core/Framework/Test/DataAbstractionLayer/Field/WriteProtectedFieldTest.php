@@ -10,11 +10,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriterInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException\InsufficientWritePermissionException;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException\WriteStackException;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
-use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\WriteProtectedDefinition;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\WriteProtectedRelationDefinition;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\WriteProtectedTranslatedDefinition;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
+use Shopware\Core\Framework\Uuid\Uuid;
 
 class WriteProtectedFieldTest extends TestCase
 {
@@ -84,11 +84,11 @@ EOF;
 
     public function testWriteWithoutPermission(): void
     {
-        $id = Uuid::uuid4();
+        $id = Uuid::randomHex();
         $context = $this->createWriteContext();
 
         $data = [
-            'id' => $id->getHex(),
+            'id' => $id,
             'protected' => 'foobar',
         ];
 
@@ -109,11 +109,11 @@ EOF;
 
     public function testWriteWithoutProtectedField(): void
     {
-        $id = Uuid::uuid4();
+        $id = Uuid::randomHex();
         $context = $this->createWriteContext();
 
         $data = [
-            'id' => $id->getHex(),
+            'id' => $id,
         ];
 
         $this->getWriter()->insert(WriteProtectedDefinition::class, [$data], $context);
@@ -121,17 +121,17 @@ EOF;
         $data = $this->connection->fetchAll('SELECT * FROM `_test_nullable`');
 
         static::assertCount(1, $data);
-        static::assertEquals($id->getBytes(), $data[0]['id']);
+        static::assertEquals(Uuid::fromHexToBytes($id), $data[0]['id']);
         static::assertEmpty($data[0]['protected']);
     }
 
     public function testWriteWithPermission(): void
     {
-        $id = Uuid::uuid4();
+        $id = Uuid::randomHex();
         $context = $this->createWriteContext();
 
         $data = [
-            'id' => $id->getHex(),
+            'id' => $id,
             'systemProtected' => 'foobar',
         ];
 
@@ -140,19 +140,19 @@ EOF;
         $data = $this->connection->fetchAll('SELECT * FROM `_test_nullable`');
 
         static::assertCount(1, $data);
-        static::assertEquals($id->getBytes(), $data[0]['id']);
+        static::assertEquals(Uuid::fromHexToBytes($id), $data[0]['id']);
         static::assertEquals('foobar', $data[0]['system_protected']);
     }
 
     public function testWriteManyToOneWithoutPermission(): void
     {
-        $id = Uuid::uuid4();
+        $id = Uuid::randomHex();
         $context = $this->createWriteContext();
 
         $data = [
-            'id' => $id->getHex(),
+            'id' => $id,
             'relation' => [
-                'id' => $id->getHex(),
+                'id' => $id,
             ],
         ];
 
@@ -173,13 +173,13 @@ EOF;
 
     public function testWriteManyToOneWithPermission(): void
     {
-        $id = Uuid::uuid4();
+        $id = Uuid::randomHex();
         $context = $this->createWriteContext();
 
         $data = [
-            'id' => $id->getHex(),
+            'id' => $id,
             'systemRelation' => [
-                'id' => $id->getHex(),
+                'id' => $id,
             ],
         ];
 
@@ -188,20 +188,20 @@ EOF;
         $data = $this->connection->fetchAll('SELECT * FROM `_test_nullable`');
 
         static::assertCount(1, $data);
-        static::assertEquals($id->getBytes(), $data[0]['id']);
-        static::assertEquals($id->getBytes(), $data[0]['system_relation_id']);
+        static::assertEquals(Uuid::fromHexToBytes($id), $data[0]['id']);
+        static::assertEquals(Uuid::fromHexToBytes($id), $data[0]['system_relation_id']);
     }
 
     public function testWriteOneToManyWithoutPermission(): void
     {
-        $id = Uuid::uuid4();
+        $id = Uuid::randomHex();
         $context = $this->createWriteContext();
 
         $data = [
-            'id' => $id->getHex(),
+            'id' => $id,
             'wp' => [
                 [
-                    'id' => $id->getHex(),
+                    'id' => $id,
                 ],
             ],
         ];
@@ -223,15 +223,15 @@ EOF;
 
     public function testWriteOneToManyWithPermission(): void
     {
-        $id = Uuid::uuid4();
+        $id = Uuid::randomHex();
         $context = $this->createWriteContext();
 
         $data = [
-            'id' => $id->getHex(),
+            'id' => $id,
             'systemWp' => [
                 [
                     'systemProtected' => 'foobar',
-                    'relationId' => $id->getHex(),
+                    'relationId' => $id,
                 ],
             ],
         ];
@@ -241,20 +241,20 @@ EOF;
         $data = $this->connection->fetchAll('SELECT * FROM `_test_nullable`');
 
         static::assertCount(1, $data);
-        static::assertEquals($id->getBytes(), $data[0]['relation_id']);
+        static::assertEquals(Uuid::fromHexToBytes($id), $data[0]['relation_id']);
     }
 
     public function testWriteManyToManyWithoutPermission(): void
     {
-        $id = Uuid::uuid4();
-        $id2 = Uuid::uuid4();
+        $id = Uuid::randomHex();
+        $id2 = Uuid::randomHex();
         $context = $this->createWriteContext();
 
         $data = [
-            'id' => $id->getHex(),
+            'id' => $id,
             'relations' => [
                 [
-                    'id' => $id2->getHex(),
+                    'id' => $id2,
                 ],
             ],
         ];
@@ -276,15 +276,15 @@ EOF;
 
     public function testWriteManyToManyWithPermission(): void
     {
-        $id = Uuid::uuid4();
-        $id2 = Uuid::uuid4();
+        $id = Uuid::randomHex();
+        $id2 = Uuid::randomHex();
         $context = $this->createWriteContext();
 
         $data = [
-            'id' => $id->getHex(),
+            'id' => $id,
             'systemRelations' => [
                 [
-                    'id' => $id2->getHex(),
+                    'id' => $id2,
                 ],
             ],
         ];
@@ -294,17 +294,17 @@ EOF;
         $data = $this->connection->fetchAll('SELECT * FROM `_test_nullable_reference`');
 
         static::assertCount(1, $data);
-        static::assertEquals($id->getBytes(), $data[0]['wp_id']);
-        static::assertEquals($id2->getBytes(), $data[0]['relation_id']);
+        static::assertEquals(Uuid::fromHexToBytes($id), $data[0]['wp_id']);
+        static::assertEquals(Uuid::fromHexToBytes($id2), $data[0]['relation_id']);
     }
 
     public function testWriteTranslationWithoutPermission(): void
     {
-        $id = Uuid::uuid4();
+        $id = Uuid::randomHex();
         $context = $this->createWriteContext();
 
         $data = [
-            'id' => $id->getHex(),
+            'id' => $id,
             'protected' => 'foobar',
         ];
 
@@ -325,11 +325,11 @@ EOF;
 
     public function testWriteTranslationWithPermission(): void
     {
-        $id = Uuid::uuid4();
+        $id = Uuid::randomHex();
         $context = $this->createWriteContext();
 
         $data = [
-            'id' => $id->getHex(),
+            'id' => $id,
             'systemProtected' => 'foobar',
         ];
 
@@ -338,7 +338,7 @@ EOF;
         $data = $this->connection->fetchAll('SELECT * FROM `_test_nullable_translation`');
 
         static::assertCount(1, $data);
-        static::assertEquals($id->getBytes(), $data[0]['_test_nullable_id']);
+        static::assertEquals(Uuid::fromHexToBytes($id), $data[0]['_test_nullable_id']);
         static::assertEquals('foobar', $data[0]['system_protected']);
     }
 

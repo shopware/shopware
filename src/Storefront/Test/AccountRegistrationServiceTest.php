@@ -9,8 +9,8 @@ use Shopware\Core\Checkout\Customer\Exception\CustomerNotFoundException;
 use Shopware\Core\Checkout\Customer\Storefront\AccountRegistrationService;
 use Shopware\Core\Checkout\Customer\Storefront\AccountService;
 use Shopware\Core\Defaults;
-use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
 
@@ -39,7 +39,7 @@ class AccountRegistrationServiceTest extends TestCase
         $this->accountService = $this->getContainer()->get(AccountService::class);
         $checkoutContextFactory = $this->getContainer()->get(CheckoutContextFactory::class);
 
-        $token = Uuid::uuid4()->getHex();
+        $token = Uuid::randomHex();
         $this->checkoutContext = $checkoutContextFactory->create($token, Defaults::SALES_CHANNEL);
     }
 
@@ -120,7 +120,7 @@ class AccountRegistrationServiceTest extends TestCase
         ];
 
         if (!$isGuest) {
-            $data['password'] = Uuid::uuid4()->getHex();
+            $data['password'] = Uuid::randomHex();
         }
 
         return new DataBag($data);

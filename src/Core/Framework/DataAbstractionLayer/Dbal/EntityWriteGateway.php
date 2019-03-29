@@ -18,7 +18,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommandQueue
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
-use Shopware\Core\Framework\Struct\Uuid;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\WriteCommandValidatorInterface;
 
 class EntityWriteGateway implements EntityWriteGatewayInterface
@@ -323,7 +323,7 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
                 unset($primaryKey[$field->getPropertyName()]);
             }
 
-            $param = 'param_' . Uuid::uuid4()->getHex();
+            $param = 'param_' . Uuid::randomHex();
             $query->andWhere(EntityDefinitionQueryHelper::escape($field->getStorageName()) . ' = :' . $param);
             $query->setParameter($param, $primaryKey[$field->getStorageName()]);
         }

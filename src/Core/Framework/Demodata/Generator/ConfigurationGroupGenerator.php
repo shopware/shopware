@@ -6,7 +6,7 @@ use Shopware\Core\Content\Configuration\ConfigurationGroupDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\Demodata\DemodataContext;
 use Shopware\Core\Framework\Demodata\DemodataGeneratorInterface;
-use Shopware\Core\Framework\Struct\Uuid;
+use Shopware\Core\Framework\Uuid\Uuid;
 
 class ConfigurationGroupGenerator implements DemodataGeneratorInterface
 {
@@ -37,7 +37,7 @@ class ConfigurationGroupGenerator implements DemodataGeneratorInterface
             $x = random_int(20, 100);
 
             for ($i2 = 0; $i2 <= $x; ++$i2) {
-                $id = Uuid::uuid4()->getHex();
+                $id = Uuid::randomHex();
                 $optionIds[] = $id;
                 $options[] = ['id' => $id, 'name' => $context->getFaker()->colorName];
             }
@@ -45,7 +45,7 @@ class ConfigurationGroupGenerator implements DemodataGeneratorInterface
             $this->configurationGroupRepository->create(
                 [
                     [
-                        'id' => Uuid::uuid4()->getHex(),
+                        'id' => Uuid::randomHex(),
                         'name' => $context->getFaker()->word,
                         'options' => $options,
                         'description' => $context->getFaker()->text,

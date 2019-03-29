@@ -8,8 +8,8 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Storefront\Framework\Seo\SeoResolver;
 use Shopware\Storefront\Framework\Seo\SeoResolverInterface;
@@ -39,7 +39,7 @@ class SeoResolverTest extends TestCase
 
     public function testResolveSeoPathPassthrough(): void
     {
-        $salesChannel = $this->createSalesChannel(Uuid::uuid4()->getHex(), 'test');
+        $salesChannel = $this->createSalesChannel(Uuid::randomHex(), 'test');
 
         $resolved = $this->seoResolver->resolveSeoPath($salesChannel->getId(), '/foo/bar');
         static::assertEquals(['pathInfo' => '/foo/bar', 'isCanonical' => false], $resolved);
@@ -50,7 +50,7 @@ class SeoResolverTest extends TestCase
 
     public function testResolveSeoPath(): void
     {
-        $salesChannel = $this->createSalesChannel(Uuid::uuid4()->getHex(), 'test');
+        $salesChannel = $this->createSalesChannel(Uuid::randomHex(), 'test');
 
         $this->seoUrlRepository->create([
             [
@@ -121,7 +121,7 @@ class SeoResolverTest extends TestCase
             'id' => $id,
             'name' => $name,
             'typeId' => Defaults::SALES_CHANNEL_STOREFRONT,
-            'accessKey' => Uuid::uuid4()->getHex(),
+            'accessKey' => Uuid::randomHex(),
             'secretAccessKey' => 'foobar',
             'languageId' => $defaultLanguageId,
             'snippetSetId' => Defaults::SNIPPET_BASE_SET_EN,

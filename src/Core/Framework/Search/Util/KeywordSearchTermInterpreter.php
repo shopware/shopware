@@ -9,7 +9,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\SearchPattern;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\SearchTerm;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\TokenizerInterface;
-use Shopware\Core\Framework\Struct\Uuid;
+use Shopware\Core\Framework\Uuid\Uuid;
 
 class KeywordSearchTermInterpreter implements KeywordSearchTermInterpreterInterface
 {
@@ -133,7 +133,7 @@ class KeywordSearchTermInterpreter implements KeywordSearchTermInterpreterInterf
         $query->andWhere('language_id = :language');
         $query->andWhere('(' . implode(' OR ', $wheres) . ')');
 
-        $query->setParameter('language', Uuid::fromStringToBytes($context->getLanguageId()));
+        $query->setParameter('language', Uuid::fromHexToBytes($context->getLanguageId()));
         $query->setParameter('scope', $scope);
 
         return $query->execute()->fetchAll(FetchMode::COLUMN);

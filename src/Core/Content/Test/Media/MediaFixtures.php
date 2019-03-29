@@ -6,7 +6,7 @@ use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Media\MediaType\BinaryType;
 use Shopware\Core\Content\Media\MediaType\DocumentType;
 use Shopware\Core\Content\Media\MediaType\ImageType;
-use Shopware\Core\Framework\Struct\Uuid;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Test\EntityFixturesBase;
 
 trait MediaFixtures
@@ -23,22 +23,22 @@ trait MediaFixtures
      */
     public function initializeMediaFixtures(): void
     {
-        $thumbnailSize150Id = Uuid::uuid4()->getHex();
-        $thumbnailSize300Id = Uuid::uuid4()->getHex();
+        $thumbnailSize150Id = Uuid::randomHex();
+        $thumbnailSize300Id = Uuid::randomHex();
 
         $this->mediaFixtures = [
             'NamedEmpty' => [
-                'id' => Uuid::uuid4()->getHex(),
+                'id' => Uuid::randomHex(),
             ],
             'NamedMimePng' => [
-                'id' => Uuid::uuid4()->getHex(),
+                'id' => Uuid::randomHex(),
                 'mimeType' => 'image/png',
                 'fileSize' => 1024,
                 'mediaType' => new ImageType(),
                 'uploadedAt' => new \DateTime('2011-01-01T15:03:01.012345Z'),
             ],
             'NamedMimePngEtxPng' => [
-                'id' => Uuid::uuid4()->getHex(),
+                'id' => Uuid::randomHex(),
                 'mimeType' => 'image/png',
                 'fileExtension' => 'png',
                 'fileName' => 'pngFileWithExtension',
@@ -47,7 +47,7 @@ trait MediaFixtures
                 'uploadedAt' => new \DateTime('2011-01-01T15:03:01.012345Z'),
             ],
             'NamedMimeTxtEtxTxt' => [
-                'id' => Uuid::uuid4()->getHex(),
+                'id' => Uuid::randomHex(),
                 'mimeType' => 'plain/txt',
                 'fileExtension' => 'txt',
                 'fileName' => 'textFileWithExtension',
@@ -56,7 +56,7 @@ trait MediaFixtures
                 'uploadedAt' => new \DateTime('2011-01-01T15:03:01.012345Z'),
             ],
             'NamedMimeJpgEtxJpg' => [
-                'id' => Uuid::uuid4()->getHex(),
+                'id' => Uuid::randomHex(),
                 'mimeType' => 'image/jpg',
                 'fileExtension' => 'jpg',
                 'fileName' => 'jpgFileWithExtension',
@@ -65,7 +65,7 @@ trait MediaFixtures
                 'uploadedAt' => new \DateTime('2011-01-01T15:03:01.012345Z'),
             ],
             'NamedMimePdfEtxPdf' => [
-                'id' => Uuid::uuid4()->getHex(),
+                'id' => Uuid::randomHex(),
                 'mimeType' => 'application/pdf',
                 'fileExtension' => 'pdf',
                 'fileName' => 'pdfFileWithExtension',
@@ -74,7 +74,7 @@ trait MediaFixtures
                 'uploadedAt' => new \DateTime('2011-01-01T15:03:01.012345Z'),
             ],
             'NamedWithThumbnail' => [
-                'id' => Uuid::uuid4()->getHex(),
+                'id' => Uuid::randomHex(),
                 'thumbnails' => [
                     [
                         'width' => 200,
@@ -84,15 +84,15 @@ trait MediaFixtures
                 ],
             ],
             'MediaWithProduct' => [
-                'id' => Uuid::uuid4()->getHex(),
+                'id' => Uuid::randomHex(),
                 'mimeType' => 'image/png',
                 'fileExtension' => 'png',
                 'fileName' => 'pngFileWithProduct',
                 'productMedia' => [
                     [
-                        'id' => Uuid::uuid4()->getHex(),
+                        'id' => Uuid::randomHex(),
                         'product' => [
-                            'id' => Uuid::uuid4()->getHex(),
+                            'id' => Uuid::randomHex(),
                             'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
                             'stock' => 10,
                             'manufacturer' => [
@@ -108,19 +108,19 @@ trait MediaFixtures
                 ],
             ],
             'MediaWithManufacturer' => [
-                'id' => Uuid::uuid4()->getHex(),
+                'id' => Uuid::randomHex(),
                 'mimeType' => 'image/png',
                 'fileExtension' => 'png',
                 'fileName' => 'pngFileWithManufacturer',
                 'productManufacturers' => [
                     [
-                        'id' => Uuid::uuid4()->getHex(),
+                        'id' => Uuid::randomHex(),
                         'name' => 'manufacturer',
                     ],
                 ],
             ],
             'NamedMimePngEtxPngWithFolder' => [
-                'id' => Uuid::uuid4()->getHex(),
+                'id' => Uuid::randomHex(),
                 'mimeType' => 'image/png',
                 'fileExtension' => 'png',
                 'fileName' => 'pngFileWithExtensionAndFolder',
@@ -150,7 +150,7 @@ trait MediaFixtures
                 ],
             ],
             'NamedMimeJpgEtxJpgWithFolder' => [
-                'id' => Uuid::uuid4()->getHex(),
+                'id' => Uuid::randomHex(),
                 'mimeType' => 'image/jpg',
                 'fileExtension' => 'jpg',
                 'fileName' => 'jpgFileWithExtensionAndFolder',
@@ -180,7 +180,7 @@ trait MediaFixtures
                 ],
             ],
             'NamedMimeJpgEtxJpgWithFolderWithoutThumbnails' => [
-                'id' => Uuid::uuid4()->getHex(),
+                'id' => Uuid::randomHex(),
                 'mimeType' => 'image/jpg',
                 'fileExtension' => 'jpg',
                 'fileName' => 'jpgFileWithExtensionAndCatalog',

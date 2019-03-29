@@ -7,7 +7,7 @@ use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityDeletedEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
-use Shopware\Core\Framework\Struct\Uuid;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class NavigationSynchronizer implements EventSubscriberInterface
@@ -178,7 +178,7 @@ class NavigationSynchronizer implements EventSubscriberInterface
 
             foreach ($parents as $parentId) {
                 foreach ($children as $child) {
-                    $id = Uuid::uuid4()->getHex();
+                    $id = Uuid::randomHex();
 
                     $inserts[] = [
                         'id' => $id,

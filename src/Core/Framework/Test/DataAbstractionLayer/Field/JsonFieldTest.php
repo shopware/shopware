@@ -18,11 +18,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException\InvalidFie
 use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException\UnexpectedFieldException;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException\WriteStackException;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
-use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\JsonDefinition;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\NestedDefinition;
 use Shopware\Core\Framework\Test\TestCaseBase\CacheTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Version\Aggregate\VersionCommitData\VersionCommitDataDefinition;
 
 class JsonFieldTest extends TestCase
@@ -62,9 +62,9 @@ EOF;
         $context = $this->createWriteContext();
 
         $data = [
-            ['id' => Uuid::uuid4()->getHex(), 'data' => null],
-            ['id' => Uuid::uuid4()->getHex(), 'data' => []],
-            ['id' => Uuid::uuid4()->getHex(), 'data' => ['url' => 'foo']],
+            ['id' => Uuid::randomHex(), 'data' => null],
+            ['id' => Uuid::randomHex(), 'data' => []],
+            ['id' => Uuid::randomHex(), 'data' => ['url' => 'foo']],
         ];
 
         $this->getWriter()->insert(JsonDefinition::class, $data, $context);
@@ -87,11 +87,11 @@ EOF;
 
     public function testNullableJsonField(): void
     {
-        $id = Uuid::uuid4();
+        $id = Uuid::randomHex();
         $context = $this->createWriteContext();
 
         $data = [
-            'id' => $id->getHex(),
+            'id' => $id,
             'data' => null,
         ];
 
@@ -100,24 +100,24 @@ EOF;
         $data = $this->connection->fetchAll('SELECT * FROM `_test_nullable`');
 
         static::assertCount(1, $data);
-        static::assertEquals($id->getBytes(), $data[0]['id']);
+        static::assertEquals(Uuid::fromHexToBytes($id), $data[0]['id']);
         static::assertNull($data[0]['data']);
     }
 
     public function testMissingProperty(): void
     {
-        $id = Uuid::uuid4();
+        $id = Uuid::randomHex();
         $context = $this->createWriteContext();
 
         $data = [
-            'id' => $id->getHex(),
+            'id' => $id,
             'stock' => 1,
             'name' => 'test',
             'price' => ['gross' => 15, 'linked' => false],
             'manufacturer' => ['name' => 'test'],
             'tax' => ['name' => 'test', 'taxRate' => 15],
             'categories' => [
-                ['id' => $id->getHex(), 'name' => 'asd'],
+                ['id' => $id, 'name' => 'asd'],
             ],
         ];
 
@@ -137,18 +137,18 @@ EOF;
 
     public function testMultipleMissingProperties(): void
     {
-        $id = Uuid::uuid4();
+        $id = Uuid::randomHex();
         $context = $this->createWriteContext();
 
         $data = [
-            'id' => $id->getHex(),
+            'id' => $id,
             'stock' => 1,
             'name' => 'test',
             'price' => ['foo' => 'bar', 'linked' => false],
             'manufacturer' => ['name' => 'test'],
             'tax' => ['name' => 'test', 'taxRate' => 15],
             'categories' => [
-                ['id' => $id->getHex(), 'name' => 'asd'],
+                ['id' => $id, 'name' => 'asd'],
             ],
         ];
 
@@ -176,18 +176,18 @@ EOF;
 
     public function testPropertyTypes(): void
     {
-        $id = Uuid::uuid4();
+        $id = Uuid::randomHex();
         $context = $this->createWriteContext();
 
         $data = [
-            'id' => $id->getHex(),
+            'id' => $id,
             'stock' => 1,
             'name' => 'test',
             'price' => ['gross' => 15, 'net' => 'strings are not allowed', 'linked' => false],
             'manufacturer' => ['name' => 'test'],
             'tax' => ['name' => 'test', 'taxRate' => 15],
             'categories' => [
-                ['id' => $id->getHex(), 'name' => 'asd'],
+                ['id' => $id, 'name' => 'asd'],
             ],
         ];
 
@@ -207,18 +207,18 @@ EOF;
 
     public function testUnexpectedFieldShouldThrowException(): void
     {
-        $id = Uuid::uuid4();
+        $id = Uuid::randomHex();
         $context = $this->createWriteContext();
 
         $data = [
-            'id' => $id->getHex(),
+            'id' => $id,
             'stock' => 1,
             'name' => 'test',
             'price' => ['gross' => 15, 'net' => 13.2, 'linked' => false, 'fail' => 'me'],
             'manufacturer' => ['name' => 'test'],
             'tax' => ['name' => 'test', 'taxRate' => 15],
             'categories' => [
-                ['id' => $id->getHex(), 'name' => 'asd'],
+                ['id' => $id, 'name' => 'asd'],
             ],
         ];
 
@@ -238,15 +238,15 @@ EOF;
 
     public function testWithoutMappingShouldAcceptAnyKey(): void
     {
-        $id = Uuid::uuid4();
+        $id = Uuid::randomHex();
         $dt = new \DateTime();
         $context = $this->createWriteContext();
 
         $data = [
-            'id' => $id->getHex(),
-            'commit' => ['id' => $id->getHex(), 'versionId' => $id->getHex()],
+            'id' => $id,
+            'commit' => ['id' => $id, 'versionId' => $id],
             'entityName' => 'foobar',
-            'entityId' => ['id' => $id->getHex(), 'foo' => 'bar'],
+            'entityId' => ['id' => $id, 'foo' => 'bar'],
             'action' => 'create',
             'payload' => json_encode(['foo' => 'bar']),
             'createdAt' => $dt,
@@ -254,7 +254,7 @@ EOF;
 
         $this->getWriter()->insert(VersionCommitDataDefinition::class, [$data], $context);
 
-        $entityId = $this->connection->fetchColumn('SELECT entity_id FROM version_commit_data WHERE id = :id', ['id' => $id->getBytes()]);
+        $entityId = $this->connection->fetchColumn('SELECT entity_id FROM version_commit_data WHERE id = :id', ['id' => Uuid::fromHexToBytes($id)]);
         static::assertNotEmpty($entityId);
 
         $entityId = json_decode($entityId, true);
@@ -267,11 +267,11 @@ EOF;
 
     public function testFieldNesting(): void
     {
-        $id = Uuid::uuid4();
+        $id = Uuid::randomHex();
         $context = $this->createWriteContext();
 
         $data = [
-            'id' => $id->getHex(),
+            'id' => $id,
             'data' => [
                 'net' => 15,
                 'foo' => [
@@ -310,7 +310,7 @@ EOF;
         $context = $this->createWriteContext();
 
         $data = [
-            ['id' => Uuid::uuid4()->getHex(), 'data' => ['a' => '😄']],
+            ['id' => Uuid::randomHex(), 'data' => ['a' => '😄']],
         ];
 
         $written = $this->getWriter()->insert(JsonDefinition::class, $data, $context);
@@ -327,17 +327,17 @@ EOF;
     public function testSqlInjectionFails(): void
     {
         $context = $this->createWriteContext();
-        $randomKey = Uuid::uuid4()->getHex();
+        $randomKey = Uuid::randomHex();
 
         $data = [
-            ['id' => Uuid::uuid4()->getHex(), 'data' => [$randomKey => 'bar']],
+            ['id' => Uuid::randomHex(), 'data' => [$randomKey => 'bar']],
         ];
         $written = $this->getWriter()->insert(JsonDefinition::class, $data, $context);
         static::assertCount(1, $written[JsonDefinition::class]);
 
         $context = $context->getContext();
 
-        $taxId = Uuid::uuid4()->getHex();
+        $taxId = Uuid::randomHex();
         $tax_rate = 15.0;
 
         $repo = $this->getRepository();
@@ -374,7 +374,7 @@ EOF;
         $insertTime = new \DateTime('2004-02-29 08:59:59.001');
         $updateTime = new \DateTime('2004-02-29 08:59:59.002');
 
-        $id = Uuid::uuid4()->getHex();
+        $id = Uuid::randomHex();
 
         $insert = [
             'id' => $id,
@@ -413,13 +413,13 @@ EOF;
     {
         $context = $this->createWriteContext();
 
-        $firstId = Uuid::uuid4()->getHex();
+        $firstId = Uuid::randomHex();
         $firstDate = new \DateTime('2004-02-29 08:59:59.001');
 
-        $laterId = Uuid::uuid4()->getHex();
+        $laterId = Uuid::randomHex();
         $laterDate = new \DateTime('2004-02-29 08:59:59.002');
 
-        $latestId = Uuid::uuid4()->getHex();
+        $latestId = Uuid::randomHex();
         $latestDate = new \DateTime('2005-02-28 08:59:59.000');
 
         $data = [

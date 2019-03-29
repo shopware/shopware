@@ -15,8 +15,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Rule\Container\AndRule;
 use Shopware\Core\Framework\Rule\Container\OrRule;
 use Shopware\Core\Framework\Rule\Rule;
-use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Uuid\Uuid;
 
 class RulePayloadSubscriberTest extends TestCase
 {
@@ -53,7 +53,7 @@ class RulePayloadSubscriberTest extends TestCase
     public function testLoadValidRuleWithoutPayload(): void
     {
         $collection = new RuleCollection();
-        $id = Uuid::uuid4()->getHex();
+        $id = Uuid::randomHex();
         $rule = (new RuleEntity())->assign(['id' => $id, 'payload' => null, 'invalid' => false, '_uniqueIdentifier' => $id]);
         $collection->add($rule);
         $loadedEvent = new EntityLoadedEvent(RuleDefinition::class, $collection, $this->context);
@@ -71,7 +71,7 @@ class RulePayloadSubscriberTest extends TestCase
     public function testLoadInvalidRuleWithoutPayload(): void
     {
         $collection = new RuleCollection();
-        $id = Uuid::uuid4()->getHex();
+        $id = Uuid::randomHex();
         $rule = (new RuleEntity())->assign(['id' => $id, 'payload' => null, 'invalid' => true, '_uniqueIdentifier' => $id]);
         $collection->add($rule);
         $loadedEvent = new EntityLoadedEvent(RuleDefinition::class, $collection, $this->context);
@@ -89,7 +89,7 @@ class RulePayloadSubscriberTest extends TestCase
     public function testLoadValidRuleWithPayload(): void
     {
         $collection = new RuleCollection();
-        $id = Uuid::uuid4()->getHex();
+        $id = Uuid::randomHex();
         $rule = (new RuleEntity())->assign(['id' => $id, 'payload' => serialize(new AndRule()), 'invalid' => false, '_uniqueIdentifier' => $id]);
         $collection->add($rule);
         $loadedEvent = new EntityLoadedEvent(RuleDefinition::class, $collection, $this->context);
@@ -106,10 +106,10 @@ class RulePayloadSubscriberTest extends TestCase
     public function testLoadValidRulesWithoutPayload(): void
     {
         $collection = new RuleCollection();
-        $id = Uuid::uuid4()->getHex();
+        $id = Uuid::randomHex();
         $rule = (new RuleEntity())->assign(['id' => $id, 'payload' => null, 'invalid' => false, '_uniqueIdentifier' => $id]);
         $collection->add($rule);
-        $id2 = Uuid::uuid4()->getHex();
+        $id2 = Uuid::randomHex();
         $rule2 = (new RuleEntity())->assign(['id' => $id2, 'payload' => null, 'invalid' => false, '_uniqueIdentifier' => $id2]);
         $collection->add($rule2);
         $loadedEvent = new EntityLoadedEvent(RuleDefinition::class, $collection, $this->context);
@@ -135,10 +135,10 @@ class RulePayloadSubscriberTest extends TestCase
     public function testLoadValidAndInvalidRulesWithoutPayload(): void
     {
         $collection = new RuleCollection();
-        $id = Uuid::uuid4()->getHex();
+        $id = Uuid::randomHex();
         $rule = (new RuleEntity())->assign(['id' => $id, 'payload' => null, 'invalid' => false, '_uniqueIdentifier' => $id]);
         $collection->add($rule);
-        $id2 = Uuid::uuid4()->getHex();
+        $id2 = Uuid::randomHex();
         $rule2 = (new RuleEntity())->assign(['id' => $id2, 'payload' => null, 'invalid' => true, '_uniqueIdentifier' => $id2]);
         $collection->add($rule2);
         $loadedEvent = new EntityLoadedEvent(RuleDefinition::class, $collection, $this->context);
@@ -161,24 +161,24 @@ class RulePayloadSubscriberTest extends TestCase
 
     public function testLoadValidRulesFromDatabase(): void
     {
-        $id = Uuid::uuid4();
+        $id = Uuid::randomHex();
         $this->connection->createQueryBuilder()
             ->insert('rule')
             ->values(['id' => ':id', 'name' => ':name', 'priority' => 3, 'invalid' => '0', 'created_at' => 'NOW()'])
             ->setParameter('name', 'Rule')
-            ->setParameter('id', $id->getBytes())
+            ->setParameter('id', Uuid::fromHexToBytes($id))
             ->execute();
 
         $this->connection->createQueryBuilder()
             ->insert('rule_condition')
             ->values(['id' => ':id', 'type' => ':type', 'value' => 'null', 'position' => '0', 'rule_id' => ':ruleId'])
-            ->setParameter('id', Uuid::uuid4()->getBytes())
+            ->setParameter('id', Uuid::randomBytes())
             ->setParameter('type', (new AndRule())->getName())
-            ->setParameter('ruleId', $id->getBytes())
+            ->setParameter('ruleId', Uuid::fromHexToBytes($id))
             ->execute();
 
         /** @var RuleEntity $rule */
-        $rule = $this->getContainer()->get('rule.repository')->search(new Criteria([$id->getHex()]), $this->context)->get($id->getHex());
+        $rule = $this->getContainer()->get('rule.repository')->search(new Criteria([$id]), $this->context)->get($id);
         static::assertNotNull($rule);
         static::assertNotNull($rule->getPayload());
         static::assertInstanceOf(AndRule::class, $rule->getPayload());
@@ -188,7 +188,7 @@ class RulePayloadSubscriberTest extends TestCase
             ->select(['payload', 'invalid'])
             ->from('rule')
             ->where('id = :id')
-            ->setParameter('id', $id->getBytes())
+            ->setParameter('id', Uuid::fromHexToBytes($id))
             ->execute()
             ->fetch();
 
@@ -198,24 +198,24 @@ class RulePayloadSubscriberTest extends TestCase
 
     public function testLoadInvalidRulesFromDatabase(): void
     {
-        $id = Uuid::uuid4();
+        $id = Uuid::randomHex();
         $this->connection->createQueryBuilder()
             ->insert('rule')
             ->values(['id' => ':id', 'name' => ':name', 'priority' => 3, 'invalid' => '0', 'created_at' => 'NOW()'])
             ->setParameter('name', 'Rule')
-            ->setParameter('id', $id->getBytes())
+            ->setParameter('id', Uuid::fromHexToBytes($id))
             ->execute();
 
         $this->connection->createQueryBuilder()
             ->insert('rule_condition')
             ->values(['id' => ':id', 'type' => ':type', 'value' => 'null', 'position' => '0', 'rule_id' => ':ruleId'])
-            ->setParameter('id', Uuid::uuid4()->getBytes())
+            ->setParameter('id', Uuid::randomBytes())
             ->setParameter('type', 'invalid')
-            ->setParameter('ruleId', $id->getBytes())
+            ->setParameter('ruleId', Uuid::fromHexToBytes($id))
             ->execute();
 
         /** @var RuleEntity $rule */
-        $rule = $this->getContainer()->get('rule.repository')->search(new Criteria([$id->getHex()]), $this->context)->get($id->getHex());
+        $rule = $this->getContainer()->get('rule.repository')->search(new Criteria([$id]), $this->context)->get($id);
         static::assertNotNull($rule);
         static::assertNull($rule->getPayload());
         static::assertTrue($rule->isInvalid());
@@ -224,7 +224,7 @@ class RulePayloadSubscriberTest extends TestCase
             ->select(['payload', 'invalid'])
             ->from('rule')
             ->where('id = :id')
-            ->setParameter('id', $id->getBytes())
+            ->setParameter('id', Uuid::fromHexToBytes($id))
             ->execute()
             ->fetch();
 

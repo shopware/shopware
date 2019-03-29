@@ -4,11 +4,11 @@ namespace Shopware\Core\Content\Test\Product;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
-use Ramsey\Uuid\Uuid;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\Test\TestCaseBase\StorefrontFunctionalTestBehaviour;
+use Shopware\Core\Framework\Uuid\Uuid;
 
 class ProductControllerTest extends TestCase
 {
@@ -32,15 +32,15 @@ class ProductControllerTest extends TestCase
 
     public function testProductList(): void
     {
-        $manufacturerId = Uuid::uuid4()->getHex();
-        $taxId = Uuid::uuid4()->getHex();
+        $manufacturerId = Uuid::randomHex();
+        $taxId = Uuid::randomHex();
 
         $client = $this->getStorefrontClient();
         $salesChannelId = $this->salesChannelIds[count($this->salesChannelIds) - 1];
 
         $this->productRepository->create([
             [
-                'id' => Uuid::uuid4()->getHex(),
+                'id' => Uuid::randomHex(),
                 'stock' => 1,
                 'name' => 'Test',
                 'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
@@ -76,9 +76,9 @@ class ProductControllerTest extends TestCase
 
     public function testProductDetail(): void
     {
-        $productId = Uuid::uuid4()->getHex();
-        $manufacturerId = Uuid::uuid4()->toString();
-        $taxId = Uuid::uuid4()->toString();
+        $productId = Uuid::randomHex();
+        $manufacturerId = Uuid::randomHex();
+        $taxId = Uuid::randomHex();
 
         $client = $this->getStorefrontClient();
         $salesChannelId = $this->salesChannelIds[count($this->salesChannelIds) - 1];

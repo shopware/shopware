@@ -11,8 +11,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\ScoreQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
-use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Uuid\Uuid;
 
 class EntitySearcherTest extends TestCase
 {
@@ -37,8 +37,8 @@ class EntitySearcherTest extends TestCase
 
     public function testTotalCountWithSearchTerm()
     {
-        $id1 = Uuid::uuid4()->getHex();
-        $id2 = Uuid::uuid4()->getHex();
+        $id1 = Uuid::randomHex();
+        $id2 = Uuid::randomHex();
 
         $products = [
             [
@@ -84,22 +84,22 @@ class EntitySearcherTest extends TestCase
 
     public function testSortingAndTotalCountWithManyAssociation()
     {
-        $redId = Uuid::uuid4()->getHex();
-        $greenId = Uuid::uuid4()->getHex();
-        $yellowId = Uuid::uuid4()->getHex();
-        $colorId = Uuid::uuid4()->getHex();
+        $redId = Uuid::randomHex();
+        $greenId = Uuid::randomHex();
+        $yellowId = Uuid::randomHex();
+        $colorId = Uuid::randomHex();
 
-        $sizeId = Uuid::uuid4()->getHex();
-        $bigId = Uuid::uuid4()->getHex();
-        $smallId = Uuid::uuid4()->getHex();
+        $sizeId = Uuid::randomHex();
+        $bigId = Uuid::randomHex();
+        $smallId = Uuid::randomHex();
 
-        $id = Uuid::uuid4()->getHex();
-        $variant1 = Uuid::uuid4()->getHex();
-        $variant2 = Uuid::uuid4()->getHex();
-        $variant3 = Uuid::uuid4()->getHex();
-        $variant4 = Uuid::uuid4()->getHex();
-        $variant5 = Uuid::uuid4()->getHex();
-        $variant6 = Uuid::uuid4()->getHex();
+        $id = Uuid::randomHex();
+        $variant1 = Uuid::randomHex();
+        $variant2 = Uuid::randomHex();
+        $variant3 = Uuid::randomHex();
+        $variant4 = Uuid::randomHex();
+        $variant5 = Uuid::randomHex();
+        $variant6 = Uuid::randomHex();
 
         $context = Context::createDefaultContext();
 

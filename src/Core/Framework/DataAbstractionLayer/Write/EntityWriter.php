@@ -23,7 +23,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommandQueue
 use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException\FieldExceptionStack;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\RestrictDeleteViolation;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\RestrictDeleteViolationException;
-use Shopware\Core\Framework\Struct\Uuid;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Language\LanguageLoaderInterface;
 
 /**
@@ -181,7 +181,7 @@ class EntityWriter implements EntityWriterInterface
         $skipped = [];
         foreach ($resolved as $mapped) {
             $mappedBytes = array_map(function ($id) {
-                return Uuid::fromStringToBytes($id);
+                return Uuid::fromHexToBytes($id);
             }, $mapped);
 
             $existence = $this->gateway->getExistence($definition, $mappedBytes, [], $commandQueue);

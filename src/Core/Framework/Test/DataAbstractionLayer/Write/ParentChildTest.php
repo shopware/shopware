@@ -8,8 +8,8 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException\ExpectedArrayException;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException\WriteStackException;
-use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Uuid\Uuid;
 
 class ParentChildTest extends TestCase
 {
@@ -34,8 +34,8 @@ class ParentChildTest extends TestCase
 
     public function testChildrenWithMalformatDataException(): void
     {
-        $parent = Uuid::uuid4()->getHex();
-        $child1 = Uuid::uuid4()->getHex();
+        $parent = Uuid::randomHex();
+        $child1 = Uuid::randomHex();
 
         $category = [
             'id' => $parent,
@@ -62,9 +62,9 @@ class ParentChildTest extends TestCase
 
     public function testICanWriteChildren(): void
     {
-        $parent = Uuid::uuid4()->getHex();
-        $child1 = Uuid::uuid4()->getHex();
-        $child2 = Uuid::uuid4()->getHex();
+        $parent = Uuid::randomHex();
+        $child1 = Uuid::randomHex();
+        $child2 = Uuid::randomHex();
 
         $category = [
             'id' => $parent,
@@ -91,10 +91,10 @@ class ParentChildTest extends TestCase
 
     public function testICanWriteNestedChildren(): void
     {
-        $parent = Uuid::uuid4()->getHex();
-        $child1 = Uuid::uuid4()->getHex();
-        $child2 = Uuid::uuid4()->getHex();
-        $child3 = Uuid::uuid4()->getHex();
+        $parent = Uuid::randomHex();
+        $child1 = Uuid::randomHex();
+        $child2 = Uuid::randomHex();
+        $child3 = Uuid::randomHex();
 
         $category = [
             'id' => $parent,
@@ -154,8 +154,8 @@ class ParentChildTest extends TestCase
 
     public function testICanWriteTheParent(): void
     {
-        $parent = Uuid::uuid4()->getHex();
-        $child = Uuid::uuid4()->getHex();
+        $parent = Uuid::randomHex();
+        $child = Uuid::randomHex();
 
         $category = [
             'id' => $child,
@@ -187,9 +187,9 @@ class ParentChildTest extends TestCase
 
     public function testICanWriteNestedParents(): void
     {
-        $parent = Uuid::uuid4()->getHex();
-        $child1 = Uuid::uuid4()->getHex();
-        $child2 = Uuid::uuid4()->getHex();
+        $parent = Uuid::randomHex();
+        $child1 = Uuid::randomHex();
+        $child2 = Uuid::randomHex();
 
         $category = [
             'id' => $child2,
@@ -232,8 +232,8 @@ class ParentChildTest extends TestCase
 
     public function testParentWithMalformatDataException(): void
     {
-        $parent = Uuid::uuid4()->getHex();
-        $child1 = Uuid::uuid4()->getHex();
+        $parent = Uuid::randomHex();
+        $child1 = Uuid::randomHex();
 
         $category = [
             'id' => $child1,

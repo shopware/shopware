@@ -5,7 +5,7 @@ namespace Shopware\Core\Framework\Test\TestCaseBase;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
-use Shopware\Core\Framework\Struct\Uuid;
+use Shopware\Core\Framework\Uuid\Uuid;
 
 trait AggregationTestBehaviour
 {
@@ -41,10 +41,10 @@ trait AggregationTestBehaviour
         /** @var EntityRepositoryInterface $categoryRepository */
         $categoryRepository = $this->getContainer()->get('category.repository');
 
-        $category1 = Uuid::uuid4()->getHex();
-        $category2 = Uuid::uuid4()->getHex();
-        $category3 = Uuid::uuid4()->getHex();
-        $category4 = Uuid::uuid4()->getHex();
+        $category1 = Uuid::randomHex();
+        $category2 = Uuid::randomHex();
+        $category3 = Uuid::randomHex();
+        $category4 = Uuid::randomHex();
         $categories = [
             ['id' => $category1, 'name' => 'cat1'],
             ['id' => $category2, 'name' => 'cat2'],

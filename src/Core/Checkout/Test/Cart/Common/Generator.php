@@ -25,7 +25,7 @@ use Shopware\Core\Checkout\Test\Payment\Handler\SyncTestPaymentHandler;
 use Shopware\Core\Content\Product\Cart\ProductGateway;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Struct\Uuid;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Country\Aggregate\CountryState\CountryStateEntity;
 use Shopware\Core\System\Country\CountryEntity;
 use Shopware\Core\System\Currency\CurrencyEntity;
@@ -118,13 +118,13 @@ class Generator extends TestCase
         $shippingMethod->setMinDeliveryTime(1);
         $shippingMethod->setMaxDeliveryTime(2);
 
-        $customer = (new CustomerEntity())->assign(['id' => Uuid::uuid4()->getHex()]);
-        $customer->setId(Uuid::uuid4()->getHex());
+        $customer = (new CustomerEntity())->assign(['id' => Uuid::randomHex()]);
+        $customer->setId(Uuid::randomHex());
         $customer->setGroup($currentCustomerGroup);
 
         return new CheckoutContext(
             $baseContext,
-            Uuid::uuid4()->toString(),
+            Uuid::randomHex(),
             $salesChannel,
             $currency,
             $currentCustomerGroup,

@@ -5,8 +5,8 @@ namespace Shopware\Storefront\Test\Page;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Exception\ProductNotFoundException;
 use Shopware\Core\Framework\Routing\InternalRequest;
-use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Storefront\Framework\Page\PageLoaderInterface;
 use Shopware\Storefront\Page\Product\ProductPage;
 use Shopware\Storefront\Page\Product\ProductPageLoadedEvent;
@@ -43,7 +43,7 @@ class ProductPageTest extends TestCase
     public function testItFailsWithANonExistingProduct(): void
     {
         $context = $this->createCheckoutContextWithNavigation();
-        $request = new InternalRequest(['productId' => Uuid::uuid4()->getHex()]);
+        $request = new InternalRequest(['productId' => Uuid::randomHex()]);
 
         /** @var ProductPageLoadedEvent $event */
         $event = null;

@@ -9,9 +9,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\EntityScoreQueryBuilder;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\SearchTermInterpreter;
-use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Country\CountryDefinition;
 
 class CountryRepositoryTest extends TestCase
@@ -37,8 +37,8 @@ class CountryRepositoryTest extends TestCase
 
     public function testSearchRanking(): void
     {
-        $recordA = Uuid::uuid4()->getHex();
-        $recordB = Uuid::uuid4()->getHex();
+        $recordA = Uuid::randomHex();
+        $recordB = Uuid::randomHex();
 
         $records = [
             ['id' => $recordA, 'name' => 'match'],

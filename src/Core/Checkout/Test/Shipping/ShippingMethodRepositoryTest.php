@@ -8,8 +8,8 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException\WriteStackException;
-use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Uuid\Uuid;
 
 class ShippingMethodRepositoryTest extends TestCase
 {
@@ -33,8 +33,8 @@ class ShippingMethodRepositoryTest extends TestCase
     public function setUp(): void
     {
         $this->shippingRepository = $this->getContainer()->get('shipping_method.repository');
-        $this->shippingMethodId = Uuid::uuid4()->getHex();
-        $this->ruleId = Uuid::uuid4()->getHex();
+        $this->shippingMethodId = Uuid::randomHex();
+        $this->ruleId = Uuid::randomHex();
     }
 
     public function testCreateShippingMethod(): void
@@ -68,7 +68,7 @@ class ShippingMethodRepositoryTest extends TestCase
             'id' => $this->shippingMethodId,
             'availabilityRules' => [
                 [
-                    'id' => Uuid::uuid4()->getHex(),
+                    'id' => Uuid::randomHex(),
                     'name' => 'test update',
                     'priority' => 5,
                     'created_at' => new \DateTime(),

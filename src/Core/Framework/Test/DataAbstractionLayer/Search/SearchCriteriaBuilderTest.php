@@ -4,7 +4,6 @@ namespace Shopware\Core\Framework\Test\DataAbstractionLayer\Search;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
-use Ramsey\Uuid\Uuid;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
@@ -13,6 +12,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\SearchBuilder;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -78,7 +78,7 @@ class SearchCriteriaBuilderTest extends TestCase
      */
     public function testSortingAscending(): void
     {
-        $filterId = Uuid::uuid4()->getHex();
+        $filterId = Uuid::randomHex();
         $this->createManufacturer(['link' => 'a', 'description' => $filterId]);
         $this->createManufacturer(['link' => 'b', 'description' => $filterId]);
         $this->createManufacturer(['link' => 'c', 'description' => $filterId]);
@@ -99,7 +99,7 @@ class SearchCriteriaBuilderTest extends TestCase
 
     public function testSortingDescending(): void
     {
-        $filterId = Uuid::uuid4()->getHex();
+        $filterId = Uuid::randomHex();
         $this->createManufacturer(['link' => 'a', 'description' => $filterId]);
         $this->createManufacturer(['link' => 'b', 'description' => $filterId]);
         $this->createManufacturer(['link' => 'c', 'description' => $filterId]);
@@ -120,7 +120,7 @@ class SearchCriteriaBuilderTest extends TestCase
 
     public function testMultipleSorting(): void
     {
-        $filterid = Uuid::uuid4()->getHex() . '_';
+        $filterid = Uuid::randomHex() . '_';
         $manufacturer1 = $this->createManufacturer(['link' => 'a', 'description' => $filterid . 'a']);
         $manufacturer2 = $this->createManufacturer(['link' => 'b', 'description' => $filterid . 'a']);
         $manufacturer3 = $this->createManufacturer(['link' => 'b', 'description' => $filterid . 'c']);
@@ -467,7 +467,7 @@ class SearchCriteriaBuilderTest extends TestCase
 
     private function createManufacturer(array $parameters = []): string
     {
-        $id = Uuid::uuid4()->getHex();
+        $id = Uuid::randomHex();
 
         $defaults = ['id' => $id, 'name' => 'Test'];
 

@@ -11,8 +11,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityReader;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
-use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Tax\TaxCollection;
 use Shopware\Core\System\Tax\TaxDefinition;
 use Shopware\Core\System\Tax\TaxEntity;
@@ -37,8 +37,8 @@ class CachedEntityReaderTest extends TestCase
     {
         $dbalReader = $this->createMock(EntityReader::class);
 
-        $id1 = Uuid::uuid4()->getHex();
-        $id2 = Uuid::uuid4()->getHex();
+        $id1 = Uuid::randomHex();
+        $id2 = Uuid::randomHex();
 
         //read in EntityReader will be only called once
         $dbalReader->expects(static::once())
@@ -94,8 +94,8 @@ class CachedEntityReaderTest extends TestCase
     {
         $dbalReader = $this->createMock(EntityReader::class);
 
-        $id1 = Uuid::uuid4()->getHex();
-        $id2 = Uuid::uuid4()->getHex();
+        $id1 = Uuid::randomHex();
+        $id2 = Uuid::randomHex();
 
         $criteria = new Criteria([$id1, $id2]);
         $criteria->addFilter(new RangeFilter('taxRate', ['gte' => 10.00]));
@@ -191,8 +191,8 @@ class CachedEntityReaderTest extends TestCase
     {
         $dbalReader = $this->createMock(EntityReader::class);
 
-        $id1 = Uuid::uuid4()->getHex();
-        $id2 = Uuid::uuid4()->getHex();
+        $id1 = Uuid::randomHex();
+        $id2 = Uuid::randomHex();
 
         //read in EntityReader will be only called once
         $dbalReader->expects(static::atLeast(2))

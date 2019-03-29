@@ -3,7 +3,7 @@
 namespace Shopware\Core\System\Test;
 
 use Shopware\Core\Defaults;
-use Shopware\Core\Framework\Struct\Uuid;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Tax\TaxEntity;
 
 trait TaxFixtures
@@ -21,17 +21,17 @@ trait TaxFixtures
     {
         $this->taxFixtures = [
             'NineteenPercentTax' => [
-                'id' => Uuid::uuid4()->getHex(),
+                'id' => Uuid::randomHex(),
                 'name' => 'NineteenPercentTax',
                 'taxRate' => 19,
             ],
             'NineteenPercentTaxWithAreaRule' => [
-                'id' => Uuid::uuid4()->getHex(),
+                'id' => Uuid::randomHex(),
                 'name' => 'foo tax',
                 'taxRate' => 20,
                 'areaRules' => [
                     [
-                        'id' => Uuid::uuid4()->getHex(),
+                        'id' => Uuid::randomHex(),
                         'taxRate' => 99,
                         'active' => true,
                         'name' => 'required',

@@ -10,8 +10,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\AggregationResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\EntityAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Tax\TaxDefinition;
 
 class EntityAggregationTest extends TestCase
@@ -121,10 +121,10 @@ class EntityAggregationTest extends TestCase
 
     private function setupFixtures(Context $context): void
     {
-        $category1 = Uuid::uuid4()->getHex();
-        $category2 = Uuid::uuid4()->getHex();
-        $category3 = Uuid::uuid4()->getHex();
-        $category4 = Uuid::uuid4()->getHex();
+        $category1 = Uuid::randomHex();
+        $category2 = Uuid::randomHex();
+        $category3 = Uuid::randomHex();
+        $category4 = Uuid::randomHex();
         $categories = [
             ['id' => $category1, 'name' => 'cat1'],
             ['id' => $category2, 'name' => 'cat2'],
@@ -147,7 +147,7 @@ class EntityAggregationTest extends TestCase
         $this->taxRepository->create($payload, $context);
 
         $manufacturer = [
-            'id' => Uuid::uuid4()->getHex(),
+            'id' => Uuid::randomHex(),
             'name' => 'shopware AG',
         ];
 

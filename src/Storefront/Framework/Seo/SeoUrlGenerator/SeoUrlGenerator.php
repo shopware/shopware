@@ -8,7 +8,7 @@ use Shopware\Core\Checkout\Context\CheckoutContextFactoryInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Struct\Uuid;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Symfony\Component\Routing\RouterInterface;
 use Twig\Environment;
@@ -72,7 +72,7 @@ abstract class SeoUrlGenerator implements SeoUrlGeneratorInterface
         $options = $salesChannel->jsonSerialize();
 
         $checkoutContext = $this->checkoutContextFactory->create(
-            Uuid::uuid4()->getHex(),
+            Uuid::randomHex(),
             $salesChannelId,
             $options
         );

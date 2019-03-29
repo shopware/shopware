@@ -11,7 +11,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
-use Shopware\Core\Framework\Struct\Uuid;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
@@ -66,7 +66,7 @@ class FkFieldSerializer implements FieldSerializerInterface
             return;
         }
 
-        yield $field->getStorageName() => Uuid::fromStringToBytes($value);
+        yield $field->getStorageName() => Uuid::fromHexToBytes($value);
     }
 
     public function decode(Field $field, $value): ?string

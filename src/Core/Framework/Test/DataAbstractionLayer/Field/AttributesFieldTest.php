@@ -16,10 +16,10 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\DataAbstractionLayer\VersionManager;
 use Shopware\Core\Framework\Struct\ArrayEntity;
-use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\AttributesTestDefinition;
 use Shopware\Core\Framework\Test\TestCaseBase\CacheTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class AttributesFieldTest extends TestCase
@@ -69,8 +69,8 @@ class AttributesFieldTest extends TestCase
     public function testSearch(): void
     {
         $this->addAttributes(['foo' => AttributeTypes::TEXT]);
-        $barId = Uuid::uuid4()->getHex();
-        $bazId = Uuid::uuid4()->getHex();
+        $barId = Uuid::randomHex();
+        $bazId = Uuid::randomHex();
         $entities = [
             [
                 'id' => $barId,
@@ -120,7 +120,7 @@ class AttributesFieldTest extends TestCase
             'baz' => AttributeTypes::TEXT,
         ]);
         $entity = [
-            'id' => Uuid::uuid4()->getHex(),
+            'id' => Uuid::randomHex(),
             'name' => "foo'bar",
             'attributes' => [
                 'foo' => 'bar',
@@ -167,7 +167,7 @@ class AttributesFieldTest extends TestCase
         $this->addAttributes(['foo' => AttributeTypes::JSON]);
 
         $entity = [
-            'id' => Uuid::uuid4()->getHex(),
+            'id' => Uuid::randomHex(),
             'name' => "foo'bar",
             'attributes' => [
                 'foo' => ['bar'],
@@ -199,7 +199,7 @@ class AttributesFieldTest extends TestCase
         $this->addAttributes(['foo' => AttributeTypes::TEXT]);
 
         $entity = [
-            'id' => Uuid::uuid4()->getHex(),
+            'id' => Uuid::randomHex(),
             'name' => "foo'bar",
             'attributes' => [
                 'foo' => 'bar',
@@ -234,7 +234,7 @@ class AttributesFieldTest extends TestCase
     {
         $this->addAttributes(['foo.bar' => AttributeTypes::TEXT]);
 
-        $dotId = Uuid::uuid4()->getHex();
+        $dotId = Uuid::randomHex();
         $entities = [
             [
                 'id' => $dotId,
@@ -257,8 +257,8 @@ class AttributesFieldTest extends TestCase
     public function testSortingInt(): void
     {
         $this->addAttributes(['int' => AttributeTypes::INT]);
-        $smallId = Uuid::uuid4()->getHex();
-        $bigId = Uuid::uuid4()->getHex();
+        $smallId = Uuid::randomHex();
+        $bigId = Uuid::randomHex();
 
         $entities = [
             [
@@ -304,8 +304,8 @@ class AttributesFieldTest extends TestCase
     {
         $this->addAttributes(['float' => AttributeTypes::FLOAT]);
 
-        $smallId = Uuid::uuid4()->getHex();
-        $bigId = Uuid::uuid4()->getHex();
+        $smallId = Uuid::randomHex();
+        $bigId = Uuid::randomHex();
 
         $entities = [
             [
@@ -352,8 +352,8 @@ class AttributesFieldTest extends TestCase
     {
         $this->addAttributes(['datetime' => AttributeTypes::DATETIME]);
 
-        $smallId = Uuid::uuid4()->getHex();
-        $bigId = Uuid::uuid4()->getHex();
+        $smallId = Uuid::randomHex();
+        $bigId = Uuid::randomHex();
 
         $earlierDate = new \DateTime('1990-01-01');
         $laterDate = new \DateTime('1990-01-02');
@@ -404,7 +404,7 @@ class AttributesFieldTest extends TestCase
     {
         $this->addAttributes(['datetime' => AttributeTypes::DATETIME]);
 
-        $ids = [Uuid::uuid4()->getHex(), Uuid::uuid4()->getHex(), Uuid::uuid4()->getHex(), Uuid::uuid4()->getHex()];
+        $ids = [Uuid::randomHex(), Uuid::randomHex(), Uuid::randomHex(), Uuid::randomHex()];
         /** @var \DateTimeInterface[] $dateTimes */
         $dateTimes = [
             new \DateTime('1990-01-01'),
@@ -452,8 +452,8 @@ class AttributesFieldTest extends TestCase
     {
         $this->addAttributes(['foo' => AttributeTypes::TEXT]);
 
-        $smallId = Uuid::uuid4()->getHex();
-        $bigId = Uuid::uuid4()->getHex();
+        $smallId = Uuid::randomHex();
+        $bigId = Uuid::randomHex();
 
         $entities = [
             [
@@ -499,15 +499,15 @@ class AttributesFieldTest extends TestCase
     {
         $this->addAttributes(['string' => AttributeTypes::TEXT]);
 
-        $aId = Uuid::uuid4()->getHex();
-        $upperAId = Uuid::uuid4()->getHex();
+        $aId = Uuid::randomHex();
+        $upperAId = Uuid::randomHex();
 
         $entities = [
             ['id' => $aId, 'attributes' => ['string' => 'a']],
             ['id' => $upperAId, 'attributes' => ['string' => 'A']],
 
-            ['id' => Uuid::uuid4()->getHex(), 'attributes' => ['string' => null]],
-            ['id' => Uuid::uuid4()->getHex(), 'attributes' => []],
+            ['id' => Uuid::randomHex(), 'attributes' => ['string' => null]],
+            ['id' => Uuid::randomHex(), 'attributes' => []],
         ];
 
         $repo = $this->getTestRepository();
@@ -529,11 +529,11 @@ class AttributesFieldTest extends TestCase
     public function testBooleanEqualsCriteria(): void
     {
         $this->addAttributes(['bool' => AttributeTypes::BOOL]);
-        $trueId = Uuid::uuid4()->getHex();
-        $falseId = Uuid::uuid4()->getHex();
+        $trueId = Uuid::randomHex();
+        $falseId = Uuid::randomHex();
 
-        $nullId = Uuid::uuid4()->getHex();
-        $undefinedId = Uuid::uuid4()->getHex();
+        $nullId = Uuid::randomHex();
+        $undefinedId = Uuid::randomHex();
 
         $entities = [
             ['id' => $trueId, 'attributes' => ['bool' => true]],
@@ -568,16 +568,16 @@ class AttributesFieldTest extends TestCase
     {
         $this->addAttributes(['int' => AttributeTypes::INT]);
 
-        $intId = Uuid::uuid4()->getHex();
-        $zeroIntId = Uuid::uuid4()->getHex();
+        $intId = Uuid::randomHex();
+        $zeroIntId = Uuid::randomHex();
 
         $entities = [
             ['id' => $intId, 'attributes' => ['int' => 10]],
 
             ['id' => $zeroIntId, 'attributes' => ['int' => 0]],
 
-            ['id' => Uuid::uuid4()->getHex(), 'attributes' => ['int' => null]],
-            ['id' => Uuid::uuid4()->getHex(), 'attributes' => []],
+            ['id' => Uuid::randomHex(), 'attributes' => ['int' => null]],
+            ['id' => Uuid::randomHex(), 'attributes' => []],
         ];
 
         $repo = $this->getTestRepository();
@@ -606,16 +606,16 @@ class AttributesFieldTest extends TestCase
     {
         $this->addAttributes(['float' => AttributeTypes::FLOAT]);
 
-        $dotOneId = Uuid::uuid4()->getHex();
-        $almostDotOneId = Uuid::uuid4()->getHex();
+        $dotOneId = Uuid::randomHex();
+        $almostDotOneId = Uuid::randomHex();
 
         $entities = [
             ['id' => $dotOneId, 'attributes' => ['float' => 0.1]],
             ['id' => $almostDotOneId, 'attributes' => ['float' => 0.099999999999999]],
 
-            ['id' => Uuid::uuid4()->getHex(), 'attributes' => ['float' => 0]],
-            ['id' => Uuid::uuid4()->getHex(), 'attributes' => ['float' => 0.0]],
-            ['id' => Uuid::uuid4()->getHex(), 'attributes' => ['float' => 1]],
+            ['id' => Uuid::randomHex(), 'attributes' => ['float' => 0]],
+            ['id' => Uuid::randomHex(), 'attributes' => ['float' => 0.0]],
+            ['id' => Uuid::randomHex(), 'attributes' => ['float' => 1]],
         ];
 
         $repo = $this->getTestRepository();
@@ -638,8 +638,8 @@ class AttributesFieldTest extends TestCase
     {
         $this->addAttributes(['datetime' => AttributeTypes::DATETIME, 'float' => AttributeTypes::FLOAT]);
 
-        $ids = [Uuid::uuid4()->getHex(), Uuid::uuid4()->getHex(), Uuid::uuid4()->getHex(), Uuid::uuid4()->getHex()];
-        $nowId = Uuid::uuid4()->getHex();
+        $ids = [Uuid::randomHex(), Uuid::randomHex(), Uuid::randomHex(), Uuid::randomHex()];
+        $nowId = Uuid::randomHex();
         $now = (new \DateTime())->format(Defaults::DATE_FORMAT);
 
         $entities = [
@@ -650,7 +650,7 @@ class AttributesFieldTest extends TestCase
 
             ['id' => $nowId, 'attributes' => ['datetime' => $now]],
 
-            ['id' => Uuid::uuid4()->getHex(), 'attributes' => ['datetime' => null]],
+            ['id' => Uuid::randomHex(), 'attributes' => ['datetime' => null]],
         ];
 
         $repo = $this->getTestRepository();
@@ -679,7 +679,7 @@ class AttributesFieldTest extends TestCase
     {
         $this->addAttributes(['foo' => AttributeTypes::TEXT]);
 
-        $id = Uuid::uuid4()->getHex();
+        $id = Uuid::randomHex();
         $entity = ['id' => $id, 'attributes' => null];
         $repo = $this->getTestRepository();
         $repo->create([$entity], Context::createDefaultContext());
@@ -705,7 +705,7 @@ class AttributesFieldTest extends TestCase
     {
         $this->addAttributes(['foo' => AttributeTypes::TEXT]);
 
-        $id = Uuid::uuid4()->getHex();
+        $id = Uuid::randomHex();
         $entity = ['id' => $id, 'attributes' => []];
         $repo = $this->getTestRepository();
         $repo->create([$entity], Context::createDefaultContext());
@@ -731,7 +731,7 @@ class AttributesFieldTest extends TestCase
     {
         $this->addAttributes(['foo.bar' => AttributeTypes::TEXT]);
 
-        $id = Uuid::uuid4()->getHex();
+        $id = Uuid::randomHex();
         $entity = ['id' => $id, 'attributes' => []];
         $repo = $this->getTestRepository();
         $repo->create([$entity], Context::createDefaultContext());
@@ -758,7 +758,7 @@ class AttributesFieldTest extends TestCase
     {
         $this->addAttributes(['foo' => AttributeTypes::TEXT]);
 
-        $id = Uuid::uuid4()->getHex();
+        $id = Uuid::randomHex();
         $entity = ['id' => $id, 'attributes' => ['foo' => 'bar']];
         $repo = $this->getTestRepository();
         $repo->create([$entity], Context::createDefaultContext());
@@ -778,7 +778,7 @@ class AttributesFieldTest extends TestCase
     {
         $this->addAttributes(['foo' => AttributeTypes::TEXT]);
 
-        $id = Uuid::uuid4()->getHex();
+        $id = Uuid::randomHex();
         $entity = ['id' => $id, 'attributes' => ['foo' => 'bar']];
         $repo = $this->getTestRepository();
         $repo->create([$entity], Context::createDefaultContext());
@@ -798,8 +798,8 @@ class AttributesFieldTest extends TestCase
     {
         $this->addAttributes(['foo' => AttributeTypes::TEXT]);
 
-        $parentId = Uuid::uuid4()->getHex();
-        $childId = Uuid::uuid4()->getHex();
+        $parentId = Uuid::randomHex();
+        $childId = Uuid::randomHex();
 
         $repo = $this->getTestRepository();
 
@@ -842,8 +842,8 @@ class AttributesFieldTest extends TestCase
             'child' => AttributeTypes::TEXT,
         ]);
 
-        $parentId = Uuid::uuid4()->getHex();
-        $childId = Uuid::uuid4()->getHex();
+        $parentId = Uuid::randomHex();
+        $childId = Uuid::randomHex();
 
         $repo = $this->getTestRepository();
 
@@ -877,7 +877,7 @@ class AttributesFieldTest extends TestCase
     {
         $this->addAttributes(['assoc' => AttributeTypes::JSON]);
 
-        $id = Uuid::uuid4()->getHex();
+        $id = Uuid::randomHex();
         $entities = [
             ['id' => $id, 'attributes' => ['assoc' => ['foo' => 'bar']]],
         ];
@@ -905,7 +905,7 @@ class AttributesFieldTest extends TestCase
     {
         $this->addAttributes(['array' => AttributeTypes::JSON]);
 
-        $id = Uuid::uuid4()->getHex();
+        $id = Uuid::randomHex();
         $entities = [
             ['id' => $id, 'attributes' => ['array' => ['foo', 'bar']]],
         ];
@@ -933,8 +933,8 @@ class AttributesFieldTest extends TestCase
     {
         $this->addAttributes(['bool' => AttributeTypes::BOOL]);
 
-        $a = Uuid::uuid4()->getHex();
-        $b = Uuid::uuid4()->getHex();
+        $a = Uuid::randomHex();
+        $b = Uuid::randomHex();
 
         $entities = [
             ['id' => $a, 'attributes' => ['bool' => true]],
@@ -961,7 +961,7 @@ class AttributesFieldTest extends TestCase
     {
         $this->addAttributes(['json' => AttributeTypes::JSON]);
 
-        $id = Uuid::uuid4()->getHex();
+        $id = Uuid::randomHex();
         $entity = [
             'id' => $id,
             'attributes' => ['json' => 'string value'],
@@ -981,7 +981,7 @@ class AttributesFieldTest extends TestCase
 
         $dateTime = new \DateTime('2004-02-29 00:00:00.001');
 
-        $id = Uuid::uuid4()->getHex();
+        $id = Uuid::randomHex();
         $entity = [
             'id' => $id,
             'attributes' => ['date' => $dateTime],
@@ -1001,7 +1001,7 @@ class AttributesFieldTest extends TestCase
 
         $dateTime = new \DateTime('2004-02-29 00:00:00.001');
 
-        $id = Uuid::uuid4()->getHex();
+        $id = Uuid::randomHex();
         $entity = [
             'id' => $id,
             'attributes' => ['json' => ['date' => $dateTime->format(\DateTime::ATOM)]],
@@ -1021,7 +1021,7 @@ class AttributesFieldTest extends TestCase
 
         $attributes = [];
         foreach ($attributeTypes as $name => $type) {
-            $attributes[] = ['id' => Uuid::uuid4()->getHex(), 'name' => $name, 'type' => $type];
+            $attributes[] = ['id' => Uuid::randomHex(), 'name' => $name, 'type' => $type];
         }
         $attributeRepo->create($attributes, Context::createDefaultContext());
     }

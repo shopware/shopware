@@ -9,11 +9,11 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\Snippet\Files\SnippetFileCollection;
 use Shopware\Core\Framework\Snippet\SnippetDefinition;
-use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
 use Shopware\Core\Framework\Test\Translation\_fixtures\SnippetFile_UnitTest;
 use Shopware\Core\Framework\Translation\Translator;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\StorefrontRequest;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
@@ -105,7 +105,7 @@ class TranslatorTest extends TestCase
     {
         $snippetRepository = $this->getContainer()->get('snippet.repository');
         $snippet = [
-            'id' => Uuid::uuid4()->getHex(),
+            'id' => Uuid::randomHex(),
             'translationKey' => 'foo',
             'value' => 'bar',
             'setId' => Defaults::SNIPPET_BASE_SET_EN,

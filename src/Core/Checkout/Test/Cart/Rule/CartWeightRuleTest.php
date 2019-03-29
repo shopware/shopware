@@ -14,8 +14,8 @@ use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Content\Rule\Aggregate\RuleCondition\RuleConditionEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Uuid\Uuid;
 
 class CartWeightRuleTest extends TestCase
 {
@@ -77,7 +77,7 @@ class CartWeightRuleTest extends TestCase
 
     public function testIfRuleIsConsistent(): void
     {
-        $ruleId = Uuid::uuid4()->getHex();
+        $ruleId = Uuid::randomHex();
         $context = Context::createDefaultContext();
         $ruleRepository = $this->getContainer()->get('rule.repository');
         $conditionRepository = $this->getContainer()->get('rule_condition.repository');
@@ -87,7 +87,7 @@ class CartWeightRuleTest extends TestCase
             Context::createDefaultContext()
         );
 
-        $id = Uuid::uuid4()->getHex();
+        $id = Uuid::randomHex();
         $conditionRepository->create([
             [
                 'id' => $id,
@@ -110,7 +110,7 @@ class CartWeightRuleTest extends TestCase
 
     private function createCartDummy(): Cart
     {
-        $cart = new Cart('test', Uuid::uuid4()->getHex());
+        $cart = new Cart('test', Uuid::randomHex());
 
         $lineItemCollection = new LineItemCollection();
         $lineItemCollection->add((new LineItem('dummyWithShippingCost', 'product', 3))->setDeliveryInformation(

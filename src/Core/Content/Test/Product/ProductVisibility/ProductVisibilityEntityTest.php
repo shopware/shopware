@@ -16,8 +16,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
-use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Uuid\Uuid;
 
 class ProductVisibilityEntityTest extends TestCase
 {
@@ -49,8 +49,8 @@ class ProductVisibilityEntityTest extends TestCase
         $this->productRepository = $this->getContainer()->get('product.repository');
         $this->visibilityRepository = $this->getContainer()->get('product_visibility.repository');
 
-        $this->salesChannelId1 = Uuid::uuid4()->getHex();
-        $this->salesChannelId2 = Uuid::uuid4()->getHex();
+        $this->salesChannelId1 = Uuid::randomHex();
+        $this->salesChannelId2 = Uuid::randomHex();
 
         $this->createSalesChannel($this->salesChannelId1);
         $this->createSalesChannel($this->salesChannelId2);
@@ -58,7 +58,7 @@ class ProductVisibilityEntityTest extends TestCase
 
     public function testVisibilityCRUD(): void
     {
-        $id = Uuid::uuid4()->getHex();
+        $id = Uuid::randomHex();
 
         $product = $this->createProduct(
             $id,

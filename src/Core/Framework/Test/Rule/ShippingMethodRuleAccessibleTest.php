@@ -7,8 +7,8 @@ use Shopware\Core\Checkout\Shipping\ShippingMethodCollection;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Uuid\Uuid;
 
 class ShippingMethodRuleAccessibleTest extends TestCase
 {
@@ -59,7 +59,7 @@ class ShippingMethodRuleAccessibleTest extends TestCase
         $this->ruleRepository->create($this->rule, $defaultContext);
 
         $additionalShippingMethod = [
-            'id' => Uuid::uuid4()->getHex(),
+            'id' => Uuid::randomHex(),
             'type' => 1,
             'bindShippingfree' => true,
             'created_at' => new \DateTime(),
@@ -139,10 +139,10 @@ class ShippingMethodRuleAccessibleTest extends TestCase
 
     private function prepareSimpleTestData(): void
     {
-        $this->ruleId = Uuid::uuid4()->getHex();
+        $this->ruleId = Uuid::randomHex();
 
         $shippingMethod = [
-            'id' => Uuid::uuid4()->getHex(),
+            'id' => Uuid::randomHex(),
             'type' => 1,
             'bindShippingfree' => false,
             'created_at' => new \DateTime(),
@@ -163,11 +163,11 @@ class ShippingMethodRuleAccessibleTest extends TestCase
 
     private function createComplicatedTestData(): array
     {
-        $this->ruleId = Uuid::uuid4()->getHex();
+        $this->ruleId = Uuid::randomHex();
 
         $shippingMethods = [
             [
-                'id' => Uuid::uuid4()->getHex(),
+                'id' => Uuid::randomHex(),
                 'type' => 1,
                 'bindShippingfree' => false,
                 'active' => true,
@@ -175,7 +175,7 @@ class ShippingMethodRuleAccessibleTest extends TestCase
                 'name' => 'test',
             ],
             [
-                'id' => Uuid::uuid4()->getHex(),
+                'id' => Uuid::randomHex(),
                 'type' => 1,
                 'active' => true,
                 'bindShippingfree' => true,
@@ -183,7 +183,7 @@ class ShippingMethodRuleAccessibleTest extends TestCase
                 'name' => 'shippingFreeShipping',
             ],
             [
-                'id' => Uuid::uuid4()->getHex(),
+                'id' => Uuid::randomHex(),
                 'type' => 1,
                 'active' => false,
                 'bindShippingfree' => false,
@@ -203,7 +203,7 @@ class ShippingMethodRuleAccessibleTest extends TestCase
                 ],
             ],
             [
-                'id' => Uuid::uuid4()->getHex(),
+                'id' => Uuid::randomHex(),
                 'name' => 'test',
                 'priority' => 90,
                 'shippingMethods' => [

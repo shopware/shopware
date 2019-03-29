@@ -22,9 +22,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Exception\MissingTranslationLan
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException\WriteStackException;
 use Shopware\Core\Framework\Routing\Exception\LanguageNotFoundException;
-use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\Framework\Test\TestCaseBase\AssertArraySubsetBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Currency\Aggregate\CurrencyTranslation\CurrencyTranslationDefinition;
 use Shopware\Core\System\Currency\CurrencyDefinition;
 use Shopware\Core\System\Language\LanguageDefinition;
@@ -206,7 +206,7 @@ class TranslationTest extends TestCase
 
     public function testCurrencyWithTranslationViaLocaleAndLanguageId(): void
     {
-        $germanLanguageId = Uuid::uuid4()->getHex();
+        $germanLanguageId = Uuid::randomHex();
         $germanName = 'Amerikanischer Dollar';
         $germanShortName = 'US Dollar Deutsch';
         $englishName = 'US Dollar';
@@ -217,13 +217,13 @@ class TranslationTest extends TestCase
                 'id' => $germanLanguageId,
                 'name' => 'de_DE',
                 'locale' => [
-                    'id' => Uuid::uuid4()->getHex(),
+                    'id' => Uuid::randomHex(),
                     'code' => 'x-tst_DE2',
                     'name' => 'test name',
                     'territory' => 'test territory',
                 ],
                 'translationCode' => [
-                    'id' => Uuid::uuid4()->getHex(),
+                    'id' => Uuid::randomHex(),
                     'code' => 'x-tst_DE3',
                     'name' => 'test name',
                     'territory' => 'test territory',
@@ -311,7 +311,7 @@ class TranslationTest extends TestCase
         $this->silentAssertArraySubset(['name' => $englishName], $payload);
         $this->silentAssertArraySubset(['shortName' => $englishShortName], $payload);
 
-        $germanLanguageId = Uuid::uuid4()->getHex();
+        $germanLanguageId = Uuid::randomHex();
         $data = [
             'id' => $germanLanguageId,
             'translationCode' => [
@@ -382,7 +382,7 @@ class TranslationTest extends TestCase
 
     public function testProductWithDifferentTranslations(): void
     {
-        $germanLanguageId = Uuid::uuid4()->getHex();
+        $germanLanguageId = Uuid::randomHex();
 
         $result = $this->languageRepository->create(
             [[
@@ -390,7 +390,7 @@ class TranslationTest extends TestCase
                 'name' => 'de_DE',
                 'localeId' => Defaults::LOCALE_SYSTEM_DE,
                 'translationCode' => [
-                    'id' => Uuid::uuid4()->getHex(),
+                    'id' => Uuid::randomHex(),
                     'code' => 'x-de_DE2',
                     'name' => 'test name',
                     'territory' => 'test territory',
@@ -474,7 +474,7 @@ class TranslationTest extends TestCase
         $categoryRepository = $this->getContainer()->get('category.repository');
 
         $category = [
-            'id' => Uuid::uuid4()->getHex(),
+            'id' => Uuid::randomHex(),
             'translations' => [
                 Defaults::LANGUAGE_SYSTEM => ['name' => 'system'],
             ],
@@ -502,14 +502,14 @@ class TranslationTest extends TestCase
 
     public function testCascadeDeleteRootTranslation(): void
     {
-        $rootId = Uuid::uuid4()->getHex();
-        $id = Uuid::uuid4()->getHex();
+        $rootId = Uuid::randomHex();
+        $id = Uuid::randomHex();
 
         $this->addLanguage($id, $rootId);
 
         $categoryRepository = $this->getContainer()->get('category.repository');
 
-        $catId = Uuid::uuid4()->getHex();
+        $catId = Uuid::randomHex();
         $category = [
             'id' => $catId,
             'name' => 'system',
@@ -652,19 +652,19 @@ class TranslationTest extends TestCase
                     'position' => 1,
                     'slots' => [
                         [
-                            'id' => Uuid::uuid4()->getHex(),
+                            'id' => Uuid::randomHex(),
                             'type' => 'foo',
                             'slot' => 'bar',
                             'config' => [],
                         ],
                         [
-                            'id' => Uuid::uuid4()->getHex(),
+                            'id' => Uuid::randomHex(),
                             'type' => 'foo',
                             'slot' => 'bar',
                             'config' => ['foo' => 'bar'],
                         ],
                         [
-                            'id' => Uuid::uuid4()->getHex(),
+                            'id' => Uuid::randomHex(),
                             'type' => 'foo',
                             'slot' => 'bar',
                         ],
@@ -708,7 +708,7 @@ class TranslationTest extends TestCase
                     'position' => 1,
                     'slots' => [
                         [
-                            'id' => Uuid::uuid4()->getHex(),
+                            'id' => Uuid::randomHex(),
                             'type' => 'foo',
                             'slot' => 'bar',
                             'translations' => [
@@ -717,7 +717,7 @@ class TranslationTest extends TestCase
                             ],
                         ],
                         [
-                            'id' => Uuid::uuid4()->getHex(),
+                            'id' => Uuid::randomHex(),
                             'type' => 'foo',
                             'slot' => 'bar',
                             'translations' => [
@@ -726,7 +726,7 @@ class TranslationTest extends TestCase
                             ],
                         ],
                         [
-                            'id' => Uuid::uuid4()->getHex(),
+                            'id' => Uuid::randomHex(),
                             'type' => 'foo',
                             'slot' => 'bar',
                         ],

@@ -9,8 +9,8 @@ use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRule;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
-use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\Test\TaxFixtures;
 use Symfony\Component\Serializer\Serializer;
@@ -60,7 +60,7 @@ class PriceActionControllerTest extends TestCase
     {
         $this->getClient()->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/price/actions/calculate', [
             'price' => 10,
-            'taxId' => Uuid::uuid4()->getHex(),
+            'taxId' => Uuid::randomHex(),
         ]);
 
         $response = $this->getClient()->getResponse()->getContent();

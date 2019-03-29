@@ -9,9 +9,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException\WriteStackException;
 use Shopware\Core\Framework\Rule\Rule;
-use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 use Symfony\Component\Validator\Constraints\Choice;
 use Symfony\Component\Validator\Constraints\NotBlank;
@@ -46,13 +46,13 @@ class LineItemWithQuantityRuleTest extends TestCase
 
     public function testValidateWithMissingParameters(): void
     {
-        $conditionId = Uuid::uuid4()->getHex();
+        $conditionId = Uuid::randomHex();
         try {
             $this->conditionRepository->create([
                 [
                     'id' => $conditionId,
                     'type' => (new LineItemWithQuantityRule())->getName(),
-                    'ruleId' => Uuid::uuid4()->getHex(),
+                    'ruleId' => Uuid::randomHex(),
                 ],
             ], $this->context);
             static::fail('Exception was not thrown');
@@ -73,13 +73,13 @@ class LineItemWithQuantityRuleTest extends TestCase
 
     public function testValidateWithoutOptionalOperator(): void
     {
-        $ruleId = Uuid::uuid4()->getHex();
+        $ruleId = Uuid::randomHex();
         $this->ruleRepository->create(
             [['id' => $ruleId, 'name' => 'Demo rule', 'priority' => 1]],
             Context::createDefaultContext()
         );
 
-        $id = Uuid::uuid4()->getHex();
+        $id = Uuid::randomHex();
         $this->conditionRepository->create([
             [
                 'id' => $id,
@@ -97,13 +97,13 @@ class LineItemWithQuantityRuleTest extends TestCase
 
     public function testValidateWithMissingQuantity(): void
     {
-        $conditionId = Uuid::uuid4()->getHex();
+        $conditionId = Uuid::randomHex();
         try {
             $this->conditionRepository->create([
                 [
                     'id' => $conditionId,
                     'type' => (new LineItemWithQuantityRule())->getName(),
-                    'ruleId' => Uuid::uuid4()->getHex(),
+                    'ruleId' => Uuid::randomHex(),
                     'value' => [
                         'id' => '0915d54fbf80423c917c61ad5a391b48',
                         'operator' => Rule::OPERATOR_EQ,
@@ -125,13 +125,13 @@ class LineItemWithQuantityRuleTest extends TestCase
 
     public function testValidateWithMissingId(): void
     {
-        $conditionId = Uuid::uuid4()->getHex();
+        $conditionId = Uuid::randomHex();
         try {
             $this->conditionRepository->create([
                 [
                     'id' => $conditionId,
                     'type' => (new LineItemWithQuantityRule())->getName(),
-                    'ruleId' => Uuid::uuid4()->getHex(),
+                    'ruleId' => Uuid::randomHex(),
                     'value' => [
                         'quantity' => 3,
                         'operator' => Rule::OPERATOR_EQ,
@@ -153,13 +153,13 @@ class LineItemWithQuantityRuleTest extends TestCase
 
     public function testValidateWithInvalidTypeId(): void
     {
-        $conditionId = Uuid::uuid4()->getHex();
+        $conditionId = Uuid::randomHex();
         try {
             $this->conditionRepository->create([
                 [
                     'id' => $conditionId,
                     'type' => (new LineItemWithQuantityRule())->getName(),
-                    'ruleId' => Uuid::uuid4()->getHex(),
+                    'ruleId' => Uuid::randomHex(),
                     'value' => [
                         'id' => true,
                         'quantity' => 3,
@@ -181,13 +181,13 @@ class LineItemWithQuantityRuleTest extends TestCase
 
     public function testValidateWithInvalidIdUuidFormat(): void
     {
-        $conditionId = Uuid::uuid4()->getHex();
+        $conditionId = Uuid::randomHex();
         try {
             $this->conditionRepository->create([
                 [
                     'id' => $conditionId,
                     'type' => (new LineItemWithQuantityRule())->getName(),
-                    'ruleId' => Uuid::uuid4()->getHex(),
+                    'ruleId' => Uuid::randomHex(),
                     'value' => [
                         'id' => '12345',
                         'quantity' => 3,
@@ -209,13 +209,13 @@ class LineItemWithQuantityRuleTest extends TestCase
 
     public function testValidateWithStringQuantity(): void
     {
-        $conditionId = Uuid::uuid4()->getHex();
+        $conditionId = Uuid::randomHex();
         try {
             $this->conditionRepository->create([
                 [
                     'id' => $conditionId,
                     'type' => (new LineItemWithQuantityRule())->getName(),
-                    'ruleId' => Uuid::uuid4()->getHex(),
+                    'ruleId' => Uuid::randomHex(),
                     'value' => [
                         'id' => '0915d54fbf80423c917c61ad5a391b48',
                         'quantity' => '3',
@@ -238,16 +238,16 @@ class LineItemWithQuantityRuleTest extends TestCase
 
     public function testAvailableOperators(): void
     {
-        $ruleId = Uuid::uuid4()->getHex();
+        $ruleId = Uuid::randomHex();
         $this->ruleRepository->create(
             [['id' => $ruleId, 'name' => 'Demo rule', 'priority' => 1]],
             Context::createDefaultContext()
         );
 
-        $conditionIdEq = Uuid::uuid4()->getHex();
-        $conditionIdNEq = Uuid::uuid4()->getHex();
-        $conditionIdLTE = Uuid::uuid4()->getHex();
-        $conditionIdGTE = Uuid::uuid4()->getHex();
+        $conditionIdEq = Uuid::randomHex();
+        $conditionIdNEq = Uuid::randomHex();
+        $conditionIdLTE = Uuid::randomHex();
+        $conditionIdGTE = Uuid::randomHex();
         $this->conditionRepository->create(
             [
                 [
@@ -302,13 +302,13 @@ class LineItemWithQuantityRuleTest extends TestCase
 
     public function testValidateWithInvalidOperator(): void
     {
-        $conditionId = Uuid::uuid4()->getHex();
+        $conditionId = Uuid::randomHex();
         try {
             $this->conditionRepository->create([
                 [
                     'id' => $conditionId,
                     'type' => (new LineItemWithQuantityRule())->getName(),
-                    'ruleId' => Uuid::uuid4()->getHex(),
+                    'ruleId' => Uuid::randomHex(),
                     'value' => [
                         'id' => '0915d54fbf80423c917c61ad5a391b48',
                         'quantity' => 3,
@@ -331,13 +331,13 @@ class LineItemWithQuantityRuleTest extends TestCase
 
     public function testIfRuleIsConsistent(): void
     {
-        $ruleId = Uuid::uuid4()->getHex();
+        $ruleId = Uuid::randomHex();
         $this->ruleRepository->create(
             [['id' => $ruleId, 'name' => 'Demo rule', 'priority' => 1]],
             Context::createDefaultContext()
         );
 
-        $id = Uuid::uuid4()->getHex();
+        $id = Uuid::randomHex();
         $this->conditionRepository->create([
             [
                 'id' => $id,

@@ -21,7 +21,7 @@ use Shopware\Core\Framework\Event\ProgressAdvancedEvent;
 use Shopware\Core\Framework\Event\ProgressFinishedEvent;
 use Shopware\Core\Framework\Event\ProgressStartedEvent;
 use Shopware\Core\Framework\Search\Util\SearchAnalyzerRegistry;
-use Shopware\Core\Framework\Struct\Uuid;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Language\LanguageEntity;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
@@ -230,14 +230,14 @@ class SearchKeywordIndexer implements IndexerInterface
 
         $queue = new MultiInsertQueryQueue($this->connection, 250, false, true);
 
-        $languageId = $this->connection->quote(Uuid::fromStringToBytes($context->getLanguageId()));
+        $languageId = $this->connection->quote(Uuid::fromHexToBytes($context->getLanguageId()));
 
         $entityName = $this->connection->quote($definition::getEntityName());
 
         foreach ($entities as $entity) {
             $keywords = $this->analyzerRegistry->analyze($definition, $entity, $context);
 
-            $entityId = $this->connection->quote(Uuid::fromStringToBytes($entity->getId()));
+            $entityId = $this->connection->quote(Uuid::fromHexToBytes($entity->getId()));
 
             $total = \array_sum($keywords);
 
@@ -265,7 +265,7 @@ class SearchKeywordIndexer implements IndexerInterface
                 ], null, true);
 
                 $queue->addInsert($documentTable, [
-                    'id' => $this->connection->quote(Uuid::uuid4()->getBytes()),
+                    'id' => $this->connection->quote(Uuid::randomBytes()),
                     'entity' => $entityName,
                     'entity_id' => $entityId,
                     'language_id' => $languageId,

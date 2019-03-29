@@ -18,7 +18,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\Event\ProgressAdvancedEvent;
 use Shopware\Core\Framework\Event\ProgressFinishedEvent;
 use Shopware\Core\Framework\Event\ProgressStartedEvent;
-use Shopware\Core\Framework\Struct\Uuid;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\Cache\Adapter\TagAwareAdapter;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
@@ -141,7 +141,7 @@ class ChildCountIndexer implements IndexerInterface
             return;
         }
 
-        $versionId = Uuid::fromStringToBytes($context->getVersionId());
+        $versionId = Uuid::fromHexToBytes($context->getVersionId());
         $bytes = array_map(function ($id) {
             return Uuid::fromHexToBytes($id);
         }, $parentIds);
@@ -192,7 +192,7 @@ class ChildCountIndexer implements IndexerInterface
     private function fetchParentIds(string $entityName, array $ids, bool $versionAware, Context $context): array
     {
         $ids = array_map(function ($id) {
-            return Uuid::fromStringToBytes($id);
+            return Uuid::fromHexToBytes($id);
         }, $ids);
 
         $this->validateTableName($entityName);
@@ -206,7 +206,7 @@ class ChildCountIndexer implements IndexerInterface
 
         if ($versionAware) {
             $query->andWhere('version_id = :version');
-            $query->setParameter('version', Uuid::fromStringToBytes($context->getVersionId()));
+            $query->setParameter('version', Uuid::fromHexToBytes($context->getVersionId()));
         }
 
         $parents = $query->execute()->fetchAll(FetchMode::COLUMN);

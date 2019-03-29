@@ -8,9 +8,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException\WriteStackException;
 use Shopware\Core\Framework\Rule\DateRangeRule;
-use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 use Symfony\Component\Validator\Constraints\DateTime;
 use Symfony\Component\Validator\Constraints\NotBlank;
@@ -45,13 +45,13 @@ class DateRangeRuleTest extends TestCase
 
     public function testValidateWithoutParameters(): void
     {
-        $conditionId = Uuid::uuid4()->getHex();
+        $conditionId = Uuid::randomHex();
         try {
             $this->conditionRepository->create([
                 [
                     'id' => $conditionId,
                     'type' => (new DateRangeRule())->getName(),
-                    'ruleId' => Uuid::uuid4()->getHex(),
+                    'ruleId' => Uuid::randomHex(),
                 ],
             ], $this->context);
             static::fail('Exception was not thrown');
@@ -72,13 +72,13 @@ class DateRangeRuleTest extends TestCase
 
     public function testValidateWithoutFromDate(): void
     {
-        $conditionId = Uuid::uuid4()->getHex();
+        $conditionId = Uuid::randomHex();
         try {
             $this->conditionRepository->create([
                 [
                     'id' => $conditionId,
                     'type' => (new DateRangeRule())->getName(),
-                    'ruleId' => Uuid::uuid4()->getHex(),
+                    'ruleId' => Uuid::randomHex(),
                     'value' => [
                         'toDate' => '2018-12-06T10:03:35+00:00',
                     ],
@@ -99,13 +99,13 @@ class DateRangeRuleTest extends TestCase
 
     public function testValidateWithoutToDate(): void
     {
-        $conditionId = Uuid::uuid4()->getHex();
+        $conditionId = Uuid::randomHex();
         try {
             $this->conditionRepository->create([
                 [
                     'id' => $conditionId,
                     'type' => (new DateRangeRule())->getName(),
-                    'ruleId' => Uuid::uuid4()->getHex(),
+                    'ruleId' => Uuid::randomHex(),
                     'value' => [
                         'fromDate' => '2018-12-06T10:03:35+00:00',
                     ],
@@ -126,14 +126,14 @@ class DateRangeRuleTest extends TestCase
 
     public function testValidateWithInvalidFromDateFormat(): void
     {
-        $conditionId = Uuid::uuid4()->getHex();
+        $conditionId = Uuid::randomHex();
         foreach ([true, 'Invalid'] as $value) {
             try {
                 $this->conditionRepository->create([
                     [
                         'id' => $conditionId,
                         'type' => (new DateRangeRule())->getName(),
-                        'ruleId' => Uuid::uuid4()->getHex(),
+                        'ruleId' => Uuid::randomHex(),
                         'value' => [
                             'fromDate' => $value,
                             'toDate' => '2018-12-06T10:03:35+00:00',
@@ -156,14 +156,14 @@ class DateRangeRuleTest extends TestCase
 
     public function testValidateWithInvalidToDateFormat(): void
     {
-        $conditionId = Uuid::uuid4()->getHex();
+        $conditionId = Uuid::randomHex();
         foreach ([true, 'Invalid'] as $value) {
             try {
                 $this->conditionRepository->create([
                     [
                         'id' => $conditionId,
                         'type' => (new DateRangeRule())->getName(),
-                        'ruleId' => Uuid::uuid4()->getHex(),
+                        'ruleId' => Uuid::randomHex(),
                         'value' => [
                             'toDate' => $value,
                             'fromDate' => '2018-12-06T10:03:35+00:00',
@@ -186,13 +186,13 @@ class DateRangeRuleTest extends TestCase
 
     public function testValidateWithInvalidUseTime(): void
     {
-        $conditionId = Uuid::uuid4()->getHex();
+        $conditionId = Uuid::randomHex();
         try {
             $this->conditionRepository->create([
                 [
                     'id' => $conditionId,
                     'type' => (new DateRangeRule())->getName(),
-                    'ruleId' => Uuid::uuid4()->getHex(),
+                    'ruleId' => Uuid::randomHex(),
                     'value' => [
                         'toDate' => '2018-12-06T10:03:35+00:00',
                         'fromDate' => '2018-12-06T10:03:35+00:00',
@@ -215,13 +215,13 @@ class DateRangeRuleTest extends TestCase
 
     public function testIfRuleIsConsistent(): void
     {
-        $ruleId = Uuid::uuid4()->getHex();
+        $ruleId = Uuid::randomHex();
         $this->ruleRepository->create(
             [['id' => $ruleId, 'name' => 'Demo rule', 'priority' => 1]],
             Context::createDefaultContext()
         );
 
-        $id = Uuid::uuid4()->getHex();
+        $id = Uuid::randomHex();
         $this->conditionRepository->create([
             [
                 'id' => $id,

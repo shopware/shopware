@@ -12,8 +12,8 @@ use Shopware\Core\Framework\Context\SalesChannelApiSource;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Storefront\Framework\Seo\DbalIndexing\SeoUrl\DetailPageSeoUrlIndexer;
 use Shopware\Storefront\Framework\Seo\SeoUrl\SeoUrlCollection;
@@ -52,8 +52,8 @@ class DetailPageSeoUrlIndexerTest extends TestCase
 
     public function testDefaultNew(): void
     {
-        $salesChannel = $this->createSalesChannel(Uuid::uuid4()->getHex(), 'test');
-        $id = Uuid::uuid4()->getHex();
+        $salesChannel = $this->createSalesChannel(Uuid::randomHex(), 'test');
+        $id = Uuid::randomHex();
         $this->upsertProduct(['id' => $id, 'name' => 'awesome product']);
 
         $context = $this->createContext($salesChannel);
@@ -77,8 +77,8 @@ class DetailPageSeoUrlIndexerTest extends TestCase
 
     public function testDefaultUpdateSamePath(): void
     {
-        $salesChannel = $this->createSalesChannel(Uuid::uuid4()->getHex(), 'test');
-        $id = Uuid::uuid4()->getHex();
+        $salesChannel = $this->createSalesChannel(Uuid::randomHex(), 'test');
+        $id = Uuid::randomHex();
 
         $this->upsertProduct(['id' => $id, 'name' => 'awesome product']);
         $this->upsertProduct(['id' => $id, 'name' => 'awesome product', 'description' => 'this description should not matter']);
@@ -104,8 +104,8 @@ class DetailPageSeoUrlIndexerTest extends TestCase
 
     public function testDefaultUpdateDifferentPath(): void
     {
-        $salesChannel = $this->createSalesChannel(Uuid::uuid4()->getHex(), 'test');
-        $id = Uuid::uuid4()->getHex();
+        $salesChannel = $this->createSalesChannel(Uuid::randomHex(), 'test');
+        $id = Uuid::randomHex();
 
         $this->upsertProduct(['id' => $id, 'name' => 'awesome product']);
         $this->upsertProduct(['id' => $id, 'name' => 'awesome product v2']);
@@ -132,8 +132,8 @@ class DetailPageSeoUrlIndexerTest extends TestCase
 
     public function testCustomNew(): void
     {
-        $salesChannel = $this->createSalesChannel(Uuid::uuid4()->getHex(), 'test');
-        $id = Uuid::uuid4()->getHex();
+        $salesChannel = $this->createSalesChannel(Uuid::randomHex(), 'test');
+        $id = Uuid::randomHex();
         $this->upsertTemplate([
             'id' => $id,
             'salesChannelId' => $salesChannel->getId(),
@@ -158,8 +158,8 @@ class DetailPageSeoUrlIndexerTest extends TestCase
 
     public function testCustomUpdateSamePath(): void
     {
-        $id = Uuid::uuid4()->getHex();
-        $salesChannel = $this->createSalesChannel(Uuid::uuid4()->getHex(), 'test');
+        $id = Uuid::randomHex();
+        $salesChannel = $this->createSalesChannel(Uuid::randomHex(), 'test');
         $this->upsertTemplate([
             'id' => $id,
             'salesChannelId' => $salesChannel->getId(),
@@ -190,8 +190,8 @@ class DetailPageSeoUrlIndexerTest extends TestCase
 
     public function testCustomUpdateDifferentPath(): void
     {
-        $id = Uuid::uuid4()->getHex();
-        $salesChannel = $this->createSalesChannel(Uuid::uuid4()->getHex(), 'test');
+        $id = Uuid::randomHex();
+        $salesChannel = $this->createSalesChannel(Uuid::randomHex(), 'test');
         $this->upsertTemplate([
             'id' => $id,
             'salesChannelId' => $salesChannel->getId(),
@@ -225,8 +225,8 @@ class DetailPageSeoUrlIndexerTest extends TestCase
      */
     public function testUpdateWithUpdatedTemplate(): void
     {
-        $id = Uuid::uuid4()->getHex();
-        $salesChannel = $this->createSalesChannel(Uuid::uuid4()->getHex(), 'test');
+        $id = Uuid::randomHex();
+        $salesChannel = $this->createSalesChannel(Uuid::randomHex(), 'test');
         $this->upsertTemplate([
             'id' => $id,
             'salesChannelId' => $salesChannel->getId(),
@@ -272,8 +272,8 @@ class DetailPageSeoUrlIndexerTest extends TestCase
 
     public function testIsMarkedAsDeleted(): void
     {
-        $salesChannel = $this->createSalesChannel(Uuid::uuid4()->getHex(), 'test');
-        $id = Uuid::uuid4()->getHex();
+        $salesChannel = $this->createSalesChannel(Uuid::randomHex(), 'test');
+        $id = Uuid::randomHex();
         $this->upsertProduct(['id' => $id, 'name' => 'awesome product']);
         $this->upsertProduct(['id' => $id, 'name' => 'awesome product v2']);
 
@@ -296,14 +296,14 @@ class DetailPageSeoUrlIndexerTest extends TestCase
 
     public function testSpecialCharactersAreEscaped(): void
     {
-        $salesChannel = $this->createSalesChannel(Uuid::uuid4()->getHex(), 'test');
+        $salesChannel = $this->createSalesChannel(Uuid::randomHex(), 'test');
         $this->upsertTemplate([
-            'id' => Uuid::uuid4()->getHex(),
+            'id' => Uuid::randomHex(),
             'salesChannelId' => $salesChannel->getId(),
             'template' => '{{ product.name }}', // no slugify!
         ]);
 
-        $id = Uuid::uuid4()->getHex();
+        $id = Uuid::randomHex();
         $this->upsertProduct(['id' => $id, 'name' => 'foo-&+ /*\\-bar']);
 
         $context = $this->createContext($salesChannel);
@@ -348,10 +348,10 @@ class DetailPageSeoUrlIndexerTest extends TestCase
     {
         $defaults = [
             'manufacturer' => [
-                'id' => Uuid::uuid4()->getHex(),
+                'id' => Uuid::randomHex(),
                 'name' => 'amazing brand',
             ],
-            'tax' => ['id' => Uuid::uuid4()->getHex(), 'taxRate' => 19, 'name' => 'tax'],
+            'tax' => ['id' => Uuid::randomHex(), 'taxRate' => 19, 'name' => 'tax'],
             'price' => ['gross' => 10, 'net' => 12, 'linked' => false],
             'stock' => 0,
         ];

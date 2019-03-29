@@ -5,7 +5,7 @@ namespace Shopware\Core\Content\Test\Cms\Aggregate\CmsSlot;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Cms\Aggregate\CmsSlot\CmsSlotCollection;
 use Shopware\Core\Content\Cms\Aggregate\CmsSlot\CmsSlotEntity;
-use Shopware\Core\Framework\Struct\Uuid;
+use Shopware\Core\Framework\Uuid\Uuid;
 
 class CmsSlotCollectionTest extends TestCase
 {
@@ -46,7 +46,7 @@ class CmsSlotCollectionTest extends TestCase
     private function getSlot(string $slotName): CmsSlotEntity
     {
         $slot = new CmsSlotEntity();
-        $slot->setUniqueIdentifier(Uuid::uuid4()->getHex());
+        $slot->setUniqueIdentifier(Uuid::randomHex());
         $slot->setSlot($slotName);
 
         return $slot;

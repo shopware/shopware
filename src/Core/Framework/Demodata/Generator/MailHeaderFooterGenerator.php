@@ -7,8 +7,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriterInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\Demodata\DemodataContext;
 use Shopware\Core\Framework\Demodata\DemodataGeneratorInterface;
-use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\Framework\Util\Random;
+use Shopware\Core\Framework\Uuid\Uuid;
 
 class MailHeaderFooterGenerator implements DemodataGeneratorInterface
 {
@@ -72,7 +72,7 @@ class MailHeaderFooterGenerator implements DemodataGeneratorInterface
     {
         $faker = $context->getFaker();
         $mailHeaderFooter = [
-            'id' => Uuid::uuid4()->getHex(),
+            'id' => Uuid::randomHex(),
             'name' => $faker->text(50),
             'description' => $faker->text,
             'isDefault' => false,

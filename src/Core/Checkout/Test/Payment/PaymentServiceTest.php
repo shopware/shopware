@@ -22,8 +22,8 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\StateMachine\StateMachineRegistry;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -85,7 +85,7 @@ class PaymentServiceTest extends TestCase
 
     public function testHandlePaymentByOrderWithInvalidOrderId(): void
     {
-        $orderId = Uuid::uuid4()->getHex();
+        $orderId = Uuid::randomHex();
         $checkoutContext = Generator::createCheckoutContext();
         $this->expectException(InvalidOrderException::class);
         $this->expectExceptionMessage(sprintf('The order with id %s is invalid or could not be found.', $orderId));
@@ -148,7 +148,7 @@ class PaymentServiceTest extends TestCase
 
     public function testFinalizeTransactionWithInvalidToken(): void
     {
-        $token = Uuid::uuid4()->getHex();
+        $token = Uuid::randomHex();
         $request = new Request();
         $this->expectException(InvalidTokenException::class);
         $this->paymentService->finalizeTransaction(
@@ -190,7 +190,7 @@ class PaymentServiceTest extends TestCase
         string $paymentMethodId,
         Context $context
     ): string {
-        $id = Uuid::uuid4()->getHex();
+        $id = Uuid::randomHex();
         $transaction = [
             'id' => $id,
             'orderId' => $orderId,
@@ -210,8 +210,8 @@ class PaymentServiceTest extends TestCase
         string $paymentMethodId,
         Context $context
     ): string {
-        $orderId = Uuid::uuid4()->getHex();
-        $addressId = Uuid::uuid4()->getHex();
+        $orderId = Uuid::randomHex();
+        $addressId = Uuid::randomHex();
         $stateId = $this->stateMachineRegistry->getInitialState(Defaults::ORDER_STATE_MACHINE, $context)->getId();
 
         $order = [
@@ -256,8 +256,8 @@ class PaymentServiceTest extends TestCase
 
     private function createCustomer(Context $context): string
     {
-        $customerId = Uuid::uuid4()->getHex();
-        $addressId = Uuid::uuid4()->getHex();
+        $customerId = Uuid::randomHex();
+        $addressId = Uuid::randomHex();
 
         $customer = [
             'id' => $customerId,
@@ -265,7 +265,7 @@ class PaymentServiceTest extends TestCase
             'salutationId' => Defaults::SALUTATION_ID_MR,
             'firstName' => 'Max',
             'lastName' => 'Mustermann',
-            'email' => Uuid::uuid4()->getHex() . '@example.com',
+            'email' => Uuid::randomHex() . '@example.com',
             'password' => 'shopware',
             'defaultPaymentMethodId' => $this->getValidPaymentMethodId(),
             'groupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
@@ -296,7 +296,7 @@ class PaymentServiceTest extends TestCase
         Context $context,
         string $handlerIdentifier = AsyncTestPaymentHandler::class
     ): string {
-        $id = Uuid::uuid4()->getHex();
+        $id = Uuid::randomHex();
         $payment = [
             'id' => $id,
             'handlerIdentifier' => $handlerIdentifier,

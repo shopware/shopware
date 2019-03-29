@@ -7,8 +7,8 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException\WriteStackException;
-use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Language\LanguageValidator;
 
 class LanguageValidatorTest extends TestCase
@@ -94,7 +94,7 @@ class LanguageValidatorTest extends TestCase
     public function testInsertSimple(): void
     {
         $nid = [
-            'id' => Uuid::uuid4()->getHex(),
+            'id' => Uuid::randomHex(),
             'name' => 'new no parent',
         ];
         $this->assertInsertViolations([$nid], []);
@@ -103,7 +103,7 @@ class LanguageValidatorTest extends TestCase
     public function testUpsertSimple(): void
     {
         $nid = [
-            'id' => Uuid::uuid4()->getHex(),
+            'id' => Uuid::randomHex(),
             'name' => 'new no parent',
         ];
 
@@ -113,11 +113,11 @@ class LanguageValidatorTest extends TestCase
     public function testInsertWithParent(): void
     {
         $parent = [
-            'id' => Uuid::uuid4()->getHex(),
+            'id' => Uuid::randomHex(),
             'name' => 'parent',
         ];
         $nidpid = [
-            'id' => Uuid::uuid4()->getHex(),
+            'id' => Uuid::randomHex(),
             'name' => 'new with parent id',
             'parentId' => $parent['id'],
         ];
@@ -130,10 +130,10 @@ class LanguageValidatorTest extends TestCase
         // +a(+> +b)
 
         $a = [
-            'id' => Uuid::uuid4()->getHex(),
+            'id' => Uuid::randomHex(),
             'name' => 'a',
             'parent' => [
-                'id' => Uuid::uuid4()->getHex(),
+                'id' => Uuid::randomHex(),
                 'name' => 'b',
             ],
         ];
@@ -144,11 +144,11 @@ class LanguageValidatorTest extends TestCase
     {
         // +a(+> b)
 
-        $b = ['id' => Uuid::uuid4()->getHex(), 'name' => 'a'];
+        $b = ['id' => Uuid::randomHex(), 'name' => 'a'];
         $this->addLanguagesWithDefaultLocales([$b]);
 
         $a = [
-            'id' => Uuid::uuid4()->getHex(),
+            'id' => Uuid::randomHex(),
             'name' => 'a',
             'parent' => [
                 'id' => $b['id'],
@@ -161,12 +161,12 @@ class LanguageValidatorTest extends TestCase
     {
         // +a(+> +b +> c)
 
-        $c = ['id' => Uuid::uuid4()->getHex(), 'name' => 'c'];
+        $c = ['id' => Uuid::randomHex(), 'name' => 'c'];
         $a = [
-            'id' => Uuid::uuid4()->getHex(),
+            'id' => Uuid::randomHex(),
             'name' => 'a',
             'parent' => [
-                'id' => Uuid::uuid4()->getHex(),
+                'id' => Uuid::randomHex(),
                 'name' => 'b',
                 'parentId' => $c['id'],
             ],
@@ -180,12 +180,12 @@ class LanguageValidatorTest extends TestCase
     {
         // +a(+> b > c)
 
-        $c = ['id' => Uuid::uuid4()->getHex(), 'name' => 'c'];
-        $b = ['id' => Uuid::uuid4()->getHex(), 'name' => 'a', 'parentId' => $c['id']];
+        $c = ['id' => Uuid::randomHex(), 'name' => 'c'];
+        $b = ['id' => Uuid::randomHex(), 'name' => 'a', 'parentId' => $c['id']];
         $this->addLanguagesWithDefaultLocales([$c, $b]);
 
         $a = [
-            'id' => Uuid::uuid4()->getHex(),
+            'id' => Uuid::randomHex(),
             'name' => 'a',
             'parent' => [
                 'id' => $b['id'],
@@ -199,11 +199,11 @@ class LanguageValidatorTest extends TestCase
     public function testUpsertWithParent(): void
     {
         $parent = [
-            'id' => Uuid::uuid4()->getHex(),
+            'id' => Uuid::randomHex(),
             'name' => 'parent',
         ];
         $nidpid = [
-            'id' => Uuid::uuid4()->getHex(),
+            'id' => Uuid::randomHex(),
             'name' => 'new with parent id',
             'parentId' => $parent['id'],
         ];
@@ -214,16 +214,16 @@ class LanguageValidatorTest extends TestCase
     public function testInsertWithTwoChildren(): void
     {
         $parent = [
-            'id' => Uuid::uuid4()->getHex(),
+            'id' => Uuid::randomHex(),
             'name' => 'parent',
         ];
         $child1 = [
-            'id' => Uuid::uuid4()->getHex(),
+            'id' => Uuid::randomHex(),
             'name' => 'child 1',
             'parentId' => $parent['id'],
         ];
         $child2 = [
-            'id' => Uuid::uuid4()->getHex(),
+            'id' => Uuid::randomHex(),
             'name' => 'child 2',
             'parentId' => $parent['id'],
         ];
@@ -234,16 +234,16 @@ class LanguageValidatorTest extends TestCase
     public function testUpsertWithTwoChildren(): void
     {
         $parent = [
-            'id' => Uuid::uuid4()->getHex(),
+            'id' => Uuid::randomHex(),
             'name' => 'parent',
         ];
         $child1 = [
-            'id' => Uuid::uuid4()->getHex(),
+            'id' => Uuid::randomHex(),
             'name' => 'child 1',
             'parentId' => $parent['id'],
         ];
         $child2 = [
-            'id' => Uuid::uuid4()->getHex(),
+            'id' => Uuid::randomHex(),
             'name' => 'child 2',
             'parentId' => $parent['id'],
         ];
@@ -254,13 +254,13 @@ class LanguageValidatorTest extends TestCase
     public function testInsertWithExistingParent(): void
     {
         $parent = [
-            'id' => Uuid::uuid4()->getHex(),
+            'id' => Uuid::randomHex(),
             'name' => 'parent',
         ];
         $this->addLanguagesWithDefaultLocales([$parent]);
 
         $nidpid = [
-            'id' => Uuid::uuid4()->getHex(),
+            'id' => Uuid::randomHex(),
             'name' => 'new with parent id',
             'parentId' => $parent['id'],
         ];
@@ -271,13 +271,13 @@ class LanguageValidatorTest extends TestCase
     public function testUpsertWithExistingParent(): void
     {
         $parent = [
-            'id' => Uuid::uuid4()->getHex(),
+            'id' => Uuid::randomHex(),
             'name' => 'parent',
         ];
         $this->addLanguagesWithDefaultLocales([$parent]);
 
         $nidpid = [
-            'id' => Uuid::uuid4()->getHex(),
+            'id' => Uuid::randomHex(),
             'name' => 'new with parent id',
             'parentId' => $parent['id'],
         ];
@@ -290,11 +290,11 @@ class LanguageValidatorTest extends TestCase
         // *a +> b
 
         $parent = [
-            'id' => Uuid::uuid4()->getHex(),
+            'id' => Uuid::randomHex(),
             'name' => 'b',
         ];
         $toBeChild = [
-            'id' => Uuid::uuid4()->getHex(),
+            'id' => Uuid::randomHex(),
             'name' => 'a',
         ];
         $this->addLanguagesWithDefaultLocales([$toBeChild, $parent]);
@@ -313,15 +313,15 @@ class LanguageValidatorTest extends TestCase
         // *a *> b
 
         $parent = [
-            'id' => Uuid::uuid4()->getHex(),
+            'id' => Uuid::randomHex(),
             'name' => 'b',
         ];
         $parent2 = [
-            'id' => Uuid::uuid4()->getHex(),
+            'id' => Uuid::randomHex(),
             'name' => 'c',
         ];
         $toBeChild = [
-            'id' => Uuid::uuid4()->getHex(),
+            'id' => Uuid::randomHex(),
             'parentId' => $parent['id'],
             'name' => 'a',
         ];
@@ -342,18 +342,18 @@ class LanguageValidatorTest extends TestCase
         // *b +> c
 
         $parent = [
-            'id' => Uuid::uuid4()->getHex(),
+            'id' => Uuid::randomHex(),
             'name' => 'c',
         ];
 
         $child1 = [
-            'id' => Uuid::uuid4()->getHex(),
+            'id' => Uuid::randomHex(),
             'parentId' => $parent['id'],
             'name' => 'a',
         ];
 
         $child2 = [
-            'id' => Uuid::uuid4()->getHex(),
+            'id' => Uuid::randomHex(),
             'name' => 'b',
         ];
 
@@ -373,16 +373,16 @@ class LanguageValidatorTest extends TestCase
         // *a -> *b +> c
 
         $parent = [
-            'id' => Uuid::uuid4()->getHex(),
+            'id' => Uuid::randomHex(),
             'name' => 'b',
         ];
         $child = [
-            'id' => Uuid::uuid4()->getHex(),
+            'id' => Uuid::randomHex(),
             'parentId' => $parent['id'],
             'name' => 'a',
         ];
         $lang = [
-            'id' => Uuid::uuid4()->getHex(),
+            'id' => Uuid::randomHex(),
             'name' => 'c',
         ];
         $this->addLanguagesWithDefaultLocales([$parent, $child, $lang]);
@@ -407,18 +407,18 @@ class LanguageValidatorTest extends TestCase
         // *a +> *b -> c
 
         $parentParent = [
-            'id' => Uuid::uuid4()->getHex(),
+            'id' => Uuid::randomHex(),
             'name' => 'c',
         ];
 
         $parent = [
-            'id' => Uuid::uuid4()->getHex(),
+            'id' => Uuid::randomHex(),
             'parentId' => $parentParent['id'],
             'name' => 'b',
         ];
 
         $child = [
-            'id' => Uuid::uuid4()->getHex(),
+            'id' => Uuid::randomHex(),
             'name' => 'a',
         ];
 
@@ -444,18 +444,18 @@ class LanguageValidatorTest extends TestCase
         // +a +> +b +> c
 
         $parentParent = [
-            'id' => Uuid::uuid4()->getHex(),
+            'id' => Uuid::randomHex(),
             'name' => 'c',
         ];
         $this->addLanguagesWithDefaultLocales([$parentParent]);
 
         $parent = [
-            'id' => Uuid::uuid4()->getHex(),
+            'id' => Uuid::randomHex(),
             'name' => 'b',
             'parentId' => $parentParent['id'],
         ];
         $child = [
-            'id' => Uuid::uuid4()->getHex(),
+            'id' => Uuid::randomHex(),
             'name' => 'a',
             'parentId' => $parent['id'],
         ];
@@ -468,16 +468,16 @@ class LanguageValidatorTest extends TestCase
     public function testInsertWithParentParentViolation(): void
     {
         $parentParent = [
-            'id' => Uuid::uuid4()->getHex(),
+            'id' => Uuid::randomHex(),
             'name' => 'parent parent',
         ];
         $parent = [
-            'id' => Uuid::uuid4()->getHex(),
+            'id' => Uuid::randomHex(),
             'name' => 'parent',
             'parentId' => $parentParent['id'],
         ];
         $child = [
-            'id' => Uuid::uuid4()->getHex(),
+            'id' => Uuid::randomHex(),
             'name' => 'child',
             'parentId' => $parent['id'],
         ];
@@ -491,18 +491,18 @@ class LanguageValidatorTest extends TestCase
     {
         // +a +> b > c
         $c = [
-            'id' => Uuid::uuid4()->getHex(),
+            'id' => Uuid::randomHex(),
             'name' => 'c',
         ];
         $b = [
-            'id' => Uuid::uuid4()->getHex(),
+            'id' => Uuid::randomHex(),
             'name' => 'b',
             'parentId' => $c['id'],
         ];
         $this->addLanguagesWithDefaultLocales([$c, $b]);
 
         $a = [
-            'id' => Uuid::uuid4()->getHex(),
+            'id' => Uuid::randomHex(),
             'name' => 'a',
             'parentId' => $b['id'],
         ];
@@ -517,16 +517,16 @@ class LanguageValidatorTest extends TestCase
         // a > *b +> c
 
         $parent = [
-            'id' => Uuid::uuid4()->getHex(),
+            'id' => Uuid::randomHex(),
             'name' => 'b',
         ];
         $child = [
-            'id' => Uuid::uuid4()->getHex(),
+            'id' => Uuid::randomHex(),
             'parentId' => $parent['id'],
             'name' => 'a',
         ];
         $lang = [
-            'id' => Uuid::uuid4()->getHex(),
+            'id' => Uuid::randomHex(),
             'name' => 'c',
         ];
         $this->addLanguagesWithDefaultLocales([$parent, $child, $lang]);
@@ -547,18 +547,18 @@ class LanguageValidatorTest extends TestCase
         // id = _a_[new_parent_id] AND parentId is not null
 
         $parentParent = [
-            'id' => Uuid::uuid4()->getHex(),
+            'id' => Uuid::randomHex(),
             'name' => 'c',
         ];
 
         $parent = [
-            'id' => Uuid::uuid4()->getHex(),
+            'id' => Uuid::randomHex(),
             'parentId' => $parentParent['id'],
             'name' => 'b',
         ];
 
         $wannabeChild = [
-            'id' => Uuid::uuid4()->getHex(),
+            'id' => Uuid::randomHex(),
             'name' => 'a',
         ];
 
@@ -580,11 +580,11 @@ class LanguageValidatorTest extends TestCase
         // *a *> +c
 
         $oldParent = [
-            'id' => Uuid::uuid4()->getHex(),
+            'id' => Uuid::randomHex(),
             'name' => 'b',
         ];
         $child = [
-            'id' => Uuid::uuid4()->getHex(),
+            'id' => Uuid::randomHex(),
             'name' => 'a',
             'parent_id' => $oldParent['id'],
         ];
@@ -594,7 +594,7 @@ class LanguageValidatorTest extends TestCase
         $this->addLanguagesWithDefaultLocales($existingData);
 
         $newParent = $this->addDefaultLocale([
-            'id' => Uuid::uuid4()->getHex(),
+            'id' => Uuid::randomHex(),
             'name' => 'c',
         ]);
         $updChild = [
@@ -610,11 +610,11 @@ class LanguageValidatorTest extends TestCase
         // +a +> *b -> c
 
         $c = [
-            'id' => Uuid::uuid4()->getHex(),
+            'id' => Uuid::randomHex(),
             'name' => 'c',
         ];
         $b = [
-            'id' => Uuid::uuid4()->getHex(),
+            'id' => Uuid::randomHex(),
             'name' => 'b',
             'parentId' => $c['id'],
         ];
@@ -622,7 +622,7 @@ class LanguageValidatorTest extends TestCase
         $this->addLanguagesWithDefaultLocales([$c, $b]);
 
         $a = $this->addDefaultLocale([
-            'id' => Uuid::uuid4()->getHex(),
+            'id' => Uuid::randomHex(),
             'name' => 'a',
             'parent_id' => $b,
         ]);
@@ -637,16 +637,16 @@ class LanguageValidatorTest extends TestCase
     public function testRemoveChildAndAddNewParent(): void
     {
         // *a -> *b +> +c
-        $b = ['id' => Uuid::uuid4()->getHex(), 'name' => 'b'];
+        $b = ['id' => Uuid::randomHex(), 'name' => 'b'];
         $a = [
-            'id' => Uuid::uuid4()->getHex(),
+            'id' => Uuid::randomHex(),
             'name' => 'a',
             'parentId' => $b['id'],
         ];
         $this->addLanguagesWithDefaultLocales([$b, $a]);
 
         $aUpdate = ['id' => $a['id'], 'parentId' => null];
-        $c = $this->addDefaultLocale(['id' => Uuid::uuid4()->getHex(), 'name' => 'c']);
+        $c = $this->addDefaultLocale(['id' => Uuid::randomHex(), 'name' => 'c']);
         $bUpdate = ['id' => $b['id'], 'parentId' => $c['id']];
         $this->assertUpsertViolations([$aUpdate, $c, $bUpdate], []);
     }
@@ -655,15 +655,15 @@ class LanguageValidatorTest extends TestCase
     {
         // a > *b +> +c
 
-        $b = ['id' => Uuid::uuid4()->getHex(), 'name' => 'b'];
+        $b = ['id' => Uuid::randomHex(), 'name' => 'b'];
         $a = [
-            'id' => Uuid::uuid4()->getHex(),
+            'id' => Uuid::randomHex(),
             'name' => 'a',
             'parentId' => $b['id'],
         ];
         $this->addLanguagesWithDefaultLocales([$b, $a]);
 
-        $c = $this->addDefaultLocale(['id' => Uuid::uuid4()->getHex(), 'name' => 'c']);
+        $c = $this->addDefaultLocale(['id' => Uuid::randomHex(), 'name' => 'c']);
         $bUpdate = ['id' => $b['id'], 'parentId' => $c['id']];
 
         $this->assertUpsertViolations([$c, $bUpdate], [
@@ -675,13 +675,13 @@ class LanguageValidatorTest extends TestCase
     {
         // *a +> +b +> c
 
-        $a = ['id' => Uuid::uuid4()->getHex(), 'name' => 'a'];
-        $c = ['id' => Uuid::uuid4()->getHex(), 'name' => 'c'];
+        $a = ['id' => Uuid::randomHex(), 'name' => 'a'];
+        $c = ['id' => Uuid::randomHex(), 'name' => 'c'];
 
         $this->addLanguagesWithDefaultLocales([$a, $c]);
 
         $b = [
-            'id' => Uuid::uuid4()->getHex(),
+            'id' => Uuid::randomHex(),
             'name' => 'b',
             'parentId' => $c['id'],
         ];
@@ -699,13 +699,13 @@ class LanguageValidatorTest extends TestCase
         // a > d, c
         // *a *> +b +> c
 
-        $d = ['id' => Uuid::uuid4()->getHex(), 'name' => 'a'];
-        $a = ['id' => Uuid::uuid4()->getHex(), 'name' => 'a', 'parentId' => $d['id']];
-        $c = ['id' => Uuid::uuid4()->getHex(), 'name' => 'a'];
+        $d = ['id' => Uuid::randomHex(), 'name' => 'a'];
+        $a = ['id' => Uuid::randomHex(), 'name' => 'a', 'parentId' => $d['id']];
+        $c = ['id' => Uuid::randomHex(), 'name' => 'a'];
         $this->addLanguagesWithDefaultLocales([$d, $a, $c]);
 
         $b = [
-            'id' => Uuid::uuid4()->getHex(),
+            'id' => Uuid::randomHex(),
             'parentId' => $c['id'],
             'name' => 'b',
         ];
@@ -719,7 +719,7 @@ class LanguageValidatorTest extends TestCase
     {
         // -a
         $a = [
-            'id' => Uuid::uuid4()->getHex(),
+            'id' => Uuid::randomHex(),
             'name' => 'a',
         ];
 
@@ -758,10 +758,10 @@ class LanguageValidatorTest extends TestCase
     {
         // +a1 +> +b +> +c, +a2 +> b
 
-        $c = ['id' => Uuid::uuid4()->getHex(), 'name' => 'c'];
-        $b = ['id' => Uuid::uuid4()->getHex(), 'name' => 'b', 'parentId' => $c['id']];
-        $a1 = ['id' => Uuid::uuid4()->getHex(), 'name' => 'a1', 'parentId' => $b['id']];
-        $a2 = ['id' => Uuid::uuid4()->getHex(), 'name' => 'a2', 'parentId' => $b['id']];
+        $c = ['id' => Uuid::randomHex(), 'name' => 'c'];
+        $b = ['id' => Uuid::randomHex(), 'name' => 'b', 'parentId' => $c['id']];
+        $a1 = ['id' => Uuid::randomHex(), 'name' => 'a1', 'parentId' => $b['id']];
+        $a2 = ['id' => Uuid::randomHex(), 'name' => 'a2', 'parentId' => $b['id']];
 
         $this->assertInsertViolations([$c, $b, $a1, $a2],
             [
@@ -788,7 +788,7 @@ class LanguageValidatorTest extends TestCase
 
     public function testRootWithoutTranslationCodeViolation(): void
     {
-        $root = ['id' => Uuid::uuid4()->getHex(), 'name' => 'root without language code'];
+        $root = ['id' => Uuid::randomHex(), 'name' => 'root without language code'];
 
         $this->assertInsertViolations(
             [$root],
@@ -801,8 +801,8 @@ class LanguageValidatorTest extends TestCase
 
     public function testSubWithoutTranslationCode(): void
     {
-        $root = $this->addDefaultTranslationCode(['id' => Uuid::uuid4()->getHex(), 'name' => 'root with language code']);
-        $sub = ['id' => Uuid::uuid4()->getHex(), 'name' => 'sub without language code', 'parentId' => $root['id']];
+        $root = $this->addDefaultTranslationCode(['id' => Uuid::randomHex(), 'name' => 'root with language code']);
+        $sub = ['id' => Uuid::randomHex(), 'name' => 'sub without language code', 'parentId' => $root['id']];
         $this->assertInsertViolations([$root, $sub], [], false /* no default locale ! */);
     }
 
@@ -899,7 +899,7 @@ class LanguageValidatorTest extends TestCase
     protected function addDefaultTranslationCode($lang)
     {
         if (!isset($lang['translationCode']) && !isset($lang['translationCodeId'])) {
-            $id = Uuid::uuid4()->getHex();
+            $id = Uuid::randomHex();
             $lang['translationCode'] = [
                 'code' => 'x-tst_' . $id,
                 'name' => 'test translation code ' . $id,
@@ -907,7 +907,7 @@ class LanguageValidatorTest extends TestCase
             ];
         }
         if (isset($lang['parent']) && !isset($lang['parent']['translationCode']) && !isset($lang['parent']['translationCodeId'])) {
-            $id = Uuid::uuid4()->getHex();
+            $id = Uuid::randomHex();
             $lang['parent']['translationCode'] = [
                 'code' => 'x-tst_' . $id,
                 'name' => 'test translation code parent ' . $id,

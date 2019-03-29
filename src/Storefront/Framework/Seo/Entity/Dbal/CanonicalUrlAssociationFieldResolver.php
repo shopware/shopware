@@ -9,7 +9,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelpe
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\FieldResolver\FieldResolverInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\QueryBuilder;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
-use Shopware\Core\Framework\Struct\Uuid;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Storefront\Framework\Seo\Entity\Field\CanonicalUrlAssociationField;
 use Shopware\Storefront\Framework\Seo\SeoUrl\SeoUrlDefinition;
 
@@ -43,7 +43,7 @@ class CanonicalUrlAssociationFieldResolver implements FieldResolverInterface
 
         $query->addState($alias);
 
-        $routeParamKey = 'route_' . Uuid::uuid4()->getHex();
+        $routeParamKey = 'route_' . Uuid::randomHex();
         $parameters = [
             '#root#' => EntityDefinitionQueryHelper::escape($root),
             '#source_column#' => EntityDefinitionQueryHelper::escape($field->getStorageName()),

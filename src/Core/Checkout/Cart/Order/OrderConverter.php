@@ -38,7 +38,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Struct\Uuid;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInterface;
 use Shopware\Core\System\StateMachine\StateMachineRegistry;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -186,7 +186,7 @@ class OrderConverter
             throw new MissingOrderRelationException('deliveries');
         }
 
-        $cart = new Cart(self::CART_TYPE, Uuid::uuid4()->getHex());
+        $cart = new Cart(self::CART_TYPE, Uuid::randomHex());
         $cart->setPrice($order->getPrice());
         $cart->addExtension(self::ORIGINAL_ID, new IdStruct($order->getId()));
         /* NEXT-708 support:
@@ -253,7 +253,7 @@ class OrderConverter
             $options[CheckoutContextService::PAYMENT_METHOD_ID] = $order->getTransactions()->first()->getPaymentMethodId();
         }
 
-        return $this->checkoutContextFactory->create(Uuid::uuid4()->getHex(), $order->getSalesChannelId(), $options);
+        return $this->checkoutContextFactory->create(Uuid::randomHex(), $order->getSalesChannelId(), $options);
     }
 
     private function convertDeliveries(OrderDeliveryCollection $orderDeliveries, LineItemCollection $lineItems): DeliveryCollection

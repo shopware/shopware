@@ -15,9 +15,9 @@ use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
+use Shopware\Core\Framework\Uuid\Uuid;
 
 class EnrichmentTest extends TestCase
 {
@@ -53,14 +53,14 @@ class EnrichmentTest extends TestCase
     {
         $this->productRepository = $this->getContainer()->get('product.repository');
         $this->factory = $this->getContainer()->get(CheckoutContextFactory::class);
-        $this->context = $this->factory->create(Uuid::uuid4()->getHex(), Defaults::SALES_CHANNEL);
+        $this->context = $this->factory->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
         $this->enrichment = $this->getContainer()->get(Enrichment::class);
         $this->connection = $this->getContainer()->get(Connection::class);
     }
 
     public function testMissingProductData(): void
     {
-        $id = Uuid::uuid4()->getHex();
+        $id = Uuid::randomHex();
 
         $this->productRepository->create([
             [
@@ -113,7 +113,7 @@ class EnrichmentTest extends TestCase
 
     public function testProductCollectorDoNotOverrideData(): void
     {
-        $id = Uuid::uuid4()->getHex();
+        $id = Uuid::randomHex();
 
         $this->productRepository->create([
             [

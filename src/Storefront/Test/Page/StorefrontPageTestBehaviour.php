@@ -22,8 +22,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Exception\MissingParameterException;
 use Shopware\Core\Framework\Routing\InternalRequest;
 use Shopware\Core\Framework\Struct\Struct;
-use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Storefront\Framework\Page\PageLoaderInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\EventDispatcher\Event;
@@ -92,7 +92,7 @@ trait StorefrontPageTestBehaviour
 
     protected function getRandomProduct(CheckoutContext $context): ProductEntity
     {
-        $id = Uuid::uuid4()->getHex();
+        $id = Uuid::randomHex();
         $productRepository = $this->getContainer()->get('product.repository');
         $productVisibilityRepository = $this->getContainer()->get('product_visibility.repository');
 
@@ -105,7 +105,7 @@ trait StorefrontPageTestBehaviour
             'tax' => ['name' => 'test', 'taxRate' => 15],
             'active' => true,
             'categories' => [
-                ['id' => Uuid::uuid4()->getHex(), 'name' => 'asd'],
+                ['id' => Uuid::randomHex(), 'name' => 'asd'],
             ],
         ];
 
@@ -219,8 +219,8 @@ trait StorefrontPageTestBehaviour
 
     private function createCustomer(): CustomerEntity
     {
-        $customerId = Uuid::uuid4()->getHex();
-        $addressId = Uuid::uuid4()->getHex();
+        $customerId = Uuid::randomHex();
+        $addressId = Uuid::randomHex();
 
         $data = [
             [
@@ -260,14 +260,14 @@ trait StorefrontPageTestBehaviour
         $factory = $this->getContainer()->get(CheckoutContextFactory::class);
         $salesChannelRepository = $this->getContainer()->get('sales_channel.repository');
 
-        $salesChannelId = Uuid::uuid4()->getHex();
+        $salesChannelId = Uuid::randomHex();
         $salesChannel['id'] = $salesChannelId;
         $salesChannel['customerGroupId'] = Defaults::FALLBACK_CUSTOMER_GROUP;
 
         $salesChannelRepository->create([$salesChannel], Context::createDefaultContext());
 
         $context = $factory
-            ->create(Uuid::uuid4()->getHex(), $salesChannelId, $options);
+            ->create(Uuid::randomHex(), $salesChannelId, $options);
 
         $ruleLoader = $this->getContainer()->get(CheckoutRuleLoader::class);
         $rulesProperty = ReflectionHelper::getProperty(CheckoutRuleLoader::class, 'rules');

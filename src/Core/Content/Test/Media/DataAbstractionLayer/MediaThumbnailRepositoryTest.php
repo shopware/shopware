@@ -8,9 +8,9 @@ use Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\QueueTestBehaviour;
+use Shopware\Core\Framework\Uuid\Uuid;
 
 class MediaThumbnailRepositoryTest extends TestCase
 {
@@ -43,7 +43,7 @@ class MediaThumbnailRepositoryTest extends TestCase
 
     public function testRemoveThumbnail(): void
     {
-        $mediaId = Uuid::uuid4()->getHex();
+        $mediaId = Uuid::randomHex();
         $media = $this->createThumbnailWithMedia($mediaId);
         $thumbnailPath = $this->createThumbnailFile($media);
 
@@ -56,7 +56,7 @@ class MediaThumbnailRepositoryTest extends TestCase
 
     public function testRemoveThumbnailFromMedia(): void
     {
-        $mediaId = Uuid::uuid4()->getHex();
+        $mediaId = Uuid::randomHex();
         $media = $this->createThumbnailWithMedia($mediaId);
         $thumbnailPath = $this->createThumbnailFile($media);
 

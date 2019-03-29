@@ -6,8 +6,8 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
-use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\Framework\Test\TestCaseBase\StorefrontFunctionalTestBehaviour;
+use Shopware\Core\Framework\Uuid\Uuid;
 
 class StorefrontCategoryControllerTest extends TestCase
 {
@@ -37,7 +37,7 @@ class StorefrontCategoryControllerTest extends TestCase
 
     public function testCategoryListRoute(): void
     {
-        $id = Uuid::uuid4()->getHex();
+        $id = Uuid::randomHex();
 
         $this->repository->create([
             ['id' => $id, 'name' => 'Test category'],
@@ -59,7 +59,7 @@ class StorefrontCategoryControllerTest extends TestCase
 
     public function testCategoryDetailRoute(): void
     {
-        $id = Uuid::uuid4()->getHex();
+        $id = Uuid::randomHex();
 
         $this->repository->create([
             ['id' => $id, 'name' => 'Test category'],
@@ -80,9 +80,9 @@ class StorefrontCategoryControllerTest extends TestCase
 
     public function testSortingOnListRoute(): void
     {
-        $categoryC = Uuid::uuid4()->getHex();
-        $categoryA = Uuid::uuid4()->getHex();
-        $categoryB = Uuid::uuid4()->getHex();
+        $categoryC = Uuid::randomHex();
+        $categoryA = Uuid::randomHex();
+        $categoryB = Uuid::randomHex();
 
         $this->repository->create([
             ['id' => $categoryC, 'name' => 'Category C'],
@@ -111,9 +111,9 @@ class StorefrontCategoryControllerTest extends TestCase
 
     public function testTermOnListRoute(): void
     {
-        $categoryC = Uuid::uuid4()->getHex();
-        $categoryA = Uuid::uuid4()->getHex();
-        $categoryB = Uuid::uuid4()->getHex();
+        $categoryC = Uuid::randomHex();
+        $categoryA = Uuid::randomHex();
+        $categoryB = Uuid::randomHex();
 
         $this->repository->create([
             ['id' => $categoryC, 'name' => 'Matching name'],
@@ -136,9 +136,9 @@ class StorefrontCategoryControllerTest extends TestCase
 
     public function testFilterOnListRoute(): void
     {
-        $categoryC = Uuid::uuid4()->getHex();
-        $categoryA = Uuid::uuid4()->getHex();
-        $categoryB = Uuid::uuid4()->getHex();
+        $categoryC = Uuid::randomHex();
+        $categoryA = Uuid::randomHex();
+        $categoryB = Uuid::randomHex();
 
         $this->repository->create([
             ['id' => $categoryC, 'name' => 'Matching name', 'active' => true],
@@ -166,10 +166,10 @@ class StorefrontCategoryControllerTest extends TestCase
 
     public function testSwagQLForListRoute(): void
     {
-        $categoryC = Uuid::uuid4()->getHex();
-        $categoryA = Uuid::uuid4()->getHex();
-        $categoryB = Uuid::uuid4()->getHex();
-        $categoryA2 = Uuid::uuid4()->getHex();
+        $categoryC = Uuid::randomHex();
+        $categoryA = Uuid::randomHex();
+        $categoryB = Uuid::randomHex();
+        $categoryA2 = Uuid::randomHex();
 
         $this->repository->create([
             ['id' => $categoryC, 'name' => 'C', 'active' => true],
@@ -285,7 +285,7 @@ class StorefrontCategoryControllerTest extends TestCase
 
     public function testDetailWithNoneExistingCategory(): void
     {
-        $id = Uuid::uuid4()->getHex();
+        $id = Uuid::randomHex();
 
         $this->getStorefrontClient()->request('GET', '/storefront-api/v1/category/' . $id);
         $response = $this->getStorefrontClient()->getResponse();

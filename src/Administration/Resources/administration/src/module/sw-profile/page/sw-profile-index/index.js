@@ -65,8 +65,6 @@ Component.register('sw-profile-index', {
         this.userPromise.then((user) => {
             this.user = user;
             this.isUserLoading = false;
-        }).catch((err) => {
-            console.dir(err);
         });
     },
 

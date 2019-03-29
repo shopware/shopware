@@ -3,7 +3,6 @@ module.exports = {
     'open admin menu': (browser) => {
         browser
             .waitForElementNotPresent('.sw-admin-menu__user-actions-toggle .sw-loader')
-            .waitForElementVisible('.sw-admin-menu__item--sw-dashboard .sw-admin-menu__navigation-link')
             .click('.sw-admin-menu__item--sw-dashboard .sw-admin-menu__navigation-link');
     },
     'toggle different admin menu appearances, change and assert administration language': (browser) => {

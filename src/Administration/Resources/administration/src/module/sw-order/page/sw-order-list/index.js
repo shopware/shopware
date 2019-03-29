@@ -54,7 +54,7 @@ Component.register('sw-order-list', {
 
             // Use the order date as the default sorting
             if (!params.sortBy && !params.sortDirection) {
-                params.sortBy = 'date';
+                params.sortBy = 'orderDate';
                 params.sortDirection = 'DESC';
             }
 
@@ -102,8 +102,8 @@ Component.register('sw-order-list', {
                 label: this.$tc('sw-order.list.columnState'),
                 allowResize: true
             }, {
-                property: 'date',
-                dataIndex: 'date',
+                property: 'orderDate',
+                dataIndex: 'orderDate',
                 label: this.$tc('sw-order.list.orderDate'),
                 allowResize: true
             }];

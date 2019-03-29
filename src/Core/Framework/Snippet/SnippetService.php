@@ -3,7 +3,6 @@
 namespace Shopware\Core\Framework\Snippet;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\ValueAggregation;
@@ -199,19 +198,6 @@ class SnippetService implements SnippetServiceInterface
         return FetchModeHelper::keyPair($snippets);
     }
 
-    private function getDefaultLocale(): string
-    {
-        $locale = $this->connection->createQueryBuilder()
-            ->select(['code'])
-            ->from('locale')
-            ->where('id = :localeId')
-            ->setParameter('localeId', Uuid::fromHexToBytes(Defaults::LOCALE_SYSTEM))
-            ->execute()
-            ->fetchColumn();
-
-        return $locale;
-    }
-
     private function getSnippetFilesByIso(array $isoList): array
     {
         $result = [];
@@ -265,7 +251,7 @@ class SnippetService implements SnippetServiceInterface
             ->fetchColumn();
 
         if ($locale === false) {
-            $locale = $this->getDefaultLocale();
+            throw new \InvalidArgumentException(sprintf('No snippetSet with id "%s" found', $snippetSetId));
         }
 
         return $locale;

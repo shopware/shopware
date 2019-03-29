@@ -57,8 +57,8 @@ class Migration1536233420BasicData extends MigrationStep
 
     private function createLanguage(Connection $connection): void
     {
-        $localeEn = Uuid::fromHexToBytes(Defaults::LOCALE_SYSTEM);
-        $localeDe = Uuid::fromHexToBytes(Defaults::LOCALE_SYSTEM_DE);
+        $localeEn = Uuid::randomBytes();
+        $localeDe = Uuid::randomBytes();
         $languageEn = Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM);
         $languageDe = Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM_DE);
 

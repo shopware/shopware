@@ -319,7 +319,7 @@ class TranslationTest extends TestCase
                 'code' => 'x-nl_NL',
                 'territory' => 'Niederlande',
             ],
-            'localeId' => Defaults::LOCALE_SYSTEM,
+            'localeId' => $this->getLocaleIdOfSystemLanguage(),
             'name' => 'nl_NL',
         ];
 
@@ -388,7 +388,12 @@ class TranslationTest extends TestCase
             [[
                 'id' => $germanLanguageId,
                 'name' => 'de_DE',
-                'localeId' => Defaults::LOCALE_SYSTEM_DE,
+                'locale' => [
+                    'id' => Uuid::randomHex(),
+                    'code' => 'x-de_DE',
+                    'name' => 'locale',
+                    'territory' => 'territory',
+                ],
                 'translationCode' => [
                     'id' => Uuid::randomHex(),
                     'code' => 'x-de_DE2',
@@ -783,7 +788,7 @@ class TranslationTest extends TestCase
             $languages[] = [
                 'id' => $rootLanguageId,
                 'name' => 'root language ' . $rootLanguageId,
-                'localeId' => Defaults::LOCALE_SYSTEM,
+                'localeId' => $this->getLocaleIdOfSystemLanguage(),
                 'translationCode' => [
                     'code' => 'x-tst_root_' . $rootLanguageId,
                     'name' => 'root iso name' . $rootLanguageId,
@@ -796,7 +801,7 @@ class TranslationTest extends TestCase
             'id' => $id,
             'parentId' => $rootLanguageId,
             'name' => 'test language ' . $id,
-            'localeId' => Defaults::LOCALE_SYSTEM,
+            'localeId' => $this->getLocaleIdOfSystemLanguage(),
             'translationCode' => [
                 'code' => 'x-tst_' . $id,
                 'name' => 'iso name' . $id,

@@ -14,10 +14,6 @@ final class Defaults
 
     public const SNIPPET_BASE_SET_DE = 'b8d2230a7b324e448c9c8b22ed1b89d8';
 
-    public const LOCALE_SYSTEM = '20080911ffff4fffafffffff19830531';
-
-    public const LOCALE_SYSTEM_DE = '2f3663edb7614308a60188c21c7963d5';
-
     public const LOCALE_EN_GB_ISO = 'en_GB';
 
     public const FALLBACK_CUSTOMER_GROUP = '20080911ffff4fffafffffff19830531';

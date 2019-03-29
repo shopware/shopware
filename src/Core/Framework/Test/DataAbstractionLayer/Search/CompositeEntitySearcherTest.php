@@ -59,9 +59,9 @@ class CompositeEntitySearcherTest extends TestCase
         $repo->upsert([
             [
                 'id' => $this->userId,
-                'localeId' => '20080911ffff4fffafffffff19830531',
                 'firstName' => 'test-user',
                 'lastName' => 'test',
+                'localeId' => $this->getLocaleIdOfSystemLanguage(),
                 'username' => 'test-user',
                 'email' => Uuid::randomHex() . '@example.com',
                 'password' => 'shopware',

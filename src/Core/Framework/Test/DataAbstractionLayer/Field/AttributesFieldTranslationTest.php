@@ -18,13 +18,16 @@ use Shopware\Core\Framework\DataAbstractionLayer\VersionManager;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\AttributesTestDefinition;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\AttributesTestTranslationDefinition;
 use Shopware\Core\Framework\Test\TestCaseBase\CacheTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\DemoDataTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class AttributesFieldTranslationTest extends TestCase
 {
-    use KernelTestBehaviour, CacheTestBehaviour;
+    use KernelTestBehaviour,
+        CacheTestBehaviour,
+        DemoDataTestBehaviour;
 
     /**
      * @var Connection
@@ -498,7 +501,7 @@ class AttributesFieldTranslationTest extends TestCase
                     'id' => $id,
                     'parentId' => $rootLanguage,
                     'name' => $id,
-                    'localeId' => Defaults::LOCALE_SYSTEM,
+                    'localeId' => $this->getLocaleIdOfSystemLanguage(),
                     'translationCode' => [
                         'id' => $translationCodeId,
                         'name' => 'x-' . $translationCodeId,

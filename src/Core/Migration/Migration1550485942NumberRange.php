@@ -89,17 +89,17 @@ SQL;
 SQL;
         $connection->executeQuery($sql);
 
-        $typeProduct = Uuid::uuid4()->getBytes();
-        $typeOrder = Uuid::uuid4()->getBytes();
-        $typeCustomer = Uuid::uuid4()->getBytes();
+        $typeProduct = Uuid::randomBytes();
+        $typeOrder = Uuid::randomBytes();
+        $typeCustomer = Uuid::randomBytes();
 
         $connection->insert('number_range_type', ['id' => $typeProduct, 'type_name' => 'product', 'global' => 1]);
         $connection->insert('number_range_type', ['id' => $typeOrder, 'type_name' => 'order', 'global' => 0]);
         $connection->insert('number_range_type', ['id' => $typeCustomer, 'type_name' => 'customer', 'global' => 0]);
 
-        $connection->insert('number_range', ['id' => Uuid::uuid4()->getBytes(), 'name' => 'Products', 'type_id' => $typeProduct, 'pattern' => '{n}', 'start' => 1, 'created_at' => (new \DateTime())->format(Defaults::DATE_FORMAT)]);
-        $connection->insert('number_range', ['id' => Uuid::uuid4()->getBytes(), 'name' => 'Orders', 'type_id' => $typeOrder, 'pattern' => '{n}', 'start' => 1, 'created_at' => (new \DateTime())->format(Defaults::DATE_FORMAT)]);
-        $connection->insert('number_range', ['id' => Uuid::uuid4()->getBytes(), 'name' => 'Customers', 'type_id' => $typeCustomer, 'pattern' => '{n}', 'start' => 1, 'created_at' => (new \DateTime())->format(Defaults::DATE_FORMAT)]);
+        $connection->insert('number_range', ['id' => Uuid::randomBytes(), 'name' => 'Products', 'type_id' => $typeProduct, 'pattern' => '{n}', 'start' => 1, 'created_at' => (new \DateTime())->format(Defaults::DATE_FORMAT)]);
+        $connection->insert('number_range', ['id' => Uuid::randomBytes(), 'name' => 'Orders', 'type_id' => $typeOrder, 'pattern' => '{n}', 'start' => 1, 'created_at' => (new \DateTime())->format(Defaults::DATE_FORMAT)]);
+        $connection->insert('number_range', ['id' => Uuid::randomBytes(), 'name' => 'Customers', 'type_id' => $typeCustomer, 'pattern' => '{n}', 'start' => 1, 'created_at' => (new \DateTime())->format(Defaults::DATE_FORMAT)]);
     }
 
     public function updateDestructive(Connection $connection): void

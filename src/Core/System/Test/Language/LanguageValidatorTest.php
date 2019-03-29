@@ -880,10 +880,10 @@ class LanguageValidatorTest extends TestCase
     protected function addDefaultLocale(array $lang): array
     {
         if (!isset($lang['locale']) && !isset($lang['localeId'])) {
-            $lang['localeId'] = Defaults::LOCALE_SYSTEM;
+            $lang['localeId'] = $this->getLocaleIdOfSystemLanguage();
         }
         if (isset($lang['parent']) && !isset($lang['parent']['locale'], $lang['parent']['localeId'])) {
-            $lang['parent']['localeId'] = Defaults::LOCALE_SYSTEM;
+            $lang['parent']['localeId'] = $this->getLocaleIdOfSystemLanguage();
         }
 
         return $lang;

@@ -2,6 +2,7 @@
 
 namespace Shopware\Docs\Command;
 
+use Cocur\Slugify\Slugify;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Exception\CommandNotFoundException;
 use Symfony\Component\Console\Formatter\OutputFormatterStyle;
@@ -14,17 +15,32 @@ class ConvertMarkdownDocsCommand extends Command
 {
     public const CATEGORY_SITE_FILENAME = '__categoryInfo.md';
     public const WIKI_URL_TAG = 'wikiUrl';
-    public const REQUIRED_METATAGS = ['titleDe', 'titleEn'];
-    public const OPTIONAL_METATAGS = [self::WIKI_URL_TAG, 'metaDescription'];
+    public const WIKI_URL_TAG_DE = 'wikiUrlDe';
+    public const REQUIRED_METATAGS = ['titleEn'];
+    public const OPTIONAL_METATAGS = [self::WIKI_URL_TAG, 'metaDescription', 'titleDe'];
 
     private const METATAG_REGEX = '/^\[(.*?)\]:\s*<>\((.*?)\)\s*?$/m';
     private $errorStack = [];
     private $warningStack = [];
 
+    private $slugify;
+
+    public function __construct()
+    {
+        parent::__construct();
+
+        $this->slugify = new Slugify();
+    }
+
     public function processFiles($fileContents, $inPath, $baseUrl): array
     {
         $metadata = $this->gatherMetadata($fileContents);
         $this->checkMetadata($metadata);
+
+        if (count($this->errorStack)) {
+            return [];
+        }
+
         $metadata = $this->enrichMetadata($metadata, $inPath, $baseUrl, self::CATEGORY_SITE_FILENAME);
         $metadata = $this->enrichMetadata($metadata, $inPath, $baseUrl);
         $fileContents = $this->stripMetatags($fileContents);
@@ -115,19 +131,22 @@ class ConvertMarkdownDocsCommand extends Command
             }
             $categoryFile = pathinfo($file, PATHINFO_DIRNAME) . '/' . self::CATEGORY_SITE_FILENAME;
 
-            $wikiUrl = urlencode($data['titleEn']);
+            $wikiUrl = $this->slugify->slugify($data['titleEn']);
 
             // get category name
             if (array_key_exists($categoryFile, $metadata) && $categoryFile !== $file) {
-                $wikiUrl = $metadata[$categoryFile]['seoUrl'] . '/' . $wikiUrl;
+                $wikiUrl = $metadata[$categoryFile]['plainUrl'] . '/' . $wikiUrl;
             }
 
-            $seoUrl = str_replace('//', '/', '/' . $wikiUrl);
-            $data['seoUrl'] = $seoUrl;
-            $wikiUrl = $baseUrl . $seoUrl;
+            $plainUrl = str_replace('//', '/', '/' . $wikiUrl);
+            $data['plainUrl'] = $plainUrl;
+            $wikiUrl = $baseUrl . '-en/' . $plainUrl;
+            $wikiUrlDe = $baseUrl . '-de/' . $plainUrl;
 
             $wikiUrl = str_replace('//', '/', $wikiUrl);
+            $wikiUrlDe = str_replace('//', '/', $wikiUrlDe);
             $data[self::WIKI_URL_TAG] = $wikiUrl;
+            $data[self::WIKI_URL_TAG_DE] = $wikiUrlDe;
 
             //get priority
             $matches = [];
@@ -177,7 +196,7 @@ class ConvertMarkdownDocsCommand extends Command
 
         //todo: replace simple code tags
 
-        $relativeLinkReplacementRegex = '/href=\"(.*?)\"/m';
+        $relativeLinkReplacementRegex = '/(?:href|src)=\"(.*?)\"/m';
         $out = preg_replace_callback(
             $relativeLinkReplacementRegex,
             function ($match) use ($file, &$metadata) {
@@ -198,11 +217,21 @@ class ConvertMarkdownDocsCommand extends Command
 
         $referencedFile = realpath(dirname($file) . '/' . $linkHref);
 
-        if ($referencedFile === false || preg_match('/\.md$/m', $referencedFile) === 1 || strlen($linkAnchor) !== 0) {
-            return $this->replaceLinkToMarkdown($matches, $file, $metadata, $linkAnchor, $referencedFile);
+        if (preg_match('/(?:\.\/.*)\.md(?:#.*)?$/m', $linkHref) === 1) {
+            if ($referencedFile !== false || strlen($linkAnchor) !== 0) {
+                return $this->replaceLinkToMarkdown($matches, $file, $metadata, $linkAnchor, $referencedFile);
+            }
+
+            $this->warningStack[] = vsprintf('The markdownfile "%s" referenced in "%s" does not exist !', [$linkHref, $file]);
+
+            return $matches[0];
         }
 
-        return $this->replaceLinkToMedia($metadata, $matches, $file, $referencedFile);
+        if ($referencedFile !== false) {
+            return $this->replaceLinkToMedia($metadata, $matches, $file, $referencedFile);
+        }
+
+        return $matches[0];
     }
 
     public function replaceLinkToMedia(array &$metadata, array $matches, string $file, string $referencedFile): string
@@ -241,6 +270,8 @@ class ConvertMarkdownDocsCommand extends Command
 
             return str_replace($matches[1], $resolvedLink, $matches[0]);
         }
+
+        $this->warningStack[] = vsprintf('The markdownfile "%s" referenced in "%s" does not exist !', [$matches[1], $file]);
 
         // If there is no filename preceding the anchor, just return the anchor
         if ($linkAnchor !== '') {
@@ -293,7 +324,7 @@ class ConvertMarkdownDocsCommand extends Command
             ->addOption('input', 'i', InputOption::VALUE_REQUIRED, 'The path to parse for markdown files.', './platform/src/Docs/Resources/current/')
             ->addOption('output', 'o', InputOption::VALUE_REQUIRED, 'The path in which the resulting hmtl files will be saved.')
             ->addOption('blacklist', 'b', InputOption::VALUE_REQUIRED, 'Path to a file containing blacklisted items (files or paths). Each line must contain one entry.', './platform/src/Docs/Resources/current/article.blacklist')
-            ->addOption('baseurl', 'u', InputOption::VALUE_REQUIRED, '', '/en/shopware-platform-en/')
+            ->addOption('baseurl', 'u', InputOption::VALUE_REQUIRED, '', '/shopware-platform')
             ->addOption('sync', 's', InputOption::VALUE_NONE)
             ->setDescription('Converts Markdown to Wikihtml');
     }
@@ -317,7 +348,6 @@ class ConvertMarkdownDocsCommand extends Command
         $output->writeln('Removing blacklisted files following ' . count($blacklist) . ' rules...');
         $files = $this->removeBlacklistedFiles($files, $blacklist);
         $output->writeln('Found ' . count($files) . ' potential doc files', OutputInterface::VERBOSITY_VERBOSE);
-
         $fileContents = $this->readAllFiles($files);
         $output->writeln('Read ' . count(array_keys($fileContents)) . ' markdown files');
 
@@ -379,7 +409,11 @@ class ConvertMarkdownDocsCommand extends Command
     {
         $allContents = [];
         foreach ($files as $file) {
-            $allContents[$file] = file_get_contents($file);
+            $content = file_get_contents($file);
+            if ($content === '') {
+                continue;
+            }
+            $allContents[$file] = $content;
         }
 
         return $allContents;

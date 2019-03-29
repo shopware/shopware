@@ -196,7 +196,7 @@ class OrderTransactionActionControllerTest extends TestCase
             'orderCustomer' => [
                 'customerId' => $customerId,
                 'email' => 'test@example.com',
-                'salutationId' => Defaults::SALUTATION_ID_MR,
+                'salutationId' => $this->getValidSalutationId(),
                 'firstName' => 'Max',
                 'lastName' => 'Mustermann',
             ],
@@ -208,7 +208,7 @@ class OrderTransactionActionControllerTest extends TestCase
             'billingAddressId' => $billingAddressId,
             'addresses' => [
                 [
-                    'salutationId' => Defaults::SALUTATION_ID_MR,
+                    'salutationId' => $this->getValidSalutationId(),
                     'firstName' => 'Max',
                     'lastName' => 'Mustermann',
                     'street' => 'Ebbinghoff 10',
@@ -237,7 +237,7 @@ class OrderTransactionActionControllerTest extends TestCase
         $customer = [
             'id' => $customerId,
             'customerNumber' => '1337',
-            'salutationId' => Defaults::SALUTATION_ID_MR,
+            'salutationId' => $this->getValidSalutationId(),
             'firstName' => 'Max',
             'lastName' => 'Mustermann',
             'email' => Uuid::randomHex() . '@example.com',
@@ -252,7 +252,7 @@ class OrderTransactionActionControllerTest extends TestCase
                     'id' => $addressId,
                     'customerId' => $customerId,
                     'countryId' => Defaults::COUNTRY,
-                    'salutationId' => Defaults::SALUTATION_ID_MR,
+                    'salutationId' => $this->getValidSalutationId(),
                     'firstName' => 'Max',
                     'lastName' => 'Mustermann',
                     'street' => 'Ebbinghoff 10',

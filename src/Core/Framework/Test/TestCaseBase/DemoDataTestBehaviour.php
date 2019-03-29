@@ -30,4 +30,14 @@ trait DemoDataTestBehaviour
 
         return $repository->searchIds($criteria, Context::createDefaultContext())->getIds()[0];
     }
+
+    protected function getValidSalutationId(): string
+    {
+        /** @var EntityRepositoryInterface $repository */
+        $repository = $this->getContainer()->get('salutation.repository');
+
+        $criteria = (new Criteria())->setLimit(1);
+
+        return $repository->searchIds($criteria, Context::createDefaultContext())->getIds()[0];
+    }
 }

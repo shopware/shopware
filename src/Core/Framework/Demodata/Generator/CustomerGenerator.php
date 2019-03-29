@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Demodata\Generator;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\FetchMode;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -33,6 +34,11 @@ class CustomerGenerator implements DemodataGeneratorInterface
      * @var Connection
      */
     private $connection;
+
+    /**
+     * @var array
+     */
+    private $salutationIds;
 
     public function __construct(
         EntityWriterInterface $writer,
@@ -90,7 +96,7 @@ class CustomerGenerator implements DemodataGeneratorInterface
         $id = Uuid::randomHex();
         $shippingAddressId = Uuid::randomHex();
         $billingAddressId = Uuid::randomHex();
-        $salutationId = Defaults::SALUTATION_ID_MR;
+        $salutationId = Uuid::fromBytesToHex($this->getRandomSalutationId());
 
         $customer = [
             'id' => $id,
@@ -150,7 +156,7 @@ class CustomerGenerator implements DemodataGeneratorInterface
             $id = Uuid::randomHex();
             $firstName = $context->getFaker()->firstName;
             $lastName = $context->getFaker()->lastName;
-            $salutationId = $this->getRandomSalutationId();
+            $salutationId = Uuid::fromBytesToHex($this->getRandomSalutationId());
             $title = $this->getRandomTitle();
             $countries = [Defaults::COUNTRY, 'ffe61e1c99154f9597014a310ab5482d'];
 
@@ -219,14 +225,11 @@ class CustomerGenerator implements DemodataGeneratorInterface
 
     private function getRandomSalutationId(): string
     {
-        $salutationIds = [
-            Defaults::SALUTATION_ID_MR,
-            Defaults::SALUTATION_ID_MRS,
-            Defaults::SALUTATION_ID_MISS,
-            Defaults::SALUTATION_ID_DIVERSE,
-        ];
+        if (!$this->salutationIds) {
+            $this->salutationIds = $this->connection->executeQuery('SELECT id FROM salutation')->fetchAll(FetchMode::COLUMN);
+        }
 
-        return $salutationIds[array_rand($salutationIds)];
+        return $this->salutationIds[array_rand($this->salutationIds)];
     }
 
     private function getDefaultPaymentMethod(): ?string

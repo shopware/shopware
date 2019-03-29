@@ -203,8 +203,7 @@ class StorefrontCustomerControllerTest extends TestCase
         $customerId = $this->createCustomerAndLogin();
 
         $address = [
-            'salutationId' => Defaults::SALUTATION_ID_MR,
-            'salutation' => 'Mr.',
+            'salutationId' => $this->getValidSalutationId(),
             'firstName' => 'Example',
             'lastName' => 'Test',
             'street' => 'Coastal Highway 72',
@@ -228,7 +227,7 @@ class StorefrontCustomerControllerTest extends TestCase
 
         static::assertEquals($customerId, $customerAddress->getCustomerId());
         static::assertEquals($address['countryId'], $customerAddress->getCountryId());
-        static::assertEquals($address['salutation'], $customerAddress->getSalutation()->getDisplayName());
+        static::assertEquals($address['salutationId'], $customerAddress->getSalutation()->getId());
         static::assertEquals($address['firstName'], $customerAddress->getFirstName());
         static::assertEquals($address['lastName'], $customerAddress->getLastName());
         static::assertEquals($address['street'], $customerAddress->getStreet());
@@ -288,7 +287,7 @@ class StorefrontCustomerControllerTest extends TestCase
     public function testRegister(): void
     {
         $personal = [
-            'salutationId' => Defaults::SALUTATION_ID_MR,
+            'salutationId' => $this->getValidSalutationId(),
             'firstName' => 'Max',
             'lastName' => 'Mustermann',
             'password' => 'test',
@@ -310,7 +309,7 @@ class StorefrontCustomerControllerTest extends TestCase
             ],
             'shippingAddress' => [
                 'countryId' => Defaults::COUNTRY,
-                'salutationId' => Defaults::SALUTATION_ID_MISS,
+                'salutationId' => $this->getValidSalutationId(),
                 'firstName' => 'Test 2',
                 'lastName' => 'Example 2',
                 'street' => 'Examplestreet 111',
@@ -422,7 +421,7 @@ class StorefrontCustomerControllerTest extends TestCase
             'firstName' => 'Test',
             'lastName' => 'User',
             'title' => 'PHD',
-            'salutationId' => Defaults::SALUTATION_ID_MRS,
+            'salutationId' => $this->getValidSalutationId(),
             'birthdayYear' => 1900,
             'birthdayMonth' => 5,
             'birthdayDay' => 3,
@@ -534,7 +533,7 @@ class StorefrontCustomerControllerTest extends TestCase
                     'street' => 'Musterstraße 1',
                     'city' => 'Schoöppingen',
                     'zipcode' => '12345',
-                    'salutationId' => Defaults::SALUTATION_ID_MR,
+                    'salutationId' => $this->getValidSalutationId(),
                     'country' => ['name' => 'Germany'],
                 ],
                 'defaultBillingAddressId' => $addressId,
@@ -564,7 +563,7 @@ class StorefrontCustomerControllerTest extends TestCase
                 'password' => $password,
                 'firstName' => 'Max',
                 'lastName' => 'Mustermann',
-                'salutationId' => Defaults::SALUTATION_ID_MR,
+                'salutationId' => $this->getValidSalutationId(),
                 'customerNumber' => '12345',
             ],
         ], $this->context);
@@ -583,7 +582,7 @@ class StorefrontCustomerControllerTest extends TestCase
             'street' => 'Musterstraße 2',
             'city' => 'Cologne',
             'zipcode' => '89563',
-            'salutationId' => Defaults::SALUTATION_ID_MRS,
+            'salutationId' => $this->getValidSalutationId(),
             'country' => ['name' => 'Germany'],
         ];
 

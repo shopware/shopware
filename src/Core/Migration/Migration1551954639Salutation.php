@@ -22,7 +22,8 @@ class Migration1551954639Salutation extends MigrationStep
               `salutation_key` VARCHAR(255)  NOT NULL,
               `created_at`     DATETIME(3)   NOT NULL,
               `updated_at`     DATETIME(3)   NULL,
-              PRIMARY KEY (`id`)
+              PRIMARY KEY (`id`),
+              UNIQUE KEY `uniq.salutation_key` (`salutation_key`)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
         ');
 
@@ -30,7 +31,8 @@ class Migration1551954639Salutation extends MigrationStep
             CREATE TABLE `salutation_translation` (
               `salutation_id` BINARY(16)    NOT NULL,
               `language_id`   BINARY(16)    NOT NULL,
-              `name`          VARCHAR(255)  NULL,
+              `display_name`  VARCHAR(255)  NULL,
+              `letter_name`   VARCHAR(255)  NULL,
               `created_at`    DATETIME(3)   NOT NULL,
               `updated_at`    DATETIME(3)   NULL,
               PRIMARY KEY (`salutation_id`, `language_id`),
@@ -54,7 +56,7 @@ class Migration1551954639Salutation extends MigrationStep
         $mr = Uuid::randomBytes();
         $mrs = Uuid::randomBytes();
         $miss = Uuid::randomBytes();
-        $divers = Uuid::randomBytes();
+        $diverse = Uuid::randomBytes();
 
         $languageEn = Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM);
         $languageDe = Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM_DE);
@@ -68,13 +70,15 @@ class Migration1551954639Salutation extends MigrationStep
         $connection->insert('salutation_translation', [
             'salutation_id' => $mr,
             'language_id' => $languageEn,
-            'name' => 'Mr.',
+            'display_name' => 'Mr.',
+            'letter_name' => 'Dear Mr.',
             'created_at' => date(Defaults::DATE_FORMAT),
         ]);
         $connection->insert('salutation_translation', [
             'salutation_id' => $mr,
             'language_id' => $languageDe,
-            'name' => 'Herr',
+            'display_name' => 'Herr',
+            'letter_name' => 'Sehr geehrter Herr',
             'created_at' => date(Defaults::DATE_FORMAT),
         ]);
 
@@ -87,13 +91,15 @@ class Migration1551954639Salutation extends MigrationStep
         $connection->insert('salutation_translation', [
             'salutation_id' => $mrs,
             'language_id' => $languageEn,
-            'name' => 'Mrs.',
+            'display_name' => 'Mrs.',
+            'letter_name' => 'Dear Mrs.',
             'created_at' => date(Defaults::DATE_FORMAT),
         ]);
         $connection->insert('salutation_translation', [
             'salutation_id' => $mrs,
             'language_id' => $languageDe,
-            'name' => 'Frau',
+            'display_name' => 'Frau',
+            'letter_name' => 'Sehr geehrte Frau',
             'created_at' => date(Defaults::DATE_FORMAT),
         ]);
 
@@ -106,32 +112,36 @@ class Migration1551954639Salutation extends MigrationStep
         $connection->insert('salutation_translation', [
             'salutation_id' => $miss,
             'language_id' => $languageEn,
-            'name' => 'Miss',
+            'display_name' => 'Miss',
+            'letter_name' => 'Dear Miss',
             'created_at' => date(Defaults::DATE_FORMAT),
         ]);
         $connection->insert('salutation_translation', [
             'salutation_id' => $miss,
             'language_id' => $languageDe,
-            'name' => 'Fräulein',
+            'display_name' => 'Fräulein',
+            'letter_name' => 'Sehr geehrtes Fräulein',
             'created_at' => date(Defaults::DATE_FORMAT),
         ]);
 
         // Inserts for: Diverse
         $connection->insert('salutation', [
-            'id' => $divers,
-            'salutation_key' => 'divers',
+            'id' => $diverse,
+            'salutation_key' => 'diverse',
             'created_at' => date(Defaults::DATE_FORMAT),
         ]);
         $connection->insert('salutation_translation', [
-            'salutation_id' => $divers,
+            'salutation_id' => $diverse,
             'language_id' => $languageEn,
-            'name' => 'Mx.',
+            'display_name' => 'Mx.',
+            'letter_name' => 'Dear Mx.',
             'created_at' => date(Defaults::DATE_FORMAT),
         ]);
         $connection->insert('salutation_translation', [
-            'salutation_id' => $divers,
+            'salutation_id' => $diverse,
             'language_id' => $languageDe,
-            'name' => 'Herr/Frau',
+            'display_name' => 'Divers',
+            'letter_name' => ' ',
             'created_at' => date(Defaults::DATE_FORMAT),
         ]);
     }

@@ -271,7 +271,7 @@ class PaymentServiceTest extends TestCase
             'orderCustomer' => [
                 'customerId' => $customerId,
                 'email' => 'test@example.com',
-                'salutationId' => Defaults::SALUTATION_ID_MR,
+                'salutationId' => $this->getValidSalutationId(),
                 'firstName' => 'Max',
                 'lastName' => 'Mustermann',
             ],
@@ -284,7 +284,7 @@ class PaymentServiceTest extends TestCase
             'addresses' => [
                 [
                     'id' => $addressId,
-                    'salutationId' => Defaults::SALUTATION_ID_MR,
+                    'salutationId' => $this->getValidSalutationId(),
                     'firstName' => 'Max',
                     'lastName' => 'Mustermann',
                     'street' => 'Ebbinghoff 10',
@@ -312,7 +312,7 @@ class PaymentServiceTest extends TestCase
         $customer = [
             'id' => $customerId,
             'customerNumber' => '1337',
-            'salutationId' => Defaults::SALUTATION_ID_MR,
+            'salutationId' => $this->getValidSalutationId(),
             'firstName' => 'Max',
             'lastName' => 'Mustermann',
             'email' => Uuid::randomHex() . '@example.com',
@@ -327,7 +327,7 @@ class PaymentServiceTest extends TestCase
                     'id' => $addressId,
                     'customerId' => $customerId,
                     'countryId' => Defaults::COUNTRY,
-                    'salutationId' => Defaults::SALUTATION_ID_MR,
+                    'salutationId' => $this->getValidSalutationId(),
                     'firstName' => 'Max',
                     'lastName' => 'Mustermann',
                     'street' => 'Ebbinghoff 10',

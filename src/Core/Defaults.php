@@ -30,11 +30,6 @@ final class Defaults
 
     public const COUNTRY = '20080911ffff4fffafffffff19830531';
 
-    public const SALUTATION_ID_MR = '0ddcfee7912c4f57b7f8560f4fc35e08';
-    public const SALUTATION_ID_MRS = '1902982d717a4e97ab371326693d73df';
-    public const SALUTATION_ID_MISS = '6fdf0912858540b89a774919593d1b3a';
-    public const SALUTATION_ID_DIVERSE = '7ee9f67bf89140629d4a96441c139ff2';
-
     public const SALES_CHANNEL_STOREFRONT_API = 'f183ee5650cf4bdb8a774337575067a6';
 
     public const SALES_CHANNEL_STOREFRONT = '8a243080f92e4c719546314b577cf82b';

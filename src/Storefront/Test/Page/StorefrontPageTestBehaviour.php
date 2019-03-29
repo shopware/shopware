@@ -236,7 +236,7 @@ trait StorefrontPageTestBehaviour
                     'street' => 'Musterstraße 1',
                     'city' => 'Schoöppingen',
                     'zipcode' => '12345',
-                    'salutationId' => Defaults::SALUTATION_ID_MR,
+                    'salutationId' => $this->getValidSalutationId(),
                     'country' => ['name' => 'Germany'],
                 ],
                 'defaultBillingAddressId' => $addressId,
@@ -246,7 +246,7 @@ trait StorefrontPageTestBehaviour
                 'password' => 'password',
                 'firstName' => 'Max',
                 'lastName' => 'Mustermann',
-                'salutationId' => Defaults::SALUTATION_ID_MR,
+                'salutationId' => $this->getValidSalutationId(),
                 'customerNumber' => '12345',
             ],
         ];

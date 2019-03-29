@@ -654,7 +654,6 @@ class RecalculationServiceTest extends TestCase
         $street = 'Replace street';
         $city = 'Replace city';
         $zipcode = '98765';
-        $salutation = 'Mr.';
 
         $customerAddressId = $this->addAddressToCustomer(
             $this->customerId,
@@ -690,7 +689,6 @@ class RecalculationServiceTest extends TestCase
         $orderAddress = $order->getAddresses()->first();
 
         static::assertSame($orderAddressId, $orderAddress->getId());
-        static::assertSame($salutation, $orderAddress->getSalutation()->getDisplayName());
         static::assertSame($firstName, $orderAddress->getFirstName());
         static::assertSame($lastName, $orderAddress->getLastName());
         static::assertSame($street, $orderAddress->getStreet());
@@ -715,7 +713,7 @@ class RecalculationServiceTest extends TestCase
                     'id' => $addressId,
                     'customerId' => $customerId,
                     'countryId' => Defaults::COUNTRY,
-                    'salutationId' => Defaults::SALUTATION_ID_MR,
+                    'salutationId' => $this->getValidSalutationId(),
                     'firstName' => $firstName,
                     'lastName' => $lastName,
                     'street' => $street,
@@ -754,7 +752,7 @@ class RecalculationServiceTest extends TestCase
         $customer = [
             'id' => $customerId,
             'number' => '1337',
-            'salutationId' => Defaults::SALUTATION_ID_MR,
+            'salutationId' => $this->getValidSalutationId(),
             'firstName' => 'Max',
             'lastName' => 'Mustermann',
             'customerNumber' => '1337',
@@ -770,7 +768,7 @@ class RecalculationServiceTest extends TestCase
                     'id' => $addressId,
                     'customerId' => $customerId,
                     'countryId' => Defaults::COUNTRY,
-                    'salutationId' => Defaults::SALUTATION_ID_MR,
+                    'salutationId' => $this->getValidSalutationId(),
                     'firstName' => 'Max',
                     'lastName' => 'Mustermann',
                     'street' => 'Ebbinghoff 10',

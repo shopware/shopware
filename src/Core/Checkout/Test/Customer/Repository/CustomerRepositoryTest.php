@@ -42,13 +42,14 @@ class CustomerRepositoryTest extends TestCase
         $recordC = Uuid::randomHex();
         $recordD = Uuid::randomHex();
 
+        $salutation = $this->getValidSalutationId();
         $address = [
             'firstName' => 'not',
             'lastName' => 'not',
             'city' => 'not',
             'street' => 'not',
             'zipcode' => 'not',
-            'salutationId' => Defaults::SALUTATION_ID_MR,
+            'salutationId' => $salutation,
             'country' => ['name' => 'not'],
         ];
 
@@ -66,7 +67,7 @@ class CustomerRepositoryTest extends TestCase
                 'password' => 'not',
                 'lastName' => 'not',
                 'firstName' => $matchTerm,
-                'salutationId' => Defaults::SALUTATION_ID_MR,
+                'salutationId' => $salutation,
                 'customerNumber' => 'not',
             ],
             [
@@ -79,7 +80,7 @@ class CustomerRepositoryTest extends TestCase
                 'password' => 'not',
                 'lastName' => $matchTerm,
                 'firstName' => 'not',
-                'salutationId' => Defaults::SALUTATION_ID_MR,
+                'salutationId' => $salutation,
                 'customerNumber' => 'not',
             ],
             [
@@ -92,7 +93,7 @@ class CustomerRepositoryTest extends TestCase
                 'password' => 'not',
                 'lastName' => 'not',
                 'firstName' => 'not',
-                'salutationId' => Defaults::SALUTATION_ID_MR,
+                'salutationId' => $salutation,
                 'customerNumber' => $matchTerm,
             ],
             [
@@ -105,7 +106,7 @@ class CustomerRepositoryTest extends TestCase
                 'password' => 'not',
                 'lastName' => 'not',
                 'firstName' => 'not',
-                'salutationId' => Defaults::SALUTATION_ID_MR,
+                'salutationId' => $salutation,
                 'customerNumber' => 'not',
             ],
         ];

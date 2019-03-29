@@ -141,7 +141,7 @@ class OrderRepositoryTest extends TestCase
         $customer = [
             'id' => $customerId,
             'number' => '1337',
-            'salutationId' => Defaults::SALUTATION_ID_MR,
+            'salutationId' => $this->getValidSalutationId(),
             'firstName' => 'Max',
             'lastName' => 'Mustermann',
             'customerNumber' => '1337',
@@ -157,7 +157,7 @@ class OrderRepositoryTest extends TestCase
                     'id' => $addressId,
                     'customerId' => $customerId,
                     'countryId' => Defaults::COUNTRY,
-                    'salutationId' => Defaults::SALUTATION_ID_MR,
+                    'salutationId' => $this->getValidSalutationId(),
                     'firstName' => 'Max',
                     'lastName' => 'Mustermann',
                     'street' => 'Ebbinghoff 10',
@@ -177,6 +177,7 @@ class OrderRepositoryTest extends TestCase
         $addressId = Uuid::randomHex();
         $orderLineItemId = Uuid::randomHex();
         $countryStateId = Uuid::randomHex();
+        $salutation = $this->getValidSalutationId();
 
         $order = [
             [
@@ -197,7 +198,7 @@ class OrderRepositoryTest extends TestCase
                         'shippingDateEarliest' => date(DATE_ISO8601),
                         'shippingDateLatest' => date(DATE_ISO8601),
                         'shippingOrderAddress' => [
-                            'salutationId' => Defaults::SALUTATION_ID_MR,
+                            'salutationId' => $salutation,
                             'firstName' => 'Floy',
                             'lastName' => 'Glover',
                             'zipcode' => '59438-0403',
@@ -234,14 +235,14 @@ class OrderRepositoryTest extends TestCase
                     'email' => 'test@example.com',
                     'firstName' => 'Noe',
                     'lastName' => 'Hill',
-                    'salutationId' => Defaults::SALUTATION_ID_MR,
+                    'salutationId' => $salutation,
                     'title' => 'Doc',
                     'customerNumber' => 'Test',
                     'customer' => [
                         'email' => 'test@example.com',
                         'firstName' => 'Noe',
                         'lastName' => 'Hill',
-                        'salutationId' => Defaults::SALUTATION_ID_MR,
+                        'salutationId' => $salutation,
                         'title' => 'Doc',
                         'customerNumber' => 'Test',
                         'guest' => true,
@@ -253,7 +254,7 @@ class OrderRepositoryTest extends TestCase
                         'addresses' => [
                             [
                                 'id' => $addressId,
-                                'salutationId' => Defaults::SALUTATION_ID_MR,
+                                'salutationId' => $salutation,
                                 'firstName' => 'Floy',
                                 'lastName' => 'Glover',
                                 'zipcode' => '59438-0403',
@@ -278,7 +279,7 @@ class OrderRepositoryTest extends TestCase
                 'billingAddressId' => $addressId,
                 'addresses' => [
                     [
-                        'salutationId' => Defaults::SALUTATION_ID_MR,
+                        'salutationId' => $salutation,
                         'firstName' => 'Floy',
                         'lastName' => 'Glover',
                         'zipcode' => '59438-0403',

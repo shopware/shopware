@@ -3,9 +3,7 @@
 namespace Shopware\Core\Migration;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Migration\MigrationStep;
-use Shopware\Core\Framework\Uuid\Uuid;
 
 class Migration1552464237SalutationDefaultsCustomerUpdate extends MigrationStep
 {
@@ -16,12 +14,11 @@ class Migration1552464237SalutationDefaultsCustomerUpdate extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $this->clearSalutations($connection);
-        $this->createSalutations($connection);
-        $this->updateCustomerToUseSalutations($connection);
-        $this->updateCustomerAddressToUseSalutations($connection);
-        $this->updateOrderCustomerToUseSalutations($connection);
-        $this->updateOrderAddressToUseSalutations($connection);
+        $salutationId = (string) $connection->fetchColumn('SELECT id FROM salutation');
+        $this->updateCustomerToUseSalutations($connection, $salutationId);
+        $this->updateCustomerAddressToUseSalutations($connection, $salutationId);
+        $this->updateOrderCustomerToUseSalutations($connection, $salutationId);
+        $this->updateOrderAddressToUseSalutations($connection, $salutationId);
     }
 
     public function updateDestructive(Connection $connection): void
@@ -29,102 +26,7 @@ class Migration1552464237SalutationDefaultsCustomerUpdate extends MigrationStep
         // implement update destructive
     }
 
-    private function clearSalutations(Connection $connection): void
-    {
-        $connection->executeQuery('
-            DELETE FROM `salutation`
-            WHERE `salutation_key` IN ("mr", "mrs", "miss", "divers");
-        ');
-    }
-
-    private function createSalutations(Connection $connection): void
-    {
-        $mr = Uuid::fromHexToBytes(Defaults::SALUTATION_ID_MR);
-        $mrs = Uuid::fromHexToBytes(Defaults::SALUTATION_ID_MRS);
-        $miss = Uuid::fromHexToBytes(Defaults::SALUTATION_ID_MISS);
-        $diverse = Uuid::fromHexToBytes(Defaults::SALUTATION_ID_DIVERSE);
-
-        $languageEn = Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM);
-        $languageDe = Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM_DE);
-
-        // Inserts for: Mr.
-        $connection->insert('salutation', [
-            'id' => $mr,
-            'salutation_key' => 'mr',
-            'created_at' => date(Defaults::DATE_FORMAT),
-        ]);
-        $connection->insert('salutation_translation', [
-            'salutation_id' => $mr,
-            'language_id' => $languageEn,
-            'name' => 'Mr.',
-            'created_at' => date(Defaults::DATE_FORMAT),
-        ]);
-        $connection->insert('salutation_translation', [
-            'salutation_id' => $mr,
-            'language_id' => $languageDe,
-            'name' => 'Herr',
-            'created_at' => date(Defaults::DATE_FORMAT),
-        ]);
-
-        // Inserts for: Mrs.
-        $connection->insert('salutation', [
-            'id' => $mrs,
-            'salutation_key' => 'mrs',
-            'created_at' => date(Defaults::DATE_FORMAT),
-        ]);
-        $connection->insert('salutation_translation', [
-            'salutation_id' => $mrs,
-            'language_id' => $languageEn,
-            'name' => 'Mrs.',
-            'created_at' => date(Defaults::DATE_FORMAT),
-        ]);
-        $connection->insert('salutation_translation', [
-            'salutation_id' => $mrs,
-            'language_id' => $languageDe,
-            'name' => 'Frau',
-            'created_at' => date(Defaults::DATE_FORMAT),
-        ]);
-
-        // Inserts for: Miss
-        $connection->insert('salutation', [
-            'id' => $miss,
-            'salutation_key' => 'miss',
-            'created_at' => date(Defaults::DATE_FORMAT),
-        ]);
-        $connection->insert('salutation_translation', [
-            'salutation_id' => $miss,
-            'language_id' => $languageEn,
-            'name' => 'Miss',
-            'created_at' => date(Defaults::DATE_FORMAT),
-        ]);
-        $connection->insert('salutation_translation', [
-            'salutation_id' => $miss,
-            'language_id' => $languageDe,
-            'name' => 'Fräulein',
-            'created_at' => date(Defaults::DATE_FORMAT),
-        ]);
-
-        // Inserts for: Diverse
-        $connection->insert('salutation', [
-            'id' => $diverse,
-            'salutation_key' => 'diverse',
-            'created_at' => date(Defaults::DATE_FORMAT),
-        ]);
-        $connection->insert('salutation_translation', [
-            'salutation_id' => $diverse,
-            'language_id' => $languageEn,
-            'name' => 'Mx.',
-            'created_at' => date(Defaults::DATE_FORMAT),
-        ]);
-        $connection->insert('salutation_translation', [
-            'salutation_id' => $diverse,
-            'language_id' => $languageDe,
-            'name' => 'Divers',
-            'created_at' => date(Defaults::DATE_FORMAT),
-        ]);
-    }
-
-    private function updateCustomerToUseSalutations(Connection $connection): void
+    private function updateCustomerToUseSalutations(Connection $connection, string $salutationId): void
     {
         $connection->executeQuery('
             ALTER TABLE `customer`
@@ -143,8 +45,8 @@ class Migration1552464237SalutationDefaultsCustomerUpdate extends MigrationStep
 
         $connection->executeQuery('
             UPDATE `customer`
-            SET `salutation_id` = :mr
-        ', [':mr' => Uuid::fromHexToBytes(Defaults::SALUTATION_ID_MR)]);
+            SET `salutation_id` = :id
+        ', [':id' => $salutationId]);
 
         $connection->executeQuery('
             ALTER TABLE `customer`
@@ -152,7 +54,7 @@ class Migration1552464237SalutationDefaultsCustomerUpdate extends MigrationStep
         ');
     }
 
-    private function updateCustomerAddressToUseSalutations(Connection $connection): void
+    private function updateCustomerAddressToUseSalutations(Connection $connection, string $salutationId): void
     {
         $connection->executeQuery('
                 ALTER TABLE `customer_address`
@@ -171,8 +73,8 @@ class Migration1552464237SalutationDefaultsCustomerUpdate extends MigrationStep
 
         $connection->executeQuery('
                 UPDATE `customer_address`
-                SET `salutation_id` = :mr
-            ', [':mr' => Uuid::fromHexToBytes(Defaults::SALUTATION_ID_MR)]);
+                SET `salutation_id` = :id
+            ', [':id' => $salutationId]);
 
         $connection->executeQuery('
                 ALTER TABLE `customer_address`
@@ -180,7 +82,7 @@ class Migration1552464237SalutationDefaultsCustomerUpdate extends MigrationStep
             ');
     }
 
-    private function updateOrderCustomerToUseSalutations(Connection $connection): void
+    private function updateOrderCustomerToUseSalutations(Connection $connection, string $salutationId): void
     {
         $connection->executeQuery('
                 ALTER TABLE `order_customer`
@@ -199,8 +101,8 @@ class Migration1552464237SalutationDefaultsCustomerUpdate extends MigrationStep
 
         $connection->executeQuery('
                 UPDATE `order_customer`
-                SET `salutation_id` = :mr
-            ', [':mr' => Uuid::fromHexToBytes(Defaults::SALUTATION_ID_MR)]);
+                SET `salutation_id` = :id
+            ', [':id' => $salutationId]);
 
         $connection->executeQuery('
                 ALTER TABLE `order_customer`
@@ -208,7 +110,7 @@ class Migration1552464237SalutationDefaultsCustomerUpdate extends MigrationStep
             ');
     }
 
-    private function updateOrderAddressToUseSalutations(Connection $connection): void
+    private function updateOrderAddressToUseSalutations(Connection $connection, string $salutationId): void
     {
         $connection->executeQuery('
                 ALTER TABLE `order_address`
@@ -227,8 +129,8 @@ class Migration1552464237SalutationDefaultsCustomerUpdate extends MigrationStep
 
         $connection->executeQuery('
                 UPDATE `order_address`
-                SET `salutation_id` = :mr
-            ', [':mr' => Uuid::fromHexToBytes(Defaults::SALUTATION_ID_MR)]);
+                SET `salutation_id` = :id
+            ', [':id' => $salutationId]);
 
         $connection->executeQuery('
                 ALTER TABLE `order_address`

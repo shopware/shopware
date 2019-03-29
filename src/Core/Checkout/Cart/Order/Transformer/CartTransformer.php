@@ -4,6 +4,7 @@ namespace Shopware\Core\Checkout\Cart\Order\Transformer;
 
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\CheckoutContext;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Util\Random;
 
 class CartTransformer
@@ -13,6 +14,7 @@ class CartTransformer
         $currency = $context->getCurrency();
 
         return [
+            'orderDate' => (new \DateTimeImmutable())->format(Defaults::DATE_FORMAT),
             'price' => $cart->getPrice(),
             'shippingCosts' => $cart->getShippingCosts(),
             'stateId' => $stateId,

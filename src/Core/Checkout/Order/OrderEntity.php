@@ -53,6 +53,10 @@ class OrderEntity extends Entity
     protected $billingAddressId;
 
     /**
+     * @var \DateTimeInterface
+     */
+    protected $orderDate;
+    /**
      * @var CartPrice
      */
     protected $price;
@@ -230,6 +234,16 @@ class OrderEntity extends Entity
     public function setBillingAddressId(string $billingAddressId): void
     {
         $this->billingAddressId = $billingAddressId;
+    }
+
+    public function getOrderDate(): \DateTimeInterface
+    {
+        return $this->orderDate;
+    }
+
+    public function setOrderDate(\DateTimeInterface $orderDate): void
+    {
+        $this->orderDate = $orderDate;
     }
 
     public function getPrice(): CartPrice

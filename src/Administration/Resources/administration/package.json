@@ -25,6 +25,7 @@
     },
     "dependencies": {
         "@babel/runtime": "7.2.0",
+        "ace-builds": "1.4.3",
         "app-module-path": "2.2.0",
         "axios": "0.18.0",
         "bottlejs": "1.7.1",

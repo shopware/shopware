@@ -1,8 +1,10 @@
 {
   "firstName": "Max",
   "lastName": "Mustermann",
-  "billingAddress.street": "Buchenweg 5",
-  "billingAddress.zipcode": "33602",
-  "billingAddress.city": "Bielefeld",
-  "email": "max.mustermann@example.com"
+  "email": "max.mustermann@example.com",
+  "billingAddress": {
+    "street": "Buchenweg 5",
+    "zipcode": "33602",
+    "city": "Bielefeld"
+  }
 }

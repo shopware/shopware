@@ -7,6 +7,7 @@ module.exports = {
 
         browser
             .waitForElementVisible('.sw-dashboard-index__content')
+            .waitForElementNotPresent('.sw-admin-menu__user-actions-toggle .sw-loader')
             .clickUserActionMenu('admin');
         page.logout('admin');
         browser.clearValue('input[name=sw-field--authStore-username]');

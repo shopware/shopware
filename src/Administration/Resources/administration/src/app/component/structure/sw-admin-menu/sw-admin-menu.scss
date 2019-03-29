@@ -315,6 +315,11 @@ $sw-admin-menu-shop-status-ok: $color-emerald;
         padding: 25px 20px;
         display: flex;
         cursor: pointer;
+        position: relative;
+
+        .sw-loader {
+            background: lighten($color-gradient-dark-gray-start, 1%);
+        }
 
         &:hover,
         &.is--active {

@@ -4,6 +4,7 @@ namespace Shopware\Core\Content\Rule;
 
 use Shopware\Core\Checkout\DiscountSurcharge\DiscountSurchargeCollection;
 use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
+use Shopware\Core\Checkout\Promotion\PromotionCollection;
 use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodPriceRule\ShippingMethodPriceRuleCollection;
 use Shopware\Core\Checkout\Shipping\ShippingMethodCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductPriceRule\ProductPriceRuleCollection;
@@ -90,6 +91,21 @@ class RuleEntity extends Entity
      * @var ShippingMethodPriceRuleCollection|null
      */
     protected $shippingMethodPriceRules;
+
+    /**
+     * @var PromotionCollection|null
+     */
+    protected $personaPromotions;
+
+    /**
+     * @var PromotionCollection|null
+     */
+    protected $scopePromotions;
+
+    /**
+     * @var PromotionCollection|null
+     */
+    protected $discountPromotions;
 
     public function getName(): string
     {
@@ -239,5 +255,35 @@ class RuleEntity extends Entity
     public function setShippingMethodPriceRules(?ShippingMethodPriceRuleCollection $shippingMethodPriceRules): void
     {
         $this->shippingMethodPriceRules = $shippingMethodPriceRules;
+    }
+
+    public function getPersonaPromotions(): ?PromotionCollection
+    {
+        return $this->personaPromotions;
+    }
+
+    public function setPersonaPromotions(PromotionCollection $personaPromotions): void
+    {
+        $this->personaPromotions = $personaPromotions;
+    }
+
+    public function getScopePromotions(): ?PromotionCollection
+    {
+        return $this->scopePromotions;
+    }
+
+    public function setScopePromotions(PromotionCollection $scopePromotions): void
+    {
+        $this->scopePromotions = $scopePromotions;
+    }
+
+    public function getDiscountPromotions(): ?PromotionCollection
+    {
+        return $this->discountPromotions;
+    }
+
+    public function setDiscountPromotions(PromotionCollection $discountPromotions): void
+    {
+        $this->discountPromotions = $discountPromotions;
     }
 }

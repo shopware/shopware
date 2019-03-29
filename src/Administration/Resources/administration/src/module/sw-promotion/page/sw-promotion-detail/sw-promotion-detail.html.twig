@@ -1,0 +1,74 @@
+{% block sw_promotion_detail %}
+    <sw-page class="sw-promotion-detail">
+
+        {% block sw_promotion_detail_header %}
+            <template slot="smart-bar-header">
+                <h2>{{ placeholder(promotion, 'name', $tc('sw-promotion.detail.textHeadline')) }}</h2>
+            </template>
+        {% endblock %}
+
+        {% block sw_promotion_detail_actions %}
+            <template slot="smart-bar-actions">
+                {% block sw_promotion_detail_actions_abort %}
+                    <sw-button :disabled="promotion.isLoading" :routerLink="{ name: 'sw.promotion.index' }">
+                        {{ $tc('sw-promotion.detail.buttonCancel') }}
+                    </sw-button>
+                {% endblock %}
+
+                {% block sw_promotion_detail_actions_save %}
+                    <sw-button variant="primary" class="sw-promotion-detail__save-action" :disabled="promotion.isLoading" @click.prevent="onSave">
+                        {{ $tc('sw-promotion.detail.buttonSave') }}
+                    </sw-button>
+                {% endblock %}
+            </template>
+        {% endblock %}
+
+        {% block sw_promotion_detail_language_switch %}
+            <sw-language-switch slot="language-switch"
+                                @on-change="onChangeLanguage"
+                                :saveChangesFunction="saveOnLanguageChange"
+                                :abortChangeFunction="abortOnLanguageChange">
+            </sw-language-switch>
+        {% endblock %}
+
+        {% block sw_promotion_detail_content %}
+            <sw-card-view slot="content">
+
+                {% block sw_promotion_detail_content_language_info %}
+                    <sw-language-info
+                            :entityDescription="placeholder(promotion, 'name', $tc('sw-promotion.detail.textHeadline'))">
+                    </sw-language-info>
+                {% endblock %}
+
+                {% block sw_promotion_detail_content_tabs %}
+                    <sw-tabs class="sw-promotion-detail-page__tabs">
+                        {% block sw_promotion_detail_content_tabs_general %}
+                            <sw-tabs-item :route="{ name: 'sw.promotion.detail.base', params: { id: $route.params.id } }"
+                                          :title="$tc('sw-promotion.detail.tabGeneral')">
+                                {{ $tc('sw-promotion.detail.tabGeneral') }}
+                            </sw-tabs-item>
+                        {% endblock %}
+
+                        {% block sw_promotion_detail_content_tabs_restrictions %}
+                            <sw-tabs-item :route="{ name: 'sw.promotion.detail.restrictions', params: { id: $route.params.id } }"
+                                          :title="$tc('sw-promotion.detail.tabRestrictions')">
+                                {{ $tc('sw-promotion.detail.tabRestrictions') }}
+                            </sw-tabs-item>
+                        {% endblock %}
+
+                        {% block sw_promotion_detail_content_tabs_rebate %}
+                            <sw-tabs-item :route="{ name: 'sw.promotion.detail.rebate', params: { id: $route.params.id } }"
+                                          :title="$tc('sw-promotion.detail.tabRebate')">
+                                {{ $tc('sw-promotion.detail.tabRebate') }}
+                            </sw-tabs-item>
+                        {% endblock %}
+                    </sw-tabs>
+                {% endblock %}
+
+                {% block sw_product_detail_content_view %}
+                <router-view :promotion="promotion"></router-view>
+                {% endblock %}
+            </sw-card-view>
+        {% endblock %}
+    </sw-page>
+{% endblock %}

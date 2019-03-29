@@ -7,6 +7,7 @@ use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
 use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
+use Shopware\Core\Checkout\Promotion\Aggregate\PromotionSalesChannel\PromotionSalesChannelCollection;
 use Shopware\Core\Checkout\Shipping\ShippingMethodCollection;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\Content\MailTemplate\Aggregate\MailHeaderFooter\MailHeaderFooterEntity;
@@ -236,6 +237,11 @@ class SalesChannelEntity extends Entity
      * @var NewsletterReceiverCollection|null
      */
     protected $newsletterReceivers;
+
+    /**
+     * @var PromotionSalesChannelCollection|null
+     */
+    protected $promotionSalesChannels;
 
     public function getMailHeaderFooter(): ?MailHeaderFooterEntity
     {
@@ -645,5 +651,15 @@ class SalesChannelEntity extends Entity
     public function setNewsletterReceivers(NewsletterReceiverCollection $newsletterReceivers): void
     {
         $this->newsletterReceivers = $newsletterReceivers;
+    }
+
+    public function getPromotionSalesChannels(): ?PromotionSalesChannelCollection
+    {
+        return $this->promotionSalesChannels;
+    }
+
+    public function setPromotionSalesChannels(PromotionSalesChannelCollection $promotionSalesChannels): void
+    {
+        $this->promotionSalesChannels = $promotionSalesChannels;
     }
 }

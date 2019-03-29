@@ -1,0 +1,53 @@
+{% block sw_promotion_basic_form %}
+    <div class="promotion-basic-form">
+        <sw-container columns="3fr 1fr" gap="0px 30px">
+            {% block sw_promotion_basic_form_title_field %}
+                <sw-field type="text"
+                          :label="$tc('sw-promotion.basicForm.labelTitle')"
+                          :placeholder="placeholder(promotion, 'name', $tc('sw-promotion.basicForm.placeholderName'))"
+                          v-model="promotion.name"
+                          validation="required">
+                </sw-field>
+            {% endblock %}
+
+            {% block sw_promotion_basic_form_active_field %}
+                <sw-field type="boolean"
+                          :label="$tc('sw-promotion.basicForm.labelActive')"
+                          v-model="promotion.active">
+                </sw-field>
+            {% endblock %}
+        </sw-container>
+
+        <sw-container columns="1fr 1fr" gap="0px 30px">
+            {% block sw_promotion_basic_form_valid_from_field %}
+                <sw-field type="date"
+                          :label="$tc('sw-promotion.basicForm.labelValidFrom')"
+                          v-model="promotion.validFrom">
+                </sw-field>
+            {% endblock %}
+
+            {% block sw_promotion_basic_form_valid_until_field %}
+                <sw-field type="date"
+                          :label="$tc('sw-promotion.basicForm.labelValidUntil')"
+                          v-model="promotion.validUntil">
+                </sw-field>
+            {% endblock %}
+        </sw-container>
+
+        <sw-container columns="1fr 1fr" gap="0px 30px">
+            {% block sw_promotion_basic_form_redeemable_field %}
+                <sw-field type="number"
+                          :label="$tc('sw-promotion.basicForm.labelRedeemable')"
+                          v-model="promotion.redeemable">
+                </sw-field>
+            {% endblock %}
+
+            {% block sw_promotion_basic_form_priority_field %}
+                <sw-field type="number"
+                          :label="$tc('sw-promotion.basicForm.labelPriority')"
+                          v-model="promotion.priority">
+                </sw-field>
+            {% endblock %}
+        </sw-container>
+    </div>
+{% endblock %}

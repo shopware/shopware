@@ -1,0 +1,107 @@
+{
+    "sw-promotion": {
+        "basicForm": {
+            "labelActive": "Active",
+            "labelPriority": "priority",
+            "labelRedeemable": "redeemable",
+            "labelTitle": "Title",
+            "labelValidFrom": "valid from",
+            "labelValidUntil": "valid until",
+            "placeholderName": "Enter promotion title"
+        },
+
+        "codeForm": {
+            "codeType": {
+                "no_code": "automativ activation",
+                "standard": "activate with code",
+                "individual": "activate with individual code"
+            },
+            "placeholderCode": "Enter promotion code",
+            "placeholderCodeType": "Select Codetyp",
+            "labelCode": "code",
+            "labelCodeType": "code type",
+            "labelIndividualCodeLink": "manage individual codes"
+        },
+
+        "detail": {
+            "buttonCancel": "Cancel",
+            "buttonSave": "Save",
+            "tabGeneral": "General",
+            "tabRebate": "Rebate",
+            "tabRestrictions": "Restrictions",
+            "textHeadline": "new Promotion",
+            "titleSaveSuccess": "Success",
+            "messageSaveSuccess": "Promotion \"{name}\" has been saved successfully."
+        },
+
+        "detailBase": {
+            "cardTitleCode": "Codes",
+            "cardTitlePromotionInfo": "Basic information"
+        },
+
+        "detailRebate": {
+            "cardTitleRebate": "Rebate"
+        },
+
+        "detailRestrictions": {
+            "cardTitleDiscountRules": "Order",
+            "cardTitlePersonaRules": "Customer",
+            "cardTitleScopeRules": "Cart"
+        },
+
+        "discountForm": {
+            "descriptionTextDiscount": "Bavaria ipsum dolor sit amet hallelujah sog i, luja Biazelt wos mei Meidromml oa wolln Biazelt, woaß? Etza Milli Sauakraud, Engelgwand Watschnbaam a bissal liberalitas Bavariae zünftig Schmankal heid gfoids ma sagrisch guad.",
+            "descriptionTitleDiscount": "Define the properties an order needs for this promotion.",
+            "labelDiscountRule": "Discount rule",
+            "ruleModuleLink": "Open rule builder"
+        },
+
+        "general": {
+            "descriptionModule": "Promotions",
+            "mainMenuItemGeneral": "Promotions",
+            "mainMenuItemList": "Overview"
+        },
+
+        "list": {
+            "buttonAddPromotion": "Add promotion",
+            "buttonCancel": "Cancel",
+            "buttonDelete": "Delete",
+            "columnActive": "Active",
+            "columnName": "Name",
+            "columnValidFrom": "Active from:",
+            "columnValidUntil": "Active until:",
+            "contextMenuDelete": "Delete",
+            "contextMenuDuplicate": "Duplicate",
+            "contextMenuEdit": "Edit",
+            "messageEmpty": "No promotions yet",
+            "modalTitleDelete": "Delete Promotion",
+            "placeholderSearchBar": "Search promotions",
+            "textDeleteConfirm": "Are you sure you want to delete the promotion \"{name}\"?",
+            "textPromotionOverview": "Promotions",
+            "titleSidebarItemRefresh": "Refresh"
+        },
+
+        "personaForm": {
+            "descriptionTextPersona": "Use rules from the rule builder to narrow down the audience for this marketing action. Without a limitation, all your customers have access to this action.",
+            "descriptionTitlePersona": "Determine which customers benefit from this promotion",
+            "labelCustomer": "Assign to specific customers",
+            "labelPersonaRule": "Customer Rule",
+            "ruleModuleLink": "Open rule builder"
+        },
+
+        "rebateForm": {
+            "labelPercental": "percental",
+            "labelValue": "Value",
+            "placeholderValue": "Enter the value of the promotion"
+        },
+
+        "scopeForm": {
+            "descriptionTextScope": "Use rules from the rules builder to define the promotion cart for this marketing action. Without a limitation, the action will be applied to all shopping carts.",
+            "descriptionTitleScope": "Which shopping carts are affected by this discount promotion?",
+            "labelCategory": "Categorie",
+            "labelProduct": "Product",
+            "labelScopeRule": "Scope rule",
+            "ruleModuleLink": "Open rule builder"
+        }
+    }
+}

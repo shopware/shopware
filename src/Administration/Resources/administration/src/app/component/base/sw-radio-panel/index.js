@@ -1,6 +1,6 @@
 import utils from 'src/core/service/util.service';
 import template from './sw-radio-panel.html.twig';
-import './sw-radio-panel.less';
+import './sw-radio-panel.scss';
 
 /**
  * @public

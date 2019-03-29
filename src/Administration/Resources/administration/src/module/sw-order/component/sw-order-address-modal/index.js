@@ -1,6 +1,6 @@
 import { Component, State } from 'src/core/shopware';
 import template from './sw-order-address-modal.html.twig';
-import './sw-order-address-modal.less';
+import './sw-order-address-modal.scss';
 
 Component.register('sw-order-address-modal', {
     template,

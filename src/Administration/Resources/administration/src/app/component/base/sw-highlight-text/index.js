@@ -1,7 +1,5 @@
 import { Component } from 'src/core/shopware';
-import template from './sw-highlight-text.html.twig';
 import './sw-highlight-text.scss';
-
 
 /**
  * @public
@@ -12,7 +10,7 @@ import './sw-highlight-text.scss';
  * <sw-highlight-text text="Lorem ipsum dolor sit amet, consetetur sadipscing elitr" searchTerm="sit"></sw-highlight-text>
  */
 Component.register('sw-highlight-text', {
-    template,
+    template: '',
 
     props: {
         searchTerm: {
@@ -27,15 +25,14 @@ Component.register('sw-highlight-text', {
         }
     },
 
-    data() {
-        return {
-        };
-    },
-
-    computed: {
-        message() {
-            return this.searchAndReplace();
-        }
+    render(createElement) {
+        return createElement(
+            'div',
+            {
+                class: 'sw-highlight-text',
+                domProps: { innerHTML: this.searchAndReplace() }
+            }
+        );
     },
 
     methods: {

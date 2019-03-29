@@ -55,7 +55,8 @@ export default {
             inputHovered: false,
             searchTypes: null,
             showTypeSelectContainer: false,
-            typeSelectResults: []
+            typeSelectResults: [],
+            moduleFactory: {}
         };
     },
 
@@ -121,6 +122,8 @@ export default {
             this.searchTypes = this.searchTypeService.getTypes();
 
             this.registerListener();
+
+            this.moduleFactory = Application.getContainer('factory').module;
         },
 
         destroyedComponent() {
@@ -162,7 +165,7 @@ export default {
         closeOnClickOutside(event) {
             const target = event.target;
 
-            if (!target.closest('.sw-search-bar')) {
+            if (!target.closest('.sw-search-bar') && this.showResultsContainer) {
                 this.clearSearchTerm();
             }
         },
@@ -319,8 +322,7 @@ export default {
             const entityResults = {};
             const apiServiceName = this.searchTypes[this.currentSearchType].entityService;
             if (!Application.getContainer('factory').apiService.has(apiServiceName)) {
-                // Todo Throw error here
-                return;
+                throw new Error(`sw-search-bar - Api service ${apiServiceName} not found`);
             }
 
             const apiService = Application.getContainer('factory').apiService.getByName(apiServiceName);
@@ -490,6 +492,18 @@ export default {
                 return '';
             }
             return this.searchTypes[entityName][propertyName];
+        },
+
+        getEntityIconName(entityName) {
+            const module = this.moduleFactory.getModuleByEntityName(entityName);
+
+            return module.manifest.icon;
+        },
+
+        getEntityIconColor(entityName) {
+            const module = this.moduleFactory.getModuleByEntityName(entityName);
+
+            return module.manifest.color;
         },
 
         isResultEmpty() {

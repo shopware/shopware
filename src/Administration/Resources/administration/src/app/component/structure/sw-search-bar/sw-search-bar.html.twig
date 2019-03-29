@@ -38,7 +38,7 @@
                         {% block sw_search_bar_type %}
                             <span v-if="currentSearchType"
                                   class="sw-search-bar__type"
-                                  :style="{ 'background-color': getSearchTypeProperty(currentSearchType, 'iconColor') }">
+                                  :style="{ 'background-color': getEntityIconColor(currentSearchType) }">
                                 {{ getLabelSearchType() }}
                             </span>
                         {% endblock %}
@@ -95,10 +95,10 @@
                                                                  class="sw-search-bar__results-column-header-router-link"
                                                                  :to="{ name: getSearchTypeProperty(entity.entity, 'listingRoute'),
                                                                   query: { term: searchTerm }}">
-                                                        <sw-icon v-if="getSearchTypeProperty(entity.entity, 'iconName')"
-                                                                 :name="getSearchTypeProperty(entity.entity, 'iconName')"
+                                                        <sw-icon v-if="getEntityIconName(entity.entity)"
+                                                                 :name="getEntityIconName(entity.entity)"
                                                                  size="20px"
-                                                                 :color="getSearchTypeProperty(entity.entity, 'iconColor')">
+                                                                 :color="getEntityIconColor(entity.entity)">
                                                         </sw-icon>
                                                         {{ $tc(`global.entities.${entity.entity}`, entity.total) }}
                                                         ({{ entity.total }})
@@ -146,7 +146,7 @@
                                 @mouseenter="onMouseEnterSearchType(index)"
                                 @click="onClickType(type.entityName)">
                                 <span class="sw-search-bar__type"
-                                      :style="{ 'background-color': getSearchTypeProperty(type.entityName, 'iconColor') }">
+                                      :style="{ 'background-color': getEntityIconColor(type.entityName) }">
                                     {{ getLabelSearchType(type.entityName) }}
                                 </span>
                             </div>

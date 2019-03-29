@@ -10,14 +10,15 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class SyncDocsCommand extends Command
 {
-    public const ROOT_CATEGORY_ID = 50;
     public const INITIAL_VERSION = '6.0.0';
     public const DOC_VERSION = '1.0.0';
     public const CATEGORY_SITE_FILENAME = '__categoryInfo';
     private const CREDENTIAL_PATH = __DIR__ . '/wiki.secret';
     private const META_TITLE_PREFIX = 'Shopware Platform: ';
+
     private $sbpToken;
     private $serverAddress;
+    private $rootCategoryId;
 
     /** @var \GuzzleHttp\Client $client */
     private $client;
@@ -31,6 +32,7 @@ class SyncDocsCommand extends Command
             $credentials = json_decode($credentialsContents, true);
             $this->sbpToken = $credentials['token'];
             $this->serverAddress = $credentials['url'];
+            $this->rootCategoryId = $credentials['rootCategoryId'];
 
             $this->client = new Client(['base_uri' => $this->serverAddress]);
         }
@@ -39,7 +41,7 @@ class SyncDocsCommand extends Command
     public function syncFilesWithServer(array $convertedFiles): void
     {
         echo 'Syncing markdownfiles ...' . PHP_EOL;
-        [$globalCategoryList, $articleList] = $this->gatherCategoryChildrenAndArticles(self::ROOT_CATEGORY_ID, $this->getAllCategories());
+        [$globalCategoryList, $articleList] = $this->gatherCategoryChildrenAndArticles($this->rootCategoryId, $this->getAllCategories());
         $categoryFiles = [];
 
         echo 'Deleting ' . count($articleList) . ' old articles ...' . PHP_EOL;
@@ -72,11 +74,12 @@ class SyncDocsCommand extends Command
 
             $articleInfo = $this->createLocalizedVersionedArticle($file, $file . '-de');
             $categoryId = $this->getOrCreateMissingCategoryTree($this->getCategoryTreeFromPath($file), $globalCategoryList);
+
             $this->addArticleToCategory($articleInfo['en_GB'], $categoryId);
 
             // handle media files
             if (key_exists('media', $fileMetadata)) {
-                echo '=> Uploading ' . count($fileMetadata['media']) . ' mediafiles ...';
+                echo '=> Uploading ' . count($fileMetadata['media']) . ' mediafile(s) ...' . PHP_EOL;
                 foreach ($fileMetadata['media'] as $key => $mediaFile) {
                     $mediaLink = $this->uploadMedia($articleInfo['en_GB'], $mediaFile);
                     $html = str_replace($key, $mediaLink, $html);
@@ -85,7 +88,7 @@ class SyncDocsCommand extends Command
 
             $this->updateArticleLocale($articleInfo['en_GB'],
                 [
-                    'seoUrl' => $fileMetadata['seoUrl'],
+                    'seoUrl' => $fileMetadata['wikiUrl'],
                     'searchableInAllLanguages' => true,
                 ]
             );
@@ -115,13 +118,17 @@ class SyncDocsCommand extends Command
         $categoryIds = array_column($oldCategories, 'id');
 
         foreach ($categoryFiles as $file => $information) {
+            echo 'Syncing ' . $file . ' ... ' . PHP_EOL;
             $categoryPath = $this->getCategoryTreeFromPath($file);
-            $parentId = self::ROOT_CATEGORY_ID;
+            $parentId = $this->rootCategoryId;
             $categoryId = $parentId;
             $invertedCategoryTree = array_combine(array_values($globalCategoryList), array_keys($globalCategoryList));
+
+            $categoryString = '';
             foreach ($categoryPath as $category) {
                 $parentId = $categoryId;
-                $categoryId = $invertedCategoryTree['/' . $category];
+                $categoryString .= '/' . $category;
+                $categoryId = $invertedCategoryTree[$categoryString];
             }
 
             $fileMetadata = $information['metadata'];
@@ -144,14 +151,14 @@ class SyncDocsCommand extends Command
                     'navigationTitle' => $fileMetadata['titleEn'],
                     'content' => $html,
                     'searchableInAllLanguages' => true,
-                    'seoUrl' => $fileMetadata['seoUrl'],
+                    'seoUrl' => $fileMetadata['wikiUrl'],
                 ],
                 [
                     'title' => $fileMetadata['titleDe'],
                     'navigationTitle' => $fileMetadata['titleDe'],
                     'content' => '<p>Die Entwicklerdokumentation ist nur auf Englisch verfügbar.</p>',
                     'searchableInAllLanguages' => true,
-                    'seoUrl' => $fileMetadata['seoUrl'] . '-de',
+                    'seoUrl' => $fileMetadata['wikiUrlDe'],
                 ]
             );
         }
@@ -161,7 +168,7 @@ class SyncDocsCommand extends Command
     {
         $this->updateArticleLocale($articleInfoDe,
             [
-                'seoUrl' => $fileMetadata['seoUrl'] . '-de',
+                'seoUrl' => $fileMetadata['wikiUrlDe'],
                 'searchableInAllLanguages' => true,
             ]
         );
@@ -367,7 +374,7 @@ class SyncDocsCommand extends Command
 
     public function getOrCreateMissingCategoryTree($pathList, &$categoryList): int
     {
-        $prevEntryId = self::ROOT_CATEGORY_ID;
+        $prevEntryId = $this->rootCategoryId;
 
         $title = '';
 
@@ -509,8 +516,12 @@ class SyncDocsCommand extends Command
         return [$localeId, $versionId, $articleInLocaleWithVersionUrl];
     }
 
-    public function deleteCategoryChildren(int $categoryId = self::ROOT_CATEGORY_ID): void
+    public function deleteCategoryChildren(int $categoryId = -1): void
     {
+        if ($categoryId === -1) {
+            $categoryId = $this->rootCategoryId;
+        }
+
         $categories = $this->getAllCategories();
 
         [$categoriesToDelete, $articlesToDelete] = $this->gatherCategoryChildrenAndArticles(

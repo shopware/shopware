@@ -15,7 +15,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException\ExpectedAr
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteCommandExtractor;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
 use Shopware\Core\Framework\Routing\Exception\LanguageNotFoundException;
-use Shopware\Core\Framework\Struct\Uuid;
+use Shopware\Core\Framework\Uuid\Uuid;
 
 class TranslationsAssociationFieldSerializer implements FieldSerializerInterface
 {

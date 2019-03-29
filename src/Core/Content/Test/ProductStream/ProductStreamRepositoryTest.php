@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\Struct\Uuid;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
 class ProductStreamRepositoryTest extends TestCase
@@ -33,7 +33,7 @@ class ProductStreamRepositoryTest extends TestCase
 
     public function testCreateEntity(): void
     {
-        $id = Uuid::uuid4()->getHex();
+        $id = Uuid::randomHex();
         $this->repository->upsert([['id' => $id, 'name' => 'Test stream']], $this->context);
 
         /** @var ProductStreamEntity $entity */
@@ -46,7 +46,7 @@ class ProductStreamRepositoryTest extends TestCase
 
     public function testUpdateEntity(): void
     {
-        $id = Uuid::uuid4()->getHex();
+        $id = Uuid::randomHex();
         $this->repository->upsert([['id' => $id, 'name' => 'Test stream']], $this->context);
         $this->repository->upsert([['id' => $id, 'name' => 'New Name']], $this->context);
 
@@ -60,7 +60,7 @@ class ProductStreamRepositoryTest extends TestCase
 
     public function testCreateEntityWithFilters(): void
     {
-        $id = Uuid::uuid4()->getHex();
+        $id = Uuid::randomHex();
         $this->repository->upsert([['id' => $id, 'name' => 'Test stream', 'filters' => [['type' => 'contains', 'field' => 'name', 'value' => 'awesome']]]], $this->context);
 
         /** @var ProductStreamEntity $entity */
@@ -73,7 +73,7 @@ class ProductStreamRepositoryTest extends TestCase
 
     public function testCreateEntityWithMultiFilters(): void
     {
-        $id = Uuid::uuid4()->getHex();
+        $id = Uuid::randomHex();
         $data = [
             'id' => $id,
             'name' => 'Test stream',
@@ -117,7 +117,7 @@ class ProductStreamRepositoryTest extends TestCase
 
     public function testFetchFilters(): void
     {
-        $id = Uuid::uuid4()->getHex();
+        $id = Uuid::randomHex();
         $data = [
             'id' => $id,
             'name' => 'Test stream',
@@ -164,7 +164,7 @@ class ProductStreamRepositoryTest extends TestCase
 
     public function testFetchWithQueriesFilter(): void
     {
-        $id = Uuid::uuid4()->getHex();
+        $id = Uuid::randomHex();
         $data = [
             'id' => $id,
             'name' => 'Test stream',

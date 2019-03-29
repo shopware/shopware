@@ -20,7 +20,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
-use Shopware\Core\Framework\Struct\Uuid;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
 class FileSaverTest extends TestCase
@@ -57,7 +57,7 @@ class FileSaverTest extends TestCase
         $fileSize = filesize($tempFile);
         $mediaFile = new MediaFile($tempFile, 'image/png', 'png', $fileSize);
 
-        $mediaId = Uuid::uuid4()->getHex();
+        $mediaId = Uuid::randomHex();
 
         $context = Context::createDefaultContext();
 
@@ -132,7 +132,7 @@ class FileSaverTest extends TestCase
         $fileSize = filesize($tempFile);
         $mediaFile = new MediaFile($tempFile, 'application/doc', 'doc', $fileSize);
 
-        $mediaId = Uuid::uuid4()->getHex();
+        $mediaId = Uuid::randomHex();
 
         $context = Context::createDefaultContext();
 
@@ -203,7 +203,7 @@ class FileSaverTest extends TestCase
         $this->setFixtureContext($context);
         $png = $this->getPng();
 
-        $newMediaId = Uuid::uuid4()->getHex();
+        $newMediaId = Uuid::randomHex();
         $tempFile = tempnam(sys_get_temp_dir(), '');
         copy(self::TEST_IMAGE, $tempFile);
         $mediaFile = new MediaFile($tempFile, 'image/png', 'png', filesize($tempFile));
@@ -238,7 +238,7 @@ class FileSaverTest extends TestCase
         $this->setFixtureContext($context);
         $jpg = $this->getJpg();
 
-        $newMediaId = Uuid::uuid4()->getHex();
+        $newMediaId = Uuid::randomHex();
         $tempFile = tempnam(sys_get_temp_dir(), '');
         copy(self::TEST_IMAGE, $tempFile);
         $mediaFile = new MediaFile($tempFile, 'image/png', 'png', filesize($tempFile));
@@ -310,7 +310,7 @@ class FileSaverTest extends TestCase
         $this->expectException(MediaNotFoundException::class);
 
         $context = Context::createDefaultContext();
-        $this->fileSaver->renameMedia(Uuid::uuid4()->getHex(), 'new file destination', $context);
+        $this->fileSaver->renameMedia(Uuid::randomHex(), 'new file destination', $context);
     }
 
     public function testRenameMediaThrowsExceptionIfMediaHasNoFileAttached(): void
@@ -318,7 +318,7 @@ class FileSaverTest extends TestCase
         $this->expectException(MissingFileException::class);
 
         $context = Context::createDefaultContext();
-        $id = Uuid::uuid4()->getHex();
+        $id = Uuid::randomHex();
 
         $this->mediaRepository->create([
             [

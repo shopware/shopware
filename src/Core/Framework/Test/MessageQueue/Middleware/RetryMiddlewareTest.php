@@ -13,7 +13,7 @@ use Shopware\Core\Framework\MessageQueue\Middleware\RetryMiddleware;
 use Shopware\Core\Framework\MessageQueue\Stamp\DecryptedStamp;
 use Shopware\Core\Framework\ScheduledTask\ScheduledTask;
 use Shopware\Core\Framework\ScheduledTask\ScheduledTaskDefinition;
-use Shopware\Core\Framework\Struct\Uuid;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Symfony\Component\Messenger\Envelope;
 use Symfony\Component\Messenger\Test\Middleware\MiddlewareTestCase;
@@ -46,7 +46,7 @@ class RetryMiddlewareTest extends MiddlewareTestCase
 
     public function testMiddlewareOnSuccess(): void
     {
-        $message = new RetryMessage(Uuid::uuid4()->getHex());
+        $message = new RetryMessage(Uuid::randomHex());
         $envelope = new Envelope($message);
 
         $stack = $this->getStackMock();
@@ -60,7 +60,7 @@ class RetryMiddlewareTest extends MiddlewareTestCase
 
     public function testMiddlewareOnFirstError(): void
     {
-        $message = new RetryMessage(Uuid::uuid4()->getHex());
+        $message = new RetryMessage(Uuid::randomHex());
         $envelope = new Envelope($message);
 
         $e = new \Exception('exception');
@@ -79,7 +79,7 @@ class RetryMiddlewareTest extends MiddlewareTestCase
 
     public function testMiddlewareSavesScheduledTask(): void
     {
-        $taskId = Uuid::uuid4()->getHex();
+        $taskId = Uuid::randomHex();
         $message = $this->createMock(ScheduledTask::class);
         $message->method('getTaskId')
             ->willReturn($taskId);
@@ -113,7 +113,7 @@ class RetryMiddlewareTest extends MiddlewareTestCase
 
     public function testMiddlewareWithEncryptedMessage(): void
     {
-        $message = new RetryMessage(Uuid::uuid4()->getHex());
+        $message = new RetryMessage(Uuid::randomHex());
         $envelope = new Envelope($message, new DecryptedStamp());
 
         $e = new \Exception('exception');
@@ -133,7 +133,7 @@ class RetryMiddlewareTest extends MiddlewareTestCase
 
     public function testMiddlewareOnConsecutiveError(): void
     {
-        $deadMessageId = Uuid::uuid4()->getHex();
+        $deadMessageId = Uuid::randomHex();
         $message = new RetryMessage($deadMessageId);
         $envelope = new Envelope($message);
 
@@ -157,7 +157,7 @@ class RetryMiddlewareTest extends MiddlewareTestCase
 
     public function testMiddlewareOnDifferentError(): void
     {
-        $deadMessageId = Uuid::uuid4()->getHex();
+        $deadMessageId = Uuid::randomHex();
         $message = new RetryMessage($deadMessageId);
         $envelope = new Envelope($message);
 

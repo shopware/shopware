@@ -11,7 +11,7 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\Doctrine\MultiInsertQueryQueue;
 use Shopware\Core\Framework\Migration\MigrationStep;
-use Shopware\Core\Framework\Struct\Uuid;
+use Shopware\Core\Framework\Uuid\Uuid;
 
 class Migration1536233420BasicData extends MigrationStep
 {
@@ -124,7 +124,7 @@ class Migration1536233420BasicData extends MigrationStep
                 continue;
             }
 
-            $localeId = Uuid::uuid4()->getBytes();
+            $localeId = Uuid::randomBytes();
 
             $queue->addInsert(
                 'locale',
@@ -313,8 +313,8 @@ class Migration1536233420BasicData extends MigrationStep
     private function createCurrency(Connection $connection): void
     {
         $EUR = Uuid::fromHexToBytes(Defaults::CURRENCY);
-        $USD = Uuid::uuid4()->getBytes();
-        $GBP = Uuid::uuid4()->getBytes();
+        $USD = Uuid::randomBytes();
+        $GBP = Uuid::randomBytes();
 
         $languageEN = Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM);
 
@@ -341,9 +341,9 @@ class Migration1536233420BasicData extends MigrationStep
     {
         $languageEN = Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM);
 
-        $debit = Uuid::uuid4()->getBytes();
-        $invoice = Uuid::uuid4()->getBytes();
-        $sepa = Uuid::uuid4()->getBytes();
+        $debit = Uuid::randomBytes();
+        $invoice = Uuid::randomBytes();
+        $sepa = Uuid::randomBytes();
 
         $connection->insert('payment_method', ['id' => $debit, 'technical_name' => 'debit', 'template' => 'debit.tpl', 'class' => DebitPayment::class, 'percentage_surcharge' => -10, 'position' => 4, 'active' => 0, 'created_at' => date(Defaults::DATE_FORMAT)]);
         $connection->insert('payment_method_translation', ['payment_method_id' => $debit, 'language_id' => $languageEN, 'name' => 'Direct Debit', 'additional_description' => 'Additional text', 'created_at' => date(Defaults::DATE_FORMAT)]);
@@ -358,7 +358,7 @@ class Migration1536233420BasicData extends MigrationStep
     private function createShippingMethod(Connection $connection): void
     {
         $standard = Uuid::fromHexToBytes(Defaults::SHIPPING_METHOD);
-        $express = Uuid::uuid4()->getBytes();
+        $express = Uuid::randomBytes();
 
         $languageEN = Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM);
 
@@ -371,11 +371,11 @@ class Migration1536233420BasicData extends MigrationStep
 
     private function createTax(Connection $connection): void
     {
-        $tax19 = Uuid::uuid4()->getBytes();
-        $tax7 = Uuid::uuid4()->getBytes();
-        $tax20 = Uuid::uuid4()->getBytes();
-        $tax5 = Uuid::uuid4()->getBytes();
-        $tax0 = Uuid::uuid4()->getBytes();
+        $tax19 = Uuid::randomBytes();
+        $tax7 = Uuid::randomBytes();
+        $tax20 = Uuid::randomBytes();
+        $tax5 = Uuid::randomBytes();
+        $tax0 = Uuid::randomBytes();
 
         $connection->insert('tax', ['id' => $tax19, 'tax_rate' => 19, 'name' => '19%', 'created_at' => date(Defaults::DATE_FORMAT)]);
         $connection->insert('tax', ['id' => $tax7, 'tax_rate' => 7, 'name' => '7%', 'created_at' => date(Defaults::DATE_FORMAT)]);
@@ -400,7 +400,7 @@ class Migration1536233420BasicData extends MigrationStep
 
     private function createProductManufacturer(Connection $connection): void
     {
-        $id = Uuid::uuid4()->getBytes();
+        $id = Uuid::randomBytes();
         $languageEN = Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM);
         $versionId = Uuid::fromHexToBytes(Defaults::LIVE_VERSION);
 
@@ -416,7 +416,7 @@ class Migration1536233420BasicData extends MigrationStep
         $paymentMethods = $connection->executeQuery('SELECT id FROM payment_method')->fetchAll(FetchMode::COLUMN);
         $defaultPaymentMethod = $connection->executeQuery('SELECT id FROM payment_method WHERE active = 1')->fetchColumn();
 
-        $id = Uuid::uuid4()->getBytes();
+        $id = Uuid::randomBytes();
         $languageEN = Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM);
 
         $connection->insert('sales_channel', [
@@ -474,19 +474,19 @@ class Migration1536233420BasicData extends MigrationStep
     {
         $queue = new MultiInsertQueryQueue($connection);
 
-        $queue->addInsert('media_default_folder', ['id' => Uuid::uuid4()->getBytes(), 'association_fields' => '["productMedia"]', 'entity' => 'product', 'created_at' => date(Defaults::DATE_FORMAT)]);
-        $queue->addInsert('media_default_folder', ['id' => Uuid::uuid4()->getBytes(), 'association_fields' => '["productManufacturers"]', 'entity' => 'product_manufacturer', 'created_at' => date(Defaults::DATE_FORMAT)]);
+        $queue->addInsert('media_default_folder', ['id' => Uuid::randomBytes(), 'association_fields' => '["productMedia"]', 'entity' => 'product', 'created_at' => date(Defaults::DATE_FORMAT)]);
+        $queue->addInsert('media_default_folder', ['id' => Uuid::randomBytes(), 'association_fields' => '["productManufacturers"]', 'entity' => 'product_manufacturer', 'created_at' => date(Defaults::DATE_FORMAT)]);
 
         $queue->execute();
     }
 
     private function createOrderStateMachine(Connection $connection): void
     {
-        $stateMachineId = Uuid::uuid4()->getBytes();
-        $openId = Uuid::uuid4()->getBytes();
-        $completedId = Uuid::uuid4()->getBytes();
-        $inProgressId = Uuid::uuid4()->getBytes();
-        $canceledId = Uuid::uuid4()->getBytes();
+        $stateMachineId = Uuid::randomBytes();
+        $openId = Uuid::randomBytes();
+        $completedId = Uuid::randomBytes();
+        $inProgressId = Uuid::randomBytes();
+        $canceledId = Uuid::randomBytes();
 
         $germanId = Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM_DE);
         $englishId = Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM);
@@ -531,28 +531,28 @@ class Migration1536233420BasicData extends MigrationStep
         $connection->insert('state_machine_state_translation', array_merge($translationEN, ['state_machine_state_id' => $canceledId, 'name' => 'Cancelled']));
 
         // transitions
-        $connection->insert('state_machine_transition', ['id' => Uuid::uuid4()->getBytes(), 'state_machine_id' => $stateMachineId, 'action_name' => 'process', 'from_state_id' => $openId, 'to_state_id' => $inProgressId, 'created_at' => date(Defaults::DATE_FORMAT)]);
-        $connection->insert('state_machine_transition', ['id' => Uuid::uuid4()->getBytes(), 'state_machine_id' => $stateMachineId, 'action_name' => 'cancel', 'from_state_id' => $openId, 'to_state_id' => $canceledId, 'created_at' => date(Defaults::DATE_FORMAT)]);
+        $connection->insert('state_machine_transition', ['id' => Uuid::randomBytes(), 'state_machine_id' => $stateMachineId, 'action_name' => 'process', 'from_state_id' => $openId, 'to_state_id' => $inProgressId, 'created_at' => date(Defaults::DATE_FORMAT)]);
+        $connection->insert('state_machine_transition', ['id' => Uuid::randomBytes(), 'state_machine_id' => $stateMachineId, 'action_name' => 'cancel', 'from_state_id' => $openId, 'to_state_id' => $canceledId, 'created_at' => date(Defaults::DATE_FORMAT)]);
 
-        $connection->insert('state_machine_transition', ['id' => Uuid::uuid4()->getBytes(), 'state_machine_id' => $stateMachineId, 'action_name' => 'cancel', 'from_state_id' => $inProgressId, 'to_state_id' => $canceledId, 'created_at' => date(Defaults::DATE_FORMAT)]);
-        $connection->insert('state_machine_transition', ['id' => Uuid::uuid4()->getBytes(), 'state_machine_id' => $stateMachineId, 'action_name' => 'complete', 'from_state_id' => $inProgressId, 'to_state_id' => $completedId, 'created_at' => date(Defaults::DATE_FORMAT)]);
+        $connection->insert('state_machine_transition', ['id' => Uuid::randomBytes(), 'state_machine_id' => $stateMachineId, 'action_name' => 'cancel', 'from_state_id' => $inProgressId, 'to_state_id' => $canceledId, 'created_at' => date(Defaults::DATE_FORMAT)]);
+        $connection->insert('state_machine_transition', ['id' => Uuid::randomBytes(), 'state_machine_id' => $stateMachineId, 'action_name' => 'complete', 'from_state_id' => $inProgressId, 'to_state_id' => $completedId, 'created_at' => date(Defaults::DATE_FORMAT)]);
 
-        $connection->insert('state_machine_transition', ['id' => Uuid::uuid4()->getBytes(), 'state_machine_id' => $stateMachineId, 'action_name' => 'reopen', 'from_state_id' => $canceledId, 'to_state_id' => $openId, 'created_at' => date(Defaults::DATE_FORMAT)]);
+        $connection->insert('state_machine_transition', ['id' => Uuid::randomBytes(), 'state_machine_id' => $stateMachineId, 'action_name' => 'reopen', 'from_state_id' => $canceledId, 'to_state_id' => $openId, 'created_at' => date(Defaults::DATE_FORMAT)]);
         // set initial state
         $connection->update('state_machine', ['initial_state_id' => $openId], ['id' => $stateMachineId]);
     }
 
     private function createOrderDeliveryStateMachine(Connection $connection): void
     {
-        $stateMachineId = Uuid::uuid4()->getBytes();
-        $openId = Uuid::uuid4()->getBytes();
-        $cancelledId = Uuid::uuid4()->getBytes();
+        $stateMachineId = Uuid::randomBytes();
+        $openId = Uuid::randomBytes();
+        $cancelledId = Uuid::randomBytes();
 
-        $shippedId = Uuid::uuid4()->getBytes();
-        $shippedPartiallyId = Uuid::uuid4()->getBytes();
+        $shippedId = Uuid::randomBytes();
+        $shippedPartiallyId = Uuid::randomBytes();
 
-        $returnedId = Uuid::uuid4()->getBytes();
-        $returnedPartiallyId = Uuid::uuid4()->getBytes();
+        $returnedId = Uuid::randomBytes();
+        $returnedPartiallyId = Uuid::randomBytes();
 
         $germanId = Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM_DE);
         $englishId = Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM);
@@ -606,21 +606,21 @@ class Migration1536233420BasicData extends MigrationStep
 
         // transitions
         // from "open" to *
-        $connection->insert('state_machine_transition', ['id' => Uuid::uuid4()->getBytes(), 'state_machine_id' => $stateMachineId, 'action_name' => 'ship', 'from_state_id' => $openId, 'to_state_id' => $shippedId, 'created_at' => date(Defaults::DATE_FORMAT)]);
-        $connection->insert('state_machine_transition', ['id' => Uuid::uuid4()->getBytes(), 'state_machine_id' => $stateMachineId, 'action_name' => 'ship_partially', 'from_state_id' => $openId, 'to_state_id' => $shippedPartiallyId, 'created_at' => date(Defaults::DATE_FORMAT)]);
-        $connection->insert('state_machine_transition', ['id' => Uuid::uuid4()->getBytes(), 'state_machine_id' => $stateMachineId, 'action_name' => 'cancel', 'from_state_id' => $openId, 'to_state_id' => $cancelledId, 'created_at' => date(Defaults::DATE_FORMAT)]);
+        $connection->insert('state_machine_transition', ['id' => Uuid::randomBytes(), 'state_machine_id' => $stateMachineId, 'action_name' => 'ship', 'from_state_id' => $openId, 'to_state_id' => $shippedId, 'created_at' => date(Defaults::DATE_FORMAT)]);
+        $connection->insert('state_machine_transition', ['id' => Uuid::randomBytes(), 'state_machine_id' => $stateMachineId, 'action_name' => 'ship_partially', 'from_state_id' => $openId, 'to_state_id' => $shippedPartiallyId, 'created_at' => date(Defaults::DATE_FORMAT)]);
+        $connection->insert('state_machine_transition', ['id' => Uuid::randomBytes(), 'state_machine_id' => $stateMachineId, 'action_name' => 'cancel', 'from_state_id' => $openId, 'to_state_id' => $cancelledId, 'created_at' => date(Defaults::DATE_FORMAT)]);
 
         // from "shipped" to *
-        // $connection->insert('state_machine_transition', ['id' => Uuid::uuid4()->getBytes(), 'state_machine_id' => $stateMachineId, 'action_name' => 'ship', 'from_state_id' => $shippedId, 'to_state_id' => $shippedId, 'created_at' => date(Defaults::DATE_FORMAT)]);
-        $connection->insert('state_machine_transition', ['id' => Uuid::uuid4()->getBytes(), 'state_machine_id' => $stateMachineId, 'action_name' => 'retour', 'from_state_id' => $shippedId, 'to_state_id' => $returnedId, 'created_at' => date(Defaults::DATE_FORMAT)]);
-        $connection->insert('state_machine_transition', ['id' => Uuid::uuid4()->getBytes(), 'state_machine_id' => $stateMachineId, 'action_name' => 'retour_partially', 'from_state_id' => $shippedId, 'to_state_id' => $returnedPartiallyId, 'created_at' => date(Defaults::DATE_FORMAT)]);
-        $connection->insert('state_machine_transition', ['id' => Uuid::uuid4()->getBytes(), 'state_machine_id' => $stateMachineId, 'action_name' => 'cancel', 'from_state_id' => $shippedId, 'to_state_id' => $cancelledId, 'created_at' => date(Defaults::DATE_FORMAT)]);
+        // $connection->insert('state_machine_transition', ['id' => Uuid::randomBytes(), 'state_machine_id' => $stateMachineId, 'action_name' => 'ship', 'from_state_id' => $shippedId, 'to_state_id' => $shippedId, 'created_at' => date(Defaults::DATE_FORMAT)]);
+        $connection->insert('state_machine_transition', ['id' => Uuid::randomBytes(), 'state_machine_id' => $stateMachineId, 'action_name' => 'retour', 'from_state_id' => $shippedId, 'to_state_id' => $returnedId, 'created_at' => date(Defaults::DATE_FORMAT)]);
+        $connection->insert('state_machine_transition', ['id' => Uuid::randomBytes(), 'state_machine_id' => $stateMachineId, 'action_name' => 'retour_partially', 'from_state_id' => $shippedId, 'to_state_id' => $returnedPartiallyId, 'created_at' => date(Defaults::DATE_FORMAT)]);
+        $connection->insert('state_machine_transition', ['id' => Uuid::randomBytes(), 'state_machine_id' => $stateMachineId, 'action_name' => 'cancel', 'from_state_id' => $shippedId, 'to_state_id' => $cancelledId, 'created_at' => date(Defaults::DATE_FORMAT)]);
 
         // from shipped_partially
-        $connection->insert('state_machine_transition', ['id' => Uuid::uuid4()->getBytes(), 'state_machine_id' => $stateMachineId, 'action_name' => 'retour', 'from_state_id' => $shippedPartiallyId, 'to_state_id' => $returnedId, 'created_at' => date(Defaults::DATE_FORMAT)]);
-        $connection->insert('state_machine_transition', ['id' => Uuid::uuid4()->getBytes(), 'state_machine_id' => $stateMachineId, 'action_name' => 'retour_partially', 'from_state_id' => $shippedPartiallyId, 'to_state_id' => $returnedPartiallyId, 'created_at' => date(Defaults::DATE_FORMAT)]);
-        $connection->insert('state_machine_transition', ['id' => Uuid::uuid4()->getBytes(), 'state_machine_id' => $stateMachineId, 'action_name' => 'ship', 'from_state_id' => $shippedPartiallyId, 'to_state_id' => $shippedId, 'created_at' => date(Defaults::DATE_FORMAT)]);
-        $connection->insert('state_machine_transition', ['id' => Uuid::uuid4()->getBytes(), 'state_machine_id' => $stateMachineId, 'action_name' => 'cancel', 'from_state_id' => $shippedPartiallyId, 'to_state_id' => $cancelledId, 'created_at' => date(Defaults::DATE_FORMAT)]);
+        $connection->insert('state_machine_transition', ['id' => Uuid::randomBytes(), 'state_machine_id' => $stateMachineId, 'action_name' => 'retour', 'from_state_id' => $shippedPartiallyId, 'to_state_id' => $returnedId, 'created_at' => date(Defaults::DATE_FORMAT)]);
+        $connection->insert('state_machine_transition', ['id' => Uuid::randomBytes(), 'state_machine_id' => $stateMachineId, 'action_name' => 'retour_partially', 'from_state_id' => $shippedPartiallyId, 'to_state_id' => $returnedPartiallyId, 'created_at' => date(Defaults::DATE_FORMAT)]);
+        $connection->insert('state_machine_transition', ['id' => Uuid::randomBytes(), 'state_machine_id' => $stateMachineId, 'action_name' => 'ship', 'from_state_id' => $shippedPartiallyId, 'to_state_id' => $shippedId, 'created_at' => date(Defaults::DATE_FORMAT)]);
+        $connection->insert('state_machine_transition', ['id' => Uuid::randomBytes(), 'state_machine_id' => $stateMachineId, 'action_name' => 'cancel', 'from_state_id' => $shippedPartiallyId, 'to_state_id' => $cancelledId, 'created_at' => date(Defaults::DATE_FORMAT)]);
 
         // set initial state
         $connection->update('state_machine', ['initial_state_id' => $openId], ['id' => $stateMachineId]);
@@ -628,15 +628,15 @@ class Migration1536233420BasicData extends MigrationStep
 
     private function createOrderTransactionStateMachine(Connection $connection): void
     {
-        $stateMachineId = Uuid::uuid4()->getBytes();
+        $stateMachineId = Uuid::randomBytes();
 
-        $openId = Uuid::uuid4()->getBytes();
-        $paidId = Uuid::uuid4()->getBytes();
-        $paidPartiallyId = Uuid::uuid4()->getBytes();
-        $cancelledId = Uuid::uuid4()->getBytes();
-        $remindedId = Uuid::uuid4()->getBytes();
-        $refundedId = Uuid::uuid4()->getBytes();
-        $refundedPartiallyId = Uuid::uuid4()->getBytes();
+        $openId = Uuid::randomBytes();
+        $paidId = Uuid::randomBytes();
+        $paidPartiallyId = Uuid::randomBytes();
+        $cancelledId = Uuid::randomBytes();
+        $remindedId = Uuid::randomBytes();
+        $refundedId = Uuid::randomBytes();
+        $refundedPartiallyId = Uuid::randomBytes();
 
         $germanId = Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM_DE);
         $englishId = Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM);
@@ -694,27 +694,27 @@ class Migration1536233420BasicData extends MigrationStep
 
         // transitions
         // from "open" to *
-        $connection->insert('state_machine_transition', ['id' => Uuid::uuid4()->getBytes(), 'state_machine_id' => $stateMachineId, 'action_name' => 'pay', 'from_state_id' => $openId, 'to_state_id' => $paidId, 'created_at' => date(Defaults::DATE_FORMAT)]);
-        $connection->insert('state_machine_transition', ['id' => Uuid::uuid4()->getBytes(), 'state_machine_id' => $stateMachineId, 'action_name' => 'pay_partially', 'from_state_id' => $openId, 'to_state_id' => $paidPartiallyId, 'created_at' => date(Defaults::DATE_FORMAT)]);
-        $connection->insert('state_machine_transition', ['id' => Uuid::uuid4()->getBytes(), 'state_machine_id' => $stateMachineId, 'action_name' => 'cancel', 'from_state_id' => $openId, 'to_state_id' => $cancelledId, 'created_at' => date(Defaults::DATE_FORMAT)]);
-        $connection->insert('state_machine_transition', ['id' => Uuid::uuid4()->getBytes(), 'state_machine_id' => $stateMachineId, 'action_name' => 'remind', 'from_state_id' => $openId, 'to_state_id' => $remindedId, 'created_at' => date(Defaults::DATE_FORMAT)]);
+        $connection->insert('state_machine_transition', ['id' => Uuid::randomBytes(), 'state_machine_id' => $stateMachineId, 'action_name' => 'pay', 'from_state_id' => $openId, 'to_state_id' => $paidId, 'created_at' => date(Defaults::DATE_FORMAT)]);
+        $connection->insert('state_machine_transition', ['id' => Uuid::randomBytes(), 'state_machine_id' => $stateMachineId, 'action_name' => 'pay_partially', 'from_state_id' => $openId, 'to_state_id' => $paidPartiallyId, 'created_at' => date(Defaults::DATE_FORMAT)]);
+        $connection->insert('state_machine_transition', ['id' => Uuid::randomBytes(), 'state_machine_id' => $stateMachineId, 'action_name' => 'cancel', 'from_state_id' => $openId, 'to_state_id' => $cancelledId, 'created_at' => date(Defaults::DATE_FORMAT)]);
+        $connection->insert('state_machine_transition', ['id' => Uuid::randomBytes(), 'state_machine_id' => $stateMachineId, 'action_name' => 'remind', 'from_state_id' => $openId, 'to_state_id' => $remindedId, 'created_at' => date(Defaults::DATE_FORMAT)]);
 
         // from "reminded" to *
-        $connection->insert('state_machine_transition', ['id' => Uuid::uuid4()->getBytes(), 'state_machine_id' => $stateMachineId, 'action_name' => 'pay', 'from_state_id' => $remindedId, 'to_state_id' => $paidId, 'created_at' => date(Defaults::DATE_FORMAT)]);
-        $connection->insert('state_machine_transition', ['id' => Uuid::uuid4()->getBytes(), 'state_machine_id' => $stateMachineId, 'action_name' => 'pay_partially', 'from_state_id' => $remindedId, 'to_state_id' => $paidPartiallyId, 'created_at' => date(Defaults::DATE_FORMAT)]);
+        $connection->insert('state_machine_transition', ['id' => Uuid::randomBytes(), 'state_machine_id' => $stateMachineId, 'action_name' => 'pay', 'from_state_id' => $remindedId, 'to_state_id' => $paidId, 'created_at' => date(Defaults::DATE_FORMAT)]);
+        $connection->insert('state_machine_transition', ['id' => Uuid::randomBytes(), 'state_machine_id' => $stateMachineId, 'action_name' => 'pay_partially', 'from_state_id' => $remindedId, 'to_state_id' => $paidPartiallyId, 'created_at' => date(Defaults::DATE_FORMAT)]);
 
         // from "paid_partially" to *
-        $connection->insert('state_machine_transition', ['id' => Uuid::uuid4()->getBytes(), 'state_machine_id' => $stateMachineId, 'action_name' => 'remind', 'from_state_id' => $paidPartiallyId, 'to_state_id' => $remindedId, 'created_at' => date(Defaults::DATE_FORMAT)]);
-        $connection->insert('state_machine_transition', ['id' => Uuid::uuid4()->getBytes(), 'state_machine_id' => $stateMachineId, 'action_name' => 'pay', 'from_state_id' => $paidPartiallyId, 'to_state_id' => $paidId, 'created_at' => date(Defaults::DATE_FORMAT)]);
-        $connection->insert('state_machine_transition', ['id' => Uuid::uuid4()->getBytes(), 'state_machine_id' => $stateMachineId, 'action_name' => 'refund_partially', 'from_state_id' => $paidPartiallyId, 'to_state_id' => $refundedPartiallyId, 'created_at' => date(Defaults::DATE_FORMAT)]);
-        $connection->insert('state_machine_transition', ['id' => Uuid::uuid4()->getBytes(), 'state_machine_id' => $stateMachineId, 'action_name' => 'refund', 'from_state_id' => $paidPartiallyId, 'to_state_id' => $refundedId, 'created_at' => date(Defaults::DATE_FORMAT)]);
+        $connection->insert('state_machine_transition', ['id' => Uuid::randomBytes(), 'state_machine_id' => $stateMachineId, 'action_name' => 'remind', 'from_state_id' => $paidPartiallyId, 'to_state_id' => $remindedId, 'created_at' => date(Defaults::DATE_FORMAT)]);
+        $connection->insert('state_machine_transition', ['id' => Uuid::randomBytes(), 'state_machine_id' => $stateMachineId, 'action_name' => 'pay', 'from_state_id' => $paidPartiallyId, 'to_state_id' => $paidId, 'created_at' => date(Defaults::DATE_FORMAT)]);
+        $connection->insert('state_machine_transition', ['id' => Uuid::randomBytes(), 'state_machine_id' => $stateMachineId, 'action_name' => 'refund_partially', 'from_state_id' => $paidPartiallyId, 'to_state_id' => $refundedPartiallyId, 'created_at' => date(Defaults::DATE_FORMAT)]);
+        $connection->insert('state_machine_transition', ['id' => Uuid::randomBytes(), 'state_machine_id' => $stateMachineId, 'action_name' => 'refund', 'from_state_id' => $paidPartiallyId, 'to_state_id' => $refundedId, 'created_at' => date(Defaults::DATE_FORMAT)]);
 
         // from "paid" to *
-        $connection->insert('state_machine_transition', ['id' => Uuid::uuid4()->getBytes(), 'state_machine_id' => $stateMachineId, 'action_name' => 'refund_partially', 'from_state_id' => $paidId, 'to_state_id' => $refundedPartiallyId, 'created_at' => date(Defaults::DATE_FORMAT)]);
-        $connection->insert('state_machine_transition', ['id' => Uuid::uuid4()->getBytes(), 'state_machine_id' => $stateMachineId, 'action_name' => 'refund', 'from_state_id' => $paidId, 'to_state_id' => $refundedId, 'created_at' => date(Defaults::DATE_FORMAT)]);
+        $connection->insert('state_machine_transition', ['id' => Uuid::randomBytes(), 'state_machine_id' => $stateMachineId, 'action_name' => 'refund_partially', 'from_state_id' => $paidId, 'to_state_id' => $refundedPartiallyId, 'created_at' => date(Defaults::DATE_FORMAT)]);
+        $connection->insert('state_machine_transition', ['id' => Uuid::randomBytes(), 'state_machine_id' => $stateMachineId, 'action_name' => 'refund', 'from_state_id' => $paidId, 'to_state_id' => $refundedId, 'created_at' => date(Defaults::DATE_FORMAT)]);
 
         // from "refunded_partially" to *
-        $connection->insert('state_machine_transition', ['id' => Uuid::uuid4()->getBytes(), 'state_machine_id' => $stateMachineId, 'action_name' => 'refund', 'from_state_id' => $refundedPartiallyId, 'to_state_id' => $refundedId, 'created_at' => date(Defaults::DATE_FORMAT)]);
+        $connection->insert('state_machine_transition', ['id' => Uuid::randomBytes(), 'state_machine_id' => $stateMachineId, 'action_name' => 'refund', 'from_state_id' => $refundedPartiallyId, 'to_state_id' => $refundedId, 'created_at' => date(Defaults::DATE_FORMAT)]);
 
         // set initial state
         $connection->update('state_machine', ['initial_state_id' => $openId], ['id' => $stateMachineId]);

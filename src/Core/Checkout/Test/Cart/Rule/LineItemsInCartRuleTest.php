@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException\WriteStackException;
-use Shopware\Core\Framework\Struct\Uuid;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
@@ -43,13 +43,13 @@ class LineItemsInCartRuleTest extends TestCase
 
     public function testValidateWithMissingIdentifiers(): void
     {
-        $conditionId = Uuid::uuid4()->getHex();
+        $conditionId = Uuid::randomHex();
         try {
             $this->conditionRepository->create([
                 [
                     'id' => $conditionId,
                     'type' => (new LineItemsInCartRule())->getName(),
-                    'ruleId' => Uuid::uuid4()->getHex(),
+                    'ruleId' => Uuid::randomHex(),
                 ],
             ], $this->context);
             static::fail('Exception was not thrown');
@@ -67,13 +67,13 @@ class LineItemsInCartRuleTest extends TestCase
 
     public function testValidateWithEmptyIdentifiers(): void
     {
-        $conditionId = Uuid::uuid4()->getHex();
+        $conditionId = Uuid::randomHex();
         try {
             $this->conditionRepository->create([
                 [
                     'id' => $conditionId,
                     'type' => (new LineItemsInCartRule())->getName(),
-                    'ruleId' => Uuid::uuid4()->getHex(),
+                    'ruleId' => Uuid::randomHex(),
                     'value' => [
                         'identifiers' => [],
                     ],
@@ -94,13 +94,13 @@ class LineItemsInCartRuleTest extends TestCase
 
     public function testValidateWithStringIdentifiers(): void
     {
-        $conditionId = Uuid::uuid4()->getHex();
+        $conditionId = Uuid::randomHex();
         try {
             $this->conditionRepository->create([
                 [
                     'id' => $conditionId,
                     'type' => (new LineItemsInCartRule())->getName(),
-                    'ruleId' => Uuid::uuid4()->getHex(),
+                    'ruleId' => Uuid::randomHex(),
                     'value' => [
                         'identifiers' => '0915d54fbf80423c917c61ad5a391b48',
                     ],
@@ -120,13 +120,13 @@ class LineItemsInCartRuleTest extends TestCase
 
     public function testValidateWithInvalidArrayIdentifiers(): void
     {
-        $conditionId = Uuid::uuid4()->getHex();
+        $conditionId = Uuid::randomHex();
         try {
             $this->conditionRepository->create([
                 [
                     'id' => $conditionId,
                     'type' => (new LineItemsInCartRule())->getName(),
-                    'ruleId' => Uuid::uuid4()->getHex(),
+                    'ruleId' => Uuid::randomHex(),
                     'value' => [
                         'identifiers' => [true, 3, '1234abcd', '0915d54fbf80423c917c61ad5a391b48'],
                     ],
@@ -148,13 +148,13 @@ class LineItemsInCartRuleTest extends TestCase
 
     public function testIfRuleIsConsistent(): void
     {
-        $ruleId = Uuid::uuid4()->getHex();
+        $ruleId = Uuid::randomHex();
         $this->ruleRepository->create(
             [['id' => $ruleId, 'name' => 'Demo rule', 'priority' => 1]],
             Context::createDefaultContext()
         );
 
-        $id = Uuid::uuid4()->getHex();
+        $id = Uuid::randomHex();
         $this->conditionRepository->create([
             [
                 'id' => $id,

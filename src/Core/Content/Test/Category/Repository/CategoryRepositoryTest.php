@@ -12,7 +12,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityDeletedEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Struct\Uuid;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
 class CategoryRepositoryTest extends TestCase
@@ -180,10 +180,10 @@ class CategoryRepositoryTest extends TestCase
 
     public function testCreateNesting(): void
     {
-        $parent = Uuid::uuid4()->getHex();
-        $recordA = Uuid::uuid4()->getHex();
-        $recordB = Uuid::uuid4()->getHex();
-        $recordC = Uuid::uuid4()->getHex();
+        $parent = Uuid::randomHex();
+        $recordA = Uuid::randomHex();
+        $recordB = Uuid::randomHex();
+        $recordC = Uuid::randomHex();
 
         $categories = [
             ['id' => $parent, 'name' => 'First Level Category'],

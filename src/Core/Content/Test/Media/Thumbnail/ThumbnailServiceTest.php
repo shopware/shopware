@@ -161,7 +161,7 @@ class ThumbnailServiceTest extends TestCase
 
     public function testDeleteThumbnailsWithSavedThumbnails(): void
     {
-        $mediaId = Uuid::uuid4()->getHex();
+        $mediaId = Uuid::randomHex();
         $mediaExtension = 'png';
 
         $this->mediaRepository->create([

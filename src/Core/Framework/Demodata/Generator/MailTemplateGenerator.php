@@ -7,7 +7,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriterInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\Demodata\DemodataContext;
 use Shopware\Core\Framework\Demodata\DemodataGeneratorInterface;
-use Shopware\Core\Framework\Struct\Uuid;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Util\Random;
 
 class MailTemplateGenerator implements DemodataGeneratorInterface
@@ -76,7 +76,7 @@ class MailTemplateGenerator implements DemodataGeneratorInterface
     {
         $faker = $context->getFaker();
         $mailTemplate = [
-            'id' => Uuid::uuid4()->getHex(),
+            'id' => Uuid::randomHex(),
             'description' => $faker->text,
             'mailType' => $faker->word,
             'isDefault' => false,

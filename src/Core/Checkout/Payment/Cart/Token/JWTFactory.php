@@ -10,7 +10,7 @@ use League\OAuth2\Server\CryptKey;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionEntity;
 use Shopware\Core\Checkout\Payment\Exception\InvalidTokenException;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Struct\Uuid;
+use Shopware\Core\Framework\Uuid\Uuid;
 
 class JWTFactory implements TokenFactoryInterface
 {
@@ -38,7 +38,7 @@ class JWTFactory implements TokenFactoryInterface
         int $expiresInSeconds = 1800
     ): string {
         $jwtToken = (new Builder())
-            ->setId(Uuid::uuid4()->getHex(), true)
+            ->setId(Uuid::randomHex(), true)
             ->setIssuedAt(time())
             ->setNotBefore(time())
             ->setExpiration(time() + $expiresInSeconds)

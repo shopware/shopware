@@ -18,7 +18,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\Rule\Container\AndRule;
 use Shopware\Core\Framework\Rule\Rule;
-use Shopware\Core\Framework\Struct\Uuid;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 
@@ -77,7 +77,7 @@ class DiscountSurchargeTest extends TestCase
         self::$discountSurchargeRepository = $this->getContainer()->get('discount_surcharge.repository');
         self::$factory = $this->getContainer()->get(CheckoutContextFactory::class);
 
-        self::$context = self::$factory->create(Uuid::uuid4()->getHex(), Defaults::SALES_CHANNEL);
+        self::$context = self::$factory->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
 
         self::$processor = $this->getContainer()->get(Processor::class);
         self::$enrichment = $this->getContainer()->get(Enrichment::class);
@@ -249,7 +249,7 @@ class DiscountSurchargeTest extends TestCase
 
     private function createRule(array $rules, string $name = 'Test rule', int $priority = 1): string
     {
-        $id = Uuid::uuid4()->getHex();
+        $id = Uuid::randomHex();
 
         self::$ruleRepository->upsert(
             [
@@ -268,7 +268,7 @@ class DiscountSurchargeTest extends TestCase
 
     private function createDiscountSurcharge(string $ruleId, string $type, float $amount, ?Rule $rule = null): string
     {
-        $id = Uuid::uuid4()->getHex();
+        $id = Uuid::randomHex();
 
         $data = [
             'id' => $id,
@@ -285,7 +285,7 @@ class DiscountSurchargeTest extends TestCase
 
     private function createProduct(string $name, float $netPrice, float $grossPrice, float $taxRate): string
     {
-        $id = Uuid::uuid4()->getHex();
+        $id = Uuid::randomHex();
 
         self::$productRepository->upsert([
             [

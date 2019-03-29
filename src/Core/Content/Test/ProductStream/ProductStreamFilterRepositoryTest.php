@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
-use Shopware\Core\Framework\Struct\Uuid;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
 class ProductStreamFilterRepositoryTest extends TestCase
@@ -39,14 +39,14 @@ class ProductStreamFilterRepositoryTest extends TestCase
     {
         $this->repository = $this->getContainer()->get('product_stream_filter.repository');
         $this->productStreamRepository = $this->getContainer()->get('product_stream.repository');
-        $this->streamId = Uuid::uuid4()->getHex();
+        $this->streamId = Uuid::randomHex();
         $this->context = Context::createDefaultContext();
         $this->productStreamRepository->upsert([['id' => $this->streamId, 'name' => 'Test stream']], $this->context);
     }
 
     public function testCreateEntity(): void
     {
-        $id = Uuid::uuid4()->getHex();
+        $id = Uuid::randomHex();
         $this->repository->create([
             ['id' => $id, 'type' => 'equals', 'value' => 'awesome', 'field' => 'product.name', 'productStreamId' => $this->streamId],
         ], $this->context);
@@ -58,7 +58,7 @@ class ProductStreamFilterRepositoryTest extends TestCase
 
     public function testUpdateEntity(): void
     {
-        $id = Uuid::uuid4()->getHex();
+        $id = Uuid::randomHex();
         $this->repository->create([
             ['id' => $id, 'type' => 'equals', 'value' => 'new awesome', 'field' => 'product.name', 'productStreamId' => $this->streamId],
         ], $this->context);
@@ -73,7 +73,7 @@ class ProductStreamFilterRepositoryTest extends TestCase
 
     public function testRangeEntity(): void
     {
-        $id = Uuid::uuid4()->getHex();
+        $id = Uuid::randomHex();
         $this->repository->create([
             ['id' => $id, 'type' => 'range', 'parameters' => [RangeFilter::GT => 0.5, RangeFilter::LT => 100], 'field' => 'product.weight', 'productStreamId' => $this->streamId],
         ], $this->context);

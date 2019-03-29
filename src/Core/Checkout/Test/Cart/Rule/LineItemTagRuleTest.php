@@ -13,7 +13,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException\WriteStackException;
 use Shopware\Core\Framework\Rule\Rule;
-use Shopware\Core\Framework\Struct\Uuid;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Validation\ConstraintViolationException;
@@ -48,13 +48,13 @@ class LineItemTagRuleTest extends TestCase
 
     public function testValidateWithMissingIdentifiers(): void
     {
-        $conditionId = Uuid::uuid4()->getHex();
+        $conditionId = Uuid::randomHex();
         try {
             $this->conditionRepository->create([
                 [
                     'id' => $conditionId,
                     'type' => (new LineItemTagRule())->getName(),
-                    'ruleId' => Uuid::uuid4()->getHex(),
+                    'ruleId' => Uuid::randomHex(),
                 ],
             ], $this->context);
             static::fail('Exception was not thrown');
@@ -72,13 +72,13 @@ class LineItemTagRuleTest extends TestCase
 
     public function testValidateWithEmptyIdentifiers(): void
     {
-        $conditionId = Uuid::uuid4()->getHex();
+        $conditionId = Uuid::randomHex();
         try {
             $this->conditionRepository->create([
                 [
                     'id' => $conditionId,
                     'type' => (new LineItemTagRule())->getName(),
-                    'ruleId' => Uuid::uuid4()->getHex(),
+                    'ruleId' => Uuid::randomHex(),
                     'value' => [
                         'identifiers' => [],
                     ],
@@ -99,13 +99,13 @@ class LineItemTagRuleTest extends TestCase
 
     public function testValidateWithStringIdentifiers(): void
     {
-        $conditionId = Uuid::uuid4()->getHex();
+        $conditionId = Uuid::randomHex();
         try {
             $this->conditionRepository->create([
                 [
                     'id' => $conditionId,
                     'type' => (new LineItemTagRule())->getName(),
-                    'ruleId' => Uuid::uuid4()->getHex(),
+                    'ruleId' => Uuid::randomHex(),
                     'value' => [
                         'identifiers' => '0915d54fbf80423c917c61ad5a391b48',
                     ],
@@ -125,13 +125,13 @@ class LineItemTagRuleTest extends TestCase
 
     public function testValidateWithInvalidArrayIdentifiers(): void
     {
-        $conditionId = Uuid::uuid4()->getHex();
+        $conditionId = Uuid::randomHex();
         try {
             $this->conditionRepository->create([
                 [
                     'id' => $conditionId,
                     'type' => (new LineItemTagRule())->getName(),
-                    'ruleId' => Uuid::uuid4()->getHex(),
+                    'ruleId' => Uuid::randomHex(),
                     'value' => [
                         'identifiers' => [true, 3, '1234abcd', '0915d54fbf80423c917c61ad5a391b48'],
                     ],
@@ -153,13 +153,13 @@ class LineItemTagRuleTest extends TestCase
 
     public function testIfRuleIsConsistent(): void
     {
-        $ruleId = Uuid::uuid4()->getHex();
+        $ruleId = Uuid::randomHex();
         $this->ruleRepository->create(
             [['id' => $ruleId, 'name' => 'Demo rule', 'priority' => 1]],
             Context::createDefaultContext()
         );
 
-        $id = Uuid::uuid4()->getHex();
+        $id = Uuid::randomHex();
         $this->conditionRepository->create([
             [
                 'id' => $id,
@@ -176,7 +176,7 @@ class LineItemTagRuleTest extends TestCase
 
     public function testNoMatchWithoutTags(): void
     {
-        $rule = (new LineItemTagRule())->assign(['identifiers' => [Uuid::uuid4()->getHex()]]);
+        $rule = (new LineItemTagRule())->assign(['identifiers' => [Uuid::randomHex()]]);
         $cart = new Cart('test', 'test');
         $cart->add(new LineItem('key', 'product'));
         $cart->add(new LineItem('key2', 'product'));
@@ -190,7 +190,7 @@ class LineItemTagRuleTest extends TestCase
 
     public function testMatchUnequalsTags(): void
     {
-        $rule = (new LineItemTagRule())->assign(['operator' => Rule::OPERATOR_NEQ, 'identifiers' => [Uuid::uuid4()->getHex()]]);
+        $rule = (new LineItemTagRule())->assign(['operator' => Rule::OPERATOR_NEQ, 'identifiers' => [Uuid::randomHex()]]);
         $cart = new Cart('test', 'test');
         $cart->add(new LineItem('key', 'product'));
         $cart->add(new LineItem('key2', 'product'));
@@ -203,7 +203,7 @@ class LineItemTagRuleTest extends TestCase
 
     public function testMatchWithMatchingTags(): void
     {
-        $tagIds = [Uuid::uuid4()->getHex(), Uuid::uuid4()->getHex(), Uuid::uuid4()->getHex()];
+        $tagIds = [Uuid::randomHex(), Uuid::randomHex(), Uuid::randomHex()];
 
         $rule = (new LineItemTagRule())->assign(['operator' => Rule::OPERATOR_EQ, 'identifiers' => $tagIds]);
         $cart = new Cart('test', 'test');
@@ -218,12 +218,12 @@ class LineItemTagRuleTest extends TestCase
 
     public function testMatchWithPartialMatchingTags(): void
     {
-        $tagIds = [Uuid::uuid4()->getHex(), Uuid::uuid4()->getHex(), Uuid::uuid4()->getHex()];
+        $tagIds = [Uuid::randomHex(), Uuid::randomHex(), Uuid::randomHex()];
 
         $rule = (new LineItemTagRule())->assign(['operator' => Rule::OPERATOR_EQ, 'identifiers' => $tagIds]);
         $cart = new Cart('test', 'test');
         $cart->add((new LineItem('key', 'product'))->replacePayload(['tags' => [$tagIds[0]]]));
-        $cart->add((new LineItem('key2', 'product'))->replacePayload(['tags' => [Uuid::uuid4()->getHex()]]));
+        $cart->add((new LineItem('key2', 'product'))->replacePayload(['tags' => [Uuid::randomHex()]]));
 
         $cartRuleScope = new CartRuleScope($cart, $this->createMock(CheckoutContext::class));
 
@@ -233,12 +233,12 @@ class LineItemTagRuleTest extends TestCase
 
     public function testNoMatchWithPartialMatchingUnequalOperatorTags(): void
     {
-        $tagIds = [Uuid::uuid4()->getHex(), Uuid::uuid4()->getHex(), Uuid::uuid4()->getHex()];
+        $tagIds = [Uuid::randomHex(), Uuid::randomHex(), Uuid::randomHex()];
 
         $rule = (new LineItemTagRule())->assign(['operator' => Rule::OPERATOR_NEQ, 'identifiers' => $tagIds]);
         $cart = new Cart('test', 'test');
         $cart->add((new LineItem('key', 'product'))->replacePayload(['tags' => [$tagIds[0]]]));
-        $cart->add((new LineItem('key2', 'product'))->replacePayload(['tags' => [Uuid::uuid4()->getHex()]]));
+        $cart->add((new LineItem('key2', 'product'))->replacePayload(['tags' => [Uuid::randomHex()]]));
 
         $cartRuleScope = new CartRuleScope($cart, $this->createMock(CheckoutContext::class));
 

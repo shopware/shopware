@@ -6,7 +6,7 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
-use Shopware\Core\Framework\Struct\Uuid;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Shopware\Core\PlatformRequest;
 use Symfony\Component\HttpFoundation\Response;
@@ -155,11 +155,11 @@ class AuthControllerTest extends TestCase
             'HTTP_ACCEPT' => ['application/vnd.api+json,application/json'],
         ]);
 
-        $username = Uuid::uuid4()->getHex();
-        $password = Uuid::uuid4()->getHex();
+        $username = Uuid::randomHex();
+        $password = Uuid::randomHex();
 
         $this->getContainer()->get(Connection::class)->insert('user', [
-            'id' => Uuid::uuid4()->getBytes(),
+            'id' => Uuid::randomBytes(),
             'name' => $username,
             'email' => 'test@example.com',
             'username' => $username,
@@ -245,7 +245,7 @@ class AuthControllerTest extends TestCase
         $secretKey = AccessKeyHelper::generateSecretAccessKey();
 
         $this->getContainer()->get(Connection::class)->insert('integration', [
-            'id' => Uuid::uuid4()->getBytes(),
+            'id' => Uuid::randomBytes(),
             'label' => 'test integration',
             'access_key' => $accessKey,
             'secret_access_key' => password_hash($secretKey, PASSWORD_BCRYPT),

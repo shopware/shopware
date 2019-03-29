@@ -7,7 +7,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\Util\AfterSort;
-use Shopware\Core\Framework\Struct\Uuid;
+use Shopware\Core\Framework\Uuid\Uuid;
 
 class AfterSortTraitTest extends TestCase
 {
@@ -22,7 +22,7 @@ class AfterSortTraitTest extends TestCase
     public function testSortingWithSingleElement(): void
     {
         $entity1 = new TestEntity();
-        $entity1->setId(Uuid::uuid4()->getHex());
+        $entity1->setId(Uuid::randomHex());
         $entity1->setName('Root #1');
 
         $afterSortCollection = new AfterSortCollection([$entity1]);
@@ -34,21 +34,21 @@ class AfterSortTraitTest extends TestCase
     public function testSortingByAfterId(): void
     {
         $entity1 = new TestEntity();
-        $entity1->setId(Uuid::uuid4()->getHex());
+        $entity1->setId(Uuid::randomHex());
         $entity1->setName('Root #1');
 
         $entity2 = new TestEntity();
-        $entity2->setId(Uuid::uuid4()->getHex());
+        $entity2->setId(Uuid::randomHex());
         $entity2->setAfterId($entity1->getId());
         $entity2->setName('Root #2');
 
         $entity3 = new TestEntity();
-        $entity3->setId(Uuid::uuid4()->getHex());
+        $entity3->setId(Uuid::randomHex());
         $entity3->setAfterId($entity2->getId());
         $entity3->setName('Root #3 (invalid)');
 
         $entity4 = new TestEntity();
-        $entity4->setId(Uuid::uuid4()->getHex());
+        $entity4->setId(Uuid::randomHex());
         $entity4->setAfterId($entity3->getId());
         $entity4->setName('Root #4');
 
@@ -72,21 +72,21 @@ class AfterSortTraitTest extends TestCase
     public function testSortingInconsistentDataWithHole(): void
     {
         $entity1 = new TestEntity();
-        $entity1->setId(Uuid::uuid4()->getHex());
+        $entity1->setId(Uuid::randomHex());
         $entity1->setName('Root #1');
 
         $entity2 = new TestEntity();
-        $entity2->setId(Uuid::uuid4()->getHex());
+        $entity2->setId(Uuid::randomHex());
         $entity2->setAfterId($entity1->getId());
         $entity2->setName('Root #2');
 
         $entity3 = new TestEntity();
-        $entity3->setId(Uuid::uuid4()->getHex());
-        $entity3->setAfterId(Uuid::uuid4()->getHex());
+        $entity3->setId(Uuid::randomHex());
+        $entity3->setAfterId(Uuid::randomHex());
         $entity3->setName('Root #3 (invalid)');
 
         $entity4 = new TestEntity();
-        $entity4->setId(Uuid::uuid4()->getHex());
+        $entity4->setId(Uuid::randomHex());
         $entity4->setAfterId($entity3->getId());
         $entity4->setName('Root #4');
 
@@ -110,21 +110,21 @@ class AfterSortTraitTest extends TestCase
     public function testSortingInconsistentData(): void
     {
         $entity1 = new TestEntity();
-        $entity1->setId(Uuid::uuid4()->getHex());
+        $entity1->setId(Uuid::randomHex());
         $entity1->setName('Root #1');
 
         $entity2 = new TestEntity();
-        $entity2->setId(Uuid::uuid4()->getHex());
+        $entity2->setId(Uuid::randomHex());
         $entity2->setAfterId($entity1->getId());
         $entity2->setName('Root #2');
 
         $entity3 = new TestEntity();
-        $entity3->setId(Uuid::uuid4()->getHex());
-        $entity3->setAfterId(Uuid::uuid4()->getHex());
+        $entity3->setId(Uuid::randomHex());
+        $entity3->setAfterId(Uuid::randomHex());
         $entity3->setName('Root #3 (invalid)');
 
         $entity4 = new TestEntity();
-        $entity4->setId(Uuid::uuid4()->getHex());
+        $entity4->setId(Uuid::randomHex());
         $entity4->setAfterId($entity2->getId());
         $entity4->setName('Root #4');
 
@@ -148,26 +148,26 @@ class AfterSortTraitTest extends TestCase
     public function testSortingByAfterIdWithMultipleNullValues(): void
     {
         $root1 = new TestEntity();
-        $root1->setId(Uuid::uuid4()->getHex());
+        $root1->setId(Uuid::randomHex());
         $root1->setName('Root #1');
 
         $root2 = new TestEntity();
-        $root2->setId(Uuid::uuid4()->getHex());
+        $root2->setId(Uuid::randomHex());
         $root2->setName('Root #2');
         $root2->setAfterId($root1->getId());
 
         $root3 = new TestEntity();
-        $root3->setId(Uuid::uuid4()->getHex());
+        $root3->setId(Uuid::randomHex());
         $root3->setName('Root #3');
         $root3->setAfterId($root2->getId());
 
         $root4 = new TestEntity();
-        $root4->setId(Uuid::uuid4()->getHex());
+        $root4->setId(Uuid::randomHex());
         $root4->setName('Root #4');
         $root4->setAfterId($root3->getId());
 
         $root5 = new TestEntity();
-        $root5->setId(Uuid::uuid4()->getHex());
+        $root5->setId(Uuid::randomHex());
         $root5->setName('Root #5');
 
         $afterSortCollection = new AfterSortCollection([$root1, $root2, $root3, $root4, $root5]);

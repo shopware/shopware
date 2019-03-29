@@ -6,7 +6,7 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
-use Shopware\Core\Framework\Struct\Uuid;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\System\StateMachine\Exception\StateMachineNotFoundException;
 use Shopware\Core\System\StateMachine\Exception\StateMachineWithoutInitialStateException;
@@ -73,12 +73,12 @@ class StateMachineRegistryTest extends TestCase
         $this->stateMachineRepository = $this->getContainer()->get('state_machine.repository');
 
         $this->stateMachineName = 'test_state_machine';
-        $this->stateMachineId = Uuid::uuid4()->getHex();
-        $this->openId = Uuid::uuid4()->getHex();
-        $this->inProgressId = Uuid::uuid4()->getHex();
-        $this->closedId = Uuid::uuid4()->getHex();
+        $this->stateMachineId = Uuid::randomHex();
+        $this->openId = Uuid::randomHex();
+        $this->inProgressId = Uuid::randomHex();
+        $this->closedId = Uuid::randomHex();
 
-        $this->stateMachineWithoutInitialId = Uuid::uuid4()->getHex();
+        $this->stateMachineWithoutInitialId = Uuid::randomHex();
         $this->stateMachineWithoutInitialName = 'test_broken_state_machine';
 
         $nullableTable = <<<EOF

@@ -9,7 +9,7 @@ use Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerEmailUnique;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\Event\DataMappingEvent;
-use Shopware\Core\Framework\Struct\Uuid;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\BuildValidationEvent;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
 use Shopware\Core\Framework\Validation\DataValidationDefinition;
@@ -75,7 +75,7 @@ class AccountRegistrationService
         $customer = $this->mapCustomerData($data, $isGuest, $context);
 
         $billingAddress = $this->mapBillingAddress($data->get('billingAddress'), $context->getContext());
-        $billingAddress['id'] = Uuid::uuid4()->getHex();
+        $billingAddress['id'] = Uuid::randomHex();
         $billingAddress['customerId'] = $customer['id'];
 
         // if no shipping address is provided, use the billing address
@@ -85,7 +85,7 @@ class AccountRegistrationService
 
         if ($shipping = $data->get('shippingAddress')) {
             $shippingAddress = $this->mapShippingAddress($shipping, $context->getContext());
-            $shippingAddress['id'] = Uuid::uuid4()->getHex();
+            $shippingAddress['id'] = Uuid::randomHex();
             $shippingAddress['customerId'] = $customer['id'];
 
             $customer['defaultShippingAddressId'] = $shippingAddress['id'];
@@ -216,7 +216,7 @@ class AccountRegistrationService
         $this->eventDispatcher->dispatch($event->getName(), $event);
 
         $customer = $event->getOutput();
-        $customer['id'] = Uuid::uuid4()->getHex();
+        $customer['id'] = Uuid::randomHex();
 
         return $customer;
     }

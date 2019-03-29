@@ -33,7 +33,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Parser\SqlQueryParser;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Doctrine\FetchModeHelper;
 use Shopware\Core\Framework\Struct\ArrayEntity;
-use Shopware\Core\Framework\Struct\Uuid;
+use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * Reads entities in specify data form (basic, detail, dynamic).

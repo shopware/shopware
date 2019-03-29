@@ -9,7 +9,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\SearchPattern;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\SearchTerm;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\TokenizerInterface;
-use Shopware\Core\Framework\Struct\Uuid;
+use Shopware\Core\Framework\Uuid\Uuid;
 
 class KeywordSearchTermInterpreter implements KeywordSearchTermInterpreterInterface
 {

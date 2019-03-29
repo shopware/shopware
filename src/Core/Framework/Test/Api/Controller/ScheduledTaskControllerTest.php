@@ -10,7 +10,7 @@ use Shopware\Core\Framework\MessageQueue\Message\RetryMessage;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\RequeueDeadMessagesTask;
 use Shopware\Core\Framework\ScheduledTask\ScheduledTaskDefinition;
 use Shopware\Core\Framework\ScheduledTask\ScheduledTaskEntity;
-use Shopware\Core\Framework\Struct\Uuid;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Test\MessageQueue\fixtures\TestMessage;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\QueueTestBehaviour;
@@ -26,7 +26,7 @@ class ScheduledTaskControllerTest extends TestCase
         $connection->exec('DELETE FROM scheduled_task');
 
         $repo = $this->getContainer()->get('scheduled_task.repository');
-        $taskId = Uuid::uuid4()->getHex();
+        $taskId = Uuid::randomHex();
         $repo->create([
             [
                 'id' => $taskId,

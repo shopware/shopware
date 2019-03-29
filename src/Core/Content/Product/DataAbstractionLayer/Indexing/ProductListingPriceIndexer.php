@@ -15,7 +15,7 @@ use Shopware\Core\Framework\Event\ProgressFinishedEvent;
 use Shopware\Core\Framework\Event\ProgressStartedEvent;
 use Shopware\Core\Framework\Pricing\Price;
 use Shopware\Core\Framework\Pricing\PriceRuleEntity;
-use Shopware\Core\Framework\Struct\Uuid;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class ProductListingPriceIndexer implements IndexerInterface

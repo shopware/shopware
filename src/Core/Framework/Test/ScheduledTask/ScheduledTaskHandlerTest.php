@@ -11,7 +11,7 @@ use Shopware\Core\Framework\MessageQueue\Exception\MessageFailedException;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\RequeueDeadMessagesTask;
 use Shopware\Core\Framework\ScheduledTask\ScheduledTaskDefinition;
 use Shopware\Core\Framework\ScheduledTask\ScheduledTaskEntity;
-use Shopware\Core\Framework\Struct\Uuid;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Test\ScheduledTask\fixtures\DummyScheduledTaskHandler;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
@@ -39,7 +39,7 @@ class ScheduledTaskHandlerTest extends TestCase
     {
         $this->connection->exec('DELETE FROM scheduled_task');
 
-        $taskId = Uuid::uuid4()->getHex();
+        $taskId = Uuid::randomHex();
         $originalNextExecution = (new \DateTime())->modify('-10 seconds');
         $this->scheduledTaskRepo->create([
             [
@@ -71,7 +71,7 @@ class ScheduledTaskHandlerTest extends TestCase
     {
         $this->connection->exec('DELETE FROM scheduled_task');
 
-        $taskId = Uuid::uuid4()->getHex();
+        $taskId = Uuid::randomHex();
         $originalNextExecution = (new \DateTime())->modify('-10 seconds');
         $this->scheduledTaskRepo->create([
             [
@@ -110,7 +110,7 @@ class ScheduledTaskHandlerTest extends TestCase
     {
         $this->connection->exec('DELETE FROM scheduled_task');
 
-        $taskId = Uuid::uuid4()->getHex();
+        $taskId = Uuid::randomHex();
         $task = new RequeueDeadMessagesTask();
         $task->setTaskId($taskId);
 
@@ -127,7 +127,7 @@ class ScheduledTaskHandlerTest extends TestCase
     {
         $this->connection->exec('DELETE FROM scheduled_task');
 
-        $taskId = Uuid::uuid4()->getHex();
+        $taskId = Uuid::randomHex();
         $this->scheduledTaskRepo->create([
             [
                 'id' => $taskId,

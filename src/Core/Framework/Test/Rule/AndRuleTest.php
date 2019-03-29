@@ -9,7 +9,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException\WriteStackException;
 use Shopware\Core\Framework\Rule\Container\AndRule;
-use Shopware\Core\Framework\Struct\Uuid;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
@@ -43,13 +43,13 @@ class AndRuleTest extends TestCase
 
     public function testValidateWithInvalidRulesType(): void
     {
-        $conditionId = Uuid::uuid4()->getHex();
+        $conditionId = Uuid::randomHex();
         try {
             $this->conditionRepository->create([
                 [
                     'id' => $conditionId,
                     'type' => (new AndRule())->getName(),
-                    'ruleId' => Uuid::uuid4()->getHex(),
+                    'ruleId' => Uuid::randomHex(),
                     'value' => [
                         'rules' => ['Rule'],
                     ],
@@ -69,13 +69,13 @@ class AndRuleTest extends TestCase
 
     public function testIfRuleIsConsistent(): void
     {
-        $ruleId = Uuid::uuid4()->getHex();
+        $ruleId = Uuid::randomHex();
         $this->ruleRepository->create(
             [['id' => $ruleId, 'name' => 'Demo rule', 'priority' => 1]],
             Context::createDefaultContext()
         );
 
-        $id = Uuid::uuid4()->getHex();
+        $id = Uuid::randomHex();
         $this->conditionRepository->create([
             [
                 'id' => $id,
@@ -89,13 +89,13 @@ class AndRuleTest extends TestCase
 
     public function testIfRuleWithChildRulesIsConsistent(): void
     {
-        $ruleId = Uuid::uuid4()->getHex();
+        $ruleId = Uuid::randomHex();
         $this->ruleRepository->create(
             [['id' => $ruleId, 'name' => 'Demo rule', 'priority' => 1]],
             Context::createDefaultContext()
         );
 
-        $id = Uuid::uuid4()->getHex();
+        $id = Uuid::randomHex();
         $this->conditionRepository->create([
             [
                 'id' => $id,

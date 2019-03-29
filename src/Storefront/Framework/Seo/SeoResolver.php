@@ -3,7 +3,7 @@
 namespace Shopware\Storefront\Framework\Seo;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Core\Framework\Struct\Uuid;
+use Shopware\Core\Framework\Uuid\Uuid;
 
 class SeoResolver implements SeoResolverInterface
 {

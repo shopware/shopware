@@ -10,7 +10,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Demodata\DemodataContext;
 use Shopware\Core\Framework\Demodata\DemodataGeneratorInterface;
-use Shopware\Core\Framework\Struct\Uuid;
+use Shopware\Core\Framework\Uuid\Uuid;
 
 class CmsPageGenerator implements DemodataGeneratorInterface
 {
@@ -80,7 +80,7 @@ class CmsPageGenerator implements DemodataGeneratorInterface
     protected function createLandingPage(DemodataContext $context): array
     {
         return [
-            'id' => Uuid::uuid4()->getHex(),
+            'id' => Uuid::randomHex(),
             'name' => $context->getFaker()->company,
             'type' => 'landing_page',
             'blocks' => [
@@ -107,7 +107,7 @@ class CmsPageGenerator implements DemodataGeneratorInterface
     protected function createListingPage(DemodataContext $context): array
     {
         return [
-            'id' => Uuid::uuid4()->getHex(),
+            'id' => Uuid::randomHex(),
             'name' => $context->getFaker()->company,
             'type' => 'listing_page',
             'blocks' => [

@@ -4,7 +4,7 @@ namespace Shopware\Core\Framework\Provisioning;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Defaults;
-use Shopware\Core\Framework\Struct\Uuid;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Util\Random;
 
 class UserProvisioner
@@ -28,7 +28,7 @@ class UserProvisioner
         $password = $password ?? Random::getAlphanumericString(8);
 
         $userPayload = [
-            'id' => Uuid::uuid4()->getBytes(),
+            'id' => Uuid::randomBytes(),
             'name' => $additionalData['name'] ?? $username,
             'email' => $additionalData['email'] ?? 'info@shopware.com',
             'username' => $username,

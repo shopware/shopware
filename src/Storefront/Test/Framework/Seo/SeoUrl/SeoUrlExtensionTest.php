@@ -8,7 +8,7 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Struct\Uuid;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Storefront\Framework\Seo\SeoUrl\SeoUrlCollection;
 use Shopware\Storefront\Framework\Seo\SeoUrl\SeoUrlEntity;
@@ -31,10 +31,10 @@ class SeoUrlExtensionTest extends TestCase
 
     public function testInsert(): void
     {
-        $seoUrlId1 = Uuid::uuid4()->getHex();
-        $seoUrlId2 = Uuid::uuid4()->getHex();
+        $seoUrlId1 = Uuid::randomHex();
+        $seoUrlId2 = Uuid::randomHex();
 
-        $id = Uuid::uuid4()->getHex();
+        $id = Uuid::randomHex();
         $this->upsertProduct([
             'id' => $id,
             'name' => 'awesome product',
@@ -82,8 +82,8 @@ class SeoUrlExtensionTest extends TestCase
 
     public function testUpdate(): void
     {
-        $seoUrlId = Uuid::uuid4()->getHex();
-        $id = Uuid::uuid4()->getHex();
+        $seoUrlId = Uuid::randomHex();
+        $id = Uuid::randomHex();
         $this->upsertProduct(['id' => $id, 'name' => 'awesome product']);
 
         $router = $this->getContainer()->get('router');
@@ -131,10 +131,10 @@ class SeoUrlExtensionTest extends TestCase
     {
         $defaults = [
             'manufacturer' => [
-                'id' => Uuid::uuid4()->getHex(),
+                'id' => Uuid::randomHex(),
                 'name' => 'amazing brand',
             ],
-            'tax' => ['id' => Uuid::uuid4()->getHex(), 'taxRate' => 19, 'name' => 'tax'],
+            'tax' => ['id' => Uuid::randomHex(), 'taxRate' => 19, 'name' => 'tax'],
             'price' => ['gross' => 10, 'net' => 12, 'linked' => false],
             'stock' => 0,
         ];

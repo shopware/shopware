@@ -7,7 +7,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\Api\Controller\SyncController;
-use Shopware\Core\Framework\Struct\Uuid;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Shopware\Core\PlatformRequest;
 use Symfony\Component\HttpFoundation\Response;
@@ -75,7 +75,7 @@ class SyncControllerTest extends TestCase
 
     public function testInsertAndUpdateSameEntity(): void
     {
-        $id = Uuid::uuid4()->getHex();
+        $id = Uuid::randomHex();
 
         $data = [
             [
@@ -118,8 +118,8 @@ class SyncControllerTest extends TestCase
 
     public function testInsertAndLinkEntities(): void
     {
-        $categoryId = Uuid::uuid4()->getHex();
-        $productId = Uuid::uuid4()->getHex();
+        $categoryId = Uuid::randomHex();
+        $productId = Uuid::randomHex();
 
         $data = [
             [
@@ -175,9 +175,9 @@ class SyncControllerTest extends TestCase
 
     public function testNestedInsertAndLinkAfter(): void
     {
-        $product = Uuid::uuid4()->getHex();
-        $product2 = Uuid::uuid4()->getHex();
-        $category = Uuid::uuid4()->getHex();
+        $product = Uuid::randomHex();
+        $product2 = Uuid::randomHex();
+        $category = Uuid::randomHex();
 
         $data = [
             [

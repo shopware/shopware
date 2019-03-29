@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException\WriteStackException;
-use Shopware\Core\Framework\Struct\Uuid;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
@@ -43,13 +43,13 @@ class BillingCountryRuleTest extends TestCase
 
     public function testValidationWithMissingCountryIds(): void
     {
-        $conditionId = Uuid::uuid4()->getHex();
+        $conditionId = Uuid::randomHex();
         try {
             $this->conditionRepository->create([
                 [
                     'id' => $conditionId,
                     'type' => (new BillingCountryRule())->getName(),
-                    'ruleId' => Uuid::uuid4()->getHex(),
+                    'ruleId' => Uuid::randomHex(),
                 ],
             ], $this->context);
             static::fail('Exception was not thrown');
@@ -67,13 +67,13 @@ class BillingCountryRuleTest extends TestCase
 
     public function testValidationWithEmptyCountryIds(): void
     {
-        $conditionId = Uuid::uuid4()->getHex();
+        $conditionId = Uuid::randomHex();
         try {
             $this->conditionRepository->create([
                 [
                     'id' => $conditionId,
                     'type' => (new BillingCountryRule())->getName(),
-                    'ruleId' => Uuid::uuid4()->getHex(),
+                    'ruleId' => Uuid::randomHex(),
                     'value' => [
                         'countryIds' => [],
                     ],
@@ -94,13 +94,13 @@ class BillingCountryRuleTest extends TestCase
 
     public function testValidationWithStringCountryIds(): void
     {
-        $conditionId = Uuid::uuid4()->getHex();
+        $conditionId = Uuid::randomHex();
         try {
             $this->conditionRepository->create([
                 [
                     'id' => $conditionId,
                     'type' => (new BillingCountryRule())->getName(),
-                    'ruleId' => Uuid::uuid4()->getHex(),
+                    'ruleId' => Uuid::randomHex(),
                     'value' => [
                         'countryIds' => 'COUNTRY-ID-1',
                     ],
@@ -120,15 +120,15 @@ class BillingCountryRuleTest extends TestCase
 
     public function testValidationWithArrayOfInvalidCountryIdTypes(): void
     {
-        $conditionId = Uuid::uuid4()->getHex();
+        $conditionId = Uuid::randomHex();
         try {
             $this->conditionRepository->create([
                 [
                     'id' => $conditionId,
                     'type' => (new BillingCountryRule())->getName(),
-                    'ruleId' => Uuid::uuid4()->getHex(),
+                    'ruleId' => Uuid::randomHex(),
                     'value' => [
-                        'countryIds' => ['COUNTRY-ID-1', true, 3, Uuid::uuid4()->getHex()],
+                        'countryIds' => ['COUNTRY-ID-1', true, 3, Uuid::randomHex()],
                     ],
                 ],
             ], $this->context);
@@ -148,20 +148,20 @@ class BillingCountryRuleTest extends TestCase
 
     public function testIfRuleIsConsistent(): void
     {
-        $ruleId = Uuid::uuid4()->getHex();
+        $ruleId = Uuid::randomHex();
         $this->ruleRepository->create(
             [['id' => $ruleId, 'name' => 'Demo rule', 'priority' => 1]],
             Context::createDefaultContext()
         );
 
-        $id = Uuid::uuid4()->getHex();
+        $id = Uuid::randomHex();
         $this->conditionRepository->create([
             [
                 'id' => $id,
                 'type' => (new BillingCountryRule())->getName(),
                 'ruleId' => $ruleId,
                 'value' => [
-                    'countryIds' => [Uuid::uuid4()->getHex(), Uuid::uuid4()->getHex()],
+                    'countryIds' => [Uuid::randomHex(), Uuid::randomHex()],
                 ],
             ],
         ], $this->context);

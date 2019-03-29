@@ -580,13 +580,13 @@ that no read operation must take place before the data is written:
 ```php
 <?php declare(strict_types=1);
 
-use Shopware\Core\Framework\Struct\Uuid;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 
 /** @var RepositoryInterface $repository */
 $repository = $this->container->get('product.repository');
 
-$id = Uuid::uuid4()->getHex();
+$id = Uuid::randomHex();
 
 $repository->upsert(
     [
@@ -632,13 +632,13 @@ the corresponding foreign key must be sent along with the associated data array:
 ```php
 <?php declare(strict_types=1);
 
-use Shopware\Core\Framework\Struct\Uuid;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 
 /** @var RepositoryInterface $repository */
 $repository = $this->container->get('product.repository');
 
-$id = Uuid::uuid4()->getHex();
+$id = Uuid::randomHex();
 
 $repository->upsert(
     [
@@ -667,12 +667,12 @@ the entire entity. It is possible to send only the corresponding changeset.
 ```php
 <?php declare(strict_types=1);
 
-use Shopware\Core\Framework\Struct\Uuid;
+use Shopware\Core\Framework\Uuid\Uuid;
 use GuzzleHttp\Client;
 
 $client = new Client();
 
-$id = Uuid::uuid4()->getHex();
+$id = Uuid::randomHex();
 
 $result = $client->post(
     'http://shopware.local/api/v1/product',

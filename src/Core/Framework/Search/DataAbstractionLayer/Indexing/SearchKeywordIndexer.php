@@ -21,7 +21,7 @@ use Shopware\Core\Framework\Event\ProgressAdvancedEvent;
 use Shopware\Core\Framework\Event\ProgressFinishedEvent;
 use Shopware\Core\Framework\Event\ProgressStartedEvent;
 use Shopware\Core\Framework\Search\Util\SearchAnalyzerRegistry;
-use Shopware\Core\Framework\Struct\Uuid;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Language\LanguageEntity;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
@@ -265,7 +265,7 @@ class SearchKeywordIndexer implements IndexerInterface
                 ], null, true);
 
                 $queue->addInsert($documentTable, [
-                    'id' => $this->connection->quote(Uuid::uuid4()->getBytes()),
+                    'id' => $this->connection->quote(Uuid::randomBytes()),
                     'entity' => $entityName,
                     'entity_id' => $entityId,
                     'language_id' => $languageId,

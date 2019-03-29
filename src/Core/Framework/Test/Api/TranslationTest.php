@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\MissingSystemTranslationException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Routing\Exception\LanguageNotFoundException;
-use Shopware\Core\Framework\Struct\Uuid;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\AssertArraySubsetBehaviour;
 use Shopware\Core\PlatformRequest;
@@ -23,7 +23,7 @@ class TranslationTest extends TestCase
 
     public function testNoOverride(): void
     {
-        $langId = Uuid::uuid4()->getHex();
+        $langId = Uuid::randomHex();
         $this->createLanguage($langId);
 
         $this->assertTranslation(
@@ -75,8 +75,8 @@ class TranslationTest extends TestCase
 
     public function testFallback(): void
     {
-        $langId = Uuid::uuid4()->getHex();
-        $fallbackId = Uuid::uuid4()->getHex();
+        $langId = Uuid::randomHex();
+        $fallbackId = Uuid::randomHex();
         $this->createLanguage($langId, $fallbackId);
 
         $this->assertTranslation(
@@ -171,7 +171,7 @@ class TranslationTest extends TestCase
     {
         $baseResource = '/api/v' . PlatformRequest::API_VERSION . '/category';
         $headerName = $this->getLangHeaderName();
-        $langId = Uuid::uuid4()->getHex();
+        $langId = Uuid::randomHex();
 
         $this->getClient()->request('GET', $baseResource, [], [], [$headerName => $langId]);
         $response = $this->getClient()->getResponse();
@@ -180,7 +180,7 @@ class TranslationTest extends TestCase
         $data = json_decode($response->getContent(), true);
         static::assertEquals(LanguageNotFoundException::LANGUAGE_NOT_FOUND_ERROR, $data['errors'][0]['code']);
 
-        $langId = sprintf('id=%s', Uuid::uuid4()->getHex());
+        $langId = sprintf('id=%s', Uuid::randomHex());
         $this->getClient()->request('GET', $baseResource, [], [], [$headerName => $langId]);
         $response = $this->getClient()->getResponse();
         static::assertEquals(412, $response->getStatusCode());
@@ -191,7 +191,7 @@ class TranslationTest extends TestCase
 
     public function testOverride(): void
     {
-        $langId = Uuid::uuid4()->getHex();
+        $langId = Uuid::randomHex();
         $this->createLanguage($langId);
 
         $this->assertTranslation(
@@ -209,7 +209,7 @@ class TranslationTest extends TestCase
     public function testOverrideWithExtendedParams(): void
     {
         static::markTestSkipped('Header is not allowed to be an array. Will be fixed with NEXT-2485');
-        $langId = Uuid::uuid4()->getHex();
+        $langId = Uuid::randomHex();
         $this->createLanguage($langId);
 
         $this->assertTranslation(
@@ -226,7 +226,7 @@ class TranslationTest extends TestCase
 
     public function testNoDefaultTranslation(): void
     {
-        $langId = Uuid::uuid4()->getHex();
+        $langId = Uuid::randomHex();
         $this->createLanguage($langId);
 
         $this->assertTranslationError(
@@ -249,7 +249,7 @@ class TranslationTest extends TestCase
 
     public function testExplicitDefaultTranslation(): void
     {
-        $langId = Uuid::uuid4()->getHex();
+        $langId = Uuid::randomHex();
         $this->createLanguage($langId);
 
         $this->assertTranslation(
@@ -266,8 +266,8 @@ class TranslationTest extends TestCase
 
     public function testPartialTranslationWithFallback(): void
     {
-        $langId = Uuid::uuid4()->getHex();
-        $fallbackId = Uuid::uuid4()->getHex();
+        $langId = Uuid::randomHex();
+        $fallbackId = Uuid::randomHex();
         $this->createLanguage($langId, $fallbackId);
 
         $this->assertTranslation(
@@ -298,8 +298,8 @@ class TranslationTest extends TestCase
 
     public function testChildTranslationWithoutRequiredField(): void
     {
-        $langId = Uuid::uuid4()->getHex();
-        $fallbackId = Uuid::uuid4()->getHex();
+        $langId = Uuid::randomHex();
+        $fallbackId = Uuid::randomHex();
         $this->createLanguage($langId, $fallbackId);
 
         $this->assertTranslation(
@@ -331,8 +331,8 @@ class TranslationTest extends TestCase
     public function testWithOverrideInPatch(): void
     {
         $baseResource = '/api/v' . PlatformRequest::API_VERSION . '/locale';
-        $id = Uuid::uuid4()->getHex();
-        $langId = Uuid::uuid4()->getHex();
+        $id = Uuid::randomHex();
+        $langId = Uuid::randomHex();
 
         $notTranslated = [
             'id' => $id,
@@ -373,8 +373,8 @@ class TranslationTest extends TestCase
     public function testDelete(): void
     {
         $baseResource = '/api/v' . PlatformRequest::API_VERSION . '/category';
-        $id = Uuid::uuid4()->getHex();
-        $langId = Uuid::uuid4()->getHex();
+        $id = Uuid::randomHex();
+        $langId = Uuid::randomHex();
 
         $name = 'Test category';
         $translatedName = $name . '_translated';
@@ -419,7 +419,7 @@ class TranslationTest extends TestCase
     public function testDeleteSystemLanguageViolation(): void
     {
         $baseResource = '/api/v' . PlatformRequest::API_VERSION . '/category';
-        $id = Uuid::uuid4()->getHex();
+        $id = Uuid::randomHex();
 
         $categoryData = [
             'id' => $id,
@@ -449,8 +449,8 @@ class TranslationTest extends TestCase
          * The translation is delete by the foreign key delete cascade.
          */
         $baseResource = '/api/v' . PlatformRequest::API_VERSION . '/category';
-        $id = Uuid::uuid4()->getHex();
-        $rootId = Uuid::uuid4()->getHex();
+        $id = Uuid::randomHex();
+        $rootId = Uuid::randomHex();
 
         $this->createLanguage($rootId);
 
@@ -475,8 +475,8 @@ class TranslationTest extends TestCase
     public function testDeleteNonSystemRootTranslations(): void
     {
         $baseResource = '/api/v' . PlatformRequest::API_VERSION . '/category';
-        $id = Uuid::uuid4()->getHex();
-        $rootDelete = Uuid::uuid4()->getHex();
+        $id = Uuid::randomHex();
+        $rootDelete = Uuid::randomHex();
         $this->createLanguage($rootDelete);
 
         $categoryData = [
@@ -500,9 +500,9 @@ class TranslationTest extends TestCase
     public function testDeleteChildLanguageTranslation(): void
     {
         $baseResource = '/api/v' . PlatformRequest::API_VERSION . '/category';
-        $id = Uuid::uuid4()->getHex();
-        $rootId = Uuid::uuid4()->getHex();
-        $childId = Uuid::uuid4()->getHex();
+        $id = Uuid::randomHex();
+        $rootId = Uuid::randomHex();
+        $childId = Uuid::randomHex();
 
         $this->createLanguage($childId, $rootId);
 
@@ -528,7 +528,7 @@ class TranslationTest extends TestCase
     public function testTranslationAssociation(): void
     {
         $baseResource = '/api/v' . PlatformRequest::API_VERSION . '/category';
-        $id = Uuid::uuid4()->getHex();
+        $id = Uuid::randomHex();
 
         $categoryData = [
             'id' => $id,
@@ -557,8 +557,8 @@ class TranslationTest extends TestCase
     public function testTranslationAssociationOverride(): void
     {
         $baseResource = '/api/v' . PlatformRequest::API_VERSION . '/category';
-        $id = Uuid::uuid4()->getHex();
-        $langId = Uuid::uuid4()->getHex();
+        $id = Uuid::randomHex();
+        $langId = Uuid::randomHex();
         $this->createLanguage($langId);
 
         $categoryData = [
@@ -594,9 +594,9 @@ class TranslationTest extends TestCase
     public function testTranslationAssociationOverrideWithFallback(): void
     {
         $baseResource = '/api/v' . PlatformRequest::API_VERSION . '/category';
-        $id = Uuid::uuid4()->getHex();
-        $langId = Uuid::uuid4()->getHex();
-        $fallbackId = Uuid::uuid4()->getHex();
+        $id = Uuid::randomHex();
+        $langId = Uuid::randomHex();
+        $fallbackId = Uuid::randomHex();
         $this->createLanguage($langId, $fallbackId);
 
         $categoryData = [
@@ -637,11 +637,11 @@ class TranslationTest extends TestCase
     public function testMixedTranslationStatus(): void
     {
         $baseResource = '/api/v' . PlatformRequest::API_VERSION . '/category';
-        $rootLangId = Uuid::uuid4()->getHex();
-        $childLangId = Uuid::uuid4()->getHex();
+        $rootLangId = Uuid::randomHex();
+        $childLangId = Uuid::randomHex();
         $this->createLanguage($childLangId, $rootLangId);
 
-        $idSystem = Uuid::uuid4()->getHex();
+        $idSystem = Uuid::randomHex();
         $system = [
             'id' => $idSystem,
             'name' => '1. system',
@@ -649,7 +649,7 @@ class TranslationTest extends TestCase
         $this->getClient()->request('POST', $baseResource, $system);
         $this->assertEntityExists($this->getClient(), 'category', $idSystem);
 
-        $idRoot = Uuid::uuid4()->getHex();
+        $idRoot = Uuid::randomHex();
         $root = [
             'id' => $idRoot,
             'translations' => [
@@ -660,7 +660,7 @@ class TranslationTest extends TestCase
         $this->getClient()->request('POST', $baseResource, $root);
         $this->assertEntityExists($this->getClient(), 'category', $idRoot);
 
-        $idChild = Uuid::uuid4()->getHex();
+        $idChild = Uuid::randomHex();
         $childAndRoot = [
             'id' => $idChild,
             'translations' => [
@@ -701,7 +701,7 @@ class TranslationTest extends TestCase
         $baseResource = '/api/v' . PlatformRequest::API_VERSION . '/category';
 
         $categoryData = [
-            'id' => Uuid::uuid4()->getHex(),
+            'id' => Uuid::randomHex(),
         ];
         $categoryData = array_merge_recursive($categoryData, $data);
 
@@ -734,7 +734,7 @@ class TranslationTest extends TestCase
 
         $requestData = $data;
         if (!isset($requestData['id'])) {
-            $requestData['id'] = Uuid::uuid4()->getHex();
+            $requestData['id'] = Uuid::randomHex();
         }
 
         $this->getClient()->request('POST', $baseResource, $requestData);
@@ -765,7 +765,7 @@ class TranslationTest extends TestCase
         $baseUrl = '/api/v' . PlatformRequest::API_VERSION;
 
         if ($fallbackId) {
-            $fallbackLocaleId = Uuid::uuid4()->getHex();
+            $fallbackLocaleId = Uuid::randomHex();
             $parentLanguageData = [
                 'id' => $fallbackId,
                 'name' => 'test language ' . $fallbackId,
@@ -781,7 +781,7 @@ class TranslationTest extends TestCase
             static::assertEquals(204, $this->getClient()->getResponse()->getStatusCode());
         }
 
-        $localeId = Uuid::uuid4()->getHex();
+        $localeId = Uuid::randomHex();
         $languageData = [
             'id' => $langId,
             'name' => 'test language ' . $langId,

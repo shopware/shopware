@@ -8,7 +8,7 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Struct\Uuid;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Storefront\Framework\Seo\SeoService;
@@ -46,9 +46,9 @@ class SeoServiceTest extends TestCase
 
     public function testUpdateSeoUrls(): void
     {
-        $salesChannel = $this->createSalesChannel(Uuid::uuid4()->getHex(), 'test');
+        $salesChannel = $this->createSalesChannel(Uuid::randomHex(), 'test');
 
-        $fk = Uuid::uuid4()->getHex();
+        $fk = Uuid::randomHex();
         $seoUrlUpdates = [
             [
                 'foreignKey' => $fk,
@@ -78,10 +78,10 @@ class SeoServiceTest extends TestCase
 
     public function testDuplicatesSameSalesChannel(): void
     {
-        $salesChannel = $this->createSalesChannel(Uuid::uuid4()->getHex(), 'test');
+        $salesChannel = $this->createSalesChannel(Uuid::randomHex(), 'test');
 
-        $fk1 = Uuid::uuid4()->getHex();
-        $fk2 = Uuid::uuid4()->getHex();
+        $fk1 = Uuid::randomHex();
+        $fk2 = Uuid::randomHex();
         $seoUrlUpdates = [
             [
                 'foreignKey' => $fk1,
@@ -114,10 +114,10 @@ class SeoServiceTest extends TestCase
 
     public function testSameSeoPathInfoDifferentSalesChannels(): void
     {
-        $salesChannelA = $this->createSalesChannel(Uuid::uuid4()->getHex(), 'test a');
-        $salesChannelB = $this->createSalesChannel(Uuid::uuid4()->getHex(), 'test b');
+        $salesChannelA = $this->createSalesChannel(Uuid::randomHex(), 'test a');
+        $salesChannelB = $this->createSalesChannel(Uuid::randomHex(), 'test b');
 
-        $fk = Uuid::uuid4()->getHex();
+        $fk = Uuid::randomHex();
         $seoUrlUpdates = [
             [
                 'foreignKey' => $fk,
@@ -155,7 +155,7 @@ class SeoServiceTest extends TestCase
             'id' => $id,
             'name' => $name,
             'typeId' => Defaults::SALES_CHANNEL_STOREFRONT,
-            'accessKey' => Uuid::uuid4()->getHex(),
+            'accessKey' => Uuid::randomHex(),
             'secretAccessKey' => 'foobar',
             'languageId' => $defaultLanguageId,
             'snippetSetId' => Defaults::SNIPPET_BASE_SET_EN,

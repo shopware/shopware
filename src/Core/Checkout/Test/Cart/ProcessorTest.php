@@ -15,7 +15,7 @@ use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Context\CheckoutContextFactory;
 use Shopware\Core\Defaults;
-use Shopware\Core\Framework\Struct\Uuid;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 
 class ProcessorTest extends TestCase
@@ -41,7 +41,7 @@ class ProcessorTest extends TestCase
     {
         $this->processor = $this->getContainer()->get(Processor::class);
         $this->factory = $this->getContainer()->get(CheckoutContextFactory::class);
-        $this->context = $this->factory->create(Uuid::uuid4()->getHex(), Defaults::SALES_CHANNEL);
+        $this->context = $this->factory->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
     }
 
     public function testAddOwnLineItem(): void

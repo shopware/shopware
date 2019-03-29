@@ -7,7 +7,7 @@ use Shopware\Core\Framework\Attribute\AttributeDefinition;
 use Shopware\Core\Framework\Attribute\AttributeEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Struct\Uuid;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
 class AttributeRepositoryTest extends TestCase
@@ -18,7 +18,7 @@ class AttributeRepositoryTest extends TestCase
     {
         $repo = $this->getContainer()->get('attribute.repository');
 
-        $id = Uuid::uuid4()->getHex();
+        $id = Uuid::randomHex();
         $attribute = [
             'id' => $id,
             'name' => 'foo.size',
@@ -41,8 +41,8 @@ class AttributeRepositoryTest extends TestCase
     {
         $repo = $this->getContainer()->get('attribute.repository');
 
-        $sizeId = Uuid::uuid4()->getHex();
-        $descriptionId = Uuid::uuid4()->getHex();
+        $sizeId = Uuid::randomHex();
+        $descriptionId = Uuid::randomHex();
         $attributes = [
             [
                 'id' => $sizeId,
@@ -74,8 +74,8 @@ class AttributeRepositoryTest extends TestCase
     {
         $repo = $this->getContainer()->get('attribute.repository');
 
-        $sizeId = Uuid::uuid4()->getHex();
-        $descriptionId = Uuid::uuid4()->getHex();
+        $sizeId = Uuid::randomHex();
+        $descriptionId = Uuid::randomHex();
         $attributes = [
             [
                 'id' => $sizeId,
@@ -101,8 +101,8 @@ class AttributeRepositoryTest extends TestCase
     {
         $repo = $this->getContainer()->get('attribute.repository');
 
-        $sizeId = Uuid::uuid4()->getHex();
-        $descriptionId = Uuid::uuid4()->getHex();
+        $sizeId = Uuid::randomHex();
+        $descriptionId = Uuid::randomHex();
         $attributes = [
             [
                 'id' => $sizeId,
@@ -131,8 +131,8 @@ class AttributeRepositoryTest extends TestCase
     {
         $repo = $this->getContainer()->get('attribute.repository');
 
-        $sizeId = Uuid::uuid4()->getHex();
-        $descriptionId = Uuid::uuid4()->getHex();
+        $sizeId = Uuid::randomHex();
+        $descriptionId = Uuid::randomHex();
         $attributes = [
             [
                 'id' => $sizeId,

@@ -9,7 +9,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException\WriteStackException;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\SalesChannelRule;
-use Shopware\Core\Framework\Struct\Uuid;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
@@ -44,13 +44,13 @@ class SalesChannelRuleTest extends TestCase
 
     public function testValidateWithMissingSalesChannelIds(): void
     {
-        $conditionId = Uuid::uuid4()->getHex();
+        $conditionId = Uuid::randomHex();
         try {
             $this->conditionRepository->create([
                 [
                     'id' => $conditionId,
                     'type' => (new SalesChannelRule())->getName(),
-                    'ruleId' => Uuid::uuid4()->getHex(),
+                    'ruleId' => Uuid::randomHex(),
                 ],
             ], $this->context);
             static::fail('Exception was not thrown');
@@ -68,13 +68,13 @@ class SalesChannelRuleTest extends TestCase
 
     public function testValidateWithEmptySalesChannelIds(): void
     {
-        $conditionId = Uuid::uuid4()->getHex();
+        $conditionId = Uuid::randomHex();
         try {
             $this->conditionRepository->create([
                 [
                     'id' => $conditionId,
                     'type' => (new SalesChannelRule())->getName(),
-                    'ruleId' => Uuid::uuid4()->getHex(),
+                    'ruleId' => Uuid::randomHex(),
                     'value' => [
                         'salesChannelIds' => [],
                     ],
@@ -95,13 +95,13 @@ class SalesChannelRuleTest extends TestCase
 
     public function testValidateWithStringSalesChannelIds(): void
     {
-        $conditionId = Uuid::uuid4()->getHex();
+        $conditionId = Uuid::randomHex();
         try {
             $this->conditionRepository->create([
                 [
                     'id' => $conditionId,
                     'type' => (new SalesChannelRule())->getName(),
-                    'ruleId' => Uuid::uuid4()->getHex(),
+                    'ruleId' => Uuid::randomHex(),
                     'value' => [
                         'salesChannelIds' => '0915d54fbf80423c917c61ad5a391b48',
                     ],
@@ -121,13 +121,13 @@ class SalesChannelRuleTest extends TestCase
 
     public function testValidateWithInvalidArraySalesChannelIds(): void
     {
-        $conditionId = Uuid::uuid4()->getHex();
+        $conditionId = Uuid::randomHex();
         try {
             $this->conditionRepository->create([
                 [
                     'id' => $conditionId,
                     'type' => (new SalesChannelRule())->getName(),
-                    'ruleId' => Uuid::uuid4()->getHex(),
+                    'ruleId' => Uuid::randomHex(),
                     'value' => [
                         'salesChannelIds' => [true, 3, null, '0915d54fbf80423c917c61ad5a391b48'],
                     ],
@@ -149,13 +149,13 @@ class SalesChannelRuleTest extends TestCase
 
     public function testValidateWithInvalidSalesChannelIdsUuid(): void
     {
-        $conditionId = Uuid::uuid4()->getHex();
+        $conditionId = Uuid::randomHex();
         try {
             $this->conditionRepository->create([
                 [
                     'id' => $conditionId,
                     'type' => (new SalesChannelRule())->getName(),
-                    'ruleId' => Uuid::uuid4()->getHex(),
+                    'ruleId' => Uuid::randomHex(),
                     'value' => [
                         'salesChannelIds' => ['Invalid', '1234abcd'],
                     ],
@@ -176,14 +176,14 @@ class SalesChannelRuleTest extends TestCase
 
     public function testAvailableOperators(): void
     {
-        $ruleId = Uuid::uuid4()->getHex();
+        $ruleId = Uuid::randomHex();
         $this->ruleRepository->create(
             [['id' => $ruleId, 'name' => 'Demo rule', 'priority' => 1]],
             Context::createDefaultContext()
         );
 
-        $conditionIdEq = Uuid::uuid4()->getHex();
-        $conditionIdNEq = Uuid::uuid4()->getHex();
+        $conditionIdEq = Uuid::randomHex();
+        $conditionIdNEq = Uuid::randomHex();
         $this->conditionRepository->create(
             [
                 [
@@ -192,7 +192,7 @@ class SalesChannelRuleTest extends TestCase
                     'ruleId' => $ruleId,
                     'value' => [
                         'operator' => Rule::OPERATOR_EQ,
-                        'salesChannelIds' => [Uuid::uuid4()->getHex()],
+                        'salesChannelIds' => [Uuid::randomHex()],
                     ],
                 ],
                 [
@@ -201,7 +201,7 @@ class SalesChannelRuleTest extends TestCase
                     'ruleId' => $ruleId,
                     'value' => [
                         'operator' => Rule::OPERATOR_EQ,
-                        'salesChannelIds' => [Uuid::uuid4()->getHex()],
+                        'salesChannelIds' => [Uuid::randomHex()],
                     ],
                 ],
             ], $this->context
@@ -216,17 +216,17 @@ class SalesChannelRuleTest extends TestCase
 
     public function testValidateWithInvalidOperators(): void
     {
-        $conditionId = Uuid::uuid4()->getHex();
+        $conditionId = Uuid::randomHex();
         foreach ([Rule::OPERATOR_LTE, Rule::OPERATOR_GTE, 'Invalid', true, 1.1] as $operator) {
             try {
                 $this->conditionRepository->create([
                     [
                         'id' => $conditionId,
                         'type' => (new SalesChannelRule())->getName(),
-                        'ruleId' => Uuid::uuid4()->getHex(),
+                        'ruleId' => Uuid::randomHex(),
                         'value' => [
                             'operator' => $operator,
-                            'salesChannelIds' => [Uuid::uuid4()->getHex(), Uuid::uuid4()->getHex()],
+                            'salesChannelIds' => [Uuid::randomHex(), Uuid::randomHex()],
                         ],
                     ],
                 ], $this->context);
@@ -245,13 +245,13 @@ class SalesChannelRuleTest extends TestCase
 
     public function testIfRuleIsConsistent(): void
     {
-        $ruleId = Uuid::uuid4()->getHex();
+        $ruleId = Uuid::randomHex();
         $this->ruleRepository->create(
             [['id' => $ruleId, 'name' => 'Demo rule', 'priority' => 1]],
             Context::createDefaultContext()
         );
 
-        $id = Uuid::uuid4()->getHex();
+        $id = Uuid::randomHex();
         $this->conditionRepository->create([
             [
                 'id' => $id,
@@ -259,7 +259,7 @@ class SalesChannelRuleTest extends TestCase
                 'ruleId' => $ruleId,
                 'value' => [
                     'operator' => Rule::OPERATOR_EQ,
-                    'salesChannelIds' => [Uuid::uuid4()->getHex(), Uuid::uuid4()->getHex()],
+                    'salesChannelIds' => [Uuid::randomHex(), Uuid::randomHex()],
                 ],
             ],
         ], $this->context);

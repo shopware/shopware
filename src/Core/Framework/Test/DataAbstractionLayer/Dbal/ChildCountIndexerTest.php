@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Indexing\ChildCountIndexer;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Struct\Uuid;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
@@ -198,7 +198,7 @@ class ChildCountIndexerTest extends TestCase
 
     private function createCategory(?string $parentId = null): string
     {
-        $id = Uuid::uuid4()->getHex();
+        $id = Uuid::randomHex();
         $data = [
             'id' => $id,
             'name' => 'Category ',

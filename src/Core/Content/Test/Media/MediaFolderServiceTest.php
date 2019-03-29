@@ -11,7 +11,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\Struct\Uuid;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
 class MediaFolderServiceTest extends TestCase
@@ -58,7 +58,7 @@ class MediaFolderServiceTest extends TestCase
     {
         $this->expectException(MediaFolderNotFoundException::class);
 
-        $this->mediaFolderService->dissolve(Uuid::uuid4()->getHex(), $this->context);
+        $this->mediaFolderService->dissolve(Uuid::randomHex(), $this->context);
     }
 
     public function testDissolveWithNoChildFolders(): void
@@ -82,8 +82,8 @@ class MediaFolderServiceTest extends TestCase
     {
         $this->setFixtureContext($this->context);
         $media = $this->getJpgWithFolder();
-        $childId = Uuid::uuid4()->getHex();
-        $configId = Uuid::uuid4()->getHex();
+        $childId = Uuid::randomHex();
+        $configId = Uuid::randomHex();
 
         $this->mediaFolderRepo->create([
             [
@@ -112,8 +112,8 @@ class MediaFolderServiceTest extends TestCase
     {
         $this->setFixtureContext($this->context);
         $media = $this->getJpgWithFolder();
-        $parentId = Uuid::uuid4()->getHex();
-        $configId = Uuid::uuid4()->getHex();
+        $parentId = Uuid::randomHex();
+        $configId = Uuid::randomHex();
 
         $this->mediaFolderRepo->create([
             [
@@ -149,12 +149,12 @@ class MediaFolderServiceTest extends TestCase
     {
         $this->setFixtureContext($this->context);
         $media = $this->getJpgWithFolder();
-        $configId = Uuid::uuid4()->getHex();
-        $parentId = Uuid::uuid4()->getHex();
-        $child1Id = Uuid::uuid4()->getHex();
-        $child2Id = Uuid::uuid4()->getHex();
-        $child3Id = Uuid::uuid4()->getHex();
-        $childConfigId = Uuid::uuid4()->getHex();
+        $configId = Uuid::randomHex();
+        $parentId = Uuid::randomHex();
+        $child1Id = Uuid::randomHex();
+        $child2Id = Uuid::randomHex();
+        $child3Id = Uuid::randomHex();
+        $childConfigId = Uuid::randomHex();
 
         $this->mediaFolderRepo->create([
             [
@@ -229,14 +229,14 @@ class MediaFolderServiceTest extends TestCase
     {
         $this->setFixtureContext($this->context);
         $media = $this->getJpgWithFolder();
-        $configId = Uuid::uuid4()->getHex();
-        $parentId = Uuid::uuid4()->getHex();
-        $child1Id = Uuid::uuid4()->getHex();
-        $child1_1Id = Uuid::uuid4()->getHex();
-        $child1_1_1Id = Uuid::uuid4()->getHex();
-        $child2Id = Uuid::uuid4()->getHex();
-        $child2_1Id = Uuid::uuid4()->getHex();
-        $child2_1_1Id = Uuid::uuid4()->getHex();
+        $configId = Uuid::randomHex();
+        $parentId = Uuid::randomHex();
+        $child1Id = Uuid::randomHex();
+        $child1_1Id = Uuid::randomHex();
+        $child1_1_1Id = Uuid::randomHex();
+        $child2Id = Uuid::randomHex();
+        $child2_1Id = Uuid::randomHex();
+        $child2_1_1Id = Uuid::randomHex();
 
         $this->mediaFolderRepo->create([
             [
@@ -325,10 +325,10 @@ class MediaFolderServiceTest extends TestCase
     {
         $this->setFixtureContext($this->context);
         $media = $this->getJpgWithFolder();
-        $configId = Uuid::uuid4()->getHex();
-        $parentId = Uuid::uuid4()->getHex();
-        $child1Id = Uuid::uuid4()->getHex();
-        $child2Id = Uuid::uuid4()->getHex();
+        $configId = Uuid::randomHex();
+        $parentId = Uuid::randomHex();
+        $child1Id = Uuid::randomHex();
+        $child2Id = Uuid::randomHex();
 
         $this->mediaFolderRepo->create([
             [

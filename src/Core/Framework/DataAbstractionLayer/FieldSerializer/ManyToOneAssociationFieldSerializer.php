@@ -50,7 +50,7 @@ class ManyToOneAssociationFieldSerializer implements FieldSerializerInterface
         if (isset($value[$referenceField->getPropertyName()])) {
             $id = $value[$referenceField->getPropertyName()];
         } else {
-            $id = Uuid::uuid4()->getHex();
+            $id = Uuid::randomHex();
             $value[$referenceField->getPropertyName()] = $id;
         }
 

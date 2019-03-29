@@ -7,7 +7,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriterInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\Demodata\DemodataContext;
 use Shopware\Core\Framework\Demodata\DemodataGeneratorInterface;
-use Shopware\Core\Framework\Struct\Uuid;
+use Shopware\Core\Framework\Uuid\Uuid;
 
 class ProductManufacturerGenerator implements DemodataGeneratorInterface
 {
@@ -33,7 +33,7 @@ class ProductManufacturerGenerator implements DemodataGeneratorInterface
         $payload = [];
         for ($i = 0; $i < $numberOfItems; ++$i) {
             $payload[] = [
-                'id' => Uuid::uuid4()->getHex(),
+                'id' => Uuid::randomHex(),
                 'name' => $context->getFaker()->company,
                 'link' => $context->getFaker()->url,
             ];

@@ -7,7 +7,7 @@ use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\Demodata\DemodataContext;
 use Shopware\Core\Framework\Demodata\DemodataGeneratorInterface;
-use Shopware\Core\Framework\Struct\Uuid;
+use Shopware\Core\Framework\Uuid\Uuid;
 
 class CategoryGenerator implements DemodataGeneratorInterface
 {
@@ -38,7 +38,7 @@ class CategoryGenerator implements DemodataGeneratorInterface
         $payload = [];
         $lastId = null;
         for ($i = 0; $i < $numberOfItems; ++$i) {
-            $id = Uuid::uuid4()->getHex();
+            $id = Uuid::randomHex();
 
             $payload[] = [
                 'id' => $id,
@@ -54,7 +54,7 @@ class CategoryGenerator implements DemodataGeneratorInterface
             $randSubCategories = random_int(5, 12);
             $numberOfSubCategories += $randSubCategories;
             for ($x = 0; $x < $randSubCategories; ++$x) {
-                $id = Uuid::uuid4()->getHex();
+                $id = Uuid::randomHex();
 
                 $payload[] = [
                     'id' => $id,

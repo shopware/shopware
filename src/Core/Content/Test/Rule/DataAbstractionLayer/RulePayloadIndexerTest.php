@@ -18,7 +18,7 @@ use Shopware\Core\Framework\Rule\Container\OrRule;
 use Shopware\Core\Framework\Rule\CurrencyRule;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\SalesChannelRule;
-use Shopware\Core\Framework\Struct\Uuid;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
@@ -62,9 +62,9 @@ class RulePayloadIndexerTest extends TestCase
 
     public function testIndex(): void
     {
-        $id = Uuid::uuid4()->getHex();
-        $currencyId1 = Uuid::uuid4()->getHex();
-        $currencyId2 = Uuid::uuid4()->getHex();
+        $id = Uuid::randomHex();
+        $currencyId1 = Uuid::randomHex();
+        $currencyId2 = Uuid::randomHex();
 
         $data = [
             'id' => $id,
@@ -105,9 +105,9 @@ class RulePayloadIndexerTest extends TestCase
 
     public function testRefresh(): void
     {
-        $id = Uuid::uuid4()->getHex();
-        $currencyId1 = Uuid::uuid4()->getHex();
-        $currencyId2 = Uuid::uuid4()->getHex();
+        $id = Uuid::randomHex();
+        $currencyId1 = Uuid::randomHex();
+        $currencyId2 = Uuid::randomHex();
 
         $data = [
             'id' => $id,
@@ -144,12 +144,12 @@ class RulePayloadIndexerTest extends TestCase
 
     public function testRefreshWithMultipleRules(): void
     {
-        $id = Uuid::uuid4()->getHex();
-        $rule2Id = Uuid::uuid4()->getHex();
-        $currencyId1 = Uuid::uuid4()->getHex();
-        $currencyId2 = Uuid::uuid4()->getHex();
-        $salesChannelId1 = Uuid::uuid4()->getHex();
-        $salesChannelId2 = Uuid::uuid4()->getHex();
+        $id = Uuid::randomHex();
+        $rule2Id = Uuid::randomHex();
+        $currencyId1 = Uuid::randomHex();
+        $currencyId2 = Uuid::randomHex();
+        $salesChannelId1 = Uuid::randomHex();
+        $salesChannelId2 = Uuid::randomHex();
 
         $data = [
             [
@@ -216,12 +216,12 @@ class RulePayloadIndexerTest extends TestCase
 
     public function testIndexWithMultipleRules(): void
     {
-        $id = Uuid::uuid4()->getHex();
-        $rule2Id = Uuid::uuid4()->getHex();
-        $currencyId1 = Uuid::uuid4()->getHex();
-        $currencyId2 = Uuid::uuid4()->getHex();
-        $salesChannelId1 = Uuid::uuid4()->getHex();
-        $salesChannelId2 = Uuid::uuid4()->getHex();
+        $id = Uuid::randomHex();
+        $rule2Id = Uuid::randomHex();
+        $currencyId1 = Uuid::randomHex();
+        $currencyId2 = Uuid::randomHex();
+        $salesChannelId1 = Uuid::randomHex();
+        $salesChannelId2 = Uuid::randomHex();
 
         $data = [
             [
@@ -284,7 +284,7 @@ class RulePayloadIndexerTest extends TestCase
 
     public function testIndexWithMultipleRootConditions(): void
     {
-        $id = Uuid::uuid4()->getHex();
+        $id = Uuid::randomHex();
 
         $data = [
             'id' => $id,
@@ -301,8 +301,8 @@ class RulePayloadIndexerTest extends TestCase
                                     'type' => (new CurrencyRule())->getName(),
                                     'value' => [
                                         'currencyIds' => [
-                                            Uuid::uuid4()->getHex(),
-                                            Uuid::uuid4()->getHex(),
+                                            Uuid::randomHex(),
+                                            Uuid::randomHex(),
                                         ],
                                     ],
                                 ],
@@ -332,9 +332,9 @@ class RulePayloadIndexerTest extends TestCase
 
     public function testIndexWithRootRuleNotAndRule(): void
     {
-        $id = Uuid::uuid4()->getHex();
-        $currencyId1 = Uuid::uuid4()->getHex();
-        $currencyId2 = Uuid::uuid4()->getHex();
+        $id = Uuid::randomHex();
+        $currencyId1 = Uuid::randomHex();
+        $currencyId2 = Uuid::randomHex();
 
         $data = [
             'id' => $id,
@@ -370,9 +370,9 @@ class RulePayloadIndexerTest extends TestCase
 
     public function testRefreshWithRootRuleNotAndRule(): void
     {
-        $id = Uuid::uuid4()->getHex();
-        $currencyId1 = Uuid::uuid4()->getHex();
-        $currencyId2 = Uuid::uuid4()->getHex();
+        $id = Uuid::randomHex();
+        $currencyId1 = Uuid::randomHex();
+        $currencyId2 = Uuid::randomHex();
 
         $data = [
             'id' => $id,
@@ -413,7 +413,7 @@ class RulePayloadIndexerTest extends TestCase
             $this->connection->createQueryBuilder()
                 ->insert('rule')
                 ->values(['id' => ':id', 'name' => ':name', 'priority' => 1, 'payload' => ':payload', 'created_at' => 'NOW()'])
-                ->setParameter('id', Uuid::uuid4()->getBytes())
+                ->setParameter('id', Uuid::randomBytes())
                 ->setParameter('payload', $payload)
                 ->setParameter('name', 'Rule' . $i)
                 ->execute();

@@ -87,8 +87,8 @@ class StorefrontCheckoutControllerTest extends TestCase
         $this->currencyRepository = $this->getContainer()->get('currency.repository');
         $this->shippingMethodRepository = $this->getContainer()->get('shipping_method.repository');
         $this->paymentMethodRepository = $this->getContainer()->get('payment_method.repository');
-        $this->taxId = Uuid::uuid4()->getHex();
-        $this->manufacturerId = Uuid::uuid4()->getHex();
+        $this->taxId = Uuid::randomHex();
+        $this->manufacturerId = Uuid::randomHex();
         $this->context = Context::createDefaultContext();
 
         // reset rules
@@ -99,7 +99,7 @@ class StorefrontCheckoutControllerTest extends TestCase
 
     public function testOrderProcess(): void
     {
-        $productId = Uuid::uuid4()->getHex();
+        $productId = Uuid::randomHex();
         $context = Context::createDefaultContext();
 
         $this->productRepository->create([
@@ -113,9 +113,9 @@ class StorefrontCheckoutControllerTest extends TestCase
             ],
         ], $context);
 
-        $addressId = Uuid::uuid4()->getHex();
+        $addressId = Uuid::randomHex();
 
-        $mail = Uuid::uuid4()->getHex();
+        $mail = Uuid::randomHex();
         $password = 'shopware';
 
         $this->createCustomer($addressId, $mail, $password, $context);
@@ -142,9 +142,9 @@ class StorefrontCheckoutControllerTest extends TestCase
 
     public function testOrderProcessWithDifferentCurrency(): void
     {
-        $productId = Uuid::uuid4()->getHex();
+        $productId = Uuid::randomHex();
         $yen = [
-            'id' => Uuid::uuid4()->getHex(),
+            'id' => Uuid::randomHex(),
             'symbol' => '¥',
             'decimalPrecision' => 2,
             'factor' => 131.06,
@@ -168,9 +168,9 @@ class StorefrontCheckoutControllerTest extends TestCase
             ],
         ], $context);
 
-        $addressId = Uuid::uuid4()->getHex();
+        $addressId = Uuid::randomHex();
 
-        $mail = Uuid::uuid4()->getHex();
+        $mail = Uuid::randomHex();
         $password = 'shopware';
 
         $this->createCustomer($addressId, $mail, $password, $context);
@@ -200,7 +200,7 @@ class StorefrontCheckoutControllerTest extends TestCase
 
     public function testGuestOrderProcess(): void
     {
-        $productId = Uuid::uuid4()->getHex();
+        $productId = Uuid::randomHex();
         $context = Context::createDefaultContext();
 
         $grossPrice = 10;
@@ -215,7 +215,7 @@ class StorefrontCheckoutControllerTest extends TestCase
             ],
         ], $context);
 
-        $mail = Uuid::uuid4()->getHex() . '@shopware.unit';
+        $mail = Uuid::randomHex() . '@shopware.unit';
 
         $firstName = 'Max';
         $lastName = 'Mustmann';
@@ -277,7 +277,7 @@ class StorefrontCheckoutControllerTest extends TestCase
     public function testGuestOrderProcessWithPayment(): void
     {
         // todo write test
-        $productId = Uuid::uuid4()->getHex();
+        $productId = Uuid::randomHex();
         $context = Context::createDefaultContext();
 
         $grossPrice = 10;
@@ -292,7 +292,7 @@ class StorefrontCheckoutControllerTest extends TestCase
             ],
         ], $context);
 
-        $mail = Uuid::uuid4()->getHex() . '@shopware.unit';
+        $mail = Uuid::randomHex() . '@shopware.unit';
 
         $firstName = 'Max';
         $lastName = 'Mustmann';
@@ -346,7 +346,7 @@ class StorefrontCheckoutControllerTest extends TestCase
 
     public function testGuestOrderProcessWithExistingCustomer(): void
     {
-        $productId = Uuid::uuid4()->getHex();
+        $productId = Uuid::randomHex();
         $context = Context::createDefaultContext();
 
         $grossPrice = 10;
@@ -361,8 +361,8 @@ class StorefrontCheckoutControllerTest extends TestCase
             ],
         ], $context);
 
-        $addressId = Uuid::uuid4()->getHex();
-        $mail = Uuid::uuid4()->getHex() . '@shopware.unit';
+        $addressId = Uuid::randomHex();
+        $mail = Uuid::randomHex() . '@shopware.unit';
         $password = 'shopware';
 
         $this->createCustomer($addressId, $mail, $password, $context);
@@ -392,7 +392,7 @@ class StorefrontCheckoutControllerTest extends TestCase
 
     public function testGuestOrderProcessWithLoggedInCustomer(): void
     {
-        $productId = Uuid::uuid4()->getHex();
+        $productId = Uuid::randomHex();
         $context = Context::createDefaultContext();
 
         $grossPrice = 10;
@@ -407,7 +407,7 @@ class StorefrontCheckoutControllerTest extends TestCase
             ],
         ], $context);
 
-        $guestMail = Uuid::uuid4()->getHex() . '@shopware.unit';
+        $guestMail = Uuid::randomHex() . '@shopware.unit';
 
         $firstName = 'Max';
         $lastName = 'Mustmann';
@@ -434,8 +434,8 @@ class StorefrontCheckoutControllerTest extends TestCase
             ],
         ];
 
-        $addressId = Uuid::uuid4()->getHex();
-        $mail = Uuid::uuid4()->getHex();
+        $addressId = Uuid::randomHex();
+        $mail = Uuid::randomHex();
         $password = 'shopware';
 
         $this->createCustomer($addressId, $mail, $password, $context);
@@ -477,10 +477,10 @@ class StorefrontCheckoutControllerTest extends TestCase
 
     public function testOrderProcessWithEmptyCart(): void
     {
-        $addressId = Uuid::uuid4()->getHex();
+        $addressId = Uuid::randomHex();
         $context = Context::createDefaultContext();
 
-        $mail = Uuid::uuid4()->getHex();
+        $mail = Uuid::randomHex();
         $password = 'shopware';
 
         $this->createCustomer($addressId, $mail, $password, $context);
@@ -572,7 +572,7 @@ class StorefrontCheckoutControllerTest extends TestCase
         $accessHeader = 'HTTP_' . str_replace('-', '_', strtoupper(PlatformRequest::HEADER_ACCESS_KEY));
         $this->getStorefrontClient()->setServerParameter($accessHeader, '');
 
-        $orderId = Uuid::uuid4()->getHex();
+        $orderId = Uuid::randomHex();
         $accessCode = $order['data']['deepLinkCode'];
         $this->getStorefrontClient()->request('GET', '/storefront-api/v1/checkout/guest-order/' . $orderId, ['accessCode' => $accessCode]);
 
@@ -586,7 +586,7 @@ class StorefrontCheckoutControllerTest extends TestCase
     public function testUnavailableShippingMethodIsBlock(): void
     {
         static::markTestSkipped('This tests needs the recalculation of the cart');
-        $productId = Uuid::uuid4()->getHex();
+        $productId = Uuid::randomHex();
         $context = Context::createDefaultContext();
 
         $this->productRepository->create([
@@ -599,7 +599,7 @@ class StorefrontCheckoutControllerTest extends TestCase
             ],
         ], $context);
 
-        $unavailableShippingMethodId = Uuid::uuid4()->getHex();
+        $unavailableShippingMethodId = Uuid::randomHex();
 
         $this->shippingMethodRepository->create([
             [
@@ -652,7 +652,7 @@ class StorefrontCheckoutControllerTest extends TestCase
     {
         static::markTestSkipped('This tests needs the recalculation of the cart');
 
-        $productId = Uuid::uuid4()->getHex();
+        $productId = Uuid::randomHex();
         $context = Context::createDefaultContext();
 
         $this->productRepository->create([
@@ -665,7 +665,7 @@ class StorefrontCheckoutControllerTest extends TestCase
             ],
         ], $context);
 
-        $unavailablePaymentMethodId = Uuid::uuid4()->getHex();
+        $unavailablePaymentMethodId = Uuid::randomHex();
 
         $this->paymentMethodRepository->create([
             [
@@ -717,7 +717,7 @@ class StorefrontCheckoutControllerTest extends TestCase
 
     private function createGuestOrder()
     {
-        $productId = Uuid::uuid4()->getHex();
+        $productId = Uuid::randomHex();
         $context = Context::createDefaultContext();
 
         $grossPrice = 10;
@@ -732,7 +732,7 @@ class StorefrontCheckoutControllerTest extends TestCase
             ],
         ], $context);
 
-        $mail = Uuid::uuid4()->getHex() . '@shopware.unit';
+        $mail = Uuid::randomHex() . '@shopware.unit';
 
         $firstName = 'Max';
         $lastName = 'Mustmann';
@@ -797,7 +797,7 @@ class StorefrontCheckoutControllerTest extends TestCase
                     'handlerIdentifier' => SyncTestPaymentHandler::class,
                     'availabilityRules' => [
                         [
-                            'id' => Uuid::uuid4()->getHex(),
+                            'id' => Uuid::randomHex(),
                             'name' => 'true',
                             'priority' => 0,
                             'conditions' => [

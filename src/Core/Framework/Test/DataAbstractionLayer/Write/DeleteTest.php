@@ -7,7 +7,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriter;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
-use Shopware\Core\Framework\Struct\Uuid;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Write\Entity\DeleteCascadeManyToOneDefinition;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Write\Entity\DeleteCascadeParentDefinition;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -61,7 +61,7 @@ ADD FOREIGN KEY (`delete_cascade_many_to_one_id`) REFERENCES `delete_cascade_man
 
     public function testDeleteOneToManyIfParentHasVersionId(): void
     {
-        $id = Uuid::uuid4()->getHex();
+        $id = Uuid::randomHex();
 
         $this->writer->insert(
             DeleteCascadeParentDefinition::class,
@@ -104,7 +104,7 @@ ADD FOREIGN KEY (`delete_cascade_many_to_one_id`) REFERENCES `delete_cascade_man
 
     public function testDeleteOneToManyIfChildHasVersionId(): void
     {
-        $id = Uuid::uuid4()->getHex();
+        $id = Uuid::randomHex();
 
         $this->writer->insert(
             DeleteCascadeParentDefinition::class,

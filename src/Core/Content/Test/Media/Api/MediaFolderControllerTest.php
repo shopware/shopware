@@ -7,7 +7,7 @@ use Shopware\Core\Content\Test\Media\MediaFixtures;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Struct\Uuid;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Shopware\Core\PlatformRequest;
 
@@ -43,7 +43,7 @@ class MediaFolderControllerTest extends TestCase
         $url = sprintf(
             '/api/v%s/_action/media-folder/%s/dissolve',
             PlatformRequest::API_VERSION,
-            Uuid::uuid4()->getHex()
+            Uuid::randomHex()
         );
 
         $this->getClient()->request(
@@ -59,8 +59,8 @@ class MediaFolderControllerTest extends TestCase
 
     public function testDissolve(): void
     {
-        $folderId = Uuid::uuid4()->getHex();
-        $configId = Uuid::uuid4()->getHex();
+        $folderId = Uuid::randomHex();
+        $configId = Uuid::randomHex();
         $this->mediaFolderRepo->create([
             [
                 'id' => $folderId,

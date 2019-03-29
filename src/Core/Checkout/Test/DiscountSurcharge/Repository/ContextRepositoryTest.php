@@ -10,7 +10,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Rule\Container\AndRule;
 use Shopware\Core\Framework\Rule\Container\OrRule;
 use Shopware\Core\Framework\Rule\CurrencyRule;
-use Shopware\Core\Framework\Struct\Uuid;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 
@@ -43,9 +43,9 @@ class ContextRepositoryTest extends TestCase
 
     public function testWriteRuleWithObject(): void
     {
-        $id = Uuid::uuid4()->getHex();
-        $currencyId = Uuid::uuid4()->getHex();
-        $currencyId2 = Uuid::uuid4()->getHex();
+        $id = Uuid::randomHex();
+        $currencyId = Uuid::randomHex();
+        $currencyId2 = Uuid::randomHex();
 
         $data = [
             'id' => $id,

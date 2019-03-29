@@ -21,7 +21,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriterInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\Demodata\DemodataContext;
 use Shopware\Core\Framework\Demodata\DemodataGeneratorInterface;
-use Shopware\Core\Framework\Struct\Uuid;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInterface;
 use Symfony\Component\Finder\Finder;
@@ -138,7 +138,7 @@ class ProductGenerator implements DemodataGeneratorInterface
 
             if ($withMedia) {
                 $imagePath = $this->getRandomImage($context, $product['name']);
-                $mediaId = Uuid::uuid4()->getHex();
+                $mediaId = Uuid::randomHex();
                 $product['cover'] = [
                     'media' => [
                         'id' => $mediaId,
@@ -227,7 +227,7 @@ class ProductGenerator implements DemodataGeneratorInterface
                 return $defaultFolder->getFolder()->getId();
             }
 
-            $mediaFolderId = Uuid::uuid4()->getHex();
+            $mediaFolderId = Uuid::randomHex();
             $this->folderRepository->upsert([
                 [
                     'id' => $mediaFolderId,
@@ -258,7 +258,7 @@ class ProductGenerator implements DemodataGeneratorInterface
 
         $faker = $context->getFaker();
         $product = [
-            'id' => Uuid::uuid4()->getHex(),
+            'id' => Uuid::randomHex(),
             'productNumber' => $this->numberRangeValueGenerator->getValue('product', $context->getContext(), null),
             'price' => ['gross' => $price, 'net' => $price / 1.19, 'linked' => true],
             'name' => $faker->productName,

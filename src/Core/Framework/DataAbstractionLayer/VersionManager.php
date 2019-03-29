@@ -34,7 +34,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriterInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
-use Shopware\Core\Framework\Struct\Uuid;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Version\Aggregate\VersionCommit\VersionCommitCollection;
 use Shopware\Core\Framework\Version\Aggregate\VersionCommit\VersionCommitDefinition;
 use Shopware\Core\Framework\Version\Aggregate\VersionCommitData\VersionCommitDataDefinition;
@@ -147,7 +147,7 @@ class VersionManager
             'versionId' => Defaults::LIVE_VERSION,
         ];
 
-        $versionId = $versionId ?? Uuid::uuid4()->getHex();
+        $versionId = $versionId ?? Uuid::randomHex();
         $versionData = ['id' => $versionId];
 
         if ($name) {
@@ -498,7 +498,7 @@ class VersionManager
                 }
                 $primary['versionId'] = $versionId;
 
-                $id = Uuid::uuid4()->getBytes();
+                $id = Uuid::randomBytes();
 
                 $commands[] = new InsertCommand(
                     VersionCommitDataDefinition::class,

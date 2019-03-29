@@ -18,7 +18,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException\InvalidFie
 use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException\UnexpectedFieldException;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException\WriteStackException;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
-use Shopware\Core\Framework\Struct\Uuid;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\JsonDefinition;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\NestedDefinition;
 use Shopware\Core\Framework\Test\TestCaseBase\CacheTestBehaviour;
@@ -62,9 +62,9 @@ EOF;
         $context = $this->createWriteContext();
 
         $data = [
-            ['id' => Uuid::uuid4()->getHex(), 'data' => null],
-            ['id' => Uuid::uuid4()->getHex(), 'data' => []],
-            ['id' => Uuid::uuid4()->getHex(), 'data' => ['url' => 'foo']],
+            ['id' => Uuid::randomHex(), 'data' => null],
+            ['id' => Uuid::randomHex(), 'data' => []],
+            ['id' => Uuid::randomHex(), 'data' => ['url' => 'foo']],
         ];
 
         $this->getWriter()->insert(JsonDefinition::class, $data, $context);
@@ -310,7 +310,7 @@ EOF;
         $context = $this->createWriteContext();
 
         $data = [
-            ['id' => Uuid::uuid4()->getHex(), 'data' => ['a' => '😄']],
+            ['id' => Uuid::randomHex(), 'data' => ['a' => '😄']],
         ];
 
         $written = $this->getWriter()->insert(JsonDefinition::class, $data, $context);
@@ -327,17 +327,17 @@ EOF;
     public function testSqlInjectionFails(): void
     {
         $context = $this->createWriteContext();
-        $randomKey = Uuid::uuid4()->getHex();
+        $randomKey = Uuid::randomHex();
 
         $data = [
-            ['id' => Uuid::uuid4()->getHex(), 'data' => [$randomKey => 'bar']],
+            ['id' => Uuid::randomHex(), 'data' => [$randomKey => 'bar']],
         ];
         $written = $this->getWriter()->insert(JsonDefinition::class, $data, $context);
         static::assertCount(1, $written[JsonDefinition::class]);
 
         $context = $context->getContext();
 
-        $taxId = Uuid::uuid4()->getHex();
+        $taxId = Uuid::randomHex();
         $tax_rate = 15.0;
 
         $repo = $this->getRepository();
@@ -374,7 +374,7 @@ EOF;
         $insertTime = new \DateTime('2004-02-29 08:59:59.001');
         $updateTime = new \DateTime('2004-02-29 08:59:59.002');
 
-        $id = Uuid::uuid4()->getHex();
+        $id = Uuid::randomHex();
 
         $insert = [
             'id' => $id,
@@ -413,13 +413,13 @@ EOF;
     {
         $context = $this->createWriteContext();
 
-        $firstId = Uuid::uuid4()->getHex();
+        $firstId = Uuid::randomHex();
         $firstDate = new \DateTime('2004-02-29 08:59:59.001');
 
-        $laterId = Uuid::uuid4()->getHex();
+        $laterId = Uuid::randomHex();
         $laterDate = new \DateTime('2004-02-29 08:59:59.002');
 
-        $latestId = Uuid::uuid4()->getHex();
+        $latestId = Uuid::randomHex();
         $latestDate = new \DateTime('2005-02-28 08:59:59.000');
 
         $data = [

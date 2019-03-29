@@ -7,7 +7,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Routing\SalesChannelRequestContextResolver;
-use Shopware\Core\Framework\Struct\Uuid;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -60,7 +60,7 @@ class StorefrontProxyController extends AbstractController
 
         $contextToken = $request->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN);
         if (!$contextToken) {
-            $contextToken = Uuid::uuid4()->getHex();
+            $contextToken = Uuid::randomHex();
         }
 
         $server = array_merge($request->server->all(), ['REQUEST_URI' => '/storefront-api/' . $_path]);

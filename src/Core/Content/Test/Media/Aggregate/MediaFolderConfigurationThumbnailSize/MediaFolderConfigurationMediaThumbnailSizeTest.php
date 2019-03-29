@@ -5,7 +5,7 @@ namespace src\Core\Content\Test\Media\Aggregate\MediaFolderConfigurationThumbnai
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Struct\Uuid;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
 class MediaFolderConfigurationMediaThumbnailSizeTest extends TestCase
@@ -17,8 +17,8 @@ class MediaFolderConfigurationMediaThumbnailSizeTest extends TestCase
         $context = Context::createDefaultContext();
         $repository = $this->getContainer()->get('media_folder_configuration.repository');
 
-        $configurationId = Uuid::uuid4()->getHex();
-        $sizeId = Uuid::uuid4()->getHex();
+        $configurationId = Uuid::randomHex();
+        $sizeId = Uuid::randomHex();
 
         $repository->create([
             [
@@ -47,8 +47,8 @@ class MediaFolderConfigurationMediaThumbnailSizeTest extends TestCase
         $context = Context::createDefaultContext();
         $repository = $this->getContainer()->get('media_thumbnail_size.repository');
 
-        $sizeId = Uuid::uuid4()->getHex();
-        $confId = Uuid::uuid4()->getHex();
+        $sizeId = Uuid::randomHex();
+        $confId = Uuid::randomHex();
 
         $repository->upsert([
             [

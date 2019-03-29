@@ -23,7 +23,7 @@ use Shopware\Core\Checkout\Test\Cart\Common\Generator;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\Struct\Uuid;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 
@@ -55,7 +55,7 @@ class OrderPersisterTest extends TestCase
 
     public function testSave(): void
     {
-        $cart = new Cart('A', Uuid::uuid4()->getHex());
+        $cart = new Cart('A', Uuid::randomHex());
         $cart->add(
             (new LineItem('test', 'test'))
                 ->setPrice(new CalculatedPrice(1, 1, new CalculatedTaxCollection(), new TaxRuleCollection()))

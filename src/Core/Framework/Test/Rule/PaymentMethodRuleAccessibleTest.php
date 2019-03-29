@@ -10,7 +10,7 @@ use Shopware\Core\Content\Rule\RuleEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Struct\Uuid;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
 class PaymentMethodRuleAccessibleTest extends TestCase
@@ -55,7 +55,7 @@ class PaymentMethodRuleAccessibleTest extends TestCase
         $this->ruleRepository->create($rule, $defaultContext);
 
         $additionalPaymentMethod = [
-            'id' => Uuid::uuid4()->getHex(),
+            'id' => Uuid::randomHex(),
             'handlerIdentifier' => AsyncTestPaymentHandler::class,
             'created_at' => new \DateTime(),
             'name' => 'additional PaymentMethod',
@@ -110,7 +110,7 @@ class PaymentMethodRuleAccessibleTest extends TestCase
     public function testRuleAssociationsStayLikeLinked(): void
     {
         $defaultContext = Context::createDefaultContext();
-        $ruleId = Uuid::uuid4()->getHex();
+        $ruleId = Uuid::randomHex();
         $rules = $this->createComplexRules($ruleId);
 
         $this->ruleRepository->create($rules, $defaultContext);
@@ -143,12 +143,12 @@ class PaymentMethodRuleAccessibleTest extends TestCase
     {
         return [
             [
-                'id' => Uuid::uuid4()->getHex(),
+                'id' => Uuid::randomHex(),
                 'name' => 'asd',
                 'priority' => 2,
                 'paymentMethods' => [
                     [
-                        'id' => Uuid::uuid4()->getHex(),
+                        'id' => Uuid::randomHex(),
                         'handlerIdentifier' => SyncTestPaymentHandler::class,
                         'created_at' => new \DateTime(),
                         'name' => 'test',
@@ -167,14 +167,14 @@ class PaymentMethodRuleAccessibleTest extends TestCase
                 'priority' => 2,
                 'paymentMethods' => [
                     [
-                        'id' => Uuid::uuid4()->getHex(),
+                        'id' => Uuid::randomHex(),
                         'handlerIdentifier' => SyncTestPaymentHandler::class,
                         'active' => true,
                         'created_at' => new \DateTime(),
                         'name' => 'test',
                     ],
                     [
-                        'id' => Uuid::uuid4()->getHex(),
+                        'id' => Uuid::randomHex(),
                         'handlerIdentifier' => AsyncTestPaymentHandler::class,
                         'active' => false,
                         'created_at' => new \DateTime(),
@@ -183,12 +183,12 @@ class PaymentMethodRuleAccessibleTest extends TestCase
                 ],
             ],
             [
-                'id' => Uuid::uuid4()->getHex(),
+                'id' => Uuid::randomHex(),
                 'name' => 'test',
                 'priority' => 90,
                 'paymentMethods' => [
                     [
-                        'id' => Uuid::uuid4()->getHex(),
+                        'id' => Uuid::randomHex(),
                         'handlerIdentifier' => SyncTestPaymentHandler::class,
                         'active' => true,
                         'created_at' => new \DateTime('-2 days'),

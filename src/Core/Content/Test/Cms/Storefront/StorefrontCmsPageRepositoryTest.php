@@ -11,7 +11,7 @@ use Shopware\Core\Content\Cms\CmsPageEntity;
 use Shopware\Core\Content\Cms\Storefront\StorefrontCmsPageRepository;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
-use Shopware\Core\Framework\Struct\Uuid;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
 class StorefrontCmsPageRepositoryTest extends TestCase
@@ -39,7 +39,7 @@ class StorefrontCmsPageRepositoryTest extends TestCase
 
         $this->pageRepository = $this->getContainer()->get(StorefrontCmsPageRepository::class);
         $this->cmsPageRepository = $this->getContainer()->get('cms_page.repository');
-        $this->checkoutContext = $contextFactory->create(Uuid::uuid4()->getHex(), Defaults::SALES_CHANNEL);
+        $this->checkoutContext = $contextFactory->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
     }
 
     public function testWithEmptyIds(): void
@@ -73,7 +73,7 @@ class StorefrontCmsPageRepositoryTest extends TestCase
         $faker = Factory::create();
 
         $page = [
-            'id' => Uuid::uuid4()->getHex(),
+            'id' => Uuid::randomHex(),
             'name' => $faker->company,
             'type' => 'landing_page',
             'blocks' => [

@@ -25,7 +25,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\PaginationCriteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Pricing\Price;
 use Shopware\Core\Framework\Rule\Container\AndRule;
-use Shopware\Core\Framework\Struct\Uuid;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\System\Tax\TaxEntity;
 
@@ -63,9 +63,9 @@ class EntityReaderTest extends TestCase
 
     public function testTranslatedFieldsContainsNoInheritance(): void
     {
-        $id = Uuid::uuid4()->getHex();
+        $id = Uuid::randomHex();
 
-        $subLanguageId = Uuid::uuid4()->getHex();
+        $subLanguageId = Uuid::randomHex();
 
         $context = Context::createDefaultContext();
 
@@ -122,9 +122,9 @@ class EntityReaderTest extends TestCase
 
     public function testInheritedTranslationsInViewData(): void
     {
-        $id = Uuid::uuid4()->getHex();
+        $id = Uuid::randomHex();
 
-        $subLanguageId = Uuid::uuid4()->getHex();
+        $subLanguageId = Uuid::randomHex();
 
         $context = Context::createDefaultContext();
 
@@ -169,12 +169,12 @@ class EntityReaderTest extends TestCase
 
     public function testParentInheritanceInViewData(): void
     {
-        $redId = Uuid::uuid4()->getHex();
-        $greenId = Uuid::uuid4()->getHex();
-        $parentId = Uuid::uuid4()->getHex();
+        $redId = Uuid::randomHex();
+        $greenId = Uuid::randomHex();
+        $parentId = Uuid::randomHex();
 
-        $parentTax = Uuid::uuid4()->getHex();
-        $greenTax = Uuid::uuid4()->getHex();
+        $parentTax = Uuid::randomHex();
+        $greenTax = Uuid::randomHex();
 
         $products = [
             [
@@ -257,17 +257,17 @@ class EntityReaderTest extends TestCase
 
     public function testInheritanceWithOneToMany(): void
     {
-        $ruleA = Uuid::uuid4()->getHex();
-        $ruleB = Uuid::uuid4()->getHex();
+        $ruleA = Uuid::randomHex();
+        $ruleB = Uuid::randomHex();
 
         $this->getContainer()->get('rule.repository')->create([
             ['id' => $ruleA, 'name' => 'test', 'payload' => new AndRule(), 'priority' => 1],
             ['id' => $ruleB, 'name' => 'test', 'payload' => new AndRule(), 'priority' => 2],
         ], Context::createDefaultContext());
 
-        $redId = Uuid::uuid4()->getHex();
-        $greenId = Uuid::uuid4()->getHex();
-        $parentId = Uuid::uuid4()->getHex();
+        $redId = Uuid::randomHex();
+        $greenId = Uuid::randomHex();
+        $parentId = Uuid::randomHex();
 
         $products = [
             [
@@ -341,17 +341,17 @@ class EntityReaderTest extends TestCase
 
     public function testInheritanceWithPaginatedOneToMany(): void
     {
-        $ruleA = Uuid::uuid4()->getHex();
-        $ruleB = Uuid::uuid4()->getHex();
+        $ruleA = Uuid::randomHex();
+        $ruleB = Uuid::randomHex();
 
         $this->getContainer()->get('rule.repository')->create([
             ['id' => $ruleA, 'name' => 'test', 'payload' => new AndRule(), 'priority' => 1],
             ['id' => $ruleB, 'name' => 'test', 'payload' => new AndRule(), 'priority' => 2],
         ], Context::createDefaultContext());
 
-        $redId = Uuid::uuid4()->getHex();
-        $greenId = Uuid::uuid4()->getHex();
-        $parentId = Uuid::uuid4()->getHex();
+        $redId = Uuid::randomHex();
+        $greenId = Uuid::randomHex();
+        $parentId = Uuid::randomHex();
 
         $products = [
             [
@@ -428,9 +428,9 @@ class EntityReaderTest extends TestCase
 
     public function testInheritanceWithManyToMany(): void
     {
-        $category1 = Uuid::uuid4()->getHex();
-        $category2 = Uuid::uuid4()->getHex();
-        $category3 = Uuid::uuid4()->getHex();
+        $category1 = Uuid::randomHex();
+        $category2 = Uuid::randomHex();
+        $category3 = Uuid::randomHex();
 
         $categories = [
             ['id' => $category1, 'name' => 'cat1'],
@@ -442,9 +442,9 @@ class EntityReaderTest extends TestCase
 
         $this->categoryRepository->create($categories, $context);
 
-        $redId = Uuid::uuid4()->getHex();
-        $greenId = Uuid::uuid4()->getHex();
-        $parentId = Uuid::uuid4()->getHex();
+        $redId = Uuid::randomHex();
+        $greenId = Uuid::randomHex();
+        $parentId = Uuid::randomHex();
 
         $products = [
             [
@@ -529,9 +529,9 @@ class EntityReaderTest extends TestCase
 
     public function testInheritanceWithPaginatedManyToMany(): void
     {
-        $category1 = Uuid::uuid4()->getHex();
-        $category2 = Uuid::uuid4()->getHex();
-        $category3 = Uuid::uuid4()->getHex();
+        $category1 = Uuid::randomHex();
+        $category2 = Uuid::randomHex();
+        $category3 = Uuid::randomHex();
 
         $categories = [
             ['id' => $category1, 'name' => 'cat1'],
@@ -543,9 +543,9 @@ class EntityReaderTest extends TestCase
 
         $this->categoryRepository->create($categories, $context);
 
-        $redId = Uuid::uuid4()->getHex();
-        $greenId = Uuid::uuid4()->getHex();
-        $parentId = Uuid::uuid4()->getHex();
+        $redId = Uuid::randomHex();
+        $greenId = Uuid::randomHex();
+        $parentId = Uuid::randomHex();
 
         $products = [
             [
@@ -632,8 +632,8 @@ class EntityReaderTest extends TestCase
     {
         $context = Context::createDefaultContext();
 
-        $id = Uuid::uuid4()->getHex();
-        $defaultAddressId = Uuid::uuid4()->getHex();
+        $id = Uuid::randomHex();
+        $defaultAddressId = Uuid::randomHex();
 
         $repository = $this->getContainer()->get('customer.repository');
 
@@ -681,8 +681,8 @@ class EntityReaderTest extends TestCase
     {
         $context = Context::createDefaultContext();
 
-        $id = Uuid::uuid4()->getHex();
-        $defaultAddressId = Uuid::uuid4()->getHex();
+        $id = Uuid::randomHex();
+        $defaultAddressId = Uuid::randomHex();
 
         $repository = $this->getContainer()->get('customer.repository');
 
@@ -735,10 +735,10 @@ class EntityReaderTest extends TestCase
     {
         $context = Context::createDefaultContext();
 
-        $id1 = Uuid::uuid4()->getHex();
-        $id2 = Uuid::uuid4()->getHex();
-        $defaultAddressId1 = Uuid::uuid4()->getHex();
-        $defaultAddressId2 = Uuid::uuid4()->getHex();
+        $id1 = Uuid::randomHex();
+        $id2 = Uuid::randomHex();
+        $defaultAddressId1 = Uuid::randomHex();
+        $defaultAddressId2 = Uuid::randomHex();
 
         $repository = $this->getContainer()->get('customer.repository');
 
@@ -768,7 +768,7 @@ class EntityReaderTest extends TestCase
                 $customer,
                 [
                     'id' => $id1,
-                    'email' => Uuid::uuid4()->getHex(),
+                    'email' => Uuid::randomHex(),
                     'defaultShippingAddressId' => $defaultAddressId1,
                     'defaultBillingAddressId' => $defaultAddressId1,
                     'addresses' => [
@@ -783,7 +783,7 @@ class EntityReaderTest extends TestCase
                 $customer,
                 [
                     'id' => $id2,
-                    'email' => Uuid::uuid4()->getHex(),
+                    'email' => Uuid::randomHex(),
                     'defaultShippingAddressId' => $defaultAddressId2,
                     'defaultBillingAddressId' => $defaultAddressId2,
                     'addresses' => [
@@ -827,15 +827,15 @@ class EntityReaderTest extends TestCase
     {
         $context = Context::createDefaultContext();
 
-        $id1 = Uuid::uuid4()->getHex();
-        $id2 = Uuid::uuid4()->getHex();
+        $id1 = Uuid::randomHex();
+        $id2 = Uuid::randomHex();
 
-        $addressId1 = Uuid::uuid4()->getHex();
-        $addressId2 = Uuid::uuid4()->getHex();
-        $addressId3 = Uuid::uuid4()->getHex();
-        $addressId4 = Uuid::uuid4()->getHex();
-        $addressId5 = Uuid::uuid4()->getHex();
-        $addressId6 = Uuid::uuid4()->getHex();
+        $addressId1 = Uuid::randomHex();
+        $addressId2 = Uuid::randomHex();
+        $addressId3 = Uuid::randomHex();
+        $addressId4 = Uuid::randomHex();
+        $addressId5 = Uuid::randomHex();
+        $addressId6 = Uuid::randomHex();
 
         $repository = $this->getContainer()->get('customer.repository');
 
@@ -864,7 +864,7 @@ class EntityReaderTest extends TestCase
                 $customer,
                 [
                     'id' => $id1,
-                    'email' => 'test@test.com' . Uuid::uuid4()->getHex(),
+                    'email' => 'test@test.com' . Uuid::randomHex(),
                     'defaultShippingAddressId' => $addressId1,
                     'defaultBillingAddressId' => $addressId1,
                     'addresses' => [
@@ -878,7 +878,7 @@ class EntityReaderTest extends TestCase
                 $customer,
                 [
                     'id' => $id2,
-                    'email' => 'test@test.com' . Uuid::uuid4()->getHex(),
+                    'email' => 'test@test.com' . Uuid::randomHex(),
                     'defaultShippingAddressId' => $addressId4,
                     'defaultBillingAddressId' => $addressId4,
                     'addresses' => [
@@ -951,8 +951,8 @@ class EntityReaderTest extends TestCase
     {
         $context = Context::createDefaultContext();
 
-        $id = Uuid::uuid4()->getHex();
-        $defaultAddressId = Uuid::uuid4()->getHex();
+        $id = Uuid::randomHex();
+        $defaultAddressId = Uuid::randomHex();
 
         $repository = $this->getContainer()->get('customer.repository');
 
@@ -974,7 +974,7 @@ class EntityReaderTest extends TestCase
                 'customerNumber' => 'A',
                 'salutationId' => Defaults::SALUTATION_ID_MR,
                 'password' => 'A',
-                'email' => 'test@test.com' . Uuid::uuid4()->getHex(),
+                'email' => 'test@test.com' . Uuid::randomHex(),
                 'defaultShippingAddressId' => $defaultAddressId,
                 'defaultBillingAddressId' => $defaultAddressId,
                 'salesChannelId' => Defaults::SALES_CHANNEL,
@@ -1006,9 +1006,9 @@ class EntityReaderTest extends TestCase
 
     public function testLoadManyToManyNotLoadedAutomatically(): void
     {
-        $id1 = Uuid::uuid4()->getHex();
-        $id2 = Uuid::uuid4()->getHex();
-        $id3 = Uuid::uuid4()->getHex();
+        $id1 = Uuid::randomHex();
+        $id2 = Uuid::randomHex();
+        $id3 = Uuid::randomHex();
 
         $product1 = [
             'id' => $id1,
@@ -1072,9 +1072,9 @@ class EntityReaderTest extends TestCase
 
     public function testLoadNestedAssociation(): void
     {
-        $manufacturerId = Uuid::uuid4()->getHex();
-        $productId = Uuid::uuid4()->getHex();
-        $categoryId = Uuid::uuid4()->getHex();
+        $manufacturerId = Uuid::randomHex();
+        $productId = Uuid::randomHex();
+        $categoryId = Uuid::randomHex();
 
         $manufacturer = [
             'id' => $manufacturerId,
@@ -1121,9 +1121,9 @@ class EntityReaderTest extends TestCase
 
     public function testLoadManyToMany(): void
     {
-        $id1 = Uuid::uuid4()->getHex();
-        $id2 = Uuid::uuid4()->getHex();
-        $id3 = Uuid::uuid4()->getHex();
+        $id1 = Uuid::randomHex();
+        $id2 = Uuid::randomHex();
+        $id3 = Uuid::randomHex();
 
         $product1 = [
             'id' => $id1,
@@ -1198,9 +1198,9 @@ class EntityReaderTest extends TestCase
 
     public function testLoadManyToManySupportsFilter(): void
     {
-        $id1 = Uuid::uuid4()->getHex();
-        $id2 = Uuid::uuid4()->getHex();
-        $id3 = Uuid::uuid4()->getHex();
+        $id1 = Uuid::randomHex();
+        $id2 = Uuid::randomHex();
+        $id3 = Uuid::randomHex();
 
         $product1 = [
             'id' => $id1,
@@ -1271,9 +1271,9 @@ class EntityReaderTest extends TestCase
 
     public function testLoadManyToManySupportsSorting(): void
     {
-        $id1 = Uuid::uuid4()->getHex();
-        $id2 = Uuid::uuid4()->getHex();
-        $id3 = Uuid::uuid4()->getHex();
+        $id1 = Uuid::randomHex();
+        $id2 = Uuid::randomHex();
+        $id3 = Uuid::randomHex();
 
         $product1 = [
             'id' => $id1,
@@ -1377,8 +1377,8 @@ class EntityReaderTest extends TestCase
 
     public function testLoadManyToManySupportsPagination(): void
     {
-        $id1 = Uuid::uuid4()->getHex();
-        $id2 = Uuid::uuid4()->getHex();
+        $id1 = Uuid::randomHex();
+        $id2 = Uuid::randomHex();
 
         $context = Context::createDefaultContext();
 
@@ -1448,8 +1448,8 @@ class EntityReaderTest extends TestCase
 
     public function testReadSupportsConditions(): void
     {
-        $id1 = Uuid::uuid4()->getHex();
-        $id2 = Uuid::uuid4()->getHex();
+        $id1 = Uuid::randomHex();
+        $id2 = Uuid::randomHex();
 
         $products = [
             [
@@ -1491,7 +1491,7 @@ class EntityReaderTest extends TestCase
         $context = Context::createDefaultContext();
 
         $data = [
-            'id' => Uuid::uuid4()->getHex(),
+            'id' => Uuid::randomHex(),
             'stock' => 1,
             'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
             'active' => true,
@@ -1503,9 +1503,9 @@ class EntityReaderTest extends TestCase
                 'media' => [
                     'name' => 'test-image',
                     'thumbnails' => [
-                        ['id' => Uuid::uuid4()->getHex(), 'width' => 10, 'height' => 10, 'highDpi' => true],
-                        ['id' => Uuid::uuid4()->getHex(), 'width' => 20, 'height' => 20, 'highDpi' => true],
-                        ['id' => Uuid::uuid4()->getHex(), 'width' => 30, 'height' => 30, 'highDpi' => true],
+                        ['id' => Uuid::randomHex(), 'width' => 10, 'height' => 10, 'highDpi' => true],
+                        ['id' => Uuid::randomHex(), 'width' => 20, 'height' => 20, 'highDpi' => true],
+                        ['id' => Uuid::randomHex(), 'width' => 30, 'height' => 30, 'highDpi' => true],
                     ],
                 ],
             ],
@@ -1527,7 +1527,7 @@ class EntityReaderTest extends TestCase
     {
         $repo = $this->getContainer()->get('category.repository');
 
-        $id = Uuid::uuid4()->getHex();
+        $id = Uuid::randomHex();
 
         $cats = [
             [

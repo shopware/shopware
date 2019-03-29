@@ -43,7 +43,7 @@ class StorefrontCheckoutContextControllerTest extends TestCase
 
     public function testUpdateContextWithNonExistingParameters(): void
     {
-        $testId = Uuid::uuid4()->getHex();
+        $testId = Uuid::randomHex();
 
         /*
          * Shipping method
@@ -72,7 +72,7 @@ class StorefrontCheckoutContextControllerTest extends TestCase
 
     public function testUpdateContextWithNonLoggedInCustomer(): void
     {
-        $testId = Uuid::uuid4()->getHex();
+        $testId = Uuid::randomHex();
 
         /*
          * Billing address
@@ -101,7 +101,7 @@ class StorefrontCheckoutContextControllerTest extends TestCase
 
     public function testUpdateContextWithLoggedInCustomerAndNonExistingAddresses(): void
     {
-        $testId = Uuid::uuid4()->getHex();
+        $testId = Uuid::randomHex();
 
         $this->createCustomerAndLogin();
 
@@ -154,7 +154,7 @@ class StorefrontCheckoutContextControllerTest extends TestCase
 
     private function createCustomerAndLogin(?string $email = null, string $password = 'shopware'): string
     {
-        $email = $email ?? Uuid::uuid4()->getHex() . '@example.com';
+        $email = $email ?? Uuid::randomHex() . '@example.com';
         $customerId = $this->createCustomer($password, $email);
 
         $this->getStorefrontClient()->request('POST', '/storefront-api/v1/customer/login', [
@@ -168,8 +168,8 @@ class StorefrontCheckoutContextControllerTest extends TestCase
 
     private function createCustomer(string $password, ?string $email = null): string
     {
-        $customerId = Uuid::uuid4()->getHex();
-        $addressId = Uuid::uuid4()->getHex();
+        $customerId = Uuid::randomHex();
+        $addressId = Uuid::randomHex();
 
         $this->customerRepository->create([
             [
@@ -206,7 +206,7 @@ class StorefrontCheckoutContextControllerTest extends TestCase
 
     private function createCustomerAddress(string $customerId): string
     {
-        $addressId = Uuid::uuid4()->getHex();
+        $addressId = Uuid::randomHex();
         $data = [
             'id' => $addressId,
             'customerId' => $customerId,

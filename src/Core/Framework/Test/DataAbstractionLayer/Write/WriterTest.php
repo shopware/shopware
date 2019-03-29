@@ -20,7 +20,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriter;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriterInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException\WriteStackException;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
-use Shopware\Core\Framework\Struct\Uuid;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\System\Tax\TaxDefinition;
 
@@ -38,7 +38,7 @@ class WriterTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->id = Uuid::uuid4()->getHex();
+        $this->id = Uuid::randomHex();
         $this->idBytes = Uuid::fromHexToBytes($this->id);
 
         $this->connection = $this->getContainer()->get(Connection::class);
@@ -172,9 +172,9 @@ class WriterTest extends TestCase
             [
                 ['id' => $id->getHex()],
                 ['id' => $id2->getHex()],
-                ['id' => Uuid::uuid4()->getHex()],
-                ['id' => Uuid::uuid4()->getHex()],
-                ['id' => Uuid::uuid4()->getHex()],
+                ['id' => Uuid::randomHex()],
+                ['id' => Uuid::randomHex()],
+                ['id' => Uuid::randomHex()],
             ],
             $context
         );
@@ -319,7 +319,7 @@ class WriterTest extends TestCase
                     'price' => ['gross' => 10, 'net' => 8.10, 'linked' => false],
                     'the_unknown_field' => 'do nothing?',
                     'tax' => ['name' => 'test', 'taxRate' => 5],
-                    'manufacturer' => ['id' => Uuid::uuid4()->getHex(), 'link' => 'https://shopware.com', 'name' => 'shopware AG'],
+                    'manufacturer' => ['id' => Uuid::randomHex(), 'link' => 'https://shopware.com', 'name' => 'shopware AG'],
                     'mode' => 0,
                     'lastStock' => true,
                     'crossbundlelook' => 1,
@@ -352,7 +352,7 @@ class WriterTest extends TestCase
                     'name' => 'foo',
                     'stock' => 1,
                     'price' => ['gross' => 10, 'net' => 8.10, 'linked' => false],
-                    'manufacturer' => ['id' => Uuid::uuid4()->getHex(), 'link' => 'https://shopware.com', 'name' => 'shopware AG'],
+                    'manufacturer' => ['id' => Uuid::randomHex(), 'link' => 'https://shopware.com', 'name' => 'shopware AG'],
                 ],
             ],
             $this->createWriteContext()
@@ -375,7 +375,7 @@ class WriterTest extends TestCase
                     'stock' => 1,
                     'descriptionLong' => '<p>I\'m a <b>test article</b></p>',
                     'tax' => ['name' => 'test', 'taxRate' => 5],
-                    'manufacturer' => ['id' => Uuid::uuid4()->getHex(), 'link' => 'https://shopware.com', 'name' => 'shopware AG'],
+                    'manufacturer' => ['id' => Uuid::randomHex(), 'link' => 'https://shopware.com', 'name' => 'shopware AG'],
                     'updatedAt' => new \DateTime(),
                     'mode' => 0,
                     'lastStock' => true,
@@ -406,7 +406,7 @@ class WriterTest extends TestCase
     {
         $this->insertEmptyProduct();
 
-        $productManufacturerId = Uuid::uuid4()->getHex();
+        $productManufacturerId = Uuid::randomHex();
 
         $this->getWriter()->update(
             ProductDefinition::class,
@@ -533,9 +533,9 @@ class WriterTest extends TestCase
     {
         $this->insertEmptyProduct();
 
-        $localeId = Uuid::uuid4()->getHex();
+        $localeId = Uuid::randomHex();
         $this->getContainer()->get('locale.repository')->upsert([
-            ['id' => $localeId, 'name' => 'test', 'territory' => 'tmp', 'code' => Uuid::uuid4()->getHex()],
+            ['id' => $localeId, 'name' => 'test', 'territory' => 'tmp', 'code' => Uuid::randomHex()],
         ], Context::createDefaultContext());
 
         $this->getContainer()->get('language.repository')->upsert([
@@ -545,7 +545,7 @@ class WriterTest extends TestCase
                 'localeId' => $localeId,
                 'localeVersionId' => Defaults::LIVE_VERSION,
                 'translationCode' => [
-                    'code' => 'x-tst_' . Uuid::uuid4()->getHex(),
+                    'code' => 'x-tst_' . Uuid::randomHex(),
                     'name' => 'test name',
                     'territory' => 'test territory',
                 ],
@@ -655,7 +655,7 @@ class WriterTest extends TestCase
 
     public function testInsertWithOnlyRequiredTranslated(): void
     {
-        $id = Uuid::uuid4()->getHex();
+        $id = Uuid::randomHex();
         $data = ['id' => $id];
 
         $this->expectException(WriteTypeIntendException::class);
@@ -669,8 +669,8 @@ class WriterTest extends TestCase
     public function testWriteOneToManyWithOptionalIdField(): void
     {
         $mediaRepo = $this->getContainer()->get('media.repository');
-        $mediaId = Uuid::uuid4()->getHex();
-        $manufacturerId = Uuid::uuid4()->getHex();
+        $mediaId = Uuid::randomHex();
+        $manufacturerId = Uuid::randomHex();
 
         $mediaRepo->upsert([
             [
@@ -696,7 +696,7 @@ class WriterTest extends TestCase
     public function testWriteTranslatedEntityWithoutRequiredFieldsNotInSystemLanguage(): void
     {
         $mediaRepo = $this->getContainer()->get('media.repository');
-        $mediaId = Uuid::uuid4()->getHex();
+        $mediaId = Uuid::randomHex();
         $context = Context::createDefaultContext();
         $context = new Context(
             $context->getSource(),
@@ -735,7 +735,7 @@ class WriterTest extends TestCase
                     'price' => ['gross' => 10, 'net' => 8.10, 'linked' => false],
                     'tax' => ['name' => 'test', 'taxRate' => 5],
                     'manufacturer' => [
-                        'id' => Uuid::uuid4()->getHex(),
+                        'id' => Uuid::randomHex(),
                         'name' => 'shopware AG',
                         'link' => 'https://shopware.com',
                     ],

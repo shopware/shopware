@@ -12,7 +12,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\Rule\Collector\RuleConditionRegistry;
 use Shopware\Core\Framework\Rule\Rule;
-use Shopware\Core\Framework\Struct\Uuid;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 use Symfony\Component\Validator\Constraints\Choice;
@@ -48,7 +48,7 @@ class RuleValidatorTest extends TestCase
 
     public function testInsertInvalidType(): void
     {
-        $id = Uuid::uuid4()->getBytes();
+        $id = Uuid::randomBytes();
         $commands = [];
         $commands[] = new InsertCommand(
             RuleConditionDefinition::class, ['type' => 'false'], ['id' => $id],
@@ -70,7 +70,7 @@ class RuleValidatorTest extends TestCase
 
     public function testUpdateInvalidType(): void
     {
-        $id = Uuid::uuid4()->getBytes();
+        $id = Uuid::randomBytes();
         $commands = [];
         $commands[] = new UpdateCommand(
             RuleConditionDefinition::class, ['id' => $id], ['type' => 'false'],
@@ -92,7 +92,7 @@ class RuleValidatorTest extends TestCase
 
     public function testInsertRequiredField(): void
     {
-        $id = Uuid::uuid4()->getBytes();
+        $id = Uuid::randomBytes();
         $commands = [];
         $commands[] = new InsertCommand(
             RuleConditionDefinition::class, ['type' => 'type'], ['id' => $id], $this->createMock(EntityExistence::class)
@@ -122,7 +122,7 @@ class RuleValidatorTest extends TestCase
 
     public function testUpdateRequiredField(): void
     {
-        $id = Uuid::uuid4()->getBytes();
+        $id = Uuid::randomBytes();
         $commands = [];
         $commands[] = new UpdateCommand(
             RuleConditionDefinition::class, ['id' => $id], ['type' => 'type'], $this->createMock(EntityExistence::class)
@@ -152,7 +152,7 @@ class RuleValidatorTest extends TestCase
 
     public function testInsertOptionalField(): void
     {
-        $id = Uuid::uuid4()->getBytes();
+        $id = Uuid::randomBytes();
         $commands = [];
         $commands[] = new InsertCommand(
             RuleConditionDefinition::class, ['type' => 'type'], ['id' => $id], $this->createMock(EntityExistence::class)
@@ -170,7 +170,7 @@ class RuleValidatorTest extends TestCase
 
     public function testUpdateOptionalField(): void
     {
-        $id = Uuid::uuid4()->getBytes();
+        $id = Uuid::randomBytes();
         $commands = [];
         $commands[] = new UpdateCommand(
             RuleConditionDefinition::class, ['id' => $id], ['type' => 'type'], $this->createMock(EntityExistence::class)
@@ -188,7 +188,7 @@ class RuleValidatorTest extends TestCase
 
     public function testInsertWithOptionalField(): void
     {
-        $id = Uuid::uuid4()->getBytes();
+        $id = Uuid::randomBytes();
         $commands = [];
         $commands[] = new InsertCommand(
             RuleConditionDefinition::class, ['type' => 'type', 'value' => json_encode(['field' => 'invalid'])],
@@ -222,7 +222,7 @@ class RuleValidatorTest extends TestCase
 
     public function testUpdateWithOptionalField(): void
     {
-        $id = Uuid::uuid4()->getBytes();
+        $id = Uuid::randomBytes();
         $commands = [];
         $commands[] = new UpdateCommand(
             RuleConditionDefinition::class, ['id' => $id],
@@ -257,7 +257,7 @@ class RuleValidatorTest extends TestCase
 
     public function testInsertValid(): void
     {
-        $id = Uuid::uuid4()->getBytes();
+        $id = Uuid::randomBytes();
         $commands = [];
         $commands[] = new InsertCommand(
             RuleConditionDefinition::class, ['type' => 'type', 'value' => json_encode(['field' => 'valid'])],
@@ -274,7 +274,7 @@ class RuleValidatorTest extends TestCase
 
     public function testUpdateValid(): void
     {
-        $id = Uuid::uuid4()->getBytes();
+        $id = Uuid::randomBytes();
         $commands = [];
         $commands[] = new UpdateCommand(
             RuleConditionDefinition::class, ['id' => $id],

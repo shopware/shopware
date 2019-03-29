@@ -15,7 +15,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\EntityAggregatorInterfac
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\VersionManager;
-use Shopware\Core\Framework\Struct\Uuid;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\AttributesTestDefinition;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\AttributesTestTranslationDefinition;
 use Shopware\Core\Framework\Test\TestCaseBase\CacheTestBehaviour;
@@ -77,15 +77,15 @@ class AttributesFieldTranslationTest extends TestCase
             'child' => AttributeTypes::TEXT,
         ]);
 
-        $rootLanguageId = Uuid::uuid4()->getHex();
-        $childLanguageId = Uuid::uuid4()->getHex();
+        $rootLanguageId = Uuid::randomHex();
+        $childLanguageId = Uuid::randomHex();
         $this->addLanguage($rootLanguageId, null);
         $this->addLanguage($childLanguageId, $rootLanguageId);
 
         $repo = $this->getTestRepository();
         $context = Context::createDefaultContext();
 
-        $id = Uuid::uuid4()->getHex();
+        $id = Uuid::randomHex();
 
         $entity = [
             'id' => $id,
@@ -165,10 +165,10 @@ class AttributesFieldTranslationTest extends TestCase
             'child' => AttributeTypes::DATETIME,
         ]);
 
-        $id = Uuid::uuid4()->getHex();
+        $id = Uuid::randomHex();
 
-        $rootId = Uuid::uuid4()->getHex();
-        $childId = Uuid::uuid4()->getHex();
+        $rootId = Uuid::randomHex();
+        $childId = Uuid::randomHex();
 
         $this->addLanguage($rootId, null);
         $this->addLanguage($childId, $rootId);
@@ -316,11 +316,11 @@ class AttributesFieldTranslationTest extends TestCase
             'parent' => AttributeTypes::TEXT,
         ]);
 
-        $parentId = Uuid::uuid4()->getHex();
-        $childId = Uuid::uuid4()->getHex();
+        $parentId = Uuid::randomHex();
+        $childId = Uuid::randomHex();
 
-        $rootId = Uuid::uuid4()->getHex();
-        $subId = Uuid::uuid4()->getHex();
+        $rootId = Uuid::randomHex();
+        $subId = Uuid::randomHex();
 
         $this->addLanguage($rootId, null);
         $this->addLanguage($subId, $rootId);
@@ -490,7 +490,7 @@ class AttributesFieldTranslationTest extends TestCase
 
     protected function addLanguage($id, $rootLanguage): void
     {
-        $translationCodeId = Uuid::uuid4()->getHex();
+        $translationCodeId = Uuid::randomHex();
         $languageRepository = $this->getContainer()->get('language.repository');
         $languageRepository->create(
             [
@@ -529,7 +529,7 @@ class AttributesFieldTranslationTest extends TestCase
 
         $attributes = [];
         foreach ($attributeTypes as $name => $type) {
-            $attributes[] = ['id' => Uuid::uuid4()->getHex(), 'name' => $name, 'type' => $type];
+            $attributes[] = ['id' => Uuid::randomHex(), 'name' => $name, 'type' => $type];
         }
         $attributeRepo->create($attributes, Context::createDefaultContext());
     }

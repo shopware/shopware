@@ -4,7 +4,7 @@ namespace Shopware\Core\Checkout\Context;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Api\Exception\InvalidContextTokenException;
-use Shopware\Core\Framework\Struct\Uuid;
+use Shopware\Core\Framework\Uuid\Uuid;
 
 class CheckoutContextPersister
 {

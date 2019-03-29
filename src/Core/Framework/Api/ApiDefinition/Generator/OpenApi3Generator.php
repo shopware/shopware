@@ -28,7 +28,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\MappingEntityDefinition;
-use Shopware\Core\Framework\Struct\Uuid;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\HttpFoundation\Response;
 
 class OpenApi3Generator implements ApiDefinitionGeneratorInterface
@@ -335,7 +335,7 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
         $requiredAttributes = [];
         $relationships = [];
 
-        $uuid = Uuid::uuid4()->getHex();
+        $uuid = Uuid::randomHex();
         $schemaName = $definition::getEntityName();
         $detailPath = $this->getResourceUri($definition) . '/' . $uuid;
 
@@ -683,7 +683,7 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
                         'id' => [
                             'type' => 'string',
                             'format' => 'uuid',
-                            'example' => Uuid::uuid4()->getHex(),
+                            'example' => Uuid::randomHex(),
                         ],
                     ],
                 ],
@@ -726,7 +726,7 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
                             ],
                             'id' => [
                                 'type' => 'string',
-                                'example' => Uuid::uuid4()->getHex(),
+                                'example' => Uuid::randomHex(),
                             ],
                         ],
                     ],

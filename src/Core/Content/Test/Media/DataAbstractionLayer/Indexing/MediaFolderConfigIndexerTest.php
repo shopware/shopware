@@ -8,7 +8,7 @@ use Shopware\Core\Content\Media\DataAbstractionLayer\Indexing\MediaFolderConfigI
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Struct\Uuid;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
 class MediaFolderConfigIndexerTest extends TestCase
@@ -45,11 +45,11 @@ class MediaFolderConfigIndexerTest extends TestCase
 
     public function testOnRefreshItUpdatesChildConfig(): void
     {
-        $parentId = Uuid::uuid4()->getHex();
-        $child1Id = Uuid::uuid4()->getHex();
-        $child1_1Id = Uuid::uuid4()->getHex();
-        $configId = Uuid::uuid4()->getHex();
-        $newConfigId = Uuid::uuid4()->getHex();
+        $parentId = Uuid::randomHex();
+        $child1Id = Uuid::randomHex();
+        $child1_1Id = Uuid::randomHex();
+        $configId = Uuid::randomHex();
+        $newConfigId = Uuid::randomHex();
 
         $this->folderRepository->create([
             [
@@ -96,12 +96,12 @@ class MediaFolderConfigIndexerTest extends TestCase
 
     public function testOnRefreshItUpdatesOwnConfig(): void
     {
-        $parentId = Uuid::uuid4()->getHex();
-        $child1Id = Uuid::uuid4()->getHex();
-        $child1_1Id = Uuid::uuid4()->getHex();
-        $child1_1_1Id = Uuid::uuid4()->getHex();
-        $configId = Uuid::uuid4()->getHex();
-        $childConfigId = Uuid::uuid4()->getHex();
+        $parentId = Uuid::randomHex();
+        $child1Id = Uuid::randomHex();
+        $child1_1Id = Uuid::randomHex();
+        $child1_1_1Id = Uuid::randomHex();
+        $configId = Uuid::randomHex();
+        $childConfigId = Uuid::randomHex();
 
         $this->folderRepository->create([
             [
@@ -156,10 +156,10 @@ class MediaFolderConfigIndexerTest extends TestCase
 
     public function testIndex(): void
     {
-        $parentId = Uuid::uuid4()->getHex();
-        $child1Id = Uuid::uuid4()->getHex();
-        $child1_1Id = Uuid::uuid4()->getHex();
-        $configId = Uuid::uuid4()->getHex();
+        $parentId = Uuid::randomHex();
+        $child1Id = Uuid::randomHex();
+        $child1_1Id = Uuid::randomHex();
+        $configId = Uuid::randomHex();
 
         $this->folderRepository->create([
             [
@@ -193,7 +193,7 @@ class MediaFolderConfigIndexerTest extends TestCase
             ->update('media_folder')
             ->set('media_folder_configuration_id', ':configId')
             ->andWhere('id in (:ids)')
-            ->setParameter('configId', Uuid::uuid4()->getBytes())
+            ->setParameter('configId', Uuid::randomBytes())
             ->setParameter(
                 'ids',
                 [Uuid::fromHexToBytes($child1Id), Uuid::fromHexToBytes($child1_1Id)],

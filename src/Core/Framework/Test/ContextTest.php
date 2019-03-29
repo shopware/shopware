@@ -7,7 +7,7 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Context\SystemSource;
 use Shopware\Core\Framework\Struct\ArrayEntity;
-use Shopware\Core\Framework\Struct\Uuid;
+use Shopware\Core\Framework\Uuid\Uuid;
 
 class ContextTest extends TestCase
 {
@@ -36,7 +36,7 @@ class ContextTest extends TestCase
 
     public function testVersionChange(): void
     {
-        $versionId = Uuid::uuid4()->getHex();
+        $versionId = Uuid::randomHex();
 
         $context = Context::createDefaultContext();
         $versionContext = $context->createWithVersionId($versionId);
@@ -52,7 +52,7 @@ class ContextTest extends TestCase
 
         static::assertNotNull($context->getExtension('foo'));
 
-        $versionContext = $context->createWithVersionId(Uuid::uuid4()->getHex());
+        $versionContext = $context->createWithVersionId(Uuid::randomHex());
 
         static::assertNotNull($versionContext->getExtension('foo'));
     }

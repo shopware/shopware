@@ -7,7 +7,7 @@ use Shopware\Core\Content\Cms\Aggregate\CmsBlock\CmsBlockCollection;
 use Shopware\Core\Content\Cms\Aggregate\CmsBlock\CmsBlockEntity;
 use Shopware\Core\Content\Cms\Aggregate\CmsSlot\CmsSlotCollection;
 use Shopware\Core\Content\Cms\Aggregate\CmsSlot\CmsSlotEntity;
-use Shopware\Core\Framework\Struct\Uuid;
+use Shopware\Core\Framework\Uuid\Uuid;
 
 class CmsBlockCollectionTest extends TestCase
 {
@@ -45,7 +45,7 @@ class CmsBlockCollectionTest extends TestCase
     private function getBlock(): CmsBlockEntity
     {
         $block = new CmsBlockEntity();
-        $block->setUniqueIdentifier(Uuid::uuid4()->getHex());
+        $block->setUniqueIdentifier(Uuid::randomHex());
         $block->setType('block');
 
         $block->setSlots(new CmsSlotCollection([
@@ -65,7 +65,7 @@ class CmsBlockCollectionTest extends TestCase
         $slot->setType('slot');
         $slot->setConfig([]);
         $slot->setSlot(uniqid('', true));
-        $slot->setUniqueIdentifier(Uuid::uuid4()->getHex());
+        $slot->setUniqueIdentifier(Uuid::randomHex());
 
         return $slot;
     }

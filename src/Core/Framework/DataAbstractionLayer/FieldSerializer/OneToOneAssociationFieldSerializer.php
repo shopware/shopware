@@ -12,7 +12,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException\ExpectedArrayException;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteCommandExtractor;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
-use Shopware\Core\Framework\Struct\Uuid;
+use Shopware\Core\Framework\Uuid\Uuid;
 
 class OneToOneAssociationFieldSerializer implements FieldSerializerInterface
 {
@@ -99,7 +99,7 @@ class OneToOneAssociationFieldSerializer implements FieldSerializerInterface
         if (isset($value[$pkField->getPropertyName()])) {
             $id = $value[$pkField->getPropertyName()];
         } else {
-            $id = Uuid::uuid4()->getHex();
+            $id = Uuid::randomHex();
             $value[$pkField->getPropertyName()] = $id;
         }
 

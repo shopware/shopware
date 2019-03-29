@@ -8,7 +8,7 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Rule\Container\AndRule;
-use Shopware\Core\Framework\Struct\Uuid;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\FilesystemBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
@@ -70,7 +70,7 @@ EOF;
 
     public function testInsert(): void
     {
-        $id = Uuid::uuid4()->getHex();
+        $id = Uuid::randomHex();
 
         $data = [
             'id' => $id,
@@ -96,7 +96,7 @@ EOF;
 
     public function testOneToManyInsert(): void
     {
-        $id = Uuid::uuid4()->getHex();
+        $id = Uuid::randomHex();
 
         $data = ['id' => $id, 'name' => $id];
 
@@ -137,8 +137,8 @@ EOF;
 
     public function testManyToOneInsert(): void
     {
-        $id = Uuid::uuid4()->getHex();
-        $manufacturer = Uuid::uuid4()->getHex();
+        $id = Uuid::randomHex();
+        $manufacturer = Uuid::randomHex();
 
         $data = [
             'id' => $id,
@@ -180,7 +180,7 @@ EOF;
 
     public function testManyToManyInsert(): void
     {
-        $id = Uuid::uuid4()->getHex();
+        $id = Uuid::randomHex();
 
         $data = [
             'id' => $id,
@@ -278,8 +278,8 @@ EOF;
 
     public function testDeleteManyToOne(): void
     {
-        $id = Uuid::uuid4()->getHex();
-        $groupId = Uuid::uuid4()->getHex();
+        $id = Uuid::randomHex();
+        $groupId = Uuid::randomHex();
 
         $data = [
             'id' => $id,
@@ -370,7 +370,7 @@ EOF;
 
     public function testSearch(): void
     {
-        $id = Uuid::uuid4()->getHex();
+        $id = Uuid::randomHex();
 
         $data = [
             'id' => $id,
@@ -452,10 +452,10 @@ EOF;
 
     public function testNestedSearchOnOneToMany(): void
     {
-        $id = Uuid::uuid4()->getHex();
+        $id = Uuid::randomHex();
 
-        $ruleA = Uuid::uuid4()->getHex();
-        $ruleB = Uuid::uuid4()->getHex();
+        $ruleA = Uuid::randomHex();
+        $ruleB = Uuid::randomHex();
 
         $this->getContainer()->get('rule.repository')->create([
             ['id' => $ruleA, 'name' => 'test', 'payload' => new AndRule(), 'priority' => 1],
@@ -523,10 +523,10 @@ EOF;
 
     public function testNestedSearchOnOneToManyWithAggregation(): void
     {
-        $id = Uuid::uuid4()->getHex();
+        $id = Uuid::randomHex();
 
-        $ruleA = Uuid::uuid4()->getHex();
-        $ruleB = Uuid::uuid4()->getHex();
+        $ruleA = Uuid::randomHex();
+        $ruleB = Uuid::randomHex();
 
         $this->getContainer()->get('rule.repository')->create([
             ['id' => $ruleA, 'name' => 'test', 'payload' => new AndRule(), 'priority' => 1],
@@ -592,9 +592,9 @@ EOF;
 
     public function testSearchOnManyToMany(): void
     {
-        $id = Uuid::uuid4()->getHex();
-        $categoryA = Uuid::uuid4()->getHex();
-        $categoryB = Uuid::uuid4()->getHex();
+        $id = Uuid::randomHex();
+        $categoryA = Uuid::randomHex();
+        $categoryB = Uuid::randomHex();
 
         $data = [
             'id' => $id,
@@ -645,7 +645,7 @@ EOF;
 
     public function testSimpleFilter(): void
     {
-        $id = Uuid::uuid4()->getHex();
+        $id = Uuid::randomHex();
 
         $data = [
             'id' => $id,
@@ -679,9 +679,9 @@ EOF;
 
     public function testAggregation(): void
     {
-        $manufacturerName = Uuid::uuid4()->getHex();
+        $manufacturerName = Uuid::randomHex();
 
-        $productA = Uuid::uuid4()->getHex();
+        $productA = Uuid::randomHex();
         $data = [
             'id' => $productA,
             'name' => 'Wool Shirt',
@@ -693,7 +693,7 @@ EOF;
         $this->getClient()->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/product', $data);
         static::assertEquals(Response::HTTP_NO_CONTENT, $this->getClient()->getResponse()->getStatusCode());
 
-        $productB = Uuid::uuid4()->getHex();
+        $productB = Uuid::randomHex();
         $data = [
             'id' => $productB,
             'name' => 'Wool Shirt 2',
@@ -751,8 +751,8 @@ EOF;
 
     public function testParentChildLocation(): void
     {
-        $childId = Uuid::uuid4()->getHex();
-        $parentId = Uuid::uuid4()->getHex();
+        $childId = Uuid::randomHex();
+        $parentId = Uuid::randomHex();
 
         $data = [
             'id' => $childId,
@@ -762,12 +762,12 @@ EOF;
                 'id' => $parentId,
                 'name' => 'Parent Language',
                 'locale' => [
-                    'code' => 'x-tst_' . Uuid::uuid4()->getHex(),
+                    'code' => 'x-tst_' . Uuid::randomHex(),
                     'name' => 'test name',
                     'territory' => 'test territory',
                 ],
                 'translationCode' => [
-                    'code' => 'x-tst_' . Uuid::uuid4()->getHex(),
+                    'code' => 'x-tst_' . Uuid::randomHex(),
                     'name' => 'test name',
                     'territory' => 'test territory',
                 ],
@@ -783,7 +783,7 @@ EOF;
 
     public function testJsonApiResponseSingle(): void
     {
-        $id = Uuid::uuid4()->getHex();
+        $id = Uuid::randomHex();
         $insertData = ['id' => $id, 'name' => 'test'];
 
         $this->getClient()->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/category', [], [], [], json_encode($insertData));
@@ -861,7 +861,7 @@ EOF;
 
     public function testCreateNewVersion(): void
     {
-        $id = Uuid::uuid4()->getHex();
+        $id = Uuid::randomHex();
 
         $data = ['id' => $id, 'name' => 'test category'];
 
@@ -889,7 +889,7 @@ EOF;
 
     public function testCloneEntity(): void
     {
-        $id = Uuid::uuid4()->getHex();
+        $id = Uuid::randomHex();
         $data = [
             'id' => $id,
             'name' => 'test tax clone',

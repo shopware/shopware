@@ -39,7 +39,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Rule\Collector\RuleConditionRegistry;
-use Shopware\Core\Framework\Struct\Uuid;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseHelper\ExtensionHelper;
@@ -72,13 +72,13 @@ class RecalculationServiceTest extends TestCase
         parent::setUp();
         $this->context = Context::createDefaultContext();
 
-        $priceRuleId = Uuid::uuid4()->getHex();
+        $priceRuleId = Uuid::randomHex();
 
         $this->customerId = $this->createCustomer();
         $shippingMethodId = $this->createShippingMethod($priceRuleId);
         $paymentMethodId = $this->createPaymentMethod($priceRuleId);
         $this->checkoutContext = $this->getContainer()->get(CheckoutContextFactory::class)->create(
-            Uuid::uuid4()->getHex(),
+            Uuid::randomHex(),
             Defaults::SALES_CHANNEL,
             [
                 CheckoutContextService::CUSTOMER_ID => $this->customerId,
@@ -406,8 +406,8 @@ class RecalculationServiceTest extends TestCase
 
     public function testForeachLoopInCalculateDeliveryFunction(): void
     {
-        $priceRuleId = Uuid::uuid4()->getHex();
-        $shippingMethodId = Uuid::uuid4()->getHex();
+        $priceRuleId = Uuid::randomHex();
+        $shippingMethodId = Uuid::randomHex();
         $shippingMethod = $this->addSecondPriceRuleToShippingMethod($priceRuleId, $shippingMethodId);
         $this->checkoutContext->setRuleIds(array_merge($this->checkoutContext->getRuleIds(), [$priceRuleId]));
 
@@ -437,8 +437,8 @@ class RecalculationServiceTest extends TestCase
 
     public function testStartAndEndConditionsInPriceRule(): void
     {
-        $priceRuleId = Uuid::uuid4()->getHex();
-        $shippingMethodId = Uuid::uuid4()->getHex();
+        $priceRuleId = Uuid::randomHex();
+        $shippingMethodId = Uuid::randomHex();
         $shippingMethod = $this->addSecondShippingMethodPriceRule($priceRuleId, $shippingMethodId);
         $this->checkoutContext->setRuleIds(array_merge($this->checkoutContext->getRuleIds(), [$priceRuleId]));
 
@@ -469,8 +469,8 @@ class RecalculationServiceTest extends TestCase
 
     public function testIfCorrectConditionIsUsedCalculationByLineItemCount(): void
     {
-        $priceRuleId = Uuid::uuid4()->getHex();
-        $shippingMethodId = Uuid::uuid4()->getHex();
+        $priceRuleId = Uuid::randomHex();
+        $shippingMethodId = Uuid::randomHex();
         $shippingMethod = $this->addSecondShippingMethodPriceRule($priceRuleId, $shippingMethodId);
         $this->checkoutContext->setRuleIds(array_merge($this->checkoutContext->getRuleIds(), [$priceRuleId]));
 
@@ -522,8 +522,8 @@ class RecalculationServiceTest extends TestCase
 
     public function testIfCorrectConditionIsUsedPriceCalculation(): void
     {
-        $priceRuleId = Uuid::uuid4()->getHex();
-        $shippingMethodId = Uuid::uuid4()->getHex();
+        $priceRuleId = Uuid::randomHex();
+        $shippingMethodId = Uuid::randomHex();
         $shippingMethod = $this->createTwoConditionsWithDifferentQuantities($priceRuleId, $shippingMethodId, DeliveryCalculator::CALCULATION_BY_PRICE);
         $this->checkoutContext->setRuleIds(array_merge($this->checkoutContext->getRuleIds(), [$priceRuleId]));
 
@@ -575,8 +575,8 @@ class RecalculationServiceTest extends TestCase
 
     public function testIfCorrectConditionIsUsedWeightCalculation(): void
     {
-        $priceRuleId = Uuid::uuid4()->getHex();
-        $shippingMethodId = Uuid::uuid4()->getHex();
+        $priceRuleId = Uuid::randomHex();
+        $shippingMethodId = Uuid::randomHex();
         $shippingMethod = $this->createTwoConditionsWithDifferentQuantities($priceRuleId, $shippingMethodId, DeliveryCalculator::CALCULATION_BY_WEIGHT);
         $this->checkoutContext->setRuleIds(array_merge($this->checkoutContext->getRuleIds(), [$priceRuleId]));
 
@@ -706,7 +706,7 @@ class RecalculationServiceTest extends TestCase
         string $city,
         string $zipcode): string
     {
-        $addressId = Uuid::uuid4()->getHex();
+        $addressId = Uuid::randomHex();
 
         $customer = [
             'id' => $customerId,
@@ -732,7 +732,7 @@ class RecalculationServiceTest extends TestCase
 
     private function createProduct(string $name, float $price, float $taxRate): string
     {
-        $productId = Uuid::uuid4()->getHex();
+        $productId = Uuid::randomHex();
         $data = [
             'id' => $productId,
             'stock' => 1,
@@ -748,8 +748,8 @@ class RecalculationServiceTest extends TestCase
 
     private function createCustomer(): string
     {
-        $customerId = Uuid::uuid4()->getHex();
-        $addressId = Uuid::uuid4()->getHex();
+        $customerId = Uuid::randomHex();
+        $addressId = Uuid::randomHex();
 
         $customer = [
             'id' => $customerId,
@@ -758,7 +758,7 @@ class RecalculationServiceTest extends TestCase
             'firstName' => 'Max',
             'lastName' => 'Mustermann',
             'customerNumber' => '1337',
-            'email' => Uuid::uuid4()->getHex() . '@example.com',
+            'email' => Uuid::randomHex() . '@example.com',
             'password' => 'shopware',
             'defaultPaymentMethodId' => $this->getValidPaymentMethodId(),
             'groupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
@@ -921,7 +921,7 @@ class RecalculationServiceTest extends TestCase
 
     private function addCustomLineItemToVersionedOrder(string $orderId, string $versionId): void
     {
-        $identifier = Uuid::uuid4()->getHex();
+        $identifier = Uuid::randomHex();
         $data = [
             'identifier' => $identifier,
             'type' => 'test',
@@ -992,7 +992,7 @@ class RecalculationServiceTest extends TestCase
 
     private function createShippingMethod(string $priceRuleId): string
     {
-        $shippingMethodId = Uuid::uuid4()->getHex();
+        $shippingMethodId = Uuid::randomHex();
         $repository = $this->getContainer()->get('shipping_method.repository');
 
         $ruleRegistry = $this->getContainer()->get(RuleConditionRegistry::class);
@@ -1234,7 +1234,7 @@ class RecalculationServiceTest extends TestCase
 
     private function createPaymentMethod(string $ruleId): string
     {
-        $paymentMethodId = Uuid::uuid4()->getHex();
+        $paymentMethodId = Uuid::randomHex();
         $repository = $this->getContainer()->get('payment_method.repository');
 
         $ruleRegistry = $this->getContainer()->get(RuleConditionRegistry::class);

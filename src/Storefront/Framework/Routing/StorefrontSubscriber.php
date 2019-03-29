@@ -3,7 +3,7 @@
 namespace Shopware\Storefront\Framework\Routing;
 
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
-use Shopware\Core\Framework\Struct\Uuid;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\StorefrontRequest;
 use Shopware\Storefront\PageController\ErrorPageController;
@@ -75,7 +75,7 @@ class StorefrontSubscriber implements EventSubscriberInterface
         }
 
         if (!$session->has(PlatformRequest::HEADER_CONTEXT_TOKEN)) {
-            $token = Uuid::uuid4()->getHex();
+            $token = Uuid::randomHex();
             $session->set(PlatformRequest::HEADER_CONTEXT_TOKEN, $token);
         }
 

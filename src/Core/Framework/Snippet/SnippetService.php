@@ -13,7 +13,7 @@ use Shopware\Core\Framework\Snippet\Aggregate\SnippetSet\SnippetSetEntity;
 use Shopware\Core\Framework\Snippet\Files\SnippetFileCollection;
 use Shopware\Core\Framework\Snippet\Files\SnippetFileInterface;
 use Shopware\Core\Framework\Snippet\Filter\SnippetFilterFactoryInterface;
-use Shopware\Core\Framework\Struct\Uuid;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\Translation\MessageCatalogueInterface;
 
 class SnippetService implements SnippetServiceInterface

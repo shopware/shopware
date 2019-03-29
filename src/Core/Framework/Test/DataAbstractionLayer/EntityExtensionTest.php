@@ -22,7 +22,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\PaginationCriteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriter;
 use Shopware\Core\Framework\Rule\Container\AndRule;
-use Shopware\Core\Framework\Struct\Uuid;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
 class EntityExtensionTest extends TestCase
@@ -80,7 +80,7 @@ class EntityExtensionTest extends TestCase
 
         ProductDefinition::getFields()->add($field);
 
-        $id = Uuid::uuid4()->getHex();
+        $id = Uuid::randomHex();
 
         $data = $this->getPricesData($id);
 
@@ -93,7 +93,7 @@ class EntityExtensionTest extends TestCase
 
         static::assertCount(2, $count);
 
-        $id = Uuid::uuid4()->getHex();
+        $id = Uuid::randomHex();
 
         $data = $this->getPricesData($id);
 
@@ -117,7 +117,7 @@ class EntityExtensionTest extends TestCase
 
         ProductDefinition::getFields()->add($field);
 
-        $id = Uuid::uuid4()->getHex();
+        $id = Uuid::randomHex();
 
         $data = $this->getPricesData($id);
 
@@ -140,7 +140,7 @@ class EntityExtensionTest extends TestCase
 
         ProductDefinition::getFields()->add($field);
 
-        $id = Uuid::uuid4()->getHex();
+        $id = Uuid::randomHex();
 
         $data = $this->getPricesData($id);
 
@@ -185,7 +185,7 @@ class EntityExtensionTest extends TestCase
 
         ProductDefinition::getFields()->add($field);
 
-        $id = Uuid::uuid4()->getHex();
+        $id = Uuid::randomHex();
 
         $data = $this->getPricesData($id);
 
@@ -221,7 +221,7 @@ class EntityExtensionTest extends TestCase
 
         ProductDefinition::getFields()->add($field);
 
-        $id = Uuid::uuid4()->getHex();
+        $id = Uuid::randomHex();
 
         $data = $this->getPricesData($id);
 
@@ -256,7 +256,7 @@ class EntityExtensionTest extends TestCase
 
         ProductDefinition::getFields()->add($field);
 
-        $id = Uuid::uuid4()->getHex();
+        $id = Uuid::randomHex();
 
         $data = $this->getCategoriesData($id);
 
@@ -269,7 +269,7 @@ class EntityExtensionTest extends TestCase
 
         static::assertCount(2, $count);
 
-        $id = Uuid::uuid4()->getHex();
+        $id = Uuid::randomHex();
 
         $data = $this->getCategoriesData($id);
 
@@ -295,7 +295,7 @@ class EntityExtensionTest extends TestCase
 
         ProductDefinition::getFields()->add($field);
 
-        $id = Uuid::uuid4()->getHex();
+        $id = Uuid::randomHex();
 
         $data = $this->getCategoriesData($id);
 
@@ -320,7 +320,7 @@ class EntityExtensionTest extends TestCase
 
         ProductDefinition::getFields()->add($field);
 
-        $id = Uuid::uuid4()->getHex();
+        $id = Uuid::randomHex();
 
         $data = $this->getCategoriesData($id);
 
@@ -367,7 +367,7 @@ class EntityExtensionTest extends TestCase
 
         ProductDefinition::getFields()->add($field);
 
-        $id = Uuid::uuid4()->getHex();
+        $id = Uuid::randomHex();
 
         $data = $this->getCategoriesData($id);
 
@@ -405,7 +405,7 @@ class EntityExtensionTest extends TestCase
 
         ProductDefinition::getFields()->add($field);
 
-        $id = Uuid::uuid4()->getHex();
+        $id = Uuid::randomHex();
 
         $data = $this->getCategoriesData($id);
 
@@ -445,8 +445,8 @@ class EntityExtensionTest extends TestCase
 
     private function getPricesData($id): array
     {
-        $ruleA = Uuid::uuid4()->getHex();
-        $ruleB = Uuid::uuid4()->getHex();
+        $ruleA = Uuid::randomHex();
+        $ruleB = Uuid::randomHex();
 
         $this->getContainer()->get('rule.repository')->create(
             [
@@ -487,8 +487,8 @@ class EntityExtensionTest extends TestCase
 
     private function getCategoriesData($id): array
     {
-        $categoryA = Uuid::uuid4()->getHex();
-        $categoryB = Uuid::uuid4()->getHex();
+        $categoryA = Uuid::randomHex();
+        $categoryB = Uuid::randomHex();
 
         $this->getContainer()->get('category.repository')->create(
             [

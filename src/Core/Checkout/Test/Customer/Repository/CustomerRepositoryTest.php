@@ -11,7 +11,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\EntityScoreQueryBuilder;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\SearchTermInterpreter;
-use Shopware\Core\Framework\Struct\Uuid;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Util\Random;
 
@@ -37,10 +37,10 @@ class CustomerRepositoryTest extends TestCase
 
     public function testSearchRanking(): void
     {
-        $recordA = Uuid::uuid4()->getHex();
-        $recordB = Uuid::uuid4()->getHex();
-        $recordC = Uuid::uuid4()->getHex();
-        $recordD = Uuid::uuid4()->getHex();
+        $recordA = Uuid::randomHex();
+        $recordB = Uuid::randomHex();
+        $recordC = Uuid::randomHex();
+        $recordD = Uuid::randomHex();
 
         $address = [
             'firstName' => 'not',
@@ -62,7 +62,7 @@ class CustomerRepositoryTest extends TestCase
                 'defaultShippingAddress' => $address,
                 'defaultPaymentMethodId' => $paymentMethod,
                 'groupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
-                'email' => Uuid::uuid4()->getHex() . '@example.com',
+                'email' => Uuid::randomHex() . '@example.com',
                 'password' => 'not',
                 'lastName' => 'not',
                 'firstName' => $matchTerm,
@@ -75,7 +75,7 @@ class CustomerRepositoryTest extends TestCase
                 'defaultShippingAddress' => $address,
                 'defaultPaymentMethodId' => $paymentMethod,
                 'groupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
-                'email' => Uuid::uuid4()->getHex() . '@example.com',
+                'email' => Uuid::randomHex() . '@example.com',
                 'password' => 'not',
                 'lastName' => $matchTerm,
                 'firstName' => 'not',
@@ -88,7 +88,7 @@ class CustomerRepositoryTest extends TestCase
                 'defaultShippingAddress' => $address,
                 'defaultPaymentMethodId' => $paymentMethod,
                 'groupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
-                'email' => Uuid::uuid4()->getHex() . '@example.com',
+                'email' => Uuid::randomHex() . '@example.com',
                 'password' => 'not',
                 'lastName' => 'not',
                 'firstName' => 'not',

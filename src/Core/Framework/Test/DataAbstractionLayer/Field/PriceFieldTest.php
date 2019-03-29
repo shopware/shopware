@@ -11,7 +11,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriter;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriterInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
-use Shopware\Core\Framework\Struct\Uuid;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\PriceFieldDefinition;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
@@ -50,8 +50,8 @@ EOF;
     {
         $context = $this->createWriteContext();
 
-        $smallId = Uuid::uuid4()->getHex();
-        $bigId = Uuid::uuid4()->getHex();
+        $smallId = Uuid::randomHex();
+        $bigId = Uuid::randomHex();
 
         $data = [
             ['id' => $smallId, 'data' => ['gross' => 1.000000001, 'net' => 1.000000001]],

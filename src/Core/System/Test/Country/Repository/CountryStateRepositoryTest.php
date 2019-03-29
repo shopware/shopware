@@ -9,7 +9,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\EntityScoreQueryBuilder;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\SearchTermInterpreter;
-use Shopware\Core\Framework\Struct\Uuid;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\System\Country\Aggregate\CountryState\CountryStateDefinition;
@@ -37,14 +37,14 @@ class CountryStateRepositoryTest extends TestCase
 
     public function testSearchRanking(): void
     {
-        $country = Uuid::uuid4()->getHex();
+        $country = Uuid::randomHex();
 
         $this->getContainer()->get('country.repository')->create([
             ['id' => $country, 'name' => 'test'],
         ], Context::createDefaultContext());
 
-        $recordA = Uuid::uuid4()->getHex();
-        $recordB = Uuid::uuid4()->getHex();
+        $recordA = Uuid::randomHex();
+        $recordB = Uuid::randomHex();
 
         $records = [
             ['id' => $recordA, 'name' => 'match', 'shortCode' => 'test',    'countryId' => $country],

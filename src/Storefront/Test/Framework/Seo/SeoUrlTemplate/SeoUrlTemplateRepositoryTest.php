@@ -8,7 +8,7 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Struct\Uuid;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Storefront\Framework\Seo\DbalIndexing\SeoUrl\DetailPageSeoUrlIndexer;
 use Shopware\Storefront\Framework\Seo\SeoUrlGenerator\DetailPageSeoUrlGenerator;
@@ -21,7 +21,7 @@ class SeoUrlTemplateRepositoryTest extends TestCase
 
     public function testCreate(): void
     {
-        $id = Uuid::uuid4()->getHex();
+        $id = Uuid::randomHex();
         $template = [
             'id' => $id,
             'salesChannelId' => Defaults::SALES_CHANNEL,
@@ -43,7 +43,7 @@ class SeoUrlTemplateRepositoryTest extends TestCase
 
     public function testUpdate(): void
     {
-        $id = Uuid::uuid4()->getHex();
+        $id = Uuid::randomHex();
         $template = [
             'id' => $id,
             'salesChannelId' => Defaults::SALES_CHANNEL,
@@ -74,7 +74,7 @@ class SeoUrlTemplateRepositoryTest extends TestCase
 
     public function testDelete(): void
     {
-        $id = Uuid::uuid4()->getHex();
+        $id = Uuid::randomHex();
         $template = [
             'id' => $id,
             'salesChannelId' => Defaults::SALES_CHANNEL,

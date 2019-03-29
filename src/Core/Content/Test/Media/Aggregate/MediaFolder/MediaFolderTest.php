@@ -6,7 +6,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\Aggregate\MediaFolder\MediaFolderEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Struct\Uuid;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
 class MediaFolderTest extends TestCase
@@ -18,8 +18,8 @@ class MediaFolderTest extends TestCase
         $context = Context::createDefaultContext();
         $mediaFolderRepository = $this->getContainer()->get('media_folder.repository');
 
-        $folderId = Uuid::uuid4()->getHex();
-        $configurationId = Uuid::uuid4()->getHex();
+        $folderId = Uuid::randomHex();
+        $configurationId = Uuid::randomHex();
 
         $mediaFolderRepository->upsert([
             [
@@ -51,8 +51,8 @@ class MediaFolderTest extends TestCase
         $context = Context::createDefaultContext();
         $mediaFolderRepository = $this->getContainer()->get('media_folder.repository');
 
-        $folderId = Uuid::uuid4()->getHex();
-        $configurationId = Uuid::uuid4()->getHex();
+        $folderId = Uuid::randomHex();
+        $configurationId = Uuid::randomHex();
 
         $mediaFolderRepository->upsert([
             [

@@ -10,7 +10,7 @@ use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\PrePayment;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\SEPAPayment;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Migration\MigrationStep;
-use Shopware\Core\Framework\Struct\Uuid;
+use Shopware\Core\Framework\Uuid\Uuid;
 
 class Migration1553679520RefactorPaymentMethods extends MigrationStep
 {
@@ -35,7 +35,7 @@ class Migration1553679520RefactorPaymentMethods extends MigrationStep
         $ruleId = $connection->executeQuery("SELECT `id` FROM `rule` WHERE name = 'Cart >= 0 (Payment)'")->fetchColumn();
 
         $languageEN = Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM);
-        $cash = Uuid::uuid4()->getBytes();
+        $cash = Uuid::randomBytes();
         $connection->insert(
             'payment_method',
             [
@@ -67,7 +67,7 @@ class Migration1553679520RefactorPaymentMethods extends MigrationStep
             ]
         );
 
-        $pre = Uuid::uuid4()->getBytes();
+        $pre = Uuid::randomBytes();
         $connection->insert(
             'payment_method',
             [

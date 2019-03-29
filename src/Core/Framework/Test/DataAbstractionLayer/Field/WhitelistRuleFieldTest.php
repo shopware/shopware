@@ -11,7 +11,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\ValueAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\Struct\Uuid;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
 class WhitelistRuleFieldTest extends TestCase
@@ -37,13 +37,13 @@ class WhitelistRuleFieldTest extends TestCase
 
     public function testReadEntityWithWhitelist(): void
     {
-        $product1 = Uuid::uuid4()->getHex();
-        $product2 = Uuid::uuid4()->getHex();
-        $product3 = Uuid::uuid4()->getHex();
+        $product1 = Uuid::randomHex();
+        $product2 = Uuid::randomHex();
+        $product3 = Uuid::randomHex();
 
-        $rule1 = Uuid::uuid4()->getHex();
-        $rule2 = Uuid::uuid4()->getHex();
-        $rule3 = Uuid::uuid4()->getHex();
+        $rule1 = Uuid::randomHex();
+        $rule2 = Uuid::randomHex();
+        $rule3 = Uuid::randomHex();
 
         $products = [
             [
@@ -120,18 +120,18 @@ class WhitelistRuleFieldTest extends TestCase
 
     public function testInheritedWhitelist(): void
     {
-        $parentId1 = Uuid::uuid4()->getHex();
-        $productId1 = Uuid::uuid4()->getHex();
+        $parentId1 = Uuid::randomHex();
+        $productId1 = Uuid::randomHex();
 
-        $parentId2 = Uuid::uuid4()->getHex();
-        $productId2 = Uuid::uuid4()->getHex();
+        $parentId2 = Uuid::randomHex();
+        $productId2 = Uuid::randomHex();
 
-        $parentId3 = Uuid::uuid4()->getHex();
-        $productId3 = Uuid::uuid4()->getHex();
+        $parentId3 = Uuid::randomHex();
+        $productId3 = Uuid::randomHex();
 
-        $rule1 = Uuid::uuid4()->getHex();
-        $rule2 = Uuid::uuid4()->getHex();
-        $rule3 = Uuid::uuid4()->getHex();
+        $rule1 = Uuid::randomHex();
+        $rule2 = Uuid::randomHex();
+        $rule3 = Uuid::randomHex();
 
         $products = [
             [
@@ -225,23 +225,23 @@ class WhitelistRuleFieldTest extends TestCase
 
     public function testSearchWhitelistedRule(): void
     {
-        $product1 = Uuid::uuid4()->getHex();
-        $product2 = Uuid::uuid4()->getHex();
-        $product3 = Uuid::uuid4()->getHex();
+        $product1 = Uuid::randomHex();
+        $product2 = Uuid::randomHex();
+        $product3 = Uuid::randomHex();
 
-        $parent1 = Uuid::uuid4()->getHex();
-        $parent2 = Uuid::uuid4()->getHex();
-        $parent3 = Uuid::uuid4()->getHex();
+        $parent1 = Uuid::randomHex();
+        $parent2 = Uuid::randomHex();
+        $parent3 = Uuid::randomHex();
 
-        $product4 = Uuid::uuid4()->getHex();
-        $product5 = Uuid::uuid4()->getHex();
-        $product6 = Uuid::uuid4()->getHex();
+        $product4 = Uuid::randomHex();
+        $product5 = Uuid::randomHex();
+        $product6 = Uuid::randomHex();
 
-        $manufacturerId = Uuid::uuid4()->getHex();
+        $manufacturerId = Uuid::randomHex();
 
-        $rule1 = Uuid::uuid4()->getHex();
-        $rule2 = Uuid::uuid4()->getHex();
-        $rule3 = Uuid::uuid4()->getHex();
+        $rule1 = Uuid::randomHex();
+        $rule2 = Uuid::randomHex();
+        $rule3 = Uuid::randomHex();
 
         $products = [
             [
@@ -354,17 +354,17 @@ class WhitelistRuleFieldTest extends TestCase
 
     public function testSearchWithOneToManyWhitelist(): void
     {
-        $product1 = Uuid::uuid4()->getHex();
-        $product2 = Uuid::uuid4()->getHex();
-        $product3 = Uuid::uuid4()->getHex();
-        $product4 = Uuid::uuid4()->getHex();
+        $product1 = Uuid::randomHex();
+        $product2 = Uuid::randomHex();
+        $product3 = Uuid::randomHex();
+        $product4 = Uuid::randomHex();
 
-        $manufacturerId = Uuid::uuid4()->getHex();
-        $manufacturerId2 = Uuid::uuid4()->getHex();
+        $manufacturerId = Uuid::randomHex();
+        $manufacturerId2 = Uuid::randomHex();
 
-        $rule1 = Uuid::uuid4()->getHex();
-        $rule2 = Uuid::uuid4()->getHex();
-        $rule3 = Uuid::uuid4()->getHex();
+        $rule1 = Uuid::randomHex();
+        $rule2 = Uuid::randomHex();
+        $rule3 = Uuid::randomHex();
 
         $products = [
             [
@@ -440,18 +440,18 @@ class WhitelistRuleFieldTest extends TestCase
 
     public function testSearchWithManyToManyWhitelist(): void
     {
-        $product1 = Uuid::uuid4()->getHex();
-        $product2 = Uuid::uuid4()->getHex();
-        $product3 = Uuid::uuid4()->getHex();
-        $product4 = Uuid::uuid4()->getHex();
+        $product1 = Uuid::randomHex();
+        $product2 = Uuid::randomHex();
+        $product3 = Uuid::randomHex();
+        $product4 = Uuid::randomHex();
 
-        $manufacturerId = Uuid::uuid4()->getHex();
-        $categoryId = Uuid::uuid4()->getHex();
-        $categoryId2 = Uuid::uuid4()->getHex();
+        $manufacturerId = Uuid::randomHex();
+        $categoryId = Uuid::randomHex();
+        $categoryId2 = Uuid::randomHex();
 
-        $rule1 = Uuid::uuid4()->getHex();
-        $rule2 = Uuid::uuid4()->getHex();
-        $rule3 = Uuid::uuid4()->getHex();
+        $rule1 = Uuid::randomHex();
+        $rule2 = Uuid::randomHex();
+        $rule3 = Uuid::randomHex();
 
         $products = [
             [
@@ -539,15 +539,15 @@ class WhitelistRuleFieldTest extends TestCase
 
     public function testAggregationWhitelist(): void
     {
-        $product1 = Uuid::uuid4()->getHex();
-        $product2 = Uuid::uuid4()->getHex();
-        $product3 = Uuid::uuid4()->getHex();
+        $product1 = Uuid::randomHex();
+        $product2 = Uuid::randomHex();
+        $product3 = Uuid::randomHex();
 
-        $manufacturerId = Uuid::uuid4()->getHex();
+        $manufacturerId = Uuid::randomHex();
 
-        $rule1 = Uuid::uuid4()->getHex();
-        $rule2 = Uuid::uuid4()->getHex();
-        $rule3 = Uuid::uuid4()->getHex();
+        $rule1 = Uuid::randomHex();
+        $rule2 = Uuid::randomHex();
+        $rule3 = Uuid::randomHex();
 
         $products = [
             [
@@ -611,15 +611,15 @@ class WhitelistRuleFieldTest extends TestCase
 
     public function testAggregationWithOneToManyWhitelist(): void
     {
-        $product1 = Uuid::uuid4()->getHex();
-        $product2 = Uuid::uuid4()->getHex();
-        $product3 = Uuid::uuid4()->getHex();
+        $product1 = Uuid::randomHex();
+        $product2 = Uuid::randomHex();
+        $product3 = Uuid::randomHex();
 
-        $manufacturerId = Uuid::uuid4()->getHex();
+        $manufacturerId = Uuid::randomHex();
 
-        $rule1 = Uuid::uuid4()->getHex();
-        $rule2 = Uuid::uuid4()->getHex();
-        $rule3 = Uuid::uuid4()->getHex();
+        $rule1 = Uuid::randomHex();
+        $rule2 = Uuid::randomHex();
+        $rule3 = Uuid::randomHex();
 
         $products = [
             [
@@ -682,16 +682,16 @@ class WhitelistRuleFieldTest extends TestCase
 
     public function testAggregationWithManyToManyWhitelist(): void
     {
-        $product1 = Uuid::uuid4()->getHex();
-        $product2 = Uuid::uuid4()->getHex();
-        $product3 = Uuid::uuid4()->getHex();
+        $product1 = Uuid::randomHex();
+        $product2 = Uuid::randomHex();
+        $product3 = Uuid::randomHex();
 
-        $manufacturerId = Uuid::uuid4()->getHex();
-        $categoryId = Uuid::uuid4()->getHex();
+        $manufacturerId = Uuid::randomHex();
+        $categoryId = Uuid::randomHex();
 
-        $rule1 = Uuid::uuid4()->getHex();
-        $rule2 = Uuid::uuid4()->getHex();
-        $rule3 = Uuid::uuid4()->getHex();
+        $rule1 = Uuid::randomHex();
+        $rule2 = Uuid::randomHex();
+        $rule3 = Uuid::randomHex();
 
         $products = [
             [

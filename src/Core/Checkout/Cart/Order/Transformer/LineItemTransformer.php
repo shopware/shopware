@@ -6,7 +6,7 @@ use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Checkout\Cart\Order\IdStruct;
 use Shopware\Core\Checkout\Cart\Order\OrderConverter;
-use Shopware\Core\Framework\Struct\Uuid;
+use Shopware\Core\Framework\Uuid\Uuid;
 
 class LineItemTransformer
 {
@@ -28,7 +28,7 @@ class LineItemTransformer
         if ($idStruct !== null) {
             $id = $idStruct->getId();
         } else {
-            $id = Uuid::uuid4()->getHex();
+            $id = Uuid::randomHex();
         }
 
         $data = [

@@ -13,7 +13,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\EntityAggregatorInterfac
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\VersionManager;
 use Shopware\Core\Framework\Struct\ArrayEntity;
-use Shopware\Core\Framework\Struct\Uuid;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\DateTimeDefinition;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 
@@ -65,7 +65,7 @@ EOF;
 
     public function testCreatedAtDefinedAutomatically(): void
     {
-        $id = Uuid::uuid4()->getHex();
+        $id = Uuid::randomHex();
 
         $data = [
             'id' => $id,
@@ -88,7 +88,7 @@ EOF;
 
     public function testICanProvideCreatedAt(): void
     {
-        $id = Uuid::uuid4()->getHex();
+        $id = Uuid::randomHex();
 
         $date = new \DateTime('2000-01-01 12:12:12.990');
 
@@ -118,7 +118,7 @@ EOF;
 
     public function testCreatedAtWithNullWillBeOverwritten(): void
     {
-        $id = Uuid::uuid4()->getHex();
+        $id = Uuid::randomHex();
 
         $data = [
             'id' => $id,
@@ -141,7 +141,7 @@ EOF;
 
     public function testUpdatedAtWillBeSetAutomatically(): void
     {
-        $id = Uuid::uuid4()->getHex();
+        $id = Uuid::randomHex();
 
         $data = ['id' => $id];
 
@@ -169,7 +169,7 @@ EOF;
 
     public function testUpdatedAtWithNullWorks(): void
     {
-        $id = Uuid::uuid4()->getHex();
+        $id = Uuid::randomHex();
 
         $data = ['id' => $id];
 
@@ -197,7 +197,7 @@ EOF;
 
     public function testUpdatedAtCanNotBeDefined(): void
     {
-        $id = Uuid::uuid4()->getHex();
+        $id = Uuid::randomHex();
 
         $date = new \DateTime('2012-01-01');
 

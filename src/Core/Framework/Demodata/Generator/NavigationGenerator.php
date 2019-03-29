@@ -12,7 +12,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Demodata\DemodataContext;
 use Shopware\Core\Framework\Demodata\DemodataGeneratorInterface;
-use Shopware\Core\Framework\Struct\Uuid;
+use Shopware\Core\Framework\Uuid\Uuid;
 
 class NavigationGenerator implements DemodataGeneratorInterface
 {
@@ -62,7 +62,7 @@ class NavigationGenerator implements DemodataGeneratorInterface
         }, $pageIds);
 
         //we want only one navigation in the
-        $navigationRootId = Uuid::uuid4()->getHex();
+        $navigationRootId = Uuid::randomHex();
 
         //clear all navigation items
         $this->connection->executeUpdate('UPDATE sales_channel SET navigation_id = NULL');
@@ -112,7 +112,7 @@ class NavigationGenerator implements DemodataGeneratorInterface
 
         $payload = [];
         foreach ($categories as $category) {
-            $navigationId = Uuid::uuid4()->getHex();
+            $navigationId = Uuid::randomHex();
 
             $navigation = [
                 'id' => $navigationId,

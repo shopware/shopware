@@ -7,7 +7,7 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
-use Shopware\Core\Framework\Struct\Uuid;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
 use Symfony\Bundle\FrameworkBundle\Client;
 use Symfony\Component\HttpKernel\KernelInterface;
@@ -68,7 +68,7 @@ trait StorefrontApiTestBehaviour
         $storefrontApiClient->setServerParameters([
             'HTTP_X-Requested-With' => 'XMLHttpRequest',
             'HTTP_Accept' => 'application/json',
-            'HTTP_X_SW_CONTEXT_TOKEN' => Uuid::uuid4()->getHex(),
+            'HTTP_X_SW_CONTEXT_TOKEN' => Uuid::randomHex(),
         ]);
         $this->authorizeStorefrontClient($storefrontApiClient, $salesChannelOverride);
 
@@ -96,7 +96,7 @@ trait StorefrontApiTestBehaviour
         $storefrontApiClient->setServerParameters([
             'HTTP_X-Requested-With' => 'XMLHttpRequest',
             'HTTP_Accept' => 'application/json',
-            'HTTP_X_SW_CONTEXT_TOKEN' => Uuid::uuid4()->getHex(),
+            'HTTP_X_SW_CONTEXT_TOKEN' => Uuid::randomHex(),
         ]);
         $this->authorizeStorefrontClient($storefrontApiClient);
 
@@ -113,7 +113,7 @@ trait StorefrontApiTestBehaviour
             ->get('sales_channel.repository');
 
         $salesChannel = array_merge([
-            'id' => Uuid::uuid4()->getHex(),
+            'id' => Uuid::randomHex(),
             'typeId' => Defaults::SALES_CHANNEL_STOREFRONT_API,
             'name' => 'API Test case sales channel',
             'accessKey' => $accessKey,

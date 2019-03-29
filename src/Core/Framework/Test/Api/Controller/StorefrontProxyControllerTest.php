@@ -7,7 +7,7 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
-use Shopware\Core\Framework\Struct\Uuid;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\AssertArraySubsetBehaviour;
 use Shopware\Core\PlatformRequest;
@@ -30,7 +30,7 @@ class StorefrontProxyControllerTest extends TestCase
 
     public function testProxyWithInvalidSalesChannelId(): void
     {
-        $this->getClient()->request('GET', $this->getUrl(Uuid::uuid4()->getHex(), '/product'));
+        $this->getClient()->request('GET', $this->getUrl(Uuid::randomHex(), '/product'));
 
         $response = $this->getClient()->getResponse()->getContent();
         $response = json_decode($response, true);
@@ -54,7 +54,7 @@ class StorefrontProxyControllerTest extends TestCase
     public function testHeadersAreCopied(): void
     {
         $salesChannel = $this->createSalesChannel();
-        $uuid = Uuid::uuid4()->getHex();
+        $uuid = Uuid::randomHex();
 
         $this->getClient()->request(
             'GET',
@@ -96,7 +96,7 @@ class StorefrontProxyControllerTest extends TestCase
 
     public function testDifferentLanguage(): void
     {
-        $langId = Uuid::uuid4()->getHex();
+        $langId = Uuid::randomHex();
         $salesChannel = $this->createSalesChannel();
         $this->createLanguage($langId, $salesChannel['id']);
 
@@ -148,7 +148,7 @@ class StorefrontProxyControllerTest extends TestCase
 
         $categoryData = $data;
         if (!isset($categoryData['id'])) {
-            $categoryData['id'] = Uuid::uuid4()->getHex();
+            $categoryData['id'] = Uuid::randomHex();
         }
 
         $this->getClient()->request('POST', $baseResource, $categoryData);
@@ -179,7 +179,7 @@ class StorefrontProxyControllerTest extends TestCase
         $baseUrl = '/api/v' . PlatformRequest::API_VERSION;
 
         if ($fallbackId) {
-            $fallbackLocaleId = Uuid::uuid4()->getHex();
+            $fallbackLocaleId = Uuid::randomHex();
             $parentLanguageData = [
                 'id' => $fallbackId,
                 'name' => 'test language ' . $fallbackId,
@@ -195,7 +195,7 @@ class StorefrontProxyControllerTest extends TestCase
             static::assertEquals(204, $this->getClient()->getResponse()->getStatusCode());
         }
 
-        $localeId = Uuid::uuid4()->getHex();
+        $localeId = Uuid::randomHex();
         $languageData = [
             'id' => $langId,
             'name' => 'test language ' . $langId,
@@ -231,7 +231,7 @@ class StorefrontProxyControllerTest extends TestCase
     private function createSalesChannel(array $salesChannel = []): array
     {
         $defaults = [
-            'id' => Uuid::uuid4()->getHex(),
+            'id' => Uuid::randomHex(),
             'name' => 'unit test channel',
             'typeId' => Defaults::SALES_CHANNEL_STOREFRONT,
             'accessKey' => AccessKeyHelper::generateAccessKey('sales-channel'),

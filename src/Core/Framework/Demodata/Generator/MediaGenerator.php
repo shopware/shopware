@@ -51,7 +51,7 @@ class MediaGenerator implements DemodataGeneratorInterface
         for ($i = 0; $i < $numberOfItems; ++$i) {
             $file = $this->getRandomFile();
 
-            $mediaId = Uuid::uuid4()->getHex();
+            $mediaId = Uuid::randomHex();
             $this->writer->insert(
                 MediaDefinition::class,
                 [['id' => $mediaId, 'name' => "File #{$i}: {$file}"]],

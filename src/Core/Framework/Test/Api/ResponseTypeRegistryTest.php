@@ -14,7 +14,7 @@ use Shopware\Core\Framework\Context\SalesChannelApiSource;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
-use Shopware\Core\Framework\Struct\Uuid;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Test\TestCaseBase\StorefrontFunctionalTestBehaviour;
 use Shopware\Core\PlatformRequest;
 use Symfony\Component\HttpFoundation\ParameterBag;
@@ -38,12 +38,12 @@ class ResponseTypeRegistryTest extends TestCase
 
     public function getAdminContext(): Context
     {
-        return new Context(new AdminApiSource(Uuid::uuid4()->getHex()));
+        return new Context(new AdminApiSource(Uuid::randomHex()));
     }
 
     public function testAdminApi(): void
     {
-        $id = Uuid::uuid4()->getHex();
+        $id = Uuid::randomHex();
         $accept = 'application/json';
         $context = $this->getAdminContext();
         $response = $this->getDetailResponse($context, $id, '/api/v1/category/' . $id, 1, $accept, false);
@@ -55,7 +55,7 @@ class ResponseTypeRegistryTest extends TestCase
 
     public function testAdminJsonApi(): void
     {
-        $id = Uuid::uuid4()->getHex();
+        $id = Uuid::randomHex();
         $accept = 'application/vnd.api+json';
         $self = 'http://localhost/api/v1/category/' . $id;
         $context = $this->getAdminContext();
@@ -72,7 +72,7 @@ class ResponseTypeRegistryTest extends TestCase
 
     public function testAdminJsonApiDefault(): void
     {
-        $id = Uuid::uuid4()->getHex();
+        $id = Uuid::randomHex();
         $accept = '*/*';
         $self = 'http://localhost/api/v1/category/' . $id;
         $context = $this->getAdminContext();
@@ -90,7 +90,7 @@ class ResponseTypeRegistryTest extends TestCase
     public function testAdminApiUnsupportedContentType(): void
     {
         $this->expectException(UnsupportedMediaTypeHttpException::class);
-        $id = Uuid::uuid4()->getHex();
+        $id = Uuid::randomHex();
         $accept = 'text/plain';
         $self = 'http://localhost/api/v1/category/' . $id;
         $context = $this->getAdminContext();
@@ -99,7 +99,7 @@ class ResponseTypeRegistryTest extends TestCase
 
     public function testStorefrontApi(): void
     {
-        $id = Uuid::uuid4()->getHex();
+        $id = Uuid::randomHex();
         $accept = 'application/json';
         $context = $this->getStorefrontContext();
         $response = $this->getDetailResponse($context, $id, '/storefront-api/category/' . $id, '', $accept, false);
@@ -114,7 +114,7 @@ class ResponseTypeRegistryTest extends TestCase
         // jsonapi support for storefront is deactivated
         $this->expectException(UnsupportedMediaTypeHttpException::class);
 
-        $id = Uuid::uuid4()->getHex();
+        $id = Uuid::randomHex();
         $accept = 'application/vnd.api+json';
         $self = 'http://localhost/storefront-api/category/' . $id;
         $context = $this->getStorefrontContext();
@@ -133,7 +133,7 @@ class ResponseTypeRegistryTest extends TestCase
 
     public function testStorefrontDefaultContentType(): void
     {
-        $id = Uuid::uuid4()->getHex();
+        $id = Uuid::randomHex();
         $accept = '*/*';
         $self = 'http://localhost/storefront-api/category/' . $id;
         $context = $this->getStorefrontContext();
@@ -147,7 +147,7 @@ class ResponseTypeRegistryTest extends TestCase
     public function testStorefrontApiUnsupportedContentType(): void
     {
         $this->expectException(UnsupportedMediaTypeHttpException::class);
-        $id = Uuid::uuid4()->getHex();
+        $id = Uuid::randomHex();
         $accept = 'text/plain';
         $self = 'http://localhost/storefront-api/category/' . $id;
         $context = $this->getStorefrontContext();
@@ -159,7 +159,7 @@ class ResponseTypeRegistryTest extends TestCase
         // jsonapi support for storefront is deactivated
         $this->expectException(UnsupportedMediaTypeHttpException::class);
 
-        $id = Uuid::uuid4()->getHex();
+        $id = Uuid::randomHex();
         $accept = 'application/vnd.api+json';
         $self = 'http://localhost/storefront-api/category';
         $context = $this->getStorefrontContext();
@@ -177,7 +177,7 @@ class ResponseTypeRegistryTest extends TestCase
 
     public function testAdminJsonApiList(): void
     {
-        $id = Uuid::uuid4()->getHex();
+        $id = Uuid::randomHex();
         $accept = 'application/vnd.api+json';
         $self = 'http://localhost/api/v1/category';
         $context = $this->getAdminContext();

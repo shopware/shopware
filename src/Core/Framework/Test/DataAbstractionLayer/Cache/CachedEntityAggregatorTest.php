@@ -18,7 +18,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\EntityAggreg
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\StatsAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregatorResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Struct\Uuid;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\System\Tax\TaxDefinition;
 use Symfony\Component\Cache\Adapter\TagAwareAdapter;
@@ -42,8 +42,8 @@ class CachedEntityAggregatorTest extends TestCase
     {
         $dbalReader = $this->createMock(EntityAggregator::class);
 
-        $id1 = Uuid::uuid4()->getHex();
-        $id2 = Uuid::uuid4()->getHex();
+        $id1 = Uuid::randomHex();
+        $id2 = Uuid::randomHex();
 
         $criteria = new Criteria([$id1, $id2]);
 
@@ -114,8 +114,8 @@ class CachedEntityAggregatorTest extends TestCase
     {
         $dbalReader = $this->createMock(EntityAggregator::class);
 
-        $id1 = Uuid::uuid4()->getHex();
-        $id2 = Uuid::uuid4()->getHex();
+        $id1 = Uuid::randomHex();
+        $id2 = Uuid::randomHex();
 
         $criteria = new Criteria([$id1, $id2]);
         $criteria->addAggregation(
@@ -223,8 +223,8 @@ class CachedEntityAggregatorTest extends TestCase
     {
         $dbalReader = $this->createMock(EntityAggregator::class);
 
-        $id1 = Uuid::uuid4()->getHex();
-        $id2 = Uuid::uuid4()->getHex();
+        $id1 = Uuid::randomHex();
+        $id2 = Uuid::randomHex();
 
         $criteria = new Criteria([$id1, $id2]);
 

@@ -18,7 +18,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriterInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\Demodata\DemodataContext;
 use Shopware\Core\Framework\Demodata\DemodataGeneratorInterface;
-use Shopware\Core\Framework\Struct\Uuid;
+use Shopware\Core\Framework\Uuid\Uuid;
 
 class OrderGenerator implements DemodataGeneratorInterface
 {
@@ -102,7 +102,7 @@ SQL;
         $lineItems = new LineItemCollection($lineItems);
 
         for ($i = 1; $i <= $numberOfItems; ++$i) {
-            $token = Uuid::uuid4()->getHex();
+            $token = Uuid::randomHex();
 
             $customerId = $context->getFaker()->randomElement($customerIds);
 

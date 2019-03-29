@@ -22,7 +22,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException\WriteStack
 use Shopware\Core\Framework\Pricing\Price;
 use Shopware\Core\Framework\Pricing\PriceRuleEntity;
 use Shopware\Core\Framework\Rule\Container\AndRule;
-use Shopware\Core\Framework\Struct\Uuid;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\System\Tax\TaxDefinition;
 use Shopware\Core\System\Tax\TaxEntity;
@@ -90,11 +90,11 @@ class ProductRepositoryTest extends TestCase
 
     public function testWriteProductWithDifferentTaxFormat(): void
     {
-        $tax = Uuid::uuid4()->getHex();
+        $tax = Uuid::randomHex();
 
         $data = [
             [
-                'id' => Uuid::uuid4()->getHex(),
+                'id' => Uuid::randomHex(),
                 'stock' => 10,
                 'name' => 'Test',
                 'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
@@ -102,7 +102,7 @@ class ProductRepositoryTest extends TestCase
                 'tax' => ['taxRate' => 19, 'name' => 'without id'],
             ],
             [
-                'id' => Uuid::uuid4()->getHex(),
+                'id' => Uuid::randomHex(),
                 'stock' => 10,
                 'name' => 'Test',
                 'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
@@ -110,7 +110,7 @@ class ProductRepositoryTest extends TestCase
                 'tax' => ['id' => $tax, 'taxRate' => 17, 'name' => 'with id'],
             ],
             [
-                'id' => Uuid::uuid4()->getHex(),
+                'id' => Uuid::randomHex(),
                 'stock' => 10,
                 'name' => 'Test',
                 'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
@@ -118,7 +118,7 @@ class ProductRepositoryTest extends TestCase
                 'taxId' => $tax,
             ],
             [
-                'id' => Uuid::uuid4()->getHex(),
+                'id' => Uuid::randomHex(),
                 'stock' => 10,
                 'name' => 'Test',
                 'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
@@ -166,11 +166,11 @@ class ProductRepositoryTest extends TestCase
 
     public function testWriteProductWithDifferentManufacturerStructures(): void
     {
-        $manufacturerId = Uuid::uuid4()->getHex();
+        $manufacturerId = Uuid::randomHex();
 
         $data = [
             [
-                'id' => Uuid::uuid4()->getHex(),
+                'id' => Uuid::randomHex(),
                 'stock' => 10,
                 'name' => 'Test',
                 'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
@@ -178,7 +178,7 @@ class ProductRepositoryTest extends TestCase
                 'manufacturer' => ['name' => 'without id'],
             ],
             [
-                'id' => Uuid::uuid4()->getHex(),
+                'id' => Uuid::randomHex(),
                 'stock' => 10,
                 'name' => 'Test',
                 'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
@@ -186,7 +186,7 @@ class ProductRepositoryTest extends TestCase
                 'manufacturer' => ['id' => $manufacturerId, 'name' => 'with id'],
             ],
             [
-                'id' => Uuid::uuid4()->getHex(),
+                'id' => Uuid::randomHex(),
                 'stock' => 10,
                 'name' => 'Test',
                 'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
@@ -194,7 +194,7 @@ class ProductRepositoryTest extends TestCase
                 'manufacturerId' => $manufacturerId,
             ],
             [
-                'id' => Uuid::uuid4()->getHex(),
+                'id' => Uuid::randomHex(),
                 'stock' => 10,
                 'name' => 'Test',
                 'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
@@ -287,8 +287,8 @@ class ProductRepositoryTest extends TestCase
 
     public function testReadAndWriteProductPriceRules(): void
     {
-        $ruleA = Uuid::uuid4()->getHex();
-        $ruleB = Uuid::uuid4()->getHex();
+        $ruleA = Uuid::randomHex();
+        $ruleB = Uuid::randomHex();
 
         $this->getContainer()->get('rule.repository')->create([
             ['id' => $ruleA, 'name' => 'test', 'payload' => new AndRule(), 'priority' => 1],
@@ -354,13 +354,13 @@ class ProductRepositoryTest extends TestCase
         $id2 = Uuid::uuid4();
         $id3 = Uuid::uuid4();
 
-        $ruleA = Uuid::uuid4()->getHex();
+        $ruleA = Uuid::randomHex();
 
         $this->getContainer()->get('rule.repository')->create([
             ['id' => $ruleA, 'name' => 'test', 'payload' => new AndRule(), 'priority' => 1],
         ], Context::createDefaultContext());
 
-        $filterId = Uuid::uuid4()->getHex();
+        $filterId = Uuid::randomHex();
 
         $data = [
             [
@@ -446,9 +446,9 @@ class ProductRepositoryTest extends TestCase
 
     public function testVariantInheritancePriceAndName(): void
     {
-        $redId = Uuid::uuid4()->getHex();
-        $greenId = Uuid::uuid4()->getHex();
-        $parentId = Uuid::uuid4()->getHex();
+        $redId = Uuid::randomHex();
+        $greenId = Uuid::randomHex();
+        $parentId = Uuid::randomHex();
 
         $parentPrice = ['gross' => 10, 'net' => 9, 'linked' => true];
         $parentName = 'T-shirt';
@@ -526,8 +526,8 @@ class ProductRepositoryTest extends TestCase
 
     public function testInsertAndUpdateInOneStep(): void
     {
-        $id = Uuid::uuid4()->getHex();
-        $filterId = Uuid::uuid4()->getHex();
+        $id = Uuid::randomHex();
+        $filterId = Uuid::randomHex();
         $data = [
             [
                 'id' => $id,
@@ -564,10 +564,10 @@ class ProductRepositoryTest extends TestCase
 
     public function testSwitchVariantToFullProduct(): void
     {
-        $id = Uuid::uuid4()->getHex();
-        $child = Uuid::uuid4()->getHex();
+        $id = Uuid::randomHex();
+        $child = Uuid::randomHex();
 
-        $filterId = Uuid::uuid4()->getHex();
+        $filterId = Uuid::randomHex();
         $data = [
             ['id' => $id, 'stock' => 10, 'name' => 'Insert', 'price' => ['gross' => 10, 'net' => 9, 'linked' => false], 'tax' => ['name' => 'test', 'taxRate' => 10], 'manufacturer' => ['name' => 'test'], 'ean' => $filterId],
             ['id' => $child, 'stock' => 10, 'parentId' => $id, 'name' => 'Update', 'price' => ['gross' => 12, 'net' => 11, 'linked' => false], 'ean' => $filterId],
@@ -637,8 +637,8 @@ class ProductRepositoryTest extends TestCase
     {
         static::markTestSkipped('The test should error with because of a missing name.');
 
-        $id = Uuid::uuid4()->getHex();
-        $child = Uuid::uuid4()->getHex();
+        $id = Uuid::randomHex();
+        $child = Uuid::randomHex();
 
         $data = [
             [
@@ -718,12 +718,12 @@ class ProductRepositoryTest extends TestCase
 
     public function testVariantInheritanceWithTax(): void
     {
-        $redId = Uuid::uuid4()->getHex();
-        $greenId = Uuid::uuid4()->getHex();
-        $parentId = Uuid::uuid4()->getHex();
+        $redId = Uuid::randomHex();
+        $greenId = Uuid::randomHex();
+        $parentId = Uuid::randomHex();
 
-        $parentTax = Uuid::uuid4()->getHex();
-        $greenTax = Uuid::uuid4()->getHex();
+        $parentTax = Uuid::randomHex();
+        $greenTax = Uuid::randomHex();
 
         $products = [
             [
@@ -789,7 +789,7 @@ class ProductRepositoryTest extends TestCase
 
     public function testWriteProductWithSameTaxes(): void
     {
-        $tax = ['id' => Uuid::uuid4()->getHex(), 'taxRate' => 19, 'name' => 'test'];
+        $tax = ['id' => Uuid::randomHex(), 'taxRate' => 19, 'name' => 'test'];
         $price = ['gross' => 10, 'net' => 9, 'linked' => false];
         $data = [
             ['name' => 'test', 'stock' => 10, 'tax' => $tax, 'price' => $price, 'manufacturer' => ['name' => 'test']],
@@ -806,12 +806,12 @@ class ProductRepositoryTest extends TestCase
 
     public function testVariantInheritanceWithMedia(): void
     {
-        $redId = Uuid::uuid4()->getHex();
-        $greenId = Uuid::uuid4()->getHex();
-        $parentId = Uuid::uuid4()->getHex();
+        $redId = Uuid::randomHex();
+        $greenId = Uuid::randomHex();
+        $parentId = Uuid::randomHex();
 
-        $parentMedia = Uuid::uuid4()->getHex();
-        $greenMedia = Uuid::uuid4()->getHex();
+        $parentMedia = Uuid::randomHex();
+        $greenMedia = Uuid::randomHex();
 
         $products = [
             [
@@ -897,12 +897,12 @@ class ProductRepositoryTest extends TestCase
 
     public function testVariantInheritanceWithCategories(): void
     {
-        $redId = Uuid::uuid4()->getHex();
-        $greenId = Uuid::uuid4()->getHex();
-        $parentId = Uuid::uuid4()->getHex();
+        $redId = Uuid::randomHex();
+        $greenId = Uuid::randomHex();
+        $parentId = Uuid::randomHex();
 
-        $parentCategory = Uuid::uuid4()->getHex();
-        $greenCategory = Uuid::uuid4()->getHex();
+        $parentCategory = Uuid::randomHex();
+        $greenCategory = Uuid::randomHex();
 
         $products = [
             [
@@ -973,9 +973,9 @@ class ProductRepositoryTest extends TestCase
 
     public function testSearchByInheritedName(): void
     {
-        $redId = Uuid::uuid4()->getHex();
-        $greenId = Uuid::uuid4()->getHex();
-        $parentId = Uuid::uuid4()->getHex();
+        $redId = Uuid::randomHex();
+        $greenId = Uuid::randomHex();
+        $parentId = Uuid::randomHex();
 
         $parentPrice = ['gross' => 10, 'net' => 9, 'linked' => false];
         $parentName = 'T-shirt';
@@ -1019,16 +1019,16 @@ class ProductRepositoryTest extends TestCase
 
     public function testSearchByInheritedPrice(): void
     {
-        $redId = Uuid::uuid4()->getHex();
-        $greenId = Uuid::uuid4()->getHex();
-        $parentId = Uuid::uuid4()->getHex();
+        $redId = Uuid::randomHex();
+        $greenId = Uuid::randomHex();
+        $parentId = Uuid::randomHex();
 
         $parentPrice = ['gross' => 10, 'net' => 9, 'linked' => false];
         $parentName = 'T-shirt';
         $greenPrice = ['gross' => 12, 'net' => 11, 'linked' => false];
         $redName = 'Red shirt';
 
-        $manufacturerId = Uuid::uuid4()->getHex();
+        $manufacturerId = Uuid::randomHex();
 
         $products = [
             [
@@ -1068,16 +1068,16 @@ class ProductRepositoryTest extends TestCase
 
     public function testSearchCategoriesWithProductsUseInheritance(): void
     {
-        $redId = Uuid::uuid4()->getHex();
-        $greenId = Uuid::uuid4()->getHex();
-        $parentId = Uuid::uuid4()->getHex();
+        $redId = Uuid::randomHex();
+        $greenId = Uuid::randomHex();
+        $parentId = Uuid::randomHex();
 
         $parentPrice = ['gross' => 10, 'net' => 9, 'linked' => false];
         $parentName = 'T-shirt';
         $greenPrice = ['gross' => 12, 'net' => 11, 'linked' => false];
         $redName = 'Red shirt';
 
-        $categoryId = Uuid::uuid4()->getHex();
+        $categoryId = Uuid::randomHex();
 
         $products = [
             [
@@ -1123,9 +1123,9 @@ class ProductRepositoryTest extends TestCase
 
     public function testSearchProductsOverInheritedCategories(): void
     {
-        $redId = Uuid::uuid4()->getHex();
-        $greenId = Uuid::uuid4()->getHex();
-        $parentId = Uuid::uuid4()->getHex();
+        $redId = Uuid::randomHex();
+        $greenId = Uuid::randomHex();
+        $parentId = Uuid::randomHex();
 
         $redCategories = [
             ['id' => $redId, 'name' => 'Red category'],
@@ -1177,17 +1177,17 @@ class ProductRepositoryTest extends TestCase
 
     public function testSearchManufacturersWithProductsUseInheritance(): void
     {
-        $redId = Uuid::uuid4()->getHex();
-        $greenId = Uuid::uuid4()->getHex();
-        $parentId = Uuid::uuid4()->getHex();
+        $redId = Uuid::randomHex();
+        $greenId = Uuid::randomHex();
+        $parentId = Uuid::randomHex();
 
         $parentPrice = ['gross' => 10, 'net' => 9, 'linked' => false];
         $parentName = 'T-shirt';
         $greenPrice = ['gross' => 12, 'net' => 11, 'linked' => false];
         $redName = 'Red shirt';
 
-        $manufacturerId = Uuid::uuid4()->getHex();
-        $manufacturerId2 = Uuid::uuid4()->getHex();
+        $manufacturerId = Uuid::randomHex();
+        $manufacturerId2 = Uuid::randomHex();
 
         $products = [
             [
@@ -1230,8 +1230,8 @@ class ProductRepositoryTest extends TestCase
 
     public function testWriteProductOverCategories(): void
     {
-        $productId = Uuid::uuid4()->getHex();
-        $categoryId = Uuid::uuid4()->getHex();
+        $productId = Uuid::randomHex();
+        $categoryId = Uuid::randomHex();
 
         $categories = [
             [
@@ -1268,8 +1268,8 @@ class ProductRepositoryTest extends TestCase
 
     public function testWriteProductOverManufacturer(): void
     {
-        $productId = Uuid::uuid4()->getHex();
-        $manufacturerId = Uuid::uuid4()->getHex();
+        $productId = Uuid::randomHex();
+        $manufacturerId = Uuid::randomHex();
 
         $manufacturers = [
             [
@@ -1306,10 +1306,10 @@ class ProductRepositoryTest extends TestCase
 
     public function testCreateAndAssignProductDatasheet(): void
     {
-        $id = Uuid::uuid4()->getHex();
-        $redId = Uuid::uuid4()->getHex();
-        $blueId = Uuid::uuid4()->getHex();
-        $colorId = Uuid::uuid4()->getHex();
+        $id = Uuid::randomHex();
+        $redId = Uuid::randomHex();
+        $blueId = Uuid::randomHex();
+        $colorId = Uuid::randomHex();
 
         $data = [
             'id' => $id,
@@ -1358,10 +1358,10 @@ class ProductRepositoryTest extends TestCase
 
     public function testCreateAndAssignProductVariation(): void
     {
-        $id = Uuid::uuid4()->getHex();
-        $redId = Uuid::uuid4()->getHex();
-        $blueId = Uuid::uuid4()->getHex();
-        $colorId = Uuid::uuid4()->getHex();
+        $id = Uuid::randomHex();
+        $redId = Uuid::randomHex();
+        $blueId = Uuid::randomHex();
+        $colorId = Uuid::randomHex();
 
         $data = [
             'id' => $id,
@@ -1410,10 +1410,10 @@ class ProductRepositoryTest extends TestCase
 
     public function testCreateAndAssignProductConfigurator(): void
     {
-        $id = Uuid::uuid4()->getHex();
-        $redId = Uuid::uuid4()->getHex();
-        $blueId = Uuid::uuid4()->getHex();
-        $colorId = Uuid::uuid4()->getHex();
+        $id = Uuid::randomHex();
+        $redId = Uuid::randomHex();
+        $blueId = Uuid::randomHex();
+        $colorId = Uuid::randomHex();
 
         $data = [
             'id' => $id,
@@ -1473,15 +1473,15 @@ class ProductRepositoryTest extends TestCase
 
     public function testListingPriceWithoutVariants(): void
     {
-        $ruleA = Uuid::uuid4()->getHex();
-        $ruleB = Uuid::uuid4()->getHex();
+        $ruleA = Uuid::randomHex();
+        $ruleB = Uuid::randomHex();
 
         $this->getContainer()->get('rule.repository')->create([
             ['id' => $ruleA, 'name' => 'test', 'payload' => new AndRule(), 'priority' => 1],
             ['id' => $ruleB, 'name' => 'test', 'payload' => new AndRule(), 'priority' => 2],
         ], Context::createDefaultContext());
 
-        $id = Uuid::uuid4()->getHex();
+        $id = Uuid::randomHex();
 
         $data = [
             'id' => $id,
@@ -1539,15 +1539,15 @@ class ProductRepositoryTest extends TestCase
 
     public function testModifyProductPriceMatrix(): void
     {
-        $ruleA = Uuid::uuid4()->getHex();
-        $ruleB = Uuid::uuid4()->getHex();
+        $ruleA = Uuid::randomHex();
+        $ruleB = Uuid::randomHex();
 
         $this->getContainer()->get('rule.repository')->create([
             ['id' => $ruleA, 'name' => 'test', 'payload' => new AndRule(), 'priority' => 1],
             ['id' => $ruleB, 'name' => 'test', 'payload' => new AndRule(), 'priority' => 2],
         ], Context::createDefaultContext());
 
-        $id = Uuid::uuid4()->getHex();
+        $id = Uuid::randomHex();
 
         $data = [
             'id' => $id,
@@ -1621,7 +1621,7 @@ class ProductRepositoryTest extends TestCase
         static::assertEquals(1, $price->getQuantityStart());
         static::assertEquals(20, $price->getQuantityEnd());
 
-        $id3 = Uuid::uuid4()->getHex();
+        $id3 = Uuid::randomHex();
 
         $data = [
             'id' => $id,
@@ -1657,9 +1657,9 @@ class ProductRepositoryTest extends TestCase
 
     public function testPaginatedAssociationWithBlacklist(): void
     {
-        $manufacturerId = Uuid::uuid4()->getHex();
-        $ruleId = Uuid::uuid4()->getHex();
-        $ruleId2 = Uuid::uuid4()->getHex();
+        $manufacturerId = Uuid::randomHex();
+        $ruleId = Uuid::randomHex();
+        $ruleId2 = Uuid::randomHex();
 
         $default = [
             'stock' => 10,
@@ -1726,7 +1726,7 @@ class ProductRepositoryTest extends TestCase
 
     public function testWriteProductCategoriesWithoutId(): void
     {
-        $id = Uuid::uuid4()->getHex();
+        $id = Uuid::randomHex();
 
         $data = [
             'id' => $id,

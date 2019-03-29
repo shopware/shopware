@@ -5,7 +5,7 @@ namespace Shopware\Core\Migration;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Migration\MigrationStep;
-use Shopware\Core\Framework\Struct\Uuid;
+use Shopware\Core\Framework\Uuid\Uuid;
 
 class Migration1552402003SalutationAddConstraint extends MigrationStep
 {
@@ -31,7 +31,7 @@ class Migration1552402003SalutationAddConstraint extends MigrationStep
 
     private function updateSalutations(Connection $connection): void
     {
-        $divers = Uuid::uuid4()->getBytes();
+        $divers = Uuid::randomBytes();
         $languageEn = Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM);
         $languageDe = Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM_DE);
 

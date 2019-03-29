@@ -12,7 +12,7 @@ use Shopware\Core\Framework\Context\ContextSource;
 use Shopware\Core\Framework\Context\SalesChannelApiSource;
 use Shopware\Core\Framework\Context\SystemSource;
 use Shopware\Core\Framework\Routing\Exception\LanguageNotFoundException;
-use Shopware\Core\Framework\Struct\Uuid;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\StorefrontRequest;
 use Symfony\Component\HttpFoundation\Request;

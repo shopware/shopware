@@ -12,7 +12,7 @@ use Shopware\Core\Framework\Api\Response\Type\Storefront\JsonType;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Struct\Uuid;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Test\TestCaseBase\StorefrontFunctionalTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
 use Symfony\Component\HttpFoundation\Response;
@@ -75,7 +75,7 @@ class StorefrontCustomerControllerTest extends TestCase
 
     public function testLogin(): void
     {
-        $email = Uuid::uuid4()->getHex() . '@example.com';
+        $email = Uuid::randomHex() . '@example.com';
         $password = 'shopware';
         $customerId = $this->createCustomer($password, $email);
 
@@ -104,7 +104,7 @@ class StorefrontCustomerControllerTest extends TestCase
 
     public function testLoginWithBadCredentials(): void
     {
-        $email = Uuid::uuid4()->getHex() . '@example.com';
+        $email = Uuid::randomHex() . '@example.com';
         $password = 'shopware';
 
         $this->getStorefrontClient()->request('POST', '/storefront-api/v1/customer/login', [
@@ -292,7 +292,7 @@ class StorefrontCustomerControllerTest extends TestCase
             'firstName' => 'Max',
             'lastName' => 'Mustermann',
             'password' => 'test',
-            'email' => Uuid::uuid4()->getHex() . '@example.com',
+            'email' => Uuid::randomHex() . '@example.com',
             'title' => 'Phd',
             'active' => true,
             'birthdayYear' => 2000,
@@ -507,7 +507,7 @@ class StorefrontCustomerControllerTest extends TestCase
 
     private function createCustomerAndLogin(?string $email = null, string $password = 'shopware'): string
     {
-        $email = $email ?? Uuid::uuid4()->getHex() . '@example.com';
+        $email = $email ?? Uuid::randomHex() . '@example.com';
         $customerId = $this->createCustomer($password, $email);
 
         $this->getStorefrontClient()->request('POST', '/storefront-api/v1/customer/login', [
@@ -520,8 +520,8 @@ class StorefrontCustomerControllerTest extends TestCase
 
     private function createCustomer(string $password, ?string $email = null): string
     {
-        $customerId = Uuid::uuid4()->getHex();
-        $addressId = Uuid::uuid4()->getHex();
+        $customerId = Uuid::randomHex();
+        $addressId = Uuid::randomHex();
 
         $this->customerRepository->create([
             [
@@ -544,7 +544,7 @@ class StorefrontCustomerControllerTest extends TestCase
                     'handlerIdentifier' => SyncTestPaymentHandler::class,
                     'availabilityRules' => [
                         [
-                            'id' => Uuid::uuid4()->getHex(),
+                            'id' => Uuid::randomHex(),
                             'name' => 'true',
                             'priority' => 0,
                             'conditions' => [
@@ -574,7 +574,7 @@ class StorefrontCustomerControllerTest extends TestCase
 
     private function createCustomerAddress(string $customerId): string
     {
-        $addressId = Uuid::uuid4()->getHex();
+        $addressId = Uuid::randomHex();
         $data = [
             'id' => $addressId,
             'customerId' => $customerId,
@@ -629,7 +629,7 @@ class StorefrontCustomerControllerTest extends TestCase
 
     private function createOrder(): void
     {
-        $productId = Uuid::uuid4()->getHex();
+        $productId = Uuid::randomHex();
         $context = Context::createDefaultContext();
 
         $this->productRepository->create([

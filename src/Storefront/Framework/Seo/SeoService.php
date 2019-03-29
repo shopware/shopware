@@ -12,7 +12,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Doctrine\FetchModeHelper;
 use Shopware\Core\Framework\Doctrine\MultiInsertQueryQueue;
-use Shopware\Core\Framework\Struct\Uuid;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Storefront\Framework\Seo\Exception\InvalidTemplateException;
 use Shopware\Storefront\Framework\Seo\SeoUrl\SeoUrlDefinition;
 use Shopware\Storefront\Framework\Seo\SeoUrl\SeoUrlEntity;
@@ -100,7 +100,7 @@ class SeoService implements SeoServiceInterface
             }
 
             $insert = [];
-            $insert['id'] = Uuid::uuid4()->getBytes();
+            $insert['id'] = Uuid::randomBytes();
             $insert['sales_channel_id'] = Uuid::fromHexToBytes($salesChannelId);
             $insert['foreign_key'] = Uuid::fromHexToBytes($seoUrl['foreignKey']);
 

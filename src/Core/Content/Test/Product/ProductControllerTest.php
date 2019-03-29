@@ -32,15 +32,15 @@ class ProductControllerTest extends TestCase
 
     public function testProductList(): void
     {
-        $manufacturerId = Uuid::uuid4()->getHex();
-        $taxId = Uuid::uuid4()->getHex();
+        $manufacturerId = Uuid::randomHex();
+        $taxId = Uuid::randomHex();
 
         $client = $this->getStorefrontClient();
         $salesChannelId = $this->salesChannelIds[count($this->salesChannelIds) - 1];
 
         $this->productRepository->create([
             [
-                'id' => Uuid::uuid4()->getHex(),
+                'id' => Uuid::randomHex(),
                 'stock' => 1,
                 'name' => 'Test',
                 'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
@@ -76,7 +76,7 @@ class ProductControllerTest extends TestCase
 
     public function testProductDetail(): void
     {
-        $productId = Uuid::uuid4()->getHex();
+        $productId = Uuid::randomHex();
         $manufacturerId = Uuid::uuid4()->toString();
         $taxId = Uuid::uuid4()->toString();
 

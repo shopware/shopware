@@ -12,7 +12,7 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryDefinition
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Struct\Uuid;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\PlatformRequest;
@@ -181,9 +181,9 @@ class OrderDeliveryActionControllerTest extends TestCase
 
     private function createOrder(string $customerId, Context $context): string
     {
-        $orderId = Uuid::uuid4()->getHex();
+        $orderId = Uuid::randomHex();
         $stateId = $this->stateMachineRegistry->getInitialState(Defaults::ORDER_DELIVERY_STATE_MACHINE, $context)->getId();
-        $billingAddressId = Uuid::uuid4()->getHex();
+        $billingAddressId = Uuid::randomHex();
 
         $order = [
             'id' => $orderId,
@@ -227,8 +227,8 @@ class OrderDeliveryActionControllerTest extends TestCase
 
     private function createCustomer(Context $context): string
     {
-        $customerId = Uuid::uuid4()->getHex();
-        $addressId = Uuid::uuid4()->getHex();
+        $customerId = Uuid::randomHex();
+        $addressId = Uuid::randomHex();
 
         $customer = [
             'id' => $customerId,
@@ -236,7 +236,7 @@ class OrderDeliveryActionControllerTest extends TestCase
             'salutationId' => Defaults::SALUTATION_ID_MR,
             'firstName' => 'Max',
             'lastName' => 'Mustermann',
-            'email' => Uuid::uuid4()->getHex() . '@example.com',
+            'email' => Uuid::randomHex() . '@example.com',
             'password' => 'shopware',
             'defaultPaymentMethodId' => $this->getValidPaymentMethodId(),
             'groupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
@@ -265,7 +265,7 @@ class OrderDeliveryActionControllerTest extends TestCase
 
     private function createOrderDelivery(string $orderId, Context $context): string
     {
-        $deliveryId = Uuid::uuid4()->getHex();
+        $deliveryId = Uuid::randomHex();
         $stateId = $this->stateMachineRegistry->getInitialState(Defaults::ORDER_DELIVERY_STATE_MACHINE, $context)->getId();
 
         $delivery = [

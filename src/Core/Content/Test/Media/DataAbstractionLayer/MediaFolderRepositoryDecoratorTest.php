@@ -7,7 +7,7 @@ use Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Struct\Uuid;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\QueueTestBehaviour;
 
@@ -41,8 +41,8 @@ class MediaFolderRepositoryDecoratorTest extends TestCase
 
     public function testDeleteFolderAlsoDeletesMedia(): void
     {
-        $folderId = Uuid::uuid4()->getHex();
-        $mediaId = Uuid::uuid4()->getHex();
+        $folderId = Uuid::randomHex();
+        $mediaId = Uuid::randomHex();
 
         $this->folderRepository->create([
             [
@@ -83,10 +83,10 @@ class MediaFolderRepositoryDecoratorTest extends TestCase
 
     public function testDeleteFolderAlsoDeletesSubFoldersWithMedia(): void
     {
-        $childFolderId = Uuid::uuid4()->getHex();
-        $parentFolderId = Uuid::uuid4()->getHex();
-        $childMediaId = Uuid::uuid4()->getHex();
-        $parentMediaId = Uuid::uuid4()->getHex();
+        $childFolderId = Uuid::randomHex();
+        $parentFolderId = Uuid::randomHex();
+        $childMediaId = Uuid::randomHex();
+        $parentMediaId = Uuid::randomHex();
 
         $this->folderRepository->create([
             [
@@ -144,10 +144,10 @@ class MediaFolderRepositoryDecoratorTest extends TestCase
 
     public function testDeleteFolderDoesNotTouchParent(): void
     {
-        $childFolderId = Uuid::uuid4()->getHex();
-        $parentFolderId = Uuid::uuid4()->getHex();
-        $childMediaId = Uuid::uuid4()->getHex();
-        $parentMediaId = Uuid::uuid4()->getHex();
+        $childFolderId = Uuid::randomHex();
+        $parentFolderId = Uuid::randomHex();
+        $childMediaId = Uuid::randomHex();
+        $parentMediaId = Uuid::randomHex();
 
         $this->folderRepository->create([
             [
@@ -205,10 +205,10 @@ class MediaFolderRepositoryDecoratorTest extends TestCase
 
     public function testDeleteFolderParentAndChild(): void
     {
-        $childFolderId = Uuid::uuid4()->getHex();
-        $parentFolderId = Uuid::uuid4()->getHex();
-        $childMediaId = Uuid::uuid4()->getHex();
-        $parentMediaId = Uuid::uuid4()->getHex();
+        $childFolderId = Uuid::randomHex();
+        $parentFolderId = Uuid::randomHex();
+        $childMediaId = Uuid::randomHex();
+        $parentMediaId = Uuid::randomHex();
 
         $this->folderRepository->create([
             [
@@ -266,10 +266,10 @@ class MediaFolderRepositoryDecoratorTest extends TestCase
 
     public function testDeleteFolderChildAndParent(): void
     {
-        $childFolderId = Uuid::uuid4()->getHex();
-        $parentFolderId = Uuid::uuid4()->getHex();
-        $childMediaId = Uuid::uuid4()->getHex();
-        $parentMediaId = Uuid::uuid4()->getHex();
+        $childFolderId = Uuid::randomHex();
+        $parentFolderId = Uuid::randomHex();
+        $childMediaId = Uuid::randomHex();
+        $parentMediaId = Uuid::randomHex();
 
         $this->folderRepository->create([
             [

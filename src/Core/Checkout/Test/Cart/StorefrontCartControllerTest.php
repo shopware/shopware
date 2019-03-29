@@ -64,15 +64,15 @@ class StorefrontCartControllerTest extends TestCase
         $this->productRepository = $this->getContainer()->get('product.repository');
         $this->customerRepository = $this->getContainer()->get('customer.repository');
         $this->mediaRepository = $this->getContainer()->get('media.repository');
-        $this->taxId = Uuid::uuid4()->getHex();
-        $this->manufacturerId = Uuid::uuid4()->getHex();
+        $this->taxId = Uuid::randomHex();
+        $this->manufacturerId = Uuid::randomHex();
         $this->context = Context::createDefaultContext();
         $this->router = $this->getContainer()->get('router');
     }
 
     public function testAddNonExistingProduct(): void
     {
-        $productId = Uuid::uuid4()->getHex();
+        $productId = Uuid::randomHex();
 
         $client = $this->createCart();
 
@@ -87,7 +87,7 @@ class StorefrontCartControllerTest extends TestCase
 
     public function testAddProduct(): void
     {
-        $productId = Uuid::uuid4()->getHex();
+        $productId = Uuid::randomHex();
         $this->productRepository->create([
             [
                 'id' => $productId,
@@ -120,8 +120,8 @@ class StorefrontCartControllerTest extends TestCase
 
     public function testAddMultipleProducts(): void
     {
-        $productId1 = Uuid::uuid4()->getHex();
-        $productId2 = Uuid::uuid4()->getHex();
+        $productId1 = Uuid::randomHex();
+        $productId2 = Uuid::randomHex();
 
         $this->productRepository->create([
             [
@@ -158,7 +158,7 @@ class StorefrontCartControllerTest extends TestCase
 
     public function testChangeQuantity(): void
     {
-        $productId1 = Uuid::uuid4()->getHex();
+        $productId1 = Uuid::randomHex();
 
         $this->productRepository->create([
             [
@@ -189,7 +189,7 @@ class StorefrontCartControllerTest extends TestCase
 
     public function testChangeLineItemQuantity(): void
     {
-        $productId1 = Uuid::uuid4()->getHex();
+        $productId1 = Uuid::randomHex();
 
         $this->productRepository->create([
             [
@@ -220,7 +220,7 @@ class StorefrontCartControllerTest extends TestCase
 
     public function testChangeWithInvalidQuantity(): void
     {
-        $productId1 = Uuid::uuid4()->getHex();
+        $productId1 = Uuid::randomHex();
 
         $this->productRepository->create([
             [
@@ -249,8 +249,8 @@ class StorefrontCartControllerTest extends TestCase
 
     public function testRemoveLineItem(): void
     {
-        $productId1 = Uuid::uuid4()->getHex();
-        $productId2 = Uuid::uuid4()->getHex();
+        $productId1 = Uuid::randomHex();
+        $productId2 = Uuid::randomHex();
 
         $this->productRepository->create([
             [
@@ -292,7 +292,7 @@ class StorefrontCartControllerTest extends TestCase
 
     public function testRemoveNonExistingLineItem(): void
     {
-        $productId1 = Uuid::uuid4()->getHex();
+        $productId1 = Uuid::randomHex();
         $client = $this->createCart();
 
         $this->removeLineItem($client, $productId1);
@@ -313,8 +313,8 @@ class StorefrontCartControllerTest extends TestCase
 
     public function testMergeSameProduct(): void
     {
-        $productId1 = Uuid::uuid4()->getHex();
-        $productId2 = Uuid::uuid4()->getHex();
+        $productId1 = Uuid::randomHex();
+        $productId2 = Uuid::randomHex();
 
         $this->productRepository->create([
             [
@@ -367,7 +367,7 @@ class StorefrontCartControllerTest extends TestCase
 
     public function testAddProductUsingGenericLineItemRoute(): void
     {
-        $productId = Uuid::uuid4()->getHex();
+        $productId = Uuid::randomHex();
         $this->productRepository->create([
             [
                 'id' => $productId,
@@ -379,7 +379,7 @@ class StorefrontCartControllerTest extends TestCase
             ],
         ], $this->context);
 
-        $mediaId = Uuid::uuid4()->getHex();
+        $mediaId = Uuid::randomHex();
         $this->mediaRepository->create([
             [
                 'id' => $mediaId,
@@ -440,7 +440,7 @@ class StorefrontCartControllerTest extends TestCase
 
     public function testUpdateLineItem(): void
     {
-        $productId = Uuid::uuid4()->getHex();
+        $productId = Uuid::randomHex();
         $this->productRepository->create([
             [
                 'id' => $productId,
@@ -468,7 +468,7 @@ class StorefrontCartControllerTest extends TestCase
         static::assertEquals(10, $cart['price']['totalPrice']);
         static::assertCount(1, $cart['lineItems']);
 
-        $mediaId = Uuid::uuid4()->getHex();
+        $mediaId = Uuid::randomHex();
         $this->mediaRepository->create([
             [
                 'id' => $mediaId,

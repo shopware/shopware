@@ -7,7 +7,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
-use Shopware\Core\Framework\Struct\Uuid;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\NumberRange\Aggregate\NumberRangeType\NumberRangeTypeEntity;
 use Shopware\Core\System\NumberRange\Exception\NoConfigurationException;
 use Shopware\Core\System\NumberRange\NumberRangeDefinition;
@@ -136,7 +136,7 @@ class NumberRangeValueGenerator implements NumberRangeValueGeneratorInterface
         $entity->setTypeName($definition);
         $entity->setGlobal(true);
         $this->configuration = new NumberRangeEntity();
-        $this->configuration->setId(Uuid::uuid4()->getHex());
+        $this->configuration->setId(Uuid::randomHex());
         $this->configuration->setName('preview');
         $this->configuration->setType($entity);
         $this->configuration->setCreatedAt(new \DateTime());

@@ -8,7 +8,7 @@ use Shopware\Core\Checkout\Payment\Cart\Token\JWTFactory;
 use Shopware\Core\Checkout\Payment\Exception\InvalidTokenException;
 use Shopware\Core\Checkout\Payment\PaymentService;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Struct\Uuid;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 
 class JWTFactoryTest extends TestCase
@@ -58,7 +58,7 @@ class JWTFactoryTest extends TestCase
     public function testGetInvalidFormattedToken(): void
     {
         $this->expectException(InvalidTokenException::class);
-        $this->tokenFactory->parseToken(Uuid::uuid4()->getHex(), $this->context);
+        $this->tokenFactory->parseToken(Uuid::randomHex(), $this->context);
     }
 
     /**
@@ -76,17 +76,17 @@ class JWTFactoryTest extends TestCase
 
     public function testInvalidateToken(): void
     {
-        $success = $this->tokenFactory->invalidateToken(Uuid::uuid4()->getHex(), $this->context);
+        $success = $this->tokenFactory->invalidateToken(Uuid::randomHex(), $this->context);
         static::assertFalse($success);
     }
 
     public static function createTransaction(): OrderTransactionEntity
     {
         $transactionStruct = new OrderTransactionEntity();
-        $transactionStruct->setId(Uuid::uuid4()->getHex());
-        $transactionStruct->setOrderId(Uuid::uuid4()->getHex());
-        $transactionStruct->setPaymentMethodId(Uuid::uuid4()->getHex());
-        $transactionStruct->setStateId(Uuid::uuid4()->getHex());
+        $transactionStruct->setId(Uuid::randomHex());
+        $transactionStruct->setOrderId(Uuid::randomHex());
+        $transactionStruct->setPaymentMethodId(Uuid::randomHex());
+        $transactionStruct->setStateId(Uuid::randomHex());
 
         return $transactionStruct;
     }

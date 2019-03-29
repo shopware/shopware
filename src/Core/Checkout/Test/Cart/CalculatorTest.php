@@ -16,7 +16,7 @@ use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Context\CheckoutContextFactory;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Rule\Container\AndRule;
-use Shopware\Core\Framework\Struct\Uuid;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 
 class CalculatorTest extends TestCase
@@ -42,7 +42,7 @@ class CalculatorTest extends TestCase
     {
         $this->calculator = $this->getContainer()->get(Calculator::class);
         $this->factory = $this->getContainer()->get(CheckoutContextFactory::class);
-        $this->context = $this->factory->create(Uuid::uuid4()->getHex(), Defaults::SALES_CHANNEL);
+        $this->context = $this->factory->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
     }
 
     public function testCalculateSimplePrice(): void

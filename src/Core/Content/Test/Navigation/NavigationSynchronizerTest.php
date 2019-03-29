@@ -8,7 +8,7 @@ use Shopware\Core\Content\Navigation\NavigationEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Struct\Uuid;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
 class NavigationSynchronizerTest extends TestCase
@@ -36,12 +36,12 @@ class NavigationSynchronizerTest extends TestCase
 
     public function testAddCategory(): void
     {
-        $id1 = Uuid::uuid4()->getHex();
-        $id2 = Uuid::uuid4()->getHex();
-        $id3 = Uuid::uuid4()->getHex();
-        $id4 = Uuid::uuid4()->getHex();
-        $id5 = Uuid::uuid4()->getHex();
-        $id6 = Uuid::uuid4()->getHex();
+        $id1 = Uuid::randomHex();
+        $id2 = Uuid::randomHex();
+        $id3 = Uuid::randomHex();
+        $id4 = Uuid::randomHex();
+        $id5 = Uuid::randomHex();
+        $id6 = Uuid::randomHex();
 
         $categories = [
             [
@@ -138,10 +138,10 @@ class NavigationSynchronizerTest extends TestCase
 
     public function testDeleteCategory(): void
     {
-        $id1 = Uuid::uuid4()->getHex();
-        $id2 = Uuid::uuid4()->getHex();
-        $id3 = Uuid::uuid4()->getHex();
-        $id4 = Uuid::uuid4()->getHex();
+        $id1 = Uuid::randomHex();
+        $id2 = Uuid::randomHex();
+        $id3 = Uuid::randomHex();
+        $id4 = Uuid::randomHex();
 
         $categories = [
             [
@@ -201,12 +201,12 @@ class NavigationSynchronizerTest extends TestCase
 
     public function testMoveCategory(): void
     {
-        $id1 = Uuid::uuid4()->getHex();
-        $id2 = Uuid::uuid4()->getHex();
-        $id3 = Uuid::uuid4()->getHex();
-        $id4 = Uuid::uuid4()->getHex();
-        $id5 = Uuid::uuid4()->getHex();
-        $id6 = Uuid::uuid4()->getHex();
+        $id1 = Uuid::randomHex();
+        $id2 = Uuid::randomHex();
+        $id3 = Uuid::randomHex();
+        $id4 = Uuid::randomHex();
+        $id5 = Uuid::randomHex();
+        $id6 = Uuid::randomHex();
 
         $categories = [
             [

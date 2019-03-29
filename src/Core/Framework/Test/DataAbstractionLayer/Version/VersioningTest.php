@@ -43,7 +43,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\VersionManager;
 use Shopware\Core\Framework\Rule\Collector\RuleConditionRegistry;
 use Shopware\Core\Framework\Rule\Container\AndRule;
 use Shopware\Core\Framework\Struct\ArrayEntity;
-use Shopware\Core\Framework\Struct\Uuid;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
 use Shopware\Core\System\Tax\TaxDefinition;
@@ -112,7 +112,7 @@ class VersioningTest extends TestCase
 
     public function testChangelogOnlyWrittenForVersionAwareEntities(): void
     {
-        $id = Uuid::uuid4()->getHex();
+        $id = Uuid::randomHex();
 
         $data = [
             'id' => $id,
@@ -149,7 +149,7 @@ class VersioningTest extends TestCase
 
     public function testICanVersionPriceFields(): void
     {
-        $id = Uuid::uuid4()->getHex();
+        $id = Uuid::randomHex();
         $data = [
             'id' => $id,
             'stock' => 1,
@@ -197,7 +197,7 @@ class VersioningTest extends TestCase
 
     public function testICanVersionDateFields(): void
     {
-        $id = Uuid::uuid4()->getHex();
+        $id = Uuid::randomHex();
         $data = [
             'id' => $id,
             'stock' => 1,
@@ -241,7 +241,7 @@ class VersioningTest extends TestCase
 
     public function testICanVersionCalculatedPriceField(): void
     {
-        $id = Uuid::uuid4()->getHex();
+        $id = Uuid::randomHex();
 
         $this->connection->executeUpdate(CalculatedPriceFieldTestDefinition::getCreateTable());
 
@@ -352,9 +352,9 @@ class VersioningTest extends TestCase
     {
         static::markTestSkipped('Fixed with next-1434');
 
-        $id1 = Uuid::uuid4()->getHex();
-        $id2 = Uuid::uuid4()->getHex();
-        $id3 = Uuid::uuid4()->getHex();
+        $id1 = Uuid::randomHex();
+        $id2 = Uuid::randomHex();
+        $id3 = Uuid::randomHex();
 
         $data = [
             'id' => $id1,
@@ -411,7 +411,7 @@ class VersioningTest extends TestCase
 
     public function testICanVersionTranslatedFields(): void
     {
-        $id = Uuid::uuid4()->getHex();
+        $id = Uuid::randomHex();
         $data = [
             'id' => $id,
             'stock' => 1,
@@ -439,7 +439,7 @@ class VersioningTest extends TestCase
 
     public function testChangelogWrittenForCreate(): void
     {
-        $id = Uuid::uuid4()->getHex();
+        $id = Uuid::randomHex();
         $data = [
             'id' => $id,
             'stock' => 1,
@@ -463,7 +463,7 @@ class VersioningTest extends TestCase
 
     public function testChangelogWrittenForUpdate(): void
     {
-        $id = Uuid::uuid4()->getHex();
+        $id = Uuid::randomHex();
         $data = [
             'id' => $id,
             'stock' => 1,
@@ -498,7 +498,7 @@ class VersioningTest extends TestCase
 
     public function testChangelogWrittenWithMultipleEntities(): void
     {
-        $id = Uuid::uuid4()->getHex();
+        $id = Uuid::randomHex();
         $data = [
             'id' => $id,
             'stock' => 1,
@@ -531,7 +531,7 @@ class VersioningTest extends TestCase
 
     public function testChangelogAppliedAfterMerge(): void
     {
-        $id = Uuid::uuid4()->getHex();
+        $id = Uuid::randomHex();
         $data = [
             'id' => $id,
             'stock' => 1,
@@ -612,10 +612,10 @@ class VersioningTest extends TestCase
 
     public function testICanVersionOneToManyAssociations(): void
     {
-        $productId = Uuid::uuid4()->getHex();
-        $ruleId = Uuid::uuid4()->getHex();
-        $priceId1 = Uuid::uuid4()->getHex();
-        $priceId2 = Uuid::uuid4()->getHex();
+        $productId = Uuid::randomHex();
+        $ruleId = Uuid::randomHex();
+        $priceId1 = Uuid::randomHex();
+        $priceId2 = Uuid::randomHex();
 
         $context = Context::createDefaultContext();
 
@@ -681,9 +681,9 @@ class VersioningTest extends TestCase
 
     public function testICanVersionManyToManyAssociations(): void
     {
-        $productId = Uuid::uuid4()->getHex();
-        $categoryId1 = Uuid::uuid4()->getHex();
-        $categoryId2 = Uuid::uuid4()->getHex();
+        $productId = Uuid::randomHex();
+        $categoryId1 = Uuid::randomHex();
+        $categoryId2 = Uuid::randomHex();
 
         $context = Context::createDefaultContext();
 
@@ -742,7 +742,7 @@ class VersioningTest extends TestCase
 
     public function testICanReadASpecifyVersion(): void
     {
-        $id = Uuid::uuid4()->getHex();
+        $id = Uuid::randomHex();
         $data = [
             'id' => $id,
             'stock' => 1,
@@ -777,10 +777,10 @@ class VersioningTest extends TestCase
 
     public function testICanReadOneToManyInASpecifyVersion(): void
     {
-        $productId = Uuid::uuid4()->getHex();
-        $ruleId = Uuid::uuid4()->getHex();
-        $priceId1 = Uuid::uuid4()->getHex();
-        $priceId2 = Uuid::uuid4()->getHex();
+        $productId = Uuid::randomHex();
+        $ruleId = Uuid::randomHex();
+        $priceId1 = Uuid::randomHex();
+        $priceId2 = Uuid::randomHex();
 
         $context = Context::createDefaultContext();
 
@@ -879,9 +879,9 @@ class VersioningTest extends TestCase
         static::assertCount(0, $product->getPriceRules());
 
         //now add new prices
-        $newPriceId1 = Uuid::uuid4()->getHex();
-        $newPriceId2 = Uuid::uuid4()->getHex();
-        $newPriceId3 = Uuid::uuid4()->getHex();
+        $newPriceId1 = Uuid::randomHex();
+        $newPriceId2 = Uuid::randomHex();
+        $newPriceId3 = Uuid::randomHex();
 
         $updated = [
             'id' => $productId,
@@ -938,7 +938,7 @@ class VersioningTest extends TestCase
         $versionId = $this->productRepository->createVersion($productId, $context);
         $versionContext = $context->createWithVersionId($versionId);
 
-        $newPriceId4 = Uuid::uuid4()->getHex();
+        $newPriceId4 = Uuid::randomHex();
 
         //check that we can add entities into a sub version using the sub entity repository
         $data = [
@@ -969,9 +969,9 @@ class VersioningTest extends TestCase
 
     public function testICanReadManyToManyInASpecifyVersion(): void
     {
-        $productId = Uuid::uuid4()->getHex();
-        $categoryId1 = Uuid::uuid4()->getHex();
-        $categoryId2 = Uuid::uuid4()->getHex();
+        $productId = Uuid::randomHex();
+        $categoryId1 = Uuid::randomHex();
+        $categoryId2 = Uuid::randomHex();
 
         $context = Context::createDefaultContext();
 
@@ -1037,7 +1037,7 @@ class VersioningTest extends TestCase
 
     public function testICanSearchInASpecifyVersion(): void
     {
-        $id = Uuid::uuid4()->getHex();
+        $id = Uuid::randomHex();
         $data = [
             'id' => $id,
             'stock' => 1,
@@ -1082,10 +1082,10 @@ class VersioningTest extends TestCase
 
     public function testICanSearchOneToManyInASpecifyVersion(): void
     {
-        $productId = Uuid::uuid4()->getHex();
-        $ruleId = Uuid::uuid4()->getHex();
-        $priceId1 = Uuid::uuid4()->getHex();
-        $priceId2 = Uuid::uuid4()->getHex();
+        $productId = Uuid::randomHex();
+        $ruleId = Uuid::randomHex();
+        $priceId1 = Uuid::randomHex();
+        $priceId2 = Uuid::randomHex();
 
         $context = Context::createDefaultContext();
 
@@ -1185,10 +1185,10 @@ class VersioningTest extends TestCase
 
     public function testICanSearchManyToManyInASpecifyVersion(): void
     {
-        $productId = Uuid::uuid4()->getHex();
-        $categoryId1 = Uuid::uuid4()->getHex();
-        $categoryId2 = Uuid::uuid4()->getHex();
-        $categoryId3 = Uuid::uuid4()->getHex();
+        $productId = Uuid::randomHex();
+        $categoryId1 = Uuid::randomHex();
+        $categoryId2 = Uuid::randomHex();
+        $categoryId3 = Uuid::randomHex();
 
         $context = Context::createDefaultContext();
 
@@ -1246,8 +1246,8 @@ class VersioningTest extends TestCase
 
     public function testSearchConsidersLiveVersionAsFallback(): void
     {
-        $id1 = Uuid::uuid4()->getHex();
-        $id2 = Uuid::uuid4()->getHex();
+        $id1 = Uuid::randomHex();
+        $id2 = Uuid::randomHex();
         $data = [
             [
                 'id' => $id1,
@@ -1296,7 +1296,7 @@ class VersioningTest extends TestCase
 
     public function testICanAggregateInASpecifyVersion(): void
     {
-        $id = Uuid::uuid4()->getHex();
+        $id = Uuid::randomHex();
         $data = [
             'id' => $id,
             'stock' => 1,
@@ -1348,10 +1348,10 @@ class VersioningTest extends TestCase
 
     public function testICanAggregateOneToManyInASpecifyVersion(): void
     {
-        $productId = Uuid::uuid4()->getHex();
-        $ruleId = Uuid::uuid4()->getHex();
-        $priceId1 = Uuid::uuid4()->getHex();
-        $priceId2 = Uuid::uuid4()->getHex();
+        $productId = Uuid::randomHex();
+        $ruleId = Uuid::randomHex();
+        $priceId1 = Uuid::randomHex();
+        $priceId2 = Uuid::randomHex();
 
         $context = Context::createDefaultContext();
 
@@ -1436,10 +1436,10 @@ class VersioningTest extends TestCase
 
     public function testICanAggregateManyToManyInASpecifyVersion(): void
     {
-        $productId = Uuid::uuid4()->getHex();
-        $categoryId1 = Uuid::uuid4()->getHex();
-        $categoryId2 = Uuid::uuid4()->getHex();
-        $categoryId3 = Uuid::uuid4()->getHex();
+        $productId = Uuid::randomHex();
+        $categoryId1 = Uuid::randomHex();
+        $categoryId2 = Uuid::randomHex();
+        $categoryId3 = Uuid::randomHex();
 
         $context = Context::createDefaultContext();
 
@@ -1496,8 +1496,8 @@ class VersioningTest extends TestCase
 
     public function testAggregateConsidersLiveVersionAsFallback(): void
     {
-        $id1 = Uuid::uuid4()->getHex();
-        $id2 = Uuid::uuid4()->getHex();
+        $id1 = Uuid::randomHex();
+        $id2 = Uuid::randomHex();
         $data = [
             [
                 'id' => $id1,
@@ -1558,8 +1558,8 @@ class VersioningTest extends TestCase
 
     public function testICanAddEntitiesToSpecifyVersion(): void
     {
-        $id1 = Uuid::uuid4()->getHex();
-        $id2 = Uuid::uuid4()->getHex();
+        $id1 = Uuid::randomHex();
+        $id2 = Uuid::randomHex();
 
         $data = [
             [
@@ -1585,7 +1585,7 @@ class VersioningTest extends TestCase
         $context = Context::createDefaultContext();
         $this->productRepository->create($data, $context);
 
-        $versionId = Uuid::uuid4()->getHex();
+        $versionId = Uuid::randomHex();
         $this->productRepository->createVersion($id1, $context, 'campaign', $versionId);
         $this->productRepository->createVersion($id2, $context, 'campaign', $versionId);
 
@@ -1646,7 +1646,7 @@ class VersioningTest extends TestCase
     public function testVersionCommitUtf8(): void
     {
         $product = [
-            'id' => Uuid::uuid4()->getHex(),
+            'id' => Uuid::randomHex(),
             'name' => '😄',
             'stock' => 1,
             'ean' => 'EAN-1',
@@ -1664,7 +1664,7 @@ class VersioningTest extends TestCase
 
     public function testCreateOrderVersion(): void
     {
-        $token = Uuid::uuid4()->getHex();
+        $token = Uuid::randomHex();
         $cart = new Cart('test', $token);
 
         $cart->add(
@@ -1674,12 +1674,12 @@ class VersioningTest extends TestCase
                 ->setPriceDefinition(new QuantityPriceDefinition(10, new TaxRuleCollection(), 2))
         );
 
-        $ruleId = Uuid::uuid4()->getHex();
+        $ruleId = Uuid::randomHex();
         $customerId = $this->createCustomer();
         $paymentMethodId = $this->createPaymentMethod($ruleId);
 
         $context = $this->checkoutContextFactory->create(
-            Uuid::uuid4()->getHex(),
+            Uuid::randomHex(),
             Defaults::SALES_CHANNEL,
             [
                 CheckoutContextService::CUSTOMER_ID => $customerId,
@@ -1700,8 +1700,8 @@ class VersioningTest extends TestCase
 
     private function createCustomer(): string
     {
-        $customerId = Uuid::uuid4()->getHex();
-        $addressId = Uuid::uuid4()->getHex();
+        $customerId = Uuid::randomHex();
+        $addressId = Uuid::randomHex();
 
         $customer = [
             'id' => $customerId,
@@ -1710,7 +1710,7 @@ class VersioningTest extends TestCase
             'firstName' => 'Max',
             'lastName' => 'Mustermann',
             'customerNumber' => '1337',
-            'email' => Uuid::uuid4()->getHex() . '@example.com',
+            'email' => Uuid::randomHex() . '@example.com',
             'password' => 'shopware',
             'defaultPaymentMethodId' => $this->getValidPaymentMethodId(),
             'groupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
@@ -1795,7 +1795,7 @@ class VersioningTest extends TestCase
 
     private function createPaymentMethod(string $ruleId): string
     {
-        $paymentMethodId = Uuid::uuid4()->getHex();
+        $paymentMethodId = Uuid::randomHex();
         $repository = $this->getContainer()->get('payment_method.repository');
 
         $ruleRegistry = $this->getContainer()->get(RuleConditionRegistry::class);

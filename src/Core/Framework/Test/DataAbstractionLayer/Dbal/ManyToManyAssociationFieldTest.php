@@ -13,8 +13,8 @@ use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
-use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Tax\TaxDefinition;
 
 class ManyToManyAssociationFieldTest extends TestCase
@@ -45,24 +45,24 @@ class ManyToManyAssociationFieldTest extends TestCase
 
     public function testWriteWithoutData(): void
     {
-        $categoryId = Uuid::uuid4();
+        $categoryId = Uuid::randomHex();
         $data = [
-            'id' => $categoryId->getHex(),
+            'id' => $categoryId,
             'name' => 'test',
         ];
 
         $this->categoryRepository->create([$data], $this->context);
 
-        $productId = Uuid::uuid4();
+        $productId = Uuid::randomHex();
         $data = [
-            'id' => $productId->getHex(),
+            'id' => $productId,
             'stock' => 1,
             'name' => 'test',
             'price' => ['gross' => 15, 'net' => 10, 'linked' => false],
             'manufacturer' => ['name' => 'test'],
             'tax' => ['name' => 'test', 'taxRate' => 15],
             'categories' => [
-                ['id' => $categoryId->getHex()],
+                ['id' => $categoryId],
             ],
         ];
 
@@ -80,16 +80,16 @@ class ManyToManyAssociationFieldTest extends TestCase
 
     public function testWriteWithData(): void
     {
-        $id = Uuid::uuid4();
+        $id = Uuid::randomHex();
         $data = [
-            'id' => $id->getHex(),
+            'id' => $id,
             'stock' => 1,
             'name' => 'test',
             'price' => ['gross' => 15, 'net' => 10, 'linked' => false],
             'manufacturer' => ['name' => 'test'],
             'tax' => ['name' => 'test', 'taxRate' => 15],
             'categories' => [
-                ['id' => $id->getHex(), 'name' => 'asd'],
+                ['id' => $id, 'name' => 'asd'],
             ],
         ];
 

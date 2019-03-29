@@ -4,11 +4,11 @@ namespace Shopware\Core\Content\Test\Product;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
-use Ramsey\Uuid\Uuid;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\Test\TestCaseBase\StorefrontFunctionalTestBehaviour;
+use Shopware\Core\Framework\Uuid\Uuid;
 
 class ProductControllerTest extends TestCase
 {
@@ -77,8 +77,8 @@ class ProductControllerTest extends TestCase
     public function testProductDetail(): void
     {
         $productId = Uuid::randomHex();
-        $manufacturerId = Uuid::uuid4()->toString();
-        $taxId = Uuid::uuid4()->toString();
+        $manufacturerId = Uuid::randomHex();
+        $taxId = Uuid::randomHex();
 
         $client = $this->getStorefrontClient();
         $salesChannelId = $this->salesChannelIds[count($this->salesChannelIds) - 1];

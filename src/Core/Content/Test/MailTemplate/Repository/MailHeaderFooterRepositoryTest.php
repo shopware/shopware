@@ -9,8 +9,8 @@ use Shopware\Core\Content\Test\Media\MediaFixtures;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Uuid\Uuid;
 
 class MailHeaderFooterRepositoryTest extends TestCase
 {
@@ -213,10 +213,10 @@ class MailHeaderFooterRepositoryTest extends TestCase
     {
         $data = [];
         for ($i = 1; $i <= $num; ++$i) {
-            $uuid = Uuid::uuid4();
+            $uuid = Uuid::randomHex();
 
-            $data[$uuid->getBytes()] = [
-                'id' => $uuid->getHex(),
+            $data[Uuid::fromHexToBytes($uuid)] = [
+                'id' => $uuid,
                 'systemDefault' => (($i % 2 === 0) ? false : true),
                 'name' => sprintf('Test-Template %d %s', $i, $add),
                 'description' => sprintf('John Doe %d %s', $i, $add),

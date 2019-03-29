@@ -13,8 +13,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriter;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriterInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
-use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Test\TestCaseBase\StorefrontFunctionalTestBehaviour;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -48,7 +48,7 @@ class OrderingProcessTest extends TestCase
     {
         static::markTestSkipped('Storefront not fully implemented yet.');
 
-        $email = Uuid::uuid4()->toString() . '@shopware.com';
+        $email = Uuid::randomHex() . '@shopware.com';
         $customerId = $this->createCustomer($email, 'test1234');
         static::assertNotEmpty($customerId, 'Customer was not created.');
 

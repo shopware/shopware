@@ -20,8 +20,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriter;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriterInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException\WriteStackException;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
-use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Tax\TaxDefinition;
 
 class WriterTest extends TestCase
@@ -46,30 +46,30 @@ class WriterTest extends TestCase
 
     public function testDelete(): void
     {
-        $id = Uuid::uuid4();
+        $id = Uuid::randomHex();
 
         $context = $this->createWriteContext();
 
         $this->getWriter()->insert(
             CategoryDefinition::class,
             [
-                ['id' => $id->getHex(), 'name' => 'test-country'],
+                ['id' => $id, 'name' => 'test-country'],
             ],
             $context
         );
 
-        $exists = $this->connection->fetchAll('SELECT * FROM category WHERE id = :id', ['id' => $id->getBytes()]);
+        $exists = $this->connection->fetchAll('SELECT * FROM category WHERE id = :id', ['id' => Uuid::fromHexToBytes($id)]);
         static::assertNotEmpty($exists);
 
         $deleteResult = $this->getWriter()->delete(
             CategoryDefinition::class,
             [
-                ['id' => $id->getHex()],
+                ['id' => $id],
             ],
             $context
         );
 
-        $exists = $this->connection->fetchAll('SELECT * FROM category WHERE id = :id', ['id' => $id->getBytes()]);
+        $exists = $this->connection->fetchAll('SELECT * FROM category WHERE id = :id', ['id' => Uuid::fromHexToBytes($id)]);
         static::assertEmpty($exists);
         static::assertEmpty($deleteResult->getNotFound());
         static::assertNotEmpty($deleteResult->getDeleted());
@@ -85,23 +85,23 @@ class WriterTest extends TestCase
 
     public function testMultiDelete(): void
     {
-        $id = Uuid::uuid4();
-        $id2 = Uuid::uuid4();
+        $id = Uuid::randomHex();
+        $id2 = Uuid::randomHex();
 
         $context = $this->createWriteContext();
 
         $this->getWriter()->insert(
             CategoryDefinition::class,
             [
-                ['id' => $id->getHex(), 'name' => 'test-country1'],
-                ['id' => $id2->getHex(), 'name' => 'test-country2'],
+                ['id' => $id, 'name' => 'test-country1'],
+                ['id' => $id2, 'name' => 'test-country2'],
             ],
             $context
         );
 
         $categories = $this->connection->fetchAll(
             'SELECT * FROM category WHERE id IN (:id) ',
-            ['id' => [$id->getBytes(), $id2->getBytes()]],
+            ['id' => [Uuid::fromHexToBytes($id), Uuid::fromHexToBytes($id2)]],
             ['id' => Connection::PARAM_STR_ARRAY]
         );
 
@@ -109,7 +109,7 @@ class WriterTest extends TestCase
 
         $translations = $this->connection->fetchAll(
             'SELECT * FROM category_translation WHERE category_id IN (:id) ',
-            ['id' => [$id->getBytes(), $id2->getBytes()]],
+            ['id' => [Uuid::fromHexToBytes($id), Uuid::fromHexToBytes($id2)]],
             ['id' => Connection::PARAM_STR_ARRAY]
         );
 
@@ -118,8 +118,8 @@ class WriterTest extends TestCase
         $deleteResult = $this->getWriter()->delete(
             CategoryDefinition::class,
             [
-                ['id' => $id->getHex()],
-                ['id' => $id2->getHex()],
+                ['id' => $id],
+                ['id' => $id2],
             ],
             $context
         );
@@ -128,7 +128,7 @@ class WriterTest extends TestCase
 
         $categories = $this->connection->fetchAll(
             'SELECT * FROM category WHERE id IN (:id) ',
-            ['id' => [$id->getBytes(), $id2->getBytes()]],
+            ['id' => [Uuid::fromHexToBytes($id), Uuid::fromHexToBytes($id2)]],
             ['id' => Connection::PARAM_STR_ARRAY]
         );
 
@@ -136,7 +136,7 @@ class WriterTest extends TestCase
 
         $translations = $this->connection->fetchAll(
             'SELECT * FROM category_translation WHERE category_id IN (:id) ',
-            ['id' => [$id->getBytes(), $id2->getBytes()]],
+            ['id' => [Uuid::fromHexToBytes($id), Uuid::fromHexToBytes($id2)]],
             ['id' => Connection::PARAM_STR_ARRAY]
         );
 
@@ -145,23 +145,23 @@ class WriterTest extends TestCase
 
     public function testMultiDeleteWithNoneExistingId(): void
     {
-        $id = Uuid::uuid4();
-        $id2 = Uuid::uuid4();
+        $id = Uuid::randomHex();
+        $id2 = Uuid::randomHex();
 
         $context = $this->createWriteContext();
 
         $this->getWriter()->insert(
             CategoryDefinition::class,
             [
-                ['id' => $id->getHex(), 'name' => 'test-country1'],
-                ['id' => $id2->getHex(), 'name' => 'test-country2'],
+                ['id' => $id, 'name' => 'test-country1'],
+                ['id' => $id2, 'name' => 'test-country2'],
             ],
             $context
         );
 
         $exists = $this->connection->fetchAll(
             'SELECT * FROM category WHERE id IN (:id) ',
-            ['id' => [$id->getBytes(), $id2->getBytes()]],
+            ['id' => [Uuid::fromHexToBytes($id), Uuid::fromHexToBytes($id2)]],
             ['id' => Connection::PARAM_STR_ARRAY]
         );
 
@@ -170,8 +170,8 @@ class WriterTest extends TestCase
         $deleteResult = $this->getWriter()->delete(
             CategoryDefinition::class,
             [
-                ['id' => $id->getHex()],
-                ['id' => $id2->getHex()],
+                ['id' => $id],
+                ['id' => $id2],
                 ['id' => Uuid::randomHex()],
                 ['id' => Uuid::randomHex()],
                 ['id' => Uuid::randomHex()],
@@ -184,7 +184,7 @@ class WriterTest extends TestCase
 
         $exists = $this->connection->fetchAll(
             'SELECT * FROM category WHERE id IN (:id) ',
-            ['id' => [$id->getBytes(), $id2->getBytes()]],
+            ['id' => [Uuid::fromHexToBytes($id), Uuid::fromHexToBytes($id2)]],
             ['id' => Connection::PARAM_STR_ARRAY]
         );
 
@@ -193,37 +193,37 @@ class WriterTest extends TestCase
 
     public function testDeleteWithMultiplePrimaryColumns(): void
     {
-        $productId = Uuid::uuid4();
-        $categoryId = Uuid::uuid4();
+        $productId = Uuid::randomHex();
+        $categoryId = Uuid::randomHex();
 
         $context = $this->createWriteContext();
         $this->getWriter()->insert(ProductDefinition::class, [
             [
-                'id' => $productId->getHex(),
+                'id' => $productId,
                 'stock' => 1,
                 'name' => 'test 1',
                 'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
                 'tax' => ['name' => 'test', 'taxRate' => 5],
                 'manufacturer' => ['name' => 'test'],
                 'categories' => [
-                    ['id' => $categoryId->getHex(), 'name' => 'test'],
+                    ['id' => $categoryId, 'name' => 'test'],
                 ],
             ],
         ], $context);
 
         $exists = $this->connection->fetchAll(
             'SELECT * FROM product_category WHERE product_id = :product AND category_id = :category',
-            ['product' => $productId->getBytes(), 'category' => $categoryId->getBytes()]
+            ['product' => Uuid::fromHexToBytes($productId), 'category' => Uuid::fromHexToBytes($categoryId)]
         );
         static::assertCount(1, $exists);
 
         $deleteResult = $this->getWriter()->delete(ProductCategoryDefinition::class, [
-            ['productId' => $productId->getHex(), 'categoryId' => $categoryId->getHex()],
+            ['productId' => $productId, 'categoryId' => $categoryId],
         ], $context);
 
         $exists = $this->connection->fetchAll(
             'SELECT * FROM product_category WHERE product_id = :product AND category_id = :category',
-            ['product' => $productId->getBytes(), 'category' => $categoryId->getBytes()]
+            ['product' => Uuid::fromHexToBytes($productId), 'category' => Uuid::fromHexToBytes($categoryId)]
         );
         static::assertEmpty($exists);
 
@@ -235,41 +235,41 @@ class WriterTest extends TestCase
     {
         $this->expectException(IncompletePrimaryKeyException::class);
 
-        $productId = Uuid::uuid4();
+        $productId = Uuid::randomHex();
 
         $this->getWriter()->delete(ProductCategoryDefinition::class, [
-            ['productId' => $productId->getHex()],
+            ['productId' => $productId],
         ], $this->createWriteContext());
     }
 
     public function testMultiDeleteWithMultiplePrimaryColumns(): void
     {
-        $productId = Uuid::uuid4();
-        $productId2 = Uuid::uuid4();
-        $categoryId = Uuid::uuid4();
+        $productId = Uuid::randomHex();
+        $productId2 = Uuid::randomHex();
+        $categoryId = Uuid::randomHex();
 
         $context = $this->createWriteContext();
         $this->getWriter()->insert(ProductDefinition::class, [
             [
-                'id' => $productId->getHex(),
+                'id' => $productId,
                 'name' => 'test 1',
                 'stock' => 1,
                 'price' => ['gross' => 10, 'net' => 8.10, 'linked' => false],
                 'tax' => ['name' => 'test', 'taxRate' => 5],
                 'manufacturer' => ['name' => 'test'],
                 'categories' => [
-                    ['id' => $categoryId->getHex(), 'name' => 'test'],
+                    ['id' => $categoryId, 'name' => 'test'],
                 ],
             ],
             [
-                'id' => $productId2->getHex(),
+                'id' => $productId2,
                 'name' => 'test 1',
                 'stock' => 1,
                 'price' => ['gross' => 10, 'net' => 8.10, 'linked' => false],
                 'tax' => ['name' => 'test', 'taxRate' => 5],
                 'manufacturer' => ['name' => 'test'],
                 'categories' => [
-                    ['id' => $categoryId->getHex()],
+                    ['id' => $categoryId],
                 ],
             ],
             [
@@ -286,19 +286,19 @@ class WriterTest extends TestCase
 
         $exists = $this->connection->fetchAll(
             'SELECT * FROM product_category WHERE product_id IN (:product) AND category_id = :category',
-            ['product' => [$productId->getBytes(), $productId2->getBytes()], 'category' => $categoryId->getBytes()],
+            ['product' => [Uuid::fromHexToBytes($productId), Uuid::fromHexToBytes($productId2)], 'category' => Uuid::fromHexToBytes($categoryId)],
             ['product' => Connection::PARAM_STR_ARRAY]
         );
         static::assertCount(2, $exists);
 
         $deleteResult = $this->getWriter()->delete(ProductCategoryDefinition::class, [
-            ['productId' => $productId->getHex(), 'categoryId' => $categoryId->getHex()],
-            ['productId' => $productId2->getHex(), 'categoryId' => $categoryId->getHex()],
+            ['productId' => $productId, 'categoryId' => $categoryId],
+            ['productId' => $productId2, 'categoryId' => $categoryId],
         ], $context);
 
         $exists = $this->connection->fetchAll(
             'SELECT * FROM product_category WHERE product_id IN (:product) AND category_id = :category',
-            ['product' => [$productId->getBytes(), $productId2->getBytes()], 'category' => $categoryId->getBytes()],
+            ['product' => [Uuid::fromHexToBytes($productId), Uuid::fromHexToBytes($productId2)], 'category' => Uuid::fromHexToBytes($categoryId)],
             ['product' => Connection::PARAM_STR_ARRAY]
         );
         static::assertEmpty($exists);

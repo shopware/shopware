@@ -12,8 +12,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityDeletedEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Uuid\Uuid;
 
 class CategoryRepositoryTest extends TestCase
 {
@@ -37,17 +37,17 @@ class CategoryRepositoryTest extends TestCase
 
     public function testDeleteParentCategoryDeletesSubCategories(): void
     {
-        $parentId = Uuid::uuid4();
-        $childId = Uuid::uuid4();
+        $parentId = Uuid::randomHex();
+        $childId = Uuid::randomHex();
 
         $this->repository->create([
-            ['id' => $parentId->getHex(), 'name' => 'parent-1'],
-            ['id' => $childId->getHex(), 'name' => 'child', 'parentId' => $parentId->getHex()],
+            ['id' => $parentId, 'name' => 'parent-1'],
+            ['id' => $childId, 'name' => 'child', 'parentId' => $parentId],
         ], Context::createDefaultContext());
 
         $exists = $this->connection->fetchAll(
             'SELECT * FROM category WHERE id IN (:ids)',
-            ['ids' => [$parentId->getBytes(), $childId->getBytes()]],
+            ['ids' => [Uuid::fromHexToBytes($parentId), Uuid::fromHexToBytes($childId)]],
             ['ids' => Connection::PARAM_STR_ARRAY]
         );
 
@@ -55,15 +55,15 @@ class CategoryRepositoryTest extends TestCase
 
         $child = $this->connection->fetchAll(
             'SELECT * FROM category WHERE id IN (:ids)',
-            ['ids' => [$childId->getBytes()]],
+            ['ids' => [Uuid::fromHexToBytes($childId)]],
             ['ids' => Connection::PARAM_STR_ARRAY]
         );
         $child = array_shift($child);
 
-        static::assertEquals($parentId->getBytes(), $child['parent_id']);
+        static::assertEquals(Uuid::fromHexToBytes($parentId), $child['parent_id']);
 
         $result = $this->repository->delete(
-            [['id' => $parentId->getHex()]],
+            [['id' => $parentId]],
             Context::createDefaultContext()
         );
 
@@ -74,13 +74,13 @@ class CategoryRepositoryTest extends TestCase
         static::assertInstanceOf(EntityDeletedEvent::class, $event);
 
         static::assertEquals(
-            [$parentId->getHex(), $childId->getHex()],
+            [$parentId, $childId],
             $event->getIds()
         );
 
         $exists = $this->connection->fetchAll(
             'SELECT * FROM category WHERE id IN (:ids)',
-            ['ids' => [$parentId->getBytes(), $childId->getBytes()]],
+            ['ids' => [Uuid::fromHexToBytes($parentId), Uuid::fromHexToBytes($childId)]],
             ['ids' => Connection::PARAM_STR_ARRAY]
         );
 
@@ -89,31 +89,31 @@ class CategoryRepositoryTest extends TestCase
 
     public function testDeleteChildCategory(): void
     {
-        $parentId = Uuid::uuid4();
-        $childId = Uuid::uuid4();
+        $parentId = Uuid::randomHex();
+        $childId = Uuid::randomHex();
 
         $this->repository->create([
-            ['id' => $parentId->getHex(), 'name' => 'parent-1'],
-            ['id' => $childId->getHex(), 'name' => 'child', 'parentId' => $parentId->getHex()],
+            ['id' => $parentId, 'name' => 'parent-1'],
+            ['id' => $childId, 'name' => 'child', 'parentId' => $parentId],
         ], Context::createDefaultContext());
 
         $exists = $this->connection->fetchAll(
             'SELECT * FROM category WHERE id IN (:ids)',
-            ['ids' => [$parentId->getBytes(), $childId->getBytes()]],
+            ['ids' => [Uuid::fromHexToBytes($parentId), Uuid::fromHexToBytes($childId)]],
             ['ids' => Connection::PARAM_STR_ARRAY]
         );
         static::assertCount(2, $exists);
 
         $child = $this->connection->fetchAll(
             'SELECT * FROM category WHERE id IN (:ids)',
-            ['ids' => [$childId->getBytes()]],
+            ['ids' => [Uuid::fromHexToBytes($childId)]],
             ['ids' => Connection::PARAM_STR_ARRAY]
         );
         $child = array_shift($child);
-        static::assertEquals($parentId->getBytes(), $child['parent_id']);
+        static::assertEquals(Uuid::fromHexToBytes($parentId), $child['parent_id']);
 
         $result = $this->repository->delete(
-            [['id' => $childId->getHex()]],
+            [['id' => $childId]],
             Context::createDefaultContext()
         );
 
@@ -121,18 +121,18 @@ class CategoryRepositoryTest extends TestCase
         $event = $result->getEventByDefinition(CategoryDefinition::class);
 
         static::assertInstanceOf(EntityDeletedEvent::class, $event);
-        static::assertEquals([$childId->getHex()], $event->getIds());
+        static::assertEquals([$childId], $event->getIds());
 
         $exists = $this->connection->fetchAll(
             'SELECT * FROM category WHERE id IN (:ids)',
-            ['ids' => [$childId->getBytes()]],
+            ['ids' => [Uuid::fromHexToBytes($childId)]],
             ['ids' => Connection::PARAM_STR_ARRAY]
         );
         static::assertEmpty($exists);
 
         $exists = $this->connection->fetchAll(
             'SELECT * FROM category WHERE id IN (:ids)',
-            ['ids' => [$parentId->getBytes()]],
+            ['ids' => [Uuid::fromHexToBytes($parentId)]],
             ['ids' => Connection::PARAM_STR_ARRAY]
         );
         static::assertNotEmpty($exists);
@@ -140,17 +140,17 @@ class CategoryRepositoryTest extends TestCase
 
     public function testWriterConsidersDeleteParent(): void
     {
-        $parentId = Uuid::uuid4();
-        $childId = Uuid::uuid4();
+        $parentId = Uuid::randomHex();
+        $childId = Uuid::randomHex();
 
         $this->repository->create([
-            ['id' => $parentId->getHex(), 'name' => 'parent-1'],
-            ['id' => $childId->getHex(), 'name' => 'child', 'parentId' => $parentId->getHex()],
+            ['id' => $parentId, 'name' => 'parent-1'],
+            ['id' => $childId, 'name' => 'child', 'parentId' => $parentId],
         ], Context::createDefaultContext());
 
         $exists = $this->connection->fetchAll(
             'SELECT * FROM category WHERE id IN (:ids)',
-            ['ids' => [$parentId->getBytes(), $childId->getBytes()]],
+            ['ids' => [Uuid::fromHexToBytes($parentId), Uuid::fromHexToBytes($childId)]],
             ['ids' => Connection::PARAM_STR_ARRAY]
         );
 
@@ -158,15 +158,15 @@ class CategoryRepositoryTest extends TestCase
 
         $child = $this->connection->fetchAll(
             'SELECT * FROM category WHERE id IN (:ids)',
-            ['ids' => [$childId->getBytes()]],
+            ['ids' => [Uuid::fromHexToBytes($childId)]],
             ['ids' => Connection::PARAM_STR_ARRAY]
         );
         $child = array_shift($child);
 
-        static::assertEquals($parentId->getBytes(), $child['parent_id']);
+        static::assertEquals(Uuid::fromHexToBytes($parentId), $child['parent_id']);
 
         $result = $this->repository->delete([
-            ['id' => $parentId->getHex()],
+            ['id' => $parentId],
         ], Context::createDefaultContext());
 
         static::assertInstanceOf(EntityWrittenContainerEvent::class, $result);
@@ -174,8 +174,8 @@ class CategoryRepositoryTest extends TestCase
         $event = $result->getEventByDefinition(CategoryDefinition::class);
         static::assertInstanceOf(EntityDeletedEvent::class, $event);
 
-        static::assertContains($parentId->getHex(), $event->getIds());
-        static::assertContains($childId->getHex(), $event->getIds(), 'Category children id did not detected by delete');
+        static::assertContains($parentId, $event->getIds());
+        static::assertContains($childId, $event->getIds(), 'Category children id did not detected by delete');
     }
 
     public function testCreateNesting(): void

@@ -22,8 +22,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException\WriteStack
 use Shopware\Core\Framework\Pricing\Price;
 use Shopware\Core\Framework\Pricing\PriceRuleEntity;
 use Shopware\Core\Framework\Rule\Container\AndRule;
-use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Tax\TaxDefinition;
 use Shopware\Core\System\Tax\TaxEntity;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -62,29 +62,29 @@ class ProductRepositoryTest extends TestCase
 
     public function testWriteCategories(): void
     {
-        $id = Uuid::uuid4();
+        $id = Uuid::randomHex();
 
         $data = [
-            'id' => $id->getHex(),
+            'id' => $id,
             'stock' => 10,
             'name' => 'test',
             'price' => ['gross' => 15, 'net' => 10, 'linked' => false],
             'manufacturer' => ['name' => 'test'],
             'tax' => ['name' => 'test', 'taxRate' => 15],
             'categories' => [
-                ['id' => $id->getHex(), 'name' => 'asd'],
+                ['id' => $id, 'name' => 'asd'],
             ],
         ];
 
         $this->repository->create([$data], $this->context);
 
         /** @var array $record */
-        $record = $this->connection->fetchAssoc('SELECT * FROM product_category WHERE product_id = :id', ['id' => $id->getBytes()]);
+        $record = $this->connection->fetchAssoc('SELECT * FROM product_category WHERE product_id = :id', ['id' => Uuid::fromHexToBytes($id)]);
         static::assertNotEmpty($record);
-        static::assertEquals($record['product_id'], $id->getBytes());
-        static::assertEquals($record['category_id'], $id->getBytes());
+        static::assertEquals($record['product_id'], Uuid::fromHexToBytes($id));
+        static::assertEquals($record['category_id'], Uuid::fromHexToBytes($id));
 
-        $record = $this->connection->fetchAssoc('SELECT * FROM category WHERE id = :id', ['id' => $id->getBytes()]);
+        $record = $this->connection->fetchAssoc('SELECT * FROM category WHERE id = :id', ['id' => Uuid::fromHexToBytes($id)]);
         static::assertNotEmpty($record);
     }
 
@@ -239,7 +239,7 @@ class ProductRepositoryTest extends TestCase
 
     public function testReadAndWriteOfProductManufacturerAssociation(): void
     {
-        $id = Uuid::uuid4();
+        $id = Uuid::randomHex();
 
         //check nested events are triggered
         $listener = $this->getMockBuilder(CallableClass::class)->getMock();
@@ -249,7 +249,7 @@ class ProductRepositoryTest extends TestCase
 
         $this->repository->create([
             [
-                'id' => $id->getHex(),
+                'id' => $id,
                 'stock' => 10,
                 'name' => 'Test',
                 'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
@@ -264,18 +264,18 @@ class ProductRepositoryTest extends TestCase
         $this->eventDispatcher->addListener('product.loaded', $listener);
         $this->eventDispatcher->addListener('product_manufacturer.loaded', $listener);
 
-        $products = $this->repository->search(new Criteria([$id->getHex()]), Context::createDefaultContext());
+        $products = $this->repository->search(new Criteria([$id]), Context::createDefaultContext());
 
         //check only provided id loaded
         static::assertCount(1, $products);
-        static::assertTrue($products->has($id->getHex()));
+        static::assertTrue($products->has($id));
 
         /** @var ProductEntity $product */
-        $product = $products->get($id->getHex());
+        $product = $products->get($id);
 
         //check data loading is as expected
         static::assertInstanceOf(ProductEntity::class, $product);
-        static::assertEquals($id->getHex(), $product->getId());
+        static::assertEquals($id, $product->getId());
         static::assertEquals('Test', $product->getName());
 
         static::assertInstanceOf(ProductManufacturerEntity::class, $product->getManufacturer());
@@ -295,9 +295,9 @@ class ProductRepositoryTest extends TestCase
             ['id' => $ruleB, 'name' => 'test', 'payload' => new AndRule(), 'priority' => 2],
         ], Context::createDefaultContext());
 
-        $id = Uuid::uuid4();
+        $id = Uuid::randomHex();
         $data = [
-            'id' => $id->getHex(),
+            'id' => $id,
             'stock' => 10,
             'name' => 'price test',
             'price' => ['gross' => 15, 'net' => 10, 'linked' => false],
@@ -323,17 +323,17 @@ class ProductRepositoryTest extends TestCase
 
         $this->repository->create([$data], Context::createDefaultContext());
         $products = $this->repository
-            ->search(new Criteria([$id->getHex()]), Context::createDefaultContext())
+            ->search(new Criteria([$id]), Context::createDefaultContext())
             ->getEntities();
 
         static::assertInstanceOf(ProductCollection::class, $products);
         static::assertCount(1, $products);
-        static::assertTrue($products->has($id->getHex()));
+        static::assertTrue($products->has($id));
 
-        $product = $products->get($id->getHex());
+        $product = $products->get($id);
 
         /* @var ProductEntity $product */
-        static::assertEquals($id->getHex(), $product->getId());
+        static::assertEquals($id, $product->getId());
 
         static::assertEquals(new Price(10, 15, false), $product->getPrice());
         static::assertCount(2, $product->getPriceRules());
@@ -350,9 +350,9 @@ class ProductRepositoryTest extends TestCase
 
     public function testPriceRulesSorting(): void
     {
-        $id = Uuid::uuid4();
-        $id2 = Uuid::uuid4();
-        $id3 = Uuid::uuid4();
+        $id = Uuid::randomHex();
+        $id2 = Uuid::randomHex();
+        $id3 = Uuid::randomHex();
 
         $ruleA = Uuid::randomHex();
 
@@ -364,7 +364,7 @@ class ProductRepositoryTest extends TestCase
 
         $data = [
             [
-                'id' => $id->getHex(),
+                'id' => $id,
                 'name' => 'price test 1',
                 'stock' => 10,
                 'price' => ['gross' => 500, 'net' => 400, 'linked' => false],
@@ -381,7 +381,7 @@ class ProductRepositoryTest extends TestCase
                 ],
             ],
             [
-                'id' => $id2->getHex(),
+                'id' => $id2,
                 'name' => 'price test 2',
                 'stock' => 10,
                 'price' => ['gross' => 500, 'net' => 400, 'linked' => false],
@@ -398,7 +398,7 @@ class ProductRepositoryTest extends TestCase
                 ],
             ],
             [
-                'id' => $id3->getHex(),
+                'id' => $id3,
                 'name' => 'price test 3',
                 'stock' => 10,
                 'price' => ['gross' => 500, 'net' => 400, 'linked' => false],
@@ -427,7 +427,7 @@ class ProductRepositoryTest extends TestCase
         $products = $this->repository->searchIds($criteria, $context);
 
         static::assertEquals(
-            [$id2->getHex(), $id3->getHex(), $id->getHex()],
+            [$id2, $id3, $id],
             $products->getIds()
         );
 
@@ -439,7 +439,7 @@ class ProductRepositoryTest extends TestCase
         $products = $this->repository->searchIds($criteria, $context);
 
         static::assertEquals(
-            [$id->getHex(), $id3->getHex(), $id2->getHex()],
+            [$id, $id3, $id2],
             $products->getIds()
         );
     }

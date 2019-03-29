@@ -450,7 +450,7 @@ class VersionManager
     private function writeAuditLog(array $writtenEvents, WriteContext $writeContext, string $action, ?string $versionId = null): void
     {
         $versionId = $versionId ?? $writeContext->getContext()->getVersionId();
-        $commitId = Uuid::uuid4();
+        $commitId = Uuid::randomBytes();
 
         $date = (new \DateTime())->format(Defaults::DATE_FORMAT);
 
@@ -458,15 +458,15 @@ class VersionManager
         $insert = new InsertCommand(
             VersionCommitDefinition::class,
             [
-                'id' => $commitId->getBytes(),
+                'id' => $commitId,
                 'user_id' => $userId,
                 'version_id' => Uuid::fromHexToBytes($versionId),
                 'created_at' => $date,
             ],
-            ['id' => $commitId->getBytes()],
+            ['id' => $commitId],
             new EntityExistence(
                 VersionCommitDefinition::class,
-                ['id' => $commitId->getBytes()],
+                ['id' => $commitId],
                 false,
                 false,
                 false,
@@ -504,7 +504,7 @@ class VersionManager
                     VersionCommitDataDefinition::class,
                     [
                         'id' => $id,
-                        'version_commit_id' => $commitId->getBytes(),
+                        'version_commit_id' => $commitId,
                         'entity_name' => $entityName,
                         'entity_id' => JsonFieldSerializer::encodeJson($primary),
                         'payload' => JsonFieldSerializer::encodeJson($payload),

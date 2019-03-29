@@ -7,8 +7,8 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\Api\Controller\SyncController;
-use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -28,15 +28,15 @@ class SyncControllerTest extends TestCase
 
     public function testMultipleProductInsert(): void
     {
-        $id1 = Uuid::uuid4();
-        $id2 = Uuid::uuid4();
+        $id1 = Uuid::randomHex();
+        $id2 = Uuid::randomHex();
         $data = [
             [
                 'action' => SyncController::ACTION_UPSERT,
                 'entity' => ProductDefinition::getEntityName(),
                 'payload' => [
                     [
-                        'id' => $id1->getHex(),
+                        'id' => $id1,
                         'stock' => 1,
                         'manufacturer' => ['name' => 'test'],
                         'tax' => ['name' => 'test', 'taxRate' => 15],
@@ -44,7 +44,7 @@ class SyncControllerTest extends TestCase
                         'price' => ['gross' => 50, 'net' => 25, 'linked' => false],
                     ],
                     [
-                        'id' => $id2->getHex(),
+                        'id' => $id2,
                         'stock' => 1,
                         'manufacturer' => ['name' => 'test'],
                         'name' => 'CREATE-2',
@@ -60,16 +60,16 @@ class SyncControllerTest extends TestCase
 
         static::assertSame(200, $response->getStatusCode(), $response->getContent());
 
-        $this->getClient()->request('GET', '/api/v' . PlatformRequest::API_VERSION . '/product/' . $id1->getHex());
+        $this->getClient()->request('GET', '/api/v' . PlatformRequest::API_VERSION . '/product/' . $id1);
         static::assertSame(Response::HTTP_OK, $this->getClient()->getResponse()->getStatusCode());
 
-        $this->getClient()->request('GET', '/api/v' . PlatformRequest::API_VERSION . '/product/' . $id2->getHex());
+        $this->getClient()->request('GET', '/api/v' . PlatformRequest::API_VERSION . '/product/' . $id2);
         static::assertSame(Response::HTTP_OK, $this->getClient()->getResponse()->getStatusCode());
 
-        $this->getClient()->request('DELETE', '/api/v' . PlatformRequest::API_VERSION . '/product/' . $id1->getHex());
+        $this->getClient()->request('DELETE', '/api/v' . PlatformRequest::API_VERSION . '/product/' . $id1);
         static::assertSame(Response::HTTP_NO_CONTENT, $this->getClient()->getResponse()->getStatusCode());
 
-        $this->getClient()->request('DELETE', '/api/v' . PlatformRequest::API_VERSION . '/product/' . $id2->getHex());
+        $this->getClient()->request('DELETE', '/api/v' . PlatformRequest::API_VERSION . '/product/' . $id2);
         static::assertSame(Response::HTTP_NO_CONTENT, $this->getClient()->getResponse()->getStatusCode());
     }
 
@@ -237,8 +237,8 @@ class SyncControllerTest extends TestCase
 
     public function testMultiDelete(): void
     {
-        $product = Uuid::uuid4();
-        $product2 = Uuid::uuid4();
+        $product = Uuid::randomHex();
+        $product2 = Uuid::randomHex();
 
         $data = [
             [
@@ -246,7 +246,7 @@ class SyncControllerTest extends TestCase
                 'entity' => ProductDefinition::getEntityName(),
                 'payload' => [
                     [
-                        'id' => $product->getHex(),
+                        'id' => $product,
                         'stock' => 1,
                         'name' => 'PROD-1',
                         'tax' => ['name' => 'test', 'taxRate' => 15],
@@ -254,7 +254,7 @@ class SyncControllerTest extends TestCase
                         'manufacturer' => ['name' => 'test'],
                     ],
                     [
-                        'id' => $product2->getHex(),
+                        'id' => $product2,
                         'stock' => 1,
                         'tax' => ['name' => 'test', 'taxRate' => 15],
                         'name' => 'PROD-2',
@@ -269,7 +269,7 @@ class SyncControllerTest extends TestCase
 
         $exists = $this->connection->fetchAll(
             'SELECT * FROM product WHERE id IN(:id)',
-            ['id' => [$product->getBytes(), $product2->getBytes()]],
+            ['id' => [Uuid::fromHexToBytes($product), Uuid::fromHexToBytes($product2)]],
             ['id' => Connection::PARAM_STR_ARRAY]
         );
         static::assertCount(2, $exists);
@@ -279,8 +279,8 @@ class SyncControllerTest extends TestCase
                 'action' => SyncController::ACTION_DELETE,
                 'entity' => ProductDefinition::getEntityName(),
                 'payload' => [
-                    ['id' => $product->getHex()],
-                    ['id' => $product2->getHex()],
+                    ['id' => $product],
+                    ['id' => $product2],
                 ],
             ],
         ];
@@ -289,7 +289,7 @@ class SyncControllerTest extends TestCase
 
         $exists = $this->connection->fetchAll(
             'SELECT * FROM product WHERE id IN (:id)',
-            ['id' => [$product->getBytes(), $product2->getBytes()]],
+            ['id' => [Uuid::fromHexToBytes($product), Uuid::fromHexToBytes($product2)]],
             ['id' => Connection::PARAM_STR_ARRAY]
         );
         static::assertEmpty($exists);

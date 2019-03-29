@@ -10,9 +10,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriterInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException\InvalidFieldException;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException\WriteStackException;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
-use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\ListDefinition;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelType\SalesChannelTypeDefinition;
 
 class ListFieldTest extends TestCase
@@ -50,11 +50,11 @@ EOF;
 
     public function testNullableListField(): void
     {
-        $id = Uuid::uuid4();
+        $id = Uuid::randomHex();
         $context = $this->createWriteContext();
 
         $data = [
-            'id' => $id->getHex(),
+            'id' => $id,
             'data' => null,
         ];
 
@@ -63,17 +63,17 @@ EOF;
         $data = $this->connection->fetchAll('SELECT * FROM `_test_nullable`');
 
         static::assertCount(1, $data);
-        static::assertEquals($id->getBytes(), $data[0]['id']);
+        static::assertEquals(Uuid::fromHexToBytes($id), $data[0]['id']);
         static::assertNull($data[0]['data']);
     }
 
     public function testEmptyList(): void
     {
-        $id = Uuid::uuid4();
+        $id = Uuid::randomHex();
         $context = $this->createWriteContext();
 
         $data = [
-            'id' => $id->getHex(),
+            'id' => $id,
             'data' => [],
         ];
 
@@ -82,17 +82,17 @@ EOF;
         $data = $this->connection->fetchAll('SELECT * FROM `_test_nullable`');
 
         static::assertCount(1, $data);
-        static::assertEquals($id->getBytes(), $data[0]['id']);
+        static::assertEquals(Uuid::fromHexToBytes($id), $data[0]['id']);
         static::assertEquals('[]', $data[0]['data']);
     }
 
     public function testWithData(): void
     {
-        $id = Uuid::uuid4();
+        $id = Uuid::randomHex();
         $context = $this->createWriteContext();
 
         $data = [
-            'id' => $id->getHex(),
+            'id' => $id,
             'data' => ['foo', 'bar', 'loo'],
         ];
 
@@ -101,17 +101,17 @@ EOF;
         $data = $this->connection->fetchAll('SELECT * FROM `_test_nullable`');
 
         static::assertCount(1, $data);
-        static::assertEquals($id->getBytes(), $data[0]['id']);
+        static::assertEquals(Uuid::fromHexToBytes($id), $data[0]['id']);
         static::assertEquals('["foo","bar","loo"]', $data[0]['data']);
     }
 
     public function testListType(): void
     {
-        $id = Uuid::uuid4();
+        $id = Uuid::randomHex();
         $context = $this->createWriteContext();
 
         $data = [
-            'id' => $id->getHex(),
+            'id' => $id,
             'data' => [false, 10, 'string', 10.123],
         ];
 

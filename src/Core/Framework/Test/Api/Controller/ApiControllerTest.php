@@ -8,10 +8,10 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Rule\Container\AndRule;
-use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\FilesystemBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -222,12 +222,12 @@ EOF;
 
     public function testDelete(): void
     {
-        $id = Uuid::uuid4();
+        $id = Uuid::randomHex();
 
         $data = [
-            'id' => $id->getHex(),
+            'id' => $id,
             'stock' => 1,
-            'name' => $id->getHex(),
+            'name' => $id,
             'tax' => ['name' => 'test', 'taxRate' => 10],
             'manufacturer' => ['name' => 'test'],
             'price' => ['gross' => 50, 'net' => 25, 'linked' => false],
@@ -237,26 +237,26 @@ EOF;
         $response = $this->getClient()->getResponse();
         static::assertSame(Response::HTTP_NO_CONTENT, $this->getClient()->getResponse()->getStatusCode(), $this->getClient()->getResponse()->getContent());
         static::assertNotEmpty($response->headers->get('Location'));
-        static::assertEquals('http://localhost/api/v' . PlatformRequest::API_VERSION . '/product/' . $id->getHex(), $response->headers->get('Location'));
+        static::assertEquals('http://localhost/api/v' . PlatformRequest::API_VERSION . '/product/' . $id, $response->headers->get('Location'));
 
-        $this->assertEntityExists($this->getClient(), 'product', $id->getHex());
+        $this->assertEntityExists($this->getClient(), 'product', $id);
 
-        $this->getClient()->request('DELETE', '/api/v' . PlatformRequest::API_VERSION . '/product/' . $id->getHex());
+        $this->getClient()->request('DELETE', '/api/v' . PlatformRequest::API_VERSION . '/product/' . $id);
         static::assertSame(Response::HTTP_NO_CONTENT, $this->getClient()->getResponse()->getStatusCode(), $this->getClient()->getResponse()->getContent());
 
-        $this->assertEntityNotExists($this->getClient(), 'product', $id->getHex());
+        $this->assertEntityNotExists($this->getClient(), 'product', $id);
     }
 
     public function testDeleteOneToMany(): void
     {
-        $id = Uuid::uuid4();
-        $stateId = Uuid::uuid4();
+        $id = Uuid::randomHex();
+        $stateId = Uuid::randomHex();
 
         $data = [
-            'id' => $id->getHex(),
-            'name' => $id->getHex(),
+            'id' => $id,
+            'name' => $id,
             'states' => [
-                ['id' => $stateId->getHex(), 'shortCode' => 'test', 'name' => 'test'],
+                ['id' => $stateId, 'shortCode' => 'test', 'name' => 'test'],
             ],
         ];
 
@@ -264,16 +264,16 @@ EOF;
         $response = $this->getClient()->getResponse();
         static::assertSame(Response::HTTP_NO_CONTENT, $this->getClient()->getResponse()->getStatusCode(), $this->getClient()->getResponse()->getContent());
         static::assertNotEmpty($response->headers->get('Location'));
-        static::assertEquals('http://localhost/api/v' . PlatformRequest::API_VERSION . '/country/' . $id->getHex(), $response->headers->get('Location'));
+        static::assertEquals('http://localhost/api/v' . PlatformRequest::API_VERSION . '/country/' . $id, $response->headers->get('Location'));
 
-        $this->assertEntityExists($this->getClient(), 'country', $id->getHex());
-        $this->assertEntityExists($this->getClient(), 'country-state', $stateId->getHex());
+        $this->assertEntityExists($this->getClient(), 'country', $id);
+        $this->assertEntityExists($this->getClient(), 'country-state', $stateId);
 
-        $this->getClient()->request('DELETE', '/api/v' . PlatformRequest::API_VERSION . '/country/' . $id->getHex() . '/states/' . $stateId->getHex(), $data);
+        $this->getClient()->request('DELETE', '/api/v' . PlatformRequest::API_VERSION . '/country/' . $id . '/states/' . $stateId, $data);
         static::assertSame(Response::HTTP_NO_CONTENT, $this->getClient()->getResponse()->getStatusCode(), $this->getClient()->getResponse()->getContent());
 
-        $this->assertEntityExists($this->getClient(), 'country', $id->getHex());
-        $this->assertEntityNotExists($this->getClient(), 'country-state', $stateId->getHex());
+        $this->assertEntityExists($this->getClient(), 'country', $id);
+        $this->assertEntityNotExists($this->getClient(), 'country-state', $stateId);
     }
 
     public function testDeleteManyToOne(): void
@@ -307,18 +307,18 @@ EOF;
 
     public function testDeleteManyToMany(): void
     {
-        $id = Uuid::uuid4();
-        $category = Uuid::uuid4();
+        $id = Uuid::randomHex();
+        $category = Uuid::randomHex();
 
         $data = [
-            'id' => $id->getHex(),
+            'id' => $id,
             'stock' => 1,
             'name' => 'Test',
             'price' => ['gross' => 50, 'net' => 25, 'linked' => false],
             'tax' => ['name' => 'test', 'taxRate' => 10],
             'manufacturer' => ['name' => 'test'],
             'categories' => [
-                ['id' => $category->getHex(), 'name' => 'Test'],
+                ['id' => $category, 'name' => 'Test'],
             ],
         ];
 
@@ -326,43 +326,48 @@ EOF;
         $response = $this->getClient()->getResponse();
         static::assertSame(Response::HTTP_NO_CONTENT, $this->getClient()->getResponse()->getStatusCode(), $this->getClient()->getResponse()->getContent());
         static::assertNotEmpty($response->headers->get('Location'));
-        static::assertEquals('http://localhost/api/v' . PlatformRequest::API_VERSION . '/product/' . $id->getHex(), $response->headers->get('Location'));
+        static::assertEquals('http://localhost/api/v' . PlatformRequest::API_VERSION . '/product/' . $id, $response->headers->get('Location'));
 
-        $this->assertEntityExists($this->getClient(), 'product', $id->getHex());
-        $this->assertEntityExists($this->getClient(), 'category', $category->getHex());
+        $this->assertEntityExists($this->getClient(), 'product', $id);
+        $this->assertEntityExists($this->getClient(), 'category', $category);
 
-        $this->getClient()->request('DELETE', '/api/v' . PlatformRequest::API_VERSION . '/product/' . $id->getHex() . '/categories/' . $category->getHex());
+        $this->getClient()->request('DELETE', '/api/v' . PlatformRequest::API_VERSION . '/product/' . $id . '/categories/' . $category);
         static::assertSame(Response::HTTP_NO_CONTENT, $this->getClient()->getResponse()->getStatusCode(), $this->getClient()->getResponse()->getContent());
 
-        $a = $this->getContainer()->get(Connection::class)->executeQuery('SELECT * FROM product_category WHERE product_id = :pid AND category_id = :cid', ['pid' => $id->getBytes(), 'cid' => $category->getBytes()])->fetchAll();
+        $a = $this->getContainer()
+            ->get(Connection::class)
+            ->executeQuery(
+                'SELECT * FROM product_category WHERE product_id = :pid AND category_id = :cid',
+                ['pid' => Uuid::fromHexToBytes($id), 'cid' => Uuid::fromHexToBytes($category)]
+            )->fetchAll();
         static::assertEmpty($a);
 
-        $this->assertEntityExists($this->getClient(), 'product', $id->getHex());
-        $this->assertEntityExists($this->getClient(), 'category', $category->getHex());
+        $this->assertEntityExists($this->getClient(), 'product', $id);
+        $this->assertEntityExists($this->getClient(), 'category', $category);
     }
 
     public function testResponseDataTypeOnWrite(): void
     {
-        $id = Uuid::uuid4();
+        $id = Uuid::randomHex();
 
-        $data = ['id' => $id->getHex(), 'name' => $id->getHex(), 'taxRate' => 50];
+        $data = ['id' => $id, 'name' => $id, 'taxRate' => 50];
 
         // create without response
         $this->getClient()->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/tax', $data);
         $response = $this->getClient()->getResponse();
         static::assertSame(Response::HTTP_NO_CONTENT, $this->getClient()->getResponse()->getStatusCode(), $this->getClient()->getResponse()->getContent());
         static::assertNotEmpty($response->headers->get('Location'));
-        static::assertEquals('http://localhost/api/v' . PlatformRequest::API_VERSION . '/tax/' . $id->getHex(), $response->headers->get('Location'));
+        static::assertEquals('http://localhost/api/v' . PlatformRequest::API_VERSION . '/tax/' . $id, $response->headers->get('Location'));
 
         // update without response
-        $this->getClient()->request('PATCH', '/api/v' . PlatformRequest::API_VERSION . '/tax/' . $id->getHex(), ['name' => 'foo']);
+        $this->getClient()->request('PATCH', '/api/v' . PlatformRequest::API_VERSION . '/tax/' . $id, ['name' => 'foo']);
         $response = $this->getClient()->getResponse();
         static::assertSame(Response::HTTP_NO_CONTENT, $this->getClient()->getResponse()->getStatusCode());
         static::assertNotEmpty($response->headers->get('Location'));
-        static::assertEquals('http://localhost/api/v' . PlatformRequest::API_VERSION . '/tax/' . $id->getHex(), $response->headers->get('Location'));
+        static::assertEquals('http://localhost/api/v' . PlatformRequest::API_VERSION . '/tax/' . $id, $response->headers->get('Location'));
 
         // with response
-        $this->getClient()->request('PATCH', '/api/v' . PlatformRequest::API_VERSION . '/tax/' . $id->getHex() . '?_response=1', ['name' => 'foo']);
+        $this->getClient()->request('PATCH', '/api/v' . PlatformRequest::API_VERSION . '/tax/' . $id . '?_response=1', ['name' => 'foo']);
         $response = $this->getClient()->getResponse();
         static::assertSame(Response::HTTP_OK, $this->getClient()->getResponse()->getStatusCode());
         static::assertNull($response->headers->get('Location'));

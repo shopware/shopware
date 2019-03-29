@@ -6,8 +6,8 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\ProductStream\ProductStreamDefinition;
 use Shopware\Core\Framework\Api\Controller\SyncController;
-use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
 
 class ProductStreamSyncTest extends TestCase
@@ -26,19 +26,19 @@ class ProductStreamSyncTest extends TestCase
 
     public function testSyncProductStream(): void
     {
-        $id1 = Uuid::uuid4();
-        $id2 = Uuid::uuid4();
+        $id1 = Uuid::randomHex();
+        $id2 = Uuid::randomHex();
         $data = [
             [
                 'action' => SyncController::ACTION_UPSERT,
                 'entity' => ProductStreamDefinition::getEntityName(),
                 'payload' => [
                     [
-                        'id' => $id1->getHex(),
+                        'id' => $id1,
                         'name' => 'Test stream',
                     ],
                     [
-                        'id' => $id2->getHex(),
+                        'id' => $id2,
                         'name' => 'Test stream - 2',
                     ],
                 ],
@@ -50,7 +50,9 @@ class ProductStreamSyncTest extends TestCase
 
         static::assertSame(200, $response->getStatusCode(), $response->getContent());
 
-        $result = $this->connection->executeQuery('SELECT * from product_stream inner join product_stream_translation on product_stream.id = product_stream_translation.product_stream_id order by name');
+        $result = $this->connection
+            ->executeQuery('SELECT * from product_stream inner join product_stream_translation on product_stream.id = product_stream_translation.product_stream_id order by name');
+
         static::assertEquals('Test stream', $result->fetch()['name']);
         static::assertEquals('Test stream - 2', $result->fetch()['name']);
     }

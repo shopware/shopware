@@ -124,7 +124,7 @@ class Generator extends TestCase
 
         return new CheckoutContext(
             $baseContext,
-            Uuid::uuid4()->toString(),
+            Uuid::randomHex(),
             $salesChannel,
             $currency,
             $currentCustomerGroup,

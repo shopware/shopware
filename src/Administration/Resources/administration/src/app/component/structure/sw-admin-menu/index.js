@@ -28,6 +28,7 @@ export default {
             flyoutLabel: '',
             subMenuOpen: false,
             scrollbarOffset: '',
+            isUserLoading: true,
             userProfile: {},
             user: {}
         };
@@ -127,15 +128,21 @@ export default {
             const contextService = initService.contextService;
             const currentUser = contextService.currentUser;
 
+            this.isUserLoading = true;
             if (Object.keys(currentUser).length <= 0) {
                 this.userService.getUser().then((response) => {
                     this.userProfile = response.data;
                     this.user = this.userStore.getById(this.userProfile.id);
+                    this.isUserLoading = false;
                 });
                 return true;
             }
             this.userProfile = currentUser;
-            this.user = this.userStore.getById(this.userProfile.id);
+            this.userStore.getByIdAsync(this.userProfile.id).then((user) => {
+                this.user = user;
+                this.isUserLoading = false;
+            });
+
 
             return true;
         },

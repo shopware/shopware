@@ -70,6 +70,8 @@
                          @click="onToggleUserActions"
                          @mouseenter="openUserActions">
 
+                            <sw-loader size="32px" v-if="isUserLoading"></sw-loader>
+
                         {% block sw_admin_menu_user_actions_avatar %}
                             <sw-avatar class="sw-admin-menu__avatar"
                                        :imageUrl="avatarUrl"

@@ -93,7 +93,9 @@ module.exports = {
             },
             {
                 test: /\.(png|jpe?g|gif|svg)(\?.*)?$/,
-                exclude: resolve('src/app/assets/icons/svg'),
+                exclude: [
+                    resolve('src/app/assets/icons/svg')
+                ],
                 loader: 'url-loader',
                 options: {
                     limit: 10000,

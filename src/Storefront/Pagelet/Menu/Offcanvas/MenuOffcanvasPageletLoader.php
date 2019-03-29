@@ -6,7 +6,7 @@ use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Content\Navigation\NavigationEntity;
 use Shopware\Core\Content\Navigation\Service\NavigationTreeLoader;
 use Shopware\Core\Framework\DataAbstractionLayer\Util\Tree\Tree;
-use Shopware\Core\Framework\Exception\MissingParameterException;
+use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\Framework\Routing\InternalRequest;
 use Shopware\Storefront\Framework\Page\PageLoaderInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -35,7 +35,7 @@ class MenuOffcanvasPageletLoader implements PageLoaderInterface
         $navigationId = $request->optionalGet('navigationId', $activeId);
 
         if (!$navigationId) {
-            throw new MissingParameterException('navigationId');
+            throw new MissingRequestParameterException('navigationId');
         }
 
         $navigation = $this->getCategoryTree((string) $navigationId, $context);

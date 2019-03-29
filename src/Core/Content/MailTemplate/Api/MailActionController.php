@@ -7,7 +7,7 @@ use Shopware\Core\Content\MailTemplate\Service\MailBuilder;
 use Shopware\Core\Content\MailTemplate\Service\MailSender;
 use Shopware\Core\Content\MailTemplate\Service\MessageFactory;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Exception\MissingParameterException;
+use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\Framework\Routing\InternalRequest;
 use Shopware\Core\Framework\Twig\Exception\StringTemplateRenderingException;
 use Shopware\Core\Framework\Twig\StringTemplateRenderer;
@@ -50,7 +50,7 @@ class MailActionController extends AbstractController
     /**
      * @Route("/api/v{version}/_action/mail-template/send", name="api.action.mail_template.send", methods={"POST"})
      *
-     * @throws MissingParameterException
+     * @throws MissingRequestParameterException
      * @throws StringTemplateRenderingException
      * @throws MailTransportFailedException
      */

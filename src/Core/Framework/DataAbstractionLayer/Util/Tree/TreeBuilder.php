@@ -3,35 +3,23 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer\Util\Tree;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
-use Shopware\Core\Framework\Exception\InvalidParameterException;
 
 class TreeBuilder
 {
     /**
-     * @throws InvalidParameterException
-     *
      * @return TreeItem[]
      */
-    public static function buildTree(?string $parentId, EntityCollection $entities): array
+    public function buildTree(?string $parentId, EntityCollection $entities): array
     {
-        $result = [];
-
-        /** @var TreeAwareInterface $entity */
-        foreach ($entities as $entity) {
-            if (!$entity instanceof TreeAwareInterface) {
-                throw new InvalidParameterException(sprintf('Expected instance of %s got %s', TreeAwareInterface::class, get_class($entity)));
-            }
-
+        return $entities->fmap(function (TreeAwareInterface $entity) use ($parentId, $entities): ?TreeItem {
             if ($entity->getParentId() !== $parentId) {
-                continue;
+                return null;
             }
 
-            $result[] = new TreeItem(
+            return new TreeItem(
                 $entity,
-                self::buildTree($entity->getId(), $entities)
+                $this->buildTree($entity->getId(), $entities)
             );
-        }
-
-        return $result;
+        });
     }
 }

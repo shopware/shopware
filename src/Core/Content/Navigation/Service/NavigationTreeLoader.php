@@ -6,6 +6,7 @@ use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Content\Navigation\Exception\NavigationNotFoundException;
 use Shopware\Core\Content\Navigation\NavigationEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -15,20 +16,27 @@ use Shopware\Core\Framework\DataAbstractionLayer\Util\Tree\TreeBuilder;
 
 class NavigationTreeLoader
 {
-    /** @var EntityRepositoryInterface $navigationRepository */
+    /**
+     * @var EntityRepositoryInterface
+     */
     private $navigationRepository;
 
-    public function __construct(EntityRepositoryInterface $repository)
+    /**
+     * @var TreeBuilder
+     */
+    private $treeBuilder;
+
+    public function __construct(EntityRepositoryInterface $repository, TreeBuilder $treeBuilder)
     {
         $this->navigationRepository = $repository;
+        $this->treeBuilder = $treeBuilder;
     }
 
     /**
      * Returns the full navigation tree. The provided active id will be marked as selected
      *
      * @throws NavigationNotFoundException
-     * @throws \Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException
-     * @throws \Shopware\Core\Framework\Exception\InvalidParameterException
+     * @throws InconsistentCriteriaIdsException
      */
     public function load(string $activeId, CheckoutContext $context): ?Tree
     {
@@ -45,8 +53,7 @@ class NavigationTreeLoader
      * Returns the navigation tree level for the provided navigation id.
      *
      * @throws NavigationNotFoundException
-     * @throws \Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException
-     * @throws \Shopware\Core\Framework\Exception\InvalidParameterException
+     * @throws InconsistentCriteriaIdsException
      */
     public function loadLevel(string $navigationId, CheckoutContext $context): ?Tree
     {
@@ -68,19 +75,16 @@ class NavigationTreeLoader
         return $this->buildTree($parentId, $navigations, $active);
     }
 
-    /**
-     * @throws \Shopware\Core\Framework\Exception\InvalidParameterException
-     */
     private function buildTree(?string $parentId, EntitySearchResult $navigations, NavigationEntity $active): Tree
     {
-        $tree = TreeBuilder::buildTree($parentId, $navigations);
+        $tree = $this->treeBuilder->buildTree($parentId, $navigations);
 
         return new Tree($active, $tree);
     }
 
     /**
      * @throws NavigationNotFoundException
-     * @throws \Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException
+     * @throws InconsistentCriteriaIdsException
      */
     private function loadActive(string $activeId, CheckoutContext $context): NavigationEntity
     {

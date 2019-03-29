@@ -17,7 +17,7 @@ use Shopware\Core\Framework\Api\Response\Type\Storefront\JsonType;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Exception\MissingParameterException;
+use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\PlatformRequest;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -114,7 +114,7 @@ class StorefrontCartController extends AbstractController
     /**
      * @Route("/storefront-api/v{version}/checkout/cart/line-item/{id}", name="storefront-api.checkout.cart.line-item.add", methods={"POST"})
      *
-     * @throws MissingParameterException
+     * @throws MissingRequestParameterException
      * @throws MixedLineItemTypeException
      * @throws InvalidQuantityException
      * @throws LineItemCoverNotFoundException
@@ -132,7 +132,7 @@ class StorefrontCartController extends AbstractController
         $request->request->remove('quantity');
 
         if (!$type) {
-            throw new MissingParameterException('type');
+            throw new MissingRequestParameterException('type');
         }
 
         $lineItem = new LineItem($id, $type, $quantity);

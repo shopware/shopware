@@ -6,7 +6,7 @@ use Shopware\Core\Checkout\Cart\Exception\CartTokenNotFoundException;
 use Shopware\Core\Checkout\Cart\Exception\OrderNotFoundException;
 use Shopware\Core\Checkout\Cart\Storefront\CartService;
 use Shopware\Core\Checkout\CheckoutContext;
-use Shopware\Core\Framework\Exception\InvalidParameterException;
+use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\Framework\Routing\InternalRequest;
 use Shopware\Storefront\Framework\Controller\StorefrontController;
 use Shopware\Storefront\Framework\Page\PageLoaderInterface;
@@ -17,6 +17,7 @@ use Shopware\Storefront\Page\Checkout\Register\CheckoutRegisterPageLoader;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Exception\InvalidParameterException;
 
 class CheckoutPageController extends StorefrontController
 {
@@ -104,7 +105,7 @@ class CheckoutPageController extends StorefrontController
      *
      * @throws OrderNotFoundException
      * @throws InvalidParameterException
-     * @throws \Shopware\Core\Framework\Exception\MissingParameterException
+     * @throws MissingRequestParameterException
      */
     public function finish(InternalRequest $request, CheckoutContext $context): Response
     {

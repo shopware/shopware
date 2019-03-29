@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Framework\Routing;
 
-use Shopware\Core\Framework\Exception\MissingParameterException;
+use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Symfony\Component\HttpFoundation\Request;
 
 class InternalRequest
@@ -43,21 +43,30 @@ class InternalRequest
         );
     }
 
+    /**
+     * @throws MissingRequestParameterException
+     */
     public function requirePost(string $key)
     {
         return $this->_get($key, $this->post);
     }
 
+    /**
+     * @throws MissingRequestParameterException
+     */
     public function requireGet(string $key)
     {
         try {
             return $this->_get($key, $this->query);
-        } catch (MissingParameterException $e) {
+        } catch (MissingRequestParameterException $e) {
         }
 
         return $this->_get($key, $this->routing);
     }
 
+    /**
+     * @throws MissingRequestParameterException
+     */
     public function requireRouting(string $key)
     {
         return $this->_get($key, $this->routing);
@@ -67,12 +76,12 @@ class InternalRequest
     {
         try {
             return $this->_get($key, $this->query);
-        } catch (MissingParameterException $e) {
+        } catch (MissingRequestParameterException $e) {
         }
 
         try {
             return $this->_get($key, $this->routing);
-        } catch (MissingParameterException $e) {
+        } catch (MissingRequestParameterException $e) {
         }
 
         return $default;
@@ -82,7 +91,7 @@ class InternalRequest
     {
         try {
             return $this->_get($key, $this->post);
-        } catch (MissingParameterException $e) {
+        } catch (MissingRequestParameterException $e) {
         }
 
         return $default;
@@ -92,7 +101,7 @@ class InternalRequest
     {
         try {
             return $this->_get($key, $this->routing);
-        } catch (MissingParameterException $e) {
+        } catch (MissingRequestParameterException $e) {
         }
 
         return $default;
@@ -144,7 +153,7 @@ class InternalRequest
     }
 
     /**
-     * @throws MissingParameterException
+     * @throws MissingRequestParameterException
      */
     private function _get(string $key, array $values)
     {
@@ -153,6 +162,6 @@ class InternalRequest
             return $values[$key];
         }
 
-        throw new MissingParameterException($key);
+        throw new MissingRequestParameterException($key);
     }
 }

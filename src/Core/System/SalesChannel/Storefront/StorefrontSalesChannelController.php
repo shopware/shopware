@@ -13,7 +13,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\Exception\InvalidParameterException;
+use Shopware\Core\Framework\Routing\Exception\InvalidRequestParameterException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Country\Aggregate\CountryState\CountryStateDefinition;
 use Shopware\Core\System\Country\CountryDefinition;
@@ -123,12 +123,12 @@ class StorefrontSalesChannelController extends AbstractController
     /**
      * @Route("/storefront-api/v{version}/country/{countryId}/state", name="storefront-api.country.state.list", methods={"GET"})
      *
-     * @throws InvalidParameterException
+     * @throws InvalidRequestParameterException
      */
     public function getCountryStates(string $countryId, Request $request, CheckoutContext $context, ResponseFactoryInterface $responseFactory): Response
     {
         if (!Uuid::isValid($countryId)) {
-            throw new InvalidParameterException($countryId);
+            throw new InvalidRequestParameterException('countryId');
         }
         $limit = $request->query->getInt('limit', 10);
         $page = $request->query->getInt('page', 1);

@@ -1,11 +1,11 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\Exception;
+namespace Shopware\Core\Framework\Routing\Exception;
 
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
-class InvalidParameterException extends ShopwareHttpException
+class InvalidRequestParameterException extends ShopwareHttpException
 {
     public function __construct(string $name)
     {
@@ -17,7 +17,7 @@ class InvalidParameterException extends ShopwareHttpException
 
     public function getErrorCode(): string
     {
-        return 'FRAMEWORK__INVALID_PARAMETER';
+        return 'FRAMEWORK__INVALID_REQUEST_PARAMETER';
     }
 
     public function getStatusCode(): int

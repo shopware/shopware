@@ -1,6 +1,7 @@
 import { Module } from 'src/core/shopware';
 import './component/sw-mail-template-list';
 import './component/sw-mail-header-footer-list';
+import './component/sw-mail-template-media-form';
 import './page/sw-mail-template-detail';
 import './page/sw-mail-template-create';
 import './page/sw-mail-template-index';

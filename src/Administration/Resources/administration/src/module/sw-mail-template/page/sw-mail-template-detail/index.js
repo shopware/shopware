@@ -11,7 +11,7 @@ Component.register('sw-mail-template-detail', {
         Mixin.getByName('notification')
     ],
 
-    inject: ['mailService'],
+    inject: ['mailService', 'mediaService'],
 
     data() {
         return {
@@ -32,6 +32,10 @@ Component.register('sw-mail-template-detail', {
 
         salesChannelAssociationStore() {
             return this.mailTemplate.getAssociation('salesChannels');
+        },
+
+        mailTemplateMediaStore() {
+            return this.mailTemplate.getAssociation('media');
         }
     },
 
@@ -51,10 +55,17 @@ Component.register('sw-mail-template-detail', {
                 this.mailTemplateId = this.$route.params.id;
                 this.loadEntityData();
             }
+
+            this.$root.$on('sw-mail-template-media-form-open-sidebar', this.openMediaSidebar);
         },
 
         loadEntityData() {
             this.mailTemplate = this.mailTemplateStore.getById(this.mailTemplateId);
+
+            this.mailTemplate.getAssociation('media').getList({
+                page: 1,
+                limit: 50
+            });
         },
 
         abortOnLanguageChange() {
@@ -69,23 +80,28 @@ Component.register('sw-mail-template-detail', {
             this.loadEntityData();
         },
 
+        openMediaSidebar() {
+            this.$refs.mediaSidebarItem.openContent();
+        },
+
         onSave() {
-            const mailTemplateName = this.mailTemplate.name;
+            const mailTemplateSubject = this.mailTemplate.subject;
             const notificationSaveSuccess = {
                 title: this.$tc('sw-mail-template.detail.titleSaveSuccess'),
                 message: this.$tc(
-                    'sw-mail-template.detail.messageSaveSuccess', 0, { name: mailTemplateName }
+                    'sw-mail-template.detail.messageSaveSuccess', 0, { subject: mailTemplateSubject }
                 )
             };
 
             const notificationSaveError = {
                 title: this.$tc('global.notification.notificationSaveErrorTitle'),
                 message: this.$tc(
-                    'global.notification.notificationSaveErrorMessage', 0, { entityName: mailTemplateName }
+                    'global.notification.notificationSaveErrorMessage', 0, { subject: mailTemplateSubject }
                 )
             };
 
             return this.mailTemplate.save().then(() => {
+                this.$refs.mediaSidebarItem.getList();
                 this.createNotificationSuccess(notificationSaveSuccess);
             }).catch((exception) => {
                 this.createNotificationError(notificationSaveError);
@@ -125,6 +141,24 @@ Component.register('sw-mail-template-detail', {
             } else {
                 this.createNotificationError(notificationTestMailErrorSalesChannel);
             }
+        },
+
+        onAddMediaToMailTemplate(mediaItem) {
+            if (this._checkIfMediaIsAlreadyUsed(mediaItem.id)) {
+                this.createNotificationInfo({
+                    message: this.$tc('sw-mail-template.list.errorMediaItemDuplicated')
+                });
+                return;
+            }
+            const mailTemplateMedia = this.mailTemplateMediaStore.create();
+            mailTemplateMedia.mediaId = mediaItem.id;
+            this.mailTemplate.media.push(mailTemplateMedia);
+        },
+
+        _checkIfMediaIsAlreadyUsed(mediaId) {
+            return this.mailTemplate.media.some((mailTemplateMedia) => {
+                return mailTemplateMedia.mediaId === mediaId;
+            });
         }
     }
 });

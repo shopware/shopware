@@ -1,0 +1,60 @@
+{% block sw_mail_template_media_form %}
+    <div class="sw-mail-template-media-form">
+        {% block sw_mail_template_media_form_upload %}
+            <sw-upload-store-listener
+                    :uploadTag="mailTemplate.id"
+                    @sw-media-upload-added="onUploadsAdded"
+                    @sw-media-upload-finished="successfulUpload"
+                    @sw-media-upload-failed="onUploadFailed">
+            </sw-upload-store-listener>
+            <sw-media-upload
+                    :uploadTag="mailTemplate.id"
+                    :variant="'regular'"
+                    :scrollTarget="$parent.$el"
+                    :defaultFolder="mailTemplate.getEntityName()"
+                    @sw-media-upload-open-sidebar="onMediaUploadButtonOpenSidebar">
+            </sw-media-upload>
+        {% endblock %}
+
+        {% block sw_mail_template_media_form_grid %}
+            <div class="sw-mail-template-media-form__grid"
+                 ref="grid"
+                 :style="gridAutoRows">
+                <sw-loader v-if="mailTemplate.isLoading"></sw-loader>
+                {%  block sw_mail_template_media_form_grid_items %}
+                    <div v-for="mediaItem in mediaItems"
+                         class="sw-mail-template-media"
+                         :class="{'is--placeholder' : mediaItem.isPlaceholder}">
+                        {% block sw_mail_template_image_preview %}
+                            <template v-if="!mediaItem.isPlaceholder">
+                                <sw-media-preview class="sw-mail-template-media__image"
+                                                  :source="mediaItem.mediaId"
+                                                  :hideTooltip="false">
+                                </sw-media-preview>
+
+                                <sw-context-button class="sw-mail-template-media__context-button">
+                                    {% block sw_product_image_context %}
+                                        {% block sw_mail_template_media_context_delete_action %}
+                                            <sw-context-menu-item variant="danger"
+                                                                  @click="removeFile(mediaItem)">
+                                                {{ $tc('sw-mail-template.detail.media.buttonDelete') }}
+                                            </sw-context-menu-item>
+                                        {% endblock %}
+                                    {% endblock %}
+                                </sw-context-button>
+                            </template>
+                            <template v-else>
+                                {% block sw_mail_template_media_placeholder %}
+                                    <sw-icon class="sw-mail-template-media__placeholder-icon"
+                                             :name="'default-object-image'"
+                                             :small="true">
+                                    </sw-icon>
+                                {% endblock %}
+                            </template>
+                        {% endblock %}
+                    </div>
+                {% endblock %}
+            </div>
+        {% endblock %}
+    </div>
+{% endblock %}

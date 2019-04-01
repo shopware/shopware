@@ -4,6 +4,7 @@ namespace Shopware\Core\Content\Media;
 
 use Shopware\Core\Content\Category\CategoryCollection;
 use Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupOption\ConfigurationGroupOptionCollection;
+use Shopware\Core\Content\MailTemplate\Aggregate\MailTemplateMedia\MailTemplateMediaCollection;
 use Shopware\Core\Content\Media\Aggregate\MediaFolder\MediaFolderEntity;
 use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailCollection;
 use Shopware\Core\Content\Media\Aggregate\MediaTranslation\MediaTranslationCollection;
@@ -149,6 +150,11 @@ class MediaEntity extends Entity
      * @var ConfigurationGroupOptionCollection|null
      */
     protected $configurationGroupOptions;
+
+    /**
+     * @var MailTemplateMediaCollection|null
+     */
+    protected $mailTemplateMedia;
 
     /**
      * @var array|null
@@ -422,6 +428,16 @@ class MediaEntity extends Entity
     public function setMediaTypeRaw(string $mediaTypeRaw): void
     {
         $this->mediaTypeRaw = $mediaTypeRaw;
+    }
+
+    public function getMailTemplateMedia(): ?MailTemplateMediaCollection
+    {
+        return $this->mailTemplateMedia;
+    }
+
+    public function setMailTemplateMedia(?MailTemplateMediaCollection $mailTemplateMedia): void
+    {
+        $this->mailTemplateMedia = $mailTemplateMedia;
     }
 
     public function getAttributes(): ?array

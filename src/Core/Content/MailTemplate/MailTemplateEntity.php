@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\MailTemplate;
 
+use Shopware\Core\Content\MailTemplate\Aggregate\MailTemplateMedia\MailTemplateMediaCollection;
 use Shopware\Core\Content\MailTemplate\Aggregate\MailTemplateTranslation\MailTemplateTranslationCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
@@ -70,6 +71,11 @@ class MailTemplateEntity extends Entity
      * @var MailTemplateTranslationCollection|null
      */
     protected $translations;
+
+    /**
+     * @var MailTemplateMediaCollection|null
+     */
+    protected $media;
 
     public function getSenderMail(): string
     {
@@ -189,5 +195,15 @@ class MailTemplateEntity extends Entity
     public function setTranslations(MailTemplateTranslationCollection $translations): void
     {
         $this->translations = $translations;
+    }
+
+    public function getMedia(): ?MailTemplateMediaCollection
+    {
+        return $this->media;
+    }
+
+    public function setMedia(?MailTemplateMediaCollection $media): void
+    {
+        $this->media = $media;
     }
 }

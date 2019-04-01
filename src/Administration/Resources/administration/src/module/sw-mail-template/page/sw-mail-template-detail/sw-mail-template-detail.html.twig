@@ -116,22 +116,46 @@
                                     v-model="mailTemplate.contentHtml">
                             </sw-text-editor>
                         {% endblock %}
+                    </sw-card>
+                {% endblock %}
 
-                        {% block sw_mail_template_mail_text_form_test_mail_field %}
-                            <sw-field type="text"
-                                      :placeholder="$tc('sw-mail-template.detail.mailText.placeholderTestMail')"
-                                      v-model="testerMail">
-                            </sw-field>
-                        {% endblock %}
-
-                        {% block sw_mail_template_mail_text_form_test_mail_button %}
-                            <sw-button :disabled="mailTemplate.isLoading"  @click="onClickTestMailTemplate" >
-                                {{ $tc('sw-mail-template.detail.mailText.buttonTestMail') }}
-                            </sw-button>
-                        {% endblock %}
+                {% block sw_mail_template_detail_attachments_info %}
+                    <sw-card :title="$tc('sw-mail-template.detail.media.titleCard')" :isLoading="mailTemplate.isLoading">
+                        <sw-mail-template-media-form  :mailTemplate="mailTemplate"/>
                     </sw-card>
                 {% endblock %}
             </sw-card-view>
+
+            <template slot="sidebar">
+                <sw-sidebar :propagateWidth="true">
+                    <sw-sidebar-media-item ref="mediaSidebarItem">
+                        <template slot="context-menu-items" slot-scope="media">
+                            <sw-context-menu-item  @click="onAddMediaToMailTemplate(media.mediaItem)">
+                                {{ $tc('sw-mail-template.detail.sidebar.labelContextMenuAddToMailTemplate') }}
+                            </sw-context-menu-item>
+                        </template>
+                    </sw-sidebar-media-item>
+                    <sw-sidebar-item icon="default-object-paperplane"
+                                     :title="$tc('sw-mail-template.detail.sidebar.titleTestMail')"
+                                     class="sw-mail-template-detail__test-mail-sidebar">
+                            <div class="sw-mail-template-detail__test-mail-sidebar-container">
+                                {% block sw_mail_template_mail_text_form_test_mail_field %}
+                                    <sw-text-field
+                                              :placeholder="$tc('sw-mail-template.detail.sidebar.placeholderTestMail')"
+                                              :label="$tc('sw-mail-template.detail.sidebar.labelTestMail')"
+                                              v-model="testerMail">
+                                    </sw-text-field>
+                                {% endblock %}
+
+                                {% block sw_mail_template_mail_text_form_test_mail_button %}
+                                    <sw-button :disabled="mailTemplate.isLoading || !testerMail"  @click="onClickTestMailTemplate" >
+                                        {{ $tc('sw-mail-template.detail.sidebar.buttonTestMail') }}
+                                    </sw-button>
+                                {% endblock %}
+                            </div>
+                    </sw-sidebar-item>
+                </sw-sidebar>
+            </template>
         {% endblock %}
     </sw-page>
 {% endblock %}

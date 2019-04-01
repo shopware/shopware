@@ -97,6 +97,36 @@ class MailTemplateEvents
     /**
      * @Event("Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent")
      */
+    public const MAIL_TEMPLATE_MEDIA_WRITTEN_EVENT = 'mail_template_media.written';
+
+    /**
+     * @Event("Shopware\Core\Framework\DataAbstractionLayer\Event\EntityDeletedEvent")
+     */
+    public const MAIL_TEMPLATE_MEDIA_DELETED_EVENT = 'mail_template_media.deleted';
+
+    /**
+     * @Event("Shopware\Core\Framework\DataAbstractionLayer\Event\EntityLoadedEvent")
+     */
+    public const MAIL_TEMPLATE_MEDIA_LOADED_EVENT = 'mail_template_media.loaded';
+
+    /**
+     * @Event("Shopware\Core\Framework\DataAbstractionLayer\Event\EntitySearchResultLoadedEvent")
+     */
+    public const MAIL_TEMPLATE_MEDIA_SEARCH_RESULT_LOADED_EVENT = 'mail_template_media.search.result.loaded';
+
+    /**
+     * @Event("Shopware\Core\Framework\DataAbstractionLayer\Event\EntityAggregationResultLoadedEvent")
+     */
+    public const MAIL_TEMPLATE_MEDIA_AGGREGATION_LOADED_EVENT = 'mail_template_media.aggregation.result.loaded';
+
+    /**
+     * @Event("Shopware\Core\Framework\DataAbstractionLayer\Event\EntityIdSearchResultLoadedEvent")
+     */
+    public const MAIL_TEMPLATE_MEDIA_ID_SEARCH_RESULT_LOADED_EVENT = 'mail_template_media.id.search.result.loaded';
+
+    /**
+     * @Event("Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent")
+     */
     public const MAIL_HEADER_FOOTER_WRITTEN_EVENT = 'mail_header_footer.written';
 
     /**

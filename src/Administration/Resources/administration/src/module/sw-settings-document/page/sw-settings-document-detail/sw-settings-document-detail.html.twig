@@ -88,7 +88,7 @@
                                            :label="$tc('sw-settings-document.detail.labelType')"
                                            class="sw-settings-document-detail__select-type"
                                            :showSearch="false"
-                                           :disabled="documentConfig.global"
+                                           :disabled="documentConfig.global || (documentConfigSalesChannels !== null && documentConfigSalesChannels.length > 0)"
                                            @input="onChangeType">
                                 </sw-select>
                             {% endblock %}
@@ -98,11 +98,13 @@
                                         v-model="documentConfigSalesChannels"
                                         :associationStore="documentConfigSalesChannelsStore"
                                         id="documentSalesChannel"
+                                        :criteria="salesChannelsTypeCriteria"
                                         :label="$tc('sw-settings-document.detail.labelSalesChannel')"
                                         class="sw-document-detail__select-type"
                                         v-if="documentConfig && (!documentConfig.global || documentConfig.global === false)"
                                         :showSearch="false"
                                         ref="documentSalesChannel"
+                                        :disabled="selectedType.id === undefined"
                                         validation="required">
                             </sw-select>
                             {% endblock %}

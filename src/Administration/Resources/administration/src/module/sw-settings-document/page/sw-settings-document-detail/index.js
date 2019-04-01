@@ -1,5 +1,6 @@
 import { Component, State, Mixin } from 'src/core/shopware';
 import LocalStore from 'src/core/data/LocalStore';
+import CriteriaFactory from 'src/core/factory/criteria.factory';
 import template from './sw-settings-document-detail.html.twig';
 import './sw-settings-document-detail.scss';
 
@@ -18,6 +19,7 @@ Component.register('sw-settings-document-detail', {
             documentConfigSalesChannels: [],
             documentConfigSalesChannelsAssoc: {},
             salesChannels: {},
+            salesChannelsTypeCriteria: {},
             selectedType: {},
             attributeSet: {
                 id: 'documentconfiguration',
@@ -292,7 +294,16 @@ Component.register('sw-settings-document-detail', {
         },
 
         onChangeType(id) {
+            if (!id) {
+                this.selectedType = {};
+                return;
+            }
             this.selectedType = this.documentTypeStore.getById(id);
+            this.salesChannelsTypeCriteria = CriteriaFactory.multi('OR',
+                CriteriaFactory.equals('documentBaseConfig.id', null),
+                CriteriaFactory.not(
+                    'AND', CriteriaFactory.equals('documentBaseConfig.typeId', this.selectedType.id)
+                ));
             this.documentBaseConfigSalesChannelAssociationStore.forEach((salesChannelAssoc) => {
                 salesChannelAssoc.documentTypeId = this.selectedType.id;
             });

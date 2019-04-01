@@ -306,6 +306,12 @@ export default function VueAdapter(context, componentFactory, stateFactory, filt
         return Vue.set(object, property, value);
     }
 
+    /**
+     * Allows to delete a object property over Vue
+     * @param {Object} object
+     * @param {String} key
+     * @returns {*}
+     */
     function deleteReactive(object, key) {
         return Vue.delete(object, key);
     }

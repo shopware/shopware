@@ -72,6 +72,10 @@ export default class BaseCollection {
         return null;
     }
 
+    /**
+     * Returns all ids of the internal entities
+     * @returns {string[]}
+     */
     getIds() {
         return Object.keys(this.elements);
     }

@@ -1,9 +1,9 @@
 import { types } from 'src/core/service/util.service';
 
 export default class Criteria {
-    constructor(page, limit) {
-        this.page = page || 1;
-        this.limit = limit || 25;
+    constructor(page = 1, limit = 25) {
+        this.page = page;
+        this.limit = limit;
         this.term = null;
         this.filters = [];
         this.ids = [];
@@ -64,6 +64,10 @@ export default class Criteria {
         return params;
     }
 
+    /**
+     * Allows to provide a list of ids which are used as filter
+     * @param {Array} ids
+     */
     setIds(ids) {
         this.ids = ids;
     }
@@ -84,21 +88,37 @@ export default class Criteria {
         this.totalCountMode = (mode < 0 || mode > 2) ? null : mode;
     }
 
+    /**
+     * @param {int} page
+     * @returns {Criteria}
+     */
     setPage(page) {
         this.page = page;
         return this;
     }
 
+    /**
+     * @param {int} limit
+     * @returns {Criteria}
+     */
     setLimit(limit) {
         this.limit = limit;
         return this;
     }
 
+    /**
+     * @param {String} term
+     * @returns {Criteria}
+     */
     setTerm(term) {
         this.term = term;
         return this;
     }
 
+    /**
+     * @param {Object} filter
+     * @returns {Criteria}
+     */
     addFilter(filter) {
         this.filters.push(filter);
 
@@ -128,7 +148,7 @@ export default class Criteria {
     }
 
     /**
-     * Creates a representation object for \Shopware\Core\Framework\DataAbstractionLayer\Search\Query\ScoreQuery.
+     * Creates a object for  \Shopware\Core\Framework\DataAbstractionLayer\Search\Query\ScoreQuery.
      * This queries are used to search for documents and score them with a ranking
      *
      * @param {Object} filter - a filter object like equals, contains, ...
@@ -149,10 +169,18 @@ export default class Criteria {
         return this;
     }
 
+    /**
+     * @param {Object} aggregation
+     */
     addAggregation(aggregation) {
         this.aggregations.push(aggregation);
     }
 
+    /**
+     * @param {String} association
+     * @param {Object|null} criteria
+     * @returns {Criteria}
+     */
     addAssociation(association, criteria = null) {
         if (criteria === null) {
             criteria = new Criteria();
@@ -162,6 +190,10 @@ export default class Criteria {
         return this;
     }
 
+    /**
+     * @param {String} property
+     * @returns {Criteria}
+     */
     getAssociation(property) {
         let criteria = new Criteria();
 
@@ -174,40 +206,99 @@ export default class Criteria {
         return criteria;
     }
 
+    /**
+     * Resets the sorting parameter
+     */
     resetSorting() {
         this.sortings = [];
     }
 
+    /**
+     * Creates a object for \Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\AvgAggregation
+     * Allows to calculate the avg value for the provided field
+     *
+     * @param {String} name
+     * @param {String} field
+     * @returns {{field: *, name: *, type: string}}
+     */
     static avg(name, field) {
         return { type: 'avg', name, field };
     }
 
+    /**
+     * Creates a object for \Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\ValueAggregation
+     * Allows to fetch all unique values for the provided field
+     *
+     * @param {String} name
+     * @param {String} field
+     * @returns {{field: *, name: *, type: string}}
+     */
     static value(name, field) {
         return { type: 'value', name, field };
     }
 
+    /**
+     * Creates a object for \Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\CountAggregation
+     * Allows to calculate the count value for the provided field
+     *
+     * @param {String} name
+     * @param {String} field
+     * @returns {{field: *, name: *, type: string}}
+     */
     static count(name, field) {
         return { type: 'count', name, field };
     }
 
+    /**
+     * Creates a object for \Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\MaxAggregation
+     * Allows to calculate the max value for the provided field
+     *
+     * @param {String} name
+     * @param {String} field
+     * @returns {{field: *, name: *, type: string}}
+     */
     static max(name, field) {
         return { type: 'max', name, field };
     }
 
+    /**
+     * Creates a object for \Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\MinAggregation
+     * Allows to calculate the min value for the provided field
+     *
+     * @param {String} name
+     * @param {String} field
+     * @returns {{field: *, name: *, type: string}}
+     */
     static min(name, field) {
         return { type: 'min', name, field };
     }
 
+    /**
+     * Creates a object for \Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\StatsAggregation
+     * Allows to calculate the sum, max, min, avg, count values for the provided field
+     *
+     * @param {String} name
+     * @param {String} field
+     * @returns {{field: *, name: *, type: string}}
+     */
     static stats(name, field) {
         return { type: 'stats', name, field };
     }
 
+    /**
+     * Creates a object for \Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\SumAggregation
+     * Allows to calculate the sum value for the provided field
+     *
+     * @param {String} name
+     * @param {String} field
+     * @returns {{field: *, name: *, type: string}}
+     */
     static sum(name, field) {
         return { type: 'sum', name, field };
     }
 
     /**
-     * Creates a representation object for
+     * Creates a object for
      * \Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\ValueCountAggregation.
      *
      * Allows to calculate the unique value and the counts for the selected entities.
@@ -221,7 +312,7 @@ export default class Criteria {
     }
 
     /**
-     * Creates a representation object for \Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting.
+     * Creates a object for  \Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting.
      * Allows to sort the documents by the provided field
      *
      * @param {string} field
@@ -234,7 +325,7 @@ export default class Criteria {
     }
 
     /**
-     * Creates a representation object for \Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\ContainsFilter.
+     * Creates a object for  \Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\ContainsFilter.
      * This allows to filter documents where the value are contained in the provided field.
      *
      * Sql representation: `{field} LIKE %{value}%`
@@ -249,7 +340,7 @@ export default class Criteria {
     }
 
     /**
-     * Creates a representation object for \Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter.
+     * Creates a object for  \Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter.
      * This allows to filter documents where the field matches one of the provided values
      *
      * Sql representation: `{field} IN ({value}, {value})`
@@ -263,7 +354,7 @@ export default class Criteria {
     }
 
     /**
-     * Creates a representation object for \Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter.
+     * Creates a object for  \Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter.
      * This allows to filter documents where the field matches a defined range
      *
      * Sql representation: `{field} >= {value}`, `{field} <= {value}`, ...
@@ -278,7 +369,7 @@ export default class Criteria {
     }
 
     /**
-     * Creates a representation object for \Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter.
+     * Creates a object for  \Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter.
      * This allows to filter documents where the field matches a defined range
      *
      * Sql representation: `{field} = {value}`
@@ -293,7 +384,7 @@ export default class Criteria {
     }
 
     /**
-     * Creates a representation object for \Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter.
+     * Creates a object for  \Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter.
      * This allows to filter documents which not matches for the provided filters
      * All above listed queries can be provided (equals, equalsAny, range, contains)
      *
@@ -309,7 +400,7 @@ export default class Criteria {
     }
 
     /**
-     * Creates a representation object for \Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter.
+     * Creates a object for  \Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter.
      * This allows to filter documents which matches for the provided filters
      * All above listed queries can be provided (equals, equalsAny, range, contains)
      *

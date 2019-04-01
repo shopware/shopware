@@ -9,6 +9,14 @@ export default class RepositoryFactory {
         this.entitySchema = entitySchema;
     }
 
+    /**
+     * Creates a repository for the provided entity.
+     * The route parameter allows to configure a custom route for the entity - used for association loading.
+     *
+     * @param {String} entity
+     * @param {String|null} route
+     * @returns {Repository}
+     */
     create(entity, route) {
         if (!route) {
             route = `/${entity.replace(/_/g, '-')}`;

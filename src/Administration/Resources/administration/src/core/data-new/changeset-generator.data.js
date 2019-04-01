@@ -5,6 +5,11 @@ export default class ChangesetGenerator {
         this.jsonTypes = ['json_list', 'json_object'];
     }
 
+    /**
+     * Creates the change set for the provided entity.
+     * @param entity
+     * @returns {{changes: *, deletionQueue: Array}}
+     */
     generate(entity) {
         const deletionQueue = [];
         const changes = this.recursion(entity, deletionQueue);
@@ -125,6 +130,13 @@ export default class ChangesetGenerator {
         return changes;
     }
 
+    /**
+     *
+     * @param {Object} draft
+     * @param {Object} origin
+     * @param {Array} deletionQueue
+     * @returns {Array}
+     */
     handleOneToMany(draft, origin, deletionQueue) {
         const changes = [];
         const originIds = Object.keys(origin);

@@ -54,10 +54,12 @@ export default {
         createdComponent() {
             this.$super.createdComponent();
 
+            // add listener to active ui loading
             this.repository.on('start.loading', () => {
                 this.loading = true;
             });
 
+            // add listener to disable ui loading and apply loaded result
             this.repository.on('finish.loading', (result) => {
                 this.loading = false;
                 this.applyResult(result);
@@ -74,18 +76,21 @@ export default {
         deleteItem(id) {
             this.deleteId = null;
 
+            // send delete request to the server, immediately
             return this.repository.delete(id, this.records.context).then(() => {
                 return this.repository.search(this.records.criteria, this.records.context);
             });
         },
 
         save(record) {
+            // send save request to the server, immediately
             return this.repository.save(record, this.records.context).then(() => {
                 return this.repository.search(this.records.criteria, this.records.context);
             });
         },
 
         revert() {
+            // reloads the grid to revert all changes
             return this.repository.search(this.records.criteria, this.records.context);
         },
 
@@ -109,9 +114,9 @@ export default {
             return this.repository.search(this.records.criteria, this.records.context);
         },
 
-        paginate(params) {
-            this.records.criteria.setPage(params.page);
-            this.records.criteria.setLimit(params.limit);
+        paginate({ page = 1, limit = 25 }) {
+            this.records.criteria.setPage(page);
+            this.records.criteria.setLimit(limit);
 
             return this.repository.search(this.records.criteria, this.records.context);
         },

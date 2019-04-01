@@ -40,9 +40,9 @@
         >
 
             <template slot="column-name" slot-scope="{ item }">
-                <template v-if="item.meta.viewData.variations">
-                    <span v-for="singleVariation in item.meta.viewData.variations.elements">
-                        {{ singleVariation.name }} – &#160;
+                <template v-if="item.variations">
+                    <span v-for="singleVariation in item.variations.elements">
+                        {{ singleVariation.translated.name }} – &#160;
                     </span>
                 </template>
             </template>

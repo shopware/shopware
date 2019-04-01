@@ -38,7 +38,7 @@
                                                                              size="small"
                                                                              validation="required">
                                                                 <option v-for="salutation in salutations" :key="salutation.id" :value="salutation.id">
-                                                                    {{ salutation.meta.viewData.displayName }}
+                                                                    {{ salutation.translated.displayName }}
                                                                 </option>
                                                             </sw-select-field>
                                                         {% endblock %}

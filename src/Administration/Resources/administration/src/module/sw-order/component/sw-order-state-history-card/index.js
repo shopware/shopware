@@ -154,7 +154,7 @@ Component.register('sw-order-state-history-card', {
                     options.push({
                         stateName: state.technicalName,
                         id: null,
-                        name: state.meta.viewData.name,
+                        name: state.translated.name,
                         disabled: true
                     });
                 });

@@ -110,7 +110,7 @@
                                                     {% block sw_settings_salutation_column_display_name_content %}
                                                         <template v-else
                                                                   class="sw-settings-salutation-list__columns">
-                                                            {{ item.meta.viewData.displayName }}
+                                                            {{ item.translated.displayName }}
                                                         </template>
                                                     {% endblock %}
                                                 </template>
@@ -130,7 +130,7 @@
                                                     {% block sw_settings_salutation_column_letter_name_content %}
                                                         <template v-else
                                                                   class="sw-settings-salutation-list__columns">
-                                                            {{ item.meta.viewData.letterName }}
+                                                            {{ item.translated.letterName }}
                                                         </template>
                                                     {% endblock %}
                                                 </template>

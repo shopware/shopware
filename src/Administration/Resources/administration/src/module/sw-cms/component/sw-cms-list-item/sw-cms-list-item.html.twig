@@ -7,7 +7,7 @@
         {% block sw_cms_list_item_info %}
             <div class="sw-cms-list-item__info">
                 <sw-icon class="sw-cms-list-item__status" name="small-default-circle-medium" small></sw-icon>
-                <div class="sw-cms-list-item__title" @click="$emit('onItemClick', page)">{{ page.meta.viewData.name }}</div>
+                <div class="sw-cms-list-item__title" @click="$emit('onItemClick', page)">{{ page.translated.name }}</div>
             </div>
         {% endblock %}
     </div>

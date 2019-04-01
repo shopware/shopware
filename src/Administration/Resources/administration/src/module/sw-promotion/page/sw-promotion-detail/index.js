@@ -58,7 +58,7 @@ Component.register('sw-promotion-detail', {
         },
 
         onSave() {
-            const promotionName = this.promotion.name || this.promotion.meta.viewData.name;
+            const promotionName = this.promotion.name;
             const titleSaveSuccess = this.$tc('sw-promotion.detail.titleSaveSuccess');
             const messageSaveSuccess = this.$tc('sw-promotion.detail.messageSaveSuccess', 0, { name: promotionName });
             const titleSaveError = this.$tc('global.notification.notificationSaveErrorTitle');

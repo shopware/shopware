@@ -299,6 +299,7 @@ class EntityCacheKeyGenerator
             $context->getVersionId(),
             $context->getCurrencyFactor(),
             $context->getRules(),
+            $context->considerInheritance(),
         ]));
     }
 }

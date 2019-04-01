@@ -86,7 +86,7 @@ Component.register('sw-settings-salutation-detail', {
         onChangeDebounce: utils.debounce(function executeChange() {
             if (this.salutation.salutationKey === null ||
                 this.salutation.salutationKey.trim() === '' ||
-                this.salutation.salutationKey.trim() === this.salutation.meta.viewData.salutationKey
+                this.salutation.salutationKey.trim() === this.salutation.salutationKey
             ) {
                 this.invalidKey = false;
                 this.isKeyChecking = false;

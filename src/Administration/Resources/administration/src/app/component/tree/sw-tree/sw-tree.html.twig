@@ -64,11 +64,11 @@
                 {% block sw_tree_delete_modal_confirm_delete_text %}
                     <div v-if="toDeleteItem">
                         <p v-if="toDeleteItem.childCount > 0" class="sw_tree__confirm-delete-text">
-                            {{ $tc(`${translationContext}.modal.textDeleteConfirm`, 0, { name: toDeleteItem.data.name || toDeleteItem.data.meta.viewData.name }) }}<br>
+                            {{ $tc(`${translationContext}.modal.textDeleteConfirm`, 0, { name: toDeleteItem.data.name || toDeleteItem.data.translated.name }) }}<br>
                             <b>{{ $tc(`${translationContext}.modal.textDeleteChildrenConfirm`) }}</b>
                         </p>
                         <p v-else class="sw_tree__confirm-delete-text">
-                            {{ $tc(`${translationContext}.modal.textDeleteConfirm`, 0, { name: toDeleteItem.data.name || toDeleteItem.data.meta.viewData.name }) }}
+                            {{ $tc(`${translationContext}.modal.textDeleteConfirm`, 0, { name: toDeleteItem.data.name || toDeleteItem.data.translated.name }) }}
                         </p>
                     </div>
                     <div v-else>

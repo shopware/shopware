@@ -53,8 +53,8 @@
                         {% block sw_sales_channel_grid_columns_content %}
                             <sw-grid-column flex="minmax(150px, 1fr)" dataIndex="content">
                                 <div class="sw-sales-channel-modal__grid-item-content">
-                                    <h3 class="sw-sales-channel-modal__grid-item-name">{{ item.meta.viewData.name }}</h3>
-                                    <div class="sw-sales-channel-modal__grid-item-description">{{ item.meta.viewData.description }}</div>
+                                    <h3 class="sw-sales-channel-modal__grid-item-name">{{ item.translated.name }}</h3>
+                                    <div class="sw-sales-channel-modal__grid-item-description">{{ item.translated.description }}</div>
                                 </div>
                             </sw-grid-column>
                         {% endblock %}
@@ -89,9 +89,9 @@
 
                         {% block sw_sales_channel_modal_detail_header_meta %}
                             <div class="sw-sales-channel-modal__detail-meta">
-                                <h4 class="sw-sales-channel-modal__detail-name">{{ detailType.meta.viewData.name }}</h4>
-                                <div class="sw-sales-channel-modal__detail-manufacturer">{{ detailType.meta.viewData.manufacturer }}</div>
-                                <div class="sw-sales-channel-modal__detail-description">{{ detailType.meta.viewData.description }}</div>
+                                <h4 class="sw-sales-channel-modal__detail-name">{{ detailType.translated.name }}</h4>
+                                <div class="sw-sales-channel-modal__detail-manufacturer">{{ detailType.translated.manufacturer }}</div>
+                                <div class="sw-sales-channel-modal__detail-description">{{ detailType.translated.description }}</div>
                                 <div class="sw-sales-channel-modal__detail-actions">
                                     <sw-button variant="primary" size="small" @click="onAddChannel(detailType.id)">
                                         {{ $tc('sw-sales-channel.modal.buttonAddChannel') }}
@@ -115,7 +115,7 @@
                         {{ $tc('sw-sales-channel.modal.titleDescription') }}
                     </h4>
                     <div class="sw-sales-channel-modal__detail-description-long-text">
-                        {{ detailType.meta.viewData.descriptionLong }}
+                        {{ detailType.translated.descriptionLong }}
                     </div>
                 {% endblock %}
             </div>

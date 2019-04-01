@@ -295,6 +295,13 @@ export default {
         },
 
         renderColumn(item, column) {
+            const accessor = column.property.split('.');
+            accessor.splice(accessor.length - 1, 0, 'translated');
+
+            const translated = utils.get(item, accessor);
+            if (translated) {
+                return translated;
+            }
             return utils.get(item, column.property);
         },
 

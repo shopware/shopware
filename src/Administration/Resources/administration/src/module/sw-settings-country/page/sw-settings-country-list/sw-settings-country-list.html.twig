@@ -67,7 +67,7 @@
                                                         <router-link :title="$tc('sw-settings-country.list.contextMenuEdit')" class="sw-country-list__column-name"
                                                                      :to="{ name: 'sw.settings.country.detail', params: { id: item.id } }">
                                                             {% block sw_settings_country_list_columns_name_link %}
-                                                                {{ item.meta.viewData.name }}
+                                                                {{ item.translated.name }}
                                                             {% endblock %}
                                                         </router-link>
                                                     {% endblock %}
@@ -170,7 +170,7 @@
                                                           variant="small">
                                                     {% block sw_settings_country_list_delete_modal_confirm_text %}
                                                         <p>
-                                                            {{ $tc('sw-settings-country.list.textDeleteConfirm', 0, { name: item.meta.viewData.name }) }}
+                                                            {{ $tc('sw-settings-country.list.textDeleteConfirm', 0, { name: item.translated.name }) }}
                                                         </p>
                                                     {% endblock %}
 

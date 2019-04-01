@@ -1,8 +1,8 @@
 {% block sw_select_selection_item_text %}
     <span v-if="selection.salesChannelInternal" class="sw-select__selection-item">
-        {{ selection.salesChannelInternal.meta.viewData.name }}
+        {{ selection.salesChannelInternal.translated.name }}
     </span>
     <span v-else>
-        {{ selection.salesChannel.meta.viewData.name }}
+        {{ selection.salesChannel.translated.name }}
     </span>
 {% endblock %}

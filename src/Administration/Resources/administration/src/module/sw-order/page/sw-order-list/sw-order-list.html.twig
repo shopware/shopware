@@ -81,7 +81,7 @@
 
                                     {% block sw_order_list_grid_columns_amount %}
                                         <template slot="column-amountTotal" slot-scope="{ item }">
-                                            {{ item.amountTotal | currency(item.currency.meta.viewData.shortName) }}
+                                            {{ item.amountTotal | currency(item.currency.translated.shortName) }}
                                         </template>
                                     {% endblock %}
 

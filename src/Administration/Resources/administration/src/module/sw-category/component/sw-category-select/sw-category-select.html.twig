@@ -38,7 +38,7 @@
                                         <template v-for="(item, index) in results">
                                             <slot name="result_items" :item="item" :index="index">
                                                 <sw-select-option :noPreview="true" :index="index" :item="item" :selected="checkAssociation(item.id)">
-                                                    {{ item.name  || item.meta.viewData.name }}
+                                                    {{ item.name  || item.translated.name }}
                                                 </sw-select-option>
                                             </slot>
                                         </template>

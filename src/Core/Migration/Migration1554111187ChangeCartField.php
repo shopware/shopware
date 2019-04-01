@@ -14,7 +14,8 @@ class Migration1554111187ChangeCartField extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $connection->executeUpdate('ALTER TABLE `cart` CHANGE `cart` `cart` blob NOT NULL AFTER `name`;');
+        $connection->executeUpdate('ALTER TABLE `cart` DROP `cart`;');
+        $connection->executeUpdate('ALTER TABLE `cart` ADD COLUMN `cart` LONGTEXT NOT NULL AFTER `name`;');
     }
 
     public function updateDestructive(Connection $connection): void

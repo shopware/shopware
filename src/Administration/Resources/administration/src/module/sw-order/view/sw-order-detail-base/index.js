@@ -32,7 +32,7 @@ Component.register('sw-order-detail-base', {
     },
     computed: {
         shippingCostsDetail() {
-            const calcTaxes = this.sortByTaxRate(this.currentOrder.shippingCosts.calculatedTaxes.elements);
+            const calcTaxes = this.sortByTaxRate(this.currentOrder.shippingCosts.calculatedTaxes);
             const formattedTaxes = `${calcTaxes.map(
                 calcTax => `${this.$tc('sw-order.detailBase.shippingCostsTax', 0, {
                     taxRate: calcTax.taxRate,
@@ -43,13 +43,13 @@ Component.register('sw-order-detail-base', {
             return `${this.$tc('sw-order.detailBase.tax')}<br>${formattedTaxes}`;
         },
         sortedCalculatedTaxes() {
-            return this.sortByTaxRate(this.currentOrder.price.calculatedTaxes.elements);
+            return this.sortByTaxRate(this.currentOrder.price.calculatedTaxes);
         },
         transactionOptionPlaceholder() {
             if (this.isLoading) return null;
 
             return `${this.$tc('sw-order.stateCard.headlineTransactionState')}: \
-            ${this.currentOrder.transactions[0].stateMachineState.meta.viewData.name}`;
+            ${this.currentOrder.transactions[0].stateMachineState.translated.name}`;
         },
         transactionOptionsBackground() {
             if (this.isLoading) return null;
@@ -61,7 +61,7 @@ Component.register('sw-order-detail-base', {
             if (this.isLoading) return null;
 
             return `${this.$tc('sw-order.stateCard.headlineOrderState')}: \
-            ${this.currentOrder.stateMachineState.meta.viewData.name}`;
+            ${this.currentOrder.stateMachineState.translated.name}`;
         },
         orderOptionsBackground() {
             if (this.isLoading) return null;

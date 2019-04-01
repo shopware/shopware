@@ -798,6 +798,7 @@ class ProductRepositoryTest extends TestCase
         static::assertEquals($greenTax, Uuid::fromBytesToHex($row['tax_id']));
 
         $criteria = new Criteria([$redId, $greenId]);
+        $context->setConsiderInheritance(false);
         $products = $this->repository->search($criteria, $context);
 
         /** @var ProductEntity $red */

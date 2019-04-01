@@ -6,7 +6,7 @@
                 <sw-description-list>
                     {% block sw_order_delivery_metadata_shipping_method %}
                         <dt>{{ $tc('sw-order.detailDeliveries.labelShippingMethod') }}</dt>
-                        <dd>{{ delivery.shippingMethod.meta.viewData.name }}</dd>
+                        <dd>{{ delivery.shippingMethod.translated.name }}</dd>
                     {% endblock %}
 
                     {% block sw_order_delivery_metadata_delivery_date %}

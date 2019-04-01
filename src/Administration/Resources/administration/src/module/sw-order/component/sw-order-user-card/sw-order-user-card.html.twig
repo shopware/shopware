@@ -49,7 +49,7 @@
                             <div>
                                 {% block  sw_order_detail_base_info_summary_entries %}
                                     <div class="sw-order-user-card__metadata-price">
-                                        {{ currentOrder.amountTotal | currency(currentOrder.currency.meta.viewData.shortName) }}
+                                        {{ currentOrder.amountTotal | currency(currentOrder.currency.translated.shortName) }}
                                     </div>
                                     <div class="sw-order-user-card__metadata-item">
                                         {{ orderDate }}
@@ -157,17 +157,17 @@
                                 {% block sw_order_detail_base_secondary_info_order_overview_left_column %}
                                     {% block sw_order_detail_base_secondary_info_sales_channel %}
                                         <dt>{{ $tc('sw-order.detailBase.labelSalesChannel') }}</dt>
-                                        <dd class="sw-order-base__label-sales-channel">{{ currentOrder.salesChannel.meta.viewData.name }}</dd>
+                                        <dd class="sw-order-base__label-sales-channel">{{ currentOrder.salesChannel.translated.name }}</dd>
                                     {% endblock %}
                                     {% block sw_order_detail_base_secondary_info_payment %}
                                         <template v-if="currentOrder.transactions.length > 0">
                                             <dt>{{ $tc('sw-order.detailBase.labelPaymentMethod') }}</dt>
-                                            <dd>{{ currentOrder.transactions[0].paymentMethod.meta.viewData.name}}</dd>
+                                            <dd>{{ currentOrder.transactions[0].paymentMethod.translated.name}}</dd>
                                         </template>
                                     {% endblock %}
                                     {% block sw_order_detail_base_secondary_info_delivery %}
                                         <dt>{{ $tc('sw-order.detailBase.labelShippingMethod') }}</dt>
-                                        <dd>{{ hasDeliveries ? currentOrder.deliveries[0].shippingMethod.meta.viewData.name :$tc('sw-order.detailBase.labelNoDeliveriesYet')  }}</dd>
+                                        <dd>{{ hasDeliveries ? currentOrder.deliveries[0].shippingMethod.translated.name :$tc('sw-order.detailBase.labelNoDeliveriesYet')  }}</dd>
                                     {% endblock %}
                                     {% block sw_order_detail_base_secondary_info_order_overview_left_column_slot %}
                                     {% endblock %}
@@ -177,7 +177,7 @@
                                 {%  block sw_order_detail_base_secondary_info_order_overview_right_column %}
                                     {% block sw_order_detail_base_secondary_info_order_language %}
                                         <dt>{{ $tc('sw-order.detailBase.labelLanguage') }}</dt>
-                                        <dd>{{ currentOrder.salesChannel.language.meta.viewData.name }}</dd>
+                                        <dd>{{ currentOrder.salesChannel.language.name }}</dd>
                                     {% endblock %}
                                     {% block sw_order_detail_base_secondary_info_last_change %}
                                         <dt>{{ $tc('sw-order.detailBase.labelLastChange') }}</dt>

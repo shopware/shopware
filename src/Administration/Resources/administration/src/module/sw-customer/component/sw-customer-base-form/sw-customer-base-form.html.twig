@@ -8,7 +8,7 @@
                                      v-model="customer.salutationId"
                                      validation="required">
                         <option v-for="salutation in salutations" :key="salutation.id" :value="salutation.id">
-                            {{ salutation.meta.viewData.displayName }}
+                            {{ salutation.translated.displayName }}
                         </option>
                     </sw-select-field>
                 {% endblock %}
@@ -49,7 +49,7 @@
                           v-model="customer.groupId">
                     {% block sw_customer_base_form_customer_group_field_options %}
                         <option v-for="customerGroup in customerGroups" :key="customerGroup.id" :value="customerGroup.id">
-                            {{ customerGroup.meta.viewData.name }}
+                            {{ customerGroup.translated.name }}
                         </option>
                     {% endblock %}
                 </sw-field>
@@ -63,7 +63,7 @@
                           v-model="customer.salesChannelId">
                     {% block sw_customer_base_form_sales_channel_field_options %}
                         <option v-for="salesChannel in salesChannels" :key="salesChannel.id" :value="salesChannel.id">
-                            {{ salesChannel.meta.viewData.name }}
+                            {{ salesChannel.translated.name }}
                         </option>
                     {% endblock %}
                 </sw-field>
@@ -76,7 +76,7 @@
                           v-model="customer.defaultPaymentMethodId">
                     {% block sw_customer_base_form_payment_method_field_options %}
                         <option v-for="paymentMethod in paymentMethods" :key="paymentMethod.id" :value="paymentMethod.id">
-                            {{ paymentMethod.meta.viewData.name }}
+                            {{ paymentMethod.translated.name }}
                         </option>
                     {% endblock %}
                 </sw-field>

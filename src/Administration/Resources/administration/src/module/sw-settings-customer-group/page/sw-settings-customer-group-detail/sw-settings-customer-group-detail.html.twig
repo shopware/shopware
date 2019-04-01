@@ -10,7 +10,7 @@
                 {% block sw_settings_customer_group_detail_smart_bar_header_title %}
                     <h2>
                         {% block sw_settings_customer_group_detail_smart_bar_header_title_text %}
-                            {{ customerGroup.meta.viewData.name || $tc('sw-settings-customer-group.detail.placeholderNewCustomerGroup') }}
+                            {{ customerGroup.translated.name || $tc('sw-settings-customer-group.detail.placeholderNewCustomerGroup') }}
                         {% endblock %}
                     </h2>
                 {% endblock %}

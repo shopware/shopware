@@ -155,12 +155,12 @@
                                             :editable="editable"
                                             :label="$tc('sw-order.detailBase.columnTax')">
                                 {% block sw_order_line_items_grid_columns_tax_label %}
-                                    {{ item.priceDefinition.taxRules.elements[0].taxRate }} %
+                                    {{ item.priceDefinition.taxRules[0].taxRate }} %
                                 {% endblock %}
 
                                 {% block sw_order_line_items_grid_columns_tax_editor %}
                                     <sw-field type="number"
-                                              v-model="item.priceDefinition.taxRules.elements[0].taxRate"
+                                              v-model="item.priceDefinition.taxRules[0].taxRate"
                                               slot="inline-edit"
                                               :placeholder="'0 %'"
                                               :disabled="itemCreatedFromProduct(item.id)">

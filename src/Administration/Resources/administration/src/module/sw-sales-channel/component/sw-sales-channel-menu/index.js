@@ -66,7 +66,7 @@ export default {
                     path: 'sw.sales.channel.detail',
                     params: { id: salesChannel.id },
                     color: '#D8DDE6',
-                    label: { label: salesChannel.meta.viewData.name, translated: true },
+                    label: { label: salesChannel.translated.name, translated: true },
                     icon: salesChannel.type.iconName,
                     children: []
                 });

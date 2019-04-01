@@ -109,7 +109,7 @@ Component.register('sw-media-quickinfo-usage', {
 
         getProductUsage(product) {
             return {
-                name: product.meta.viewData.name,
+                name: product.translated.name,
                 tooltip: this.$tc('sw-media.sidebar.usage.tooltipFoundInProducts'),
                 link: {
                     name: 'sw.product.detail',
@@ -121,7 +121,7 @@ Component.register('sw-media-quickinfo-usage', {
 
         getCategoryUsage(category) {
             return {
-                name: category.meta.viewData.name,
+                name: category.translated.name,
                 tooltip: this.$tc('sw-media.sidebar.usage.tooltipFoundInCategories'),
                 link: {
                     name: 'sw.category.detail',
@@ -133,7 +133,7 @@ Component.register('sw-media-quickinfo-usage', {
 
         getManufacturerUsage(manufacturer) {
             return {
-                name: manufacturer.meta.viewData.name,
+                name: manufacturer.translated.name,
                 tooltip: this.$tc('sw-media.sidebar.usage.tooltipFoundInManufacturers'),
                 link: {
                     name: 'sw.manufacturer.detail',

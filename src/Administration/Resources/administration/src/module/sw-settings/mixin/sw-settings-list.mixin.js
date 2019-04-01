@@ -31,7 +31,7 @@ Mixin.register('sw-settings-list', {
                 return this.$tc(
                     `sw-settings-${this.entityName.replace(/[_]/g, '-')}.list.messageDeleteSuccess`,
                     0,
-                    { name: this.deleteEntity.meta.viewData.name }
+                    { name: this.deleteEntity.translated.name }
                 );
             }
             return '';

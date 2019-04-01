@@ -24,11 +24,6 @@
 @import 'abstracts/variables/custom';
 
 /*
-* Custom variables
-* ---------------------------- */
-@import 'abstracts/variables/custom';
-
-/*
  * Base stuff
  * ---------- */
 @import 'base/base';
@@ -56,7 +51,8 @@
 /*
  * Page-specific styles
  * -------------------- */
-@import 'pages/content';
+@import 'pages/content/content';
+@import 'pages/content/listing';
 
 @import 'pages/product-detail';
 

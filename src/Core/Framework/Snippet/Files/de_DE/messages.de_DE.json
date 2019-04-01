@@ -176,6 +176,11 @@
         "finishInfoConfirmationMail": "Wir haben Ihnen eine Bestellbestätigung per E-Mail geschickt.",
         "finishButtonBackToShop": "Zurück zum Shop"
     },
+    "listing": {
+        "boxUnitLabel": "Inhalt:",
+        "boxLabelTopseller": "Tipp!",
+        "boxLabelNew": "Neu"
+    },
     "detail": {
         "ordernumberLabel": "Artikel-Nr.:",
         "addProduct": "In den Warenkorb",

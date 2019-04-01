@@ -1,8 +1,11 @@
 {% block page_content_element_product_box %}
-    <div class="col-md-4">
+    <div class="col-md-6">
         {% block page_content_element_product_box_inner %}
             <div class="cms-product-box">
-                {% sw_include '@Storefront/component/product/widget/box.html.twig' with {'product': element.data.product} %}
+                {% sw_include '@Storefront/component/product/widget/box.html.twig' with {
+                    'product': element.data.product,
+                    'layout': 'list'
+                } %}
             </div>
         {% endblock %}
     </div>

@@ -30,31 +30,48 @@
                     <sw-card :title="$tc('sw-settings-document.detail.configCard')">
                         <sw-container columns="repeat(auto-fit, minmax(250px, 1fr)" gap="0px 30px">
                             {% block sw_settings_document_detail_content_field_name %}
-                            <div class="sw-settings-document-detail__field_name">
+                                <div class="sw-settings-document-detail__field_name">
+                                    <sw-field type="text"
+                                              :label="$tc('sw-settings-document.detail.labelName')"
+                                              :placeholder="$tc('sw-settings-document.detail.placeholderName')"
+                                              validation="required"
+                                              v-model="documentConfig.name">
+                                    </sw-field>
+                                </div>
+                            {% endblock %}
+                            {% block sw_configuration_option_list_grid_column_media %}
+                                <div flex="250px" align="stretch"  class="media-column">
+                                    <sw-media-field v-model="documentConfig.logoId"
+                                                    :label="$tc('sw-configuration.detail.labelOptionMedia')">
+                                    </sw-media-field>
+                                </div>
+                            {% endblock %}
+                            {% block sw_settings_document_detail_content_field_file_name_prefix %}
+                            <div class="sw-settings-document-detail__field_file_name_prefix">
                                 <sw-field type="text"
-                                          :label="$tc('sw-settings-document.detail.labelName')"
-                                          :placeholder="$tc('sw-settings-document.detail.placeholderName')"
-                                          validation="required"
-                                          v-model="documentConfig.name">
+                                          :label="$tc('sw-settings-document.detail.labelFileNamePrefix')"
+                                          v-model="documentConfig.fileNamePrefix">
                                 </sw-field>
                             </div>
                             {% endblock %}
-                            {% block sw_configuration_option_list_grid_column_media %}
-                            <sw-grid-column dataIndex="mediaId" flex="250px" align="stretch" :label="$tc('sw-configuration.detail.labelOptionMedia')" class="media-column">
-                                <sw-media-field v-model="documentConfig.logoId">
-                                </sw-media-field>
-                            </sw-grid-column>
+                            {% block sw_settings_document_detail_content_field_file_name_suffix %}
+                            <div class="sw-settings-document-detail__field_file_name_suffix">
+                                <sw-field type="text"
+                                          :label="$tc('sw-settings-document.detail.labelFileNameSuffix')"
+                                          v-model="documentConfig.fileNameSuffix">
+                                </sw-field>
+                            </div>
                             {% endblock %}
                             {% block sw_attribute_set_renderer_card_tabs_content %}
-                                    <template v-for="attribute in attributeSet.attributes">
-                                        {% block sw_attribute_set_renderer_card_form_renderer %}
-                                        <sw-form-field-renderer
-                                                v-bind="attribute"
-                                                v-model="documentConfig.config[attribute.name]">
-                                        </sw-form-field-renderer>
-                                        {% endblock %}
-                                    </template>
-
+                                <template v-for="attribute in attributeSet.attributes">
+                                    {% block sw_attribute_set_renderer_card_form_renderer %}
+                                    <sw-form-field-renderer
+                                            v-if="documentConfig.config"
+                                            v-bind="attribute"
+                                            v-model="documentConfig.config[attribute.name]">
+                                    </sw-form-field-renderer>
+                                    {% endblock %}
+                                </template>
                             {% endblock %}
                         </sw-container>
                     </sw-card>
@@ -71,19 +88,21 @@
                                            :label="$tc('sw-settings-document.detail.labelType')"
                                            class="sw-settings-document-detail__select-type"
                                            :showSearch="false"
+                                           :disabled="documentConfig.global"
                                            @input="onChangeType">
                                 </sw-select>
                             {% endblock %}
                             {% block sw_document_detail_base_general_input_sales_channel %}
                                 <sw-select :store="salesChannelStore"
                                         multi
-                                        v-model="documentConfig.salesChannels"
-                                        :associationStore="salesChannelAssociationStore"
+                                        v-model="documentConfigSalesChannels"
+                                        :associationStore="documentConfigSalesChannelsStore"
                                         id="documentSalesChannel"
                                         :label="$tc('sw-settings-document.detail.labelSalesChannel')"
                                         class="sw-document-detail__select-type"
-                                        v-if="documentConfig.id"
+                                        v-if="documentConfig && (!documentConfig.global || documentConfig.global === false)"
                                         :showSearch="false"
+                                        ref="documentSalesChannel"
                                         validation="required">
                             </sw-select>
                             {% endblock %}

@@ -18,8 +18,9 @@ Component.extend('sw-settings-document-create', 'sw-settings-document-detail', {
             } else {
                 this.documentConfig = this.documentBaseConfigStore.create();
             }
-
+            this.documentConfig.isLoading = true;
             this.$super.createdComponent();
+            this.documentConfig.global = false;
             this.documentConfig.isLoading = false;
         },
 

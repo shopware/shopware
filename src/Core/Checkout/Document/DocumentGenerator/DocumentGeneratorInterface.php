@@ -18,4 +18,6 @@ interface DocumentGeneratorInterface
         Context $context,
         ?string $templatePath = null
     ): string;
+
+    public function getFileName(DocumentConfiguration $config): string;
 }

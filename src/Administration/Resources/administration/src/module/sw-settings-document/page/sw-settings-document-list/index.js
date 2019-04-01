@@ -39,11 +39,11 @@ Component.register('sw-settings-document-list', {
             const params = this.getListingParams();
             params.associations = {
                 salesChannels: {
-                    page: 1,
-                    limit: 5
+                    associations: {
+                        salesChannel: {}
+                    }
                 }
             };
-
             return this.store.getList(params, true).then((response) => {
                 this.total = response.total;
                 this.items = response.items;

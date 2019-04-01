@@ -30,8 +30,9 @@ class DocumentController extends AbstractController
         $download = $request->query->getBoolean('download', false);
         $document = $this->documentService->getDocumentByIdAndToken($documentId, $deepLinkCode, $context);
 
-        // todo generate useful name
-        return $this->createResponse('foo.pdf', $document, $download);
+        $documentGenerated = $this->documentService->renderDocument($document, $context);
+
+        return $this->createResponse($documentGenerated->getFilename(), $documentGenerated->getFileBlob(), $download);
     }
 
     /**
@@ -55,7 +56,7 @@ class DocumentController extends AbstractController
         $fileType = $request->query->getAlnum('fileType', FileTypes::PDF);
         $download = $request->query->getBoolean('download', false);
 
-        $document = $this->documentService->getPreview(
+        $documentGenerated = $this->documentService->getPreview(
             $orderId,
             $deepLinkCode,
             $documentTypeId,
@@ -64,7 +65,7 @@ class DocumentController extends AbstractController
             $context
         );
 
-        return $this->createResponse('foo.pdf', $document, $download);
+        return $this->createResponse($documentGenerated->getFilename(), $documentGenerated->getFileBlob(), $download);
     }
 
     private function createResponse(string $filename, string $content, bool $forceDownload): Response

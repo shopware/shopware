@@ -1,4 +1,5 @@
 import { Component, State, Mixin } from 'src/core/shopware';
+import LocalStore from 'src/core/data/LocalStore';
 import template from './sw-settings-document-detail.html.twig';
 import './sw-settings-document-detail.scss';
 
@@ -13,6 +14,11 @@ Component.register('sw-settings-document-detail', {
     data() {
         return {
             documentConfig: {},
+            documentConfigSalesChannelsStore: {},
+            documentConfigSalesChannels: [],
+            documentConfigSalesChannelsAssoc: {},
+            salesChannels: {},
+            selectedType: {},
             attributeSet: {
                 id: 'documentconfiguration',
                 name: 'Document Konfiguration',
@@ -75,6 +81,19 @@ Component.register('sw-settings-document-detail', {
                         config: {
                             type: 'checkbox',
                             label: this.$tc('sw-settings-document.detail.labelDisplayPageCount')
+                        }
+                    },
+                    {
+                        id: 'docconfigpageorientiation',
+                        name: 'pageOrientation',
+                        type: 'radio',
+                        config: {
+                            componentName: 'sw-select',
+                            options: [
+                                { id: 'portrait', name: 'Portrait' },
+                                { id: 'landscape', name: 'Landscape' }
+                            ],
+                            label: this.$tc('sw-settings-document.detail.labelPageOrientation')
                         }
                     },
                     {
@@ -218,8 +237,11 @@ Component.register('sw-settings-document-detail', {
         salesChannelStore() {
             return State.getStore('sales_channel');
         },
-        salesChannelAssociationStore() {
+        documentBaseConfigSalesChannelAssociationStore() {
             return this.documentConfig.getAssociation('salesChannels');
+        },
+        salesChannelAssociationStore() {
+            return this.salesChannels.getAssociation('documentBaseConfig');
         }
     },
 
@@ -229,15 +251,39 @@ Component.register('sw-settings-document-detail', {
 
     methods: {
         createdComponent() {
-            if (this.$route.params.id) {
+            this.isLoading = true;
+            if (this.$route.params.id && this.documentConfig.isLoading !== true) {
                 this.documentConfigId = this.$route.params.id;
                 this.loadEntityData();
             }
+            this.documentConfigSalesChannelsStore = new LocalStore();
+            this.isLoading = false;
         },
 
         loadEntityData() {
+            this.salesChannelStore.getList().then((response) => {
+                this.salesChannels = response;
+            });
             this.documentBaseConfigStore.getByIdAsync(this.documentConfigId).then((response) => {
                 this.documentConfig = response;
+                if (this.documentConfig.config === null) {
+                    this.documentConfig.config = [];
+                }
+                this.selectedType = this.documentTypeStore.getById(this.documentConfig.typeId);
+                if (this.documentConfig.global === false) {
+                    this.documentBaseConfigSalesChannelAssociationStore.getList({
+                        associations: { salesChannel: {} }
+                    }).then((responseAssoc) => {
+                        this.documentConfigSalesChannelsAssoc = responseAssoc;
+                        this.documentConfigSalesChannelsAssoc.items.forEach((salesChannelAssoc) => {
+                            if (salesChannelAssoc.salesChannelId !== null) {
+                                this.documentConfigSalesChannelsStore.add(salesChannelAssoc.salesChannel);
+                            }
+                        });
+                        this.$refs.documentSalesChannel.loadSelected(true);
+                        this.$refs.documentSalesChannel.updateValue();
+                    });
+                }
             });
         },
 
@@ -246,10 +292,60 @@ Component.register('sw-settings-document-detail', {
         },
 
         onChangeType(id) {
-            this.selectedType = this.numberRangeTypeStore.getById(id);
+            this.selectedType = this.documentTypeStore.getById(id);
+            this.documentBaseConfigSalesChannelAssociationStore.forEach((salesChannelAssoc) => {
+                salesChannelAssoc.documentTypeId = this.selectedType.id;
+            });
+        },
+        onChangeSalesChannel() {
+            this.$refs.documentSalesChannel.updateValue();
+            if (Object.keys(this.documentConfig).length === 0) {
+                return;
+            }
+            // check selected saleschannels and associate to config
+            if (this.documentConfigSalesChannels && this.documentConfigSalesChannels.length > 0) {
+                this.documentConfigSalesChannels.forEach((salesChannel) => {
+                    if (!this.configHasSaleschannel(salesChannel)) {
+                        const assocConfig = this.documentBaseConfigSalesChannelAssociationStore.create();
+                        assocConfig.documentBaseConfigId = this.documentConfig.id;
+                        assocConfig.documentTypeId = this.selectedType.id;
+                        assocConfig.salesChannelId = salesChannel;
+                    } else {
+                        this.undeleteSaleschannel(salesChannel);
+                    }
+                });
+            }
+            this.documentBaseConfigSalesChannelAssociationStore.forEach((salesChannelAssoc) => {
+                if (!this.selectHasSaleschannel(salesChannelAssoc.salesChannelId)) {
+                    salesChannelAssoc.delete();
+                }
+            });
+        },
+
+        configHasSaleschannel(salesChannelId) {
+            let found = false;
+            this.documentBaseConfigSalesChannelAssociationStore.forEach((salesChannelAssoc) => {
+                if (salesChannelAssoc.salesChannelId === salesChannelId) {
+                    found = true;
+                }
+            });
+            return found;
+        },
+
+        selectHasSaleschannel(salesChannelId) {
+            return (this.documentConfigSalesChannels && this.documentConfigSalesChannels.indexOf(salesChannelId) !== -1);
+        },
+
+        undeleteSaleschannel(salesChannelId) {
+            this.documentBaseConfigSalesChannelAssociationStore.forEach((salesChannelAssoc) => {
+                if (salesChannelAssoc.salesChannelId === salesChannelId && salesChannelAssoc.isDeleted === true) {
+                    salesChannelAssoc.isDeleted = false;
+                }
+            });
         },
 
         onSave() {
+            this.onChangeSalesChannel();
             const documentConfigName = this.documentConfig.name;
             const titleSaveSuccess = this.$tc('sw-settings-document.detail.titleSaveSuccess');
             const messageSaveSuccess = this.$tc(

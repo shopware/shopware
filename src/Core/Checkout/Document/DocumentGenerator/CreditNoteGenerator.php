@@ -40,6 +40,11 @@ class CreditNoteGenerator implements DocumentGeneratorInterface
         return new DocumentConfiguration();
     }
 
+    public function getFileName(DocumentConfiguration $config): string
+    {
+        return $config->getFileNamePrefix() . $config->getDocumentNumber() . $config->getFileNameSuffix();
+    }
+
     /**
      * @throws Error
      */

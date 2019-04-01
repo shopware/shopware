@@ -88,10 +88,8 @@ Component.register('sw-order-document-card', {
             this.getList();
         },
         createDocument(orderId, documentType, params) {
-            const technicalName = this.currentDocumentType.technicalName;
-            return this.numberRangeService.reserve(`document_${technicalName}`, this.order.salesChannelId).then((response) => {
-                params.documentNumber = response.number;
-                return this.documentService.createDocument(orderId, documentType, params);
+            return this.documentService.createDocument(orderId, documentType, params).then(() => {
+                this.getList();
             });
         },
         onCancelModal() {

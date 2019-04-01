@@ -83,10 +83,15 @@
                                                 <sw-grid-column flex="minmax(150px, 1fr)"
                                                                 :label="$tc('sw-settings-document.list.columnAssignment')">
                                                     {% block sw_settings_document_list_columns_assignment_label %}
-                                                        <ul class="sw-list">
+                                                        <div class="sw-list" v-if="item.global">
+                                                            <span class="sw-label">
+                                                            {{ $tc('sw-settings-document.list.global') }}
+                                                            </span>
+                                                        </div>
+                                                        <ul class="sw-list" v-if="!item.global">
                                                             <li v-for="salesChannel in item.meta.viewData.salesChannels.elements">
-                                                                <span class="sw-label">
-                                                                    {{ salesChannel.viewData.name }}
+                                                                <span class="sw-label" v-if="salesChannel.salesChannel">
+                                                                    {{ salesChannel.salesChannel.viewData.name }}
                                                                 </span>
                                                             </li>
                                                         </ul>

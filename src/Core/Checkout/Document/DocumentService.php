@@ -115,7 +115,7 @@ class DocumentService
         return new DocumentIdStruct($documentId, $deepLinkCode);
     }
 
-    public function getDocumentByIdAndToken(string $documentId, string $deepLinkCode, Context $context): string
+    public function getDocumentByIdAndToken(string $documentId, string $deepLinkCode, Context $context): DocumentEntity
     {
         $criteria = new Criteria();
         $criteria->addFilter(new MultiFilter(MultiFilter::CONNECTION_AND, [
@@ -128,7 +128,7 @@ class DocumentService
             throw new InvalidDocumentException($documentId);
         }
 
-        return $this->renderDocument($document, $context);
+        return $document;
     }
 
     public function getDocumentByOrder(
@@ -137,7 +137,7 @@ class DocumentService
         string $fileType,
         DocumentConfiguration $config,
         Context $context
-    ): string {
+    ): DocumentGenerated {
         $documentId = $this->create($orderId, $documentType, $fileType, $config, $context);
 
         /** @var DocumentEntity|null $document */
@@ -149,7 +149,7 @@ class DocumentService
         return $this->renderDocument($document, $context);
     }
 
-    public function renderDocument(DocumentEntity $document, Context $context): string
+    public function renderDocument(DocumentEntity $document, Context $context): DocumentGenerated
     {
         $documentGenerator = $this->documentGeneratorRegistry->getGenerator($document->getDocumentType()->getTechnicalName());
         $fileGenerator = $this->fileGeneratorRegistry->getGenerator($document->getFileType());
@@ -164,10 +164,17 @@ class DocumentService
 
         $config = DocumentConfigurationFactory::createConfiguration($document->getConfig());
 
-        $rendered = $documentGenerator->generateFromTemplate($order, $config, $context);
+        $documentGenerated = new DocumentGenerated();
 
-        // todo create struct for return type which includes filename? and extension!
-        return $fileGenerator->generate($rendered);
+        $documentGenerated->setHtml($documentGenerator->generateFromTemplate($order, $config, $context));
+
+        $documentGenerated->setFilename($documentGenerator->getFileName($config) . '.' . $fileGenerator->getExtension());
+
+        $documentGenerated->setPageOrientation($config->getPageOrientation());
+
+        $documentGenerated->setFileBlob($fileGenerator->generate($documentGenerated));
+
+        return $documentGenerated;
     }
 
     public function getPreview(
@@ -177,13 +184,14 @@ class DocumentService
         string $fileType,
         DocumentConfiguration $config,
         Context $context
-    ): string {
+    ): DocumentGenerated {
         $documentType = $this->getDocumentTypeById($documentTypeId, $context);
 
         if (!$documentTypeId || !$documentType || !$this->documentGeneratorRegistry->hasGenerator($documentType->getTechnicalName())) {
             throw new InvalidDocumentGeneratorTypeException($documentType ? $documentType->getTechnicalName() : $documentTypeId);
         }
         $fileGenerator = $this->fileGeneratorRegistry->getGenerator($fileType);
+        $documentGenerator = $this->documentGeneratorRegistry->getGenerator($documentType->getTechnicalName());
 
         $order = $this->getOrderByIdAndToken($orderId, $deepLinkCode, Defaults::LIVE_VERSION, $context);
 
@@ -197,9 +205,17 @@ class DocumentService
             $config->toArray()
         );
 
-        $rendered = $this->documentGeneratorRegistry->getGenerator($documentType->getTechnicalName())->generateFromTemplate($order, $documentConfiguration, $context);
+        $documentGenerated = new DocumentGenerated();
 
-        return $fileGenerator->generate($rendered);
+        $documentGenerated->setHtml($documentGenerator->generateFromTemplate($order, $documentConfiguration, $context));
+
+        $documentGenerated->setFilename($documentGenerator->getFileName($config) . '.' . $fileGenerator->getExtension());
+
+        $documentGenerated->setPageOrientation($config->getPageOrientation());
+
+        $documentGenerated->setFileBlob($fileGenerator->generate($documentGenerated));
+
+        return $documentGenerated;
     }
 
     private function getOrderByIdAndToken(

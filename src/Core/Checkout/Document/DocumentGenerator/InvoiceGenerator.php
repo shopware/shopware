@@ -57,4 +57,9 @@ class InvoiceGenerator implements DocumentGeneratorInterface
             'context' => $context,
         ]);
     }
+
+    public function getFileName(DocumentConfiguration $config): string
+    {
+        return $config->getFileNamePrefix() . $config->getDocumentNumber() . $config->getFileNameSuffix();
+    }
 }

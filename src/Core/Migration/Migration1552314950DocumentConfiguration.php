@@ -21,6 +21,10 @@ class Migration1552314950DocumentConfiguration extends MigrationStep
 CREATE TABLE `document_base_config` (
   `id` BINARY(16) NOT NULL,
   `name` VARCHAR(64) NOT NULL,
+  `filename_prefix` VARCHAR(64) DEFAULT '',
+  `filename_suffix` VARCHAR(64) DEFAULT '',
+  `document_number` VARCHAR(64) DEFAULT '',
+  `global` TINYINT(1) DEFAULT 0,
   `type_id` BINARY(16) NOT NULL,
   `logo_id` BINARY(16) NULL,
   `config` JSON NULL,
@@ -36,11 +40,15 @@ SQL;
 
         $sql = <<<SQL
             CREATE TABLE `document_base_config_sales_channel` (
+              `id` BINARY(16) NOT NULL,
               `document_base_config_id` BINARY(16) NOT NULL,
+              `document_type_id` BINARY(16) NOT NULL,
               `sales_channel_id` BINARY(16) NULL,
-              UNIQUE `uniq.document_base_configuration_id__sales_channel_id` (`document_base_config_id`, `sales_channel_id`),
+              UNIQUE `uniq.document_base_configuration_id__sales_channel_id` (`document_type_id`, `sales_channel_id`),
               CONSTRAINT `fk.document_base_config_sales_channel.document_base_config_id`
                 FOREIGN KEY (document_base_config_id) REFERENCES `document_base_config` (id) ON DELETE CASCADE ON UPDATE CASCADE,
+              CONSTRAINT `fk.document_base_config_sales_channel.document_type_id`
+                FOREIGN KEY (document_type_id) REFERENCES `document_type` (id) ON DELETE CASCADE ON UPDATE CASCADE,
               CONSTRAINT `fk.document_base_config_sales_channel.sales_channel_id`
                 FOREIGN KEY (sales_channel_id) REFERENCES `sales_channel` (id) ON DELETE CASCADE ON UPDATE CASCADE
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -86,14 +94,13 @@ SQL;
 
         $configJson = json_encode($defaultConfig);
 
-        $connection->insert('document_base_config', ['id' => $stornoConfigId, 'name' => DocumentTypes::STORNO, 'type_id' => $stornoId, 'config' => $configJson, 'created_at' => date(Defaults::DATE_FORMAT)]);
-        $connection->insert('document_base_config', ['id' => $invoiceConfigId, 'name' => DocumentTypes::INVOICE, 'type_id' => $invoiceId, 'config' => $configJson, 'created_at' => date(Defaults::DATE_FORMAT)]);
-        $connection->insert('document_base_config', ['id' => $creditConfigId, 'name' => DocumentTypes::CREDIT_NOTE, 'type_id' => $creditNoteId, 'config' => $configJson, 'created_at' => date(Defaults::DATE_FORMAT)]);
+        $connection->insert('document_base_config', ['id' => $stornoConfigId, 'name' => DocumentTypes::STORNO, 'global' => 1, 'filename_prefix' => DocumentTypes::STORNO . '_', 'type_id' => $stornoId, 'config' => $configJson, 'created_at' => date(Defaults::DATE_FORMAT)]);
+        $connection->insert('document_base_config', ['id' => $invoiceConfigId, 'name' => DocumentTypes::INVOICE, 'global' => 1, 'filename_prefix' => DocumentTypes::INVOICE . '_', 'type_id' => $invoiceId, 'config' => $configJson, 'created_at' => date(Defaults::DATE_FORMAT)]);
+        $connection->insert('document_base_config', ['id' => $deliveryConfigId, 'name' => DocumentTypes::DELIVERY_NOTE, 'global' => 1, 'filename_prefix' => DocumentTypes::DELIVERY_NOTE . '_', 'type_id' => $deliverNoteId, 'config' => $configJson, 'created_at' => date(Defaults::DATE_FORMAT)]);
 
-        $deliveryConfig = $defaultConfig;
-        $deliveryConfig['displayPrices'] = false;
-        $deliveryConfigJson = json_encode($deliveryConfig);
-        $connection->insert('document_base_config', ['id' => $deliveryConfigId, 'name' => DocumentTypes::DELIVERY_NOTE, 'type_id' => $deliverNoteId, 'config' => $deliveryConfigJson, 'created_at' => date(Defaults::DATE_FORMAT)]);
+        $connection->insert('document_base_config_sales_channel', ['id' => Uuid::uuid4()->getBytes(), 'document_base_config_id' => $stornoConfigId, 'document_type_id' => $stornoId]);
+        $connection->insert('document_base_config_sales_channel', ['id' => Uuid::uuid4()->getBytes(), 'document_base_config_id' => $invoiceConfigId, 'document_type_id' => $invoiceId]);
+        $connection->insert('document_base_config_sales_channel', ['id' => Uuid::uuid4()->getBytes(), 'document_base_config_id' => $deliveryConfigId, 'document_type_id' => $deliverNoteId]);
     }
 
     public function updateDestructive(Connection $connection): void

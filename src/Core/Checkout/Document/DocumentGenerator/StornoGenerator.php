@@ -61,6 +61,11 @@ class StornoGenerator implements DocumentGeneratorInterface
         ]);
     }
 
+    public function getFileName(DocumentConfiguration $config): string
+    {
+        return $config->getFileNamePrefix() . $config->getDocumentNumber() . $config->getFileNameSuffix();
+    }
+
     protected function handlePrices(OrderEntity $order)
     {
         foreach ($order->getLineItems() as $lineItem) {

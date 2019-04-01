@@ -17,6 +17,26 @@ class DocumentConfiguration extends Struct
     protected $logo;
 
     /**
+     * @var string|null
+     */
+    protected $fileNamePrefix;
+
+    /**
+     * @var string|null
+     */
+    protected $fileNameSuffix;
+
+    /**
+     * @var string
+     */
+    protected $documentNumber = '';
+
+    /**
+     * @var string
+     */
+    protected $pageOrientation = 'portrait';
+
+    /**
      * @var bool|null
      */
     protected $displayFooter;
@@ -140,5 +160,45 @@ class DocumentConfiguration extends Struct
     public function __isset($name)
     {
         return property_exists($this, $name);
+    }
+
+    public function getFileNamePrefix(): ?string
+    {
+        return $this->fileNamePrefix;
+    }
+
+    public function setFileNamePrefix(?string $fileNamePrefix): void
+    {
+        $this->fileNamePrefix = $fileNamePrefix;
+    }
+
+    public function getFileNameSuffix(): ?string
+    {
+        return $this->fileNameSuffix;
+    }
+
+    public function setFileNameSuffix(?string $fileNameSuffix): void
+    {
+        $this->fileNameSuffix = $fileNameSuffix;
+    }
+
+    public function getDocumentNumber(): string
+    {
+        return $this->documentNumber;
+    }
+
+    public function setDocumentNumber(string $documentNumber): void
+    {
+        $this->documentNumber = $documentNumber;
+    }
+
+    public function getPageOrientation(): string
+    {
+        return $this->pageOrientation;
+    }
+
+    public function setPageOrientation(string $pageOrientation): void
+    {
+        $this->pageOrientation = $pageOrientation;
     }
 }

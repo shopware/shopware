@@ -173,10 +173,13 @@ export default function conditionService() {
         ]
     };
 
+    const productAttributes = {};
+
     return {
         isPropertyInBlacklist,
         addToGeneralBlacklist,
-        addToEntityBlacklist
+        addToEntityBlacklist,
+        productAttributes
     };
 
     function isPropertyInBlacklist(definition, property) {

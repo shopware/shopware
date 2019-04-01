@@ -127,7 +127,7 @@ class ProductDefinition extends EntityDefinition
 
             //inherited data fields
             (new PriceField('price', 'price'))->addFlags(new Inherited(), new Required()),
-            (new PriceRulesJsonField('listing_prices', 'listingPrices'))->addFlags(new Inherited(), new WriteProtected()),
+            (new PriceRulesJsonField('listing_prices', 'listingPrices'))->addFlags(new Inherited()),
 
             (new StringField('manufacturer_number', 'manufacturerNumber'))->addFlags(new Inherited()),
             (new StringField('ean', 'ean'))->addFlags(new Inherited(), new SearchRanking(SearchRanking::MIDDLE_SEARCH_RANKING)),

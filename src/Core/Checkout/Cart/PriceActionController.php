@@ -7,7 +7,6 @@ use Shopware\Core\Checkout\Cart\Price\NetPriceCalculator;
 use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRule;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
-use Shopware\Core\Framework\Api\Response\Type\Api\JsonType;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -86,7 +85,7 @@ class PriceActionController extends AbstractController
         $data = json_decode(json_encode($calculated, JSON_PRESERVE_ZERO_FRACTION), true);
 
         return new JsonResponse(
-            ['data' => JsonType::format($data)]
+            ['data' => $data]
         );
     }
 }

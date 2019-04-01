@@ -3,7 +3,6 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer;
 
 use Shopware\Core\Defaults;
-use Shopware\Core\Framework\Api\Response\Type\Api\JsonType;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationInterface;
@@ -300,7 +299,6 @@ class VersionManager
         }
 
         $data = json_decode($this->serializer->serialize($detail, 'json'), true);
-        $data = JsonType::format($data);
 
         $keepIds = $newId === $id;
 

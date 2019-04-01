@@ -10,7 +10,6 @@ use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Symfony\Component\Serializer\SerializerInterface;
 
 class CartPersister implements CartPersisterInterface
 {
@@ -19,15 +18,9 @@ class CartPersister implements CartPersisterInterface
      */
     private $connection;
 
-    /**
-     * @var SerializerInterface
-     */
-    private $serializer;
-
-    public function __construct(Connection $connection, SerializerInterface $serializer)
+    public function __construct(Connection $connection)
     {
         $this->connection = $connection;
-        $this->serializer = $serializer;
     }
 
     public function load(string $token, CheckoutContext $context): Cart

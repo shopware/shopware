@@ -6,19 +6,15 @@ trait JsonSerializableTrait
 {
     public function jsonSerialize(): array
     {
-        $data = [
-            '_class' => \get_class($this),
-        ];
-
         $vars = get_object_vars($this);
         foreach ($vars as $property => $value) {
             if ($value instanceof \DateTimeInterface) {
                 $value = $value->format(\DateTime::ATOM);
             }
 
-            $data[$property] = $value;
+            $vars[$property] = $value;
         }
 
-        return $data;
+        return $vars;
     }
 }

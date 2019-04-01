@@ -6,10 +6,8 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartPersister;
-use Shopware\Core\Checkout\Cart\Error\ErrorCollection;
 use Shopware\Core\Checkout\Cart\Exception\CartTokenNotFoundException;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
-use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
@@ -83,22 +81,13 @@ class CartPersisterTest extends TestCase
         $connection->expects(static::once())
             ->method('fetchColumn')
             ->willReturn(
-                json_encode([
-                    '_class' => Cart::class,
-                    'lineItems' => new LineItemCollection(),
-                    'token' => 'existing',
-                    'name' => 'shopware',
-                    'errors' => new ErrorCollection(),
-                ])
+                serialize(new Cart('shopware', 'existing'))
             );
 
-        $persister = new CartPersister($connection, $this->serializer);
+        $persister = new CartPersister($connection);
         $cart = $persister->load('existing', Generator::createCheckoutContext());
 
-        static::assertEquals(
-            new Cart('shopware', 'existing'),
-            $cart
-        );
+        static::assertEquals(new Cart('shopware', 'existing'), $cart);
     }
 
     public function testEmptyCartShouldnBeSaved(): void

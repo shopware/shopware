@@ -6,6 +6,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Exception\ProductNotFoundException;
 use Shopware\Core\Framework\Routing\InternalRequest;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Storefront\Framework\Page\PageLoaderInterface;
 use Shopware\Storefront\Page\Product\ProductPage;
@@ -36,7 +37,7 @@ class ProductPageTest extends TestCase
         $request = new InternalRequest(['productId' => '99999911ffff4fffafffffff19830531']);
         $context = $this->createCheckoutContextWithNavigation();
 
-        $this->expectException(ProductNotFoundException::class);
+        $this->expectException(InvalidUuidException::class);
         $this->getPageLoader()->load($request, $context);
     }
 

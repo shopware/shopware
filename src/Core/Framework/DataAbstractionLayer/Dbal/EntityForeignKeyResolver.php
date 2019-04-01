@@ -141,7 +141,7 @@ class EntityForeignKeyResolver
 
             // `EntityTranslationDefinitions` dont have an id column. We need to construct one by combining the entity id and the language id.
             if ($cascade instanceof TranslationsAssociationField) {
-                $this->queryHelper->resolveField($cascade, $definition, $root, $query, $context, false);
+                $this->queryHelper->resolveField($cascade, $definition, $root, $query, $context);
                 $entityColumnName = $cascade->getReferenceField();
                 $languageColumnName = $cascade->getLanguageField();
 
@@ -156,7 +156,7 @@ class EntityForeignKeyResolver
             }
 
             if ($cascade instanceof OneToManyAssociationField) {
-                $this->queryHelper->resolveField($cascade, $definition, $root, $query, $context, false);
+                $this->queryHelper->resolveField($cascade, $definition, $root, $query, $context);
 
                 $query->addSelect(
                     'GROUP_CONCAT(DISTINCT HEX('
@@ -169,7 +169,7 @@ class EntityForeignKeyResolver
             if ($cascade instanceof ManyToManyAssociationField) {
                 $mappingAlias = $root . '.' . $cascade->getPropertyName() . '.mapping';
 
-                $this->queryHelper->resolveField($cascade, $definition, $root, $query, $context, false);
+                $this->queryHelper->resolveField($cascade, $definition, $root, $query, $context);
 
                 $query->addSelect(
                     'GROUP_CONCAT(DISTINCT HEX('
@@ -180,7 +180,7 @@ class EntityForeignKeyResolver
             }
 
             if ($cascade instanceof ManyToOneAssociationField) {
-                $this->queryHelper->resolveField($cascade, $definition, $root, $query, $context, false);
+                $this->queryHelper->resolveField($cascade, $definition, $root, $query, $context);
 
                 $query->addSelect(
                     'GROUP_CONCAT(DISTINCT HEX('

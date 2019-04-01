@@ -2,17 +2,15 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer;
 
-use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidSerializerFieldException;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\PriceRulesJsonField;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\ConstraintBuilder;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
+use Shopware\Core\Framework\Pricing\Price;
 use Shopware\Core\Framework\Pricing\PriceRuleCollection;
 use Shopware\Core\Framework\Pricing\PriceRuleEntity;
-use Symfony\Component\Serializer\SerializerInterface;
-use Symfony\Component\Validator\Constraints\Type;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 class PriceRulesJsonFieldSerializer implements FieldSerializerInterface
@@ -30,18 +28,23 @@ class PriceRulesJsonFieldSerializer implements FieldSerializerInterface
     protected $validator;
 
     /**
-     * @var SerializerInterface
+     * @var PriceRuleEntity
      */
-    protected $serializer;
+    private $priceRuleEntity;
+
+    /**
+     * @var Price
+     */
+    private $priceStruct;
 
     public function __construct(
         ConstraintBuilder $constraintBuilder,
-        ValidatorInterface $validator,
-        SerializerInterface $serializer
+        ValidatorInterface $validator
     ) {
         $this->constraintBuilder = $constraintBuilder;
         $this->validator = $validator;
-        $this->serializer = $serializer;
+        $this->priceRuleEntity = new PriceRuleEntity();
+        $this->priceStruct = new Price(0, 0, true);
     }
 
     public function getFieldClass(): string
@@ -55,28 +58,7 @@ class PriceRulesJsonFieldSerializer implements FieldSerializerInterface
         KeyValuePair $data,
         WriteParameterBag $parameters
     ): \Generator {
-        if (!$field instanceof PriceRulesJsonField) {
-            throw new InvalidSerializerFieldException(PriceRulesJsonField::class, $field);
-        }
-        $value = $data->getValue();
-        if (!empty($value)) {
-            $value = self::convertToStorage($value);
-        }
-
-        /** @var PriceRulesJsonField $field */
-        if ($this->requiresValidation($field, $existence, $data->getValue(), $parameters)) {
-            $constraints = $this->constraintBuilder
-                ->addConstraint(new Type('array'))
-                ->getConstraints();
-
-            $this->validate($this->validator, $constraints, $data->getKey(), $data->getValue(), $parameters->getPath());
-        }
-
-        if (!\is_string($value) && $value !== null) {
-            $value = JsonFieldSerializer::encodeJson($value);
-        }
-
-        yield $field->getStorageName() => $value;
+        throw new \RuntimeException('Price rules json field will be set by indexer');
     }
 
     public function decode(Field $field, $value): PriceRuleCollection
@@ -85,11 +67,20 @@ class PriceRulesJsonFieldSerializer implements FieldSerializerInterface
 
         $structs = [];
         if (isset($value['raw'])) {
-            foreach ($value['raw'] as $record) {
-                /** @var PriceRuleEntity $struct */
-                $struct = $this->serializer->deserialize(json_encode($record), '', 'json');
-                $struct->setUniqueIdentifier($struct->getId());
-                $structs[] = $struct;
+            $structs = [];
+            foreach ($value['raw'] as $raw) {
+                $entity = clone $this->priceRuleEntity;
+
+                $price = clone $this->priceStruct;
+                $price->assign($raw['price']);
+
+                $entity->setId($raw['id']);
+                $entity->setRuleId($raw['ruleId']);
+                $entity->setCurrencyId($raw['currencyId']);
+                $entity->setPrice($price);
+                $entity->setUniqueIdentifier($entity->getId());
+
+                $structs[] = $entity;
             }
         }
 

@@ -28,7 +28,23 @@ Component.register('sw-plugin-license-list', {
         }
     },
 
+    created() {
+        this.createdComponent();
+    },
+
+    destroyed() {
+        this.destroyedComponent();
+    },
+
     methods: {
+        createdComponent() {
+            this.$root.$on('sw-plugin-logout', this.getList);
+        },
+
+        destroyedComponent() {
+            this.$root.$off('sw-plugin-logout', this.getList);
+        },
+
         downloadPlugin(pluginName, update = false) {
             this.storeService.downloadPlugin(pluginName).then(() => {
                 if (update) {
@@ -48,6 +64,7 @@ Component.register('sw-plugin-license-list', {
         },
 
         getList() {
+            this.total = 0;
             this.isLoading = true;
             this.storeService.getLicenseList().then((response) => {
                 this.licenses = response.items;

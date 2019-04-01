@@ -44,9 +44,14 @@ Mixin.register('plugin-error-handler', {
                 const errors = exception.response.data.errors;
                 errors.forEach((error) => {
                     if (error.code === this.storeCode) {
+                        let message = error.detail;
+                        if (error.meta && error.meta.documentationLink) {
+                            message += ` (<a target="_blank" href="${error.meta.documentationLink}">${
+                                this.$tc('sw-plugin.errors.messageToTheShopwareDocumentation')}</a>)`;
+                        }
                         this.createNotificationError({
                             title: error.title,
-                            message: error.detail
+                            message: message
                         });
                         return;
                     }

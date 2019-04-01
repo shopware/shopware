@@ -262,7 +262,7 @@ class StoreController extends AbstractController
             return new JsonResponse([], $statusCode);
         }
 
-        if ($plugin->getUpgradeVersion()) {
+        if ($plugin && $plugin->getUpgradeVersion()) {
             $this->pluginLifecycleService->updatePlugin($plugin, $context);
         }
 

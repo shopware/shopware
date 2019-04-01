@@ -57,20 +57,11 @@
                                     {% block sw_plugin_list_grid_columns_label %}
                                         <sw-grid-column flex="minmax(100px, 1fr)"
                                                         :label="$tc('sw-plugin.list.columnPluginName')"
-                                                        dataIndex="label"
-                                                        truncate>
+                                                        dataIndex="label">
                                             {% block sw_plugin_list_grid_columns_label_label %}
-                                                <div class="sw-plugin-list__plugin-info-container">
-                                                    {% block sw_plugin_list_grid_columns_label_label_image %}
-                                                        <img v-if="item.icon" :src="'data:image/png;base64, ' + item.icon"/>
-                                                    {% endblock %}
-                                                    {% block sw_plugin_list_grid_columns_label_label_information %}
-                                                        <div class="sw-plugin-list__plugin-info">
-                                                            <p>{{ item.label }}</p>
-                                                            <p class="sw-plugin-list__author-name">{{ item.author }}</p>
-                                                        </div>
-                                                    {% endblock %}
-                                                </div>
+                                                <sw-plugin-table-entry :icon="item.icon" :title="item.label"
+                                                                       :subtitle="item.author">
+                                                </sw-plugin-table-entry>
                                             {% endblock %}
                                         </sw-grid-column>
                                     {% endblock %}
@@ -78,12 +69,11 @@
                                     {% block sw_plugin_list_grid_columns_activated %}
                                         <sw-grid-column flex="minmax(80px, 150px)"
                                                         :label="$tc('sw-plugin.list.columnActive')"
-                                                        dataIndex="active"
-                                                        truncate>
+                                                        dataIndex="active">
                                             {% block sw_plugin_list_grid_columns_activated_label %}
                                                 <sw-field type="switch"
                                                           :disabled="!item.installedAt"
-                                                          :label="item.active ? 'Aktiviert' : 'Deaktiviert'"
+                                                          :label="item.active ? $tc('sw-plugin.list.activated') : $tc('sw-plugin.list.deactivated')"
                                                           v-model="item.active"
                                                           v-on:change="changeActiveState(item)">
                                                 </sw-field>
@@ -94,8 +84,7 @@
                                     {% block sw_plugin_list_grid_columns_version %}
                                         <sw-grid-column flex="minmax(80px, 100px)"
                                                         :label="$tc('sw-plugin.list.columnVersion')"
-                                                        dataIndex="version"
-                                                        truncate>
+                                                        dataIndex="version">
                                             {% block sw_plugin_list_grid_columns_version_label %}
                                                 {{ item.version }}
                                             {% endblock %}
@@ -116,19 +105,6 @@
                                                      {% block sw_plugin_list_grid_columns_actions_uninstall %}
                                                         <sw-context-menu-item v-if="item.installedAt" @click="onUninstallPlugin(item)">
                                                             {{ $tc('sw-plugin.list.contextUninstall') }}
-                                                        </sw-context-menu-item>
-                                                     {% endblock %}
-
-                                                     {% block sw_plugin_list_grid_columns_actions_activate %}
-                                                        <sw-context-menu-item v-if="item.installedAt && !item.active"
-                                                                              @click="onActivatePlugin(item)">
-                                                            {{ $tc('sw-plugin.list.contextActivate') }}
-                                                        </sw-context-menu-item>
-                                                     {% endblock %}
-
-                                                     {% block sw_plugin_list_grid_columns_actions_deactivate %}
-                                                        <sw-context-menu-item v-if="item.active" @click="onDeactivatePlugin(item)">
-                                                            {{ $tc('sw-plugin.list.contextDeactivate') }}
                                                         </sw-context-menu-item>
                                                      {% endblock %}
 

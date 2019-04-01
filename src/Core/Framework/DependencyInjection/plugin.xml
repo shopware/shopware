@@ -48,7 +48,7 @@
         </service>
 
         <service id="Shopware\Core\Framework\Plugin\PluginManagementService">
-            <argument>%kernel.plugin_dir%</argument>
+            <argument>%kernel.project_dir%</argument>
             <argument type="service" id="Shopware\Core\Framework\Plugin\PluginZipDetector"/>
             <argument type="service" id="Shopware\Core\Framework\Plugin\PluginExtractor"/>
             <argument type="service" id="Shopware\Core\Framework\Plugin\PluginService"/>

@@ -21,11 +21,9 @@
                                     {% block sw_plugin_last_updates_card_grid_columns_name %}
                                         <sw-grid-column flex="minmax(100px, 1fr)"
                                                         :label="$tc('sw-plugin.list.columnPlugin')"
-                                                        dataIndex="name"
-                                                        truncate
-                                                        sortable>
+                                                        dataIndex="label">
                                             {% block sw_plugin_last_updates_card_grid_columns_name_label %}
-                                                <sw-plugin-table-entry :icon="item.icon" :title="item.name"
+                                                <sw-plugin-table-entry :icon="item.icon" :title="item.label"
                                                                        :subtitle="item.upgradedAt | date">
                                                 </sw-plugin-table-entry>
                                             {% endblock %}
@@ -35,9 +33,7 @@
                                     {% block sw_plugin_last_updates_card_grid_columns_changelog %}
                                         <sw-grid-column flex="minmax(100px, 1fr)"
                                                         :label="$tc('sw-plugin.list.columnChangelog')"
-                                                        dataIndex="changelog"
-                                                        truncate
-                                                        sortable>
+                                                        dataIndex="changelog">
                                             {% block sw_plugin_last_updates_card_grid_columns_changelog_label %}
                                                 <div v-for="changelog in getLatestChangelog(item)">
                                                     {{ changelog }}
@@ -47,8 +43,7 @@
                                     {% endblock %}
 
                                     {% block sw_plugin_last_updates_card_grid_columns_version %}
-                                        <sw-grid-column flex="minmax(100px, 0.5fr)"
-                                                            truncate>
+                                        <sw-grid-column flex="minmax(100px, 0.5fr)">
                                             {% block sw_plugin_last_updates_card_grid_columns_version_label %}
                                                 <p class="sw-plugin-last-updates-grid__version">{{ $tc('sw-plugin.general.version') }} {{ item.version }}</p>
                                             {% endblock %}

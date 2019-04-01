@@ -19,7 +19,7 @@ use Shopware\Core\Framework\Store\Struct\ShopUserTokenStruct;
 use Shopware\Core\Framework\Store\Struct\StoreLicenseStruct;
 use Shopware\Core\Framework\Store\Struct\StoreLicenseSubscriptionStruct;
 use Shopware\Core\Framework\Store\Struct\StoreLicenseTypeStruct;
-use Shopware\Core\Framework\Store\Struct\StoreUpdatesStruct;
+use Shopware\Core\Framework\Store\Struct\StoreUpdateStruct;
 
 final class StoreClient
 {
@@ -163,7 +163,7 @@ final class StoreClient
     }
 
     /**
-     * @return StoreUpdatesStruct[]
+     * @return StoreUpdateStruct[]
      */
     public function getUpdatesList(?string $storeToken, PluginCollection $pluginCollection, Context $context): array
     {
@@ -210,7 +210,7 @@ final class StoreClient
 
         $updateList = [];
         foreach ($data['data'] as $update) {
-            $updateStruct = new StoreUpdatesStruct();
+            $updateStruct = new StoreUpdateStruct();
             $updateStruct->assign($update);
             $updateList[] = $updateStruct;
         }

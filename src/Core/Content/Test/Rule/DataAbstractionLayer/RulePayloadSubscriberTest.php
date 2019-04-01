@@ -6,7 +6,6 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Rule\DataAbstractionLayer\Indexing\RulePayloadIndexer;
 use Shopware\Core\Content\Rule\DataAbstractionLayer\RulePayloadSubscriber;
-use Shopware\Core\Content\Rule\RuleCollection;
 use Shopware\Core\Content\Rule\RuleDefinition;
 use Shopware\Core\Content\Rule\RuleEntity;
 use Shopware\Core\Framework\Context;
@@ -52,15 +51,13 @@ class RulePayloadSubscriberTest extends TestCase
 
     public function testLoadValidRuleWithoutPayload(): void
     {
-        $collection = new RuleCollection();
         $id = Uuid::randomHex();
         $rule = (new RuleEntity())->assign(['id' => $id, 'payload' => null, 'invalid' => false, '_uniqueIdentifier' => $id]);
-        $collection->add($rule);
-        $loadedEvent = new EntityLoadedEvent(RuleDefinition::class, $collection, $this->context);
+        $loadedEvent = new EntityLoadedEvent(RuleDefinition::class, [$rule], $this->context);
 
         static::assertNull($rule->getPayload());
 
-        $this->indexer->expects(static::once())->method('update')->with([$id => $id])->willReturn([$id => ['payload' => serialize(new AndRule()), 'invalid' => false]]);
+        $this->indexer->expects(static::once())->method('update')->with([$id])->willReturn([$id => ['payload' => serialize(new AndRule()), 'invalid' => false]]);
         $this->rulePayloadSubscriber->unserialize($loadedEvent);
 
         static::assertNotNull($rule->getPayload());
@@ -70,11 +67,9 @@ class RulePayloadSubscriberTest extends TestCase
 
     public function testLoadInvalidRuleWithoutPayload(): void
     {
-        $collection = new RuleCollection();
         $id = Uuid::randomHex();
         $rule = (new RuleEntity())->assign(['id' => $id, 'payload' => null, 'invalid' => true, '_uniqueIdentifier' => $id]);
-        $collection->add($rule);
-        $loadedEvent = new EntityLoadedEvent(RuleDefinition::class, $collection, $this->context);
+        $loadedEvent = new EntityLoadedEvent(RuleDefinition::class, [$rule], $this->context);
 
         static::assertNull($rule->getPayload());
         static::assertTrue($rule->isInvalid());
@@ -88,11 +83,9 @@ class RulePayloadSubscriberTest extends TestCase
 
     public function testLoadValidRuleWithPayload(): void
     {
-        $collection = new RuleCollection();
         $id = Uuid::randomHex();
         $rule = (new RuleEntity())->assign(['id' => $id, 'payload' => serialize(new AndRule()), 'invalid' => false, '_uniqueIdentifier' => $id]);
-        $collection->add($rule);
-        $loadedEvent = new EntityLoadedEvent(RuleDefinition::class, $collection, $this->context);
+        $loadedEvent = new EntityLoadedEvent(RuleDefinition::class, [$rule], $this->context);
 
         static::assertNotNull($rule->getPayload());
 
@@ -105,18 +98,15 @@ class RulePayloadSubscriberTest extends TestCase
 
     public function testLoadValidRulesWithoutPayload(): void
     {
-        $collection = new RuleCollection();
         $id = Uuid::randomHex();
-        $rule = (new RuleEntity())->assign(['id' => $id, 'payload' => null, 'invalid' => false, '_uniqueIdentifier' => $id]);
-        $collection->add($rule);
         $id2 = Uuid::randomHex();
+        $rule = (new RuleEntity())->assign(['id' => $id, 'payload' => null, 'invalid' => false, '_uniqueIdentifier' => $id]);
         $rule2 = (new RuleEntity())->assign(['id' => $id2, 'payload' => null, 'invalid' => false, '_uniqueIdentifier' => $id2]);
-        $collection->add($rule2);
-        $loadedEvent = new EntityLoadedEvent(RuleDefinition::class, $collection, $this->context);
+        $loadedEvent = new EntityLoadedEvent(RuleDefinition::class, [$rule, $rule2], $this->context);
 
         static::assertNull($rule->getPayload());
 
-        $this->indexer->expects(static::once())->method('update')->with([$id => $id, $id2 => $id2])->willReturn(
+        $this->indexer->expects(static::once())->method('update')->with([$id, $id2])->willReturn(
             [
                 $id => ['payload' => serialize(new AndRule()), 'invalid' => false],
                 $id2 => ['payload' => serialize(new OrRule()), 'invalid' => false],
@@ -134,18 +124,15 @@ class RulePayloadSubscriberTest extends TestCase
 
     public function testLoadValidAndInvalidRulesWithoutPayload(): void
     {
-        $collection = new RuleCollection();
         $id = Uuid::randomHex();
-        $rule = (new RuleEntity())->assign(['id' => $id, 'payload' => null, 'invalid' => false, '_uniqueIdentifier' => $id]);
-        $collection->add($rule);
         $id2 = Uuid::randomHex();
+        $rule = (new RuleEntity())->assign(['id' => $id, 'payload' => null, 'invalid' => false, '_uniqueIdentifier' => $id]);
         $rule2 = (new RuleEntity())->assign(['id' => $id2, 'payload' => null, 'invalid' => true, '_uniqueIdentifier' => $id2]);
-        $collection->add($rule2);
-        $loadedEvent = new EntityLoadedEvent(RuleDefinition::class, $collection, $this->context);
+        $loadedEvent = new EntityLoadedEvent(RuleDefinition::class, [$rule, $rule2], $this->context);
 
         static::assertNull($rule->getPayload());
 
-        $this->indexer->expects(static::once())->method('update')->with([$id => $id])->willReturn(
+        $this->indexer->expects(static::once())->method('update')->with([$id])->willReturn(
             [
                 $id => ['payload' => serialize(new AndRule()), 'invalid' => false],
             ]

@@ -45,18 +45,23 @@ class RulePayloadSubscriber implements EventSubscriberInterface
 
     private function indexIfNeeded(EntityLoadedEvent $event): void
     {
-        $entities = $event->getEntities()->filter(function (RuleEntity $rule) {
-            return $rule->getPayload() === null && !$rule->isInvalid();
-        });
+        $rules = [];
 
-        if (!$entities->count()) {
+        /** @var RuleEntity $rule */
+        foreach ($event->getEntities() as $rule) {
+            if ($rule->getPayload() === null && !$rule->isInvalid()) {
+                $rules[$rule->getId()] = $rule;
+            }
+        }
+
+        if (!count($rules)) {
             return;
         }
 
-        $updated = $this->indexer->update($entities->getIds());
+        $updated = $this->indexer->update(array_keys($rules));
 
         foreach ($updated as $id => $entity) {
-            $entities->get($id)->assign($entity);
+            $rules[$id]->assign($entity);
         }
     }
 }

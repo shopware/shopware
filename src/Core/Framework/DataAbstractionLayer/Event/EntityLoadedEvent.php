@@ -4,7 +4,6 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Event;
 
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
@@ -18,7 +17,7 @@ use Shopware\Core\Framework\Event\NestedEventCollection;
 class EntityLoadedEvent extends NestedEvent
 {
     /**
-     * @var EntityCollection
+     * @var Entity[]
      */
     protected $entities;
 
@@ -42,7 +41,7 @@ class EntityLoadedEvent extends NestedEvent
      */
     protected $nested = true;
 
-    public function __construct(string $definition, EntityCollection $entities, Context $context, bool $nested = true)
+    public function __construct(string $definition, array $entities, Context $context, bool $nested = true)
     {
         $this->entities = $entities;
         $this->definition = $definition;
@@ -51,7 +50,7 @@ class EntityLoadedEvent extends NestedEvent
         $this->nested = $nested;
     }
 
-    public function getEntities(): EntityCollection
+    public function getEntities(): array
     {
         return $this->entities;
     }
@@ -83,8 +82,7 @@ class EntityLoadedEvent extends NestedEvent
 
         /** @var string|EntityDefinition $definition */
         foreach ($associations as $definition => $entities) {
-            $collection = $definition::getCollectionClass();
-            $events[] = new EntityLoadedEvent($definition, new $collection($entities), $this->context, false);
+            $events[] = new EntityLoadedEvent($definition, $entities, $this->context, false);
         }
 
         return new NestedEventCollection($events);

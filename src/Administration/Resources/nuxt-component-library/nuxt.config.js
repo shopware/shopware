@@ -36,7 +36,7 @@ module.exports = {
     },
     css: [
         '~/static/administration/static/css/app.css',
-        '~/assets/css/main.less'
+        '~/assets/css/main.scss'
     ],
     plugins: [
         '~/plugins/vue-prism',

@@ -38,6 +38,10 @@ $sw-product-stream-modal-color-success: $color-emerald;
         padding: 0;
         border-bottom: 1px solid $color-steam-cloud;
 
+        &:hover {
+            background: $color-light-gray;
+        }
+
         .sw-product-stream-modal-preview__search-field {
             margin: 24px 32px;
         }

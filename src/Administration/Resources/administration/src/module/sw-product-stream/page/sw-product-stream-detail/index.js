@@ -16,6 +16,7 @@ Component.register('sw-product-stream-detail', {
 
     data() {
         return {
+            nameRequired: this.isSystemLanguage(),
             productStream: {},
             nestedFilters: {},
             filterAssociations: {},
@@ -112,6 +113,11 @@ Component.register('sw-product-stream-detail', {
             }
         },
 
+        isSystemLanguage() {
+            const isSystem = State.getStore('language').systemLanguageId === State.getStore('language').currentLanguageId;
+            return isSystem ? 'required' : null;
+        },
+
         loadEntityData() {
             this.productStream = this.productStreamStore.getById(this.productStreamId);
             this.filterAssociations = this.productStream.getAssociation('filters');
@@ -126,6 +132,7 @@ Component.register('sw-product-stream-detail', {
         },
 
         onChangeLanguage() {
+            this.nameRequired = this.isSystemLanguage();
             this.loadEntityData();
         },
 

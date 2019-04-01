@@ -162,7 +162,7 @@ class ProductVisibilityTest extends TestCase
             }
 
             if ($case['visible']) {
-                static::assertNull($e);
+                static::assertTrue($e === null, 'Exception is not be thrown.');
                 static::assertSame($case['productId'], $page->getProduct()->getId());
                 continue;
             }

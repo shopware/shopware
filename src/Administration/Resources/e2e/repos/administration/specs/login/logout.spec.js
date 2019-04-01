@@ -19,9 +19,6 @@ module.exports = {
         page.logout('admin');
     },
     'verify logout': (browser) => {
-        browser
-            .waitForElementVisible('.sw-login__submit')
-            .url(`${browser.launch_url}#/sw/dashboard/index`)
-            .waitForElementVisible('.sw-login');
+        browser.waitForElementVisible('.sw-login__submit');
     }
 };

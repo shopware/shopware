@@ -176,6 +176,11 @@
         "finishInfoConfirmationMail": "We have sent you the order confirmation by email.",
         "finishButtonBackToShop": "Back to the shop"
     },
+    "listing": {
+        "boxUnitLabel": "Content:",
+        "boxLabelTopseller": "Tip!",
+        "boxLabelNew": "New"
+    },
     "detail": {
         "ordernumberLabel": "Order number: ",
         "addProduct": "Add to shopping cart",

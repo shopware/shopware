@@ -2,12 +2,16 @@
     <div class="card product-box box-{{ layout }}">
         {% block component_product_box_content %}
             <div class="card-body">
+                {% block component_product_box_badges %}
+					{% sw_include '@Storefront/component/product/widget/badges.html.twig' %}
+                {% endblock %}
+
                 {% block component_product_box_image %}
-                    <div class="product-image">
+                    <div class="product-image-wrapper">
                         <a href="{{ path('frontend.detail.page', {'productId': product.id}) }}"
                            title="{{ product.name }}"
                            class="product-image-link">
-                                <img class="img-fluid"
+                                <img class="product-image img-fluid"
                                      src="{{ asset(product.cover.media.url) }}"
                                      alt="{{ product.cover.media.alt }}">
                         </a>
@@ -24,18 +28,18 @@
                             </a>
                         {% endblock %}
 
+						{% block component_product_box_description %}
+							<div class="product-description">
+								{{ product.description }}
+							</div>
+						{% endblock %}
+
                         {% block component_product_box_price %}
-                            <div class="product-price-info">
-                                <p class="product-price">
-                                    {{ product.price.gross|localizedcurrency('EUR', app.request.locale) }}
-                                </p>
-                            </div>
+                            {% sw_include '@Storefront/component/product/widget/price-unit.html.twig' %}
                         {% endblock %}
 
-                        {% block component_product_box_description %}
-                            <div class="product-description">
-                                {{ product.description }}
-                            </div>
+                        {% block component_product_box_action %}
+                            {#TODO: NEXT-1904 - add button#}
                         {% endblock %}
                     </div>
                 {% endblock %}

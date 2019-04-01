@@ -25,7 +25,7 @@ final class StoreClient
 {
     private const SHOPWARE_PLATFORM_TOKEN_HEADER = 'X-Shopware-Platform-Token';
     private const SHOPWARE_SHOP_SECRET_HEADER = 'X-Shopware-Shop-Secret';
-    private const SHOPWARE_SIGNATURE_HEADER = 'x-shopware-signature';
+    private const SHOPWARE_SIGNATURE_HEADER = 'X-Shopware-Signature';
 
     /**
      * @var Client
@@ -65,7 +65,7 @@ final class StoreClient
         $this->verifyResponseSignature($response);
     }
 
-    public function loginWithShopwareId(string $shopwareId, string $password, Context $context): AccessTokenStruct
+    public function loginWithShopwareId(string $shopwareId, string $password, string $language, Context $context): AccessTokenStruct
     {
         $response = $this->client->post(
             '/swplatform/login',
@@ -75,7 +75,7 @@ final class StoreClient
                     'password' => $password,
                     'shopwareUserId' => $context->getUserId(),
                 ]),
-                'query' => $this->getDefaultQueryParameters($context),
+                'query' => $this->getDefaultQueryParameters($language, $context),
             ]
         );
         $this->verifyResponseSignature($response);
@@ -95,7 +95,7 @@ final class StoreClient
     /**
      * @return StoreLicenseStruct[]
      */
-    public function getLicenseList(string $storeToken, Context $context): array
+    public function getLicenseList(string $storeToken, string $language, Context $context): array
     {
         $shopSecret = $this->getShopSecret($context);
 
@@ -109,7 +109,7 @@ final class StoreClient
         $response = $this->client->get(
             '/swplatform/pluginlicenses',
             [
-                'query' => $this->getDefaultQueryParameters($context),
+                'query' => $this->getDefaultQueryParameters($language, $context),
                 'headers' => array_merge(
                     $this->client->getConfig('headers'),
                     $headers
@@ -165,7 +165,7 @@ final class StoreClient
     /**
      * @return StoreUpdateStruct[]
      */
-    public function getUpdatesList(?string $storeToken, PluginCollection $pluginCollection, Context $context): array
+    public function getUpdatesList(?string $storeToken, PluginCollection $pluginCollection, string $language, Context $context): array
     {
         $pluginArray = [];
 
@@ -194,8 +194,8 @@ final class StoreClient
         $response = $this->client->post(
             '/swplatform/pluginupdates',
             [
-                'query' => $this->getDefaultQueryParameters($context),
-                'body' => \json_encode([
+                'query' => $this->getDefaultQueryParameters($language, $context),
+                'body' => json_encode([
                     'plugins' => $pluginArray,
                 ]),
                 'headers' => array_merge(
@@ -218,7 +218,7 @@ final class StoreClient
         return $updateList;
     }
 
-    public function getDownloadDataForPlugin(string $pluginName, string $storeToken, Context $context): PluginDownloadDataStruct
+    public function getDownloadDataForPlugin(string $pluginName, string $storeToken, string $language, Context $context): PluginDownloadDataStruct
     {
         $shopSecret = $this->getShopSecret($context);
 
@@ -232,7 +232,7 @@ final class StoreClient
         $response = $this->client->get(
             '/swplatform/pluginfiles/' . $pluginName,
             [
-                'query' => $this->getDefaultQueryParameters($context),
+                'query' => $this->getDefaultQueryParameters($language, $context),
                 'headers' => array_merge(
                     $this->client->getConfig('headers'),
                     $headers
@@ -248,7 +248,7 @@ final class StoreClient
         return $dataStruct;
     }
 
-    private function getDefaultQueryParameters(Context $context): array
+    private function getDefaultQueryParameters(string $language, Context $context): array
     {
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('key', 'host'));
@@ -260,7 +260,7 @@ final class StoreClient
 
         return [
             'shopwareVersion' => Framework::VERSION,
-            'language' => 'de_DE',
+            'language' => $language,
             'domain' => $storeSettings->getValue(),
         ];
     }
@@ -282,7 +282,12 @@ final class StoreClient
     private function verifyResponseSignature(ResponseInterface $response): void
     {
         $signatureHeaderName = self::SHOPWARE_SIGNATURE_HEADER;
-        $signature = $response->getHeader($signatureHeaderName)[0];
+        $header = $response->getHeader($signatureHeaderName);
+        if (!isset($header[0])) {
+            throw new StoreSignatureValidationException(sprintf('Signature not found in header "%s"', $signatureHeaderName));
+        }
+
+        $signature = $header[0];
 
         if (empty($signature)) {
             throw new StoreSignatureValidationException(sprintf('Signature not found in header "%s"', $signatureHeaderName));

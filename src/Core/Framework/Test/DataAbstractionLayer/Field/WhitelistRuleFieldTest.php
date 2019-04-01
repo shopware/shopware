@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\Test\DataAbstractionLayer\Field;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Context\SystemSource;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -182,7 +183,6 @@ class WhitelistRuleFieldTest extends TestCase
         $this->repository->create($products, Context::createDefaultContext());
 
         $criteria = new Criteria([$productId1, $productId2, $productId3]);
-        $criteria->setInherited(true);
 
         //context without rules should return the product
         $context = $this->createContextWithRules();
@@ -311,7 +311,6 @@ class WhitelistRuleFieldTest extends TestCase
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('product.manufacturerId', $manufacturerId));
-        $criteria->setInherited(true);
 
         //context without rules should return the product
         $context = $this->createContextWithRules();
@@ -765,6 +764,6 @@ class WhitelistRuleFieldTest extends TestCase
 
     private function createContextWithRules(array $ruleIds = []): Context
     {
-        return new Context(new SystemSource(), $ruleIds);
+        return new Context(new SystemSource(), $ruleIds, Defaults::CURRENCY, [Defaults::LANGUAGE_SYSTEM], Defaults::LIVE_VERSION, 1.0, 2, true);
     }
 }

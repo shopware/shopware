@@ -65,7 +65,7 @@ class EntityReaderTest extends TestCase
 
     public function testTranslated()
     {
-        $id = Uuid::uuid4()->getHex();
+        $id = Uuid::randomHex();
         $data = [
             ['id' => $id, 'name' => 'test'],
         ];
@@ -253,8 +253,9 @@ class EntityReaderTest extends TestCase
         $this->productRepository->create($products, Context::createDefaultContext());
 
         $criteria = new Criteria([$parentId, $greenId, $redId]);
-        $criteria->setInherited(false);
-        $products = $this->productRepository->search($criteria, Context::createDefaultContext());
+        $context = Context::createDefaultContext();
+        $context->setConsiderInheritance(false);
+        $products = $this->productRepository->search($criteria, $context);
 
         /** @var ProductEntity $parent */
         $parent = $products->get($parentId);
@@ -284,8 +285,9 @@ class EntityReaderTest extends TestCase
         static::assertEquals(100, $green->getPrice()->getGross());
 
         $criteria = new Criteria([$parentId, $greenId, $redId]);
-        $criteria->setInherited(true);
-        $products = $this->productRepository->search($criteria, Context::createDefaultContext());
+        $context = Context::createDefaultContext();
+        $context->setConsiderInheritance(true);
+        $products = $this->productRepository->search($criteria, $context);
 
         /** @var ProductEntity $parent */
         $parent = $products->get($parentId);
@@ -381,7 +383,7 @@ class EntityReaderTest extends TestCase
         $this->productRepository->create($products, $context);
 
         $criteria = new Criteria([$greenId, $parentId, $redId]);
-        $criteria->setInherited(true);
+        $context->setConsiderInheritance(true);
 
         $products = $this->productRepository->search($criteria, $context);
 
@@ -468,7 +470,7 @@ class EntityReaderTest extends TestCase
 
         $criteria = new Criteria([$greenId, $parentId, $redId]);
         $criteria->addAssociation('product.prices', new PaginationCriteria(5));
-        $criteria->setInherited(true);
+        $context->setConsiderInheritance(true);
 
         $products = $this->productRepository->search($criteria, $context);
 
@@ -542,7 +544,7 @@ class EntityReaderTest extends TestCase
 
         $criteria = new Criteria([$greenId, $parentId, $redId]);
         $criteria->addAssociation('product.categories');
-        $criteria->setInherited(true);
+        $context->setConsiderInheritance(true);
 
         $products = $this->productRepository->search($criteria, $context);
 
@@ -577,7 +579,7 @@ class EntityReaderTest extends TestCase
         //####
         $criteria = new Criteria([$greenId, $parentId, $redId]);
         $criteria->addAssociation('product.categories');
-        $criteria->setInherited(false);
+        $context->setConsiderInheritance(false);
 
         $products = $this->productRepository->search($criteria, $context);
 
@@ -664,7 +666,7 @@ class EntityReaderTest extends TestCase
 
         $criteria = new Criteria([$greenId, $parentId, $redId]);
         $criteria->addAssociation('product.categories', new PaginationCriteria(3));
-        $criteria->setInherited(true);
+        $context->setConsiderInheritance(true);
         $products = $this->productRepository->search($criteria, $context);
 
         /** @var ProductEntity $parent */
@@ -697,7 +699,7 @@ class EntityReaderTest extends TestCase
 
         $criteria = new Criteria([$greenId, $parentId, $redId]);
         $criteria->addAssociation('product.categories', new PaginationCriteria(3));
-        $criteria->setInherited(false);
+        $context->setConsiderInheritance(false);
         $products = $this->productRepository->search($criteria, $context);
 
         /** @var ProductEntity $parent */

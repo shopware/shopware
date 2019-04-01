@@ -51,7 +51,8 @@ class ApiRequestContextResolver implements RequestContextResolverInterface
             $languageIdChain,
             $params['versionId'] ?? Defaults::LIVE_VERSION,
             $params['currencyFactory'],
-            $params['currencyPrecision']
+            $params['currencyPrecision'],
+            $params['considerInheritance']
         );
 
         $request->attributes->set(PlatformRequest::ATTRIBUTE_CONTEXT_OBJECT, $context);
@@ -66,6 +67,7 @@ class ApiRequestContextResolver implements RequestContextResolverInterface
             'currencyFactory' => 1.0,
             'currencyPrecision' => 2,
             'versionId' => $master->headers->get(PlatformRequest::HEADER_VERSION_ID),
+            'considerInheritance' => false,
         ];
 
         $runtimeParams = $this->getRuntimeParameters($master);
@@ -77,13 +79,17 @@ class ApiRequestContextResolver implements RequestContextResolverInterface
     private function getRuntimeParameters(Request $request): array
     {
         $parameters = [];
-        if (!$request->headers->has(PlatformRequest::HEADER_LANGUAGE_ID)) {
-            return $parameters;
+
+        if ($request->headers->has(PlatformRequest::HEADER_LANGUAGE_ID)) {
+            $langHeader = $request->headers->get(PlatformRequest::HEADER_LANGUAGE_ID);
+
+            if ($langHeader !== null) {
+                $parameters['languageId'] = $langHeader;
+            }
         }
 
-        $langHeader = $request->headers->get(PlatformRequest::HEADER_LANGUAGE_ID);
-        if ($langHeader !== null) {
-            $parameters['languageId'] = $langHeader;
+        if ($request->headers->has(PlatformRequest::HEADER_INHERITANCE)) {
+            $parameters['considerInheritance'] = true;
         }
 
         return $parameters;

@@ -127,7 +127,7 @@ class StorefrontCategoryControllerTest extends TestCase
         $content = json_decode($response->getContent(), true);
 
         static::assertNotEmpty($content);
-        static::assertSame(2, $content['total']);
+        static::assertSame(2, $content['total'], print_r($content, true));
 
         $ids = array_column($content['data'], 'id');
         static::assertContains($categoryC, $ids);

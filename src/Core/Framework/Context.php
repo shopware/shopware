@@ -52,7 +52,12 @@ class Context extends Struct
     /**
      * @var ContextSource
      */
-    private $source;
+    protected $source;
+
+    /**
+     * @var bool
+     */
+    protected $considerInheritance;
 
     public function __construct(
         ContextSource $source,
@@ -61,7 +66,8 @@ class Context extends Struct
         array $languageIdChain = [Defaults::LANGUAGE_SYSTEM],
         string $versionId = Defaults::LIVE_VERSION,
         float $currencyFactor = 1.0,
-        int $currencyPrecision = 2
+        int $currencyPrecision = 2,
+        bool $considerInheritance = false
     ) {
         $this->source = $source;
 
@@ -80,6 +86,7 @@ class Context extends Struct
         }
         $this->languageIdChain = array_keys(array_flip(array_filter($languageIdChain)));
         $this->currencyPrecision = $currencyPrecision;
+        $this->considerInheritance = $considerInheritance;
     }
 
     public static function createDefaultContext(?ContextSource $source = null): self
@@ -179,5 +186,15 @@ class Context extends Struct
     public function getCurrencyPrecision(): int
     {
         return $this->currencyPrecision;
+    }
+
+    public function considerInheritance(): bool
+    {
+        return $this->considerInheritance;
+    }
+
+    public function setConsiderInheritance(bool $considerInheritance): void
+    {
+        $this->considerInheritance = $considerInheritance;
     }
 }

@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerEntity;
 use Shopware\Core\Content\Product\ProductCollection;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Context\SystemSource;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -184,7 +185,6 @@ class BlacklistRuleFieldTest extends TestCase
         $this->repository->create($products, Context::createDefaultContext());
 
         $criteria = new Criteria([$productId1, $productId2, $productId3]);
-        $criteria->setInherited(true);
 
         //context without rules should return the product
         $context = $this->createContextWithRules();
@@ -312,7 +312,6 @@ class BlacklistRuleFieldTest extends TestCase
         $this->repository->create($products, Context::createDefaultContext());
 
         $criteria = new Criteria();
-        $criteria->setInherited(true);
         $criteria->addFilter(new EqualsFilter('product.manufacturerId', $manufacturerId));
 
         //context without rules should return the product
@@ -836,6 +835,6 @@ class BlacklistRuleFieldTest extends TestCase
 
     private function createContextWithRules(array $ruleIds = []): Context
     {
-        return new Context(new SystemSource(), $ruleIds);
+        return new Context(new SystemSource(), $ruleIds, Defaults::CURRENCY, [Defaults::LANGUAGE_SYSTEM], Defaults::LIVE_VERSION, 1.0, 2, true);
     }
 }

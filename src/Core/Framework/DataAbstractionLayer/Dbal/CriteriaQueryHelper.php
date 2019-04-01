@@ -20,11 +20,11 @@ trait CriteriaQueryHelper
     {
         $table = $definition::getEntityName();
 
-        $query = $queryHelper->getBaseQuery($query, $definition, $context, $criteria->considerInheritance());
+        $query = $queryHelper->getBaseQuery($query, $definition, $context);
 
-        if ($definition::isInheritanceAware() && $criteria->considerInheritance()) {
+        if ($definition::isInheritanceAware() && $context->considerInheritance()) {
             $parent = $definition::getFields()->get('parent');
-            $queryHelper->resolveField($parent, $definition, $definition::getEntityName(), $query, $context, $criteria->considerInheritance());
+            $queryHelper->resolveField($parent, $definition, $definition::getEntityName(), $query, $context);
         }
 
         $fields = $this->getFieldsByCriteria($criteria);
@@ -34,7 +34,7 @@ trait CriteriaQueryHelper
             if ($fieldName === '_score') {
                 continue;
             }
-            $queryHelper->resolveAccessor($fieldName, $definition, $table, $query, $context, $criteria->considerInheritance());
+            $queryHelper->resolveAccessor($fieldName, $definition, $table, $query, $context);
         }
 
         $this->addFilters($parser, $definition, $criteria, $query, $context);
@@ -56,7 +56,7 @@ trait CriteriaQueryHelper
             )
         );
 
-        $parsed = $parser->parse($filters, $definition, $context, $criteria->considerInheritance());
+        $parsed = $parser->parse($filters, $definition, $context);
 
         if (empty($parsed->getWheres())) {
             return;
@@ -77,8 +77,7 @@ trait CriteriaQueryHelper
             $criteria->getQueries(),
             $definition,
             $definition::getEntityName(),
-            $context,
-            $criteria->considerInheritance()
+            $context
         );
         if (empty($queries->getWheres())) {
             return;
@@ -120,7 +119,7 @@ trait CriteriaQueryHelper
                 continue;
             }
 
-            $accessor = $queryHelper->getFieldAccessor($sorting->getField(), $definition, $definition::getEntityName(), $context, $criteria->considerInheritance());
+            $accessor = $queryHelper->getFieldAccessor($sorting->getField(), $definition, $definition::getEntityName(), $context);
 
             if ($sorting->getNaturalSorting()) {
                 $query->addOrderBy('LENGTH(' . $accessor . ')');
@@ -155,8 +154,7 @@ trait CriteriaQueryHelper
                 $sorting->getField(),
                 $definition,
                 $definition::getEntityName(),
-                $context,
-                $criteria->considerInheritance()
+                $context
             );
         }
 

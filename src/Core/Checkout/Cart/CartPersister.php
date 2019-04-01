@@ -41,7 +41,7 @@ class CartPersister implements CartPersisterInterface
             throw new CartTokenNotFoundException($token);
         }
 
-        $cart = $this->serializer->deserialize((string) $content, '', 'json');
+        $cart = unserialize((string) $content);
         if (!$cart instanceof Cart) {
             throw new CartDeserializeFailedException();
         }
@@ -95,7 +95,7 @@ class CartPersister implements CartPersisterInterface
     {
         $errors = $cart->getErrors();
         $cart->setErrors(new ErrorCollection());
-        $serializedCart = $this->serializer->serialize($cart, 'json');
+        $serializedCart = serialize($cart);
         $cart->setErrors($errors);
 
         return $serializedCart;

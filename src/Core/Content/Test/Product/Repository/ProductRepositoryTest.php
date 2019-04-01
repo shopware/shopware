@@ -473,15 +473,15 @@ class ProductRepositoryTest extends TestCase
             ['id' => $greenId, 'stock' => 10, 'price' => $greenPrice, 'parentId' => $parentId],
         ];
 
-        $this->repository->create($products, Context::createDefaultContext());
+        $context = Context::createDefaultContext();
+        $context->setConsiderInheritance(true);
+        $this->repository->create($products, $context);
 
         $criteria = new Criteria([$redId, $greenId]);
-        $criteria->setInherited(true);
-        $products = $this->repository->search($criteria, Context::createDefaultContext());
+        $products = $this->repository->search($criteria, $context);
 
         $criteria = new Criteria([$parentId]);
-        $criteria->setInherited(true);
-        $parents = $this->repository->search($criteria, Context::createDefaultContext());
+        $parents = $this->repository->search($criteria, $context);
 
         static::assertTrue($parents->has($parentId));
         static::assertTrue($products->has($redId));
@@ -749,14 +749,15 @@ class ProductRepositoryTest extends TestCase
         ];
 
         $context = Context::createDefaultContext();
+        $context->setConsiderInheritance(true);
 
         $this->repository->create($products, $context);
 
         $criteria = new Criteria([$redId, $greenId]);
-        $criteria->setInherited(true);
         $products = $this->repository->search($criteria, $context);
 
         $criteria = new Criteria([$parentId]);
+        $context->setConsiderInheritance(false);
         $parents = $this->repository->search($criteria, $context);
 
         static::assertTrue($parents->has($parentId));
@@ -870,9 +871,11 @@ class ProductRepositoryTest extends TestCase
 
         $criteria = new Criteria([$redId, $greenId]);
         $criteria->addAssociation('media');
-        $criteria->setInherited(true);
 
-        $products = $this->repository->search($criteria, Context::createDefaultContext());
+        $context = Context::createDefaultContext();
+        $context->setConsiderInheritance(true);
+
+        $products = $this->repository->search($criteria, $context);
 
         $criteria = new Criteria([$parentId]);
         $criteria->addAssociation('media');
@@ -947,17 +950,18 @@ class ProductRepositoryTest extends TestCase
             ],
         ];
 
-        $this->repository->create($products, Context::createDefaultContext());
+        $context = Context::createDefaultContext();
+        $context->setConsiderInheritance(true);
+
+        $this->repository->create($products, $context);
 
         $criteria = new Criteria([$redId, $greenId]);
         $criteria->addAssociation('categories');
-        $criteria->setInherited(true);
-        $products = $this->repository->search($criteria, Context::createDefaultContext());
+        $products = $this->repository->search($criteria, $context);
 
         $criteria = new Criteria([$parentId]);
         $criteria->addAssociation('categories');
-        $criteria->setInherited(true);
-        $parents = $this->repository->search($criteria, Context::createDefaultContext());
+        $parents = $this->repository->search($criteria, $context);
 
         static::assertTrue($parents->has($parentId));
         static::assertTrue($products->has($redId));
@@ -1020,13 +1024,15 @@ class ProductRepositoryTest extends TestCase
             ['id' => $greenId, 'stock' => 10, 'price' => $greenPrice, 'parentId' => $parentId],
         ];
 
-        $this->repository->create($products, Context::createDefaultContext());
+        $context = Context::createDefaultContext();
+        $context->setConsiderInheritance(true);
+
+        $this->repository->create($products, $context);
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('product.name', $parentName));
-        $criteria->setInherited(true);
 
-        $products = $this->repository->search($criteria, Context::createDefaultContext());
+        $products = $this->repository->search($criteria, $context);
         static::assertCount(2, $products);
         static::assertTrue($products->has($parentId));
         static::assertTrue($products->has($greenId));
@@ -1034,7 +1040,7 @@ class ProductRepositoryTest extends TestCase
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('product.name', $redName));
 
-        $products = $this->repository->search($criteria, Context::createDefaultContext());
+        $products = $this->repository->search($criteria, $context);
         static::assertCount(1, $products);
         static::assertTrue($products->has($redId));
     }
@@ -1069,14 +1075,15 @@ class ProductRepositoryTest extends TestCase
             ['id' => $greenId, 'stock' => 10, 'price' => $greenPrice, 'parentId' => $parentId],
         ];
 
-        $this->repository->create($products, Context::createDefaultContext());
+        $context = Context::createDefaultContext();
+        $context->setConsiderInheritance(true);
+        $this->repository->create($products, $context);
 
         $criteria = new Criteria();
-        $criteria->setInherited(true);
         $criteria->addFilter(new EqualsFilter('product.price', $parentPrice['gross']));
         $criteria->addFilter(new EqualsFilter('product.manufacturerId', $manufacturerId));
 
-        $products = $this->repository->search($criteria, Context::createDefaultContext());
+        $products = $this->repository->search($criteria, $context);
         static::assertCount(2, $products);
         static::assertTrue($products->has($parentId));
         static::assertTrue($products->has($redId));
@@ -1084,7 +1091,7 @@ class ProductRepositoryTest extends TestCase
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('product.price', $greenPrice['gross']));
 
-        $products = $this->repository->search($criteria, Context::createDefaultContext());
+        $products = $this->repository->search($criteria, $context);
         static::assertCount(1, $products);
         static::assertTrue($products->has($greenId));
     }
@@ -1122,14 +1129,15 @@ class ProductRepositoryTest extends TestCase
             ['id' => $greenId, 'stock' => 10, 'price' => $greenPrice, 'parentId' => $parentId],
         ];
 
-        $this->repository->create($products, Context::createDefaultContext());
+        $context = Context::createDefaultContext();
+        $context->setConsiderInheritance(true);
+        $this->repository->create($products, $context);
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('category.products.price', $greenPrice['gross']));
-        $criteria->setInherited(true);
 
         $repository = $this->getContainer()->get('category.repository');
-        $categories = $repository->searchIds($criteria, Context::createDefaultContext());
+        $categories = $repository->searchIds($criteria, $context);
 
         static::assertEquals(1, $categories->getTotal());
         static::assertContains($categoryId, $categories->getIds());
@@ -1139,7 +1147,7 @@ class ProductRepositoryTest extends TestCase
         $criteria->addFilter(new EqualsFilter('category.products.parentId', null));
 
         $repository = $this->getContainer()->get('category.repository');
-        $categories = $repository->searchIds($criteria, Context::createDefaultContext());
+        $categories = $repository->searchIds($criteria, $context);
 
         static::assertEquals(1, $categories->getTotal());
         static::assertContains($categoryId, $categories->getIds());
@@ -1241,13 +1249,15 @@ class ProductRepositoryTest extends TestCase
             ['id' => $greenId, 'stock' => 10, 'price' => $greenPrice, 'parentId' => $parentId],
         ];
 
-        $this->repository->create($products, Context::createDefaultContext());
+        $context = Context::createDefaultContext();
+        $context->setConsiderInheritance(true);
+
+        $this->repository->create($products, $context);
 
         $criteria = new Criteria();
-        $criteria->setInherited(true);
         $criteria->addFilter(new EqualsFilter('product_manufacturer.products.price', $greenPrice['gross']));
 
-        $result = $this->getContainer()->get('product_manufacturer.repository')->searchIds($criteria, Context::createDefaultContext());
+        $result = $this->getContainer()->get('product_manufacturer.repository')->searchIds($criteria, $context);
 
         static::assertEquals(1, $result->getTotal());
         static::assertContains($manufacturerId, $result->getIds());

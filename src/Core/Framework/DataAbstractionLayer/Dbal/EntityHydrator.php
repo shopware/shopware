@@ -18,7 +18,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StorageAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
-use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\FieldSerializerRegistry;
 use Shopware\Core\Framework\Struct\ArrayEntity;
 
@@ -45,13 +44,13 @@ class EntityHydrator
     /**
      * @param string|EntityDefinition $definition
      */
-    public function hydrate(string $entity, string $definition, array $rows, string $root, Context $context, bool $considerInheritance): array
+    public function hydrate(string $entity, string $definition, array $rows, string $root, Context $context): array
     {
         $collection = [];
         $this->objects = [];
 
         foreach ($rows as $row) {
-            $collection[] = $this->hydrateEntity(new $entity(), $definition, $row, $root, $context, $considerInheritance);
+            $collection[] = $this->hydrateEntity(new $entity(), $definition, $row, $root, $context);
         }
 
         return $collection;
@@ -60,7 +59,7 @@ class EntityHydrator
     /**
      * @param string|EntityDefinition $definition
      */
-    private function hydrateEntity(Entity $entity, string $definition, array $row, string $root, Context $context, bool $considerInheritance): Entity
+    private function hydrateEntity(Entity $entity, string $definition, array $row, string $root, Context $context): Entity
     {
         $fields = $definition::getFields();
 
@@ -104,7 +103,7 @@ class EntityHydrator
 
             if ($field instanceof ManyToOneAssociationField || $field instanceof OneToOneAssociationField) {
                 //hydrated contains now the associated entity (eg. currently hydrating the product, hydrated contains now the manufacturer or tax or ...)
-                $hydrated = $this->hydrateManyToOne($row, $root, $context, $field, $considerInheritance);
+                $hydrated = $this->hydrateManyToOne($row, $root, $context, $field);
 
                 if ($field->is(Extension::class)) {
                     $entity->addExtension($propertyName, $hydrated);
@@ -133,7 +132,7 @@ class EntityHydrator
             }
 
             if ($typedField instanceof AttributesField) {
-                $this->hydrateAttributes($root, $field, $typedField, $entity, $row, $context, $considerInheritance);
+                $this->hydrateAttributes($root, $field, $typedField, $entity, $row, $context);
                 continue;
             }
 
@@ -153,10 +152,6 @@ class EntityHydrator
             $decoded = $this->fieldHandler->decode($field, $value);
             $entity->assign([$propertyName => $decoded]);
         }
-
-//        if ($definition::getTranslationDefinitionClass()) {
-//            $this->mergeTranslatedAttributes($entity, $definition, $root, $row, $context, $considerInheritance);
-//        }
 
         //write object cache key to prevent multiple hydration for the same entity
         if ($cacheKey) {
@@ -183,49 +178,6 @@ class EntityHydrator
         }
 
         return json_encode($merged, JSON_PRESERVE_ZERO_FRACTION);
-    }
-
-    /**
-     * @param string|EntityDefinition $definition
-     */
-    private function mergeTranslatedAttributes(
-        Entity $entity,
-        string $definition,
-        string $root,
-        array $row,
-        Context $context,
-        bool $considerInheritance
-    ): void {
-        $translationDefinition = $definition::getTranslationDefinitionClass();
-        $translatedAttributeFields = $translationDefinition::getFields()->filterInstance(AttributesField::class);
-        $chain = EntityDefinitionQueryHelper::buildTranslationChain($root, $context, $definition::isInheritanceAware() && $considerInheritance);
-
-        /*
-         * The translations are order like this:
-         * [0] => current language -> highest priority
-         * [1] => root language -> lower priority
-         * [2] => system language -> lowest priority
-         */
-        /** @var FieldCollection $translatedAttributeFields */
-        foreach ($translatedAttributeFields as $field) {
-            $property = $field->getPropertyName();
-
-            $values = [];
-            foreach ($chain as $part) {
-                $key = $part['alias'] . '.' . $property;
-                $values[] = $row[$key] ?? null;
-            }
-            if (empty($values)) {
-                continue;
-            }
-
-            /**
-             * `array_merge`s ordering is reversed compared to the translations array.
-             * In other terms: The first argument has the lowest 'priority', so we need to reverse the array
-             */
-            $merged = $this->mergeJson(\array_reverse($values, false));
-            $entity->assign([$property => $this->fieldHandler->decode($field, $merged)]);
-        }
     }
 
     private function extractManyToManyIds(string $root, ManyToManyAssociationField $field, array $row): ?array
@@ -265,7 +217,7 @@ class EntityHydrator
         return $primaryKey;
     }
 
-    private function hydrateManyToOne(array $row, string $root, Context $context, AssociationInterface $field, bool $considerInheritance): ?Entity
+    private function hydrateManyToOne(array $row, string $root, Context $context, AssociationInterface $field): ?Entity
     {
         /** @var OneToOneAssociationField $field */
         if (!$field instanceof OneToOneAssociationField && !$field instanceof ManyToOneAssociationField) {
@@ -290,14 +242,13 @@ class EntityHydrator
             $field->getReferenceClass(),
             $row,
             $root . '.' . $field->getPropertyName(),
-            $context,
-            $considerInheritance
+            $context
         );
     }
 
-    private function hydrateAttributes(string $root, Field $field, AttributesField $attributesField, Entity $entity, array $row, Context $context, bool $considerInheritance): void
+    private function hydrateAttributes(string $root, Field $field, AttributesField $attributesField, Entity $entity, array $row, Context $context): void
     {
-        $inherited = $field->is(Inherited::class) && $considerInheritance;
+        $inherited = $field->is(Inherited::class) && $context->considerInheritance();
 
         $propertyName = $field->getPropertyName();
 

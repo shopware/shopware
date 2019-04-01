@@ -25,11 +25,10 @@ class FieldResolverRegistry
         Field $field,
         QueryBuilder $query,
         Context $context,
-        EntityDefinitionQueryHelper $queryHelper,
-        bool $considerInheritance
+        EntityDefinitionQueryHelper $queryHelper
     ): void {
         foreach ($this->resolvers as $resolver) {
-            $handled = $resolver->resolve($definition, $root, $field, $query, $context, $queryHelper, $considerInheritance);
+            $handled = $resolver->resolve($definition, $root, $field, $query, $context, $queryHelper);
 
             if ($handled) {
                 return;

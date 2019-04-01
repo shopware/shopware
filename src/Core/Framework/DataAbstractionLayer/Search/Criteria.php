@@ -323,16 +323,6 @@ class Criteria extends Struct
         return isset($this->states[$state]);
     }
 
-    public function considerInheritance(): bool
-    {
-        return $this->inherited;
-    }
-
-    public function setInherited(bool $inherited): void
-    {
-        $this->inherited = $inherited;
-    }
-
     private function collectFields(array $parts): array
     {
         $fields = [];

@@ -171,7 +171,7 @@ class EntityDefinitionQueryHelper
      *
      * @throws UnmappedFieldException
      */
-    public function getFieldAccessor(string $fieldName, string $definition, string $root, Context $context, bool $considerInheritance): string
+    public function getFieldAccessor(string $fieldName, string $definition, string $root, Context $context): string
     {
         $fieldName = str_replace('extensions.', '', $fieldName);
 
@@ -186,7 +186,7 @@ class EntityDefinitionQueryHelper
         if ($fields->has($fieldName)) {
             $field = $fields->get($fieldName);
 
-            return $this->buildInheritedAccessor($field, $root, $definition, $context, $fieldName, $considerInheritance);
+            return $this->buildInheritedAccessor($field, $root, $definition, $context, $fieldName);
         }
 
         $parts = explode('.', $fieldName);
@@ -205,7 +205,7 @@ class EntityDefinitionQueryHelper
 
         //case for json object fields, other fields has now same option to act with more point notations but hasn't to be an association field. E.g. price.gross
         if (!$field instanceof AssociationInterface && ($field instanceof StorageAware || $field instanceof TranslatedField)) {
-            return $this->buildInheritedAccessor($field, $root, $definition, $context, $fieldName, $considerInheritance);
+            return $this->buildInheritedAccessor($field, $root, $definition, $context, $fieldName);
         }
 
         $referenceClass = $field->getReferenceClass();
@@ -217,8 +217,7 @@ class EntityDefinitionQueryHelper
             $original,
             $referenceClass,
             $root . '.' . $field->getPropertyName(),
-            $context,
-            $considerInheritance
+            $context
         );
     }
 
@@ -228,7 +227,7 @@ class EntityDefinitionQueryHelper
      *
      * @param string|EntityDefinition $definition
      */
-    public function getBaseQuery(QueryBuilder $query, string $definition, Context $context, $considerInheritance): QueryBuilder
+    public function getBaseQuery(QueryBuilder $query, string $definition, Context $context): QueryBuilder
     {
         $table = $definition::getEntityName();
 
@@ -264,7 +263,7 @@ class EntityDefinitionQueryHelper
             $query->setParameter('version', Uuid::fromHexToBytes($context->getVersionId()));
         }
 
-        $this->addRuleCondition($query, $definition, $context, $considerInheritance);
+        $this->addRuleCondition($query, $definition, $context);
 
         return $query;
     }
@@ -336,8 +335,7 @@ class EntityDefinitionQueryHelper
         string $definition,
         string $root,
         QueryBuilder $query,
-        Context $context,
-        bool $considerInheritance
+        Context $context
     ): void {
         $fieldName = str_replace('extensions.', '', $fieldName);
 
@@ -369,7 +367,7 @@ class EntityDefinitionQueryHelper
         /** @var AssociationInterface|Field $field */
         $field = $fields->get($fieldName);
 
-        $this->fieldResolverRegistry->resolve($definition, $root, $field, $query, $context, $this, $considerInheritance);
+        $this->fieldResolverRegistry->resolve($definition, $root, $field, $query, $context, $this);
 
         if (!$field instanceof AssociationInterface) {
             return;
@@ -385,20 +383,13 @@ class EntityDefinitionQueryHelper
             $referenceClass,
             $root . '.' . $field->getPropertyName(),
             $query,
-            $context,
-            $considerInheritance
+            $context
         );
     }
 
-    public function resolveField(
-        Field $field,
-        string $definition,
-        string $root,
-        QueryBuilder $query,
-        Context $context,
-        bool $considerInheritance
-    ): void {
-        $this->fieldResolverRegistry->resolve($definition, $root, $field, $query, $context, $this, $considerInheritance);
+    public function resolveField(Field $field, string $definition, string $root, QueryBuilder $query, Context $context): void
+    {
+        $this->fieldResolverRegistry->resolve($definition, $root, $field, $query, $context, $this);
     }
 
     /**
@@ -412,14 +403,13 @@ class EntityDefinitionQueryHelper
         string $root,
         string $definition,
         QueryBuilder $query,
-        Context $context,
-        bool $considerInheritance
+        Context $context
     ): void {
         /** @var string|EntityDefinition $translationDefinition */
         $translationDefinition = $definition::getTranslationDefinitionClass();
 
         $fields = $translationDefinition::getFields();
-        $chain = self::buildTranslationChain($root, $context, $definition::isInheritanceAware() && $considerInheritance);
+        $chain = self::buildTranslationChain($root, $context, $definition::isInheritanceAware() && $context->considerInheritance());
 
         /** @var TranslatedField $field */
         foreach ($fields as $field) {
@@ -541,13 +531,13 @@ class EntityDefinitionQueryHelper
      * Adds a blacklist and whitelist where condition to the provided query.
      * This function is only for internal usage for the root entity of the query.
      */
-    private function addRuleCondition(QueryBuilder $query, string $definition, Context $context, bool $considerInheritance): void
+    private function addRuleCondition(QueryBuilder $query, string $definition, Context $context): void
     {
         /** @var string|EntityDefinition $definition */
         if ($definition::isBlacklistAware() && $context->getRules()) {
             $wheres = [];
 
-            $accessor = $this->getFieldAccessor('blacklistIds', $definition, $definition::getEntityName(), $context, $considerInheritance);
+            $accessor = $this->getFieldAccessor('blacklistIds', $definition, $definition::getEntityName(), $context);
 
             foreach ($context->getRules() as $ruleId) {
                 if (!Uuid::isValid($ruleId)) {
@@ -567,7 +557,7 @@ class EntityDefinitionQueryHelper
             return;
         }
 
-        $accessor = $this->getFieldAccessor('whitelistIds', $definition, $definition::getEntityName(), $context, $considerInheritance);
+        $accessor = $this->getFieldAccessor('whitelistIds', $definition, $definition::getEntityName(), $context);
 
         $wheres = [];
         foreach ($context->getRules() as $id) {
@@ -630,12 +620,11 @@ class EntityDefinitionQueryHelper
         string $root,
         string $definition,
         Context $context,
-        string $original,
-        bool $considerInheritance
+        string $original
     ): string {
         /* @var string|EntityDefinition $definition */
         if ($field instanceof TranslatedField) {
-            $inheritedChain = self::buildTranslationChain($root, $context, $definition::isInheritanceAware() && $considerInheritance);
+            $inheritedChain = self::buildTranslationChain($root, $context, $definition::isInheritanceAware() && $context->considerInheritance());
             /** @var Field|StorageAware $translatedField */
             $translatedField = self::getTranslatedField($definition, $field);
 
@@ -644,7 +633,7 @@ class EntityDefinitionQueryHelper
 
         $select = $this->buildFieldSelector($root, $field, $context, $original);
 
-        if (!$field->is(Inherited::class) || !$considerInheritance) {
+        if (!$field->is(Inherited::class) || !$context->considerInheritance()) {
             return $select;
         }
 

@@ -20,8 +20,7 @@ class OneToManyAssociationFieldResolver implements FieldResolverInterface
         Field $field,
         QueryBuilder $query,
         Context $context,
-        EntityDefinitionQueryHelper $queryHelper,
-        bool $considerInheritance
+        EntityDefinitionQueryHelper $queryHelper
     ): bool {
         if (!$field instanceof OneToManyAssociationField) {
             return false;
@@ -53,12 +52,12 @@ class OneToManyAssociationFieldResolver implements FieldResolverInterface
         }
 
         $source = EntityDefinitionQueryHelper::escape($root) . '.' . EntityDefinitionQueryHelper::escape($field->getLocalField());
-        if ($field->is(Inherited::class) && $considerInheritance) {
+        if ($field->is(Inherited::class) && $context->considerInheritance()) {
             $source = EntityDefinitionQueryHelper::escape($root) . '.' . EntityDefinitionQueryHelper::escape($field->getPropertyName());
         }
 
         $referenceColumn = EntityDefinitionQueryHelper::escape($field->getReferenceField());
-        if ($field->is(ReverseInherited::class) && $considerInheritance) {
+        if ($field->is(ReverseInherited::class) && $context->considerInheritance()) {
             /** @var ReverseInherited $flag */
             $flag = $field->getFlag(ReverseInherited::class);
 
@@ -92,12 +91,12 @@ class OneToManyAssociationFieldResolver implements FieldResolverInterface
             return true;
         }
 
-        if (!$reference::isInheritanceAware() || !$considerInheritance) {
+        if (!$reference::isInheritanceAware() || !$context->considerInheritance()) {
             return true;
         }
 
         $parent = $reference::getFields()->get('parent');
-        $queryHelper->resolveField($parent, $reference, $alias, $query, $context, false);
+        $queryHelper->resolveField($parent, $reference, $alias, $query, $context);
 
         return true;
     }

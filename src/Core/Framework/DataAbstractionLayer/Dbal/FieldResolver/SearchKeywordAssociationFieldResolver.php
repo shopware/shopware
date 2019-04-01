@@ -21,8 +21,7 @@ class SearchKeywordAssociationFieldResolver implements FieldResolverInterface
         Field $field,
         QueryBuilder $query,
         Context $context,
-        EntityDefinitionQueryHelper $queryHelper,
-        bool $considerInheritance
+        EntityDefinitionQueryHelper $queryHelper
     ): bool {
         if (!$field instanceof SearchKeywordAssociationField) {
             return false;
@@ -42,7 +41,7 @@ class SearchKeywordAssociationFieldResolver implements FieldResolverInterface
         $query->addState($alias);
 
         $source = EntityDefinitionQueryHelper::escape($root) . '.' . EntityDefinitionQueryHelper::escape($field->getLocalField());
-        if ($field->is(Inherited::class) && $considerInheritance) {
+        if ($field->is(Inherited::class) && $context->considerInheritance()) {
             $source = EntityDefinitionQueryHelper::escape($root) . '.' . EntityDefinitionQueryHelper::escape($field->getPropertyName());
         }
 

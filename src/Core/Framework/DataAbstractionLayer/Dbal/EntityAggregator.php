@@ -77,7 +77,7 @@ class EntityAggregator implements EntityAggregatorInterface
         foreach ($criteria->getAggregations() as $aggregation) {
             $query = $this->createAggregationQuery($aggregation, $definition, $criteria, $context);
 
-            $aggregationResult = $this->getAggregationResult($definition, $query, $aggregation, $context, $criteria);
+            $aggregationResult = $this->getAggregationResult($definition, $query, $aggregation, $context);
             $aggregations->add($aggregationResult);
         }
 
@@ -91,11 +91,11 @@ class EntityAggregator implements EntityAggregatorInterface
     {
         $table = $definition::getEntityName();
 
-        $query = $this->queryHelper->getBaseQuery(new QueryBuilder($this->connection), $definition, $context, $criteria->considerInheritance());
+        $query = $this->queryHelper->getBaseQuery(new QueryBuilder($this->connection), $definition, $context);
 
         if ($definition::isInheritanceAware()) {
             $parent = $definition::getFields()->get('parent');
-            $this->queryHelper->resolveField($parent, $definition, $definition::getEntityName(), $query, $context, $criteria->considerInheritance());
+            $this->queryHelper->resolveField($parent, $definition, $definition::getEntityName(), $query, $context);
         }
 
         $fields = array_merge(
@@ -106,16 +106,16 @@ class EntityAggregator implements EntityAggregatorInterface
 
         //join association and translated fields
         foreach ($fields as $fieldName) {
-            $this->queryHelper->resolveAccessor($fieldName, $definition, $table, $query, $context, $criteria->considerInheritance());
+            $this->queryHelper->resolveAccessor($fieldName, $definition, $table, $query, $context);
         }
 
         if ($definition::isInheritanceAware()) {
             $parent = $definition::getFields()->get('parent');
-            $this->queryHelper->resolveField($parent, $definition, $table, $query, $context, $criteria->considerInheritance());
+            $this->queryHelper->resolveField($parent, $definition, $table, $query, $context);
         }
 
         $filterQuery = new MultiFilter(MultiFilter::CONNECTION_AND, $criteria->getFilters());
-        $parsed = $this->queryParser->parse($filterQuery, $definition, $context, $criteria->considerInheritance());
+        $parsed = $this->queryParser->parse($filterQuery, $definition, $context);
         if (!empty($parsed->getWheres())) {
             $query->andWhere(implode(' AND ', $parsed->getWheres()));
             foreach ($parsed->getParameters() as $key => $value) {
@@ -128,8 +128,7 @@ class EntityAggregator implements EntityAggregatorInterface
                 $groupByField,
                 $definition,
                 $definition::getEntityName(),
-                $context,
-                $criteria->considerInheritance()
+                $context
             );
 
             $query->addSelect(sprintf('%s as `%s`', $accessor, $groupByField));
@@ -146,15 +145,13 @@ class EntityAggregator implements EntityAggregatorInterface
         string $definition,
         QueryBuilder $query,
         Aggregation $aggregation,
-        Context $context,
-        Criteria $criteria
+        Context $context
     ): AggregationResult {
         $accessor = $this->queryHelper->getFieldAccessor(
             $aggregation->getField(),
             $definition,
             $definition::getEntityName(),
-            $context,
-            $criteria->considerInheritance()
+            $context
         );
 
         $data = $this->fetchAggregation($definition, $query, $aggregation, $context, $accessor);

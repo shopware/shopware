@@ -234,14 +234,13 @@ class AttributesFieldTranslationTest extends TestCase
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('translatedAttributes.root', true));
-        $criteria->setInherited(true);
+        $context->setConsiderInheritance(true);
         $result = $repo->search($criteria, $context);
         $expected = [];
         static::assertEquals(array_combine($expected, $expected), $result->getIds());
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('translatedAttributes.child', $now));
-        $criteria->setInherited(true);
         $result = $repo->search($criteria, $context);
         $expected = [];
         static::assertEquals(array_combine($expected, $expected), $result->getIds());
@@ -251,14 +250,12 @@ class AttributesFieldTranslationTest extends TestCase
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('translatedAttributes.systemFloat', 1.0));
-        $criteria->setInherited(true);
         $result = $repo->search($criteria, $context);
         $expected = [$id];
         static::assertEquals(array_combine($expected, $expected), $result->getIds());
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('translatedAttributes.root', true));
-        $criteria->setInherited(true);
         $result = $repo->search($criteria, $context);
         $expected = [$id];
         static::assertEquals(array_combine($expected, $expected), $result->getIds());
@@ -279,7 +276,6 @@ class AttributesFieldTranslationTest extends TestCase
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('translatedAttributes.child', $now));
-        $criteria->setInherited(true);
         $result = $repo->search($criteria, $context);
         $expected = [];
         static::assertEquals(array_combine($expected, $expected), $result->getIds());
@@ -289,21 +285,18 @@ class AttributesFieldTranslationTest extends TestCase
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('translatedAttributes.systemFloat', 1.0));
-        $criteria->setInherited(true);
         $result = $repo->search($criteria, $context);
         $expected = [$id];
         static::assertEquals(array_combine($expected, $expected), $result->getIds());
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('translatedAttributes.root', true));
-        $criteria->setInherited(true);
         $result = $repo->search($criteria, $context);
         $expected = [$id];
         static::assertEquals(array_combine($expected, $expected), $result->getIds());
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('translatedAttributes.child', $now));
-        $criteria->setInherited(true);
 
         $result = $repo->search($criteria, $context);
         $expected = [$id];
@@ -384,14 +377,13 @@ class AttributesFieldTranslationTest extends TestCase
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('translatedAttributes.parent', 'inherited attribute'));
-        $criteria->setInherited(true);
+        $context->setConsiderInheritance(true);
         $result = $repo->search($criteria, $context);
         $expected = [$parentId, $childId];
         static::assertEquals(array_combine($expected, $expected), $result->getIds());
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('translatedAttributes.systemFloat', 1.0));
-        $criteria->setInherited(true);
         $result = $repo->search($criteria, $context);
         $expected = [$childId];
         static::assertEquals(array_combine($expected, $expected), $result->getIds());
@@ -413,6 +405,7 @@ class AttributesFieldTranslationTest extends TestCase
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('translatedAttributes.root', true));
+        $context->setConsiderInheritance(false);
         $result = $repo->search($criteria, $context);
         $expected = [];
         static::assertEquals(array_combine($expected, $expected), $result->getIds());
@@ -428,20 +421,21 @@ class AttributesFieldTranslationTest extends TestCase
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('translatedAttributes.parent', 'inherited attribute'));
-        $criteria->setInherited(true);
+        $context->setConsiderInheritance(true);
         $result = $repo->search($criteria, $context);
         $expected = [$parentId, $childId];
         static::assertEquals(array_combine($expected, $expected), $result->getIds());
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('translatedAttributes.systemFloat', 1.0));
+        $context->setConsiderInheritance(false);
         $result = $repo->search($criteria, $context);
         $expected = [$childId];
         static::assertEquals(array_combine($expected, $expected), $result->getIds());
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('translatedAttributes.root', true));
-        $criteria->setInherited(true);
+        $context->setConsiderInheritance(true);
         $result = $repo->search($criteria, $context);
         $expected = [$childId];
         static::assertEquals(array_combine($expected, $expected), $result->getIds());
@@ -462,6 +456,7 @@ class AttributesFieldTranslationTest extends TestCase
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('translatedAttributes.sub', $now));
+        $context->setConsiderInheritance(false);
         $result = $repo->search($criteria, $context);
         $expected = [];
         static::assertEquals(array_combine($expected, $expected), $result->getIds());
@@ -471,13 +466,14 @@ class AttributesFieldTranslationTest extends TestCase
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('translatedAttributes.parent', 'inherited attribute'));
-        $criteria->setInherited(true);
+        $context->setConsiderInheritance(true);
         $result = $repo->search($criteria, $context);
         $expected = [$parentId, $childId];
         static::assertEquals(array_combine($expected, $expected), $result->getIds());
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('translatedAttributes.systemFloat', 1.0));
+        $context->setConsiderInheritance(false);
         $result = $repo->search($criteria, $context);
         $expected = [$childId];
         static::assertEquals(array_combine($expected, $expected), $result->getIds());
@@ -490,7 +486,7 @@ class AttributesFieldTranslationTest extends TestCase
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('translatedAttributes.sub', $now));
-        $criteria->setInherited(true);
+        $context->setConsiderInheritance(true);
         $result = $repo->search($criteria, $context);
         $expected = [$childId];
         static::assertEquals(array_combine($expected, $expected), $result->getIds());

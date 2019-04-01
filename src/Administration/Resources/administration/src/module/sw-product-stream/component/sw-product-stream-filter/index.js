@@ -148,7 +148,6 @@ Component.extend('sw-product-stream-filter', 'sw-condition-base', {
             }
         },
         filterValue: {
-            immediate: true,
             handler(newValue) {
                 if (!newValue) {
                     return;
@@ -541,6 +540,7 @@ Component.extend('sw-product-stream-filter', 'sw-condition-base', {
             case 'string':
                 return 'text';
             case 'integer':
+            case 'number':
                 this.filterValue = Number(this.actualCondition.value);
                 return 'number';
             default:

@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\Util;
+namespace Shopware\Core\Framework\Plugin\Util;
 
 use Shopware\Core\Framework\Plugin\Exception\PluginNotFoundException;
 use Shopware\Core\Framework\Plugin\KernelPluginCollection;
@@ -9,7 +9,7 @@ use Symfony\Component\Finder\Finder;
 use Symfony\Component\HttpKernel\Bundle\BundleInterface;
 use Symfony\Component\HttpKernel\KernelInterface;
 
-class AssetService implements AssetServiceInterface
+class AssetService
 {
     /**
      * @var Filesystem
@@ -37,8 +37,6 @@ class AssetService implements AssetServiceInterface
     }
 
     /**
-     * {@inheritdoc}
-     *
      * @throws PluginNotFoundException
      */
     public function copyAssetsFromBundle(string $bundleName): void
@@ -58,8 +56,6 @@ class AssetService implements AssetServiceInterface
     }
 
     /**
-     * {@inheritdoc}
-     *
      * @throws PluginNotFoundException
      */
     public function removeAssetsOfBundle(string $bundleName): void

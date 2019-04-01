@@ -88,9 +88,9 @@ class ProductTagIndexer implements IndexerInterface
 UPDATE product, product_tag SET product.tag_ids = (
     SELECT CONCAT('[', GROUP_CONCAT(JSON_QUOTE(LOWER(HEX(product_tag.tag_id)))), ']')
     FROM product_tag
-    WHERE product_tag.product_id = product.id
+    WHERE product_tag.product_id = product.tags
 )
-WHERE product_tag.product_id = product.id
+WHERE product_tag.product_id = product.tags
 AND product.id IN (:ids)
 SQL;
 

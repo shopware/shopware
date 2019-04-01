@@ -65,6 +65,12 @@ $sw-tree-item-color-text: $color-gutenberg;
         }
     }
 
+    &.is--unsortable {
+        .sw-tree-item__element {
+            cursor: default;
+        }
+    }
+
     .sw-tree-item__element {
         height: 42px;
         display: grid;

@@ -150,7 +150,6 @@ Component.extend('sw-product-stream-filter', 'sw-condition-base', {
         filterValue: {
             immediate: true,
             handler(newValue) {
-                this.mapValues();
                 if (!newValue) {
                     return;
                 }

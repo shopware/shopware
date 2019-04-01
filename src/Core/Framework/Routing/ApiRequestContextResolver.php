@@ -101,12 +101,12 @@ class ApiRequestContextResolver implements RequestContextResolverInterface
             return new SalesChannelApiSource(Defaults::SALES_CHANNEL);
         }
 
-        if (!$request->attributes->has(PlatformRequest::ATTRIBUTE_OAUTH_ACCESS_TOKEN_ID)) {
-            return new SystemSource();
-        }
-
         if ($userId = $request->attributes->get(PlatformRequest::ATTRIBUTE_OAUTH_USER_ID)) {
             return new AdminApiSource($userId);
+        }
+
+        if (!$request->attributes->has(PlatformRequest::ATTRIBUTE_OAUTH_ACCESS_TOKEN_ID)) {
+            return new SystemSource();
         }
 
         $clientId = $request->attributes->get(PlatformRequest::ATTRIBUTE_OAUTH_CLIENT_ID);

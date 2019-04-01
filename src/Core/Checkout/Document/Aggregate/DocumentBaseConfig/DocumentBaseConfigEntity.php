@@ -20,12 +20,12 @@ class DocumentBaseConfigEntity extends Entity
     /**
      * @var string|null
      */
-    protected $fileNamePrefix;
+    protected $filenamePrefix;
 
     /**
      * @var string|null
      */
-    protected $fileNameSuffix;
+    protected $filenameSuffix;
 
     /**
      * @var string
@@ -153,23 +153,23 @@ class DocumentBaseConfigEntity extends Entity
         $this->config = $config;
     }
 
-    public function getFileNamePrefix(): ?string
+    public function getFilenamePrefix(): ?string
     {
-        return $this->fileNamePrefix;
+        return $this->filenamePrefix;
     }
 
-    public function setFileNamePrefix(?string $fileNamePrefix): void
+    public function setFilenamePrefix(?string $filenamePrefix): void
     {
-        $this->fileNamePrefix = $fileNamePrefix;
+        $this->filenamePrefix = $filenamePrefix;
     }
 
-    public function getFileNameSuffix(): ?string
+    public function getFilenameSuffix(): ?string
     {
-        return $this->fileNameSuffix;
+        return $this->filenameSuffix;
     }
 
-    public function setFileNameSuffix(?string $fileNameSuffix): void
+    public function setFilenameSuffix(?string $filenameSuffix): void
     {
-        $this->fileNameSuffix = $fileNameSuffix;
+        $this->filenameSuffix = $filenameSuffix;
     }
 }

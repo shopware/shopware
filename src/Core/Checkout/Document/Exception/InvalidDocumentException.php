@@ -7,12 +7,10 @@ use Symfony\Component\HttpFoundation\Response;
 
 class InvalidDocumentException extends ShopwareHttpException
 {
-    protected $code = 'INVALID-DOCUMENT-ID';
-
-    public function __construct(string $documentId, $code = 0)
+    public function __construct(string $documentId)
     {
         $message = sprintf('The document with id "%s" is invalid or could not be found.', $documentId);
-        parent::__construct($message, $code);
+        parent::__construct($message);
     }
 
     public function getStatusCode(): int
@@ -22,6 +20,6 @@ class InvalidDocumentException extends ShopwareHttpException
 
     public function getErrorCode(): string
     {
-        return $this->code;
+        return 'DOCUMENT__INVALID_DOCUMENT_ID';
     }
 }

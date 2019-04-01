@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Test\Document\DocumentType;
 
+use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartBehaviorContext;
@@ -20,16 +21,16 @@ use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Context\CheckoutContextFactory;
 use Shopware\Core\Checkout\Context\CheckoutContextService;
-use Shopware\Core\Checkout\Document\DocumentContext;
-use Shopware\Core\Checkout\Document\DocumentType\InvoiceService;
-use Shopware\Core\Checkout\Document\Generator\PdfGenerator;
+use Shopware\Core\Checkout\Document\DocumentConfiguration;
+use Shopware\Core\Checkout\Document\DocumentGenerator\InvoiceGenerator;
+use Shopware\Core\Checkout\Document\FileGenerator\PdfGenerator;
 use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
+use Shopware\Core\Framework\Uuid\Uuid;
 
 class InvoiceServiceTest extends TestCase
 {
@@ -45,17 +46,24 @@ class InvoiceServiceTest extends TestCase
      */
     private $context;
 
+    /**
+     * @var Connection|object
+     */
+    private $connection;
+
     protected function setUp(): void
     {
         parent::setUp();
 
         $this->context = Context::createDefaultContext();
 
+        $this->connection = $this->getContainer()->get(Connection::class);
+
         $customerId = $this->createCustomer();
         $shippingMethodId = $this->createShippingMethod();
 
         $this->checkoutContext = $this->getContainer()->get(CheckoutContextFactory::class)->create(
-            Uuid::uuid4()->getHex(),
+            Uuid::randomHex(),
             Defaults::SALES_CHANNEL,
             [
                 CheckoutContextService::CUSTOMER_ID => $customerId,
@@ -66,19 +74,19 @@ class InvoiceServiceTest extends TestCase
 
     public function testGenerateFromTemplate()
     {
-        $invoiceService = $this->getContainer()->get(InvoiceService::class);
+        $invoiceService = $this->getContainer()->get(InvoiceGenerator::class);
         $pdfGenerator = $this->getContainer()->get(PdfGenerator::class);
 
         $cart = $this->generateDemoCart(75);
         $orderId = $this->persistCart($cart);
         $order = $this->getOrderById($orderId);
 
-        $documentContext = new DocumentContext();
+        $documentConfiguration = new DocumentConfiguration();
         $context = Context::createDefaultContext();
 
         $processedTemplate = $invoiceService->generateFromTemplate(
             $order,
-            $documentContext,
+            $documentConfiguration,
             $context
         );
 
@@ -100,7 +108,8 @@ class InvoiceServiceTest extends TestCase
             100,
             0,
             new DeliveryDate(new \DateTime(), new \DateTime()),
-            new DeliveryDate(new \DateTime(), new \DateTime())
+            new DeliveryDate(new \DateTime(), new \DateTime()),
+            false
         );
 
         $keywords = ['awesome', 'epic', 'high quality'];
@@ -111,8 +120,7 @@ class InvoiceServiceTest extends TestCase
             $taxes = [7, 19, 22];
             $taxRate = $taxes[array_rand($taxes)];
             shuffle($keywords);
-//            $name = ucfirst(implode($keywords, ' ') . ' product');
-            $name = 'A';
+            $name = ucfirst(implode($keywords, ' ') . ' product');
             $cart->add(
                 (new LineItem((string) $i, 'product_' . $i, $quantity))
                     ->setPriceDefinition(new QuantityPriceDefinition($price, new TaxRuleCollection([new TaxRule($taxRate)]), $quantity))
@@ -142,8 +150,8 @@ class InvoiceServiceTest extends TestCase
 
     private function createCustomer(): string
     {
-        $customerId = Uuid::uuid4()->getHex();
-        $addressId = Uuid::uuid4()->getHex();
+        $customerId = Uuid::randomHex();
+        $addressId = Uuid::randomHex();
 
         $customer = [
             'id' => $customerId,
@@ -152,9 +160,9 @@ class InvoiceServiceTest extends TestCase
             'firstName' => 'Max',
             'lastName' => 'Mustermann',
             'customerNumber' => '1337',
-            'email' => Uuid::uuid4()->getHex() . '@example.com',
+            'email' => Uuid::randomHex() . '@example.com',
             'password' => 'shopware',
-            'defaultPaymentMethodId' => Defaults::PAYMENT_METHOD_INVOICE,
+            'defaultPaymentMethodId' => $this->getDefaultPaymentMethod(),
             'groupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
             'salesChannelId' => Defaults::SALES_CHANNEL,
             'defaultBillingAddressId' => $addressId,
@@ -181,7 +189,7 @@ class InvoiceServiceTest extends TestCase
 
     private function createShippingMethod(): string
     {
-        $shippingMethodId = Uuid::uuid4()->getHex();
+        $shippingMethodId = Uuid::randomHex();
         $repository = $this->getContainer()->get('shipping_method.repository');
 
         $data = [
@@ -219,5 +227,18 @@ class InvoiceServiceTest extends TestCase
         static::assertNotNull($orderId);
 
         return $order;
+    }
+
+    private function getDefaultPaymentMethod(): ?string
+    {
+        $id = $this->connection->executeQuery(
+            'SELECT `id` FROM `payment_method` WHERE `active` = 1 ORDER BY `position` ASC'
+        )->fetchColumn();
+
+        if (!$id) {
+            return null;
+        }
+
+        return Uuid::fromBytesToHex($id);
     }
 }

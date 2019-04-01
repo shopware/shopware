@@ -11,6 +11,7 @@ use League\OAuth2\Server\Repositories\UserRepositoryInterface;
 use League\OAuth2\Server\ResourceServer;
 use Symfony\Bridge\PsrHttpMessage\Factory\PsrHttpFactory;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Component\HttpKernel\Event\FilterControllerEvent;
 use Symfony\Component\HttpKernel\Event\GetResponseEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
 
@@ -65,6 +66,8 @@ class ApiAuthenticationListener implements EventSubscriberInterface
         return [
             KernelEvents::REQUEST => [
                 ['setupOAuth', 128],
+            ],
+            KernelEvents::CONTROLLER => [
                 ['validateRequest', 32],
             ],
         ];
@@ -90,11 +93,11 @@ class ApiAuthenticationListener implements EventSubscriberInterface
         $this->authorizationServer->enableGrantType(new ClientCredentialsGrant(), $hourInterval);
     }
 
-    public function validateRequest(GetResponseEvent $event): void
+    public function validateRequest(FilterControllerEvent $event): void
     {
         $request = $event->getRequest();
 
-        if ($request->attributes->get('authentification_required', null) === false) {
+        if ($request->attributes->get('auth_required', null) === false) {
             return;
         }
 

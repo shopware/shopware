@@ -7,12 +7,10 @@ use Symfony\Component\HttpFoundation\Response;
 
 class InvalidFileGeneratorTypeException extends ShopwareHttpException
 {
-    protected $code = 'INVALID-FILE-GENERATOR-TYPE';
-
-    public function __construct(string $type, $code = 0)
+    public function __construct(string $type)
     {
         $message = sprintf('Unable to find a file generator with type "%s"', $type);
-        parent::__construct($message, $code);
+        parent::__construct($message);
     }
 
     public function getStatusCode(): int
@@ -22,6 +20,6 @@ class InvalidFileGeneratorTypeException extends ShopwareHttpException
 
     public function getErrorCode(): string
     {
-        return $this->code;
+        return 'DOCUMENT__INVALID_FILE_GENERATOR_TYPE';
     }
 }

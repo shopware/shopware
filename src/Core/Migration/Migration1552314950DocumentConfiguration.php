@@ -6,7 +6,7 @@ use Doctrine\DBAL\Connection;
 use Shopware\Core\Checkout\Document\DocumentGenerator\DocumentTypes;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Migration\MigrationStep;
-use Shopware\Core\Framework\Struct\Uuid;
+use Shopware\Core\Framework\Uuid\Uuid;
 
 class Migration1552314950DocumentConfiguration extends MigrationStep
 {
@@ -55,16 +55,16 @@ SQL;
 SQL;
         $connection->executeQuery($sql);
 
-        $stornoId = Uuid::uuid4()->getBytes();
+        $stornoId = Uuid::randomBytes();
 
         $connection->insert('document_type', ['id' => $stornoId, 'technical_name' => DocumentTypes::STORNO, 'created_at' => date(Defaults::DATE_FORMAT)]);
         $connection->insert('document_type_translation', ['document_type_id' => $stornoId, 'language_id' => Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM_DE), 'name' => 'Stornorechnung', 'created_at' => date(Defaults::DATE_FORMAT)]);
         $connection->insert('document_type_translation', ['document_type_id' => $stornoId, 'language_id' => Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM), 'name' => 'Storno bill', 'created_at' => date(Defaults::DATE_FORMAT)]);
 
-        $stornoConfigId = Uuid::uuid4()->getBytes();
-        $invoiceConfigId = Uuid::uuid4()->getBytes();
-        $deliveryConfigId = Uuid::uuid4()->getBytes();
-        $creditConfigId = Uuid::uuid4()->getBytes();
+        $stornoConfigId = Uuid::randomBytes();
+        $invoiceConfigId = Uuid::randomBytes();
+        $deliveryConfigId = Uuid::randomBytes();
+        $creditConfigId = Uuid::randomBytes();
 
         $invoiceId = $connection->fetchColumn('SELECT id FROM `document_type` WHERE `technical_name` = :technical_name', ['technical_name' => DocumentTypes::INVOICE]);
         $deliverNoteId = $connection->fetchColumn('SELECT id FROM `document_type` WHERE `technical_name` = :technical_name', ['technical_name' => DocumentTypes::DELIVERY_NOTE]);
@@ -98,9 +98,9 @@ SQL;
         $connection->insert('document_base_config', ['id' => $invoiceConfigId, 'name' => DocumentTypes::INVOICE, 'global' => 1, 'filename_prefix' => DocumentTypes::INVOICE . '_', 'type_id' => $invoiceId, 'config' => $configJson, 'created_at' => date(Defaults::DATE_FORMAT)]);
         $connection->insert('document_base_config', ['id' => $deliveryConfigId, 'name' => DocumentTypes::DELIVERY_NOTE, 'global' => 1, 'filename_prefix' => DocumentTypes::DELIVERY_NOTE . '_', 'type_id' => $deliverNoteId, 'config' => $configJson, 'created_at' => date(Defaults::DATE_FORMAT)]);
 
-        $connection->insert('document_base_config_sales_channel', ['id' => Uuid::uuid4()->getBytes(), 'document_base_config_id' => $stornoConfigId, 'document_type_id' => $stornoId]);
-        $connection->insert('document_base_config_sales_channel', ['id' => Uuid::uuid4()->getBytes(), 'document_base_config_id' => $invoiceConfigId, 'document_type_id' => $invoiceId]);
-        $connection->insert('document_base_config_sales_channel', ['id' => Uuid::uuid4()->getBytes(), 'document_base_config_id' => $deliveryConfigId, 'document_type_id' => $deliverNoteId]);
+        $connection->insert('document_base_config_sales_channel', ['id' => Uuid::randomBytes(), 'document_base_config_id' => $stornoConfigId, 'document_type_id' => $stornoId]);
+        $connection->insert('document_base_config_sales_channel', ['id' => Uuid::randomBytes(), 'document_base_config_id' => $invoiceConfigId, 'document_type_id' => $invoiceId]);
+        $connection->insert('document_base_config_sales_channel', ['id' => Uuid::randomBytes(), 'document_base_config_id' => $deliveryConfigId, 'document_type_id' => $deliverNoteId]);
     }
 
     public function updateDestructive(Connection $connection): void

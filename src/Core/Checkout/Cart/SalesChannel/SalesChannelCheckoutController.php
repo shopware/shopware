@@ -124,7 +124,7 @@ class SalesChannelCheckoutController extends AbstractController
     }
 
     /**
-     * @Route("/sales-channel-api/v{version}/checkout/guest-order/{id}", defaults={"authentification_required"=false}, name="sales-channel-api.checkout.guest-order.detail", methods={"GET"})
+     * @Route("/sales-channel-api/v{version}/checkout/guest-order/{id}", defaults={"auth_required"=false}, name="sales-channel-api.checkout.guest-order.detail", methods={"GET"})
      *
      * @throws OrderNotFoundException
      */

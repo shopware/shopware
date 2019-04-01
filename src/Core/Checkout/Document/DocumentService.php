@@ -17,8 +17,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
-use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\Framework\Util\Random;
+use Shopware\Core\Framework\Uuid\Uuid;
 
 class DocumentService
 {
@@ -89,7 +89,7 @@ class DocumentService
         // create version of order to ensure the document stays the same even if the order changes
         $orderVersionId = $this->orderRepository->createVersion($orderId, $context, self::VERSION_NAME);
 
-        $documentId = Uuid::uuid4()->getHex();
+        $documentId = Uuid::randomHex();
 
         $documentConfiguration = $this->documentConfigurationService->getConfiguration(
             $context,

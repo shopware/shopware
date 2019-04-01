@@ -7,12 +7,10 @@ use Symfony\Component\HttpFoundation\Response;
 
 class InvalidDocumentGeneratorTypeException extends ShopwareHttpException
 {
-    protected $code = 'INVALID-DOCUMENT-GENERATOR-TYPE';
-
-    public function __construct(string $type, $code = 0)
+    public function __construct(string $type)
     {
         $message = sprintf('Unable to find a document generator with type "%s"', $type);
-        parent::__construct($message, $code);
+        parent::__construct($message);
     }
 
     public function getStatusCode(): int
@@ -22,6 +20,6 @@ class InvalidDocumentGeneratorTypeException extends ShopwareHttpException
 
     public function getErrorCode(): string
     {
-        return $this->code;
+        return 'DOCUMENT__INVALID_GENERATOR_TYPE';
     }
 }

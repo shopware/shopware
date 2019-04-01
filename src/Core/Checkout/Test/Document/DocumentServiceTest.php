@@ -29,8 +29,8 @@ use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Smalot\PdfParser\Parser;
 
 class DocumentServiceTest extends TestCase
@@ -57,7 +57,7 @@ class DocumentServiceTest extends TestCase
         $shippingMethodId = $this->createShippingMethod();
 
         $this->checkoutContext = $this->getContainer()->get(CheckoutContextFactory::class)->create(
-            Uuid::uuid4()->getHex(),
+            Uuid::randomHex(),
             Defaults::SALES_CHANNEL,
             [
                 CheckoutContextService::CUSTOMER_ID => $customerId,
@@ -217,8 +217,8 @@ class DocumentServiceTest extends TestCase
 
     private function createCustomer(): string
     {
-        $customerId = Uuid::uuid4()->getHex();
-        $addressId = Uuid::uuid4()->getHex();
+        $customerId = Uuid::randomHex();
+        $addressId = Uuid::randomHex();
 
         $customer = [
             'id' => $customerId,
@@ -227,7 +227,7 @@ class DocumentServiceTest extends TestCase
             'firstName' => 'Max',
             'lastName' => 'Mustermann',
             'customerNumber' => '1337',
-            'email' => Uuid::uuid4()->getHex() . '@example.com',
+            'email' => Uuid::randomHex() . '@example.com',
             'password' => 'shopware',
             'defaultPaymentMethodId' => Defaults::PAYMENT_METHOD_INVOICE,
             'groupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
@@ -256,7 +256,7 @@ class DocumentServiceTest extends TestCase
 
     private function createShippingMethod(): string
     {
-        $shippingMethodId = Uuid::uuid4()->getHex();
+        $shippingMethodId = Uuid::randomHex();
         $repository = $this->getContainer()->get('shipping_method.repository');
 
         $data = [

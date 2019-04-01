@@ -45,8 +45,8 @@ class DocumentBaseConfigDefinition extends EntityDefinition
             new FkField('logo_id', 'logoId', DocumentTypeDefinition::class),
 
             (new StringField('name', 'name'))->addFlags(new Required()),
-            new StringField('filename_prefix', 'fileNamePrefix'),
-            new StringField('filename_suffix', 'fileNameSuffix'),
+            new StringField('filename_prefix', 'filenamePrefix'),
+            new StringField('filename_suffix', 'filenameSuffix'),
             (new BoolField('global', 'global'))->addFlags(new Required()),
             new NumberRangeField('document_number', 'documentNumber'),
             new JsonField('config', 'config'),

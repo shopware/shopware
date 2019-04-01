@@ -18,6 +18,20 @@
             {% endblock %}
         </sw-container>
 
+        <sw-container columns="1fr" gap="0px 30px">
+            {% block sw_promotion_basic_form_sales_channels %}
+                <sw-promotion-sales-channel-select
+                    multi
+                    class="sw-promotion-basic__select-sales-channels"
+                    :label="$tc('sw-promotion.basicForm.labelSalesChannels')"
+                    :placeholder="$tc('sw-promotion.basicForm.placeholderSalesChannels')"
+                    :associationStore="salesChannelAssociationStore"
+                    :store="salesChannelStore"
+                    v-model="promotion.salesChannels">
+                </sw-promotion-sales-channel-select>
+            {% endblock %}
+        </sw-container>
+
         <sw-container columns="1fr 1fr" gap="0px 30px">
             {% block sw_promotion_basic_form_valid_from_field %}
                 <sw-field type="date"
@@ -51,3 +65,4 @@
         </sw-container>
     </div>
 {% endblock %}
+

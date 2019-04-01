@@ -9,9 +9,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\CreatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IntField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\UpdatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 
@@ -35,11 +35,15 @@ class PromotionSalesChannelDefinition extends EntityDefinition
     protected static function defineFields(): FieldCollection
     {
         return new FieldCollection([
-            (new FkField('promotion_id', 'promotionId', PromotionDefinition::class))->addFlags(new PrimaryKey(), new Required()),
-            (new FkField('sales_channel_id', 'salesChannelId', SalesChannelDefinition::class))->addFlags(new PrimaryKey(), new Required()),
-            new CreatedAtField(),
-            new UpdatedAtField(),
+            // PK
+            (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
+            // FKs
+            (new FkField('promotion_id', 'promotionId', PromotionDefinition::class))->addFlags(new Required()),
+            (new FkField('sales_channel_id', 'salesChannelId', SalesChannelDefinition::class))->addFlags(new Required()),
+            // FIELDS
             (new IntField('priority', 'priority'))->addFlags(new Required()),
+            new CreatedAtField(),
+            // ASSOCIATIONS
             new ManyToOneAssociationField('promotion', 'promotion_id', PromotionDefinition::class, 'id', false),
             new ManyToOneAssociationField('salesChannel', 'sales_channel_id', SalesChannelDefinition::class, 'id', false),
         ]);

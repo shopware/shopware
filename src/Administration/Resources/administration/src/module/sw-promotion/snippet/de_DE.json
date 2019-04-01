@@ -7,7 +7,9 @@
             "labelTitle": "Titel",
             "labelValidFrom": "gültig ab",
             "labelValidUntil": "gültig bis",
-            "placeholderName": "Gib den Titel der Promotion an ..."
+            "placeholderName": "Gib den Titel der Promotion an ...",
+            "labelSalesChannels" : "Verkaufskanäle",
+            "placeholderSalesChannels" : "Verkaufskanal hinzufügen..."
         },
 
         "codeForm": {

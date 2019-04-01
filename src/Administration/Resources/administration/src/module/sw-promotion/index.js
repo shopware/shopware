@@ -4,12 +4,16 @@ import { NEXT700 } from 'src/flag/feature_next700';
 import deDE from './snippet/de_DE.json';
 import enGB from './snippet/en_GB.json';
 
+
+import './component/sw-promotion-sales-channel-select';
+
 import './component/sw-promotion-basic-form';
 import './component/sw-promotion-code-form';
 import './component/sw-promotion-discount-form';
 import './component/sw-promotion-persona-form';
 import './component/sw-promotion-rebate-form';
 import './component/sw-promotion-scope-form';
+
 
 import './view/sw-promotion-create-base';
 import './view/sw-promotion-detail-base';

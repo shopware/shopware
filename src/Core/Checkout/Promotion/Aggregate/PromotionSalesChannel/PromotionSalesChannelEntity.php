@@ -5,10 +5,13 @@ namespace Shopware\Core\Checkout\Promotion\Aggregate\PromotionSalesChannel;
 
 use Shopware\Core\Checkout\Promotion\PromotionEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 
 class PromotionSalesChannelEntity extends Entity
 {
+    use EntityIdTrait;
+
     /**
      * @var string
      */
@@ -23,11 +26,6 @@ class PromotionSalesChannelEntity extends Entity
      * @var \DateTimeInterface
      */
     protected $createdAt;
-
-    /**
-     * @var \DateTimeInterface
-     */
-    protected $updatedAt;
 
     /**
      * @var int
@@ -72,16 +70,6 @@ class PromotionSalesChannelEntity extends Entity
     public function setCreatedAt(\DateTimeInterface $createdAt): void
     {
         $this->createdAt = $createdAt;
-    }
-
-    public function getUpdatedAt(): \DateTimeInterface
-    {
-        return $this->updatedAt;
-    }
-
-    public function setUpdatedAt(\DateTimeInterface $updatedAt): void
-    {
-        $this->updatedAt = $updatedAt;
     }
 
     public function getPriority(): int

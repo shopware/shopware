@@ -60,7 +60,7 @@ Component.register('sw-product-stream-detail', {
                         && condition.operator.toLowerCase() === this.orContainer.operator.toLowerCase();
                 },
                 isPlaceholder(condition) {
-                    return (!condition.field || condition.field === 'product')
+                    return (!condition.field || condition.field === 'id')
                         && (!condition.type || condition.type === 'equals')
                         && !(condition.value || Object.keys(condition.parameters).length);
                 }

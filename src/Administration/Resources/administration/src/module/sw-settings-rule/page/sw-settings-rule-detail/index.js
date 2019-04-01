@@ -48,6 +48,7 @@ Component.register('sw-settings-rule-detail', {
                 placeholder: {
                     type: null
                 },
+                dataCheckMethods: {},
                 getComponent(condition) {
                     if (this.isPlaceholder(condition)) {
                         return 'sw-condition-base';
@@ -68,7 +69,8 @@ Component.register('sw-settings-rule-detail', {
                 },
                 isAndContainer(condition) { return condition.type === 'andContainer'; },
                 isOrContainer(condition) { return condition.type === 'orContainer'; },
-                isPlaceholder(condition) { return !condition.type; }
+                isPlaceholder(condition) { return !condition.type; },
+                isDataSet(condition) { return this.dataCheckMethods[condition.type](condition); }
             }
         };
     },
@@ -129,6 +131,17 @@ Component.register('sw-settings-rule-detail', {
                 this.rule.moduleTypes = { types: this.moduleTypes };
             }
 
+            if (this.conditionsClientValidation(this.rule.conditions, false)) {
+                this.createNotificationError({
+                    title: titleSaveError,
+                    message: messageSaveError
+                });
+                warn(this._name, 'client validation failure');
+                this.$refs.conditionTree.$emit('on-save');
+
+                return null;
+            }
+
             this.removeOriginalConditionTypes(this.rule.conditions);
 
             return this.rule.save().then(() => {
@@ -164,6 +177,42 @@ Component.register('sw-settings-rule-detail', {
                     condition.original.value = {};
                 }
             });
+        },
+
+        conditionsClientValidation(conditions, error) {
+            conditions.forEach((condition) => {
+                if (condition.children) {
+                    error = this.conditionsClientValidation(condition.children, error);
+                }
+
+                if (this.treeConfig.isAndContainer(condition) || this.treeConfig.isOrContainer(condition)) {
+                    return;
+                }
+
+                if (condition.errors.map(obj => obj.id).includes('clientValidationError')) {
+                    return;
+                }
+
+                if (this.treeConfig.isPlaceholder(condition)) {
+                    condition.errors.push({
+                        id: 'clientValidationError',
+                        type: 'placeholder'
+                    });
+
+                    error = true;
+                }
+
+                if (!this.treeConfig.isDataSet(condition)) {
+                    condition.errors.push({
+                        id: 'clientValidationError',
+                        type: 'data'
+                    });
+
+                    error = true;
+                }
+            });
+
+            return error;
         },
 
         areConditionsValueEqual(conditionA, conditionB) {

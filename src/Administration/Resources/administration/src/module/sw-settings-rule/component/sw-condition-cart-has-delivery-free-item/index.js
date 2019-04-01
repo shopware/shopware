@@ -22,12 +22,17 @@ Component.extend('sw-condition-cart-has-delivery-free-item', 'sw-condition-base'
         },
         fieldNames() {
             return ['allowed'];
+        },
+        defaultValues() {
+            return {
+                allowed: true
+            };
         }
     },
 
     data() {
         return {
-            allowed: this.condition.value.allowed !== undefined ? String(this.condition.value.allowed) : 'true'
+            allowed: this.condition.value.allowed ? String(this.condition.value.allowed) : 'true'
         };
     },
 

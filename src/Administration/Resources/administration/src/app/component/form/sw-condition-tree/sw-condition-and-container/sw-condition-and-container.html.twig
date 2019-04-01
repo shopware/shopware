@@ -7,14 +7,13 @@
                          :class="'sw-condition-container__and-child--' + index"
                          :key="index">
                         {% block sw_condition_and_container_children_spacer %}
-                            <div v-if="index && !child.isDeleted"
+                            <div v-if="index"
                                  class="condition-content__spacer--and">
                                 {{ $tc('global.sw-condition.condition.and') }}
                             </div>
                         {% endblock %}
                         {% block sw_condition_and_container_children_component %}
                             <component :is="getComponent(child)"
-                                       v-if="!child.isDeleted"
                                        :condition="child"
                                        :level="level + 1"
                                        :parentDisabledDelete="disabledDeleteButton"

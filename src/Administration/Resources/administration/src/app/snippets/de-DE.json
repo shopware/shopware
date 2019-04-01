@@ -317,6 +317,8 @@
         "isOneOf": "Ist eine von",
         "isNoneOf": "Ist keine von"
       },
+      "placeholderErrorMessage": "Platzhalter können nicht gespeichert werden.",
+      "dataErrorMessage": "Es wurden nicht alle Pflichtfelder befüllt.",
       "condition": {
         "dateRangeRule": {
           "label":  "Datumsbereich",

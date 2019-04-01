@@ -316,6 +316,8 @@
         "isOneOf": "Is one of",
         "isNoneOf": "Is none of"
       },
+      "placeholderErrorMessage": "Placeholder can not be saved.",
+      "dataErrorMessage": "Required fields not filled.",
       "condition": {
         "dateRangeRule": {
           "label": "Date range",

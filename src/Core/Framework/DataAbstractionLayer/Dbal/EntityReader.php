@@ -431,11 +431,9 @@ class EntityReader implements EntityReaderInterface
             $versionCondition = ' AND #alias#.' . $versionField . ' = #root#.version_id';
         }
 
-        $source = EntityDefinitionQueryHelper::escape($root) . '.'
-            . EntityDefinitionQueryHelper::escape($field->getLocalField());
+        $source = EntityDefinitionQueryHelper::escape($root) . '.' . EntityDefinitionQueryHelper::escape($field->getLocalField());
         if ($field->is(Inherited::class) && $considerInheritance) {
-            $source = EntityDefinitionQueryHelper::escape($root) . '.'
-                . EntityDefinitionQueryHelper::escape($field->getPropertyName());
+            $source = EntityDefinitionQueryHelper::escape($root) . '.' . EntityDefinitionQueryHelper::escape($field->getPropertyName());
         }
 
         $parameters = [
@@ -1062,7 +1060,6 @@ class EntityReader implements EntityReaderInterface
             || !empty($fieldCriteria->getSorting())
             || !empty($fieldCriteria->getFilters())
             || !empty($fieldCriteria->getPostFilters())
-            || !empty($fieldCriteria->getAssociations())
         ;
     }
 

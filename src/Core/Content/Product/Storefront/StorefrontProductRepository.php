@@ -69,6 +69,8 @@ class StorefrontProductRepository
 
     public function searchIds(Criteria $criteria, CheckoutContext $context): IdSearchResult
     {
+        $this->addActiveFilters($criteria, $context);
+
         return $this->productRepository->searchIds($criteria, $context->getContext());
     }
 

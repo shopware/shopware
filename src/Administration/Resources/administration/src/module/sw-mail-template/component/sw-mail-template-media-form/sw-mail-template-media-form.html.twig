@@ -23,7 +23,7 @@
                 <sw-loader v-if="mailTemplate.isLoading"></sw-loader>
                 {%  block sw_mail_template_media_form_grid_items %}
                     <div v-for="mediaItem in mediaItems"
-                         class="sw-mail-template-media"
+                         class="sw-mail-template-media-form__grid-item"
                          :class="{'is--placeholder' : mediaItem.isPlaceholder}">
                         {% block sw_mail_template_image_preview %}
                             <template v-if="!mediaItem.isPlaceholder">

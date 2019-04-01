@@ -35,7 +35,7 @@
         "labelDescription": "Beschreibung",
         "labelSalesChannels": "Verkaufskanal",
         "placeholderMailType": "Wähle einen Typ...",
-        "placeholderDescription": "Gebe eine kurze Beschreibung an...",
+        "placeholderDescription": "Gib eine kurze Beschreibung an...",
         "placeholderSalesChannels": "Wähle eine Zuweisung..."
       },
       "options": {
@@ -102,8 +102,8 @@
         "labelName": "Name",
         "labelDescription": "Beschreibung",
         "labelSalesChannels": "Verkaufskanäle",
-        "placeholderName": "Gebe einen Namen ein",
-        "placeholderDescription": "Gebe eine Beschreibung ein",
+        "placeholderName": "Gib einen Namen ein",
+        "placeholderDescription": "Gib eine Beschreibung ein",
         "placeholderSalesChannels": "Wähle zutreffende Verkaufskanäle"
       },
       "header": {

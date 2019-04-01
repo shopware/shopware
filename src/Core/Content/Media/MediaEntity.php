@@ -180,7 +180,7 @@ class MediaEntity extends Entity
         return $this->userId;
     }
 
-    public function setUserId(?string $userId): void
+    public function setUserId(string $userId): void
     {
         $this->userId = $userId;
     }
@@ -220,7 +220,7 @@ class MediaEntity extends Entity
         return $this->title;
     }
 
-    public function setTitle(?string $title): void
+    public function setTitle(string $title): void
     {
         $this->title = $title;
     }
@@ -240,7 +240,7 @@ class MediaEntity extends Entity
         return $this->mediaType;
     }
 
-    public function setMediaType(?MediaType $mediaType): void
+    public function setMediaType(MediaType $mediaType): void
     {
         $this->mediaType = $mediaType;
     }
@@ -270,7 +270,7 @@ class MediaEntity extends Entity
         return $this->uploadedAt;
     }
 
-    public function setUploadedAt(?\DateTimeInterface $uploadedAt): void
+    public function setUploadedAt(\DateTimeInterface $uploadedAt): void
     {
         $this->uploadedAt = $uploadedAt;
     }
@@ -280,7 +280,7 @@ class MediaEntity extends Entity
         return $this->alt;
     }
 
-    public function setAlt(?string $alt): void
+    public function setAlt(string $alt): void
     {
         $this->alt = $alt;
     }
@@ -385,7 +385,7 @@ class MediaEntity extends Entity
         return $this->mediaFolderId;
     }
 
-    public function setMediaFolderId(?string $mediaFolderId): void
+    public function setMediaFolderId(string $mediaFolderId): void
     {
         $this->mediaFolderId = $mediaFolderId;
     }
@@ -395,7 +395,7 @@ class MediaEntity extends Entity
         return $this->mediaFolder;
     }
 
-    public function setMediaFolder(?MediaFolderEntity $mediaFolder): void
+    public function setMediaFolder(MediaFolderEntity $mediaFolder): void
     {
         $this->mediaFolder = $mediaFolder;
     }
@@ -435,7 +435,7 @@ class MediaEntity extends Entity
         return $this->mailTemplateMedia;
     }
 
-    public function setMailTemplateMedia(?MailTemplateMediaCollection $mailTemplateMedia): void
+    public function setMailTemplateMedia(MailTemplateMediaCollection $mailTemplateMedia): void
     {
         $this->mailTemplateMedia = $mailTemplateMedia;
     }
@@ -445,7 +445,7 @@ class MediaEntity extends Entity
         return $this->attributes;
     }
 
-    public function setAttributes(?array $attributes): void
+    public function setAttributes(array $attributes): void
     {
         $this->attributes = $attributes;
     }

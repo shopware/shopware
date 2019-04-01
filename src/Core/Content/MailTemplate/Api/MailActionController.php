@@ -53,8 +53,14 @@ class MailActionController extends AbstractController
      */
     private $urlGenerator;
 
-    public function __construct(MailSender $mailSender, MessageFactory $messageFactory, StringTemplateRenderer $templateRenderer, MailBuilder $mailBuilder, EntityRepositoryInterface $mediaRepository, UrlGeneratorInterface $urlGenerator)
-    {
+    public function __construct(
+        MailSender $mailSender,
+        MessageFactory $messageFactory,
+        StringTemplateRenderer $templateRenderer,
+        MailBuilder $mailBuilder,
+        EntityRepositoryInterface $mediaRepository,
+        UrlGeneratorInterface $urlGenerator
+    ) {
         $this->mailSender = $mailSender;
         $this->messageFactory = $messageFactory;
         $this->templateRenderer = $templateRenderer;
@@ -66,9 +72,8 @@ class MailActionController extends AbstractController
     /**
      * @Route("/api/v{version}/_action/mail-template/send", name="api.action.mail_template.send", methods={"POST"})
      *
-     * @throws MissingRequestParameterException
-     * @throws StringTemplateRenderingException
      * @throws MailTransportFailedException
+     * @throws MissingRequestParameterException
      */
     public function send(InternalRequest $request, Context $context): JsonResponse
     {

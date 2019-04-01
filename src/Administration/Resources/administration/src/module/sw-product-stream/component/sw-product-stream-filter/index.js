@@ -141,6 +141,12 @@ Component.extend('sw-product-stream-filter', 'sw-condition-base', {
                 }
             }
         },
+        'actualCondition.value': {
+            immediate: true,
+            handler() {
+                this.mapValues();
+            }
+        },
         filterValue: {
             immediate: true,
             handler(newValue) {

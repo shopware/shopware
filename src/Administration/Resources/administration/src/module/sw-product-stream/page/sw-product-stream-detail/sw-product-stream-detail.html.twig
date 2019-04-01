@@ -58,20 +58,25 @@
                                       v-model="productStream.description">
                             </sw-field>
                         {% endblock %}
-                        <sw-button class="sw-product-stream-detail__open_modal_preview" :disabled="productStream.isLoading" @click.prevent="openModalPreview">
-                            {{ $tc('sw-product-stream.detail.buttonOpenPreview') }}
-                        </sw-button>
                     </sw-card>
                 {% endblock %}
 
                 {% block sw_product_stream_detail_filter %}
                     <sw-card :large="true" class="sw-product-stream-detail__condition_container" :title="$tc('sw-product-stream.detail.titleFilter')">
-                        <sw-condition-tree v-if="productStream && !isLoading"
-                                           :entity="productStream"
-                                           :conditionStore="conditionStore"
-                                           :config="treeConfig"
-                                           ref="conditionTree">
-                        </sw-condition-tree>
+                        {% block sw_product_stream_detail_filter %}
+                            <sw-condition-tree v-if="productStream && !isLoading"
+                                               :entity="productStream"
+                                               :conditionStore="conditionStore"
+                                               :config="treeConfig"
+                                               ref="conditionTree">
+                            </sw-condition-tree>
+                        {% endblock %}
+
+                        {% block sw_product_stream_detail_filter_preview_button %}
+                            <sw-button class="sw-product-stream-detail__open_modal_preview" :disabled="productStream.isLoading" @click.prevent="openModalPreview">
+                                {{ $tc('sw-product-stream.detail.buttonOpenPreview') }}
+                            </sw-button>
+                        {% endblock %}
                     </sw-card>
                 {% endblock %}
 

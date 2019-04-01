@@ -2,8 +2,8 @@
     <nav class="sw-media-breadcrumbs" :class="swMediaBreadcrumbsClasses">
         {% block sw_media_breadcrumbs_root_folder %}
             <a class="sw-media-breadcrumbs__button-back-to-root" @click="onBreadcrumbsItemClicked(null)">
-                <sw-icon v-if="!small" large name="folder-breadcrumbs-back-to-root" multicolor></sw-icon>
-                <sw-icon v-else small name="folder-breadcrumbs" multicolor></sw-icon>
+                <sw-icon v-if="!small" large name="multicolor-folder-breadcrumbs-back-to-root" multicolor></sw-icon>
+                <sw-icon v-else small name="multicolor-folder-breadcrumbs" multicolor></sw-icon>
             </a>
         {% endblock %}
 

@@ -28,6 +28,7 @@ Component.extend('sw-product-stream-filter', 'sw-condition-base', {
             fieldPath: [],
             negatedCondition: null,
             definitionBlacklist: {},
+            filterValue: null,
             types: [
                 {
                     type: TYPES.TYPE_RANGE,
@@ -145,6 +146,14 @@ Component.extend('sw-product-stream-filter', 'sw-condition-base', {
             handler() {
                 this.mapValues();
             }
+        },
+        filterValue: {
+            handler(newValue) {
+                if (!newValue) {
+                    return;
+                }
+                this.actualCondition.value = newValue.toString();
+            }
         }
     },
 
@@ -168,6 +177,7 @@ Component.extend('sw-product-stream-filter', 'sw-condition-base', {
 
             this.type = this.findCorrectAbstractionForRangeType();
 
+            this.filterValue = this.actualCondition.value;
             if (this.isApi()) {
                 this.lastField = {};
             }
@@ -535,7 +545,8 @@ Component.extend('sw-product-stream-filter', 'sw-condition-base', {
             case 'string':
                 return 'text';
             case 'integer':
-                this.actualCondition.value = Number(this.actualCondition.value);
+            case 'number':
+                this.filterValue = Number(this.actualCondition.value);
                 return 'number';
             default:
                 return type;

@@ -23,7 +23,7 @@ class Migration1553679520RefactorPaymentMethods extends MigrationStep
     {
         $connection->exec(
             'ALTER TABLE `payment_method`
-            ADD COLUMN `handler_identifier` VARCHAR(255) COLLATE utf8mb4_unicode_ci NOT NULL;'
+            ADD COLUMN `handler_identifier` VARCHAR(255) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT "Shopware\\\Core\\\Checkout\\\Payment\\\Cart\\\PaymentHandler\\\DefaultPayment";'
         );
 
         // TODO: When merging migrations --> Add to Migration1536233420BasicData

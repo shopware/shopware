@@ -7,7 +7,7 @@ use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Context\CheckoutContextPersister;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
 use Shopware\Core\Checkout\Customer\Exception\AddressNotFoundException;
-use Shopware\Core\Checkout\Payment\Exception\PaymentMethodNotFoundException;
+use Shopware\Core\Checkout\Payment\Exception\UnknownPaymentMethodException;
 use Shopware\Core\Checkout\Shipping\Exception\ShippingMethodNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -98,7 +98,7 @@ class StorefrontCheckoutContextController extends AbstractController
 
         $valid = $this->paymentMethodRepository->searchIds($criteria, $context->getContext());
         if (!\in_array($paymentMethodId, $valid->getIds(), true)) {
-            throw new PaymentMethodNotFoundException($paymentMethodId);
+            throw new UnknownPaymentMethodException($paymentMethodId);
         }
 
         return $paymentMethodId;

@@ -10,7 +10,9 @@ use Shopware\Core\Checkout\Context\CheckoutContextPersister;
 use Shopware\Core\Checkout\Context\CheckoutContextService;
 use Shopware\Core\Checkout\Customer\Storefront\AccountRegistrationService;
 use Shopware\Core\Checkout\Order\OrderEntity;
+use Shopware\Core\Checkout\Payment\Exception\AsyncPaymentProcessException;
 use Shopware\Core\Checkout\Payment\Exception\InvalidOrderException;
+use Shopware\Core\Checkout\Payment\Exception\SyncPaymentProcessException;
 use Shopware\Core\Checkout\Payment\Exception\UnknownPaymentMethodException;
 use Shopware\Core\Checkout\Payment\PaymentService;
 use Shopware\Core\Framework\Api\Response\Type\Storefront\JsonType;
@@ -137,7 +139,9 @@ class StorefrontCheckoutController extends AbstractController
     /**
      * @Route("/storefront-api/v{version}/checkout/order/{orderId}/pay", name="storefront-api.checkout.order.pay", methods={"POST"})
      *
+     * @throws AsyncPaymentProcessException
      * @throws InvalidOrderException
+     * @throws SyncPaymentProcessException
      * @throws UnknownPaymentMethodException
      */
     public function payOrder(string $orderId, Request $request, CheckoutContext $context): Response

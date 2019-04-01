@@ -22,6 +22,8 @@
             <argument type="service" id="Shopware\Core\Checkout\Payment\Cart\Token\JWTFactory"/>
             <argument type="service" id="payment_method.repository"/>
             <argument type="service" id="Shopware\Core\Checkout\Payment\Cart\PaymentHandler\PaymentHandlerRegistry"/>
+            <argument type="service" id="order_transaction.repository"/>
+            <argument type="service" id="Shopware\Core\System\StateMachine\StateMachineRegistry"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Payment\Controller\PaymentController" public="true">
@@ -72,6 +74,12 @@
         </service>
 
         <service id="Shopware\Core\Checkout\Payment\Cart\PaymentHandler\SEPAPayment">
+            <argument type="service" id="order_transaction.repository"/>
+            <argument type="service" id="Shopware\Core\System\StateMachine\StateMachineRegistry"/>
+            <tag name="payment.method.sync"/>
+        </service>
+
+        <service id="Shopware\Core\Checkout\Payment\Cart\PaymentHandler\DefaultPayment">
             <argument type="service" id="order_transaction.repository"/>
             <argument type="service" id="Shopware\Core\System\StateMachine\StateMachineRegistry"/>
             <tag name="payment.method.sync"/>

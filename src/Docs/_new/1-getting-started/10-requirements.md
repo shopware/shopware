@@ -44,8 +44,9 @@ JavaScript
 * NPM 6.5.0 or higher
 
 Various
-* Apache 2.4 or higher
+* Apache 2.4 or higher with mod-rewrite enabled 
 * Bash
+* Git
 
 ### Recommendations
 

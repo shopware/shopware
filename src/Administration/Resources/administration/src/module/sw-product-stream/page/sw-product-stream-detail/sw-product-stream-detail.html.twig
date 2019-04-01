@@ -74,12 +74,6 @@
                     </sw-card>
                 {% endblock %}
 
-                {% block sw_product_stream_detail_result %}
-                    <sw-card :large="true" :title="$tc('sw-product-stream.detail.titleResult')">
-                        {# TODO: Add result list #}
-                    </sw-card>
-                {% endblock %}
-
                 <sw-product-stream-modal-preview
                         v-if="showModalPreview"
                         :associationStore="filterAssociations"

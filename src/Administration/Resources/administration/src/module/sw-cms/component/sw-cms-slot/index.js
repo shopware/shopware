@@ -14,6 +14,12 @@ Component.register('sw-cms-slot', {
                 return {};
             }
         },
+
+        pageContext: {
+            type: Object,
+            required: true
+        },
+
         active: {
             type: Boolean,
             required: false,

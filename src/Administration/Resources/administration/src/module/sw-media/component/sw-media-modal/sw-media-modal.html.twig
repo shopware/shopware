@@ -49,6 +49,7 @@
                                                     :folderId="folderId"
                                                     :term="term"
                                                     :compact="compact"
+                                                    :allowMultiSelect="allowMultiSelect"
                                                     @sw-media-selection-changed="selection = $event"
                                                     @media-folder-changed="folderId = $event"
                                                     ref="mediaLibrary">
@@ -72,7 +73,7 @@
                                                     :uploadTag="uploadTag"
                                                     :defaultFolder="entityContext"
                                                     :targetFolder="folderId"
-                                                    allowMultiple>
+                                                    :allowMultiSelect="allowMultiSelect">
                                                 </sw-media-upload>
                                             {% endblock %}
 
@@ -84,10 +85,14 @@
                                                         :key="`sw-media-modal-upload-${upload.id}`"
                                                         :item="upload"
                                                         :showContextMenuButton="false"
-                                                        :showSelectionIndicator="true"
-                                                        :selected="true"
+                                                        :showSelectionIndicator="allowMultiSelect"
+                                                        :allowMultiSelect="allowMultiSelect"
+                                                        :selected="checkMediaItem(upload)"
                                                         :editable="false"
-                                                        :isList="compact">
+                                                        :isList="compact"
+                                                        @sw-media-item-selection-remove="onMediaRemoveSelected"
+                                                        @sw-media-item-selection-add="onMediaAddSelected"
+                                                        @sw-media-item-clicked="onMeidaItemSelect">
                                                     </sw-media-media-item>
                                                 </sw-media-grid>
                                             {% endblock %}
@@ -106,7 +111,7 @@
                         @sw-media-sidebar-items-delete="onItemsDeleted"
                         @sw-media-sidebar-folder-items-dissolved="onMediaFoldersDissolved"
                         @sw-media-sidebar-items-moved="refreshList"
-                        @sw-media-item-selection-remove="onMediaUnselect">
+                        @sw-media-item-selection-remove="onMediaRemoveSelected">
                     </sw-media-sidebar>
                 {% endblock %}
             </div>

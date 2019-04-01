@@ -2,12 +2,13 @@
 
 namespace Shopware\Core\Framework\Plugin\Changelog;
 
-use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Plugin\Exception\PluginChangelogInvalidException;
 use Symfony\Component\Finder\Finder;
 
 class ChangelogService
 {
+    private const FALLBACK_LOCALE = 'en_GB';
+
     /**
      * @var ChangelogParserInterface
      */
@@ -38,7 +39,7 @@ class ChangelogService
         $fileName = basename($file, '.md');
 
         if ($fileName === 'CHANGELOG') {
-            return Defaults::LOCALE_EN_GB_ISO;
+            return self::FALLBACK_LOCALE;
         }
 
         return substr($fileName, strpos($fileName, '-') + 1, 5);

@@ -14,6 +14,7 @@ Module.register('sw-settings-currency', {
     description: 'Currency section in the settings module',
     color: '#9AA8B5',
     icon: 'default-action-settings',
+    favicon: 'icon-module-settings.png',
     entity: 'currency',
 
     snippets: {

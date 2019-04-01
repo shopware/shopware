@@ -11,6 +11,7 @@ Module.register('sw-dashboard', {
     targetVersion: '1.0.0',
     color: '#6AD6F0',
     icon: 'default-device-dashboard',
+    favicon: 'icon-module-dashboard.png',
 
     snippets: {
         'de-DE': deDE,

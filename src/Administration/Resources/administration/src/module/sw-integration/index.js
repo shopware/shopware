@@ -13,6 +13,7 @@ Module.register('sw-integration', {
     targetVersion: '1.0.0',
     color: '#9AA8B5',
     icon: 'default-action-settings',
+    favicon: 'icon-module-settings.png',
     entity: 'integration',
 
     snippets: {

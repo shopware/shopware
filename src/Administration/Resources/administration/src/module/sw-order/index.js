@@ -26,6 +26,7 @@ Module.register('sw-order', {
     targetVersion: '1.0.0',
     color: '#A092F0',
     icon: 'default-shopping-paper-bag',
+    favicon: 'icon-module-orders.png',
     entity: 'order',
 
     snippets: {

@@ -23,6 +23,7 @@ Module.register('sw-customer', {
     targetVersion: '1.0.0',
     color: '#F88962',
     icon: 'default-avatar-multiple',
+    favicon: 'icon-module-customers.png',
     entity: 'customer',
 
     snippets: {

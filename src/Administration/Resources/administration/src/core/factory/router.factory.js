@@ -3,6 +3,7 @@
  */
 import { hasOwnProperty } from 'src/core/service/utils/object.utils';
 import RefreshTokenHelper from 'src/core/helper/refresh-token.helper';
+import { Application } from 'src/core/shopware';
 
 /**
  * Initializes the router for the application.
@@ -67,7 +68,10 @@ export default function createRouter(Router, View, moduleFactory, LoginService) 
      * @returns {VueRouter} router
      */
     function beforeRouterInterceptor(router) {
+        const assetPath = getAssetPath();
+
         router.beforeEach((to, from, next) => {
+            setModuleFavicon(to, assetPath);
             const loggedIn = LoginService.isLoggedIn();
             const tokenHandler = new RefreshTokenHelper();
             const loginWhitelist = [
@@ -131,6 +135,7 @@ export default function createRouter(Router, View, moduleFactory, LoginService) 
      */
     function resolveRoute(to, from, next) {
         const moduleInfo = getModuleInfo(to);
+
         if (moduleInfo !== null) {
             to.meta.$module = moduleInfo.manifest;
         }
@@ -335,5 +340,28 @@ export default function createRouter(Router, View, moduleFactory, LoginService) 
      */
     function getViewComponent(componentName) {
         return View.getComponent(componentName);
+    }
+
+    function getAssetPath() {
+        const initContainer = Application.getContainer('init');
+        const context = initContainer.contextService;
+        return context.assetsPath;
+    }
+
+    function setModuleFavicon(routeDestination, assetsPath) {
+        const moduleInfo = getModuleInfo(routeDestination);
+        const favicon = moduleInfo.manifest.favicon || null;
+        const favRef = document.getElementById('dynamic-favicon');
+
+        favRef.id = 'dynamic-favicon';
+        favRef.rel = 'shortcut icon';
+
+        if (assetsPath.length !== 0) {
+            assetsPath = `${assetsPath}administration/`;
+        }
+
+        favRef.href = favicon
+            ? `${assetsPath}static/img/favicon/modules/${favicon}`
+            : `${assetsPath}static/img/favicon/favicon-32x32.png`;
     }
 }

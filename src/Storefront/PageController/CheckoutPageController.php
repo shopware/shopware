@@ -15,6 +15,7 @@ use Shopware\Storefront\Page\Checkout\Confirm\CheckoutConfirmPageLoader;
 use Shopware\Storefront\Page\Checkout\Finish\CheckoutFinishPageLoader;
 use Shopware\Storefront\Page\Checkout\Register\CheckoutRegisterPageLoader;
 use Symfony\Component\HttpFoundation\RedirectResponse;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Routing\Exception\InvalidParameterException;
@@ -121,15 +122,18 @@ class CheckoutPageController extends StorefrontController
     /**
      * @Route("/checkout/register", name="frontend.checkout.register.page", options={"seo"="false"}, methods={"GET"})
      */
-    public function register(InternalRequest $request, CheckoutContext $context): Response
+    public function register(Request $request, InternalRequest $internal, CheckoutContext $context): Response
     {
+        /** @var string $redirect */
+        $redirect = $request->get('redirectTo', $this->generateUrl('frontend.checkout.confirm.page'));
+
         if ($context->getCustomer()) {
-            return $this->redirectToRoute('frontend.checkout.confirm.page');
+            return $this->redirect($redirect);
         }
 
-        $page = $this->registerPageLoader->load($request, $context);
+        $page = $this->registerPageLoader->load($internal, $context);
 
         // TODO change template NEXT-1930
-        return $this->renderStorefront('@Storefront/page/account/register/index.html.twig', ['page' => $page]);
+        return $this->renderStorefront('@Storefront/page/account/register/index.html.twig', ['redirectTo' => $redirect, 'page' => $page]);
     }
 }

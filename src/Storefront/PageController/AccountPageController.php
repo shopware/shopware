@@ -4,6 +4,7 @@ namespace Shopware\Storefront\PageController;
 
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException as CustomerNotLoggedInExceptionAlias;
 use Shopware\Core\Checkout\CheckoutContext;
+use Shopware\Core\Checkout\Customer\Exception\BadCredentialsException;
 use Shopware\Core\Checkout\Customer\Storefront\AccountRegistrationService;
 use Shopware\Core\Checkout\Customer\Storefront\AccountService;
 use Shopware\Core\Framework\Routing\InternalRequest;
@@ -19,7 +20,9 @@ use Shopware\Storefront\Page\Account\Overview\AccountOverviewPageLoader;
 use Shopware\Storefront\Page\Account\PaymentMethod\AccountPaymentMethodPageLoader;
 use Shopware\Storefront\Page\Account\Profile\AccountProfilePageLoader;
 use Symfony\Component\HttpFoundation\RedirectResponse;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
 use Symfony\Component\Routing\Annotation\Route;
 
 class AccountPageController extends StorefrontController
@@ -110,17 +113,42 @@ class AccountPageController extends StorefrontController
     /**
      * @Route("/account/login", name="frontend.account.login.page", methods={"GET"})
      */
-    public function login(InternalRequest $request, CheckoutContext $context): Response
+    public function login(Request $request, InternalRequest $internal, CheckoutContext $context): Response
     {
+        /** @var string $redirect */
+        $redirect = $request->get('redirectTo', $this->generateUrl('frontend.account.home.page'));
+
         if ($context->getCustomer()) {
-            return $this->redirectToRoute('frontend.account.home.page');
+            return $this->redirect($redirect);
         }
 
-        $redirect = $request->optionalGet('redirectTo', $this->generateUrl('frontend.account.home.page'));
-
-        $page = $this->loginPageLoader->load($request, $context);
+        $page = $this->loginPageLoader->load($internal, $context);
 
         return $this->renderStorefront('@Storefront/page/account/register/index.html.twig', ['redirectTo' => $redirect, 'page' => $page]);
+    }
+
+    /**
+     * @Route("/account/login", name="frontend.account.login", methods={"POST"})
+     */
+    public function loginCustomer(Request $request, RequestDataBag $data, CheckoutContext $context): Response
+    {
+        $redirect = $request->get('redirectTo', $this->generateUrl('frontend.account.home.page'));
+
+        if ($context->getCustomer()) {
+            return $this->redirect($redirect);
+        }
+
+        try {
+            $token = $this->accountService->loginWithPassword($data, $context);
+            if (!empty($token)) {
+                return new RedirectResponse($redirect);
+            }
+        } catch (BadCredentialsException | UnauthorizedHttpException $e) {
+        }
+
+        return $this->forward('Shopware\Storefront\PageController\AccountPageController::login', [
+            'loginError' => true,
+        ]);
     }
 
     /**

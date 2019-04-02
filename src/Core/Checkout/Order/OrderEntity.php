@@ -30,11 +30,6 @@ class OrderEntity extends Entity
     /**
      * @var string
      */
-    protected $orderCustomerId;
-
-    /**
-     * @var string
-     */
     protected $currencyId;
 
     /**
@@ -185,16 +180,6 @@ class OrderEntity extends Entity
      * @var TagCollection|null
      */
     protected $tags;
-
-    public function getOrderCustomerId(): string
-    {
-        return $this->orderCustomerId;
-    }
-
-    public function setOrderCustomerId(string $orderCustomerId): void
-    {
-        $this->orderCustomerId = $orderCustomerId;
-    }
 
     public function getCurrencyId(): string
     {

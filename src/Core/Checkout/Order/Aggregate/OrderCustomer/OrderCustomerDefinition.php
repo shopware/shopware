@@ -14,6 +14,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\SearchRanking;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToOneAssociationField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\UpdatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
@@ -50,6 +51,9 @@ class OrderCustomerDefinition extends EntityDefinition
 
             new FkField('customer_id', 'customerId', CustomerDefinition::class),
 
+            (new FkField('order_id', 'orderId', OrderDefinition::class))->addFlags(new Required()),
+            (new ReferenceVersionField(OrderDefinition::class))->addFlags(new Required()),
+
             (new StringField('email', 'email'))->addFlags(new Required()),
             (new FkField('salutation_id', 'salutationId', SalutationDefinition::class))->addFlags(new Required()),
             (new StringField('first_name', 'firstName'))->addFlags(new Required()),
@@ -59,7 +63,7 @@ class OrderCustomerDefinition extends EntityDefinition
             new AttributesField(),
             new CreatedAtField(),
             new UpdatedAtField(),
-            new OneToOneAssociationField('order', 'id', 'order_customer_id', OrderDefinition::class, false),
+            new OneToOneAssociationField('order', 'order_id', 'id', OrderDefinition::class, false),
             (new ManyToOneAssociationField('customer', 'customer_id', CustomerDefinition::class, false))->addFlags(new SearchRanking(0.5)),
             new ManyToOneAssociationField('salutation', 'salutation_id', SalutationDefinition::class, true),
         ]);

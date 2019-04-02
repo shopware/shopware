@@ -97,6 +97,7 @@
         "ext-xmlwriter": "*",
         "bheller/images-generator": "1.0.1",
         "fzaninotto/faker": "1.8.0",
+        "johnkary/phpunit-speedtrap": "3.1.0",
         "mbezhanov/faker-provider-collection": "1.2.1",
         "kubawerlos/php-cs-fixer-custom-fixers": "1.13.0",
         "phpunit/phpunit": "8.0.6",

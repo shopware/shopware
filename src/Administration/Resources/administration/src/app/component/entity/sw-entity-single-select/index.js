@@ -43,14 +43,6 @@ export default {
         createdComponent() {
             this.repository = this.repositoryFactory.create(this.entity);
 
-            this.repository.on('finish.loading', (result) => {
-                if (this.silent) {
-                    return;
-                }
-
-                this.applyResult(result);
-            });
-
             this.$on('scroll', this.paginate);
 
             this.$super.createdComponent();
@@ -102,7 +94,13 @@ export default {
             criteria.setTotalCountMode(0);
             criteria.setTerm(this.searchTerm);
 
-            return this.repository.search(criteria, this.context);
+            return this.repository.search(criteria, this.context).then((result) => {
+                if (this.silent) {
+                    return;
+                }
+
+                this.applyResult(result);
+            });
         },
 
         search: utils.debounce(function debouncedSearch() {

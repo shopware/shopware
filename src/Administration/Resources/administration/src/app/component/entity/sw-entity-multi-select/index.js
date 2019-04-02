@@ -52,24 +52,15 @@ export default {
 
             this.selectedIds = this.collection.getIds();
 
-            this.repository.on('finish.loading', (result) => {
-                this.displayAssigned(result);
-            });
-
             this.$on('scroll', this.paginate);
 
-            return this.repository.search(this.collection.criteria, this.collection.context);
+            return this.repository.search(this.collection.criteria, this.collection.context).then(this.displayAssigned);
         },
 
         loadVisibleItems() {
-            this.collection.criteria.setPage(
-                this.collection.criteria.page + 1
-            );
+            this.collection.criteria.setPage(this.collection.criteria.page + 1);
 
-            return this.repository.search(
-                this.collection.criteria,
-                this.collection.context
-            );
+            return this.repository.search(this.collection.criteria, this.collection.context).then(this.displayAssigned);
         },
 
         search() {

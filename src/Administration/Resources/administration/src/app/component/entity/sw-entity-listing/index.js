@@ -15,6 +15,10 @@ export default {
             required: true,
             type: Object
         },
+        items: {
+            required: true,
+            type: Object
+        },
         dataSource: {
             type: [Array, Object],
             required: false
@@ -53,17 +57,7 @@ export default {
     methods: {
         createdComponent() {
             this.$super.createdComponent();
-
-            // add listener to active ui loading
-            this.repository.on('start.loading', () => {
-                this.loading = true;
-            });
-
-            // add listener to disable ui loading and apply loaded result
-            this.repository.on('finish.loading', (result) => {
-                this.loading = false;
-                this.applyResult(result);
-            });
+            this.applyResult(this.items);
         },
 
         applyResult(result) {
@@ -78,20 +72,20 @@ export default {
 
             // send delete request to the server, immediately
             return this.repository.delete(id, this.records.context).then(() => {
-                return this.repository.search(this.records.criteria, this.records.context);
+                return this.repository.search(this.records.criteria, this.records.context).then(this.applyResult);
             });
         },
 
         save(record) {
             // send save request to the server, immediately
             return this.repository.save(record, this.records.context).then(() => {
-                return this.repository.search(this.records.criteria, this.records.context);
+                return this.repository.search(this.records.criteria, this.records.context).then(this.applyResult);
             });
         },
 
         revert() {
             // reloads the grid to revert all changes
-            return this.repository.search(this.records.criteria, this.records.context);
+            return this.repository.search(this.records.criteria, this.records.context).then(this.applyResult);
         },
 
         sort(column) {
@@ -111,14 +105,14 @@ export default {
             this.currentSortBy = column.dataIndex;
             this.currentSortDirection = direction;
 
-            return this.repository.search(this.records.criteria, this.records.context);
+            return this.repository.search(this.records.criteria, this.records.context).then(this.applyResult);
         },
 
         paginate({ page = 1, limit = 25 }) {
             this.records.criteria.setPage(page);
             this.records.criteria.setLimit(limit);
 
-            return this.repository.search(this.records.criteria, this.records.context);
+            return this.repository.search(this.records.criteria, this.records.context).then(this.applyResult);
         },
 
         showDelete(id) {

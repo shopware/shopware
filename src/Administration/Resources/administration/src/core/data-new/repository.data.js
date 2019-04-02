@@ -1,7 +1,6 @@
-import EventEmitter from 'events';
 import Criteria from './criteria.data';
 
-export default class Repository extends EventEmitter {
+export default class Repository {
     /**
      * @param {String} route
      * @param {Object} schema
@@ -11,7 +10,6 @@ export default class Repository extends EventEmitter {
      * @param {EntityFactory} entityFactory
      */
     constructor(route, schema, httpClient, hydrator, changesetGenerator, entityFactory) {
-        super();
         this.route = route;
         this.schema = schema;
         this.httpClient = httpClient;
@@ -29,18 +27,12 @@ export default class Repository extends EventEmitter {
     searchIds(criteria, context) {
         const headers = this.buildHeaders(context);
 
-        this.emit('start.loading.ids', criteria, context);
-
         const url = `/search-ids${this.route}`;
 
         return this.httpClient
             .post(url, criteria.parse(), { headers })
             .then((response) => {
-                const result = response.data;
-
-                this.emit('finish.loading.ids', result);
-
-                return result;
+                return response.data;
             });
     }
 
@@ -52,8 +44,6 @@ export default class Repository extends EventEmitter {
      */
     search(criteria, context) {
         const headers = this.buildHeaders(context);
-
-        this.emit('start.loading', criteria, context);
 
         const url = `/search${this.route}`;
 
@@ -67,8 +57,6 @@ export default class Repository extends EventEmitter {
                     context,
                     criteria
                 );
-
-                this.emit('finish.loading', result);
 
                 return result;
             });
@@ -102,13 +90,9 @@ export default class Repository extends EventEmitter {
     save(entity, context) {
         const [changes, deletionQueue] = this.changesetGenerator.generate(entity);
 
-        this.emit('start.save', entity, context);
-
         return new Promise((resolve) => {
             this.sendDeletions(deletionQueue, context).then(() => {
                 this.sendChanges(entity, changes, context).then(() => {
-                    this.emit('finish.save', entity, context);
-
                     resolve();
                 });
             });
@@ -139,13 +123,9 @@ export default class Repository extends EventEmitter {
     delete(id, context) {
         const headers = this.buildHeaders(context);
 
-        this.emit('start.delete', id, context);
-
         const url = `${this.route}/${id}`;
 
-        return this.httpClient.delete(url, { headers }).then(() => {
-            this.emit('finish.delete', id, context);
-        });
+        return this.httpClient.delete(url, { headers });
     }
 
     /**
@@ -182,16 +162,10 @@ export default class Repository extends EventEmitter {
             params.versionName = versionName;
         }
 
-        this.emit('start.create.version', entityId, context, versionId, versionName);
-
         const url = `_action/version/${this.schema.entity}/${entityId}`;
 
         return this.httpClient.post(url, params, { headers }).then((response) => {
-            const versionContext = { ...context, ...{ versionId: response.data.versionId } };
-
-            this.emit('finish.create.version', entityId, versionContext, versionName);
-
-            return versionContext;
+            return { ...context, ...{ versionId: response.data.versionId } };
         });
     }
 
@@ -205,13 +179,9 @@ export default class Repository extends EventEmitter {
     mergeVersion(versionId, context) {
         const headers = this.buildHeaders(context);
 
-        this.emit('start.merge.version', versionId, context);
-
         const url = `_action/version/merge/${this.schema.entity}/${versionId}`;
 
-        return this.httpClient.post(url, {}, { headers }).then(() => {
-            this.emit('finish.merge.version', versionId, context);
-        });
+        return this.httpClient.post(url, {}, { headers });
     }
 
     /**
@@ -224,13 +194,9 @@ export default class Repository extends EventEmitter {
     deleteVersion(entityId, versionId, context) {
         const headers = this.buildHeaders(context);
 
-        this.emit('start.delete.version', entityId, versionId, context);
-
         const url = `/_action/version/${versionId}/${this.schema.entity}/${entityId}`;
 
-        return this.httpClient.post(url, {}, { headers }).then(() => {
-            this.emit('finish.delete.version', entityId, versionId, context);
-        });
+        return this.httpClient.post(url, {}, { headers });
     }
 
     /**

@@ -53,18 +53,13 @@ export default {
                 this.collection.source
             );
 
-            // listen to start-loading event to notify sw-data-grid
-            // listen to association grid loaded event to apply new results
-            this.repository.on('finish.loading', (result) => {
-                this.applyResult(result);
-            });
-
             // records contains a pre loaded offset
             if (this.records.length > 0) {
                 return Promise.resolve();
             }
 
-            return this.repository.search(this.records.criteria, this.records.context);
+            return this.repository.search(this.records.criteria, this.records.context)
+                .then(this.applyResult);
         },
 
         applyResult(result) {
@@ -87,7 +82,8 @@ export default {
             }
 
             return this.repository.save(record, this.records.context).then(() => {
-                return this.repository.search(this.records.criteria, this.records.context);
+                return this.repository.search(this.records.criteria, this.records.context)
+                    .then(this.applyResult);
             });
         },
 
@@ -107,7 +103,8 @@ export default {
             }
 
             return this.repository.delete(id, this.records.context).then(() => {
-                return this.repository.search(this.records.criteria, this.records.context);
+                return this.repository.search(this.records.criteria, this.records.context)
+                    .then(this.applyResult);
             });
         },
 
@@ -131,7 +128,8 @@ export default {
 
             this.currentSortBy = column.dataIndex;
             this.currentSortDirection = direction;
-            return this.repository.search(this.records.criteria, this.records.context);
+            return this.repository.search(this.records.criteria, this.records.context)
+                .then(this.applyResult);
         },
 
         paginate(params) {
@@ -141,7 +139,8 @@ export default {
 
             this.records.criteria.setPage(params.page);
             this.records.criteria.setLimit(params.limit);
-            return this.repository.search(this.records.criteria, this.records.context);
+            return this.repository.search(this.records.criteria, this.records.context)
+                .then(this.applyResult);
         }
     }
 };

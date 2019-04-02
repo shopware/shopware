@@ -150,8 +150,8 @@ class AccountPageController extends StorefrontController
 
         try {
             $this->accountRegistrationService->register($data, false, $context);
-        } catch (ConstraintViolationException $errors) {
-            return $this->forward('Shopware\Storefront\PageController\AccountPageController::register', ['errors' => $errors]);
+        } catch (ConstraintViolationException $formViolations) {
+            return $this->forward('Shopware\Storefront\PageController\AccountPageController::register', ['formViolations' => $formViolations]);
         }
 
         $this->accountService->login($data->get('email'), $context);

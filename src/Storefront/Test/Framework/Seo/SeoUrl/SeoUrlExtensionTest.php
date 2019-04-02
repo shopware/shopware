@@ -12,7 +12,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Storefront\Framework\Seo\SeoUrl\SeoUrlCollection;
 use Shopware\Storefront\Framework\Seo\SeoUrl\SeoUrlEntity;
-use Shopware\Storefront\Framework\Seo\SeoUrlGenerator\DetailPageSeoUrlGenerator;
+use Shopware\Storefront\Framework\Seo\SeoUrlGenerator\ProductDetailPageSeoUrlGenerator;
 
 class SeoUrlExtensionTest extends TestCase
 {
@@ -87,7 +87,7 @@ class SeoUrlExtensionTest extends TestCase
         $this->upsertProduct(['id' => $id, 'name' => 'awesome product']);
 
         $router = $this->getContainer()->get('router');
-        $pathInfo = $router->generate(DetailPageSeoUrlGenerator::ROUTE_NAME, ['productId' => $id]);
+        $pathInfo = $router->generate(ProductDetailPageSeoUrlGenerator::ROUTE_NAME, ['productId' => $id]);
 
         $this->upsertProduct([
             'id' => $id,

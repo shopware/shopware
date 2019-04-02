@@ -7,6 +7,7 @@ use Cocur\Slugify\Slugify;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -57,13 +58,18 @@ class SeoService implements SeoServiceInterface
         $this->seoUrlGenerators = $seoUrlGenerators;
     }
 
+    public function getSeoUrlContext(string $routeName, Entity $entity): array
+    {
+        $generator = $this->getGenerator($routeName);
+
+        return $generator->getSeoUrlContext($entity);
+    }
+
     public function generateSeoUrls(string $salesChannelId, string $routeName, array $ids, ?string $templateOverride = null): iterable
     {
         $generator = $this->getGenerator($routeName);
         $template = $templateOverride ?? $this->getTemplateString($salesChannelId, $routeName, $generator->getDefaultTemplate());
         $this->validateTemplateString($template);
-
-        $template = "{% autoescape 'url' %}$template{% endautoescape %}";
 
         return $generator->generateSeoUrls($salesChannelId, $ids, $template);
     }
@@ -117,30 +123,10 @@ class SeoService implements SeoServiceInterface
         }
         $insertQuery->execute();
 
-        if (!empty($obsoleted)) {
-            $obsoleted = array_map(function ($id) { return Uuid::fromHexToBytes($id); }, $obsoleted);
-            $this->connection->createQueryBuilder()
-                ->update('seo_url')
-                ->set('is_canonical', '0')
-                ->set('updated_at', ':dateTime')
-                ->where('id IN (:ids)')
-                ->setParameter('dateTime', $dateTime)
-                ->setParameter('ids', $obsoleted, Connection::PARAM_STR_ARRAY)
-                ->execute();
-        }
+        $this->obsoleteIds($obsoleted, $dateTime);
 
         $deletedIds = array_diff($foreignKeys, $updatedFks);
-        if (!empty($deletedIds)) {
-            $deletedIds = array_map(function ($id) { return Uuid::fromHexToBytes($id); }, $deletedIds);
-            $this->connection->createQueryBuilder()
-                ->update('seo_url')
-                ->set('is_deleted', '1')
-                ->set('updated_at', ':dateTime')
-                ->where('foreign_key IN (:fks)')
-                ->setParameter('dateTime', $dateTime)
-                ->setParameter('fks', $deletedIds, Connection::PARAM_STR_ARRAY)
-                ->execute();
-        }
+        $this->markAsDeleted($deletedIds, $dateTime);
 
         $this->invalidateDuplicates($salesChannelId);
     }
@@ -212,6 +198,38 @@ class SeoService implements SeoServiceInterface
         $rows = $query->execute()->fetchAll();
 
         return FetchModeHelper::groupUnique($rows);
+    }
+
+    private function obsoleteIds(array $ids, string $dateTime): void
+    {
+        if (empty($ids)) {
+            return;
+        }
+        $ids = array_map(function ($id) { return Uuid::fromHexToBytes($id); }, $ids);
+        $this->connection->createQueryBuilder()
+            ->update('seo_url')
+            ->set('is_canonical', '0')
+            ->set('updated_at', ':dateTime')
+            ->where('id IN (:ids)')
+            ->setParameter('dateTime', $dateTime)
+            ->setParameter('ids', $ids, Connection::PARAM_STR_ARRAY)
+            ->execute();
+    }
+
+    private function markAsDeleted($ids, string $dateTime): void
+    {
+        if (empty($ids)) {
+            return;
+        }
+        $ids = array_map(function ($id) { return Uuid::fromHexToBytes($id); }, $ids);
+        $this->connection->createQueryBuilder()
+            ->update('seo_url')
+            ->set('is_deleted', '1')
+            ->set('updated_at', ':dateTime')
+            ->where('foreign_key IN (:fks)')
+            ->setParameter('dateTime', $dateTime)
+            ->setParameter('fks', $ids, Connection::PARAM_STR_ARRAY)
+            ->execute();
     }
 
     private function invalidateDuplicates(string $salesChannelId): void

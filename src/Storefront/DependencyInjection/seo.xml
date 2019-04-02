@@ -5,7 +5,7 @@
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
 
     <services>
-        <service id="Shopware\Storefront\Framework\Seo\DbalIndexing\SeoUrl\DetailPageSeoUrlIndexer" public="true">
+        <service id="Shopware\Storefront\Framework\Seo\DbalIndexing\SeoUrl\ProductDetailPageSeoUrlIndexer" public="true">
             <argument type="service" id="sales_channel.repository"/>
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Storefront\Framework\Seo\SeoService"/>
@@ -75,7 +75,7 @@
             </call>
         </service>
 
-        <service id="Shopware\Storefront\Framework\Seo\SeoUrlGenerator\DetailPageSeoUrlGenerator">
+        <service id="Shopware\Storefront\Framework\Seo\SeoUrlGenerator\ProductDetailPageSeoUrlGenerator">
             <argument type="service" id="sales_channel.repository"/>
             <argument type="service" id="Shopware\Core\Checkout\Context\CheckoutContextFactory"/>
             <argument type="service" id="slugify"/>

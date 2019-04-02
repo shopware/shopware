@@ -5,16 +5,17 @@ namespace Shopware\Storefront\Framework\Seo\SeoUrlGenerator;
 use Cocur\Slugify\Slugify;
 use Shopware\Core\Checkout\Context\CheckoutContextFactoryInterface;
 use Shopware\Core\Content\Product\ProductEntity;
+use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Storefront\Framework\Seo\SeoUrl\SeoUrlEntity;
 use Symfony\Component\Routing\RouterInterface;
 use Twig\Loader\ArrayLoader;
 
-class DetailPageSeoUrlGenerator extends SeoUrlGenerator
+class ProductDetailPageSeoUrlGenerator extends SeoUrlGenerator
 {
     public const ROUTE_NAME = 'frontend.detail.page';
-    public const DEFAULT_TEMPLATE = '{{ product.name |slugify }}/{{ product.id }}';
+    public const DEFAULT_TEMPLATE = '{{ productName }}/{{ productId }}';
 
     /**
      * @var EntityRepositoryInterface
@@ -34,9 +35,35 @@ class DetailPageSeoUrlGenerator extends SeoUrlGenerator
         $this->productRepository = $productRepository;
     }
 
+    public function getSeoUrlContext(Entity $product): array
+    {
+        if (!$product instanceof ProductEntity) {
+            throw new \InvalidArgumentException('Expected ProductEntity');
+        }
+
+        return [
+            'product' => $product->jsonSerialize(),
+
+            'id' => $product->getId(),
+            'productId' => $product->getId(),
+            'productName' => $product->getName(),
+
+            'manufacturerId' => $product->getManufacturer() ? $product->getManufacturer()->getId() : null,
+            'manufacturerName' => $product->getManufacturer() ? $product->getManufacturer()->getName() : null,
+            'manufacturerNumber' => $product->getManufacturerNumber(),
+
+            'shortId' => $product->getAutoIncrement(),
+        ];
+    }
+
     public function generateSeoUrls(string $salesChannelId, array $ids, ?string $template = null): iterable
     {
-        $this->twig->setLoader(new ArrayLoader(['template' => $template ?? self::DEFAULT_TEMPLATE]));
+        $template = $template ?? self::DEFAULT_TEMPLATE;
+        $template = "{% autoescape '" . self::ESCAPE_SLUGIFY . "' %}$template{% endautoescape %}";
+        $this->twig->setLoader(new ArrayLoader(['template' => $template]));
+
+        $criteria = new Criteria($ids);
+        $criteria->addAssociation('manufacturer');
 
         $seoUrls = [];
         $products = $this->productRepository->search(new Criteria($ids), $this->getContext($salesChannelId));
@@ -50,7 +77,12 @@ class DetailPageSeoUrlGenerator extends SeoUrlGenerator
             $pathInfo = $this->router->generate(self::ROUTE_NAME, ['productId' => $product->getId()]);
             $seoUrl->setPathInfo($pathInfo);
 
-            $seoPathInfo = $this->twig->render('template', ['product' => $product]);
+            try {
+                $seoPathInfo = $this->twig->render('template', $this->getSeoUrlContext($product));
+            } catch (\Twig\Error\Error $error) {
+                continue;
+            }
+
             $seoUrl->setSeoPathInfo($seoPathInfo);
 
             $seoUrl->setIsCanonical(true);

@@ -10,8 +10,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Storefront\Framework\Seo\DbalIndexing\SeoUrl\DetailPageSeoUrlIndexer;
-use Shopware\Storefront\Framework\Seo\SeoUrlGenerator\DetailPageSeoUrlGenerator;
+use Shopware\Storefront\Framework\Seo\DbalIndexing\SeoUrl\ProductDetailPageSeoUrlIndexer;
+use Shopware\Storefront\Framework\Seo\SeoUrlGenerator\ProductDetailPageSeoUrlGenerator;
 use Shopware\Storefront\Framework\Seo\SeoUrlTemplate\SeoUrlTemplateDefinition;
 use Shopware\Storefront\Framework\Seo\SeoUrlTemplate\SeoUrlTemplateEntity;
 
@@ -25,9 +25,9 @@ class SeoUrlTemplateRepositoryTest extends TestCase
         $template = [
             'id' => $id,
             'salesChannelId' => Defaults::SALES_CHANNEL,
-            'routeName' => DetailPageSeoUrlIndexer::ROUTE_NAME,
+            'routeName' => ProductDetailPageSeoUrlIndexer::ROUTE_NAME,
             'entityName' => ProductDefinition::getEntityName(),
-            'template' => DetailPageSeoUrlGenerator::DEFAULT_TEMPLATE,
+            'template' => ProductDetailPageSeoUrlGenerator::DEFAULT_TEMPLATE,
         ];
 
         $context = Context::createDefaultContext();
@@ -47,9 +47,9 @@ class SeoUrlTemplateRepositoryTest extends TestCase
         $template = [
             'id' => $id,
             'salesChannelId' => Defaults::SALES_CHANNEL,
-            'routeName' => DetailPageSeoUrlIndexer::ROUTE_NAME,
+            'routeName' => ProductDetailPageSeoUrlIndexer::ROUTE_NAME,
             'entityName' => ProductDefinition::getEntityName(),
-            'template' => DetailPageSeoUrlGenerator::DEFAULT_TEMPLATE,
+            'template' => ProductDetailPageSeoUrlGenerator::DEFAULT_TEMPLATE,
         ];
 
         $context = Context::createDefaultContext();
@@ -78,9 +78,9 @@ class SeoUrlTemplateRepositoryTest extends TestCase
         $template = [
             'id' => $id,
             'salesChannelId' => Defaults::SALES_CHANNEL,
-            'routeName' => DetailPageSeoUrlIndexer::ROUTE_NAME,
+            'routeName' => ProductDetailPageSeoUrlIndexer::ROUTE_NAME,
             'entityName' => ProductDefinition::getEntityName(),
-            'template' => DetailPageSeoUrlGenerator::DEFAULT_TEMPLATE,
+            'template' => ProductDetailPageSeoUrlGenerator::DEFAULT_TEMPLATE,
         ];
 
         $context = Context::createDefaultContext();

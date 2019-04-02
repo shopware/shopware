@@ -9,7 +9,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Storefront\Framework\Seo\DbalIndexing\SeoUrl\DetailPageSeoUrlIndexer;
+use Shopware\Storefront\Framework\Seo\DbalIndexing\SeoUrl\ProductDetailPageSeoUrlIndexer;
 use Shopware\Storefront\Framework\Seo\SeoUrl\SeoUrlDefinition;
 use Shopware\Storefront\Framework\Seo\SeoUrl\SeoUrlEntity;
 
@@ -26,7 +26,7 @@ class SeoUrlRepositoryTest extends TestCase
             'salesChannelId' => Defaults::SALES_CHANNEL,
             'foreignKey' => $fk,
 
-            'routeName' => DetailPageSeoUrlIndexer::ROUTE_NAME,
+            'routeName' => ProductDetailPageSeoUrlIndexer::ROUTE_NAME,
             'pathInfo' => '/ugly/path',
             'seoPathInfo' => '/pretty/path',
 
@@ -54,7 +54,7 @@ class SeoUrlRepositoryTest extends TestCase
             'salesChannelId' => Defaults::SALES_CHANNEL,
             'foreignKey' => $fk,
 
-            'routeName' => DetailPageSeoUrlIndexer::ROUTE_NAME,
+            'routeName' => ProductDetailPageSeoUrlIndexer::ROUTE_NAME,
             'pathInfo' => '/ugly/path',
             'seoPathInfo' => '/pretty/path',
 
@@ -91,7 +91,7 @@ class SeoUrlRepositoryTest extends TestCase
             'salesChannelId' => Defaults::SALES_CHANNEL,
             'foreignKey' => $fk,
 
-            'routeName' => DetailPageSeoUrlIndexer::ROUTE_NAME,
+            'routeName' => ProductDetailPageSeoUrlIndexer::ROUTE_NAME,
             'pathInfo' => '/ugly/path',
             'seoPathInfo' => '/pretty/path',
 

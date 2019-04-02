@@ -132,11 +132,11 @@ export default class Repository {
      * Creates a new entity for the local schema.
      * To Many association are initialed with a collection with the corresponding remote api route
      *
-     * @param {String} id
      * @param {Object} context
+     * @param {String|null} id
      * @returns {Entity}
      */
-    create(id, context) {
+    create(context, id) {
         return this.entityFactory.create(this.schema.entity, id, context);
     }
 

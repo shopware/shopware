@@ -14,7 +14,14 @@
         "deliveryShippingTime": "Delivery time %shippingTime% workday(s)",
         "deliveryShippingDelay": "Delivery time approx. 5 working days",
         "offcanvasCloseMenu": "Close menu",
-        "noscriptNotice": "To be able to use our shop in full range, we recommend activating Javascript in your browser."
+        "noscriptNotice": "To be able to use our shop in full range, we recommend activating Javascript in your browser.",
+        "toCategory": "To Category",
+        "readMore": "read more",
+        "mainMenu": "Mainmenu",
+        "closeMenu": "Close Menu",
+        "back": "back",
+        "categories": "Categories",
+        "showCategory": "show %category%"
     },
     "header": {
         "logoLink": "Switch to homepage",

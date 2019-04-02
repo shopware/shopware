@@ -1,4 +1,4 @@
-import Plugin from '../../../helper/plugin/plugin.class'
+import Plugin from '../../helper/plugin/plugin.class'
 import DomAccess from "../../helper/dom-access.helper";
 import HttpClient from "../../service/http-client.service";
 import OffCanvas from "../off-canvas/offcanvas.plugin";

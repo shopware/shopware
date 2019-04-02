@@ -8,15 +8,24 @@
 			{% endblock %}
 
 			{% block page_account_register_login_form %}
-				<form id="loginForm"
-				      class="login-form"
-				      action="{{ path('storefront-api.customer.login', {'version': 1}) }}"
+				<form class="login-form"
+				      action="{{ path('frontend.account.login.page') }}"
 				      method="post">
-					{% block page_account_register_login_form_description %}
+					{% block page_account_register_login_form_redirect %}
+						<input type="hidden" name="redirectTo" value="{{ redirectTo }}">
+					{% endblock %}
+
+                    {% block page_account_register_login_form_description %}
 						<p class="login-form-description">
 							{{ "account.loginFormDescription"|trans }}
 						</p>
 					{% endblock %}
+
+                    {% if loginError %}
+                        <div class="alert alert-danger">
+                            {{ "account.loginBadCredentials"|trans }}
+                        </div>
+                    {% endif %}
 
 					{% block page_account_register_login_form_mail %}
 						<div class="form-group">

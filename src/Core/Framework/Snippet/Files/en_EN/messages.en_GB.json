@@ -52,6 +52,7 @@
         "loginPasswordLabel": "Your Password",
         "loginPasswordPlaceholder": "Password",
         "loginSubmit": "Login",
+        "loginBadCredentials": "There is no account with the given credentials.",
         "registerAdvantagesHeader": "My benefits",
         "registerAdvantage1": "Express Shopping",
         "registerAdvantage2": "Save your user data and settings",

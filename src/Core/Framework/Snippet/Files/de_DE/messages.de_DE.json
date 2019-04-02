@@ -52,6 +52,7 @@
         "loginPasswordLabel": "Ihr Passwort",
         "loginPasswordPlaceholder": "Passwort",
         "loginSubmit": "Anmelden",
+        "loginBadCredentials": "Es konnte kein Account zu den angegeben Zugangsdaten gefunden werden.",
         "registerAdvantagesHeader": "Meine Vorteile",
         "registerAdvantage1": "Schnelles Einkaufen",
         "registerAdvantage2": "Speichern Sie Ihre Benutzerdaten und Einstellungen",

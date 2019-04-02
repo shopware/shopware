@@ -29,7 +29,8 @@ class UserProvisioner
 
         $userPayload = [
             'id' => Uuid::randomBytes(),
-            'name' => $additionalData['name'] ?? $username,
+            'first_name' => $additionalData['firstName'] ?? '',
+            'last_name' => $additionalData['lastName'] ?? $username,
             'email' => $additionalData['email'] ?? 'info@shopware.com',
             'username' => $username,
             'password' => password_hash($password, PASSWORD_BCRYPT),

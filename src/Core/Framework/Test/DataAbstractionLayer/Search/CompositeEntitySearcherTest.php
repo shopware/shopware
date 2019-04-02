@@ -60,7 +60,8 @@ class CompositeEntitySearcherTest extends TestCase
             [
                 'id' => $this->userId,
                 'localeId' => '20080911ffff4fffafffffff19830531',
-                'name' => 'test-user',
+                'firstName' => 'test-user',
+                'lastName' => 'test',
                 'username' => 'test-user',
                 'email' => Uuid::randomHex() . '@example.com',
                 'password' => 'shopware',

@@ -124,7 +124,8 @@ trait AdminApiTestBehaviour
 
         $connection->insert('user', [
             'id' => $userId,
-            'name' => $username,
+            'first_name' => $username,
+            'last_name' => '',
             'email' => 'admin@example.com',
             'username' => $username,
             'password' => password_hash($password, PASSWORD_BCRYPT),

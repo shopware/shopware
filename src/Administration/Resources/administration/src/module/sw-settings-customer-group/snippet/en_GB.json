@@ -1,7 +1,7 @@
 {
     "sw-settings-customer-group": {
         "general": {
-            "mainMenuItemGeneral": "Customer group",
+            "mainMenuItemGeneral": "Customer groups",
             "description": "Manage customer groups here.",
             "buttonCancel": "Cancel",
             "buttonCreate": "Add customer group",

@@ -28,7 +28,8 @@
     {% endblock %}
 
     {% block sw_product_stream_filter_type_select %}
-        <sw-select :store="getTypeStore()"
+        <sw-select v-if="lastField.type !== 'boolean'"
+                   :store="getTypeStore()"
                    v-model="type"
                    :id="createId()"
                    itemValueKey="type"
@@ -155,7 +156,7 @@
                   :type="getValueFieldByType(lastField.type)"
                   class="field--main"
                   :disabled="isApi()"
-                  v-model="actualCondition.value">
+                  v-model="filterValue">
         </sw-field>
     {% endblock %}
 {% endblock %}

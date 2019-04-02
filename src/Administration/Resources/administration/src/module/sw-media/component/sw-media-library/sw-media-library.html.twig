@@ -47,6 +47,7 @@
                                     :item="parentFolder"
                                     :showSelectionIndicator="false"
                                     :showContextMenuButton="false"
+                                    :allowMultiSelect="allowMultiSelect"
                                     :isList="showItemsAsList"
                                     @sw-media-item-clicked="goToParentFolder"
                                     isParent>
@@ -64,6 +65,7 @@
                                     :showContextMenuButton="editable"
                                     :isList="showItemsAsList"
                                     :editable="editable"
+                                    :allowMultiSelect="allowMultiSelect"
                                     @sw-media-media-item-delete="refreshList"
                                     @sw-media-folder-item-delete="refreshList"
                                     @sw-media-folder-item-remove="removeNewFolder"

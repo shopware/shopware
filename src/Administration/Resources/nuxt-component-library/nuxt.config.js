@@ -53,9 +53,22 @@ module.exports = {
             config.resolve.alias.scss = path.resolve(__dirname, '..', 'administration/src/app/assets/scss');
             config.resolve.alias.vue = `${__dirname}/node_modules/vue/dist/vue.common`;
             config.resolve.extensions.push('.less', '.twig', '.scss');
+
+            const urlLoader = config.module.rules.find((loader) => {
+                return loader.use && loader.use[0].loader === 'url-loader';
+            });
+
+            urlLoader.test = /\.(png|jpe?g|gif)$/;
+
             config.module.rules.push({
                 test: /\.(html|twig)$/,
                 loader: 'html-loader'
+            }, {
+                test: /\.svg$/,
+                loader: 'svg-inline-loader',
+                options: {
+                    removeSVGTagAttrs: false
+                }
             });
         }
     },

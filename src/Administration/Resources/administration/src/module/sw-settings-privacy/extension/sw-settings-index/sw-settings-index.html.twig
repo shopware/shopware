@@ -1,0 +1,13 @@
+{% block sw_settings_content_card_slot_default %}
+    {% parent %}
+
+    {% block sw_settings_privacy_item %}
+        <template v-if="next2539">
+            <sw-settings-item :label="$tc('sw-settings-privacy.general.mainMenuItemGeneral')" :to="{ name: 'sw.settings.privacy.index' }">
+                <template slot="icon">
+                    <sw-icon name="default-basic-shape-heart" size="45"></sw-icon>
+                </template>
+            </sw-settings-item>
+        </template>
+    {% endblock %}
+{% endblock %}

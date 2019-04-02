@@ -18,10 +18,11 @@ use Shopware\Core\Framework\Store\Exception\StoreNotAvailableException;
 use Shopware\Core\Framework\Store\Exception\StoreTokenMissingException;
 use Shopware\Core\Framework\Store\Services\StoreClient;
 use Shopware\Core\Framework\Store\StoreSettingsEntity;
+use Shopware\Core\Framework\Validation\DataBag\QueryDataBag;
+use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\User\UserEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -90,10 +91,11 @@ class StoreController extends AbstractController
     /**
      * @Route("/api/v{version}/_action/store/login", name="api.custom.store.login", methods={"POST"})
      */
-    public function login(Request $request, Context $context): JsonResponse
+    public function login(RequestDataBag $requestDataBag, QueryDataBag $queryDataBag, Context $context): JsonResponse
     {
-        $shopwareId = $request->request->get('shopwareId');
-        $password = $request->request->get('password');
+        $shopwareId = $requestDataBag->get('shopwareId');
+        $password = $requestDataBag->get('password');
+        $language = $queryDataBag->get('language', '');
 
         if ($shopwareId === null || $password === null) {
             throw new StoreInvalidCredentialsException();
@@ -101,7 +103,7 @@ class StoreController extends AbstractController
 
         $userId = $context->getUserId();
         try {
-            $accessTokenStruct = $this->storeClient->loginWithShopwareId($shopwareId, $password, $context);
+            $accessTokenStruct = $this->storeClient->loginWithShopwareId($shopwareId, $password, $language, $context);
         } catch (ClientException $exception) {
             throw new StoreApiException($exception);
         }
@@ -191,12 +193,13 @@ class StoreController extends AbstractController
     /**
      * @Route("/api/v{version}/_action/store/licenses", name="api.custom.store.licenses", methods={"GET"})
      */
-    public function getLicenseList(Request $request, Context $context): JsonResponse
+    public function getLicenseList(QueryDataBag $queryDataBag, Context $context): JsonResponse
     {
         $storeToken = $this->getUserStoreToken($context);
+        $language = $queryDataBag->get('language', '');
 
         try {
-            $licenseList = $this->storeClient->getLicenseList($storeToken, $context);
+            $licenseList = $this->storeClient->getLicenseList($storeToken, $language, $context);
         } catch (ClientException $exception) {
             throw new StoreApiException($exception);
         }
@@ -210,8 +213,10 @@ class StoreController extends AbstractController
     /**
      * @Route("/api/v{version}/_action/store/updates", name="api.custom.store.updates", methods={"GET"})
      */
-    public function getUpdateList(Context $context): JsonResponse
+    public function getUpdateList(QueryDataBag $queryDataBag, Context $context): JsonResponse
     {
+        $language = $queryDataBag->get('language', '');
+
         /** @var PluginCollection $plugins */
         $plugins = $this->pluginRepo->search(new Criteria(), $context)->getEntities();
         try {
@@ -221,7 +226,7 @@ class StoreController extends AbstractController
         }
 
         try {
-            $updatesList = $this->storeClient->getUpdatesList($storeToken, $plugins, $context);
+            $updatesList = $this->storeClient->getUpdatesList($storeToken, $plugins, $language, $context);
         } catch (ClientException $exception) {
             throw new StoreApiException($exception);
         }
@@ -235,9 +240,10 @@ class StoreController extends AbstractController
     /**
      * @Route("/api/v{version}/_action/store/download", name="api.custom.store.download", methods={"GET"})
      */
-    public function downloadPlugin(Request $request, Context $context): JsonResponse
+    public function downloadPlugin(QueryDataBag $queryDataBag, Context $context): JsonResponse
     {
-        $pluginName = $request->query->get('pluginName');
+        $pluginName = $queryDataBag->get('pluginName');
+        $language = $queryDataBag->get('language', '');
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('plugin.name', $pluginName));
@@ -252,7 +258,7 @@ class StoreController extends AbstractController
         $storeToken = $this->getUserStoreToken($context);
 
         try {
-            $data = $this->storeClient->getDownloadDataForPlugin($pluginName, $storeToken, $context);
+            $data = $this->storeClient->getDownloadDataForPlugin($pluginName, $storeToken, $language, $context);
         } catch (ClientException $exception) {
             throw new StoreApiException($exception);
         }
@@ -262,7 +268,7 @@ class StoreController extends AbstractController
             return new JsonResponse([], $statusCode);
         }
 
-        if ($plugin->getUpgradeVersion()) {
+        if ($plugin && $plugin->getUpgradeVersion()) {
             $this->pluginLifecycleService->updatePlugin($plugin, $context);
         }
 

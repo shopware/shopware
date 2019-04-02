@@ -107,6 +107,13 @@ class ConfirmPageTest extends TestCase
 
         $paymentMethodRuleRepository->delete($ruleToDelete, $context->getContext());
 
+        $paymentMethodRepository->update(
+            [
+                ['id' => $paymentMethod->getId(), 'availabilityRules' => [['name' => 'invalid', 'priority' => 0]]],
+            ],
+            $context->getContext()
+        );
+
         /** @var CheckoutConfirmPageLoadedEvent $event */
         $event = null;
         $this->catchEvent(CheckoutConfirmPageLoadedEvent::NAME, $event);

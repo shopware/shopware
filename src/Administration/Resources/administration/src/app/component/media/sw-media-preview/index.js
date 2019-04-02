@@ -29,15 +29,15 @@ export default {
     ],
 
     placeHolderThumbnails: {
-        'application/pdf': 'file-thumbnail-pdf',
-        'application/msword': 'file-thumbnail-doc',
-        'application/vnd.openxmlformats-officedocument.wordprocessingml.document': 'file-thumbnail-doc',
-        'application/vnd.ms-excel': 'file-thumbnail-xls',
-        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': 'file-thumbnail-xls',
-        'application/svg': 'file-thumbnail-svg',
-        'application/vnd.ms-powerpoint': 'file-thumbnail-ppt',
-        'application/vnd.openxmlformats-officedocument.presentationml.presentation': 'file-thumbnail-ppt',
-        'application/svg+xml': 'file-thumbnail-svg'
+        'application/pdf': 'multicolor-file-thumbnail-pdf',
+        'application/msword': 'multicolor-file-thumbnail-doc',
+        'application/vnd.openxmlformats-officedocument.wordprocessingml.document': 'multicolor-file-thumbnail-doc',
+        'application/vnd.ms-excel': 'multicolor-file-thumbnail-xls',
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': 'multicolor-file-thumbnail-xls',
+        'application/svg': 'multicolor-file-thumbnail-svg',
+        'application/vnd.ms-powerpoint': 'multicolor-file-thumbnail-ppt',
+        'application/vnd.openxmlformats-officedocument.presentationml.presentation': 'multicolor-file-thumbnail-ppt',
+        'application/svg+xml': 'multicolor-file-thumbnail-svg'
     },
 
     props: {
@@ -149,14 +149,14 @@ export default {
 
         placeholderIcon() {
             if (this.mimeTypeGroup === 'video') {
-                return 'file-thumbnail-mov';
+                return 'multicolor-file-thumbnail-mov';
             }
 
             if (this.mimeTypeGroup === 'audio') {
-                return 'file-thumbnail-mp3';
+                return 'multicolor-file-thumbnail-mp3';
             }
 
-            return this.$options.placeHolderThumbnails[this.mimeType] || 'file-thumbnail-normal';
+            return this.$options.placeHolderThumbnails[this.mimeType] || 'multicolor-file-thumbnail-normal';
         },
 
         previewUrl() {

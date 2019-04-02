@@ -4,6 +4,7 @@ namespace Shopware\Core\Content\Media;
 
 use Shopware\Core\Content\Category\CategoryCollection;
 use Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupOption\ConfigurationGroupOptionCollection;
+use Shopware\Core\Content\MailTemplate\Aggregate\MailTemplateMedia\MailTemplateMediaCollection;
 use Shopware\Core\Content\Media\Aggregate\MediaFolder\MediaFolderEntity;
 use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailCollection;
 use Shopware\Core\Content\Media\Aggregate\MediaTranslation\MediaTranslationCollection;
@@ -151,6 +152,11 @@ class MediaEntity extends Entity
     protected $configurationGroupOptions;
 
     /**
+     * @var MailTemplateMediaCollection|null
+     */
+    protected $mailTemplateMedia;
+
+    /**
      * @var array|null
      */
     protected $attributes;
@@ -174,7 +180,7 @@ class MediaEntity extends Entity
         return $this->userId;
     }
 
-    public function setUserId(?string $userId): void
+    public function setUserId(string $userId): void
     {
         $this->userId = $userId;
     }
@@ -214,7 +220,7 @@ class MediaEntity extends Entity
         return $this->title;
     }
 
-    public function setTitle(?string $title): void
+    public function setTitle(string $title): void
     {
         $this->title = $title;
     }
@@ -234,7 +240,7 @@ class MediaEntity extends Entity
         return $this->mediaType;
     }
 
-    public function setMediaType(?MediaType $mediaType): void
+    public function setMediaType(MediaType $mediaType): void
     {
         $this->mediaType = $mediaType;
     }
@@ -264,7 +270,7 @@ class MediaEntity extends Entity
         return $this->uploadedAt;
     }
 
-    public function setUploadedAt(?\DateTimeInterface $uploadedAt): void
+    public function setUploadedAt(\DateTimeInterface $uploadedAt): void
     {
         $this->uploadedAt = $uploadedAt;
     }
@@ -274,7 +280,7 @@ class MediaEntity extends Entity
         return $this->alt;
     }
 
-    public function setAlt(?string $alt): void
+    public function setAlt(string $alt): void
     {
         $this->alt = $alt;
     }
@@ -379,7 +385,7 @@ class MediaEntity extends Entity
         return $this->mediaFolderId;
     }
 
-    public function setMediaFolderId(?string $mediaFolderId): void
+    public function setMediaFolderId(string $mediaFolderId): void
     {
         $this->mediaFolderId = $mediaFolderId;
     }
@@ -389,7 +395,7 @@ class MediaEntity extends Entity
         return $this->mediaFolder;
     }
 
-    public function setMediaFolder(?MediaFolderEntity $mediaFolder): void
+    public function setMediaFolder(MediaFolderEntity $mediaFolder): void
     {
         $this->mediaFolder = $mediaFolder;
     }
@@ -424,12 +430,22 @@ class MediaEntity extends Entity
         $this->mediaTypeRaw = $mediaTypeRaw;
     }
 
+    public function getMailTemplateMedia(): ?MailTemplateMediaCollection
+    {
+        return $this->mailTemplateMedia;
+    }
+
+    public function setMailTemplateMedia(MailTemplateMediaCollection $mailTemplateMedia): void
+    {
+        $this->mailTemplateMedia = $mailTemplateMedia;
+    }
+
     public function getAttributes(): ?array
     {
         return $this->attributes;
     }
 
-    public function setAttributes(?array $attributes): void
+    public function setAttributes(array $attributes): void
     {
         $this->attributes = $attributes;
     }

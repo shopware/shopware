@@ -12,6 +12,7 @@ import initLocale from 'src/app/init/locale.init';
 import initApiServices from 'src/app/init/api-services.init';
 import initComponents from 'src/app/init/component.init';
 import initWorker from 'src/app/init/worker.init';
+import initSvgIcons from 'src/app/init/svg-icons.init';
 import initUserContext from 'src/app/init/user-information.init';
 
 export default {
@@ -23,6 +24,7 @@ export default {
     coreDirectives: initDirectives,
     coreFilter: initFilter,
     baseComponents: initComponents,
+    svgIcons: initSvgIcons,
     coreModuleRoutes: initCoreModules,
     view: initView,
     router: initRouter,

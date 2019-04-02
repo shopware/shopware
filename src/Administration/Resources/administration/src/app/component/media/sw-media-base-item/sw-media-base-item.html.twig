@@ -72,7 +72,7 @@
         {% endblock %}
 
         {% block sw_media_base_item_list_selected_indicator %}
-            <div v-if="isList && showSelectionIndicator"
+            <div v-if="isList && showSelectionIndicator && allowMultiSelect"
                  class="sw-media-base-item__selected-indicator"
                  :class="selectionIndicatorClasses"
                  @click="onClickedItem">

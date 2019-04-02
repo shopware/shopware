@@ -28,7 +28,10 @@ $sw-media-base-item-preview-background:      $color-white;
         background-color: $sw-media-base-item-color-hover;
 
         .sw-media-base-item__selected-indicator {
-            visibility: visible;
+
+            &.selected-indicator--is-allowed {
+                visibility: visible;
+            }
         }
 
         .sw-context-button {

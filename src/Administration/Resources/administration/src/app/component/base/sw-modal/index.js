@@ -1,3 +1,4 @@
+import utils from 'src/core/service/util.service';
 import template from './sw-modal.html.twig';
 import './sw-modal.scss';
 
@@ -60,11 +61,21 @@ export default {
         }
     },
 
+    data() {
+        return {
+            id: utils.createId()
+        };
+    },
+
     computed: {
         modalClasses() {
             return {
                 [`sw-modal--${this.variant}`]: (this.variant && !this.size)
             };
+        },
+
+        identifierClass() {
+            return `sw-modal--${this.id}`;
         },
 
         hasFooterSlot() {
@@ -82,7 +93,6 @@ export default {
 
     methods: {
         mountedComponent() {
-            document.addEventListener('keyup', this.closeModalOnEscapeKey);
             const targetEl = document.querySelector(this.selector);
             targetEl.appendChild(this.$el);
 
@@ -90,7 +100,7 @@ export default {
         },
 
         destroyedComponent() {
-            document.removeEventListener('keyup', this.closeModalOnEscapeKey);
+            document.querySelector('.sw-modal__dialog').focus();
         },
 
         setFocusToModal() {
@@ -108,6 +118,10 @@ export default {
         },
 
         closeModalOnEscapeKey(event) {
+            if (!event.target.classList.contains('sw-modal__dialog') || event.target !== document.activeElement) {
+                return;
+            }
+
             if (event.key === 'Escape' || event.keyCode === 27) {
                 this.closeModal();
             }

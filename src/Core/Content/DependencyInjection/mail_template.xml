@@ -16,22 +16,8 @@
 			<tag name="shopware.entity.definition" entity="mail_template_sales_channel"/>
 		</service>
 
-		<service class="Shopware\Core\Framework\DataAbstractionLayer\EntityRepository" id="mail_template.repository" public="true">
-			<argument>Shopware\Core\Content\MailTemplate\MailTemplateDefinition</argument>
-			<argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface"/>
-			<argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\VersionManager"/>
-			<argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface"/>
-			<argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\EntityAggregatorInterface"/>
-			<argument type="service" id="event_dispatcher"/>
-		</service>
-
-		<service class="Shopware\Core\Framework\DataAbstractionLayer\EntityRepository" id="mail_template_sales_channel.repository" public="true">
-			<argument>Shopware\Core\Content\MailTemplate\Aggregate\MailTemplateSalesChannel\MailTemplateSalesChannelDefinition</argument>
-			<argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface"/>
-			<argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\VersionManager"/>
-			<argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface"/>
-			<argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\EntityAggregatorInterface"/>
-			<argument type="service" id="event_dispatcher"/>
+		<service id="Shopware\Core\Content\MailTemplate\Aggregate\MailTemplateMedia\MailTemplateMediaDefinition">
+			<tag name="shopware.entity.definition" entity="mail_template_media"/>
 		</service>
 
 		<service id="Shopware\Core\Content\MailTemplate\Service\MailSender" public="true">
@@ -40,6 +26,7 @@
 
 		<service id="Shopware\Core\Content\MailTemplate\Service\MessageFactory" public="true">
 			<argument type="service" id="validator"/>
+			<argument type="service" id="shopware.filesystem.public"/>
 		</service>
 
         <service id="Shopware\Core\Content\MailTemplate\Service\MailBuilder">
@@ -52,6 +39,8 @@
 			<argument type="service" id="Shopware\Core\Content\MailTemplate\Service\MessageFactory"/>
 			<argument type="service" id="Shopware\Core\Framework\Twig\StringTemplateRenderer"/>
 			<argument type="service" id="Shopware\Core\Content\MailTemplate\Service\MailBuilder"/>
+			<argument type="service" id="media.repository"/>
+			<argument type="service" id="Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface"/>
 			<call method="setContainer">
 				<argument type="service" id="service_container"/>
 			</call>
@@ -75,5 +64,6 @@
 			<argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\EntityAggregatorInterface"/>
 			<argument type="service" id="event_dispatcher"/>
 		</service>
+
 	</services>
 </container>

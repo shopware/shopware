@@ -20,15 +20,21 @@ class DebitPayment implements SynchronousPaymentHandlerInterface
      */
     private $stateMachineRegistry;
 
-    public function __construct(EntityRepositoryInterface $transactionRepository, StateMachineRegistry $stateMachineRegistry)
-    {
+    public function __construct(
+        EntityRepositoryInterface $transactionRepository,
+        StateMachineRegistry $stateMachineRegistry
+    ) {
         $this->transactionRepository = $transactionRepository;
         $this->stateMachineRegistry = $stateMachineRegistry;
     }
 
     public function pay(SyncPaymentTransactionStruct $transaction, Context $context): void
     {
-        $completeStateId = $this->stateMachineRegistry->getStateByTechnicalName(Defaults::ORDER_TRANSACTION_STATE_MACHINE, Defaults::ORDER_TRANSACTION_STATES_PAID, $context)->getId();
+        $completeStateId = $this->stateMachineRegistry->getStateByTechnicalName(
+            Defaults::ORDER_TRANSACTION_STATE_MACHINE,
+            Defaults::ORDER_TRANSACTION_STATES_PAID,
+            $context
+        )->getId();
 
         $data = [
             'id' => $transaction->getOrderTransaction()->getId(),

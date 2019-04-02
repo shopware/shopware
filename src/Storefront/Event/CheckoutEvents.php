@@ -5,6 +5,7 @@ namespace Shopware\Storefront\Event;
 use Shopware\Storefront\Page\Checkout\Cart\CheckoutCartPageLoadedEvent;
 use Shopware\Storefront\Page\Checkout\Confirm\CheckoutConfirmPageLoadedEvent;
 use Shopware\Storefront\Page\Checkout\Finish\CheckoutFinishPageLoadedEvent;
+use Shopware\Storefront\Page\Checkout\Register\CheckoutRegisterPageLoadedEvent;
 use Shopware\Storefront\Pagelet\Checkout\AjaxCart\CheckoutAjaxCartPageletLoadedEvent;
 use Shopware\Storefront\Pagelet\Checkout\Info\CheckoutInfoPageletLoadedEvent;
 
@@ -34,4 +35,9 @@ class CheckoutEvents
      * @Event("Shopware\Storefront\Page\Checkout\Cart\CheckoutCartPageLoadedEvent")
      */
     public const CHECKOUT_CART_PAGE_LOADED_EVENT = CheckoutCartPageLoadedEvent::NAME;
+
+    /**
+     * @Event("Shopware\Storefront\Page\Checkout\Cart\CheckoutRegisterPageLoadedEvent")
+     */
+    public const CHECKOUT_REGISTER_PAGE_LOADED_EVENT = CheckoutRegisterPageLoadedEvent::NAME;
 }

@@ -20,6 +20,10 @@ class PaymentMethodCollection extends EntityCollection
     {
         return $this->filter(
             function (PaymentMethodEntity $paymentMethod) use ($checkoutContext) {
+                if ($paymentMethod->getAvailabilityRuleIds() === null) {
+                    return true;
+                }
+
                 $matches = array_intersect($paymentMethod->getAvailabilityRuleIds(), $checkoutContext->getRuleIds());
 
                 return !empty($matches);

@@ -152,7 +152,7 @@ class ProductDefinition extends EntityDefinition
             (new IntField('min_delivery_time', 'minDeliveryTime'))->addFlags(new Inherited()),
             (new IntField('max_delivery_time', 'maxDeliveryTime'))->addFlags(new Inherited()),
             (new IntField('restock_time', 'restockTime'))->addFlags(new Inherited()),
-            new ListField('tag_ids', 'tagIds', IdField::class),
+            (new ListField('tag_ids', 'tagIds', IdField::class))->addFlags(new Inherited()),
 
             //translatable fields
             (new TranslatedField('additionalText'))->addFlags(new Inherited()),
@@ -180,7 +180,7 @@ class ProductDefinition extends EntityDefinition
             //associations which are not loaded immediately
             (new ManyToManyAssociationField('datasheet', ConfigurationGroupOptionDefinition::class, ProductDatasheetDefinition::class, false, 'product_id', 'configuration_group_option_id'))->addFlags(new CascadeDelete(), new Inherited()),
             (new ManyToManyAssociationField('categories', CategoryDefinition::class, ProductCategoryDefinition::class, false, 'product_id', 'category_id'))->addFlags(new CascadeDelete(), new Inherited()),
-            (new ManyToManyAssociationField('tags', TagDefinition::class, ProductTagDefinition::class, false, 'product_id', 'tag_id')),
+            (new ManyToManyAssociationField('tags', TagDefinition::class, ProductTagDefinition::class, false, 'product_id', 'tag_id'))->addFlags(new Inherited()),
 
             //association for special keyword mapping for search algorithm
             new SearchKeywordAssociationField(),

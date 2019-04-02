@@ -3,7 +3,7 @@
         <aside class="sidebar--main">
             <div class="logo">
                 <nuxt-link to="/">
-                    <img src="~/assets/img/component-library-logo.svg" alt="Shopware Component library logo" width="120px" height="120px">
+                    <div class="logo--inner" v-html="logoSvg"></div>
                 </nuxt-link>
             </div>
             <nav class="navigation--main">
@@ -22,6 +22,15 @@
                             </li>
                         </ul>
                     </li>
+
+                    <li class="nav-tree--main-entry">
+                        <span class="nav-tree--main-entry-headline">Cheat Sheets</span>
+                        <ul class="nav-tree--sub-entries">
+                            <nuxt-link to="/icons/" class="nav--link">
+                                Icon set
+                            </nuxt-link>
+                        </ul>
+                    </li>
                 </ul>
             </nav>
         </aside>
@@ -36,9 +45,23 @@
     .search-wrapper {
         padding: 0 40px;
     }
+
     .logo {
         margin-bottom: 1.5rem;
+        text-align: center;
     }
+
+    .logo--inner {
+        width: 120px;
+        height: 120px;
+        margin: 0 auto;
+    }
+
+    .logo--inner svg {
+        height: 100%;
+        width: 100%;
+    }
+
     .search-query {
         display: block;
         font-size: 16px;
@@ -49,7 +72,7 @@
         color: #fff;
         font-weight: 400;
         background: rgba(205,221,247,0.15);
-        font-family: 'Brandon';
+        font-family: 'Brandon', Arial, Helvetica, sans-serif;
         outline: none;
         border: none;
     }
@@ -60,6 +83,8 @@
 </style>
 
 <script>
+import logo from '~/assets/img/component-library-logo.svg';
+
 export default {
     data() {
         return {
@@ -81,6 +106,12 @@ export default {
                 this.$router.replace({ path: this.$route.path });
             }
             this.menu = this.getMenuStructure();
+        }
+    },
+
+    computed: {
+        logoSvg() {
+            return logo;
         }
     },
 

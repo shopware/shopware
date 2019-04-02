@@ -5,7 +5,9 @@ namespace Shopware\Core\Checkout\Payment\Cart;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\PaymentHandlerRegistry;
 use Shopware\Core\Checkout\Payment\Cart\Token\TokenFactoryInterface;
+use Shopware\Core\Checkout\Payment\Exception\AsyncPaymentProcessException;
 use Shopware\Core\Checkout\Payment\Exception\InvalidOrderException;
+use Shopware\Core\Checkout\Payment\Exception\SyncPaymentProcessException;
 use Shopware\Core\Checkout\Payment\Exception\UnknownPaymentMethodException;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -50,7 +52,9 @@ class PaymentTransactionChainProcessor
     }
 
     /**
+     * @throws AsyncPaymentProcessException
      * @throws InvalidOrderException
+     * @throws SyncPaymentProcessException
      * @throws UnknownPaymentMethodException
      */
     public function process(string $orderId, Context $context, ?string $finishUrl = null): ?RedirectResponse

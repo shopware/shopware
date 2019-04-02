@@ -20,41 +20,38 @@ class IncrementSqlStorage implements IncrementStorageInterface
         $this->connection = $connection;
     }
 
-    public function pullState(NumberRangeEntity $configuration, int $incrementBy = 1): string
+    public function pullState(NumberRangeEntity $configuration): string
     {
-        $this->connection->beginTransaction();
-        $stmt = $this->connection->executeQuery(
-            'SELECT `last_value` FROM `number_range_state` WHERE number_range_id = :id FOR UPDATE',
+        $varname = Uuid::randomHex();
+        $this->connection->executeQuery(
+            'INSERT `number_range_state` (`last_value`, `number_range_id`) VALUES (:value, :id) 
+                ON DUPLICATE KEY UPDATE
+                `last_value` = @nr' . $varname . ' := `last_value`+1',
             [
+                'value' => $configuration->getStart(),
                 'id' => Uuid::fromHexToBytes($configuration->getId()),
             ]
         );
+
+        $stmt = $this->connection->executeQuery(
+            'SELECT @nr' . $varname . ''
+        );
+
         $lastNumber = $stmt->fetchColumn();
 
         if ($lastNumber === false) {
             $nextNumber = $configuration->getStart();
         } else {
-            $nextNumber = $lastNumber + $incrementBy;
+            $nextNumber = $lastNumber + 1;
         }
-
-        $this->connection->executeQuery(
-            'INSERT `number_range_state` (`last_value`, `number_range_id`) VALUES (:value, :id) 
-            ON DUPLICATE KEY UPDATE
-            `last_value` = :value',
-            [
-                'value' => $nextNumber,
-                'id' => Uuid::fromHexToBytes($configuration->getId()),
-            ]
-        );
-        $this->connection->commit();
 
         return (string) $nextNumber;
     }
 
-    public function getNext(NumberRangeEntity $configuration, int $incrementBy = 1): string
+    public function getNext(NumberRangeEntity $configuration): string
     {
         $stmt = $this->connection->executeQuery(
-            'SELECT `last_value` FROM `number_range_state` WHERE number_range_id = :id FOR UPDATE',
+            'SELECT `last_value` FROM `number_range_state` WHERE number_range_id = :id',
             [
                 'id' => Uuid::fromHexToBytes($configuration->getId()),
             ]
@@ -64,7 +61,7 @@ class IncrementSqlStorage implements IncrementStorageInterface
         if ($lastNumber === false) {
             $nextNumber = $configuration->getStart();
         } else {
-            $nextNumber = $lastNumber + $incrementBy;
+            $nextNumber = $lastNumber + 1;
         }
 
         return (string) $nextNumber;

@@ -55,6 +55,10 @@ Component.register('sw-cms-el-image', {
             this.$set(this.element.data, 'media', null);
 
             this.$emit('element-update', this.element);
+        },
+
+        onCloseModal() {
+            this.$emit('closeModal');
         }
     }
 });

@@ -25,9 +25,9 @@ class ValueGeneratorPatternIncrement implements ValueGeneratorPatternInterface
     public function resolve(NumberRangeEntity $configuration, ?array $args = null, ?bool $preview = false): string
     {
         if ($preview === true) {
-            return $this->incrementConnector->getNext($configuration, $incrementBy = 1);
+            return $this->incrementConnector->getNext($configuration);
         }
 
-        return $this->incrementConnector->pullState($configuration, $incrementBy = 1);
+        return $this->incrementConnector->pullState($configuration);
     }
 }

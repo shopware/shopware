@@ -89,6 +89,12 @@ return [
                     'related' => '/api/media/548faa1f7846436c85944f4aea792d96/tags',
                 ],
             ],
+            'mailTemplateMedia' => [
+                'data' => [],
+                'links' => [
+                    'related' => '/api/media/548faa1f7846436c85944f4aea792d96/mail-template-media',
+                ],
+            ],
         ],
         'meta' => null,
     ],

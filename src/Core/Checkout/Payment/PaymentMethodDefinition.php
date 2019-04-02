@@ -30,7 +30,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\UpdatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\Plugin\PluginDefinition;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelPaymentMethod\SalesChannelPaymentMethodDefinition;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
@@ -50,17 +49,6 @@ class PaymentMethodDefinition extends EntityDefinition
     public static function getEntityClass(): string
     {
         return PaymentMethodEntity::class;
-    }
-
-    public static function getDefaults(EntityExistence $existence): array
-    {
-        if ($existence->exists()) {
-            return [];
-        }
-
-        return [
-            'availabilityRuleIds' => [],
-        ];
     }
 
     protected static function defineFields(): FieldCollection

@@ -23,9 +23,10 @@ class StoreApiService extends ApiService {
 
     login(shopwareId, password) {
         const headers = this.getBasicHeaders();
+        const params = this.getBasicParams();
 
         return this.httpClient
-            .post(`/_action/${this.getApiBasePath()}/login`, { shopwareId, password }, { headers })
+            .post(`/_action/${this.getApiBasePath()}/login`, { shopwareId, password }, { params, headers })
             .then((response) => {
                 return ApiService.handleResponse(response);
             });
@@ -33,9 +34,10 @@ class StoreApiService extends ApiService {
 
     logout() {
         const headers = this.getBasicHeaders();
+        const params = this.getBasicParams();
 
         return this.httpClient
-            .post(`/_action/${this.getApiBasePath()}/logout`, {}, { headers })
+            .post(`/_action/${this.getApiBasePath()}/logout`, {}, { params, headers })
             .then((response) => {
                 return ApiService.handleResponse(response);
             });
@@ -43,9 +45,10 @@ class StoreApiService extends ApiService {
 
     getLicenseList() {
         const headers = this.getBasicHeaders();
+        const params = this.getBasicParams();
 
         return this.httpClient
-            .get(`/_action/${this.getApiBasePath()}/licenses`, { headers })
+            .get(`/_action/${this.getApiBasePath()}/licenses`, { params, headers })
             .then((response) => {
                 return ApiService.handleResponse(response);
             });
@@ -53,9 +56,10 @@ class StoreApiService extends ApiService {
 
     getUpdateList() {
         const headers = this.getBasicHeaders();
+        const params = this.getBasicParams();
 
         return this.httpClient
-            .get(`/_action/${this.getApiBasePath()}/updates`, { headers })
+            .get(`/_action/${this.getApiBasePath()}/updates`, { params, headers })
             .then((response) => {
                 return ApiService.handleResponse(response);
             });
@@ -63,15 +67,23 @@ class StoreApiService extends ApiService {
 
     downloadPlugin(pluginName) {
         const headers = this.getBasicHeaders();
-        const params = {
+        const params = this.getBasicParams({
             pluginName: pluginName
-        };
+        });
 
         return this.httpClient
             .get(`/_action/${this.getApiBasePath()}/download`, { params, headers })
             .then((response) => {
                 return ApiService.handleResponse(response);
             });
+    }
+
+    getBasicParams(additionalParams = {}) {
+        const basicParams = {
+            language: localStorage.getItem('sw-admin-locale')
+        };
+
+        return Object.assign({}, basicParams, additionalParams);
     }
 }
 

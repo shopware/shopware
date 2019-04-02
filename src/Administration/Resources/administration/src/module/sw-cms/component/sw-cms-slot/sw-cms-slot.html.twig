@@ -26,9 +26,9 @@
         {% endblock %}
 
         {% block sw_cms_slot_settings_modal %}
-            <sw-modal :title="$tc('sw-cms.detail.titleElementSettingsModal')" v-if="showElementSettings" @closeModal="onCloseSettingsModal">
+            <sw-modal v-if="showElementSettings" :title="$tc('sw-cms.detail.titleElementSettingsModal')" @closeModal="onCloseSettingsModal">
                 {% block sw_cms_slot_settings_modal_component %}
-                    <component :is="elementConfig.configComponent" v-model="element"></component>
+                    <component :is="elementConfig.configComponent" v-model="element" :pageContext="pageContext"></component>
                 {% endblock %}
 
                 {% block sw_cms_slot_settings_modal_footer %}

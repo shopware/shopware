@@ -28,6 +28,7 @@ Component.extend('sw-product-stream-filter', 'sw-condition-base', {
             fieldPath: [],
             negatedCondition: null,
             definitionBlacklist: {},
+            filterValue: null,
             types: [
                 {
                     type: TYPES.TYPE_RANGE,
@@ -145,6 +146,14 @@ Component.extend('sw-product-stream-filter', 'sw-condition-base', {
             handler() {
                 this.mapValues();
             }
+        },
+        filterValue: {
+            handler(newValue) {
+                if (!newValue) {
+                    return;
+                }
+                this.actualCondition.value = newValue.toString();
+            }
         }
     },
 
@@ -168,6 +177,7 @@ Component.extend('sw-product-stream-filter', 'sw-condition-base', {
 
             this.type = this.findCorrectAbstractionForRangeType();
 
+            this.filterValue = this.actualCondition.value;
             if (this.isApi()) {
                 this.lastField = {};
             }
@@ -201,7 +211,7 @@ Component.extend('sw-product-stream-filter', 'sw-condition-base', {
 
             const definitions = [];
             const blackListedDefinitions = [];
-            let definition = Entity.getDefinition(productDefinitionName);
+            let definition = Object.assign({}, Entity.getDefinition(productDefinitionName));
             this.addDefinitionToStack(definition, definitions, blackListedDefinitions);
 
             this.fields.forEach((field) => {
@@ -234,16 +244,17 @@ Component.extend('sw-product-stream-filter', 'sw-condition-base', {
                 }
 
                 store[key] = definition.properties[key];
-                let label = '';
-                if (key === 'id' && definition.name === productDefinitionName) {
-                    label = this.$tc('sw-product-stream.filter.values.product');
-                } else if (key === 'id') {
-                    label = this.$tc('sw-product-stream.filter.values.choose');
-                } else {
-                    label = this.$tc(`sw-product-stream.filter.values.${key}`);
+                if (!store[key].label) {
+                    let label = '';
+                    if (key === 'id' && definition.name === productDefinitionName) {
+                        label = this.$tc('sw-product-stream.filter.values.product');
+                    } else if (key === 'id') {
+                        label = this.$tc('sw-product-stream.filter.values.choose');
+                    } else {
+                        label = this.$tc(`sw-product-stream.filter.values.${key}`);
+                    }
+                    store[key].label = label;
                 }
-
-                store[key].label = label;
                 store[key].name = key;
                 store[key].meta = {
                     viewData: {
@@ -282,6 +293,10 @@ Component.extend('sw-product-stream-filter', 'sw-condition-base', {
         getPathFields() {
             const fields = [];
             let definition = this.filterProperties(Entity.getDefinition(productDefinitionName));
+            const productAttributes = this.productStreamConditionService.productAttributes;
+            if (Object.keys(productAttributes).length && !definition.attributes.properties) {
+                definition.attributes.properties = productAttributes;
+            }
             if (!this.actualCondition.field) {
                 this.actualCondition.field = 'id';
                 fields.push(definition.id);
@@ -530,7 +545,8 @@ Component.extend('sw-product-stream-filter', 'sw-condition-base', {
             case 'string':
                 return 'text';
             case 'integer':
-                this.actualCondition.value = Number(this.actualCondition.value);
+            case 'number':
+                this.filterValue = Number(this.actualCondition.value);
                 return 'number';
             default:
                 return type;

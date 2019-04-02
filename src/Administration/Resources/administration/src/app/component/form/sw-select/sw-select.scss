@@ -189,6 +189,7 @@ $sw-select-transition-result-icon: all ease-in-out .15s;
         padding: 8px 8px;
         font-size: 14px;
         position: sticky;
+        position: -webkit-sticky;
         top: 0;
         background-color: $color-white;
         border-bottom: 1px solid $color-steam-cloud;

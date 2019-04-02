@@ -40,12 +40,10 @@
                                 {% block sw_cms_list_listing_actions %}
                                     <div class="sw-cms-list__actions">
                                         {% block sw_cms_list_listing_actions_search %}
-                                            <sw-search-bar :placeholder="$tc('sw-cms.general.placeholderSearchBar')"
+                                            <sw-simple-search-field :placeholder="$tc('sw-cms.general.placeholderSearchBar')"
                                                            :searchType="$tc('sw-cms.general.mainMenuItemGeneral')"
-                                                           :showTag="false"
-                                                           :allowGlobalSearch="false"
-                                                           @search="onSearch">
-                                            </sw-search-bar>
+                                                           @searchTermChanged="onSearch">
+                                            </sw-simple-search-field>
                                         {% endblock %}
 
                                         {% block sw_cms_list_listing_actions_sorting %}

@@ -53,15 +53,13 @@ class Kernel extends HttpKernel
         /** @var array $bundles */
         $bundles = require $this->getProjectDir() . '/config/bundles.php';
 
-        foreach (self::$plugins->getActives() as $plugin) {
-            $bundles[\get_class($plugin)] = ['all' => true];
-        }
-
         foreach ($bundles as $class => $envs) {
             if (isset($envs['all']) || isset($envs[$this->environment])) {
                 yield new $class();
             }
         }
+
+        yield from self::$plugins->getActives();
     }
 
     public function boot($withPlugins = true): void

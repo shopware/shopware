@@ -17,7 +17,9 @@ use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Context\CheckoutContextFactory;
 use Shopware\Core\Checkout\Context\CheckoutContextService;
 use Shopware\Core\Checkout\Context\CheckoutRuleLoader;
+use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryStates;
 use Shopware\Core\Checkout\Order\OrderDefinition;
+use Shopware\Core\Checkout\Order\OrderStates;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
@@ -139,7 +141,7 @@ class OrderRepositoryTest extends TestCase
         $customer = [
             'id' => $customerId,
             'number' => '1337',
-            'salutationId' => Defaults::SALUTATION_ID_MR,
+            'salutationId' => $this->getValidSalutationId(),
             'firstName' => 'Max',
             'lastName' => 'Mustermann',
             'customerNumber' => '1337',
@@ -155,7 +157,7 @@ class OrderRepositoryTest extends TestCase
                     'id' => $addressId,
                     'customerId' => $customerId,
                     'countryId' => Defaults::COUNTRY,
-                    'salutationId' => Defaults::SALUTATION_ID_MR,
+                    'salutationId' => $this->getValidSalutationId(),
                     'firstName' => 'Max',
                     'lastName' => 'Mustermann',
                     'street' => 'Ebbinghoff 10',
@@ -175,6 +177,7 @@ class OrderRepositoryTest extends TestCase
         $addressId = Uuid::randomHex();
         $orderLineItemId = Uuid::randomHex();
         $countryStateId = Uuid::randomHex();
+        $salutation = $this->getValidSalutationId();
 
         $order = [
             [
@@ -182,20 +185,20 @@ class OrderRepositoryTest extends TestCase
                 'orderDate' => (new \DateTimeImmutable())->format(Defaults::DATE_FORMAT),
                 'price' => new CartPrice(10, 10, 10, new CalculatedTaxCollection(), new TaxRuleCollection(), CartPrice::TAX_STATE_NET),
                 'shippingCosts' => new CalculatedPrice(10, 10, new CalculatedTaxCollection(), new TaxRuleCollection()),
-                'stateId' => $this->stateMachineRegistry->getInitialState(Defaults::ORDER_STATE_MACHINE, $context)->getId(),
+                'stateId' => $this->stateMachineRegistry->getInitialState(OrderStates::STATE_MACHINE, $context)->getId(),
                 'paymentMethodId' => $this->getValidPaymentMethodId(),
                 'currencyId' => Defaults::CURRENCY,
                 'currencyFactor' => 1,
                 'salesChannelId' => Defaults::SALES_CHANNEL,
                 'deliveries' => [
                     [
-                        'stateId' => $this->stateMachineRegistry->getInitialState(Defaults::ORDER_DELIVERY_STATE_MACHINE, $context)->getId(),
-                        'shippingMethodId' => Defaults::SHIPPING_METHOD,
+                        'stateId' => $this->stateMachineRegistry->getInitialState(OrderDeliveryStates::STATE_MACHINE, $context)->getId(),
+                        'shippingMethodId' => $this->getValidShippingMethodId(),
                         'shippingCosts' => new CalculatedPrice(10, 10, new CalculatedTaxCollection(), new TaxRuleCollection()),
                         'shippingDateEarliest' => date(DATE_ISO8601),
                         'shippingDateLatest' => date(DATE_ISO8601),
                         'shippingOrderAddress' => [
-                            'salutationId' => Defaults::SALUTATION_ID_MR,
+                            'salutationId' => $salutation,
                             'firstName' => 'Floy',
                             'lastName' => 'Glover',
                             'zipcode' => '59438-0403',
@@ -232,14 +235,14 @@ class OrderRepositoryTest extends TestCase
                     'email' => 'test@example.com',
                     'firstName' => 'Noe',
                     'lastName' => 'Hill',
-                    'salutationId' => Defaults::SALUTATION_ID_MR,
+                    'salutationId' => $salutation,
                     'title' => 'Doc',
                     'customerNumber' => 'Test',
                     'customer' => [
                         'email' => 'test@example.com',
                         'firstName' => 'Noe',
                         'lastName' => 'Hill',
-                        'salutationId' => Defaults::SALUTATION_ID_MR,
+                        'salutationId' => $salutation,
                         'title' => 'Doc',
                         'customerNumber' => 'Test',
                         'guest' => true,
@@ -251,7 +254,7 @@ class OrderRepositoryTest extends TestCase
                         'addresses' => [
                             [
                                 'id' => $addressId,
-                                'salutationId' => Defaults::SALUTATION_ID_MR,
+                                'salutationId' => $salutation,
                                 'firstName' => 'Floy',
                                 'lastName' => 'Glover',
                                 'zipcode' => '59438-0403',
@@ -276,7 +279,7 @@ class OrderRepositoryTest extends TestCase
                 'billingAddressId' => $addressId,
                 'addresses' => [
                     [
-                        'salutationId' => Defaults::SALUTATION_ID_MR,
+                        'salutationId' => $salutation,
                         'firstName' => 'Floy',
                         'lastName' => 'Glover',
                         'zipcode' => '59438-0403',

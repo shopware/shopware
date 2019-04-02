@@ -2,13 +2,14 @@
 
 namespace Shopware\Core\System\SystemConfig\Util;
 
-use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Util\XmlReader;
 use Shopware\Core\System\SystemConfig\Exception\BundleConfigNotFoundException;
 use Symfony\Component\HttpKernel\Bundle\BundleInterface;
 
 class ConfigReader extends XmlReader
 {
+    private const FALLBACK_LOCALE = 'en_GB';
+
     /**
      * @var string
      */
@@ -136,7 +137,7 @@ class ConfigReader extends XmlReader
 
     private function getLocaleCodeFromElement(\DOMElement $element): string
     {
-        return $element->getAttribute('lang') ?: Defaults::LOCALE_EN_GB_ISO;
+        return $element->getAttribute('lang') ?: self::FALLBACK_LOCALE;
     }
 
     private function isTranslateAbleOption(\DOMElement $option): bool

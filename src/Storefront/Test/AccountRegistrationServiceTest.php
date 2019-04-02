@@ -107,7 +107,7 @@ class AccountRegistrationServiceTest extends TestCase
     {
         $data = [
             'email' => 'max.mustermann@example.com',
-            'salutationId' => Defaults::SALUTATION_ID_MR,
+            'salutationId' => $this->getValidSalutationId(),
             'firstName' => 'Max',
             'lastName' => 'Mustermann',
 

@@ -8,6 +8,7 @@ use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Order\OrderDefinition;
+use Shopware\Core\Checkout\Order\OrderStates;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
@@ -80,7 +81,7 @@ class OrderActionControllerTest extends TestCase
         $response = json_decode($response, true);
 
         static::assertNotNull($response['currentState']);
-        static::assertEquals(Defaults::ORDER_STATE_STATES_OPEN, $response['currentState']['technicalName']);
+        static::assertEquals(OrderStates::STATE_OPEN, $response['currentState']['technicalName']);
 
         static::assertCount(2, $response['transitions']);
         static::assertEquals('cancel', $response['transitions'][0]['actionName']);
@@ -173,7 +174,7 @@ class OrderActionControllerTest extends TestCase
     private function createOrder(string $customerId, Context $context): string
     {
         $orderId = Uuid::randomHex();
-        $stateId = $this->stateMachineRegistry->getInitialState(Defaults::ORDER_STATE_MACHINE, $context)->getUniqueIdentifier();
+        $stateId = $this->stateMachineRegistry->getInitialState(OrderStates::STATE_MACHINE, $context)->getUniqueIdentifier();
         $billingAddressId = Uuid::randomHex();
 
         $order = [
@@ -184,7 +185,7 @@ class OrderActionControllerTest extends TestCase
             'orderCustomer' => [
                 'customerId' => $customerId,
                 'email' => 'test@example.com',
-                'salutationId' => Defaults::SALUTATION_ID_MR,
+                'salutationId' => $this->getValidSalutationId(),
                 'firstName' => 'Max',
                 'lastName' => 'Mustermann',
             ],
@@ -196,7 +197,7 @@ class OrderActionControllerTest extends TestCase
             'billingAddressId' => $billingAddressId,
             'addresses' => [
                 [
-                    'salutationId' => Defaults::SALUTATION_ID_MR,
+                    'salutationId' => $this->getValidSalutationId(),
                     'firstName' => 'Max',
                     'lastName' => 'Mustermann',
                     'street' => 'Ebbinghoff 10',
@@ -224,7 +225,7 @@ class OrderActionControllerTest extends TestCase
         $customer = [
             'id' => $customerId,
             'customerNumber' => '1337',
-            'salutationId' => Defaults::SALUTATION_ID_MR,
+            'salutationId' => $this->getValidSalutationId(),
             'firstName' => 'Max',
             'lastName' => 'Mustermann',
             'email' => Uuid::randomHex() . '@example.com',
@@ -239,7 +240,7 @@ class OrderActionControllerTest extends TestCase
                     'id' => $addressId,
                     'customerId' => $customerId,
                     'countryId' => Defaults::COUNTRY,
-                    'salutationId' => Defaults::SALUTATION_ID_MR,
+                    'salutationId' => $this->getValidSalutationId(),
                     'firstName' => 'Max',
                     'lastName' => 'Mustermann',
                     'street' => 'Ebbinghoff 10',

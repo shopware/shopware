@@ -10,7 +10,6 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriterInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
@@ -41,14 +40,21 @@ class RuleGenerator implements DemodataGeneratorInterface
      */
     private $paymentMethodRepository;
 
+    /**
+     * @var EntityRepositoryInterface
+     */
+    private $shippingMethodRepository;
+
     public function __construct(
         EntityRepositoryInterface $ruleRepository,
         EntityWriterInterface $writer,
-        EntityRepositoryInterface $paymentMethodRepository
+        EntityRepositoryInterface $paymentMethodRepository,
+        EntityRepositoryInterface $shippingMethodRepository
     ) {
         $this->ruleRepository = $ruleRepository;
         $this->writer = $writer;
         $this->paymentMethodRepository = $paymentMethodRepository;
+        $this->shippingMethodRepository = $shippingMethodRepository;
     }
 
     public function getDefinition(): string
@@ -59,11 +65,13 @@ class RuleGenerator implements DemodataGeneratorInterface
     public function generate(int $numberOfItems, DemodataContext $context, array $options = []): void
     {
         $paymentMethodIds = $this->paymentMethodRepository->searchIds(new Criteria(), $context->getContext());
+        $shippingMethodIds = $this->shippingMethodRepository->searchIds(new Criteria(), $context->getContext());
+
         $criteria = (new Criteria())->addFilter(
             new NotFilter(
                 NotFilter::CONNECTION_AND,
                 [
-                    new EqualsFilter('rule.shippingMethods.id', Defaults::SHIPPING_METHOD),
+                    new EqualsAnyFilter('rule.shippingMethods.id', $shippingMethodIds->getIds()),
                     new EqualsAnyFilter('rule.paymentMethods.id', $paymentMethodIds->getIds()),
                 ]
             )

@@ -34,7 +34,7 @@ class UserProvisioner
             'email' => $additionalData['email'] ?? 'info@shopware.com',
             'username' => $username,
             'password' => password_hash($password, PASSWORD_BCRYPT),
-            'locale_id' => Uuid::fromHexToBytes(Defaults::LOCALE_SYSTEM),
+            'locale_id' => $this->getLocaleOfSystemLanguage(),
             'active' => true,
             'created_at' => date(Defaults::DATE_FORMAT),
         ];
@@ -54,5 +54,18 @@ class UserProvisioner
             ->setParameter('username', $username)
             ->execute()
             ->rowCount() > 0;
+    }
+
+    private function getLocaleOfSystemLanguage(): string
+    {
+        $builder = $this->connection->createQueryBuilder();
+
+        return (string) $builder->select('locale.id')
+                ->from('language', 'language')
+                ->innerJoin('language', 'locale', 'locale', 'language.locale_id = locale.id')
+                ->where('language.id = :id')
+                ->setParameter('id', Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM))
+                ->execute()
+                ->fetchColumn();
     }
 }

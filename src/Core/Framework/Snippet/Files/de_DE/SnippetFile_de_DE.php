@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\Snippet\Files\de_DE;
 
-use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Snippet\Files\SnippetFileInterface;
 
 class SnippetFile_de_DE implements SnippetFileInterface
@@ -24,7 +23,7 @@ class SnippetFile_de_DE implements SnippetFileInterface
 
     public function getAuthor(): string
     {
-        return Defaults::SNIPPET_AUTHOR;
+        return 'Shopware';
     }
 
     public function isBase(): bool

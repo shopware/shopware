@@ -129,7 +129,7 @@ trait AdminApiTestBehaviour
             'email' => 'admin@example.com',
             'username' => $username,
             'password' => password_hash($password, PASSWORD_BCRYPT),
-            'locale_id' => Uuid::fromHexToBytes(Defaults::LOCALE_SYSTEM),
+            'locale_id' => $this->getLocaleOfSystemLanguage($connection),
             'active' => 1,
             'avatar_id' => $avatarId,
             'created_at' => (new \DateTime())->format(Defaults::DATE_FORMAT),
@@ -170,5 +170,18 @@ trait AdminApiTestBehaviour
         }
 
         return $this->apiClient = $this->createClient();
+    }
+
+    private function getLocaleOfSystemLanguage(Connection $connection): string
+    {
+        $builder = $connection->createQueryBuilder();
+
+        return (string) $builder->select('locale.id')
+            ->from('language', 'language')
+            ->innerJoin('language', 'locale', 'locale', 'language.locale_id = locale.id')
+            ->where('language.id = :id')
+            ->setParameter('id', Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM))
+            ->execute()
+            ->fetchColumn();
     }
 }

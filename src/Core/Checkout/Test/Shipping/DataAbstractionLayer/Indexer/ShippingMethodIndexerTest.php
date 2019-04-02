@@ -7,7 +7,6 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodRules\ShippingMethodRuleDefinition;
 use Shopware\Core\Checkout\Shipping\DataAbstractionLayer\Indexing\ShippingMethodIndexer;
 use Shopware\Core\Checkout\Shipping\ShippingMethodDefinition;
-use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityDeletedEvent;
@@ -71,20 +70,22 @@ class ShippingMethodIndexerTest extends TestCase
 
     public function testIndexIndexesWithoutAssociations(): void
     {
+        $ids = [];
         for ($i = 0; $i < 10; ++$i) {
-            $this->createShippingMethod();
+            $ids[] = $this->createShippingMethod();
         }
 
         $this->indexer->index(new \DateTime());
 
-        $entities = $this->connection->fetchAll(
+        $entities = $this->connection->executeQuery(
             'SELECT id, availability_rule_ids, COUNT(rule_id) AS countAssociations 
              FROM shipping_method 
              LEFT OUTER JOIN shipping_method_rule smr ON shipping_method.id = smr.shipping_method_id
-             WHERE id <> :id
+             WHERE id IN (:ids)
              GROUP BY id, availability_rule_ids',
-            ['id' => Uuid::fromHexToBytes(Defaults::SHIPPING_METHOD)]
-        );
+            ['ids' => $ids],
+            ['ids' => Connection::PARAM_STR_ARRAY]
+        )->fetchAll();
 
         static::assertGreaterThan(0, count($entities));
         foreach ($entities as $entity) {

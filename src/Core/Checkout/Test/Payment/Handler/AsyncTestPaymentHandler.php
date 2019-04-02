@@ -2,10 +2,10 @@
 
 namespace Shopware\Core\Checkout\Test\Payment\Handler;
 
+use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStates;
 use Shopware\Core\Checkout\Payment\Cart\AsyncPaymentTransactionStruct;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\AsynchronousPaymentHandlerInterface;
 use Shopware\Core\Checkout\Payment\Exception\CustomerCanceledAsyncPaymentException;
-use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\System\StateMachine\StateMachineRegistry;
@@ -49,8 +49,8 @@ class AsyncTestPaymentHandler implements AsynchronousPaymentHandlerInterface
         }
 
         $completeStateId = $this->stateMachineRegistry->getStateByTechnicalName(
-            Defaults::ORDER_TRANSACTION_STATE_MACHINE,
-            Defaults::ORDER_TRANSACTION_STATES_PAID,
+            OrderTransactionStates::STATE_MACHINE,
+            OrderTransactionStates::STATE_PAID,
             $context
         )->getId();
 

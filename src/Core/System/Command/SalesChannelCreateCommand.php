@@ -31,12 +31,19 @@ class SalesChannelCreateCommand extends Command
      */
     private $paymentMethodRepository;
 
+    /**
+     * @var EntityRepositoryInterface
+     */
+    private $shippingMethodRepository;
+
     public function __construct(
         EntityRepositoryInterface $salesChannelRepository,
-        EntityRepositoryInterface $paymentMethodRepository
+        EntityRepositoryInterface $paymentMethodRepository,
+        EntityRepositoryInterface $shippingMethodRepository
     ) {
         $this->salesChannelRepository = $salesChannelRepository;
         $this->paymentMethodRepository = $paymentMethodRepository;
+        $this->shippingMethodRepository = $shippingMethodRepository;
 
         parent::__construct();
     }
@@ -50,7 +57,7 @@ class SalesChannelCreateCommand extends Command
             ->addOption('snippetSetId', null, InputOption::VALUE_REQUIRED, 'Default snippet set', Defaults::SNIPPET_BASE_SET_EN)
             ->addOption('currencyId', null, InputOption::VALUE_REQUIRED, 'Default currency', Defaults::CURRENCY)
             ->addOption('paymentMethodId', null, InputOption::VALUE_REQUIRED, 'Default payment method')
-            ->addOption('shippingMethodId', null, InputOption::VALUE_REQUIRED, 'Default shipping method', Defaults::SHIPPING_METHOD)
+            ->addOption('shippingMethodId', null, InputOption::VALUE_REQUIRED, 'Default shipping method')
             ->addOption('countryId', null, InputOption::VALUE_REQUIRED, 'Default country', Defaults::COUNTRY)
             ->addOption('typeId', null, InputOption::VALUE_OPTIONAL, 'Sales channel type id')
             ->addOption('customerGroupId', null, InputOption::VALUE_REQUIRED, 'Default customer group', Defaults::FALLBACK_CUSTOMER_GROUP)
@@ -65,6 +72,7 @@ class SalesChannelCreateCommand extends Command
         $io = new SymfonyStyle($input, $output);
 
         $paymentMethod = $input->getOption('paymentMethodId') ?? $this->getFirstActivePaymentMethodId();
+        $shippingMethod = $input->getOption('shippingMethodId') ?? $this->getFirstActiveShippingMethodId();
 
         $data = [
             'id' => $id,
@@ -76,13 +84,13 @@ class SalesChannelCreateCommand extends Command
             'currencyVersionId' => Defaults::LIVE_VERSION,
             'paymentMethodId' => $paymentMethod,
             'paymentMethodVersionId' => Defaults::LIVE_VERSION,
-            'shippingMethodId' => $input->getOption('shippingMethodId'),
+            'shippingMethodId' => $shippingMethod,
             'shippingMethodVersionId' => Defaults::LIVE_VERSION,
             'countryId' => $input->getOption('countryId'),
             'countryVersionId' => Defaults::LIVE_VERSION,
             'currencies' => [['id' => $input->getOption('currencyId')]],
             'languages' => [['id' => Defaults::LANGUAGE_SYSTEM]],
-            'shippingMethods' => [['id' => $input->getOption('shippingMethodId')]],
+            'shippingMethods' => [['id' => $shippingMethod]],
             'paymentMethods' => [['id' => $paymentMethod]],
             'countries' => [['id' => $input->getOption('countryId')]],
             'name' => $input->getOption('name'),
@@ -131,6 +139,15 @@ class SalesChannelCreateCommand extends Command
     protected function getTypeId(): string
     {
         return Defaults::SALES_CHANNEL_STOREFRONT_API;
+    }
+
+    protected function getFirstActiveShippingMethodId(): string
+    {
+        $criteria = (new Criteria())
+            ->setLimit(1)
+            ->addFilter(new EqualsFilter('active', true));
+
+        return $this->shippingMethodRepository->searchIds($criteria, Context::createDefaultContext())->getIds()[0];
     }
 
     protected function getFirstActivePaymentMethodId(): string

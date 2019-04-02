@@ -219,7 +219,7 @@ class StorefrontCheckoutControllerTest extends TestCase
 
         $firstName = 'Max';
         $lastName = 'Mustmann';
-        $salutationId = Defaults::SALUTATION_ID_MR;
+        $salutationId = $this->getValidSalutationId();
 
         $personal = [
             'email' => $mail,
@@ -296,7 +296,7 @@ class StorefrontCheckoutControllerTest extends TestCase
 
         $firstName = 'Max';
         $lastName = 'Mustmann';
-        $salutationId = Defaults::SALUTATION_ID_MR;
+        $salutationId = $this->getValidSalutationId();
 
         $personal = [
             'email' => $mail,
@@ -369,7 +369,7 @@ class StorefrontCheckoutControllerTest extends TestCase
 
         $personal = [
             'email' => $mail,
-            'salutationId' => Defaults::SALUTATION_ID_MR,
+            'salutationId' => $this->getValidSalutationId(),
             'firstName' => 'Max',
             'lastName' => 'Mustermann',
             'billingAddress' => [
@@ -411,7 +411,7 @@ class StorefrontCheckoutControllerTest extends TestCase
 
         $firstName = 'Max';
         $lastName = 'Mustmann';
-        $salutationId = Defaults::SALUTATION_ID_MR;
+        $salutationId = $this->getValidSalutationId();
 
         $personal = [
             'email' => $guestMail,
@@ -736,7 +736,7 @@ class StorefrontCheckoutControllerTest extends TestCase
 
         $firstName = 'Max';
         $lastName = 'Mustmann';
-        $salutationId = Defaults::SALUTATION_ID_MR;
+        $salutationId = $this->getValidSalutationId();
 
         $personal = [
             'email' => $mail,
@@ -787,7 +787,7 @@ class StorefrontCheckoutControllerTest extends TestCase
                     'street' => 'test',
                     'city' => 'not',
                     'zipcode' => 'not',
-                    'salutationId' => Defaults::SALUTATION_ID_MR,
+                    'salutationId' => $this->getValidSalutationId(),
                     'country' => ['name' => 'not'],
                 ],
                 'defaultBillingAddressId' => $addressId,
@@ -817,7 +817,7 @@ class StorefrontCheckoutControllerTest extends TestCase
                 'password' => $password,
                 'lastName' => 'not',
                 'firstName' => 'match',
-                'salutationId' => Defaults::SALUTATION_ID_MR,
+                'salutationId' => $this->getValidSalutationId(),
                 'customerNumber' => 'not',
             ],
         ], $context);

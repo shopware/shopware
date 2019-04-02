@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Checkout\Order;
 
-use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Exception\ResourceNotFoundException;
 use Shopware\Core\Framework\Api\Response\ResponseFactoryInterface;
 use Shopware\Core\Framework\Context;
@@ -53,7 +52,7 @@ class OrderActionController extends AbstractController
             'version' => $request->get('version'),
         ]);
 
-        return $this->stateMachineRegistry->buildAvailableTransitionsJsonResponse(Defaults::ORDER_STATE_MACHINE,
+        return $this->stateMachineRegistry->buildAvailableTransitionsJsonResponse(OrderStates::STATE_MACHINE,
             $order->getStateMachineState()->getTechnicalName(),
             $baseUrl,
             $context);
@@ -76,7 +75,7 @@ class OrderActionController extends AbstractController
     ): Response {
         $order = $this->getOrder($orderId, $context);
 
-        $toPlace = $this->stateMachineRegistry->transition($this->stateMachineRegistry->getStateMachine(Defaults::ORDER_STATE_MACHINE, $context),
+        $toPlace = $this->stateMachineRegistry->transition($this->stateMachineRegistry->getStateMachine(OrderStates::STATE_MACHINE, $context),
             $order->getStateMachineState(),
             OrderDefinition::getEntityName(),
             $order->getId(),

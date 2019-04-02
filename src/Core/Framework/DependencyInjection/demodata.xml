@@ -15,6 +15,7 @@
             <argument type="service" id="rule.repository" />
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriter" />
             <argument type="service" id="payment_method.repository"/>
+            <argument type="service" id="shipping_method.repository"/>
             <tag name="shopware.demodata_generator" />
         </service>
 
@@ -33,6 +34,7 @@
 
         <service id="Shopware\Core\Framework\Demodata\Generator\ShippingMethodPriceGenerator">
             <argument type="service" id="shipping_method_price_rule.repository" />
+            <argument type="service" id="shipping_method.repository" />
             <tag name="shopware.demodata_generator"/>
         </service>
 

@@ -4,7 +4,7 @@ namespace Shopware\Core\Checkout\Order;
 
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionDefinition;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionEntity;
-use Shopware\Core\Defaults;
+use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStates;
 use Shopware\Core\Framework\Api\Exception\ResourceNotFoundException;
 use Shopware\Core\Framework\Api\Response\ResponseFactoryInterface;
 use Shopware\Core\Framework\Context;
@@ -55,7 +55,7 @@ class OrderTransactionActionController extends AbstractController
             'version' => $request->get('version'),
         ]);
 
-        return $this->stateMachineRegistry->buildAvailableTransitionsJsonResponse(Defaults::ORDER_TRANSACTION_STATE_MACHINE,
+        return $this->stateMachineRegistry->buildAvailableTransitionsJsonResponse(OrderTransactionStates::STATE_MACHINE,
             $transaction->getStateMachineState()->getTechnicalName(),
             $baseUrl,
             $context);
@@ -78,7 +78,7 @@ class OrderTransactionActionController extends AbstractController
     ): Response {
         $transaction = $this->getOrderTransaction($transactionId, $context);
 
-        $toPlace = $this->stateMachineRegistry->transition($this->stateMachineRegistry->getStateMachine(Defaults::ORDER_TRANSACTION_STATE_MACHINE, $context),
+        $toPlace = $this->stateMachineRegistry->transition($this->stateMachineRegistry->getStateMachine(OrderTransactionStates::STATE_MACHINE, $context),
             $transaction->getStateMachineState(),
             OrderTransactionDefinition::getEntityName(),
             $transaction->getId(),

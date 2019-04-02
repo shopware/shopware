@@ -126,6 +126,7 @@ trait StorefrontPageTestBehaviour
     protected function createCheckoutContextWithNavigation(): CheckoutContext
     {
         $paymentMethodId = $this->getValidPaymentMethodId();
+        $shippingMethodId = $this->getAvailableShippingMethodId();
         $data = [
             'typeId' => Defaults::SALES_CHANNEL_STOREFRONT,
             'name' => 'store front',
@@ -137,14 +138,14 @@ trait StorefrontPageTestBehaviour
             'currencyVersionId' => Defaults::LIVE_VERSION,
             'paymentMethodId' => $paymentMethodId,
             'paymentMethodVersionId' => Defaults::LIVE_VERSION,
-            'shippingMethodId' => Defaults::SHIPPING_METHOD,
+            'shippingMethodId' => $shippingMethodId,
             'shippingMethodVersionId' => Defaults::LIVE_VERSION,
             'countryId' => Defaults::COUNTRY,
             'countryVersionId' => Defaults::LIVE_VERSION,
             'currencies' => [['id' => Defaults::CURRENCY]],
             'languages' => [['id' => Defaults::LANGUAGE_SYSTEM]],
             'paymentMethods' => [['id' => $paymentMethodId]],
-            'shippingMethods' => [['id' => Defaults::SHIPPING_METHOD]],
+            'shippingMethods' => [['id' => $shippingMethodId]],
             'countries' => [['id' => Defaults::COUNTRY]],
         ];
 
@@ -154,6 +155,7 @@ trait StorefrontPageTestBehaviour
     protected function createCheckoutContextWithLoggedInCustomerAndWithNavigation(): CheckoutContext
     {
         $paymentMethodId = $this->getValidPaymentMethodId();
+        $shippingMethodId = $this->getAvailableShippingMethodId();
         $data = [
             'typeId' => Defaults::SALES_CHANNEL_STOREFRONT,
             'name' => 'store front',
@@ -165,14 +167,14 @@ trait StorefrontPageTestBehaviour
             'currencyVersionId' => Defaults::LIVE_VERSION,
             'paymentMethodId' => $paymentMethodId,
             'paymentMethodVersionId' => Defaults::LIVE_VERSION,
-            'shippingMethodId' => Defaults::SHIPPING_METHOD,
+            'shippingMethodId' => $shippingMethodId,
             'shippingMethodVersionId' => Defaults::LIVE_VERSION,
             'countryId' => Defaults::COUNTRY,
             'countryVersionId' => Defaults::LIVE_VERSION,
             'currencies' => [['id' => Defaults::CURRENCY]],
             'languages' => [['id' => Defaults::LANGUAGE_SYSTEM]],
             'paymentMethods' => [['id' => $paymentMethodId]],
-            'shippingMethods' => [['id' => Defaults::SHIPPING_METHOD]],
+            'shippingMethods' => [['id' => $shippingMethodId]],
             'countries' => [['id' => Defaults::COUNTRY]],
         ];
 
@@ -184,6 +186,7 @@ trait StorefrontPageTestBehaviour
     protected function createCheckoutContext(): CheckoutContext
     {
         $paymentMethodId = $this->getValidPaymentMethodId();
+        $shippingMethodId = $this->getAvailableShippingMethodId();
         $data = [
             'typeId' => Defaults::SALES_CHANNEL_STOREFRONT,
             'name' => 'store front',
@@ -194,14 +197,14 @@ trait StorefrontPageTestBehaviour
             'currencyVersionId' => Defaults::LIVE_VERSION,
             'paymentMethodId' => $paymentMethodId,
             'paymentMethodVersionId' => Defaults::LIVE_VERSION,
-            'shippingMethodId' => Defaults::SHIPPING_METHOD,
+            'shippingMethodId' => $shippingMethodId,
             'shippingMethodVersionId' => Defaults::LIVE_VERSION,
             'countryId' => Defaults::COUNTRY,
             'countryVersionId' => Defaults::LIVE_VERSION,
             'currencies' => [['id' => Defaults::CURRENCY]],
             'languages' => [['id' => Defaults::LANGUAGE_SYSTEM]],
             'paymentMethods' => [['id' => $paymentMethodId]],
-            'shippingMethods' => [['id' => Defaults::SHIPPING_METHOD]],
+            'shippingMethods' => [['id' => $shippingMethodId]],
             'countries' => [['id' => Defaults::COUNTRY]],
         ];
 
@@ -233,7 +236,7 @@ trait StorefrontPageTestBehaviour
                     'street' => 'Musterstraße 1',
                     'city' => 'Schoöppingen',
                     'zipcode' => '12345',
-                    'salutationId' => Defaults::SALUTATION_ID_MR,
+                    'salutationId' => $this->getValidSalutationId(),
                     'country' => ['name' => 'Germany'],
                 ],
                 'defaultBillingAddressId' => $addressId,
@@ -243,7 +246,7 @@ trait StorefrontPageTestBehaviour
                 'password' => 'password',
                 'firstName' => 'Max',
                 'lastName' => 'Mustermann',
-                'salutationId' => Defaults::SALUTATION_ID_MR,
+                'salutationId' => $this->getValidSalutationId(),
                 'customerNumber' => '12345',
             ],
         ];

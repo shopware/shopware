@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Payment\Cart;
 
+use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStates;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\PaymentHandlerRegistry;
 use Shopware\Core\Checkout\Payment\Cart\Token\TokenFactoryInterface;
@@ -9,7 +10,6 @@ use Shopware\Core\Checkout\Payment\Exception\AsyncPaymentProcessException;
 use Shopware\Core\Checkout\Payment\Exception\InvalidOrderException;
 use Shopware\Core\Checkout\Payment\Exception\SyncPaymentProcessException;
 use Shopware\Core\Checkout\Payment\Exception\UnknownPaymentMethodException;
-use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -74,7 +74,7 @@ class PaymentTransactionChainProcessor
             throw new InvalidOrderException($orderId);
         }
 
-        $transactions = $transactions->filterByState(Defaults::ORDER_TRANSACTION_STATES_OPEN);
+        $transactions = $transactions->filterByState(OrderTransactionStates::STATE_OPEN);
 
         foreach ($transactions as $transaction) {
             $paymentMethod = $transaction->getPaymentMethod();

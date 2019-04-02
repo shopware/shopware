@@ -9,6 +9,8 @@ use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionEntity;
+use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStates;
+use Shopware\Core\Checkout\Order\OrderStates;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\DefaultPayment;
 use Shopware\Core\Checkout\Payment\Cart\Token\JWTFactory;
 use Shopware\Core\Checkout\Payment\Exception\CustomerCanceledAsyncPaymentException;
@@ -146,7 +148,7 @@ class PaymentServiceTest extends TestCase
         /** @var OrderTransactionEntity $transactionEntity */
         $transactionEntity = $this->orderTransactionRepository->search(new Criteria([$transactionId]), $this->context)->first();
         static::assertSame(
-            Defaults::ORDER_TRANSACTION_STATES_PAID,
+            OrderTransactionStates::STATE_PAID,
             $transactionEntity->getStateMachineState()->getTechnicalName()
         );
     }
@@ -211,7 +213,7 @@ class PaymentServiceTest extends TestCase
         /** @var OrderTransactionEntity $transactionEntity */
         $transactionEntity = $this->orderTransactionRepository->search(new Criteria([$transactionId]), $this->context)->first();
         static::assertSame(
-            Defaults::ORDER_TRANSACTION_STATES_CANCELLED,
+            OrderStates::STATE_CANCELLED,
             $transactionEntity->getStateMachineState()->getTechnicalName()
         );
     }
@@ -242,7 +244,7 @@ class PaymentServiceTest extends TestCase
             'id' => $id,
             'orderId' => $orderId,
             'paymentMethodId' => $paymentMethodId,
-            'stateId' => $this->stateMachineRegistry->getInitialState(Defaults::ORDER_TRANSACTION_STATE_MACHINE, $context)->getId(),
+            'stateId' => $this->stateMachineRegistry->getInitialState(OrderTransactionStates::STATE_MACHINE, $context)->getId(),
             'amount' => new CalculatedPrice(100, 100, new CalculatedTaxCollection(), new TaxRuleCollection(), 1),
             'payload' => '{}',
         ];
@@ -259,7 +261,7 @@ class PaymentServiceTest extends TestCase
     ): string {
         $orderId = Uuid::randomHex();
         $addressId = Uuid::randomHex();
-        $stateId = $this->stateMachineRegistry->getInitialState(Defaults::ORDER_STATE_MACHINE, $context)->getId();
+        $stateId = $this->stateMachineRegistry->getInitialState(OrderStates::STATE_MACHINE, $context)->getId();
 
         $order = [
             'id' => $orderId,
@@ -269,7 +271,7 @@ class PaymentServiceTest extends TestCase
             'orderCustomer' => [
                 'customerId' => $customerId,
                 'email' => 'test@example.com',
-                'salutationId' => Defaults::SALUTATION_ID_MR,
+                'salutationId' => $this->getValidSalutationId(),
                 'firstName' => 'Max',
                 'lastName' => 'Mustermann',
             ],
@@ -282,7 +284,7 @@ class PaymentServiceTest extends TestCase
             'addresses' => [
                 [
                     'id' => $addressId,
-                    'salutationId' => Defaults::SALUTATION_ID_MR,
+                    'salutationId' => $this->getValidSalutationId(),
                     'firstName' => 'Max',
                     'lastName' => 'Mustermann',
                     'street' => 'Ebbinghoff 10',
@@ -310,7 +312,7 @@ class PaymentServiceTest extends TestCase
         $customer = [
             'id' => $customerId,
             'customerNumber' => '1337',
-            'salutationId' => Defaults::SALUTATION_ID_MR,
+            'salutationId' => $this->getValidSalutationId(),
             'firstName' => 'Max',
             'lastName' => 'Mustermann',
             'email' => Uuid::randomHex() . '@example.com',
@@ -325,7 +327,7 @@ class PaymentServiceTest extends TestCase
                     'id' => $addressId,
                     'customerId' => $customerId,
                     'countryId' => Defaults::COUNTRY,
-                    'salutationId' => Defaults::SALUTATION_ID_MR,
+                    'salutationId' => $this->getValidSalutationId(),
                     'firstName' => 'Max',
                     'lastName' => 'Mustermann',
                     'street' => 'Ebbinghoff 10',

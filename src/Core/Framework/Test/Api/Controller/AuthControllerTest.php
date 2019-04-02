@@ -165,7 +165,7 @@ class AuthControllerTest extends TestCase
             'email' => 'test@example.com',
             'username' => $username,
             'password' => password_hash($password, PASSWORD_BCRYPT),
-            'locale_id' => Uuid::fromHexToBytes('20080911ffff4fffafffffff19830531'),
+            'locale_id' => Uuid::fromHexToBytes($this->getLocaleIdOfSystemLanguage()),
             'active' => 1,
             'created_at' => (new \DateTime())->format(Defaults::DATE_FORMAT),
         ]);

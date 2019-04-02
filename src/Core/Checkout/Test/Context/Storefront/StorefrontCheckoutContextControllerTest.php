@@ -183,7 +183,7 @@ class StorefrontCheckoutContextControllerTest extends TestCase
                     'street' => 'Musterstraße 1',
                     'city' => 'Schoöppingen',
                     'zipcode' => '12345',
-                    'salutationId' => Defaults::SALUTATION_ID_MR,
+                    'salutationId' => $this->getValidSalutationId(),
                     'country' => ['name' => 'Germany'],
                 ],
                 'defaultBillingAddressId' => $addressId,
@@ -197,7 +197,7 @@ class StorefrontCheckoutContextControllerTest extends TestCase
                 'password' => $password,
                 'firstName' => 'Max',
                 'lastName' => 'Mustermann',
-                'salutationId' => Defaults::SALUTATION_ID_MR,
+                'salutationId' => $this->getValidSalutationId(),
                 'customerNumber' => '12345',
             ],
         ], Context::createDefaultContext());
@@ -216,7 +216,7 @@ class StorefrontCheckoutContextControllerTest extends TestCase
             'street' => 'Musterstraße 2',
             'city' => 'Cologne',
             'zipcode' => '89563',
-            'salutationId' => Defaults::SALUTATION_ID_MRS,
+            'salutationId' => $this->getValidSalutationId(),
             'country' => ['name' => 'Germany'],
         ];
 

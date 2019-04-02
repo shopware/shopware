@@ -9,6 +9,7 @@ use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryDefinition;
+use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryStates;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -86,7 +87,7 @@ class OrderDeliveryActionControllerTest extends TestCase
         $response = json_decode($response, true);
 
         static::assertNotNull($response['currentState']);
-        static::assertEquals(Defaults::ORDER_DELIVERY_STATES_OPEN, $response['currentState']['technicalName']);
+        static::assertEquals(OrderDeliveryStates::STATE_OPEN, $response['currentState']['technicalName']);
 
         static::assertCount(3, $response['transitions']);
         static::assertEquals('cancel', $response['transitions'][0]['actionName']);
@@ -182,7 +183,7 @@ class OrderDeliveryActionControllerTest extends TestCase
     private function createOrder(string $customerId, Context $context): string
     {
         $orderId = Uuid::randomHex();
-        $stateId = $this->stateMachineRegistry->getInitialState(Defaults::ORDER_DELIVERY_STATE_MACHINE, $context)->getId();
+        $stateId = $this->stateMachineRegistry->getInitialState(OrderDeliveryStates::STATE_MACHINE, $context)->getId();
         $billingAddressId = Uuid::randomHex();
 
         $order = [
@@ -193,7 +194,7 @@ class OrderDeliveryActionControllerTest extends TestCase
             'orderCustomer' => [
                 'customerId' => $customerId,
                 'email' => 'test@example.com',
-                'salutationId' => Defaults::SALUTATION_ID_MR,
+                'salutationId' => $this->getValidSalutationId(),
                 'firstName' => 'Max',
                 'lastName' => 'Mustermann',
             ],
@@ -205,7 +206,7 @@ class OrderDeliveryActionControllerTest extends TestCase
             'billingAddressId' => $billingAddressId,
             'addresses' => [
                 [
-                    'salutationId' => Defaults::SALUTATION_ID_MR,
+                    'salutationId' => $this->getValidSalutationId(),
                     'firstName' => 'Max',
                     'lastName' => 'Mustermann',
                     'street' => 'Ebbinghoff 10',
@@ -234,7 +235,7 @@ class OrderDeliveryActionControllerTest extends TestCase
         $customer = [
             'id' => $customerId,
             'customerNumber' => '1337',
-            'salutationId' => Defaults::SALUTATION_ID_MR,
+            'salutationId' => $this->getValidSalutationId(),
             'firstName' => 'Max',
             'lastName' => 'Mustermann',
             'email' => Uuid::randomHex() . '@example.com',
@@ -249,7 +250,7 @@ class OrderDeliveryActionControllerTest extends TestCase
                     'id' => $addressId,
                     'customerId' => $customerId,
                     'countryId' => Defaults::COUNTRY,
-                    'salutationId' => Defaults::SALUTATION_ID_MR,
+                    'salutationId' => $this->getValidSalutationId(),
                     'firstName' => 'Max',
                     'lastName' => 'Mustermann',
                     'street' => 'Ebbinghoff 10',
@@ -267,21 +268,20 @@ class OrderDeliveryActionControllerTest extends TestCase
     private function createOrderDelivery(string $orderId, Context $context): string
     {
         $deliveryId = Uuid::randomHex();
-        $stateId = $this->stateMachineRegistry->getInitialState(Defaults::ORDER_DELIVERY_STATE_MACHINE, $context)->getId();
+        $stateId = $this->stateMachineRegistry->getInitialState(OrderDeliveryStates::STATE_MACHINE, $context)->getId();
 
         $delivery = [
             'id' => $deliveryId,
             'orderId' => $orderId,
             'shippingDateEarliest' => (new \DateTime())->format(Defaults::DATE_FORMAT),
             'shippingDateLatest' => (new \DateTime())->format(Defaults::DATE_FORMAT),
-            'shippingMethodId' => Defaults::SHIPPING_METHOD,
-            'shippingOrderAddressId' => Defaults::SHIPPING_METHOD,
+            'shippingMethodId' => $this->getValidShippingMethodId(),
             'shippingCosts' => new CalculatedPrice(10, 10, new CalculatedTaxCollection(), new TaxRuleCollection()),
             'stateId' => $stateId,
             'shippingOrderAddress' => [
                 'orderId' => $orderId,
                 'countryId' => Defaults::COUNTRY,
-                'salutationId' => Defaults::SALUTATION_ID_MR,
+                'salutationId' => $this->getValidSalutationId(),
                 'firstName' => 'Max',
                 'lastName' => 'Mustermann',
                 'street' => 'Ebbinghoff 10',

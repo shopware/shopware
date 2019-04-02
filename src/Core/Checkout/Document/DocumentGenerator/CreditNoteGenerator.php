@@ -5,6 +5,7 @@ namespace Shopware\Core\Checkout\Document\DocumentGenerator;
 use Shopware\Core\Checkout\Document\DocumentConfiguration;
 use Shopware\Core\Checkout\Document\DocumentConfigurationFactory;
 use Shopware\Core\Checkout\Order\OrderEntity;
+use Shopware\Core\Content\Product\Cart\ProductCollector;
 use Shopware\Core\Framework\Context;
 use Symfony\Bundle\TwigBundle\TwigEngine;
 use Twig\Error\Error;
@@ -12,7 +13,6 @@ use Twig\Error\Error;
 class CreditNoteGenerator implements DocumentGeneratorInterface
 {
     public const DEFAULT_TEMPLATE = '@Shopware/documents/credit_note.html.twig';
-    public const CREDIT_LINE_ITEM_TYPE = 'credit';
 
     /**
      * @var string
@@ -60,7 +60,7 @@ class CreditNoteGenerator implements DocumentGeneratorInterface
         $creditItems = [];
         if ($lineItems) {
             foreach ($lineItems as $lineItem) {
-                if ($lineItem->getType() === self::CREDIT_LINE_ITEM_TYPE) {
+                if ($lineItem->getType() === ProductCollector::CREDIT_ITEM_TYPE) {
                     $creditItems[] = $lineItem;
                 }
             }

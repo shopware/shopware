@@ -11,6 +11,7 @@ use Symfony\Component\Validator\Constraints\Type;
 class QuantityPriceDefinition extends Struct implements PriceDefinitionInterface
 {
     public const TYPE = 'quantity';
+    public const SORTING_PRIORITY = 100;
 
     /**
      * @var float
@@ -118,6 +119,11 @@ class QuantityPriceDefinition extends Struct implements PriceDefinitionInterface
     public function getType(): string
     {
         return self::TYPE;
+    }
+
+    public function getPriority(): int
+    {
+        return self::SORTING_PRIORITY;
     }
 
     public static function getConstraints(): array

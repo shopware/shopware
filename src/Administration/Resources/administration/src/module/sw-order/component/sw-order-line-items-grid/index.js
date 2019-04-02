@@ -73,6 +73,12 @@ Component.register('sw-order-line-items-grid', {
                         item.quantity).then(() => {
                         this.$emit('sw-order-line-items-grid-item-edited');
                     });
+                } else if (item.type === 'credit') {
+                    this.orderService.addCreditItemToOrder(this.order.id,
+                        this.order.versionId,
+                        item).then(() => {
+                        this.$emit('sw-order-line-items-grid-item-edited');
+                    });
                 } else {
                     this.orderService.addCustomLineItemToOrder(this.order.id,
                         this.order.versionId,
@@ -112,9 +118,10 @@ Component.register('sw-order-line-items-grid', {
         onInsertCreditItem() {
             const item = this.lineItemsStore.create();
             item.versionId = this.order.versionId;
-            item.priceDefinition.taxRules.elements = [];
+            item.price.taxRules = [];
+            item.price.taxRules.elements = [];
+            item.price.taxRules.elements.push({ taxRate: 0, percentage: 100 });
             item.priceDefinition.isCalculated = false;
-            item.priceDefinition.taxRules.elements.push({ taxRate: 0, percentage: 100 });
             item.description = 'credit line item';
             item.quantity = 1;
             item.type = 'credit';

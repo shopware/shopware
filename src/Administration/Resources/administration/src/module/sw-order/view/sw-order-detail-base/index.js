@@ -200,6 +200,7 @@ Component.register('sw-order-detail-base', {
             });
         },
         sortByTaxRate(price) {
+            console.log();
             return price.sort((prev, current) => {
                 return prev.taxRate - current.taxRate;
             });

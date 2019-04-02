@@ -95,7 +95,12 @@ class LineItemCollection extends Collection
     {
         $this->sort(
             function (LineItem $a, LineItem $b) {
-                return $b->getPriority() <=> $a->getPriority();
+                $result = $b->getPriority() <=> $a->getPriority();
+                if ($result === 0 && $a->getPriceDefinition() !== null && $b->getPriceDefinition() !== null) {
+                    $result = $b->getPriceDefinition()->getPriority() <=> $a->getPriceDefinition()->getPriority();
+                }
+
+                return $result;
             }
         );
     }

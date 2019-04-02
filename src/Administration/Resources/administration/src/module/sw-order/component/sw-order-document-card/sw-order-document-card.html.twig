@@ -15,7 +15,7 @@
                     <template v-for="documentType in documentTypes">
                         {#<sw-context-menu-item class="sw-order-list__order-view-action" @click="createDocument(order.id, documentType.id)">#}
                         <sw-context-menu-item class="sw-order-list__order-view-action" @click="onPrepareDocument(documentType)">
-                            {{ documentType.meta.viewData.name }}
+                            {{ documentType.name }}
                         </sw-context-menu-item>
                     </template>
                 </sw-context-button>
@@ -46,9 +46,9 @@
 
             <sw-grid-column flex="minmax(100px, 1fr)"
                             :label="$tc('sw-order.documentCard.labelType')"
-                            dataIndex="item.documentType.meta.viewData.name"
+                            dataIndex="item.documentType.name"
                             truncate>
-                {{ item.documentType.meta.viewData.name }}
+                {{ item.documentType.name }}
             </sw-grid-column>
 
             <sw-grid-column flex="minmax(100px, 1fr)"

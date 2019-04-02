@@ -10,6 +10,7 @@ use Symfony\Component\Validator\Constraints\Type;
 class AbsolutePriceDefinition extends Struct implements PriceDefinitionInterface
 {
     public const TYPE = 'absolute';
+    public const SORTING_PRIORITY = 75;
 
     /**
      * @var float
@@ -53,6 +54,11 @@ class AbsolutePriceDefinition extends Struct implements PriceDefinitionInterface
     public function getType(): string
     {
         return self::TYPE;
+    }
+
+    public function getPriority(): int
+    {
+        return self::SORTING_PRIORITY;
     }
 
     public function jsonSerialize(): array

@@ -20,6 +20,7 @@ class ProductCollector implements CollectorInterface
 {
     public const DATA_KEY = 'products';
     public const LINE_ITEM_TYPE = 'product';
+    public const CREDIT_ITEM_TYPE = 'credit';
 
     /**
      * @var ProductGatewayInterface

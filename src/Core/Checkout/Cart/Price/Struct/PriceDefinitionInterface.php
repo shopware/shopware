@@ -11,5 +11,7 @@ interface PriceDefinitionInterface
 
     public function getType(): string;
 
+    public function getPriority(): int;
+
     public static function getConstraints(): array;
 }

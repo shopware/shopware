@@ -184,8 +184,9 @@ class RecalculationService
 
         $salesChannelContext = $this->orderConverter->assembleSalesChannelContext($order, $context);
         $cart = $this->orderConverter->convertToCart($order, $context);
+        $cart->add($lineItem);
 
-        $recalculatedCart = $this->cartService->add($cart, $lineItem, $salesChannelContext);
+        $recalculatedCart = $this->cartService->refresh($cart, $salesChannelContext);
 
         $conversionContext = (new OrderConversionContext())
             ->setIncludeCustomer(false)

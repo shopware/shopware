@@ -21,7 +21,7 @@ use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Checkout\Cart\Processor;
-use Shopware\Core\Checkout\Cart\Rule\CartAmountRule;
+use Shopware\Core\Checkout\Cart\Rule\LineItemTotalPriceRule;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTax;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRule;
@@ -34,13 +34,14 @@ use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodPrice\ShippingMethod
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\Checkout\Test\Cart\Common\TrueRule;
 use Shopware\Core\Checkout\Test\Payment\Handler\SyncTestPaymentHandler;
+use Shopware\Core\Content\Product\Cart\ProductCollector;
 use Shopware\Core\Content\DeliveryTime\DeliveryTimeEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Rule\Collector\RuleConditionRegistry;
-use Shopware\Core\Framework\Rule\Container\AndRule;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -196,11 +197,21 @@ class RecalculationServiceTest extends TestCase
 
         $content = json_decode($response->getContent(), true)['data'];
 
-        static::assertEquals(62, $content['price']['netPrice']);
-        static::assertEquals(72.16, $content['price']['totalPrice']);
-        static::assertEquals(72.16, $content['price']['positionPrice']);
+        static::assertEquals(61.52, $content['price']['netPrice']);
+        static::assertEquals(71.95, $content['price']['totalPrice']);
+        static::assertEquals(71.95, $content['price']['positionPrice']);
         static::assertEquals(CartPrice::TAX_STATE_GROSS, $content['price']['taxStatus']);
         static::assertCount(3, $content['lineItems']);
+
+        $absoluteLineItem = $content['lineItems'][2];
+        static::assertEquals(
+            $absoluteLineItem['label'],
+            'Second custom line item with absolute price definition',
+            'lineItem[2] is not the absolute line item'
+        );
+        static::assertCount(1, $absoluteLineItem['price']['calculatedTaxes']);
+        static::assertEquals(19, $absoluteLineItem['price']['calculatedTaxes'][0]['taxRate']);
+        static::assertEquals(0.48, $absoluteLineItem['price']['calculatedTaxes'][0]['tax']);
 
         // increase quantity of line item from 5 to 10
         $client->request(
@@ -224,9 +235,9 @@ class RecalculationServiceTest extends TestCase
 
         $content = json_decode($response->getContent(), true)['data'];
 
-        static::assertEquals(112, $content['price']['netPrice']);
-        static::assertEquals(131.66, $content['price']['totalPrice']);
-        static::assertEquals(131.66, $content['price']['positionPrice']);
+        static::assertEquals(111.52, $content['price']['netPrice']);
+        static::assertEquals(131.45, $content['price']['totalPrice']);
+        static::assertEquals(131.45, $content['price']['positionPrice']);
         static::assertCount(3, $content['lineItems']);
     }
 
@@ -296,6 +307,18 @@ class RecalculationServiceTest extends TestCase
         $productPrice = 10.0;
         $productTaxRate = 19.0;
         $this->addProductToVersionedOrder($productName, $productPrice, $productTaxRate, $orderId, $versionId);
+    }
+
+    public function testAddCreditItemToOrder(): void
+    {
+        // create order
+        $cart = $this->generateDemoCart();
+        $orderId = $this->persistCart($cart);
+
+        // create version of order
+        $versionId = $this->createVersionedOrder($orderId);
+
+        $this->addCreditItemToVersionedOrder($orderId, $versionId);
     }
 
     public function testAddCustomLineItemToOrder(): void
@@ -382,7 +405,7 @@ class RecalculationServiceTest extends TestCase
         static::assertSame(1, $shippingCosts->getQuantity());
         static::assertSame(10.0, $shippingCosts->getUnitPrice());
         static::assertSame(10.0, $shippingCosts->getTotalPrice());
-        static::assertSame(3, $shippingCosts->getCalculatedTaxes()->count());
+        static::assertSame(2, $shippingCosts->getCalculatedTaxes()->count());
 
         // change shipping costs
         $newShippingCosts = new CalculatedPrice(5, 5, new CalculatedTaxCollection(), new TaxRuleCollection());
@@ -406,12 +429,11 @@ class RecalculationServiceTest extends TestCase
         static::assertSame(1, $newShippingCosts->getQuantity());
         static::assertSame(5.0, $newShippingCosts->getUnitPrice());
         static::assertSame(5.0, $newShippingCosts->getTotalPrice());
-        static::assertSame(3, $newShippingCosts->getCalculatedTaxes()->count());
+        static::assertSame(2, $newShippingCosts->getCalculatedTaxes()->count());
         static::assertEquals($shippingCosts->getTaxRules(), $newShippingCosts->getTaxRules());
         static::assertEquals(
             5,
             $newShippingCosts->getCalculatedTaxes()->get('5')->getPrice()
-            + $newShippingCosts->getCalculatedTaxes()->get('7')->getPrice()
             + $newShippingCosts->getCalculatedTaxes()->get('19')->getPrice()
         );
     }
@@ -819,7 +841,7 @@ class RecalculationServiceTest extends TestCase
         );
         $cart->add(
             (new LineItem('2', 'custom_absolute', 1))
-                ->setPriceDefinition(new AbsolutePriceDefinition(3.0, 2, new AndRule([new CartAmountRule(Rule::OPERATOR_GTE, 20.0)])))
+                ->setPriceDefinition(new AbsolutePriceDefinition(3.0, 2, new LineItemTotalPriceRule(Rule::OPERATOR_GT, 9.99)))
                 ->setLabel('Second custom line item with absolute price definition')
                 ->setDeliveryInformation($deliveryInformation)
         );
@@ -1000,6 +1022,82 @@ class RecalculationServiceTest extends TestCase
         static::assertSame($calculatedTaxes->getPrice(), 333.1);
         static::assertSame($calculatedTaxes->getTaxRate(), 19.0);
         static::assertSame($calculatedTaxes->getTax(), 53.18);
+    }
+
+    private function addCreditItemToVersionedOrder(string $orderId, string $versionId): void
+    {
+        //get old total
+        $criteria = new Criteria([$orderId]);
+        $criteria->addAssociation('order.lineItems');
+        /** @var EntityRepository $orderRepository */
+        $orderRepository = $this->getContainer()->get('order.repository');
+        $result = $orderRepository->search($criteria, $this->context->createWithVersionId($versionId));
+        static::assertEquals(1, $result->getTotal());
+        /** @var OrderEntity $oldOrder */
+        $oldOrder = $result->get($orderId);
+        $oldTotal = $oldOrder->getAmountTotal();
+
+        $identifier = Uuid::randomHex();
+        $creditAmount = -10;
+        $data = [
+            'identifier' => $identifier,
+            'type' => ProductCollector::CREDIT_ITEM_TYPE,
+            'quantity' => 1,
+            'label' => 'awesome credit',
+            'description' => 'schubbidu',
+            'priceDefinition' => [
+                'price' => $creditAmount,
+                'quantity' => 1,
+                'isCalculated' => false,
+                'precision' => 2,
+            ],
+        ];
+
+        // add credit item to order
+        $this->getClient()->request(
+            'POST',
+            sprintf(
+                '/api/v%s/_action/order/%s/creditItem',
+                PlatformRequest::API_VERSION,
+                $orderId
+            ),
+            [],
+            [],
+            [
+                'HTTP_' . PlatformRequest::HEADER_VERSION_ID => $versionId,
+            ],
+            json_encode($data)
+        );
+        $response = $this->getClient()->getResponse();
+
+        static::assertEquals(Response::HTTP_NO_CONTENT, $response->getStatusCode(), $response->getContent());
+
+        // read versioned order
+        /** @var OrderEntity|null $order */
+        $order = $orderRepository->search($criteria, $this->context->createWithVersionId($versionId))->get($orderId);
+        static::assertNotEmpty($order);
+        static::assertEquals($oldTotal + $creditAmount, $order->getAmountTotal());
+
+        $creditItem = null;
+        foreach ($order->getLineItems() as $lineItem) {
+            if ($lineItem->getIdentifier() === $identifier) {
+                $creditItem = $lineItem;
+            }
+        }
+
+        static::assertEquals($creditAmount, $creditItem->getPrice()->getTotalPrice());
+        $taxRules = $creditItem->getPrice()->getCalculatedTaxes();
+        static::assertCount(2, $taxRules);
+        static::assertArrayHasKey(19, $taxRules->getElements());
+        static::assertArrayHasKey(5, $taxRules->getElements());
+        /** @var CalculatedTax $tax19 */
+        $tax19 = $taxRules->getElements()[19];
+        static::assertEquals(19, $tax19->getTaxRate());
+        /** @var CalculatedTax $tax5 */
+        $tax5 = $taxRules->getElements()[5];
+        static::assertEquals(5, $tax5->getTaxRate());
+
+        static::assertEquals($creditAmount, $tax19->getPrice() + $tax5->getPrice());
     }
 
     private function createDeliveryTime(): array

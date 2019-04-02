@@ -21,9 +21,12 @@ class LineItemOfTypeRule extends Rule
      */
     protected $operator;
 
-    public function __construct()
+    public function __construct(string $operator = self::OPERATOR_EQ, ?string $lineItemType = null)
     {
-        $this->operator = self::OPERATOR_EQ;
+        parent::__construct();
+
+        $this->operator = $operator;
+        $this->lineItemType = $lineItemType;
     }
 
     public function match(RuleScope $scope): bool

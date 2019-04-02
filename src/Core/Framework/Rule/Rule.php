@@ -19,6 +19,16 @@ abstract class Rule extends Struct
     public const OPERATOR_NEQ = '!=';
 
     /**
+     * @var string
+     */
+    protected $type;
+
+    public function __construct()
+    {
+        $this->type = $this->getName();
+    }
+
+    /**
      * Returns the api name for this rule. The name has to be unique in the system.
      */
     abstract public function getName(): string;

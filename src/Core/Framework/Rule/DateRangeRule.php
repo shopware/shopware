@@ -25,6 +25,7 @@ class DateRangeRule extends Rule
 
     public function __construct()
     {
+        parent::__construct();
         $this->useTime = false;
     }
 

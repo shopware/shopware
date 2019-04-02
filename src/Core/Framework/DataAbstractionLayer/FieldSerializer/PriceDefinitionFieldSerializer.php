@@ -7,7 +7,7 @@ use Shopware\Core\Checkout\Cart\Price\Struct\PercentagePriceDefinition;
 use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRule;
 use Shopware\Core\Content\Rule\DataAbstractionLayer\Indexing\ConditionTypeNotFound;
-use Shopware\Core\Framework\Api\Response\Type\Api\JsonType;
+use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidPriceFieldTypeException;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\PriceDefinitionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
@@ -52,11 +52,9 @@ class PriceDefinitionFieldSerializer extends JsonFieldSerializer
     ): \Generator {
         $value = json_decode(json_encode($data->getValue(), JSON_PRESERVE_ZERO_FRACTION), true);
 
-        $value = JsonType::format($value);
-
         if ($value !== null) {
             if (!array_key_exists('type', $value)) {
-                throw new \RuntimeException('todo');
+                throw new InvalidPriceFieldTypeException('none');
             }
 
             switch ($value['type']) {
@@ -81,7 +79,7 @@ class PriceDefinitionFieldSerializer extends JsonFieldSerializer
                         $parameters->getPath()
                     );
 
-                    if (!array_key_exists('filter', $value)) {
+                    if (!array_key_exists('filter', $value) || $value['filter'] === null) {
                         break;
                     }
                     $violations = $this->validateRules($value['filter'], $parameters->getPath() . '/filter');
@@ -105,7 +103,7 @@ class PriceDefinitionFieldSerializer extends JsonFieldSerializer
                     }
                     break;
                 default:
-                    throw new \RuntimeException('todo');
+                    throw new InvalidPriceFieldTypeException($value['type']);
             }
 
             unset($value['extensions']);
@@ -125,7 +123,7 @@ class PriceDefinitionFieldSerializer extends JsonFieldSerializer
         $value = parent::decode($field, $value);
 
         if (!array_key_exists('type', $value)) {
-            throw new \RuntimeException('todo');
+            throw new InvalidPriceFieldTypeException('none');
         }
 
         switch ($value['type']) {
@@ -133,7 +131,7 @@ class PriceDefinitionFieldSerializer extends JsonFieldSerializer
                 return QuantityPriceDefinition::fromArray($value);
                 break;
             case AbsolutePriceDefinition::TYPE:
-                $rules = array_key_exists('filter', $value) ? $this->decodeRule($value['filter']) : null;
+                $rules = (array_key_exists('filter', $value) && $value['filter'] !== null) ? $this->decodeRule($value['filter']) : null;
 
                 return new AbsolutePriceDefinition($value['price'], $value['precision'], $rules);
                 break;
@@ -142,8 +140,7 @@ class PriceDefinitionFieldSerializer extends JsonFieldSerializer
 
                 return new PercentagePriceDefinition($value['percentage'], $value['precision'], $rules);
                 break;
-            default
-                :throw new \RuntimeException('todo');
+            default:throw new InvalidPriceFieldTypeException($value['type']);
         }
     }
 

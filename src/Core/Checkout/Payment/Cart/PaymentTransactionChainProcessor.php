@@ -61,6 +61,12 @@ class PaymentTransactionChainProcessor
     {
         $criteria = new Criteria([$orderId]);
         $criteria->addAssociation('order.transactions');
+        $criteria->addAssociation('order.lineItems');
+
+        //TODO will be refactored with NEXT-2659
+        $customerCriteria = new Criteria();
+        $customerCriteria->addAssociation('order_customer.customer');
+        $criteria->addAssociation('order.orderCustomer', $customerCriteria);
 
         /** @var OrderEntity|null $order */
         $order = $this->orderRepository->search($criteria, $context)->first();
@@ -84,7 +90,7 @@ class PaymentTransactionChainProcessor
 
             try {
                 $paymentHandler = $this->paymentHandlerRegistry->getSync($paymentMethod->getHandlerIdentifier());
-                $paymentTransaction = new SyncPaymentTransactionStruct($transaction);
+                $paymentTransaction = new SyncPaymentTransactionStruct($transaction, $order);
                 $paymentHandler->pay($paymentTransaction, $context);
 
                 return null;
@@ -94,7 +100,7 @@ class PaymentTransactionChainProcessor
 
             $token = $this->tokenFactory->generateToken($transaction, $context, $finishUrl);
             $returnUrl = $this->assembleReturnUrl($token);
-            $paymentTransaction = new AsyncPaymentTransactionStruct($transaction, $returnUrl);
+            $paymentTransaction = new AsyncPaymentTransactionStruct($transaction, $order, $returnUrl);
 
             $paymentHandler = $this->paymentHandlerRegistry->getAsync($paymentMethod->getHandlerIdentifier());
 

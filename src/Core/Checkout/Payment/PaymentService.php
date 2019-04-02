@@ -168,7 +168,7 @@ class PaymentService
             throw new InvalidTransactionException($orderTransactionId);
         }
 
-        return new AsyncPaymentTransactionStruct($orderTransaction, '');
+        return new AsyncPaymentTransactionStruct($orderTransaction, $orderTransaction->getOrder(), '');
     }
 
     private function cancelOrderTransaction(string $transactionId, Context $context): void

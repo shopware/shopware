@@ -5,6 +5,7 @@ namespace Shopware\Core\Checkout\Test\Payment\Handler;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStates;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\SynchronousPaymentHandlerInterface;
 use Shopware\Core\Checkout\Payment\Cart\SyncPaymentTransactionStruct;
+use Shopware\Core\Checkout\Payment\Exception\SyncPaymentProcessException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\System\StateMachine\StateMachineRegistry;
@@ -31,6 +32,19 @@ class SyncTestPaymentHandler implements SynchronousPaymentHandlerInterface
 
     public function pay(SyncPaymentTransactionStruct $transaction, Context $context): void
     {
+        $transactionId = $transaction->getOrderTransaction()->getId();
+        $order = $transaction->getOrder();
+
+        $lineItems = $order->getLineItems();
+        if ($lineItems === null) {
+            throw new SyncPaymentProcessException($transactionId, 'lineItems is null');
+        }
+
+        $customer = $order->getOrderCustomer()->getCustomer();
+        if ($customer === null) {
+            throw new SyncPaymentProcessException($transactionId, 'customer is null');
+        }
+
         $completeStateId = $this->stateMachineRegistry->getStateByTechnicalName(
             OrderTransactionStates::STATE_MACHINE,
             OrderTransactionStates::STATE_PAID,
@@ -38,7 +52,7 @@ class SyncTestPaymentHandler implements SynchronousPaymentHandlerInterface
         )->getId();
 
         $transactionUpdate = [
-            'id' => $transaction->getOrderTransaction()->getId(),
+            'id' => $transactionId,
             'stateId' => $completeStateId,
         ];
 

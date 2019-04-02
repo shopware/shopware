@@ -4,8 +4,9 @@
 
             {% block sw_settings_number_range_list_search_bar %}
                 <template slot="search-bar">
-                    <sw-search-bar :placeholder="$tc('sw-settings-number-range.general.placeholderSearchBar')"
-                                   :searchType="$tc('sw-settings-number-range.general.mainMenuItemGeneral')"
+                    <sw-search-bar initialSearchType="number_range"
+                                   :placeholder="$tc('sw-settings-number-range.general.placeholderSearchBar')"
+                                   :initialSearch="term"
                                    @search="onSearch">
                     </sw-search-bar>
                 </template>

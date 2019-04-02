@@ -3,8 +3,9 @@
 
         {% block sw_settings_customer_group_list_search_bar %}
             <template slot="search-bar">
-                <sw-search-bar :placeholder="$tc('sw-settings-customer-group.general.placeholderSearchBar')"
-                               :searchType="$tc('sw-settings-customer-group.general.mainMenuItemGeneral')"
+                <sw-search-bar initialSearchType="customer_group"
+                               :placeholder="$tc('sw-settings-customer-group.general.placeholderSearchBar')"
+                               :initialSearch="term"
                                @search="onSearch">
                 </sw-search-bar>
             </template>

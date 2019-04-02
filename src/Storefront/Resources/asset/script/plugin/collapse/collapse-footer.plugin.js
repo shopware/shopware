@@ -1,8 +1,8 @@
+import Plugin from '../../helper/plugin/plugin.class'
 import $ from 'jquery';
 import DomAccess from "../../helper/dom-access.helper";
 import DeviceDetection from "../../helper/device-detection.helper";
 import ViewportDetection from "../../helper/viewport-detection.helper";
-import Plugin from "../../helper/plugin.helper";
 
 const COLLAPSE_SHOW_CLASS = "show";
 
@@ -10,14 +10,9 @@ const COLLAPSE_COLUMN_SELECTOR = '.js-footer-column';
 const COLLAPSE_COLUMN_HEADLINE_SELECTOR = '.js-footer-column-headline';
 const COLLAPSE_COLUMN_CONTENT_SELECTOR = '.js-footer-column-content';
 
-export default class CollapseFooterColumns extends Plugin {
+export default class CollapseFooterColumnsPlugin extends Plugin {
 
-    /**
-     * Constructor.
-     */
-    constructor() {
-        super();
-
+    init() {
         this._footer = DomAccess.querySelector(document, '#footerColumns');
         this._columns = this._footer.querySelectorAll(COLLAPSE_COLUMN_SELECTOR);
         this._registerEvents();

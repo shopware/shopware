@@ -1,6 +1,6 @@
 import DomAccess from "../../helper/dom-access.helper";
 import HttpClient from "../../service/http-client.service";
-import ButtonLoadingIndicator from "../loading-indicator/button-loading-indicator.plugin";
+import ButtonLoadingIndicator from "../../util/loading-indicator/button-loading-indicator.util";
 
 const LOGOUT_TRIGGER_SELECTOR = '[data-logout]';
 

@@ -52,12 +52,25 @@
 							<div class="card register-card">
 								<div class="card-body">
 									{% block page_account_register_form %}
-										<form id="registerForm"
-										      action="{{ path('storefront-api.customer.create', {'version': 1}) }}"
+										<form action="{{ path('frontend.account.register.save') }}"
 										      class="register-form"
 										      method="post">
 											{% block page_account_register_personal %}
 												<div class="register-personal">
+
+													{% block page_account_register_personal_errors %}
+														{# TODO make beautiful errors NEXT-2492#}
+                                                        {% if formViolations.getViolations() %}
+															<div class="alert alert-danger">
+																<ul>
+																	{% for error in formViolations.getViolations() %}
+																		<li>{{ error.message }}</li>
+																	{% endfor %}
+																</ul>
+															</div>
+														{% endif %}
+													{% endblock %}
+
 													{% block page_account_register_personal_header %}
 														<h2 class="card-title">
 															{{ "account.registerPersonalHeader"|trans }}
@@ -79,7 +92,7 @@
 													{% endblock %}
 
 													{% block page_account_register_address_fields %}
-														{% sw_include '@Storefront/component/address/address-form.html.twig' with {'prefix': 'billingAddress.'} %}
+														{% sw_include '@Storefront/component/address/address-form.html.twig' with {'prefix': 'billingAddress'} %}
 
 														{#TODO: NEXT-2077 - differentShippingAddress#}
 													{% endblock %}

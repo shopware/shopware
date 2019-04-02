@@ -1,6 +1,6 @@
 const SELECTOR_CLASS = "spinner-border";
 
-export default class LoadingIndicator {
+export default class LoadingIndicatorUtil {
 
     /**
      * Constructor
@@ -17,7 +17,7 @@ export default class LoadingIndicator {
      */
     create() {
         if (this.exists()) return;
-        this.parent.insertAdjacentHTML(this._getPosition(), LoadingIndicator.getTemplate());
+        this.parent.insertAdjacentHTML(this._getPosition(), LoadingIndicatorUtil.getTemplate());
     }
 
     /**

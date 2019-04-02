@@ -1,6 +1,6 @@
 import OffCanvas from "./offcanvas.plugin";
 import HttpClient from "../../service/http-client.service";
-import LoadingIndicator from "../loading-indicator/loading-indicator.plugin";
+import LoadingIndicator from "../../util/loading-indicator/loading-indicator.util";
 
 export default class AjaxOffCanvas extends OffCanvas {
 

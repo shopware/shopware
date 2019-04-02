@@ -21,14 +21,6 @@
 					{{ page.context.shippingMethod.name }}
 				</p>
 			{% endblock %}
-
-			{% block page_checkout_confirm_payment_method_change %}
-				<a href="{{ path('frontend.checkout.config.page') }}"
-				   title="{{ "checkout.confirmPaymentMethodChange"|trans }}"
-				   class="btn btn-light btn-sm">
-					{{ "checkout.confirmPaymentMethodChange"|trans }}
-				</a>
-			{% endblock %}
 		</div>
 	</div>
 {% endblock %}

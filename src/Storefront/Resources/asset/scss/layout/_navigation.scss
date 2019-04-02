@@ -15,3 +15,13 @@ https://getbootstrap.com/docs/4.3/components/navbar/
         background: $light;
     }
 }
+
+.navigation-menu {
+    display: none;
+}
+
+@include media-breakpoint-up(lg) {
+    .navigation-menu {
+        display: inherit;
+    }
+}

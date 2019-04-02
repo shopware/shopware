@@ -1,0 +1,26 @@
+{% block base_header_actions_service_menu_widget %}
+	{#TODO: NEXT-1983 - add dynamic foreach loop#}
+	<div class="top-bar-nav-item top-bar-menu">
+		{% block base_header_actions_service_menu_list %}
+			<div class="service-menu dropdown">
+				<button class="btn dropdown-toggle service-menu-btn"
+						type="button"
+						id="serviceMenuDropdown"
+						data-toggle="dropdown"
+						aria-haspopup="true"
+						aria-expanded="false">
+					<i class="icon-service fas fa-question-circle"></i>
+					{{ "header.indexLinkService"|trans }}
+					<i class="select-arrow-down fas fa-chevron-down"></i>
+				</button>
+				{% block base_header_actions_service_menu_items %}
+					<div class="service-menu-items dropdown-menu dropdown-menu-right" aria-labelledby="serviceMenuDropdown">
+						<a class="service-menu-item dropdown-item" href="#" title="Action">Action</a>
+						<a class="service-menu-item dropdown-item" href="#" title="Action">Another action</a>
+						<a class="service-menu-item dropdown-item" href="#" title="Action">Something else</a>
+					</div>
+				{% endblock %}
+			</div>
+		{% endblock %}
+	</div>
+{% endblock %}

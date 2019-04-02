@@ -1,14 +1,11 @@
-import pluginManager from '../../helper/plugin.manager';
-import OffCanvasTabs from './../../plugin/off-canvas-tabs/offcanvas-tabs.plugin';
+import PluginManager from '../../helper/plugin/plugin.manager';
+import OffCanvasTabsPlugin from './../../plugin/off-canvas-tabs/offcanvas-tabs.plugin';
 import GallerySlider from './gallery-slider.page';
 
 /**
  * REGISTER PLUGINS
  */
-pluginManager.register('offCanvasTabsPlugin', {
-    plugin: OffCanvasTabs,
-    selector: document
-});
+PluginManager.register('offCanvasTabsPlugin', OffCanvasTabsPlugin, document);
 
 // Product Detail - Gallery Slider
 new GallerySlider();

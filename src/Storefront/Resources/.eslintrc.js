@@ -2,6 +2,7 @@ const isDevMode = process.env.NODE_ENV !== 'production';
 
 module.exports = {
     "extends": "eslint:recommended",
+    "parser": "babel-eslint",
     "env": {
         "browser": true,
         "jquery": true,

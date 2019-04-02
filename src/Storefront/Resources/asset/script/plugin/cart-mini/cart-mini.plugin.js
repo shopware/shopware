@@ -1,9 +1,9 @@
+import Plugin from '../../../helper/plugin/plugin.class'
 import DomAccess from "../../helper/dom-access.helper";
 import HttpClient from "../../service/http-client.service";
 import OffCanvas from "../off-canvas/offcanvas.plugin";
-import LoadingIndicator from "../loading-indicator/loading-indicator.plugin";
+import LoadingIndicator from "../../util/loading-indicator/loading-indicator.util";
 import DeviceDetection from "../../helper/device-detection.helper";
-import Plugin from "../../helper/plugin.helper";
 import CartWidget from "../actions/cart-widget.plugin";
 
 const CART_MINI_OPEN_TRIGGER_DATA_ATTRIBUTE = 'data-cart-mini';
@@ -11,14 +11,9 @@ const CART_MINI_REMOVE_PRODUCT_TRIGGER_SELECTOR = '*[data-remove-product=true]';
 const CART_MINI_FORM_SELECTOR = 'form[data-add-to-cart=true]';
 const CART_MINI_POSITION = 'right';
 
-export default class CartMini extends Plugin {
+export default class CartMiniPlugin extends Plugin {
 
-    /**
-     * Constructor.
-     */
-    constructor() {
-        super();
-
+    init() {
         this.client = new HttpClient(window.accessKey, window.contextToken);
         this._registerOpenTriggerEvents();
         this._registerFormEvents();

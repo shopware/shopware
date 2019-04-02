@@ -1,5 +1,5 @@
 import DomAccess from "../../../helper/dom-access.helper";
-import ButtonLoadingIndicator from "../../../plugin/loading-indicator/button-loading-indicator.plugin";
+import ButtonLoadingIndicator from "../../../util/loading-indicator/button-loading-indicator.util";
 import HttpClient from "../../../service/http-client.service";
 
 const CONFIRM_ORDER_FORM_ID = 'confirmOrderForm';

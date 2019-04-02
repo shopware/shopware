@@ -123,7 +123,7 @@ class BackdropSingleton {
 const instance = new BackdropSingleton();
 Object.freeze(instance);
 
-export default class Backdrop {
+export default class BackdropUtil {
 
     /**
      * Open the Backdrop

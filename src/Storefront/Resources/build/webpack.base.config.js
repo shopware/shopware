@@ -1,7 +1,7 @@
 const webpack = require('webpack');
 const WebpackBar = require('webpackbar');
 const StyleLintPlugin = require('stylelint-webpack-plugin');
-const {resolve} = require('path');
+const { resolve } = require('path');
 const buildDirectory = resolve(process.env.PROJECT_ROOT, 'public');
 const CopyPlugin = require('copy-webpack-plugin');
 
@@ -51,7 +51,8 @@ const modules = {
                 {
                     loader: 'babel-loader',
                     options: {
-                        presets: ['@babel/preset-env']
+                        presets: ['@babel/preset-env'],
+                        plugins: ['@babel/plugin-proposal-class-properties'],
                     }
                 },
                 {

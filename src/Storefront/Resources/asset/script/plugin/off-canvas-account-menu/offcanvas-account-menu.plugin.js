@@ -10,10 +10,7 @@ const OFFCANVAS_ACCOUNT_MENU_DATA_POSITION = 'left';
 
 export default class OffCanvasAccountMenu {
 
-    /**
-     * Constructor.
-     */
-    constructor() {
+    init() {
         this._registerEventListeners();
     }
 

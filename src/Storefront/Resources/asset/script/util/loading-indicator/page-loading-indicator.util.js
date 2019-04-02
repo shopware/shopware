@@ -1,7 +1,7 @@
-import LoadingIndicator from "./loading-indicator.plugin";
-import Backdrop from "../backdrop/backdrop.plugin";
+import LoadingIndicatorUtil from "./loading-indicator.util";
+import Backdrop from "../backdrop/backdrop.util";
 
-class PageLoadingIndicatorSingleton extends LoadingIndicator {
+class PageLoadingIndicatorUtilSingleton extends LoadingIndicatorUtil {
 
     /**
      * Constructor
@@ -19,7 +19,7 @@ class PageLoadingIndicatorSingleton extends LoadingIndicator {
 
         Backdrop.open();
         let backdrop = document.querySelector(`.${Backdrop.SELECTOR_CLASS()}`);
-        backdrop.insertAdjacentHTML('beforeend', LoadingIndicator.getTemplate());
+        backdrop.insertAdjacentHTML('beforeend', LoadingIndicatorUtil.getTemplate());
     }
 
     /**
@@ -33,13 +33,13 @@ class PageLoadingIndicatorSingleton extends LoadingIndicator {
 }
 
 /**
- * Make the PageLoadingIndicator being a Singleton
- * @type {PageLoadingIndicatorSingleton}
+ * Make the PageLoadingIndicatorUtil being a Singleton
+ * @type {PageLoadingIndicatorUtilSingleton}
  */
-const instance = new PageLoadingIndicatorSingleton();
+const instance = new PageLoadingIndicatorUtilSingleton();
 Object.freeze(instance);
 
-export default class PageLoadingIndicator {
+export default class PageLoadingIndicatorUtil {
 
     /**
      * Open the PageLoadingIndicator

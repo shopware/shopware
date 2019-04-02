@@ -23,7 +23,7 @@ use Shopware\Core\System\Country\CountryCollection;
 use Shopware\Core\System\Country\CountryEntity;
 use Shopware\Core\System\Currency\CurrencyCollection;
 use Shopware\Core\System\Currency\CurrencyEntity;
-use Shopware\Core\System\NumberRange\NumberRangeCollection;
+use Shopware\Core\System\NumberRange\Aggregate\NumberRangeSalesChannel\NumberRangeSalesChannelCollection;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainCollection;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelTranslation\SalesChannelTranslationCollection;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelType\SalesChannelTypeEntity;
@@ -214,9 +214,9 @@ class SalesChannelEntity extends Entity
     protected $mailHeaderFooterId;
 
     /**
-     * @var NumberRangeCollection|null
+     * @var NumberRangeSalesChannelCollection|null
      */
-    protected $numberRanges;
+    protected $numberRangeSalesChannels;
 
     /**
      * @var MailHeaderFooterEntity|null
@@ -613,16 +613,6 @@ class SalesChannelEntity extends Entity
         $this->mailTemplates = $mailTemplates;
     }
 
-    public function getNumberRanges(): ?NumberRangeCollection
-    {
-        return $this->numberRanges;
-    }
-
-    public function setNumberRanges(?NumberRangeCollection $numberRanges): void
-    {
-        $this->numberRanges = $numberRanges;
-    }
-
     public function getCustomerGroupId(): string
     {
         return $this->customerGroupId;
@@ -661,5 +651,15 @@ class SalesChannelEntity extends Entity
     public function setPromotionSalesChannels(PromotionSalesChannelCollection $promotionSalesChannels): void
     {
         $this->promotionSalesChannels = $promotionSalesChannels;
+    }
+
+    public function getNumberRangeSalesChannels(): ?NumberRangeSalesChannelCollection
+    {
+        return $this->numberRangeSalesChannels;
+    }
+
+    public function setNumberRangeSalesChannels(?NumberRangeSalesChannelCollection $numberRangeSalesChannels): void
+    {
+        $this->numberRangeSalesChannels = $numberRangeSalesChannels;
     }
 }

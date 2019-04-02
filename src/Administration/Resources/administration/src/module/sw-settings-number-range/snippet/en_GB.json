@@ -25,6 +25,8 @@
       "assignmentCard": "Assignment",
       "titleSaveSuccess": "Success",
       "messageSaveSuccess": "Number range \"{name}\" has been saved successfully.",
+      "titleSaveError": "Error",
+      "messageSaveError": "Number range \"{name}\" has not been saved successfully.",
       "labelName": "Name",
       "labelDescription": "Description",
       "labelPrefix": "Prefix",
@@ -46,7 +48,11 @@
       "placeholderSimpleModeImpossible": "Advanced mode active",
       "buttonCancel": "Cancel",
       "buttonSave": "Save",
-      "helpTextAdvancedField": "Advanced pattern definition: <br/>&#x007B;prefix&#x007D;_&#x007B;n&#x007D;_&#x007B;suffix&#x007B;<br/>'n' is the defined start number<br/>('_' is an arbitrarily chosen separator)<br/><br/>Use e.g. the PHP parameter 'date': <br/>&#x007B;date&#x007D;:<br/>international date format (YYYY-MM-DD)<br/>&#x007B;date_dmy&#x007D;:<br/>user defined date format (DD-MM-YY)<br/><br/>"
+      "helpTextAdvancedField": "Advanced pattern definition: <br/>&#x007B;prefix&#x007D;_&#x007B;n&#x007D;_&#x007B;suffix&#x007B;<br/>'n' is the defined start number<br/>('_' is an arbitrarily chosen separator)<br/><br/>Use e.g. the PHP parameter 'date': <br/>&#x007B;date&#x007D;:<br/>international date format (YYYY-MM-DD)<br/>&#x007B;date_dmy&#x007D;:<br/>user defined date format (DD-MM-YY)<br/><br/>",
+      "errorSalesChannelNeededTitle": "No sales channel selected!",
+      "errorSalesChannelNeededMessage": "Please select at least one sales channel.",
+      "errorPatternNeededTitle": "No pattern defined!",
+      "errorPatternNeededMessage": "Please define at least a start value."
     }
   }
 }

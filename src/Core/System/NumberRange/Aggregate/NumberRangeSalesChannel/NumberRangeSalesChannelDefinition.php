@@ -2,16 +2,18 @@
 
 namespace Shopware\Core\System\NumberRange\Aggregate\NumberRangeSalesChannel;
 
+use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
-use Shopware\Core\Framework\DataAbstractionLayer\MappingEntityDefinition;
+use Shopware\Core\System\NumberRange\Aggregate\NumberRangeType\NumberRangeTypeDefinition;
 use Shopware\Core\System\NumberRange\NumberRangeDefinition;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 
-class NumberRangeSalesChannelDefinition extends MappingEntityDefinition
+class NumberRangeSalesChannelDefinition extends EntityDefinition
 {
     public static function getEntityName(): string
     {
@@ -21,10 +23,13 @@ class NumberRangeSalesChannelDefinition extends MappingEntityDefinition
     protected static function defineFields(): FieldCollection
     {
         return new FieldCollection([
-            (new FkField('number_range_id', 'numberRangeId', NumberRangeDefinition::class))->addFlags(new PrimaryKey(), new Required()),
-            (new FkField('sales_channel_id', 'salesChannelId', SalesChannelDefinition::class))->addFlags(new PrimaryKey(), new Required()),
-            new ManyToOneAssociationField('numberRange', 'number_range_id', NumberRangeDefinition::class, 'id', false),
-            new ManyToOneAssociationField('salesChannel', 'sales_channel_id', SalesChannelDefinition::class, 'id', false),
+            (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
+            (new FkField('number_range_id', 'numberRangeId', NumberRangeDefinition::class))->addFlags(new Required()),
+            (new FkField('sales_channel_id', 'salesChannelId', SalesChannelDefinition::class))->addFlags(new Required()),
+            new FkField('number_range_type_id', 'numberRangeTypeId', NumberRangeTypeDefinition::class),
+            new ManyToOneAssociationField('numberRange', 'number_range_id', NumberRangeDefinition::class),
+            new ManyToOneAssociationField('salesChannel', 'sales_channel_id', SalesChannelDefinition::class),
+            new ManyToOneAssociationField('numberRangeType', 'number_range_type_id', NumberRangeTypeDefinition::class),
         ]);
     }
 }

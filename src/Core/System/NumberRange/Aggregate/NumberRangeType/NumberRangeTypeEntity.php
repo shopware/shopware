@@ -4,6 +4,8 @@ namespace Shopware\Core\System\NumberRange\Aggregate\NumberRangeType;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
+use Shopware\Core\System\NumberRange\Aggregate\NumberRangeSalesChannel\NumberRangeSalesChannelEntity;
+use Shopware\Core\System\NumberRange\Aggregate\NumberRangeTypeTranslation\NumberRangeTypeTranslationCollection;
 use Shopware\Core\System\NumberRange\NumberRangeCollection;
 
 class NumberRangeTypeEntity extends Entity
@@ -16,6 +18,11 @@ class NumberRangeTypeEntity extends Entity
     protected $typeName;
 
     /**
+     * @var string
+     */
+    protected $technicalName;
+
+    /**
      * @var bool
      */
     protected $global;
@@ -24,6 +31,31 @@ class NumberRangeTypeEntity extends Entity
      * @var NumberRangeCollection|null
      */
     protected $numberRanges;
+
+    /**
+     * @var NumberRangeSalesChannelEntity
+     */
+    protected $numberRangeSalesChannels;
+
+    /**
+     * @var array|null
+     */
+    protected $attributes;
+
+    /**
+     * @var NumberRangeTypeTranslationCollection|null
+     */
+    protected $translations;
+
+    /**
+     * @var \DateTimeInterface|null
+     */
+    protected $createdAt;
+
+    /**
+     * @var \DateTimeInterface|null
+     */
+    protected $updatedAt;
 
     public function getTypeName(): string
     {
@@ -53,5 +85,65 @@ class NumberRangeTypeEntity extends Entity
     public function setNumberRanges(?NumberRangeCollection $numberRanges): void
     {
         $this->numberRanges = $numberRanges;
+    }
+
+    public function getAttributes(): ?array
+    {
+        return $this->attributes;
+    }
+
+    public function setAttributes(?array $attributes): void
+    {
+        $this->attributes = $attributes;
+    }
+
+    public function getTranslations(): ?NumberRangeTypeTranslationCollection
+    {
+        return $this->translations;
+    }
+
+    public function setTranslations(?NumberRangeTypeTranslationCollection $translations): void
+    {
+        $this->translations = $translations;
+    }
+
+    public function getCreatedAt(): ?\DateTimeInterface
+    {
+        return $this->createdAt;
+    }
+
+    public function setCreatedAt(?\DateTimeInterface $createdAt): void
+    {
+        $this->createdAt = $createdAt;
+    }
+
+    public function getUpdatedAt(): ?\DateTimeInterface
+    {
+        return $this->updatedAt;
+    }
+
+    public function setUpdatedAt(?\DateTimeInterface $updatedAt): void
+    {
+        $this->updatedAt = $updatedAt;
+    }
+
+    public function getTechnicalName(): string
+    {
+        return $this->technicalName;
+    }
+
+    public function setTechnicalName(string $technicalName): void
+    {
+        $this->technicalName = $technicalName;
+    }
+
+    public function getNumberRangeSalesChannels(): NumberRangeSalesChannelEntity
+    {
+        return $this->numberRangeSalesChannels;
+    }
+
+    public function setNumberRangeSalesChannels(NumberRangeSalesChannelEntity $numberRangeSalesChannels): void
+    {
+        $this->numberRangeSalesChannels = $numberRangeSalesChannels;
     }
 }

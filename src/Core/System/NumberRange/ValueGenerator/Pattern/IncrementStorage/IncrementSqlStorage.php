@@ -23,13 +23,15 @@ class IncrementSqlStorage implements IncrementStorageInterface
     public function pullState(NumberRangeEntity $configuration): string
     {
         $varname = Uuid::randomHex();
+        $stateId = Uuid::randomBytes();
         $this->connection->executeQuery(
-            'INSERT `number_range_state` (`last_value`, `number_range_id`) VALUES (:value, :id) 
+            'INSERT `number_range_state` (`id`, `last_value`, `number_range_id`) VALUES (:stateId, :value, :id) 
                 ON DUPLICATE KEY UPDATE
                 `last_value` = @nr' . $varname . ' := `last_value`+1',
             [
                 'value' => $configuration->getStart(),
                 'id' => Uuid::fromHexToBytes($configuration->getId()),
+                'stateId' => $stateId,
             ]
         );
 

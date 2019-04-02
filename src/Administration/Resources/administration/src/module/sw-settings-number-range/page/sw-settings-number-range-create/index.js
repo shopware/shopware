@@ -18,7 +18,8 @@ Component.extend('sw-settings-number-range-create', 'sw-settings-number-range-de
             } else {
                 this.numberRange = this.numberRangeStore.create();
             }
-
+            this.numberRange.global = false;
+            this.numberRange.isLoading = true;
             this.$super.createdComponent();
             this.getPreview();
             this.splitPattern();

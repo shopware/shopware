@@ -21,6 +21,10 @@
             <tag name="shopware.entity.definition" entity="number_range_type"/>
         </service>
 
+        <service id="Shopware\Core\System\NumberRange\Aggregate\NumberRangeTypeTranslation\NumberRangeTypeTranslationDefinition">
+            <tag name="shopware.entity.definition" entity="number_range_type_translation"/>
+        </service>
+
         <!-- Value Generator -->
         <service class="Shopware\Core\System\NumberRange\ValueGenerator\Pattern\IncrementStorage\IncrementSqlStorage"
                  id="Shopware\Core\System\NumberRange\ValueGenerator\Pattern\IncrementStorage\IncrementStorageInterface">

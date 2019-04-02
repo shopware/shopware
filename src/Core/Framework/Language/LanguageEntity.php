@@ -29,6 +29,7 @@ use Shopware\Core\System\Country\Aggregate\CountryTranslation\CountryTranslation
 use Shopware\Core\System\Currency\Aggregate\CurrencyTranslation\CurrencyTranslationCollection;
 use Shopware\Core\System\Locale\Aggregate\LocaleTranslation\LocaleTranslationCollection;
 use Shopware\Core\System\Locale\LocaleEntity;
+use Shopware\Core\System\NumberRange\Aggregate\NumberRangeTypeTranslation\NumberRangeTypeTranslationCollection;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainCollection;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelTranslation\SalesChannelTranslationCollection;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelTypeTranslation\SalesChannelTypeTranslationCollection;
@@ -278,6 +279,11 @@ class LanguageEntity extends Entity
      * @var NewsletterReceiverCollection|null
      */
     protected $newsletterReceivers;
+
+    /**
+     * @var NumberRangeTypeTranslationCollection|null
+     */
+    protected $numberRangeTypeTranslations;
 
     public function getMailHeaderFooterTranslations(): ?MailHeaderFooterCollection
     {
@@ -747,5 +753,15 @@ class LanguageEntity extends Entity
     public function setNewsletterReceivers(NewsletterReceiverCollection $newsletterReceivers): void
     {
         $this->newsletterReceivers = $newsletterReceivers;
+    }
+
+    public function getNumberRangeTypeTranslations(): ?NumberRangeTypeTranslationCollection
+    {
+        return $this->numberRangeTypeTranslations;
+    }
+
+    public function setNumberRangeTypeTranslations(?NumberRangeTypeTranslationCollection $numberRangeTypeTranslations): void
+    {
+        $this->numberRangeTypeTranslations = $numberRangeTypeTranslations;
     }
 }

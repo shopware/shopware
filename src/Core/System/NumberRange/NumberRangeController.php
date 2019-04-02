@@ -37,7 +37,7 @@ class NumberRangeController extends AbstractController
     }
 
     /**
-     * @Route("/api/v{version}/_action/number-range/preview-pattern/{type}", name="api.action.number-range.preview-pattern", methods={"GET"})
+     * @Route("/api/v{version}/_action/number-range/preview-pattern/{type}", defaults={"type"="default"}, name="api.action.number-range.preview-pattern", methods={"GET"})
      * @Cache(mustRevalidate=true)
      */
     public function previewPattern(string $type, Request $request): JsonResponse

@@ -16,7 +16,7 @@
 				       class="form-control"
 				       id="{{ prefix }}AddressStreet"
 				       placeholder="{{ "address.streetPlaceholder"|trans }}{{ "account.required"|trans }}"
-				       name="{{ prefix }}street"
+				       name="{{ prefix }}[street]"
                        value="{{ address.street }}"
 				       required="required">
 			{% endblock %}
@@ -37,7 +37,7 @@
 					       class="form-control"
 					       id="{{ prefix }}AdditionalField1"
 					       placeholder="{{ "address.additionalField1Placeholder"|trans }}"
-					       name="{{ prefix }}additionalAddressLine1"
+					       name="{{ prefix }}[additionalAddressLine1]"
                            value="{{ address.additionalAddressLine1 }}">
 				{% endblock %}
 			</div>
@@ -58,7 +58,7 @@
 					       class="form-control"
 					       id="{{ prefix }}AdditionalField2"
 					       placeholder="{{ "address.additionalField2Placeholder"|trans }}"
-					       name="{{ prefix }}additionalAddressLine2"
+					       name="{{ prefix }}[additionalAddressLine2]"
                            value="{{ address.additionalAddressLine2 }}">
 				{% endblock %}
 			</div>
@@ -76,7 +76,7 @@
                        class="form-control"
                        id="{{ prefix }}AddressZipcode"
                        placeholder="{{ "address.zipcodePlaceholder"|trans }}{{ "account.required"|trans }}"
-                       name="{{ prefix }}zipcode"
+                       name="{{ prefix }}[zipcode]"
                        value="{{ address.zipcode }}"
                        required="required">
             {% endset %}
@@ -90,7 +90,7 @@
                        class="form-control"
                        id="{{ prefix }}AddressCity"
                        placeholder="{{ "address.cityPlaceholder"|trans }}{{ "account.required"|trans }}"
-                       name="{{ prefix }}city"
+                       name="{{ prefix }}[city]"
                        value="{{ address.city }}"
                        required="required">
             {% endset %}
@@ -127,7 +127,7 @@
 				{#TODO: remove dirty field name hack (country vs countryId)#}
 				<select class="custom-select"
 				        id="{{ prefix }}AddressCountry"
-				        name="{% if prefix %}{{ prefix }}country{% else %}countryId{% endif %}">
+				        name="{{ prefix }}[countryId]">
 					{% for country in page.countries.elements %}
 						<option value="{{ country.id }}">
 							{{ country.name }}

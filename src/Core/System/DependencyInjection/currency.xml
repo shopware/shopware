@@ -12,6 +12,10 @@
         <service id="Shopware\Core\System\Currency\Aggregate\CurrencyTranslation\CurrencyTranslationDefinition">
             <tag name="shopware.entity.definition" entity="currency_translation"/>
         </service>
+
+        <service id="Shopware\Core\System\Currency\CurrencyLoadSubscriber">
+            <tag name="kernel.event_subscriber"/>
+        </service>
     </services>
 </container>                
                 

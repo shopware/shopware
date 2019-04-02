@@ -94,6 +94,11 @@ class CurrencyEntity extends Entity
      */
     protected $shippingMethodPriceRules;
 
+    /**
+     * @var bool|null
+     */
+    protected $isDefault;
+
     public function getFactor(): float
     {
         return $this->factor;
@@ -252,5 +257,15 @@ class CurrencyEntity extends Entity
     public function setShippingMethodPriceRules(?ShippingMethodPriceRuleCollection $shippingMethodPriceRules): void
     {
         $this->shippingMethodPriceRules = $shippingMethodPriceRules;
+    }
+
+    public function getIsDefault(): ?bool
+    {
+        return $this->isDefault;
+    }
+
+    public function setIsDefault(bool $isDefault): void
+    {
+        $this->isDefault = $isDefault;
     }
 }

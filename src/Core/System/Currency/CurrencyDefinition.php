@@ -6,7 +6,9 @@ use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodPriceRule\ShippingMethodPriceRuleDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductPriceRule\ProductPriceRuleDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CreatedAtField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Deferred;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\RestrictDelete;
@@ -53,6 +55,7 @@ class CurrencyDefinition extends EntityDefinition
             (new TranslatedField('name'))->addFlags(new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
             (new IntField('decimal_precision', 'decimalPrecision'))->addFlags(new Required()),
             new IntField('position', 'position'),
+            (new BoolField('is_default', 'isDefault'))->addFlags(new Deferred()),
             new TranslatedField('attributes'),
             new CreatedAtField(),
             new UpdatedAtField(),

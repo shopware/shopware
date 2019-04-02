@@ -28,7 +28,7 @@
     overflow: hidden;
 }
 
-.icon-service {
+.language-flag {
     margin-right: $spacer-sm;
 }
 
@@ -79,7 +79,6 @@
 @include media-breakpoint-up(md) {
     .top-bar {
         display: block;
-        padding: 5px 0;
     }
 
     .header-row {

@@ -77,7 +77,10 @@ class IntegrationPageObject extends GeneralPageObject {
 
     deleteSingleIntegration(integrationName) {
         this.browser
-            .clickContextMenuItem(`${this.elements.contextMenu}-item--danger`, this.elements.contextMenuButton, `${this.elements.gridRow}--0`)
+            .clickContextMenuItem(this.elements.contextMenuButton, {
+                menuActionSelector: `${this.elements.contextMenu}-item--danger`,
+                scope: `${this.elements.gridRow}--0`
+            })
             .expect.element(`${this.elements.modal}__body`).text.that.equals(`Are you sure you want to delete this integration? "${integrationName}"`);
 
         this.browser

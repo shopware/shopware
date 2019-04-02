@@ -28,7 +28,10 @@ module.exports = {
 
 
         browser
-            .clickContextMenuItem('.sw-context-menu-item--danger', page.elements.contextMenuButton, `${page.elements.dataGridRow}--0`)
+            .clickContextMenuItem(page.elements.contextMenuButton, {
+                menuActionSelector: `${page.elements.contextMenu}-item--danger`,
+                scope: `${page.elements.dataGridRow}--0`
+            })
             .expect.element(`${page.elements.modal} .sw-product-list__confirm-delete-text`).to.have.text.that
             .contains(`Are you sure you really want to delete the product "${fixture.name}"?`);
 

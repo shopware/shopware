@@ -24,7 +24,10 @@ module.exports = {
 
         browser.expect.element(page.elements.columnName).to.have.text.that.equals('Pep Eroni');
         browser
-            .clickContextMenuItem(`${page.elements.contextMenu}-item--danger`, page.elements.contextMenuButton, `${page.elements.dataGridRow}--0`)
+            .clickContextMenuItem(page.elements.contextMenuButton, {
+                menuActionSelector: `${page.elements.contextMenu}-item--danger`,
+                scope: `${page.elements.dataGridRow}--0`
+            })
             .expect.element('.sw-modal .sw-customer-list__confirm-delete-text').to.have.text.that.equals('Are you sure you want to delete the customer "Pep Eroni"?');
 
         browser

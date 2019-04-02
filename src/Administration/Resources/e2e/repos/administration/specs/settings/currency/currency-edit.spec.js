@@ -25,7 +25,10 @@ module.exports = {
         const page = settingsPage(browser);
 
         browser
-            .clickContextMenuItem('.sw-currency-list__edit-action', page.elements.contextMenuButton, `${page.elements.gridRow}--3`)
+            .clickContextMenuItem(page.elements.contextMenuButton, {
+                menuActionSelector: '.sw-currency-list__edit-action',
+                scope: `${page.elements.gridRow}--3`
+            })
             .waitForElementVisible('.sw-settings-currency-detail .sw-card__content')
             .clearValue('input[name=sw-field--currency-name]')
             .fillField('input[name=sw-field--currency-name]', 'Yen but true', true)

@@ -24,7 +24,10 @@ module.exports = {
         const page = settingsPage(browser);
 
         browser
-            .clickContextMenuItem('.sw-country-list__edit-action', page.elements.contextMenuButton, `${page.elements.gridRow}--0`)
+            .clickContextMenuItem(page.elements.contextMenuButton, {
+                menuActionSelector: '.sw-country-list__edit-action',
+                scope: `${page.elements.gridRow}--0`
+            })
             .fillField('input[name=sw-field--country-name]', '1.Niemandsland x2', true)
             .click(page.elements.countrySaveAction)
             .checkNotification('Country "1.Niemandsland x2" has been saved successfully.')

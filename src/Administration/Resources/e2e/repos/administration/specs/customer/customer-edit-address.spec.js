@@ -20,7 +20,10 @@ module.exports = {
             .expect.element(page.elements.smartBarAmount).to.have.text.that.equals('(1)');
 
         browser
-            .clickContextMenuItem('.sw-customer-list__view-action', page.elements.contextMenuButton, `${page.elements.dataGridRow}--0`)
+            .clickContextMenuItem(page.elements.contextMenuButton, {
+                menuActionSelector: '.sw-customer-list__view-action',
+                scope: `${page.elements.dataGridRow}--0`
+            })
             .expect.element(`${page.elements.customerMetaData}-customer-name`).to.have.text.that.equals('Mr. Pep Eroni');
     },
     'activate edit mode': (browser) => {
@@ -88,11 +91,10 @@ module.exports = {
 
         browser
             .click(`${page.elements.gridRow}--0 #defaultShippingAddress-0`)
-            .clickContextMenuItem(
-                `${page.elements.contextMenu}-item--danger`,
-                page.elements.contextMenuButton,
-                `${page.elements.gridRow}--1`
-            ).expect.element('.sw-customer-detail-addresses__confirm-delete-text').to.have.text.that.equals('Are you sure you want to delete this address?');
+            .clickContextMenuItem(page.elements.contextMenuButton, {
+                menuActionSelector: `${page.elements.contextMenu}-item--danger`,
+                scope: `${page.elements.gridRow}--1`
+            }).expect.element('.sw-customer-detail-addresses__confirm-delete-text').to.have.text.that.equals('Are you sure you want to delete this address?');
 
         browser
             .assert.containsText('.sw-address__full-name', 'Mr. Harry Potter')

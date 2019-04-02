@@ -28,7 +28,10 @@ module.exports = {
         const page = ruleBuilderPage(browser);
 
         browser
-            .clickContextMenuItem('.sw-rule-list__rule-edit-action', page.elements.contextMenuButton, `${page.elements.gridRow}--0`)
+            .clickContextMenuItem(page.elements.contextMenuButton, {
+                menuActionSelector: '.sw-rule-list__rule-edit-action',
+                scope: `${page.elements.gridRow}--0`
+            })
             .expect.element(page.elements.smartBarHeader).to.have.text.that.contains(global.AdminFixtureService.basicFixture.name);
 
         page.createDateRangeCondition({
@@ -57,7 +60,11 @@ module.exports = {
     'add another and-condition before the second one': (browser) => {
         const page = ruleBuilderPage(browser);
 
-        browser.clickContextMenuItem('.sw-condition-base__create-before-action', page.elements.contextMenuButton, `${page.elements.conditionAndContainer}--1`);
+        browser
+            .clickContextMenuItem(page.elements.contextMenuButton, {
+                menuActionSelector: '.sw-condition-base__create-before-action',
+                scope: `${page.elements.conditionAndContainer}--1`
+            });
 
         page.createBasicSelectCondition({
             type: 'Customer group',
@@ -72,7 +79,11 @@ module.exports = {
     'add another and-condition to the rule after the second one': (browser) => {
         const page = ruleBuilderPage(browser);
 
-        browser.clickContextMenuItem('.sw-condition-base__create-after-action', page.elements.contextMenuButton, `${page.elements.conditionAndContainer}--1`);
+        browser
+            .clickContextMenuItem(page.elements.contextMenuButton, {
+                menuActionSelector: '.sw-condition-base__create-after-action',
+                scope: `${page.elements.conditionAndContainer}--1`
+            });
 
         page.createBasicSelectCondition({
             type: 'Billing country',
@@ -142,7 +153,10 @@ module.exports = {
 
         browser
             .getLocationInView('.sw-condition-container__or-child--1')
-            .clickContextMenuItem('.sw-context-menu-item--danger', page.elements.contextMenuButton, `${page.elements.conditionOrContainer}--1 ${page.elements.conditionOrContainer}--1`)
+            .clickContextMenuItem('.sw-context-menu-item--danger', {
+                menuActionSelector: page.elements.contextMenuButton,
+                scope: `${page.elements.conditionOrContainer}--1 ${page.elements.conditionOrContainer}--1`
+            })
             .waitForElementNotPresent(`${page.elements.conditionOrContainer}--1 ${page.elements.conditionOrContainer}--1 ${page.elements.baseCondition}`);
     },
     'delete single container': (browser) => {

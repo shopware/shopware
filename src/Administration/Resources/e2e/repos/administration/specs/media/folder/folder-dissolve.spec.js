@@ -17,7 +17,10 @@ module.exports = {
         browser
             .waitForElementNotPresent(page.elements.loader)
             .waitForElementVisible(`${page.elements.gridItem}--0 .sw-media-base-item__preview-container`)
-            .clickContextMenuItem(page.elements.showMediaAction, page.elements.contextMenuButton, `${page.elements.gridItem}--0 `)
+            .clickContextMenuItem(page.elements.contextMenuButton, {
+                menuActionSelector: page.elements.showMediaAction,
+                scope: `${page.elements.gridItem}--0 `
+            })
             .expect.element('.smart-bar__header').to.have.text.that.equals(global.MediaFixtureService.mediaFolderFixture.name);
     },
     'upload image to folder and verify placement in folder': (browser) => {
@@ -42,7 +45,10 @@ module.exports = {
 
         browser
             .waitForElementNotPresent(page.elements.loader)
-            .clickContextMenuItem('.sw-media-context-item__dissolve-folder-action', page.elements.contextMenuButton, `${page.elements.gridItem}--0`)
+            .clickContextMenuItem(page.elements.contextMenuButton, {
+                menuActionSelector: '.sw-media-context-item__dissolve-folder-action',
+                scope: `${page.elements.gridItem}--0`
+            })
             .expect.element(`${page.elements.modal}__body`).to.have.text.that.equals(`Are you sure you want to dissolve "${global.MediaFixtureService.mediaFolderFixture.name}" ?`);
 
         browser

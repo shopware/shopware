@@ -20,7 +20,10 @@ module.exports = {
             .expect.element(page.elements.smartBarHeader).to.have.text.that.contains('Products');
 
         browser
-            .clickContextMenuItem('.sw-product-list__edit-action', page.elements.contextMenuButton, `${page.elements.dataGridRow}--0`)
+            .clickContextMenuItem(page.elements.contextMenuButton, {
+                menuActionSelector: '.sw-product-list__edit-action',
+                scope: `${page.elements.dataGridRow}--0`
+            })
             .expect.element(page.elements.smartBarHeader).to.have.text.that.equals(global.ProductFixtureService.productFixture.name);
 
         productPageObject.addProductImageViaUrl(`${process.env.APP_URL}/bundles/administration/static/fixtures/sw-login-background.png`, global.ProductFixtureService.productFixture.name);
@@ -85,7 +88,10 @@ module.exports = {
             })
             .waitForElementVisible(page.elements.smartBarHeader)
             .assert.containsText(page.elements.smartBarHeader, 'Products')
-            .clickContextMenuItem('.sw-product-list__edit-action', page.elements.contextMenuButton, `${page.elements.dataGridRow}--0`)
+            .clickContextMenuItem(page.elements.contextMenuButton, {
+                menuActionSelector: '.sw-product-list__edit-action',
+                scope: `${page.elements.dataGridRow}--0`
+            })
             .expect.element(page.elements.previewItem).to.have.attribute('alt').equals('sw-test-image');
     }
 };

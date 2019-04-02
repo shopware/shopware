@@ -26,7 +26,9 @@ module.exports = {
         const page = integrationPage(browser);
 
         browser
-            .clickContextMenuItem('.sw_integration_list__edit-action', page.elements.contextMenuButton)
+            .clickContextMenuItem(page.elements.contextMenuButton, {
+                menuActionSelector: '.sw_integration_list__edit-action'
+            })
             .expect.element(page.elements.modalTitle).to.have.text.that.contains('Edit:');
 
         page.checkClipboard();
@@ -35,7 +37,10 @@ module.exports = {
         const page = integrationPage(browser);
 
         browser
-            .clickContextMenuItem('.sw_integration_list__edit-action', page.elements.contextMenuButton)
+            .clickContextMenuItem(page.elements.contextMenuButton, {
+                menuActionSelector: '.sw_integration_list__edit-action',
+                scope: `${page.elements.gridRow}--0`
+            })
             .expect.element(page.elements.modalTitle).to.have.text.that.contains('Edit:');
 
         page.changeApiCredentials();
@@ -46,7 +51,10 @@ module.exports = {
         browser
             .waitForElementNotPresent(page.elements.modal)
             .waitForElementPresent(page.elements.listColumnName)
-            .clickContextMenuItem('.sw_integration_list__edit-action', page.elements.contextMenuButton, `${page.elements.gridRow}--0`)
+            .clickContextMenuItem(page.elements.contextMenuButton, {
+                menuActionSelector: '.sw_integration_list__edit-action',
+                scope: `${page.elements.gridRow}--0`
+            })
             .waitForElementVisible(page.elements.integrationName);
 
         page.verifyChangedApiCredentials();

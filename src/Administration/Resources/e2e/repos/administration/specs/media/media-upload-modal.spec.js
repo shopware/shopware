@@ -15,8 +15,10 @@ module.exports = {
 
         browser
             .waitForElementNotPresent(page.elements.loader)
-            .waitForElementVisible(`${page.elements.mediaItem} .sw-media-base-item__preview-container`)
-            .clickContextMenuItem('.sw-media-upload__button-url-upload', '.sw-media-upload__button-context-menu')
+            .waitForElementVisible(`${page.elements.gridItem}--0 .sw-media-base-item__preview-container`)
+            .clickContextMenuItem(page.elements.contextMenuButton, {
+                menuActionSelector: '.sw-media-upload__button-url-upload',
+            })
             .fillField('input[name=sw-field--url]', `${process.env.APP_URL}/bundles/administration/static/fixtures/sw-login-background.png`)
             .click(`${page.elements.modalFooter} ${page.elements.primaryButton}`);
     },
@@ -37,9 +39,11 @@ module.exports = {
 
         browser
             .waitForElementNotPresent(page.elements.loader)
-            .waitForElementVisible(`${page.elements.mediaItem} .sw-media-base-item__preview-container`)
-            .moveTo(`${page.elements.mediaItem} .sw-media-base-item__preview-container`, 5, 5)
-            .clickContextMenuItem('.sw-media-upload__button-url-upload', '.sw-media-upload__button-context-menu')
+            .waitForElementVisible(`${page.elements.gridItem}--0 .sw-media-base-item__preview-container`)
+            .clickContextMenuItem(page.elements.contextMenuButton, {
+                menuActionSelector: '.sw-context-menu-item--danger',
+                scope: `${page.elements.gridItem}--0 `
+            })
             .fillField('input[name=sw-field--url]', `${process.env.APP_URL}/bundles/administration/static/fixtures/sw-login-background.png`)
             .click(`${page.elements.modalFooter} ${page.elements.primaryButton}`);
     },
@@ -60,6 +64,11 @@ module.exports = {
 
         browser
             .waitForElementNotPresent(page.elements.loader)
+            .waitForElementVisible(`${page.elements.gridItem}--0 .sw-media-base-item__preview-container`)
+            .clickContextMenuItem(page.elements.contextMenuButton, {
+                menuActionSelector: '.sw-media-upload__button-context-menu',
+                scope: `${page.elements.gridItem}--0 `
+            })
             .waitForElementVisible(`${page.elements.mediaItem} .sw-media-base-item__preview-container`)
             .moveTo(`${page.elements.mediaItem} .sw-media-base-item__preview-container`, 5, 5)
             .clickContextMenuItem('.sw-media-upload__button-url-upload', '.sw-media-upload__button-context-menu')

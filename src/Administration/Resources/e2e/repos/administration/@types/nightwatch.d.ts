@@ -2170,6 +2170,10 @@ interface openMainMenuEntryOptions {
     mainMenuId: string,
     subMenuId?: string
 }
+interface clickContextMenuItemOptions {
+    menuActionSelector: string,
+    scope: string
+}
 
 export interface NightwatchCustomCommands {
     /**
@@ -2316,11 +2320,12 @@ export interface NightwatchCustomCommands {
      * browser.clickContextMenuItem('.sw-context-menu-item--danger','.sw-grid-row:first-child')
      * ```
      *
-     * @param {String} menuButtonSelector
      * @param {String} menuOpenSelector
-     * @param {String|null} [scope=null]
+     * @param {Object} [obj=null]
+     * @param {String} obj.menuActionSelector
+     * @param {String} obj.scope
      */
-    clickContextMenuItem(menuButtonSelector: string, menuOpenSelector: string, scope?: string | null): this,
+    clickContextMenuItem(menuOpenSelector: string, obj?: clickContextMenuItemOptions | null): this,
 
     /**
      * Clears an input field and making sure that the field is in fact empty afterwards

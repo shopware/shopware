@@ -23,7 +23,10 @@ module.exports = {
         const page = settingsPage(browser);
 
         browser
-            .clickContextMenuItem('.sw-language-list__edit-action', page.elements.contextMenuButton, `${page.elements.gridRow}--2`)
+            .clickContextMenuItem(page.elements.contextMenuButton, {
+                menuActionSelector: '.sw-language-list__edit-action',
+                scope: `${page.elements.gridRow}--2`
+            })
             .waitForElementVisible('.sw-settings-language-detail .sw-card__content')
             .fillField('input[name=sw-field--language-name]', 'Very Philippine English', true)
             .click(page.elements.languageSaveAction)

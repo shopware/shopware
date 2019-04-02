@@ -25,7 +25,10 @@ module.exports = {
         const page = settingsPage(browser);
 
         browser
-            .clickContextMenuItem('.sw-context-menu-item--danger', page.elements.contextMenuButton)
+            .clickContextMenuItem(page.elements.contextMenuButton, {
+                menuActionSelector: '.sw-context-menu-item--danger',
+                scope: `${page.elements.gridRow}--0`
+            })
             .expect.element(`${page.elements.modal} ${page.elements.modal}__body`).to.have.text.that.equals(`Are you sure you want to delete the snippet set "${global.AdminFixtureService.basicFixture.name}"?`);
 
         browser

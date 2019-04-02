@@ -28,7 +28,9 @@ class MediaPageObject extends GeneralPageObject {
     uploadImageViaURL(imgPath) {
         this.browser
             .waitForElementNotPresent(this.elements.loader)
-            .clickContextMenuItem('.sw-media-upload__button-url-upload', '.sw-media-upload__button-context-menu')
+            .clickContextMenuItem('.sw-media-upload__button-context-menu', {
+                menuActionSelector: '.sw-media-upload__button-url-upload'
+            })
             .waitForElementVisible('.sw-media-url-form')
             .fillField('input[name=sw-field--url]', imgPath)
             .click(`${this.elements.modal}__footer .sw-button--primary`)
@@ -51,9 +53,12 @@ class MediaPageObject extends GeneralPageObject {
         let item = itemPosition !== null ? `${this.elements.gridItem}--${itemPosition}` : this.elements.mediaItem;
 
         this.browser
-            .waitForElementVisible(item)
-            .moveToElement(item, 5, 5)
-            .clickContextMenuItem(action, '.sw-context-button__button', item)
+            .waitForElementVisible(`${this.elements.gridItem}--${itemPosition} ${this.elements.baseItem}`)
+            .moveToElement(this.elements.baseItem, 5, 5)
+            .clickContextMenuItem(this.elements.contextMenuButton, {
+                menuActionSelector: action,
+                scope: `${this.elements.gridItem}--0`
+            })
             .waitForElementVisible('.sw-modal__title');
     }
 
@@ -72,8 +77,11 @@ class MediaPageObject extends GeneralPageObject {
         }
 
         this.browser
-            .waitForElementVisible(mediaItem)
-            .clickContextMenuItem(contextMenuItemSelector, this.elements.contextMenuButton, mediaItem)
+            .waitForElementVisible(`${this.elements.gridItem}--${position}`)
+            .clickContextMenuItem(this.elements.contextMenuButton, {
+                menuActionSelector: contextMenuItemSelector,
+                scope: `${this.elements.gridItem}--${position} `
+            })
             .expect.element(this.elements.modalTitle).to.have.text.that.equals(`Move "${name}"`);
         this.browser.expect.element('.sw-media-modal-move__confirm').to.not.be.enabled;
 

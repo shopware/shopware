@@ -4,12 +4,13 @@ const activeContextButtonCssSelector = '.is--active';
 /**
  * Opens and clicks a context menu item, even if it's in a specific scope
  *
- * @param {String} menuButtonSelector
  * @param {String} menuOpenSelector
- * @param {String|null} [scope=null]
+ * @param {Object|null} [options=null]
  * @returns {exports}
  */
-exports.command = function clickContextMenuItem(menuButtonSelector, menuOpenSelector, scope = null) {
+exports.command = function clickContextMenuItem(menuOpenSelector, {
+    menuActionSelector = null, scope = null
+}) {
     if (scope != null) {
         this
             .waitForElementVisible(scope)
@@ -27,11 +28,14 @@ exports.command = function clickContextMenuItem(menuButtonSelector, menuOpenSele
             .click(menuOpenSelector);
     }
 
-    this
-        .waitForElementVisible(contextMenuCssSelector)
-        .waitForElementVisible(menuButtonSelector)
-        .click(menuButtonSelector)
-        .waitForElementNotPresent(contextMenuCssSelector);
+    this.waitForElementVisible(contextMenuCssSelector);
+
+    if (menuActionSelector != null) {
+        this
+            .waitForElementVisible(menuActionSelector)
+            .click(menuActionSelector)
+            .waitForElementNotPresent(contextMenuCssSelector);
+    }
 
     return this;
 };

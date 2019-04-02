@@ -31,7 +31,10 @@ module.exports = {
 
 
         browser
-            .clickContextMenuItem('.sw-context-menu-item--danger', `${page.elements.gridRow}--0 ${page.elements.contextMenuButton}`)
+            .clickContextMenuItem(page.elements.contextMenuButton, {
+                menuActionSelector: `${page.elements.gridRow}-item--danger`,
+                scope: `${page.elements.gridRow}--0`
+            })
             .waitForElementVisible('.sw-modal')
             .expect.element('.sw-settings-rule-list__confirm-delete-text').to.have.text.that.contains(`Are you sure you want to delete the rule "${global.AdminFixtureService.basicFixture.name}"?`);
 

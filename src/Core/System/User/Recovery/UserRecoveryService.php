@@ -6,6 +6,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Event\BusinessEventDispatcher;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\System\User\Aggregate\UserRecovery\UserRecoveryEntity;
 use Shopware\Core\System\User\UserEntity;
@@ -29,14 +30,21 @@ class UserRecoveryService
      */
     private $router;
 
+    /**
+     * @var BusinessEventDispatcher
+     */
+    private $dispatcher;
+
     public function __construct(
         EntityRepositoryInterface $userRecoveryRepo,
         EntityRepositoryInterface $userRepo,
-        RouterInterface $router
+        RouterInterface $router,
+        BusinessEventDispatcher $dispatcher
     ) {
         $this->userRecoveryRepo = $userRecoveryRepo;
         $this->userRepo = $userRepo;
         $this->router = $router;
+        $this->dispatcher = $dispatcher;
     }
 
     public function generateUserRecovery(string $userEmail, Context $context): void
@@ -72,7 +80,11 @@ class UserRecoveryService
         $hash = $recovery->getHash();
         $url = $this->router->generate('administration.index', [], UrlGeneratorInterface::ABSOLUTE_URL);
         $recoveryUrl = $url . '#/login/user-recovery/' . $hash;
-        //TODO send email to user
+
+        $this->dispatcher->dispatch(
+            UserRecoveryRequestEvent::EVENT_NAME,
+            new UserRecoveryRequestEvent($recovery, $context)
+        );
     }
 
     public function checkHash(string $hash, Context $context): bool

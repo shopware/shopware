@@ -6,7 +6,7 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Cache;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Extension;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
@@ -138,7 +138,7 @@ class EntityCacheKeyGenerator
      */
     public function getAssociatedTags(string $definition, Entity $entity, Context $context): array
     {
-        $associations = $definition::getFields()->filterInstance(AssociationInterface::class);
+        $associations = $definition::getFields()->filterInstance(AssociationField::class);
 
         $keys = [$this->getEntityTag($entity->getUniqueIdentifier(), $definition)];
 
@@ -153,7 +153,7 @@ class EntityCacheKeyGenerator
             $keys[] = $translationDefinition::getEntityName() . '.language_id';
         }
 
-        /** @var Field[]|AssociationInterface[] $associations */
+        /** @var AssociationField[] $associations */
         foreach ($associations as $association) {
             if ($association->is(Extension::class)) {
                 $value = $entity->getExtension($association->getPropertyName());
@@ -245,7 +245,7 @@ class EntityCacheKeyGenerator
                 $associations[] = $source::getEntityName() . '.' . $field->getStorageName();
             }
 
-            if (!$field instanceof AssociationInterface) {
+            if (!$field instanceof AssociationField) {
                 break;
             }
 

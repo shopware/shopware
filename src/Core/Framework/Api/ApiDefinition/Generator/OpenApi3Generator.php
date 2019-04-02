@@ -6,7 +6,7 @@ use Shopware\Core\Framework\Api\ApiDefinition\ApiDefinitionGeneratorInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\DateField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
@@ -199,7 +199,7 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
                 foreach ($properties['extensions']['properties'] as $propertyName => $extension) {
                     $field = $definition::getFields()->get($propertyName);
 
-                    if (!$field instanceof AssociationInterface) {
+                    if (!$field instanceof AssociationField) {
                         $extensions[$propertyName] = $extension;
                         continue;
                     }
@@ -364,7 +364,7 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
                 continue;
             }
 
-            if ($field instanceof AssociationInterface) {
+            if ($field instanceof AssociationField) {
                 $relationships[$field->getPropertyName()] = $this->createToManyLinkage($field, $detailPath);
                 continue;
             }
@@ -398,7 +398,7 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
             ];
 
             foreach ($extensions as $extension) {
-                if (!$extension instanceof AssociationInterface) {
+                if (!$extension instanceof AssociationField) {
                     continue;
                 }
 
@@ -692,9 +692,9 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
     }
 
     /**
-     * @param ManyToManyAssociationField|OneToManyAssociationField|AssociationInterface $field
+     * @param ManyToManyAssociationField|OneToManyAssociationField|AssociationField $field
      */
-    private function createToManyLinkage(AssociationInterface $field, string $basePath): array
+    private function createToManyLinkage(AssociationField $field, string $basePath): array
     {
         $associationEntityName = $field->getReferenceClass()::getEntityName();
 

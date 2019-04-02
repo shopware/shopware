@@ -7,7 +7,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ChildrenAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
@@ -198,7 +198,7 @@ class EntityReader implements EntityReaderInterface
             }
 
             //self references can not be resolved, otherwise we get an endless loop
-            if (!$field instanceof ParentAssociationField && $field instanceof AssociationInterface && $field->getReferenceClass() === $definition) {
+            if (!$field instanceof ParentAssociationField && $field instanceof AssociationField && $field->getReferenceClass() === $definition) {
                 continue;
             }
 
@@ -243,7 +243,7 @@ class EntityReader implements EntityReaderInterface
             }
 
             //other associations like OneToManyAssociationField fetched lazy by additional query
-            if ($field instanceof AssociationInterface) {
+            if ($field instanceof AssociationField) {
                 continue;
             }
 
@@ -452,7 +452,7 @@ class EntityReader implements EntityReaderInterface
         );
     }
 
-    private function collectManyToManyIds(EntityCollection $collection, AssociationInterface $association): array
+    private function collectManyToManyIds(EntityCollection $collection, AssociationField $association): array
     {
         $ids = [];
         $property = $association->getPropertyName();

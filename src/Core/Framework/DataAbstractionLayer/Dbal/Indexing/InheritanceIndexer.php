@@ -12,7 +12,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\DefinitionRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Inherited;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
@@ -105,7 +105,7 @@ class InheritanceIndexer implements IndexerInterface
     private function update(string $definition, array $ids, Context $context): void
     {
         $inherited = $definition::getFields()->filter(function (Field $field) {
-            return $field->is(Inherited::class) && $field instanceof AssociationInterface;
+            return $field->is(Inherited::class) && $field instanceof AssociationField;
         });
 
         $associations = $inherited->filter(function (Field $field) {
@@ -137,7 +137,7 @@ class InheritanceIndexer implements IndexerInterface
             return Uuid::fromHexToBytes($id);
         }, $ids);
 
-        /** @var AssociationInterface $association */
+        /** @var AssociationField $association */
         foreach ($associations as $association) {
             if ($association instanceof ManyToManyAssociationField) {
                 $reference = $association->getMappingDefinition();

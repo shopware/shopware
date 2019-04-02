@@ -11,7 +11,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidPageQueryExcep
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidSortQueryException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\QueryLimitExceededException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\SearchRequestException;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
@@ -143,7 +143,7 @@ class RequestCriteriaBuilder
 
                 $field = $definition::getFields()->get($propertyName);
 
-                if (!$field instanceof AssociationInterface) {
+                if (!$field instanceof AssociationField) {
                     throw new \RuntimeException(sprintf('Can not find association by name %s', $propertyName));
                 }
 

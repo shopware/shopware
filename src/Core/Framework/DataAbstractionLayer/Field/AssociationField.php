@@ -4,7 +4,7 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Field;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 
-trait AssociationTrait
+class AssociationField extends Field
 {
     /**
      * @var bool

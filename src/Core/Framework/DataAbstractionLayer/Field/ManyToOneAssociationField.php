@@ -4,10 +4,8 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Field;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 
-class ManyToOneAssociationField extends Field implements AssociationInterface
+class ManyToOneAssociationField extends AssociationField
 {
-    use AssociationTrait;
-
     public const PRIORITY = 80;
 
     /**

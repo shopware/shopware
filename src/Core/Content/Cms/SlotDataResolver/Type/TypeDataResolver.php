@@ -7,7 +7,7 @@ use Shopware\Core\Content\Cms\SlotDataResolver\ResolverContext\EntityResolverCon
 use Shopware\Core\Content\Cms\SlotDataResolver\SlotTypeDataResolverInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
@@ -70,7 +70,7 @@ abstract class TypeDataResolver implements SlotTypeDataResolverInterface
 
             $smartDetect = false;
 
-            if ($value instanceof AssociationInterface) {
+            if ($value instanceof AssociationField) {
                 $fields = $value->getReferenceClass()::getFields();
             }
         }

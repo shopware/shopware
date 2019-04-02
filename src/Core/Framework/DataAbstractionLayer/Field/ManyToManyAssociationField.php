@@ -4,10 +4,8 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Field;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 
-class ManyToManyAssociationField extends Field implements AssociationInterface
+class ManyToManyAssociationField extends AssociationField
 {
-    use AssociationTrait;
-
     /**
      * @var string
      */

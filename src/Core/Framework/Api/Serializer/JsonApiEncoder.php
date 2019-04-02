@@ -6,7 +6,7 @@ use Shopware\Core\Framework\Api\Exception\UnsupportedEncoderInputException;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Extension;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Internal;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
@@ -153,7 +153,7 @@ class JsonApiEncoder
                 continue;
             }
 
-            if ($field instanceof AssociationInterface) {
+            if ($field instanceof AssociationField) {
                 $isSingle = $field instanceof ManyToOneAssociationField || $field instanceof OneToOneAssociationField;
 
                 $reference = $field->getReferenceClass();

@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer;
 
-use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StorageAware;
 use Shopware\Core\Framework\Struct\Collection;
@@ -29,7 +29,7 @@ class FieldCollection extends Collection
         $this->validateType($field);
 
         $this->elements[$field->getPropertyName()] = $field;
-        if ($field instanceof StorageAware && !$field instanceof AssociationInterface) {
+        if ($field instanceof StorageAware && !$field instanceof AssociationField) {
             $this->mapping[$field->getStorageName()] = $field;
         }
     }
@@ -57,7 +57,7 @@ class FieldCollection extends Collection
     {
         return $this->filter(
             function (Field $field) {
-                if ($field instanceof AssociationInterface) {
+                if ($field instanceof AssociationField) {
                     return $field->loadInBasic();
                 }
 

@@ -5,7 +5,7 @@ namespace Shopware\Core\Framework\DataAbstractionLayer;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ChildrenAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
@@ -362,7 +362,7 @@ class VersionManager
             }
 
             //scalar value? assign directly
-            if (!$field instanceof AssociationInterface) {
+            if (!$field instanceof AssociationField) {
                 $payloadCursor[$field->getPropertyName()] = $value;
 
                 continue;
@@ -536,7 +536,7 @@ class VersionManager
         return $payload;
     }
 
-    private function removePrimaryKey(AssociationInterface $field, array $nestedItem): array
+    private function removePrimaryKey(AssociationField $field, array $nestedItem): array
     {
         $pkFields = $field->getReferenceClass()::getPrimaryKeys();
 
@@ -570,7 +570,7 @@ class VersionManager
         //add all cascade delete associations
         $cascades = $definition::getFields()->filterByFlag(CascadeDelete::class);
 
-        /** @var AssociationInterface $cascade */
+        /** @var AssociationField $cascade */
         foreach ($cascades as $cascade) {
             $nested = new Criteria();
 

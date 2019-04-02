@@ -245,11 +245,6 @@ Component.register('sw-settings-snippet-detail', {
                 1,
                 25,
                 {
-                    custom: false,
-                    empty: false,
-                    term: null,
-                    namespace: [],
-                    author: [],
                     translationKey: [this.translationKey]
                 }
             );

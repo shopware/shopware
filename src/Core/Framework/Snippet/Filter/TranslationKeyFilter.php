@@ -15,7 +15,7 @@ class TranslationKeyFilter extends AbstractFilter implements SnippetFilterInterf
     /**
      * {@inheritdoc}
      */
-    public function filter(array $snippets, $requestFilterValue, array $additionalData = []): array
+    public function filter(array $snippets, $requestFilterValue): array
     {
         if (empty($requestFilterValue) || !is_array($requestFilterValue)) {
             return $snippets;

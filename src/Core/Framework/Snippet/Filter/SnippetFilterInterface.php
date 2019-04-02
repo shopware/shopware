@@ -8,5 +8,5 @@ interface SnippetFilterInterface
 
     public function supports(string $name): bool;
 
-    public function filter(array $snippets, $requestFilterValue, array $additionalData = []): array;
+    public function filter(array $snippets, $requestFilterValue): array;
 }

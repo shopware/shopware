@@ -4,7 +4,6 @@ namespace Shopware\Core\Framework\Test\Translation;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\Snippet\Files\SnippetFileCollection;
@@ -57,7 +56,7 @@ class TranslatorTest extends TestCase
 
         // fake request
         $request = new Request();
-        $request->attributes->set(StorefrontRequest::ATTRIBUTE_DOMAIN_SNIPPET_SET_ID, Defaults::SNIPPET_BASE_SET_EN);
+        $request->attributes->set(StorefrontRequest::ATTRIBUTE_DOMAIN_SNIPPET_SET_ID, $this->getSnippetSetIdForLocale('en_GB'));
         $request->attributes->set(StorefrontRequest::ATTRIBUTE_DOMAIN_LOCALE, 'en_GB');
 
         $stack->push($request);
@@ -77,7 +76,7 @@ class TranslatorTest extends TestCase
         $snippet = [
             'translationKey' => 'new.unit.test.key',
             'value' => 'Realisiert mit Unit test',
-            'setId' => Defaults::SNIPPET_BASE_SET_EN,
+            'setId' => $this->getSnippetSetIdForLocale('en_GB'),
             'author' => 'Shopware',
         ];
         $this->snippetRepository->create([$snippet], $context);
@@ -85,7 +84,7 @@ class TranslatorTest extends TestCase
         // fake request
         $request = new Request();
 
-        $request->attributes->set(StorefrontRequest::ATTRIBUTE_DOMAIN_SNIPPET_SET_ID, Defaults::SNIPPET_BASE_SET_EN);
+        $request->attributes->set(StorefrontRequest::ATTRIBUTE_DOMAIN_SNIPPET_SET_ID, $this->getSnippetSetIdForLocale('en_GB'));
         $request->attributes->set(StorefrontRequest::ATTRIBUTE_DOMAIN_LOCALE, 'en_GB');
 
         $this->getContainer()->get(RequestStack::class)->push($request);
@@ -108,7 +107,7 @@ class TranslatorTest extends TestCase
             'id' => Uuid::randomHex(),
             'translationKey' => 'foo',
             'value' => 'bar',
-            'setId' => Defaults::SNIPPET_BASE_SET_EN,
+            'setId' => $this->getSnippetSetIdForLocale('en_GB'),
             'author' => 'Shopware',
         ];
 

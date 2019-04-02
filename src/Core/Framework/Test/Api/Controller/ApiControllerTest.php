@@ -9,7 +9,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Rule\Container\AndRule;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
-use Shopware\Core\Framework\Test\TestCaseBase\DemoDataTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\BasicTestDataBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\FilesystemBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -20,7 +20,7 @@ class ApiControllerTest extends TestCase
 {
     use KernelTestBehaviour,
         FilesystemBehaviour,
-        DemoDataTestBehaviour,
+        BasicTestDataBehaviour,
         AdminApiTestBehaviour;
 
     /**

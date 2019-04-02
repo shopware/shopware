@@ -7,10 +7,11 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Language\LanguageEntity;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
-trait DemoDataTestBehaviour
+trait BasicTestDataBehaviour
 {
     abstract protected function getContainer(): ContainerInterface;
 
@@ -66,10 +67,22 @@ trait DemoDataTestBehaviour
         /** @var EntityRepositoryInterface $repository */
         $repository = $this->getContainer()->get('language.repository');
 
-        /** @var LanguageEntity $langauge */
-        $langauge = $repository->search(new Criteria([Defaults::LANGUAGE_SYSTEM]), Context::createDefaultContext())->get(Defaults::LANGUAGE_SYSTEM);
+        /** @var LanguageEntity $language */
+        $language = $repository->search(new Criteria([Defaults::LANGUAGE_SYSTEM]), Context::createDefaultContext())->get(Defaults::LANGUAGE_SYSTEM);
 
-        return $langauge->getLocaleId();
+        return $language->getLocaleId();
+    }
+
+    protected function getSnippetSetIdForLocale(string $locale): ?string
+    {
+        /** @var EntityRepositoryInterface $repository */
+        $repository = $this->getContainer()->get('snippet_set.repository');
+
+        $criteria = (new Criteria())
+            ->addFilter(new EqualsFilter('iso', $locale))
+            ->setLimit(1);
+
+        return $repository->searchIds($criteria, Context::createDefaultContext())->getIds()[0] ?? null;
     }
 
     protected function getValidCountryId(): string

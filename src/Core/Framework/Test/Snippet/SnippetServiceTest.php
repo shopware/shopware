@@ -6,25 +6,16 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Context\SystemSource;
 use Shopware\Core\Framework\Snippet\Files\SnippetFileCollection;
+use Shopware\Core\Framework\Snippet\Files\SnippetFileInterface;
 use Shopware\Core\Framework\Snippet\Filter\SnippetFilterFactory;
 use Shopware\Core\Framework\Snippet\SnippetService;
-use Shopware\Core\Framework\Test\Snippet\_fixtures\SnippetFileMock;
-use Shopware\Core\Framework\Test\Snippet\_fixtures\testEmptyList\EmptySnippetFile;
-use Shopware\Core\Framework\Test\Snippet\_fixtures\testGetList\SnippetFile_bar_bar;
-use Shopware\Core\Framework\Test\Snippet\_fixtures\testGetList\SnippetFile_foo_foo;
-use Shopware\Core\Framework\Test\Snippet\_fixtures\testGetSnippetFilesByIso\de_AT;
-use Shopware\Core\Framework\Test\Snippet\_fixtures\testGetSnippetFilesByIso\de_AT_e1;
-use Shopware\Core\Framework\Test\Snippet\_fixtures\testGetSnippetFilesByIso\de_AT_e2;
-use Shopware\Core\Framework\Test\Snippet\_fixtures\testGetSnippetFilesByIso\en_US;
-use Shopware\Core\Framework\Test\Snippet\_fixtures\testGetSnippetFilesByIso\en_US_e1;
-use Shopware\Core\Framework\Test\Snippet\_fixtures\testGetSnippetFilesByIso\en_US_e2;
+use Shopware\Core\Framework\Test\Snippet\_fixtures\MockSnippetFile;
 use Shopware\Core\Framework\Test\Snippet\_fixtures\testGetStoreFrontSnippets\SnippetFile_de;
 use Shopware\Core\Framework\Test\Snippet\_fixtures\testGetStoreFrontSnippets\SnippetFile_en;
 use Shopware\Core\Framework\Test\TestCaseBase\AssertArraySubsetBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
-use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\Translation\MessageCatalogue;
 use Symfony\Component\Translation\MessageCatalogueInterface;
 
@@ -33,24 +24,21 @@ class SnippetServiceTest extends TestCase
     use IntegrationTestBehaviour,
         AssertArraySubsetBehaviour;
 
+    public static function tearDownAfterClass(): void
+    {
+        foreach (glob(__DIR__ . '/_fixtures/*.json') as $mockFile) {
+            unlink($mockFile);
+        }
+    }
+
     /**
      * @dataProvider dataProviderForTestGetStoreFrontSnippets
      */
     public function testGetStoreFrontSnippets(MessageCatalogueInterface $catalog, array $expectedResult): void
     {
-        $collection = new SnippetFileCollection();
-        $collection->add(new SnippetFile_de());
-        $collection->add(new SnippetFile_en());
+        $service = $this->getSnippetService(new SnippetFile_de(), new SnippetFile_en());
 
-        $service = new SnippetService(
-            $this->getContainer()->get(Connection::class),
-            $collection,
-            $this->getContainer()->get('snippet.repository'),
-            $this->getContainer()->get('snippet_set.repository'),
-            $this->getContainer()->get(SnippetFilterFactory::class)
-        );
-
-        $result = $service->getStorefrontSnippets($catalog, Defaults::SNIPPET_BASE_SET_EN);
+        $result = $service->getStorefrontSnippets($catalog, $this->getSnippetSetIdForLocale('en_GB'));
 
         static::assertSame($expectedResult, $result);
     }
@@ -64,267 +52,779 @@ class SnippetServiceTest extends TestCase
         ];
     }
 
-    public function testGetLocaleBySnippetSetId(): void
+    public function getStorefrontSnippetsForNotExistingSnippetSet()
     {
+        static::expectException(\InvalidArgumentException::class);
+
         $service = $this->getSnippetService();
 
-        $method = ReflectionHelper::getMethod(SnippetService::class, 'getLocaleBySnippetSetId');
-        $result_en_GB = $method->invoke($service, Defaults::SNIPPET_BASE_SET_EN);
-        $result_de_DE = $method->invoke($service, Defaults::SNIPPET_BASE_SET_DE);
-
-        static::assertSame('en_GB', $result_en_GB);
-        static::assertSame('de_DE', $result_de_DE);
+        $service->getStorefrontSnippets($this->getCatalog([], 'en_GB'), Uuid::randomHex());
     }
 
-    public function testFillBlankSnippets(): void
+    public function testGetRegionFilterItems(): void
     {
-        $service = $this->getSnippetService();
-        $mehtod = ReflectionHelper::getMethod(SnippetService::class, 'fillBlankSnippets');
-
-        $isoList = ['unit_TEST' => 'unit_TEST', 'en_GB' => 'en_GB'];
-
-        $expectedResult = $snippetList = [
-            'unit_TEST' => [
-                'snippets' => [
-                    'required.unit.test.snippet' => 'This snippet is missing in the other language and needs to be filled up',
-                ],
-            ],
-            'en_GB' => [
-                'snippets' => [
-                    'required.unit.test.snippet' => '',
-                ],
-            ],
-        ];
-
-        $result = $mehtod->invokeArgs($service, [$snippetList, $isoList]);
-
-        static::assertSame($expectedResult, $result);
+        $snippetFile = new MockSnippetFile('foo',
+            <<<json
+{
+    "foo": {
+        "baz": "foo_baz",
+        "bas": "foo_bas"
+    },
+    "bar": {
+        "zz": "bar_zz"
     }
-
-    public function testFetchSnippetsFromDatabase(): void
-    {
-        $sql = file_get_contents(__DIR__ . '/_fixtures/snippets-for-searching.sql');
-        $this->getContainer()->get(Connection::class)->executeQuery($sql);
-
-        $service = $this->getSnippetService();
-        $mehtod = ReflectionHelper::getMethod(SnippetService::class, 'fetchSnippetsFromDatabase');
-
-        $expextedResult = [
-            'detail.buyAddButton' => 'This is a test string',
-            'detail.configSubmit' => 'A new test string',
-            'detail.descriptionHeader' => 'Just another test string',
-            'documents.index_ls.DocumentIndexInvoiceID' => 'Tangled',
-            'documents.index.DocumentIndexHeadNet' => 'their dogs were astronauts',
-            'documents.index.DocumentIndexHeadNetAmount' => 'The mystery science theater 3000',
-            'documents.index.DocumentIndexHeadPosition' => 'Coincidence',
-            'footer.copyright' => 'Only possible with unit tests',
-            'footer.navigation1' => 'Who is Batman',
-            'footer.navigation2' => 'Maps of non existent Places',
-            'footer.newsletter' => 'Thank you scientist',
-        ];
-
-        $result = $mehtod->invoke($service, Defaults::SNIPPET_BASE_SET_EN);
-
-        static::assertSame($expextedResult, $result);
-    }
-
-    /**
-     * @dataProvider DataProviderForTestMergeSnippetsComparison
-     */
-    public function testMergeSnippetsComparison(array $sets, $expectedResult): void
-    {
-        $service = $this->getSnippetService();
-        $mehtod = ReflectionHelper::getMethod(SnippetService::class, 'mergeSnippetsComparison');
-
-        $result = $mehtod->invoke($service, $sets);
-
-        $this->silentAssertArraySubset($expectedResult, $result);
-    }
-
-    public function DataProviderForTestMergeSnippetsComparison(): array
-    {
-        $parameter = require __DIR__ . '/_fixtures/SnippetComparison.php';
-
-        return [
-            [[], []],
-            [$parameter['set1'], $parameter['result1']],
-            [$parameter['set2'], $parameter['result2']],
-        ];
-    }
-
-    public function testGetSnippetsFromFiles(): void
-    {
-        $service = $this->getSnippetService();
-        $mehtod = ReflectionHelper::getMethod(SnippetService::class, 'getSnippetsFromFiles');
-
-        $snippetFileMock = new SnippetFileMock();
-
-        $expectedResult = [
-            'only.possible.with.unitTests.test1' => ['value' => 'this is test 1.', 'origin' => 'this is test 1.', 'translationKey' => 'only.possible.with.unitTests.test1', 'setId' => 'setId'],
-            'only.possible.with.unitTests.test2' => ['value' => 'this is test 2.', 'origin' => 'this is test 2.', 'translationKey' => 'only.possible.with.unitTests.test2', 'setId' => 'setId'],
-            'only.possible.with.unitTests.test3' => ['value' => 'this is test 3.', 'origin' => 'this is test 3.', 'translationKey' => 'only.possible.with.unitTests.test3', 'setId' => 'setId'],
-            'only.possible.with.unitTests.test4' => ['value' => 'this is test 4.', 'origin' => 'this is test 4.', 'translationKey' => 'only.possible.with.unitTests.test4', 'setId' => 'setId'],
-            'only.possible.with.unitTests.test5' => ['value' => 'this is test 5.', 'origin' => 'this is test 5.', 'translationKey' => 'only.possible.with.unitTests.test5', 'setId' => 'setId'],
-            'only.possible.with.unitTests.test6' => ['value' => 'this is test 6.', 'origin' => 'this is test 6.', 'translationKey' => 'only.possible.with.unitTests.test6', 'setId' => 'setId'],
-            'only.possible.with.unitTests.test7' => ['value' => 'this is test 7.', 'origin' => 'this is test 7.', 'translationKey' => 'only.possible.with.unitTests.test7', 'setId' => 'setId'],
-            'only.possible.with.unitTests.test8' => ['value' => 'this is test 8.', 'origin' => 'this is test 8.', 'translationKey' => 'only.possible.with.unitTests.test8', 'setId' => 'setId'],
-        ];
-
-        $result = $mehtod->invokeArgs($service, [[$snippetFileMock], 'setId']);
-
-        $this->silentAssertArraySubset($expectedResult, $result);
-    }
-
-    public function testGetSnippetFilesByIso(): void
-    {
-        $snippetFiles = [
-            new de_AT(),
-            new de_AT_e1(),
-            new de_AT_e2(),
-            new en_US(),
-            new en_US_e1(),
-            new en_US_e2(),
-        ];
-
-        $service = $this->getSnippetService($snippetFiles);
-        $mehtod = ReflectionHelper::getMethod(SnippetService::class, 'getSnippetFilesByIso');
-
-        $result1 = $mehtod->invoke($service, ['de_AT']);
-        $result2 = $mehtod->invoke($service, ['en_US']);
-
-        static::assertCount(3, $result1['de_AT']);
-        static::assertCount(3, $result2['en_US']);
-    }
-
-    /**
-     * @dataProvider dataProviderForTestSortSnippets
-     */
-    public function testSortSnippets($snippets, $sortParams, $expectedResult): void
-    {
-        $service = $this->getSnippetService();
-        $result = ReflectionHelper::getMethod(SnippetService::class, 'sortSnippets')
-            ->invokeArgs($service, [$sortParams, $snippets]);
-
-        static::assertSame($expectedResult, $result);
-    }
-
-    public function dataProviderForTestSortSnippets(): array
-    {
-        $snippets = require __DIR__ . '/_fixtures/testSort/snippetsToSort.php';
-
-        return [
-            [[], [], []],
-            [[], ['sortBy' => 'foo'], []],
-            [$snippets, ['sortBy' => 'foo'], $snippets],
-            [$snippets, ['sortBy' => 'foo', 'sortDirection' => 'DESC'], $snippets],
-
-            [$snippets, ['sortBy' => 'translationKey'], $snippets],
-            [$snippets, ['sortBy' => 'translationKey', 'sortDirection' => 'ASC'], $snippets],
-            [$snippets, ['sortBy' => 'translationKey', 'sortDirection' => 'DESC'], require __DIR__ . '/_fixtures/testSort/expectedResultSort1.php'],
-
-            [$snippets, ['sortBy' => '71a916e745114d72abafbfdc51cbd9d0'], $snippets],
-            [$snippets, ['sortBy' => '71a916e745114d72abafbfdc51cbd9d0', 'sortDirection' => 'ASC'], require __DIR__ . '/_fixtures/testSort/expectedResultSort2.php'],
-            [$snippets, ['sortBy' => '71a916e745114d72abafbfdc51cbd9d0', 'sortDirection' => 'DESC'], require __DIR__ . '/_fixtures/testSort/expectedResultSort3.php'],
-
-            [$snippets, ['sortBy' => 'b8d2230a7b324e448c9c8b22ed1b89d8'], $snippets],
-            [$snippets, ['sortBy' => 'b8d2230a7b324e448c9c8b22ed1b89d8', 'sortDirection' => 'ASC'], require __DIR__ . '/_fixtures/testSort/expectedResultSort4.php'],
-            [$snippets, ['sortBy' => 'b8d2230a7b324e448c9c8b22ed1b89d8', 'sortDirection' => 'DESC'], require __DIR__ . '/_fixtures/testSort/expectedResultSort5.php'],
-        ];
-    }
-
-    /**
-     * @dataProvider dataProviderForTestGetList
-     */
-    public function testGetList($params, $expectedResult): void
-    {
-        $sql = file_get_contents(__DIR__ . '/_fixtures/testGetList/SetSql.sql');
-        $this->getContainer()->get(Connection::class)->exec($sql);
-
-        $collection = new SnippetFileCollection();
-        $collection->add(new SnippetFile_foo_foo());
-        $collection->add(new SnippetFile_bar_bar());
-
-        $context = new Context(new SystemSource());
-
-        $service = new SnippetService(
-            $this->getContainer()->get(Connection::class),
-            $collection,
-            $this->getContainer()->get('snippet.repository'),
-            $this->getContainer()->get('snippet_set.repository'),
-            $this->getContainer()->get(SnippetFilterFactory::class)
+}
+json
         );
 
-        $result = $service->getList($params['page'], $params['limit'], $context, $params['filter'], $params['sort']);
+        $fooId = Uuid::randomBytes();
+        $connection = $this->getContainer()->get(Connection::class);
 
-        static::assertSame($expectedResult, $result);
+        $connection->insert('snippet_set', [
+            'id' => $fooId,
+            'name' => 'foo',
+            'base_file' => 'foo',
+            'iso' => 'foo',
+            'created_at' => (new \DateTimeImmutable())->format(Defaults::DATE_FORMAT),
+        ]);
+
+        $connection->insert('snippet', [
+            'id' => Uuid::randomBytes(),
+            'translation_key' => 'test.ab',
+            'value' => 'foo_ab',
+            'author' => 'shopware',
+            'snippet_set_id' => $fooId,
+            'created_at' => (new \DateTimeImmutable())->format(Defaults::DATE_FORMAT),
+        ]);
+
+        $service = $this->getSnippetService($snippetFile);
+        $result = $service->getRegionFilterItems(Context::createDefaultContext());
+
+        static::assertEquals([
+            'foo',
+            'bar',
+            'test',
+        ], $result);
     }
 
-    public function dataProviderForTestGetList(): array
+    public function testGetAuthors(): void
     {
-        $defaultParams = [
-            'page' => 1,
-            'limit' => 25,
-            'filter' => [],
-            'sort' => [],
-        ];
+        $snippetFile = new MockSnippetFile('foo', '{}');
+        $snippetFile2 = new MockSnippetFile('Admin', '{}');
 
-        $limitTest = array_replace($defaultParams, ['limit' => 2]);
-        $limitPageTest = array_replace($defaultParams, ['limit' => 2, 'page' => 3]);
-        $filterAuthorTest = array_replace($defaultParams, ['filter' => ['author' => ['user/admin']]]);
-        $filterCustomTest = array_replace($defaultParams, ['filter' => ['custom' => true]]);
-        $filterEmptyTest = array_replace($defaultParams, ['filter' => ['empty' => true]]);
-        $filterNamespaceTest = array_replace($defaultParams, ['filter' => ['namespace' => ['cc', 'unit']]]);
-        $filterTerm1Test = array_replace($defaultParams, ['filter' => ['term' => '4']]);
-        $filterTerm2Test = array_replace($defaultParams, ['filter' => ['term' => 'dd bar']]);
-        $filterTerm3Test = array_replace($defaultParams, ['filter' => ['term' => 'onlyFor']]);
-        $filterTranslationKeyTest = array_replace($defaultParams, ['filter' => ['translationKey' => ['aa.ff']]]);
-        $filterTranslationKey2Test = array_replace($defaultParams, ['filter' => ['translationKey' => ['aa.ff', 'aa.aa']]]);
-        $sortTest = array_replace($defaultParams, ['sort' => ['sortBy' => 'translationKey', 'sortDirection' => 'ASC'], 'filter' => ['translationKey' => ['aa.aa', 'aa.bb', 'aa.ff', 'aa.gg']]]);
-        $sort2Test = array_replace($defaultParams, ['sort' => ['sortBy' => 'translationKey', 'sortDirection' => 'DESC'], 'filter' => ['translationKey' => ['aa.aa', 'aa.bb', 'aa.ff', 'aa.gg']]]);
-        $sort3Test = array_replace($defaultParams, ['sort' => ['sortBy' => '0d141d4373f3417e9655c9a30185481a', 'sortDirection' => 'DESC'], 'filter' => ['translationKey' => ['aa.aa', 'aa.bb', 'aa.ff', 'aa.gg']]]);
+        $fooId = Uuid::randomBytes();
+        $connection = $this->getContainer()->get(Connection::class);
 
-        return [
-            [$defaultParams, require __DIR__ . '/_fixtures/testGetList/result1.php'],
-            [$limitTest, require __DIR__ . '/_fixtures/testGetList/result2.php'],
-            [$limitPageTest, require __DIR__ . '/_fixtures/testGetList/result3.php'],
-            [$filterAuthorTest, require __DIR__ . '/_fixtures/testGetList/result4.php'],
-            [$filterCustomTest, require __DIR__ . '/_fixtures/testGetList/result4.php'],
-            [$filterEmptyTest, require __DIR__ . '/_fixtures/testGetList/result5.php'],
-            [$filterNamespaceTest, require __DIR__ . '/_fixtures/testGetList/result6.php'],
-            [$filterTerm1Test, require __DIR__ . '/_fixtures/testGetList/result7.php'],
-            [$filterTerm2Test, require __DIR__ . '/_fixtures/testGetList/result8.php'],
-            [$filterTerm3Test, require __DIR__ . '/_fixtures/testGetList/result9.php'],
-            [$filterTranslationKeyTest, require __DIR__ . '/_fixtures/testGetList/result10.php'],
-            [$filterTranslationKey2Test, require __DIR__ . '/_fixtures/testGetList/result11.php'],
-            [$sortTest, require __DIR__ . '/_fixtures/testGetList/result12.php'],
-            [$sort2Test, require __DIR__ . '/_fixtures/testGetList/result13.php'],
-            [$sort3Test, require __DIR__ . '/_fixtures/testGetList/result14.php'],
-        ];
+        $connection->insert('snippet_set', [
+            'id' => $fooId,
+            'name' => 'foo',
+            'base_file' => 'foo',
+            'iso' => 'foo',
+            'created_at' => (new \DateTimeImmutable())->format(Defaults::DATE_FORMAT),
+        ]);
+
+        $connection->insert('snippet', [
+            'id' => Uuid::randomBytes(),
+            'translation_key' => 'foo.ab',
+            'value' => 'foo_ab',
+            'author' => 'shopware',
+            'snippet_set_id' => $fooId,
+            'created_at' => (new \DateTimeImmutable())->format(Defaults::DATE_FORMAT),
+        ]);
+        $connection->insert('snippet', [
+            'id' => Uuid::randomBytes(),
+            'translation_key' => 'foo.123',
+            'value' => 'foo_123',
+            'author' => 'test',
+            'snippet_set_id' => $fooId,
+            'created_at' => (new \DateTimeImmutable())->format(Defaults::DATE_FORMAT),
+        ]);
+
+        $service = $this->getSnippetService($snippetFile, $snippetFile2);
+        $result = $service->getAuthors(Context::createDefaultContext());
+
+        static::assertCount(4, $result);
+
+        static::assertContains('shopware', $result);
+        static::assertContains('test', $result);
+        static::assertContains('foo', $result);
+        static::assertContains('Admin', $result);
+    }
+
+    public function testGetAuthorsWithoutDBAuthors(): void
+    {
+        $fooId = Uuid::randomBytes();
+        $connection = $this->getContainer()->get(Connection::class);
+
+        $connection->insert('snippet_set', [
+            'id' => $fooId,
+            'name' => 'foo',
+            'base_file' => 'foo',
+            'iso' => 'foo',
+            'created_at' => (new \DateTimeImmutable())->format(Defaults::DATE_FORMAT),
+        ]);
+
+        $connection->insert('snippet', [
+            'id' => Uuid::randomBytes(),
+            'translation_key' => 'foo.ab',
+            'value' => 'foo_ab',
+            'author' => 'shopware',
+            'snippet_set_id' => $fooId,
+            'created_at' => (new \DateTimeImmutable())->format(Defaults::DATE_FORMAT),
+        ]);
+        $connection->insert('snippet', [
+            'id' => Uuid::randomBytes(),
+            'translation_key' => 'foo.123',
+            'value' => 'foo_123',
+            'author' => 'test',
+            'snippet_set_id' => $fooId,
+            'created_at' => (new \DateTimeImmutable())->format(Defaults::DATE_FORMAT),
+        ]);
+
+        $service = $this->getSnippetService();
+        $result = $service->getAuthors(Context::createDefaultContext());
+
+        static::assertCount(2, $result);
+
+        static::assertContains('shopware', $result);
+        static::assertContains('test', $result);
+    }
+
+    public function testGetAuthorsFileAuthors(): void
+    {
+        $snippetFile = new MockSnippetFile('foo', '{}');
+        $snippetFile2 = new MockSnippetFile('Admin', '{}');
+
+        $service = $this->getSnippetService($snippetFile, $snippetFile2);
+        $result = $service->getAuthors(Context::createDefaultContext());
+
+        static::assertCount(2, $result);
+
+        static::assertContains('foo', $result);
+        static::assertContains('Admin', $result);
+    }
+
+    public function testGetListMergesFromFileAndDb(): void
+    {
+        $snippetFile = new MockSnippetFile('foo',
+<<<json
+{
+    "foo": {
+        "bar": "foo_bar"
+    }
+}
+json
+        );
+
+        $fooId = Uuid::randomBytes();
+        $connection = $this->getContainer()->get(Connection::class);
+
+        $connection->insert('snippet_set', [
+            'id' => $fooId,
+            'name' => 'foo',
+            'base_file' => 'foo',
+            'iso' => 'foo',
+            'created_at' => (new \DateTimeImmutable())->format(Defaults::DATE_FORMAT),
+        ]);
+
+        $connection->insert('snippet', [
+            'id' => Uuid::randomBytes(),
+            'translation_key' => 'foo.baz',
+            'value' => 'foo_baz',
+            'author' => 'shopware',
+            'snippet_set_id' => $fooId,
+            'created_at' => (new \DateTimeImmutable())->format(Defaults::DATE_FORMAT),
+        ]);
+
+        $service = $this->getSnippetService($snippetFile);
+        $result = $service->getList(1, 25, Context::createDefaultContext(), [], []);
+
+        static::assertSame(2, $result['total']);
+        $this->assertSnippetResult($result, 'foo.bar', $fooId, 'foo_bar', 'foo_bar');
+        $this->assertSnippetResult($result, 'foo.baz', $fooId, 'foo_baz');
+    }
+
+    public function testGetListDbOverwritesFile(): void
+    {
+        $snippetFile = new MockSnippetFile('foo',
+            <<<json
+{
+    "foo": {
+        "bar": "foo_bar"
+    }
+}
+json
+        );
+
+        $fooId = Uuid::randomBytes();
+        $connection = $this->getContainer()->get(Connection::class);
+
+        $connection->insert('snippet_set', [
+            'id' => $fooId,
+            'name' => 'foo',
+            'base_file' => 'foo',
+            'iso' => 'foo',
+            'created_at' => (new \DateTimeImmutable())->format(Defaults::DATE_FORMAT),
+        ]);
+
+        $connection->insert('snippet', [
+            'id' => Uuid::randomBytes(),
+            'translation_key' => 'foo.bar',
+            'value' => 'foo_baz',
+            'author' => 'shopware',
+            'snippet_set_id' => $fooId,
+            'created_at' => (new \DateTimeImmutable())->format(Defaults::DATE_FORMAT),
+        ]);
+
+        $service = $this->getSnippetService($snippetFile);
+        $result = $service->getList(1, 25, Context::createDefaultContext(), [], []);
+
+        static::assertSame(1, $result['total']);
+        $this->assertSnippetResult($result, 'foo.bar', $fooId, 'foo_baz');
+    }
+
+    public function testGetListWithMultipleSets(): void
+    {
+        $snippetFile = new MockSnippetFile('foo',
+            <<<json
+{
+    "foo": {
+        "bar": "foo_bar"
+    }
+}
+json
+        );
+
+        $fooId = Uuid::randomBytes();
+        $barId = Uuid::randomBytes();
+        $connection = $this->getContainer()->get(Connection::class);
+
+        $connection->insert('snippet_set', [
+            'id' => $fooId,
+            'name' => 'foo',
+            'base_file' => 'foo',
+            'iso' => 'foo',
+            'created_at' => (new \DateTimeImmutable())->format(Defaults::DATE_FORMAT),
+        ]);
+        $connection->insert('snippet_set', [
+            'id' => $barId,
+            'name' => 'bar',
+            'base_file' => 'bar',
+            'iso' => 'bar',
+            'created_at' => (new \DateTimeImmutable())->format(Defaults::DATE_FORMAT),
+        ]);
+
+        $connection->insert('snippet', [
+            'id' => Uuid::randomBytes(),
+            'translation_key' => 'bar.baz',
+            'value' => 'bar_baz',
+            'author' => 'shopware',
+            'snippet_set_id' => $barId,
+            'created_at' => (new \DateTimeImmutable())->format(Defaults::DATE_FORMAT),
+        ]);
+
+        $service = $this->getSnippetService($snippetFile);
+        $result = $service->getList(1, 25, Context::createDefaultContext(), [], []);
+
+        static::assertSame(2, $result['total']);
+        $this->assertSnippetResult($result, 'foo.bar', $fooId, 'foo_bar', 'foo_bar');
+        $this->assertSnippetResult($result, 'bar.baz', $barId, 'bar_baz');
+    }
+
+    public function testGetListWithSameTranslationKeyInMultipleSets(): void
+    {
+        $snippetFile = new MockSnippetFile('foo',
+            <<<json
+{
+    "foo": {
+        "bar": "foo_bar"
+    }
+}
+json
+        );
+
+        $fooId = Uuid::randomBytes();
+        $barId = Uuid::randomBytes();
+        $connection = $this->getContainer()->get(Connection::class);
+
+        $connection->insert('snippet_set', [
+            'id' => $fooId,
+            'name' => 'foo',
+            'base_file' => 'foo',
+            'iso' => 'foo',
+            'created_at' => (new \DateTimeImmutable())->format(Defaults::DATE_FORMAT),
+        ]);
+        $connection->insert('snippet_set', [
+            'id' => $barId,
+            'name' => 'bar',
+            'base_file' => 'bar',
+            'iso' => 'bar',
+            'created_at' => (new \DateTimeImmutable())->format(Defaults::DATE_FORMAT),
+        ]);
+
+        $connection->insert('snippet', [
+            'id' => Uuid::randomBytes(),
+            'translation_key' => 'foo.bar',
+            'value' => 'bar_baz',
+            'author' => 'shopware',
+            'snippet_set_id' => $barId,
+            'created_at' => (new \DateTimeImmutable())->format(Defaults::DATE_FORMAT),
+        ]);
+
+        $service = $this->getSnippetService($snippetFile);
+        $result = $service->getList(1, 25, Context::createDefaultContext(), [], []);
+
+        static::assertSame(1, $result['total']);
+        foreach ($result['data']['foo.bar'] as $snippetSetData) {
+            if ($snippetSetData['setId'] === Uuid::fromBytesToHex($fooId)) {
+                static::assertSame('foo_bar', $snippetSetData['value']);
+                continue;
+            }
+            if ($snippetSetData['setId'] === Uuid::fromBytesToHex($barId)) {
+                static::assertSame('bar_baz', $snippetSetData['value']);
+                continue;
+            }
+
+            static::assertEmpty($snippetSetData['value']);
+        }
+    }
+
+    public function testGetListWithPagination(): void
+    {
+        $snippetFile = new MockSnippetFile('foo',
+            <<<json
+{
+    "foo": {
+        "bar": "foo_bar",
+        "foo": "foo_foo",
+        "baz": "foo_baz",
+        "bas": "foo_bas"
+    }
+}
+json
+        );
+
+        $fooId = Uuid::randomBytes();
+        $connection = $this->getContainer()->get(Connection::class);
+
+        $connection->insert('snippet_set', [
+            'id' => $fooId,
+            'name' => 'foo',
+            'base_file' => 'foo',
+            'iso' => 'foo',
+            'created_at' => (new \DateTimeImmutable())->format(Defaults::DATE_FORMAT),
+        ]);
+
+        $connection->insert('snippet', [
+            'id' => Uuid::randomBytes(),
+            'translation_key' => 'foo.test',
+            'value' => 'foo_test',
+            'author' => 'shopware',
+            'snippet_set_id' => $fooId,
+            'created_at' => (new \DateTimeImmutable())->format(Defaults::DATE_FORMAT),
+        ]);
+
+        $service = $this->getSnippetService($snippetFile);
+        $result = $service->getList(1, 3, Context::createDefaultContext(), [], []);
+
+        static::assertSame(5, $result['total']);
+        static::assertCount(3, $result['data']);
+        $data = $result['data'];
+
+        $result = $service->getList(2, 3, Context::createDefaultContext(), [], []);
+        static::assertSame(5, $result['total']);
+        static::assertCount(2, $result['data']);
+        $data = array_merge($data, $result['data']);
+
+        $result = $service->getList(4, 3, Context::createDefaultContext(), [], []);
+        static::assertSame(5, $result['total']);
+        static::assertCount(0, $result['data']);
+
+        $this->assertSnippetResult(['data' => $data], 'foo.bar', $fooId, 'foo_bar', 'foo_bar');
+        $this->assertSnippetResult(['data' => $data], 'foo.foo', $fooId, 'foo_foo', 'foo_foo');
+        $this->assertSnippetResult(['data' => $data], 'foo.baz', $fooId, 'foo_baz', 'foo_baz');
+        $this->assertSnippetResult(['data' => $data], 'foo.bas', $fooId, 'foo_bas', 'foo_bas');
+        $this->assertSnippetResult(['data' => $data], 'foo.test', $fooId, 'foo_test');
+    }
+
+    public function testGetListSortsByTranslationKey(): void
+    {
+        $snippetFile = new MockSnippetFile('foo',
+            <<<json
+{
+    "foo": {
+        "baz": "foo_baz",
+        "bas": "foo_bas"
+    },
+    "bar": {
+        "zz": "bar_zz"
+    }
+}
+json
+        );
+
+        $fooId = Uuid::randomBytes();
+        $connection = $this->getContainer()->get(Connection::class);
+
+        $connection->insert('snippet_set', [
+            'id' => $fooId,
+            'name' => 'foo',
+            'base_file' => 'foo',
+            'iso' => 'foo',
+            'created_at' => (new \DateTimeImmutable())->format(Defaults::DATE_FORMAT),
+        ]);
+
+        $connection->insert('snippet', [
+            'id' => Uuid::randomBytes(),
+            'translation_key' => 'foo.ab',
+            'value' => 'foo_ab',
+            'author' => 'shopware',
+            'snippet_set_id' => $fooId,
+            'created_at' => (new \DateTimeImmutable())->format(Defaults::DATE_FORMAT),
+        ]);
+
+        $service = $this->getSnippetService($snippetFile);
+        $result = $service->getList(1, 25, Context::createDefaultContext(), [], [
+            'sortBy' => 'translationKey',
+            'sortDirection' => 'ASC',
+        ]);
+
+        static::assertSame(4, $result['total']);
+
+        $this->assertSnippetResult($result, 'bar.zz', $fooId, 'bar_zz', 'bar_zz');
+        $this->assertSnippetResult($result, 'foo.baz', $fooId, 'foo_baz', 'foo_baz');
+        $this->assertSnippetResult($result, 'foo.bas', $fooId, 'foo_bas', 'foo_bas');
+        $this->assertSnippetResult($result, 'foo.ab', $fooId, 'foo_ab');
+
+        static::assertSame([
+            'bar.zz',
+            'foo.ab',
+            'foo.bas',
+            'foo.baz',
+        ], array_keys($result['data']));
+    }
+
+    public function testGetListSortsByTranslationKeyDESC(): void
+    {
+        $snippetFile = new MockSnippetFile('foo',
+            <<<json
+{
+    "foo": {
+        "baz": "foo_baz",
+        "bas": "foo_bas"
+    },
+    "bar": {
+        "zz": "bar_zz"
+    }
+}
+json
+        );
+
+        $fooId = Uuid::randomBytes();
+        $connection = $this->getContainer()->get(Connection::class);
+
+        $connection->insert('snippet_set', [
+            'id' => $fooId,
+            'name' => 'foo',
+            'base_file' => 'foo',
+            'iso' => 'foo',
+            'created_at' => (new \DateTimeImmutable())->format(Defaults::DATE_FORMAT),
+        ]);
+
+        $connection->insert('snippet', [
+            'id' => Uuid::randomBytes(),
+            'translation_key' => 'foo.ab',
+            'value' => 'foo_ab',
+            'author' => 'shopware',
+            'snippet_set_id' => $fooId,
+            'created_at' => (new \DateTimeImmutable())->format(Defaults::DATE_FORMAT),
+        ]);
+
+        $service = $this->getSnippetService($snippetFile);
+        $result = $service->getList(1, 25, Context::createDefaultContext(), [], [
+            'sortBy' => 'translationKey',
+            'sortDirection' => 'DESC',
+        ]);
+
+        static::assertSame(4, $result['total']);
+
+        $this->assertSnippetResult($result, 'bar.zz', $fooId, 'bar_zz', 'bar_zz');
+        $this->assertSnippetResult($result, 'foo.baz', $fooId, 'foo_baz', 'foo_baz');
+        $this->assertSnippetResult($result, 'foo.bas', $fooId, 'foo_bas', 'foo_bas');
+        $this->assertSnippetResult($result, 'foo.ab', $fooId, 'foo_ab');
+
+        static::assertSame([
+            'foo.baz',
+            'foo.bas',
+            'foo.ab',
+            'bar.zz',
+        ], array_keys($result['data']));
+    }
+
+    public function testGetListSortsBySnippetSetId(): void
+    {
+        $snippetFile = new MockSnippetFile('foo',
+            <<<json
+{
+    "foo": {
+        "baz": "foo_baz",
+        "bas": "foo_bas"
+    },
+    "bar": {
+        "zz": "bar_zz"
+    }
+}
+json
+        );
+
+        $fooId = Uuid::randomBytes();
+        $connection = $this->getContainer()->get(Connection::class);
+
+        $connection->insert('snippet_set', [
+            'id' => $fooId,
+            'name' => 'foo',
+            'base_file' => 'foo',
+            'iso' => 'foo',
+            'created_at' => (new \DateTimeImmutable())->format(Defaults::DATE_FORMAT),
+        ]);
+
+        $connection->insert('snippet', [
+            'id' => Uuid::randomBytes(),
+            'translation_key' => 'foo.ab',
+            'value' => 'foo_ab',
+            'author' => 'shopware',
+            'snippet_set_id' => $fooId,
+            'created_at' => (new \DateTimeImmutable())->format(Defaults::DATE_FORMAT),
+        ]);
+
+        $service = $this->getSnippetService($snippetFile);
+        $result = $service->getList(1, 25, Context::createDefaultContext(), [], [
+            'sortBy' => Uuid::fromBytesToHex($fooId),
+            'sortDirection' => 'ASC',
+        ]);
+
+        static::assertSame(4, $result['total']);
+
+        $this->assertSnippetResult($result, 'bar.zz', $fooId, 'bar_zz', 'bar_zz');
+        $this->assertSnippetResult($result, 'foo.baz', $fooId, 'foo_baz', 'foo_baz');
+        $this->assertSnippetResult($result, 'foo.bas', $fooId, 'foo_bas', 'foo_bas');
+        $this->assertSnippetResult($result, 'foo.ab', $fooId, 'foo_ab');
+
+        $this->assertFirstSnippetSetIdEquals($result, $fooId);
+
+        static::assertSame([
+            'bar.zz',
+            'foo.ab',
+            'foo.bas',
+            'foo.baz',
+        ], array_keys($result['data']));
+    }
+
+    public function testGetListSortsBySnippetSetIdDESC(): void
+    {
+        $snippetFile = new MockSnippetFile('foo',
+            <<<json
+{
+    "foo": {
+        "baz": "foo_baz",
+        "bas": "foo_bas"
+    },
+    "bar": {
+        "zz": "bar_zz"
+    }
+}
+json
+        );
+
+        $fooId = Uuid::randomBytes();
+        $connection = $this->getContainer()->get(Connection::class);
+
+        $connection->insert('snippet_set', [
+            'id' => $fooId,
+            'name' => 'foo',
+            'base_file' => 'foo',
+            'iso' => 'foo',
+            'created_at' => (new \DateTimeImmutable())->format(Defaults::DATE_FORMAT),
+        ]);
+
+        $connection->insert('snippet', [
+            'id' => Uuid::randomBytes(),
+            'translation_key' => 'foo.ab',
+            'value' => 'foo_ab',
+            'author' => 'shopware',
+            'snippet_set_id' => $fooId,
+            'created_at' => (new \DateTimeImmutable())->format(Defaults::DATE_FORMAT),
+        ]);
+
+        $service = $this->getSnippetService($snippetFile);
+        $result = $service->getList(1, 25, Context::createDefaultContext(), [], [
+            'sortBy' => Uuid::fromBytesToHex($fooId),
+            'sortDirection' => 'DESC',
+        ]);
+
+        static::assertSame(4, $result['total']);
+
+        $this->assertFirstSnippetSetIdEquals($result, $fooId);
+
+        $this->assertSnippetResult($result, 'bar.zz', $fooId, 'bar_zz', 'bar_zz');
+        $this->assertSnippetResult($result, 'foo.baz', $fooId, 'foo_baz', 'foo_baz');
+        $this->assertSnippetResult($result, 'foo.bas', $fooId, 'foo_bas', 'foo_bas');
+        $this->assertSnippetResult($result, 'foo.ab', $fooId, 'foo_ab');
+
+        static::assertSame([
+            'foo.baz',
+            'foo.bas',
+            'foo.ab',
+            'bar.zz',
+        ], array_keys($result['data']));
+    }
+
+    public function testGetListIgnoresSortingForNotExistingSnippetSetId(): void
+    {
+        $snippetFile = new MockSnippetFile('foo',
+            <<<json
+{
+    "foo": {
+        "baz": "foo_baz",
+        "bas": "foo_bas"
+    },
+    "bar": {
+        "zz": "bar_zz"
+    }
+}
+json
+        );
+
+        $fooId = Uuid::randomBytes();
+        $connection = $this->getContainer()->get(Connection::class);
+
+        $connection->insert('snippet_set', [
+            'id' => $fooId,
+            'name' => 'foo',
+            'base_file' => 'foo',
+            'iso' => 'foo',
+            'created_at' => (new \DateTimeImmutable())->format(Defaults::DATE_FORMAT),
+        ]);
+
+        $connection->insert('snippet', [
+            'id' => Uuid::randomBytes(),
+            'translation_key' => 'foo.ab',
+            'value' => 'foo_ab',
+            'author' => 'shopware',
+            'snippet_set_id' => $fooId,
+            'created_at' => (new \DateTimeImmutable())->format(Defaults::DATE_FORMAT),
+        ]);
+
+        $service = $this->getSnippetService($snippetFile);
+        $result = $service->getList(1, 25, Context::createDefaultContext(), [], [
+            'sortBy' => Uuid::randomHex(),
+        ]);
+
+        static::assertSame(4, $result['total']);
+
+        $this->assertSnippetResult($result, 'bar.zz', $fooId, 'bar_zz', 'bar_zz');
+        $this->assertSnippetResult($result, 'foo.baz', $fooId, 'foo_baz', 'foo_baz');
+        $this->assertSnippetResult($result, 'foo.bas', $fooId, 'foo_bas', 'foo_bas');
+        $this->assertSnippetResult($result, 'foo.ab', $fooId, 'foo_ab');
+
+        static::assertSame([
+            'bar.zz',
+            'foo.ab',
+            'foo.bas',
+            'foo.baz',
+        ], array_keys($result['data']));
+    }
+
+    public function testGetListFilters(): void
+    {
+        $snippetFile = new MockSnippetFile('foo',
+            <<<json
+{
+    "foo": {
+        "baz": "foo_baz",
+        "bas": "foo_bas"
+    },
+    "bar": {
+        "zz": "bar_zz"
+    }
+}
+json
+        );
+
+        $fooId = Uuid::randomBytes();
+        $connection = $this->getContainer()->get(Connection::class);
+
+        $connection->insert('snippet_set', [
+            'id' => $fooId,
+            'name' => 'foo',
+            'base_file' => 'foo',
+            'iso' => 'foo',
+            'created_at' => (new \DateTimeImmutable())->format(Defaults::DATE_FORMAT),
+        ]);
+
+        $connection->insert('snippet', [
+            'id' => Uuid::randomBytes(),
+            'translation_key' => 'foo.ab',
+            'value' => 'foo_ab',
+            'author' => 'shopware',
+            'snippet_set_id' => $fooId,
+            'created_at' => (new \DateTimeImmutable())->format(Defaults::DATE_FORMAT),
+        ]);
+        $connection->insert('snippet', [
+            'id' => Uuid::randomBytes(),
+            'translation_key' => 'bar.ab',
+            'value' => 'bar_ab',
+            'author' => 'shopware',
+            'snippet_set_id' => $fooId,
+            'created_at' => (new \DateTimeImmutable())->format(Defaults::DATE_FORMAT),
+        ]);
+
+        $service = $this->getSnippetService($snippetFile);
+        $result = $service->getList(1, 25, Context::createDefaultContext(), ['namespace' => ['foo']], []);
+
+        static::assertSame(3, $result['total']);
+
+        $this->assertSnippetResult($result, 'foo.baz', $fooId, 'foo_baz', 'foo_baz');
+        $this->assertSnippetResult($result, 'foo.bas', $fooId, 'foo_bas', 'foo_bas');
+        $this->assertSnippetResult($result, 'foo.ab', $fooId, 'foo_ab');
     }
 
     public function testGetEmptyList(): void
     {
-        $collection = new SnippetFileCollection();
-        $collection->add(new EmptySnippetFile());
+        $service = $this->getSnippetService(new MockSnippetFile('foo'));
 
-        $service = new SnippetService(
-            $this->getContainer()->get(Connection::class),
-            $collection,
-            $this->getContainer()->get('snippet.repository'),
-            $this->getContainer()->get('snippet_set.repository'),
-            $this->getContainer()->get(SnippetFilterFactory::class)
-        );
-
-        $result = $service->getList(0, 25, new Context(new SystemSource()), [], []);
+        $result = $service->getList(0, 25, Context::createDefaultContext(), [], []);
 
         static::assertSame(['total' => 0, 'data' => []], $result);
     }
 
-    private function getSnippetService(array $snippetFiles = []): SnippetService
+    private function getCatalog(array $messages, string $local): MessageCatalogueInterface
     {
-        $collection = $this->getContainer()->get(SnippetFileCollection::class);
-        foreach ($snippetFiles as $snippetFile) {
-            $collection->add($snippetFile);
+        return new MessageCatalogue($local, $messages);
+    }
+
+    private function assertSnippetResult(
+        array $result,
+        string $translationKey,
+        string $snippetSetId,
+        string $value,
+        ?string $originValue = null
+    ): void {
+        foreach ($result['data'][$translationKey] as $snippetSetData) {
+            if ($snippetSetData['setId'] !== Uuid::fromBytesToHex($snippetSetId)) {
+                static::assertEmpty($snippetSetData['value']);
+            } else {
+                static::assertSame($value, $snippetSetData['value']);
+                $originValue === null ?: static::assertSame($originValue, $snippetSetData['origin']);
+            }
+        }
+    }
+
+    private function getSnippetService(SnippetFileInterface ...$snippetFiles): SnippetService
+    {
+        $collection = new SnippetFileCollection();
+        foreach ($snippetFiles as $file) {
+            $collection->add($file);
         }
 
         return new SnippetService(
@@ -336,8 +836,10 @@ class SnippetServiceTest extends TestCase
         );
     }
 
-    private function getCatalog(array $messages, string $local): MessageCatalogueInterface
+    private function assertFirstSnippetSetIdEquals(array $result, string $fooId): void
     {
-        return new MessageCatalogue($local, $messages);
+        foreach ($result['data'] as $data) {
+            static::assertSame(Uuid::fromBytesToHex($fooId), $data[0]['setId']);
+        }
     }
 }

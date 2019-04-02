@@ -47,7 +47,6 @@
       "modalTitleDelete": "Textbausteine",
       "textDeleteConfirm": "Möchtest Du die Textbausteine für \"{key}\" wirklich löschen?",
       "textResetConfirm": "Möchtest Du den Textbaustein \"{key}\" für dieses Textbaustein-Set wirklich zurücksetzen? | Möchtest Du die Textbausteine für \"{key}\" wirklich zurücksetzen?",
-      "textSidebarCustomItems": "Eigene Textbausteine anzeigen",
       "textSnippetList": "Textbausteine von \"{setName}\" | Textbausteine",
       "titleDeleteSuccess": "Erfolg",
       "titleSaveError": "Fehler",
@@ -55,7 +54,8 @@
       "resetSuccessMessage": "Der Textbaustein \"{key}\" wurde erfolgreich auf \"{value}\" zurückgesetzt. | Der Textbaustein \"{key}\" wurde gelöscht.",
       "titleSaveSuccess": "Erfolg",
       "titleSidebarCustomItems": "Eigene Textbausteine",
-      "titleSidebarItemRefresh": "Aktualisieren"
+      "titleSidebarItemRefresh": "Aktualisieren",
+      "titleSidebarItemFilter": "Filtern"
     },
     "setList": {
       "title": "Textbaustein-Sets verwalten & bearbeiten",
@@ -96,8 +96,8 @@
       "textDeleteConfirm": "Möchtest Du das Textbaustein-Set \"{name}\" wirklich löschen?"
     },
     "filter": {
-      "switchOnlyEmpty": "Leere Textbausteine",
-      "showOnlyEmpty": "Leere Textbausteine anzeigen",
+      "showOnlyEmpty": "Nur leere Textbausteine anzeigen",
+      "showOnlyCustom": "Nur angepasste Textbausteine anzeigen",
       "author": "Autor",
       "more": "Weitere Filter"
     }

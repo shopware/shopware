@@ -15,7 +15,7 @@ class AuthorFilter extends AbstractFilter implements SnippetFilterInterface
     /**
      * {@inheritdoc}
      */
-    public function filter(array $snippets, $requestFilterValue, array $additionalData = []): array
+    public function filter(array $snippets, $requestFilterValue): array
     {
         if (empty($requestFilterValue) || !is_array($requestFilterValue)) {
             return $snippets;

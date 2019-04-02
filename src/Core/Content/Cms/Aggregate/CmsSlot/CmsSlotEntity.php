@@ -3,6 +3,8 @@
 namespace Shopware\Core\Content\Cms\Aggregate\CmsSlot;
 
 use Shopware\Core\Content\Cms\Aggregate\CmsBlock\CmsBlockEntity;
+use Shopware\Core\Content\Cms\SlotDataResolver\FieldConfig;
+use Shopware\Core\Content\Cms\SlotDataResolver\FieldConfigCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
@@ -36,6 +38,11 @@ class CmsSlotEntity extends Entity
      * @var array|null
      */
     protected $config;
+
+    /**
+     * @var FieldConfigCollection|null
+     */
+    protected $fieldConfig;
 
     /**
      * @var EntityCollection|null
@@ -160,5 +167,28 @@ class CmsSlotEntity extends Entity
     public function setData(Struct $data): void
     {
         $this->data = $data;
+    }
+
+    public function getFieldConfig(): FieldConfigCollection
+    {
+        if ($this->fieldConfig) {
+            return $this->fieldConfig;
+        }
+
+        $collection = new FieldConfigCollection();
+        $config = $this->config ?? [];
+
+        foreach ($config as $key => $value) {
+            $collection->add(
+                new FieldConfig($key, $value['source'], $value['value'])
+            );
+        }
+
+        return $this->fieldConfig = $collection;
+    }
+
+    public function setFieldConfig(FieldConfigCollection $fieldConfig): void
+    {
+        $this->fieldConfig = $fieldConfig;
     }
 }

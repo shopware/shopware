@@ -2,59 +2,79 @@
 
 namespace Shopware\Core\Content\Cms\SlotDataResolver\Type;
 
-use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Content\Cms\Aggregate\CmsSlot\CmsSlotEntity;
 use Shopware\Core\Content\Cms\SlotDataResolver\CriteriaCollection;
+use Shopware\Core\Content\Cms\SlotDataResolver\ResolverContext\EntityResolverContext;
+use Shopware\Core\Content\Cms\SlotDataResolver\ResolverContext\ResolverContext;
 use Shopware\Core\Content\Cms\SlotDataResolver\SlotDataResolveResult;
-use Shopware\Core\Content\Cms\SlotDataResolver\SlotTypeDataResolverInterface;
 use Shopware\Core\Content\Cms\Storefront\Struct\ProductBoxStruct;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\Storefront\StorefrontProductEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Routing\InternalRequest;
 
-class ProductBoxTypeDataResolver implements SlotTypeDataResolverInterface
+class ProductBoxTypeDataResolver extends TypeDataResolver
 {
     public function getType(): string
     {
         return 'product-box';
     }
 
-    public function collect(CmsSlotEntity $slot, InternalRequest $request, CheckoutContext $context): ?CriteriaCollection
+    public function collect(CmsSlotEntity $slot, ResolverContext $resolverContext): ?CriteriaCollection
     {
-        $config = $slot->getConfig();
+        $config = $slot->getFieldConfig();
+        $productConfig = $config->get('product');
 
-        if (!isset($config['productId'])) {
+        if (!$productConfig || $productConfig->isMapped()) {
             return null;
         }
 
-        $criteria = new Criteria([$config['productId']]);
+        $criteria = new Criteria([$productConfig->getValue()]);
 
         $criteriaCollection = new CriteriaCollection();
-        $criteriaCollection->add('product', ProductDefinition::class, $criteria);
+        $criteriaCollection->add('product_' . $slot->getUniqueIdentifier(), ProductDefinition::class, $criteria);
 
         return $criteriaCollection;
     }
 
-    public function enrich(CmsSlotEntity $slot, InternalRequest $request, CheckoutContext $context, SlotDataResolveResult $result): void
+    public function enrich(CmsSlotEntity $slot, ResolverContext $resolverContext, SlotDataResolveResult $result): void
     {
         $productBox = new ProductBoxStruct();
         $slot->setData($productBox);
 
-        $config = $slot->getConfig();
+        $config = $slot->getFieldConfig();
+        $productConfig = $config->get('product');
 
-        $searchResult = $result->get('product');
+        if (!$productConfig) {
+            return;
+        }
+
+        if ($resolverContext instanceof EntityResolverContext && $productConfig->isMapped()) {
+            $product = $this->resolveEntityValue($resolverContext->getEntity(), $productConfig->getValue());
+            if ($product) {
+                $productBox->setProduct($product);
+                $productBox->setProductId($product->getId());
+            }
+        }
+
+        if ($productConfig->isStatic()) {
+            $this->resolveProductFromRemote($slot, $productBox, $result, $productConfig->getValue());
+        }
+    }
+
+    private function resolveProductFromRemote(CmsSlotEntity $slot, ProductBoxStruct $productBox, SlotDataResolveResult $result, string $productId): void
+    {
+        $searchResult = $result->get('product_' . $slot->getUniqueIdentifier());
         if (!$searchResult) {
             return;
         }
 
         /** @var StorefrontProductEntity|null $product */
-        $product = $searchResult->get($config['productId']);
+        $product = $searchResult->get($productId);
         if (!$product) {
             return;
         }
 
         $productBox->setProduct($product);
-        $productBox->setProductId($config['productId']);
+        $productBox->setProductId($product->getId());
     }
 }

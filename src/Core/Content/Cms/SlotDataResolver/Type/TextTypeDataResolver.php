@@ -4,16 +4,16 @@ namespace Shopware\Core\Content\Cms\SlotDataResolver\Type;
 
 use Shopware\Core\Content\Cms\Aggregate\CmsSlot\CmsSlotEntity;
 use Shopware\Core\Content\Cms\SlotDataResolver\CriteriaCollection;
-use Shopware\Core\Content\Cms\SlotDataResolver\ResolverContext\ListingResolverContext;
+use Shopware\Core\Content\Cms\SlotDataResolver\ResolverContext\EntityResolverContext;
 use Shopware\Core\Content\Cms\SlotDataResolver\ResolverContext\ResolverContext;
 use Shopware\Core\Content\Cms\SlotDataResolver\SlotDataResolveResult;
-use Shopware\Core\Content\Cms\Storefront\Struct\ProductListingStruct;
+use Shopware\Core\Content\Cms\Storefront\Struct\TextStruct;
 
-class ProductListingTypeDataResolver extends TypeDataResolver
+class TextTypeDataResolver extends TypeDataResolver
 {
     public function getType(): string
     {
-        return 'product-listing';
+        return 'text';
     }
 
     public function collect(CmsSlotEntity $slot, ResolverContext $resolverContext): ?CriteriaCollection
@@ -23,13 +23,22 @@ class ProductListingTypeDataResolver extends TypeDataResolver
 
     public function enrich(CmsSlotEntity $slot, ResolverContext $resolverContext, SlotDataResolveResult $result): void
     {
-        $data = new ProductListingStruct();
-        $slot->setData($data);
+        $text = new TextStruct();
+        $slot->setData($text);
 
-        if (!$resolverContext instanceof ListingResolverContext) {
+        $config = $slot->getFieldConfig()->get('content');
+        if (!$config) {
             return;
         }
 
-        $data->setSearchResult($resolverContext->getSearchResult());
+        if ($config->isMapped() && $resolverContext instanceof EntityResolverContext) {
+            $content = $this->resolveEntityValue($resolverContext->getEntity(), $config->getValue());
+
+            $text->setContent($content);
+        }
+
+        if ($config->isStatic()) {
+            $text->setContent($config->getValue());
+        }
     }
 }

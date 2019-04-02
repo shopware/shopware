@@ -5,6 +5,7 @@ namespace Shopware\Core\Content\Cms\SlotDataResolver;
 use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Content\Cms\Aggregate\CmsSlot\CmsSlotCollection;
 use Shopware\Core\Content\Cms\Aggregate\CmsSlot\CmsSlotEntity;
+use Shopware\Core\Content\Cms\SlotDataResolver\ResolverContext\ResolverContext;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
@@ -12,7 +13,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
-use Shopware\Core\Framework\Routing\InternalRequest;
 use Shopware\Core\Framework\Struct\ArrayEntity;
 
 class SlotDataResolver
@@ -48,7 +48,7 @@ class SlotDataResolver
         }
     }
 
-    public function resolve(CmsSlotCollection $slots, InternalRequest $request, CheckoutContext $context): CmsSlotCollection
+    public function resolve(CmsSlotCollection $slots, ResolverContext $resolverContext): CmsSlotCollection
     {
         $slotCriteriaList = [];
 
@@ -63,7 +63,7 @@ class SlotDataResolver
                 continue;
             }
 
-            $collection = $resolver->collect($slot, $request, $context);
+            $collection = $resolver->collect($slot, $resolverContext);
             if ($collection === null) {
                 continue;
             }
@@ -75,8 +75,8 @@ class SlotDataResolver
         [$directReads, $searches] = $this->optimizeCriteriaObjects($slotCriteriaList);
 
         // fetch data from storage
-        $entities = $this->fetchByIdentifier($directReads, $context);
-        $searchResults = $this->fetchByCriteria($searches, $context);
+        $entities = $this->fetchByIdentifier($directReads, $resolverContext->getCheckoutContext());
+        $searchResults = $this->fetchByCriteria($searches, $resolverContext->getCheckoutContext());
 
         // create result for each slot with the requested data
         foreach ($slots as $slotId => $slot) {
@@ -90,7 +90,7 @@ class SlotDataResolver
             $this->mapSearchResults($result, $slot, $slotCriteriaList, $searchResults);
             $this->mapEntities($result, $slot, $slotCriteriaList, $entities);
 
-            $resolver->enrich($slot, $request, $context, $result);
+            $resolver->enrich($slot, $resolverContext, $result);
 
             // replace with return value from enrich(), because it's allowed to change the entity type
             $slots->set($slotId, $slot);

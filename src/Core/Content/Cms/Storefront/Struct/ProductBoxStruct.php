@@ -8,16 +8,16 @@ use Shopware\Core\Framework\Struct\Struct;
 class ProductBoxStruct extends Struct
 {
     /**
-     * @var StorefrontProductEntity
+     * @var StorefrontProductEntity|null
      */
     protected $product;
 
     /**
-     * @var string
+     * @var string|null
      */
     protected $productId;
 
-    public function getProduct(): StorefrontProductEntity
+    public function getProduct(): ?StorefrontProductEntity
     {
         return $this->product;
     }
@@ -27,7 +27,7 @@ class ProductBoxStruct extends Struct
         $this->product = $product;
     }
 
-    public function getProductId(): string
+    public function getProductId(): ?string
     {
         return $this->productId;
     }

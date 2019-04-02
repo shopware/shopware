@@ -34,7 +34,7 @@ class AccessKeyControllerTest extends TestCase
             AccessKeyHelper::getOrigin($body['accessKey']);
         } catch (\Exception $e) {
         }
-        static::assertNull($e);
+        static::assertTrue($e === null);
     }
 
     public function testUserAccessKey(): void
@@ -60,7 +60,7 @@ class AccessKeyControllerTest extends TestCase
             AccessKeyHelper::getOrigin($body['accessKey']);
         } catch (\Exception $e) {
         }
-        static::assertNull($e);
+        static::assertTrue($e === null);
     }
 
     public function testSalesChannelAccessKey(): void
@@ -84,6 +84,6 @@ class AccessKeyControllerTest extends TestCase
             AccessKeyHelper::getOrigin($body['accessKey']);
         } catch (\Exception $e) {
         }
-        static::assertNull($e);
+        static::assertTrue($e === null);
     }
 }

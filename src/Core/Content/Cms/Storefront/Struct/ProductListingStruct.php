@@ -8,11 +8,11 @@ use Shopware\Core\Framework\Struct\Struct;
 class ProductListingStruct extends Struct
 {
     /**
-     * @var EntitySearchResult
+     * @var EntitySearchResult|null
      */
     protected $searchResult;
 
-    public function getSearchResult(): EntitySearchResult
+    public function getSearchResult(): ?EntitySearchResult
     {
         return $this->searchResult;
     }

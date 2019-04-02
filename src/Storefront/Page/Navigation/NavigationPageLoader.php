@@ -6,6 +6,7 @@ use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Content\Cms\Aggregate\CmsSlot\CmsSlotEntity;
 use Shopware\Core\Content\Cms\CmsPageEntity;
 use Shopware\Core\Content\Cms\Exception\PageNotFoundException;
+use Shopware\Core\Content\Cms\SlotDataResolver\ResolverContext\ResolverContext;
 use Shopware\Core\Content\Cms\SlotDataResolver\SlotDataResolver;
 use Shopware\Core\Content\Cms\Storefront\StorefrontCmsPageRepository;
 use Shopware\Core\Content\Navigation\NavigationEntity;
@@ -64,7 +65,7 @@ class NavigationPageLoader implements PageLoaderInterface
         $this->overwriteSlotConfig($cmsPage, $navigation);
 
         // step 4, resolve slot data
-        $this->loadSlotData($cmsPage, $request, $context);
+        $this->loadSlotData($cmsPage, $context);
 
         $page->setCmsPage($cmsPage);
 
@@ -99,17 +100,14 @@ class NavigationPageLoader implements PageLoaderInterface
         }
     }
 
-    private function loadSlotData(CmsPageEntity $page, InternalRequest $request, CheckoutContext $context): void
+    private function loadSlotData(CmsPageEntity $page, CheckoutContext $context): void
     {
         if (!$page->getBlocks()) {
             return;
         }
 
-        $slots = $this->slotDataResolver->resolve(
-            $page->getBlocks()->getSlots(),
-            $request,
-            $context
-        );
+        $resolverContext = new ResolverContext($context);
+        $slots = $this->slotDataResolver->resolve($page->getBlocks()->getSlots(), $resolverContext);
 
         $page->getBlocks()->setSlots($slots);
     }

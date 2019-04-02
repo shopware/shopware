@@ -2,8 +2,8 @@
 
 namespace Shopware\Core\Framework\Demodata\Generator;
 
-use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Cms\CmsPageDefinition;
+use Shopware\Core\Content\Cms\SlotDataResolver\FieldConfig;
 use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
@@ -30,11 +30,6 @@ class CmsPageGenerator implements DemodataGeneratorInterface
     private $mediaRepository;
 
     /**
-     * @var EntityRepositoryInterface
-     */
-    private $categoryRepository;
-
-    /**
      * @var string[]
      */
     private $productIds = [];
@@ -44,21 +39,14 @@ class CmsPageGenerator implements DemodataGeneratorInterface
      */
     private $mediaIds = [];
 
-    /**
-     * @var string[]
-     */
-    private $categoryIds;
-
     public function __construct(
         EntityRepositoryInterface $cmsPageRepository,
         EntityRepositoryInterface $productRepository,
-        EntityRepositoryInterface $mediaRepository,
-        EntityRepositoryInterface $categoryRepository
+        EntityRepositoryInterface $mediaRepository
     ) {
         $this->cmsPageRepository = $cmsPageRepository;
         $this->productRepository = $productRepository;
         $this->mediaRepository = $mediaRepository;
-        $this->categoryRepository = $categoryRepository;
     }
 
     public function getDefinition(): string
@@ -74,6 +62,8 @@ class CmsPageGenerator implements DemodataGeneratorInterface
             $pages[] = random_int(0, 1) ? $this->createLandingPage($context) : $this->createListingPage($context);
         }
 
+        $pages[] = $this->createProductDetailPage($context);
+
         $this->cmsPageRepository->upsert($pages, $context->getContext());
     }
 
@@ -88,16 +78,16 @@ class CmsPageGenerator implements DemodataGeneratorInterface
                     'type' => 'image-text',
                     'position' => 1,
                     'slots' => [
-                        ['type' => 'text', 'slot' => 'left', 'config' => ['content' => $context->getFaker()->realText()]],
-                        ['type' => 'product-box', 'slot' => 'right', 'config' => ['productId' => $this->getRandomProductId($context)]],
+                        ['type' => 'text', 'slot' => 'left', 'config' => ['content' => ['source' => FieldConfig::SOURCE_STATIC, 'value' => $context->getFaker()->realText()]]],
+                        ['type' => 'product-box', 'slot' => 'right', 'config' => ['product' => ['source' => FieldConfig::SOURCE_STATIC, 'value' => $this->getRandomProductId($context)]]],
                     ],
                 ],
                 [
                     'type' => 'image-text',
                     'position' => 2,
                     'slots' => [
-                        ['type' => 'text', 'slot' => 'right', 'config' => ['content' => $context->getFaker()->realText()]],
-                        ['type' => 'image', 'slot' => 'left', 'config' => ['mediaId' => $this->getRandomMediaId($context)]],
+                        ['type' => 'text', 'slot' => 'right', 'config' => ['content' => ['source' => FieldConfig::SOURCE_STATIC, 'value' => $context->getFaker()->realText()]]],
+                        ['type' => 'image', 'slot' => 'left', 'config' => ['media' => ['source' => FieldConfig::SOURCE_STATIC, 'value' => $this->getRandomMediaId($context)]]],
                     ],
                 ],
             ],
@@ -118,8 +108,41 @@ class CmsPageGenerator implements DemodataGeneratorInterface
                         [
                             'type' => 'product-listing',
                             'slot' => 'listing',
+                            'config' => [],
+                        ],
+                    ],
+                ],
+            ],
+        ];
+    }
+
+    protected function createProductDetailPage(DemodataContext $context): array
+    {
+        return [
+            'name' => 'Product detail page',
+            'type' => 'product_detail',
+            'blocks' => [
+                [
+                    'type' => 'image-text',
+                    'position' => 1,
+                    'slots' => [
+                        [
+                            'type' => 'text',
+                            'slot' => 'left',
                             'config' => [
-                                'categoryId' => $this->getRandomCategoryId($context),
+                                'content' => [
+                                    'source' => FieldConfig::SOURCE_MAPPED,
+                                    'value' => 'description',
+                                ],
+                            ],
+                        ], [
+                            'type' => 'image',
+                            'slot' => 'right',
+                            'config' => [
+                                'media' => [
+                                    'source' => FieldConfig::SOURCE_MAPPED,
+                                    'value' => 'cover.media',
+                                ],
                             ],
                         ],
                     ],
@@ -158,21 +181,5 @@ class CmsPageGenerator implements DemodataGeneratorInterface
         }
 
         return $this->mediaIds[array_rand($this->mediaIds, 1)];
-    }
-
-    private function getRandomCategoryId(DemodataContext $context): string
-    {
-        if ($categoryId = $context->getRandomId(CategoryDefinition::class)) {
-            return $categoryId;
-        }
-
-        if (empty($this->categoryIds)) {
-            $criteria = new Criteria();
-            $criteria->setLimit(100);
-
-            $this->categoryIds = $this->categoryRepository->searchIds($criteria, $context->getContext())->getIds();
-        }
-
-        return $this->categoryIds[array_rand($this->categoryIds, 1)];
     }
 }

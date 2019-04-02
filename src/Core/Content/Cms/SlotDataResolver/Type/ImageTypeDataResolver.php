@@ -2,70 +2,90 @@
 
 namespace Shopware\Core\Content\Cms\SlotDataResolver\Type;
 
-use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Content\Cms\Aggregate\CmsSlot\CmsSlotEntity;
 use Shopware\Core\Content\Cms\SlotDataResolver\CriteriaCollection;
+use Shopware\Core\Content\Cms\SlotDataResolver\FieldConfig;
+use Shopware\Core\Content\Cms\SlotDataResolver\ResolverContext\EntityResolverContext;
+use Shopware\Core\Content\Cms\SlotDataResolver\ResolverContext\ResolverContext;
 use Shopware\Core\Content\Cms\SlotDataResolver\SlotDataResolveResult;
-use Shopware\Core\Content\Cms\SlotDataResolver\SlotTypeDataResolverInterface;
 use Shopware\Core\Content\Cms\Storefront\Struct\ImageStruct;
 use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Routing\InternalRequest;
 
-class ImageTypeDataResolver implements SlotTypeDataResolverInterface
+class ImageTypeDataResolver extends TypeDataResolver
 {
     public function getType(): string
     {
         return 'image';
     }
 
-    public function collect(CmsSlotEntity $slot, InternalRequest $request, CheckoutContext $context): ?CriteriaCollection
+    public function collect(CmsSlotEntity $slot, ResolverContext $resolverContext): ?CriteriaCollection
     {
-        $config = $slot->getConfig();
+        $config = $slot->getFieldConfig();
+        $mediaConfig = $config->get('media');
 
-        if (!isset($config['mediaId'])) {
+        if (!$mediaConfig || $mediaConfig->isMapped()) {
             return null;
         }
 
-        $criteria = new Criteria([$config['mediaId']]);
+        $criteria = new Criteria([$mediaConfig->getValue()]);
 
         $criteriaCollection = new CriteriaCollection();
-        $criteriaCollection->add('media', MediaDefinition::class, $criteria);
+        $criteriaCollection->add('media_' . $slot->getUniqueIdentifier(), MediaDefinition::class, $criteria);
 
         return $criteriaCollection;
     }
 
-    public function enrich(CmsSlotEntity $slot, InternalRequest $request, CheckoutContext $context, SlotDataResolveResult $result): void
+    public function enrich(CmsSlotEntity $slot, ResolverContext $resolverContext, SlotDataResolveResult $result): void
     {
-        $config = $slot->getConfig();
+        $config = $slot->getFieldConfig();
         $image = new ImageStruct();
         $slot->setData($image);
 
-        if (isset($config['url'])) {
-            $image->setUrl($config['url']);
+        if ($urlConfig = $config->get('url')) {
+            if ($urlConfig->isStatic()) {
+                $image->setUrl($urlConfig->getValue());
+            }
+
+            if ($urlConfig->isMapped() && $resolverContext instanceof EntityResolverContext) {
+                $url = $this->resolveEntityValue($resolverContext->getEntity(), $urlConfig->getValue());
+                if ($url) {
+                    $image->setUrl($url);
+                }
+            }
         }
 
-        if (isset($config['mediaId'])) {
-            $this->addMediaEntity($image, $result, $config['mediaId']);
+        if ($mediaConfig = $config->get('media')) {
+            $this->addMediaEntity($slot, $image, $result, $mediaConfig, $resolverContext);
         }
     }
 
-    private function addMediaEntity(ImageStruct $image, SlotDataResolveResult $result, string $mediaId): void
+    private function addMediaEntity(CmsSlotEntity $slot, ImageStruct $image, SlotDataResolveResult $result, FieldConfig $config, ResolverContext $resolverContext): void
     {
-        $image->setMediaId($mediaId);
+        if ($config->isMapped() && $resolverContext instanceof EntityResolverContext) {
+            /** @var MediaEntity $media */
+            $media = $this->resolveEntityValue($resolverContext->getEntity(), $config->getValue());
 
-        $searchResult = $result->get('media');
-        if (!$searchResult) {
-            return;
+            $image->setMediaId($media->getUniqueIdentifier());
+            $image->setMedia($media);
         }
 
-        /** @var MediaEntity|null $media */
-        $media = $searchResult->get($mediaId);
-        if (!$media) {
-            return;
-        }
+        if ($config->isStatic()) {
+            $image->setMediaId($config->getValue());
 
-        $image->setMedia($media);
+            $searchResult = $result->get('media_' . $slot->getUniqueIdentifier());
+            if (!$searchResult) {
+                return;
+            }
+
+            /** @var MediaEntity|null $media */
+            $media = $searchResult->get($config->getValue());
+            if (!$media) {
+                return;
+            }
+
+            $image->setMedia($media);
+        }
     }
 }

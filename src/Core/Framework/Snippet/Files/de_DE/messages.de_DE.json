@@ -19,7 +19,8 @@
     "header": {
         "logoLink": "zur Startseite wechseln",
         "searchButton": "Suchen",
-        "searchPlaceholder": "Suchbegriff..."
+        "searchPlaceholder": "Suchbegriff...",
+        "indexLinkService": "Service/Hilfe"
     },
     "meta": {
         "xmlLang": "de-DE",

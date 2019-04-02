@@ -19,7 +19,8 @@
     "header": {
         "logoLink": "Switch to homepage",
         "searchButton": "Search",
-        "searchPlaceholder": "Search term..."
+        "searchPlaceholder": "Search term...",
+        "indexLinkService": "Service/Help"
     },
     "meta": {
         "xmlLang": "en-GB",

@@ -11,7 +11,7 @@
                     <div class="sw-plugin-store-login-status__box-content">
                         <sw-avatar size="36px" color="#E3F3FF" placeholder></sw-avatar>
                         <div class="sw-plugin-store-login-status__account-info">
-                            <template v-if="shopwareId">
+                            <template v-if="isLoggedIn && shopwareId">
                                 <span class="sw-plugin-store-login-status__text">{{ $tc('sw-plugin.general.loggedIn') }}</span>
                                 <span class="sw-plugin-store-login-status__shopware-id">{{ shopwareId }}</span>
                             </template>
@@ -30,7 +30,7 @@
                         {% endblock %}
 
                         {% block sw_plugin_store_login_status_box_actions_logout %}
-                            <sw-context-menu-item v-if="shopwareId" @click="logout()">
+                            <sw-context-menu-item v-if="isLoggedIn && shopwareId" @click="logout()">
                                 {{ $tc('sw-plugin.general.logout') }}
                             </sw-context-menu-item>
                         {% endblock %}

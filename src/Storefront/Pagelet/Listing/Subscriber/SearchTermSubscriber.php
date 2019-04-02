@@ -3,7 +3,11 @@
 namespace Shopware\Storefront\Pagelet\Listing\Subscriber;
 
 use Shopware\Core\Content\Product\ProductDefinition;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\SearchBuilder;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\ContainsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\ScoreQuery;
+use Shopware\Core\Framework\Search\Util\KeywordSearchTermInterpreterInterface;
 use Shopware\Storefront\Event\ListingEvents;
 use Shopware\Storefront\Pagelet\Listing\ListingPageletCriteriaCreatedEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -13,13 +17,13 @@ class SearchTermSubscriber implements EventSubscriberInterface
     public const TERM_PARAMETER = 'search';
 
     /**
-     * @var SearchBuilder
+     * @var KeywordSearchTermInterpreterInterface
      */
-    private $searchBuilder;
+    private $interpreter;
 
-    public function __construct(SearchBuilder $searchBuilder)
+    public function __construct(KeywordSearchTermInterpreterInterface $interpreter)
     {
-        $this->searchBuilder = $searchBuilder;
+        $this->interpreter = $interpreter;
     }
 
     public static function getSubscribedEvents(): array
@@ -39,11 +43,33 @@ class SearchTermSubscriber implements EventSubscriberInterface
             return;
         }
 
-        $this->searchBuilder->build(
-            $event->getCriteria(),
-            $term,
-            ProductDefinition::class,
-            $event->getContext()
+        $criteria = $event->getCriteria();
+
+        $pattern = $this->interpreter->interpret($term, ProductDefinition::class, $event->getContext());
+
+        $keywordField = 'product.searchKeywords.keyword';
+        $rankingField = 'product.searchKeywords.ranking';
+        $languageField = 'product.searchKeywords.languageId';
+
+        foreach ($pattern->getTerms() as $searchTerm) {
+            $criteria->addQuery(
+                new ScoreQuery(
+                    new EqualsFilter($keywordField, $searchTerm->getTerm()),
+                    $searchTerm->getScore(),
+                    $rankingField
+                )
+            );
+        }
+
+        $criteria->addQuery(
+            new ScoreQuery(
+                new ContainsFilter($keywordField, $pattern->getOriginal()->getTerm()),
+                $pattern->getOriginal()->getScore(),
+                $rankingField
+            )
         );
+
+        $criteria->addFilter(new EqualsAnyFilter($keywordField, array_values($pattern->getAllTerms())));
+        $criteria->addFilter(new EqualsFilter($languageField, $event->getContext()->getLanguageId()));
     }
 }

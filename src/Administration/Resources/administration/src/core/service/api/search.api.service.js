@@ -11,7 +11,7 @@ class SearchApiService extends ApiService {
         this.name = 'searchService';
     }
 
-    search({ term, page = 1, limit = 25, additionalParams = {}, additionalHeaders = {} }) {
+    search({ term, page = 1, limit = 5, additionalParams = {}, additionalHeaders = {} }) {
         const headers = this.getBasicHeaders(additionalHeaders);
         const params = Object.assign({ page, limit, term }, additionalParams);
 

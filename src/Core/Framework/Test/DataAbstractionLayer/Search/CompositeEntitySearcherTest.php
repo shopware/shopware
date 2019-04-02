@@ -4,9 +4,9 @@ namespace Shopware\Core\Framework\Test\DataAbstractionLayer\Search;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductEntity;
-use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Context\AdminApiSource;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
@@ -84,67 +84,23 @@ class CompositeEntitySearcherTest extends TestCase
 
         $result = $this->search->search("${filterId}_test ${filterId}_product", 20, $this->context, $this->userId);
 
-        /** @var ProductEntity $first */
-        $first = $result['data'][0]['entity'];
-        static::assertInstanceOf(ProductEntity::class, $first);
+        $productResult = @current(array_filter($result, function ($item) {
+            return $item['entity'] === ProductDefinition::getEntityName();
+        }));
 
-        /** @var ProductEntity $second */
-        $second = $result['data'][1]['entity'];
-        static::assertInstanceOf(ProductEntity::class, $second);
+        static::assertNotEmpty($productResult);
+
+        /** @var ProductCollection $products */
+        $products = $productResult['entities']->getEntities();
+        $first = $products->first();
+        $last = $products->last();
+
+        static::assertInstanceOf(ProductEntity::class, $first);
+        static::assertInstanceOf(ProductEntity::class, $last);
 
         $firstScore = $first->getExtension('search')->get('_score');
-        $secondScore = $second->getExtension('search')->get('_score');
+        $secondScore = $last->getExtension('search')->get('_score');
 
         static::assertSame($secondScore, $firstScore);
-
-        $this->productRepository->update([
-            ['id' => $productId2, 'price' => ['gross' => 15, 'net' => 1, 'linked' => false]],
-            ['id' => $productId2, 'price' => ['gross' => 20, 'net' => 1, 'linked' => false]],
-            ['id' => $productId2, 'price' => ['gross' => 25, 'net' => 1, 'linked' => false]],
-            ['id' => $productId2, 'price' => ['gross' => 30, 'net' => 1, 'linked' => false]],
-        ], $this->context);
-
-        $changes = $this->getVersionData(ProductDefinition::getEntityName(), $productId2, Defaults::LIVE_VERSION);
-        static::assertNotEmpty($changes);
-
-        $result = $this->search->search("${filterId}_test ${filterId}_product", 20, $this->context, $this->userId);
-
-        static::assertCount(2, $result['data']);
-
-        /** @var ProductEntity $first */
-        $first = $result['data'][0]['entity'];
-        static::assertInstanceOf(ProductEntity::class, $first);
-
-        /** @var ProductEntity $second */
-        $second = $result['data'][1]['entity'];
-        static::assertInstanceOf(ProductEntity::class, $second);
-
-        // `product-2` should now be boosted
-        static::assertSame($first->getId(), $productId2);
-        static::assertSame($second->getId(), $productId1);
-
-        $firstScore = $result['data'][0]['_score'];
-        $secondScore = $result['data'][1]['_score'];
-
-        static::assertTrue($firstScore > $secondScore, print_r($firstScore . ' < ' . $secondScore, true));
-    }
-
-    private function getVersionData(string $entity, string $id, string $versionId): array
-    {
-        return $this->connection->fetchAll(
-            "SELECT d.* 
-             FROM version_commit_data d
-             INNER JOIN version_commit c
-               ON c.id = d.version_commit_id
-               AND c.version_id = :version
-             WHERE entity_name = :entity 
-             AND JSON_EXTRACT(entity_id, '$.id') = :id
-             ORDER BY auto_increment",
-            [
-                'entity' => $entity,
-                'id' => $id,
-                'version' => Uuid::fromHexToBytes($versionId),
-            ]
-        );
     }
 }

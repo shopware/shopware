@@ -303,15 +303,20 @@
       "buttonDismiss": "Dismiss"
     },
     "sw-search-bar": {
-      "textNoSearchResults": "Unable to find any search results",
+      "messageNoResults": "No results found for \"{term}\".",
+      "messageNoTypeResults": "No type found.",
       "placeholderSearchField": "Find products, customers, orders...",
-      "placeholderTypeSearchField": "Search {entity}"
+      "placeholderTypeSearchField": "Search {entity}",
+      "placeholderShortcutInfo": "(Keyboard shortcut \"s\")",
+      "tooltipAllResults": "Show all results"
     },
     "sw-search-bar-item": {
       "typeLabelCustomer": "Customer",
       "typeLabelProduct": "Product",
       "typeLabelOrder": "Order",
-      "typeLabelMedia": "Media"
+      "typeLabelMedia": "Media",
+      "typeLabelCategory": "Category",
+      "typeLabelCms": "CMS"
     },
     "sw-condition": {
       "operator": {

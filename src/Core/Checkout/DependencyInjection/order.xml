@@ -7,7 +7,7 @@
     <services>
         <service id="Shopware\Core\Checkout\Order\OrderDefinition">
             <tag name="shopware.entity.definition" entity="order"/>
-            <tag name="shopware.composite_search.definition"/>
+            <tag name="shopware.composite_search.definition"  priority="1000"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressDefinition">

@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Search\DataAbstractionLayer\Indexing;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Context\SystemSource;
@@ -141,7 +142,7 @@ class SearchKeywordIndexer implements IndexerInterface
         foreach ($events as $nested) {
             $definition = $nested->getDefinition();
 
-            if (!$definition::useKeywordSearch()) {
+            if ($definition !== ProductDefinition::class) {
                 continue;
             }
 
@@ -162,7 +163,7 @@ class SearchKeywordIndexer implements IndexerInterface
     {
         foreach ($this->registry->getDefinitions() as $definition) {
             /** @var string|EntityDefinition $definition */
-            if (!$definition::useKeywordSearch()) {
+            if ($definition !== ProductDefinition::class) {
                 continue;
             }
 

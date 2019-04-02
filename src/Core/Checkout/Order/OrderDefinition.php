@@ -29,7 +29,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\SearchKeywordAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\UpdatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
@@ -65,7 +64,7 @@ class OrderDefinition extends EntityDefinition
 
             (new IntField('auto_increment', 'autoIncrement'))->addFlags(new WriteProtected()),
 
-            (new NumberRangeField('order_number', 'orderNumber'))->addFlags(new SearchRanking(SearchRanking::LOW_SEARCH_RAKING)),
+            (new NumberRangeField('order_number', 'orderNumber'))->addFlags(new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
 
             (new FkField('billing_address_id', 'billingAddressId', OrderAddressDefinition::class))->addFlags(new Required()),
             (new ReferenceVersionField(OrderAddressDefinition::class, 'billing_address_version_id'))->addFlags(new Required()),
@@ -75,7 +74,7 @@ class OrderDefinition extends EntityDefinition
 
             (new DateField('order_date', 'orderDate'))->addFlags(new Required()),
             new CartPriceField('price', 'price'),
-            (new FloatField('amount_total', 'amountTotal'))->addFlags(new WriteProtected()),
+            (new FloatField('amount_total', 'amountTotal'))->addFlags(new WriteProtected(), new SearchRanking(SearchRanking::MIDDLE_SEARCH_RANKING)),
             (new FloatField('amount_net', 'amountNet'))->addFlags(new WriteProtected()),
             (new FloatField('position_price', 'positionPrice'))->addFlags(new WriteProtected()),
             (new StringField('tax_status', 'taxStatus'))->addFlags(new WriteProtected()),
@@ -98,11 +97,10 @@ class OrderDefinition extends EntityDefinition
             new ManyToOneAssociationField('salesChannel', 'sales_channel_id', SalesChannelDefinition::class, true),
             (new OneToManyAssociationField('addresses', OrderAddressDefinition::class, 'order_id', true))->addFlags(new CascadeDelete()),
             (new OneToManyAssociationField('deliveries', OrderDeliveryDefinition::class, 'order_id', true))->addFlags(new CascadeDelete()),
-            (new OneToManyAssociationField('lineItems', OrderLineItemDefinition::class, 'order_id', false))->addFlags(new CascadeDelete(), new SearchRanking(SearchRanking::ASSOCIATION_SEARCH_RANKING)),
+            (new OneToManyAssociationField('lineItems', OrderLineItemDefinition::class, 'order_id', false))->addFlags(new CascadeDelete()),
             (new OneToManyAssociationField('transactions', OrderTransactionDefinition::class, 'order_id', false))->addFlags(new CascadeDelete()),
             new OneToManyAssociationField('documents', DocumentDefinition::class, 'order_id', false),
             new ManyToManyAssociationField('tags', TagDefinition::class, OrderTagDefinition::class, false, 'order_id', 'tag_id'),
-            new SearchKeywordAssociationField(),
         ]);
     }
 }

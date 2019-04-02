@@ -25,7 +25,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationFiel
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\PasswordField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\SearchKeywordAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\UpdatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
@@ -100,8 +99,7 @@ class CustomerDefinition extends EntityDefinition
             new ManyToOneAssociationField('salutation', 'salutation_id', SalutationDefinition::class, true),
             (new OneToManyAssociationField('addresses', CustomerAddressDefinition::class, 'customer_id', false, 'id'))->addFlags(new CascadeDelete()),
             (new OneToManyAssociationField('orderCustomers', OrderCustomerDefinition::class, 'customer_id', false, 'id'))->addFlags(new RestrictDelete()),
-            (new ManyToManyAssociationField('tags', TagDefinition::class, CustomerTagDefinition::class, false, 'customer_id', 'tag_id')),
-            new SearchKeywordAssociationField(),
+            new ManyToManyAssociationField('tags', TagDefinition::class, CustomerTagDefinition::class, false, 'customer_id', 'tag_id'),
         ]);
     }
 }

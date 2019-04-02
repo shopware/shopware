@@ -10,7 +10,6 @@ use Shopware\Core\Framework\Api\OAuth\Scope\WriteScope;
 use Shopware\Core\Framework\Api\Response\ResponseFactoryInterface;
 use Shopware\Core\Framework\Api\Response\Type\Api\JsonType;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Context\AdminApiSource;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
@@ -90,15 +89,13 @@ class ApiController extends AbstractController
     public function compositeSearch(Request $request, Context $context): JsonResponse
     {
         $term = $request->query->get('term');
-        $limit = $request->query->getInt('limit', 20);
+        $limit = $request->query->getInt('limit', 5);
 
-        /** @var AdminApiSource $source */
-        $source = $context->getSource();
-        $result = $this->compositeEntitySearcher->search($term, $limit, $context, $source->getUserId());
+        $result = $this->compositeEntitySearcher->search($term, $limit, $context);
 
         $result = json_decode(json_encode($result), true);
 
-        return new JsonResponse(JsonType::format($result));
+        return new JsonResponse(['data' => JsonType::format($result)]);
     }
 
     /**

@@ -1,114 +1,102 @@
 {% block sw_search_bar_item %}
-    <li class="sw-search-bar-item">
+    <li class="sw-search-bar-item"
+        :class="componentClasses"
+        @mouseenter="onMouseEnter($event)">
 
         {% block sw_search_bar_item_customer %}
-            <router-link v-if="item.type === 'customer'"
+            <router-link v-if="type === 'customer'"
+                         ref="routerLink"
                          class="sw-search-bar-item__link"
-                         :to="{ name: 'sw.customer.detail.base', params: { id: item.entity.id } }">
-                {% block sw_search_bar_item_customer_icon %}
-                    <sw-icon name="default-avatar-multiple" size="20px" color="#F88962"></sw-icon>
-                {% endblock %}
-
+                         :to="{ name: 'sw.customer.detail.base', params: { id: item.id } }">
                 {% block sw_search_bar_item_customer_label %}
                     <span class="sw-search-bar-item__label">
-                        {{ item.entity.firstName }} {{ item.entity.lastName }}
-                    </span>
-                {% endblock %}
-
-                {% block sw_search_bar_item_customer_type %}
-                    <span class="sw-search-bar-item__type">
-                        {{ $tc('global.sw-search-bar-item.typeLabelCustomer') }}
+                        <sw-highlight-text
+                                :searchTerm="searchTerm"
+                                :text="`${item.firstName} ${item.lastName}`">
+                        </sw-highlight-text>
                     </span>
                 {% endblock %}
             </router-link>
         {% endblock %}
 
         {% block sw_search_bar_item_product %}
-            <router-link v-else-if="item.type === 'product'"
+            <router-link v-else-if="type === 'product'"
+                         ref="routerLink"
                          class="sw-search-bar-item__link"
-                         :to="{ name: 'sw.product.detail.base', params: { id: item.entity.id } }">
-                {% block sw_search_bar_item_product_icon %}
-                    <sw-icon name="default-symbol-products" size="20px" color="#7ad5c8"></sw-icon>
-                {% endblock %}
-
+                         :to="{ name: 'sw.product.detail.base', params: { id: item.id } }">
                 {% block sw_search_bar_item_product_label %}
                     <span class="sw-search-bar-item__label">
-                        {{ item.entity.name }}
-                    </span>
-                {% endblock %}
-
-                {% block sw_search_bar_item_product_type %}
-                    <span class="sw-search-bar-item__type">
-                        {{ $tc('global.sw-search-bar-item.typeLabelProduct') }}
+                        <sw-highlight-text
+                                :searchTerm="searchTerm"
+                                :text="item.name">
+                        </sw-highlight-text>
                     </span>
                 {% endblock %}
             </router-link>
         {% endblock %}
 
         {% block sw_search_bar_item_category %}
-            <router-link v-else-if="item.type === 'category'"
+            <router-link v-else-if="type === 'category'"
+                         ref="routerLink"
                          class="sw-search-bar-item__link"
-                         :to="{ name: 'sw.category.detail', params: { id: item.entity.id } }">
-                {% block sw_search_bar_item_category_icon %}
-                    <sw-icon name="default-symbol-products" size="20px" color="#7ad5c8"></sw-icon>
-                {% endblock %}
-
+                         :to="{ name: 'sw.category.detail', params: { id: item.id } }">
                 {% block sw_search_bar_item_category_label %}
                     <span class="sw-search-bar-item__label">
-                        {{ item.entity.name }}
-                    </span>
-                {% endblock %}
-
-                {% block sw_search_bar_item_category_type %}
-                    <span class="sw-search-bar-item__type">
-                        {{ $tc('global.sw-search-bar-item.typeLabelCategory') }}
+                        <sw-highlight-text
+                                :searchTerm="searchTerm"
+                                :text="item.name">
+                        </sw-highlight-text>
                     </span>
                 {% endblock %}
             </router-link>
         {% endblock %}
 
         {% block sw_search_bar_item_order %}
-            <router-link v-else-if="item.type === 'order'"
+            <router-link v-else-if="type === 'order'"
+                         ref="routerLink"
                          class="sw-search-bar-item__link"
-                         :to="{ name: 'sw.order.detail.base', params: { id: item.entity.id } }">
-                {% block sw_search_bar_item_order_icon %}
-                    <sw-icon name="default-shopping-paper-bag" size="20px" color="#a092f0"></sw-icon>
-                {% endblock %}
-
+                         :to="{ name: 'sw.order.detail.base', params: { id: item.id } }">
                 {% block sw_search_bar_item_order_label %}
                     <span class="sw-search-bar-item__label">
-                        {{ item.entity.customer.firstName }} {{ item.entity.customer.lastName }}
-                    </span>
-                {% endblock %}
-
-                {% block sw_search_bar_item_order_type %}
-                    <span class="sw-search-bar-item__type">
-                        {{ $tc('global.sw-search-bar-item.typeLabelOrder') }}
+                        <sw-highlight-text
+                                :searchTerm="searchTerm"
+                                :text="`${item.orderNumber} - ${item.orderCustomer.firstName} ${item.orderCustomer.lastName}`">
+                        </sw-highlight-text>
                     </span>
                 {% endblock %}
             </router-link>
         {% endblock %}
 
         {% block sw_search_bar_item_media %}
-        <router-link v-else-if="item.type === 'media'"
-                     class="sw-search-bar-item__link"
-                     :to="{ name: 'sw.media.index', params: { folderId: item.entity.mediaFolderId }, query: { searchTerm: item.entity.fileName } }">
-            {% block sw_search_bar_item_media_icon %}
-            <sw-icon name="default-object-image" size="20px" color="#FFD700"></sw-icon>
-            {% endblock %}
+            <router-link v-else-if="type === 'media'"
+                         ref="routerLink"
+                         class="sw-search-bar-item__link"
+                         :to="{ name: 'sw.media.index', params: { folderId: item.mediaFolderId }, query: { term: item.fileName } }">
+                {% block sw_search_bar_item_media_label %}
+                    <span class="sw-search-bar-item__label">
+                        <sw-highlight-text
+                                :searchTerm="searchTerm"
+                                :text="item | mediaName">
+                        </sw-highlight-text>
+                    </span>
+                {% endblock %}
+            </router-link>
+        {% endblock %}
 
-            {% block sw_search_bar_item_media_label %}
-            <span class="sw-search-bar-item__label">
-                {{ item | mediaName }}
-            </span>
-            {% endblock %}
-
-            {% block sw_search_bar_item_media_type %}
-            <span class="sw-search-bar-item__type">
-                {{ $tc('global.sw-search-bar-item.typeLabelMedia') }}
-            </span>
-            {% endblock %}
-        </router-link>
+        {% block sw_search_bar_item_cms_page %}
+            <router-link v-else-if="type === 'cms_page'"
+                         ref="routerLink"
+                         class="sw-search-bar-item__link"
+                         :to="{ name: 'sw.cms.detail.base', params: { id: item.id } }">
+                {% block sw_search_bar_item_cms_page_label %}
+                    <span class="sw-search-bar-item__label">
+                        <sw-highlight-text
+                                :searchTerm="searchTerm"
+                                :text="item.name">
+                        </sw-highlight-text>
+                    </span>
+                {% endblock %}
+            </router-link>
         {% endblock %}
     </li>
 {% endblock %}

@@ -1,7 +1,7 @@
 import { Filter } from 'src/core/shopware';
 
 Filter.register('mediaName', (value, fallback = '') => {
-    if (!value || !(value.type === 'media')) {
+    if (!value) {
         return fallback;
     }
 

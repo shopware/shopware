@@ -6,6 +6,7 @@
     <services>
         <service id="Shopware\Core\Content\Cms\CmsPageDefinition">
             <tag name="shopware.entity.definition" entity="cms_page"/>
+            <tag name="shopware.composite_search.definition" />
         </service>
 
         <service id="Shopware\Core\Content\Cms\Aggregate\CmsPageTranslation\CmsPageTranslationDefinition">

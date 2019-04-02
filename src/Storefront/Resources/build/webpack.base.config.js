@@ -1,4 +1,5 @@
 const webpack = require('webpack');
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const WebpackBar = require('webpackbar');
 const StyleLintPlugin = require('stylelint-webpack-plugin');
 const { resolve } = require('path');
@@ -67,8 +68,8 @@ const modules = {
                     loader: 'file-loader',
                     options: {
                         name: '[name].[ext]',
-                        outputPath: 'css/fonts',
-                        publicPath: '/css/fonts'
+                        outputPath: 'fonts',
+                        publicPath: '/fonts'
                     }
                 }
             ]
@@ -92,7 +93,11 @@ const plugins = [
             from: 'asset/img',
             to: 'img'
         }
-    ])
+    ]),
+    new MiniCssExtractPlugin({
+        filename: "css/main.bundle.css",
+        chunkFilename: "css/main.bundle.css"
+    })
 ];
 
 /**

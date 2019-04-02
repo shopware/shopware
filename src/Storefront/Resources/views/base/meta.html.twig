@@ -5,45 +5,45 @@
                 <meta charset="utf-8">
             {% endblock %}
 
-			{% block base_head_meta_tags_viewport %}
+            {% block base_head_meta_tags_viewport %}
                 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-			{% endblock %}
+            {% endblock %}
 
-		    {% block base_head_meta_tags_general %}
-                <meta name="author" content="{{ "meta.author"|trans }}" />
-                <meta name="robots" content="{% block base_head_meta_tags_robots %}{{ "meta.robots"|trans }}{% endblock %}" />
-                <meta name="revisit-after" content="{{ "meta.revisit"|trans }}" />
+            {% block base_head_meta_tags_general %}
+                <meta name="author" content="{{ "meta.author"|trans }}"/>
+                <meta name="robots" content="{% block base_head_meta_tags_robots %}{{ "meta.robots"|trans }}{% endblock %}"/>
+                <meta name="revisit-after" content="{{ "meta.revisit"|trans }}"/>
                 {#TODO: NEXT-1891 - replace standard keywords with category keywords if available #}
-                <meta name="keywords" content="{% block base_head_meta_tags_keywords %}{{ "meta.keywordsDefault"|trans }}{% endblock %}" />
-                <meta name="description" content="{% block base_head_meta_tags_description %}{{ "meta.descriptionDefault"|trans|truncate(shopware.config.seo.descriptionMaxLength) }}{% endblock %}" />
-			{% endblock %}
+                <meta name="keywords" content="{% block base_head_meta_tags_keywords %}{{ "meta.keywordsDefault"|trans }}{% endblock %}"/>
+                <meta name="description" content="{% block base_head_meta_tags_description %}{{ "meta.descriptionDefault"|trans|truncate(shopware.config.seo.descriptionMaxLength) }}{% endblock %}"/>
+            {% endblock %}
 
-			{% block base_head_meta_tags_opengraph %}
-                <meta property="og:type" content="website" />
-                <meta property="og:site_name" content="{{ shopware.config.shopName }}" />
-                <meta property="og:title" content="{{ shopware.config.shopName }}" />
-                <meta property="og:description" content="{% block base_head_meta_tags_description_og %}{{ "meta.descriptionDefault"|trans|truncate(shopware.config.seo.descriptionMaxLength) }}{% endblock %}" />
-                <meta property="og:image" content="{{ asset(shopware.theme.logo.desktop) }}" />
+            {% block base_head_meta_tags_opengraph %}
+                <meta property="og:type" content="website"/>
+                <meta property="og:site_name" content="{{ shopware.config.shopName }}"/>
+                <meta property="og:title" content="{{ shopware.config.shopName }}"/>
+                <meta property="og:description" content="{% block base_head_meta_tags_description_og %}{{ "meta.descriptionDefault"|trans|truncate(shopware.config.seo.descriptionMaxLength) }}{% endblock %}"/>
+                <meta property="og:image" content="{{ asset(shopware.theme.logo.desktop) }}"/>
 
-                <meta name="twitter:card" content="website" />
-                <meta name="twitter:site" content="{{ shopware.config.shopName }}" />
-                <meta name="twitter:title" content="{{ shopware.config.shopName }}" />
-                <meta name="twitter:description" content="{% block base_head_meta_tags_description_twitter %}{{ "meta.descriptionDefault"|trans|truncate(shopware.config.seo.descriptionMaxLength) }}{% endblock %}" />
-                <meta name="twitter:image" content="{{ asset(shopware.theme.logo.desktop) }}" />
-			{% endblock %}
+                <meta name="twitter:card" content="website"/>
+                <meta name="twitter:site" content="{{ shopware.config.shopName }}"/>
+                <meta name="twitter:title" content="{{ shopware.config.shopName }}"/>
+                <meta name="twitter:description" content="{% block base_head_meta_tags_description_twitter %}{{ "meta.descriptionDefault"|trans|truncate(shopware.config.seo.descriptionMaxLength) }}{% endblock %}"/>
+                <meta name="twitter:image" content="{{ asset(shopware.theme.logo.desktop) }}"/>
+            {% endblock %}
 
-			{% block base_head_meta_tags_schema_webpage %}
-				{#TODO: NEXT-1891 - check: copyrightHolder snippet contains twig code#}
-                <meta itemprop="copyrightHolder" content="{{ "meta.copyrightHolder"|trans }}" />
-                <meta itemprop="copyrightYear" content="{{ "meta.copyrightYear"|trans }}" />
+            {% block base_head_meta_tags_schema_webpage %}
+                {#TODO: NEXT-1891 - check: copyrightHolder snippet contains twig code#}
+                <meta itemprop="copyrightHolder" content="{{ "meta.copyrightHolder"|trans }}"/>
+                <meta itemprop="copyrightYear" content="{{ "meta.copyrightYear"|trans }}"/>
                 {#TODO: NEXT-1891 - check: if there is another way#}
-                <meta itemprop="isFamilyFriendly" content="{% if shopware.config.metaIsFamilyFriendly %}true{% else %}false{% endif %}" />
-                <meta itemprop="image" content="{{ asset(shopware.theme.logo.desktop) }}" />
-			{% endblock %}
+                <meta itemprop="isFamilyFriendly" content="{% if shopware.config.metaIsFamilyFriendly %}true{% else %}false{% endif %}"/>
+                <meta itemprop="image" content="{{ asset(shopware.theme.logo.desktop) }}"/>
+            {% endblock %}
 
-			{% block base_head_meta_tags_hreflangs %}
+            {% block base_head_meta_tags_hreflangs %}
                 {#TODO: NEXT-1891 - hreflang#}
-			{% endblock %}
+            {% endblock %}
         {% endblock %}
 
         {% block base_head_favicon %}
@@ -57,7 +57,7 @@
         {% block base_head_android %}
             {#TODO: NEXT-1891 - add logo in size 192x192#}
             <link rel="icon" sizes="192x192" href="{{ asset(shopware.theme.logo.androidTouch) }}">
-            <meta name="theme-color" content="{{ shopware.theme.color.primary }}" />
+            <meta name="theme-color" content="{{ shopware.theme.color.primary }}"/>
         {% endblock %}
 
         {% block base_head_canonical %}{% endblock %}
@@ -68,7 +68,11 @@
         {% endblock %}
 
         {% block base_head_stylesheet %}
-            <link rel="stylesheet" href="{{ asset('css/main.bundle.css') }}">
+            {% if isHMRMode %}
+                {# CSS will be loaded from the JS automatically #}
+            {% else %}
+                <link rel="stylesheet" href="{{ asset('css/main.bundle.css') }}">
+            {% endif %}
         {% endblock %}
 
         {# Block for tracking scripts which are required to include in the `head` section of the document #}

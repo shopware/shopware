@@ -1,11 +1,13 @@
+const webpack = require('webpack');
+const {resolve} = require('path');
 const FriendlyErrorsWebpackPlugin = require('friendly-errors-webpack-plugin');
-const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+const buildDirectory = resolve(process.env.PROJECT_ROOT, 'public');
 
 /**
  * -------------------------------------------------------
  * WEBPACK CONFIGURATIONS
  * -------------------------------------------------------
- * Impacts development mode (dev|watch)
+ * Impacts development hot mode
  * https://webpack.js.org/configuration
  * -------------------------------------------------------
  */
@@ -21,7 +23,7 @@ const modules = {
             test: /\.scss$/,
             use: [
                 {
-                    loader: MiniCssExtractPlugin.loader //compiles a CSS file
+                    loader: 'style-loader'
                 },
                 {
                     loader: 'css-loader'
@@ -43,13 +45,42 @@ const modules = {
  * @type {*[]}
  */
 const plugins = [
-    new FriendlyErrorsWebpackPlugin()
+    new FriendlyErrorsWebpackPlugin(),
+    new webpack.HotModuleReplacementPlugin()
 ];
+
+/**
+ * Options for the webpack-dev-server (e.g. for HMR mode)
+ * https://webpack.js.org/configuration/dev-server#devserver
+ * @type {{}}
+ */
+const devServer = {
+    contentBase: buildDirectory,
+    open: false,
+    overlay: {
+        warnings: false,
+        errors: true
+    },
+    stats: {
+        colors: true
+    },
+    quiet: true,
+    hot: true,
+    compress: true,
+    disableHostCheck: true,
+    port: 9999,
+    host: '0.0.0.0',
+    clientLogLevel: 'warning',
+    headers: {
+        'Access-Control-Allow-Origin': '*'
+    }
+};
 
 /**
  * Export the webpack configuration
  */
 module.exports = {
+    devServer: devServer,
     devtool: 'cheap-module-eval-source-map',
     mode: 'development',
     module: modules,

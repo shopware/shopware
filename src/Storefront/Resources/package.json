@@ -7,8 +7,8 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "production": "NODE_ENV=production webpack --config webpack.config.js",
     "development": "NODE_ENV=development webpack --config webpack.config.js",
-    "watch": "NODE_ENV=development ENV=watch webpack --watch --config webpack.config.js",
-    "hot": "NODE_ENV=development ENV=watch webpack-dev-server --config webpack.config.js"
+    "watch": "NODE_ENV=development MODE=watch webpack --watch --config webpack.config.js",
+    "hot": "NODE_ENV=development MODE=hot webpack-dev-server --config webpack.config.js"
   },
   "keywords": [
     "sw",

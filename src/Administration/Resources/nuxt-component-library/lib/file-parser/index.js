@@ -6,26 +6,12 @@ const processFile = require('./process-file');
 
 const {
     getFileContent,
-    extractLessVariables
-} = require('./less-components/extractLessVariables');
-
-const {
     extractSassVariables
 } = require('./sass-components/extractSassVariables');
 
 module.exports = (config) => {
-    // Registry for all global variables (less & sass)
+    // Registry for all global sass variables
     const globalVariablesMap = new Map();
-
-    // Get global less variables
-    if (config.lessVariables && config.lessVariables.length) {
-        const lessGlobalFileContent = getFileContent(config.lessVariables);
-        const globalLessVariables = extractLessVariables(lessGlobalFileContent);
-
-        globalLessVariables.forEach((item) => {
-            globalVariablesMap.set(item.key, item.value);
-        });
-    }
 
     // Get global sass variables
     if (config.sassVariables && config.sassVariables.length) {

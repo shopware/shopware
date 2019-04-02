@@ -49,10 +49,9 @@ module.exports = {
                 config.output.publicPath = './_nuxt/';
             }
             config.resolve.alias.src = path.resolve(__dirname, '..', 'administration/src/');
-            config.resolve.alias.less = path.resolve(__dirname, '..', 'administration/src/app/assets/less');
             config.resolve.alias.scss = path.resolve(__dirname, '..', 'administration/src/app/assets/scss');
             config.resolve.alias.vue = `${__dirname}/node_modules/vue/dist/vue.common`;
-            config.resolve.extensions.push('.less', '.twig', '.scss');
+            config.resolve.extensions.push('.twig', '.scss');
 
             const urlLoader = config.module.rules.find((loader) => {
                 return loader.use && loader.use[0].loader === 'url-loader';
@@ -83,7 +82,7 @@ module.exports = {
                 console.warn(`No config file "${configFileName}" in project root found`);
                 config = {};
                 config.components = 'src/components/**/*.js';
-                config.lessVariables = '';
+                config.sassVariables = '';
             }
 
             return fileParser(config).then((files) => {

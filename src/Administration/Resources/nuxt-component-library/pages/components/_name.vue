@@ -58,7 +58,7 @@
             </table>
         </section>
 
-        <section class="section--less-variables" v-if="component.methods.length">
+        <section class="section--sass-variables" v-if="component.methods.length">
             <h3>Methods</h3>
             <table>
                 <thead>
@@ -129,31 +129,7 @@
             </ul>
         </section>
 
-        <section class="section--less-variables" v-if="component.lessVariables && component.lessVariables.length">
-            <h3>Less variables</h3>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Variable name</th>
-                        <th>Value</th>
-                    </tr>
-                </thead>
-
-                <tbody>
-                    <tr v-for="variable in component.lessVariables" :key="variable.key">
-                        <td>
-                            <u>{{ variable.key }}</u>
-                        </td>
-
-                        <td>
-                            {{ variable.value }}
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-        </section>
-
-        <section class="section--less-variables" v-if="component.sassVariables && component.sassVariables.length">
+        <section class="section--sass-variables" v-if="component.sassVariables && component.sassVariables.length">
             <h3>SASS variables</h3>
             <table>
                 <thead>
@@ -258,7 +234,6 @@ export default {
                 hooks: [],
                 imports: [],
                 inject: [],
-                lessVariables: [],
                 methods: [],
                 mixins: [],
                 name: '',

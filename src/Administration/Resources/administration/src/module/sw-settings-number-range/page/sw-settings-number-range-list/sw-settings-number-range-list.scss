@@ -9,8 +9,8 @@ $sw-settings-number-range-list-font-size-default: $font-size-default;
         color: $sw-settings-number-range-list-color-success;
     }
 
-    .sw-list {
-        list-style: none;
+    .sw-settings-number-range-list__columns-assignment-tag {
+        margin: auto 5px auto 0;
     }
 
     .sw-settings-number-range-list__collapse-title {

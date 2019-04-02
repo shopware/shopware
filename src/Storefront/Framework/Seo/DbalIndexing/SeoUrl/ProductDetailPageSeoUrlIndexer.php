@@ -9,7 +9,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEve
 use Shopware\Storefront\Framework\Seo\SeoService;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
-class DetailPageSeoUrlIndexer extends SeoUrlIndexer
+class ProductDetailPageSeoUrlIndexer extends SeoUrlIndexer
 {
     public const ROUTE_NAME = 'frontend.detail.page';
 

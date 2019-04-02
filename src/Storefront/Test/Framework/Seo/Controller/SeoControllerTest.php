@@ -7,7 +7,7 @@ use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
-use Shopware\Storefront\Framework\Seo\SeoUrlGenerator\DetailPageSeoUrlGenerator;
+use Shopware\Storefront\Framework\Seo\SeoUrlGenerator\ProductDetailPageSeoUrlGenerator;
 use Shopware\Storefront\Framework\Seo\SeoUrlTemplate\SeoUrlTemplateEntity;
 
 class SeoControllerTest extends TestCase
@@ -76,7 +76,7 @@ class SeoControllerTest extends TestCase
         $this->getClient()->request('POST', '/api/v1/product', $product);
 
         $data = [
-            'routeName' => DetailPageSeoUrlGenerator::ROUTE_NAME,
+            'routeName' => ProductDetailPageSeoUrlGenerator::ROUTE_NAME,
             'entityName' => ProductDefinition::getEntityName(),
         ];
         $this->getClient()->request('POST', '/api/v1/_action/seo-url-template/context', $data);

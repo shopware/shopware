@@ -7,8 +7,8 @@ use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Storefront\Framework\Seo\DbalIndexing\SeoUrl\DetailPageSeoUrlIndexer;
-use Shopware\Storefront\Framework\Seo\SeoUrlGenerator\DetailPageSeoUrlGenerator;
+use Shopware\Storefront\Framework\Seo\DbalIndexing\SeoUrl\ProductDetailPageSeoUrlIndexer;
+use Shopware\Storefront\Framework\Seo\SeoUrlGenerator\ProductDetailPageSeoUrlGenerator;
 
 class Migration1551969523SeoUrlTemplate extends MigrationStep
 {
@@ -41,9 +41,9 @@ class Migration1551969523SeoUrlTemplate extends MigrationStep
         $connection->insert('seo_url_template', [
             'id' => Uuid::randomBytes(),
             'sales_channel_id' => null,
-            'route_name' => DetailPageSeoUrlIndexer::ROUTE_NAME,
+            'route_name' => ProductDetailPageSeoUrlIndexer::ROUTE_NAME,
             'entity_name' => ProductDefinition::getEntityName(),
-            'template' => DetailPageSeoUrlGenerator::DEFAULT_TEMPLATE,
+            'template' => ProductDetailPageSeoUrlGenerator::DEFAULT_TEMPLATE,
             'created_at' => (new \DateTimeImmutable())->format(Defaults::DATE_FORMAT),
         ]);
     }

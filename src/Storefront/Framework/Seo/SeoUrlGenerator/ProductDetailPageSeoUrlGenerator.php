@@ -12,7 +12,7 @@ use Shopware\Storefront\Framework\Seo\SeoUrl\SeoUrlEntity;
 use Symfony\Component\Routing\RouterInterface;
 use Twig\Loader\ArrayLoader;
 
-class DetailPageSeoUrlGenerator extends SeoUrlGenerator
+class ProductDetailPageSeoUrlGenerator extends SeoUrlGenerator
 {
     public const ROUTE_NAME = 'frontend.detail.page';
     public const DEFAULT_TEMPLATE = '{{ productName }}/{{ productId }}';
@@ -77,7 +77,12 @@ class DetailPageSeoUrlGenerator extends SeoUrlGenerator
             $pathInfo = $this->router->generate(self::ROUTE_NAME, ['productId' => $product->getId()]);
             $seoUrl->setPathInfo($pathInfo);
 
-            $seoPathInfo = $this->twig->render('template', $this->getSeoUrlContext($product));
+            try {
+                $seoPathInfo = $this->twig->render('template', $this->getSeoUrlContext($product));
+            } catch (\Twig\Error\Error $error) {
+                continue;
+            }
+
             $seoUrl->setSeoPathInfo($seoPathInfo);
 
             $seoUrl->setIsCanonical(true);

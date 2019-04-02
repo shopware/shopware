@@ -1,5 +1,4 @@
 [titleEn]: <>(Plugin changelog)
-[wikiUrl]: <>(../internals/plugins/plugin-changelog?category=platform-en/extending-the-platform/plugins)
 
 ## Overview
 In this guide, you'll learn how to maintain local changelogs for your plugin.

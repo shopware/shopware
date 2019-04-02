@@ -1,5 +1,4 @@
 [titleEn]: <>(Plugin - Contexts)
-[wikiUrl]: <>(../internals/plugins/plugin-contexts?category=platform-en/extending-the-platform/plugins)
 
 ## Overview
 In this guide, you will learn which plugin contexts exist and what they are used for.

@@ -1,18 +1,13 @@
+[titleEn]: <>(SalesChannel-API cart endpoint)
 
-[titleEn]: <>(Cart endpoint)
-[titleDe]: <>(Cart endpoint)
-[wikiUrl]: <>(../using-the-storefront-api/cart-endpoint?category=shopware-platform-en/using-the-storefront-api)
-
-The cart endpoint is used for various cart operations like adding line
-items to the cart, removing them, change their quantity and placing an
-order.
+The cart endpoint is used for various cart operations like adding line items to the cart, removing them,
+change their quantity and placing an order.
 
 ## Create an empty cart
 
 **POST  /storefront-api/v1/checkout/cart**  
-**Response:** If successful, the x-sw-context-token will be returned and
-the x-sw-context-token header will be set. Include this token as an HTTP
-header for all future requests.
+**Response:** If successful, the x-sw-context-token will be returned and the x-sw-context-token header will be set.
+Include this token as an HTTP header for all future requests.
 
 ## Get a cart
 
@@ -78,14 +73,13 @@ required
 
 **Header:** x-sw-context-token is required
 
-**Response: **If successful, the calculated cart will be returned.
+**Response:** If successful, the calculated cart will be returned.
 
 ## Update line item
 
 **PATCH  /storefront-api/v1/checkout/cart/line-item/{id}**
 
-**Header:** x-sw-context-token is
-required
+**Header:** x-sw-context-token is required
 
 **Parameter:**
 
@@ -100,7 +94,7 @@ required
 | description | string  |                                                                                                                 |          |
 | coverId     | uuid    | UUID of a media entity                                                                                          |          |
 
-**Response: **If successful, the calculated cart will be returned.
+**Response:** If successful, the calculated cart will be returned.
 
 ## Create an order
 
@@ -116,8 +110,7 @@ required
 
 **Header:** x-sw-context-token is required
 
-**Parameter:** For the parameter, please have a look at the **[customer
-registration](/en/shopware-platform-en/using-the-storefront-api/customer-endpoint?category=shopware-platform-en/core-components/using-the-storefront-api).**
+**Parameter:** For the parameter, please have a look at the [customer registration](/en/shopware-platform-en/using-the-storefront-api/customer-endpoint?category=shopware-platform-en/core-components/using-the-storefront-api).
 The guest parameter is always set to true.
 
 **Response:** If successful, the order will be returned.
@@ -128,23 +121,19 @@ The guest parameter is always set to true.
 
 **Header:** x-sw-context-token is required
 
-**Parameter:** If *finishUrl* is set, the customer will be
-redirected to this URL after the payment process is completed. 
+**Parameter:** If *finishUrl* is set, the customer will be redirected to this URL after the payment process is completed. 
 
-**Response:** The response depends on the type of the payment processor
-used. A payment processor can define if the user needs to be redirected
-to an external payment gateway. If that's the case, you get a response
-which includes a paymentUrl. This is the URL of the external payment
-gateway where you have to redirect the user to. If the payment process
-is completed or the payment processor use an external payment gateway,
-you will receive an empty response.
+**Response:** The response depends on the type of the payment processor used.
+A payment processor can define if the user needs to be redirected to an external payment gateway.
+If that's the case, you get a response which includes a paymentUrl.
+This is the URL of the external payment gateway where you have to redirect the user to.
+If the payment process is completed or the payment processor use an external payment gateway, you will receive an empty response.
 
 ## Get guest order by a deep link
 
 **GET  /storefront-api/v1/checkout/guest-order/{id}**
 
-**Parameter:** The *accessCode* parameter is required and will be
-returned when a guest order is placed.
+**Parameter:** The *accessCode* parameter is required and will be returned when a guest order is placed.
 
 **Response:** If successful, the order will be returned.
 

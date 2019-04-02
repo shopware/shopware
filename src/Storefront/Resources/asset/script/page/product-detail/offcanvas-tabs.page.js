@@ -8,12 +8,7 @@ const OFFCANVAS_TAB_POSITION = 'right';
 
 export default class OffcanvasTabs extends Plugin {
 
-    /**
-     * Constructor.
-     */
-    constructor() {
-        super();
-
+    init() {
         this._registerEventListeners();
     }
 

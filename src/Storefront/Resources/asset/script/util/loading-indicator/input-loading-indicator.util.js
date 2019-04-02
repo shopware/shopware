@@ -1,6 +1,6 @@
-import LoadingIndicator from "./loading-indicator.plugin";
+import LoadingIndicatorUtil from "./loading-indicator.util";
 
-export default class InputLoadingIndicator extends LoadingIndicator {
+export default class InputLoadingIndicatorUtil extends LoadingIndicatorUtil {
 
     /**
      * Constructor
@@ -20,14 +20,14 @@ export default class InputLoadingIndicator extends LoadingIndicator {
      */
     create() {
         if (this.exists()) return;
-        this.parent.insertAdjacentHTML('afterend', LoadingIndicator.getTemplate());
+        this.parent.insertAdjacentHTML('afterend', LoadingIndicatorUtil.getTemplate());
     }
 
     /**
      * remove loading indicators
      */
     remove() {
-        let indicators = this.parent.parentNode.querySelectorAll(`.${LoadingIndicator.SELECTOR_CLASS()}`);
+        let indicators = this.parent.parentNode.querySelectorAll(`.${LoadingIndicatorUtil.SELECTOR_CLASS()}`);
         indicators.forEach(indicator => indicator.remove());
     }
 

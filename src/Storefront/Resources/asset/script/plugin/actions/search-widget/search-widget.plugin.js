@@ -1,8 +1,8 @@
+import Plugin from '../../../helper/plugin/plugin.class'
 import DomAccess from "../../../helper/dom-access.helper";
 import Debouncer from "../../../helper/debouncer.helper";
 import HttpClient from "../../../service/http-client.service";
-import Plugin from "../../../helper/plugin.helper";
-import InputLoadingIndicator from "../../loading-indicator/input-loading-indicator.plugin";
+import InputLoadingIndicator from "../../../util/loading-indicator/input-loading-indicator.util";
 import DeviceDetection from "../../../helper/device-detection.helper";
 import ArrowNavigationHelper from "./helper/arrow-navigation.helper";
 
@@ -15,15 +15,9 @@ const SEARCH_WIDGET_URL_DATA_ATTRIBUTE = 'data-url';
 const SEARCH_WIDGET_DELAY = 250;
 const SEARCH_WIDGET_MIN_CHARS = 3;
 
-export default class SearchWidget extends Plugin {
+export default class SearchWidgetPlugin extends Plugin {
 
-
-    /**
-     * Constructor.
-     */
-    constructor() {
-        super();
-
+    init() {
         this._client = new HttpClient(window.accessKey, window.contextToken);
         this._form = DomAccess.querySelector(document, SEARCH_WIDGET_SELECTOR);
         this._inputField = DomAccess.querySelector(this._form, SEARCH_WIDGET_INPUT_FIELD_SELECTOR);

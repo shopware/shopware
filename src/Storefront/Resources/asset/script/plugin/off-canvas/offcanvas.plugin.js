@@ -1,5 +1,5 @@
 import DeviceDetection from "../../helper/device-detection.helper";
-import Backdrop, { BACKDROP_EVENT } from "../backdrop/backdrop.plugin";
+import Backdrop, { BACKDROP_EVENT } from "../../util/backdrop/backdrop.util";
 
 const OFF_CANVAS_CLASS = 'off-canvas';
 const OFF_CANVAS_OPEN_CLASS = 'is-open';

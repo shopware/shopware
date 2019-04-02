@@ -1,6 +1,6 @@
+import Plugin from '../../../helper/plugin/plugin.class'
 import CookieHandler from '../../helper/cookie.helper';
 import Debouncer from '../../helper/debouncer.helper';
-import Plugin from '../../helper/plugin.helper';
 import DeviceDetection from '../../helper/device-detection.helper';
 
 const BUTTON_ID = 'cookieButton';
@@ -8,14 +8,9 @@ const CONTAINER_ID = 'cookieContainer';
 const EXPIRATION = 1;
 const RESIZE_DEBOUNCE_TIME = 200;
 
-export default class CookiePermission extends Plugin {
+export default class CookiePermissionPlugin extends Plugin {
 
-    /**
-     *  Constructor
-     */
-    constructor() {
-        super();
-
+    init() {
         this._checkCookie();
     }
 

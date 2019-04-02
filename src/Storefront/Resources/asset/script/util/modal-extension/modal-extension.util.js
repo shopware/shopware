@@ -1,9 +1,8 @@
 import $ from 'jquery';
 import HttpClient from "../../service/http-client.service";
 import DomAccess from "../../helper/dom-access.helper";
-import ButtonLoadingIndicator from "../loading-indicator/button-loading-indicator.plugin";
+import ButtonLoadingIndicator from "../loading-indicator/button-loading-indicator.util";
 import DeviceDetection from "../../helper/device-detection.helper";
-import Plugin from "../../helper/plugin.helper";
 
 const MODAL_REMOTE_DATA_ATTRIBUTE = 'data-url';
 const MODAL_AJAX_CLASS = 'js-ajax-modal';
@@ -17,14 +16,12 @@ const MODAL_AJAX_CLASS = 'js-ajax-modal';
  * Notice: The response template needs to have the markup as defined in the Bootstrap docs
  * https://getbootstrap.com/docs/4.3/components/modal/#live-demo
  */
-export default class ModalExtension extends Plugin {
+export default class ModalExtensionUtil {
 
     /**
      * Constructor.
      */
     constructor() {
-        super();
-
         this._registerEvents();
     }
 

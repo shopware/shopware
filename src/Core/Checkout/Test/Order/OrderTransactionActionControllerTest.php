@@ -8,6 +8,8 @@ use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionDefinition;
+use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStates;
+use Shopware\Core\Checkout\Order\OrderStates;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
@@ -19,8 +21,6 @@ use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineHistory\StateMachineHistoryCollection;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineHistory\StateMachineHistoryEntity;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateDefinition;
-use Shopware\Core\System\StateMachine\OrderStateMachine;
-use Shopware\Core\System\StateMachine\OrderTransactionStateMachine;
 use Shopware\Core\System\StateMachine\StateMachineRegistry;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -89,7 +89,7 @@ class OrderTransactionActionControllerTest extends TestCase
 
         static::assertEquals(Response::HTTP_OK, $this->getClient()->getResponse()->getStatusCode());
         static::assertNotNull($response['currentState']);
-        static::assertEquals(OrderTransactionStateMachine::STATE_OPEN, $response['currentState']['technicalName']);
+        static::assertEquals(OrderTransactionStates::STATE_OPEN, $response['currentState']['technicalName']);
 
         static::assertCount(4, $response['transitions']);
         static::assertEquals('cancel', $response['transitions'][0]['actionName']);
@@ -185,7 +185,7 @@ class OrderTransactionActionControllerTest extends TestCase
     private function createOrder(string $customerId, Context $context): string
     {
         $orderId = Uuid::randomHex();
-        $stateId = $this->stateMachineRegistry->getInitialState(OrderStateMachine::NAME, $context)->getId();
+        $stateId = $this->stateMachineRegistry->getInitialState(OrderStates::STATE_MACHINE, $context)->getId();
         $billingAddressId = Uuid::randomHex();
 
         $order = [
@@ -270,7 +270,7 @@ class OrderTransactionActionControllerTest extends TestCase
     private function createOrderTransaction(string $orderId, Context $context): string
     {
         $transactionId = Uuid::randomHex();
-        $stateId = $this->stateMachineRegistry->getInitialState(OrderTransactionStateMachine::NAME, $context)->getId();
+        $stateId = $this->stateMachineRegistry->getInitialState(OrderTransactionStates::STATE_MACHINE, $context)->getId();
 
         $transaction = [
             'id' => $transactionId,

@@ -9,6 +9,7 @@ use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryDefinition;
+use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryStates;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -19,7 +20,6 @@ use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineHistory\StateMachineHistoryCollection;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineHistory\StateMachineHistoryEntity;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateDefinition;
-use Shopware\Core\System\StateMachine\OrderDeliveryStateMachine;
 use Shopware\Core\System\StateMachine\StateMachineRegistry;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -87,7 +87,7 @@ class OrderDeliveryActionControllerTest extends TestCase
         $response = json_decode($response, true);
 
         static::assertNotNull($response['currentState']);
-        static::assertEquals(OrderDeliveryStateMachine::STATE_OPEN, $response['currentState']['technicalName']);
+        static::assertEquals(OrderDeliveryStates::STATE_OPEN, $response['currentState']['technicalName']);
 
         static::assertCount(3, $response['transitions']);
         static::assertEquals('cancel', $response['transitions'][0]['actionName']);
@@ -183,7 +183,7 @@ class OrderDeliveryActionControllerTest extends TestCase
     private function createOrder(string $customerId, Context $context): string
     {
         $orderId = Uuid::randomHex();
-        $stateId = $this->stateMachineRegistry->getInitialState(OrderDeliveryStateMachine::NAME, $context)->getId();
+        $stateId = $this->stateMachineRegistry->getInitialState(OrderDeliveryStates::STATE_MACHINE, $context)->getId();
         $billingAddressId = Uuid::randomHex();
 
         $order = [
@@ -268,7 +268,7 @@ class OrderDeliveryActionControllerTest extends TestCase
     private function createOrderDelivery(string $orderId, Context $context): string
     {
         $deliveryId = Uuid::randomHex();
-        $stateId = $this->stateMachineRegistry->getInitialState(OrderDeliveryStateMachine::NAME, $context)->getId();
+        $stateId = $this->stateMachineRegistry->getInitialState(OrderDeliveryStates::STATE_MACHINE, $context)->getId();
 
         $delivery = [
             'id' => $deliveryId,

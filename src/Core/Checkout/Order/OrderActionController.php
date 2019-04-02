@@ -10,7 +10,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaI
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\System\StateMachine\Exception\IllegalTransitionException;
 use Shopware\Core\System\StateMachine\Exception\StateMachineNotFoundException;
-use Shopware\Core\System\StateMachine\OrderStateMachine;
 use Shopware\Core\System\StateMachine\StateMachineRegistry;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -53,7 +52,7 @@ class OrderActionController extends AbstractController
             'version' => $request->get('version'),
         ]);
 
-        return $this->stateMachineRegistry->buildAvailableTransitionsJsonResponse(OrderStateMachine::NAME,
+        return $this->stateMachineRegistry->buildAvailableTransitionsJsonResponse(OrderStates::STATE_MACHINE,
             $order->getStateMachineState()->getTechnicalName(),
             $baseUrl,
             $context);
@@ -76,7 +75,7 @@ class OrderActionController extends AbstractController
     ): Response {
         $order = $this->getOrder($orderId, $context);
 
-        $toPlace = $this->stateMachineRegistry->transition($this->stateMachineRegistry->getStateMachine(OrderStateMachine::NAME, $context),
+        $toPlace = $this->stateMachineRegistry->transition($this->stateMachineRegistry->getStateMachine(OrderStates::STATE_MACHINE, $context),
             $order->getStateMachineState(),
             OrderDefinition::getEntityName(),
             $order->getId(),

@@ -1,10 +1,10 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\System\StateMachine;
+namespace Shopware\Core\Checkout\Order\Aggregate\OrderTransaction;
 
-final class OrderTransactionStateMachine
+final class OrderTransactionStates
 {
-    public const NAME = 'order_transaction.state';
+    public const STATE_MACHINE = 'order_transaction.state';
     public const STATE_OPEN = 'open';
     public const STATE_PAID = 'paid';
     public const STATE_PARTIALLY_PAID = 'paid_partially';

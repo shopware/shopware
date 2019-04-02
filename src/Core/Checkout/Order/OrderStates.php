@@ -1,10 +1,10 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\System\StateMachine;
+namespace Shopware\Core\Checkout\Order;
 
-final class OrderStateMachine
+final class OrderStates
 {
-    public const NAME = 'order.state';
+    public const STATE_MACHINE = 'order.state';
     public const STATE_OPEN = 'open';
     public const STATE_IN_PROGRESS = 'in_progress';
     public const STATE_COMPLETED = 'completed';

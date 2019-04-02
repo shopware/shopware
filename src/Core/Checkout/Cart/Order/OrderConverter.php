@@ -28,20 +28,20 @@ use Shopware\Core\Checkout\Context\CheckoutContextService;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryEntity;
+use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryStates;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDeliveryPosition\OrderDeliveryPositionEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemEntity;
+use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStates;
 use Shopware\Core\Checkout\Order\Exception\DeliveryWithoutAddressException;
 use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Checkout\Order\OrderEntity;
+use Shopware\Core\Checkout\Order\OrderStates;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInterface;
-use Shopware\Core\System\StateMachine\OrderDeliveryStateMachine;
-use Shopware\Core\System\StateMachine\OrderStateMachine;
-use Shopware\Core\System\StateMachine\OrderTransactionStateMachine;
 use Shopware\Core\System\StateMachine\StateMachineRegistry;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
@@ -108,7 +108,7 @@ class OrderConverter
         }
         $data = CartTransformer::transform($cart,
             $context,
-            $this->stateMachineRegistry->getInitialState(OrderStateMachine::NAME, $context->getContext())->getId()
+            $this->stateMachineRegistry->getInitialState(OrderStates::STATE_MACHINE, $context->getContext())->getId()
         );
 
         if ($conversionContext->shouldIncludeCustomer()) {
@@ -124,7 +124,7 @@ class OrderConverter
             $data['deliveries'] = DeliveryTransformer::transformCollection(
                 $cart->getDeliveries(),
                 $convertedLineItems,
-                $this->stateMachineRegistry->getInitialState(OrderDeliveryStateMachine::NAME, $context->getContext())->getId(),
+                $this->stateMachineRegistry->getInitialState(OrderDeliveryStates::STATE_MACHINE, $context->getContext())->getId(),
                 $context->getContext(),
                 $shippingAddresses
             );
@@ -145,7 +145,7 @@ class OrderConverter
 
         if ($conversionContext->shouldIncludeTransactions()) {
             $data['transactions'] = TransactionTransformer::transformCollection($cart->getTransactions(),
-                $this->stateMachineRegistry->getInitialState(OrderTransactionStateMachine::NAME, $context->getContext())->getId(),
+                $this->stateMachineRegistry->getInitialState(OrderTransactionStates::STATE_MACHINE, $context->getContext())->getId(),
                 $context->getContext());
         }
 

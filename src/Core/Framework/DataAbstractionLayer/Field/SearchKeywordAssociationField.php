@@ -9,7 +9,7 @@ class SearchKeywordAssociationField extends OneToManyAssociationField
 {
     public function __construct()
     {
-        parent::__construct('searchKeywords', SearchDocumentDefinition::class, 'entity_id', false);
+        parent::__construct('searchKeywords', SearchDocumentDefinition::class, 'entity_id');
         $this->addFlags(new WriteProtected());
     }
 }

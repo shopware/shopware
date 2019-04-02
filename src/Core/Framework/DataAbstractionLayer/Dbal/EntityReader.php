@@ -35,13 +35,6 @@ use Shopware\Core\Framework\Doctrine\FetchModeHelper;
 use Shopware\Core\Framework\Struct\ArrayEntity;
 use Shopware\Core\Framework\Uuid\Uuid;
 
-/**
- * Reads entities in specify data form (basic, detail, dynamic).
- *
- * Basic => contains all scalar fields of the definition and associations which marked as "loadInBasic=true"
- * Detail => contains all fields, excluded fields which marked with writeOnly
- * Dynamic => allows to specify which fields should be loaded
- */
 class EntityReader implements EntityReaderInterface
 {
     use CriteriaQueryHelper;
@@ -96,7 +89,7 @@ class EntityReader implements EntityReaderInterface
             $context,
             $definition::getEntityClass(),
             new $collectionClass(),
-            $definition::getFields()->filterBasic()
+            $definition::getFields()->getBasicFields()
         );
     }
 
@@ -209,11 +202,7 @@ class EntityReader implements EntityReaderInterface
                 /** @var EntityDefinition|string $reference */
                 $reference = $field->getReferenceClass();
 
-                $basics = $reference::getFields()->filterBasic();
-
-                if ($this->shouldBeLoadedDelayed($reference, $basics)) {
-                    continue;
-                }
+                $basics = $reference::getFields()->getBasicFields();
 
                 $this->queryHelper->resolveField($field, $definition, $root, $query, $context);
 
@@ -334,11 +323,6 @@ class EntityReader implements EntityReaderInterface
     ): void {
         $reference = $association->getReferenceClass();
 
-        $fields = $reference::getFields()->filterBasic();
-        if (!$this->shouldBeLoadedDelayed($reference, $fields)) {
-            return;
-        }
-
         $field = $definition::getFields()->getByStorageName($association->getStorageName());
         $ids = $collection->map(function (Entity $entity) use ($field) {
             return $entity->get($field->getPropertyName());
@@ -355,7 +339,7 @@ class EntityReader implements EntityReaderInterface
             $context,
             $referenceClass::getEntityClass(),
             new $collectionClass(),
-            $referenceClass::getFields()->filterBasic()
+            $referenceClass::getFields()->getBasicFields()
         );
 
         /** @var Entity $struct */
@@ -467,37 +451,6 @@ class EntityReader implements EntityReaderInterface
         return $ids;
     }
 
-    private function shouldBeLoadedDelayed(string $definition, iterable $fields): bool
-    {
-        /** @var Field $field */
-        foreach ($fields as $field) {
-            if (!$field instanceof AssociationInterface) {
-                continue;
-            }
-
-            if ($field instanceof ManyToManyAssociationField || $field instanceof OneToManyAssociationField) {
-                return true;
-            }
-
-            $reference = $field->getReferenceClass();
-
-            if ($reference === $definition) {
-                continue;
-            }
-
-            if ($field->is(Deferred::class)) {
-                continue;
-            }
-
-            $nested = $reference::getFields()->filterBasic();
-            if ($this->shouldBeLoadedDelayed($reference, $nested)) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
     /**
      * @param string|EntityDefinition $definition
      */
@@ -576,7 +529,7 @@ class EntityReader implements EntityReaderInterface
             $context,
             $referenceClass::getEntityClass(),
             new $collectionClass(),
-            $referenceClass::getFields()->filterBasic()
+            $referenceClass::getFields()->getBasicFields()
         );
 
         //assign loaded data to root entities
@@ -657,7 +610,7 @@ class EntityReader implements EntityReaderInterface
             $context,
             $referenceClass::getEntityClass(),
             new $collectionClass(),
-            $referenceClass::getFields()->filterBasic()
+            $referenceClass::getFields()->getBasicFields()
         );
 
         //assign loaded reference collections to root entities
@@ -711,7 +664,7 @@ class EntityReader implements EntityReaderInterface
             $context,
             $referenceClass::getEntityClass(),
             new $collectionClass(),
-            $referenceClass::getFields()->filterBasic()
+            $referenceClass::getFields()->getBasicFields()
         );
 
         /** @var Entity $struct */
@@ -844,7 +797,7 @@ class EntityReader implements EntityReaderInterface
             $context,
             $referenceClass::getEntityClass(),
             new $collectionClass(),
-            $referenceClass::getFields()->filterBasic()
+            $referenceClass::getFields()->getBasicFields()
         );
 
         /** @var Entity $struct */
@@ -1080,11 +1033,6 @@ class EntityReader implements EntityReaderInterface
     ) {
         $reference = $association->getReferenceClass();
 
-        $fields = $reference::getFields()->filterBasic();
-        if (!$this->shouldBeLoadedDelayed($reference, $fields)) {
-            return;
-        }
-
         $field = $definition::getFields()->getByStorageName($association->getStorageName());
 
         //check if the association is the owning side
@@ -1121,7 +1069,7 @@ class EntityReader implements EntityReaderInterface
             $context,
             $referenceClass::getEntityClass(),
             new $collectionClass(),
-            $referenceClass::getFields()->filterBasic()
+            $referenceClass::getFields()->getBasicFields()
         );
 
         /** @var Entity $struct */

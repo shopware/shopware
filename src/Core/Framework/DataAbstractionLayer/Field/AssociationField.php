@@ -7,19 +7,14 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 class AssociationField extends Field
 {
     /**
-     * @var bool
-     */
-    protected $loadInBasic = false;
-
-    /**
      * @var string
      */
     protected $referenceClass;
 
-    public function loadInBasic(): bool
-    {
-        return $this->loadInBasic;
-    }
+    /**
+     * @var bool
+     */
+    protected $autoload = false;
 
     /**
      * @return string|EntityDefinition
@@ -27,5 +22,10 @@ class AssociationField extends Field
     public function getReferenceClass(): string
     {
         return $this->referenceClass;
+    }
+
+    final public function getAutoload(): bool
+    {
+        return $this->autoload;
     }
 }

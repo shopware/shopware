@@ -40,7 +40,6 @@ class ManyToManyAssociationField extends AssociationField
         string $propertyName,
         string $referenceDefinition,
         string $mappingDefinition,
-        bool $loadInBasic,
         string $mappingLocalColumn,
         string $mappingReferenceColumn,
         string $sourceColumn = 'id',
@@ -49,7 +48,6 @@ class ManyToManyAssociationField extends AssociationField
         parent::__construct($propertyName);
         $this->referenceDefinition = $referenceDefinition;
         $this->referenceClass = $mappingDefinition;
-        $this->loadInBasic = $loadInBasic;
         $this->mappingDefinition = $mappingDefinition;
         $this->mappingLocalColumn = $mappingLocalColumn;
         $this->mappingReferenceColumn = $mappingReferenceColumn;

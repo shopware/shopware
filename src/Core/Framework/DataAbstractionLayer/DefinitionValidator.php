@@ -474,16 +474,6 @@ class DefinitionValidator
             );
         }
 
-        if ($reverseSide && $association->loadInBasic() && $reverseSide->loadInBasic()) {
-            $associationViolations[$definition][] = sprintf(
-                'Circular load in basic violation for %s <-> %s (property: %s & property: %s)',
-                $definition,
-                $association->getReferenceClass(),
-                $association->getPropertyName(),
-                $reverseSide->getPropertyName()
-            );
-        }
-
         if ($association->is(CascadeDelete::class) && $reverseSide->is(CascadeDelete::class)) {
             $associationViolations[$definition][] = sprintf(
                 'Remove cascade delete in definition %s association: %s. One to One association should only have one side defined cascade delete flag',
@@ -519,16 +509,6 @@ class DefinitionValidator
                 $definition,
                 $association->getReferenceClass(),
                 $association->getPropertyName()
-            );
-        }
-
-        if ($reverseSide && $association->loadInBasic() && $reverseSide->loadInBasic()) {
-            $associationViolations[$definition][] = sprintf(
-                'Circular load in basic violation for %s <-> %s (property: %s & property: %s)',
-                $definition,
-                $association->getReferenceClass(),
-                $association->getPropertyName(),
-                $reverseSide->getPropertyName()
             );
         }
 
@@ -570,17 +550,6 @@ class DefinitionValidator
                 $association->getReferenceField(),
                 $definition::getEntityName(),
                 $association->getPropertyName()
-            );
-        }
-
-        /** @var AssociationInterface $reverseSide */
-        if ($reverseSide && $association->loadInBasic() && $reverseSide->loadInBasic()) {
-            $associationViolations[$definition][] = sprintf(
-                'Circular load in basic violation for %s <-> %s (property: %s & property: %s)',
-                $definition,
-                $association->getReferenceClass(),
-                $association->getPropertyName(),
-                $reverseSide->getPropertyName()
             );
         }
 
@@ -667,17 +636,6 @@ class DefinitionValidator
 
         if (!$reverse) {
             $violations[$reference][] = sprintf('Missing reverse many to many association for original %s.%s', $definition, $association->getPropertyName());
-        }
-
-        /** @var AssociationInterface $reverse */
-        if ($reverse && $association->loadInBasic() && $reverse->loadInBasic()) {
-            $violations[$definition][] = sprintf(
-                'Circular load in basic violation for %s <-> %s (property: %s & property: %s)',
-                $definition,
-                $association->getReferenceClass(),
-                $association->getPropertyName(),
-                $reverse->getPropertyName()
-            );
         }
 
         return $violations;

@@ -2,8 +2,6 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Field;
 
-use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
-
 class OneToOneAssociationField extends AssociationField
 {
     public const PRIORITY = 80;
@@ -23,14 +21,14 @@ class OneToOneAssociationField extends AssociationField
         string $storageName,
         string $referenceField,
         string $referenceClass,
-        bool $loadInBasic
+        bool $autoload = true
     ) {
         parent::__construct($propertyName);
 
-        $this->loadInBasic = $loadInBasic;
         $this->referenceClass = $referenceClass;
         $this->storageName = $storageName;
         $this->referenceField = $referenceField;
+        $this->autoload = $autoload;
     }
 
     public function getReferenceField(): string
@@ -46,13 +44,5 @@ class OneToOneAssociationField extends AssociationField
     public function getExtractPriority(): int
     {
         return self::PRIORITY;
-    }
-
-    /**
-     * @return string|EntityDefinition
-     */
-    public function getReferenceClass(): string
-    {
-        return $this->referenceClass;
     }
 }

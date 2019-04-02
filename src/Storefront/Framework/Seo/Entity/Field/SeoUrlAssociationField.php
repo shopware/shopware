@@ -18,7 +18,7 @@ class SeoUrlAssociationField extends OneToManyAssociationField
         string $routeName,
         string $localField = 'id'
     ) {
-        parent::__construct($propertyName, SeoUrlDefinition::class, 'foreign_key', false, $localField);
+        parent::__construct($propertyName, SeoUrlDefinition::class, 'foreign_key', $localField);
         $this->addFlags(new Extension());
         $this->routeName = $routeName;
     }

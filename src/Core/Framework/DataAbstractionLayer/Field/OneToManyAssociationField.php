@@ -18,11 +18,9 @@ class OneToManyAssociationField extends AssociationField
         string $propertyName,
         string $referenceClass,
         string $referenceField,
-        bool $loadInBasic,
         string $localField = 'id'
     ) {
         parent::__construct($propertyName);
-        $this->loadInBasic = $loadInBasic;
         $this->localField = $localField;
         $this->referenceField = $referenceField;
         $this->referenceClass = $referenceClass;

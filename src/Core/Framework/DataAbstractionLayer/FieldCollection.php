@@ -53,12 +53,12 @@ class FieldCollection extends Collection
         return $this->elements[$propertyName] ?? null;
     }
 
-    public function filterBasic(): self
+    public function getBasicFields(): self
     {
         return $this->filter(
             function (Field $field) {
                 if ($field instanceof AssociationField) {
-                    return $field->loadInBasic();
+                    return $field->getAutoload();
                 }
 
                 return true;

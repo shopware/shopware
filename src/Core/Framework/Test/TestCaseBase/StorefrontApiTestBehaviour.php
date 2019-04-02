@@ -121,7 +121,7 @@ trait StorefrontApiTestBehaviour
             'snippetSetId' => Defaults::SNIPPET_BASE_SET_EN,
             'currencyId' => Defaults::CURRENCY,
             'paymentMethodId' => $this->getValidPaymentMethodId(),
-            'shippingMethodId' => $this->getValidShippingMethodId(),
+            'shippingMethodId' => $this->getAvailableShippingMethodId(),
             'countryId' => Defaults::COUNTRY,
             'currencies' => [['id' => Defaults::CURRENCY]],
             'languages' => [['id' => Defaults::LANGUAGE_SYSTEM]],

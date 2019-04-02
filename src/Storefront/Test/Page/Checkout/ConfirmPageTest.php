@@ -56,25 +56,28 @@ class ConfirmPageTest extends TestCase
         /** @var EntityRepositoryInterface $shippingMethodRepository */
         $shippingMethodRepository = $this->getContainer()->get('shipping_method.repository');
         $shippingMethodRuleRepository = $this->getContainer()->get('shipping_method_rule.repository');
-        /** @var ShippingMethodEntity $shippingMethod */
-        $shippingMethod = $shippingMethodRepository->search(new Criteria(), $context->getContext())->first();
+        $shippingMethods = $shippingMethodRepository->search(new Criteria(), $context->getContext())->getEntities();
 
         $ruleToDelete = [];
 
-        foreach ($shippingMethod->getAvailabilityRuleIds() as $availabilityRuleId) {
-            $ruleToDelete[] = [
-                'shippingMethodId' => $shippingMethod->getId(),
-                'ruleId' => $availabilityRuleId,
-            ];
+        /** @var ShippingMethodEntity $shippingMethod */
+        foreach ($shippingMethods as $shippingMethod) {
+            foreach ($shippingMethod->getAvailabilityRuleIds() as $availabilityRuleId) {
+                $ruleToDelete[] = [
+                    'shippingMethodId' => $shippingMethod->getId(),
+                    'ruleId' => $availabilityRuleId,
+                ];
+            }
         }
 
-        $shippingMethodRuleRepository->delete($ruleToDelete, $context->getContext());
+        if (\count($ruleToDelete) > 0) {
+            $shippingMethodRuleRepository->delete($ruleToDelete, $context->getContext());
+        }
 
         /** @var CheckoutConfirmPageLoadedEvent $event */
         $event = null;
         $this->catchEvent(CheckoutConfirmPageLoadedEvent::NAME, $event);
 
-        $context = $this->createCheckoutContextWithNavigation();
         /** @var CheckoutConfirmPage $page */
         $page = $this->getPageLoader()->load($request, $context);
 

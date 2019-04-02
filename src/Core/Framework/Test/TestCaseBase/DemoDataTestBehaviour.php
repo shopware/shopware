@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Test\TestCaseBase;
 
+use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
@@ -31,6 +32,23 @@ trait DemoDataTestBehaviour
         $criteria = (new Criteria())->setLimit(1);
 
         return $repository->searchIds($criteria, Context::createDefaultContext())->getIds()[0];
+    }
+
+    protected function getAvailableShippingMethodId(): string
+    {
+        /** @var EntityRepositoryInterface $repository */
+        $repository = $this->getContainer()->get('shipping_method.repository');
+
+        $shippingMethods = $repository->search(new Criteria(), Context::createDefaultContext())->getEntities();
+
+        /** @var ShippingMethodEntity $shippingMethod */
+        foreach ($shippingMethods as $shippingMethod) {
+            if (\count($shippingMethod->getAvailabilityRuleIds()) > 0) {
+                return $shippingMethod->getId();
+            }
+        }
+
+        throw new \LogicException('No available ShippingMethod configured');
     }
 
     protected function getValidSalutationId(): string

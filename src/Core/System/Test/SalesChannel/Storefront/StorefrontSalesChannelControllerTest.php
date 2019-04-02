@@ -473,7 +473,7 @@ class StorefrontSalesChannelControllerTest extends TestCase
         $data = [
             'id' => $this->getStorefrontApiSalesChannelId(),
             'shippingMethods' => [
-                ['id' => $this->getValidShippingMethodId()],
+                ['id' => $this->getAvailableShippingMethodId()],
                 $shippingMethod,
             ],
         ];
@@ -493,7 +493,7 @@ class StorefrontSalesChannelControllerTest extends TestCase
         $data = [
             'id' => $this->getStorefrontApiSalesChannelId(),
             'shippingMethods' => [
-                ['id' => $this->getValidShippingMethodId()],
+                ['id' => $this->getAvailableShippingMethodId()],
                 $shippingMethod,
             ],
         ];

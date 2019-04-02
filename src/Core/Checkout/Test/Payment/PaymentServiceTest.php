@@ -213,7 +213,7 @@ class PaymentServiceTest extends TestCase
         /** @var OrderTransactionEntity $transactionEntity */
         $transactionEntity = $this->orderTransactionRepository->search(new Criteria([$transactionId]), $this->context)->first();
         static::assertSame(
-            Defaults::ORDER_TRANSACTION_STATES_CANCELLED,
+            OrderStateMachine::STATE_CANCELLED,
             $transactionEntity->getStateMachineState()->getTechnicalName()
         );
     }

@@ -126,7 +126,7 @@ trait StorefrontPageTestBehaviour
     protected function createCheckoutContextWithNavigation(): CheckoutContext
     {
         $paymentMethodId = $this->getValidPaymentMethodId();
-        $shippingMethodId = $this->getValidShippingMethodId();
+        $shippingMethodId = $this->getAvailableShippingMethodId();
         $data = [
             'typeId' => Defaults::SALES_CHANNEL_STOREFRONT,
             'name' => 'store front',
@@ -155,7 +155,7 @@ trait StorefrontPageTestBehaviour
     protected function createCheckoutContextWithLoggedInCustomerAndWithNavigation(): CheckoutContext
     {
         $paymentMethodId = $this->getValidPaymentMethodId();
-        $shippingMethodId = $this->getValidShippingMethodId();
+        $shippingMethodId = $this->getAvailableShippingMethodId();
         $data = [
             'typeId' => Defaults::SALES_CHANNEL_STOREFRONT,
             'name' => 'store front',
@@ -186,7 +186,7 @@ trait StorefrontPageTestBehaviour
     protected function createCheckoutContext(): CheckoutContext
     {
         $paymentMethodId = $this->getValidPaymentMethodId();
-        $shippingMethodId = $this->getValidShippingMethodId();
+        $shippingMethodId = $this->getAvailableShippingMethodId();
         $data = [
             'typeId' => Defaults::SALES_CHANNEL_STOREFRONT,
             'name' => 'store front',

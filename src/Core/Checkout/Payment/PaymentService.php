@@ -18,11 +18,11 @@ use Shopware\Core\Checkout\Payment\Exception\InvalidTransactionException;
 use Shopware\Core\Checkout\Payment\Exception\SyncPaymentProcessException;
 use Shopware\Core\Checkout\Payment\Exception\TokenExpiredException;
 use Shopware\Core\Checkout\Payment\Exception\UnknownPaymentMethodException;
-use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\StateMachine\OrderTransactionStateMachine;
 use Shopware\Core\System\StateMachine\StateMachineRegistry;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -174,8 +174,8 @@ class PaymentService
     private function cancelOrderTransaction(string $transactionId, Context $context): void
     {
         $stateId = $this->stateMachineRegistry->getStateByTechnicalName(
-            Defaults::ORDER_TRANSACTION_STATE_MACHINE,
-            Defaults::ORDER_TRANSACTION_STATES_CANCELLED,
+            OrderTransactionStateMachine::NAME,
+            OrderTransactionStateMachine::STATE_CANCELLED,
             $context
         )->getId();
 

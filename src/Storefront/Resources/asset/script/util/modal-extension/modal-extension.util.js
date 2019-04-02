@@ -59,7 +59,7 @@ export default class ModalExtensionUtil {
     _onClickHandleAjaxModal(e) {
         e.stopPropagation();
 
-        const trigger = e.srcElement;
+        const trigger = e.target;
         const url = DomAccess.getAttribute(trigger, MODAL_REMOTE_DATA_ATTRIBUTE);
         const target = DomAccess.getAttribute(trigger, 'data-target');
         const client = new HttpClient(window.accessKey, window.contextToken);

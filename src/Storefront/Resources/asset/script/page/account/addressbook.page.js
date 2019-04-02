@@ -11,7 +11,7 @@ if (createAddressForm){
     createAddressForm.addEventListener('submit', function(e) {
         e.preventDefault();
 
-        const form = e.srcElement;
+        const form = e.target;
         const requestUrl = DomAccess.getAttribute(form, 'action');
 
         let object = {};
@@ -35,7 +35,7 @@ deleteForms.forEach(form => {
     form.addEventListener('submit', function (e) {
         e.preventDefault();
 
-        const form = e.srcElement;
+        const form = e.target;
         const requestUrl = DomAccess.getAttribute(form, 'action');
 
         client.delete(requestUrl.toLowerCase(), (response) => {
@@ -53,7 +53,7 @@ setDefaultForms.forEach(form => {
     form.addEventListener('submit', function (e) {
         e.preventDefault();
 
-        const form = e.srcElement;
+        const form = e.target;
         const requestUrl = DomAccess.getAttribute(form, 'action');
 
         client.patch(requestUrl.toLowerCase(), (response) => {

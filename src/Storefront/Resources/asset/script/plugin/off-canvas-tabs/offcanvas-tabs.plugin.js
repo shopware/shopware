@@ -41,7 +41,7 @@ export default class OffCanvasTabs {
         if (this._isInAllowedViewports() === false) return;
 
         e.preventDefault();
-        let tab = e.srcElement;
+        let tab = e.target;
 
         if (DomAccess.hasAttribute(tab, 'href')) {
             const tabTarget = DomAccess.getAttribute(tab, 'href');

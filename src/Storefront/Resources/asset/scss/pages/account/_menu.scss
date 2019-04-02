@@ -20,7 +20,7 @@
     text-align: center;
 }
 
-.account-widget-dropdown {
+.js-account-widget-dropdown {
     padding: $spacer-sm $spacer;
     width: 200px;
     font-size: $font-size-base;
@@ -53,7 +53,7 @@
 }
 
 // Offcanvas
-.off-canvas .account-menu {
+.js-off-canvas .account-menu {
     .account-widget-header {
         font-size: $font-size-base;
         padding: 0 $spacer-sm;
@@ -85,7 +85,7 @@
     }
 
     // Dropdown
-    .account-widget-dropdown.show {
+    .js-account-widget-dropdown.show {
         display: block;
     }
 }

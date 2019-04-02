@@ -1,4 +1,4 @@
-.off-canvas {
+.js-off-canvas {
     z-index: $off-canvas-zindex;
     width: 280px;
     height: 100%;
@@ -12,7 +12,7 @@
         transform: translateX(-100%);
         left: 0;
 
-        .off-canvas-close {
+        .js-off-canvas-close {
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -41,7 +41,7 @@
         width: 100%;
     }
 
-    .off-canvas-close {
+    .js-off-canvas-close {
         border-radius: 0;
         text-align: left;
         padding: $spacer-xs $spacer-sm;

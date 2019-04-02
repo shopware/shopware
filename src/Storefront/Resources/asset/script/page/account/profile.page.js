@@ -11,7 +11,7 @@ if (profilePersonalForm){
     profilePersonalForm.addEventListener('submit', function(e) {
         e.preventDefault();
 
-        const form = e.srcElement;
+        const form = e.target;
         const requestUrl = DomAccess.getAttribute(form, 'action');
 
         let object = {};
@@ -35,7 +35,7 @@ if (profileMailForm){
     profileMailForm.addEventListener('submit', function(e) {
         e.preventDefault();
 
-        const form = e.srcElement;
+        const form = e.target;
         const requestUrl = DomAccess.getAttribute(form, 'action');
 
         let object = {};
@@ -59,7 +59,7 @@ if (profilePasswordForm){
     profilePasswordForm.addEventListener('submit', function(e) {
         e.preventDefault();
 
-        const form = e.srcElement;
+        const form = e.target;
         const requestUrl = DomAccess.getAttribute(form, 'action');
 
         let object = {};

@@ -9,7 +9,7 @@ if (loginForm){
     loginForm.addEventListener('submit', function(e) {
         e.preventDefault();
 
-        const form = e.srcElement;
+        const form = e.target;
         const requestUrl = DomAccess.getAttribute(form, 'action');
 
         let object = {};

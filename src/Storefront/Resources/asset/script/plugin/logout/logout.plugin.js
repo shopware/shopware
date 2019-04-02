@@ -34,7 +34,7 @@ export default class Logout {
     _onFormSubmit(e) {
         e.preventDefault();
 
-        const form = e.srcElement;
+        const form = e.target;
         const requestUrl = DomAccess.getAttribute(form, 'action');
         const redirectTo = DomAccess.getAttribute(form, 'data-redirect');
 

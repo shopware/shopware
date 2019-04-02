@@ -74,7 +74,7 @@ export default class CartMiniPlugin extends Plugin {
     _onFormSubmit(e) {
         e.preventDefault();
 
-        const form = e.srcElement;
+        const form = e.target;
         const requestUrl = DomAccess.getAttribute(form, 'action');
 
         // Open the OffCanvas first
@@ -125,7 +125,7 @@ export default class CartMiniPlugin extends Plugin {
     _onRemoveProductFromCart(e) {
         e.preventDefault();
 
-        const form = e.srcElement;
+        const form = e.target;
         const requestUrl = DomAccess.getAttribute(form, 'action');
 
         // Show loading indicator immediately after submitting

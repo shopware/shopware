@@ -3,7 +3,7 @@ import OffCanvas from "../../plugin/off-canvas/offcanvas.plugin";
 import DeviceDetection from "../../helper/device-detection.helper";
 import ViewportDetection from "../../helper/viewport-detection.helper";
 
-const OFFCANVAS_ACCOUNT_MENU_CLASS = 'account-widget-dropdown';
+const OFFCANVAS_ACCOUNT_MENU_CLASS = 'js-account-widget-dropdown';
 const OFFCANVAS_ACCOUNT_MENU_DATA_ATTRIBUTE = 'data-offcanvas-account-menu';
 const OFFCANVAS_ACCOUNT_MENU_DATA_POSITION = 'left';
 

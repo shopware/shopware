@@ -26,11 +26,11 @@ export default class CookieHandler {
         for (let i = 0; i < allCookies.length; i++) {
             let singleCookie = allCookies[i];
 
-            while (singleCookie.charAt(0) == ' ') {
+            while (singleCookie.charAt(0) === ' ') {
                 singleCookie = singleCookie.substring(1);
             }
 
-            if (singleCookie.indexOf(name) == 0) {
+            if (singleCookie.indexOf(name) === 0) {
                 return singleCookie.substring(name.length, singleCookie.length);
             }
         }

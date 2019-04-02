@@ -88,6 +88,13 @@ class ApiRouteLoader extends Loader
             $route->addRequirements(['path' => $listSuffix, 'version' => '\d+']);
             $routes->add('api.' . $entityName . '.search', $route);
 
+            $route = new Route('/api/v{version}/search-ids/' . $resourceName . '{path}');
+            $route->setMethods(['POST']);
+            $route->setDefault('_controller', $class . '::searchIds');
+            $route->setDefault('entityName', $resourceName);
+            $route->addRequirements(['path' => $listSuffix, 'version' => '\d+']);
+            $routes->add('api.' . $entityName . '.search-ids', $route);
+
             $route = new Route('/api/v{version}/' . $resourceName . '{path}');
             $route->setMethods(['POST']);
             $route->setDefault('_controller', $class . '::create');

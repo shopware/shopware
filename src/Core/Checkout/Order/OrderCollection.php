@@ -19,20 +19,6 @@ use Shopware\Core\System\SalesChannel\SalesChannelCollection;
  */
 class OrderCollection extends EntityCollection
 {
-    public function getOrderCustomerIds(): array
-    {
-        return $this->fmap(function (OrderEntity $order) {
-            return $order->getOrderCustomerId();
-        });
-    }
-
-    public function filterByOrderCustomerId(string $id): self
-    {
-        return $this->filter(function (OrderEntity $order) use ($id) {
-            return $order->getOrderCustomerId() === $id;
-        });
-    }
-
     public function getCurrencyIds(): array
     {
         return $this->fmap(function (OrderEntity $order) {

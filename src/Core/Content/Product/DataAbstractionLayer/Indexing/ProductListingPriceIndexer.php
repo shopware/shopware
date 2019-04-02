@@ -147,10 +147,10 @@ class ProductListingPriceIndexer implements IndexerInterface
                 $value['_class'] = Price::class;
 
                 return [
-                    'id' => Uuid::fromBytesToHex($price['price_id']),
-                    'variantId' => Uuid::fromBytesToHex($price['variant_id']),
-                    'ruleId' => Uuid::fromBytesToHex($price['rule_id']),
-                    'currencyId' => Uuid::fromBytesToHex($price['currency_id']),
+                    'id' => bin2hex($price['price_id']),
+                    'variantId' => bin2hex($price['variant_id']),
+                    'ruleId' => bin2hex($price['rule_id']),
+                    'currencyId' => bin2hex($price['currency_id']),
                     'price' => $value,
                     '_class' => PriceRuleEntity::class,
                 ];
@@ -163,21 +163,22 @@ class ProductListingPriceIndexer implements IndexerInterface
 
     private function findCheapestRulePrice(array $productPrices, string $ruleId): array
     {
-        $rulePrices = array_filter(
-            $productPrices,
-            function (array $price) use ($ruleId) {
-                return $price['ruleId'] === $ruleId;
+        $cheapest = null;
+        foreach ($productPrices as $price) {
+            if ($price['ruleId'] !== $ruleId) {
+                continue;
             }
-        );
-
-        usort(
-            $rulePrices,
-            function (array $a, array $b) {
-                return $a['price']['gross'] <=> $b['price']['gross'];
+            if ($cheapest === null) {
+                $cheapest = $price;
+                continue;
             }
-        );
 
-        return array_shift($rulePrices);
+            if ($price['price']['gross'] < $cheapest['price']['gross']) {
+                $cheapest = $price;
+            }
+        }
+
+        return $cheapest;
     }
 
     private function createIterator(): LastIdQuery

@@ -108,6 +108,11 @@
             <tag name="shopware.rest.definition_generator"/>
         </service>
 
+        <service id="Shopware\Core\Framework\Api\ApiDefinition\Generator\EntitySchemaGenerator">
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionRegistry"/>
+            <tag name="shopware.rest.definition_generator"/>
+        </service>
+
         <service id="Shopware\Core\Framework\Api\Controller\InfoController" public="true">
             <argument type="service" id="Shopware\Core\Framework\Api\ApiDefinition\DefinitionService"/>
             <argument type="service" id="parameter_bag"/>

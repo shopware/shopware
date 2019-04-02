@@ -7,15 +7,20 @@ class ReverseInherited extends Flag
     /**
      * @var string
      */
-    protected $name;
+    protected $propertyName;
 
-    public function __construct(string $name)
+    public function __construct(string $propertyName)
     {
-        $this->name = $name;
+        $this->propertyName = $propertyName;
     }
 
-    public function getName(): string
+    public function getReversedPropertyName(): string
     {
-        return $this->name;
+        return $this->propertyName;
+    }
+
+    public function parse(): \Generator
+    {
+        yield 'reversed_inherited' => $this->propertyName;
     }
 }

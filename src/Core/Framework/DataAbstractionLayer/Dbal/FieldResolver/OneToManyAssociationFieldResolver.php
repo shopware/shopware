@@ -61,7 +61,7 @@ class OneToManyAssociationFieldResolver implements FieldResolverInterface
             /** @var ReverseInherited $flag */
             $flag = $field->getFlag(ReverseInherited::class);
 
-            $referenceColumn = EntityDefinitionQueryHelper::escape($flag->getName());
+            $referenceColumn = EntityDefinitionQueryHelper::escape($flag->getReversedPropertyName());
         }
 
         $ruleCondition = $queryHelper->buildRuleCondition($reference, $query, $alias, $context);

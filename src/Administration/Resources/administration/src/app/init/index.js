@@ -1,6 +1,7 @@
 import initContext from 'src/app/init/context.init';
 import initHttpClient from 'src/app/init/http.init';
 import initEntity from 'src/app/init/entity.init';
+import initRepository from 'src/app/init/repository.init';
 import initState from 'src/app/init/state.init';
 import initMixin from 'src/app/init/mixin.init';
 import initCoreModules from 'src/app/init/modules.init';
@@ -31,5 +32,6 @@ export default {
     entity: initEntity,
     locale: initLocale,
     worker: initWorker,
-    userInfo: initUserContext
+    userInfo: initUserContext,
+    repositoryFactory: initRepository
 };

@@ -26,4 +26,9 @@ class SearchRanking extends Flag
     {
         return $this->ranking;
     }
+
+    public function parse(): \Generator
+    {
+        yield 'search_ranking' => $this->ranking;
+    }
 }

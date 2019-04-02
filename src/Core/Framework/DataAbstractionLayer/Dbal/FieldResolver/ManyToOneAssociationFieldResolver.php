@@ -104,7 +104,7 @@ class ManyToOneAssociationFieldResolver implements FieldResolverInterface
             /** @var ReverseInherited $flag */
             $flag = $field->getFlag(ReverseInherited::class);
 
-            $referenceColumn = EntityDefinitionQueryHelper::escape($flag->getName());
+            $referenceColumn = EntityDefinitionQueryHelper::escape($flag->getReversedPropertyName());
         }
 
         //specified version requested, use sub version call to solve live version or specified

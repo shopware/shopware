@@ -67,4 +67,9 @@ abstract class Field extends Struct
 
         return null;
     }
+
+    public function getFlags(): array
+    {
+        return $this->flags;
+    }
 }

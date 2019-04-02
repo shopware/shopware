@@ -138,6 +138,8 @@ function registerModule(moduleId, module) {
         }
 
         route.isChildren = false;
+        route.routeKey = routeKey;
+
         moduleRoutes.set(route.name, route);
     });
 

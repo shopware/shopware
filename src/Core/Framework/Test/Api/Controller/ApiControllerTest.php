@@ -886,8 +886,8 @@ EOF;
         $content = json_decode($response->getContent(), true);
 
         static::assertSame(Response::HTTP_OK, $response->getStatusCode(), $response->getContent());
-        static::assertTrue(Uuid::isValid($content['version_id']));
-        static::assertNull($content['version_name']);
+        static::assertTrue(Uuid::isValid($content['versionId']));
+        static::assertNull($content['versionName']);
         static::assertEquals($id, $content['id']);
         static::assertEquals('category', $content['entity']);
     }

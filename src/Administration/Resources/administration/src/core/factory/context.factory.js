@@ -13,7 +13,9 @@ export default function createContext(context = {}) {
         apiPath: apiPath,
         apiResourcePath: `${apiPath}/v1`,
         currentUser: {},
-        assetsPath: getAssetsPath(installationPath, isDevMode)
+        assetsPath: getAssetsPath(installationPath, isDevMode),
+        versionId: '20080911ffff4fffafffffff19830531',
+        languageId: '20080911ffff4fffafffffff19830531'
     });
 
     if (isDevMode) {

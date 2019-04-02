@@ -20,6 +20,11 @@ class OrderCustomerEntity extends Entity
     /**
      * @var string
      */
+    protected $orderId;
+
+    /**
+     * @var string
+     */
     protected $salutationId;
 
     /**
@@ -204,5 +209,15 @@ class OrderCustomerEntity extends Entity
     public function setAttributes(?array $attributes): void
     {
         $this->attributes = $attributes;
+    }
+
+    public function getOrderId(): string
+    {
+        return $this->orderId;
+    }
+
+    public function setOrderId(string $orderId): void
+    {
+        $this->orderId = $orderId;
     }
 }

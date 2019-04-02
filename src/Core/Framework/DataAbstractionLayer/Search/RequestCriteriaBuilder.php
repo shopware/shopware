@@ -71,19 +71,26 @@ class RequestCriteriaBuilder
     {
         $searchException = new SearchRequestException();
 
-        $criteria->setTotalCountMode(Criteria::TOTAL_COUNT_MODE_EXACT);
         $criteria->setLimit(10);
 
-        if (isset($payload['total-count-mode'])) {
-            $criteria->setTotalCountMode((int) $payload['total-count-mode']);
-        }
+        if (isset($payload['ids'])) {
+            $ids = array_filter(explode('|', $payload['ids']));
+            $criteria->setIds($ids);
+            $criteria->setLimit(null);
+        } else {
+            $criteria->setTotalCountMode(Criteria::TOTAL_COUNT_MODE_EXACT);
 
-        if (isset($payload['limit'])) {
-            $this->addLimit($payload, $criteria, $searchException);
-        }
+            if (isset($payload['total-count-mode'])) {
+                $criteria->setTotalCountMode((int) $payload['total-count-mode']);
+            }
 
-        if (isset($payload['page'])) {
-            $this->setPage($payload, $criteria, $searchException);
+            if (isset($payload['limit'])) {
+                $this->addLimit($payload, $criteria, $searchException);
+            }
+
+            if (isset($payload['page'])) {
+                $this->setPage($payload, $criteria, $searchException);
+            }
         }
 
         if (isset($payload['filter'])) {

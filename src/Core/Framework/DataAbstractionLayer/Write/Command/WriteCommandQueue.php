@@ -5,7 +5,7 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Write\Command;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\ImpossibleWriteOrderException;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\CascadeDelete;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToOneAssociationField;
@@ -92,12 +92,18 @@ class WriteCommandQueue
     public function hasDependencies(string $definition, array $commands): array
     {
         $fields = $definition::getFields()
-            ->filter(function (Field $field) {
+            ->filter(function (Field $field) use ($definition) {
                 if ($field instanceof ManyToOneAssociationField) {
                     return true;
                 }
 
-                return $field instanceof OneToOneAssociationField && $field->is(CascadeDelete::class);
+                if (!$field instanceof OneToOneAssociationField) {
+                    return false;
+                }
+
+                $storage = $definition::getFields()->getByStorageName($field->getStorageName());
+
+                return $storage instanceof FkField;
             });
 
         $toManyDefinitions = $definition::getFields()

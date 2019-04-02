@@ -34,6 +34,7 @@ class ApiAuthenticationListener implements EventSubscriberInterface
         '/api/v1/_info/swagger.html',
         '/api/v1/_info/openapi3.json',
         '/api/v1/_info/entity-schema.json',
+        '/api/v1/_info/open-api-schema.json',
         '/api/v1/_info/events.json',
         '/api/v1/_action/user/user-recovery',
         '/api/v1/_action/user/user-recovery/hash',

@@ -8,4 +8,8 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Field\Flag;
  */
 class Computed extends Flag
 {
+    public function parse(): \Generator
+    {
+        yield 'computed' => true;
+    }
 }

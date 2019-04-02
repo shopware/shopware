@@ -1,0 +1,13 @@
+{% block sw_data_grid_slot_pagination %}
+    <sw-pagination :page="page" :limit="limit" :total="total" :total-visible="7" @page-change="paginate" />
+{% endblock %}
+
+{% block sw_data_grid_slot_actions %}
+    <slot name="more-actions" :item="item"></slot>
+
+    <slot name="delete-action" :item="item">
+        <sw-context-menu-item @click="deleteItem(item.id)" variant="danger">
+            {{ $tc('global.entity-components.deleteAction') }}
+        </sw-context-menu-item>
+    </slot>
+{% endblock %}

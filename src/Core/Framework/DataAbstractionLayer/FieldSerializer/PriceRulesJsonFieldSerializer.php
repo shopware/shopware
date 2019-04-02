@@ -12,7 +12,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
 use Shopware\Core\Framework\Pricing\PriceRuleCollection;
 use Shopware\Core\Framework\Pricing\PriceRuleEntity;
 use Symfony\Component\Serializer\SerializerInterface;
-use Symfony\Component\Validator\Constraints\NotBlank;
+use Symfony\Component\Validator\Constraints\Type;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 class PriceRulesJsonFieldSerializer implements FieldSerializerInterface
@@ -66,7 +66,7 @@ class PriceRulesJsonFieldSerializer implements FieldSerializerInterface
         /** @var PriceRulesJsonField $field */
         if ($this->requiresValidation($field, $existence, $data->getValue(), $parameters)) {
             $constraints = $this->constraintBuilder
-                ->addConstraint(new NotBlank())
+                ->addConstraint(new Type('array'))
                 ->getConstraints();
 
             $this->validate($this->validator, $constraints, $data->getKey(), $data->getValue(), $parameters->getPath());

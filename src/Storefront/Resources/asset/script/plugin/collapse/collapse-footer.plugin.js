@@ -1,4 +1,4 @@
-import Plugin from '../../../helper/plugin/plugin.class'
+import Plugin from '../../helper/plugin/plugin.class'
 import $ from 'jquery';
 import DomAccess from "../../helper/dom-access.helper";
 import DeviceDetection from "../../helper/device-detection.helper";

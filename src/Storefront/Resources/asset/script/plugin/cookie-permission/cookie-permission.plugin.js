@@ -1,4 +1,4 @@
-import Plugin from '../../../helper/plugin/plugin.class'
+import Plugin from '../../helper/plugin/plugin.class'
 import CookieHandler from '../../helper/cookie.helper';
 import Debouncer from '../../helper/debouncer.helper';
 import DeviceDetection from '../../helper/device-detection.helper';

@@ -26,6 +26,9 @@ import CartMiniPlugin from './plugin/cart-mini/cart-mini.plugin';
 import CookiePermissionPlugin from './plugin/cookie-permission/cookie-permission.plugin';
 import CollapseFooterColumnsPlugin from "./plugin/collapse/collapse-footer.plugin";
 import SearchWidgetPlugin from "./plugin/actions/search-widget/search-widget.plugin";
+import FlyoutMenuPlugin from "./plugin/main-menu/flyout-menu.plugin";
+import OffcanvasMenuPlugin from "./plugin/main-menu/offcanvas-menu.plugin";
+
 
 // static plugins
 import Logout from "./plugin/logout/logout.plugin";
@@ -83,6 +86,8 @@ PluginManager.register('CartWidget', CartWidgetPlugin, document);
 PluginManager.register('CartMini', CartMiniPlugin, document);
 PluginManager.register('CookiePermission', CookiePermissionPlugin, document);
 PluginManager.register('CollapseFooterColumns', CollapseFooterColumnsPlugin, document);
+PluginManager.register('FlyoutMenu', FlyoutMenuPlugin, '[data-offcanvas-menu="true"]');
+PluginManager.register('OffcanvasMenu', OffcanvasMenuPlugin, '[data-offcanvas-menu="true"]');
 
 /*
 run plugins

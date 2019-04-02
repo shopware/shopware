@@ -29,8 +29,8 @@ class OffCanvasSingleton {
         this.setContent(content, closable, delay);
 
         // the timeout allows to apply the animation effects
-        setTimeout(function() {
-            Backdrop.open(function() {
+        setTimeout(function () {
+            Backdrop.open(function () {
                 offCanvas.classList.add(OFF_CANVAS_OPEN_CLASS);
 
                 // if a callback function is being injected execute it after opening the OffCanvas
@@ -48,11 +48,30 @@ class OffCanvasSingleton {
      * @param {number} delay
      */
     setContent(content, closable, delay) {
-        let offCanvas = this._getOffCanvas();
+        let offCanvas = this.getOffCanvas();
         offCanvas[0].innerHTML = content;
 
         //register events again
         this._registerEvents(closable, delay);
+    }
+
+    /**
+     * adds an additional class to the offcanvas
+     *
+     * @param {string} className
+     */
+    setAdditionalClassName(className) {
+        const offCanvas = this.getOffCanvas();
+        offCanvas[0].classList.add(className);
+    }
+
+    /**
+     * Determine list of existing off-canvas
+     * @returns {NodeListOf<Element>}
+     * @private
+     */
+    getOffCanvas() {
+        return document.querySelectorAll(`.${OFF_CANVAS_CLASS}`);
     }
 
     /**
@@ -61,7 +80,7 @@ class OffCanvasSingleton {
      */
     close(delay) {
         // remove open class to make any css animation effects possible
-        this._getOffCanvas().forEach(backdrop => backdrop.classList.remove(OFF_CANVAS_OPEN_CLASS));
+        this.getOffCanvas().forEach(backdrop => backdrop.classList.remove(OFF_CANVAS_OPEN_CLASS));
 
         // wait before removing backdrop to let css animation effects take place
         setTimeout(this._removeExistingOffCanvas.bind(this), delay);
@@ -74,7 +93,7 @@ class OffCanvasSingleton {
      * @returns {boolean}
      */
     exists() {
-        return (this._getOffCanvas().length > 0);
+        return (this.getOffCanvas().length > 0);
     }
 
     /**
@@ -104,20 +123,11 @@ class OffCanvasSingleton {
     }
 
     /**
-     * Determine list of existing off-canvas
-     * @returns {NodeListOf<Element>}
-     * @private
-     */
-    _getOffCanvas() {
-        return document.querySelectorAll(`.${OFF_CANVAS_CLASS}`);
-    }
-
-    /**
      * Remove all existing off-canvas from DOM
      * @private
      */
     _removeExistingOffCanvas() {
-        this._getOffCanvas().forEach(offCanvas => offCanvas.remove());
+        this.getOffCanvas().forEach(offCanvas => offCanvas.remove());
     }
 
     /**
@@ -187,6 +197,15 @@ export default class OffCanvas {
     }
 
     /**
+     * adds an additional class to the offcanvas
+     *
+     * @param {string} className
+     */
+    static setAdditionalClassName(className) {
+        instance.setAdditionalClassName(className);
+    }
+
+    /**
      * Close the OffCanvas
      * @param {number} delay
      */
@@ -200,6 +219,15 @@ export default class OffCanvas {
      */
     static exists() {
         return instance.exists();
+    }
+
+    /**
+     * returns all existing offcanvas elements
+     *
+     * @returns {NodeListOf<Element>}
+     */
+    static getOffCanvas() {
+        return instance.getOffCanvas();
     }
 
     /**

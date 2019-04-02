@@ -1,0 +1,105 @@
+$navigation-flyout-padding: 40px;
+
+.navigation-flyouts {
+    position: absolute;
+    z-index: $menu-flyout-zindex;
+    margin-left: -($grid-gutter-width / 2);
+    height: 0;
+    width: 100%;
+
+}
+
+.navigation-flyout {
+    box-shadow: 0 43px 120px -6px rgba($black, 0.2);
+    background-color: $white;
+    pointer-events: none;
+    position: absolute;
+    opacity: 0;
+    height: 0;
+
+    &.is-open {
+        pointer-events: all;
+        opacity: 1;
+        height: auto;
+    }
+}
+
+.navigation-flyout-link {
+    @include transition(padding 0.25s cubic-bezier(0, 0.77, 0.33, 1));
+    padding-left: 0;
+
+    &:hover,
+    &:active,
+    &:focus {
+        padding-left: 8px;
+    }
+
+    &.level-0 {
+        font-weight: bold;
+        font-size: 16px;
+        color: $gray-800;
+    }
+
+    &:not(.level-0) {
+        margin-left: 10px;
+    }
+}
+
+.navigation-flyout-bar {
+    background-color: $gray-800;
+    padding: 10px $navigation-flyout-padding;
+    color: $white;
+    height: 60px;
+
+    .nav-link {
+        font-weight: bold;
+        font-size: 16px;
+        color: $white;
+    }
+
+    .navigation-flyout-category-link {
+        display: inline-block;
+    }
+
+    .navigation-flyout-close {
+        font-size: 26px;
+        position: absolute;
+        top: 0;
+        right: 55px;
+        cursor: pointer;
+        line-height: 60px;
+    }
+}
+
+.navigation-flyout-content {
+    padding: $navigation-flyout-padding;
+
+    .navigation-flyout-categories,
+    .navigation-flyout-teaser {
+        float: left;
+    }
+
+    .navigation-flyout-categories {
+        width: 25%;
+    }
+
+    .navigation-flyout-teaser {
+        width: 75%;
+        border-left: 1px solid $border-color;
+        padding-left: $grid-gutter-width;
+    }
+
+    .teaser-image {
+        height: 250px;
+        background-repeat: no-repeat;
+        background-size: cover;
+        background-position: center center;
+        display: block;
+    }
+
+    .teaser-headline {
+        font-size: 21px;
+        margin: 40px 0 20px;
+        font-weight: bold;
+    }
+}

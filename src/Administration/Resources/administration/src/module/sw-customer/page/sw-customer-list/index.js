@@ -17,7 +17,9 @@ Component.register('sw-customer-list', {
             sortBy: 'customerNumber',
             sortDirection: 'DESC',
             isLoading: false,
-            showDeleteModal: false
+            showDeleteModal: false,
+            entityName: 'customer',
+            sortBy: 'customerNumber'
         };
     },
 

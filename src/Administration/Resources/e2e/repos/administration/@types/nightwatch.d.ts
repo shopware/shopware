@@ -2170,9 +2170,15 @@ interface openMainMenuEntryOptions {
     mainMenuId: string,
     subMenuId?: string
 }
+
 interface clickContextMenuItemOptions {
-    menuActionSelector: string,
-    scope: string
+    menuActionSelector?: string,
+    scope?: string
+}
+
+interface dragAndDropOptions {
+    xDrag?: number,
+    yDrag?: number
 }
 
 export interface NightwatchCustomCommands {
@@ -2328,13 +2334,32 @@ export interface NightwatchCustomCommands {
     clickContextMenuItem(menuOpenSelector: string, obj?: clickContextMenuItemOptions | null): this,
 
     /**
+     * Drags one element and drops it on another
+     *
+     * Usage:
+     * ```
+     * .dragAndDrop(
+     *      `${page.elements.dataGridColumn}--2 ${page.elements.dataGridColumn}-resize`,
+     *      `${page.elements.dataGridColumn}--2 ${page.elements.contextMenuButton}`,
+     *      { xDrag: 0 }
+     * );
+     * ```
+     *
+     * @param {String} draggableElement
+     * @param {String} elementToDropTo
+     * @param {Object} [obj=null]
+     * @param {String} obj.xDrag
+     * @param {String} obj.xDrop
+     */
+    dragAndDrop(draggableElement: string, elementToDropTo: string, obj?: dragAndDropOptions | null): this,
+
+    /**
      * Clears an input field and making sure that the field is in fact empty afterwards
      *
      * @param {String} selector
      * @param {String} type
      */
     clearField(selector: string, type: string): this,
-
 
     /**
      * Checks if an element is existent, without causing the test to fail

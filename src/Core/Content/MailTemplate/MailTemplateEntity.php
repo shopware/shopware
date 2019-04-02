@@ -92,7 +92,7 @@ class MailTemplateEntity extends Entity
         return $this->mailType;
     }
 
-    public function setMailType(?string $mailType): void
+    public function setMailType(string $mailType): void
     {
         $this->mailType = $mailType;
     }
@@ -112,7 +112,7 @@ class MailTemplateEntity extends Entity
         return $this->senderName;
     }
 
-    public function setSenderName(?string $senderName): void
+    public function setSenderName(string $senderName): void
     {
         $this->senderName = $senderName;
     }
@@ -122,7 +122,7 @@ class MailTemplateEntity extends Entity
         return $this->description;
     }
 
-    public function setDescription(?string $description): void
+    public function setDescription(string $description): void
     {
         $this->description = $description;
     }
@@ -132,7 +132,7 @@ class MailTemplateEntity extends Entity
         return $this->subject;
     }
 
-    public function setSubject(?string $subject): void
+    public function setSubject(string $subject): void
     {
         $this->subject = $subject;
     }
@@ -142,7 +142,7 @@ class MailTemplateEntity extends Entity
         return $this->contentHtml;
     }
 
-    public function setContentHtml(?string $contentHtml): void
+    public function setContentHtml(string $contentHtml): void
     {
         $this->contentHtml = $contentHtml;
     }
@@ -152,7 +152,7 @@ class MailTemplateEntity extends Entity
         return $this->contentPlain;
     }
 
-    public function setContentPlain(?string $contentPlain): void
+    public function setContentPlain(string $contentPlain): void
     {
         $this->contentPlain = $contentPlain;
     }
@@ -162,7 +162,7 @@ class MailTemplateEntity extends Entity
         return $this->createdAt;
     }
 
-    public function setCreatedAt(?\DateTimeInterface $createdAt): void
+    public function setCreatedAt(\DateTimeInterface $createdAt): void
     {
         $this->createdAt = $createdAt;
     }
@@ -172,7 +172,7 @@ class MailTemplateEntity extends Entity
         return $this->updatedAt;
     }
 
-    public function setUpdatedAt(?\DateTimeInterface $updatedAt): void
+    public function setUpdatedAt(\DateTimeInterface $updatedAt): void
     {
         $this->updatedAt = $updatedAt;
     }
@@ -202,7 +202,7 @@ class MailTemplateEntity extends Entity
         return $this->media;
     }
 
-    public function setMedia(?MailTemplateMediaCollection $media): void
+    public function setMedia(MailTemplateMediaCollection $media): void
     {
         $this->media = $media;
     }

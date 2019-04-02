@@ -10,6 +10,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 class MailTemplateMediaEntity extends Entity
 {
     use EntityIdTrait;
+
     /**
      * @var string
      */
@@ -65,7 +66,7 @@ class MailTemplateMediaEntity extends Entity
         return $this->mailTemplate;
     }
 
-    public function setMailTemplate(?MailTemplateEntity $mailTemplate): void
+    public function setMailTemplate(MailTemplateEntity $mailTemplate): void
     {
         $this->mailTemplate = $mailTemplate;
     }

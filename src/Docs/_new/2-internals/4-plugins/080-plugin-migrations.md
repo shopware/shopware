@@ -1,5 +1,5 @@
 [titleEn]: <>(Plugin migrations)
-[wikiUrl]: <>(../platform/extending-the-platform/plugins/plugin-migrations?category=platform-en/extending-the-platform/plugins)
+[wikiUrl]: <>(../internals/plugins/plugin-migrations?category=platform-en/extending-the-platform/plugins)
 
 In this guide, you will learn what migrations are and how to use them.
 Migrations are PHP classes used to manage incremental and reversible database schema changes.

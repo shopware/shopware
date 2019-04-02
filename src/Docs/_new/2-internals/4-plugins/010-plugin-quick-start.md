@@ -1,5 +1,5 @@
 [titleEn]: <>(Plugin quick start)
-[wikiUrl]: <>(../platform/extending-the-platform/plugins/quick-start?category=platform-en/extending-the-platform/plugins)
+[wikiUrl]: <>(../internals/plugins/plugin-quick-start?category=platform-en/extending-the-platform/plugins)
 
 To be able to introduce extensions into the system, the core comes with an integrated plugin system.
 Plugins are [Symfony Bundles](https://symfony.com/doc/current/bundles.html) which can be activated and deactivated via the [plugin commands](./020-plugin-commands.md).
@@ -130,7 +130,7 @@ For this tutorial, a simple configuration containing a single text field is used
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-        xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/shopware/platform/master/src/Core/System/SystemConfig/Schema/config.xsd">
+        xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/shopware/internals/master/src/Core/System/SystemConfig/Schema/config.xsd">
     
     <card>
         <title>Minimal configuration</title>

@@ -52,7 +52,7 @@
     </div>
 </template>
 
-<style lang="less" scoped>
+<style lang="scss" scoped>
     .example {
         display: grid;
         grid-template-columns: 60% 40%;

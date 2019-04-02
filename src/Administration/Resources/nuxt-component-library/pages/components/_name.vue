@@ -12,7 +12,7 @@
         </header>
 
         <p class="is--xl" v-if="component.meta.description" v-html="component.meta.description"></p>
-    
+
         <section class="section--usage" v-if="component.meta.example">
             <h3>Usage</h3>
 
@@ -200,7 +200,7 @@
     </div>
 </template>
 
-<style lang="less">
+<style lang="scss">
     .component--header {
         position: relative;
 
@@ -318,7 +318,7 @@ export default {
             };
         }
     },
-    
+
     created() {
         this.getComponentTitleFromRoute();
         const component = this.findComponent(this.title);

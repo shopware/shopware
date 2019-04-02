@@ -7,7 +7,7 @@ import DeviceDetection from "../../../helper/device-detection.helper";
 import ArrowNavigationHelper from "./helper/arrow-navigation.helper";
 
 const SEARCH_WIDGET_SELECTOR = '.js-search-form';
-const SEARCH_WIDGET_RESULTS_SELECTOR = '.js-search-results';
+const SEARCH_WIDGET_RESULTS_SELECTOR = '.js-search-result';
 const SEARCH_WIDGET_RESULT_ITEM_SELECTOR = '.js-result';
 const SEARCH_WIDGET_INPUT_FIELD_SELECTOR = "input[type=search]";
 const SEARCH_WIDGET_URL_DATA_ATTRIBUTE = 'data-url';
@@ -91,7 +91,7 @@ export default class SearchWidgetPlugin extends Plugin {
             indicator.remove();
 
             // attach search results to the DOM
-            document.body.insertAdjacentHTML('beforeend', response);
+            this._form.insertAdjacentHTML('beforeend', response);
         });
 
     }

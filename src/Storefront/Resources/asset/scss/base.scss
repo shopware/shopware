@@ -33,7 +33,6 @@
  * ----------------------- */
 @import 'layout/header';
 @import 'layout/footer';
-@import 'layout/forms';
 @import 'layout/navigation';
 @import 'layout/navigation-flyouts';
 @import 'layout/navigation-offcanvas';
@@ -49,6 +48,7 @@
 @import 'components/product-box';
 @import 'components/search-widget';
 @import 'components/cookie-permission';
+@import 'components/spinner';
 
 /*
  * Page-specific styles

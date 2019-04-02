@@ -1,0 +1,15 @@
+/*
+Spinner
+==============================================
+Custom styling for bootstrap spinner component.
+
+https://getbootstrap.com/docs/4.3/components/spinners/
+*/
+
+// spinner inside an input
+input ~ .spinner-border {
+    position: absolute;
+    top: $spacer-sm;
+    z-index: 3;
+    right: 50px;
+}

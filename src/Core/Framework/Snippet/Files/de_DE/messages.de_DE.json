@@ -27,6 +27,8 @@
         "logoLink": "zur Startseite wechseln",
         "searchButton": "Suchen",
         "searchPlaceholder": "Suchbegriff...",
+        "searchAllResults": "Alle Ergebnisse anzeigen",
+        "searchResults": "Treffer",
         "indexLinkService": "Service/Hilfe"
     },
     "meta": {

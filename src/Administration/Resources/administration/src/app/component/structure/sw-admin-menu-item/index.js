@@ -65,16 +65,20 @@ export default {
         },
 
         subIsActive(path) {
+            const meta = this.$route.meta;
             let compareTo;
 
-            if (this.$route.meta.$current) {
-                compareTo = this.$route.meta.$current.parent;
+            if (meta.$current) {
+                compareTo = meta.$current.parent;
             }
-            if (this.$route.meta.parentPath) {
-                compareTo = this.$route.meta.parentPath;
+            if (meta.parentPath) {
+                compareTo = meta.parentPath;
             }
-            if (this.$route.meta.$module.navigation && this.$route.meta.$module.navigation[0].parent) {
-                compareTo = this.$route.meta.$module.navigation[0].parent;
+
+            if (meta.$module) {
+                if (meta.$module.navigation && meta.$module.navigation[0].parent) {
+                    compareTo = meta.$module.navigation[0].parent;
+                }
             }
 
             return compareTo ? compareTo.replace(/-/g, '.').indexOf(path.replace(/\.index/g, '')) === 0 : false;

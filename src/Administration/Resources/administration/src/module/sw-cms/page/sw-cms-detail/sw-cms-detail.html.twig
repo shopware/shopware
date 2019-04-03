@@ -25,7 +25,7 @@
                         {% endblock %}
 
                         {% block sw_cms_detail_toolbar_device_actions %}
-                            <div class="sw-cms-detail__device-actions" slot="tools">
+                            <div class="sw-cms-detail__device-actions" slot="tools" v-if="page.blocks.length > 0">
                                 {% block sw_cms_detail_toolbar_device_actions_mobile %}
                                     <sw-icon name="default-device-mobile"
                                              :class="{ 'is--active': currentDeviceView === 'mobile' }"
@@ -44,6 +44,13 @@
                                     <sw-icon name="default-device-desktop"
                                              :class="{ 'is--active': currentDeviceView === 'desktop' }"
                                              @click="onDeviceViewChange('desktop')">
+                                    </sw-icon>
+                                {% endblock %}
+
+                                {% block sw_cms_detail_toolbar_device_actions_form %}
+                                    <sw-icon name="default-basic-stack-block"
+                                             :class="{ 'is--active': currentDeviceView === 'form' }"
+                                             @click="onDeviceViewChange('form')">
                                     </sw-icon>
                                 {% endblock %}
                             </div>
@@ -70,8 +77,14 @@
                 {% block sw_cms_detail_stage_container %}
                     <div class="sw-cms-detail__stage-container">
 
+                        {% block sw_cms_detail_stage_form_view %}
+                            <div class="sw-cms-detail__page-form" v-if="currentDeviceView === 'form'">
+                                <sw-cms-page-form :page="page"></sw-cms-page-form>
+                            </div>
+                        {% endblock %}
+
                         {% block sw_cms_detail_stage_wrapper %}
-                            <div class="sw-cms-detail__stage">
+                            <div class="sw-cms-detail__stage" v-else>
 
                                 {% block sw_cms_detail_stage_empty_stade %}
                                     <div class="sw-cms-detail__empty-stage"
@@ -87,7 +100,10 @@
                                 {% endblock %}
 
                                 {% block sw_cms_detail_stage %}
-                                    <div class="sw-cms-stage" :class="`is--${currentDeviceView}`" v-else>
+                                    <div class="sw-cms-stage"
+                                         :class="cmsStageClasses"
+                                         :id="`page-${page.id}`"
+                                         v-else>
 
                                         {% block sw_cms_detail_stage_add_first_block %}
                                             <sw-cms-stage-add-block :key="0"
@@ -113,7 +129,6 @@
                                                                                  :slot="el.slot"
                                                                                  :key="el.id"
                                                                                  :element="el"
-                                                                                 :pageContext="pageContext"
                                                                                  :active="currentBlock !== null && currentBlock.id === block.id">
                                                                     </sw-cms-slot>
                                                                 {% endblock %}
@@ -152,23 +167,35 @@
                                                 {% block sw_cms_detail_sidebar_page_settings_form %}
                                                     <div class="sw-cms-detail__settings" slot="content">
                                                         {% block sw_cms_detail_sidebar_page_settings_name_field %}
-                                                            <sw-field type="text" label="Name" v-model="page.name"></sw-field>
+                                                            <sw-field type="text" :label="$tc('sw-cms.detail.labelPageName')" v-model="page.name"></sw-field>
                                                         {% endblock %}
 
                                                         {% block sw_cms_detail_sidebar_page_settings_type_field %}
-                                                            <sw-select-field label="Type" v-model="page.type">
+                                                            <sw-select-field :label="$tc('sw-cms.detail.labelPageType')" v-model="page.type" @change="onPageTypeChange">
                                                                 {% block sw_cms_detail_sidebar_page_settings_type_field_options %}
-                                                                    <option value="landing_page">
+                                                                    <option value="landingpage">
                                                                         {{ $tc('sw-cms.detail.labelPageTypeLandingpage') }}
                                                                     </option>
-                                                                    <option value="category_page">
+                                                                    <option value="product_list">
                                                                         {{ $tc('sw-cms.detail.labelPageTypeCategory') }}
                                                                     </option>
-                                                                    <option value="product_page">
+                                                                    <option value="product_detail">
                                                                         {{ $tc('sw-cms.detail.labelPageTypeProduct') }}
                                                                     </option>
                                                                 {% endblock %}
                                                             </sw-select-field>
+                                                        {% endblock %}
+
+                                                        {% block sw_cms_detail_sidebar_page_settings_demo_field %}
+                                                            <sw-select v-if="currentMappingEntity !== null && currentMappingEntityStore !== null"
+                                                                       ref="cmsDemoSelection"
+                                                                       :label="$tc('sw-cms.detail.labelDemoEntity')"
+                                                                       :placeholder="$tc('sw-cms.detail.placeholderDemoEntity')"
+                                                                       :store="currentMappingEntityStore"
+                                                                       :multi="false"
+                                                                       @input="onDemoEntityChange"
+                                                                       v-model="demoEntityId">
+                                                            </sw-select>
                                                         {% endblock %}
                                                     </div>
                                                 {% endblock %}
@@ -180,6 +207,7 @@
                                 {% block sw_cms_detail_sidebar_block_overview %}
                                     <sw-sidebar-item icon="default-basic-plus-circle"
                                                      :title="$tc('sw-cms.detail.sidebarTitleBlockOverview')"
+                                                     :disabled="currentDeviceView === 'form'"
                                                      ref="blockSelectionSidebar">
                                         {% block sw_cms_detail_sidebar_block_overview_content %}
                                             <div class="sw-cms-detail__block-overview">

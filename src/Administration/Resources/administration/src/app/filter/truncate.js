@@ -14,7 +14,7 @@ Filter.register('truncate', (value = '', length = 75, stripHtml = true, ellipsis
     }
 
     // Strip HTML
-    const strippedValue = (stripHtml ? value : value.replace(/(<([^>]+)>)/ig, ''));
+    const strippedValue = (stripHtml ? value.replace(/<\/?("[^"]*"|'[^']*'|[^>])*(>|$)/g, '') : value);
 
     // The string is smaller than the max length, we don't have to do anything
     if (strippedValue.length <= length) {

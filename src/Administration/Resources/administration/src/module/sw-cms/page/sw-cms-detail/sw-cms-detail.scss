@@ -16,7 +16,7 @@
 
     .sw-cms-detail__device-actions {
         display: grid;
-        grid-template-columns: 24px 24px 24px;
+        grid-template-columns: 24px 24px 24px 24px;
         grid-column-gap: 20px;
         align-content: center;
         align-items: center;
@@ -66,6 +66,13 @@
         grid-template-columns: 1fr auto;
         position: relative;
         overflow: hidden;
+
+        .sw-cms-detail__page-form {
+            overflow-y: auto;
+            overflow-x: hidden;
+            position: relative;
+            padding: 50px 30px;
+        }
 
         .sw-cms-detail__stage {
             overflow-y: auto;

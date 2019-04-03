@@ -1,3 +1,36 @@
 {% block sw_cms_element_product_box %}
-    <div class="sw-cms-el-product-box"></div>
+    <div class="sw-cms-el-product-box" :class="`box-${element.data.boxLayout}`" v-if="element.data.product">
+        <div class="sw-cms-el-product-box__body">
+
+            <div class="sw-cms-el-product-box__image">
+                <a href="#"
+                   :title="element.data.product.name"
+                   class="sw-cms-el-product-box__image-link">
+                    <img class="sw-cms-el-product-box__image-element"
+                         :src="element.data.product.cover.media.url"
+                         :alt="element.data.product.cover.media.alt">
+                </a>
+            </div>
+
+            <div class="sw-cms-el-product-box__info">
+                <a href="#" class="sw-cms-el-product-box__name" :title="element.data.product.name">
+                    {{ element.data.product.name }}
+                </a>
+
+                <div class="sw-cms-el-product-box__description">
+                    {{ element.data.product.description | truncate(200, true, '...') }}
+                </div>
+
+                <div class="sw-cms-el-product-box__price-info">
+                    <p class="sw-cms-el-product-box__price">
+                        {{ element.data.product.price.gross | currency }}
+                    </p>
+                </div>
+
+                <div class="sw-cms-el-product-box__buy-button">
+                    <button>Add to cart</button>
+                </div>
+            </div>
+        </div>
+    </div>
 {% endblock %}

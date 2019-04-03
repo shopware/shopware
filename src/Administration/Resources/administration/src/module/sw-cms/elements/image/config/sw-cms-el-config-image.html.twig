@@ -5,7 +5,7 @@
                              :uploadTag="uploadTag"
                              :source="element.data.media"
                              :allowMultiSelect="false"
-                             :defaultFolder="pageContext.entityName"
+                             :defaultFolder="cmsPageState.pageEntityName"
                              :caption="$tc('sw-cms.elements.captionMediaUpload')"
                              @sw-media-upload-open-sidebar="onOpenMediaModal"
                              @sw-media-upload-remove-image="onImageRemove">
@@ -22,9 +22,9 @@
                 variant="regular"
                 v-if="mediaModalIsOpen"
                 :caption="$tc('sw-cms.elements.captionMediaUpload')"
-                :entityContext="pageContext.entityName"
+                :entityContext="cmsPageState.entityName"
                 :allowMultiSelect="false"
-                :initialFolderId="pageContext.defaultFolderId"
+                :initialFolderId="cmsPageState.defaultMediaFolderId"
                 @sw-media-upload-remove-image="onImageRemove"
                 @sw-media-modal-selection-changed="onSelectionChanges"
                 @closeModal="onCloseModal">

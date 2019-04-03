@@ -1,0 +1,82 @@
+@import "~scss/variables";
+
+.sw-cms-mapping-field {
+    .sw-cms-mapping-field__info {
+        height: 20px;
+        position: relative;
+        display: grid;
+        grid-template-columns: 1fr max-content;
+        grid-column-gap: 10px;
+        align-content: center;
+        align-items: center;
+        margin-bottom: 6px;
+    }
+
+    .sw-cms-mapping-field__label {
+        font-size: 14px;
+        line-height: 16px;
+        color: $color-kashmir;
+        font-weight: normal;
+        user-select: none;
+    }
+
+    .sw-cms-mapping-field__selection {
+
+    }
+
+    .sw-cms-mapping-field__action {
+        display: grid;
+        grid-template-columns: 18px 1fr;
+        grid-column-gap: 5px;
+        align-content: center;
+        align-items: center;
+        justify-content: end;
+        justify-items: end;
+        font-size: 14px;
+        color: $color-shopware-blue;
+        cursor: pointer;
+
+        &:hover .sw-cms-mapping-field__action-label {
+            text-decoration: underline;
+        }
+    }
+
+    .sw-cms-mapping-field__action-remove {
+        position: absolute;
+        top: 0;
+        right: 0;
+        display: grid;
+        grid-template-columns: 18px 1fr;
+        grid-column-gap: 5px;
+        align-content: center;
+        align-items: center;
+        justify-content: end;
+        justify-items: end;
+        font-size: 14px;
+        cursor: pointer;
+
+        &:hover {
+            color: $color-crimson;
+        }
+    }
+
+    .sw-cms-mapping-field__mapping-value {
+        padding: 30px;
+        text-align: center;
+        background: $color-light-gray;
+        border: 1px dashed $color-steam-cloud;
+        border-radius: 4px;
+    }
+
+    .sw-cms-mapping-field__preview {
+        padding: 20px;
+        border: 1px solid $color-steam-cloud;
+        margin-bottom: 22px;
+    }
+}
+
+.sw-cms-mapping-field__options {
+    max-height: 180px;
+    overflow-y: auto;
+    overflow-x: hidden;
+}

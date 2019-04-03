@@ -1,28 +1,13 @@
-import { Component, State } from 'src/core/shopware';
+import { Component, Mixin, State } from 'src/core/shopware';
 import template from './sw-cms-el-config-image.html.twig';
 import './sw-cms-el-config-image.scss';
 
 Component.register('sw-cms-el-config-image', {
     template,
 
-    model: {
-        prop: 'element',
-        event: 'element-update'
-    },
-
-    props: {
-        element: {
-            type: Object,
-            required: true,
-            default() {
-                return {};
-            }
-        },
-        pageContext: {
-            type: Object,
-            required: true
-        }
-    },
+    mixins: [
+        Mixin.getByName('cms-element')
+    ],
 
     data() {
         return {
@@ -45,14 +30,22 @@ Component.register('sw-cms-el-config-image', {
         }
     },
 
+    created() {
+        this.createdComponent();
+    },
+
     methods: {
+        createdComponent() {
+            this.initElementConfig('image');
+        },
+
         onChangeMedia() {
             return this.uploadStore.runUploads(this.uploadTag);
         },
 
         onImageUpload({ targetId }) {
             this.mediaStore.getByIdAsync(targetId).then((mediaEntity) => {
-                this.$set(this.element.config, 'mediaId', mediaEntity.id);
+                this.element.config.media.value = mediaEntity.id;
                 this.$set(this.element.data, 'mediaId', mediaEntity.id);
                 this.$set(this.element.data, 'media', mediaEntity);
 
@@ -61,7 +54,7 @@ Component.register('sw-cms-el-config-image', {
         },
 
         onImageRemove() {
-            this.$set(this.element.config, 'mediaId', null);
+            this.element.config.media.value = null;
             this.$set(this.element.data, 'mediaId', null);
             this.$set(this.element.data, 'media', null);
 
@@ -73,11 +66,7 @@ Component.register('sw-cms-el-config-image', {
         },
 
         onSelectionChanges(mediaEntity) {
-            if (!this.element.config) {
-                this.element.config = {};
-            }
-
-            this.$set(this.element.config, 'mediaId', mediaEntity[0].id);
+            this.element.config.media.value = mediaEntity[0].id;
 
             if (this.element.data) {
                 this.$set(this.element.data, 'mediaId', mediaEntity[0].id);

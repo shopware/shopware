@@ -44,6 +44,12 @@
     }
 }
 
+.sw-cms-slot__config-modal {
+    .sw-modal__body {
+        min-height: 440px;
+    }
+}
+
 .sw-cms-slot__element-selection {
     display: grid;
     grid-template-columns: 1fr 1fr;

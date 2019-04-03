@@ -1,0 +1,13 @@
+@import "~scss/variables";
+
+.sw-cms-page-form {
+    .sw-cms-page-form__element-config {
+        margin-bottom: 22px;
+        border-bottom: 1px solid $color-steam-cloud;
+
+        &:last-child {
+            margin-bottom: 0;
+            border-bottom: 0 none;
+        }
+    }
+}

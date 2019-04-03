@@ -47,6 +47,7 @@ class TemplateDataExtension extends AbstractExtension implements GlobalsInterfac
             'controllerAction' => $controllerInfo->getAction(),
             'context' => $context,
             'activeRoute' => $request->attributes->get('_route'),
+            'formViolations' => $request->attributes->get('formViolations'),
         ];
     }
 

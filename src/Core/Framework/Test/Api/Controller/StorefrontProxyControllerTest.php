@@ -243,13 +243,13 @@ class StorefrontProxyControllerTest extends TestCase
             'paymentMethodVersionId' => Defaults::LIVE_VERSION,
             'shippingMethodId' => $this->getValidShippingMethodId(),
             'shippingMethodVersionId' => Defaults::LIVE_VERSION,
-            'countryId' => Defaults::COUNTRY,
+            'countryId' => $this->getValidCountryId(),
             'countryVersionId' => Defaults::LIVE_VERSION,
             'currencies' => [['id' => Defaults::CURRENCY]],
             'languages' => [['id' => Defaults::LANGUAGE_SYSTEM]],
             'paymentMethods' => [['id' => $this->getValidPaymentMethodId()]],
             'shippingMethods' => [['id' => $this->getValidShippingMethodId()]],
-            'countries' => [['id' => Defaults::COUNTRY]],
+            'countries' => [['id' => $this->getValidCountryId()]],
             'customerGroupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
         ];
 

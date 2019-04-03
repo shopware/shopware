@@ -209,7 +209,7 @@ class StorefrontCustomerControllerTest extends TestCase
             'street' => 'Coastal Highway 72',
             'city' => 'New York',
             'zipcode' => '12749',
-            'countryId' => Defaults::COUNTRY,
+            'countryId' => $this->getValidCountryId(),
             'company' => 'Shopware AG',
         ];
 
@@ -298,7 +298,7 @@ class StorefrontCustomerControllerTest extends TestCase
             'birthdayMonth' => 1,
             'birthdayDay' => 22,
             'billingAddress' => [
-                'countryId' => Defaults::COUNTRY,
+                'countryId' => $this->getValidCountryId(),
                 'street' => 'Examplestreet 11',
                 'zipcode' => '48441',
                 'city' => 'Cologne',
@@ -308,7 +308,7 @@ class StorefrontCustomerControllerTest extends TestCase
                 'additionalAddressLine2' => 'Additional address line 2',
             ],
             'shippingAddress' => [
-                'countryId' => Defaults::COUNTRY,
+                'countryId' => $this->getValidCountryId(),
                 'salutationId' => $this->getValidSalutationId(),
                 'firstName' => 'Test 2',
                 'lastName' => 'Example 2',

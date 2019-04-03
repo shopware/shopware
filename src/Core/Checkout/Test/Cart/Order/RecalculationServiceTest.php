@@ -712,7 +712,7 @@ class RecalculationServiceTest extends TestCase
                 [
                     'id' => $addressId,
                     'customerId' => $customerId,
-                    'countryId' => Defaults::COUNTRY,
+                    'countryId' => $this->getValidCountryId(),
                     'salutationId' => $this->getValidSalutationId(),
                     'firstName' => $firstName,
                     'lastName' => $lastName,
@@ -767,7 +767,7 @@ class RecalculationServiceTest extends TestCase
                 [
                     'id' => $addressId,
                     'customerId' => $customerId,
-                    'countryId' => Defaults::COUNTRY,
+                    'countryId' => $this->getValidCountryId(),
                     'salutationId' => $this->getValidSalutationId(),
                     'firstName' => 'Max',
                     'lastName' => 'Mustermann',

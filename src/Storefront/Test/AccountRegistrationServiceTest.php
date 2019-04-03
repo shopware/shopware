@@ -112,7 +112,7 @@ class AccountRegistrationServiceTest extends TestCase
             'lastName' => 'Mustermann',
 
             'billingAddress' => [
-                'countryId' => Defaults::COUNTRY,
+                'countryId' => $this->getValidCountryId(),
                 'street' => 'Musterstrasse 13',
                 'zipcode' => '48599',
                 'city' => 'Epe',

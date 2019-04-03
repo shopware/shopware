@@ -491,6 +491,7 @@ class DetailPageSeoUrlIndexerTest extends TestCase
 
         $paymentMethod = $this->getValidPaymentMethodId();
         $shippingMethod = $this->getValidShippingMethodId();
+        $country = $this->getValidCountryId();
 
         $repo->upsert([[
             'id' => $id,
@@ -503,12 +504,12 @@ class DetailPageSeoUrlIndexerTest extends TestCase
             'currencyId' => Defaults::CURRENCY,
             'paymentMethodId' => $paymentMethod,
             'shippingMethodId' => $shippingMethod,
-            'countryId' => Defaults::COUNTRY,
+            'countryId' => $country,
             'currencies' => [['id' => Defaults::CURRENCY]],
             'languages' => $languages,
             'paymentMethods' => [['id' => $paymentMethod]],
             'shippingMethods' => [['id' => $shippingMethod]],
-            'countries' => [['id' => Defaults::COUNTRY]],
+            'countries' => [['id' => $country]],
             'customerGroupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
         ]], Context::createDefaultContext());
 

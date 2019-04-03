@@ -644,7 +644,7 @@ class EntityReaderTest extends TestCase
             'salutationId' => $this->getValidSalutationId(),
             'firstName' => 'A',
             'lastName' => 'a',
-            'countryId' => Defaults::COUNTRY,
+            'countryId' => $this->getValidCountryId(),
         ];
 
         $repository->upsert([
@@ -693,7 +693,7 @@ class EntityReaderTest extends TestCase
             'salutationId' => $this->getValidSalutationId(),
             'firstName' => 'A',
             'lastName' => 'a',
-            'countryId' => Defaults::COUNTRY,
+            'countryId' => $this->getValidCountryId(),
         ];
 
         $repository->upsert([
@@ -749,7 +749,7 @@ class EntityReaderTest extends TestCase
             'salutationId' => $this->getValidSalutationId(),
             'firstName' => 'A',
             'lastName' => 'a',
-            'countryId' => Defaults::COUNTRY,
+            'countryId' => $this->getValidCountryId(),
         ];
         $customer = [
             'firstName' => 'Test',
@@ -846,7 +846,7 @@ class EntityReaderTest extends TestCase
             'salutationId' => $this->getValidSalutationId(),
             'firstName' => 'A',
             'lastName' => 'a',
-            'countryId' => Defaults::COUNTRY,
+            'countryId' => $this->getValidCountryId(),
         ];
         $customer = [
             'salutationId' => $this->getValidSalutationId(),
@@ -963,7 +963,7 @@ class EntityReaderTest extends TestCase
             'salutationId' => $this->getValidSalutationId(),
             'firstName' => 'A',
             'lastName' => 'a',
-            'countryId' => Defaults::COUNTRY,
+            'countryId' => $this->getValidCountryId(),
         ];
 
         $repository->upsert([

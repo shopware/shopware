@@ -122,7 +122,7 @@ trait StorefrontApiTestBehaviour
             'currencyId' => Defaults::CURRENCY,
             'paymentMethodId' => $this->getValidPaymentMethodId(),
             'shippingMethodId' => $this->getAvailableShippingMethodId(),
-            'countryId' => Defaults::COUNTRY,
+            'countryId' => $this->getValidCountryId(),
             'currencies' => [['id' => Defaults::CURRENCY]],
             'languages' => [['id' => Defaults::LANGUAGE_SYSTEM]],
             'customerGroupId' => Defaults::FALLBACK_CUSTOMER_GROUP,

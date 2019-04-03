@@ -212,7 +212,7 @@ class OrderDeliveryActionControllerTest extends TestCase
                     'street' => 'Ebbinghoff 10',
                     'zipcode' => '48624',
                     'city' => 'Schöppingen',
-                    'countryId' => Defaults::COUNTRY,
+                    'countryId' => $this->getValidCountryId(),
                 ],
             ],
             'lineItems' => [],
@@ -249,7 +249,7 @@ class OrderDeliveryActionControllerTest extends TestCase
                 [
                     'id' => $addressId,
                     'customerId' => $customerId,
-                    'countryId' => Defaults::COUNTRY,
+                    'countryId' => $this->getValidCountryId(),
                     'salutationId' => $this->getValidSalutationId(),
                     'firstName' => 'Max',
                     'lastName' => 'Mustermann',
@@ -280,7 +280,7 @@ class OrderDeliveryActionControllerTest extends TestCase
             'stateId' => $stateId,
             'shippingOrderAddress' => [
                 'orderId' => $orderId,
-                'countryId' => Defaults::COUNTRY,
+                'countryId' => $this->getValidCountryId(),
                 'salutationId' => $this->getValidSalutationId(),
                 'firstName' => 'Max',
                 'lastName' => 'Mustermann',

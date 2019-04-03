@@ -112,7 +112,7 @@ class OrderRepositoryTest extends TestCase
                 CheckoutContextService::CUSTOMER_ID => $customerId,
             ]);
 
-        $this->getContainer()->get(CheckoutRuleLoader::class)->loadMatchingRules($context, $context->getToken());
+        $this->getContainer()->get(CheckoutRuleLoader::class)->loadByToken($context, $context->getToken());
 
         $cart = $this->processor->process($cart, $context, new CartBehaviorContext());
 

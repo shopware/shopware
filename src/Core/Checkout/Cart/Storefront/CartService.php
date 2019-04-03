@@ -18,6 +18,7 @@ use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Checkout\Cart\Order\OrderPersisterInterface;
 use Shopware\Core\Checkout\Cart\Processor;
 use Shopware\Core\Checkout\CheckoutContext;
+use Shopware\Core\Checkout\Context\CheckoutRuleLoader;
 use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
@@ -27,6 +28,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 class CartService
 {
     public const STOREFRONT = 'storefront';
+
     /**
      * @var Processor
      */
@@ -57,18 +59,25 @@ class CartService
      */
     private $orderRepository;
 
+    /**
+     * @var CheckoutRuleLoader
+     */
+    private $checkoutRuleLoader;
+
     public function __construct(
         Enrichment $enrichment,
         Processor $processor,
         CartPersisterInterface $persister,
         OrderPersisterInterface $orderPersister,
-        EntityRepositoryInterface $orderRepository
+        EntityRepositoryInterface $orderRepository,
+        CheckoutRuleLoader $checkoutRuleLoader
     ) {
         $this->processor = $processor;
         $this->persister = $persister;
         $this->orderPersister = $orderPersister;
         $this->enrichment = $enrichment;
         $this->orderRepository = $orderRepository;
+        $this->checkoutRuleLoader = $checkoutRuleLoader;
     }
 
     public function setCart(Cart $cart): void
@@ -201,9 +210,16 @@ class CartService
 
     private function calculate(Cart $cart, CheckoutContext $context, CartBehaviorContext $behaviorContext): Cart
     {
+        // enrich line items with missing data, e.g products which added in the call are enriched with their prices and labels
         $cart = $this->enrichment->enrich($cart, $context);
 
+        // all prices are now prepared for calculation -  starts the cart calculation
         $cart = $this->processor->process($cart, $context, $behaviorContext);
+
+        // validate cart against the context rules
+        $validated = $this->checkoutRuleLoader->loadByCart($context, $cart);
+
+        $cart = $validated->getCart();
 
         $this->persister->save($cart, $context);
 

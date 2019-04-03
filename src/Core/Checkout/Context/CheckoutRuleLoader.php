@@ -2,13 +2,11 @@
 
 namespace Shopware\Core\Checkout\Context;
 
-use Psr\Cache\CacheItemPoolInterface;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartBehaviorContext;
 use Shopware\Core\Checkout\Cart\CartPersisterInterface;
 use Shopware\Core\Checkout\Cart\Exception\CartTokenNotFoundException;
 use Shopware\Core\Checkout\Cart\Processor;
-use Shopware\Core\Checkout\Cart\Storefront\CartService;
 use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Content\Rule\RuleCollection;
 use Shopware\Core\Content\Rule\RuleEntity;
@@ -19,15 +17,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 class CheckoutRuleLoader
 {
     private const MAX_ITERATION = 5;
+
     /**
      * @var CartPersisterInterface
      */
     private $cartPersister;
-
-    /**
-     * @var CacheItemPoolInterface
-     */
-    private $cache;
 
     /**
      * @var EntityRepositoryInterface
@@ -40,11 +34,6 @@ class CheckoutRuleLoader
     private $rules;
 
     /**
-     * @var CartService
-     */
-    private $storeFrontCartService;
-
-    /**
      * @var Processor
      */
     private $processor;
@@ -52,28 +41,31 @@ class CheckoutRuleLoader
     public function __construct(
         CartPersisterInterface $cartPersister,
         Processor $processor,
-        CacheItemPoolInterface $cache,
-        EntityRepositoryInterface $repository,
-        CartService $storeFrontCartService
+        EntityRepositoryInterface $repository
     ) {
         $this->cartPersister = $cartPersister;
-        $this->cache = $cache;
         $this->repository = $repository;
-        $this->storeFrontCartService = $storeFrontCartService;
         $this->processor = $processor;
     }
 
-    public function loadMatchingRules(CheckoutContext $context, ?string $cartToken)
+    public function loadByToken(CheckoutContext $context, string $cartToken): RuleLoaderResult
     {
         try {
-            $cart = $this->cartPersister->load(
-                (string) $cartToken,
-                $context
-            );
+            $cart = $this->cartPersister->load($cartToken, $context);
         } catch (CartTokenNotFoundException $e) {
             $cart = new Cart($context->getSalesChannel()->getTypeId(), $cartToken);
         }
 
+        return $this->loadByCart($context, $cart);
+    }
+
+    public function loadByCart(CheckoutContext $context, Cart $cart): RuleLoaderResult
+    {
+        return $this->load($context, $cart);
+    }
+
+    private function load(CheckoutContext $context, Cart $cart): RuleLoaderResult
+    {
         $rules = $this->loadRules($context->getContext());
 
         $rules->sortByPriority();
@@ -106,9 +98,9 @@ class CheckoutRuleLoader
             ++$iteration;
         } while ($valid);
 
-        $this->storeFrontCartService->setCart($cart);
+        $context->setRuleIds($rules->getIds());
 
-        return $rules;
+        return new RuleLoaderResult($cart, $rules);
     }
 
     private function loadRules(Context $context): RuleCollection

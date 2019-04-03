@@ -180,6 +180,9 @@ class CachedEntityReader implements EntityReaderInterface
 
         $tags = $this->cacheKeyGenerator->getAssociatedTags($definition, $entity, $context);
 
+        /* @var string|EntityDefinition $definition */
+        $tags[] = 'entity_' . $definition::getEntityName();
+
         //add cache keys for associated data
         $item->tag($tags);
 

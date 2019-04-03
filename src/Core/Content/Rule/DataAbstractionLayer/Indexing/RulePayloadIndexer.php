@@ -192,11 +192,7 @@ class RulePayloadIndexer implements IndexerInterface, EventSubscriberInterface
 
     private function clearCache(): void
     {
-        if (!$this->cache->hasItem('rules_key')) {
-            return;
-        }
-
-        $this->cache->deleteItem('rules_key');
+        $this->cache->invalidateTags(['entity_' . RuleDefinition::getEntityName()]);
     }
 
     private function buildNested(array $rules, ?string $parentId): array

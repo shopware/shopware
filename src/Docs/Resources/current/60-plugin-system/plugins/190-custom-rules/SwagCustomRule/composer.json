@@ -2,7 +2,7 @@
     "name": "swag/customrule",
     "description": "An example plugin to extend the rule system",
     "version": "v1.0.0",
-    "type": "shopware-plugin",
+    "type": "shopware-platform-plugin",
     "license": "MIT",
     "authors": [
         {

@@ -70,7 +70,7 @@ class PluginFinder
 
     private function isShopwarePluginPackage(PackageInterface $package): bool
     {
-        return $package->getType() === 'shopware-plugin'
+        return $package->getType() === 'shopware-platform-plugin'
             && isset($package->getExtra()['installer-name']);
     }
 

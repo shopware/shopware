@@ -2,7 +2,7 @@
     "name": "swag/requirement-valid-test",
     "description": "Test requirement validator",
     "version": "v1.0.0",
-    "type": "shopware-plugin",
+    "type": "shopware-platform-plugin",
     "license": "MIT",
     "authors": [
         {

@@ -2,7 +2,7 @@
     "name": "swag/customattribute",
     "description": "An example plugin to extend the attribute system",
     "version": "v1.0.0",
-    "type": "shopware-plugin",
+    "type": "shopware-platform-plugin",
     "license": "MIT",
     "authors": [
         {

@@ -12,7 +12,7 @@ Have a look at the [composer schema](https://getcomposer.org/doc/04-schema.md), 
     "name": "swag/example-plugin",
     "description": "Example plugin",
     "version": "v1.0.1",
-    "type": "shopware-plugin",
+    "type": "shopware-platform-plugin",
     "license": "MIT",
     "authors": [
         {
@@ -52,7 +52,7 @@ Have a look at the [composer schema](https://getcomposer.org/doc/04-schema.md), 
 | name                     | Name of your package                                                                                                             |
 | description              | The composer JSON schema requires a short description of your package                                                            |
 | version                  | Current version of your plugin                                                                                                   |
-| type                     | Set the type to `shopware-plugin`. Otherwise Shopware won't be able to recognize your plugin                                     |
+| type                     | Set the type to `shopware-platform-plugin`. Otherwise Shopware won't be able to recognize your plugin                                     |
 | license                  | Provide the license model of your plugin, e.g. `MIT` or `proprietary`                                                            |
 | authors                  | Collection of the authors of your plugin                                                                                         |
 | require                  | Add your dependencies here. This should be `shopware/platform`, but could also be another plugin or composer package             |

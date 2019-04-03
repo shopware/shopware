@@ -12,7 +12,7 @@ A plugin can change the behavior of the system including:
 ## Plugin base
 The corresponding plugin sources can be stored under `/custom/plugins`.
 It is also possible to `require` your plugin via composer.
-Shopware searches the `vendor` directory for packages with the type `shopware-plugin`.
+Shopware searches the `vendor` directory for packages with the type `shopware-platform-plugin`.
 
 As an entry point into the system, each plugin must have a base class.
 As convention you have to create a directory under `/custome/plugins` which has the same name of your plugin.

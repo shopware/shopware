@@ -35,7 +35,7 @@ own `composer.json` as a key value pair:
     "name": "swag/plugin-dependency",
     "description": "Plugin requiring other plugins",
     "version": "v1.0.0",
-    "type": "shopware-plugin",
+    "type": "shopware-platform-plugin",
     "license": "MIT",
     "authors": [
         {

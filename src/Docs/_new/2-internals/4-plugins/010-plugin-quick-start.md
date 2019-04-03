@@ -35,7 +35,7 @@ At the very end, your plugin structure should look something like this:
 ## Plugin base
 
 The corresponding plugin sources can be stored in the `/custom/plugins/<plugin-directory>` directory.
-It is also possible to `require` your plugin via composer, since Shopware searches the `vendor` directory for packages with the type `shopware-plugin`.
+It is also possible to `require` your plugin via composer, since Shopware searches the `vendor` directory for packages with the type `shopware-platform-plugin`.
 
 Each plugin has to come with a base class, which serves as an entry point into the system.
 Just create a new directory inside of `custom/plugins` and choose a proper name for your plugin directory, in this example `PluginQuickStart` is used.
@@ -82,7 +82,7 @@ Here's a brief example of how this file could look like:
     "name": "swag/plugin-quick-start",
     "description": "Plugin quick start plugin",
     "version": "v1.0.0",
-    "type": "shopware-plugin",
+    "type": "shopware-platform-plugin",
     "license": "MIT",
     "authors": [
         {

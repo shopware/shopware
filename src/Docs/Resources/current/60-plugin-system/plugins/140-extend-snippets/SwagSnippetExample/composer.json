@@ -2,7 +2,7 @@
     "name": "shopware-example/swag-snippet-example",
     "description": "New snippets for my shop",
     "version": "v1.0.0",
-    "type": "shopware-plugin",
+    "type": "shopware-platform-plugin",
     "license": "MIT",
     "authors": [
         {

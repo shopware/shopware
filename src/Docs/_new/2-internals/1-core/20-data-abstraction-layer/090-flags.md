@@ -110,7 +110,7 @@ This flag does not have any parameters.
 ### ReverseInherited
 
 ```php
-(new OneToManyAssociationField('products', ProductDefinition::class, 'tax_id', false))->addFlags(new ReverseInherited('tax'))
+(new OneToManyAssociationField('products', ProductDefinition::class, 'tax_id'))->addFlags(new ReverseInherited('tax'))
 ```
 
 Reverse side flag for relations that point to a definition with inheritance enabled. The first parameter `$name` must be the association field name
@@ -128,7 +128,7 @@ The multiplier can also lessen the value, too.
 ### RestrictDelete
 
 ```php
-(new OneToManyAssociationField('products', ProductDefinition::class, 'tax_id', false))->addFlags(new RestrictDelete())
+(new OneToManyAssociationField('products', ProductDefinition::class, 'tax_id'))->addFlags(new RestrictDelete())
 ```
 
 Associated data with this flag, restricts the delete of the entity in case that a record with the primary key exists.
@@ -138,7 +138,7 @@ This flag does not have any parameters.
 ### CascadeDelete
 
 ```php
-(new OneToManyAssociationField('media', ProductMediaDefinition::class, 'product_id', false))->addFlags(new CascadeDelete())
+(new OneToManyAssociationField('media', ProductMediaDefinition::class, 'product_id'))->addFlags(new CascadeDelete())
 ```
 
 In case the referenced association data will be deleted, the related data will be deleted too

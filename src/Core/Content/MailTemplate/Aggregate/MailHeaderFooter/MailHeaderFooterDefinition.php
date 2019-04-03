@@ -47,7 +47,7 @@ class MailHeaderFooterDefinition extends EntityDefinition
             new UpdatedAtField(),
 
             (new TranslationsAssociationField(MailHeaderFooterTranslationDefinition::class, 'mail_header_footer_id'))->addFlags(new Required()),
-            (new OneToManyAssociationField('salesChannels', SalesChannelDefinition::class, 'mail_header_footer_id', false)),
+            (new OneToManyAssociationField('salesChannels', SalesChannelDefinition::class, 'mail_header_footer_id')),
         ]);
     }
 }

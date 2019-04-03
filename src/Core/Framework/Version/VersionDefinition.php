@@ -53,7 +53,7 @@ class VersionDefinition extends EntityDefinition
             (new StringField('name', 'name'))->addFlags(new Required(), new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
             new CreatedAtField(),
             new UpdatedAtField(),
-            new OneToManyAssociationField('commits', VersionCommitDefinition::class, 'version_id', true),
+            new OneToManyAssociationField('commits', VersionCommitDefinition::class, 'version_id'),
         ]);
     }
 }

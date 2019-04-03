@@ -73,7 +73,7 @@ class MediaFolderDefinition extends EntityDefinition
             new ChildrenAssociationField(self::class),
             new ChildCountField(),
 
-            new OneToManyAssociationField('media', MediaDefinition::class, 'media_folder_id', false),
+            new OneToManyAssociationField('media', MediaDefinition::class, 'media_folder_id'),
             new OneToOneAssociationField('defaultFolder', 'default_folder_id', 'id', MediaDefaultFolderDefinition::class, false),
             new ManyToOneAssociationField('configuration', 'media_folder_configuration_id', MediaFolderConfigurationDefinition::class, true),
 

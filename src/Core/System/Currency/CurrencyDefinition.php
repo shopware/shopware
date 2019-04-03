@@ -59,13 +59,13 @@ class CurrencyDefinition extends EntityDefinition
             new TranslatedField('attributes'),
             new CreatedAtField(),
             new UpdatedAtField(),
-            (new OneToManyAssociationField('salesChannelDefaultAssignments', SalesChannelDefinition::class, 'currency_id', false, 'id'))->addFlags(new RestrictDelete()),
+            (new OneToManyAssociationField('salesChannelDefaultAssignments', SalesChannelDefinition::class, 'currency_id', 'id'))->addFlags(new RestrictDelete()),
             (new TranslationsAssociationField(CurrencyTranslationDefinition::class, 'currency_id'))->addFlags(new Required()),
-            (new OneToManyAssociationField('orders', OrderDefinition::class, 'currency_id', false, 'id'))->addFlags(new RestrictDelete()),
-            new OneToManyAssociationField('productPrices', ProductPriceDefinition::class, 'currency_id', false, 'id'),
-            new OneToManyAssociationField('shippingMethodPriceRules', ShippingMethodPriceRuleDefinition::class, 'currency_id', false, 'id'),
+            (new OneToManyAssociationField('orders', OrderDefinition::class, 'currency_id', 'id'))->addFlags(new RestrictDelete()),
+            new OneToManyAssociationField('productPrices', ProductPriceDefinition::class, 'currency_id', 'id'),
+            new OneToManyAssociationField('shippingMethodPriceRules', ShippingMethodPriceRuleDefinition::class, 'currency_id', 'id'),
             new ManyToManyAssociationField('salesChannels', SalesChannelDefinition::class, SalesChannelCurrencyDefinition::class, 'currency_id', 'sales_channel_id'),
-            (new OneToManyAssociationField('salesChannelDomains', SalesChannelDomainDefinition::class, 'currency_id', false))->addFlags(new RestrictDelete()),
+            (new OneToManyAssociationField('salesChannelDomains', SalesChannelDomainDefinition::class, 'currency_id'))->addFlags(new RestrictDelete()),
         ]);
     }
 }

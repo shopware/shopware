@@ -71,14 +71,14 @@ class ShippingMethodDefinition extends EntityDefinition
             new ListField('availability_rule_ids', 'availabilityRuleIds', IdField::class),
             new CreatedAtField(),
             new UpdatedAtField(),
-            (new OneToManyAssociationField('salesChannelDefaultAssignments', SalesChannelDefinition::class, 'shipping_method_id', false, 'id'))->addFlags(new RestrictDelete()),
+            (new OneToManyAssociationField('salesChannelDefaultAssignments', SalesChannelDefinition::class, 'shipping_method_id', 'id'))->addFlags(new RestrictDelete()),
             (new TranslatedField('description'))->addFlags(new SearchRanking(SearchRanking::LOW_SEARCH_RAKING)),
             (new TranslatedField('comment'))->addFlags(new SearchRanking(SearchRanking::MIDDLE_SEARCH_RANKING)),
-            (new OneToManyAssociationField('orderDeliveries', OrderDeliveryDefinition::class, 'shipping_method_id', false, 'id'))->addFlags(new RestrictDelete()),
+            (new OneToManyAssociationField('orderDeliveries', OrderDeliveryDefinition::class, 'shipping_method_id', 'id'))->addFlags(new RestrictDelete()),
             (new TranslationsAssociationField(ShippingMethodTranslationDefinition::class, 'shipping_method_id'))->addFlags(new Required()),
             new ManyToManyAssociationField('salesChannels', SalesChannelDefinition::class, SalesChannelShippingMethodDefinition::class, 'shipping_method_id', 'sales_channel_id'),
             (new ManyToManyAssociationField('availabilityRules', RuleDefinition::class, ShippingMethodRuleDefinition::class, 'shipping_method_id', 'rule_id'))->addFlags(new CascadeDelete()),
-            (new OneToManyAssociationField('priceRules', ShippingMethodPriceRuleDefinition::class, 'shipping_method_id', true, 'id'))->addFlags(new CascadeDelete()),
+            (new OneToManyAssociationField('priceRules', ShippingMethodPriceRuleDefinition::class, 'shipping_method_id', 'id'))->addFlags(new CascadeDelete()),
         ]);
     }
 }

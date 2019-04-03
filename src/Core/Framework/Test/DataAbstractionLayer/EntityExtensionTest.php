@@ -75,7 +75,7 @@ class EntityExtensionTest extends TestCase
 
     public function testICanWriteOneToManyAssociationsExtensions(): void
     {
-        $field = (new OneToManyAssociationField('myPrices', ProductPriceDefinition::class, 'product_id', true))
+        $field = (new OneToManyAssociationField('myPrices', ProductPriceDefinition::class, 'product_id'))
             ->addFlags(new Extension());
 
         ProductDefinition::getFields()->add($field);
@@ -112,7 +112,7 @@ class EntityExtensionTest extends TestCase
 
     public function testICanReadOneToManyAssociationsExtensionsInBasic(): void
     {
-        $field = (new OneToManyAssociationField('myPrices', ProductPriceDefinition::class, 'product_id', true))
+        $field = (new OneToManyAssociationField('myPrices', ProductPriceDefinition::class, 'product_id'))
             ->addFlags(new Extension());
 
         ProductDefinition::getFields()->add($field);
@@ -135,7 +135,7 @@ class EntityExtensionTest extends TestCase
 
     public function testICanReadOneToManyAssociationsExtensionsNotInBasic(): void
     {
-        $field = (new OneToManyAssociationField('myPrices', ProductPriceDefinition::class, 'product_id', false))
+        $field = (new OneToManyAssociationField('myPrices', ProductPriceDefinition::class, 'product_id'))
             ->addFlags(new Extension());
 
         ProductDefinition::getFields()->add($field);
@@ -180,7 +180,7 @@ class EntityExtensionTest extends TestCase
 
     public function testICanSearchOneToManyAssociationsExtensions(): void
     {
-        $field = (new OneToManyAssociationField('myPrices', ProductPriceDefinition::class, 'product_id', false))
+        $field = (new OneToManyAssociationField('myPrices', ProductPriceDefinition::class, 'product_id'))
             ->addFlags(new Extension());
 
         ProductDefinition::getFields()->add($field);
@@ -216,7 +216,7 @@ class EntityExtensionTest extends TestCase
 
     public function testICanReadPaginatedOneToManyAssociationsExtensions(): void
     {
-        $field = (new OneToManyAssociationField('myPrices', ProductPriceDefinition::class, 'product_id', false))
+        $field = (new OneToManyAssociationField('myPrices', ProductPriceDefinition::class, 'product_id'))
             ->addFlags(new Extension());
 
         ProductDefinition::getFields()->add($field);

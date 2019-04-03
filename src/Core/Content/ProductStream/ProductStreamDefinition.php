@@ -51,7 +51,7 @@ class ProductStreamDefinition extends EntityDefinition
             new TranslatedField('attributes'),
 
             (new TranslationsAssociationField(ProductStreamTranslationDefinition::class, 'product_stream_id'))->addFlags(new Required()),
-            (new OneToManyAssociationField('filters', ProductStreamFilterDefinition::class, 'product_stream_id', false, 'id'))->setFlags(new CascadeDelete()),
+            (new OneToManyAssociationField('filters', ProductStreamFilterDefinition::class, 'product_stream_id', 'id'))->setFlags(new CascadeDelete()),
         ]);
     }
 }

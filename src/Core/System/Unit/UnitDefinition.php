@@ -44,7 +44,7 @@ class UnitDefinition extends EntityDefinition
             new TranslatedField('attributes'),
             new CreatedAtField(),
             new UpdatedAtField(),
-            (new OneToManyAssociationField('products', ProductDefinition::class, 'unit_id', false, 'id'))->addFlags(new RestrictDelete(), new ReverseInherited('unit')),
+            (new OneToManyAssociationField('products', ProductDefinition::class, 'unit_id', 'id'))->addFlags(new RestrictDelete(), new ReverseInherited('unit')),
             (new TranslationsAssociationField(UnitTranslationDefinition::class, 'unit_id'))->addFlags(new Required()),
         ]);
     }

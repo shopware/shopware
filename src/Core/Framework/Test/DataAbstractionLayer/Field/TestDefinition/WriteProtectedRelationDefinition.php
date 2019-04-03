@@ -24,10 +24,10 @@ class WriteProtectedRelationDefinition extends EntityDefinition
         return new FieldCollection([
             (new IdField('id', 'id'))->addFlags(new Required(), new PrimaryKey()),
 
-            (new OneToManyAssociationField('wp', WriteProtectedDefinition::class, 'relation_id', false, 'id'))->addFlags(new WriteProtected()),
+            (new OneToManyAssociationField('wp', WriteProtectedDefinition::class, 'relation_id', 'id'))->addFlags(new WriteProtected()),
             (new ManyToManyAssociationField('wps', WriteProtectedDefinition::class, WriteProtectedReferenceDefinition::class, 'relation_id', 'wp_id'))->addFlags(new WriteProtected()),
 
-            (new OneToManyAssociationField('systemWp', WriteProtectedDefinition::class, 'system_relation_id', false, 'id'))->addFlags(new WriteProtected(Context::SYSTEM_SCOPE)),
+            (new OneToManyAssociationField('systemWp', WriteProtectedDefinition::class, 'system_relation_id', 'id'))->addFlags(new WriteProtected(Context::SYSTEM_SCOPE)),
             (new ManyToManyAssociationField('systemWps', WriteProtectedDefinition::class, WriteProtectedReferenceDefinition::class, 'system_relation_id', 'system_wp_id'))->addFlags(new WriteProtected(Context::SYSTEM_SCOPE)),
         ]);
     }

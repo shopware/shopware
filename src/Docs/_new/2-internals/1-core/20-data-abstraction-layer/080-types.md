@@ -263,7 +263,7 @@ This field is used for a foreign key for relation.
 ### OneToManyAssociationField
 
 ```php
-new OneToManyAssociationField('languages', LanguageDefinition::class, 'locale_id', false, 'id')
+new OneToManyAssociationField('languages', LanguageDefinition::class, 'locale_id', 'id')
 ```
 
 This field is used for building `1:n` relations. It does not have a storage field and is needed for searching,

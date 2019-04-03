@@ -60,7 +60,7 @@ class CmsBlockDefinition extends EntityDefinition
             (new FkField('cms_page_id', 'pageId', CmsPageDefinition::class))->addFlags(new Required()),
             new ManyToOneAssociationField('page', 'cms_page_id', CmsPageDefinition::class, false),
 
-            (new OneToManyAssociationField('slots', CmsSlotDefinition::class, 'cms_block_id', false))->addFlags(new CascadeDelete()),
+            (new OneToManyAssociationField('slots', CmsSlotDefinition::class, 'cms_block_id'))->addFlags(new CascadeDelete()),
 
             new CreatedAtField(),
             new UpdatedAtField(),

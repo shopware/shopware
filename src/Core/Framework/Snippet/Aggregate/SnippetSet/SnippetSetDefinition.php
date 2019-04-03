@@ -44,8 +44,8 @@ class SnippetSetDefinition extends EntityDefinition
             new AttributesField(),
             new CreatedAtField(),
             new UpdatedAtField(),
-            (new OneToManyAssociationField('snippets', SnippetDefinition::class, 'snippet_set_id', false))->addFlags(new CascadeDelete()),
-            (new OneToManyAssociationField('salesChannelDomains', SalesChannelDomainDefinition::class, 'snippet_set_id', false))->addFlags(new RestrictDelete()),
+            (new OneToManyAssociationField('snippets', SnippetDefinition::class, 'snippet_set_id'))->addFlags(new CascadeDelete()),
+            (new OneToManyAssociationField('salesChannelDomains', SalesChannelDomainDefinition::class, 'snippet_set_id'))->addFlags(new RestrictDelete()),
         ]);
     }
 }

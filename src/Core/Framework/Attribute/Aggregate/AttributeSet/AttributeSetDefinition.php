@@ -40,8 +40,8 @@ class AttributeSetDefinition extends EntityDefinition
             (new StringField('name', 'name'))->addFlags(new Required()),
             new JsonField('config', 'config'),
 
-            (new OneToManyAssociationField('attributes', AttributeDefinition::class, 'set_id', false))->addFlags(new CascadeDelete()),
-            (new OneToManyAssociationField('relations', AttributeSetRelationDefinition::class, 'set_id', false))->addFlags(new CascadeDelete()),
+            (new OneToManyAssociationField('attributes', AttributeDefinition::class, 'set_id'))->addFlags(new CascadeDelete()),
+            (new OneToManyAssociationField('relations', AttributeSetRelationDefinition::class, 'set_id'))->addFlags(new CascadeDelete()),
 
             new CreatedAtField(),
             new UpdatedAtField(),

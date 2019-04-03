@@ -59,9 +59,9 @@ class UserDefinition extends EntityDefinition
             new UpdatedAtField(),
             new ManyToOneAssociationField('locale', 'locale_id', LocaleDefinition::class, false),
             new OneToOneAssociationField('avatarMedia', 'avatar_id', 'id', MediaDefinition::class, true),
-            new OneToManyAssociationField('media', MediaDefinition::class, 'user_id', false, 'id'),
-            new OneToManyAssociationField('accessKeys', UserAccessKeyDefinition::class, 'user_id', false, 'id'),
-            new OneToManyAssociationField('stateMachineHistoryEntries', StateMachineHistoryDefinition::class, 'user_id', false, 'id'),
+            new OneToManyAssociationField('media', MediaDefinition::class, 'user_id', 'id'),
+            new OneToManyAssociationField('accessKeys', UserAccessKeyDefinition::class, 'user_id', 'id'),
+            new OneToManyAssociationField('stateMachineHistoryEntries', StateMachineHistoryDefinition::class, 'user_id', 'id'),
             new OneToOneAssociationField('recoveryUser', 'id', 'user_id', UserRecoveryDefinition::class, false),
             (new StringField('store_token', 'storeToken'))->addFlags(new Internal()),
         ]);

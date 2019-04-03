@@ -76,7 +76,7 @@ class NavigationDefinition extends EntityDefinition
             new ChildrenAssociationField(self::class),
             new ParentAssociationField(self::class, false),
 
-            new OneToManyAssociationField('salesChannelNavigations', SalesChannelDefinition::class, 'navigation_id', false),
+            new OneToManyAssociationField('salesChannelNavigations', SalesChannelDefinition::class, 'navigation_id'),
         ]);
     }
 }

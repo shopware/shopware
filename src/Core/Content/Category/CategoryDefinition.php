@@ -96,7 +96,7 @@ class CategoryDefinition extends EntityDefinition
             new ChildrenAssociationField(self::class),
             (new TranslationsAssociationField(CategoryTranslationDefinition::class, 'category_id'))->addFlags(new Required()),
 
-            (new OneToManyAssociationField('navigations', NavigationDefinition::class, 'category_id', false))->addFlags(new CascadeDelete()),
+            (new OneToManyAssociationField('navigations', NavigationDefinition::class, 'category_id'))->addFlags(new CascadeDelete()),
 
             (new ManyToManyAssociationField('products', ProductDefinition::class, ProductCategoryDefinition::class, 'category_id', 'product_id'))->addFlags(new CascadeDelete(), new ReverseInherited('categories')),
             (new ManyToManyAssociationField('nestedProducts', ProductDefinition::class, ProductCategoryTreeDefinition::class, 'category_id', 'product_id'))->addFlags(new CascadeDelete(), new WriteProtected()),

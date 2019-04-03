@@ -34,7 +34,7 @@ class DeleteCascadeParentDefinition extends EntityDefinition
             new ManyToOneAssociationField('manyToOne', 'delete_cascade_many_to_one_id', DeleteCascadeManyToOneDefinition::class, false),
 
             new StringField('name', 'name'),
-            (new OneToManyAssociationField('cascades', DeleteCascadeChildDefinition::class, 'delete_cascade_parent_id', false))->addFlags(new CascadeDelete()),
+            (new OneToManyAssociationField('cascades', DeleteCascadeChildDefinition::class, 'delete_cascade_parent_id'))->addFlags(new CascadeDelete()),
         ]);
     }
 }
@@ -73,7 +73,7 @@ class DeleteCascadeManyToOneDefinition extends EntityDefinition
             (new IdField('id', 'id'))->addFlags(new PrimaryKey()),
 
             new StringField('name', 'name'),
-            (new OneToManyAssociationField('parents', DeleteCascadeParentDefinition::class, 'delete_cascade_many_to_one_id', false))->addFlags(new CascadeDelete()),
+            (new OneToManyAssociationField('parents', DeleteCascadeParentDefinition::class, 'delete_cascade_many_to_one_id'))->addFlags(new CascadeDelete()),
         ]);
     }
 }

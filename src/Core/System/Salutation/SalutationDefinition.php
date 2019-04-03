@@ -50,11 +50,11 @@ class SalutationDefinition extends EntityDefinition
             new UpdatedAtField(),
 
             (new TranslationsAssociationField(SalutationTranslationDefinition::class, 'salutation_id'))->addFlags(new Required()),
-            (new OneToManyAssociationField('customers', CustomerDefinition::class, 'salutation_id', false, 'id'))->addFlags(new RestrictDelete()),
-            (new OneToManyAssociationField('customerAddresses', CustomerAddressDefinition::class, 'salutation_id', false, 'id'))->addFlags(new RestrictDelete()),
-            (new OneToManyAssociationField('orderCustomers', OrderCustomerDefinition::class, 'salutation_id', false, 'id'))->addFlags(new RestrictDelete()),
-            (new OneToManyAssociationField('orderAddresses', OrderAddressDefinition::class, 'salutation_id', false, 'id'))->addFlags(new RestrictDelete()),
-            (new OneToManyAssociationField('newsletterReceivers', NewsletterReceiverDefinition::class, 'salutation_id', false, 'id'))->addFlags(new RestrictDelete()),
+            (new OneToManyAssociationField('customers', CustomerDefinition::class, 'salutation_id', 'id'))->addFlags(new RestrictDelete()),
+            (new OneToManyAssociationField('customerAddresses', CustomerAddressDefinition::class, 'salutation_id', 'id'))->addFlags(new RestrictDelete()),
+            (new OneToManyAssociationField('orderCustomers', OrderCustomerDefinition::class, 'salutation_id', 'id'))->addFlags(new RestrictDelete()),
+            (new OneToManyAssociationField('orderAddresses', OrderAddressDefinition::class, 'salutation_id', 'id'))->addFlags(new RestrictDelete()),
+            (new OneToManyAssociationField('newsletterReceivers', NewsletterReceiverDefinition::class, 'salutation_id', 'id'))->addFlags(new RestrictDelete()),
         ]);
     }
 }

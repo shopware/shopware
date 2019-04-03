@@ -44,7 +44,7 @@ class TaxDefinition extends EntityDefinition
             new AttributesField(),
             new CreatedAtField(),
             new UpdatedAtField(),
-            (new OneToManyAssociationField('products', ProductDefinition::class, 'tax_id', false, 'id'))->addFlags(new RestrictDelete(), new ReverseInherited('tax')),
+            (new OneToManyAssociationField('products', ProductDefinition::class, 'tax_id', 'id'))->addFlags(new RestrictDelete(), new ReverseInherited('tax')),
         ]);
     }
 }

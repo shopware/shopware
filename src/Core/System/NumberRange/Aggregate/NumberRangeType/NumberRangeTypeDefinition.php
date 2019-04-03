@@ -42,7 +42,7 @@ class NumberRangeTypeDefinition extends EntityDefinition
             (new StringField('type_name', 'typeName'))->addFlags(new Required()),
             (new BoolField('global', 'global'))->addFlags(new Required()),
 
-            (new OneToManyAssociationField('numberRanges', NumberRangeDefinition::class, 'type_id', false))->addFlags(new RestrictDelete()),
+            (new OneToManyAssociationField('numberRanges', NumberRangeDefinition::class, 'type_id'))->addFlags(new RestrictDelete()),
         ]);
     }
 }

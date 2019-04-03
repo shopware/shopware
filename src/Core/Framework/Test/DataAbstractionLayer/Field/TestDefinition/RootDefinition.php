@@ -51,7 +51,7 @@ class SubDefinition extends EntityDefinition
             new FkField('root_id', 'rootId', RootDefinition::class, 'id'),
             (new ReferenceVersionField(RootDefinition::class))->addFlags(new Required()),
             new OneToOneAssociationField('root', 'root_id', 'id', RootDefinition::class, false),
-            new OneToManyAssociationField('manies', SubManyDefinition::class, 'root_sub_id', true),
+            new OneToManyAssociationField('manies', SubManyDefinition::class, 'root_sub_id'),
         ]);
     }
 }

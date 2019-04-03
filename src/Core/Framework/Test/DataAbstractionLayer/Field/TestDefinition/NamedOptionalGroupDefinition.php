@@ -24,7 +24,7 @@ class NamedOptionalGroupDefinition extends EntityDefinition
 
             (new StringField('name', 'name'))->addFlags(new Required()),
 
-            new OneToManyAssociationField('nameds', NamedDefinition::class, 'optional_group_id', false, 'id'),
+            new OneToManyAssociationField('nameds', NamedDefinition::class, 'optional_group_id', 'id'),
         ]);
     }
 }

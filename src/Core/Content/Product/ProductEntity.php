@@ -13,8 +13,8 @@ use Shopware\Core\Content\Product\Aggregate\ProductConfigurator\ProductConfigura
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaEntity;
-use Shopware\Core\Content\Product\Aggregate\ProductPriceRule\ProductPriceRuleCollection;
-use Shopware\Core\Content\Product\Aggregate\ProductPriceRule\ProductPriceRuleEntity;
+use Shopware\Core\Content\Product\Aggregate\ProductPrice\ProductPriceCollection;
+use Shopware\Core\Content\Product\Aggregate\ProductPrice\ProductPriceEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductTranslation\ProductTranslationCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityCollection;
 use Shopware\Core\Framework\Context;
@@ -247,9 +247,9 @@ class ProductEntity extends Entity
     protected $unit;
 
     /**
-     * @var ProductPriceRuleCollection
+     * @var ProductPriceCollection
      */
-    protected $priceRules;
+    protected $prices;
 
     /**
      * @var PriceRuleCollection|null
@@ -348,7 +348,7 @@ class ProductEntity extends Entity
 
     public function __construct()
     {
-        $this->priceRules = new ProductPriceRuleCollection();
+        $this->prices = new ProductPriceCollection();
     }
 
     public function __toString()
@@ -706,14 +706,14 @@ class ProductEntity extends Entity
         $this->unit = $unit;
     }
 
-    public function getPriceRules(): ProductPriceRuleCollection
+    public function getPrices(): ProductPriceCollection
     {
-        return $this->priceRules;
+        return $this->prices;
     }
 
-    public function setPriceRules(ProductPriceRuleCollection $priceRules): void
+    public function setPrices(ProductPriceCollection $prices): void
     {
-        $this->priceRules = $priceRules;
+        $this->prices = $prices;
     }
 
     public function getListingPrices(): ?PriceRuleCollection
@@ -756,14 +756,14 @@ class ProductEntity extends Entity
         $this->maxDeliveryTime = $maxDeliveryTime;
     }
 
-    public function getPriceRuleDefinitions(Context $context): PriceDefinitionCollection
+    public function getPriceDefinitions(Context $context): PriceDefinitionCollection
     {
         $taxRules = $this->getTaxRuleCollection();
 
-        $rules = $this->getPriceRules();
+        $rules = $this->getPrices();
 
-        /** @var ProductPriceRuleCollection|null $prices */
-        $prices = $rules->getPriceRulesForContext($context);
+        /** @var ProductPriceCollection|null $prices */
+        $prices = $rules->getPricesForContext($context);
 
         if (!$prices) {
             return new PriceDefinitionCollection();
@@ -771,7 +771,7 @@ class ProductEntity extends Entity
 
         $prices->sortByQuantity();
 
-        $definitions = $prices->map(function (ProductPriceRuleEntity $rule) use ($taxRules, $context) {
+        $definitions = $prices->map(function (ProductPriceEntity $rule) use ($taxRules, $context) {
             $quantity = $rule->getQuantityEnd() ?? $rule->getQuantityStart();
 
             return new QuantityPriceDefinition(
@@ -804,14 +804,14 @@ class ProductEntity extends Entity
         if ($this->getListingPrices()) {
             $prices = $this->getListingPrices();
         } else {
-            $prices = $this->getPriceRules()->filter(
-                function (ProductPriceRuleEntity $price) {
+            $prices = $this->getPrices()->filter(
+                function (ProductPriceEntity $price) {
                     return $price->getQuantityEnd() === null;
                 }
             );
         }
 
-        $prices = $prices->getPriceRulesForContext($context);
+        $prices = $prices->getPricesForContext($context);
 
         if (!$prices) {
             return new QuantityPriceDefinition(
@@ -833,7 +833,7 @@ class ProductEntity extends Entity
             );
         }
 
-        /** @var ProductPriceRuleEntity $price */
+        /** @var ProductPriceEntity $price */
         $price = $prices->first();
 
         return new QuantityPriceDefinition(
@@ -850,11 +850,11 @@ class ProductEntity extends Entity
         // TODO@DR consider tax state of sales channel context (NEXT-286)
         $taxRules = $this->getTaxRuleCollection();
 
-        /** @var ProductPriceRuleCollection $rules */
-        $rules = $this->getPriceRules();
+        /** @var ProductPriceCollection $rules */
+        $rules = $this->getPrices();
 
-        /** @var ProductPriceRuleCollection|null $prices */
-        $prices = $rules->getPriceRulesForContext($context);
+        /** @var ProductPriceCollection|null $prices */
+        $prices = $rules->getPricesForContext($context);
 
         if (!$prices) {
             return new QuantityPriceDefinition(

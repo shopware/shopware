@@ -36,7 +36,7 @@ class Migration1536233180Product extends MigrationStep
               `cover` BINARY(16) NULL,
               `unit` BINARY(16) NULL,
               `media` BINARY(16) NULL,
-              `priceRules` BINARY(16) NULL,
+              `prices` BINARY(16) NULL,
               `services` BINARY(16) NULL,
               `datasheet` BINARY(16) NULL,
               `categories` BINARY(16) NULL,

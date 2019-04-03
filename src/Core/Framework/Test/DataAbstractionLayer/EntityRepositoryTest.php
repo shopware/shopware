@@ -9,8 +9,8 @@ use Shopware\Core\Content\Media\Aggregate\MediaFolder\MediaFolderCollection;
 use Shopware\Core\Content\Media\Aggregate\MediaFolder\MediaFolderDefinition;
 use Shopware\Core\Content\Media\Aggregate\MediaFolder\MediaFolderEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductCategory\ProductCategoryDefinition;
-use Shopware\Core\Content\Product\Aggregate\ProductPriceRule\ProductPriceRuleDefinition;
-use Shopware\Core\Content\Product\Aggregate\ProductPriceRule\ProductPriceRuleEntity;
+use Shopware\Core\Content\Product\Aggregate\ProductPrice\ProductPriceDefinition;
+use Shopware\Core\Content\Product\Aggregate\ProductPrice\ProductPriceEntity;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Defaults;
@@ -223,7 +223,7 @@ class EntityRepositoryTest extends TestCase
 
         $listener = $this->getMockBuilder(CallableClass::class)->getMock();
         $listener->expects(static::once())->method('__invoke');
-        $dispatcher->addListener('product_price_rule.written', $listener);
+        $dispatcher->addListener('product_price.written', $listener);
 
         $listener = $this->getMockBuilder(CallableClass::class)->getMock();
         $listener->expects(static::once())->method('__invoke');
@@ -238,7 +238,7 @@ class EntityRepositoryTest extends TestCase
                     'tax' => ['name' => 'test', 'taxRate' => 5],
                     'manufacturer' => ['name' => 'test'],
                     'price' => ['gross' => 10, 'net' => 5, 'linked' => false],
-                    'priceRules' => [
+                    'prices' => [
                         [
                             'price' => ['gross' => 10, 'net' => 5, 'linked' => false],
                             'currencyId' => Defaults::CURRENCY,
@@ -269,7 +269,7 @@ class EntityRepositoryTest extends TestCase
                     'tax' => ['name' => 'test', 'taxRate' => 5],
                     'manufacturer' => ['name' => 'test'],
                     'price' => ['gross' => 10, 'net' => 5, 'linked' => false],
-                    'priceRules' => [
+                    'prices' => [
                         [
                             'price' => ['gross' => 10, 'net' => 5, 'linked' => false],
                             'currencyId' => Defaults::CURRENCY,
@@ -311,7 +311,7 @@ class EntityRepositoryTest extends TestCase
 
         $listener = $this->getMockBuilder(CallableClass::class)->getMock();
         $listener->expects(static::once())->method('__invoke');
-        $dispatcher->addListener('product_price_rule.loaded', $listener);
+        $dispatcher->addListener('product_price.loaded', $listener);
 
         $locale = $repository->search(new Criteria([$id, $id2]), $context);
 
@@ -433,7 +433,7 @@ class EntityRepositoryTest extends TestCase
             'price' => ['gross' => 15, 'net' => 10, 'linked' => false],
             'manufacturer' => ['id' => $id, 'name' => 'test'],
             'tax' => ['id' => $id, 'name' => 'test', 'taxRate' => 15],
-            'priceRules' => [
+            'prices' => [
                 [
                     'id' => $ruleA,
                     'currencyId' => Defaults::CURRENCY,
@@ -460,7 +460,7 @@ class EntityRepositoryTest extends TestCase
         $result = $repository->clone($id, $context, $newId);
         static::assertInstanceOf(EntityWrittenContainerEvent::class, $result);
 
-        $written = $result->getEventByDefinition(ProductPriceRuleDefinition::class);
+        $written = $result->getEventByDefinition(ProductPriceDefinition::class);
         static::assertCount(2, $written->getIds());
 
         $entities = $repository->search(new Criteria([$id, $newId]), $context);
@@ -477,13 +477,13 @@ class EntityRepositoryTest extends TestCase
         static::assertInstanceOf(ProductEntity::class, $old);
         static::assertInstanceOf(ProductEntity::class, $new);
 
-        static::assertCount(2, $old->getPriceRules());
-        static::assertCount(2, $new->getPriceRules());
+        static::assertCount(2, $old->getPrices());
+        static::assertCount(2, $new->getPrices());
 
-        $oldPriceIds = $old->getPriceRules()->map(function (ProductPriceRuleEntity $price) {
+        $oldPriceIds = $old->getPrices()->map(function (ProductPriceEntity $price) {
             return $price->getId();
         });
-        $newPriceIds = $new->getPriceRules()->map(function (ProductPriceRuleEntity $price) {
+        $newPriceIds = $new->getPrices()->map(function (ProductPriceEntity $price) {
             return $price->getId();
         });
 

@@ -6,8 +6,8 @@ namespace Shopware\Core\Framework\Test\DataAbstractionLayer\Cache;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\CategoryCollection;
 use Shopware\Core\Content\Category\CategoryEntity;
-use Shopware\Core\Content\Product\Aggregate\ProductPriceRule\ProductPriceRuleCollection;
-use Shopware\Core\Content\Product\Aggregate\ProductPriceRule\ProductPriceRuleEntity;
+use Shopware\Core\Content\Product\Aggregate\ProductPrice\ProductPriceCollection;
+use Shopware\Core\Content\Product\Aggregate\ProductPrice\ProductPriceEntity;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Framework\Context;
@@ -48,8 +48,8 @@ class EntityCacheKeyGeneratorTest extends TestCase
                 'name' => 'test',
                 'taxRate' => 15,
             ]),
-            'priceRules' => new ProductPriceRuleCollection([
-                (new ProductPriceRuleEntity())->assign([
+            'prices' => new ProductPriceCollection([
+                (new ProductPriceEntity())->assign([
                     'id' => $id,
                     '_uniqueIdentifier' => $id,
                     'currency' => (new CurrencyEntity())->assign([
@@ -57,7 +57,7 @@ class EntityCacheKeyGeneratorTest extends TestCase
                         '_uniqueIdentifier' => $id,
                     ]),
                 ]),
-                (new ProductPriceRuleEntity())->assign([
+                (new ProductPriceEntity())->assign([
                     'id' => $id2,
                     '_uniqueIdentifier' => $id2,
                     'currency' => (new CurrencyEntity())->assign([
@@ -89,11 +89,11 @@ class EntityCacheKeyGeneratorTest extends TestCase
         static::assertContains('product_translation.language_id', $tags, print_r($tags, true));
         static::assertContains('tax-' . $id, $tags);
 
-        static::assertContains('product_price_rule-' . $id, $tags);
+        static::assertContains('product_price-' . $id, $tags);
         static::assertContains('currency-' . $id, $tags);
         static::assertContains('currency_translation.language_id', $tags);
 
-        static::assertContains('product_price_rule-' . $id2, $tags);
+        static::assertContains('product_price-' . $id2, $tags);
         static::assertContains('currency-' . $id2, $tags);
         static::assertContains('currency_translation.language_id', $tags);
 

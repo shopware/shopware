@@ -325,7 +325,7 @@ Get a list of products belonging to the category.
                     "mediaVersionId": null
                 },
                 "unit": null,
-                "priceRules": [],
+                "prices": [],
                 "listingPrices": [],
                 "cover": {
                     "productId": "34ece98ba27a4e6f8a054887cb009fd1",
@@ -488,7 +488,7 @@ Get a list of products belonging to the category.
                         "metaTitle": true,
                         "packUnit": true,
                         "media": false,
-                        "priceRules": false,
+                        "prices": false,
                         "services": false,
                         "datasheet": false,
                         "categories": false

@@ -162,7 +162,7 @@ export default function conditionService() {
             'productServices',
             'cover',
             'metaTitle',
-            'priceRules',
+            'prices',
             'services',
             'datasheet',
             'searchKeywords',

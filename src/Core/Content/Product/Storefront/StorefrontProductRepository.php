@@ -95,9 +95,9 @@ class StorefrontProductRepository
         $product->setCalculatedListingPrice($listingPrice);
 
         //calculate context prices
-        $priceRuleDefinitions = $product->getPriceRuleDefinitions($context->getContext());
-        $priceRules = $this->priceCalculator->calculateCollection($priceRuleDefinitions, $context);
-        $product->setCalculatedPriceRules($priceRules);
+        $priceRuleDefinitions = $product->getPriceDefinitions($context->getContext());
+        $prices = $this->priceCalculator->calculateCollection($priceRuleDefinitions, $context);
+        $product->setCalculatedPriceRules($prices);
 
         //calculate simple price
         $priceDefinition = $product->getPriceDefinition($context->getContext());

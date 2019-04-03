@@ -91,7 +91,7 @@ return [
     Shopware\Core\Content\Media\Aggregate\MediaFolderConfiguration\MediaFolderConfigurationDefinition::class => 'Configuration',
     Shopware\Core\Content\Product\ProductDefinition::class => 'Product',
     Shopware\Core\Content\Product\Aggregate\ProductConfigurator\ProductConfiguratorDefinition::class => 'The root product configurator.',
-    Shopware\Core\Content\Product\Aggregate\ProductPriceRule\ProductPriceRuleDefinition::class => 'Staggered pricing',
+    Shopware\Core\Content\Product\Aggregate\ProductPrice\ProductPriceDefinition::class => 'Staggered pricing',
     Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerDefinition::class => 'Manufacturer',
     Shopware\Core\Content\Product\Aggregate\ProductManufacturerTranslation\ProductManufacturerTranslationDefinition::class => 'Translations',
     Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaDefinition::class => 'Product media/images',

@@ -97,32 +97,32 @@ class ProductEvents
     /**
      * @Event("Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent")
      */
-    public const PRODUCT_PRICE_RULE_WRITTEN_EVENT = 'product_price_rule.written';
+    public const PRODUCT_PRICE_WRITTEN_EVENT = 'product_price.written';
 
     /**
      * @Event("Shopware\Core\Framework\DataAbstractionLayer\Event\EntityDeletedEvent")
      */
-    public const PRODUCT_PRICE_RULE_DELETED_EVENT = 'product_price_rule.deleted';
+    public const PRODUCT_PRICE_DELETED_EVENT = 'product_price.deleted';
 
     /**
      * @Event("Shopware\Core\Framework\DataAbstractionLayer\Event\EntityLoadedEvent")
      */
-    public const PRODUCT_PRICE_RULE_LOADED_EVENT = 'product_price_rule.loaded';
+    public const PRODUCT_PRICE_LOADED_EVENT = 'product_price.loaded';
 
     /**
      * @Event("Shopware\Core\Framework\DataAbstractionLayer\Event\EntitySearchResultLoadedEvent")
      */
-    public const PRODUCT_PRICE_RULE_SEARCH_RESULT_LOADED_EVENT = 'product_price_rule.search.result.loaded';
+    public const PRODUCT_PRICE_SEARCH_RESULT_LOADED_EVENT = 'product_price.search.result.loaded';
 
     /**
      * @Event("Shopware\Core\Framework\DataAbstractionLayer\Event\EntityAggregationResultLoadedEvent")
      */
-    public const PRODUCT_PRICE_RULE_AGGREGATION_LOADED_EVENT = 'product_price_rule.aggregation.result.loaded';
+    public const PRODUCT_PRICE_AGGREGATION_LOADED_EVENT = 'product_price.aggregation.result.loaded';
 
     /**
      * @Event("Shopware\Core\Framework\DataAbstractionLayer\Event\EntityIdSearchResultLoadedEvent")
      */
-    public const PRODUCT_PRICE_RULE_ID_SEARCH_RESULT_LOADED_EVENT = 'product_price_rule.id.search.result.loaded';
+    public const PRODUCT_PRICE_ID_SEARCH_RESULT_LOADED_EVENT = 'product_price.id.search.result.loaded';
 
     /**
      * @Event("Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent")

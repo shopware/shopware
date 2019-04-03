@@ -10,7 +10,7 @@ use Shopware\Core\Content\Product\Aggregate\ProductConfigurator\ProductConfigura
 use Shopware\Core\Content\Product\Aggregate\ProductDatasheet\ProductDatasheetDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaDefinition;
-use Shopware\Core\Content\Product\Aggregate\ProductPriceRule\ProductPriceRuleDefinition;
+use Shopware\Core\Content\Product\Aggregate\ProductPrice\ProductPriceDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductTag\ProductTagDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductTranslation\ProductTranslationDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductVariation\ProductVariationDefinition;
@@ -172,7 +172,7 @@ class ProductDefinition extends EntityDefinition
             (new ManyToOneAssociationField('manufacturer', 'product_manufacturer_id', ProductManufacturerDefinition::class, true, 'id'))->addFlags(new Inherited()),
             (new ManyToOneAssociationField('unit', 'unit_id', UnitDefinition::class, true, 'id'))->addFlags(new Inherited()),
             (new ManyToOneAssociationField('cover', 'product_media_id', ProductMediaDefinition::class, true, 'id'))->addFlags(new Inherited()),
-            (new OneToManyAssociationField('priceRules', ProductPriceRuleDefinition::class, 'product_id', true))->addFlags(new CascadeDelete(), new Inherited()),
+            (new OneToManyAssociationField('prices', ProductPriceDefinition::class, 'product_id', true))->addFlags(new CascadeDelete(), new Inherited()),
 
             //inherited associations which are not loaded immediately
             (new OneToManyAssociationField('media', ProductMediaDefinition::class, 'product_id', false))->addFlags(new CascadeDelete(), new Inherited()),

@@ -1081,7 +1081,6 @@ $taxes = $products->getTaxes();
 
 $ids = $products->getIds();
 
-$prices = $products->getPrices();
 ```
 
 ### Event classes

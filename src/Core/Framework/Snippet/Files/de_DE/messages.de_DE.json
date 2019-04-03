@@ -29,6 +29,7 @@
         "searchPlaceholder": "Suchbegriff...",
         "searchAllResults": "Alle Ergebnisse anzeigen",
         "searchResults": "Treffer",
+        "supportInfo": "<strong>Fragen zu Ihrer Bestellung?</strong><br /><strong><a href='tel:+4912345-123456789'>12345-123456789</a></strong> <small>Täglich 7:30 bis 22:00 Uhr</small>",
         "indexLinkService": "Service/Hilfe"
     },
     "meta": {

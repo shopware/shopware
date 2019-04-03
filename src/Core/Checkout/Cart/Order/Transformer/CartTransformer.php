@@ -3,13 +3,13 @@
 namespace Shopware\Core\Checkout\Cart\Order\Transformer;
 
 use Shopware\Core\Checkout\Cart\Cart;
-use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Util\Random;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 class CartTransformer
 {
-    public static function transform(Cart $cart, CheckoutContext $context, string $stateId): array
+    public static function transform(Cart $cart, SalesChannelContext $context, string $stateId): array
     {
         $currency = $context->getCurrency();
 

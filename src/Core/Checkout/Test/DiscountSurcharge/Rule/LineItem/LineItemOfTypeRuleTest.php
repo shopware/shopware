@@ -6,8 +6,8 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Rule\LineItemOfTypeRule;
 use Shopware\Core\Checkout\Cart\Rule\LineItemScope;
-use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Content\Product\Cart\ProductCollector;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 class LineItemOfTypeRuleTest extends TestCase
 {
@@ -15,7 +15,7 @@ class LineItemOfTypeRuleTest extends TestCase
     {
         $rule = (new LineItemOfTypeRule())->assign(['lineItemType' => ProductCollector::LINE_ITEM_TYPE]);
 
-        $context = $this->createMock(CheckoutContext::class);
+        $context = $this->createMock(SalesChannelContext::class);
 
         static::assertTrue(
             $rule->match(new LineItemScope(new LineItem('A', 'product'), $context))->matches()
@@ -26,7 +26,7 @@ class LineItemOfTypeRuleTest extends TestCase
     {
         $rule = (new LineItemOfTypeRule())->assign(['lineItemType' => 'voucher']);
 
-        $context = $this->createMock(CheckoutContext::class);
+        $context = $this->createMock(SalesChannelContext::class);
 
         static::assertFalse(
             $rule->match(new LineItemScope(new LineItem('A', 'product'), $context))->matches()

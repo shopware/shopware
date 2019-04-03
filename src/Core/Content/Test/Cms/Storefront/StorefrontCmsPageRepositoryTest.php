@@ -4,7 +4,6 @@ namespace Shopware\Core\Content\Test\Cms\Storefront;
 
 use Faker\Factory;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Content\Cms\Aggregate\CmsBlock\CmsBlockEntity;
 use Shopware\Core\Content\Cms\CmsPageEntity;
 use Shopware\Core\Content\Cms\Storefront\StorefrontCmsPageRepository;
@@ -13,6 +12,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 class StorefrontCmsPageRepositoryTest extends TestCase
 {
@@ -24,7 +24,7 @@ class StorefrontCmsPageRepositoryTest extends TestCase
     private $pageRepository;
 
     /**
-     * @var CheckoutContext
+     * @var SalesChannelContext
      */
     private $checkoutContext;
 

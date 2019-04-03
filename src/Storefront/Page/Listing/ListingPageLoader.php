@@ -2,9 +2,9 @@
 
 namespace Shopware\Storefront\Page\Listing;
 
-use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Framework\Routing\InternalRequest;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Framework\Page\PageLoaderInterface;
 use Shopware\Storefront\Framework\Page\PageWithHeaderLoader;
 use Shopware\Storefront\Pagelet\Listing\ListingPageletLoader;
@@ -37,7 +37,7 @@ class ListingPageLoader implements PageLoaderInterface
         $this->listingPageletLoader = $listingPageletLoader;
     }
 
-    public function load(InternalRequest $request, CheckoutContext $context)
+    public function load(InternalRequest $request, SalesChannelContext $context)
     {
         $page = $this->genericLoader->load($request, $context);
 

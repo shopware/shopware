@@ -5,8 +5,8 @@ namespace Shopware\Core\Checkout\Test\DiscountSurcharge\Rule\Context;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\Rule\CartRuleScope;
-use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\Currency\Rule\CurrencyRule;
 
 class CurrencyRuleTest extends TestCase
@@ -17,7 +17,7 @@ class CurrencyRuleTest extends TestCase
 
         $cart = $this->createMock(Cart::class);
 
-        $checkoutContext = $this->createMock(CheckoutContext::class);
+        $checkoutContext = $this->createMock(SalesChannelContext::class);
 
         $context = $this->createMock(Context::class);
         $context
@@ -39,7 +39,7 @@ class CurrencyRuleTest extends TestCase
 
         $cart = $this->createMock(Cart::class);
 
-        $checkoutContext = $this->createMock(CheckoutContext::class);
+        $checkoutContext = $this->createMock(SalesChannelContext::class);
 
         $context = $this->createMock(Context::class);
         $context
@@ -61,7 +61,7 @@ class CurrencyRuleTest extends TestCase
 
         $cart = $this->createMock(Cart::class);
 
-        $checkoutContext = $this->createMock(CheckoutContext::class);
+        $checkoutContext = $this->createMock(SalesChannelContext::class);
 
         $context = $this->createMock(Context::class);
         $context

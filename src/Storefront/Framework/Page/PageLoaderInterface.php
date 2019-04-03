@@ -2,10 +2,10 @@
 
 namespace Shopware\Storefront\Framework\Page;
 
-use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Framework\Routing\InternalRequest;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 interface PageLoaderInterface
 {
-    public function load(InternalRequest $request, CheckoutContext $context);
+    public function load(InternalRequest $request, SalesChannelContext $context);
 }

@@ -3,8 +3,8 @@
 namespace Shopware\Storefront\PageletController;
 
 use Shopware\Core\Checkout\Cart\Exception\CartTokenNotFoundException;
-use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Framework\Routing\InternalRequest;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Framework\Controller\StorefrontController;
 use Shopware\Storefront\Framework\Page\PageLoaderInterface;
 use Shopware\Storefront\Pagelet\Checkout\AjaxCart\CheckoutAjaxCartPageletLoader;
@@ -35,7 +35,7 @@ class CheckoutPageletController extends StorefrontController
      *
      * @throws CartTokenNotFoundException
      */
-    public function infoAction(InternalRequest $request, CheckoutContext $context): Response
+    public function infoAction(InternalRequest $request, SalesChannelContext $context): Response
     {
         $page = $this->infoLoader->load($request, $context);
 
@@ -47,7 +47,7 @@ class CheckoutPageletController extends StorefrontController
      *
      * @throws CartTokenNotFoundException
      */
-    public function ajaxCart(InternalRequest $request, CheckoutContext $context): Response
+    public function ajaxCart(InternalRequest $request, SalesChannelContext $context): Response
     {
         $page = $this->ajaxCartLoader->load($request, $context);
 

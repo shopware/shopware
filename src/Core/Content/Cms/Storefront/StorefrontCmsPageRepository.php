@@ -2,12 +2,12 @@
 
 namespace Shopware\Core\Content\Cms\Storefront;
 
-use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Content\Cms\CmsPageCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 class StorefrontCmsPageRepository
 {
@@ -21,7 +21,7 @@ class StorefrontCmsPageRepository
         $this->cmsPageRepository = $repository;
     }
 
-    public function read(array $ids, CheckoutContext $context): CmsPageCollection
+    public function read(array $ids, SalesChannelContext $context): CmsPageCollection
     {
         $criteria = new Criteria($ids);
 
@@ -36,7 +36,7 @@ class StorefrontCmsPageRepository
         return $pages;
     }
 
-    public function getPagesByType(string $type, CheckoutContext $context): CmsPageCollection
+    public function getPagesByType(string $type, SalesChannelContext $context): CmsPageCollection
     {
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('cms_page.type', $type));

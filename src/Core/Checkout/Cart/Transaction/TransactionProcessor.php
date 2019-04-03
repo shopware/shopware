@@ -6,11 +6,11 @@ use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Transaction\Struct\Transaction;
 use Shopware\Core\Checkout\Cart\Transaction\Struct\TransactionCollection;
-use Shopware\Core\Checkout\CheckoutContext;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 class TransactionProcessor
 {
-    public function process(Cart $cart, CheckoutContext $context): TransactionCollection
+    public function process(Cart $cart, SalesChannelContext $context): TransactionCollection
     {
         $price = $cart->getPrice()->getTotalPrice();
 

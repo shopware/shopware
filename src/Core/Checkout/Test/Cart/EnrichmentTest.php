@@ -10,7 +10,6 @@ use Shopware\Core\Checkout\Cart\Enrichment;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
-use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -46,7 +45,7 @@ class EnrichmentTest extends TestCase
     private $factory;
 
     /**
-     * @var CheckoutContext
+     * @var \Shopware\Core\System\SalesChannel\SalesChannelContext
      */
     private $context;
 

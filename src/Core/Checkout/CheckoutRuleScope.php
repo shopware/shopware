@@ -4,20 +4,21 @@ namespace Shopware\Core\Checkout;
 
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Rule\RuleScope;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 class CheckoutRuleScope extends RuleScope
 {
     /**
-     * @var CheckoutContext
+     * @var SalesChannelContext
      */
     protected $context;
 
-    public function __construct(CheckoutContext $context)
+    public function __construct(SalesChannelContext $context)
     {
         $this->context = $context;
     }
 
-    public function getCheckoutContext(): CheckoutContext
+    public function getCheckoutContext(): SalesChannelContext
     {
         return $this->context;
     }

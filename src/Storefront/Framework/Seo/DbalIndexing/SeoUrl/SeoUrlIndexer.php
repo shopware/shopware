@@ -2,7 +2,6 @@
 
 namespace Shopware\Storefront\Framework\Seo\DbalIndexing\SeoUrl;
 
-use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\RepositoryIterator;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Indexing\IndexerInterface;
@@ -15,6 +14,7 @@ use Shopware\Core\Framework\Event\ProgressStartedEvent;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactoryInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Storefront\Framework\Seo\SeoService;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -139,7 +139,7 @@ abstract class SeoUrlIndexer implements IndexerInterface
         }
     }
 
-    private function getCheckoutContext(string $salesChannelId): CheckoutContext
+    private function getCheckoutContext(string $salesChannelId): SalesChannelContext
     {
         /** @var SalesChannelEntity $salesChannel */
         $salesChannel = $this->salesChannelRepository

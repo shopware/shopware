@@ -3,16 +3,16 @@
 namespace Shopware\Core\Checkout\Cart;
 
 use Shopware\Core\Checkout\Cart\Exception\CartTokenNotFoundException;
-use Shopware\Core\Checkout\CheckoutContext;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 interface CartPersisterInterface
 {
     /**
      * @throws CartTokenNotFoundException
      */
-    public function load(string $token, CheckoutContext $context): Cart;
+    public function load(string $token, SalesChannelContext $context): Cart;
 
-    public function save(Cart $cart, CheckoutContext $context): void;
+    public function save(Cart $cart, SalesChannelContext $context): void;
 
-    public function delete(string $token, CheckoutContext $context): void;
+    public function delete(string $token, SalesChannelContext $context): void;
 }

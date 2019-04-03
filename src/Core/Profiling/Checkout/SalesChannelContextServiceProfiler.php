@@ -2,8 +2,8 @@
 
 namespace Shopware\Core\Profiling\Checkout;
 
-use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceInterface;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\Stopwatch\Stopwatch;
 
 class SalesChannelContextServiceProfiler implements SalesChannelContextServiceInterface
@@ -24,7 +24,7 @@ class SalesChannelContextServiceProfiler implements SalesChannelContextServiceIn
         $this->stopwatch = $stopwatch;
     }
 
-    public function get(string $salesChannelId, string $token, ?string $languageId): CheckoutContext
+    public function get(string $salesChannelId, string $token, ?string $languageId): SalesChannelContext
     {
         $this->stopwatch->start('context-generation');
 

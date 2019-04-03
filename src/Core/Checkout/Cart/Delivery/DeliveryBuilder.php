@@ -15,8 +15,8 @@ use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
-use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 class DeliveryBuilder
 {
@@ -33,7 +33,7 @@ class DeliveryBuilder
     public function build(
         DeliveryCollection $deliveries,
         LineItemCollection $items,
-        CheckoutContext $context,
+        SalesChannelContext $context,
         bool $allowSplitting = true
     ): DeliveryCollection {
         /** @var LineItem $item */
@@ -124,7 +124,7 @@ class DeliveryBuilder
         LineItem $item,
         int $quantity,
         DeliveryDate $deliveryDate,
-        CheckoutContext $context
+        SalesChannelContext $context
     ): DeliveryPosition {
         $definition = new QuantityPriceDefinition(
             $item->getPrice()->getUnitPrice(),

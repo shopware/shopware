@@ -7,7 +7,6 @@ use Shopware\Core\Checkout\Cart\CartRuleLoader;
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Storefront\CartService;
-use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\Cart\ProductCollector;
@@ -24,6 +23,7 @@ use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Framework\Page\PageLoaderInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\EventDispatcher\Event;
@@ -33,7 +33,7 @@ trait StorefrontPageTestBehaviour
     public static function assertPageEvent(
         string $expectedClass,
         Event $event,
-        CheckoutContext $checkoutContext,
+        SalesChannelContext $checkoutContext,
         InternalRequest $request,
         Struct $page
     ): void {
@@ -74,7 +74,7 @@ trait StorefrontPageTestBehaviour
         TestCase::expectExceptionMessage('Parameter "' . $paramName . '" is missing');
     }
 
-    protected function placeRandomOrder(CheckoutContext $context): string
+    protected function placeRandomOrder(SalesChannelContext $context): string
     {
         $product = $this->getRandomProduct($context);
 
@@ -90,7 +90,7 @@ trait StorefrontPageTestBehaviour
         return $cartService->order($cart, $context);
     }
 
-    protected function getRandomProduct(CheckoutContext $context): ProductEntity
+    protected function getRandomProduct(SalesChannelContext $context): ProductEntity
     {
         $id = Uuid::randomHex();
         $productRepository = $this->getContainer()->get('product.repository');
@@ -123,7 +123,7 @@ trait StorefrontPageTestBehaviour
         return $searchResult->first();
     }
 
-    protected function createCheckoutContextWithNavigation(): CheckoutContext
+    protected function createCheckoutContextWithNavigation(): SalesChannelContext
     {
         $paymentMethodId = $this->getValidPaymentMethodId();
         $shippingMethodId = $this->getAvailableShippingMethodId();
@@ -153,7 +153,7 @@ trait StorefrontPageTestBehaviour
         return $this->createContext($data, []);
     }
 
-    protected function createCheckoutContextWithLoggedInCustomerAndWithNavigation(): CheckoutContext
+    protected function createCheckoutContextWithLoggedInCustomerAndWithNavigation(): SalesChannelContext
     {
         $paymentMethodId = $this->getValidPaymentMethodId();
         $shippingMethodId = $this->getAvailableShippingMethodId();
@@ -185,7 +185,7 @@ trait StorefrontPageTestBehaviour
         ]);
     }
 
-    protected function createCheckoutContext(): CheckoutContext
+    protected function createCheckoutContext(): SalesChannelContext
     {
         $paymentMethodId = $this->getValidPaymentMethodId();
         $shippingMethodId = $this->getAvailableShippingMethodId();
@@ -261,7 +261,7 @@ trait StorefrontPageTestBehaviour
         return $repo->search(new Criteria([$customerId]), Context::createDefaultContext())->first();
     }
 
-    private function createContext(array $salesChannel, array $options): CheckoutContext
+    private function createContext(array $salesChannel, array $options): SalesChannelContext
     {
         $factory = $this->getContainer()->get(SalesChannelContextFactory::class);
         $salesChannelRepository = $this->getContainer()->get('sales_channel.repository');

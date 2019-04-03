@@ -5,11 +5,11 @@ namespace Shopware\Core\Checkout\Cart\Order;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Checkout\Cart\Exception\InvalidCartException;
-use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Order\Exception\DeliveryWithoutAddressException;
 use Shopware\Core\Checkout\Order\Exception\EmptyCartException;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 class OrderPersister implements OrderPersisterInterface
 {
@@ -35,7 +35,7 @@ class OrderPersister implements OrderPersisterInterface
      * @throws EmptyCartException
      * @throws InvalidCartException
      */
-    public function persist(Cart $cart, CheckoutContext $context): EntityWrittenContainerEvent
+    public function persist(Cart $cart, SalesChannelContext $context): EntityWrittenContainerEvent
     {
         if ($cart->getErrors()->blockOrder()) {
             throw new InvalidCartException($cart->getErrors());

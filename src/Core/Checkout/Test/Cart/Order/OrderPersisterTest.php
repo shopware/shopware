@@ -16,7 +16,6 @@ use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Processor;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
-use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Test\Cart\Common\Generator;
@@ -24,6 +23,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 
 class OrderPersisterTest extends TestCase
@@ -123,7 +123,7 @@ class OrderPersisterTest extends TestCase
     {
         $customer = $this->getCustomer();
         $salesChannel = new SalesChannelEntity();
-        $checkoutContext = $this->createMock(CheckoutContext::class);
+        $checkoutContext = $this->createMock(SalesChannelContext::class);
         $checkoutContext->method('getCustomer')->willReturn($customer);
 
         $context = Context::createDefaultContext();

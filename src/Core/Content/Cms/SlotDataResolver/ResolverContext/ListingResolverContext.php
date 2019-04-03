@@ -2,9 +2,9 @@
 
 namespace Shopware\Core\Content\Cms\SlotDataResolver\ResolverContext;
 
-use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 class ListingResolverContext extends ResolverContext
 {
@@ -18,7 +18,7 @@ class ListingResolverContext extends ResolverContext
      */
     protected $definition;
 
-    public function __construct(CheckoutContext $context, string $definition, EntitySearchResult $searchResult)
+    public function __construct(SalesChannelContext $context, string $definition, EntitySearchResult $searchResult)
     {
         parent::__construct($context);
 

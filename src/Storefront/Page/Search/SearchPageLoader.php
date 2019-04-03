@@ -2,9 +2,9 @@
 
 namespace Shopware\Storefront\Page\Search;
 
-use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Framework\Routing\InternalRequest;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Framework\Page\PageLoaderInterface;
 use Shopware\Storefront\Framework\Page\PageWithHeaderLoader;
 use Shopware\Storefront\Pagelet\Listing\ListingPageletLoader;
@@ -38,7 +38,7 @@ class SearchPageLoader implements PageLoaderInterface
         $this->listingPageletLoader = $listingPageletLoader;
     }
 
-    public function load(InternalRequest $request, CheckoutContext $context): SearchPage
+    public function load(InternalRequest $request, SalesChannelContext $context): SearchPage
     {
         $page = $this->pageWithHeaderLoader->load($request, $context);
 

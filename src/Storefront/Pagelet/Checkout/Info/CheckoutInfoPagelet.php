@@ -3,8 +3,8 @@
 namespace Shopware\Storefront\Pagelet\Checkout\Info;
 
 use Shopware\Core\Checkout\Cart\Cart;
-use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Framework\Struct\Struct;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 class CheckoutInfoPagelet extends Struct
 {
@@ -13,11 +13,11 @@ class CheckoutInfoPagelet extends Struct
      */
     protected $cart;
     /**
-     * @var CheckoutContext
+     * @var \Shopware\Core\System\SalesChannel\SalesChannelContext
      */
     private $context;
 
-    public function __construct(Cart $cart, CheckoutContext $context)
+    public function __construct(Cart $cart, SalesChannelContext $context)
     {
         $this->cart = $cart;
         $this->context = $context;
@@ -33,12 +33,12 @@ class CheckoutInfoPagelet extends Struct
         $this->cart = $cart;
     }
 
-    public function getContext(): CheckoutContext
+    public function getContext(): SalesChannelContext
     {
         return $this->context;
     }
 
-    public function setContext(CheckoutContext $context): CheckoutInfoPagelet
+    public function setContext(SalesChannelContext $context): CheckoutInfoPagelet
     {
         $this->context = $context;
 

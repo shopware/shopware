@@ -10,8 +10,8 @@ use Shopware\Core\Checkout\Cart\Rule\CartRuleScope;
 use Shopware\Core\Checkout\Cart\Rule\GoodsPriceRule;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
-use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Framework\Rule\Rule;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 class GoodsPriceRuleTest extends TestCase
 {
@@ -25,7 +25,7 @@ class GoodsPriceRuleTest extends TestCase
                 ->setPrice(new CalculatedPrice(270, 270, new CalculatedTaxCollection(), new TaxRuleCollection()))
         );
 
-        $context = $this->createMock(CheckoutContext::class);
+        $context = $this->createMock(SalesChannelContext::class);
 
         static::assertTrue(
             $rule->match(new CartRuleScope($cart, $context))->matches()
@@ -37,7 +37,7 @@ class GoodsPriceRuleTest extends TestCase
         $rule = (new GoodsPriceRule())->assign(['amount' => 1.0, 'operator' => Rule::OPERATOR_EQ]);
 
         $cart = new Cart('test', 'test');
-        $context = $this->createMock(CheckoutContext::class);
+        $context = $this->createMock(SalesChannelContext::class);
 
         static::assertFalse(
             $rule->match(new CartRuleScope($cart, $context))->matches()
@@ -49,7 +49,7 @@ class GoodsPriceRuleTest extends TestCase
         $rule = (new GoodsPriceRule())->assign(['amount' => 270.0, 'operator' => Rule::OPERATOR_LTE]);
 
         $cart = new Cart('test', 'test');
-        $context = $this->createMock(CheckoutContext::class);
+        $context = $this->createMock(SalesChannelContext::class);
 
         static::assertTrue(
             $rule->match(new CartRuleScope($cart, $context))->matches()
@@ -61,7 +61,7 @@ class GoodsPriceRuleTest extends TestCase
         $rule = (new GoodsPriceRule())->assign(['amount' => 300.0, 'operator' => Rule::OPERATOR_LTE]);
 
         $cart = new Cart('test', 'test');
-        $context = $this->createMock(CheckoutContext::class);
+        $context = $this->createMock(SalesChannelContext::class);
 
         static::assertTrue(
             $rule->match(new CartRuleScope($cart, $context))->matches()
@@ -73,7 +73,7 @@ class GoodsPriceRuleTest extends TestCase
         $rule = (new GoodsPriceRule())->assign(['amount' => -1.0, 'operator' => Rule::OPERATOR_LTE]);
 
         $cart = new Cart('test', 'test');
-        $context = $this->createMock(CheckoutContext::class);
+        $context = $this->createMock(SalesChannelContext::class);
 
         static::assertFalse(
             $rule->match(new CartRuleScope($cart, $context))->matches()
@@ -89,7 +89,7 @@ class GoodsPriceRuleTest extends TestCase
             (new LineItem('a', 'a'))
                 ->setPrice(new CalculatedPrice(270, 270, new CalculatedTaxCollection(), new TaxRuleCollection()))
         );
-        $context = $this->createMock(CheckoutContext::class);
+        $context = $this->createMock(SalesChannelContext::class);
 
         static::assertTrue(
             $rule->match(new CartRuleScope($cart, $context))->matches()
@@ -106,7 +106,7 @@ class GoodsPriceRuleTest extends TestCase
                 ->setPrice(new CalculatedPrice(270, 270, new CalculatedTaxCollection(), new TaxRuleCollection()))
         );
 
-        $context = $this->createMock(CheckoutContext::class);
+        $context = $this->createMock(SalesChannelContext::class);
 
         static::assertTrue(
             $rule->match(new CartRuleScope($cart, $context))->matches()
@@ -118,7 +118,7 @@ class GoodsPriceRuleTest extends TestCase
         $rule = (new GoodsPriceRule())->assign(['amount' => 300.0, 'operator' => Rule::OPERATOR_GTE]);
 
         $cart = new Cart('test', 'test');
-        $context = $this->createMock(CheckoutContext::class);
+        $context = $this->createMock(SalesChannelContext::class);
 
         static::assertFalse(
             $rule->match(new CartRuleScope($cart, $context))->matches()
@@ -130,7 +130,7 @@ class GoodsPriceRuleTest extends TestCase
         $rule = (new GoodsPriceRule())->assign(['amount' => 200.0, 'operator' => Rule::OPERATOR_NEQ]);
 
         $cart = new Cart('test', 'test');
-        $context = $this->createMock(CheckoutContext::class);
+        $context = $this->createMock(SalesChannelContext::class);
 
         static::assertTrue(
             $rule->match(new CartRuleScope($cart, $context))->matches()
@@ -147,7 +147,7 @@ class GoodsPriceRuleTest extends TestCase
                 ->setPrice(new CalculatedPrice(270, 270, new CalculatedTaxCollection(), new TaxRuleCollection()))
         );
 
-        $context = $this->createMock(CheckoutContext::class);
+        $context = $this->createMock(SalesChannelContext::class);
 
         static::assertFalse(
             $rule->match(new CartRuleScope($cart, $context))->matches()

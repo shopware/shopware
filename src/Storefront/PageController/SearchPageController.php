@@ -2,8 +2,8 @@
 
 namespace Shopware\Storefront\PageController;
 
-use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Framework\Routing\InternalRequest;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Framework\Controller\StorefrontController;
 use Shopware\Storefront\Framework\Page\PageLoaderInterface;
 use Shopware\Storefront\Page\Search\SearchPageLoader;
@@ -26,7 +26,7 @@ class SearchPageController extends StorefrontController
     /**
      * @Route("/search", name="frontend.search.page", options={"seo"=false}, methods={"GET"})
      */
-    public function index(CheckoutContext $context, InternalRequest $request): Response
+    public function index(SalesChannelContext $context, InternalRequest $request): Response
     {
         $request->requireGet(SearchTermSubscriber::TERM_PARAMETER);
 

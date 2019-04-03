@@ -5,9 +5,9 @@ namespace Shopware\Core\Checkout\Test\DiscountSurcharge\Rule\Context;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\Rule\CartRuleScope;
-use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Rule\CustomerNumberRule;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 class CustomerNumberRuleTest extends TestCase
 {
@@ -20,7 +20,7 @@ class CustomerNumberRuleTest extends TestCase
         $customer = new CustomerEntity();
         $customer->setCustomerNumber('NO. 1');
 
-        $context = $this->createMock(CheckoutContext::class);
+        $context = $this->createMock(SalesChannelContext::class);
 
         $context
             ->method('getCustomer')
@@ -40,7 +40,7 @@ class CustomerNumberRuleTest extends TestCase
         $customer = new CustomerEntity();
         $customer->setCustomerNumber('NO. 2');
 
-        $context = $this->createMock(CheckoutContext::class);
+        $context = $this->createMock(SalesChannelContext::class);
 
         $context
             ->method('getCustomer')
@@ -60,7 +60,7 @@ class CustomerNumberRuleTest extends TestCase
         $customer = new CustomerEntity();
         $customer->setCustomerNumber('no. 1');
 
-        $context = $this->createMock(CheckoutContext::class);
+        $context = $this->createMock(SalesChannelContext::class);
 
         $context
             ->method('getCustomer')
@@ -77,7 +77,7 @@ class CustomerNumberRuleTest extends TestCase
 
         $cart = $this->createMock(Cart::class);
 
-        $context = $this->createMock(CheckoutContext::class);
+        $context = $this->createMock(SalesChannelContext::class);
 
         $context
             ->method('getCustomer')
@@ -97,7 +97,7 @@ class CustomerNumberRuleTest extends TestCase
         $customer = new CustomerEntity();
         $customer->setCustomerNumber('no. 2');
 
-        $context = $this->createMock(CheckoutContext::class);
+        $context = $this->createMock(SalesChannelContext::class);
 
         $context
             ->method('getCustomer')

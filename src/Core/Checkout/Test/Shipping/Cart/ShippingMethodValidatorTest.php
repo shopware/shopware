@@ -11,10 +11,10 @@ use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryPositionCollection;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingLocation;
 use Shopware\Core\Checkout\Cart\Error\ErrorCollection;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
-use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Shipping\Cart\Error\ShippingMethodBlockedError;
 use Shopware\Core\Checkout\Shipping\Cart\ShippingMethodValidator;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 class ShippingMethodValidatorTest extends TestCase
 {
@@ -25,7 +25,7 @@ class ShippingMethodValidatorTest extends TestCase
 
         $validator = new ShippingMethodValidator();
         $errors = new ErrorCollection();
-        $validator->validate($cart, $errors, $this->createMock(CheckoutContext::class));
+        $validator->validate($cart, $errors, $this->createMock(SalesChannelContext::class));
 
         static::assertCount(0, $errors);
     }
@@ -33,7 +33,7 @@ class ShippingMethodValidatorTest extends TestCase
     public function testValidateWithoutRules(): void
     {
         $cart = $this->createMock(Cart::class);
-        $context = $this->createMock(CheckoutContext::class);
+        $context = $this->createMock(SalesChannelContext::class);
         $shippingMethod = new ShippingMethodEntity();
         $shippingMethod->setId('1');
         $shippingMethod->setAvailabilityRuleIds(['1']);
@@ -60,7 +60,7 @@ class ShippingMethodValidatorTest extends TestCase
     public function testValidateWithEmptyRules(): void
     {
         $cart = $this->createMock(Cart::class);
-        $context = $this->createMock(CheckoutContext::class);
+        $context = $this->createMock(SalesChannelContext::class);
         $shippingMethod = new ShippingMethodEntity();
         $shippingMethod->setId('1');
         $shippingMethod->setMinDeliveryTime(1);
@@ -86,7 +86,7 @@ class ShippingMethodValidatorTest extends TestCase
     public function testValidateWithAvailabilityRules(): void
     {
         $cart = $this->createMock(Cart::class);
-        $context = $this->createMock(CheckoutContext::class);
+        $context = $this->createMock(SalesChannelContext::class);
 
         $shippingMethod = new ShippingMethodEntity();
         $shippingMethod->setId('1');
@@ -115,7 +115,7 @@ class ShippingMethodValidatorTest extends TestCase
     public function testValidateWithNotMatchingRules(): void
     {
         $cart = $this->createMock(Cart::class);
-        $context = $this->createMock(CheckoutContext::class);
+        $context = $this->createMock(SalesChannelContext::class);
 
         $shippingMethod = new ShippingMethodEntity();
         $shippingMethod->setId('1');
@@ -146,7 +146,7 @@ class ShippingMethodValidatorTest extends TestCase
     public function testValidateWithMultiRules(): void
     {
         $cart = $this->createMock(Cart::class);
-        $context = $this->createMock(CheckoutContext::class);
+        $context = $this->createMock(SalesChannelContext::class);
         $context->expects(static::once())->method('getRuleIds')->willReturn(['rule2']);
 
         $shippingMethod = new ShippingMethodEntity();
@@ -175,7 +175,7 @@ class ShippingMethodValidatorTest extends TestCase
     public function testValidateWithMultiDeliveries(): void
     {
         $cart = $this->createMock(Cart::class);
-        $context = $this->createMock(CheckoutContext::class);
+        $context = $this->createMock(SalesChannelContext::class);
 
         $shippingMethod = new ShippingMethodEntity();
         $shippingMethod->setId('1');
@@ -213,7 +213,7 @@ class ShippingMethodValidatorTest extends TestCase
     public function testValidateWithDifferentShippingMethods(): void
     {
         $cart = $this->createMock(Cart::class);
-        $context = $this->createMock(CheckoutContext::class);
+        $context = $this->createMock(SalesChannelContext::class);
 
         $shippingMethod = new ShippingMethodEntity();
         $shippingMethod->setId('1');

@@ -4,13 +4,13 @@ namespace Shopware\Storefront\Page\Checkout\Finish;
 
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Checkout\Cart\Exception\OrderNotFoundException;
-use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Routing\InternalRequest;
 use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Framework\Page\PageLoaderInterface;
 use Shopware\Storefront\Framework\Page\PageWithHeaderLoader;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -41,7 +41,7 @@ class CheckoutFinishPageLoader implements PageLoaderInterface
         $this->genericLoader = $genericLoader;
     }
 
-    public function load(InternalRequest $request, CheckoutContext $context)
+    public function load(InternalRequest $request, SalesChannelContext $context)
     {
         $page = $this->genericLoader->load($request, $context);
 
@@ -57,7 +57,7 @@ class CheckoutFinishPageLoader implements PageLoaderInterface
         return $page;
     }
 
-    private function getOrder(InternalRequest $request, CheckoutContext $context): OrderEntity
+    private function getOrder(InternalRequest $request, SalesChannelContext $context): OrderEntity
     {
         $orderId = $request->requireGet('orderId');
 

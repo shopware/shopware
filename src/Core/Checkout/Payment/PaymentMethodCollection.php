@@ -2,8 +2,8 @@
 
 namespace Shopware\Core\Checkout\Payment;
 
-use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
  * @method void                     add(PaymentMethodEntity $entity)
@@ -16,7 +16,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
  */
 class PaymentMethodCollection extends EntityCollection
 {
-    public function filterByActiveRules(CheckoutContext $checkoutContext): PaymentMethodCollection
+    public function filterByActiveRules(SalesChannelContext $checkoutContext): PaymentMethodCollection
     {
         return $this->filter(
             function (PaymentMethodEntity $paymentMethod) use ($checkoutContext) {

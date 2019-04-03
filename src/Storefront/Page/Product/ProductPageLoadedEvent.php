@@ -2,10 +2,10 @@
 
 namespace Shopware\Storefront\Page\Product;
 
-use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\NestedEvent;
 use Shopware\Core\Framework\Routing\InternalRequest;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 class ProductPageLoadedEvent extends NestedEvent
 {
@@ -17,7 +17,7 @@ class ProductPageLoadedEvent extends NestedEvent
     protected $page;
 
     /**
-     * @var CheckoutContext
+     * @var SalesChannelContext
      */
     protected $context;
 
@@ -26,7 +26,7 @@ class ProductPageLoadedEvent extends NestedEvent
      */
     protected $request;
 
-    public function __construct(ProductPage $page, CheckoutContext $context, InternalRequest $request)
+    public function __construct(ProductPage $page, SalesChannelContext $context, InternalRequest $request)
     {
         $this->page = $page;
         $this->context = $context;
@@ -43,7 +43,7 @@ class ProductPageLoadedEvent extends NestedEvent
         return $this->context->getContext();
     }
 
-    public function getCheckoutContext(): CheckoutContext
+    public function getCheckoutContext(): SalesChannelContext
     {
         return $this->context;
     }

@@ -2,10 +2,10 @@
 
 namespace Shopware\Storefront\Pagelet\Suggest;
 
-use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\NestedEvent;
 use Shopware\Core\Framework\Routing\InternalRequest;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 class SuggestPageletLoadedEvent extends NestedEvent
 {
@@ -17,7 +17,7 @@ class SuggestPageletLoadedEvent extends NestedEvent
     protected $page;
 
     /**
-     * @var CheckoutContext
+     * @var \Shopware\Core\System\SalesChannel\SalesChannelContext
      */
     protected $context;
 
@@ -26,7 +26,7 @@ class SuggestPageletLoadedEvent extends NestedEvent
      */
     protected $request;
 
-    public function __construct(SuggestPagelet $page, CheckoutContext $context, InternalRequest $request)
+    public function __construct(SuggestPagelet $page, SalesChannelContext $context, InternalRequest $request)
     {
         $this->page = $page;
         $this->context = $context;
@@ -43,7 +43,7 @@ class SuggestPageletLoadedEvent extends NestedEvent
         return $this->context->getContext();
     }
 
-    public function getCheckoutContext(): CheckoutContext
+    public function getCheckoutContext(): SalesChannelContext
     {
         return $this->context;
     }

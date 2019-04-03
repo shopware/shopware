@@ -2,11 +2,11 @@
 
 namespace Shopware\Storefront\Pagelet\Listing;
 
-use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Event\NestedEvent;
 use Shopware\Core\Framework\Routing\InternalRequest;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 class ListingPageletCriteriaCreatedEvent extends NestedEvent
 {
@@ -18,7 +18,7 @@ class ListingPageletCriteriaCreatedEvent extends NestedEvent
     protected $criteria;
 
     /**
-     * @var CheckoutContext
+     * @var \Shopware\Core\System\SalesChannel\SalesChannelContext
      */
     protected $context;
 
@@ -27,7 +27,7 @@ class ListingPageletCriteriaCreatedEvent extends NestedEvent
      */
     protected $request;
 
-    public function __construct(Criteria $criteria, CheckoutContext $context, InternalRequest $request)
+    public function __construct(Criteria $criteria, SalesChannelContext $context, InternalRequest $request)
     {
         $this->criteria = $criteria;
         $this->context = $context;
@@ -44,7 +44,7 @@ class ListingPageletCriteriaCreatedEvent extends NestedEvent
         return $this->context->getContext();
     }
 
-    public function getCheckoutContext(): CheckoutContext
+    public function getCheckoutContext(): SalesChannelContext
     {
         return $this->context;
     }

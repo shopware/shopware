@@ -2,8 +2,8 @@
 
 namespace Shopware\Storefront\Page\Navigation;
 
-use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Content\Cms\CmsPageEntity;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Framework\Page\PageWithHeader;
 use Shopware\Storefront\Pagelet\Header\HeaderPagelet;
 
@@ -14,7 +14,7 @@ class NavigationPage extends PageWithHeader
      */
     protected $cmsPage;
 
-    public function __construct(HeaderPagelet $header, CheckoutContext $context, CmsPageEntity $cmsPage)
+    public function __construct(HeaderPagelet $header, SalesChannelContext $context, CmsPageEntity $cmsPage)
     {
         $this->cmsPage = $cmsPage;
 

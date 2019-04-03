@@ -2,7 +2,6 @@
 
 namespace Shopware\Storefront\Page\Product;
 
-use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Content\Cms\CmsPageEntity;
 use Shopware\Core\Content\Cms\SlotDataResolver\ResolverContext\EntityResolverContext;
 use Shopware\Core\Content\Cms\SlotDataResolver\SlotDataResolver;
@@ -14,6 +13,7 @@ use Shopware\Core\Content\Product\Storefront\StorefrontProductRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Routing\InternalRequest;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Framework\Page\PageLoaderInterface;
 use Shopware\Storefront\Framework\Page\PageWithHeaderLoader;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -59,7 +59,7 @@ class ProductPageLoader implements PageLoaderInterface
         $this->slotDataResolver = $slotDataResolver;
     }
 
-    public function load(InternalRequest $request, CheckoutContext $context): ProductPage
+    public function load(InternalRequest $request, SalesChannelContext $context): ProductPage
     {
         $page = $this->pageWithHeaderLoader->load($request, $context);
         $page = ProductPage::createFrom($page);
@@ -81,7 +81,7 @@ class ProductPageLoader implements PageLoaderInterface
         return $page;
     }
 
-    private function loadSlotData(CmsPageEntity $page, CheckoutContext $context, StorefrontProductEntity $product): void
+    private function loadSlotData(CmsPageEntity $page, SalesChannelContext $context, StorefrontProductEntity $product): void
     {
         if (!$page->getBlocks()) {
             return;
@@ -93,7 +93,7 @@ class ProductPageLoader implements PageLoaderInterface
         $page->getBlocks()->setSlots($slots);
     }
 
-    private function getCmsPage(CheckoutContext $context): ?CmsPageEntity
+    private function getCmsPage(SalesChannelContext $context): ?CmsPageEntity
     {
         $pages = $this->cmsPageRepository->getPagesByType('product_detail', $context);
 
@@ -107,7 +107,7 @@ class ProductPageLoader implements PageLoaderInterface
         return $page;
     }
 
-    private function loadProduct(string $productId, CheckoutContext $context): StorefrontProductEntity
+    private function loadProduct(string $productId, SalesChannelContext $context): StorefrontProductEntity
     {
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('id', $productId));

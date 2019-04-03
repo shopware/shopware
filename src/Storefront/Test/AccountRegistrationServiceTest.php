@@ -3,7 +3,6 @@
 namespace Shopware\Storefront\Test;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Customer\Exception\CustomerNotFoundException;
 use Shopware\Core\Checkout\Customer\Storefront\AccountRegistrationService;
 use Shopware\Core\Checkout\Customer\Storefront\AccountService;
@@ -29,7 +28,7 @@ class AccountRegistrationServiceTest extends TestCase
     private $accountService;
 
     /**
-     * @var CheckoutContext
+     * @var \Shopware\Core\System\SalesChannel\SalesChannelContext
      */
     private $checkoutContext;
 

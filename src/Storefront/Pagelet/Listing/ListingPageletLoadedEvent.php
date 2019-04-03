@@ -2,10 +2,10 @@
 
 namespace Shopware\Storefront\Pagelet\Listing;
 
-use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\NestedEvent;
 use Shopware\Core\Framework\Routing\InternalRequest;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Framework\Page\StorefrontSearchResult;
 
 class ListingPageletLoadedEvent extends NestedEvent
@@ -18,7 +18,7 @@ class ListingPageletLoadedEvent extends NestedEvent
     protected $searchResult;
 
     /**
-     * @var CheckoutContext
+     * @var SalesChannelContext
      */
     protected $context;
 
@@ -27,7 +27,7 @@ class ListingPageletLoadedEvent extends NestedEvent
      */
     protected $request;
 
-    public function __construct(StorefrontSearchResult $searchResult, CheckoutContext $context, InternalRequest $request)
+    public function __construct(StorefrontSearchResult $searchResult, SalesChannelContext $context, InternalRequest $request)
     {
         $this->searchResult = $searchResult;
         $this->context = $context;
@@ -44,7 +44,7 @@ class ListingPageletLoadedEvent extends NestedEvent
         return $this->context->getContext();
     }
 
-    public function getCheckoutContext(): CheckoutContext
+    public function getCheckoutContext(): SalesChannelContext
     {
         return $this->context;
     }

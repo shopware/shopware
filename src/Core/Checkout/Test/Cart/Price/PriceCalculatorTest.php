@@ -16,8 +16,8 @@ use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Cart\Tax\TaxCalculator;
 use Shopware\Core\Checkout\Cart\Tax\TaxDetector;
 use Shopware\Core\Checkout\Cart\Tax\TaxRuleCalculator;
-use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Test\Cart\Common\Generator;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 class PriceCalculatorTest extends TestCase
 {
@@ -70,7 +70,7 @@ class PriceCalculatorTest extends TestCase
             $detector
         );
 
-        $context = $this->createMock(CheckoutContext::class);
+        $context = $this->createMock(SalesChannelContext::class);
 
         $lineItemPrice = $calculator->calculate($priceDefinition, $context);
 
@@ -99,7 +99,7 @@ class PriceCalculatorTest extends TestCase
             $detector
         );
 
-        $context = $this->createMock(CheckoutContext::class);
+        $context = $this->createMock(SalesChannelContext::class);
 
         $lineItemPrice = $calculator->calculate($priceDefinition, $context);
 

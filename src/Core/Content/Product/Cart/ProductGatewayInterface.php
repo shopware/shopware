@@ -2,10 +2,10 @@
 
 namespace Shopware\Core\Content\Product\Cart;
 
-use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Content\Product\ProductCollection;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 interface ProductGatewayInterface
 {
-    public function get(array $ids, CheckoutContext $context): ProductCollection;
+    public function get(array $ids, SalesChannelContext $context): ProductCollection;
 }

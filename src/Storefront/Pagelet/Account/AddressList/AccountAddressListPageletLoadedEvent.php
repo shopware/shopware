@@ -2,10 +2,10 @@
 
 namespace Shopware\Storefront\Pagelet\Account\AddressList;
 
-use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\NestedEvent;
 use Shopware\Core\Framework\Routing\InternalRequest;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Framework\Page\StorefrontSearchResult;
 
 class AccountAddressListPageletLoadedEvent extends NestedEvent
@@ -18,7 +18,7 @@ class AccountAddressListPageletLoadedEvent extends NestedEvent
     protected $pagelet;
 
     /**
-     * @var CheckoutContext
+     * @var \Shopware\Core\System\SalesChannel\SalesChannelContext
      */
     protected $context;
 
@@ -29,7 +29,7 @@ class AccountAddressListPageletLoadedEvent extends NestedEvent
 
     public function __construct(
         StorefrontSearchResult $pagelet,
-        CheckoutContext $context,
+        SalesChannelContext $context,
         InternalRequest $request
     ) {
         $this->pagelet = $pagelet;
@@ -47,7 +47,7 @@ class AccountAddressListPageletLoadedEvent extends NestedEvent
         return $this->context->getContext();
     }
 
-    public function getCheckoutContext(): CheckoutContext
+    public function getCheckoutContext(): SalesChannelContext
     {
         return $this->context;
     }

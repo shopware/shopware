@@ -3,7 +3,6 @@
 namespace Shopware\Core\Checkout\Order\Storefront;
 
 use Shopware\Core\Checkout\Cart\Storefront\CartService;
-use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Order\Validation\OrderValidationService;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Validation\BuildValidationEvent;
@@ -11,6 +10,7 @@ use Shopware\Core\Framework\Validation\DataBag\DataBag;
 use Shopware\Core\Framework\Validation\DataValidationDefinition;
 use Shopware\Core\Framework\Validation\DataValidator;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class OrderService
@@ -44,7 +44,7 @@ class OrderService
         $this->cartService = $cartService;
     }
 
-    public function createOrder(DataBag $data, CheckoutContext $context): string
+    public function createOrder(DataBag $data, SalesChannelContext $context): string
     {
         $this->validateOrderData($data, $context->getContext());
 

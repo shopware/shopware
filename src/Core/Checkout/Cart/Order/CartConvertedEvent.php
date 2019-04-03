@@ -3,16 +3,16 @@
 namespace Shopware\Core\Checkout\Cart\Order;
 
 use Shopware\Core\Checkout\Cart\Cart;
-use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\NestedEvent;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 class CartConvertedEvent extends NestedEvent
 {
     public const NAME = 'cart.converted-to-order.event';
 
     /**
-     * @var CheckoutContext
+     * @var \Shopware\Core\System\SalesChannel\SalesChannelContext
      */
     private $checkoutContext;
 
@@ -39,7 +39,7 @@ class CartConvertedEvent extends NestedEvent
     public function __construct(
         Cart $cart,
         array $convertedCart,
-        CheckoutContext $checkoutContext,
+        SalesChannelContext $checkoutContext,
         OrderConversionContext $conversionContext
     ) {
         $this->checkoutContext = $checkoutContext;
@@ -79,7 +79,7 @@ class CartConvertedEvent extends NestedEvent
         $this->convertedCart = $convertedCart;
     }
 
-    public function getCheckoutContext(): CheckoutContext
+    public function getCheckoutContext(): SalesChannelContext
     {
         return $this->checkoutContext;
     }

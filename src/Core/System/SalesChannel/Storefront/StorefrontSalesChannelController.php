@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\System\SalesChannel\Storefront;
 
-use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
 use Shopware\Core\Checkout\Payment\PaymentMethodDefinition;
 use Shopware\Core\Checkout\Shipping\ShippingMethodCollection;
@@ -19,6 +18,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Country\Aggregate\CountryState\CountryStateDefinition;
 use Shopware\Core\System\Country\CountryDefinition;
 use Shopware\Core\System\Currency\CurrencyDefinition;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -75,7 +75,7 @@ class StorefrontSalesChannelController extends AbstractController
     /**
      * @Route("/storefront-api/v{version}/currency", name="storefront-api.currency.list", methods={"GET"})
      */
-    public function getCurrencies(Request $request, CheckoutContext $context, ResponseFactoryInterface $responseFactory): Response
+    public function getCurrencies(Request $request, SalesChannelContext $context, ResponseFactoryInterface $responseFactory): Response
     {
         $criteria = $this->createCriteria($request, CurrencyDefinition::class, $context);
         $currencies = $this->currencyRepository->search($criteria, $context->getContext());
@@ -91,7 +91,7 @@ class StorefrontSalesChannelController extends AbstractController
     /**
      * @Route("/storefront-api/v{version}/language", name="storefront-api.language.list", methods={"GET"})
      */
-    public function getLanguages(Request $request, CheckoutContext $context, ResponseFactoryInterface $responseFactory): Response
+    public function getLanguages(Request $request, SalesChannelContext $context, ResponseFactoryInterface $responseFactory): Response
     {
         $criteria = $this->createCriteria($request, LanguageDefinition::class, $context);
         $languages = $this->languageRepository->search($criteria, $context->getContext());
@@ -107,7 +107,7 @@ class StorefrontSalesChannelController extends AbstractController
     /**
      * @Route("/storefront-api/v{version}/country", name="storefront-api.country.list", methods={"GET"})
      */
-    public function getCountries(Request $request, CheckoutContext $context, ResponseFactoryInterface $responseFactory): Response
+    public function getCountries(Request $request, SalesChannelContext $context, ResponseFactoryInterface $responseFactory): Response
     {
         $criteria = $this->createCriteria($request, CountryDefinition::class, $context);
         $countries = $this->countryRepository->search($criteria, $context->getContext());
@@ -125,7 +125,7 @@ class StorefrontSalesChannelController extends AbstractController
      *
      * @throws InvalidRequestParameterException
      */
-    public function getCountryStates(string $countryId, Request $request, CheckoutContext $context, ResponseFactoryInterface $responseFactory): Response
+    public function getCountryStates(string $countryId, Request $request, SalesChannelContext $context, ResponseFactoryInterface $responseFactory): Response
     {
         if (!Uuid::isValid($countryId)) {
             throw new InvalidRequestParameterException('countryId');
@@ -155,7 +155,7 @@ class StorefrontSalesChannelController extends AbstractController
     /**
      * @Route("/storefront-api/v{version}/payment-method", name="storefront-api.payment-method.list", methods={"GET"})
      */
-    public function getPaymentMethods(Request $request, CheckoutContext $context, ResponseFactoryInterface $responseFactory): Response
+    public function getPaymentMethods(Request $request, SalesChannelContext $context, ResponseFactoryInterface $responseFactory): Response
     {
         $criteria = $this->createCriteria($request, PaymentMethodDefinition::class, $context);
         $paymentMethods = $this->filterMethodsByRules($criteria, $context, $this->paymentMethodRepository);
@@ -171,7 +171,7 @@ class StorefrontSalesChannelController extends AbstractController
     /**
      * @Route("/storefront-api/v{version}/shipping-method", name="storefront-api.shipping-method.list", methods={"GET"})
      */
-    public function getShippingMethods(Request $request, CheckoutContext $context, ResponseFactoryInterface $responseFactory): Response
+    public function getShippingMethods(Request $request, SalesChannelContext $context, ResponseFactoryInterface $responseFactory): Response
     {
         $criteria = $this->createCriteria($request, ShippingMethodDefinition::class, $context);
         $shippingMethods = $this->filterMethodsByRules($criteria, $context, $this->shippingMethodRepository);
@@ -186,7 +186,7 @@ class StorefrontSalesChannelController extends AbstractController
 
     private function filterMethodsByRules(
         Criteria $criteria,
-        CheckoutContext $context,
+        SalesChannelContext $context,
         EntityRepositoryInterface $entityRepository
     ): EntitySearchResult {
         $searchResult = $entityRepository->search($criteria, $context->getContext());
@@ -203,7 +203,7 @@ class StorefrontSalesChannelController extends AbstractController
         );
     }
 
-    private function createCriteria(Request $request, string $definition, CheckoutContext $context): Criteria
+    private function createCriteria(Request $request, string $definition, SalesChannelContext $context): Criteria
     {
         $limit = $request->query->getInt('limit', 10);
         $page = $request->query->getInt('page', 1);

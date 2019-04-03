@@ -6,11 +6,11 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingLocation;
 use Shopware\Core\Checkout\Cart\Rule\CartRuleScope;
-use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
 use Shopware\Core\Checkout\Customer\Rule\ShippingStreetRule;
 use Shopware\Core\System\Country\Aggregate\CountryState\CountryStateEntity;
 use Shopware\Core\System\Country\CountryEntity;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 class ShippingStreetRuleTest extends TestCase
 {
@@ -20,7 +20,7 @@ class ShippingStreetRuleTest extends TestCase
 
         $cart = $this->createMock(Cart::class);
 
-        $context = $this->createMock(CheckoutContext::class);
+        $context = $this->createMock(SalesChannelContext::class);
 
         $context
             ->method('getShippingLocation')
@@ -40,7 +40,7 @@ class ShippingStreetRuleTest extends TestCase
 
         $cart = $this->createMock(Cart::class);
 
-        $context = $this->createMock(CheckoutContext::class);
+        $context = $this->createMock(SalesChannelContext::class);
 
         $context
             ->method('getShippingLocation')
@@ -60,7 +60,7 @@ class ShippingStreetRuleTest extends TestCase
 
         $cart = $this->createMock(Cart::class);
 
-        $context = $this->createMock(CheckoutContext::class);
+        $context = $this->createMock(SalesChannelContext::class);
 
         $context
             ->method('getShippingLocation')
@@ -80,7 +80,7 @@ class ShippingStreetRuleTest extends TestCase
 
         $cart = $this->createMock(Cart::class);
 
-        $context = $this->createMock(CheckoutContext::class);
+        $context = $this->createMock(SalesChannelContext::class);
 
         $context
             ->method('getShippingLocation')

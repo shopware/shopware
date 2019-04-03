@@ -2,7 +2,6 @@
 
 namespace Shopware\Storefront\Page\Navigation;
 
-use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Content\Cms\Aggregate\CmsSlot\CmsSlotEntity;
 use Shopware\Core\Content\Cms\CmsPageEntity;
 use Shopware\Core\Content\Cms\Exception\PageNotFoundException;
@@ -11,6 +10,7 @@ use Shopware\Core\Content\Cms\SlotDataResolver\SlotDataResolver;
 use Shopware\Core\Content\Cms\Storefront\StorefrontCmsPageRepository;
 use Shopware\Core\Content\Navigation\NavigationEntity;
 use Shopware\Core\Framework\Routing\InternalRequest;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Framework\Page\PageLoaderInterface;
 use Shopware\Storefront\Framework\Page\PageWithHeaderLoader;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -49,7 +49,7 @@ class NavigationPageLoader implements PageLoaderInterface
         $this->slotDataResolver = $slotDataResolver;
     }
 
-    public function load(InternalRequest $request, CheckoutContext $context): NavigationPage
+    public function load(InternalRequest $request, SalesChannelContext $context): NavigationPage
     {
         $page = $this->genericLoader->load($request, $context);
         $page = NavigationPage::createFrom($page);
@@ -100,7 +100,7 @@ class NavigationPageLoader implements PageLoaderInterface
         }
     }
 
-    private function loadSlotData(CmsPageEntity $page, CheckoutContext $context): void
+    private function loadSlotData(CmsPageEntity $page, SalesChannelContext $context): void
     {
         if (!$page->getBlocks()) {
             return;
@@ -112,7 +112,7 @@ class NavigationPageLoader implements PageLoaderInterface
         $page->getBlocks()->setSlots($slots);
     }
 
-    private function getCmsPage(string $pageId, CheckoutContext $context): CmsPageEntity
+    private function getCmsPage(string $pageId, SalesChannelContext $context): CmsPageEntity
     {
         $pages = $this->cmsPageRepository->read([$pageId], $context);
 

@@ -10,12 +10,12 @@ use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Checkout\Cart\Rule\CartRuleScope;
 use Shopware\Core\Checkout\Cart\Rule\CartWeightRule;
-use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Content\Rule\Aggregate\RuleCondition\RuleConditionEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 class CartWeightRuleTest extends TestCase
 {
@@ -36,7 +36,7 @@ class CartWeightRuleTest extends TestCase
 
         $match = $this->rule->match(new CartRuleScope(
             $this->createCartDummy(),
-            $this->createMock(CheckoutContext::class)
+            $this->createMock(SalesChannelContext::class)
         ));
 
         static::assertTrue($match->matches());
@@ -48,7 +48,7 @@ class CartWeightRuleTest extends TestCase
 
         $match = $this->rule->match(new CartRuleScope(
             $this->createCartDummy(),
-            $this->createMock(CheckoutContext::class)
+            $this->createMock(SalesChannelContext::class)
         ));
 
         static::assertFalse($match->matches());
@@ -60,7 +60,7 @@ class CartWeightRuleTest extends TestCase
 
         $match = $this->rule->match(new CartRuleScope(
             $this->createCartDummy(),
-            $this->createMock(CheckoutContext::class)
+            $this->createMock(SalesChannelContext::class)
         ));
 
         static::assertFalse($match->matches());
@@ -69,7 +69,7 @@ class CartWeightRuleTest extends TestCase
 
         $match = $this->rule->match(new CartRuleScope(
             $this->createCartDummy(),
-            $this->createMock(CheckoutContext::class)
+            $this->createMock(SalesChannelContext::class)
         ));
 
         static::assertTrue($match->matches());

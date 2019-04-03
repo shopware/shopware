@@ -3,21 +3,21 @@
 namespace Shopware\Core\Checkout\Cart\Tax;
 
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
-use Shopware\Core\Checkout\CheckoutContext;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 class TaxDetector
 {
-    public function useGross(CheckoutContext $context): bool
+    public function useGross(SalesChannelContext $context): bool
     {
         return $context->getCurrentCustomerGroup()->getDisplayGross();
     }
 
-    public function isNetDelivery(CheckoutContext $context): bool
+    public function isNetDelivery(SalesChannelContext $context): bool
     {
         return $context->getShippingLocation()->getCountry()->getTaxFree();
     }
 
-    public function getTaxState(CheckoutContext $context): string
+    public function getTaxState(SalesChannelContext $context): string
     {
         if ($this->isNetDelivery($context)) {
             return CartPrice::TAX_STATE_FREE;

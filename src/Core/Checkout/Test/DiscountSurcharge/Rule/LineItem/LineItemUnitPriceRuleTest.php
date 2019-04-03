@@ -9,8 +9,8 @@ use Shopware\Core\Checkout\Cart\Rule\LineItemScope;
 use Shopware\Core\Checkout\Cart\Rule\LineItemUnitPriceRule;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
-use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Framework\Rule\Rule;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 class LineItemUnitPriceRuleTest extends TestCase
 {
@@ -33,7 +33,7 @@ class LineItemUnitPriceRuleTest extends TestCase
     {
         $rule = (new LineItemUnitPriceRule())->assign(['amount' => 100, 'operator' => Rule::OPERATOR_EQ]);
 
-        $context = $this->createMock(CheckoutContext::class);
+        $context = $this->createMock(SalesChannelContext::class);
 
         static::assertTrue(
             $rule->match(new LineItemScope($this->lineItem, $context))->matches()
@@ -44,7 +44,7 @@ class LineItemUnitPriceRuleTest extends TestCase
     {
         $rule = (new LineItemUnitPriceRule())->assign(['amount' => 99, 'operator' => Rule::OPERATOR_EQ]);
 
-        $context = $this->createMock(CheckoutContext::class);
+        $context = $this->createMock(SalesChannelContext::class);
 
         static::assertFalse(
             $rule->match(new LineItemScope($this->lineItem, $context))->matches()
@@ -55,7 +55,7 @@ class LineItemUnitPriceRuleTest extends TestCase
     {
         $rule = (new LineItemUnitPriceRule())->assign(['amount' => 100, 'operator' => Rule::OPERATOR_LTE]);
 
-        $context = $this->createMock(CheckoutContext::class);
+        $context = $this->createMock(SalesChannelContext::class);
 
         static::assertTrue(
             $rule->match(new LineItemScope($this->lineItem, $context))->matches()
@@ -66,7 +66,7 @@ class LineItemUnitPriceRuleTest extends TestCase
     {
         $rule = (new LineItemUnitPriceRule())->assign(['amount' => 101, 'operator' => Rule::OPERATOR_LTE]);
 
-        $context = $this->createMock(CheckoutContext::class);
+        $context = $this->createMock(SalesChannelContext::class);
 
         static::assertTrue(
             $rule->match(new LineItemScope($this->lineItem, $context))->matches()
@@ -77,7 +77,7 @@ class LineItemUnitPriceRuleTest extends TestCase
     {
         $rule = (new LineItemUnitPriceRule())->assign(['amount' => 99, 'operator' => Rule::OPERATOR_LTE]);
 
-        $context = $this->createMock(CheckoutContext::class);
+        $context = $this->createMock(SalesChannelContext::class);
 
         static::assertFalse(
             $rule->match(new LineItemScope($this->lineItem, $context))->matches()
@@ -88,7 +88,7 @@ class LineItemUnitPriceRuleTest extends TestCase
     {
         $rule = (new LineItemUnitPriceRule())->assign(['amount' => 100, 'operator' => Rule::OPERATOR_GTE]);
 
-        $context = $this->createMock(CheckoutContext::class);
+        $context = $this->createMock(SalesChannelContext::class);
 
         static::assertTrue(
             $rule->match(new LineItemScope($this->lineItem, $context))->matches()
@@ -99,7 +99,7 @@ class LineItemUnitPriceRuleTest extends TestCase
     {
         $rule = (new LineItemUnitPriceRule())->assign(['amount' => 99, 'operator' => Rule::OPERATOR_GTE]);
 
-        $context = $this->createMock(CheckoutContext::class);
+        $context = $this->createMock(SalesChannelContext::class);
 
         static::assertTrue(
             $rule->match(new LineItemScope($this->lineItem, $context))->matches()
@@ -110,7 +110,7 @@ class LineItemUnitPriceRuleTest extends TestCase
     {
         $rule = (new LineItemUnitPriceRule())->assign(['amount' => 101, 'operator' => Rule::OPERATOR_GTE]);
 
-        $context = $this->createMock(CheckoutContext::class);
+        $context = $this->createMock(SalesChannelContext::class);
 
         static::assertFalse(
             $rule->match(new LineItemScope($this->lineItem, $context))->matches()
@@ -121,7 +121,7 @@ class LineItemUnitPriceRuleTest extends TestCase
     {
         $rule = (new LineItemUnitPriceRule())->assign(['amount' => 101, 'operator' => Rule::OPERATOR_NEQ]);
 
-        $context = $this->createMock(CheckoutContext::class);
+        $context = $this->createMock(SalesChannelContext::class);
 
         static::assertTrue(
             $rule->match(new LineItemScope($this->lineItem, $context))->matches()
@@ -132,7 +132,7 @@ class LineItemUnitPriceRuleTest extends TestCase
     {
         $rule = (new LineItemUnitPriceRule())->assign(['amount' => 100, 'operator' => Rule::OPERATOR_NEQ]);
 
-        $context = $this->createMock(CheckoutContext::class);
+        $context = $this->createMock(SalesChannelContext::class);
 
         static::assertFalse(
             $rule->match(new LineItemScope($this->lineItem, $context))->matches()

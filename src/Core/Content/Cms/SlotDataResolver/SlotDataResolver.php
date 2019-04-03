@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Content\Cms\SlotDataResolver;
 
-use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Content\Cms\Aggregate\CmsSlot\CmsSlotCollection;
 use Shopware\Core\Content\Cms\Aggregate\CmsSlot\CmsSlotEntity;
 use Shopware\Core\Content\Cms\SlotDataResolver\ResolverContext\ResolverContext;
@@ -14,6 +13,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaI
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Struct\ArrayEntity;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 class SlotDataResolver
 {
@@ -106,7 +106,7 @@ class SlotDataResolver
      *
      * @return EntitySearchResult[]
      */
-    private function fetchByIdentifier(array $directReads, CheckoutContext $context): array
+    private function fetchByIdentifier(array $directReads, SalesChannelContext $context): array
     {
         $entities = [];
 
@@ -123,7 +123,7 @@ class SlotDataResolver
         return $entities;
     }
 
-    private function fetchByCriteria(array $searches, CheckoutContext $context): array
+    private function fetchByCriteria(array $searches, SalesChannelContext $context): array
     {
         $searchResults = [];
 

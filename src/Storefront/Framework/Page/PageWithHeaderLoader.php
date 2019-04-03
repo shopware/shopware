@@ -2,8 +2,8 @@
 
 namespace Shopware\Storefront\Framework\Page;
 
-use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Framework\Routing\InternalRequest;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Pagelet\Header\HeaderPageletLoader;
 
 class PageWithHeaderLoader implements PageLoaderInterface
@@ -18,7 +18,7 @@ class PageWithHeaderLoader implements PageLoaderInterface
         $this->headerLoader = $headerLoader;
     }
 
-    public function load(InternalRequest $request, CheckoutContext $context): PageWithHeader
+    public function load(InternalRequest $request, SalesChannelContext $context): PageWithHeader
     {
         $header = $this->headerLoader->load($request, $context);
 

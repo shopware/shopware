@@ -7,7 +7,6 @@ use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Rule\CartRuleScope;
 use Shopware\Core\Checkout\Cart\Rule\LineItemTagRule;
-use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -17,6 +16,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\ConstraintViolationException;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\Validator\Constraints\NotBlank;
 
 class LineItemTagRuleTest extends TestCase
@@ -181,7 +181,7 @@ class LineItemTagRuleTest extends TestCase
         $cart->add(new LineItem('key', 'product'));
         $cart->add(new LineItem('key2', 'product'));
 
-        $cartRuleScope = new CartRuleScope($cart, $this->createMock(CheckoutContext::class));
+        $cartRuleScope = new CartRuleScope($cart, $this->createMock(SalesChannelContext::class));
 
         $match = $rule->match($cartRuleScope);
         static::assertFalse($match->matches());
@@ -195,7 +195,7 @@ class LineItemTagRuleTest extends TestCase
         $cart->add(new LineItem('key', 'product'));
         $cart->add(new LineItem('key2', 'product'));
 
-        $cartRuleScope = new CartRuleScope($cart, $this->createMock(CheckoutContext::class));
+        $cartRuleScope = new CartRuleScope($cart, $this->createMock(SalesChannelContext::class));
 
         $match = $rule->match($cartRuleScope);
         static::assertTrue($match->matches());
@@ -210,7 +210,7 @@ class LineItemTagRuleTest extends TestCase
         $cart->add((new LineItem('key', 'product'))->replacePayload(['tags' => $tagIds]));
         $cart->add(new LineItem('key2', 'product'));
 
-        $cartRuleScope = new CartRuleScope($cart, $this->createMock(CheckoutContext::class));
+        $cartRuleScope = new CartRuleScope($cart, $this->createMock(SalesChannelContext::class));
 
         $match = $rule->match($cartRuleScope);
         static::assertTrue($match->matches());
@@ -225,7 +225,7 @@ class LineItemTagRuleTest extends TestCase
         $cart->add((new LineItem('key', 'product'))->replacePayload(['tags' => [$tagIds[0]]]));
         $cart->add((new LineItem('key2', 'product'))->replacePayload(['tags' => [Uuid::randomHex()]]));
 
-        $cartRuleScope = new CartRuleScope($cart, $this->createMock(CheckoutContext::class));
+        $cartRuleScope = new CartRuleScope($cart, $this->createMock(SalesChannelContext::class));
 
         $match = $rule->match($cartRuleScope);
         static::assertTrue($match->matches());
@@ -240,7 +240,7 @@ class LineItemTagRuleTest extends TestCase
         $cart->add((new LineItem('key', 'product'))->replacePayload(['tags' => [$tagIds[0]]]));
         $cart->add((new LineItem('key2', 'product'))->replacePayload(['tags' => [Uuid::randomHex()]]));
 
-        $cartRuleScope = new CartRuleScope($cart, $this->createMock(CheckoutContext::class));
+        $cartRuleScope = new CartRuleScope($cart, $this->createMock(SalesChannelContext::class));
 
         $match = $rule->match($cartRuleScope);
         static::assertFalse($match->matches());

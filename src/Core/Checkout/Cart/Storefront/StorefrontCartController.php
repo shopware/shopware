@@ -11,13 +11,13 @@ use Shopware\Core\Checkout\Cart\Exception\LineItemNotRemovableException;
 use Shopware\Core\Checkout\Cart\Exception\LineItemNotStackableException;
 use Shopware\Core\Checkout\Cart\Exception\MixedLineItemTypeException;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
-use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Content\Product\Cart\ProductCollector;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\PlatformRequest;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -56,7 +56,7 @@ class StorefrontCartController extends AbstractController
      *
      * @throws CartTokenNotFoundException
      */
-    public function getCart(Request $request, CheckoutContext $context): JsonResponse
+    public function getCart(Request $request, SalesChannelContext $context): JsonResponse
     {
         $token = $request->query->getAlnum('token', $context->getToken());
         $name = $request->query->getAlnum('name', CartService::STOREFRONT);
@@ -71,7 +71,7 @@ class StorefrontCartController extends AbstractController
      *
      * @throws CartTokenNotFoundException
      */
-    public function createCart(Request $request, CheckoutContext $context): JsonResponse
+    public function createCart(Request $request, SalesChannelContext $context): JsonResponse
     {
         $token = $request->request->getAlnum('token', $context->getToken());
         $name = $request->request->getAlnum('name', CartService::STOREFRONT);
@@ -93,7 +93,7 @@ class StorefrontCartController extends AbstractController
      * @throws InvalidPayloadException
      * @throws CartTokenNotFoundException
      */
-    public function addProduct(string $id, Request $request, CheckoutContext $context): JsonResponse
+    public function addProduct(string $id, Request $request, SalesChannelContext $context): JsonResponse
     {
         $token = $request->request->getAlnum('token', $context->getToken());
         $quantity = $request->request->getInt('quantity', 1);
@@ -121,7 +121,7 @@ class StorefrontCartController extends AbstractController
      * @throws InvalidPayloadException
      * @throws CartTokenNotFoundException
      */
-    public function addLineItem(string $id, Request $request, CheckoutContext $context): JsonResponse
+    public function addLineItem(string $id, Request $request, SalesChannelContext $context): JsonResponse
     {
         // todo support price definition (NEXT-573)
         $token = $request->request->getAlnum('token', $context->getToken());
@@ -149,7 +149,7 @@ class StorefrontCartController extends AbstractController
      * @throws LineItemNotRemovableException
      * @throws CartTokenNotFoundException
      */
-    public function removeLineItem(string $id, Request $request, CheckoutContext $context): JsonResponse
+    public function removeLineItem(string $id, Request $request, SalesChannelContext $context): JsonResponse
     {
         $token = $request->request->getAlnum('token', $context->getToken());
 
@@ -174,7 +174,7 @@ class StorefrontCartController extends AbstractController
      * @throws CartTokenNotFoundException
      * @throws InvalidPayloadException
      */
-    public function updateLineItem(string $id, Request $request, CheckoutContext $context): JsonResponse
+    public function updateLineItem(string $id, Request $request, SalesChannelContext $context): JsonResponse
     {
         $token = $request->request->getAlnum('token', $context->getToken());
         $cart = $this->cartService->getCart($token, $context);

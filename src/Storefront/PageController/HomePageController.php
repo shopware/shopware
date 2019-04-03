@@ -2,8 +2,8 @@
 
 namespace Shopware\Storefront\PageController;
 
-use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Framework\Routing\InternalRequest;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Framework\Controller\StorefrontController;
 use Shopware\Storefront\Framework\Page\PageLoaderInterface;
 use Shopware\Storefront\Page\Home\HomePageLoader;
@@ -25,7 +25,7 @@ class HomePageController extends StorefrontController
     /**
      * @Route("/", name="frontend.home.page", options={"seo"="false"}, methods={"GET"})
      */
-    public function index(InternalRequest $internal, CheckoutContext $context): ?Response
+    public function index(InternalRequest $internal, SalesChannelContext $context): ?Response
     {
         $data = $this->homePageLoader->load($internal, $context);
 

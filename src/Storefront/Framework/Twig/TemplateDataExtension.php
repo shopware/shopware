@@ -2,8 +2,8 @@
 
 namespace Shopware\Storefront\Framework\Twig;
 
-use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\PlatformRequest;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Twig\Extension\AbstractExtension;
@@ -29,7 +29,7 @@ class TemplateDataExtension extends AbstractExtension implements GlobalsInterfac
             return [];
         }
 
-        /** @var CheckoutContext|null $context */
+        /** @var SalesChannelContext|null $context */
         $context = $request->attributes->get(PlatformRequest::ATTRIBUTE_STOREFRONT_CONTEXT_OBJECT);
 
         if (!$context) {

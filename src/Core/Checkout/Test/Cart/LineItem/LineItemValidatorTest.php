@@ -10,7 +10,7 @@ use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemValidator;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
-use Shopware\Core\Checkout\CheckoutContext;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 class LineItemValidatorTest extends TestCase
 {
@@ -21,7 +21,7 @@ class LineItemValidatorTest extends TestCase
 
         $validator = new LineItemValidator();
         $errors = new ErrorCollection();
-        $validator->validate($cart, $errors, $this->createMock(CheckoutContext::class));
+        $validator->validate($cart, $errors, $this->createMock(SalesChannelContext::class));
 
         static::assertCount(0, $errors);
     }
@@ -36,7 +36,7 @@ class LineItemValidatorTest extends TestCase
 
         $validator = new LineItemValidator();
         $errors = new ErrorCollection();
-        $validator->validate($cart, $errors, $this->createMock(CheckoutContext::class));
+        $validator->validate($cart, $errors, $this->createMock(SalesChannelContext::class));
 
         static::assertCount(0, $errors);
     }
@@ -50,7 +50,7 @@ class LineItemValidatorTest extends TestCase
 
         $validator = new LineItemValidator();
         $errors = new ErrorCollection();
-        $validator->validate($cart, $errors, $this->createMock(CheckoutContext::class));
+        $validator->validate($cart, $errors, $this->createMock(SalesChannelContext::class));
 
         static::assertCount(1, $errors);
         static::assertInstanceOf(IncompleteLineItemError::class, $errors->first());
@@ -67,7 +67,7 @@ class LineItemValidatorTest extends TestCase
 
         $validator = new LineItemValidator();
         $errors = new ErrorCollection();
-        $validator->validate($cart, $errors, $this->createMock(CheckoutContext::class));
+        $validator->validate($cart, $errors, $this->createMock(SalesChannelContext::class));
 
         static::assertCount(1, $errors);
         static::assertInstanceOf(IncompleteLineItemError::class, $errors->first());
@@ -83,7 +83,7 @@ class LineItemValidatorTest extends TestCase
 
         $validator = new LineItemValidator();
         $errors = new ErrorCollection();
-        $validator->validate($cart, $errors, $this->createMock(CheckoutContext::class));
+        $validator->validate($cart, $errors, $this->createMock(SalesChannelContext::class));
 
         static::assertCount(1, $errors);
         static::assertInstanceOf(IncompleteLineItemError::class, $errors->first());

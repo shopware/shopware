@@ -22,7 +22,6 @@ use Shopware\Core\Checkout\Cart\Order\Transformer\CustomerTransformer;
 use Shopware\Core\Checkout\Cart\Order\Transformer\DeliveryTransformer;
 use Shopware\Core\Checkout\Cart\Order\Transformer\LineItemTransformer;
 use Shopware\Core\Checkout\Cart\Order\Transformer\TransactionTransformer;
-use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryEntity;
@@ -42,6 +41,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInterface;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\StateMachine\StateMachineRegistry;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
@@ -97,7 +97,7 @@ class OrderConverter
     /**
      * @throws DeliveryWithoutAddressException
      */
-    public function convertToOrder(Cart $cart, CheckoutContext $context, OrderConversionContext $conversionContext): array
+    public function convertToOrder(Cart $cart, SalesChannelContext $context, OrderConversionContext $conversionContext): array
     {
         /** @var Delivery $delivery */
         foreach ($cart->getDeliveries() as $delivery) {
@@ -233,7 +233,7 @@ class OrderConverter
     /**
      * @throws InconsistentCriteriaIdsException
      */
-    public function assembleCheckoutContext(OrderEntity $order, Context $context): CheckoutContext
+    public function assembleCheckoutContext(OrderEntity $order, Context $context): SalesChannelContext
     {
         $customerId = $order->getOrderCustomer()->getCustomerId();
         $customerGroupId = null;

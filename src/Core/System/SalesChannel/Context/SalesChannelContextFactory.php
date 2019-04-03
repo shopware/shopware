@@ -5,7 +5,6 @@ namespace Shopware\Core\System\SalesChannel\Context;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingLocation;
 use Shopware\Core\Checkout\Cart\Tax\TaxDetector;
-use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
@@ -16,6 +15,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Routing\Exception\LanguageNotFoundException;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Core\System\Tax\TaxCollection;
 
@@ -109,7 +109,7 @@ class SalesChannelContextFactory implements SalesChannelContextFactoryInterface
         $this->taxDetector = $taxDetector;
     }
 
-    public function create(string $token, string $salesChannelId, array $options = []): CheckoutContext
+    public function create(string $token, string $salesChannelId, array $options = []): SalesChannelContext
     {
         $context = $this->getContext($salesChannelId, $options);
 
@@ -182,7 +182,7 @@ class SalesChannelContextFactory implements SalesChannelContextFactoryInterface
             true
         );
 
-        $checkoutContext = new CheckoutContext(
+        $checkoutContext = new SalesChannelContext(
             $context,
             $token,
             $salesChannel,

@@ -2,7 +2,7 @@
 
 namespace Shopware\Storefront\Framework\Page;
 
-use Shopware\Core\Checkout\CheckoutContext;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Pagelet\Header\HeaderPagelet;
 
 class PageWithHeader extends GenericPage
@@ -13,11 +13,11 @@ class PageWithHeader extends GenericPage
     protected $header;
 
     /**
-     * @var CheckoutContext
+     * @var SalesChannelContext
      */
     protected $context;
 
-    public function __construct(HeaderPagelet $header, CheckoutContext $context)
+    public function __construct(HeaderPagelet $header, SalesChannelContext $context)
     {
         $this->header = $header;
         parent::__construct($context);

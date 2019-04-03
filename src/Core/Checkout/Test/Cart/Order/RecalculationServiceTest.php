@@ -25,7 +25,6 @@ use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRule;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Cart\Transaction\Struct\TransactionCollection;
-use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressEntity;
 use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Checkout\Order\OrderEntity;
@@ -45,6 +44,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Response;
 
 class RecalculationServiceTest extends TestCase
@@ -53,7 +53,7 @@ class RecalculationServiceTest extends TestCase
         AdminApiTestBehaviour;
 
     /**
-     * @var CheckoutContext
+     * @var \Shopware\Core\System\SalesChannel\SalesChannelContext
      */
     protected $checkoutContext;
 
@@ -412,7 +412,7 @@ class RecalculationServiceTest extends TestCase
         $shippingMethod = $this->addSecondPriceRuleToShippingMethod($priceRuleId, $shippingMethodId);
         $this->checkoutContext->setRuleIds(array_merge($this->checkoutContext->getRuleIds(), [$priceRuleId]));
 
-        $prop = ReflectionHelper::getProperty(CheckoutContext::class, 'shippingMethod');
+        $prop = ReflectionHelper::getProperty(SalesChannelContext::class, 'shippingMethod');
         $prop->setValue($this->checkoutContext, $shippingMethod);
 
         // create order
@@ -443,7 +443,7 @@ class RecalculationServiceTest extends TestCase
         $shippingMethod = $this->addSecondShippingMethodPriceRule($priceRuleId, $shippingMethodId);
         $this->checkoutContext->setRuleIds(array_merge($this->checkoutContext->getRuleIds(), [$priceRuleId]));
 
-        $prop = ReflectionHelper::getProperty(CheckoutContext::class, 'shippingMethod');
+        $prop = ReflectionHelper::getProperty(SalesChannelContext::class, 'shippingMethod');
         $prop->setValue($this->checkoutContext, $shippingMethod);
 
         // create order
@@ -475,7 +475,7 @@ class RecalculationServiceTest extends TestCase
         $shippingMethod = $this->addSecondShippingMethodPriceRule($priceRuleId, $shippingMethodId);
         $this->checkoutContext->setRuleIds(array_merge($this->checkoutContext->getRuleIds(), [$priceRuleId]));
 
-        $prop = ReflectionHelper::getProperty(CheckoutContext::class, 'shippingMethod');
+        $prop = ReflectionHelper::getProperty(SalesChannelContext::class, 'shippingMethod');
         $prop->setValue($this->checkoutContext, $shippingMethod);
 
         // create order
@@ -528,7 +528,7 @@ class RecalculationServiceTest extends TestCase
         $shippingMethod = $this->createTwoConditionsWithDifferentQuantities($priceRuleId, $shippingMethodId, DeliveryCalculator::CALCULATION_BY_PRICE);
         $this->checkoutContext->setRuleIds(array_merge($this->checkoutContext->getRuleIds(), [$priceRuleId]));
 
-        $prop = ReflectionHelper::getProperty(CheckoutContext::class, 'shippingMethod');
+        $prop = ReflectionHelper::getProperty(SalesChannelContext::class, 'shippingMethod');
         $prop->setValue($this->checkoutContext, $shippingMethod);
 
         // create order
@@ -581,7 +581,7 @@ class RecalculationServiceTest extends TestCase
         $shippingMethod = $this->createTwoConditionsWithDifferentQuantities($priceRuleId, $shippingMethodId, DeliveryCalculator::CALCULATION_BY_WEIGHT);
         $this->checkoutContext->setRuleIds(array_merge($this->checkoutContext->getRuleIds(), [$priceRuleId]));
 
-        $prop = ReflectionHelper::getProperty(CheckoutContext::class, 'shippingMethod');
+        $prop = ReflectionHelper::getProperty(SalesChannelContext::class, 'shippingMethod');
         $prop->setValue($this->checkoutContext, $shippingMethod);
 
         // create order

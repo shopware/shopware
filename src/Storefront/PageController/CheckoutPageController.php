@@ -5,12 +5,12 @@ namespace Shopware\Storefront\PageController;
 use Shopware\Core\Checkout\Cart\Exception\CartTokenNotFoundException;
 use Shopware\Core\Checkout\Cart\Exception\OrderNotFoundException;
 use Shopware\Core\Checkout\Cart\Storefront\CartService;
-use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Order\Storefront\OrderService;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\Framework\Routing\InternalRequest;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Framework\Controller\StorefrontController;
 use Shopware\Storefront\Framework\Page\PageLoaderInterface;
 use Shopware\Storefront\Page\Checkout\Cart\CheckoutCartPageLoader;
@@ -84,7 +84,7 @@ class CheckoutPageController extends StorefrontController
      *
      * @throws CartTokenNotFoundException
      */
-    public function cart(InternalRequest $request, CheckoutContext $context): Response
+    public function cart(InternalRequest $request, SalesChannelContext $context): Response
     {
         $page = $this->cartPageLoader->load($request, $context);
 
@@ -96,7 +96,7 @@ class CheckoutPageController extends StorefrontController
      *
      * @throws CartTokenNotFoundException
      */
-    public function confirm(InternalRequest $request, CheckoutContext $context): Response
+    public function confirm(InternalRequest $request, SalesChannelContext $context): Response
     {
         if (!$context->getCustomer()) {
             return $this->redirectToRoute('frontend.checkout.register.page');
@@ -118,7 +118,7 @@ class CheckoutPageController extends StorefrontController
      * @throws InvalidParameterException
      * @throws MissingRequestParameterException
      */
-    public function finish(InternalRequest $request, CheckoutContext $context): Response
+    public function finish(InternalRequest $request, SalesChannelContext $context): Response
     {
         if (!$context->getCustomer()) {
             return $this->redirectToRoute('frontend.checkout.register.page');
@@ -132,7 +132,7 @@ class CheckoutPageController extends StorefrontController
     /**
      * @Route("/checkout/finish", name="frontend.checkout.finish.order", options={"seo"="false"}, methods={"POST"})
      */
-    public function finishOrder(RequestDataBag $data, CheckoutContext $context): Response
+    public function finishOrder(RequestDataBag $data, SalesChannelContext $context): Response
     {
         if (!$context->getCustomer()) {
             return $this->redirectToRoute('frontend.checkout.register.page');
@@ -153,7 +153,7 @@ class CheckoutPageController extends StorefrontController
     /**
      * @Route("/checkout/register", name="frontend.checkout.register.page", options={"seo"="false"}, methods={"GET"})
      */
-    public function register(Request $request, InternalRequest $internal, CheckoutContext $context): Response
+    public function register(Request $request, InternalRequest $internal, SalesChannelContext $context): Response
     {
         /** @var string $redirect */
         $redirect = $request->get('redirectTo', $this->generateUrl('frontend.checkout.confirm.page'));

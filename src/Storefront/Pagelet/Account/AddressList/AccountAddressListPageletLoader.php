@@ -3,12 +3,12 @@
 namespace Shopware\Storefront\Pagelet\Account\AddressList;
 
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
-use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Routing\InternalRequest;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Framework\Page\PageLoaderInterface;
 use Shopware\Storefront\Framework\Page\StorefrontSearchResult;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -31,7 +31,7 @@ class AccountAddressListPageletLoader implements PageLoaderInterface
         $this->eventDispatcher = $eventDispatcher;
     }
 
-    public function load(InternalRequest $request, CheckoutContext $context): StorefrontSearchResult
+    public function load(InternalRequest $request, SalesChannelContext $context): StorefrontSearchResult
     {
         $customer = $context->getCustomer();
         if ($customer === null) {

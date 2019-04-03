@@ -6,7 +6,7 @@ use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\PriceCollection;
 use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Checkout\Cart\Tax\PercentageTaxRuleBuilder;
-use Shopware\Core\Checkout\CheckoutContext;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 class PercentagePriceCalculator
 {
@@ -40,7 +40,7 @@ class PercentagePriceCalculator
      *
      * @param float $percentage 10.00 for 10%, -10.0 for -10%
      */
-    public function calculate(float $percentage, PriceCollection $prices, CheckoutContext $context): CalculatedPrice
+    public function calculate(float $percentage, PriceCollection $prices, SalesChannelContext $context): CalculatedPrice
     {
         $price = $prices->sum();
 

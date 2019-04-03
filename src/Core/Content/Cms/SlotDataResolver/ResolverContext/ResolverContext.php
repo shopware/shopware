@@ -2,21 +2,21 @@
 
 namespace Shopware\Core\Content\Cms\SlotDataResolver\ResolverContext;
 
-use Shopware\Core\Checkout\CheckoutContext;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 class ResolverContext
 {
     /**
-     * @var CheckoutContext
+     * @var SalesChannelContext
      */
     protected $context;
 
-    public function __construct(CheckoutContext $context)
+    public function __construct(SalesChannelContext $context)
     {
         $this->context = $context;
     }
 
-    public function getCheckoutContext(): CheckoutContext
+    public function getCheckoutContext(): SalesChannelContext
     {
         return $this->context;
     }

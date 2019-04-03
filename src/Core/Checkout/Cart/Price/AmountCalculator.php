@@ -8,7 +8,7 @@ use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Cart\Tax\TaxAmountCalculatorInterface;
 use Shopware\Core\Checkout\Cart\Tax\TaxDetector;
-use Shopware\Core\Checkout\CheckoutContext;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 class AmountCalculator
 {
@@ -37,7 +37,7 @@ class AmountCalculator
         $this->taxAmountCalculator = $taxAmountCalculator;
     }
 
-    public function calculate(PriceCollection $prices, PriceCollection $shippingCosts, CheckoutContext $context): CartPrice
+    public function calculate(PriceCollection $prices, PriceCollection $shippingCosts, SalesChannelContext $context): CartPrice
     {
         if ($this->taxDetector->isNetDelivery($context)) {
             return $this->calculateNetDeliveryAmount($prices, $shippingCosts);
@@ -75,7 +75,7 @@ class AmountCalculator
      * `CalculatedPrice::price` contains the summed gross prices
      * Calculated taxes are based on the gross prices
      */
-    private function calculateGrossAmount(PriceCollection $prices, PriceCollection $shippingCosts, CheckoutContext $context): CartPrice
+    private function calculateGrossAmount(PriceCollection $prices, PriceCollection $shippingCosts, SalesChannelContext $context): CartPrice
     {
         $allPrices = $prices->merge($shippingCosts);
 
@@ -104,7 +104,7 @@ class AmountCalculator
      * `CalculatedPrice::price` contains the summed net prices plus amount of calculated taxes
      * Calculated taxes are based on the net prices
      */
-    private function calculateNetAmount(PriceCollection $prices, PriceCollection $shippingCosts, CheckoutContext $context): CartPrice
+    private function calculateNetAmount(PriceCollection $prices, PriceCollection $shippingCosts, SalesChannelContext $context): CartPrice
     {
         $all = $prices->merge($shippingCosts);
 

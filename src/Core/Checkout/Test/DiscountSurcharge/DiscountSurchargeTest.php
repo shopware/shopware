@@ -10,7 +10,6 @@ use Shopware\Core\Checkout\Cart\Enrichment;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Processor;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTax;
-use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\DiscountSurcharge\Cart\DiscountSurchargeCollector;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -21,6 +20,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 class DiscountSurchargeTest extends TestCase
 {
@@ -43,7 +43,7 @@ class DiscountSurchargeTest extends TestCase
     public static $productRepository;
 
     /**
-     * @var CheckoutContext
+     * @var SalesChannelContext
      */
     public static $context;
 

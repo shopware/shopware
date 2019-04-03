@@ -4,7 +4,6 @@ namespace Shopware\Core\Checkout\Cart\Storefront;
 
 use Shopware\Core\Checkout\Cart\Exception\CartTokenNotFoundException;
 use Shopware\Core\Checkout\Cart\Exception\OrderNotFoundException;
-use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Customer\Storefront\AccountRegistrationService;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Payment\Exception\AsyncPaymentProcessException;
@@ -20,6 +19,7 @@ use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactoryInterface;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -88,7 +88,7 @@ class StorefrontCheckoutController extends AbstractController
      * @throws OrderNotFoundException
      * @throws CartTokenNotFoundException
      */
-    public function createOrder(Request $request, CheckoutContext $context): JsonResponse
+    public function createOrder(Request $request, SalesChannelContext $context): JsonResponse
     {
         $token = $request->request->getAlnum('token', $context->getToken());
         $cart = $this->cartService->getCart($token, $context);
@@ -107,7 +107,7 @@ class StorefrontCheckoutController extends AbstractController
      * @throws OrderNotFoundException
      * @throws CartTokenNotFoundException
      */
-    public function createGuestOrder(Request $request, RequestDataBag $data, CheckoutContext $context): JsonResponse
+    public function createGuestOrder(Request $request, RequestDataBag $data, SalesChannelContext $context): JsonResponse
     {
         $token = $request->request->getAlnum('token', $context->getToken());
         $request->request->remove('token');
@@ -156,7 +156,7 @@ class StorefrontCheckoutController extends AbstractController
      * @throws SyncPaymentProcessException
      * @throws UnknownPaymentMethodException
      */
-    public function payOrder(string $orderId, Request $request, CheckoutContext $context): Response
+    public function payOrder(string $orderId, Request $request, SalesChannelContext $context): Response
     {
         $finishUrl = $request->request->get('finishUrl');
         $response = $this->paymentService->handlePaymentByOrder($orderId, $context, $finishUrl);
@@ -171,7 +171,7 @@ class StorefrontCheckoutController extends AbstractController
     /**
      * @throws OrderNotFoundException
      */
-    private function getOrderById(string $orderId, CheckoutContext $context): OrderEntity
+    private function getOrderById(string $orderId, SalesChannelContext $context): OrderEntity
     {
         $criteria = new Criteria([$orderId]);
         $order = $this->orderRepository->search($criteria, $context->getContext())->get($orderId);
@@ -183,7 +183,7 @@ class StorefrontCheckoutController extends AbstractController
         return $order;
     }
 
-    private function createCheckoutContext(string $customerId, CheckoutContext $context): CheckoutContext
+    private function createCheckoutContext(string $customerId, SalesChannelContext $context): SalesChannelContext
     {
         $checkoutContext = $this->checkoutContextFactory->create(
             $context->getToken(),

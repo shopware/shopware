@@ -2,10 +2,10 @@
 
 namespace Shopware\Storefront\Page\Account\Address;
 
-use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Customer\Storefront\AccountService;
 use Shopware\Core\Checkout\Customer\Storefront\AddressService;
 use Shopware\Core\Framework\Routing\InternalRequest;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Framework\Page\PageLoaderInterface;
 use Shopware\Storefront\Framework\Page\PageWithHeaderLoader;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -44,7 +44,7 @@ class AccountAddressPageLoader implements PageLoaderInterface
         $this->accountService = $accountService;
     }
 
-    public function load(InternalRequest $request, CheckoutContext $context): AccountAddressPage
+    public function load(InternalRequest $request, SalesChannelContext $context): AccountAddressPage
     {
         $page = $this->pageWithHeaderLoader->load($request, $context);
 

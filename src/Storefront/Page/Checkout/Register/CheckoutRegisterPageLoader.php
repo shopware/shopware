@@ -2,10 +2,10 @@
 
 namespace Shopware\Storefront\Page\Checkout\Register;
 
-use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Customer\Storefront\AccountService;
 use Shopware\Core\Checkout\Customer\Storefront\AddressService;
 use Shopware\Core\Framework\Routing\InternalRequest;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Framework\Page\PageLoaderInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
@@ -41,7 +41,7 @@ class CheckoutRegisterPageLoader implements PageLoaderInterface
         $this->addressService = $addressService;
     }
 
-    public function load(InternalRequest $request, CheckoutContext $context): CheckoutRegisterPage
+    public function load(InternalRequest $request, SalesChannelContext $context): CheckoutRegisterPage
     {
         $page = $this->pageWithHeaderLoader->load($request, $context);
 

@@ -3,7 +3,6 @@
 namespace Shopware\Core\Checkout\Customer\Storefront;
 
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
-use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\CustomerEvents;
@@ -27,6 +26,7 @@ use Shopware\Core\Framework\Validation\DataBag\DataBag;
 use Shopware\Core\Framework\Validation\DataValidationDefinition;
 use Shopware\Core\Framework\Validation\DataValidator;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\Salutation\SalutationCollection;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
@@ -91,7 +91,7 @@ class AccountService
      * @throws CustomerNotFoundException
      * @throws BadCredentialsException
      */
-    public function getCustomerByLogin(string $email, string $password, CheckoutContext $context): CustomerEntity
+    public function getCustomerByLogin(string $email, string $password, SalesChannelContext $context): CustomerEntity
     {
         $customer = $this->getCustomerByEmail($email, $context);
 
@@ -105,7 +105,7 @@ class AccountService
     /**
      * @throws CustomerNotFoundException
      */
-    public function getCustomerByEmail(string $email, CheckoutContext $context, bool $includeGuest = false): CustomerEntity
+    public function getCustomerByEmail(string $email, SalesChannelContext $context, bool $includeGuest = false): CustomerEntity
     {
         $customers = $this->getCustomersByEmail($email, $context, $includeGuest);
 
@@ -119,7 +119,7 @@ class AccountService
         return $customer;
     }
 
-    public function getCustomersByEmail(string $email, CheckoutContext $context, bool $includeGuests = true): EntitySearchResult
+    public function getCustomersByEmail(string $email, SalesChannelContext $context, bool $includeGuests = true): EntitySearchResult
     {
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('customer.email', $email));
@@ -135,14 +135,14 @@ class AccountService
     /**
      * @throws CustomerNotLoggedInException
      */
-    public function getCustomerByContext(CheckoutContext $context): CustomerEntity
+    public function getCustomerByContext(SalesChannelContext $context): CustomerEntity
     {
         $this->validateCustomer($context);
 
         return $context->getCustomer();
     }
 
-    public function saveProfile(DataBag $data, CheckoutContext $context): void
+    public function saveProfile(DataBag $data, SalesChannelContext $context): void
     {
         $validation = $this->getUpdateValidationDefinition($context->getContext());
         $this->validator->validate($data->all(), $validation);
@@ -162,7 +162,7 @@ class AccountService
         $this->customerRepository->update([$customer], $context->getContext());
     }
 
-    public function getSalutationList(CheckoutContext $context): SalutationCollection
+    public function getSalutationList(SalesChannelContext $context): SalutationCollection
     {
         $criteria = new Criteria([]);
         $criteria->addSorting(new FieldSorting('salutationKey', 'DESC'));
@@ -174,7 +174,7 @@ class AccountService
         return $salutations;
     }
 
-    public function savePassword(DataBag $data, CheckoutContext $context): void
+    public function savePassword(DataBag $data, SalesChannelContext $context): void
     {
         $this->validateCustomer($context);
 
@@ -191,7 +191,7 @@ class AccountService
         $this->customerRepository->update([$customerData], $context->getContext());
     }
 
-    public function saveEmail(DataBag $data, CheckoutContext $context): void
+    public function saveEmail(DataBag $data, SalesChannelContext $context): void
     {
         $this->validateCustomer($context);
 
@@ -213,7 +213,7 @@ class AccountService
      * @throws InvalidUuidException
      * @throws AddressNotFoundException
      */
-    public function setDefaultBillingAddress(string $addressId, CheckoutContext $context): void
+    public function setDefaultBillingAddress(string $addressId, SalesChannelContext $context): void
     {
         $this->validateCustomer($context);
         $this->validateAddressId($addressId, $context);
@@ -230,7 +230,7 @@ class AccountService
      * @throws InvalidUuidException
      * @throws AddressNotFoundException
      */
-    public function setDefaultShippingAddress(string $addressId, CheckoutContext $context): void
+    public function setDefaultShippingAddress(string $addressId, SalesChannelContext $context): void
     {
         $this->validateCustomer($context);
         $this->validateAddressId($addressId, $context);
@@ -246,7 +246,7 @@ class AccountService
      * @throws BadCredentialsException
      * @throws UnauthorizedHttpException
      */
-    public function login(string $email, CheckoutContext $context): string
+    public function login(string $email, SalesChannelContext $context): string
     {
         if (empty($email)) {
             throw new BadCredentialsException();
@@ -277,7 +277,7 @@ class AccountService
      * @throws BadCredentialsException
      * @throws UnauthorizedHttpException
      */
-    public function loginWithPassword(DataBag $data, CheckoutContext $context): string
+    public function loginWithPassword(DataBag $data, SalesChannelContext $context): string
     {
         if (empty($data->get('username')) || empty($data->get('password'))) {
             throw new BadCredentialsException();
@@ -315,7 +315,7 @@ class AccountService
         return $context->getToken();
     }
 
-    public function logout(CheckoutContext $context): void
+    public function logout(SalesChannelContext $context): void
     {
         $this->contextPersister->save(
             $context->getToken(),
@@ -333,7 +333,7 @@ class AccountService
     /**
      * @throws CustomerNotLoggedInException
      */
-    private function validateCustomer(CheckoutContext $context): void
+    private function validateCustomer(SalesChannelContext $context): void
     {
         if (!$context->getCustomer()) {
             throw new CustomerNotLoggedInException();
@@ -344,7 +344,7 @@ class AccountService
      * @throws AddressNotFoundException
      * @throws InvalidUuidException
      */
-    private function validateAddressId(string $addressId, CheckoutContext $context): CustomerAddressEntity
+    private function validateAddressId(string $addressId, SalesChannelContext $context): CustomerAddressEntity
     {
         if (!Uuid::isValid($addressId)) {
             throw new InvalidUuidException($addressId);

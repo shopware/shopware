@@ -2,10 +2,10 @@
 
 namespace Shopware\Storefront\Pagelet\Checkout\Info;
 
-use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\NestedEvent;
 use Shopware\Core\Framework\Routing\InternalRequest;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 class CheckoutInfoPageletLoadedEvent extends NestedEvent
 {
@@ -17,7 +17,7 @@ class CheckoutInfoPageletLoadedEvent extends NestedEvent
     protected $pagelet;
 
     /**
-     * @var CheckoutContext
+     * @var SalesChannelContext
      */
     protected $context;
 
@@ -28,7 +28,7 @@ class CheckoutInfoPageletLoadedEvent extends NestedEvent
 
     public function __construct(
         CheckoutInfoPagelet $pagelet,
-        CheckoutContext $context,
+        SalesChannelContext $context,
         InternalRequest $request
     ) {
         $this->pagelet = $pagelet;
@@ -46,7 +46,7 @@ class CheckoutInfoPageletLoadedEvent extends NestedEvent
         return $this->context->getContext();
     }
 
-    public function getCheckoutContext(): CheckoutContext
+    public function getCheckoutContext(): SalesChannelContext
     {
         return $this->context;
     }

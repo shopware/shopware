@@ -3,9 +3,9 @@
 namespace Shopware\Core\Checkout\Cart;
 
 use Shopware\Core\Checkout\Cart\Error\ErrorCollection;
-use Shopware\Core\Checkout\CheckoutContext;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 interface CartValidatorInterface
 {
-    public function validate(Cart $cart, ErrorCollection $errorCollection, CheckoutContext $checkoutContext): void;
+    public function validate(Cart $cart, ErrorCollection $errorCollection, SalesChannelContext $checkoutContext): void;
 }

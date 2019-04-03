@@ -2,10 +2,10 @@
 
 namespace Shopware\Storefront\Pagelet\Header;
 
-use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\NestedEvent;
 use Shopware\Core\Framework\Routing\InternalRequest;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 class HeaderPageletLoadedEvent extends NestedEvent
 {
@@ -17,7 +17,7 @@ class HeaderPageletLoadedEvent extends NestedEvent
     protected $pagelet;
 
     /**
-     * @var CheckoutContext
+     * @var SalesChannelContext
      */
     protected $context;
 
@@ -26,7 +26,7 @@ class HeaderPageletLoadedEvent extends NestedEvent
      */
     protected $request;
 
-    public function __construct(HeaderPagelet $page, CheckoutContext $context, InternalRequest $request)
+    public function __construct(HeaderPagelet $page, SalesChannelContext $context, InternalRequest $request)
     {
         $this->pagelet = $page;
         $this->context = $context;
@@ -43,7 +43,7 @@ class HeaderPageletLoadedEvent extends NestedEvent
         return $this->context->getContext();
     }
 
-    public function getCheckoutContext(): CheckoutContext
+    public function getCheckoutContext(): SalesChannelContext
     {
         return $this->context;
     }

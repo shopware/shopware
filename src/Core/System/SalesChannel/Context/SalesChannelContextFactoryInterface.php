@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\System\SalesChannel\Context;
 
-use Shopware\Core\Checkout\CheckoutContext;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 interface SalesChannelContextFactoryInterface
 {
@@ -10,5 +10,5 @@ interface SalesChannelContextFactoryInterface
         string $token,
         string $salesChannelId,
         array $options = []
-    ): CheckoutContext;
+    ): SalesChannelContext;
 }

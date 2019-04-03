@@ -9,7 +9,7 @@ use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Cart\Tax\TaxDetector;
-use Shopware\Core\Checkout\CheckoutContext;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 class QuantityPriceCalculator
 {
@@ -38,7 +38,7 @@ class QuantityPriceCalculator
         $this->taxDetector = $taxDetector;
     }
 
-    public function calculateCollection(PriceDefinitionCollection $collection, CheckoutContext $context): PriceCollection
+    public function calculateCollection(PriceDefinitionCollection $collection, SalesChannelContext $context): PriceCollection
     {
         $prices = $collection->map(
             function (QuantityPriceDefinition $definition) use ($context) {
@@ -49,7 +49,7 @@ class QuantityPriceCalculator
         return new PriceCollection($prices);
     }
 
-    public function calculate(QuantityPriceDefinition $definition, CheckoutContext $context): CalculatedPrice
+    public function calculate(QuantityPriceDefinition $definition, SalesChannelContext $context): CalculatedPrice
     {
         if ($this->taxDetector->useGross($context)) {
             $price = $this->grossPriceCalculator->calculate($definition);

@@ -2,8 +2,8 @@
 
 namespace Shopware\Storefront\PageletController;
 
-use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Framework\Routing\InternalRequest;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Framework\Controller\StorefrontController;
 use Shopware\Storefront\Framework\Page\PageLoaderInterface;
 use Shopware\Storefront\Pagelet\Menu\Offcanvas\MenuOffcanvasPageletLoader;
@@ -25,7 +25,7 @@ class MenuPageletController extends StorefrontController
     /**
      * @Route("/widgets/menu/offcanvas", name="widgets.menu.offcanvas", methods={"GET"})
      */
-    public function menuOffcanvasAction(InternalRequest $request, CheckoutContext $context): Response
+    public function menuOffcanvasAction(InternalRequest $request, SalesChannelContext $context): Response
     {
         $page = $this->offcanvasLoader->load($request, $context);
 

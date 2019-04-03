@@ -2,7 +2,6 @@
 
 namespace Shopware\Storefront\Pagelet\Header;
 
-use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Content\Navigation\Service\NavigationTreeLoader;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
@@ -12,6 +11,7 @@ use Shopware\Core\Framework\Language\LanguageCollection;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\Framework\Routing\InternalRequest;
 use Shopware\Core\System\Currency\CurrencyCollection;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Framework\Page\PageLoaderInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
@@ -49,7 +49,7 @@ class HeaderPageletLoader implements PageLoaderInterface
         $this->eventDispatcher = $eventDispatcher;
     }
 
-    public function load(InternalRequest $request, CheckoutContext $context): HeaderPagelet
+    public function load(InternalRequest $request, SalesChannelContext $context): HeaderPagelet
     {
         $navigationId = $request->optionalRouting(
             'navigationId',
@@ -84,7 +84,7 @@ class HeaderPageletLoader implements PageLoaderInterface
         return $page;
     }
 
-    private function loadLanguages(CheckoutContext $context): EntityCollection
+    private function loadLanguages(SalesChannelContext $context): EntityCollection
     {
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('language.salesChannels.id', $context->getSalesChannel()->getId()));
@@ -92,7 +92,7 @@ class HeaderPageletLoader implements PageLoaderInterface
         return $this->languageRepository->search($criteria, $context->getContext())->getEntities();
     }
 
-    private function loadCurrencies(CheckoutContext $context): EntityCollection
+    private function loadCurrencies(SalesChannelContext $context): EntityCollection
     {
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('currency.salesChannels.id', $context->getSalesChannel()->getId()));

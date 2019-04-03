@@ -3,7 +3,6 @@
 namespace Shopware\Core\System\SalesChannel\Storefront;
 
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
-use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
 use Shopware\Core\Checkout\Customer\Exception\AddressNotFoundException;
 use Shopware\Core\Checkout\Payment\Exception\UnknownPaymentMethodException;
@@ -13,6 +12,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -66,7 +66,7 @@ class StorefrontSalesChannelContextController extends AbstractController
      * @throws AddressNotFoundException
      * @throws CustomerNotLoggedInException
      */
-    public function update(Request $request, CheckoutContext $context): JsonResponse
+    public function update(Request $request, SalesChannelContext $context): JsonResponse
     {
         $payload = $request->request->all();
 
@@ -91,7 +91,7 @@ class StorefrontSalesChannelContextController extends AbstractController
         ]);
     }
 
-    private function validatePaymentMethodId(string $paymentMethodId, CheckoutContext $context): string
+    private function validatePaymentMethodId(string $paymentMethodId, SalesChannelContext $context): string
     {
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('payment_method.id', $paymentMethodId));
@@ -104,7 +104,7 @@ class StorefrontSalesChannelContextController extends AbstractController
         return $paymentMethodId;
     }
 
-    private function validateShippingMethodId(string $shippingMethodId, CheckoutContext $context): string
+    private function validateShippingMethodId(string $shippingMethodId, SalesChannelContext $context): string
     {
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('shipping_method.id', $shippingMethodId));
@@ -121,7 +121,7 @@ class StorefrontSalesChannelContextController extends AbstractController
      * @throws AddressNotFoundException
      * @throws CustomerNotLoggedInException
      */
-    private function validateAddressId(string $addressId, CheckoutContext $context): string
+    private function validateAddressId(string $addressId, SalesChannelContext $context): string
     {
         if (!$context->getCustomer()) {
             throw new CustomerNotLoggedInException();

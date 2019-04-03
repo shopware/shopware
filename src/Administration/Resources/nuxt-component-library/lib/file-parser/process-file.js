@@ -12,7 +12,6 @@ const {
     extractBlockComment
 } = require('./source-components');
 
-const lessVariableParser = require('./less-components');
 const sassVariableParser = require('./sass-components');
 const twigParser = require('./twig-components');
 
@@ -46,7 +45,6 @@ module.exports = (file, globalVariables) => {
     const mixins = extractMixins(definition);
     const inject = extractInject(definition);
 
-    const lessVariables = lessVariableParser(file, imports, globalVariables);
     const sassVariables = sassVariableParser(file, imports, globalVariables);
     const twigInformation = twigParser(file, imports);
 
@@ -58,7 +56,6 @@ module.exports = (file, globalVariables) => {
         watcher,
         mixins,
         inject,
-        lessVariables,
         sassVariables,
         hooks,
         meta: comment,

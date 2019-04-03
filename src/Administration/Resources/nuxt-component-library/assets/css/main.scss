@@ -1,11 +1,11 @@
-@import './fonts.less';
-@import './components/sidebar.less';
-@import './components/headlines.less';
-@import './components/tip.less';
-@import './components/table.less';
-@import './components/live-demo.less';
+@import './fonts.scss';
+@import './components/sidebar.scss';
+@import './components/headlines.scss';
+@import './components/tip.scss';
+@import './components/table.scss';
 
-body, html {
+body,
+html {
     overflow: auto;
 }
 
@@ -30,23 +30,18 @@ body {
 
 p {
     font-size: 15px;
-    font-size: 0.9375rem;
-    padding: 8px 0px 8px 0px;
-    padding: 0.5rem 0rem 0.5rem 0rem;
+    padding: 8px 0 8px 0;
     line-height: 1.72;
 
     &.is--xl {
         font-size: 16px;
-        font-size: 1rem;
         line-height: 2;
     }
 }
 
 pre {
     border-radius: 4px;
-    border-radius: 0.25rem;
     padding: 40px;
-    padding: 2.5rem;
     background-color: #f9f9f9;
     width: 100%;
     font-family: monospace, monospace;

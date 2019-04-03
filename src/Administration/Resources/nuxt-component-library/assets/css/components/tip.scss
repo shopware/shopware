@@ -25,40 +25,48 @@
     -moz-user-select: none;
     -ms-user-select: none;
     user-select: none;
-  }
-  .tip.is--right {
-    float: none;
-    margin-right: 0;
-    margin-left: calc(var(--label-margin ) * 1px);
-  }
-  .tip.is--left {
-    float: none;
-  }
-  .tip.is--inline {
-    margin-top: 0;
-    margin-bottom: 0;
-  }
-  .tip.is--info,
-  .tip.is--primary {
-    --label-bg: #189eff;
-  }
-  .tip.is--success {
-    --label-bg: #37d046;
-  }
-  .tip.is--flag {
-    --label-bg: #f4f7fa;
-    color: #607182;
-  }
-  .tip.is--flag.on--dark {
-    --label-bg: rgba(244, 247, 250, 0.08);
-    color: #fff;
-  }
-  .tip.is--white {
-    --label-bg: #fff;
-    color: #142432;
-  }
 
-  h1 > .tip,
+    &.is--right {
+       float: none;
+       margin-right: 0;
+       margin-left: calc(var(--label-margin ) * 1px);
+    }
+
+    &.is--left {
+       float: none;
+    }
+
+    &.is--inline {
+       margin-top: 0;
+       margin-bottom: 0;
+    }
+
+    &.is--info,
+    &.is--primary {
+        --label-bg: #189eff;
+    }
+
+    &.is--success {
+        --label-bg: #37d046;
+    }
+
+    &.is--flag {
+        --label-bg: #f4f7fa;
+        color: #607182;
+    }
+
+    &.is--flag.on--dark {
+        --label-bg: rgba(244, 247, 250, 0.08);
+        color: #fff;
+    }
+
+    &.is--white {
+        --label-bg: #fff;
+        color: #142432;
+    }
+}
+
+h1 > .tip,
 .h1 > .tip,
 h2 > .tip,
 .h2 > .tip,
@@ -70,41 +78,47 @@ h5 > .tip,
 .h5 > .tip,
 h6 > .tip,
 .h6 > .tip {
-  display: inline;
-  margin-top: 0;
-  margin-bottom: 0;
+    display: inline;
+    margin-top: 0;
+    margin-bottom: 0;
 }
+
 h1 > .tip,
 .h1 > .tip {
-  --label-margin: 16;
-  top: -12px;
-  font-size: 18px;
+    --label-margin: 16;
+    top: -12px;
+    font-size: 18px;
 }
+
 h2 > .tip,
 .h2 > .tip {
   --label-margin: 14;
   top: -4px;
   font-size: 16px;
 }
+
 h3 > .tip,
 .h3 > .tip {
-  --label-margin: 12;
-  top: -4px;
-  font-size: 14px;
+    --label-margin: 12;
+    top: -4px;
+    font-size: 14px;
 }
+
 h4 > .tip,
 .h4 > .tip {
-  top: -3px;
-  font-size: 12px;
+    top: -3px;
+    font-size: 12px;
 }
+
 h5 > .tip,
 .h5 > .tip {
-  top: -2px;
-  font-size: 12px;
+    top: -2px;
+    font-size: 12px;
 }
+
 h6 > .tip,
 .h6 > .tip {
-  --label-margin: 8;
-  top: -2px;
-  font-size: 11px;
+    --label-margin: 8;
+    top: -2px;
+    font-size: 11px;
 }

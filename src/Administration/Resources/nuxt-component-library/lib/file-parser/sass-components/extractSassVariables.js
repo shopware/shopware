@@ -12,14 +12,14 @@ function extractImportFile(importList) {
         return null;
     }
 
-    const definedLessImport = importList.reduce((accumulator, item) => {
+    const definedSassImport = importList.reduce((accumulator, item) => {
         if (item.indexOf('.scss') !== -1) {
             accumulator = item;
         }
         return accumulator;
     }, null);
 
-    return definedLessImport;
+    return definedSassImport;
 }
 
 function getFileContent(fileName) {

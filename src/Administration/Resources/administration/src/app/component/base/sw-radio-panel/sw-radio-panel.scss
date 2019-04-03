@@ -1,8 +1,8 @@
-@import "~less/variables";
-@import "~less/mixins";
+@import "~scss/variables";
+@import "~scss/mixins";
 
 .sw-radio-panel {
-    background: @color-white;
+    background: $color-white;
     display: block;
     position: relative;
     max-width: 300px;
@@ -10,7 +10,7 @@
     .sw-radio-panel__image {
         width: 80px;
         height: 80px;
-        background-color: lighten(@color-shopware-blue, 40%);
+        background-color: lighten($color-shopware-blue, 40%);
         color: #afdbf6;
         border-radius: 50%;
         margin: 0 auto 15px auto;
@@ -24,11 +24,11 @@
         font-size: 18px;
         font-weight: normal;
         margin: 0 0 12px 0;
-        color: @color-kashmir;
+        color: $color-kashmir;
         transition: all 0.2s ease-in-out;
 
         &.is--truncate {
-            .truncate();
+            @include truncate();
             display: block;
         }
     }
@@ -38,7 +38,7 @@
         font-size: 14px;
 
         &.is--truncate {
-            .truncate();
+            @include truncate();
             display: block;
         }
     }
@@ -47,8 +47,8 @@
         display: block;
         padding: 30px;
         height: 100%;
-        border: 1px solid @color-steam-cloud;
-        border-radius: @border-radius-default;
+        border: 1px solid $color-steam-cloud;
+        border-radius: $border-radius-default;
         text-align: center;
         cursor: pointer;
         transition: all 0.2s ease-in-out;
@@ -60,8 +60,8 @@
         right: 15px;
         width: 15px;
         height: 15px;
-        background-color: @color-light-gray;
-        border: 2px solid @color-steam-cloud;
+        background-color: $color-light-gray;
+        border: 2px solid $color-steam-cloud;
         border-radius: 50%;
         transition: all 0.2s ease-in-out;
     }
@@ -73,26 +73,26 @@
         visibility: hidden;
 
         &:checked + .sw-radio-panel__body {
-            border-color: @color-shopware-blue;
+            border-color: $color-shopware-blue;
 
             .sw-radio-panel__title {
-                color: @color-shopware-blue;
+                color: $color-shopware-blue;
             }
 
             .sw-radio-panel__radio {
-                border: 5px solid @color-shopware-blue;
-                background-color: @color-white;
+                border: 5px solid $color-shopware-blue;
+                background-color: $color-white;
             }
         }
     }
 
     &:hover {
         .sw-radio-panel__title {
-            color: @color-shopware-blue;
+            color: $color-shopware-blue;
         }
 
         .sw-radio-panel__body {
-            border-color: @color-shopware-blue;
+            border-color: $color-shopware-blue;
         }
     }
 }

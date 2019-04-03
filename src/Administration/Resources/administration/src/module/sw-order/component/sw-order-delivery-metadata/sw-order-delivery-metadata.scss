@@ -1,9 +1,11 @@
 .sw-order-delivery-metadata {
     .sw-address {
-    margin: 0;
+        margin: 0;
     }
+
     .sw-description-list {
-        dt,dd {
+        dt,
+        dd {
             border-color: transparent;
         }
 
@@ -15,5 +17,4 @@
             padding: 0;
         }
     }
-
 }

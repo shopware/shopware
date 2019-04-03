@@ -1,15 +1,12 @@
-@import "~less/variables";
-@import "~less/mixins";
-
-
 .sw-order-saveable-field{
-
-    .sw-container{
+    .sw-container {
         align-items: center;
     }
+
     .sw-field{
         margin-bottom: 0;
-        input{
+
+        input {
             padding: 1px 16px;
         }
     }

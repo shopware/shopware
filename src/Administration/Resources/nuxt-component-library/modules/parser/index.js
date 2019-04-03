@@ -16,14 +16,14 @@ module.exports = async function parserPlugin(moduleOptions) {
         config.components = 'src/components/**/*.js';
     }
 
-    if (!config.lessVariables) {
-        config.lessVariables = '';
+    if (!config.sassVariables) {
+        config.sassVariables = '';
     }
 
     const filesInfo = await fileParser(config);
 
     const options = Object.assign({},{ filesInfo: filesInfo }, moduleOptions);
-  
+
     // Register plugin
     this.addPlugin({
         src: path.resolve(__dirname, 'plugin.js'),

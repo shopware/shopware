@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Checkout\Test\Context\Storefront;
+namespace Shopware\Core\System\Test\SalesChannel\Storefront;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
@@ -14,7 +14,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\StorefrontApiTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\HttpFoundation\Response;
 
-class StorefrontCheckoutContextControllerTest extends TestCase
+class StorefrontSalesChannelContextControllerTest extends TestCase
 {
     use StorefrontApiTestBehaviour,
         IntegrationTestBehaviour;

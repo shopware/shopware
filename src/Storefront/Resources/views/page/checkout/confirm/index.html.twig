@@ -1,6 +1,15 @@
 {% sw_extends '@Storefront/page/checkout/_page.html.twig' %}
 
 {% block page_checkout_container %}
+    {% block page_checkout_confirm_errors %}
+        {% if formViolations.getViolations() %}
+            {% sw_include '@Storefront/base/_utilities/alert.html.twig' with {
+                type:"danger",
+                list: formViolations.getViolations()
+            } %}
+        {% endif %}
+    {% endblock %}
+
     {% block page_checkout_confirm_agb %}
         <div class="card confirm-terms">
             <div class="card-body">
@@ -87,8 +96,7 @@
 
 {% block page_checkout_sidebar_actions %}
     <form id="confirmOrderForm"
-          action="{{ path('storefront-api.checkout.order.create', {'version': '1'}) }}"
-          data-finish-url="{{ path('frontend.checkout.finish.page') }}"
+          action="{{ path('frontend.checkout.finish.order') }}"
           method="post">
         {% block page_checkout_confirm_form_submit %}
             <button id="confirmFormSubmit"

@@ -19,6 +19,13 @@ class MailActionControllerTest extends TestCase
 
     private const MEDIA_FIXTURE = __DIR__ . '/../../Media/fixtures/Shopware_5_3_Broschuere.pdf';
 
+    public function setUp(): void
+    {
+        parent::setUp();
+
+        static::markTestSkipped('Too slow');
+    }
+
     public function testSendingSimpleTestMail(): void
     {
         $data = $this->getTestData();

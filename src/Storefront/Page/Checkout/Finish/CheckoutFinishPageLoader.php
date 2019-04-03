@@ -12,6 +12,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Routing\InternalRequest;
 use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
 use Shopware\Storefront\Framework\Page\PageLoaderInterface;
+use Shopware\Storefront\Framework\Page\PageWithHeaderLoader;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class CheckoutFinishPageLoader implements PageLoaderInterface
@@ -25,18 +26,24 @@ class CheckoutFinishPageLoader implements PageLoaderInterface
      * @var EntityRepositoryInterface
      */
     private $orderRepository;
+    /**
+     * @var PageWithHeaderLoader|PageLoaderInterface
+     */
+    private $genericLoader;
 
     public function __construct(
         EventDispatcherInterface $eventDispatcher,
-        EntityRepositoryInterface $orderRepository
+        EntityRepositoryInterface $orderRepository,
+        PageLoaderInterface $genericLoader
     ) {
         $this->eventDispatcher = $eventDispatcher;
         $this->orderRepository = $orderRepository;
+        $this->genericLoader = $genericLoader;
     }
 
     public function load(InternalRequest $request, CheckoutContext $context)
     {
-        $page = new CheckoutFinishPage($context);
+        $page = $this->genericLoader->load($request, $context);
 
         $page = CheckoutFinishPage::createFrom($page);
 

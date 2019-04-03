@@ -1,6 +1,6 @@
 [titleEn]: <>(Data Inheritance)
 
-It is possible to inherit data from a parent row this id called parent/child concept The parent record has all required fields filled in and is a valid entity in itself. A child can now optionally overwrite data which is different to the parent.
+It is possible to inherit data from a parent entity of the same type this id called *parent/child concept*. The parent record has all required fields filled in and is a valid entity in itself. A child can now optionally overwrite data which is different to the parent.
 
 ## Inherit a field
 

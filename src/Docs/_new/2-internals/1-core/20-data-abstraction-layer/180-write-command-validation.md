@@ -14,4 +14,4 @@ Validators must throw a `\Shopware\Core\Framework\Validation\ConstraintViolation
 You can take a look at `\Shopware\Core\System\Language\LanguageValidator`
 as an example.
 
-There are a few things to watch for. `WriteCommand`s use the `storageName` and not the `propertyName`. So its `language_id` instead of `languageId`. Currently you cannot use the repositories or the `EntitySearcher` in the validate functions, until its possible to disable the caching during the validation.
+There are a few things to watch for. `WriteCommand`s use the `storageName` and not the `propertyName`. So it's `language_id` instead of `languageId`. Currently you cannot use the repositories or the `EntitySearcher` in the validate functions, until it's possible to disable the caching during the validation.

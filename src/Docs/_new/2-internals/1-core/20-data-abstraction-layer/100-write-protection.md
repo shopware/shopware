@@ -12,10 +12,10 @@ You need to flag the field in your `EntityDefinition` with `WriteProtected` and 
 
 ### Handler
 
-In your own handler with your custom logic you can now easily add the required permission key to the context. And excute your write operation.
+In your own handler with your custom logic you can now easily add the required permission key to the context and execute your write operation.
 
 ```
 $context->getWriteProtection()->allow('permission_key_example');
 ```
 
-If the defined permissionKey is not set in the contexts' write protection, the DataAbstractionLayer will throw a `InsufficientWritePermissionException`.
+If the defined `permissionKey` is not set in the context's write protection, the DataAbstractionLayer will throw an `InsufficientWritePermissionException`.

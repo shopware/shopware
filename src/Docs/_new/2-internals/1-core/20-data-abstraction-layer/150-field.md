@@ -1,6 +1,6 @@
 [titleEn]: <>(Field)
 
-The data abstraction layer supports fields as it's most atomar extnsion point. Usualy a field represents a single column in the database. You need a custom field for 
+The data abstraction layer supports fields as its most atomar extension point. Usually a field represents a single column in the database. You need a custom field for 
 
 * custom validation tasks
 * custom data representation
@@ -16,4 +16,4 @@ A `FieldSerializer` handles encoding and decoding of values for the DAL to store
 
 # The field class
 
-From a serialitzers point of view a single field is the configuration on wich itz has to act. Usually it contains the name of the field in a Entity class. 
+From a serializers point of view a single field is the configuration on which itz has to act. Usually it contains the name of the field in an entity class. 

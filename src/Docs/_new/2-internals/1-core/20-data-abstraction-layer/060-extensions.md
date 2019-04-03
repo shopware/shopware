@@ -42,7 +42,7 @@ Given this example extends the `ProductDefinition`, the hydrator would run into 
 
 Please note the flag `Extension` in the example above.
 
-Because you don't have access to the entity itself, so every entity comes with a key/value array in the
+Although you don't have access to the entity object itself, every entity comes with a key/value array in the
 `extensions` property. The hydrator knows about the flag and therefore will write the data of this relation into
 the `extensions` property with the key of this field `promotions`.
 

@@ -1,14 +1,14 @@
 [titleEn]: <>(Translation handling)
 
-The Data abstraction layer supports internationalization of entities as a core concept and obeys the general rules of the [Shopware Core](../XXX-Internationalization.md). In order to support this many fields are translatable and many entities have a language relation. There is some special handling present to support this.
+The Data abstraction layer supports internationalization of entities as a core concept and obeys the general rules of the [Shopware Core](../20-internationalization.md). In order to support this, many fields are translatable and many entities have a language relation. There is some special handling present to support this.
 
 ## Context language
 
-The context object contains the currently selected language all reads an writes are performed in relation to it. 
+The context object contains the currently selected language. All reads an writes are performed in relation to it. 
 
 ## Reading translated data
 
-Therefore the read data contains always the translations specified by the contexts' language. Although the DAL supports special handling for translations they are a related entity and can therefore always be read raw as an association.
+The read data contains always the translations specified by the context's language. Although the DAL supports special handling for translations, they are a related entity and therefore can always be read raw as an association.
 
 ## Writing multiple languages at once
 
@@ -72,4 +72,4 @@ $repository->create(
 );
 ```
 
-In this case above, the language in the context will be ignored as it is already specific enough and does not need any further mapping.
+In the case mentioned above, the language in the context will be ignored as it is already specific enough and does not need any further mapping.

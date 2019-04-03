@@ -137,7 +137,7 @@ class DetailPageSeoUrlIndexerTest extends TestCase
         $this->upsertTemplate([
             'id' => $id,
             'salesChannelId' => $salesChannel->getId(),
-            'template' => 'foo/{{ product.name |slugify }}/bar',
+            'template' => 'foo/{{ product.name }}/bar',
         ]);
 
         $this->upsertProduct(['id' => $id, 'name' => 'awesome product']);
@@ -163,7 +163,7 @@ class DetailPageSeoUrlIndexerTest extends TestCase
         $this->upsertTemplate([
             'id' => $id,
             'salesChannelId' => $salesChannel->getId(),
-            'template' => 'foo/{{ product.name |slugify }}/bar',
+            'template' => 'foo/{{ product.name}}/bar',
         ]);
         $this->upsertProduct(['id' => $id, 'name' => 'awesome product']);
         $this->upsertProduct(['id' => $id, 'name' => 'awesome product', 'description' => 'should not matter']);
@@ -195,7 +195,7 @@ class DetailPageSeoUrlIndexerTest extends TestCase
         $this->upsertTemplate([
             'id' => $id,
             'salesChannelId' => $salesChannel->getId(),
-            'template' => 'foo/{{ product.name |slugify }}/bar',
+            'template' => 'foo/{{ product.name }}/bar',
         ]);
         $this->upsertProduct(['id' => $id, 'name' => 'awesome product']);
         $this->upsertProduct(['id' => $id, 'name' => 'awesome product improved']);
@@ -230,14 +230,14 @@ class DetailPageSeoUrlIndexerTest extends TestCase
         $this->upsertTemplate([
             'id' => $id,
             'salesChannelId' => $salesChannel->getId(),
-            'template' => 'foo/{{ product.name |slugify }}/bar',
+            'template' => 'foo/{{ product.name }}/bar',
         ]);
 
         $this->upsertProduct(['id' => $id, 'name' => 'awesome product']);
         $this->upsertTemplate([
             'id' => $id,
             'salesChannelId' => $salesChannel->getId(),
-            'template' => 'bar/{{ product.name |slugify }}/baz',
+            'template' => 'bar/{{ product.name }}/baz',
         ]);
         $this->upsertProduct(['id' => $id, 'name' => 'awesome product improved']);
         $this->upsertProduct(['id' => $id, 'name' => 'awesome product improved']);

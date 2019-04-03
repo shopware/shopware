@@ -1,21 +1,32 @@
-import { Component, State, Entity } from 'src/core/shopware';
+import { Component, State, Mixin } from 'src/core/shopware';
+import utils from 'src/core/service/util.service';
 import LocalStore from 'src/core/data/LocalStore';
 import template from './sw-seo-url-template-card.html.twig';
+import './sw-seo-url-template-card.scss';
 
 Component.register('sw-seo-url-template-card', {
     template,
 
+    inject: ['seoUrlTemplateService'],
+
+    mixins: [Mixin.getByName('notification')],
+
+
     data() {
         return {
-            seoUrls: null,
+            seoUrlTemplates: null,
             isLoading: true,
             seoSettingsComponent: null,
-            entityPropertyStores: {}
+            debouncedPreviews: {},
+            previewLoadingStates: {},
+            errorMessages: {},
+            previews: {},
+            variableStores: {}
         };
     },
 
     computed: {
-        seoUrlStore() {
+        seoUrlTemplateStore() {
             return State.getStore('seo_url_template');
         }
     },
@@ -30,10 +41,38 @@ Component.register('sw-seo-url-template-card', {
 
             this.registerListener();
 
-            this.seoUrlStore.getList({}).then((res) => {
-                this.seoUrls = res.items;
+            this.seoUrlTemplateStore.getList().then((res) => {
+                this.seoUrlTemplates = res.items;
                 this.isLoading = false;
+
+                this.seoUrlTemplates.forEach(urlTemplate => {
+                    this.fetchSeoUrlPreview(urlTemplate);
+                    this.seoUrlTemplateService.getContext(urlTemplate).then(data => {
+                        this.createVariablesStore(urlTemplate.routeName, data);
+                    });
+                });
             });
+        },
+        createVariablesStore(routeName, data) {
+            if (!this.variableStores.hasOwnProperty(routeName)) {
+                const storeOptions = [];
+
+                Object.keys(data).forEach((property) => {
+                    storeOptions.push({ id: property, name: `${property}` });
+                });
+
+                this.variableStores = Object.assign(
+                    {},
+                    this.variableStores,
+                    { [routeName]: new LocalStore(storeOptions) }
+                );
+            }
+        },
+        getVariablesStore(routeName) {
+            if (this.variableStores.hasOwnProperty(routeName)) {
+                return this.variableStores[routeName];
+            }
+            return false;
         },
         findSettingsDetailComponent() {
             this.seoSettingsComponent = this.$parent;
@@ -53,33 +92,78 @@ Component.register('sw-seo-url-template-card', {
             return seoUrl.routeName;
         },
         onSave() {
-            this.seoUrlStore.sync();
-        },
-        getEntityPropertyStore(entityName) {
-            if (!this.entityPropertyStores.hasOwnProperty(entityName)) {
-                const definition = Entity.getDefinition(entityName);
-                const properties = definition.properties;
+            const hasError = Object.keys(this.errorMessages).some((key) => {
+                return this.errorMessages[key] !== '';
+            });
 
-                const storeOptions = [];
-
-                Object.keys(properties).forEach((property) => {
-                    storeOptions.push({ id: property, name: `${property}(${properties[property].type})` });
-                });
-
-                this.entityPropertyStores = Object.assign(
-                    {},
-                    this.entityPropertyStores,
-                    { [entityName]: new LocalStore(storeOptions) }
-                );
+            if (hasError) {
+                this.createSaveErrorNotification();
+                return;
             }
 
-            return this.entityPropertyStores[entityName];
+            this.seoUrlTemplateStore.sync();
+            this.createSaveSuccessNotification();
         },
-        onSelectInput(propertyName, seoUrl) {
-            seoUrl.template = `${seoUrl.template} {{ ${seoUrl.entityName}.${propertyName} }}`;
+        createSaveErrorNotification() {
+            const titleSaveSuccess = this.$tc('sw-seo-url-template-card.general.titleSaveError');
+            const messageSaveSuccess = this.$tc('sw-seo-url-template-card.general.messageSaveError');
 
-            const selectComponent = this.$refs[`select-${seoUrl.entityName}`][0];
+            this.createNotificationError({
+                title: titleSaveSuccess,
+                message: messageSaveSuccess
+            });
+        },
+        createSaveSuccessNotification() {
+            const titleSaveSuccess = this.$tc('sw-seo-url-template-card.general.titleSaveSuccess');
+            const messageSaveSuccess = this.$tc('sw-seo-url-template-card.general.messageSaveSuccess');
+
+            this.createNotificationSuccess({
+                title: titleSaveSuccess,
+                message: messageSaveSuccess
+            });
+        },
+
+        onSelectInput(propertyName, entity) {
+            const templateValue = entity.template ? (`${entity.template}/`) : '';
+            entity.template = `${templateValue}{{ ${propertyName} }}`;
+            this.fetchSeoUrlPreview(entity);
+
+            const selectComponent = this.$refs[`select-${entity.id}`][0];
             selectComponent.loadSelected();
+        },
+        onInput(entity) {
+            this.debouncedPreviewSeoUrlTemplate(entity);
+        },
+        debouncedPreviewSeoUrlTemplate(entity) {
+            if (!this.debouncedPreviews[entity.id]) {
+                this.debouncedPreviews[entity.id] = utils.debounce(() => {
+                    this.fetchSeoUrlPreview(entity);
+                }, 400);
+            } else {
+                this.errorMessages[entity.id] = '';
+            }
+
+            this.debouncedPreviews[entity.id]();
+        },
+        fetchSeoUrlPreview(entity) {
+            this.$set(this.previewLoadingStates, entity.id, true);
+            this.seoUrlTemplateService.preview(entity).then((response) => {
+                this.$set(this.previews, entity.id, response);
+                if (response.length < 1) {
+                    this.$set(
+                        this.errorMessages,
+                        entity.id,
+                        this.$tc('sw-seo-url-template-card.general.tooltipInvalidTemplate')
+                    );
+                } else {
+                    this.$set(this.errorMessages, entity.id, '');
+                }
+                this.previewLoadingStates[entity.id] = false;
+            }).catch(err => {
+                this.$set(this.errorMessages, entity.id, err.response.data.errors[0].detail);
+                this.$set(this.previews, entity.id, []);
+                this.previewLoadingStates[entity.id] = false;
+            });
         }
     }
 });

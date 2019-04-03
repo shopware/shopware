@@ -64,9 +64,6 @@ abstract class SeoUrlGenerator implements SeoUrlGeneratorInterface
 
         $this->router = $router;
         $this->routeName = $routeName;
-        if (!$this->router->getRouteCollection()->get($this->routeName)) {
-            throw new \InvalidArgumentException('Route ' . $this->routeName . ' not found');
-        }
     }
 
     public function getRouteName(): string

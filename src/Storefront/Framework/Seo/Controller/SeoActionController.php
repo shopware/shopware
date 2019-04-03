@@ -105,7 +105,8 @@ class SeoActionController extends AbstractController
             $seoUrlTemplate['salesChannelId'] ?? Defaults::SALES_CHANNEL,
             $seoUrlTemplate['routeName'],
             $ids,
-            $seoUrlTemplate['template']
+            $seoUrlTemplate['template'],
+            false
         );
     }
 }

@@ -3,7 +3,7 @@
 namespace Shopware\Core\Content\Test\Product\Api;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Content\Product\Aggregate\ProductPriceRule\ProductPriceRuleEntity;
+use Shopware\Core\Content\Product\Aggregate\ProductPrice\ProductPriceEntity;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -49,7 +49,7 @@ class ProductApiTest extends TestCase
             'price' => ['gross' => 15, 'net' => 10, 'linked' => false],
             'manufacturer' => ['name' => 'test'],
             'tax' => ['name' => 'test', 'taxRate' => 15],
-            'priceRules' => [
+            'prices' => [
                 [
                     'id' => $id,
                     'currencyId' => Defaults::CURRENCY,
@@ -70,15 +70,15 @@ class ProductApiTest extends TestCase
         /** @var ProductEntity $product */
         $product = $products->get($id);
 
-        static::assertCount(1, $product->getPriceRules());
+        static::assertCount(1, $product->getPrices());
 
-        /** @var ProductPriceRuleEntity $price */
-        $price = $product->getPriceRules()->first();
+        /** @var ProductPriceEntity $price */
+        $price = $product->getPrices()->first();
         static::assertEquals($ruleA, $price->getRuleId());
 
         $data = [
             'id' => $id,
-            'priceRules' => [
+            'prices' => [
                 //update existing rule with new price and quantity end to add another graduation
                 [
                     'id' => $id,
@@ -105,10 +105,10 @@ class ProductApiTest extends TestCase
         /** @var ProductEntity $product */
         $product = $products->get($id);
 
-        static::assertCount(2, $product->getPriceRules());
+        static::assertCount(2, $product->getPrices());
 
-        /** @var ProductPriceRuleEntity $price */
-        $price = $product->getPriceRules()->get($id);
+        /** @var ProductPriceEntity $price */
+        $price = $product->getPrices()->get($id);
         static::assertEquals($ruleA, $price->getRuleId());
         static::assertEquals(new Price(4000, 5000, false), $price->getPrice());
 
@@ -119,7 +119,7 @@ class ProductApiTest extends TestCase
 
         $data = [
             'id' => $id,
-            'priceRules' => [
+            'prices' => [
                 [
                     'id' => $id3,
                     'currencyId' => Defaults::CURRENCY,
@@ -139,10 +139,10 @@ class ProductApiTest extends TestCase
         /** @var ProductEntity $product */
         $product = $products->get($id);
 
-        static::assertCount(3, $product->getPriceRules());
+        static::assertCount(3, $product->getPrices());
 
-        /** @var ProductPriceRuleEntity $price */
-        $price = $product->getPriceRules()->get($id3);
+        /** @var ProductPriceEntity $price */
+        $price = $product->getPrices()->get($id3);
         static::assertEquals($ruleB, $price->getRuleId());
         static::assertEquals(new Price(50, 50, false), $price->getPrice());
 

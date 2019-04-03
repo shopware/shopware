@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Content\Product\Aggregate\ProductPriceRule;
+namespace Shopware\Core\Content\Product\Aggregate\ProductPrice;
 
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Rule\RuleDefinition;
@@ -21,21 +21,21 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\System\Currency\CurrencyDefinition;
 
-class ProductPriceRuleDefinition extends EntityDefinition
+class ProductPriceDefinition extends EntityDefinition
 {
     public static function getEntityName(): string
     {
-        return 'product_price_rule';
+        return 'product_price';
     }
 
     public static function getCollectionClass(): string
     {
-        return ProductPriceRuleCollection::class;
+        return ProductPriceCollection::class;
     }
 
     public static function getEntityClass(): string
     {
-        return ProductPriceRuleEntity::class;
+        return ProductPriceEntity::class;
     }
 
     public static function getParentDefinitionClass(): ?string
@@ -57,7 +57,7 @@ class ProductPriceRuleDefinition extends EntityDefinition
             new IntField('quantity_end', 'quantityEnd'),
             new CreatedAtField(),
             new UpdatedAtField(),
-            (new ManyToOneAssociationField('product', 'product_id', ProductDefinition::class, false, 'id'))->addFlags(new ReverseInherited('priceRules')),
+            (new ManyToOneAssociationField('product', 'product_id', ProductDefinition::class, false, 'id'))->addFlags(new ReverseInherited('prices')),
             new ManyToOneAssociationField('currency', 'currency_id', CurrencyDefinition::class, false),
             new ManyToOneAssociationField('rule', 'rule_id', RuleDefinition::class, false),
             new AttributesField(),

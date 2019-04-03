@@ -44,8 +44,8 @@
             <tag name="shopware.entity.definition" entity="product_configurator"/>
         </service>
 
-        <service id="Shopware\Core\Content\Product\Aggregate\ProductPriceRule\ProductPriceRuleDefinition">
-            <tag name="shopware.entity.definition" entity="product_price_rule"/>
+        <service id="Shopware\Core\Content\Product\Aggregate\ProductPrice\ProductPriceDefinition">
+            <tag name="shopware.entity.definition" entity="product_price"/>
         </service>
 
         <service id="Shopware\Core\Content\Product\Aggregate\ProductDatasheet\ProductDatasheetDefinition">

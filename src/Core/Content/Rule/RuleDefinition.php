@@ -9,7 +9,7 @@ use Shopware\Core\Checkout\Promotion\PromotionDefinition;
 use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodPriceRule\ShippingMethodPriceRuleDefinition;
 use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodRules\ShippingMethodRuleDefinition;
 use Shopware\Core\Checkout\Shipping\ShippingMethodDefinition;
-use Shopware\Core\Content\Product\Aggregate\ProductPriceRule\ProductPriceRuleDefinition;
+use Shopware\Core\Content\Product\Aggregate\ProductPrice\ProductPriceDefinition;
 use Shopware\Core\Content\Rule\Aggregate\RuleCondition\RuleConditionDefinition;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
@@ -66,7 +66,7 @@ class RuleDefinition extends EntityDefinition
 
             (new OneToManyAssociationField('conditions', RuleConditionDefinition::class, 'rule_id', false, 'id'))->addFlags(new CascadeDelete()),
             (new OneToManyAssociationField('discountSurcharges', DiscountSurchargeDefinition::class, 'rule_id', false, 'id'))->addFlags(new CascadeDelete()),
-            (new OneToManyAssociationField('productPriceRules', ProductPriceRuleDefinition::class, 'rule_id', false, 'id'))->addFlags(new CascadeDelete()),
+            (new OneToManyAssociationField('productPrices', ProductPriceDefinition::class, 'rule_id', false, 'id'))->addFlags(new CascadeDelete()),
             (new OneToManyAssociationField('shippingMethodPriceRules', ShippingMethodPriceRuleDefinition::class, 'rule_id', false, 'id'))->addFlags(new CascadeDelete()),
             (new ManyToManyAssociationField('shippingMethods', ShippingMethodDefinition::class, ShippingMethodRuleDefinition::class, false, 'rule_id', 'shipping_method_id'))->addFlags(new CascadeDelete()),
             (new ManyToManyAssociationField('paymentMethods', PaymentMethodDefinition::class, PaymentMethodRuleDefinition::class, false, 'rule_id', 'payment_method_id'))->addFlags(new CascadeDelete()),

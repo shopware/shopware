@@ -5,7 +5,7 @@ namespace Shopware\Core\Content\Test\Product\Repository;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerEntity;
-use Shopware\Core\Content\Product\Aggregate\ProductPriceRule\ProductPriceRuleEntity;
+use Shopware\Core\Content\Product\Aggregate\ProductPrice\ProductPriceEntity;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Defaults;
@@ -285,7 +285,7 @@ class ProductRepositoryTest extends TestCase
         static::assertEquals('test', $manufacturer->getName());
     }
 
-    public function testReadAndWriteProductPriceRules(): void
+    public function testReadAndWriteProductPrices(): void
     {
         $ruleA = Uuid::randomHex();
         $ruleB = Uuid::randomHex();
@@ -303,7 +303,7 @@ class ProductRepositoryTest extends TestCase
             'price' => ['gross' => 15, 'net' => 10, 'linked' => false],
             'manufacturer' => ['name' => 'test'],
             'tax' => ['name' => 'test', 'taxRate' => 15],
-            'priceRules' => [
+            'prices' => [
                 [
                     'id' => $ruleA,
                     'currencyId' => Defaults::CURRENCY,
@@ -336,14 +336,14 @@ class ProductRepositoryTest extends TestCase
         static::assertEquals($id, $product->getId());
 
         static::assertEquals(new Price(10, 15, false), $product->getPrice());
-        static::assertCount(2, $product->getPriceRules());
+        static::assertCount(2, $product->getPrices());
 
-        /** @var ProductPriceRuleEntity $price */
-        $price = $product->getPriceRules()->get($ruleA);
+        /** @var ProductPriceEntity $price */
+        $price = $product->getPrices()->get($ruleA);
         static::assertEquals(15, $price->getPrice()->getGross());
         static::assertEquals(10, $price->getPrice()->getNet());
 
-        $price = $product->getPriceRules()->get($ruleB);
+        $price = $product->getPrices()->get($ruleB);
         static::assertEquals(10, $price->getPrice()->getGross());
         static::assertEquals(8, $price->getPrice()->getNet());
     }
@@ -371,7 +371,7 @@ class ProductRepositoryTest extends TestCase
                 'manufacturer' => ['name' => 'test'],
                 'tax' => ['name' => 'test', 'taxRate' => 15],
                 'ean' => $filterId,
-                'priceRules' => [
+                'prices' => [
                     [
                         'currencyId' => Defaults::CURRENCY,
                         'quantityStart' => 1,
@@ -388,7 +388,7 @@ class ProductRepositoryTest extends TestCase
                 'manufacturer' => ['name' => 'test'],
                 'tax' => ['name' => 'test', 'taxRate' => 15],
                 'ean' => $filterId,
-                'priceRules' => [
+                'prices' => [
                     [
                         'currencyId' => Defaults::CURRENCY,
                         'quantityStart' => 1,
@@ -405,7 +405,7 @@ class ProductRepositoryTest extends TestCase
                 'manufacturer' => ['name' => 'test'],
                 'tax' => ['name' => 'test', 'taxRate' => 15],
                 'ean' => $filterId,
-                'priceRules' => [
+                'prices' => [
                     [
                         'currencyId' => Defaults::CURRENCY,
                         'quantityStart' => 1,
@@ -419,7 +419,7 @@ class ProductRepositoryTest extends TestCase
         $this->repository->create($data, Context::createDefaultContext());
 
         $criteria = new Criteria();
-        $criteria->addSorting(new FieldSorting('product.priceRules.price', FieldSorting::ASCENDING));
+        $criteria->addSorting(new FieldSorting('product.prices.price', FieldSorting::ASCENDING));
         $criteria->addFilter(new EqualsFilter('product.ean', $filterId));
 
         $context = $this->createContext([$ruleA]);
@@ -432,7 +432,7 @@ class ProductRepositoryTest extends TestCase
         );
 
         $criteria = new Criteria();
-        $criteria->addSorting(new FieldSorting('product.priceRules.price', FieldSorting::DESCENDING));
+        $criteria->addSorting(new FieldSorting('product.prices.price', FieldSorting::DESCENDING));
         $criteria->addFilter(new EqualsFilter('product.ean', $filterId));
 
         /** @var IdSearchResult $products */
@@ -1490,7 +1490,7 @@ class ProductRepositoryTest extends TestCase
             'price' => ['gross' => 15, 'net' => 10, 'linked' => false],
             'manufacturer' => ['name' => 'test'],
             'tax' => ['name' => 'test', 'taxRate' => 15],
-            'priceRules' => [
+            'prices' => [
                 [
                     'currencyId' => Defaults::CURRENCY,
                     'quantityStart' => 1,
@@ -1556,7 +1556,7 @@ class ProductRepositoryTest extends TestCase
             'price' => ['gross' => 15, 'net' => 10, 'linked' => false],
             'manufacturer' => ['name' => 'test'],
             'tax' => ['name' => 'test', 'taxRate' => 15],
-            'priceRules' => [
+            'prices' => [
                 [
                     'id' => $id,
                     'currencyId' => Defaults::CURRENCY,
@@ -1577,15 +1577,15 @@ class ProductRepositoryTest extends TestCase
         /** @var ProductEntity $product */
         $product = $products->get($id);
 
-        static::assertCount(1, $product->getPriceRules());
+        static::assertCount(1, $product->getPrices());
 
-        /** @var ProductPriceRuleEntity $price */
-        $price = $product->getPriceRules()->first();
+        /** @var ProductPriceEntity $price */
+        $price = $product->getPrices()->first();
         static::assertEquals($ruleA, $price->getRuleId());
 
         $data = [
             'id' => $id,
-            'priceRules' => [
+            'prices' => [
                 //update existing rule with new price and quantity end to add another graduation
                 [
                     'id' => $id,
@@ -1611,10 +1611,10 @@ class ProductRepositoryTest extends TestCase
         /** @var ProductEntity $product */
         $product = $products->get($id);
 
-        static::assertCount(2, $product->getPriceRules());
+        static::assertCount(2, $product->getPrices());
 
-        /** @var ProductPriceRuleEntity $price */
-        $price = $product->getPriceRules()->get($id);
+        /** @var ProductPriceEntity $price */
+        $price = $product->getPrices()->get($id);
         static::assertEquals($ruleA, $price->getRuleId());
         static::assertEquals(new Price(4000, 5000, false), $price->getPrice());
 
@@ -1625,7 +1625,7 @@ class ProductRepositoryTest extends TestCase
 
         $data = [
             'id' => $id,
-            'priceRules' => [
+            'prices' => [
                 [
                     'id' => $id3,
                     'currencyId' => Defaults::CURRENCY,
@@ -1644,10 +1644,10 @@ class ProductRepositoryTest extends TestCase
         /** @var ProductEntity $product */
         $product = $products->get($id);
 
-        static::assertCount(3, $product->getPriceRules());
+        static::assertCount(3, $product->getPrices());
 
-        /** @var ProductPriceRuleEntity $price */
-        $price = $product->getPriceRules()->get($id3);
+        /** @var ProductPriceEntity $price */
+        $price = $product->getPrices()->get($id3);
         static::assertEquals($ruleB, $price->getRuleId());
         static::assertEquals(new Price(50, 50, false), $price->getPrice());
 

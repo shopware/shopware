@@ -85,7 +85,7 @@
       "labelContextMenuAddToProduct": "Add to product",
       "cardTitleSeo": "SEO"
     },
-    "priceRules": {
+    "prices": {
       "cardTitlePriceRule": "New price rule",
       "placeholderRule": "Select",
       "placeholderQuantityEnd": "Infinite",

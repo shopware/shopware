@@ -44,7 +44,7 @@ class PriceRuleCollection extends EntityCollection
         });
     }
 
-    public function getPriceRulesForContext(Context $context): ?self
+    public function getPricesForContext(Context $context): ?self
     {
         foreach ($context->getRules() as $ruleId) {
             $rules = $this->filterByRuleId($ruleId);

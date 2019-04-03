@@ -7,7 +7,7 @@ use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
 use Shopware\Core\Checkout\Promotion\PromotionCollection;
 use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodPriceRule\ShippingMethodPriceRuleCollection;
 use Shopware\Core\Checkout\Shipping\ShippingMethodCollection;
-use Shopware\Core\Content\Product\Aggregate\ProductPriceRule\ProductPriceRuleCollection;
+use Shopware\Core\Content\Product\Aggregate\ProductPrice\ProductPriceCollection;
 use Shopware\Core\Content\Rule\Aggregate\RuleCondition\RuleConditionCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
@@ -58,9 +58,9 @@ class RuleEntity extends Entity
     protected $discountSurcharges;
 
     /**
-     * @var ProductPriceRuleCollection|null
+     * @var ProductPriceCollection|null
      */
-    protected $productPriceRules;
+    protected $productPrices;
 
     /**
      * @var ShippingMethodCollection|null
@@ -177,14 +177,14 @@ class RuleEntity extends Entity
         $this->discountSurcharges = $discountSurcharges;
     }
 
-    public function getProductPriceRules(): ?ProductPriceRuleCollection
+    public function getProductPrices(): ?ProductPriceCollection
     {
-        return $this->productPriceRules;
+        return $this->productPrices;
     }
 
-    public function setProductPriceRules(ProductPriceRuleCollection $productPriceRules): void
+    public function setProductPrices(ProductPriceCollection $productPrices): void
     {
-        $this->productPriceRules = $productPriceRules;
+        $this->productPrices = $productPrices;
     }
 
     public function getShippingMethods(): ?ShippingMethodCollection

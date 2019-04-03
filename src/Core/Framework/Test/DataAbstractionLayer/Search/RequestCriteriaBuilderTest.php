@@ -31,7 +31,7 @@ class RequestCriteriaBuilderTest extends TestCase
             'limit' => 10,
             'page' => 1,
             'associations' => [
-                'priceRules' => [
+                'prices' => [
                     'limit' => 25,
                     'page' => 1,
                     'filter' => [
@@ -62,15 +62,15 @@ class RequestCriteriaBuilderTest extends TestCase
             Context::createDefaultContext()
         );
 
-        static::assertTrue($criteria->hasAssociation('product.priceRules'));
-        $nested = $criteria->getAssociation('product.priceRules');
+        static::assertTrue($criteria->hasAssociation('product.prices'));
+        $nested = $criteria->getAssociation('product.prices');
 
         static::assertInstanceOf(Criteria::class, $nested);
         static::assertCount(1, $nested->getFilters());
         static::assertCount(1, $nested->getSorting());
 
-        static::assertTrue($nested->hasAssociation('product_price_rule.currency'));
-        $nested = $nested->getAssociation('product_price_rule.currency');
+        static::assertTrue($nested->hasAssociation('product_price.currency'));
+        $nested = $nested->getAssociation('product_price.currency');
         static::assertInstanceOf(Criteria::class, $nested);
         static::assertCount(1, $nested->getFilters());
     }

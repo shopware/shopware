@@ -46,7 +46,7 @@ export default {
             // Create repository by collection sources
             // the collection contains the route for the entities /customer/{id}/addresses
             this.repository = this.repositoryFactory.create(
-                // product_price_rule
+                // product_price
                 this.collection.entity,
 
                 // product/{id}/price-rules/

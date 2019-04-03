@@ -113,7 +113,7 @@ export default class VariantsGenerator extends EventEmitter {
                     });
 
                     // todo calculate price with surcharges
-                    // todo consider product.priceRules (store of prices)
+                    // todo consider product.prices (store of prices)
                     // Add to create list
                     createQueue.push({
                         parentId: this.product.id,

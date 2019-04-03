@@ -22,7 +22,7 @@ use Shopware\Core\Checkout\Test\Cart\Common\TrueRule;
 use Shopware\Core\Checkout\Test\Payment\Handler\SyncTestPaymentHandler;
 use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerDefinition;
-use Shopware\Core\Content\Product\Aggregate\ProductPriceRule\ProductPriceRuleEntity;
+use Shopware\Core\Content\Product\Aggregate\ProductPrice\ProductPriceEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductTranslation\ProductTranslationDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductEntity;
@@ -629,7 +629,7 @@ class VersioningTest extends TestCase
             'stock' => 1,
             'manufacturer' => ['name' => 'test'],
             'tax' => ['name' => 'test', 'taxRate' => 15],
-            'priceRules' => [
+            'prices' => [
                 [
                     'id' => $priceId1,
                     'currencyId' => Defaults::CURRENCY,
@@ -663,7 +663,7 @@ class VersioningTest extends TestCase
         static::assertContains(Defaults::LIVE_VERSION, $versions);
         static::assertContains($versionId, $versions);
 
-        $prices = $this->connection->fetchAll('SELECT * FROM product_price_rule WHERE product_id = :id', ['id' => Uuid::fromHexToBytes($productId)]);
+        $prices = $this->connection->fetchAll('SELECT * FROM product_price WHERE product_id = :id', ['id' => Uuid::fromHexToBytes($productId)]);
         static::assertCount(4, $prices);
 
         $versionPrices = array_filter($prices, function (array $price) use ($versionId) {
@@ -795,7 +795,7 @@ class VersioningTest extends TestCase
             'name' => 'to clone',
             'manufacturer' => ['name' => 'test'],
             'tax' => ['name' => 'test', 'taxRate' => 15],
-            'priceRules' => [
+            'prices' => [
                 [
                     'id' => $priceId1,
                     'currencyId' => Defaults::CURRENCY,
@@ -823,7 +823,7 @@ class VersioningTest extends TestCase
         //update prices in version scope
         $updated = [
             'id' => $productId,
-            'priceRules' => [
+            'prices' => [
                 [
                     'id' => $priceId1,
                     'price' => ['gross' => 100, 'net' => 100, 'linked' => false],
@@ -841,25 +841,25 @@ class VersioningTest extends TestCase
 
         //check if the prices are updated in the version scope
         static::assertInstanceOf(ProductEntity::class, $product);
-        static::assertCount(2, $product->getPriceRules());
-        static::assertEquals(100, $product->getPriceRules()->get($priceId1)->getPrice()->getGross());
-        static::assertEquals(100, $product->getPriceRules()->get($priceId1)->getPrice()->getNet());
-        static::assertEquals(99, $product->getPriceRules()->get($priceId2)->getPrice()->getGross());
-        static::assertEquals(99, $product->getPriceRules()->get($priceId2)->getPrice()->getNet());
+        static::assertCount(2, $product->getPrices());
+        static::assertEquals(100, $product->getPrices()->get($priceId1)->getPrice()->getGross());
+        static::assertEquals(100, $product->getPrices()->get($priceId1)->getPrice()->getNet());
+        static::assertEquals(99, $product->getPrices()->get($priceId2)->getPrice()->getGross());
+        static::assertEquals(99, $product->getPrices()->get($priceId2)->getPrice()->getNet());
 
         /** @var ProductEntity $product */
         $product = $this->productRepository->search(new Criteria([$productId]), $context)->first();
 
         //check the prices of the live version are untouched
         static::assertInstanceOf(ProductEntity::class, $product);
-        static::assertCount(2, $product->getPriceRules());
-        static::assertEquals(15, $product->getPriceRules()->get($priceId1)->getPrice()->getGross());
-        static::assertEquals(15, $product->getPriceRules()->get($priceId1)->getPrice()->getNet());
-        static::assertEquals(10, $product->getPriceRules()->get($priceId2)->getPrice()->getGross());
-        static::assertEquals(10, $product->getPriceRules()->get($priceId2)->getPrice()->getNet());
+        static::assertCount(2, $product->getPrices());
+        static::assertEquals(15, $product->getPrices()->get($priceId1)->getPrice()->getGross());
+        static::assertEquals(15, $product->getPrices()->get($priceId1)->getPrice()->getNet());
+        static::assertEquals(10, $product->getPrices()->get($priceId2)->getPrice()->getGross());
+        static::assertEquals(10, $product->getPrices()->get($priceId2)->getPrice()->getNet());
 
         //now delete the prices in version context
-        $priceRepository = $this->getContainer()->get('product_price_rule.repository');
+        $priceRepository = $this->getContainer()->get('product_price.repository');
         $priceRepository->delete([
             ['id' => $priceId1, 'versionId' => $versionId],
             ['id' => $priceId2, 'versionId' => $versionId],
@@ -870,13 +870,13 @@ class VersioningTest extends TestCase
 
         //live version scope should be untouched
         static::assertInstanceOf(ProductEntity::class, $product);
-        static::assertCount(2, $product->getPriceRules());
+        static::assertCount(2, $product->getPrices());
 
         //version scope should have no prices
         /** @var ProductEntity $product */
         $product = $this->productRepository->search(new Criteria([$productId]), $versionContext)->first();
         static::assertInstanceOf(ProductEntity::class, $product);
-        static::assertCount(0, $product->getPriceRules());
+        static::assertCount(0, $product->getPrices());
 
         //now add new prices
         $newPriceId1 = Uuid::randomHex();
@@ -885,7 +885,7 @@ class VersioningTest extends TestCase
 
         $updated = [
             'id' => $productId,
-            'priceRules' => [
+            'prices' => [
                 [
                     'id' => $newPriceId1,
                     'currencyId' => Defaults::CURRENCY,
@@ -919,13 +919,13 @@ class VersioningTest extends TestCase
         $product = $this->productRepository->search(new Criteria([$productId]), $context)->first();
 
         static::assertInstanceOf(ProductEntity::class, $product);
-        static::assertCount(2, $product->getPriceRules());
+        static::assertCount(2, $product->getPrices());
 
         /** @var ProductEntity $product */
         $product = $this->productRepository->search(new Criteria([$productId]), $versionContext)->first();
 
         static::assertInstanceOf(ProductEntity::class, $product);
-        static::assertCount(3, $product->getPriceRules());
+        static::assertCount(3, $product->getPrices());
 
         $this->productRepository->merge($versionId, $context);
 
@@ -933,7 +933,7 @@ class VersioningTest extends TestCase
         $product = $this->productRepository->search(new Criteria([$productId]), $context)->first();
 
         static::assertInstanceOf(ProductEntity::class, $product);
-        static::assertCount(3, $product->getPriceRules());
+        static::assertCount(3, $product->getPrices());
 
         $versionId = $this->productRepository->createVersion($productId, $context);
         $versionContext = $context->createWithVersionId($versionId);
@@ -952,15 +952,15 @@ class VersioningTest extends TestCase
 
         $priceRepository->create([$data], $versionContext);
 
-        /** @var ProductPriceRuleEntity $price4 */
+        /** @var ProductPriceEntity $price4 */
         $price4 = $priceRepository->search(new Criteria([$newPriceId4]), $versionContext)->first();
-        static::assertInstanceOf(ProductPriceRuleEntity::class, $price4);
+        static::assertInstanceOf(ProductPriceEntity::class, $price4);
 
         static::assertSame(5.0, $price4->getPrice()->getGross());
         static::assertSame($newPriceId4, $price4->getId());
 
         $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('product_price_rule.productId', $productId));
+        $criteria->addFilter(new EqualsFilter('product_price.productId', $productId));
 
         $prices = $priceRepository->search($criteria, $versionContext);
         static::assertCount(4, $prices);
@@ -1100,7 +1100,7 @@ class VersioningTest extends TestCase
             'name' => 'to clone',
             'manufacturer' => ['name' => 'test'],
             'tax' => ['name' => 'test', 'taxRate' => 15],
-            'priceRules' => [
+            'prices' => [
                 [
                     'id' => $priceId1,
                     'currencyId' => Defaults::CURRENCY,
@@ -1128,7 +1128,7 @@ class VersioningTest extends TestCase
         //update prices in version scope
         $updated = [
             'id' => $productId,
-            'priceRules' => [
+            'prices' => [
                 [
                     'id' => $priceId1,
                     'price' => ['gross' => 100, 'net' => 100, 'linked' => false],
@@ -1143,7 +1143,7 @@ class VersioningTest extends TestCase
         $this->productRepository->update([$updated], $versionContext);
 
         $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('product.priceRules.price.gross', 100));
+        $criteria->addFilter(new EqualsFilter('product.prices.price.gross', 100));
 
         //live search shouldn't find anything because the 1000.00 price is only defined in version scope
         $result = $this->productRepository->searchIds($criteria, $context);
@@ -1155,19 +1155,19 @@ class VersioningTest extends TestCase
         static::assertContains($productId, $result->getIds());
 
         //delete second price to check if the delete is applied too
-        $this->getContainer()->get('product_price_rule.repository')->delete([
+        $this->getContainer()->get('product_price.repository')->delete([
             ['id' => $priceId2, 'versionId' => $versionId],
         ], $versionContext);
 
         $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('product.priceRules.price.gross', 99));
+        $criteria->addFilter(new EqualsFilter('product.prices.price.gross', 99));
         $result = $this->productRepository->searchIds($criteria, $versionContext);
         static::assertCount(0, $result->getIds());
 
         $this->productRepository->merge($versionId, $context);
 
         $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('product.priceRules.price.gross', 100));
+        $criteria->addFilter(new EqualsFilter('product.prices.price.gross', 100));
 
         $result = $this->productRepository->searchIds($criteria, $context);
         static::assertCount(1, $result->getIds());
@@ -1180,7 +1180,7 @@ class VersioningTest extends TestCase
 
         static::assertInstanceOf(ProductEntity::class, $product);
 
-        static::assertCount(1, $product->getPriceRules());
+        static::assertCount(1, $product->getPrices());
     }
 
     public function testICanSearchManyToManyInASpecifyVersion(): void
@@ -1366,7 +1366,7 @@ class VersioningTest extends TestCase
             'name' => 'to clone',
             'manufacturer' => ['name' => 'test'],
             'tax' => ['name' => 'test', 'taxRate' => 15],
-            'priceRules' => [
+            'prices' => [
                 [
                     'id' => $priceId1,
                     'currencyId' => Defaults::CURRENCY,
@@ -1394,7 +1394,7 @@ class VersioningTest extends TestCase
         //update prices in version scope
         $updated = [
             'id' => $productId,
-            'priceRules' => [
+            'prices' => [
                 [
                     'id' => $priceId1,
                     'price' => ['gross' => 100, 'net' => 100, 'linked' => false],
@@ -1410,7 +1410,7 @@ class VersioningTest extends TestCase
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('product.id', $productId));
-        $criteria->addAggregation(new SumAggregation('product.priceRules.price.gross', 'sum_prices'));
+        $criteria->addAggregation(new SumAggregation('product.prices.price.gross', 'sum_prices'));
 
         $result = $this->productRepository->aggregate($criteria, $context);
         /** @var AggregationResult $aggregation */

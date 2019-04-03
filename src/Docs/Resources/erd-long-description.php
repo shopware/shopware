@@ -309,7 +309,7 @@ EOD
 Association from a root product to a configuration set. Used to generate variants and surcharge or discount the price.
 EOD
     ,
-    Shopware\Core\Content\Product\Aggregate\ProductPriceRule\ProductPriceRuleDefinition::class => <<<'EOD'
+    Shopware\Core\Content\Product\Aggregate\ProductPrice\ProductPriceDefinition::class => <<<'EOD'
 Different product prices based on rules.
 EOD
     ,

@@ -124,7 +124,7 @@ class ProductListingPriceIndexer implements IndexerInterface
         ]);
 
         $query->from('product', 'product');
-        $query->innerJoin('product', 'product_price_rule', 'price', 'price.product_id = product.id');
+        $query->innerJoin('product', 'product_price', 'price', 'price.product_id = product.id');
         $query->andWhere('product.id IN (:ids) OR product.parent_id IN (:ids)');
         $query->andWhere('price.quantity_end IS NULL');
 

@@ -275,7 +275,7 @@ class ProductGenerator implements DemodataGeneratorInterface
                 ['id' => $categories[array_rand($categories)]],
             ],
             'stock' => $faker->randomNumber(),
-            'priceRules' => $this->createPrices($rules),
+            'prices' => $this->createPrices($rules),
         ];
 
         return $product;

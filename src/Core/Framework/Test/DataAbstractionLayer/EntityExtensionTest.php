@@ -7,8 +7,8 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\CategoryCollection;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductCategory\ProductCategoryDefinition;
-use Shopware\Core\Content\Product\Aggregate\ProductPriceRule\ProductPriceRuleCollection;
-use Shopware\Core\Content\Product\Aggregate\ProductPriceRule\ProductPriceRuleDefinition;
+use Shopware\Core\Content\Product\Aggregate\ProductPrice\ProductPriceCollection;
+use Shopware\Core\Content\Product\Aggregate\ProductPrice\ProductPriceDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Defaults;
@@ -60,7 +60,7 @@ class EntityExtensionTest extends TestCase
 
         $this->connection = $this->getContainer()->get(Connection::class);
         $this->productRepository = $this->getContainer()->get('product.repository');
-        $this->priceRepository = $this->getContainer()->get('product_price_rule.repository');
+        $this->priceRepository = $this->getContainer()->get('product_price.repository');
         $this->categoryRepository = $this->getContainer()->get('category.repository');
 
         $this->writer = $this->getContainer()->get(EntityWriter::class);
@@ -75,7 +75,7 @@ class EntityExtensionTest extends TestCase
 
     public function testICanWriteOneToManyAssociationsExtensions(): void
     {
-        $field = (new OneToManyAssociationField('myPrices', ProductPriceRuleDefinition::class, 'product_id', true))
+        $field = (new OneToManyAssociationField('myPrices', ProductPriceDefinition::class, 'product_id', true))
             ->addFlags(new Extension());
 
         ProductDefinition::getFields()->add($field);
@@ -87,7 +87,7 @@ class EntityExtensionTest extends TestCase
         $this->productRepository->create([$data], Context::createDefaultContext());
 
         $count = $this->connection->fetchAll(
-            'SELECT * FROM product_price_rule WHERE product_id = :id',
+            'SELECT * FROM product_price WHERE product_id = :id',
             ['id' => Uuid::fromHexToBytes($id)]
         );
 
@@ -103,7 +103,7 @@ class EntityExtensionTest extends TestCase
         $this->productRepository->create([$data], Context::createDefaultContext());
 
         $count = $this->connection->fetchAll(
-            'SELECT * FROM product_price_rule WHERE product_id = :id',
+            'SELECT * FROM product_price WHERE product_id = :id',
             ['id' => Uuid::fromHexToBytes($id)]
         );
 
@@ -112,7 +112,7 @@ class EntityExtensionTest extends TestCase
 
     public function testICanReadOneToManyAssociationsExtensionsInBasic(): void
     {
-        $field = (new OneToManyAssociationField('myPrices', ProductPriceRuleDefinition::class, 'product_id', true))
+        $field = (new OneToManyAssociationField('myPrices', ProductPriceDefinition::class, 'product_id', true))
             ->addFlags(new Extension());
 
         ProductDefinition::getFields()->add($field);
@@ -129,13 +129,13 @@ class EntityExtensionTest extends TestCase
 
         static::assertInstanceOf(ProductEntity::class, $product);
         static::assertTrue($product->hasExtension('myPrices'));
-        static::assertInstanceOf(ProductPriceRuleCollection::class, $product->getExtension('myPrices'));
+        static::assertInstanceOf(ProductPriceCollection::class, $product->getExtension('myPrices'));
         static::assertCount(2, $product->getExtension('myPrices'));
     }
 
     public function testICanReadOneToManyAssociationsExtensionsNotInBasic(): void
     {
-        $field = (new OneToManyAssociationField('myPrices', ProductPriceRuleDefinition::class, 'product_id', false))
+        $field = (new OneToManyAssociationField('myPrices', ProductPriceDefinition::class, 'product_id', false))
             ->addFlags(new Extension());
 
         ProductDefinition::getFields()->add($field);
@@ -162,7 +162,7 @@ class EntityExtensionTest extends TestCase
 
         static::assertInstanceOf(ProductEntity::class, $product);
         static::assertTrue($product->hasExtension('myPrices'));
-        static::assertInstanceOf(ProductPriceRuleCollection::class, $product->getExtension('myPrices'));
+        static::assertInstanceOf(ProductPriceCollection::class, $product->getExtension('myPrices'));
         static::assertCount(2, $product->getExtension('myPrices'));
 
         $criteria = new Criteria([$id]);
@@ -174,13 +174,13 @@ class EntityExtensionTest extends TestCase
 
         static::assertInstanceOf(ProductEntity::class, $product);
         static::assertTrue($product->hasExtension('myPrices'));
-        static::assertInstanceOf(ProductPriceRuleCollection::class, $product->getExtension('myPrices'));
+        static::assertInstanceOf(ProductPriceCollection::class, $product->getExtension('myPrices'));
         static::assertCount(2, $product->getExtension('myPrices'));
     }
 
     public function testICanSearchOneToManyAssociationsExtensions(): void
     {
-        $field = (new OneToManyAssociationField('myPrices', ProductPriceRuleDefinition::class, 'product_id', false))
+        $field = (new OneToManyAssociationField('myPrices', ProductPriceDefinition::class, 'product_id', false))
             ->addFlags(new Extension());
 
         ProductDefinition::getFields()->add($field);
@@ -216,7 +216,7 @@ class EntityExtensionTest extends TestCase
 
     public function testICanReadPaginatedOneToManyAssociationsExtensions(): void
     {
-        $field = (new OneToManyAssociationField('myPrices', ProductPriceRuleDefinition::class, 'product_id', false))
+        $field = (new OneToManyAssociationField('myPrices', ProductPriceDefinition::class, 'product_id', false))
             ->addFlags(new Extension());
 
         ProductDefinition::getFields()->add($field);
@@ -243,7 +243,7 @@ class EntityExtensionTest extends TestCase
 
         static::assertInstanceOf(ProductEntity::class, $product);
         static::assertTrue($product->hasExtension('myPrices'));
-        static::assertInstanceOf(ProductPriceRuleCollection::class, $product->getExtension('myPrices'));
+        static::assertInstanceOf(ProductPriceCollection::class, $product->getExtension('myPrices'));
         static::assertCount(1, $product->getExtension('myPrices'));
     }
 

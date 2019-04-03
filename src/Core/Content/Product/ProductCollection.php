@@ -4,9 +4,8 @@ namespace Shopware\Core\Content\Product;
 
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaCollection;
-use Shopware\Core\Content\Product\Aggregate\ProductPriceRule\ProductPriceRuleCollection;
+use Shopware\Core\Content\Product\Aggregate\ProductPrice\ProductPriceCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
-use Shopware\Core\Framework\Pricing\PriceCollection;
 use Shopware\Core\System\Tax\TaxCollection;
 use Shopware\Core\System\Unit\UnitCollection;
 
@@ -104,35 +103,28 @@ class ProductCollection extends EntityCollection
         );
     }
 
-    public function getPriceRuleIds(): array
+    public function getPriceIds(): array
     {
         $ids = [[]];
 
         foreach ($this->getIterator() as $element) {
-            $ids[] = $element->getPriceRules()->getIds();
+            $ids[] = $element->getPrices()->getIds();
         }
 
         return array_merge(...$ids);
     }
 
-    public function getPriceRules(): ProductPriceRuleCollection
+    public function getPrices(): ProductPriceCollection
     {
         $rules = [[]];
 
         foreach ($this->getIterator() as $element) {
-            $rules[] = $element->getPriceRules();
+            $rules[] = $element->getPrices();
         }
 
         $rules = array_merge(...$rules);
 
-        return new ProductPriceRuleCollection($rules);
-    }
-
-    public function getPrices(): PriceCollection
-    {
-        return new PriceCollection($this->fmap(function (ProductEntity $product) {
-            return $product->getPrice();
-        }));
+        return new ProductPriceCollection($rules);
     }
 
     public function filterByVariationIds(array $optionIds): self

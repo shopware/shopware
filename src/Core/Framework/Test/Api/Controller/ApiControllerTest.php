@@ -476,7 +476,7 @@ EOF;
             'price' => ['gross' => 15, 'net' => 10, 'linked' => false],
             'manufacturer' => ['name' => 'test'],
             'tax' => ['name' => 'test', 'taxRate' => 15],
-            'priceRules' => [
+            'prices' => [
                 [
                     'id' => $ruleA,
                     'currencyId' => Defaults::CURRENCY,
@@ -497,7 +497,7 @@ EOF;
         $this->getContainer()->get('product.repository')
             ->create([$data], Context::createDefaultContext());
 
-        $path = '/api/v' . PlatformRequest::API_VERSION . '/product/' . $id . '/priceRules';
+        $path = '/api/v' . PlatformRequest::API_VERSION . '/product/' . $id . '/prices';
         $this->getClient()->request('GET', $path);
         $responseData = json_decode($this->getClient()->getResponse()->getContent(), true);
         static::assertSame(Response::HTTP_OK, $this->getClient()->getResponse()->getStatusCode(), print_r($responseData, true));
@@ -511,13 +511,13 @@ EOF;
             'filter' => [
                 [
                     'type' => 'equals',
-                    'field' => 'product_price_rule.ruleId',
+                    'field' => 'product_price.ruleId',
                     'value' => $ruleA,
                 ],
             ],
         ];
 
-        $path = '/api/v' . PlatformRequest::API_VERSION . '/search/product/' . $id . '/priceRules';
+        $path = '/api/v' . PlatformRequest::API_VERSION . '/search/product/' . $id . '/prices';
         $this->getClient()->request('POST', $path, $filter);
         $responseData = json_decode($this->getClient()->getResponse()->getContent(), true);
 
@@ -547,7 +547,7 @@ EOF;
             'price' => ['gross' => 15, 'net' => 10, 'linked' => false],
             'manufacturer' => ['name' => 'test'],
             'tax' => ['name' => 'test', 'taxRate' => 15],
-            'priceRules' => [
+            'prices' => [
                 [
                     'id' => $ruleA,
                     'currencyId' => Defaults::CURRENCY,
@@ -568,7 +568,7 @@ EOF;
         $this->getContainer()->get('product.repository')
             ->create([$data], Context::createDefaultContext());
 
-        $path = '/api/v' . PlatformRequest::API_VERSION . '/product/' . $id . '/priceRules';
+        $path = '/api/v' . PlatformRequest::API_VERSION . '/product/' . $id . '/prices';
         $this->getClient()->request('GET', $path);
         $responseData = json_decode($this->getClient()->getResponse()->getContent(), true);
         static::assertSame(Response::HTTP_OK, $this->getClient()->getResponse()->getStatusCode(), print_r($responseData, true));
@@ -583,12 +583,12 @@ EOF;
                 [
                     'name' => 'price_stats',
                     'type' => 'stats',
-                    'field' => 'product_price_rule.price',
+                    'field' => 'product_price.price',
                 ],
             ],
         ];
 
-        $path = '/api/v' . PlatformRequest::API_VERSION . '/search/product/' . $id . '/priceRules';
+        $path = '/api/v' . PlatformRequest::API_VERSION . '/search/product/' . $id . '/prices';
         $this->getClient()->request('POST', $path, $filter);
         $responseData = json_decode($this->getClient()->getResponse()->getContent(), true);
 

@@ -25,9 +25,9 @@ return [
                     'data' => [],
                     'links' => ['related' => '/api/rule/f343a3c119cf42a7841aa0ac5094908c/discount-surcharges'],
                 ],
-                'productPriceRules' => [
+                'productPrices' => [
                     'data' => [],
-                    'links' => ['related' => '/api/rule/f343a3c119cf42a7841aa0ac5094908c/product-price-rules'],
+                    'links' => ['related' => '/api/rule/f343a3c119cf42a7841aa0ac5094908c/product-prices'],
                 ],
                 'shippingMethods' => [
                     'data' => [],
@@ -64,7 +64,7 @@ return [
                     'updatedAt' => null,
                     'moduleTypes' => null,
                     'discountSurcharges' => null,
-                    'productPriceRules' => null,
+                    'productPrices' => null,
                     'conditions' => null,
                     'invalid' => null,
                     '_uniqueIdentifier' => null,

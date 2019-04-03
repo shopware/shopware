@@ -10,7 +10,7 @@ use Shopware\Core\Content\Category\Aggregate\CategoryTranslation\CategoryTransla
 use Shopware\Core\Content\Category\CategoryCollection;
 use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerEntity;
-use Shopware\Core\Content\Product\Aggregate\ProductPriceRule\ProductPriceRuleCollection;
+use Shopware\Core\Content\Product\Aggregate\ProductPrice\ProductPriceCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductTranslation\ProductTranslationCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductTranslation\ProductTranslationEntity;
 use Shopware\Core\Content\Product\ProductCollection;
@@ -277,7 +277,7 @@ class EntityReaderTest extends TestCase
                 'manufacturer' => ['name' => 'test'],
                 'tax' => ['name' => 'test', 'taxRate' => 10],
                 'name' => 'parent',
-                'priceRules' => [
+                'prices' => [
                     [
                         'currencyId' => Defaults::CURRENCY,
                         'quantityStart' => 1,
@@ -304,7 +304,7 @@ class EntityReaderTest extends TestCase
                 'stock' => 1,
                 'parentId' => $parentId,
                 'name' => 'green',
-                'priceRules' => [
+                'prices' => [
                     [
                         'currencyId' => Defaults::CURRENCY,
                         'quantityStart' => 1,
@@ -324,19 +324,19 @@ class EntityReaderTest extends TestCase
         /** @var ProductEntity $parent */
         $parent = $products->get($parentId);
         static::assertInstanceOf(ProductEntity::class, $parent);
-        static::assertInstanceOf(ProductPriceRuleCollection::class, $parent->getPriceRules());
+        static::assertInstanceOf(ProductPriceCollection::class, $parent->getPrices());
 
         /** @var ProductEntity $red */
         $red = $products->get($redId);
         static::assertInstanceOf(ProductEntity::class, $red);
-        static::assertCount(0, $red->getPriceRules());
-        static::assertInstanceOf(ProductPriceRuleCollection::class, $red->getViewData()->getPriceRules());
-        static::assertCount(2, $red->getViewData()->getPriceRules());
+        static::assertCount(0, $red->getPrices());
+        static::assertInstanceOf(ProductPriceCollection::class, $red->getViewData()->getPrices());
+        static::assertCount(2, $red->getViewData()->getPrices());
 
         /** @var ProductEntity $green */
         $green = $products->get($greenId);
         static::assertInstanceOf(ProductEntity::class, $green);
-        static::assertInstanceOf(ProductPriceRuleCollection::class, $green->getPriceRules());
+        static::assertInstanceOf(ProductPriceCollection::class, $green->getPrices());
     }
 
     public function testInheritanceWithPaginatedOneToMany(): void
@@ -361,7 +361,7 @@ class EntityReaderTest extends TestCase
                 'manufacturer' => ['name' => 'test'],
                 'tax' => ['name' => 'test', 'taxRate' => 10],
                 'name' => 'parent',
-                'priceRules' => [
+                'prices' => [
                     [
                         'currencyId' => Defaults::CURRENCY,
                         'quantityStart' => 1,
@@ -388,7 +388,7 @@ class EntityReaderTest extends TestCase
                 'stock' => 1,
                 'parentId' => $parentId,
                 'name' => 'green',
-                'priceRules' => [
+                'prices' => [
                     [
                         'currencyId' => Defaults::CURRENCY,
                         'quantityStart' => 1,
@@ -404,26 +404,26 @@ class EntityReaderTest extends TestCase
         $this->productRepository->create($products, $context);
 
         $criteria = new Criteria([$greenId, $parentId, $redId]);
-        $criteria->addAssociation('product.priceRules', new PaginationCriteria(5));
+        $criteria->addAssociation('product.prices', new PaginationCriteria(5));
 
         $products = $this->productRepository->search($criteria, $context);
 
         /** @var ProductEntity $parent */
         $parent = $products->get($parentId);
         static::assertInstanceOf(ProductEntity::class, $parent);
-        static::assertInstanceOf(ProductPriceRuleCollection::class, $parent->getPriceRules());
+        static::assertInstanceOf(ProductPriceCollection::class, $parent->getPrices());
 
         /** @var ProductEntity $red */
         $red = $products->get($redId);
         static::assertInstanceOf(ProductEntity::class, $red);
-        static::assertCount(0, $red->getPriceRules());
-        static::assertInstanceOf(ProductPriceRuleCollection::class, $red->getViewData()->getPriceRules());
-        static::assertCount(2, $red->getViewData()->getPriceRules());
+        static::assertCount(0, $red->getPrices());
+        static::assertInstanceOf(ProductPriceCollection::class, $red->getViewData()->getPrices());
+        static::assertCount(2, $red->getViewData()->getPrices());
 
         /** @var ProductEntity $green */
         $green = $products->get($greenId);
         static::assertInstanceOf(ProductEntity::class, $green);
-        static::assertInstanceOf(ProductPriceRuleCollection::class, $green->getPriceRules());
+        static::assertInstanceOf(ProductPriceCollection::class, $green->getPrices());
     }
 
     public function testInheritanceWithManyToMany(): void

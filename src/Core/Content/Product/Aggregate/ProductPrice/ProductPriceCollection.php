@@ -1,42 +1,42 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Content\Product\Aggregate\ProductPriceRule;
+namespace Shopware\Core\Content\Product\Aggregate\ProductPrice;
 
 use Shopware\Core\Framework\Pricing\PriceRuleCollection;
 
 /**
- * @method void                        add(ProductPriceRuleEntity $entity)
- * @method void                        set(string $key, ProductPriceRuleEntity $entity)
- * @method ProductPriceRuleEntity[]    getIterator()
- * @method ProductPriceRuleEntity[]    getElements()
- * @method ProductPriceRuleEntity|null get(string $key)
- * @method ProductPriceRuleEntity|null first()
- * @method ProductPriceRuleEntity|null last()
+ * @method void                    add(ProductPriceEntity $entity)
+ * @method void                    set(string $key, ProductPriceEntity $entity)
+ * @method ProductPriceEntity[]    getIterator()
+ * @method ProductPriceEntity[]    getElements()
+ * @method ProductPriceEntity|null get(string $key)
+ * @method ProductPriceEntity|null first()
+ * @method ProductPriceEntity|null last()
  */
-class ProductPriceRuleCollection extends PriceRuleCollection
+class ProductPriceCollection extends PriceRuleCollection
 {
     public function getProductIds(): array
     {
-        return $this->fmap(function (ProductPriceRuleEntity $price) {
+        return $this->fmap(function (ProductPriceEntity $price) {
             return $price->getProductId();
         });
     }
 
     public function filterByProductId(string $id): self
     {
-        return $this->filter(function (ProductPriceRuleEntity $price) use ($id) {
+        return $this->filter(function (ProductPriceEntity $price) use ($id) {
             return $price->getProductId() === $id;
         });
     }
 
     public function sortByQuantity(): void
     {
-        $this->sort(function (ProductPriceRuleEntity $a, ProductPriceRuleEntity $b) {
+        $this->sort(function (ProductPriceEntity $a, ProductPriceEntity $b) {
             return $a->getQuantityStart() <=> $b->getQuantityStart();
         });
     }
 
-    public function getQuantityPrice(int $quantity): ProductPriceRuleEntity
+    public function getQuantityPrice(int $quantity): ProductPriceEntity
     {
         foreach ($this->getIterator() as $price) {
             $end = $price->getQuantityEnd() ?? $quantity + 1;
@@ -51,6 +51,6 @@ class ProductPriceRuleCollection extends PriceRuleCollection
 
     protected function getExpectedClass(): string
     {
-        return ProductPriceRuleEntity::class;
+        return ProductPriceEntity::class;
     }
 }

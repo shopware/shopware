@@ -3,14 +3,14 @@
 
         {% block sw_product_detail_prices_empty_state %}
             <sw-card class="context-prices__empty-state"
-                     v-if="!isLoaded && !product.priceRules.length"
+                     v-if="!isLoaded && !product.prices.length"
                      :large="true">
                 <sw-loader></sw-loader>
             </sw-card>
         {% endblock %}
 
         {% block sw_product_detail_prices_price_card %}
-            <sw-card :title="priceGroup.rule ? priceGroup.rule.name : $tc('sw-product.priceRules.cardTitlePriceRule')"
+            <sw-card :title="priceGroup.rule ? priceGroup.rule.name : $tc('sw-product.prices.cardTitlePriceRule')"
                      v-for="priceGroup in priceRuleGroups"
                      :key="priceGroup.ruleId"
                      class="context-price"
@@ -41,7 +41,7 @@
 
                         {% block sw_product_detail_prices_price_card_action_delete %}
                             <sw-button @click="onPriceGroupDelete(priceGroup.ruleId)">
-                                <sw-icon name="small-default-x-line-medium" size="20"></sw-icon> {{ $tc('sw-product.priceRules.buttonPriceRuleDelete') }}
+                                <sw-icon name="small-default-x-line-medium" size="20"></sw-icon> {{ $tc('sw-product.prices.buttonPriceRuleDelete') }}
                             </sw-button>
                         {% endblock %}
 
@@ -49,7 +49,7 @@
                             <sw-button v-if="canAddPriceRule"
                                        @click="onPriceGroupDuplicate(priceGroup)"
                                        :disabled="priceGroup.ruleId === null">
-                                <sw-icon name="small-copy" size="20"></sw-icon> {{ $tc('sw-product.priceRules.buttonPriceRuleDuplicate') }}
+                                <sw-icon name="small-copy" size="20"></sw-icon> {{ $tc('sw-product.prices.buttonPriceRuleDuplicate') }}
                             </sw-button>
                         {% endblock %}
 
@@ -57,7 +57,7 @@
                             <sw-context-button :menuOffsetLeft="0">
                                 {% block sw_product_detail_prices_price_card_action_currency_button %}
                                     <sw-button slot="button" :disabled="priceGroup.ruleId === null">
-                                        <sw-icon name="default-basic-plus-circle" size="20"></sw-icon> {{ $tc('sw-product.priceRules.buttonPriceRuleCurrencyAdd') }}
+                                        <sw-icon name="default-basic-plus-circle" size="20"></sw-icon> {{ $tc('sw-product.prices.buttonPriceRuleCurrencyAdd') }}
                                     </sw-button>
                                 {% endblock %}
 
@@ -68,7 +68,7 @@
                                                           @click="onAddCurrency(priceGroup.ruleId, currency)">
                                         <span slot="icon" class="currency-symbol">{{ currency.symbol }}</span>
                                         {{ currency.name }}
-                                        {{ (currency.isDefault) ? $tc('sw-product.priceRules.textCurrencyDefault') : '' }}
+                                        {{ (currency.isDefault) ? $tc('sw-product.prices.textCurrencyDefault') : '' }}
                                     </sw-context-menu-item>
                                 {% endblock %}
                             </sw-context-button>
@@ -81,7 +81,7 @@
 
                         {% block sw_product_detail_prices_price_matrix_title %}
                             <h3 v-if="currencyRule.currency">
-                                {{ $tc('sw-product.priceRules.textPriceRuleForCurrency') }}: {{ currencyRule.currency.name }} {{ (currencyRule.currency.isDefault) ? $tc('sw-product.priceRules.textCurrencyDefault') : '' }}
+                                {{ $tc('sw-product.prices.textPriceRuleForCurrency') }}: {{ currencyRule.currency.name }} {{ (currencyRule.currency.isDefault) ? $tc('sw-product.prices.textCurrencyDefault') : '' }}
                             </h3>
                         {% endblock %}
 
@@ -93,7 +93,7 @@
                                         {% block sw_product_detail_prices_price_matrix_grid_quantity_start %}
                                             <sw-grid-column flex="1"
                                                             align="stretch"
-                                                            :label="$tc('sw-product.priceRules.columnQuantityStart')">
+                                                            :label="$tc('sw-product.prices.columnQuantityStart')">
                                                 <sw-field type="number"
                                                           validation="required"
                                                           v-model="item.quantityStart">
@@ -104,12 +104,12 @@
                                         {% block sw_product_detail_prices_price_matrix_grid_quantity_end %}
                                             <sw-grid-column flex="1"
                                                             align="stretch"
-                                                            :label="$tc('sw-product.priceRules.columnQuantityEnd')">
+                                                            :label="$tc('sw-product.prices.columnQuantityEnd')">
                                                 <sw-field type="number"
                                                           v-model="item.quantityEnd"
                                                           :validation="item.quantityEnd === null || item.quantityEnd > item.quantityStart"
                                                           @change="onQuantityEndChange($event, item, priceGroup)"
-                                                          :placeholder="$tc('sw-product.priceRules.placeholderQuantityEnd')">
+                                                          :placeholder="$tc('sw-product.prices.placeholderQuantityEnd')">
                                                 </sw-field>
                                             </sw-grid-column>
                                         {% endblock %}
@@ -117,7 +117,7 @@
                                         {% block sw_product_detail_prices_price_matrix_grid_price %}
                                             <sw-grid-column flex="2"
                                                             align="stretch"
-                                                            :label="$tc('sw-product.priceRules.columnPrice')">
+                                                            :label="$tc('sw-product.prices.columnPrice')">
                                                 <sw-price-field :price="item.price"
                                                                 :taxRate="productTaxRate"
                                                                 :currency="currencyRule.currency"
@@ -132,7 +132,7 @@
                                                     <sw-context-button>
                                                         {% block sw_product_detail_prices_price_matrix_grid_actions_duplicate %}
                                                             <sw-context-menu-item @click="onPriceRuleDuplicate(item)">
-                                                                {{ $tc('sw-product.priceRules.contextMenuDuplicate') }}
+                                                                {{ $tc('sw-product.prices.contextMenuDuplicate') }}
                                                             </sw-context-menu-item>
                                                         {% endblock %}
 
@@ -142,7 +142,7 @@
                                                                                   :disabled="currencyRule.currency.isDefault &&
                                                                                              currencyRule.prices.length <= 1 &&
                                                                                              Object.keys(priceGroup.currencies).length > 1">
-                                                                {{ $tc('sw-product.priceRules.contextMenuDelete') }}
+                                                                {{ $tc('sw-product.prices.contextMenuDelete') }}
                                                             </sw-context-menu-item>
                                                         {% endblock %}
                                                     </sw-context-button>
@@ -162,7 +162,7 @@
             <div class="context-prices__actions" v-if="!isLoading">
                 {% block sw_product_detail_prices_actions_add_button %}
                     <sw-button v-if="canAddPriceRule" @click="onAddNewPriceGroup">
-                        {{ $tc('sw-product.priceRules.buttonAddAdditionalPriceRule') }}
+                        {{ $tc('sw-product.prices.buttonAddAdditionalPriceRule') }}
                     </sw-button>
                 {% endblock %}
             </div>

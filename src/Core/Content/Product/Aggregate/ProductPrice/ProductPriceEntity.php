@@ -1,13 +1,13 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Content\Product\Aggregate\ProductPriceRule;
+namespace Shopware\Core\Content\Product\Aggregate\ProductPrice;
 
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Rule\RuleEntity;
 use Shopware\Core\Framework\Pricing\PriceRuleEntity;
 use Shopware\Core\System\Currency\CurrencyEntity;
 
-class ProductPriceRuleEntity extends PriceRuleEntity
+class ProductPriceEntity extends PriceRuleEntity
 {
     /**
      * @var string

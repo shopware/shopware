@@ -44,7 +44,7 @@ Component.register('sw-product-detail-context-prices', {
 
     computed: {
         priceRuleStore() {
-            return this.product.getAssociation('priceRules');
+            return this.product.getAssociation('prices');
         },
 
         ruleStore() {
@@ -54,7 +54,7 @@ Component.register('sw-product-detail-context-prices', {
         priceRuleGroups() {
             const priceRuleGroups = {};
 
-            this.product.priceRules.forEach((rule) => {
+            this.product.prices.forEach((rule) => {
                 if (this.priceRuleStore.getById(rule.id).isDeleted) {
                     return;
                 }
@@ -115,7 +115,7 @@ Component.register('sw-product-detail-context-prices', {
 
     methods: {
         mountedComponent() {
-            this.product.getAssociation('priceRules').getList({
+            this.product.getAssociation('prices').getList({
                 page: 1,
                 limit: 500,
                 sortBy: 'quantityStart'
@@ -136,7 +136,7 @@ Component.register('sw-product-detail-context-prices', {
         },
 
         onRuleChange(value, ruleId) {
-            this.product.priceRules.forEach((priceRule) => {
+            this.product.prices.forEach((priceRule) => {
                 if (priceRule.ruleId === ruleId) {
                     priceRule.ruleId = value;
                 }
@@ -156,7 +156,7 @@ Component.register('sw-product-detail-context-prices', {
             newPriceRule.quantityEnd = null;
             newPriceRule.currencyId = this.defaultCurrency.id;
 
-            this.product.priceRules.push(newPriceRule);
+            this.product.prices.push(newPriceRule);
         },
 
         onAddCurrency(ruleId, currency) {
@@ -167,7 +167,7 @@ Component.register('sw-product-detail-context-prices', {
 
                 newPriceRule.currencyId = currency.id;
 
-                this.product.priceRules.push(newPriceRule);
+                this.product.prices.push(newPriceRule);
             });
         },
 
@@ -178,7 +178,7 @@ Component.register('sw-product-detail-context-prices', {
                 }
             });
 
-            this.product.priceRules = this.product.priceRules.filter((priceRule) => {
+            this.product.prices = this.product.prices.filter((priceRule) => {
                 return priceRule.ruleId !== ruleId;
             });
         },
@@ -193,14 +193,14 @@ Component.register('sw-product-detail-context-prices', {
                     const newPriceRule = this.priceRuleStore.duplicate(price.id);
                     newPriceRule.ruleId = null;
 
-                    this.product.priceRules.push(newPriceRule);
+                    this.product.prices.push(newPriceRule);
                 });
             });
         },
 
         onPriceRuleDuplicate(priceRule) {
             const newPriceRule = this.priceRuleStore.duplicate(priceRule.id);
-            this.product.priceRules.push(newPriceRule);
+            this.product.prices.push(newPriceRule);
         },
 
         onPriceRuleDelete(priceRule) {
@@ -214,7 +214,7 @@ Component.register('sw-product-detail-context-prices', {
                 }
             }
 
-            this.product.priceRules = this.product.priceRules.filter((price) => {
+            this.product.prices = this.product.prices.filter((price) => {
                 return price.id !== priceRule.id;
             });
 
@@ -237,7 +237,7 @@ Component.register('sw-product-detail-context-prices', {
                 newPriceRule.quantityEnd = null;
                 newPriceRule.currencyId = price.currencyId;
 
-                this.product.priceRules.push(newPriceRule);
+                this.product.prices.push(newPriceRule);
             }
         },
 

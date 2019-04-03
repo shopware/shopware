@@ -122,11 +122,6 @@ $sw-tree-item-color-text: $color-gutenberg;
         .sw-field {
             width: auto;
             margin-bottom: 0;
-
-            input {
-                padding: 0 10px;
-                height: 32px;
-            }
         }
     }
 
@@ -244,8 +239,6 @@ $sw-tree-item-color-text: $color-gutenberg;
     }
 
     .sw-field.sw-field--checkbox {
-        grid-template-columns: auto;
         margin-bottom: 0;
     }
-
 }

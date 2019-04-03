@@ -26,7 +26,7 @@ $sw-field-color-error: $color-crimson;
             margin: 0 0 0 10px;
             font-weight: normal;
             font-size: $sw-field-font-size;
-            color: lighten($sw-field-color-text, 20%);
+            color: $sw-field-color-text;
         }
     }
 

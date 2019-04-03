@@ -7,24 +7,8 @@
     border: 1px solid #dcdde2;
 
     .sw-tree__search {
-        display: grid;
-        grid-template-columns: 20px 1fr;
         padding: 10px 20px;
-        align-items: center;
         border-bottom: 1px solid #dcdde2;
-
-        .sw-icon {
-            color: lighten($color-gutenberg, 25);;
-        }
-
-        .sw-field  {
-            margin-bottom: 0;
-
-            input {
-                border: 0 none;
-                box-shadow: none;
-            }
-        }
     }
 
     .sw-tree-actions__headline {
@@ -41,14 +25,6 @@
             color: $color-crimson;
             font-size: 14px;
             cursor: pointer;
-        }
-    }
-
-    .sw-tree__actions {
-        padding: 20px 20px 20px 20px;
-
-        .sw-field {
-            margin-bottom: 0;
         }
     }
 

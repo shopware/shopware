@@ -51,16 +51,11 @@ Component.register('sw-order-state-select', {
             }
         }
     },
-    created() {
-        this.createdComponent();
-    },
-    methods: {
-        createdComponent() {
 
-        },
+    methods: {
         onStateChangeClicked() {
             this.$emit('state-selected', this.selectedActionName);
-            this.selectedActionName = null;
+            // this.selectedActionName = null;
         }
     }
 });

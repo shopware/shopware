@@ -43,7 +43,7 @@
                                         {% endblock %}
 
                                         <div class="sw-field">
-                                            <label>{{ $tc('sw-integration.detail.permissions') }}</label>
+                                            <label class="sw-field__label">{{ $tc('sw-integration.detail.permissions') }}</label>
 
                                             <sw-container columns="repeat(auto-fit, minmax(200px, 1fr)">
                                                 {% block sw_integration_list_detail_modal_inner_field_readaccess %}
@@ -93,11 +93,9 @@
                                             </sw-button>
 
                                             {% block sw_integration_list_detail_modal_inner_field_helpText %}
-                                                <sw-field-helptext
-                                                        v-if="!showSecretAccessKey"
-                                                        :id="id"
-                                                        :helpText="$tc('sw-integration.detail.hintCreateNewApiKeys')">
-                                                </sw-field-helptext>
+                                                <div v-if="!showSecretAccessKey" class="sw-integration-list__help-text">
+                                                    {{ $tc('sw-integration.detail.hintCreateNewApiKeys') }}
+                                                </div>
                                             {% endblock %}
                                         {% endblock %}
 

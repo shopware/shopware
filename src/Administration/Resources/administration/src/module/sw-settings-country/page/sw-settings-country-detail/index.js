@@ -1,6 +1,5 @@
 import { Component, Mixin } from 'src/core/shopware';
 import template from './sw-settings-country-detail.html.twig';
-import './sw-settings-country-detail.scss';
 
 Component.register('sw-settings-country-detail', {
     template,

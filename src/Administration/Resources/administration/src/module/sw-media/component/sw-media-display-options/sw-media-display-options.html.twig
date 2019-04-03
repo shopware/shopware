@@ -4,6 +4,8 @@
             <sw-select-field
                 v-if="!hidePresentation"
                 name="presentation"
+                size="small"
+                aside
                 :label="$tc('sw-media.presentation.labelPresentation')"
                 :value="presentation"
                 @input="onPresentationChanged">
@@ -22,6 +24,8 @@
         {% block sw_media_display_options_sorting %}
             <sw-select-field
                 name="sortType"
+                size="small"
+                aside
                 :label=" $tc('sw-media.sorting.labelSort')"
                 :value="sortingConCat"
                 @input="onSortingChanged">

@@ -183,24 +183,6 @@ $sw-login-error-animation-duration: .15s;
         }
     }
 
-    .sw-login__save-login {
-        margin-top: 10px;
-        margin-bottom: 0;
-
-        &.sw-field--checkbox {
-            grid-template-columns: 16px 100px 0;
-            grid-gap: 10px;
-        }
-
-        .sw-field__input {
-            order: 1
-        }
-
-        label {
-            order: 2;
-        }
-    }
-
     .sw-login__forgot-password-action {
         color: $sw-login-badge-color-background;
         text-decoration: none;

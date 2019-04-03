@@ -42,7 +42,7 @@ $sw-condition-base-text-access-key: $color-gutenberg;
         border-bottom: 1px solid $sw-condition-base-color-border;
     }
 
-    .sw-field {
+    .sw-field.sw-field--medium {
         margin-bottom: 0;
     }
 
@@ -179,17 +179,6 @@ $sw-condition-base-text-access-key: $color-gutenberg;
         }
     }
 
-    .sw-field--date, .sw-field--datetime, .sw-field--time {
-        @extend .sw-condition-base__base-field;
-        .sw-datepicker {
-            width: 100%;
-        }
-
-        .sw-field__addition {
-            display: none;
-        }
-    }
-
     .field--main {
         @extend .sw-condition-base__base-field;
         flex-grow: 1;
@@ -279,50 +268,27 @@ $sw-condition-base-text-access-key: $color-gutenberg;
         }
     }
 
-    .sw-field input:disabled {
-        background-color: $sw-condition-base-color-background;
-        color: $sw-condition-base-text-access-key;
-        &::placeholder {
-            color: $sw-condition-base-text-access-key;
-        }
-    }
-
-    .sw-field--switch {
-        @extend .sw-condition-base__base-field;
-        width: 180px;
-        padding-left: 20px;
-        padding-top: 12px;
-    }
-
     .sw-select__inner {
         border: none;
     }
 
-    .sw-field__input {
-        input, select {
+    .sw-field.field--main {
+        @extend .sw-condition-base__base-field;
+
+        input {
             outline: none;
             box-shadow: none;
             border: 0 none;
-            padding: 7px 0;
             background: $sw-condition-base-color-background;
-            height: 38px;
-        }
 
-        input {
             &:active,
             &:focus {
                 box-shadow: none;
             }
         }
 
-        .sw-field__select select {
-            padding-left: 10px;
-            padding-right: 8px;
-
-            &:active,
-            &:focus {
-                box-shadow: none;
-            }
+        .sw-field__addition {
+            display: none;
         }
     }
 
@@ -342,13 +308,6 @@ $sw-condition-base-text-access-key: $color-gutenberg;
     }
 
     &.has--error .sw-condition-base__container {
-        .sw-field__addition {
-            border: none;
-            background: none;
-            padding-top: 11px;
-            padding-bottom: 0;
-        }
-
         .field--condition {
             background-color: $sw-condition-base-color-error;
 

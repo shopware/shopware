@@ -31,13 +31,4 @@ $sw-settings-number-range-list-font-size-default: $font-size-default;
             margin-right: 25px;
         }
     }
-
-    .sw-settings-number-range-list__filterField.sw-field--switch {
-        grid-template-columns: 24px 1fr;
-        margin: 16px 0 0 16px;
-
-        &.sw-field label{
-            font-size: $sw-settings-number-range-list-font-size-default;
-        }
-    }
 }

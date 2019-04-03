@@ -65,13 +65,14 @@ class SeoService implements SeoServiceInterface
         return $generator->getSeoUrlContext($entity);
     }
 
-    public function generateSeoUrls(string $salesChannelId, string $routeName, array $ids, ?string $templateOverride = null): iterable
+    public function generateSeoUrls(string $salesChannelId, string $routeName, array $ids, ?string $templateOverride = null, bool $skipInvalid = true): iterable
     {
         $generator = $this->getGenerator($routeName);
         $template = $templateOverride ?? $this->getTemplateString($salesChannelId, $routeName, $generator->getDefaultTemplate());
+
         $this->validateTemplateString($template);
 
-        return $generator->generateSeoUrls($salesChannelId, $ids, $template);
+        return $generator->generateSeoUrls($salesChannelId, $ids, $template, $skipInvalid);
     }
 
     public function updateSeoUrls(string $salesChannelId, string $routeName, array $foreignKeys, iterable $seoUrls): void

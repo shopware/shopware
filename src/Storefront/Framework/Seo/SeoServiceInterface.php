@@ -8,7 +8,7 @@ interface SeoServiceInterface
 {
     public function getSeoUrlContext(string $routeName, Entity $entity): array;
 
-    public function generateSeoUrls(string $salesChannelId, string $routeName, array $ids, ?string $templateString = null): iterable;
+    public function generateSeoUrls(string $salesChannelId, string $routeName, array $ids, ?string $templateString = null, bool $skipInvalid = true): iterable;
 
     public function updateSeoUrls(string $salesChannelId, string $routeName, array $foreignKeys, iterable $seoUrls): void;
 }

@@ -10,6 +10,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Storefront\Framework\Seo\SeoUrl\SeoUrlEntity;
 use Symfony\Component\Routing\RouterInterface;
+use Twig\Error\Error;
 use Twig\Loader\ArrayLoader;
 
 class ProductDetailPageSeoUrlGenerator extends SeoUrlGenerator
@@ -56,7 +57,7 @@ class ProductDetailPageSeoUrlGenerator extends SeoUrlGenerator
         ];
     }
 
-    public function generateSeoUrls(string $salesChannelId, array $ids, ?string $template = null): iterable
+    public function generateSeoUrls(string $salesChannelId, array $ids, ?string $template = null, bool $skipInvalid = true): iterable
     {
         $template = $template ?? self::DEFAULT_TEMPLATE;
         $template = "{% autoescape '" . self::ESCAPE_SLUGIFY . "' %}$template{% endautoescape %}";
@@ -65,7 +66,6 @@ class ProductDetailPageSeoUrlGenerator extends SeoUrlGenerator
         $criteria = new Criteria($ids);
         $criteria->addAssociation('manufacturer');
 
-        $seoUrls = [];
         $products = $this->productRepository->search(new Criteria($ids), $this->getContext($salesChannelId));
 
         /** @var ProductEntity $product */
@@ -79,7 +79,10 @@ class ProductDetailPageSeoUrlGenerator extends SeoUrlGenerator
 
             try {
                 $seoPathInfo = $this->twig->render('template', $this->getSeoUrlContext($product));
-            } catch (\Twig\Error\Error $error) {
+            } catch (Error $error) {
+                if (!$skipInvalid) {
+                    throw $error;
+                }
                 continue;
             }
 
@@ -90,10 +93,8 @@ class ProductDetailPageSeoUrlGenerator extends SeoUrlGenerator
             $seoUrl->setIsDeleted(false);
             $seoUrl->setIsValid(true);
 
-            $seoUrls[] = $seoUrl;
+            yield $seoUrl;
         }
-
-        return $seoUrls;
     }
 
     public function getDefaultTemplate(): string

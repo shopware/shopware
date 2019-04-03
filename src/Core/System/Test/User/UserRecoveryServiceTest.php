@@ -46,7 +46,8 @@ class UserRecoveryServiceTest extends TestCase
         $this->userRecoveryService = new UserRecoveryService(
             $this->userRecoveryRepo,
             $this->userRepo,
-            $container->get('router')
+            $container->get('router'),
+            $container->get('Shopware\Core\Framework\Event\BusinessEventDispatcher')
         );
         $this->context = Context::createDefaultContext();
     }

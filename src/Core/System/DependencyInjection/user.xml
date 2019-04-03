@@ -26,6 +26,7 @@
             <argument type="service" id="user_recovery.repository"/>
             <argument type="service" id="user.repository"/>
             <argument type="service" id="router"/>
+            <argument type="service" id="Shopware\Core\Framework\Event\BusinessEventDispatcher"/>
         </service>
 
         <service id="Shopware\Core\System\User\Recovery\UserRecoveryController" public="true">

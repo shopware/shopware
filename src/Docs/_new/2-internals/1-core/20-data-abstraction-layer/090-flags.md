@@ -1,8 +1,4 @@
 [titleEn]: <>(Flags)
-[titleDe]: <>(Flags)
-[wikiUrl]: <>(../data-abstract-layer/flags?category=shopware-platform-en/data-abstraction-layer)
-
-# Flags
 
 Flags are attributes to a field in a definition. They provide additional information, which is not field type specific.
 
@@ -10,25 +6,25 @@ Flags are attributes to a field in a definition. They provide additional informa
 
 | Class | Purpose |
 |---|---|
-| PrimaryKey | The field is part of the primary key for this entity |
-| WriteProtected | Writing to this field is only allowed if the configured context is given |
-| Deferred | The value of the field won't be hydrated by the DataAbstractionLayer and must be filled in manually via [extensions](4-extensions.md). |
-| Extension | The value of the field will be handled as an extension and gets a data struct in the main struct. |
-| Required | The field is required when creating the entity. |
-| Inherited | The field is part of the parent/child concept and may receive the value of its parent. |
-| ReverseInherited | Reverse side flag for relations that point to a definition with inheritance enabled. |
-| SearchRanking | The field will be weighted differently for score queries. |
+| `PrimaryKey` | The field is part of the primary key for this entity |
+| `WriteProtected` | Writing to this field is only allowed if the configured context is given |
+| `Deferred` | The value of the field won't be hydrated by the DataAbstractionLayer and must be filled in manually via [extensions](060-extensions.md). |
+| `Extension` | The value of the field will be handled as an extension and gets a data struct in the main struct. |
+| `Required` | The field is required when creating the entity. |
+| `Inherited` | The field is part of the parent/child concept and may receive the value of its parent. |
+| `ReverseInherited` | Reverse side flag for relations that point to a definition with inheritance enabled. |
+| `SearchRanking` | The field will be weighted differently for score queries. |
 
 ### Flags exclusive for association
 
 | Class | Purpose |
 |---|---|
-| RestrictDelete | The entity cannot be deleted unless their relations are removed |
-| CascadeDelete | Related entities will be deleted via constraints |
+| `RestrictDelete` | The entity cannot be deleted unless their relations are removed |
+| `CascadeDelete` | Related entities will be deleted via constraints |
 
 ## Using flags
 
-You have to add the flags to fields in your definition in order to use them. You can even modify the field's flags by creating [definition extensions](4-extensions.md).
+You have to add the flags to fields in your definition in order to use them. You can even modify the field's flags by creating [definition extensions](060-extensions.md).
 
 ```php
 (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required())

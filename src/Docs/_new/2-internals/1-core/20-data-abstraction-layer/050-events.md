@@ -1,18 +1,14 @@
 [titleEn]: <>(Events)
-[titleDe]: <>(Events)
-[wikiUrl]: <>(../data-abstract-layer/events?category=shopware-platform-en/data-abstraction-layer)
-
-# Events
 
 Events are the easiest way to extend the DataAbstractionLayer. Every entity comes with a set of events which will
-be fired in various situations.
+be dispatched in various situations.
 
-All events are nested into one container event so that your subscriber should only get fired once for e.g. a search
-request instead of firing the event 30 times.
+All events are nested into one container event so that your subscriber should only get called once for e.g. a search
+request instead of dispatching the event 30 times.
 
 ## Event overview
 
-The events below are dispatched for every entity in Shopware. The first part before the dot (.) equals your
+The events below are dispatched for every entity in the Shopware Platform. The first part before the dot (.) equals your
 entity name. The examples are based on the `product` entity.
 
 | Event | Description |
@@ -83,7 +79,7 @@ information:
 
 ## Event classes
 
-All of Shopware's own entities come with their own event class. To keep the example of the product entity, you've got
+All of stock entities come with their own event class. To keep the example of the product entity, you've got
 the `ProductEvents` class which is a list of constants to provide auto-completion and in case we are changing
 event names, you are covered.
 

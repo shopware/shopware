@@ -1,12 +1,6 @@
-[titleEn]: <>(Parent/Child)
-[titleDe]: <>(Parent/Child)
-[wikiUrl]: <>(../data-abstract-layer/parent-child?category=shopware-platform-en/data-abstraction-layer)
+[titleEn]: <>(Data Inheritance)
 
-# Parent/Child
-
-The parent/child concept is useful for entities with inheritance. The parent 
-record has all required fields filled in and is a valid entity in itself. A
-child can now optionally overwrite fields which are different to the parent.
+It is possible to inherit data from a parent row this id called parent/child concept The parent record has all required fields filled in and is a valid entity in itself. A child can now optionally overwrite data which is different to the parent.
 
 ## Inherit a field
 

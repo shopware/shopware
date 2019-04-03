@@ -1,21 +1,16 @@
 [titleEn]: <>(Extensions)
-[titleDe]: <>(Extensions)
-[wikiUrl]: <>(../data-abstract-layer/extensions?category=shopware-platform-en/data-abstraction-layer)
 
 # Extensions
 
-You can extend existing entities by creating an `EntityExtension`. The extension must implement the
+You can extend existing entities by creating a `EntityExtension`. The extension must implement the
 `Shopware\Core\Framework\DataAbstractionLayer\EntityExtensionInterface` interface and has access to the fields within an entity. You can even manipulate the core fields
 by adding flags and so on. When changing core fields, keep in mind that it can make your system behave inconsistently!
 
 ## Creating an extension
 
-Create a class which extends the `Shopware\Core\Framework\DataAbstractionLayer\EntityExtensionInterface` interface, implement
-the required methods and register and tag it in the service container as `shopware.entity.extension`.
+Create a class which extends the `Shopware\Core\Framework\DataAbstractionLayer\EntityExtensionInterface` interface, implement the required methods and register and tag it in the service container as `shopware.entity.extension`.
 
 ### Method: getDefinitionClass()
-
-This method does not take any parameters.
 
 You should return the definition the extension will be applied on, preferably a class reference.
 
@@ -43,11 +38,11 @@ Given this example extends the `ProductDefinition`, the hydrator would run into 
 </service>
 ```
 
-## Adding data to the structs
+## Adding data to the entities
 
 Please note the flag `Extension` in the example above.
 
-Because you don't have access to the struct itself, so every struct comes with a key/value array in the
+Because you don't have access to the entity itself, so every entity comes with a key/value array in the
 `extensions` property. The hydrator knows about the flag and therefore will write the data of this relation into
 the `extensions` property with the key of this field `promotions`.
 
@@ -55,4 +50,4 @@ the `extensions` property with the key of this field `promotions`.
 $promotions = $product->getExtension('promotions');
 ```
 
-You can then access your data by getting it from the struct.
+You can then access your data by getting it from the entity.

@@ -1,8 +1,4 @@
 [titleEn]: <>(Field Resolver)
-[titleDe]: <>(Field Resolver)
-[wikiUrl]: <>(../data-abstract-layer/field-resolver?category=shopware-platform-en/data-abstraction-layer)
-
-# FieldResolver
 
 A FieldResolver is a specific implementation for a field, which needs some extra code to be found properly.
 

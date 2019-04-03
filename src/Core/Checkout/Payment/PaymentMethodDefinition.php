@@ -71,8 +71,8 @@ class PaymentMethodDefinition extends EntityDefinition
             (new OneToManyAssociationField('customers', CustomerDefinition::class, 'last_payment_method_id', false, 'id'))->addFlags(new RestrictDelete()),
             (new OneToManyAssociationField('orderTransactions', OrderTransactionDefinition::class, 'payment_method_id', false, 'id'))->addFlags(new RestrictDelete()),
             (new TranslationsAssociationField(PaymentMethodTranslationDefinition::class, 'payment_method_id'))->addFlags(new Required()),
-            new ManyToManyAssociationField('salesChannels', SalesChannelDefinition::class, SalesChannelPaymentMethodDefinition::class, false, 'payment_method_id', 'sales_channel_id'),
-            (new ManyToManyAssociationField('availabilityRules', RuleDefinition::class, PaymentMethodRuleDefinition::class, false, 'payment_method_id', 'rule_id'))->addFlags(new CascadeDelete()),
+            new ManyToManyAssociationField('salesChannels', SalesChannelDefinition::class, SalesChannelPaymentMethodDefinition::class, 'payment_method_id', 'sales_channel_id'),
+            (new ManyToManyAssociationField('availabilityRules', RuleDefinition::class, PaymentMethodRuleDefinition::class, 'payment_method_id', 'rule_id'))->addFlags(new CascadeDelete()),
         ]);
     }
 }

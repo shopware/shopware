@@ -178,19 +178,19 @@ class ProductDefinition extends EntityDefinition
             (new OneToManyAssociationField('media', ProductMediaDefinition::class, 'product_id', false))->addFlags(new CascadeDelete(), new Inherited()),
 
             //associations which are not loaded immediately
-            (new ManyToManyAssociationField('datasheet', ConfigurationGroupOptionDefinition::class, ProductDatasheetDefinition::class, false, 'product_id', 'configuration_group_option_id'))->addFlags(new CascadeDelete(), new Inherited()),
-            (new ManyToManyAssociationField('categories', CategoryDefinition::class, ProductCategoryDefinition::class, false, 'product_id', 'category_id'))->addFlags(new CascadeDelete(), new Inherited()),
-            (new ManyToManyAssociationField('tags', TagDefinition::class, ProductTagDefinition::class, false, 'product_id', 'tag_id'))->addFlags(new Inherited()),
+            (new ManyToManyAssociationField('datasheet', ConfigurationGroupOptionDefinition::class, ProductDatasheetDefinition::class, 'product_id', 'configuration_group_option_id'))->addFlags(new CascadeDelete(), new Inherited()),
+            (new ManyToManyAssociationField('categories', CategoryDefinition::class, ProductCategoryDefinition::class, 'product_id', 'category_id'))->addFlags(new CascadeDelete(), new Inherited()),
+            (new ManyToManyAssociationField('tags', TagDefinition::class, ProductTagDefinition::class, 'product_id', 'tag_id'))->addFlags(new Inherited()),
 
             //association for special keyword mapping for search algorithm
             new SearchKeywordAssociationField(),
 
             //not inherited associations
-            (new ManyToManyAssociationField('categoriesRo', CategoryDefinition::class, ProductCategoryTreeDefinition::class, false, 'product_id', 'category_id'))->addFlags(new CascadeDelete(), new WriteProtected()),
+            (new ManyToManyAssociationField('categoriesRo', CategoryDefinition::class, ProductCategoryTreeDefinition::class, 'product_id', 'category_id'))->addFlags(new CascadeDelete(), new WriteProtected()),
             (new TranslationsAssociationField(ProductTranslationDefinition::class, 'product_id'))->addFlags(new Inherited(), new Required()),
 
             (new OneToManyAssociationField('configurators', ProductConfiguratorDefinition::class, 'product_id', false, 'id'))->addFlags(new CascadeDelete()),
-            (new ManyToManyAssociationField('variations', ConfigurationGroupOptionDefinition::class, ProductVariationDefinition::class, false, 'product_id', 'configuration_group_option_id'))->addFlags(new CascadeDelete()),
+            (new ManyToManyAssociationField('variations', ConfigurationGroupOptionDefinition::class, ProductVariationDefinition::class, 'product_id', 'configuration_group_option_id'))->addFlags(new CascadeDelete()),
 
             (new OneToManyAssociationField('visibilities', ProductVisibilityDefinition::class, 'product_id', false))->addFlags(new CascadeDelete()),
         ]);

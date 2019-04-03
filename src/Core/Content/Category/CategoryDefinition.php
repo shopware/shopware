@@ -98,9 +98,9 @@ class CategoryDefinition extends EntityDefinition
 
             (new OneToManyAssociationField('navigations', NavigationDefinition::class, 'category_id', false))->addFlags(new CascadeDelete()),
 
-            (new ManyToManyAssociationField('products', ProductDefinition::class, ProductCategoryDefinition::class, false, 'category_id', 'product_id', 'id', 'id'))->addFlags(new CascadeDelete(), new ReverseInherited('categories')),
-            (new ManyToManyAssociationField('nestedProducts', ProductDefinition::class, ProductCategoryTreeDefinition::class, false, 'category_id', 'product_id'))->addFlags(new CascadeDelete(), new WriteProtected()),
-            (new ManyToManyAssociationField('tags', TagDefinition::class, CategoryTagDefinition::class, false, 'category_id', 'tag_id')),
+            (new ManyToManyAssociationField('products', ProductDefinition::class, ProductCategoryDefinition::class, 'category_id', 'product_id'))->addFlags(new CascadeDelete(), new ReverseInherited('categories')),
+            (new ManyToManyAssociationField('nestedProducts', ProductDefinition::class, ProductCategoryTreeDefinition::class, 'category_id', 'product_id'))->addFlags(new CascadeDelete(), new WriteProtected()),
+            new ManyToManyAssociationField('tags', TagDefinition::class, CategoryTagDefinition::class, 'category_id', 'tag_id'),
         ]);
     }
 }

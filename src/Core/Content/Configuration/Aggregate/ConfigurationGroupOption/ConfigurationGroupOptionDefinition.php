@@ -70,8 +70,8 @@ class ConfigurationGroupOptionDefinition extends EntityDefinition
             new ManyToOneAssociationField('group', 'configuration_group_id', ConfigurationGroupDefinition::class, false),
             (new TranslationsAssociationField(ConfigurationGroupOptionTranslationDefinition::class, 'configuration_group_option_id'))->addFlags(new Required()),
             (new OneToManyAssociationField('productConfigurators', ProductConfiguratorDefinition::class, 'configuration_group_option_id', false, 'id'))->addFlags(new CascadeDelete()),
-            (new ManyToManyAssociationField('productDatasheets', ProductDefinition::class, ProductDatasheetDefinition::class, false, 'configuration_group_option_id', 'product_id'))->addFlags(new CascadeDelete(), new ReverseInherited('datasheet')),
-            (new ManyToManyAssociationField('productVariations', ProductDefinition::class, ProductVariationDefinition::class, false, 'configuration_group_option_id', 'product_id'))->addFlags(new CascadeDelete()),
+            (new ManyToManyAssociationField('productDatasheets', ProductDefinition::class, ProductDatasheetDefinition::class, 'configuration_group_option_id', 'product_id'))->addFlags(new CascadeDelete(), new ReverseInherited('datasheet')),
+            (new ManyToManyAssociationField('productVariations', ProductDefinition::class, ProductVariationDefinition::class, 'configuration_group_option_id', 'product_id'))->addFlags(new CascadeDelete()),
         ]);
     }
 }

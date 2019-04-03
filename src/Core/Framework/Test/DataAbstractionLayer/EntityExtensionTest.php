@@ -251,7 +251,7 @@ class EntityExtensionTest extends TestCase
     {
         $field = (new ManyToManyAssociationField(
             'myCategories', CategoryDefinition::class,
-            ProductCategoryDefinition::class, false, 'product_id', 'category_id'
+            ProductCategoryDefinition::class, 'product_id', 'category_id'
         ))->addFlags(new Extension());
 
         ProductDefinition::getFields()->add($field);
@@ -290,7 +290,7 @@ class EntityExtensionTest extends TestCase
     {
         $field = (new ManyToManyAssociationField(
             'myCategories', CategoryDefinition::class,
-            ProductCategoryDefinition::class, true, 'product_id', 'category_id'
+            ProductCategoryDefinition::class, 'product_id', 'category_id'
         ))->addFlags(new Extension());
 
         ProductDefinition::getFields()->add($field);
@@ -315,7 +315,7 @@ class EntityExtensionTest extends TestCase
     {
         $field = (new ManyToManyAssociationField(
             'myCategories', CategoryDefinition::class,
-            ProductCategoryDefinition::class, false, 'product_id', 'category_id'
+            ProductCategoryDefinition::class, 'product_id', 'category_id'
         ))->addFlags(new Extension());
 
         ProductDefinition::getFields()->add($field);
@@ -362,7 +362,7 @@ class EntityExtensionTest extends TestCase
     {
         $field = (new ManyToManyAssociationField(
             'myCategories', CategoryDefinition::class,
-            ProductCategoryDefinition::class, false, 'product_id', 'category_id'
+            ProductCategoryDefinition::class, 'product_id', 'category_id'
         ))->addFlags(new Extension());
 
         ProductDefinition::getFields()->add($field);
@@ -400,7 +400,7 @@ class EntityExtensionTest extends TestCase
     {
         $field = (new ManyToManyAssociationField(
             'myCategories', CategoryDefinition::class,
-            ProductCategoryDefinition::class, false, 'product_id', 'category_id'
+            ProductCategoryDefinition::class, 'product_id', 'category_id'
         ))->addFlags(new Extension());
 
         ProductDefinition::getFields()->add($field);

@@ -302,7 +302,7 @@ set this parameter to `true` as it can simply be joined without a further query.
 ### ManyToManyAssociationField
 
 ```php
-new ManyToManyAssociationField('categories', CategoryDefinition::class, ProductCategoryDefinition::class, false, 'product_id', 'category_id')
+new ManyToManyAssociationField('categories', CategoryDefinition::class, ProductCategoryDefinition::class, 'product_id', 'category_id')
 ```
 
 This field is used for building `n:m` relations. It does not have a storage field as it will be mapped using a

@@ -53,7 +53,7 @@ class NumberRangeDefinition extends EntityDefinition
             new UpdatedAtField(),
 
             (new ManyToOneAssociationField('type', 'type_id', NumberRangeTypeDefinition::class, true))->addFlags(new Required()),
-            new ManyToManyAssociationField('salesChannels', SalesChannelDefinition::class, NumberRangeSalesChannelDefinition::class, false, 'number_range_id', 'sales_channel_id'),
+            new ManyToManyAssociationField('salesChannels', SalesChannelDefinition::class, NumberRangeSalesChannelDefinition::class, 'number_range_id', 'sales_channel_id'),
             (new OneToOneAssociationField('state', 'id', 'number_range_id', NumberRangeStateDefinition::class, false))->addFlags(new CascadeDelete()),
         ]);
     }

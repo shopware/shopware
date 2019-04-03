@@ -93,7 +93,7 @@ class MediaDefinition extends EntityDefinition
             (new BoolField('has_file', 'hasFile'))->addFlags(new Deferred()),
             new ManyToOneAssociationField('mediaFolder', 'media_folder_id', MediaFolderDefinition::class, false),
             new OneToManyAssociationField('configurationGroupOptions', ConfigurationGroupOptionDefinition::class, 'media_id', false),
-            new ManyToManyAssociationField('tags', TagDefinition::class, MediaTagDefinition::class, false, 'media_id', 'tag_id'),
+            new ManyToManyAssociationField('tags', TagDefinition::class, MediaTagDefinition::class, 'media_id', 'tag_id'),
             (new OneToManyAssociationField('mailTemplateMedia', MailTemplateMediaDefinition::class, 'media_id', false, 'id'))->addFlags(new CascadeDelete()),
         ]);
     }

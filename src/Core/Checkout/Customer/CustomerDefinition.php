@@ -99,7 +99,7 @@ class CustomerDefinition extends EntityDefinition
             new ManyToOneAssociationField('salutation', 'salutation_id', SalutationDefinition::class, true),
             (new OneToManyAssociationField('addresses', CustomerAddressDefinition::class, 'customer_id', false, 'id'))->addFlags(new CascadeDelete()),
             (new OneToManyAssociationField('orderCustomers', OrderCustomerDefinition::class, 'customer_id', false, 'id'))->addFlags(new RestrictDelete()),
-            new ManyToManyAssociationField('tags', TagDefinition::class, CustomerTagDefinition::class, false, 'customer_id', 'tag_id'),
+            new ManyToManyAssociationField('tags', TagDefinition::class, CustomerTagDefinition::class, 'customer_id', 'tag_id'),
         ]);
     }
 }

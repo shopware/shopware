@@ -91,7 +91,7 @@ class LanguageDefinition extends EntityDefinition
             new ManyToOneAssociationField('translationCode', 'translation_code_id', LocaleDefinition::class, true),
 
             new ChildrenAssociationField(self::class),
-            new ManyToManyAssociationField('salesChannels', SalesChannelDefinition::class, SalesChannelLanguageDefinition::class, false, 'language_id', 'sales_channel_id'),
+            new ManyToManyAssociationField('salesChannels', SalesChannelDefinition::class, SalesChannelLanguageDefinition::class, 'language_id', 'sales_channel_id'),
             new OneToManyAssociationField('salesChannelDefaultAssignments', SalesChannelDefinition::class, 'language_id', false, 'id'),
             (new OneToManyAssociationField('salesChannelDomains', SalesChannelDomainDefinition::class, 'language_id', false))->addFlags(new RestrictDelete()),
 

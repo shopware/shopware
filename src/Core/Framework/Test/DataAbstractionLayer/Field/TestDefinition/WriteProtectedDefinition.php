@@ -30,11 +30,11 @@ class WriteProtectedDefinition extends EntityDefinition
 
             new FkField('relation_id', 'relationId', WriteProtectedRelationDefinition::class),
             (new ManyToOneAssociationField('relation', 'relation_id', WriteProtectedRelationDefinition::class, false, 'id'))->addFlags(new WriteProtected()),
-            (new ManyToManyAssociationField('relations', WriteProtectedRelationDefinition::class, WriteProtectedReferenceDefinition::class, false, 'wp_id', 'relation_id'))->addFlags(new WriteProtected()),
+            (new ManyToManyAssociationField('relations', WriteProtectedRelationDefinition::class, WriteProtectedReferenceDefinition::class, 'wp_id', 'relation_id'))->addFlags(new WriteProtected()),
 
             new FkField('system_relation_id', 'systemRelationId', WriteProtectedRelationDefinition::class),
             (new ManyToOneAssociationField('systemRelation', 'system_relation_id', WriteProtectedRelationDefinition::class, false, 'id'))->addFlags(new WriteProtected(Context::SYSTEM_SCOPE)),
-            (new ManyToManyAssociationField('systemRelations', WriteProtectedRelationDefinition::class, WriteProtectedReferenceDefinition::class, false, 'wp_id', 'relation_id'))->addFlags(new WriteProtected(Context::SYSTEM_SCOPE)),
+            (new ManyToManyAssociationField('systemRelations', WriteProtectedRelationDefinition::class, WriteProtectedReferenceDefinition::class, 'wp_id', 'relation_id'))->addFlags(new WriteProtected(Context::SYSTEM_SCOPE)),
         ]);
     }
 }

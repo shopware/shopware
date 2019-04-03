@@ -100,7 +100,7 @@ class OrderDefinition extends EntityDefinition
             (new OneToManyAssociationField('lineItems', OrderLineItemDefinition::class, 'order_id', false))->addFlags(new CascadeDelete()),
             (new OneToManyAssociationField('transactions', OrderTransactionDefinition::class, 'order_id', false))->addFlags(new CascadeDelete()),
             new OneToManyAssociationField('documents', DocumentDefinition::class, 'order_id', false),
-            new ManyToManyAssociationField('tags', TagDefinition::class, OrderTagDefinition::class, false, 'order_id', 'tag_id'),
+            new ManyToManyAssociationField('tags', TagDefinition::class, OrderTagDefinition::class, 'order_id', 'tag_id'),
         ]);
     }
 }

@@ -64,7 +64,7 @@ class CountryDefinition extends EntityDefinition
             (new TranslationsAssociationField(CountryTranslationDefinition::class, 'country_id'))->addFlags(new Required()),
             (new OneToManyAssociationField('customerAddresses', CustomerAddressDefinition::class, 'country_id', false, 'id'))->addFlags(new RestrictDelete()),
             (new OneToManyAssociationField('orderAddresses', OrderAddressDefinition::class, 'country_id', false, 'id'))->addFlags(new RestrictDelete()),
-            new ManyToManyAssociationField('salesChannels', SalesChannelDefinition::class, SalesChannelCountryDefinition::class, false, 'country_id', 'sales_channel_id'),
+            new ManyToManyAssociationField('salesChannels', SalesChannelDefinition::class, SalesChannelCountryDefinition::class, 'country_id', 'sales_channel_id'),
         ]);
     }
 }

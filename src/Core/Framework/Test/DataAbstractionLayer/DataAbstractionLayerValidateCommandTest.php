@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\Test\Command;
+namespace Shopware\Core\Framework\Test\DataAbstractionLayer;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\DataAbstractionLayer\Command\DataAbstractionLayerValidateCommand;

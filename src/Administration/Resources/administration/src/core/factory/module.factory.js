@@ -85,10 +85,11 @@ function registerModule(moduleId, module) {
 
     // Modules will be mounted using the routes definition in the manifest file. If the module doesn't contains a routes
     // definition it isn't accessible in the application.
-    if (!hasOwnProperty(module, 'routes')) {
+    if (!hasOwnProperty(module, 'routes') && !(module.routeMiddleware)) {
         warn(
             'ModuleFactory',
-            `Module "${moduleId}" has no configured routes. The module will not be accessible in the administration UI.`,
+            `Module "${moduleId}" has no configured routes or a routeMiddleware.`,
+            'The module will not be accessible in the administration UI.',
             'Abort registration.',
             module
         );
@@ -96,55 +97,59 @@ function registerModule(moduleId, module) {
     }
 
     // Sanitize the modules routes
-    Object.keys(module.routes).forEach((routeKey) => {
-        let route = module.routes[routeKey];
+    if (hasOwnProperty(module, 'routes')) {
+        Object.keys(module.routes).forEach((routeKey) => {
+            let route = module.routes[routeKey];
 
-        // Check if custom prefix name exists
-        const routePrefixName = module.routePrefixName ? module.routePrefixName : splitModuleId.join('.');
+            // Check if custom prefix name exists
+            const routePrefixName = module.routePrefixName ? module.routePrefixName : splitModuleId.join('.');
 
-        // Rewrite name
-        route.name = `${routePrefixName}.${routeKey}`;
+            // Rewrite name
+            route.name = `${routePrefixName}.${routeKey}`;
 
-        // Check if custom prefix path exists
-        const routePrefixPath = module.routePrefixPath ? module.routePrefixPath : splitModuleId.join('/');
+            // Check if custom prefix path exists
+            const routePrefixPath = module.routePrefixPath ? module.routePrefixPath : splitModuleId.join('/');
 
-        // Core routes don't need to be nested
-        if (!route.coreRoute) {
-            // Rewrite path
-            route.path = `/${routePrefixPath}/${route.path}`;
-        }
+            // Core routes don't need to be nested
+            if (!route.coreRoute) {
+                // Rewrite path
+                route.path = `/${routePrefixPath}/${route.path}`;
+            }
 
 
-        // Set the type of the route e.g. "core" or "plugin"
-        route.type = type;
+            // Set the type of the route e.g. "core" or "plugin"
+            route.type = type;
 
-        // Generate the component list based on a route
-        route = createRouteComponentList(route, moduleId, module);
+            // Generate the component list based on a route
+            route = createRouteComponentList(route, moduleId, module);
 
-        if (!route) {
-            return;
-        }
+            if (!route) {
+                return;
+            }
 
-        // Support for children routes
-        if (hasOwnProperty(route, 'children') && Object.keys(route.children).length) {
-            route = iterateChildRoutes(route, splitModuleId, routeKey);
-            moduleRoutes = registerChildRoutes(route, moduleRoutes);
-        }
+            // Support for children routes
+            if (hasOwnProperty(route, 'children') && Object.keys(route.children).length) {
+                route = iterateChildRoutes(route, splitModuleId, routeKey);
+                moduleRoutes = registerChildRoutes(route, moduleRoutes);
+            }
 
-        // Alias support
-        if (route.alias && route.alias.length > 0
-            && (!route.coreRoute)) {
-            route.alias = `/${splitModuleId.join('/')}/${route.alias}`;
-        }
+            // Alias support
+            if (route.alias && route.alias.length > 0
+                && (!route.coreRoute)) {
+                route.alias = `/${splitModuleId.join('/')}/${route.alias}`;
+            }
 
-        route.isChildren = false;
-        route.routeKey = routeKey;
+            route.isChildren = false;
+            route.routeKey = routeKey;
 
-        moduleRoutes.set(route.name, route);
-    });
+            moduleRoutes.set(route.name, route);
+        });
+    }
 
-    // When we're not having at least one valid route definition we're not registering the module
-    if (moduleRoutes.size === 0) {
+    // We only register the module if it either has one valid route or uses the router middleware
+    if (module.routeMiddleware && types.isFunction(module.routeMiddleware)) {
+        middlewareHelper.use(module.routeMiddleware);
+    } else if (moduleRoutes.size === 0) {
         warn(
             'ModuleFactory',
             `The module "${moduleId}" was not registered cause it hasn't a valid route definition`,
@@ -152,10 +157,6 @@ function registerModule(moduleId, module) {
             module.routes
         );
         return false;
-    }
-
-    if (module.routeMiddleware && types.isFunction(module.routeMiddleware)) {
-        middlewareHelper.use(module.routeMiddleware);
     }
 
     const moduleDefinition = {

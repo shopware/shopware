@@ -4,8 +4,8 @@ namespace Shopware\Core\Framework\Test\Command;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\Command\MigrationCommand;
-use Shopware\Core\Framework\Command\MigrationDestructiveCommand;
+use Shopware\Core\Framework\Migration\Command\MigrationCommand;
+use Shopware\Core\Framework\Migration\Command\MigrationDestructiveCommand;
 use Shopware\Core\Framework\Migration\Exception\MigrateException;
 use Shopware\Core\Framework\Migration\MigrationCollection;
 use Shopware\Core\Framework\Migration\MigrationCollectionLoader;

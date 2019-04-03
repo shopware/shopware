@@ -272,13 +272,13 @@
             <tag name="kernel.event_subscriber"/>
         </service>
 
-        <service id="Shopware\Core\Framework\Command\RefreshIndexCommand">
+        <service id="Shopware\Core\Framework\DataAbstractionLayer\Command\RefreshIndexCommand">
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\Indexing\IndexerRegistry"/>
             <tag name="kernel.event_subscriber"/>
             <tag name="console.command"/>
         </service>
 
-        <service id="Shopware\Core\Framework\Command\DataAbstractionLayerValidateCommand">
+        <service id="Shopware\Core\Framework\DataAbstractionLayer\Command\DataAbstractionLayerValidateCommand">
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionValidator"/>
             <tag name="console.command"/>
         </service>

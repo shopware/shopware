@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\Command;
+namespace Shopware\Core\Framework\ScheduledTask\Command;
 
 use Shopware\Core\Framework\ScheduledTask\Scheduler\TaskScheduler;
 use Symfony\Component\Console\Command\Command;

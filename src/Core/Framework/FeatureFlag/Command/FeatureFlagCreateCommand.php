@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\Command;
+namespace Shopware\Core\Framework\FeatureFlag\Command;
 
 use Shopware\Core\Framework\FeatureFlag\FeatureFlagGenerator;
 use Symfony\Component\Console\Command\Command;

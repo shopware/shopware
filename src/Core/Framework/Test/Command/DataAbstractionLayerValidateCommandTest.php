@@ -3,7 +3,7 @@
 namespace Shopware\Core\Framework\Test\Command;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\Command\DataAbstractionLayerValidateCommand;
+use Shopware\Core\Framework\DataAbstractionLayer\Command\DataAbstractionLayerValidateCommand;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Symfony\Component\Console\Tester\CommandTester;
 

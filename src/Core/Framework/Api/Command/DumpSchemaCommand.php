@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\Command;
+namespace Shopware\Core\Framework\Api\Command;
 
 use Shopware\Core\Framework\Api\ApiDefinition\DefinitionService;
 use Symfony\Component\Console\Command\Command;

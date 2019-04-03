@@ -5,6 +5,13 @@
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
 
     <services>
+
+        <service id="Shopware\Core\Framework\Demodata\Command\DemodataCommand">
+            <tag name="console.command"/>
+            <argument type="service" id="Shopware\Core\Framework\Demodata\DemodataService"/>
+            <argument>%kernel.environment%</argument>
+        </service>
+
         <service id="Shopware\Core\Framework\Demodata\DemodataService">
             <argument type="tagged" tag="shopware.demodata_generator" />
             <argument>%kernel.project_dir%</argument>

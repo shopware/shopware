@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\Command;
+namespace Shopware\Core\Framework\Migration\Command;
 
 class MigrationDestructiveCommand extends MigrationCommand
 {

@@ -3,7 +3,7 @@
 namespace Shopware\Storefront\Framework\Command;
 
 use Shopware\Core\Defaults;
-use Shopware\Core\System\Command\SalesChannelCreateCommand;
+use Shopware\Core\System\SalesChannel\Command\SalesChannelCreateCommand;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;

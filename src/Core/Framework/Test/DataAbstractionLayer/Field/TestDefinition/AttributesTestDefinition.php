@@ -43,7 +43,7 @@ class AttributesTestDefinition extends EntityDefinition
             new TranslationsAssociationField(AttributesTestTranslationDefinition::class, 'attribute_test_id'),
 
             //parent - child inheritance
-            new ParentAssociationField(self::class, false),
+            new ParentAssociationField(self::class, 'id', false),
             new ChildrenAssociationField(self::class),
         ]);
     }

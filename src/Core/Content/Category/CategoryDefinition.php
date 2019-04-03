@@ -91,8 +91,8 @@ class CategoryDefinition extends EntityDefinition
             (new TranslatedField('name'))->addFlags(new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
             new TranslatedField('attributes'),
 
-            new ParentAssociationField(self::class, false),
-            new ManyToOneAssociationField('media', 'media_id', MediaDefinition::class, false),
+            new ParentAssociationField(self::class, 'id', false),
+            new ManyToOneAssociationField('media', 'media_id', MediaDefinition::class, 'id', false),
             new ChildrenAssociationField(self::class),
             (new TranslationsAssociationField(CategoryTranslationDefinition::class, 'category_id'))->addFlags(new Required()),
 

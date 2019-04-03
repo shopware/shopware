@@ -36,8 +36,8 @@ class CategoryTagDefinition extends MappingEntityDefinition
 
             new CreatedAtField(),
             new UpdatedAtField(),
-            new ManyToOneAssociationField('category', 'category_id', CategoryDefinition::class, false),
-            new ManyToOneAssociationField('tag', 'tag_id', TagDefinition::class, false),
+            new ManyToOneAssociationField('category', 'category_id', CategoryDefinition::class, 'id', false),
+            new ManyToOneAssociationField('tag', 'tag_id', TagDefinition::class, 'id', false),
         ]);
     }
 }

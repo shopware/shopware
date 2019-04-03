@@ -75,8 +75,8 @@ abstract class EntityTranslationDefinition extends EntityDefinition
             (new FkField('language_id', 'languageId', LanguageDefinition::class))->addFlags(new PrimaryKey(), new Required()),
             new CreatedAtField(),
             new UpdatedAtField(),
-            new ManyToOneAssociationField($propertyBaseName, $entityName . '_id', $translatedDefinition, false),
-            new ManyToOneAssociationField('language', 'language_id', LanguageDefinition::class, false),
+            new ManyToOneAssociationField($propertyBaseName, $entityName . '_id', $translatedDefinition, 'id', false),
+            new ManyToOneAssociationField('language', 'language_id', LanguageDefinition::class, 'id', false),
         ];
 
         if (static::isVersionAware()) {

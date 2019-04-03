@@ -62,7 +62,8 @@ class MediaFolderConfigurationDefinition extends EntityDefinition
                 'mediaFolders',
                 MediaFolderDefinition::class,
                 'media_folder_configuration_id',
-                false),
+                'id'
+            ),
 
             new ManyToManyAssociationField(
                 'mediaThumbnailSizes',

@@ -52,12 +52,12 @@ class OrderTransactionDefinition extends EntityDefinition
             (new CalculatedPriceField('amount', 'amount'))->addFlags(new Required()),
 
             (new FkField('state_id', 'stateId', StateMachineStateDefinition::class))->addFlags(new Required()),
-            new ManyToOneAssociationField('stateMachineState', 'state_id', StateMachineStateDefinition::class, true),
+            new ManyToOneAssociationField('stateMachineState', 'state_id', StateMachineStateDefinition::class, 'id', true),
             new AttributesField(),
             new CreatedAtField(),
             new UpdatedAtField(),
-            new ManyToOneAssociationField('order', 'order_id', OrderDefinition::class, false),
-            new ManyToOneAssociationField('paymentMethod', 'payment_method_id', PaymentMethodDefinition::class, true),
+            new ManyToOneAssociationField('order', 'order_id', OrderDefinition::class, 'id', false),
+            new ManyToOneAssociationField('paymentMethod', 'payment_method_id', PaymentMethodDefinition::class, 'id', true),
         ]);
     }
 }

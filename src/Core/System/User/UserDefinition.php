@@ -57,7 +57,7 @@ class UserDefinition extends EntityDefinition
             new AttributesField(),
             new CreatedAtField(),
             new UpdatedAtField(),
-            new ManyToOneAssociationField('locale', 'locale_id', LocaleDefinition::class, false),
+            new ManyToOneAssociationField('locale', 'locale_id', LocaleDefinition::class, 'id', false),
             new OneToOneAssociationField('avatarMedia', 'avatar_id', 'id', MediaDefinition::class, true),
             new OneToManyAssociationField('media', MediaDefinition::class, 'user_id', 'id'),
             new OneToManyAssociationField('accessKeys', UserAccessKeyDefinition::class, 'user_id', 'id'),

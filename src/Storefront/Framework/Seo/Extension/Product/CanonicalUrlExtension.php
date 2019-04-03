@@ -13,7 +13,7 @@ class CanonicalUrlExtension implements EntityExtensionInterface
     public function extendFields(FieldCollection $collection): void
     {
         $collection->add(
-            new CanonicalUrlAssociationField('canonicalUrl', 'id', true, ProductDetailPageSeoUrlIndexer::ROUTE_NAME)
+            new CanonicalUrlAssociationField('canonicalUrl', 'id', ProductDetailPageSeoUrlIndexer::ROUTE_NAME)
         );
     }
 

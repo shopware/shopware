@@ -27,7 +27,7 @@ class NamedDefinition extends EntityDefinition
 
             new FkField('optional_group_id', 'optionalGroupId', NamedOptionalGroupDefinition::class),
 
-            new ManyToOneAssociationField('optionalGroup', 'optional_group_id', NamedOptionalGroupDefinition::class, true),
+            new ManyToOneAssociationField('optionalGroup', 'optional_group_id', NamedOptionalGroupDefinition::class, 'id', true),
         ]);
     }
 }

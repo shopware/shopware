@@ -23,8 +23,8 @@ class NumberRangeSalesChannelDefinition extends MappingEntityDefinition
         return new FieldCollection([
             (new FkField('number_range_id', 'numberRangeId', NumberRangeDefinition::class))->addFlags(new PrimaryKey(), new Required()),
             (new FkField('sales_channel_id', 'salesChannelId', SalesChannelDefinition::class))->addFlags(new PrimaryKey(), new Required()),
-            new ManyToOneAssociationField('numberRange', 'number_range_id', NumberRangeDefinition::class, false),
-            new ManyToOneAssociationField('salesChannel', 'sales_channel_id', SalesChannelDefinition::class, false),
+            new ManyToOneAssociationField('numberRange', 'number_range_id', NumberRangeDefinition::class, 'id', false),
+            new ManyToOneAssociationField('salesChannel', 'sales_channel_id', SalesChannelDefinition::class, 'id', false),
         ]);
     }
 }

@@ -27,8 +27,8 @@ class ShippingMethodRuleDefinition extends MappingEntityDefinition
             (new FkField('rule_id', 'ruleId', RuleDefinition::class))->addFlags(new Required(), new PrimaryKey()),
             new CreatedAtField(),
             new UpdatedAtField(),
-            new ManyToOneAssociationField('shippingMethod', 'shipping_method_id', ShippingMethodDefinition::class, true),
-            new ManyToOneAssociationField('rule', 'rule_id', RuleDefinition::class, true),
+            new ManyToOneAssociationField('shippingMethod', 'shipping_method_id', ShippingMethodDefinition::class, 'id', true),
+            new ManyToOneAssociationField('rule', 'rule_id', RuleDefinition::class, 'id', true),
         ]);
     }
 }

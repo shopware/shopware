@@ -71,7 +71,7 @@ class SubManyDefinition extends EntityDefinition
             new StringField('name', 'name'),
             (new FkField('root_sub_id', 'subId', SubDefinition::class, 'id'))->addFlags(new Required()),
             (new ReferenceVersionField(SubDefinition::class))->addFlags(new Required()),
-            new ManyToOneAssociationField('sub', 'root_sub_id', SubDefinition::class, false),
+            new ManyToOneAssociationField('sub', 'root_sub_id', SubDefinition::class, 'id', false),
         ]);
     }
 }

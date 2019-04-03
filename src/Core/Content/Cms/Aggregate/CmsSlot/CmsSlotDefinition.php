@@ -58,7 +58,7 @@ class CmsSlotDefinition extends EntityDefinition
             (new JsonField('data', 'data'))->addFlags(new Deferred(), new WriteProtected()),
 
             (new FkField('cms_block_id', 'blockId', CmsBlockDefinition::class))->addFlags(new Required()),
-            new ManyToOneAssociationField('block', 'cms_block_id', CmsBlockDefinition::class, false),
+            new ManyToOneAssociationField('block', 'cms_block_id', CmsBlockDefinition::class, 'id', false),
 
             (new TranslationsAssociationField(CmsSlotTranslationDefinition::class, 'cms_slot_id'))->addFlags(new Required()),
 

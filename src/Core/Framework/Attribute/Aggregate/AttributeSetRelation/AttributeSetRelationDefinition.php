@@ -39,7 +39,7 @@ class AttributeSetRelationDefinition extends EntityDefinition
             (new FkField('set_id', 'attributeSetId', AttributeSetDefinition::class))->setFlags(new Required()),
             (new StringField('entity_name', 'entityName', 63))->addFlags(new Required()),
 
-            new ManyToOneAssociationField('attributeSet', 'set_id', AttributeSetDefinition::class, false),
+            new ManyToOneAssociationField('attributeSet', 'set_id', AttributeSetDefinition::class, 'id', false),
 
             new CreatedAtField(),
             new UpdatedAtField(),

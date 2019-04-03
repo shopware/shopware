@@ -82,7 +82,7 @@ class MediaDefinition extends EntityDefinition
             (new StringField('url', 'url'))->addFlags(new Deferred()),
             new TranslatedField('attributes'),
 
-            new ManyToOneAssociationField('user', 'user_id', UserDefinition::class, false),
+            new ManyToOneAssociationField('user', 'user_id', UserDefinition::class, 'id', false),
 
             new OneToManyAssociationField('categories', CategoryDefinition::class, 'media_id', 'id'),
             new OneToManyAssociationField('productManufacturers', ProductManufacturerDefinition::class, 'media_id', 'id'),
@@ -91,7 +91,7 @@ class MediaDefinition extends EntityDefinition
             (new TranslationsAssociationField(MediaTranslationDefinition::class, 'media_id'))->addFlags(new Required()),
             (new OneToManyAssociationField('thumbnails', MediaThumbnailDefinition::class, 'media_id'))->addFlags(new CascadeDelete()),
             (new BoolField('has_file', 'hasFile'))->addFlags(new Deferred()),
-            new ManyToOneAssociationField('mediaFolder', 'media_folder_id', MediaFolderDefinition::class, false),
+            new ManyToOneAssociationField('mediaFolder', 'media_folder_id', MediaFolderDefinition::class, 'id', false),
             new OneToManyAssociationField('configurationGroupOptions', ConfigurationGroupOptionDefinition::class, 'media_id'),
             new ManyToManyAssociationField('tags', TagDefinition::class, MediaTagDefinition::class, 'media_id', 'tag_id'),
             (new OneToManyAssociationField('mailTemplateMedia', MailTemplateMediaDefinition::class, 'media_id', 'id'))->addFlags(new CascadeDelete()),

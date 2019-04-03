@@ -28,8 +28,8 @@ class MediaFolderConfigurationMediaThumbnailSizeDefinition extends MappingEntity
                 ->addFlags(new PrimaryKey(), new Required()),
 
             new CreatedAtField(),
-            new ManyToOneAssociationField('mediaFolderConfiguration', 'media_folder_configuration_id', MediaFolderConfigurationDefinition::class, false),
-            new ManyToOneAssociationField('mediaThumbnailSize', 'media_thumbnail_size_id', MediaThumbnailSizeDefinition::class, false),
+            new ManyToOneAssociationField('mediaFolderConfiguration', 'media_folder_configuration_id', MediaFolderConfigurationDefinition::class, 'id', false),
+            new ManyToOneAssociationField('mediaThumbnailSize', 'media_thumbnail_size_id', MediaThumbnailSizeDefinition::class, 'id', false),
         ]);
     }
 }

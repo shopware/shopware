@@ -34,8 +34,8 @@ class CustomerTagDefinition extends MappingEntityDefinition
 
             new CreatedAtField(),
             new UpdatedAtField(),
-            new ManyToOneAssociationField('customer', 'customer_id', CustomerDefinition::class, false),
-            new ManyToOneAssociationField('tag', 'tag_id', TagDefinition::class, false),
+            new ManyToOneAssociationField('customer', 'customer_id', CustomerDefinition::class, 'id', false),
+            new ManyToOneAssociationField('tag', 'tag_id', TagDefinition::class, 'id', false),
         ]);
     }
 }

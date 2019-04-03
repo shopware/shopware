@@ -50,7 +50,7 @@ class UserAccessKeyDefinition extends EntityDefinition
             new DateField('last_usage_at', 'lastUsageAt'),
             new AttributesField(),
             new CreatedAtField(),
-            new ManyToOneAssociationField('user', 'user_id', UserDefinition::class, false),
+            new ManyToOneAssociationField('user', 'user_id', UserDefinition::class, 'id', false),
         ]);
     }
 }

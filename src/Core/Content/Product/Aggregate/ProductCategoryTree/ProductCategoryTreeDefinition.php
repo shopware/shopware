@@ -33,8 +33,8 @@ class ProductCategoryTreeDefinition extends MappingEntityDefinition
             (new FkField('category_id', 'categoryId', CategoryDefinition::class))->addFlags(new PrimaryKey(), new Required()),
             (new ReferenceVersionField(CategoryDefinition::class))->addFlags(new PrimaryKey(), new Required()),
 
-            new ManyToOneAssociationField('product', 'product_id', ProductDefinition::class, false),
-            new ManyToOneAssociationField('category', 'category_id', CategoryDefinition::class, false),
+            new ManyToOneAssociationField('product', 'product_id', ProductDefinition::class, 'id', false),
+            new ManyToOneAssociationField('category', 'category_id', CategoryDefinition::class, 'id', false),
         ]);
     }
 }

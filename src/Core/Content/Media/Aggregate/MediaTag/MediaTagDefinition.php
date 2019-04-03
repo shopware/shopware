@@ -34,8 +34,8 @@ class MediaTagDefinition extends MappingEntityDefinition
 
             new CreatedAtField(),
             new UpdatedAtField(),
-            new ManyToOneAssociationField('media', 'media_id', MediaDefinition::class, false),
-            new ManyToOneAssociationField('tag', 'tag_id', TagDefinition::class, false),
+            new ManyToOneAssociationField('media', 'media_id', MediaDefinition::class, 'id', false),
+            new ManyToOneAssociationField('tag', 'tag_id', TagDefinition::class, 'id', false),
         ]);
     }
 }

@@ -69,7 +69,7 @@ class VersionCommitDefinition extends EntityDefinition
             (new StringField('message', 'message'))->addFlags(new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
             new CreatedAtField(),
             (new OneToManyAssociationField('data', VersionCommitDataDefinition::class, 'version_commit_id'))->addFlags(new CascadeDelete()),
-            new ManyToOneAssociationField('version', 'version_id', VersionDefinition::class, false),
+            new ManyToOneAssociationField('version', 'version_id', VersionDefinition::class, 'id', false),
         ]);
     }
 }

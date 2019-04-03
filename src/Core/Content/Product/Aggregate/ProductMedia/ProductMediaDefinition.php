@@ -55,8 +55,8 @@ class ProductMediaDefinition extends EntityDefinition
             new IntField('position', 'position'),
             new CreatedAtField(),
             new UpdatedAtField(),
-            (new ManyToOneAssociationField('product', 'product_id', ProductDefinition::class, false))->addFlags(new ReverseInherited('media')),
-            new ManyToOneAssociationField('media', 'media_id', MediaDefinition::class, true),
+            (new ManyToOneAssociationField('product', 'product_id', ProductDefinition::class, 'id', false))->addFlags(new ReverseInherited('media')),
+            new ManyToOneAssociationField('media', 'media_id', MediaDefinition::class, 'id', true),
             new AttributesField(),
         ]);
     }

@@ -25,8 +25,8 @@ class MailTemplateSalesChannelDefinition extends MappingEntityDefinition
             (new FkField('mail_template_id', 'mailTemplateId', MailTemplateDefinition::class))->addFlags(new PrimaryKey(), new Required()),
             (new FkField('sales_channel_id', 'salesChannelId', SalesChannelDefinition::class))->addFlags(new PrimaryKey(), new Required()),
             new CreatedAtField(),
-            new ManyToOneAssociationField('mailTemplate', 'mail_template_id', MailTemplateDefinition::class, true),
-            new ManyToOneAssociationField('salesChannel', 'sales_channel_id', SalesChannelDefinition::class, true),
+            new ManyToOneAssociationField('mailTemplate', 'mail_template_id', MailTemplateDefinition::class, 'id', true),
+            new ManyToOneAssociationField('salesChannel', 'sales_channel_id', SalesChannelDefinition::class, 'id', true),
         ]);
     }
 }

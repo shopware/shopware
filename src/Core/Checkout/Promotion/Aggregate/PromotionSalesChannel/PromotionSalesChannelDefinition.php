@@ -40,8 +40,8 @@ class PromotionSalesChannelDefinition extends EntityDefinition
             new CreatedAtField(),
             new UpdatedAtField(),
             (new IntField('priority', 'priority'))->addFlags(new Required()),
-            new ManyToOneAssociationField('promotion', 'promotion_id', PromotionDefinition::class, false),
-            new ManyToOneAssociationField('salesChannel', 'sales_channel_id', SalesChannelDefinition::class, false),
+            new ManyToOneAssociationField('promotion', 'promotion_id', PromotionDefinition::class, 'id', false),
+            new ManyToOneAssociationField('salesChannel', 'sales_channel_id', SalesChannelDefinition::class, 'id', false),
         ]);
     }
 }

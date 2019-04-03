@@ -50,7 +50,7 @@ class VersionCommitDataDefinition extends EntityDefinition
         return new FieldCollection([
             (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
             (new FkField('version_commit_id', 'versionCommitId', VersionCommitDefinition::class))->addFlags(new Required()),
-            new ManyToOneAssociationField('commit', 'version_commit_id', VersionCommitDefinition::class, false),
+            new ManyToOneAssociationField('commit', 'version_commit_id', VersionCommitDefinition::class, 'id', false),
             new IdField('user_id', 'userId'),
             new IdField('integration_id', 'integrationId'),
             (new IntField('auto_increment', 'autoIncrement'))->addFlags(new WriteProtected()),

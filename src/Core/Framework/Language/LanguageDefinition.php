@@ -85,10 +85,10 @@ class LanguageDefinition extends EntityDefinition
 
             new CreatedAtField(),
             new UpdatedAtField(),
-            new ParentAssociationField(self::class, false),
+            new ParentAssociationField(self::class, 'id', false),
 
-            new ManyToOneAssociationField('locale', 'locale_id', LocaleDefinition::class, true),
-            new ManyToOneAssociationField('translationCode', 'translation_code_id', LocaleDefinition::class, true),
+            new ManyToOneAssociationField('locale', 'locale_id', LocaleDefinition::class, 'id', true),
+            new ManyToOneAssociationField('translationCode', 'translation_code_id', LocaleDefinition::class, 'id', true),
 
             new ChildrenAssociationField(self::class),
             new ManyToManyAssociationField('salesChannels', SalesChannelDefinition::class, SalesChannelLanguageDefinition::class, 'language_id', 'sales_channel_id'),

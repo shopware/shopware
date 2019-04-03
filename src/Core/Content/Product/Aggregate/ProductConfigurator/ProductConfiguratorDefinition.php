@@ -53,8 +53,8 @@ class ProductConfiguratorDefinition extends EntityDefinition
             new PriceRulesJsonField('prices', 'prices'),
             new CreatedAtField(),
             new UpdatedAtField(),
-            new ManyToOneAssociationField('product', 'product_id', ProductDefinition::class, false),
-            new ManyToOneAssociationField('option', 'configuration_group_option_id', ConfigurationGroupOptionDefinition::class, true),
+            new ManyToOneAssociationField('product', 'product_id', ProductDefinition::class, 'id', false),
+            new ManyToOneAssociationField('option', 'configuration_group_option_id', ConfigurationGroupOptionDefinition::class, 'id', true),
             new AttributesField(),
         ]);
     }

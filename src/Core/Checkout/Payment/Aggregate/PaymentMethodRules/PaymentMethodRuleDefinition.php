@@ -27,8 +27,8 @@ class PaymentMethodRuleDefinition extends MappingEntityDefinition
             (new FkField('rule_id', 'ruleId', RuleDefinition::class))->addFlags(new Required(), new PrimaryKey()),
             new CreatedAtField(),
             new UpdatedAtField(),
-            new ManyToOneAssociationField('paymentMethod', 'payment_method_id', PaymentMethodDefinition::class, true),
-            new ManyToOneAssociationField('rule', 'rule_id', RuleDefinition::class, true),
+            new ManyToOneAssociationField('paymentMethod', 'payment_method_id', PaymentMethodDefinition::class, 'id', true),
+            new ManyToOneAssociationField('rule', 'rule_id', RuleDefinition::class, 'id', true),
         ]);
     }
 }

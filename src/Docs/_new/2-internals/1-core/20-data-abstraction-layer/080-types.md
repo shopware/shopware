@@ -284,7 +284,7 @@ the data.
 ### ManyToOneAssociationField
 
 ```php
-new ManyToOneAssociationField('language', 'language_id', LanguageDefinition::class, false)
+new ManyToOneAssociationField('language', 'language_id', LanguageDefinition::class, 'id', false)
 ```
 
 This field is used for building `n:1` relations.

@@ -41,7 +41,7 @@ class AttributeDefinition extends EntityDefinition
             new JsonField('config', 'config'),
 
             new FkField('set_id', 'attributeSetId', AttributeSetDefinition::class),
-            new ManyToOneAssociationField('attributeSet', 'set_id', AttributeSetDefinition::class, false),
+            new ManyToOneAssociationField('attributeSet', 'set_id', AttributeSetDefinition::class, 'id', false),
 
             new CreatedAtField(),
             new UpdatedAtField(),

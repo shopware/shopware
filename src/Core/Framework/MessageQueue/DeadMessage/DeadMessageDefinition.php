@@ -71,7 +71,7 @@ class DeadMessageDefinition extends EntityDefinition
             new CreatedAtField(),
             new UpdatedAtField(),
 
-            new ManyToOneAssociationField('scheduledTask', 'scheduled_task_id', ScheduledTaskDefinition::class, false),
+            new ManyToOneAssociationField('scheduledTask', 'scheduled_task_id', ScheduledTaskDefinition::class, 'id', false),
         ]);
     }
 }

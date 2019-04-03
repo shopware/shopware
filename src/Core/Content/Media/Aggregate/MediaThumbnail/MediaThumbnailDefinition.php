@@ -54,7 +54,7 @@ class MediaThumbnailDefinition extends EntityDefinition
             (new IntField('height', 'height'))->addFlags(new Required(), new WriteProtected(Context::SYSTEM_SCOPE)),
             (new StringField('url', 'url'))->addFlags(new Deferred()),
 
-            new ManyToOneAssociationField('media', 'media_id', MediaDefinition::class, false),
+            new ManyToOneAssociationField('media', 'media_id', MediaDefinition::class, 'id', false),
             new AttributesField(),
         ]);
     }

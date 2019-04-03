@@ -27,8 +27,8 @@ class SalesChannelCurrencyDefinition extends MappingEntityDefinition
             (new FkField('currency_id', 'currencyId', CurrencyDefinition::class))->addFlags(new PrimaryKey(), new Required()),
             new CreatedAtField(),
             new UpdatedAtField(),
-            new ManyToOneAssociationField('salesChannel', 'sales_channel_id', SalesChannelDefinition::class, false),
-            new ManyToOneAssociationField('currency', 'currency_id', CurrencyDefinition::class, false),
+            new ManyToOneAssociationField('salesChannel', 'sales_channel_id', SalesChannelDefinition::class, 'id', false),
+            new ManyToOneAssociationField('currency', 'currency_id', CurrencyDefinition::class, 'id', false),
         ]);
     }
 }

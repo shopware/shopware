@@ -75,10 +75,10 @@ class OrderAddressDefinition extends EntityDefinition
             new AttributesField(),
             new CreatedAtField(),
             new UpdatedAtField(),
-            new ManyToOneAssociationField('country', 'country_id', CountryDefinition::class, true),
-            new ManyToOneAssociationField('countryState', 'country_state_id', CountryStateDefinition::class, true),
-            (new ManyToOneAssociationField('order', 'order_id', OrderDefinition::class, false))->setFlags(new RestrictDelete()),
-            new ManyToOneAssociationField('salutation', 'salutation_id', SalutationDefinition::class, true),
+            new ManyToOneAssociationField('country', 'country_id', CountryDefinition::class, 'id', true),
+            new ManyToOneAssociationField('countryState', 'country_state_id', CountryStateDefinition::class, 'id', true),
+            (new ManyToOneAssociationField('order', 'order_id', OrderDefinition::class, 'id', false))->setFlags(new RestrictDelete()),
+            new ManyToOneAssociationField('salutation', 'salutation_id', SalutationDefinition::class, 'id', true),
             (new OneToManyAssociationField('orderDeliveries', OrderDeliveryDefinition::class, 'shipping_order_address_id', 'id'))->setFlags(new RestrictDelete()),
         ]);
     }

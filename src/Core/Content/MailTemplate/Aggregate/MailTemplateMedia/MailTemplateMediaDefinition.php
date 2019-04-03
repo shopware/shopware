@@ -39,8 +39,8 @@ class MailTemplateMediaDefinition extends MappingEntityDefinition
             (new FkField('media_id', 'mediaId', MediaDefinition::class))->addFlags(new Required()),
             new IntField('position', 'position'),
             new CreatedAtField(),
-            new ManyToOneAssociationField('mailTemplate', 'mail_template_id', MailTemplateDefinition::class, true),
-            new ManyToOneAssociationField('media', 'media_id', MediaDefinition::class, true),
+            new ManyToOneAssociationField('mailTemplate', 'mail_template_id', MailTemplateDefinition::class, 'id', true),
+            new ManyToOneAssociationField('media', 'media_id', MediaDefinition::class, 'id', true),
         ]);
     }
 }

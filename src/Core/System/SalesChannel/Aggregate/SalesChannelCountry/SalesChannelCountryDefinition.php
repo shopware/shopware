@@ -27,8 +27,8 @@ class SalesChannelCountryDefinition extends MappingEntityDefinition
             (new FkField('country_id', 'countryId', CountryDefinition::class))->addFlags(new PrimaryKey(), new Required()),
             new CreatedAtField(),
             new UpdatedAtField(),
-            new ManyToOneAssociationField('salesChannel', 'sales_channel_id', SalesChannelDefinition::class, false),
-            new ManyToOneAssociationField('country', 'country_id', CountryDefinition::class, false),
+            new ManyToOneAssociationField('salesChannel', 'sales_channel_id', SalesChannelDefinition::class, 'id', false),
+            new ManyToOneAssociationField('country', 'country_id', CountryDefinition::class, 'id', false),
         ]);
     }
 }

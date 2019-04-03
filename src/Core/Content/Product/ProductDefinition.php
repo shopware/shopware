@@ -164,14 +164,14 @@ class ProductDefinition extends EntityDefinition
             new TranslatedField('attributes'),
 
             //parent - child inheritance
-            new ParentAssociationField(self::class, false),
+            new ParentAssociationField(self::class, 'id', false),
             new ChildrenAssociationField(self::class),
 
             //inherited associations and associations which are loaded immediately
-            (new ManyToOneAssociationField('tax', 'tax_id', TaxDefinition::class, true, 'id'))->addFlags(new Inherited()),
-            (new ManyToOneAssociationField('manufacturer', 'product_manufacturer_id', ProductManufacturerDefinition::class, true, 'id'))->addFlags(new Inherited()),
-            (new ManyToOneAssociationField('unit', 'unit_id', UnitDefinition::class, true, 'id'))->addFlags(new Inherited()),
-            (new ManyToOneAssociationField('cover', 'product_media_id', ProductMediaDefinition::class, true, 'id'))->addFlags(new Inherited()),
+            (new ManyToOneAssociationField('tax', 'tax_id', TaxDefinition::class, 'id', true))->addFlags(new Inherited()),
+            (new ManyToOneAssociationField('manufacturer', 'product_manufacturer_id', ProductManufacturerDefinition::class, 'id', true))->addFlags(new Inherited()),
+            (new ManyToOneAssociationField('unit', 'unit_id', UnitDefinition::class, 'id', true))->addFlags(new Inherited()),
+            (new ManyToOneAssociationField('cover', 'product_media_id', ProductMediaDefinition::class, 'id', true))->addFlags(new Inherited()),
             (new OneToManyAssociationField('prices', ProductPriceDefinition::class, 'product_id'))->addFlags(new CascadeDelete(), new Inherited()),
 
             //inherited associations which are not loaded immediately

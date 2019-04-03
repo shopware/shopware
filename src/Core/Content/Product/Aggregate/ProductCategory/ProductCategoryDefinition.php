@@ -37,8 +37,8 @@ class ProductCategoryDefinition extends MappingEntityDefinition
 
             new CreatedAtField(),
             new UpdatedAtField(),
-            new ManyToOneAssociationField('product', 'product_id', ProductDefinition::class, false),
-            new ManyToOneAssociationField('category', 'category_id', CategoryDefinition::class, false),
+            new ManyToOneAssociationField('product', 'product_id', ProductDefinition::class, 'id', false),
+            new ManyToOneAssociationField('category', 'category_id', CategoryDefinition::class, 'id', false),
         ]);
     }
 }

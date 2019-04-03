@@ -1,7 +1,7 @@
 {% block component_product_badges %}
 	<div class="product-badges">
 		{% block component_product_badges_discount %}
-			{#TODO: NEXT-1903 - adjust if-query and icon#}
+			{#TODO: NEXT-2675 - adjust if-query and icon#}
 			{% if product.hasPseudoPrice %}
 				<div class="badge badge-danger badge-discount">
 					<span>&#37;</span>
@@ -18,7 +18,7 @@
 		{% endblock %}
 
 		{% block component_product_badges_new %}
-			{#TODO: NEXT-1903 - adjust if-query#}
+			{#TODO: NEXT-2675 - adjust if-query#}
 			{% if product.newProduct %}
 				<div class="badge badge-success badge-new">
 					{{ "listing.boxLabelNew"|trans }}

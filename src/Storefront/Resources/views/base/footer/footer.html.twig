@@ -120,7 +120,7 @@
     {% block base_footer_bottom %}
         <div class="footer-bottom">
             {% block base_footer_vat %}
-                {#TODO: NEXT-1990 - footer VAT links#}
+                {#TODO: NEXT-2667 - shop page link: footer VAT links#}
                 <div class="footer-vat">
                     {% if page.context.taxState == "gross" %}
                         <p>{{ "footer.includeVat"|trans|raw }}</p>

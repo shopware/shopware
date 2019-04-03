@@ -13,7 +13,7 @@
 	{% elseif layout == 'list' %}
 		{% sw_include "@Storefront/component/product/widget/box-list.html.twig" %}
 	{% else %}
-		{#TODO: NEXT-1904 - check why include with dynamic path isn't working anymore#}
+		{#TODO: NEXT-2675 - check why include with dynamic path isn't working anymore#}
 		{#{% sw_include "@Storefront/component/product/widget/box-#{layout}.html.twig" ignore missing %}#}
 	{% endif %}
 {% endblock %}

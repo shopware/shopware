@@ -124,7 +124,7 @@
 			{% endblock %}
 
 			{% block component_address_form_country_select %}
-				{#TODO: remove dirty field name hack (country vs countryId)#}
+				{#TODO: NEXT-2529 - remove dirty field name hack (country vs countryId)#}
 				<select class="custom-select"
 				        id="{{ prefix }}AddressCountry"
 				        name="{{ prefix }}[countryId]">
@@ -138,5 +138,5 @@
 		</div>
 	{% endblock %}
 
-	{#TODO: NEXT-1930 - country states#}
+	{#TODO: NEXT-2671 - country states#}
 {% endblock %}

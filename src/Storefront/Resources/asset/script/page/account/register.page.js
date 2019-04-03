@@ -3,7 +3,7 @@ import DomAccess from "../../helper/dom-access.helper";
 
 const client = new HttpClient(window.accessKey, window.contextToken);
 
-// basic js to log in an existing user // TODO: NEXT-2077 - refactor
+// basic js to log in an existing user
 let loginForm = document.getElementById('loginForm');
 if (loginForm){
     loginForm.addEventListener('submit', function(e) {

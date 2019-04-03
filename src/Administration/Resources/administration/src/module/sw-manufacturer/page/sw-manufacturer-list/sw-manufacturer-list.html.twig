@@ -3,9 +3,9 @@
 
         {% block sw_manufacturer_list_search_bar %}
             <template slot="search-bar">
-                <sw-search-bar :placeholder="$tc('sw-manufacturer.general.placeholderSearchBar')"
-                               :searchType="$tc('sw-manufacturer.general.mainMenuItemGeneral')"
-                               @search="this.onSearch">
+                <sw-search-bar initialSearchType="product_manufacturer"
+                               :initialSearch="term"
+                               @search="onSearch">
                 </sw-search-bar>
             </template>
         {% endblock %}

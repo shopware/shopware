@@ -83,7 +83,11 @@ export default {
             let placeholder = this.$tc('global.sw-search-bar.placeholderSearchField');
 
             if (this.currentSearchType) {
-                placeholder = this.$tc(this.searchTypes[this.currentSearchType].placeholderSnippet);
+                if (this.placeholder !== '') {
+                    placeholder = this.placeholder;
+                } else if (Object.keys(this.searchTypes).includes(this.currentSearchType)) {
+                    placeholder = this.$tc(this.searchTypes[this.currentSearchType].placeholderSnippet);
+                }
             }
 
             if (this.inputHovered) {
@@ -142,15 +146,17 @@ export default {
                 type = this.currentSearchType;
             }
 
-            const label = this.$tc(`global.entities.${type}`, 2);
+            if (!this.$te((`global.entities.${type}`))) {
+                return this.currentSearchType;
+            }
 
-            return label || this.currentSearchType;
+            return this.$tc(`global.entities.${type}`, 2);
         },
 
         onKeyDown(event) {
             if (event instanceof KeyboardEvent && event.key === 's') {
                 const element = event.path[0];
-                if (element.nodeName === 'INPUT') {
+                if (element.nodeName === 'INPUT' || element.nodeName === 'TEXTAREA' || element.nodeName === 'SELECT') {
                     return;
                 }
                 if (element.nodeName === 'DIV' && element.className.includes('ql-editor')) {
@@ -497,13 +503,21 @@ export default {
         getEntityIconName(entityName) {
             const module = this.moduleFactory.getModuleByEntityName(entityName);
 
-            return module.manifest.icon;
+            if (!module) {
+                return entityName;
+            }
+
+            return module.manifest.icon || entityName;
         },
 
         getEntityIconColor(entityName) {
             const module = this.moduleFactory.getModuleByEntityName(entityName);
 
-            return module.manifest.color;
+            if (!module) {
+                return '#AEC4DA';
+            }
+
+            return module.manifest.color || '#AEC4DA';
         },
 
         isResultEmpty() {

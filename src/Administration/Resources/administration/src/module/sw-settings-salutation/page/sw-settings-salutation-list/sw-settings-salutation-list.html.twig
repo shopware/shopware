@@ -3,8 +3,9 @@
 
         {% block sw_settings_salutation_list_search_bar %}
             <template slot="search-bar">
-                <sw-search-bar :placeholder="$tc('sw-settings-salutation.general.placeholderSearchBar')"
-                               :searchType="$tc('sw-settings-salutation.general.mainMenuItemGeneral')"
+                <sw-search-bar initialSearchType="salutation"
+                               :placeholder="$tc('sw-settings-salutation.general.placeholderSearchBar')"
+                               :initialSearch="term"
                                @search="onSearch">
                 </sw-search-bar>
             </template>

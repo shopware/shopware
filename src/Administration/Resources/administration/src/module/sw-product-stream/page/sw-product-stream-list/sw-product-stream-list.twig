@@ -3,9 +3,10 @@
 
         {% block sw_product_stream_list_search_bar %}
             <template slot="search-bar">
-                <sw-search-bar :placeholder="$tc('sw-product-stream.general.placeholderSearchBar')"
-                               :searchType="$tc('sw-product-stream.general.mainMenuItemGeneral')"
-                               @search="this.onSearch">
+                <sw-search-bar initialSearchType="product_stream"
+                               :placeholder="$tc('sw-product-stream.general.placeholderSearchBar')"
+                               :initialSearch="term"
+                               @search="onSearch">
                 </sw-search-bar>
             </template>
         {% endblock %}

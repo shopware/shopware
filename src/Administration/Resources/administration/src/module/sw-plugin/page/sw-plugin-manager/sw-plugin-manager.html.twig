@@ -2,9 +2,9 @@
     <sw-page class="sw-plugin-manager">
         {% block sw_plugin_manager_search_bar %}
             <template slot="search-bar">
-                <sw-search-bar :placeholder="$tc('sw-plugin.general.placeholderSearchBar')"
-                               :searchType="$tc('sw-plugin.general.mainMenuItemGeneral')"
-                               @search="this.onSearch">
+                <sw-search-bar initialSearchType="plugin_manager"
+                               :placeholder="$tc('sw-plugin.general.placeholderSearchBar')"
+                               @search="onSearch">
                 </sw-search-bar>
             </template>
         {% endblock %}

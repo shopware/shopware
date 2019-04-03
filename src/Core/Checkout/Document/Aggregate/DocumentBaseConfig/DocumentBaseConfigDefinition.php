@@ -41,7 +41,7 @@ class DocumentBaseConfigDefinition extends EntityDefinition
         return new FieldCollection([
             (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
 
-            (new FkField('type_id', 'typeId', DocumentTypeDefinition::class))->addFlags(new Required()),
+            (new FkField('document_type_id', 'documentTypeId', DocumentTypeDefinition::class))->addFlags(new Required()),
             new FkField('logo_id', 'logoId', DocumentTypeDefinition::class),
 
             (new StringField('name', 'name'))->addFlags(new Required()),
@@ -52,7 +52,7 @@ class DocumentBaseConfigDefinition extends EntityDefinition
             new JsonField('config', 'config'),
             new CreatedAtField(),
 
-            (new ManyToOneAssociationField('type', 'type_id', DocumentTypeDefinition::class, true))->addFlags(new Required()),
+            (new ManyToOneAssociationField('documentType', 'document_type_id', DocumentTypeDefinition::class, true))->addFlags(new Required()),
             new ManyToOneAssociationField('logo', 'logo_id', MediaDefinition::class, true),
             new OneToManyAssociationField('salesChannels', DocumentBaseConfigSalesChannelDefinition::class, 'document_base_config_id', false),
         ]);

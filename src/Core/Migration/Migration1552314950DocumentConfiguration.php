@@ -25,14 +25,14 @@ CREATE TABLE `document_base_config` (
   `filename_suffix` VARCHAR(64) DEFAULT '',
   `document_number` VARCHAR(64) DEFAULT '',
   `global` TINYINT(1) DEFAULT 0,
-  `type_id` BINARY(16) NOT NULL,
+  `document_type_id` BINARY(16) NOT NULL,
   `logo_id` BINARY(16) NULL,
   `config` JSON NULL,
   `created_at` DATETIME(3) NOT NULL,
   PRIMARY KEY (`id`),
-  KEY `idx.document_base_config.type_id` (`type_id`),
+  KEY `idx.document_base_config.type_id` (`document_type_id`),
   CONSTRAINT `json.config` CHECK (JSON_VALID(`config`)),
-  CONSTRAINT `fk.document_base_config.type_id` FOREIGN KEY (`type_id`) REFERENCES `document_type` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `fk.document_base_config.type_id` FOREIGN KEY (`document_type_id`) REFERENCES `document_type` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `fk.document_base_config.logo_id` FOREIGN KEY (`logo_id`) REFERENCES `media` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 SQL;
@@ -94,9 +94,9 @@ SQL;
 
         $configJson = json_encode($defaultConfig);
 
-        $connection->insert('document_base_config', ['id' => $stornoConfigId, 'name' => DocumentTypes::STORNO, 'global' => 1, 'filename_prefix' => DocumentTypes::STORNO . '_', 'type_id' => $stornoId, 'config' => $configJson, 'created_at' => date(Defaults::DATE_FORMAT)]);
-        $connection->insert('document_base_config', ['id' => $invoiceConfigId, 'name' => DocumentTypes::INVOICE, 'global' => 1, 'filename_prefix' => DocumentTypes::INVOICE . '_', 'type_id' => $invoiceId, 'config' => $configJson, 'created_at' => date(Defaults::DATE_FORMAT)]);
-        $connection->insert('document_base_config', ['id' => $deliveryConfigId, 'name' => DocumentTypes::DELIVERY_NOTE, 'global' => 1, 'filename_prefix' => DocumentTypes::DELIVERY_NOTE . '_', 'type_id' => $deliverNoteId, 'config' => $configJson, 'created_at' => date(Defaults::DATE_FORMAT)]);
+        $connection->insert('document_base_config', ['id' => $stornoConfigId, 'name' => DocumentTypes::STORNO, 'global' => 1, 'filename_prefix' => DocumentTypes::STORNO . '_', 'document_type_id' => $stornoId, 'config' => $configJson, 'created_at' => date(Defaults::DATE_FORMAT)]);
+        $connection->insert('document_base_config', ['id' => $invoiceConfigId, 'name' => DocumentTypes::INVOICE, 'global' => 1, 'filename_prefix' => DocumentTypes::INVOICE . '_', 'document_type_id' => $invoiceId, 'config' => $configJson, 'created_at' => date(Defaults::DATE_FORMAT)]);
+        $connection->insert('document_base_config', ['id' => $deliveryConfigId, 'name' => DocumentTypes::DELIVERY_NOTE, 'global' => 1, 'filename_prefix' => DocumentTypes::DELIVERY_NOTE . '_', 'document_type_id' => $deliverNoteId, 'config' => $configJson, 'created_at' => date(Defaults::DATE_FORMAT)]);
 
         $connection->insert('document_base_config_sales_channel', ['id' => Uuid::randomBytes(), 'document_base_config_id' => $stornoConfigId, 'document_type_id' => $stornoId]);
         $connection->insert('document_base_config_sales_channel', ['id' => Uuid::randomBytes(), 'document_base_config_id' => $invoiceConfigId, 'document_type_id' => $invoiceId]);

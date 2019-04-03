@@ -334,6 +334,7 @@ class SalesChannelControllerTest extends TestCase
             'symbol' => 'USD',
             'position' => 10,
             'shortName' => 'USD',
+            'isoCode' => 'USD',
             'name' => 'US Dollar',
         ];
         $data = [

@@ -16,10 +16,12 @@ use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Order\OrderConverter;
 use Shopware\Core\Checkout\Cart\Order\OrderPersister;
 use Shopware\Core\Checkout\Cart\Order\RecalculationService;
+use Shopware\Core\Checkout\Cart\Price\Struct\AbsolutePriceDefinition;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Checkout\Cart\Processor;
+use Shopware\Core\Checkout\Cart\Rule\CartAmountRule;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTax;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRule;
@@ -38,6 +40,8 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Rule\Collector\RuleConditionRegistry;
+use Shopware\Core\Framework\Rule\Container\AndRule;
+use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseHelper\ExtensionHelper;
@@ -560,7 +564,7 @@ class RecalculationServiceTest extends TestCase
         static::assertSame(9.99, $shippingCosts->getTotalPrice());
 
         // decrease price for first LineItem
-        $cart->getLineItems()->first()->setPriceDefinition(new QuantityPriceDefinition(1, new TaxRuleCollection([new TaxRule(19)]), 5));
+        $cart->getLineItems()->first()->setPriceDefinition(new QuantityPriceDefinition(1.0, new TaxRuleCollection([new TaxRule(19)]), 5));
         $cart = $this->getContainer()->get(Enrichment::class)->enrich($cart, $this->salesChannelContext, new CartBehavior());
         $cart = $this->getContainer()->get(Processor::class)->process($cart, $this->salesChannelContext, new CartBehavior());
         $orderId = $this->persistCart($cart);
@@ -807,7 +811,7 @@ class RecalculationServiceTest extends TestCase
         );
         $cart->add(
             (new LineItem('1', 'product_', 5))
-                ->setPriceDefinition(new QuantityPriceDefinition(10, new TaxRuleCollection([new TaxRule(19)]), 2, 5))
+                ->setPriceDefinition(new QuantityPriceDefinition(10.0, new TaxRuleCollection([new TaxRule(19)]), 2, 5))
                 ->setLabel('First product')
                 ->setPayloadValue('id', '1')
                 ->setStackable(true)
@@ -815,9 +819,7 @@ class RecalculationServiceTest extends TestCase
         );
         $cart->add(
             (new LineItem('2', 'custom_absolute', 1))
-                // todo should be supported SOON
-//                ->setPriceDefinition(new AbsolutePriceDefinition(3))
-                ->setPriceDefinition(new QuantityPriceDefinition(3, new TaxRuleCollection([new TaxRule(7)]), 2, 1))
+                ->setPriceDefinition(new AbsolutePriceDefinition(3.0, 2, new AndRule([new CartAmountRule(Rule::OPERATOR_GTE, 20.0)])))
                 ->setLabel('Second custom line item with absolute price definition')
                 ->setDeliveryInformation($deliveryInformation)
         );
@@ -831,7 +833,7 @@ class RecalculationServiceTest extends TestCase
                         ->setLabel('Custom child depth 1 of the third line item')
                         ->addChild(
                             (new LineItem('3-1-1', 'product_', 1))
-                                ->setPriceDefinition(new QuantityPriceDefinition(9, new TaxRuleCollection([new TaxRule(5)]), 2, 1))
+                                ->setPriceDefinition(new QuantityPriceDefinition(9.0, new TaxRuleCollection([new TaxRule(5)]), 2, 1))
                                 ->setLabel('Product depth 2 of third line item')
                                 ->setPayloadValue('id', '3-1-1')
                         )
@@ -867,7 +869,7 @@ class RecalculationServiceTest extends TestCase
         );
         $response = $this->getClient()->getResponse();
 
-        static::assertEquals(Response::HTTP_OK, $response->getStatusCode());
+        static::assertEquals(Response::HTTP_OK, $response->getStatusCode(), $response->getContent());
         $content = json_decode($response->getContent(), true);
         $versionId = $content['versionId'];
         static::assertEquals($orderId, $content['id']);

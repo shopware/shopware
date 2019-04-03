@@ -21,9 +21,10 @@ class CartAmountRule extends Rule
      */
     protected $operator;
 
-    public function __construct()
+    public function __construct($operator = self:: OPERATOR_EQ, ?float $amount = null)
     {
-        $this->operator = self::OPERATOR_EQ;
+        $this->operator = $operator;
+        $this->amount = $amount;
     }
 
     /**

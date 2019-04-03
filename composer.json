@@ -92,7 +92,7 @@
         "twig/extensions": "1.5.4",
         "twig/twig": "2.7.4",
         "voku/stop-words": "2.0.1",
-        "dompdf/dompdf": "^0.8.3"
+        "dompdf/dompdf": "0.8.3"
     },
     "require-dev": {
         "ext-tokenizer": "*",

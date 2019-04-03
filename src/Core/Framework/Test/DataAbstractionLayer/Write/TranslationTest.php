@@ -78,6 +78,7 @@ class TranslationTest extends TestCase
             'factor' => 1,
             'symbol' => '$',
             'decimalPrecision' => 2,
+            'isoCode' => 'USD',
             'translations' => [
                 'en-GB' => [
                     'name' => 'US Dollar',
@@ -110,11 +111,13 @@ class TranslationTest extends TestCase
             'factor' => 1,
             'decimalPrecision' => 2,
             'symbol' => '$',
+            'isoCode' => 'USD',
             'translations' => [
                 [
                     'languageId' => Defaults::LANGUAGE_SYSTEM,
                     'name' => 'US Dollar',
                     'shortName' => 'USD',
+                    'isoCode' => 'USD',
                 ],
             ],
         ];
@@ -143,6 +146,7 @@ class TranslationTest extends TestCase
             'factor' => 1,
             'decimalPrecision' => 2,
             'symbol' => '$',
+            'isoCode' => 'USD',
             'translations' => [
                 'en-GB' => [
                     'name' => $name,
@@ -178,6 +182,7 @@ class TranslationTest extends TestCase
             'factor' => 1,
             'decimalPrecision' => 2,
             'symbol' => '$',
+            'isoCode' => 'USD',
             'translations' => [
                 'en-GB' => [
                     'name' => $name,
@@ -237,6 +242,7 @@ class TranslationTest extends TestCase
             'factor' => 1,
             'decimalPrecision' => 2,
             'symbol' => '$',
+            'isoCode' => 'USD',
             'translations' => [
                 'en-GB' => [
                     'name' => $englishName,
@@ -290,6 +296,7 @@ class TranslationTest extends TestCase
             'factor' => 1,
             'symbol' => '$',
             'decimalPrecision' => 2,
+            'isoCode' => 'USD',
             'translations' => [
                 'en-GB' => [
                     'name' => $englishName,
@@ -333,6 +340,7 @@ class TranslationTest extends TestCase
             'factor' => 1,
             'symbol' => '$',
             'decimalPrecision' => 2,
+            'isoCode' => 'USD',
             'translations' => [
                 Defaults::LANGUAGE_SYSTEM => [
                     'name' => 'default',

@@ -71,15 +71,15 @@ class DocumentService
 
     public function create(
         string $orderId,
-        string $documentTypeId,
+        string $documentTypeName,
         string $fileType,
         DocumentConfiguration $config,
         Context $context
     ): DocumentIdStruct {
-        $documentType = $this->getDocumentTypeById($documentTypeId, $context);
+        $documentType = $this->getDocumentTypeByName($documentTypeName, $context);
 
-        if (!$documentTypeId || !$documentType || !$this->documentGeneratorRegistry->hasGenerator($documentType->getTechnicalName())) {
-            throw new InvalidDocumentGeneratorTypeException($documentType ? $documentType->getTechnicalName() : $documentTypeId);
+        if (!$this->documentGeneratorRegistry->hasGenerator($documentTypeName) || !$documentType) {
+            throw new InvalidDocumentGeneratorTypeException($documentTypeName);
         }
 
         if (!$this->fileGeneratorRegistry->hasGenerator($fileType)) {
@@ -93,7 +93,7 @@ class DocumentService
 
         $documentConfiguration = $this->documentConfigurationService->getConfiguration(
             $context,
-            $documentTypeId,
+            $documentType->getId(),
             $config->toArray()
         );
 
@@ -101,7 +101,7 @@ class DocumentService
         $this->documentRepository->create([
             [
                 'id' => $documentId,
-                'documentTypeId' => $documentTypeId,
+                'documentTypeId' => $documentType->getId(),
                 'fileType' => $fileType,
                 'orderId' => $orderId,
                 'orderVersionId' => $orderVersionId,
@@ -165,13 +165,9 @@ class DocumentService
         $config = DocumentConfigurationFactory::createConfiguration($document->getConfig());
 
         $documentGenerated = new DocumentGenerated();
-
         $documentGenerated->setHtml($documentGenerator->generateFromTemplate($order, $config, $context));
-
         $documentGenerated->setFilename($documentGenerator->getFileName($config) . '.' . $fileGenerator->getExtension());
-
         $documentGenerated->setPageOrientation($config->getPageOrientation());
-
         $documentGenerated->setFileBlob($fileGenerator->generate($documentGenerated));
 
         return $documentGenerated;
@@ -180,15 +176,15 @@ class DocumentService
     public function getPreview(
         string $orderId,
         string $deepLinkCode,
-        string $documentTypeId,
+        string $documentTypeName,
         string $fileType,
         DocumentConfiguration $config,
         Context $context
     ): DocumentGenerated {
-        $documentType = $this->getDocumentTypeById($documentTypeId, $context);
+        $documentType = $this->getDocumentTypeByName($documentTypeName, $context);
 
-        if (!$documentTypeId || !$documentType || !$this->documentGeneratorRegistry->hasGenerator($documentType->getTechnicalName())) {
-            throw new InvalidDocumentGeneratorTypeException($documentType ? $documentType->getTechnicalName() : $documentTypeId);
+        if (!$this->documentGeneratorRegistry->hasGenerator($documentTypeName) || !$documentType) {
+            throw new InvalidDocumentGeneratorTypeException($documentTypeName);
         }
         $fileGenerator = $this->fileGeneratorRegistry->getGenerator($fileType);
         $documentGenerator = $this->documentGeneratorRegistry->getGenerator($documentType->getTechnicalName());
@@ -201,18 +197,14 @@ class DocumentService
 
         $documentConfiguration = $this->documentConfigurationService->getConfiguration(
             $context,
-            $documentTypeId,
+            $documentType->getId(),
             $config->toArray()
         );
 
         $documentGenerated = new DocumentGenerated();
-
         $documentGenerated->setHtml($documentGenerator->generateFromTemplate($order, $documentConfiguration, $context));
-
         $documentGenerated->setFilename($documentGenerator->getFileName($config) . '.' . $fileGenerator->getExtension());
-
         $documentGenerated->setPageOrientation($config->getPageOrientation());
-
         $documentGenerated->setFileBlob($fileGenerator->generate($documentGenerated));
 
         return $documentGenerated;
@@ -244,9 +236,12 @@ class DocumentService
         return $this->orderRepository->search($criteria, $context->createWithVersionId($versionId))->get($orderId);
     }
 
-    private function getDocumentTypeById(string $documentTypeId, Context $context): ?DocumentTypeEntity
+    private function getDocumentTypeByName(string $documentType, Context $context): ?DocumentTypeEntity
     {
-        return $this->documentTypeRepository->search(new Criteria([$documentTypeId]), $context)->get($documentTypeId);
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('technicalName', $documentType));
+
+        return $this->documentTypeRepository->search($criteria, $context)->first();
     }
 
     private function validateVersion(string $versionId): void

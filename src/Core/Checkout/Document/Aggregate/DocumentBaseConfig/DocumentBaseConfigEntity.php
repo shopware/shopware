@@ -40,7 +40,12 @@ class DocumentBaseConfigEntity extends Entity
     /**
      * @var string|null
      */
-    protected $typeId;
+    protected $documentTypeId;
+
+    /**
+     * @var string|null
+     */
+    protected $logoId;
 
     /**
      * @var string[]|null
@@ -60,7 +65,7 @@ class DocumentBaseConfigEntity extends Entity
     /**
      * @var DocumentTypeEntity|null
      */
-    protected $type;
+    protected $documentType;
 
     /**
      * @var MediaEntity|null
@@ -97,14 +102,14 @@ class DocumentBaseConfigEntity extends Entity
         $this->salesChannels = $salesChannels;
     }
 
-    public function getTypeId(): ?string
+    public function getDocumentTypeId(): ?string
     {
-        return $this->typeId;
+        return $this->documentTypeId;
     }
 
-    public function setTypeId(?string $typeId): void
+    public function setDocumentTypeId(?string $documentTypeId): void
     {
-        $this->typeId = $typeId;
+        $this->documentTypeId = $documentTypeId;
     }
 
     public function getDocumentNumber(): string
@@ -117,14 +122,34 @@ class DocumentBaseConfigEntity extends Entity
         $this->documentNumber = $documentNumber;
     }
 
-    public function getType(): ?DocumentTypeEntity
+    public function isGlobal(): bool
     {
-        return $this->type;
+        return $this->global;
     }
 
-    public function setType(?DocumentTypeEntity $type): void
+    public function setGlobal(bool $global): void
     {
-        $this->type = $type;
+        $this->global = $global;
+    }
+
+    public function getDocumentType(): ?DocumentTypeEntity
+    {
+        return $this->documentType;
+    }
+
+    public function setDocumentType(DocumentTypeEntity $documentType): void
+    {
+        $this->documentType = $documentType;
+    }
+
+    public function getLogoId(): ?string
+    {
+        return $this->logoId;
+    }
+
+    public function setLogoId(string $logoId): void
+    {
+        $this->logoId = $logoId;
     }
 
     public function getLogo(): ?MediaEntity

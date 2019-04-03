@@ -75,7 +75,7 @@
         </service>
 
         <service id="Shopware\Core\Checkout\Document\DocumentGeneratorController" public="true">
-            <argument id="Shopware\Core\Checkout\Document\DocumentService" type="service"/>
+            <argument type="service" id="Shopware\Core\Checkout\Document\DocumentService"/>
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>

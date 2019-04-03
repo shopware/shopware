@@ -247,7 +247,7 @@ class SalesChannelEntity extends Entity
     /**
      * @var DocumentBaseConfigDefinition|null
      */
-    protected $documentBaseConfig;
+    protected $documentBaseConfigSalesChannels;
 
     public function getMailHeaderFooter(): ?MailHeaderFooterEntity
     {
@@ -669,13 +669,13 @@ class SalesChannelEntity extends Entity
         $this->numberRangeSalesChannels = $numberRangeSalesChannels;
     }
 
-    public function getDocumentBaseConfig(): ?DocumentBaseConfigDefinition
+    public function getDocumentBaseConfigSalesChannels(): ?DocumentBaseConfigDefinition
     {
-        return $this->documentBaseConfig;
+        return $this->documentBaseConfigSalesChannels;
     }
 
-    public function setDocumentBaseConfig(?DocumentBaseConfigDefinition $documentBaseConfig): void
+    public function setDocumentBaseConfigSalesChannels(?DocumentBaseConfigDefinition $documentBaseConfigSalesChannels): void
     {
-        $this->documentBaseConfig = $documentBaseConfig;
+        $this->documentBaseConfigSalesChannels = $documentBaseConfigSalesChannels;
     }
 }

@@ -87,8 +87,8 @@ Component.register('sw-order-document-card', {
             this.term = searchTerm;
             this.getList();
         },
-        createDocument(orderId, documentType, params) {
-            return this.documentService.createDocument(orderId, documentType, params).then(() => {
+        createDocument(orderId, documentTypeName, params) {
+            return this.documentService.createDocument(orderId, documentTypeName, params).then(() => {
                 this.getList();
             });
         },
@@ -104,7 +104,7 @@ Component.register('sw-order-document-card', {
         onCreateDocument(params, additionalAction) {
             this.showModal = false;
             this.$nextTick().then(() => {
-                this.createDocument(this.order.id, this.currentDocumentType.id, params).then((response) => {
+                this.createDocument(this.order.id, this.currentDocumentType.technicalName, params).then((response) => {
                     this.getList();
 
                     if (additionalAction === 'download') {
@@ -123,7 +123,7 @@ Component.register('sw-order-document-card', {
                 this.documentService.generateDocumentPreviewLink(
                     this.order.id,
                     this.order.deepLinkCode,
-                    this.currentDocumentType.id, config
+                    this.currentDocumentType.technicalName, config
                 ),
                 '_blank'
             );

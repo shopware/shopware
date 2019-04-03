@@ -37,7 +37,7 @@ class DocumentController extends AbstractController
 
     /**
      * @Route(
-     *     "/api/v{version}/_action/order/{orderId}/{deepLinkCode}/document/{documentTypeId}/preview",
+     *     "/api/v{version}/_action/order/{orderId}/{deepLinkCode}/document/{documentTypeName}/preview",
      *     defaults={"auth_required"=false},
      *     name="api.action.document.preview",
      *     methods={"GET"}
@@ -47,7 +47,7 @@ class DocumentController extends AbstractController
         Request $request,
         string $orderId,
         string $deepLinkCode,
-        string $documentTypeId,
+        string $documentTypeName,
         Context $context
     ): Response {
         $config = $request->query->has('config') ? json_decode($request->query->get('config'), true) : [];
@@ -59,7 +59,7 @@ class DocumentController extends AbstractController
         $documentGenerated = $this->documentService->getPreview(
             $orderId,
             $deepLinkCode,
-            $documentTypeId,
+            $documentTypeName,
             $fileType,
             $documentConfig,
             $context

@@ -161,6 +161,12 @@ return [
                         'related' => '/api/media/3e352be2d85846dd97529c0f6b544870/mail-template-media',
                     ],
                 ],
+                'documentBaseConfigs' => [
+                    'data' => [],
+                    'links' => [
+                        'related' => '/api/media/3e352be2d85846dd97529c0f6b544870/document-base-configs',
+                    ],
+                ],
                 'shippingMethods' => [
                     'data' => [],
                     'links' => [

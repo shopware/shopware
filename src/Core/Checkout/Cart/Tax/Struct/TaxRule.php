@@ -3,6 +3,8 @@
 namespace Shopware\Core\Checkout\Cart\Tax\Struct;
 
 use Shopware\Core\Framework\Struct\Struct;
+use Symfony\Component\Validator\Constraints\NotBlank;
+use Symfony\Component\Validator\Constraints\Type;
 
 class TaxRule extends Struct
 {
@@ -30,5 +32,13 @@ class TaxRule extends Struct
     public function getPercentage(): float
     {
         return $this->percentage;
+    }
+
+    public static function getConstraints(): array
+    {
+        return [
+            'taxRate' => [new NotBlank(), new Type('numeric')],
+            'percentage' => [new Type('numeric')],
+        ];
     }
 }

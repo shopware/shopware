@@ -2,10 +2,11 @@
 
 namespace Shopware\Core\Checkout\Document\Aggregate\DocumentType;
 
+use Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfig\DocumentBaseConfigDefinition;
+use Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfigSalesChannel\DocumentBaseConfigSalesChannelDefinition;
 use Shopware\Core\Checkout\Document\Aggregate\DocumentTypeTranslation\DocumentTypeTranslationDefinition;
 use Shopware\Core\Checkout\Document\DocumentDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\AttributesField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CreatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
@@ -46,10 +47,12 @@ class DocumentTypeDefinition extends EntityDefinition
             new CreatedAtField(),
             new UpdatedAtField(),
 
-            new AttributesField(),
+            new TranslatedField('attributes'),
 
             (new TranslationsAssociationField(DocumentTypeTranslationDefinition::class, 'document_type_id'))->addFlags(new Required()),
-            new OneToManyAssociationField('documents', DocumentDefinition::class, 'type_id', false),
+            new OneToManyAssociationField('documents', DocumentDefinition::class, 'document_type_id', false),
+            new OneToManyAssociationField('documentBaseConfigs', DocumentBaseConfigDefinition::class, 'document_type_id', false),
+            new OneToManyAssociationField('documentBaseConfigSalesChannels', DocumentBaseConfigSalesChannelDefinition::class, 'document_type_id', false),
         ]);
     }
 }

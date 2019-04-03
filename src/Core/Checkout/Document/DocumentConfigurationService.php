@@ -23,7 +23,7 @@ class DocumentConfigurationService
     public function getConfiguration(Context $context, string $documentTypeId, ?array $specificConfiguration): DocumentConfiguration
     {
         $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('typeId', $documentTypeId));
+        $criteria->addFilter(new EqualsFilter('documentTypeId', $documentTypeId));
         /** @var DocumentBaseConfigEntity $typeConfig */
         $typeConfig = $this->documentConfigRepository->search($criteria, $context)->first();
 

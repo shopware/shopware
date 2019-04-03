@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Routing\Exception\SalesChannelNotFoundException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
-use Symfony\Component\HttpKernel\Event\GetResponseEvent;
+use Symfony\Component\HttpKernel\Event\FilterControllerEvent;
 use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
 use Symfony\Component\HttpKernel\KernelEvents;
 
@@ -32,11 +32,11 @@ class SalesChannelAuthenticationListener implements EventSubscriberInterface
     public static function getSubscribedEvents(): array
     {
         return [
-            KernelEvents::REQUEST => ['validateRequest', 32],
+            KernelEvents::CONTROLLER => ['validateRequest', 32],
         ];
     }
 
-    public function validateRequest(GetResponseEvent $event): void
+    public function validateRequest(FilterControllerEvent $event): void
     {
         $request = $event->getRequest();
 

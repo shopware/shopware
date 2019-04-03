@@ -25,19 +25,19 @@ class DocumentGeneratorController extends AbstractController
 
     /**
     /**
-     * @Route("/api/v{version}/_action/order/{orderId}/document/{documentTypeId}", name="api.action.document.invoice", methods={"POST"})
+     * @Route("/api/v{version}/_action/order/{orderId}/document/{documentTypeName}", name="api.action.document.invoice", methods={"POST"})
      *
      * @throws InvalidDocumentGeneratorTypeException
      * @throws InvalidFileGeneratorTypeException
      */
-    public function createDocument(Request $request, string $orderId, string $documentTypeId, Context $context): JsonResponse
+    public function createDocument(Request $request, string $orderId, string $documentTypeName, Context $context): JsonResponse
     {
         $fileType = $request->query->getAlnum('fileType', FileTypes::PDF);
         $config = DocumentConfigurationFactory::createConfiguration($request->request->get('config', []));
 
         $documentIdStruct = $this->documentService->create(
             $orderId,
-            $documentTypeId,
+            $documentTypeName,
             $fileType,
             $config,
             $context

@@ -37,4 +37,13 @@ abstract class Rule extends Struct
      *  ]
      */
     abstract public function getConstraints(): array;
+
+    public function jsonSerialize(): array
+    {
+        $data = parent::jsonSerialize();
+        unset($data['extensions'], $data['_class']);
+        $data['type'] = $this->getName();
+
+        return $data;
+    }
 }

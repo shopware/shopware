@@ -4,9 +4,13 @@ namespace Shopware\Core\Checkout\Cart\Price\Struct;
 
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Struct\Struct;
+use Symfony\Component\Validator\Constraints\NotBlank;
+use Symfony\Component\Validator\Constraints\Type;
 
 class AbsolutePriceDefinition extends Struct implements PriceDefinitionInterface
 {
+    public const TYPE = 'absolute';
+
     /**
      * @var float
      */
@@ -44,5 +48,27 @@ class AbsolutePriceDefinition extends Struct implements PriceDefinitionInterface
     public function getPrecision(): int
     {
         return $this->precision;
+    }
+
+    public function getType(): string
+    {
+        return self::TYPE;
+    }
+
+    public function jsonSerialize(): array
+    {
+        $data = parent::jsonSerialize();
+        $data['type'] = $this->getType();
+
+        return $data;
+    }
+
+    public static function getConstraints(): array
+    {
+        return [
+            'price' => [new NotBlank(), new Type('numeric')],
+        ];
+
+        // todo validate rules
     }
 }

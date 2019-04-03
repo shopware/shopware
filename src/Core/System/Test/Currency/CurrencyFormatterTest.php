@@ -55,16 +55,4 @@ class CurrencyFormatterTest extends TestCase
 
         static::assertSame('US$132,582.99', $formattedCurrency);
     }
-
-    public function testFormat()
-    {
-        $currencyFormatter = $this->getContainer()->get(CurrencyFormatter::class);
-
-        $price = (float) '132582.98765432';
-
-        $formattedCurrency = $currencyFormatter->format($price, 'de');
-
-        var_dump($formattedCurrency);
-        exit();
-    }
 }

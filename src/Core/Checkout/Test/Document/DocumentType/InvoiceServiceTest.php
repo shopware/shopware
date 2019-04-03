@@ -27,6 +27,7 @@ use Shopware\Core\Checkout\Document\FileGenerator\PdfGenerator;
 use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
@@ -156,7 +157,7 @@ class InvoiceServiceTest extends TestCase
         $customer = [
             'id' => $customerId,
             'number' => '1337',
-            'salutation' => 'Mr',
+            'salutationId' => $this->getValidSalutationId(),
             'firstName' => 'Max',
             'lastName' => 'Mustermann',
             'customerNumber' => '1337',
@@ -172,7 +173,7 @@ class InvoiceServiceTest extends TestCase
                     'id' => $addressId,
                     'customerId' => $customerId,
                     'countryId' => Defaults::COUNTRY,
-                    'salutation' => 'Mr',
+                    'salutationId' => $this->getValidSalutationId(),
                     'firstName' => 'Max',
                     'lastName' => 'Mustermann',
                     'street' => 'Ebbinghoff 10',
@@ -200,7 +201,7 @@ class InvoiceServiceTest extends TestCase
             'active' => true,
             'prices' => [
                 [
-                    'shippingMethodId' => Defaults::SHIPPING_METHOD,
+                    'shippingMethodId' => $shippingMethodId,
                     'quantityFrom' => 0,
                     'price' => '10.00',
                     'factor' => 0,
@@ -240,5 +241,15 @@ class InvoiceServiceTest extends TestCase
         }
 
         return Uuid::fromBytesToHex($id);
+    }
+
+    private function getValidSalutationId(): string
+    {
+        /** @var EntityRepositoryInterface $repository */
+        $repository = $this->getContainer()->get('salutation.repository');
+
+        $criteria = (new Criteria())->setLimit(1);
+
+        return $repository->searchIds($criteria, Context::createDefaultContext())->getIds()[0];
     }
 }

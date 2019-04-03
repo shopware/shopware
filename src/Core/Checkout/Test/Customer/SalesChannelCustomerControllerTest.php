@@ -272,6 +272,7 @@ class SalesChannelCustomerControllerTest extends TestCase
         static::assertEquals($customerId, $customerAddress->getCustomerId());
         static::assertEquals($address['countryId'], $customerAddress->getCountryId());
         static::assertEquals($address['salutationId'], $customerAddress->getSalutation()->getId());
+        static::assertEquals($address['salutationId'], $customerAddress->getSalutation()->getId());
         static::assertEquals($address['firstName'], $customerAddress->getFirstName());
         static::assertEquals($address['lastName'], $customerAddress->getLastName());
         static::assertEquals($address['street'], $customerAddress->getStreet());

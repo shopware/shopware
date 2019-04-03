@@ -11,8 +11,8 @@ class DocumentApiService extends ApiService {
         this.name = 'documentService';
     }
 
-    createDocument(orderId, documentType, documentConfig = {}, additionalParams = {}, additionalHeaders = {}) {
-        const route = `/_action/order/${orderId}/document/${documentType}`;
+    createDocument(orderId, documentTypeName, documentConfig = {}, additionalParams = {}, additionalHeaders = {}) {
+        const route = `/_action/order/${orderId}/document/${documentTypeName}`;
         const headers = this.getBasicHeaders(additionalHeaders);
 
         return this.httpClient
@@ -22,8 +22,8 @@ class DocumentApiService extends ApiService {
             });
     }
 
-    generateDocumentPreviewLink(orderId, orderDeepLink, documentTypeId, config) {
-        return `/api/v1/_action/order/${orderId}/${orderDeepLink}/document/${documentTypeId}/preview?config=${config}`;
+    generateDocumentPreviewLink(orderId, orderDeepLink, documentTypeName, config) {
+        return `/api/v1/_action/order/${orderId}/${orderDeepLink}/document/${documentTypeName}/preview?config=${config}`;
     }
 
     generateDocumentLink(documentId, documentDeepLink, download = false) {

@@ -6,8 +6,6 @@ use Shopware\Core\Checkout\Cart\Exception\CartTokenNotFoundException;
 use Shopware\Core\Checkout\Cart\Exception\OrderNotFoundException;
 use Shopware\Core\Checkout\Cart\Storefront\CartService;
 use Shopware\Core\Checkout\CheckoutContext;
-use Shopware\Core\Checkout\Customer\Exception\BadCredentialsException;
-use Shopware\Core\Checkout\Customer\Storefront\AccountService;
 use Shopware\Core\Checkout\Order\Storefront\OrderService;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\Framework\Routing\InternalRequest;
@@ -22,7 +20,6 @@ use Shopware\Storefront\Page\Checkout\Register\CheckoutRegisterPageLoader;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Routing\Exception\InvalidParameterException;
 
@@ -54,11 +51,6 @@ class CheckoutPageController extends StorefrontController
     private $registerPageLoader;
 
     /**
-     * @var AccountService
-     */
-    private $accountService;
-
-    /**
      * @var OrderService
      */
     private $orderService;
@@ -69,7 +61,6 @@ class CheckoutPageController extends StorefrontController
         PageLoaderInterface $confirmPageLoader,
         PageLoaderInterface $finishPageLoader,
         PageLoaderInterface $registerPageLoader,
-        AccountService $accountService,
         OrderService $orderService
     ) {
         $this->cartService = $cartService;
@@ -77,7 +68,6 @@ class CheckoutPageController extends StorefrontController
         $this->confirmPageLoader = $confirmPageLoader;
         $this->finishPageLoader = $finishPageLoader;
         $this->registerPageLoader = $registerPageLoader;
-        $this->accountService = $accountService;
         $this->orderService = $orderService;
     }
 
@@ -176,27 +166,5 @@ class CheckoutPageController extends StorefrontController
 
         // TODO change template NEXT-1930
         return $this->renderStorefront('@Storefront/page/account/register/index.html.twig', ['redirectTo' => $redirect, 'page' => $page]);
-    }
-
-    /**
-     * @Route("/checkout/login", name="frontend.checkout.register.login", methods={"POST"})
-     */
-    public function loginCustomer(RequestDataBag $data, CheckoutContext $context): Response
-    {
-        if ($context->getCustomer()) {
-            return $this->redirectToRoute('frontend.checkout.confirm.page');
-        }
-
-        try {
-            $token = $this->accountService->loginWithPassword($data, $context);
-            if (!empty($token)) {
-                return new RedirectResponse($this->generateUrl('frontend.checkout.confirm.page'));
-            }
-        } catch (BadCredentialsException | UnauthorizedHttpException $e) {
-        }
-
-        return $this->forward('Shopware\Storefront\PageController\CheckoutPageController::register', [
-            'loginError' => true,
-        ]);
     }
 }

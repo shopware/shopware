@@ -248,7 +248,6 @@
             <argument type="service" id="Shopware\Storefront\Page\Checkout\Confirm\CheckoutConfirmPageLoader"/>
             <argument type="service" id="Shopware\Storefront\Page\Checkout\Finish\CheckoutFinishPageLoader"/>
             <argument type="service" id="Shopware\Storefront\Page\Checkout\Register\CheckoutRegisterPageLoader"/>
-            <argument type="service" id="Shopware\Core\Checkout\Customer\Storefront\AccountService"/>
             <argument type="service" id="Shopware\Core\Checkout\Order\Storefront\OrderService"/>
         </service>
 

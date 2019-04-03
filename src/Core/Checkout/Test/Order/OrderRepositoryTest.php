@@ -156,7 +156,7 @@ class OrderRepositoryTest extends TestCase
                 [
                     'id' => $addressId,
                     'customerId' => $customerId,
-                    'countryId' => Defaults::COUNTRY,
+                    'countryId' => $this->getValidCountryId(),
                     'salutationId' => $this->getValidSalutationId(),
                     'firstName' => 'Max',
                     'lastName' => 'Mustermann',
@@ -206,7 +206,7 @@ class OrderRepositoryTest extends TestCase
                             'street' => 'street',
                             'country' => [
                                 'name' => 'kasachstan',
-                                'id' => Defaults::COUNTRY,
+                                'id' => $this->getValidCountryId(),
                             ],
                         ],
                         'positions' => [
@@ -263,7 +263,7 @@ class OrderRepositoryTest extends TestCase
                                 'countryStateId' => $countryStateId,
                                 'country' => [
                                     'name' => 'kasachstan',
-                                    'id' => Defaults::COUNTRY,
+                                    'id' => $this->getValidCountryId(),
                                     'states' => [
                                         [
                                             'id' => $countryStateId,
@@ -285,7 +285,7 @@ class OrderRepositoryTest extends TestCase
                         'zipcode' => '59438-0403',
                         'city' => 'Stellaberg',
                         'street' => 'street',
-                        'countryId' => Defaults::COUNTRY,
+                        'countryId' => $this->getValidCountryId(),
                         'id' => $addressId,
                     ],
                 ],

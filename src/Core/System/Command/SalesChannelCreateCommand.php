@@ -35,15 +35,21 @@ class SalesChannelCreateCommand extends Command
      * @var EntityRepositoryInterface
      */
     private $shippingMethodRepository;
+    /**
+     * @var EntityRepositoryInterface
+     */
+    private $countryRepository;
 
     public function __construct(
         EntityRepositoryInterface $salesChannelRepository,
         EntityRepositoryInterface $paymentMethodRepository,
-        EntityRepositoryInterface $shippingMethodRepository
+        EntityRepositoryInterface $shippingMethodRepository,
+        EntityRepositoryInterface $countryRepository
     ) {
         $this->salesChannelRepository = $salesChannelRepository;
         $this->paymentMethodRepository = $paymentMethodRepository;
         $this->shippingMethodRepository = $shippingMethodRepository;
+        $this->countryRepository = $countryRepository;
 
         parent::__construct();
     }
@@ -58,7 +64,7 @@ class SalesChannelCreateCommand extends Command
             ->addOption('currencyId', null, InputOption::VALUE_REQUIRED, 'Default currency', Defaults::CURRENCY)
             ->addOption('paymentMethodId', null, InputOption::VALUE_REQUIRED, 'Default payment method')
             ->addOption('shippingMethodId', null, InputOption::VALUE_REQUIRED, 'Default shipping method')
-            ->addOption('countryId', null, InputOption::VALUE_REQUIRED, 'Default country', Defaults::COUNTRY)
+            ->addOption('countryId', null, InputOption::VALUE_REQUIRED, 'Default country')
             ->addOption('typeId', null, InputOption::VALUE_OPTIONAL, 'Sales channel type id')
             ->addOption('customerGroupId', null, InputOption::VALUE_REQUIRED, 'Default customer group', Defaults::FALLBACK_CUSTOMER_GROUP)
         ;
@@ -73,6 +79,7 @@ class SalesChannelCreateCommand extends Command
 
         $paymentMethod = $input->getOption('paymentMethodId') ?? $this->getFirstActivePaymentMethodId();
         $shippingMethod = $input->getOption('shippingMethodId') ?? $this->getFirstActiveShippingMethodId();
+        $countryId = $input->getOption('countryId') ?? $this->getFirstActiveCountryId();
 
         $data = [
             'id' => $id,
@@ -86,13 +93,13 @@ class SalesChannelCreateCommand extends Command
             'paymentMethodVersionId' => Defaults::LIVE_VERSION,
             'shippingMethodId' => $shippingMethod,
             'shippingMethodVersionId' => Defaults::LIVE_VERSION,
-            'countryId' => $input->getOption('countryId'),
+            'countryId' => $countryId,
             'countryVersionId' => Defaults::LIVE_VERSION,
             'currencies' => [['id' => $input->getOption('currencyId')]],
             'languages' => [['id' => Defaults::LANGUAGE_SYSTEM]],
             'shippingMethods' => [['id' => $shippingMethod]],
             'paymentMethods' => [['id' => $paymentMethod]],
-            'countries' => [['id' => $input->getOption('countryId')]],
+            'countries' => [['id' => $countryId]],
             'name' => $input->getOption('name'),
             'customerGroupId' => $input->getOption('customerGroupId'),
         ];
@@ -158,5 +165,15 @@ class SalesChannelCreateCommand extends Command
             ->addSorting(new FieldSorting('position'));
 
         return $this->paymentMethodRepository->searchIds($criteria, Context::createDefaultContext())->getIds()[0];
+    }
+
+    protected function getFirstActiveCountryId(): string
+    {
+        $criteria = (new Criteria())
+            ->setLimit(1)
+            ->addFilter(new EqualsFilter('active', true))
+            ->addSorting(new FieldSorting('position'));
+
+        return $this->countryRepository->searchIds($criteria, Context::createDefaultContext())->getIds()[0];
     }
 }

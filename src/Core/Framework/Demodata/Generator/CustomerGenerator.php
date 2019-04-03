@@ -158,7 +158,9 @@ class CustomerGenerator implements DemodataGeneratorInterface
             $lastName = $context->getFaker()->lastName;
             $salutationId = Uuid::fromBytesToHex($this->getRandomSalutationId());
             $title = $this->getRandomTitle();
-            $countries = [Defaults::COUNTRY, 'ffe61e1c99154f9597014a310ab5482d'];
+            $countries = $this->connection
+                ->executeQuery('SELECT id FROM country WHERE active = 1')
+                ->fetchAll(FetchMode::COLUMN);
 
             $addresses = [];
 
@@ -166,7 +168,7 @@ class CustomerGenerator implements DemodataGeneratorInterface
             for ($x = 1; $x < $aCount; ++$x) {
                 $addresses[] = [
                     'id' => Uuid::randomHex(),
-                    'countryId' => $countries[array_rand($countries)],
+                    'countryId' => Uuid::fromBytesToHex($countries[array_rand($countries)]),
                     'salutationId' => $salutationId,
                     'title' => $title,
                     'firstName' => $firstName,

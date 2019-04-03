@@ -166,7 +166,7 @@ class Migration1536233420BasicData extends MigrationStep
             return [
                 'language_id' => Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM_DE),
                 'name' => $name,
-                'country_id' => Uuid::fromHexToBytes($countryId),
+                'country_id' => $countryId,
                 'created_at' => date(Defaults::DATE_FORMAT),
             ];
         };
@@ -175,142 +175,175 @@ class Migration1536233420BasicData extends MigrationStep
             return [
                 'language_id' => Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM),
                 'name' => $name,
-                'country_id' => Uuid::fromHexToBytes($countryId),
+                'country_id' => $countryId,
                 'created_at' => date(Defaults::DATE_FORMAT),
             ];
         };
 
-        $connection->insert('country', ['id' => Uuid::fromHexToBytes(Defaults::COUNTRY), 'iso' => 'DE', 'position' => 1, 'iso3' => 'DEU', 'created_at' => date(Defaults::DATE_FORMAT)]);
-        $connection->insert('country_translation', $languageDE(Defaults::COUNTRY, 'Deutschland'));
-        $connection->insert('country_translation', $languageEN(Defaults::COUNTRY, 'Germany'));
+        $deId = Uuid::randomBytes();
+        $connection->insert('country', ['id' => $deId, 'iso' => 'DE', 'position' => 1, 'iso3' => 'DEU', 'created_at' => date(Defaults::DATE_FORMAT)]);
+        $connection->insert('country_translation', $languageDE($deId, 'Deutschland'));
+        $connection->insert('country_translation', $languageEN($deId, 'Germany'));
 
-        $connection->insert('country', ['id' => Uuid::fromHexToBytes('ffe61e1c99154f9597014a310ab5482d'), 'iso' => 'GR', 'position' => 10, 'iso3' => 'GRC', 'created_at' => date(Defaults::DATE_FORMAT)]);
-        $connection->insert('country_translation', $languageEN('ffe61e1c99154f9597014a310ab5482d', 'Greece'));
-        $connection->insert('country_translation', $languageDE('ffe61e1c99154f9597014a310ab5482d', 'Griechenland'));
+        $grId = Uuid::randomBytes();
+        $connection->insert('country', ['id' => $grId, 'iso' => 'GR', 'position' => 10, 'iso3' => 'GRC', 'created_at' => date(Defaults::DATE_FORMAT)]);
+        $connection->insert('country_translation', $languageEN($grId, 'Greece'));
+        $connection->insert('country_translation', $languageDE($grId, 'Griechenland'));
 
-        $connection->insert('country', ['id' => Uuid::fromHexToBytes('6c72828ec5e240588a35114cf1d4d5ef'), 'iso' => 'GB', 'position' => 10, 'iso3' => 'GBR', 'created_at' => date(Defaults::DATE_FORMAT)]);
-        $connection->insert('country_translation', $languageEN('6c72828ec5e240588a35114cf1d4d5ef', 'Great Britain'));
-        $connection->insert('country_translation', $languageDE('6c72828ec5e240588a35114cf1d4d5ef', 'Großbritannien'));
+        $gbId = Uuid::randomBytes();
+        $connection->insert('country', ['id' => $gbId, 'iso' => 'GB', 'position' => 5, 'iso3' => 'GBR', 'created_at' => date(Defaults::DATE_FORMAT)]);
+        $connection->insert('country_translation', $languageEN($gbId, 'Great Britain'));
+        $connection->insert('country_translation', $languageDE($gbId, 'Großbritannien'));
 
-        $connection->insert('country', ['id' => Uuid::fromHexToBytes('584c3ff22f5644789705383bde891fc9'), 'iso' => 'IE', 'position' => 10, 'iso3' => 'IRL', 'created_at' => date(Defaults::DATE_FORMAT)]);
-        $connection->insert('country_translation', $languageEN('584c3ff22f5644789705383bde891fc9', 'Ireland'));
-        $connection->insert('country_translation', $languageDE('584c3ff22f5644789705383bde891fc9', 'Irland'));
+        $ieId = Uuid::randomBytes();
+        $connection->insert('country', ['id' => $ieId, 'iso' => 'IE', 'position' => 10, 'iso3' => 'IRL', 'created_at' => date(Defaults::DATE_FORMAT)]);
+        $connection->insert('country_translation', $languageEN($ieId, 'Ireland'));
+        $connection->insert('country_translation', $languageDE($ieId, 'Irland'));
 
-        $connection->insert('country', ['id' => Uuid::fromHexToBytes('b72b9b7cd26b4a40a36f2e76a1bf42c1'), 'iso' => 'IS', 'position' => 10, 'iso3' => 'ISL', 'created_at' => date(Defaults::DATE_FORMAT)]);
-        $connection->insert('country_translation', $languageEN('b72b9b7cd26b4a40a36f2e76a1bf42c1', 'Iceland'));
-        $connection->insert('country_translation', $languageDE('b72b9b7cd26b4a40a36f2e76a1bf42c1', 'Island'));
+        $isId = Uuid::randomBytes();
+        $connection->insert('country', ['id' => $isId, 'iso' => 'IS', 'position' => 10, 'iso3' => 'ISL', 'created_at' => date(Defaults::DATE_FORMAT)]);
+        $connection->insert('country_translation', $languageEN($isId, 'Iceland'));
+        $connection->insert('country_translation', $languageDE($isId, 'Island'));
 
-        $connection->insert('country', ['id' => Uuid::fromHexToBytes('92ca022e9d28492e9ea173f279fa6755'), 'iso' => 'IT', 'position' => 10, 'active' => 1, 'iso3' => 'ITA', 'created_at' => date(Defaults::DATE_FORMAT)]);
-        $connection->insert('country_translation', $languageEN('92ca022e9d28492e9ea173f279fa6755', 'Italy'));
-        $connection->insert('country_translation', $languageDE('92ca022e9d28492e9ea173f279fa6755', 'Italien'));
+        $itId = Uuid::randomBytes();
+        $connection->insert('country', ['id' => $itId, 'iso' => 'IT', 'position' => 10, 'active' => 1, 'iso3' => 'ITA', 'created_at' => date(Defaults::DATE_FORMAT)]);
+        $connection->insert('country_translation', $languageEN($itId, 'Italy'));
+        $connection->insert('country_translation', $languageDE($itId, 'Italien'));
 
-        $connection->insert('country', ['id' => Uuid::fromHexToBytes('e130d974fd6c438485972fe00b5cd609'), 'iso' => 'JP', 'position' => 10, 'iso3' => 'JPN', 'created_at' => date(Defaults::DATE_FORMAT)]);
-        $connection->insert('country_translation', $languageEN('e130d974fd6c438485972fe00b5cd609', 'Japan'));
-        $connection->insert('country_translation', $languageDE('e130d974fd6c438485972fe00b5cd609', 'Japan'));
+        $jpId = Uuid::randomBytes();
+        $connection->insert('country', ['id' => $jpId, 'iso' => 'JP', 'position' => 10, 'iso3' => 'JPN', 'created_at' => date(Defaults::DATE_FORMAT)]);
+        $connection->insert('country_translation', $languageEN($jpId, 'Japan'));
+        $connection->insert('country_translation', $languageDE($jpId, 'Japan'));
 
-        $connection->insert('country', ['id' => Uuid::fromHexToBytes('a453634acb414768b2542ae9a57639b5'), 'iso' => 'CA', 'position' => 10, 'iso3' => 'CAN', 'created_at' => date(Defaults::DATE_FORMAT)]);
-        $connection->insert('country_translation', $languageEN('a453634acb414768b2542ae9a57639b5', 'Canada'));
-        $connection->insert('country_translation', $languageDE('a453634acb414768b2542ae9a57639b5', 'Kanada'));
+        $caId = Uuid::randomBytes();
+        $connection->insert('country', ['id' => $caId, 'iso' => 'CA', 'position' => 10, 'iso3' => 'CAN', 'created_at' => date(Defaults::DATE_FORMAT)]);
+        $connection->insert('country_translation', $languageEN($caId, 'Canada'));
+        $connection->insert('country_translation', $languageDE($caId, 'Kanada'));
 
-        $connection->insert('country', ['id' => Uuid::fromHexToBytes('e5cbe4b2105843c3bdef2e9c03eccaae'), 'iso' => 'LU', 'position' => 10, 'iso3' => 'LUX', 'created_at' => date(Defaults::DATE_FORMAT)]);
-        $connection->insert('country_translation', $languageEN('e5cbe4b2105843c3bdef2e9c03eccaae', 'Luxembourg'));
-        $connection->insert('country_translation', $languageDE('e5cbe4b2105843c3bdef2e9c03eccaae', 'Luxemburg'));
+        $luId = Uuid::randomBytes();
+        $connection->insert('country', ['id' => $luId, 'iso' => 'LU', 'position' => 10, 'iso3' => 'LUX', 'created_at' => date(Defaults::DATE_FORMAT)]);
+        $connection->insert('country_translation', $languageEN($luId, 'Luxembourg'));
+        $connection->insert('country_translation', $languageDE($luId, 'Luxemburg'));
 
-        $connection->insert('country', ['id' => Uuid::fromHexToBytes('9deee5660fd1474fbecdf6fc1809add3'), 'iso' => 'NA', 'position' => 10, 'iso3' => 'NAM', 'created_at' => date(Defaults::DATE_FORMAT)]);
-        $connection->insert('country_translation', $languageEN('9deee5660fd1474fbecdf6fc1809add3', 'Namibia'));
-        $connection->insert('country_translation', $languageDE('9deee5660fd1474fbecdf6fc1809add3', 'Namibia'));
+        $naId = Uuid::randomBytes();
+        $connection->insert('country', ['id' => $naId, 'iso' => 'NA', 'position' => 10, 'iso3' => 'NAM', 'created_at' => date(Defaults::DATE_FORMAT)]);
+        $connection->insert('country_translation', $languageEN($naId, 'Namibia'));
+        $connection->insert('country_translation', $languageDE($naId, 'Namibia'));
 
-        $connection->insert('country', ['id' => Uuid::fromHexToBytes('04ed51ccbb2341bc9b352d78e64213fb'), 'iso' => 'NL', 'position' => 10, 'active' => 1, 'iso3' => 'NLD', 'created_at' => date(Defaults::DATE_FORMAT)]);
-        $connection->insert('country_translation', $languageEN('04ed51ccbb2341bc9b352d78e64213fb', 'Netherlands'));
-        $connection->insert('country_translation', $languageDE('04ed51ccbb2341bc9b352d78e64213fb', 'Niederlande'));
+        $nlId = Uuid::randomBytes();
+        $connection->insert('country', ['id' => $nlId, 'iso' => 'NL', 'position' => 10, 'active' => 1, 'iso3' => 'NLD', 'created_at' => date(Defaults::DATE_FORMAT)]);
+        $connection->insert('country_translation', $languageEN($nlId, 'Netherlands'));
+        $connection->insert('country_translation', $languageDE($nlId, 'Niederlande'));
 
-        $connection->insert('country', ['id' => Uuid::fromHexToBytes('e216449bd67646cc9176a1d57a2f8094'), 'iso' => 'NO', 'position' => 10, 'iso3' => 'NOR', 'created_at' => date(Defaults::DATE_FORMAT)]);
-        $connection->insert('country_translation', $languageEN('e216449bd67646cc9176a1d57a2f8094', 'Norway'));
-        $connection->insert('country_translation', $languageDE('e216449bd67646cc9176a1d57a2f8094', 'Norwegen'));
+        $noId = Uuid::randomBytes();
+        $connection->insert('country', ['id' => $noId, 'iso' => 'NO', 'position' => 10, 'iso3' => 'NOR', 'created_at' => date(Defaults::DATE_FORMAT)]);
+        $connection->insert('country_translation', $languageEN($noId, 'Norway'));
+        $connection->insert('country_translation', $languageDE($noId, 'Norwegen'));
 
-        $connection->insert('country', ['id' => Uuid::fromHexToBytes('c650574d63d34834b836d8e7f0339ca8'), 'iso' => 'AT', 'position' => 1, 'active' => 1, 'iso3' => 'AUT', 'created_at' => date(Defaults::DATE_FORMAT)]);
-        $connection->insert('country_translation', $languageEN('c650574d63d34834b836d8e7f0339ca8', 'Austria'));
-        $connection->insert('country_translation', $languageDE('c650574d63d34834b836d8e7f0339ca8', 'Österreich'));
+        $atId = Uuid::randomBytes();
+        $connection->insert('country', ['id' => $atId, 'iso' => 'AT', 'position' => 10, 'active' => 1, 'iso3' => 'AUT', 'created_at' => date(Defaults::DATE_FORMAT)]);
+        $connection->insert('country_translation', $languageEN($atId, 'Austria'));
+        $connection->insert('country_translation', $languageDE($atId, 'Österreich'));
 
-        $connection->insert('country', ['id' => Uuid::fromHexToBytes('a40ed5b07bca4b06995a0a56b1170155'), 'iso' => 'PT', 'position' => 10, 'iso3' => 'PRT', 'created_at' => date(Defaults::DATE_FORMAT)]);
-        $connection->insert('country_translation', $languageEN('a40ed5b07bca4b06995a0a56b1170155', 'Portugal'));
-        $connection->insert('country_translation', $languageDE('a40ed5b07bca4b06995a0a56b1170155', 'Portugal'));
+        $ptId = Uuid::randomBytes();
+        $connection->insert('country', ['id' => $ptId, 'iso' => 'PT', 'position' => 10, 'iso3' => 'PRT', 'created_at' => date(Defaults::DATE_FORMAT)]);
+        $connection->insert('country_translation', $languageEN($ptId, 'Portugal'));
+        $connection->insert('country_translation', $languageDE($ptId, 'Portugal'));
 
-        $connection->insert('country', ['id' => Uuid::fromHexToBytes('f7b0810e24234ae397c769b260a02474'), 'iso' => 'SE', 'position' => 10, 'iso3' => 'SWE', 'created_at' => date(Defaults::DATE_FORMAT)]);
-        $connection->insert('country_translation', $languageEN('f7b0810e24234ae397c769b260a02474', 'Sweden'));
-        $connection->insert('country_translation', $languageDE('f7b0810e24234ae397c769b260a02474', 'Schweden'));
+        $seId = Uuid::randomBytes();
+        $connection->insert('country', ['id' => $seId, 'iso' => 'SE', 'position' => 10, 'iso3' => 'SWE', 'created_at' => date(Defaults::DATE_FORMAT)]);
+        $connection->insert('country_translation', $languageEN($seId, 'Sweden'));
+        $connection->insert('country_translation', $languageDE($seId, 'Schweden'));
 
-        $connection->insert('country', ['id' => Uuid::fromHexToBytes('4f52e121f6724b968c00d05829f9a38d'), 'iso' => 'CH', 'position' => 10, 'tax_free' => 1, 'active' => 1, 'iso3' => 'CHE', 'created_at' => date(Defaults::DATE_FORMAT)]);
-        $connection->insert('country_translation', $languageEN('4f52e121f6724b968c00d05829f9a38d', 'Switzerland'));
-        $connection->insert('country_translation', $languageDE('4f52e121f6724b968c00d05829f9a38d', 'Schweiz'));
+        $chId = Uuid::randomBytes();
+        $connection->insert('country', ['id' => $chId, 'iso' => 'CH', 'position' => 10, 'tax_free' => 1, 'active' => 1, 'iso3' => 'CHE', 'created_at' => date(Defaults::DATE_FORMAT)]);
+        $connection->insert('country_translation', $languageEN($chId, 'Switzerland'));
+        $connection->insert('country_translation', $languageDE($chId, 'Schweiz'));
 
-        $connection->insert('country', ['id' => Uuid::fromHexToBytes('2aba3f2990e044c78bf53b87fb6c3af3'), 'iso' => 'ES', 'position' => 10, 'active' => 1, 'iso3' => 'ESP', 'created_at' => date(Defaults::DATE_FORMAT)]);
-        $connection->insert('country_translation', $languageEN('2aba3f2990e044c78bf53b87fb6c3af3', 'Spain'));
-        $connection->insert('country_translation', $languageDE('2aba3f2990e044c78bf53b87fb6c3af3', 'Spanien'));
+        $esId = Uuid::randomBytes();
+        $connection->insert('country', ['id' => $esId, 'iso' => 'ES', 'position' => 10, 'active' => 1, 'iso3' => 'ESP', 'created_at' => date(Defaults::DATE_FORMAT)]);
+        $connection->insert('country_translation', $languageEN($esId, 'Spain'));
+        $connection->insert('country_translation', $languageDE($esId, 'Spanien'));
 
-        $connection->insert('country', ['id' => Uuid::fromHexToBytes('bdcb207c87ab4648b5acde9138f48894'), 'iso' => 'US', 'position' => 10, 'iso3' => 'USA', 'created_at' => date(Defaults::DATE_FORMAT)]);
-        $connection->insert('country_translation', $languageEN('bdcb207c87ab4648b5acde9138f48894', 'USA'));
-        $connection->insert('country_translation', $languageDE('bdcb207c87ab4648b5acde9138f48894', 'USA'));
+        $usId = Uuid::randomBytes();
+        $connection->insert('country', ['id' => $usId, 'iso' => 'US', 'position' => 10, 'iso3' => 'USA', 'created_at' => date(Defaults::DATE_FORMAT)]);
+        $connection->insert('country_translation', $languageEN($usId, 'USA'));
+        $connection->insert('country_translation', $languageDE($usId, 'USA'));
 
-        $connection->insert('country', ['id' => Uuid::fromHexToBytes('e163778197a24b61bd2ae72d006a6d3c'), 'iso' => 'LI', 'position' => 10, 'iso3' => 'LIE', 'created_at' => date(Defaults::DATE_FORMAT)]);
-        $connection->insert('country_translation', $languageEN('e163778197a24b61bd2ae72d006a6d3c', 'Liechtenstein'));
-        $connection->insert('country_translation', $languageDE('e163778197a24b61bd2ae72d006a6d3c', 'Liechtenstein'));
+        $liId = Uuid::randomBytes();
+        $connection->insert('country', ['id' => $liId, 'iso' => 'LI', 'position' => 10, 'iso3' => 'LIE', 'created_at' => date(Defaults::DATE_FORMAT)]);
+        $connection->insert('country_translation', $languageEN($liId, 'Liechtenstein'));
+        $connection->insert('country_translation', $languageDE($liId, 'Liechtenstein'));
 
-        $connection->insert('country', ['id' => Uuid::fromHexToBytes('448744a58b9f44e58c40804fef6520f8'), 'iso' => 'AE', 'position' => 10, 'active' => 1, 'iso3' => 'ARE', 'created_at' => date(Defaults::DATE_FORMAT)]);
-        $connection->insert('country_translation', $languageEN('448744a58b9f44e58c40804fef6520f8', 'Arab Emirates'));
-        $connection->insert('country_translation', $languageDE('448744a58b9f44e58c40804fef6520f8', 'Arabische Emirate'));
+        $aeId = Uuid::randomBytes();
+        $connection->insert('country', ['id' => $aeId, 'iso' => 'AE', 'position' => 10, 'active' => 1, 'iso3' => 'ARE', 'created_at' => date(Defaults::DATE_FORMAT)]);
+        $connection->insert('country_translation', $languageEN($aeId, 'Arab Emirates'));
+        $connection->insert('country_translation', $languageDE($aeId, 'Arabische Emirate'));
 
-        $connection->insert('country', ['id' => Uuid::fromHexToBytes('259f7c2be0b44eb6a273a70ea6dd8029'), 'iso' => 'PL', 'position' => 10, 'iso3' => 'POL', 'created_at' => date(Defaults::DATE_FORMAT)]);
-        $connection->insert('country_translation', $languageEN('259f7c2be0b44eb6a273a70ea6dd8029', 'Poland'));
-        $connection->insert('country_translation', $languageDE('259f7c2be0b44eb6a273a70ea6dd8029', 'Polen'));
+        $plId = Uuid::randomBytes();
+        $connection->insert('country', ['id' => $plId, 'iso' => 'PL', 'position' => 10, 'iso3' => 'POL', 'created_at' => date(Defaults::DATE_FORMAT)]);
+        $connection->insert('country_translation', $languageEN($plId, 'Poland'));
+        $connection->insert('country_translation', $languageDE($plId, 'Polen'));
 
-        $connection->insert('country', ['id' => Uuid::fromHexToBytes('d99834aefa4941b490dae37d0027f6bc'), 'iso' => 'HU', 'position' => 10, 'iso3' => 'HUN', 'created_at' => date(Defaults::DATE_FORMAT)]);
-        $connection->insert('country_translation', $languageEN('d99834aefa4941b490dae37d0027f6bc', 'Hungary'));
-        $connection->insert('country_translation', $languageDE('d99834aefa4941b490dae37d0027f6bc', 'Ungarn'));
+        $huId = Uuid::randomBytes();
+        $connection->insert('country', ['id' => $huId, 'iso' => 'HU', 'position' => 10, 'iso3' => 'HUN', 'created_at' => date(Defaults::DATE_FORMAT)]);
+        $connection->insert('country_translation', $languageEN($huId, 'Hungary'));
+        $connection->insert('country_translation', $languageDE($huId, 'Ungarn'));
 
-        $connection->insert('country', ['id' => Uuid::fromHexToBytes('11cf2cdd303c41d7bf66808bfe7769a5'), 'iso' => 'TR', 'position' => 10, 'iso3' => 'TUR', 'created_at' => date(Defaults::DATE_FORMAT)]);
-        $connection->insert('country_translation', $languageEN('11cf2cdd303c41d7bf66808bfe7769a5', 'Turkey'));
-        $connection->insert('country_translation', $languageDE('11cf2cdd303c41d7bf66808bfe7769a5', 'Türkei'));
+        $trId = Uuid::randomBytes();
+        $connection->insert('country', ['id' => $trId, 'iso' => 'TR', 'position' => 10, 'iso3' => 'TUR', 'created_at' => date(Defaults::DATE_FORMAT)]);
+        $connection->insert('country_translation', $languageEN($trId, 'Turkey'));
+        $connection->insert('country_translation', $languageDE($trId, 'Türkei'));
 
-        $connection->insert('country', ['id' => Uuid::fromHexToBytes('b240408078894b0491634af5963f0c04'), 'iso' => 'CZ', 'position' => 10, 'iso3' => 'CZE', 'created_at' => date(Defaults::DATE_FORMAT)]);
-        $connection->insert('country_translation', $languageEN('b240408078894b0491634af5963f0c04', 'Czech Republic'));
-        $connection->insert('country_translation', $languageDE('b240408078894b0491634af5963f0c04', 'Tschechische Republik'));
+        $czId = Uuid::randomBytes();
+        $connection->insert('country', ['id' => $czId, 'iso' => 'CZ', 'position' => 10, 'iso3' => 'CZE', 'created_at' => date(Defaults::DATE_FORMAT)]);
+        $connection->insert('country_translation', $languageEN($czId, 'Czech Republic'));
+        $connection->insert('country_translation', $languageDE($czId, 'Tschechische Republik'));
 
-        $connection->insert('country', ['id' => Uuid::fromHexToBytes('8021ae3dd9ec4675920c16152473e5cc'), 'iso' => 'SK', 'position' => 10, 'iso3' => 'SVK', 'created_at' => date(Defaults::DATE_FORMAT)]);
-        $connection->insert('country_translation', $languageEN('8021ae3dd9ec4675920c16152473e5cc', 'Slovenia'));
-        $connection->insert('country_translation', $languageDE('8021ae3dd9ec4675920c16152473e5cc', 'Slowenien'));
+        $skId = Uuid::randomBytes();
+        $connection->insert('country', ['id' => $skId, 'iso' => 'SK', 'position' => 10, 'iso3' => 'SVK', 'created_at' => date(Defaults::DATE_FORMAT)]);
+        $connection->insert('country_translation', $languageEN($skId, 'Slovenia'));
+        $connection->insert('country_translation', $languageDE($skId, 'Slowenien'));
 
-        $connection->insert('country', ['id' => Uuid::fromHexToBytes('1d56b07f6a5e4ee0a4e23abc06ba9b1e'), 'iso' => 'RO', 'position' => 10, 'iso3' => 'ROU', 'created_at' => date(Defaults::DATE_FORMAT)]);
-        $connection->insert('country_translation', $languageEN('1d56b07f6a5e4ee0a4e23abc06ba9b1e', 'Romania'));
-        $connection->insert('country_translation', $languageDE('1d56b07f6a5e4ee0a4e23abc06ba9b1e', 'Rumänien'));
+        $roId = Uuid::randomBytes();
+        $connection->insert('country', ['id' => $roId, 'iso' => 'RO', 'position' => 10, 'iso3' => 'ROU', 'created_at' => date(Defaults::DATE_FORMAT)]);
+        $connection->insert('country_translation', $languageEN($roId, 'Romania'));
+        $connection->insert('country_translation', $languageDE($roId, 'Rumänien'));
 
-        $connection->insert('country', ['id' => Uuid::fromHexToBytes('68fea9f12c9c46748382b1f48a32014f'), 'iso' => 'BR', 'position' => 10, 'iso3' => 'BRA', 'created_at' => date(Defaults::DATE_FORMAT)]);
-        $connection->insert('country_translation', $languageEN('68fea9f12c9c46748382b1f48a32014f', 'Brazil'));
-        $connection->insert('country_translation', $languageDE('68fea9f12c9c46748382b1f48a32014f', 'Brasilien'));
+        $brId = Uuid::randomBytes();
+        $connection->insert('country', ['id' => $brId, 'iso' => 'BR', 'position' => 10, 'iso3' => 'BRA', 'created_at' => date(Defaults::DATE_FORMAT)]);
+        $connection->insert('country_translation', $languageEN($brId, 'Brazil'));
+        $connection->insert('country_translation', $languageDE($brId, 'Brasilien'));
 
-        $connection->insert('country', ['id' => Uuid::fromHexToBytes('1c91bf01a6a547a78497abf7b8e4e5db'), 'iso' => 'IL', 'position' => 10, 'iso3' => 'ISR', 'created_at' => date(Defaults::DATE_FORMAT)]);
-        $connection->insert('country_translation', $languageEN('1c91bf01a6a547a78497abf7b8e4e5db', 'Isreal'));
-        $connection->insert('country_translation', $languageDE('1c91bf01a6a547a78497abf7b8e4e5db', 'Isreal'));
+        $ilId = Uuid::randomBytes();
+        $connection->insert('country', ['id' => $ilId, 'iso' => 'IL', 'position' => 10, 'iso3' => 'ISR', 'created_at' => date(Defaults::DATE_FORMAT)]);
+        $connection->insert('country_translation', $languageEN($ilId, 'Isreal'));
+        $connection->insert('country_translation', $languageDE($ilId, 'Isreal'));
 
-        $connection->insert('country', ['id' => Uuid::fromHexToBytes('5a4aa22452e04acca23185d4d21bb3bf'), 'iso' => 'AU', 'position' => 10, 'active' => 1, 'iso3' => 'AUS', 'created_at' => date(Defaults::DATE_FORMAT)]);
-        $connection->insert('country_translation', $languageEN('5a4aa22452e04acca23185d4d21bb3bf', 'Australia'));
-        $connection->insert('country_translation', $languageDE('5a4aa22452e04acca23185d4d21bb3bf', 'Australien'));
+        $auId = Uuid::randomBytes();
+        $connection->insert('country', ['id' => $auId, 'iso' => 'AU', 'position' => 10, 'active' => 1, 'iso3' => 'AUS', 'created_at' => date(Defaults::DATE_FORMAT)]);
+        $connection->insert('country_translation', $languageEN($auId, 'Australia'));
+        $connection->insert('country_translation', $languageDE($auId, 'Australien'));
 
-        $connection->insert('country', ['id' => Uuid::fromHexToBytes('2e54611a053b4b19afccca547f50bf56'), 'iso' => 'BE', 'position' => 10, 'active' => 1, 'iso3' => 'BEL', 'created_at' => date(Defaults::DATE_FORMAT)]);
-        $connection->insert('country_translation', $languageEN('2e54611a053b4b19afccca547f50bf56', 'Belgium'));
-        $connection->insert('country_translation', $languageDE('2e54611a053b4b19afccca547f50bf56', 'Belgien'));
+        $beId = Uuid::randomBytes();
+        $connection->insert('country', ['id' => $beId, 'iso' => 'BE', 'position' => 10, 'active' => 1, 'iso3' => 'BEL', 'created_at' => date(Defaults::DATE_FORMAT)]);
+        $connection->insert('country_translation', $languageEN($beId, 'Belgium'));
+        $connection->insert('country_translation', $languageDE($beId, 'Belgien'));
 
-        $connection->insert('country', ['id' => Uuid::fromHexToBytes('1d7911d918714c3ea9f0d7339afd3d43'), 'iso' => 'DK', 'position' => 10, 'active' => 1, 'iso3' => 'DNK', 'created_at' => date(Defaults::DATE_FORMAT)]);
-        $connection->insert('country_translation', $languageEN('1d7911d918714c3ea9f0d7339afd3d43', 'Denmark'));
-        $connection->insert('country_translation', $languageDE('1d7911d918714c3ea9f0d7339afd3d43', 'Dänemark'));
+        $dkId = Uuid::randomBytes();
+        $connection->insert('country', ['id' => $dkId, 'iso' => 'DK', 'position' => 10, 'active' => 1, 'iso3' => 'DNK', 'created_at' => date(Defaults::DATE_FORMAT)]);
+        $connection->insert('country_translation', $languageEN($dkId, 'Denmark'));
+        $connection->insert('country_translation', $languageDE($dkId, 'Dänemark'));
 
-        $connection->insert('country', ['id' => Uuid::fromHexToBytes('9d8661d69c10416c858dbf408ec2500a'), 'iso' => 'FI', 'position' => 10, 'active' => 1, 'iso3' => 'FIN', 'created_at' => date(Defaults::DATE_FORMAT)]);
-        $connection->insert('country_translation', $languageEN('9d8661d69c10416c858dbf408ec2500a', 'Finland'));
-        $connection->insert('country_translation', $languageDE('9d8661d69c10416c858dbf408ec2500a', 'Finnland'));
+        $fiId = Uuid::randomBytes();
+        $connection->insert('country', ['id' => $fiId, 'iso' => 'FI', 'position' => 10, 'active' => 1, 'iso3' => 'FIN', 'created_at' => date(Defaults::DATE_FORMAT)]);
+        $connection->insert('country_translation', $languageEN($fiId, 'Finland'));
+        $connection->insert('country_translation', $languageDE($fiId, 'Finnland'));
 
-        $connection->insert('country', ['id' => Uuid::fromHexToBytes('e85c25e1cdfc4cd4af49d54c34aa3d25'), 'iso' => 'FR', 'position' => 10, 'iso3' => 'FRA', 'created_at' => date(Defaults::DATE_FORMAT)]);
-        $connection->insert('country_translation', $languageEN('e85c25e1cdfc4cd4af49d54c34aa3d25', 'France'));
-        $connection->insert('country_translation', $languageDE('e85c25e1cdfc4cd4af49d54c34aa3d25', 'Frankreich'));
+        $frId = Uuid::randomBytes();
+        $connection->insert('country', ['id' => $frId, 'iso' => 'FR', 'position' => 10, 'iso3' => 'FRA', 'created_at' => date(Defaults::DATE_FORMAT)]);
+        $connection->insert('country_translation', $languageEN($frId, 'France'));
+        $connection->insert('country_translation', $languageDE($frId, 'Frankreich'));
     }
 
     private function createCurrency(Connection $connection): void
@@ -419,6 +452,8 @@ class Migration1536233420BasicData extends MigrationStep
         $paymentMethods = $connection->executeQuery('SELECT id FROM payment_method')->fetchAll(FetchMode::COLUMN);
         $defaultPaymentMethod = $connection->executeQuery('SELECT id FROM payment_method WHERE active = 1 ORDER BY `position`')->fetchColumn();
         $defaultShippingMethod = $connection->executeQuery('SELECT id FROM shipping_method WHERE active = 1 ORDER BY `position`')->fetchColumn();
+        $countryStatement = $connection->executeQuery('SELECT id FROM country WHERE active = 1 ORDER BY `position`');
+        $defaultCountry = $countryStatement->fetchColumn();
 
         $id = Uuid::randomBytes();
         $languageEN = Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM);
@@ -433,15 +468,15 @@ class Migration1536233420BasicData extends MigrationStep
             'currency_id' => Uuid::fromHexToBytes(Defaults::CURRENCY),
             'payment_method_id' => $defaultPaymentMethod,
             'shipping_method_id' => $defaultShippingMethod,
-            'country_id' => Uuid::fromHexToBytes(Defaults::COUNTRY),
+            'country_id' => $defaultCountry,
             'created_at' => date(Defaults::DATE_FORMAT),
         ]);
 
         $connection->insert('sales_channel_translation', ['sales_channel_id' => $id, 'language_id' => $languageEN, 'name' => 'Storefront API', 'created_at' => date(Defaults::DATE_FORMAT)]);
 
         // country
-        $connection->insert('sales_channel_country', ['sales_channel_id' => $id, 'country_id' => Uuid::fromHexToBytes(Defaults::COUNTRY), 'created_at' => date(Defaults::DATE_FORMAT)]);
-        $connection->insert('sales_channel_country', ['sales_channel_id' => $id, 'country_id' => Uuid::fromHexToBytes('6c72828ec5e240588a35114cf1d4d5ef'), 'created_at' => date(Defaults::DATE_FORMAT)]);
+        $connection->insert('sales_channel_country', ['sales_channel_id' => $id, 'country_id' => $defaultCountry, 'created_at' => date(Defaults::DATE_FORMAT)]);
+        $connection->insert('sales_channel_country', ['sales_channel_id' => $id, 'country_id' => $countryStatement->fetchColumn(), 'created_at' => date(Defaults::DATE_FORMAT)]);
 
         // currency
         foreach ($currencies as $currency) {

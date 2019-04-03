@@ -49,6 +49,7 @@
             <argument type="service" id="sales_channel.repository"/>
             <argument type="service" id="payment_method.repository"/>
             <argument type="service" id="shipping_method.repository"/>
+            <argument type="service" id="country.repository"/>
             <tag name="console.command"/>
         </service>
 

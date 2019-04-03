@@ -228,7 +228,7 @@ class StorefrontCheckoutControllerTest extends TestCase
             'lastName' => $lastName,
         ];
 
-        $countryId = Defaults::COUNTRY;
+        $countryId = $this->getValidCountryId();
         $street = 'Examplestreet 11';
         $zipcode = '48441';
         $city = 'Cologne';
@@ -304,7 +304,7 @@ class StorefrontCheckoutControllerTest extends TestCase
             'firstName' => $firstName,
             'lastName' => $lastName,
             'billingAddress' => [
-                'countryId' => Defaults::COUNTRY,
+                'countryId' => $this->getValidCountryId(),
                 'street' => 'Examplestreet 11',
                 'zipcode' => '48441',
                 'city' => 'Cologne',
@@ -373,7 +373,7 @@ class StorefrontCheckoutControllerTest extends TestCase
             'firstName' => 'Max',
             'lastName' => 'Mustermann',
             'billingAddress' => [
-                'countryId' => Defaults::COUNTRY,
+                'countryId' => $this->getValidCountryId(),
                 'street' => 'Examplestreet 11',
                 'zipcode' => '48441',
                 'city' => 'Cologne',
@@ -420,7 +420,7 @@ class StorefrontCheckoutControllerTest extends TestCase
             'lastName' => $lastName,
         ];
 
-        $countryId = Defaults::COUNTRY;
+        $countryId = $this->getValidCountryId();
         $street = 'Examplestreet 11';
         $zipcode = '48441';
         $city = 'Cologne';
@@ -744,7 +744,7 @@ class StorefrontCheckoutControllerTest extends TestCase
             'firstName' => $firstName,
             'lastName' => $lastName,
             'billingAddress' => [
-                'countryId' => Defaults::COUNTRY,
+                'countryId' => $this->getValidCountryId(),
                 'street' => 'Examplestreet 11',
                 'zipcode' => '48411',
                 'city' => 'Cologne',

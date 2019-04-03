@@ -127,6 +127,7 @@ trait StorefrontPageTestBehaviour
     {
         $paymentMethodId = $this->getValidPaymentMethodId();
         $shippingMethodId = $this->getAvailableShippingMethodId();
+        $countryId = $this->getValidCountryId();
         $data = [
             'typeId' => Defaults::SALES_CHANNEL_STOREFRONT,
             'name' => 'store front',
@@ -140,13 +141,13 @@ trait StorefrontPageTestBehaviour
             'paymentMethodVersionId' => Defaults::LIVE_VERSION,
             'shippingMethodId' => $shippingMethodId,
             'shippingMethodVersionId' => Defaults::LIVE_VERSION,
-            'countryId' => Defaults::COUNTRY,
+            'countryId' => $countryId,
             'countryVersionId' => Defaults::LIVE_VERSION,
             'currencies' => [['id' => Defaults::CURRENCY]],
             'languages' => [['id' => Defaults::LANGUAGE_SYSTEM]],
             'paymentMethods' => [['id' => $paymentMethodId]],
             'shippingMethods' => [['id' => $shippingMethodId]],
-            'countries' => [['id' => Defaults::COUNTRY]],
+            'countries' => [['id' => $countryId]],
         ];
 
         return $this->createContext($data, []);
@@ -156,6 +157,7 @@ trait StorefrontPageTestBehaviour
     {
         $paymentMethodId = $this->getValidPaymentMethodId();
         $shippingMethodId = $this->getAvailableShippingMethodId();
+        $countryId = $this->getValidCountryId();
         $data = [
             'typeId' => Defaults::SALES_CHANNEL_STOREFRONT,
             'name' => 'store front',
@@ -169,13 +171,13 @@ trait StorefrontPageTestBehaviour
             'paymentMethodVersionId' => Defaults::LIVE_VERSION,
             'shippingMethodId' => $shippingMethodId,
             'shippingMethodVersionId' => Defaults::LIVE_VERSION,
-            'countryId' => Defaults::COUNTRY,
+            'countryId' => $countryId,
             'countryVersionId' => Defaults::LIVE_VERSION,
             'currencies' => [['id' => Defaults::CURRENCY]],
             'languages' => [['id' => Defaults::LANGUAGE_SYSTEM]],
             'paymentMethods' => [['id' => $paymentMethodId]],
             'shippingMethods' => [['id' => $shippingMethodId]],
-            'countries' => [['id' => Defaults::COUNTRY]],
+            'countries' => [['id' => $countryId]],
         ];
 
         return $this->createContext($data, [
@@ -187,6 +189,7 @@ trait StorefrontPageTestBehaviour
     {
         $paymentMethodId = $this->getValidPaymentMethodId();
         $shippingMethodId = $this->getAvailableShippingMethodId();
+        $countryId = $this->getValidCountryId();
         $data = [
             'typeId' => Defaults::SALES_CHANNEL_STOREFRONT,
             'name' => 'store front',
@@ -199,13 +202,13 @@ trait StorefrontPageTestBehaviour
             'paymentMethodVersionId' => Defaults::LIVE_VERSION,
             'shippingMethodId' => $shippingMethodId,
             'shippingMethodVersionId' => Defaults::LIVE_VERSION,
-            'countryId' => Defaults::COUNTRY,
+            'countryId' => $countryId,
             'countryVersionId' => Defaults::LIVE_VERSION,
             'currencies' => [['id' => Defaults::CURRENCY]],
             'languages' => [['id' => Defaults::LANGUAGE_SYSTEM]],
             'paymentMethods' => [['id' => $paymentMethodId]],
             'shippingMethods' => [['id' => $shippingMethodId]],
-            'countries' => [['id' => Defaults::COUNTRY]],
+            'countries' => [['id' => $countryId]],
         ];
 
         return $this->createContext($data, []);

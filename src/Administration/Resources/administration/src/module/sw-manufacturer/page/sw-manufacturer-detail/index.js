@@ -104,6 +104,11 @@ Component.register('sw-manufacturer-detail', {
             this.manufacturer.mediaId = targetId;
         },
 
+        setMediaFromSidebar(media) {
+            this.manufacturer.mediaId = media.id;
+            this.mediaItem = media;
+        },
+
         onUnlinkLogo() {
             this.mediaItem = null;
             this.manufacturer.mediaId = null;

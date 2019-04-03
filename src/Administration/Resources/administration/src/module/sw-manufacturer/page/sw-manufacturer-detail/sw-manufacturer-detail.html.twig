@@ -117,7 +117,7 @@
             <sw-sidebar :propagateWidth="true">
                 <sw-sidebar-media-item ref="mediaSidebarItem">
                     <template slot="context-menu-items" slot-scope="media">
-                        <sw-context-menu-item @click="setMediaItem(media.mediaItem)">
+                        <sw-context-menu-item @click="setMediaFromSidebar(media.mediaItem)">
                             {{ $tc('sw-manufacturer.detail.labelUseAsLogo') }}
                         </sw-context-menu-item>
                     </template>

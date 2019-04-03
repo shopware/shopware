@@ -1,17 +1,17 @@
 // general
 .checkout {
     padding-top: $spacer-sm;
-}
 
-.checkout-main-left {
-    @extend .col-lg-8;
-}
+    &.is-cart {
+        .checkout-main-left {
+            @extend .col-12;
+        }
 
-.checkout-main-right {
-    @extend .col-md-6;
-    @extend .offset-md-6;
-    @extend .col-lg-4;
-    @extend .offset-lg-0;
+        .checkout-main-right {
+            @extend .offset-lg-8;
+            @extend .col-lg-4;
+        }
+    }
 }
 
 // sidebar
@@ -73,20 +73,6 @@ $cart-grid-gutter-width: $spacer-sm;
         padding-right: $cart-grid-gutter-width / 2;
         padding-left: $cart-grid-gutter-width / 2;
     }
-}
-
-// equal height checkout card
-.checkout-card {
-    height: 100%;
-
-    .btn {
-        align-self: flex-start;
-    }
-}
-
-.checkout-card-body {
-    display: flex;
-    flex-direction: column;
 }
 
 @include media-breakpoint-up(md) {

@@ -16,8 +16,13 @@ export default class CartWidgetPlugin extends Plugin {
      * and persist the response to the browser's session storage
      */
     static fetch() {
+        const parent = DomAccess.querySelector(document, CART_WIDGET_ITEM_SELECTOR, false).parentElement;
+
+        if (!parent) {
+            return;
+        }
+
         const client = new HttpClient(window.accessKey, window.contextToken);
-        const parent = DomAccess.querySelector(document, CART_WIDGET_ITEM_SELECTOR).parentElement;
         const storageExists = (window.sessionStorage instanceof Storage);
 
         if (storageExists) {

@@ -29,7 +29,7 @@ export default class CartMiniPlugin extends Plugin {
 
         document.addEventListener(event, (e) => {
             e.path.forEach(item => {
-                if (DomAccess.hasAttribute(item, CART_MINI_OPEN_TRIGGER_DATA_ATTRIBUTE)) {
+                if (DomAccess.isNode(item) && DomAccess.hasAttribute(item, CART_MINI_OPEN_TRIGGER_DATA_ATTRIBUTE)) {
                     e.preventDefault();
                     this._onOpenCartMini(e);
                 }
@@ -49,7 +49,6 @@ export default class CartMiniPlugin extends Plugin {
         OffCanvas.open(LoadingIndicator.getTemplate(), () => {
             this._fetchCartMini();
         }, CART_MINI_POSITION);
-
     }
 
     /**

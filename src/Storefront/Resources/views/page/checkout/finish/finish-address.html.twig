@@ -1,9 +1,9 @@
 {% block page_checkout_finish_address_inner %}
 	{% set billingAddress = page.context.customer.defaultBillingAddress %}
 	{% set shippingAddress = page.context.customer.defaultShippingAddress %}
-	
-	<div class="card checkout-card">
-		<div class="card-body checkout-card-body">
+
+	<div class="card finish-card">
+		<div class="card-body finish-card-body">
 			{% block page_checkout_finish_address_title_equal %}
 				<div class="card-title">
 					{% if billingAddress.id is same as(shippingAddress.id) %}

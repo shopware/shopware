@@ -21,7 +21,8 @@
         "closeMenu": "Close Menu",
         "back": "back",
         "categories": "Categories",
-        "showCategory": "show %category%"
+        "showCategory": "show %category%",
+        "requiredFields": "The fields marked with * are required"
     },
     "header": {
         "logoLink": "Switch to homepage",
@@ -60,7 +61,10 @@
         "registerAdvantage4": "Manage your newsletter subscription",
         "required": "*",
         "registerPersonalHeader": "I'm a new customer",
-        "registerAddressHeader": "Your address",
+        "registerAddressBillingHeader": "Your address",
+        "registerAddressShippingHeader": "Your alternative shipping address",
+        "personalSalutationLabel": "Salutation",
+        "personalSalutationPlaceholder": "Salutation",
         "personalTitleLabel": "Title",
         "personalTitlePlaceholder": "Title",
         "personalFirstNameLabel": "First name",
@@ -80,6 +84,7 @@
         "personalBirthdaySelectDay": "Day",
         "personalBirthdaySelectMonth": "Month",
         "personalBirthdaySelectYear": "Year",
+        "registerDifferentShipping": "The shipping address does not match the billing address",
         "registerSubmit": "Continue",
         "overviewTitle": "Customer account",
         "greetings": "Hi, ",
@@ -151,8 +156,7 @@
         "orderItemInfoNotAvailable": "Product is no longer available for a follow-up order",
         "orderActionSlide": "View",
         "orderInfoNoDispatch": "No stated",
-        "orderLinkRepeat": "Repeat order",
-        "requiredFields": "The fields marked with * are required"
+        "orderLinkRepeat": "Repeat order"
     },
     "address": {
         "streetLabel": "Street and number",
@@ -166,12 +170,11 @@
         "cityLabel": "City",
         "cityPlaceholder": "City",
         "countryLabel": "Country",
-        "requiredFields": "The fields marked with * are required"
+        "countryPlaceholder": "Country"
     },
     "checkout": {
-        "stepAddress": "Address",
-        "stepConfig": "Payment & shipping",
-        "stepConfirm": "Complete order",
+        "registerLoginToggle": "Show login",
+        "registerGuestmodeLabel": "Don't create customer account",
         "cartTitle": "Shopping cart",
         "cartHeader": "Shopping cart",
         "continueShopping": "Continue shopping",
@@ -195,17 +198,11 @@
         "summaryNetPrice": "Total amount without VAT:",
         "summaryTax": "Plus %rate% % VAT:",
         "proceedLink": "Checkout",
-        "configHeader": "Payment & shipping",
-        "configPaymentHeader": "Change payment method",
-        "configShippingHeader": "Change shipping method",
-        "configNextLink": "Next",
         "addressEqualHeader": "Billing and shipping address",
         "billingAddressHeader": "Billing address",
         "shippingAddressHeader": "Shipping address",
-        "confirmHeaderPayment": "Payment and dispatch",
-        "confirmPaymentMethod": "Payment method: ",
-        "confirmDispatchMethod": "Shipping type: ",
-        "confirmPaymentMethodChange": "Change",
+        "confirmPaymentHeader": "Change payment method",
+        "confirmShippingHeader": "Change shipping method",
         "confirmSubmit": "Send order",
         "confirmTermsHeader": "Terms, conditions and cancellation policy",
         "confirmRevocationNotice": "Terms, conditions and cancellation policy.",

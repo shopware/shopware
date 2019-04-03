@@ -124,7 +124,11 @@ class AccountPageController extends StorefrontController
 
         $page = $this->loginPageLoader->load($internal, $context);
 
-        return $this->renderStorefront('@Storefront/page/account/register/index.html.twig', ['redirectTo' => $redirect, 'page' => $page]);
+        return $this->renderStorefront('@Storefront/page/account/register/index.html.twig', [
+            'redirectTo' => $redirect,
+            'page' => $page,
+            'loginError' => (bool) $request->get('loginError'),
+        ]);
     }
 
     /**
@@ -198,7 +202,7 @@ class AccountPageController extends StorefrontController
 
         $page = $this->paymentMethodPageLoader->load($request, $context);
 
-        return $this->renderStorefront('@Storefront/page/account/payment.html.twig', ['page' => $page]);
+        return $this->renderStorefront('@Storefront/page/account/payment/index.html.twig', ['page' => $page]);
     }
 
     /**
@@ -226,7 +230,7 @@ class AccountPageController extends StorefrontController
 
         $page = $this->profilePageLoader->load($request, $context);
 
-        return $this->renderStorefront('@Storefront/page/account/profile.html.twig', ['page' => $page]);
+        return $this->renderStorefront('@Storefront/page/account/profile/index.html.twig', ['page' => $page]);
     }
 
     /**

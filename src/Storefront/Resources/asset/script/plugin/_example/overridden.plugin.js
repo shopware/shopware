@@ -20,7 +20,6 @@ export default class OverriddenPlugin extends Plugin {
 
     init() {
         this._getRandomColor();
-        console.log(this);
     }
 
     _getRandomColor() {

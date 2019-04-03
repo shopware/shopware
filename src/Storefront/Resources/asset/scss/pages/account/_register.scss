@@ -22,6 +22,22 @@
     margin-bottom: $spacer-xl;
 }
 
+.register-different-shipping {
+    margin-bottom: $spacer;
+}
+
+.register-shipping {
+    padding-top: $spacer-lg;
+}
+
+.js-different-shipping-container {
+    display: none;
+
+    &.js-show {
+        display: block;
+    }
+}
+
 .register-required-info {
     margin-bottom: $spacer;
 }

@@ -1,0 +1,239 @@
+{% block component_account_register %}
+	<div class="card register-card">
+		<div class="card-body">
+			{% block component_account_register_form %}
+				<form action="{{ path('frontend.account.register.save') }}"
+				      class="register-form"
+				      method="post"
+				      data-form-validation="true">
+					{% block component_account_register_redirect %}
+						<input type="hidden"
+						       name="redirectTo"
+						       value="{{ redirectTo }}">
+					{% endblock %}
+
+					{% block component_account_register_personal %}
+						<div class="register-personal">
+							{% block component_account_register_personal_errors %}
+								{% set errors = formViolations.getViolations() %}
+								{% if errors %}
+									{% sw_include '@Storefront/base/_utilities/alert.html.twig' with {
+										type: "danger",
+										list: errors
+									} %}
+								{% endif %}
+							{% endblock %}
+
+							{% block component_account_register_personal_header %}
+								<h2 class="card-title">
+									{{ "account.registerPersonalHeader"|trans }}
+								</h2>
+							{% endblock %}
+
+							{% block component_account_register_personal_fields %}
+								{% block component_account_register_personal_address_fields %}
+									{% sw_include '@Storefront/component/address/address-personal.html.twig' with {
+										'showBirthdayField': shopware.config.register.birthdayField
+									} %}
+								{% endblock %}
+
+								{% block component_account_register_personal_account_fields %}
+									{% block component_account_register_personal_mail %}
+										<div class="form-group">
+											{% block component_account_register_personal_mail_label %}
+												<label class="form-label" for="personalMail">
+													{{ "account.personalMailLabel"|trans }}
+												</label>
+											{% endblock %}
+
+											{% block component_account_register_personal_mail_input %}
+												<input type="email"
+												       class="form-control js-required"
+												       autocomplete="section-personal email"
+												       id="personalMail"
+												       placeholder="{{ "account.personalMailPlaceholder"|trans }}{{ "account.required"|trans }}"
+												       name="email"
+												       value="{{ data.get('email') }}"
+												       required="required">
+											{% endblock %}
+										</div>
+									{% endblock %}
+
+									<div class="js-guest-mode-hide">
+										{% block component_account_register_personal_mail_confirmation %}
+											{% if shopware.config.register.emailConfirmation %}
+												<div class="form-group">
+													{% block component_account_register_personal_mail_confirmation_label %}
+														<label class="form-label" for="personalMailConfirmation">
+															{{ "account.personalMailConfirmationLabel"|trans }}
+														</label>
+													{% endblock %}
+
+													{% block component_account_register_personal_mail_confirmation_input %}
+														<input type="email"
+														       class="form-control js-required"
+														       autocomplete="section-personal email"
+														       id="personalMailConfirmation"
+														       placeholder="{{ "account.personalMailConfirmationPlaceholder"|trans }}{{ "account.required"|trans }}"
+														       name="emailConfirmation"
+														       value="{{ data.get('emailConfirmation') }}"
+														       required="required">
+													{% endblock %}
+												</div>
+											{% endif %}
+										{% endblock %}
+
+										{% block component_account_register_personal_password %}
+											<div class="form-group">
+												{% block component_account_register_personal_password_label %}
+													<label class="form-label" for="personalPassword">
+														{{ "account.personalPasswordLabel"|trans }}
+													</label>
+												{% endblock %}
+
+												{% block component_account_register_personal_password_input %}
+													<input type="password"
+													       class="form-control js-required"
+													       autocomplete="new-password"
+													       id="personalPassword"
+													       placeholder="{{ "account.personalPasswordPlaceholder"|trans }}{{ "account.required"|trans }}"
+													       name="password"
+													       required="required">
+												{% endblock %}
+											</div>
+										{% endblock %}
+
+										{% block component_account_register_personal_password_confirmation %}
+											{% if shopware.config.register.passwordConfirmation %}
+												<div class="form-group">
+													{% block component_account_register_personal_password_confirmation_label %}
+														<label class="form-label" for="personalPasswordConfirmation">
+															{{ "account.personalPasswordConfirmationLabel"|trans }}
+														</label>
+													{% endblock %}
+
+													{% block component_account_register_personal_password_confirmation_input %}
+														<input type="password"
+														       class="form-control js-required"
+														       autocomplete="new-password"
+														       id="personalPasswordConfirmation"
+														       placeholder="{{ "account.personalPasswordConfirmationPlaceholder"|trans }}{{ "account.required"|trans }}"
+														       name="passwordConfirmation"
+														       required="required">
+													{% endblock %}
+												</div>
+											{% endif %}
+										{% endblock %}
+
+										{% block component_account_register_personal_password_description %}
+											<p>
+												{{ "account.personalPasswordDescription"|trans({
+													'%minLength%': shopware.config.register.minPasswordLength
+												}) }}
+											</p>
+										{% endblock %}
+									</div>
+								{% endblock %}
+							{% endblock %}
+						</div>
+					{% endblock %}
+
+					{% block component_account_register_address %}
+						<div class="register-address">
+							{% block component_account_register_address_fields %}
+								{% block component_account_register_address_billing %}
+									<div class="register-billing">
+										{% block component_account_register_address_billing_header %}
+											<h2 class="card-title">
+												{{ "account.registerAddressBillingHeader"|trans }}
+											</h2>
+										{% endblock %}
+
+										{% block component_account_register_address_billing_fields %}
+											{% sw_include '@Storefront/component/address/address-form.html.twig' with {
+												'prefix': 'billingAddress',
+												'data': data.get('billingAddress')
+											} %}
+										{% endblock %}
+									</div>
+								{% endblock %}
+
+								{% block component_account_register_address_different_shipping %}
+									<div data-different-shipping="true">
+										{% block component_account_register_address_different_shipping_control %}
+											<div class="custom-control custom-checkbox register-different-shipping">
+												{% block component_account_register_address_different_shipping_input %}
+													<input type="checkbox"
+													       class="custom-control-input js-different-shipping-checkbox"
+													       name="differentShippingAddress"
+													       value="1"
+													       id="differentShippingAddress"
+														   {% if data.get('differentShippingAddress') %}checked="checked"{% endif %}>
+												{% endblock %}
+
+												{% block component_account_register_address_different_shipping_label %}
+													<label class="custom-control-label"
+													       for="differentShippingAddress">
+														{{ "account.registerDifferentShipping"|trans }}
+													</label>
+												{% endblock %}
+											</div>
+										{% endblock %}
+
+										{% block component_account_register_address_shipping %}
+											<div class="register-shipping js-different-shipping-container">
+												{% block component_account_register_address_shipping_header %}
+													<h2 class="card-title">
+														{{ "account.registerAddressShippingHeader"|trans }}
+													</h2>
+												{% endblock %}
+
+												{% block component_account_register_address_shipping_fields %}
+													{% block component_account_register_address_shipping_fields_personal %}
+														{% sw_include '@Storefront/component/address/address-personal.html.twig' with {
+															'prefix': 'shippingAddress',
+															'data': data.get('shippingAddress')
+														} %}
+													{% endblock %}
+
+													{% block component_account_register_address_shipping_fields_address %}
+														{% sw_include '@Storefront/component/address/address-form.html.twig' with {
+															'prefix': 'shippingAddress',
+															'data': data.get('shippingAddress')
+														} %}
+													{% endblock %}
+												{% endblock %}
+											</div>
+										{% endblock %}
+									</div>
+								{% endblock %}
+							{% endblock %}
+						</div>
+					{% endblock %}
+
+					{% block component_account_register_required_fields %}
+						<p class="register-required-info">
+							{{ "general.requiredFields"|trans }}
+						</p>
+					{% endblock %}
+
+					{% block component_account_register_captcha %}
+						{#TODO: NEXT-2002 - captcha#}
+					{% endblock %}
+
+					{% block component_account_register_privacy %}
+						{#TODO: NEXT-1951 - optins#}
+					{% endblock %}
+
+					{% block component_account_register_submit %}
+						<div class="register-submit">
+							<button type="submit" class="btn btn-primary">
+								{{ "account.registerSubmit"|trans }}
+							</button>
+						</div>
+					{% endblock %}
+				</form>
+			{% endblock %}
+		</div>
+	</div>
+{% endblock %}

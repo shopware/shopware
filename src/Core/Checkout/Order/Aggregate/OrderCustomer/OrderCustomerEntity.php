@@ -62,7 +62,7 @@ class OrderCustomerEntity extends Entity
     protected $updatedAt;
 
     /**
-     * @var CustomerEntity
+     * @var CustomerEntity|null
      */
     protected $customer;
 
@@ -171,7 +171,7 @@ class OrderCustomerEntity extends Entity
         $this->updatedAt = $updatedAt;
     }
 
-    public function getCustomer(): CustomerEntity
+    public function getCustomer(): ?CustomerEntity
     {
         return $this->customer;
     }

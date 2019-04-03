@@ -3,6 +3,7 @@
 namespace Shopware\Core\Checkout\Payment\Cart;
 
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionEntity;
+use Shopware\Core\Checkout\Order\OrderEntity;
 
 class AsyncPaymentTransactionStruct extends SyncPaymentTransactionStruct
 {
@@ -11,9 +12,9 @@ class AsyncPaymentTransactionStruct extends SyncPaymentTransactionStruct
      */
     private $returnUrl;
 
-    public function __construct(OrderTransactionEntity $orderTransaction, string $returnUrl)
+    public function __construct(OrderTransactionEntity $orderTransaction, OrderEntity $order, string $returnUrl)
     {
-        parent::__construct($orderTransaction);
+        parent::__construct($orderTransaction, $order);
         $this->returnUrl = $returnUrl;
     }
 

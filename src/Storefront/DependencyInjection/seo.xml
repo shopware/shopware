@@ -9,7 +9,7 @@
             <argument type="service" id="sales_channel.repository"/>
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Storefront\Framework\Seo\SeoService"/>
-            <argument type="service" id="Shopware\Core\Checkout\Context\CheckoutContextFactory"/>
+            <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory"/>
             <argument type="service" id="product.repository"/>
             <argument type="service" id="Shopware\Core\Content\Product\Util\EventIdExtractor"/>
             <tag name="shopware.dbal_indexing.indexer" priority="1000"/>
@@ -77,7 +77,7 @@
 
         <service id="Shopware\Storefront\Framework\Seo\SeoUrlGenerator\ProductDetailPageSeoUrlGenerator">
             <argument type="service" id="sales_channel.repository"/>
-            <argument type="service" id="Shopware\Core\Checkout\Context\CheckoutContextFactory"/>
+            <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory"/>
             <argument type="service" id="slugify"/>
             <argument type="service" id="router"/>
             <argument type="string">frontend.detail.page</argument>

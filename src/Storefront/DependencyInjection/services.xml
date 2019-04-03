@@ -32,7 +32,7 @@
             <tag name="console.command"/>
         </service>
 
-        <service id="Shopware\Core\Checkout\Context\CheckoutContextValueResolver">
+        <service id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextValueResolver">
             <argument type="service" id="request_stack"/>
             <tag name="controller.argument_value_resolver" priority="1000"/>
         </service>
@@ -261,7 +261,7 @@
         <service id="Shopware\Storefront\PageController\HomePageController" public="true">
             <argument type="service" id="Shopware\Storefront\Page\Home\HomePageLoader"/>
             <argument type="service" id="Shopware\Core\Checkout\Customer\Storefront\AccountRegistrationService"/>
-            <argument type="service" id="Shopware\Core\Checkout\Context\CheckoutContextPersister"/>
+            <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister"/>
         </service>
 
         <service id="Shopware\Storefront\PageController\ProductPageController" public="true">

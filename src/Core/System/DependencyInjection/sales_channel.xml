@@ -45,6 +45,44 @@
             <tag name="shopware.entity.definition" entity="sales_channel_type_translation"/>
         </service>
 
+        <service id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+        </service>
+
+        <service id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory">
+            <argument type="service" id="sales_channel.repository"/>
+            <argument type="service" id="currency.repository"/>
+            <argument type="service" id="customer.repository"/>
+            <argument type="service" id="customer_group.repository"/>
+            <argument type="service" id="country.repository"/>
+            <argument type="service" id="tax.repository"/>
+            <argument type="service" id="customer_address.repository"/>
+            <argument type="service" id="payment_method.repository"/>
+            <argument type="service" id="shipping_method.repository"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="country_state.repository"/>
+            <argument type="service" id="Shopware\Core\Checkout\Cart\Tax\TaxDetector"/>
+        </service>
+
+        <service id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextService">
+            <argument type="service" id="shopware.cache"/>
+            <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory"/>
+            <argument type="service" id="Shopware\Core\Checkout\Cart\CartRuleLoader"/>
+            <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister"/>
+            <tag name="shopware.traceable"/>
+        </service>
+
+        <service id="Shopware\Core\System\SalesChannel\Storefront\StorefrontSalesChannelContextController" public="true">
+            <argument type="service" id="payment_method.repository"/>
+            <argument type="service" id="shipping_method.repository"/>
+            <argument type="service" id="customer_address.repository"/>
+            <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister"/>
+            <argument type="service" id="serializer"/>
+            <call method="setContainer">
+                <argument type="service" id="service_container"/>
+            </call>
+        </service>
+
         <service id="Shopware\Core\System\SalesChannel\Command\SalesChannelCreateCommand">
             <argument type="service" id="sales_channel.repository"/>
             <argument type="service" id="payment_method.repository"/>

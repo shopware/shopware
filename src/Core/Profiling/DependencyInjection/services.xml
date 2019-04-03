@@ -5,11 +5,11 @@
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
 
     <services>
-        <service id="SalesChannelContextServiceProfiler"
-                 decorates="Shopware\Core\System\SalesChannel\Context\CheckoutContextService"
+        <service id="Shopware\Core\Profiling\Checkout\SalesChannelContextServiceProfiler"
+                 decorates="Shopware\Core\System\SalesChannel\Context\SalesChannelContextService"
                  decoration-priority="-1000">
 
-            <argument type="service" id="Shopware\Core\Profiling\Checkout\CheckoutContextServiceProfiler.inner"/>
+            <argument type="service" id="Shopware\Core\Profiling\Checkout\SalesChannelContextServiceProfiler.inner"/>
             <argument type="service" id="debug.stopwatch" />
         </service>
 

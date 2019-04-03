@@ -104,7 +104,7 @@ EOD;
         }
 
         $descriptions->dump();
-        file_put_contents(__DIR__ . '/../_new/2-platform/1-structure/10-core-modules.md', sprintf(self::TEMPLATE_HEADER, implode(PHP_EOL, $markdown)));
+        file_put_contents(__DIR__ . '/../_new/2-internals/1-core/10-modules.md', sprintf(self::TEMPLATE_HEADER, implode(PHP_EOL, $markdown)));
 
         $io->success('Done');
     }

@@ -1,1 +1,0 @@
-[titleEn]: <>(Tech radar)

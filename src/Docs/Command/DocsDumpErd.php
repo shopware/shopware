@@ -85,7 +85,7 @@ class DocsDumpErd extends Command
 
         $descriptionsShort = new ArrayWriter(__DIR__ . '/../Resources/erd-short-description.php');
         $descriptionsLong = new ArrayWriter(__DIR__ . '/../Resources/erd-long-description.php');
-        $destPath = __DIR__ . '/../_new/2-platform/1-structure/10-erd';
+        $destPath = __DIR__ . '/../_new/2-internals/1-core/10-erd';
 
         $definitions = $this->loadDefinitions();
         $modules = $this->sortDefinitionsIntoModules($definitions);

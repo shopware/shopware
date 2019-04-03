@@ -18,10 +18,10 @@ use Shopware\Core\Framework\Demodata\DemodataGeneratorInterface;
 use Shopware\Core\Framework\Rule\Container\AndRule;
 use Shopware\Core\Framework\Rule\Container\Container;
 use Shopware\Core\Framework\Rule\Container\OrRule;
-use Shopware\Core\Framework\Rule\CurrencyRule;
 use Shopware\Core\Framework\Rule\DateRangeRule;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\Currency\Rule\CurrencyRule;
 
 class RuleGenerator implements DemodataGeneratorInterface
 {

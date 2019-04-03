@@ -1,17 +1,17 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\Test\Rule;
+namespace Shopware\Core\System\Test\Currency;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException\WriteStackException;
-use Shopware\Core\Framework\Rule\CurrencyRule;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
+use Shopware\Core\System\Currency\Rule\CurrencyRule;
 use Symfony\Component\Validator\Constraints\NotBlank;
 
 class CurrencyRuleTest extends TestCase

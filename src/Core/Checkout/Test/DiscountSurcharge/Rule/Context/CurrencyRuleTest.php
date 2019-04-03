@@ -7,7 +7,7 @@ use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\Rule\CartRuleScope;
 use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Rule\CurrencyRule;
+use Shopware\Core\System\Currency\Rule\CurrencyRule;
 
 class CurrencyRuleTest extends TestCase
 {

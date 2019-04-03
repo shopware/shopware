@@ -1,8 +1,11 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\Rule;
+namespace Shopware\Core\System\Currency\Rule;
 
 use Shopware\Core\Framework\Rule\Exception\UnsupportedOperatorException;
+use Shopware\Core\Framework\Rule\Match;
+use Shopware\Core\Framework\Rule\Rule;
+use Shopware\Core\Framework\Rule\RuleScope;
 use Shopware\Core\Framework\Validation\Constraint\ArrayOfUuid;
 use Symfony\Component\Validator\Constraints\Choice;
 use Symfony\Component\Validator\Constraints\NotBlank;

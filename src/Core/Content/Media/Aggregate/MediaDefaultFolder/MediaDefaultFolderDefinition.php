@@ -41,7 +41,7 @@ class MediaDefaultFolderDefinition extends EntityDefinition
 
             (new StringField('entity', 'entity'))->addFlags(new Required()),
 
-            new OneToOneAssociationField('folder', 'id', 'default_folder_id', MediaFolderDefinition::class, true),
+            new OneToOneAssociationField('folder', 'id', 'default_folder_id', MediaFolderDefinition::class),
 
             new CreatedAtField(),
             new UpdatedAtField(),

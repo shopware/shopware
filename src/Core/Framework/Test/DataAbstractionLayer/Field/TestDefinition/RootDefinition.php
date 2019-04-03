@@ -29,7 +29,7 @@ class RootDefinition extends EntityDefinition
             (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
             new VersionField(),
             new StringField('name', 'name'),
-            new OneToOneAssociationField('sub', 'id', 'root_id', SubDefinition::class, true),
+            new OneToOneAssociationField('sub', 'id', 'root_id', SubDefinition::class),
         ]);
     }
 }

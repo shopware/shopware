@@ -92,7 +92,7 @@ class OrderDefinition extends EntityDefinition
             new CreatedAtField(),
             new UpdatedAtField(),
 
-            (new OneToOneAssociationField('orderCustomer', 'id', 'order_id', OrderCustomerDefinition::class, true))->addFlags(new CascadeDelete(), new SearchRanking(0.5)),
+            (new OneToOneAssociationField('orderCustomer', 'id', 'order_id', OrderCustomerDefinition::class))->addFlags(new CascadeDelete(), new SearchRanking(0.5)),
             new ManyToOneAssociationField('currency', 'currency_id', CurrencyDefinition::class, 'id', true),
             new ManyToOneAssociationField('salesChannel', 'sales_channel_id', SalesChannelDefinition::class, 'id', true),
             (new OneToManyAssociationField('addresses', OrderAddressDefinition::class, 'order_id'))->addFlags(new CascadeDelete()),

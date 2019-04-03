@@ -384,6 +384,7 @@ class EntityReaderTest extends TestCase
         $this->productRepository->create($products, $context);
 
         $criteria = new Criteria([$greenId, $parentId, $redId]);
+        $criteria->addAssociation('prices');
         $context->setConsiderInheritance(true);
 
         $products = $this->productRepository->search($criteria, $context);
@@ -544,7 +545,7 @@ class EntityReaderTest extends TestCase
         $this->productRepository->create($products, $context);
 
         $criteria = new Criteria([$greenId, $parentId, $redId]);
-        $criteria->addAssociation('product.categories');
+        $criteria->addAssociation('categories');
         $context->setConsiderInheritance(true);
 
         $products = $this->productRepository->search($criteria, $context);
@@ -579,7 +580,7 @@ class EntityReaderTest extends TestCase
 
         //####
         $criteria = new Criteria([$greenId, $parentId, $redId]);
-        $criteria->addAssociation('product.categories');
+        $criteria->addAssociation('categories');
         $context->setConsiderInheritance(false);
 
         $products = $this->productRepository->search($criteria, $context);
@@ -822,7 +823,7 @@ class EntityReaderTest extends TestCase
         static::assertEquals(5, $addresses);
 
         $criteria = new Criteria([$id]);
-        $criteria->addAssociation('customer.addresses');
+        $criteria->addAssociation('addresses');
         /** @var CustomerEntity $customer */
         $customer = $repository->search($criteria, $context)->get($id);
         static::assertInstanceOf(CustomerAddressCollection::class, $customer->getAddresses());
@@ -1200,7 +1201,7 @@ class EntityReaderTest extends TestCase
         $manufacturerRepo->upsert([$manufacturer], $context);
 
         $productCriteria = new Criteria([$productId]);
-        $productCriteria->addAssociation('product.categories');
+        $productCriteria->addAssociation('categories');
 
         $manufacturerCriteria = new Criteria([$manufacturerId]);
         $manufacturerCriteria->addAssociation('product_manufacturer.products', $productCriteria);
@@ -1271,7 +1272,7 @@ class EntityReaderTest extends TestCase
         //test that we can add the association and all products are fetched
         $criteria = new Criteria([$id1, $id2]);
 
-        $criteria->addAssociation('category.products');
+        $criteria->addAssociation('products');
         $categories = $repository->search($criteria, $context);
 
         /** @var CategoryEntity $category1 */
@@ -1610,7 +1611,8 @@ class EntityReaderTest extends TestCase
         ];
 
         $this->productRepository->create([$data], $context);
-        $results = $this->productRepository->search(new Criteria([$data['id']]), $context);
+        $criteria = new Criteria([$data['id']]);
+        $results = $this->productRepository->search($criteria, $context);
 
         /** @var ProductEntity $product */
         $product = $results->first();
@@ -1642,7 +1644,7 @@ class EntityReaderTest extends TestCase
         $repo->create($cats, Context::createDefaultContext());
 
         $criteria = new Criteria([$id]);
-        $criteria->addAssociation('category.translations');
+        $criteria->addAssociation('translations');
 
         /** @var CategoryEntity $cat */
         $cat = $repo->search($criteria, Context::createDefaultContext())->first();

@@ -836,8 +836,12 @@ class VersioningTest extends TestCase
         ];
 
         $this->productRepository->update([$updated], $versionContext);
+
+        $criteria = new Criteria([$productId]);
+        $criteria->addAssociation('prices');
+
         /** @var ProductEntity $product */
-        $product = $this->productRepository->search(new Criteria([$productId]), $versionContext)->first();
+        $product = $this->productRepository->search($criteria, $versionContext)->first();
 
         //check if the prices are updated in the version scope
         static::assertInstanceOf(ProductEntity::class, $product);
@@ -847,8 +851,11 @@ class VersioningTest extends TestCase
         static::assertEquals(99, $product->getPrices()->get($priceId2)->getPrice()->getGross());
         static::assertEquals(99, $product->getPrices()->get($priceId2)->getPrice()->getNet());
 
+        $criteria = new Criteria([$productId]);
+        $criteria->addAssociation('prices');
+
         /** @var ProductEntity $product */
-        $product = $this->productRepository->search(new Criteria([$productId]), $context)->first();
+        $product = $this->productRepository->search($criteria, $context)->first();
 
         //check the prices of the live version are untouched
         static::assertInstanceOf(ProductEntity::class, $product);
@@ -865,16 +872,22 @@ class VersioningTest extends TestCase
             ['id' => $priceId2, 'versionId' => $versionId],
         ], $versionContext);
 
+        $criteria = new Criteria([$productId]);
+        $criteria->addAssociation('prices');
+
         /** @var ProductEntity $product */
-        $product = $this->productRepository->search(new Criteria([$productId]), $context)->first();
+        $product = $this->productRepository->search($criteria, $context)->first();
 
         //live version scope should be untouched
         static::assertInstanceOf(ProductEntity::class, $product);
         static::assertCount(2, $product->getPrices());
 
         //version scope should have no prices
+        $criteria = new Criteria([$productId]);
+        $criteria->addAssociation('prices');
+
         /** @var ProductEntity $product */
-        $product = $this->productRepository->search(new Criteria([$productId]), $versionContext)->first();
+        $product = $this->productRepository->search($criteria, $versionContext)->first();
         static::assertInstanceOf(ProductEntity::class, $product);
         static::assertCount(0, $product->getPrices());
 
@@ -915,22 +928,31 @@ class VersioningTest extends TestCase
         //add new price matrix to product
         $this->productRepository->update([$updated], $versionContext);
 
+        $criteria = new Criteria([$productId]);
+        $criteria->addAssociation('prices');
+
         /** @var ProductEntity $product */
-        $product = $this->productRepository->search(new Criteria([$productId]), $context)->first();
+        $product = $this->productRepository->search($criteria, $context)->first();
 
         static::assertInstanceOf(ProductEntity::class, $product);
         static::assertCount(2, $product->getPrices());
 
+        $criteria = new Criteria([$productId]);
+        $criteria->addAssociation('prices');
+
         /** @var ProductEntity $product */
-        $product = $this->productRepository->search(new Criteria([$productId]), $versionContext)->first();
+        $product = $this->productRepository->search($criteria, $versionContext)->first();
 
         static::assertInstanceOf(ProductEntity::class, $product);
         static::assertCount(3, $product->getPrices());
 
         $this->productRepository->merge($versionId, $context);
 
+        $criteria = new Criteria([$productId]);
+        $criteria->addAssociation('prices');
+
         /** @var ProductEntity $product */
-        $product = $this->productRepository->search(new Criteria([$productId]), $context)->first();
+        $product = $this->productRepository->search($criteria, $context)->first();
 
         static::assertInstanceOf(ProductEntity::class, $product);
         static::assertCount(3, $product->getPrices());
@@ -994,7 +1016,7 @@ class VersioningTest extends TestCase
         $versionContext = $context->createWithVersionId($versionId);
 
         $criteria = new Criteria([$productId]);
-        $criteria->addAssociation('product.categories');
+        $criteria->addAssociation('categories');
 
         /** @var ProductEntity $product */
         $product = $this->productRepository
@@ -1173,9 +1195,12 @@ class VersioningTest extends TestCase
         static::assertCount(1, $result->getIds());
         static::assertContains($productId, $result->getIds());
 
+        $criteria = new Criteria([$productId]);
+        $criteria->addAssociation('prices');
+
         /** @var ProductEntity $product */
         $product = $this->productRepository
-            ->search(new Criteria([$productId]), $context)
+            ->search($criteria, $context)
             ->first();
 
         static::assertInstanceOf(ProductEntity::class, $product);
@@ -1229,7 +1254,7 @@ class VersioningTest extends TestCase
         static::assertContains($productId, $result->getIds());
 
         $Criteria = new Criteria([$productId]);
-        $Criteria->addAssociation('product.categories');
+        $Criteria->addAssociation('categories');
 
         /** @var ProductEntity $product */
         $product = $this->productRepository->search($Criteria, $versionContext)->first();

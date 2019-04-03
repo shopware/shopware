@@ -172,9 +172,11 @@ class VersionManager
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('version_commit.versionId', $versionId));
         $criteria->addSorting(new FieldSorting('version_commit.autoIncrement'));
-
         $commitIds = $this->entitySearcher->search(VersionCommitDefinition::class, $criteria, $writeContext->getContext());
-        $commits = $this->entityReader->read(VersionCommitDefinition::class, new Criteria($commitIds->getIds()), $writeContext->getContext());
+
+        $readCriteria = new Criteria($commitIds->getIds());
+        $readCriteria->addAssociation('data');
+        $commits = $this->entityReader->read(VersionCommitDefinition::class, $readCriteria, $writeContext->getContext());
 
         $allChanges = [];
         $entities = [];

@@ -26,7 +26,7 @@ class StorefrontCmsPageRepository
         $criteria = new Criteria($ids);
 
         $blockCriteria = new Criteria();
-        $blockCriteria->addAssociation('cms_block.slots');
+        $blockCriteria->addAssociation('slots');
         $blockCriteria->addSorting(new FieldSorting('position', 'ASC'));
         $criteria->addAssociation('cms_page.blocks', $blockCriteria);
 
@@ -42,7 +42,7 @@ class StorefrontCmsPageRepository
         $criteria->addFilter(new EqualsFilter('cms_page.type', $type));
 
         $blockCriteria = new Criteria();
-        $blockCriteria->addAssociation('cms_block.slots');
+        $blockCriteria->addAssociation('slots');
         $blockCriteria->addSorting(new FieldSorting('position', 'ASC'));
         $criteria->addAssociation('cms_page.blocks', $blockCriteria);
 

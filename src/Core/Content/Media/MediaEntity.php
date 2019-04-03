@@ -127,7 +127,7 @@ class MediaEntity extends Entity
     protected $avatarUser;
 
     /**
-     * @var MediaThumbnailCollection
+     * @var MediaThumbnailCollection|null
      */
     protected $thumbnails;
 
@@ -165,6 +165,11 @@ class MediaEntity extends Entity
      * @var TagCollection|null
      */
     protected $tags;
+
+    /**
+     * @var string|null
+     */
+    protected $thumbnailsRo;
 
     public function get(string $property)
     {
@@ -345,7 +350,7 @@ class MediaEntity extends Entity
         $this->avatarUser = $avatarUser;
     }
 
-    public function getThumbnails(): MediaThumbnailCollection
+    public function getThumbnails(): ?MediaThumbnailCollection
     {
         return $this->thumbnails;
     }
@@ -458,6 +463,16 @@ class MediaEntity extends Entity
     public function setTags(TagCollection $tags): void
     {
         $this->tags = $tags;
+    }
+
+    public function getThumbnailsRo(): ?string
+    {
+        return $this->thumbnailsRo;
+    }
+
+    public function setThumbnailsRo(string $thumbnailsRo): void
+    {
+        $this->thumbnailsRo = $thumbnailsRo;
     }
 
     public function jsonSerialize(): array

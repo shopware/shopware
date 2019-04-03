@@ -19,6 +19,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\CreatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\DateField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\CascadeDelete;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Computed;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Deferred;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Internal;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
@@ -90,6 +91,7 @@ class MediaDefinition extends EntityDefinition
             (new OneToOneAssociationField('avatarUser', 'id', 'avatar_id', UserDefinition::class, false))->addFlags(new CascadeDelete()),
             (new TranslationsAssociationField(MediaTranslationDefinition::class, 'media_id'))->addFlags(new Required()),
             (new OneToManyAssociationField('thumbnails', MediaThumbnailDefinition::class, 'media_id'))->addFlags(new CascadeDelete()),
+            (new BlobField('thumbnails_ro', 'thumbnailsRo'))->addFlags(new Computed(), new Internal()),
             (new BoolField('has_file', 'hasFile'))->addFlags(new Deferred()),
             new ManyToOneAssociationField('mediaFolder', 'media_folder_id', MediaFolderDefinition::class, 'id', false),
             new OneToManyAssociationField('configurationGroupOptions', ConfigurationGroupOptionDefinition::class, 'media_id'),

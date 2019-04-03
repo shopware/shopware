@@ -137,6 +137,7 @@ class StorefrontCheckoutController extends AbstractController
         }
 
         $criteria = new Criteria();
+        $criteria->addAssociation('addresses');
         $criteria->addFilter(new EqualsFilter('id', $id));
         $criteria->addFilter(new EqualsFilter('deepLinkCode', $deepLinkCode));
 
@@ -174,6 +175,8 @@ class StorefrontCheckoutController extends AbstractController
     private function getOrderById(string $orderId, SalesChannelContext $context): OrderEntity
     {
         $criteria = new Criteria([$orderId]);
+        $criteria->addAssociation('addresses');
+
         $order = $this->orderRepository->search($criteria, $context->getContext())->get($orderId);
 
         if ($order === null) {

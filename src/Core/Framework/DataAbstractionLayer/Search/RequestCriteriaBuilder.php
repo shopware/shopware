@@ -154,9 +154,7 @@ class RequestCriteriaBuilder
 
                 $nested = $this->fromArray($association, $nested, $ref, $context);
 
-                $accessor = $definition::getEntityName() . '.' . $propertyName;
-
-                $criteria->addAssociation($accessor, $nested);
+                $criteria->addAssociation($propertyName, $nested);
             }
         }
 

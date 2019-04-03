@@ -198,7 +198,7 @@ class GenerateThumbnailsCommand extends Command
             $criteria->addFilter($this->folderFilter);
         }
 
-        $criteria->addAssociation('media.mediaFolder');
+        $criteria->addAssociation('mediaFolder');
 
         return $criteria;
     }

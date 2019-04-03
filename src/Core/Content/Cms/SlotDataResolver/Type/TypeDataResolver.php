@@ -17,8 +17,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 
 abstract class TypeDataResolver implements SlotTypeDataResolverInterface
 {
-    protected function resolveEntityValue(Entity $entity, string $path)
+    protected function resolveEntityValue(?Entity $entity, string $path)
     {
+        if ($entity === null) {
+            return $entity;
+        }
+
         $value = $entity;
         $parts = explode('.', $path);
 

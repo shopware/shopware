@@ -59,7 +59,7 @@ class SeoUrlExtensionTest extends TestCase
         ]);
 
         $criteria = new Criteria([$id]);
-        $criteria->addAssociation('product.seoUrls');
+        $criteria->addAssociation('seoUrls');
 
         /** @var ProductEntity $first */
         $first = $this->productRepository->search($criteria, Context::createDefaultContext())->first();
@@ -105,7 +105,7 @@ class SeoUrlExtensionTest extends TestCase
         ]);
 
         $criteria = new Criteria([$id]);
-        $criteria->addAssociation('product.seoUrls');
+        $criteria->addAssociation('seoUrls');
 
         /** @var ProductEntity $first */
         $first = $this->productRepository->search($criteria, Context::createDefaultContext())->first();

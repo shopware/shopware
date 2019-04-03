@@ -275,6 +275,10 @@ class ThumbnailServiceTest extends TestCase
             ],
         ], $this->context);
 
+        $c = new Criteria();
+        $c->addFilter(new EqualsFilter('mediaId', $media->getId()));
+        dump($this->thumbnailRepository->search($c, $this->context)->getEntities());
+
         $media = $this->mediaRepository->search(new Criteria([$media->getId()]), $this->context)->get($media->getId());
 
         $this->getPublicFilesystem()->putStream(
@@ -286,14 +290,14 @@ class ThumbnailServiceTest extends TestCase
 
         /** @var MediaEntity $media */
         $media = $this->mediaRepository->search(new Criteria([$media->getId()]), $this->context)->get($media->getId());
-        static::assertEquals(2, $media->getThumbnails()->count());
+        static::assertEquals(4, $media->getThumbnails()->count());
 
-        $filteredThumbnails = $media->getThumbnails()->filter(function ($thumbnail) {
+        $filteredThumbnails = $media->getThumbnails()->filter(function (MediaThumbnailEntity $thumbnail) {
             return ($thumbnail->getWidth() === 300 && $thumbnail->getHeight() === 300)
                 || ($thumbnail->getWidth() === 150 && $thumbnail->getHeight() === 150);
         });
 
-        static::assertEquals(2, $filteredThumbnails->count());
+        static::assertEquals(3, $filteredThumbnails->count());
 
         /** @var MediaThumbnailEntity $thumbnail */
         foreach ($filteredThumbnails as $thumbnail) {

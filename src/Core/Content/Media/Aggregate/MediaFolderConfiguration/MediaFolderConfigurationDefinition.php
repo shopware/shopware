@@ -7,8 +7,11 @@ use Shopware\Core\Content\Media\Aggregate\MediaFolderConfigurationMediaThumbnail
 use Shopware\Core\Content\Media\Aggregate\MediaThumbnailSize\MediaThumbnailSizeDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AttributesField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\BlobField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CreatedAtField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Computed;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Internal;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
@@ -72,6 +75,8 @@ class MediaFolderConfigurationDefinition extends EntityDefinition
                 'media_folder_configuration_id',
                 'media_thumbnail_size_id'
             ),
+
+            (new BlobField('media_thumbnail_sizes_ro', 'mediaThumbnailSizesRo'))->addFlags(new Computed(), new Internal()),
 
             new CreatedAtField(),
             new UpdatedAtField(),

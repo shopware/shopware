@@ -39,6 +39,7 @@ class StorefrontProductRepository
         $this->addActiveFilters($criteria, $context);
         $this->addDatasheet($criteria);
         $this->addMedia($criteria);
+        $this->addPriceRules($criteria);
 
         /** @var ProductCollection $basics */
         $basics = $this->productRepository
@@ -133,13 +134,18 @@ class StorefrontProductRepository
     private function addDatasheet(Criteria $criteria): void
     {
         $datasheetCriteria = new Criteria();
-        $datasheetCriteria->addAssociation('configuration_group_option.group');
+        $datasheetCriteria->addAssociation('group');
 
         $criteria->addAssociation('product.datasheet', $datasheetCriteria);
     }
 
     private function addMedia(Criteria $criteria): void
     {
-        $criteria->addAssociation('product.media');
+        $criteria->addAssociation('media');
+    }
+
+    private function addPriceRules(Criteria $criteria): void
+    {
+        $criteria->addAssociation('prices');
     }
 }

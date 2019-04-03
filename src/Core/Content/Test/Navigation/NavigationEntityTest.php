@@ -69,7 +69,7 @@ class NavigationEntityTest extends TestCase
         $this->repository->create([$data], $context);
 
         $criteria = new Criteria([$parentId]);
-        $criteria->addAssociation('navigation.children');
+        $criteria->addAssociation('children');
 
         $result = $this->repository->search($criteria, $context);
 

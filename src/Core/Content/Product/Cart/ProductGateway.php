@@ -21,8 +21,11 @@ class ProductGateway implements ProductGatewayInterface
 
     public function get(array $ids, SalesChannelContext $context): ProductCollection
     {
+        $criteria = new Criteria($ids);
+        $criteria->addAssociation('prices');
+
         /** @var ProductCollection $result */
-        $result = $this->repository->search(new Criteria($ids), $context->getContext())->getEntities();
+        $result = $this->repository->search($criteria, $context->getContext())->getEntities();
 
         return $result;
     }

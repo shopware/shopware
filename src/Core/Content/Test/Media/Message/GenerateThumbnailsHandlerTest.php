@@ -87,14 +87,14 @@ class GenerateThumbnailsHandlerTest extends TestCase
         $this->handler->__invoke($msg);
 
         $media = $this->mediaRepository->search(new Criteria([$media->getId()]), $this->context)->get($media->getId());
-        static::assertEquals(2, $media->getThumbnails()->count());
+        static::assertEquals(4, $media->getThumbnails()->count());
 
         $filteredThumbnails = $media->getThumbnails()->filter(function (MediaThumbnailEntity $thumbnail) {
             return ($thumbnail->getWidth() === 300 && $thumbnail->getHeight() === 300)
                 || ($thumbnail->getWidth() === 150 && $thumbnail->getHeight() === 150);
         });
 
-        static::assertEquals(2, $filteredThumbnails->count());
+        static::assertEquals(3, $filteredThumbnails->count());
         /** @var MediaThumbnailEntity $thumbnail */
         foreach ($filteredThumbnails as $thumbnail) {
             $path = $this->urlGenerator->getRelativeThumbnailUrl($media, $thumbnail->getWidth(), $thumbnail->getHeight());
@@ -133,7 +133,7 @@ class GenerateThumbnailsHandlerTest extends TestCase
 
         /** @var MediaEntity $media */
         $media = $this->mediaRepository->search(new Criteria([$media->getId()]), $this->context)->get($media->getId());
-        static::assertEquals(2, $media->getThumbnails()->count());
+        static::assertEquals(3, $media->getThumbnails()->count());
 
         $filteredThumbnails = $media->getThumbnails()->filter(function (MediaThumbnailEntity $thumbnail) {
             return ($thumbnail->getWidth() === 300 && $thumbnail->getHeight() === 300)

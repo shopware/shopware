@@ -165,9 +165,20 @@ class Criteria extends Struct
         return $this->associations;
     }
 
-    public function getAssociation(string $field): ?Criteria
+    public function getAssociation(string $field, ?string $definition = null): ?Criteria
     {
-        return $this->associations[$field] ?? null;
+        if (isset($this->associations[$field])) {
+            return $this->associations[$field];
+        }
+
+        if ($definition) {
+            $key = $definition::getEntityName() . '.' . $field;
+            $extensionKey = $definition::getEntityName() . '.extensions.' . $field;
+
+            return $this->associations[$key] ?? $this->associations[$extensionKey] ?? null;
+        }
+
+        return null;
     }
 
     public function addFilter(Filter ...$queries): self
@@ -222,9 +233,18 @@ class Criteria extends Struct
         return $this;
     }
 
-    public function hasAssociation(string $field): bool
+    public function hasAssociation(string $field, ?string $definition = null): bool
     {
-        return isset($this->associations[$field]);
+        if (isset($this->associations[$field])) {
+            return true;
+        }
+
+        if ($definition) {
+            return isset($this->associations[$definition::getEntityName() . '.' . $field])
+                || isset($this->associations[$definition::getEntityName() . '.extensions.' . $field]);
+        }
+
+        return false;
     }
 
     public function resetSorting(): self

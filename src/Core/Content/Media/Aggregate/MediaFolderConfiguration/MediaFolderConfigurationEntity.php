@@ -32,7 +32,7 @@ class MediaFolderConfigurationEntity extends Entity
     protected $thumbnailQuality;
 
     /**
-     * @var MediaThumbnailSizeCollection
+     * @var MediaThumbnailSizeCollection|null
      */
     protected $mediaThumbnailSizes;
 
@@ -40,6 +40,11 @@ class MediaFolderConfigurationEntity extends Entity
      * @var array|null
      */
     protected $attributes;
+
+    /**
+     * @var string|null
+     */
+    protected $mediaThumbnailSizesRo;
 
     /**
      * @var \DateTimeInterface
@@ -81,7 +86,7 @@ class MediaFolderConfigurationEntity extends Entity
         $this->keepAspectRatio = $keepAspectRatio;
     }
 
-    public function getMediaThumbnailSizes(): MediaThumbnailSizeCollection
+    public function getMediaThumbnailSizes(): ?MediaThumbnailSizeCollection
     {
         return $this->mediaThumbnailSizes;
     }
@@ -129,5 +134,15 @@ class MediaFolderConfigurationEntity extends Entity
     public function setAttributes(?array $attributes): void
     {
         $this->attributes = $attributes;
+    }
+
+    public function getMediaThumbnailSizesRo(): ?string
+    {
+        return $this->mediaThumbnailSizesRo;
+    }
+
+    public function setMediaThumbnailSizesRo(string $mediaThumbnailSizesRo): void
+    {
+        $this->mediaThumbnailSizesRo = $mediaThumbnailSizesRo;
     }
 }

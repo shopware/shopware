@@ -6,6 +6,7 @@ use function Flag\next1309;
 use League\Flysystem\FileNotFoundException;
 use League\Flysystem\FilesystemInterface;
 use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailCollection;
+use Shopware\Core\Content\Media\Event\MediaThumbnailDeletedEvent;
 use Shopware\Core\Content\Media\Message\DeleteFileMessage;
 use Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface;
 use Shopware\Core\Framework\Context;
@@ -115,7 +116,7 @@ class MediaThumbnailRepositoryDecorator implements EntityRepositoryInterface
     private function getThumbnailsByIds(array $ids, Context $context): MediaThumbnailCollection
     {
         $criteria = new Criteria();
-        $criteria->addAssociation('media_thumbnail.media');
+        $criteria->addAssociation('media');
         $criteria->addFilter(new EqualsAnyFilter('media_thumbnail.id', $ids));
 
         $thumbnailsSearch = $this->search($criteria, $context);
@@ -141,6 +142,7 @@ class MediaThumbnailRepositoryDecorator implements EntityRepositoryInterface
         foreach ($thumbnails as $thumbnail) {
             $thumbnailIds[] = [
                 'id' => $thumbnail->getId(),
+                'mediaId' => $thumbnail->getMediaId(),
             ];
 
             $thumbnailPaths[] = $this->urlGenerator->getRelativeThumbnailUrl(
@@ -164,6 +166,11 @@ class MediaThumbnailRepositoryDecorator implements EntityRepositoryInterface
             }
         }
 
-        return $this->innerRepo->delete($thumbnailIds, $context);
+        $delete = $this->innerRepo->delete($thumbnailIds, $context);
+
+        $event = new MediaThumbnailDeletedEvent($thumbnails, $context);
+        $this->eventDispatcher->dispatch($event::EVENT_NAME, $event);
+
+        return $delete;
     }
 }

@@ -60,12 +60,12 @@ class PaymentTransactionChainProcessor
     public function process(string $orderId, Context $context, ?string $finishUrl = null): ?RedirectResponse
     {
         $criteria = new Criteria([$orderId]);
-        $criteria->addAssociation('order.transactions');
-        $criteria->addAssociation('order.lineItems');
+        $criteria->addAssociation('transactions');
+        $criteria->addAssociation('lineItems');
 
         //TODO will be refactored with NEXT-2659
         $customerCriteria = new Criteria();
-        $customerCriteria->addAssociation('order_customer.customer');
+        $customerCriteria->addAssociation('customer');
         $criteria->addAssociation('order.orderCustomer', $customerCriteria);
 
         /** @var OrderEntity|null $order */

@@ -8,9 +8,11 @@ use Shopware\Core\Checkout\Cart\Storefront\CartService;
 use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Customer\Exception\BadCredentialsException;
 use Shopware\Core\Checkout\Customer\Storefront\AccountService;
+use Shopware\Core\Checkout\Order\Storefront\OrderService;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\Framework\Routing\InternalRequest;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
+use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
 use Shopware\Storefront\Framework\Controller\StorefrontController;
 use Shopware\Storefront\Framework\Page\PageLoaderInterface;
 use Shopware\Storefront\Page\Checkout\Cart\CheckoutCartPageLoader;
@@ -56,13 +58,19 @@ class CheckoutPageController extends StorefrontController
      */
     private $accountService;
 
+    /**
+     * @var OrderService
+     */
+    private $orderService;
+
     public function __construct(
         CartService $cartService,
         PageLoaderInterface $cartPageLoader,
         PageLoaderInterface $confirmPageLoader,
         PageLoaderInterface $finishPageLoader,
         PageLoaderInterface $registerPageLoader,
-        AccountService $accountService
+        AccountService $accountService,
+        OrderService $orderService
     ) {
         $this->cartService = $cartService;
         $this->cartPageLoader = $cartPageLoader;
@@ -70,6 +78,7 @@ class CheckoutPageController extends StorefrontController
         $this->finishPageLoader = $finishPageLoader;
         $this->registerPageLoader = $registerPageLoader;
         $this->accountService = $accountService;
+        $this->orderService = $orderService;
     }
 
     /**
@@ -128,6 +137,27 @@ class CheckoutPageController extends StorefrontController
         $page = $this->finishPageLoader->load($request, $context);
 
         return $this->renderStorefront('@Storefront/page/checkout/finish/index.html.twig', ['page' => $page]);
+    }
+
+    /**
+     * @Route("/checkout/finish", name="frontend.checkout.finish.order", options={"seo"="false"}, methods={"POST"})
+     */
+    public function finishOrder(RequestDataBag $data, CheckoutContext $context): Response
+    {
+        if (!$context->getCustomer()) {
+            return $this->redirectToRoute('frontend.checkout.register.page');
+        }
+
+        try {
+            $orderId = $this->orderService->createOrder($data, $context);
+
+            return new RedirectResponse($this->generateUrl('frontend.checkout.finish.page', [
+                'orderId' => $orderId,
+            ]));
+        } catch (ConstraintViolationException $formViolations) {
+        }
+
+        return $this->forward('Shopware\Storefront\PageController\CheckoutPageController::confirm', ['formViolations' => $formViolations]);
     }
 
     /**

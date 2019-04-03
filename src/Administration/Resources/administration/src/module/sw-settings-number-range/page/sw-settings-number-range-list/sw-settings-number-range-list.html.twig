@@ -93,19 +93,15 @@
                                                 <sw-grid-column flex="minmax(150px, 1fr)"
                                                                 :label="$tc('sw-settings-number-range.list.columnAssignment')">
                                                     {% block sw_settings_number_range_list_columns_assignment_label %}
-                                                        <div class="sw-list" v-if="item.meta.viewData.type.global">
-                                                            <span class="sw-label">
-                                                                {{ $tc('sw-settings-number-range.list.global') }}
-                                                            </span>
-                                                        </div>
+                                                        <sw-label small class="sw-settings-number-range-list__columns-assignment-tag" v-if="item.meta.viewData.type.global">
+                                                            {{ $tc('sw-settings-number-range.list.global') }}
+                                                        </sw-label>
 
-                                                        <ul class="sw-list" v-if="!item.meta.viewData.type.global">
-                                                            <li v-for="salesChannel in item.meta.viewData.salesChannels.elements">
-                                                                <span class="sw-label">
-                                                                    {{ salesChannel.viewData.name }}
-                                                                </span>
-                                                            </li>
-                                                        </ul>
+                                                        <template v-if="!item.meta.viewData.type.global">
+                                                            <sw-label small class="sw-settings-number-range-list__columns-assignment-tag" v-for="salesChannel in item.meta.viewData.salesChannels.elements">
+                                                                {{ salesChannel.viewData.name }}
+                                                            </sw-label>
+                                                        </template>
                                                     {% endblock %}
                                                 </sw-grid-column>
                                             {% endblock %}

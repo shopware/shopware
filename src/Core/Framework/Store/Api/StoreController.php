@@ -24,6 +24,7 @@ use Shopware\Core\System\User\UserEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\HttpCache\Store;
 use Symfony\Component\Routing\Annotation\Route;
 
 class StoreController extends AbstractController
@@ -146,6 +147,25 @@ class StoreController extends AbstractController
     }
 
     /**
+     * @Route("/api/v{version}/_action/store/checklogin", name="api.custom.store.checklogin", methods={"POST"})
+     */
+    public function checkLogin(Context $context): Response
+    {
+        $userId = $context->getUserId();
+
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('id', $userId));
+
+        /** @var UserEntity|null $user */
+        $user = $this->userRepository->search($criteria, $context)->getEntities()->first();
+
+        if ($user && $user->getStoreToken()) {
+            return new Response();
+        }
+        throw new StoreTokenMissingException();
+    }
+
+    /**
      * @Route("/api/v{version}/_action/store/logout", name="api.custom.store.logout", methods={"POST"})
      */
     public function logout(Context $context): Response
@@ -155,37 +175,6 @@ class StoreController extends AbstractController
         $this->userRepository->update([
             ['id' => $userId, 'storeToken' => null],
         ], $context);
-
-        $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('key', 'shopSecret'));
-
-        /** @var StoreSettingsEntity|null $shopSecret */
-        $shopSecret = $this->storeSettingsRepo->search($criteria, $context)->first();
-
-        if ($shopSecret !== null) {
-            $data = [
-                [
-                    'id' => $shopSecret->getId(),
-                    'key' => 'shopSecret',
-                ],
-            ];
-            $this->storeSettingsRepo->delete($data, $context);
-        }
-
-        $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('key', 'shopwareId'));
-
-        $shopwareId = $this->storeSettingsRepo->search($criteria, $context)->first();
-
-        if ($shopwareId !== null) {
-            $data = [
-                [
-                    'id' => $shopwareId->getId(),
-                    'key' => 'shopwareId',
-                ],
-            ];
-            $this->storeSettingsRepo->delete($data, $context);
-        }
 
         return new Response();
     }
@@ -268,6 +257,8 @@ class StoreController extends AbstractController
             return new JsonResponse([], $statusCode);
         }
 
+        /** @var PluginEntity|null $plugin */
+        $plugin = $this->pluginRepo->search($criteria, $context)->first();
         if ($plugin && $plugin->getUpgradeVersion()) {
             $this->pluginLifecycleService->updatePlugin($plugin, $context);
         }

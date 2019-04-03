@@ -14,7 +14,8 @@ Component.register('sw-plugin-store-login-status', {
     data() {
         return {
             shopwareId: null,
-            showLoginModal: false
+            showLoginModal: false,
+            isLoggedIn: false
         };
     },
 
@@ -34,13 +35,18 @@ Component.register('sw-plugin-store-login-status', {
 
     methods: {
         createdComponent() {
-            this.loadShopwareId();
+            this.load();
 
-            this.$root.$on('sw-plugin-login', this.loadShopwareId);
+            this.$root.$on('sw-plugin-login', this.load);
         },
 
         destroyedComponent() {
-            this.$root.$off('sw-plugin-login', this.loadShopwareId);
+            this.$root.$off('sw-plugin-login', this.load);
+        },
+
+        load() {
+            this.loadShopwareId();
+            this.checkLogin();
         },
 
         loadShopwareId() {
@@ -49,6 +55,14 @@ Component.register('sw-plugin-store-login-status', {
                 if (settings.length === 1) {
                     this.shopwareId = settings[0].value;
                 }
+            });
+        },
+
+        checkLogin() {
+            this.storeService.checkLogin().then(() => {
+                this.isLoggedIn = true;
+            }).catch(() => {
+                this.isLoggedIn = false;
             });
         },
 
@@ -63,7 +77,7 @@ Component.register('sw-plugin-store-login-status', {
         logout() {
             this.storeService.logout().then(() => {
                 this.shopwareId = null;
-                this.loadShopwareId();
+                this.load();
                 this.$root.$emit('sw-plugin-logout');
             });
         },

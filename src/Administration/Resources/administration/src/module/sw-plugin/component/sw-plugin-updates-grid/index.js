@@ -19,7 +19,9 @@ Component.register('sw-plugin-updates-grid', {
             updates: [],
             isLoading: false,
             disableRouteParams: false,
-            updateQueue: []
+            updateQueue: [],
+            showLoginModal: false,
+            isLoggedIn: false
         };
     },
 
@@ -39,6 +41,18 @@ Component.register('sw-plugin-updates-grid', {
                     this.$root.$emit('sw-plugin-refresh-updates');
                     this.updateQueue = this.updateQueue.filter(queueObj => queueObj.pluginName !== update.pluginName);
                 }).catch((exception) => {
+                    if (exception.response && exception.response.data && exception.response.data.errors) {
+                        const unauthorized = exception.response.data.errors.find((error) => {
+                            return parseInt(error.code, 10) === 401 || error.code === 'FRAMEWORK__STORE_TOKEN_IS_MISSING';
+                        });
+                        if (unauthorized) {
+                            this.openLoginModal();
+                            this.updateQueue = this.updateQueue.filter((queueObj) => {
+                                return queueObj.pluginName !== update.pluginName;
+                            });
+                            return;
+                        }
+                    }
                     this.handleErrorResponse(exception);
                     this.updateQueue = this.updateQueue.filter(queueObj => queueObj.pluginName !== update.pluginName);
                 });
@@ -73,12 +87,27 @@ Component.register('sw-plugin-updates-grid', {
             return this.updateQueue.some(element => element.pluginName === pluginName);
         },
 
+        openLoginModal() {
+            this.showLoginModal = true;
+        },
+
+        loginSuccess() {
+            this.showLoginModal = false;
+            this.getList();
+            this.$root.$emit('sw-plugin-login');
+        },
+
+        loginAbort() {
+            this.showLoginModal = false;
+        },
+
         getList() {
             this.isLoading = true;
             this.storeService.getUpdateList().then((data) => {
                 this.updates = data.items;
                 this.total = data.total;
                 this.isLoading = false;
+                this.$root.$emit('sw-plugin-refresh-updates', this.total);
             }).catch((exception) => {
                 this.handleErrorResponse(exception);
                 this.isLoading = false;

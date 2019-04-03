@@ -26,7 +26,11 @@ Component.register('sw-plugin-manager', {
 
         createdComponent() {
             this.fetchAvailableUpdates();
-            this.$root.$on('sw-plugin-refresh-updates', () => {
+            this.$root.$on('sw-plugin-refresh-updates', (total) => {
+                if (total) {
+                    this.availableUpdates = total;
+                    return;
+                }
                 this.fetchAvailableUpdates();
             });
 

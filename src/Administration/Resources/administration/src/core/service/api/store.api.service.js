@@ -32,6 +32,17 @@ class StoreApiService extends ApiService {
             });
     }
 
+    checkLogin() {
+        const headers = this.getBasicHeaders();
+        const params = this.getBasicParams();
+
+        return this.httpClient
+            .post(`/_action/${this.getApiBasePath()}/checklogin`, {}, { params, headers })
+            .then((response) => {
+                return ApiService.handleResponse(response);
+            });
+    }
+
     logout() {
         const headers = this.getBasicHeaders();
         const params = this.getBasicParams();

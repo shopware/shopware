@@ -7,6 +7,118 @@
     padding: $spacer;
 }
 
-.footer-vat {
+.footer-vat,
+.footer-copyright {
     text-align: center;
+}
+
+.footer-columns {
+    padding-bottom: $spacer-xl;
+    border-bottom: 1px solid $border-color;
+}
+
+.footer-column {
+    border-top: 1px solid $border-color;
+
+    @include media-breakpoint-up(md) {
+        border: 0;
+    }
+
+    &:last-child {
+        border-bottom: 1px solid $border-color;
+        @include media-breakpoint-up(md) {
+            border: 0;
+        }
+    }
+
+    .column-headline {
+        color: $primary;
+        cursor: pointer;
+        font-weight: $font-weight-bold;
+        margin-bottom: 0;
+        padding: $spacer-sm 0;
+
+        @include media-breakpoint-up(md) {
+            cursor: auto;
+            margin-top: $spacer-xl;
+            padding: 0;
+            margin-bottom: $spacer-sm;
+
+            .toggle-icon {
+                display: none;
+            }
+        }
+
+        .toggle-icon {
+            color: $gray-600;
+            float: right;
+            font-size: 12px;
+        }
+
+        .fa-plus {
+            display: inline-block;
+        }
+
+        .fa-minus {
+            display: none;
+        }
+
+    }
+
+    .column-headline.show {
+        .fa-plus {
+            display: none;
+        }
+
+        .fa-minus {
+            display: inline-block;
+        }
+    }
+
+    .column-content {
+        &::after {
+            content: '';
+            display: block;
+            height: $spacer;
+        }
+
+        &:not(.collapsing):not(.show) {
+            display: none;
+
+            @include media-breakpoint-up(md) {
+                height: 100%;
+                display: block;
+            }
+        }
+    }
+}
+
+.minimal-footer-list {
+    list-style-type: none;
+    padding: 0;
+    text-align: center;
+}
+
+.minimal-footer-item,
+.minimal-footer-link {
+    display: inline-block;
+}
+
+.minimal-footer-item-link {
+    padding: 10px 0;
+}
+
+.minimal-footer-item {
+    &::after {
+        display: inline-block;
+        height: 10px;
+        width: 1px;
+        border-left: 1px solid $gray-500;
+        content: '';
+        margin: 0 $spacer-sm;
+    }
+
+    &:last-child::after {
+        content: none;
+    }
 }

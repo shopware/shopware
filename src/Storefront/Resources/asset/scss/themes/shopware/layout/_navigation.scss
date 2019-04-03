@@ -20,22 +20,23 @@ https://getbootstrap.com/docs/4.3/components/navbar/
 @include media-breakpoint-up(md) {
     .nav-main {
         .navbar-nav .nav-link {
-            border-top-left-radius: $border-radius;
-            border-top-right-radius: $border-radius;
             color: $gray-600;
             text-align: center;
 
             &.active {
-                @include primary-gradient();
+                background-color: $primary;
                 font-weight: $font-weight-bold;
             }
 
-            &:hover {
+            &:hover,
+            &.is-open {
                 background: $gray-800;
+                color: $white;
             }
 
             &:hover,
-            &.active {
+            &.active,
+            &.is-open {
                 color: $white;
             }
         }

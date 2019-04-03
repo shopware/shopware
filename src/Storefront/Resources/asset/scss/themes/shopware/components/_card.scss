@@ -6,12 +6,8 @@ Custom styling for bootstrap card component.
 https://getbootstrap.com/docs/4.3/components/card/
 */
 
-.card {
-    .card-title {
-        border-bottom: 1px solid $border-color;
-        color: $headings-color;
-        font-size: $h4-font-size;
-        font-weight: $font-weight-bold;
-        padding-bottom: 10px;
-    }
+.card-title {
+    border-bottom: 1px solid $border-color;
+    padding-bottom: 10px;
 }
+

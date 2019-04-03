@@ -1,0 +1,28 @@
+{% sw_extends '@Storefront/page/checkout/cart/cart-item.html.twig' %}
+
+{#TODO: NEXT-1944 - check if mainfeatures config is still needed#}
+
+{% block page_checkout_item_unit_price %}
+	{# display tax instead of unit price in confirm item #}
+	{% block page_checkout_item_tax_price %}
+		<div class="col-12 col-sm-4 col-md-2 cart-item-tax-price">
+			{% block page_checkout_item_tax_price_label %}
+				<div class="cart-item-tax-price-label">
+					{% if page.context.taxState == "gross" %}
+						{{ "checkout.cartHeaderTaxIncludeVat"|trans }}
+					{% else %}
+						{{ "checkout.cartHeaderTaxExcludeVat"|trans }}
+					{% endif %}
+				</div>
+			{% endblock %}
+
+			{% block page_checkout_item_tax_price_inner %}
+				{% for calculatedTax in lineItem.price.calculatedTaxes.elements %}
+					{{ calculatedTax.tax|localizedcurrency(page.context.currency.shortName, app.request.locale) }}<br>
+				{% endfor %}
+			{% endblock %}
+		</div>
+	{% endblock %}
+{% endblock %}
+
+{% block page_checkout_item_total_price_tax_symbol %}{% endblock %}

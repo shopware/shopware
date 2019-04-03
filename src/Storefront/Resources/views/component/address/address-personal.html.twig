@@ -1,0 +1,77 @@
+{% block component_personal_form %}
+
+    {#TODO: NEXT-2023 - validation#}
+
+    {% block page_account_register_personal_customer_type %}
+        {#TODO: NEXT-1938 - customer type#}
+    {% endblock %}
+
+    {% block page_account_register_personal_salutation %}
+        {#TODO: NEXT-1930 - salutation#}
+        <input type="hidden" name="salutationId" value="0DDCFEE7912C4F57B7F8560F4FC35E08">
+    {% endblock %}
+
+    {% block page_account_register_personal_title %}
+        {% if shopware.config.register.titleField %}
+            <div class="form-group">
+                {% block page_account_register_personal_title_label %}
+                    <label class="form-label" for="personalTitle">
+                        {{ "account.personalTitleLabel"|trans }}
+                    </label>
+                {% endblock %}
+
+                {% block page_account_register_personal_title_input %}
+                    <input type="text"
+                           class="form-control"
+                           autocomplete="section-personal title"
+                           id="personalTitle"
+                           placeholder="{{ "account.personalTitlePlaceholder"|trans }}"
+                           name="title"
+                           value="{{ address.title }}">
+                {% endblock %}
+            </div>
+        {% endif %}
+    {% endblock %}
+
+    {% block page_account_register_personal_first_name %}
+        <div class="form-group">
+            {% block page_account_register_personal_first_name_label %}
+                <label class="form-label" for="personalFirstName">
+                    {{ "account.personalFirstNameLabel"|trans }}
+                </label>
+            {% endblock %}
+
+            {% block page_account_register_personal_first_name_input %}
+                <input type="text"
+                       class="form-control"
+                       autocomplete="section-personal given-name"
+                       id="personalFirstName"
+                       placeholder="{{ "account.personalFirstNamePlaceholder"|trans }}{{ "account.required"|trans }}"
+                       name="firstName"
+                       value="{{ address.firstName }}"
+                       required="required">
+            {% endblock %}
+        </div>
+    {% endblock %}
+
+    {% block page_account_register_personal_last_name %}
+        <div class="form-group">
+            {% block page_account_register_personal_last_name_label %}
+                <label class="form-label" for="personalLastName">
+                    {{ "account.personalLastNameLabel"|trans }}
+                </label>
+            {% endblock %}
+
+            {% block page_account_register_personal_last_name_input %}
+                <input type="text"
+                       class="form-control"
+                       autocomplete="section-personal family-name"
+                       id="personalLastName"
+                       placeholder="{{ "account.personalLastNamePlaceholder"|trans }}{{ "account.required"|trans }}"
+                       name="lastName"
+                       value="{{ address.lastName }}"
+                       required="required">
+            {% endblock %}
+        </div>
+    {% endblock %}
+{% endblock %}

@@ -1,8 +1,9 @@
 const webpack = require('webpack');
 const WebpackBar = require('webpackbar');
 const StyleLintPlugin = require('stylelint-webpack-plugin');
-const {resolve} = require('path');
+const { resolve } = require('path');
 const buildDirectory = resolve(process.env.PROJECT_ROOT, 'public');
+const CopyPlugin = require('copy-webpack-plugin');
 
 const publicPath = `${process.env.APP_URL}${(process.env.ENV === 'watch') ? ':9999' : ''}/`;
 
@@ -50,7 +51,8 @@ const modules = {
                 {
                     loader: 'babel-loader',
                     options: {
-                        presets: ['@babel/preset-env']
+                        presets: ['@babel/preset-env'],
+                        plugins: ['@babel/plugin-proposal-class-properties'],
                     }
                 },
                 {
@@ -84,7 +86,13 @@ const plugins = [
     new WebpackBar({
         name: 'Shopware Next Storefront'
     }),
-    new StyleLintPlugin()
+    new StyleLintPlugin(),
+    new CopyPlugin([
+        {
+            from: 'asset/img',
+            to: 'img'
+        }
+    ])
 ];
 
 /**

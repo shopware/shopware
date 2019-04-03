@@ -1,0 +1,17 @@
+.breadcrumb {
+    border-bottom: 1px solid $border-color;
+    padding-left: 0;
+    padding-right: 0;
+}
+
+.breadcrumb-item {
+    .breadcrumb-link {
+        color: $body-color;
+    }
+
+    &.active {
+        .breadcrumb-link {
+            color: $primary;
+        }
+    }
+}

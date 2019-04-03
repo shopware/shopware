@@ -71,6 +71,21 @@ export default class HttpClient {
     }
 
     /**
+     * Request PATCH
+     * @param {string} url
+     * @param {function} callback
+     */
+    patch(url, callback) {
+        const request = this._createPreparedRequest('PATCH', url);
+
+        request.addEventListener('loadend', function() {
+            callback(request.responseText);
+        });
+
+        request.send();
+    }
+
+    /**
      * Returns a new and configured XMLHttpRequest object which
      * is prepared to being used
      * @param {'GET'|'POST'|'DELETE'} type
@@ -82,6 +97,7 @@ export default class HttpClient {
         let request = new XMLHttpRequest();
 
         request.open(type, url);
+        request.setRequestHeader('Content-type', 'application/json');
         request.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
         request.setRequestHeader('x-sw-access-key', this.accessKey);
         request.setRequestHeader('x-sw-context-token', this.contextToken);

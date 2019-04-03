@@ -8,32 +8,58 @@
     transition: all 0.45s cubic-bezier(0.3, 0, 0.15, 1);
     overflow-y: auto;
 
-    &.is--left {
+    &.is-left {
         transform: translateX(-100%);
         left: 0;
+
+        .off-canvas-close {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-direction: row-reverse;
+        }
+
+        .off-canvas-close-icon {
+            @extend .fa-chevron-right;
+        }
     }
 
-    &.is--right {
+    &.is-right {
         transform: translateX(100%);
         right: 0;
+
+        .off-canvas-close-icon {
+            @extend .fa-chevron-left;
+        }
     }
 
-    &.is--open {
+    &.is-open {
         transform: translateX(0) !important;
     }
 
+    &.is-fullwidth {
+        width: 100%;
+    }
+
     .off-canvas-close {
-        @extend .btn;
-        @extend .btn-block;
-        @extend .btn-dark;
         border-radius: 0;
+        text-align: left;
+        padding: $spacer-xs $spacer-sm;
+    }
+
+    .off-canvas-close-icon {
+        margin-right: $spacer-xs;
     }
 
     > .spinner-border {
         position: absolute;
         left: 50%;
         top: 50%;
-        margin-left: -1rem;
-        margin-top: -1rem;
+        margin-left: -$spacer;
+        margin-top: -$spacer;
+    }
+
+    .off-canvas-content-container {
+        padding: $spacer;
     }
 }

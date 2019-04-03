@@ -1,0 +1,26 @@
+{% block page_checkout_confirm_payment_inner %}
+	<div class="card checkout-card">
+		<div class="card-body checkout-card-body">
+			{% block page_checkout_confirm_payment_title %}
+				<div class="card-title">
+					{{ "checkout.confirmHeaderPayment"|trans }}
+				</div>
+			{% endblock %}
+
+			{% block page_checkout_confirm_payment_method %}
+				<p>
+					<strong>{{ "checkout.confirmPaymentMethod"|trans }}</strong>
+					{{ page.context.paymentMethod.name }}
+				</p>
+				<p>{{ page.context.paymentMethod.additionalDescription }}</p>
+			{% endblock %}
+
+			{% block page_checkout_confirm_dispatch_method %}
+				<p>
+					<strong>{{ "checkout.confirmDispatchMethod"|trans }}</strong>
+					{{ page.context.shippingMethod.name }}
+				</p>
+			{% endblock %}
+		</div>
+	</div>
+{% endblock %}

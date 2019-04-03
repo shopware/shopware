@@ -1,0 +1,101 @@
+{% block page_checkout_summary %}
+	{% if page.cart %}
+		{% set summary = page.cart %}
+	{% elseif page.order %}
+		{% set summary = page.order %}
+	{% endif %}
+
+	<ul class="list-group list-group-flush checkout-summary">
+		{% block page_checkout_summary_inner %}
+			{% block page_checkout_summary_position_price %}
+				<li class="list-group-item checkout-summary-item">
+					{% block page_checkout_summary_position_price_label %}
+						<div class="checkout-summary-label">
+							{{ "checkout.summaryPositionPrice"|trans }}
+						</div>
+					{% endblock %}
+
+					{% block page_checkout_summary_position_price_value %}
+						<div class="checkout-summary-value">
+							{{ summary.price.positionPrice|localizedcurrency(page.context.currency.shortName, app.request.locale) }}{{ "general.star"|trans }}
+						</div>
+					{% endblock %}
+				</li>
+			{% endblock %}
+
+			{% block page_checkout_summary_shipping_costs %}
+				{% for delivery in summary.deliveries.elements %}
+					{% block page_checkout_summary_shipping_cost %}
+						<li class="list-group-item checkout-summary-item">
+							{% block page_checkout_summary_shipping_cost_label %}
+								<div class="checkout-summary-label">
+									{{ "checkout.summaryShipping"|trans }}
+								</div>
+							{% endblock %}
+
+							{% block page_checkout_summary_shipping_cost_value %}
+								<div class="checkout-summary-value">
+									{{ delivery.shippingCosts.totalPrice|localizedcurrency(page.context.currency.shortName, app.request.locale) }}{{ "general.star"|trans }}
+								</div>
+							{% endblock %}
+						</li>
+					{% endblock %}
+				{% endfor %}
+			{% endblock %}
+
+			{% block page_checkout_summary_total_price %}
+				<li class="list-group-item checkout-summary-item checkout-summary-total">
+					{% block page_checkout_summary_total_price_label %}
+						<div class="checkout-summary-label">
+							{{ "checkout.summaryTotalPrice"|trans }}
+						</div>
+					{% endblock %}
+
+					{% block page_checkout_summary_total_price_value %}
+						<div class="checkout-summary-value">
+							{{ summary.price.totalPrice|localizedcurrency(page.context.currency.shortName, app.request.locale) }}
+						</div>
+					{% endblock %}
+				</li>
+			{% endblock %}
+
+			{% block page_checkout_summary_net_price %}
+				<li class="list-group-item checkout-summary-item">
+					{% block page_checkout_summary_net_price_label %}
+						<div class="checkout-summary-label">
+							{{ "checkout.summaryNetPrice"|trans }}
+						</div>
+					{% endblock %}
+
+					{% block page_checkout_summary_net_price_value %}
+						<div class="checkout-summary-value">
+							{{ summary.price.netPrice|localizedcurrency(page.context.currency.shortName, app.request.locale) }}
+						</div>
+					{% endblock %}
+				</li>
+			{% endblock %}
+
+			{% block page_checkout_summary_taxes %}
+				{% for taxItem in summary.price.calculatedTaxes.elements %}
+					{% block page_checkout_summary_tax %}
+						<li class="list-group-item checkout-summary-item">
+							{% block page_checkout_summary_tax_label %}
+								<div class="checkout-summary-label">
+									{{ "checkout.summaryTax"|trans({
+										'%rate%': taxItem.taxRate
+									}) }}
+								</div>
+							{% endblock %}
+
+							{% block page_checkout_summary_tax_value %}
+								<div class="checkout-summary-value">
+									{{ taxItem.tax|localizedcurrency(page.context.currency.shortName, app.request.locale) }}
+								</div>
+							{% endblock %}
+						</li>
+					{% endblock %}
+				{% endfor %}
+			{% endblock %}
+		{% endblock %}
+	</ul>
+{% endblock %}

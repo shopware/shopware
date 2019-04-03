@@ -40,15 +40,7 @@ class TemplateDataExtension extends AbstractExtension implements GlobalsInterfac
 
         return [
             'shopware' => [
-                'config' => array_merge(
-                    $this->getDefaultConfiguration(),
-                    [
-                        'shopName' => 'Shopware Storefront',
-                        'seo' => [
-                            'descriptionMaxLength' => 150,
-                        ],
-                    ]
-                ),
+                'config' => $this->getDefaultConfiguration(),
                 'theme' => $this->getThemeConfig(),
             ],
             'controllerName' => $controllerInfo->getName(),
@@ -72,10 +64,9 @@ class TemplateDataExtension extends AbstractExtension implements GlobalsInterfac
                     'favicon' => 'favicon.ico',
                     'appleTouch' => 'apple-touch-icon.png',
                     'androidTouch' => 'android-touch-icon.png',
-                    'desktop' => 'media/logos/logo-desktop.png',
-                    'tabletLandscape' => 'media/logos/logo-tablet.png',
-                    'tablet' => 'media/logos/logo-tablet.png',
-                    'mobile' => 'media/logos/logo-mobile.png',
+                    'desktop' => 'img/logo-desktop.png',
+                    'tablet' => 'img/logo-desktop.png',
+                    'mobile' => 'img/logo-mobile.png',
                 ],
                 'general' => [
                     'ajaxVariantSwitch' => true,
@@ -97,8 +88,27 @@ class TemplateDataExtension extends AbstractExtension implements GlobalsInterfac
     private function getDefaultConfiguration(): array
     {
         return [
-            'showBirthdayField' => true,
+            'shopName' => 'Shopware Storefront',
+            'seo' => [
+                'descriptionMaxLength' => 150,
+            ],
             'metaIsFamilyFriendly' => true,
+            'register' => [
+                'titleField' => true,
+                'minPasswordLength' => 8,
+                'birthdayField' => true,
+            ],
+            'address' => [
+                'additionalField1' => false,
+                'additionalField2' => false,
+                'zipBeforeCity' => true,
+            ],
+            'confirm' => [
+                'revocationNotice' => true,
+            ],
+            'checkout' => [
+                'instockinfo' => false,
+            ],
         ];
     }
 

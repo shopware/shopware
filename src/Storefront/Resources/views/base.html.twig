@@ -13,11 +13,14 @@
 {% endblock %}
 
 {% block base_body %}
-    <body class="is--ctl-{{ controllerName }} is--act-{{ controllerAction }}">
+    <body class="is-ctl-{{ controllerName }} is-act-{{ controllerAction }}">
     {% block base_body_inner %}
         {% block base_noscript %}
             <noscript class="noscript-main">
-                {#TODO: NEXT-1899 - use alert utility for no script message#}
+	            {% sw_include '@Storefront/base/_utilities/alert.html.twig' with {
+		            type: 'info',
+		            content: 'general.noscriptNotice'|trans
+	            } %}
             </noscript>
         {% endblock %}
 
@@ -35,7 +38,7 @@
             <div class="nav-main">
                 {% block base_navigation_inner %}
                     <div class="container">
-                        {% sw_include '@Storefront/base/main-navigation.html.twig' %}
+                        {% sw_include '@Storefront/base/navigation/navigation.html.twig' %}
                     </div>
                 {% endblock %}
             </div>
@@ -45,15 +48,17 @@
             <main class="content-main">
                 {% block base_main_inner %}
                     <div class="container">
-                        <div class="content-main--inner">
-                            {% block base_breadcrumb %}
-                                {% sw_include '@Storefront/base/breadcrumb.html.twig' %}
-                            {% endblock %}
+                        {% block base_main_container %}
+                            <div class="content-main-inner">
+                                {% block base_breadcrumb %}
+                                    {% if breadcrumbList %}
+                                        {% sw_include '@Storefront/base/breadcrumb.html.twig' %}
+                                    {% endif %}
+                                {% endblock %}
 
-                            <div data-simple-plugin="true"></div>
-                            <div data-extended-plugin="true"></div>
-                            {% block base_content %}{% endblock %}
-                        </div>
+                                {% block base_content %}{% endblock %}
+                            </div>
+                        {% endblock %}
                     </div>
                 {% endblock %}
             </main>
@@ -85,9 +90,12 @@
         {% block base_script_router %}
             {# Register all routes that will be needed in JavaScript to the window.router object #}
             <script>
+                window.activeNavigationId = '{{ page.header.navigation.active.id }}';
                 window.router = {
                     "frontend.cart.detail": '{{ path('frontend.cart.detail') }}',
+                    "frontend.checkout.finish.page": '{{ path('frontend.checkout.finish.page') }}',
                     "widgets.checkout.info": '{{ path('widgets.checkout.info') }}',
+                    "widgets.menu.offcanvas": '{{ path('widgets.menu.offcanvas') }}',
                 };
             </script>
         {% endblock %}

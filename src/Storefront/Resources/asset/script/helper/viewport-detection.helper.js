@@ -5,6 +5,7 @@ import Debouncer from "./debouncer.helper";
  */
 const RESIZE_DEBOUNCE_TIME = 200;
 
+const EVENT_VIEWPORT_HAS_CHANGED = 'Viewport/hasChanged';
 const EVENT_VIEWPORT_IS_XS = 'Viewport/isXS';
 const EVENT_VIEWPORT_IS_SM = 'Viewport/isSM';
 const EVENT_VIEWPORT_IS_MD = 'Viewport/isMD';
@@ -66,6 +67,10 @@ export default class ViewportDetection {
      * @private
      */
     _dispatchEvents() {
+        // dispatch event that a viewport change has taken place
+        this._dispatchViewportEvent(EVENT_VIEWPORT_HAS_CHANGED);
+
+        // dispatch specific events for each single viewport
         if (ViewportDetection.isXS()) {
             this._dispatchViewportEvent(EVENT_VIEWPORT_IS_XS);
         } else if (ViewportDetection.isSM()) {
@@ -101,7 +106,7 @@ export default class ViewportDetection {
     /**
      * Dispatch custom event with additional data
      * including the previous viewport
-     * @param eventName
+     * @param {string} eventName
      * @private
      */
     _dispatchViewportEvent(eventName) {
@@ -160,6 +165,15 @@ export default class ViewportDetection {
     static getCurrentViewport() {
         let viewport = window.getComputedStyle(document.documentElement, ':before').content;
         return viewport.replace(/['"]+/g, '').toUpperCase();
+    }
+
+    /**
+     * Returns the Viewport Has Changed Event constants value
+     * @returns {string}
+     * @constructor
+     */
+    static EVENT_VIEWPORT_HAS_CHANGED() {
+        return EVENT_VIEWPORT_HAS_CHANGED;
     }
 
     /**

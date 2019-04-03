@@ -1,0 +1,32 @@
+.footer-headline {
+    font-size: $font-size-lg;
+    font-weight: $font-weight-bold;
+}
+
+.footer-link {
+    color: $gray-600;
+
+    &:hover {
+        color: $primary;
+        text-decoration: none;
+    }
+}
+
+.footer-link-list {
+    padding: $spacer-sm 0;
+    border: 0;
+}
+
+.footer-hotline a {
+    @extend .footer-link;
+    display: block;
+    margin: $spacer 0 $spacer-sm;
+    font-size: $font-size-lg;
+    font-weight: $font-weight-bold;
+}
+
+@include media-breakpoint-up(md) {
+    .footer-link-list {
+        padding: 0;
+    }
+}

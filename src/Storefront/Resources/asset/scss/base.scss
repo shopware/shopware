@@ -4,17 +4,24 @@
  *
  * Variables, Mixins, Functions
  * ---------------------------- */
-@import 'abstracts/variables';
+@import 'abstracts/variables/bootstrap';
 
 /*
- * Theme Variables
+ * Theme variables
  * ---------- */
 @import 'themes/shopware/abstracts/variables';
 
 /*
-* Vendors
-* ------- */
+ * Vendors
+ * ------- */
 @import 'vendors/bootstrap';
+@import 'vendors/font-awesome';
+@import 'vendors/tiny-slider';
+
+/*
+* Custom variables
+* ---------------------------- */
+@import 'abstracts/variables/custom';
 
 /*
  * Base stuff
@@ -27,19 +34,42 @@
 @import 'layout/header';
 @import 'layout/footer';
 @import 'layout/navigation';
+@import 'layout/navigation-flyouts';
+@import 'layout/navigation-offcanvas';
 
 /*
  * Components
  * ---------- */
+@import 'components/card';
 @import 'components/cart-mini';
 @import 'components/backdrop';
+@import 'components/gallery';
 @import 'components/off-canvas';
 @import 'components/product-box';
+@import 'components/search-widget';
+@import 'components/cookie-permission';
+@import 'components/spinner';
 
 /*
  * Page-specific styles
  * -------------------- */
-@import 'pages/content';
+@import 'pages/content/content';
+@import 'pages/content/listing';
+
+@import 'pages/product-detail';
+
+@import 'pages/account/menu';
+@import 'pages/account/overview';
+@import 'pages/account/register';
+@import 'pages/account/address';
+@import 'pages/account/profile';
+
+@import 'pages/checkout/cart';
+@import 'pages/checkout/cart-item';
+@import 'pages/checkout/config';
+@import 'pages/checkout/confirm';
+@import 'pages/checkout/finish';
+@import 'pages/checkout/steps';
 
 /*
  * Themes

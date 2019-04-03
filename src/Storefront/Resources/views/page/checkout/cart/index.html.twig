@@ -1,0 +1,64 @@
+{% sw_extends '@Storefront/page/checkout/_page.html.twig' %}
+
+{% block base_head %}
+	{% sw_include '@Storefront/page/checkout/cart/meta.html.twig' %}
+{% endblock %}
+
+{% block page_checkout_steps %}{% endblock %}
+
+{% block page_checkout_container %}
+	{% if not page.cart.lineItems.elements %}
+		{% sw_include '@Storefront/base/_utilities/alert.html.twig' with {
+			type: "info",
+			content: "checkout.cartEmpty"|trans
+		} %}
+	{% else %}
+		{{ parent() }}
+	{% endif %}
+{% endblock %}
+
+{% block page_checkout_main_content %}
+	{% block page_checkout_cart %}
+		{% block page_checkout_cart_header %}
+			<h1 class="cart-main-header">
+				{{ "checkout.cartHeader"|trans }}
+			</h1>
+		{% endblock %}
+
+		{% block page_checkout_cart_messages %}
+			{#TODO: NEXT-1947 - messages (errors, shipping)#}
+		{% endblock %}
+
+		{% block page_checkout_cart_table %}
+			<div class="card cart-table">
+				<div class="card-body cart-table-body">
+					{% block page_checkout_cart_table_header %}
+						{% sw_include '@Storefront/page/checkout/cart/cart-header.html.twig' %}
+					{% endblock %}
+
+					{% block page_checkout_cart_items %}
+						{% for lineItem in page.cart.lineItems.elements %}
+							{% block page_checkout_cart_item %}
+								{% sw_include '@Storefront/page/checkout/cart/cart-item.html.twig' %}
+							{% endblock %}
+						{% endfor %}
+					{% endblock %}
+				</div>
+			</div>
+		{% endblock %}
+	{% endblock %}
+{% endblock %}
+
+{% block page_checkout_sidebar_actions %}
+	{% block page_checkout_sidebar_actions_add_voucher %}
+		{#TODO: NEXT-1955 - add voucher#}
+	{% endblock %}
+
+	{% block page_checkout_sidebar_actions_proceed %}
+		<a href="{{ path('frontend.checkout.confirm.page') }}"
+		   class="btn btn-primary btn-block btn-lg"
+		   title="{{ "checkout.proceedLink"|trans }}">
+			{{ "checkout.proceedLink"|trans }}
+		</a>
+	{% endblock %}
+{% endblock %}

@@ -1,0 +1,91 @@
+// Sidebar
+.account-sidebar {
+    margin-bottom: $spacer-lg;
+
+    .account-menu-inner {
+        @extend .card;
+    }
+}
+
+.account-sidebar-footer .btn {
+    padding: 0;
+}
+
+// Dropdown
+.account-widget-login {
+    padding: $spacer 0;
+}
+
+.account-widget-register {
+    text-align: center;
+}
+
+.account-widget-dropdown {
+    padding: $spacer-sm $spacer;
+    width: 200px;
+    font-size: $font-size-base;
+
+    &.show {
+        display: none;
+    }
+}
+
+.account-widget-header {
+    border-bottom: 1px solid $border-color;
+    font-size: $font-size-lg;
+    font-weight: $font-weight-bold;
+    padding: $spacer 0 $spacer 0;
+    color: $gray-800;
+}
+
+.account-widget-login {
+    border-bottom: 1px solid $border-color;
+    margin-bottom: $spacer-xs;
+}
+
+.account-widget-login-button {
+    width: 100%;
+    margin-bottom: $spacer-sm;
+}
+
+.account-widget-links .list-group a {
+    padding: $spacer-xs 0;
+}
+
+// Offcanvas
+.off-canvas .account-menu {
+    .account-widget-header {
+        font-size: $font-size-base;
+        padding: 0 $spacer-sm;
+    }
+
+    .account-widget-login {
+        padding: $spacer $spacer-sm;
+        margin: 0;
+    }
+
+    .account-sidebar-item {
+        border-bottom: 1px solid $border-color;
+    }
+
+    .list-group-item {
+        border: 1px solid $border-color;
+        padding: $spacer-sm;
+
+        &:last-child {
+            border-bottom: 1px solid $border-color;
+        }
+    }
+}
+
+@include media-breakpoint-up(md) {
+    // Sidebar
+    .account-sidebar {
+        margin-bottom: 0;
+    }
+
+    // Dropdown
+    .account-widget-dropdown.show {
+        display: block;
+    }
+}

@@ -1,0 +1,41 @@
+{% block page_checkout_steps %}
+    <div class="steps-container">
+        <ul class="steps-content">
+            {% block page_checkout_steps_list%}
+                {% block page_checkout_steps_first %}
+                    {#TODO: NEXT-1942 - set step active on checkout address page#}
+                    <li class="steps-list">
+                        <span class="badge badge-pill badge-dark steps-badge">1</span>
+                        <span class="steps-text">{{ 'checkout.stepAddress'|trans }}</span>
+                    </li>
+                {% endblock %}
+
+                {% block page_checkout_steps_spacer_1 %}
+                    <li class="steps-list steps-spacer">
+                        <i class="fas fa-angle-right steps-icon"></i>
+                    </li>
+                {% endblock %}
+
+                {% block page_checkout_steps_second %}
+                    <li class="steps-list{% if controllerAction == 'config' %} active{% endif %}">
+                        <span class="badge badge-pill {% if controllerAction == 'config' %} badge-primary{% else %} badge-dark{% endif %} steps-badge">2</span>
+                        <span class="steps-text">{{ 'checkout.stepConfig'|trans }}</span>
+                    </li>
+                {% endblock %}
+
+                {% block page_checkout_steps_spacer_2 %}
+                    <li class="steps-list steps-spacer">
+                        <i class="fas fa-angle-right steps-icon"></i>
+                    </li>
+                {% endblock %}
+
+                {% block page_checkout_steps_third %}
+                    <li class="steps-list{% if controllerAction == 'confirm' %} active{% endif %}">
+                        <span class="badge badge-pill{% if controllerAction == 'confirm' %} badge-primary{% else %} badge-dark{% endif %} steps-badge">3</span>
+                        <span class="steps-text">{{ 'checkout.stepConfirm'|trans }}</span>
+                    </li>
+                {% endblock %}
+            {% endblock %}
+        </ul>
+    </div>
+{% endblock %}

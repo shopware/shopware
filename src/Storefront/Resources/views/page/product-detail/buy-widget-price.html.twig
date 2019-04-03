@@ -1,0 +1,41 @@
+{% block page_product_detail_price_inner %}
+	{% if page.product.blockprices %}
+		{% block page_product_detail_price_block %}
+			{#TODO: NEXT-1914 - blockprices (page.product.calculatedPriceRules) #}
+		{% endblock %}
+	{% else %}
+		<meta itemprop="price" content="{{ page.product.price.gross }}">
+		<p class="product-detail-price">
+			{{ page.product.price.gross|localizedcurrency(page.context.currency.shortName, app.request.locale) }}{{ "general.star"|trans }}
+		</p>
+
+		{% if page.product.purchaseunit %}
+			{% block page_product_detail_price_unit %}
+				<div class="product-detail-price-unit">
+					{% block page_product_detail_price_unit_label %}
+						<span class="price-unit-label">
+                            {{ "detail.priceUnitName"|trans }}
+                        </span>
+					{% endblock %}
+
+					{% block page_product_detail_price_unit_content %}
+						<span class="price-unit-content">
+							{#TODO: NEXT-1918 - show correct unit #}
+							{{ page.product.purchaseUnit }}{{ page.product.packUnit }}
+                        </span>
+					{% endblock %}
+
+					{% if page.product.purchaseUnit and page.product.referenceUnit and page.product.purchaseUnit != page.product.referenceUnit %}
+						{% block page_product_detail_price_unit_refrence_content %}
+							<span class="price-unit-reference-content">
+                                {% set referencePrice =  page.product.price.gross * page.product.referenceUnit / page.product.purchaseUnit %}
+								{#TODO: NEXT-1918 - show correct unit #}
+								({{ referencePrice|localizedcurrency(page.context.currency.shortName, app.request.locale) }}{{ "general.star"|trans }} / {{ page.product.referenceUnit }}{{ page.product.packUnit }})
+                            </span>
+						{% endblock %}
+					{% endif %}
+				</div>
+			{% endblock %}
+		{% endif %}
+	{% endif %}
+{% endblock %}

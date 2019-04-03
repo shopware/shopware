@@ -1,0 +1,151 @@
+{% sw_extends '@Storefront/component/address/address-personal.html.twig' %}
+
+{%  block component_personal_form %}
+	{{ parent() }}
+
+    {% block page_account_register_personal_guest %}
+        {#TODO: NEXT-1942 / NEXT-2077 - guest account#}
+    {% endblock %}
+
+    {% block page_account_register_personal_mail %}
+		<div class="form-group">
+            {% block page_account_register_personal_mail_label %}
+				<label class="form-label" for="personalMail">
+                    {{ "account.personalMailLabel"|trans }}
+				</label>
+            {% endblock %}
+
+            {% block page_account_register_personal_mail_input %}
+				<input type="email"
+					   class="form-control"
+					   autocomplete="section-personal email"
+					   id="personalMail"
+					   placeholder="{{ "account.personalMailPlaceholder"|trans }}{{ "account.required"|trans }}"
+					   name="email"
+					   required="required">
+            {% endblock %}
+		</div>
+    {% endblock %}
+
+    {% block page_account_register_personal_mail_confirmation %}
+		<div class="form-group">
+            {% block page_account_register_personal_mail_confirmation_label %}
+				<label class="form-label" for="personalMailConfirmation">
+                    {{ "account.personalMailConfirmationLabel"|trans }}
+				</label>
+            {% endblock %}
+
+            {% block page_account_register_personal_mail_confirmation_input %}
+				<input type="email"
+					   class="form-control"
+					   autocomplete="section-personal email"
+					   id="personalMailConfirmation"
+					   placeholder="{{ "account.personalMailConfirmationPlaceholder"|trans }}{{ "account.required"|trans }}"
+					   name="emailConfirmation"
+					   required="required">
+            {% endblock %}
+		</div>
+    {% endblock %}
+
+    {% block page_account_register_personal_password %}
+		<div class="form-group">
+            {% block page_account_register_personal_password_label %}
+				<label class="form-label" for="personalPassword">
+                    {{ "account.personalPasswordLabel"|trans }}
+				</label>
+            {% endblock %}
+
+            {% block page_account_register_personal_password_input %}
+				<input type="password"
+					   class="form-control"
+					   autocomplete="new-password"
+					   id="personalPassword"
+					   placeholder="{{ "account.personalPasswordPlaceholder"|trans }}{{ "account.required"|trans }}"
+					   name="password"
+					   required="required">
+            {% endblock %}
+		</div>
+    {% endblock %}
+
+    {% block page_account_register_personal_password_confirmation %}
+		<div class="form-group">
+            {% block page_account_register_personal_password_confirmation_label %}
+				<label class="form-label" for="personalPasswordConfirmation">
+                    {{ "account.personalPasswordConfirmationLabel"|trans }}
+				</label>
+            {% endblock %}
+
+            {% block page_account_register_personal_password_confirmation_input %}
+				<input type="password"
+					   class="form-control"
+					   autocomplete="new-password"
+					   id="personalPasswordConfirmation"
+					   placeholder="{{ "account.personalPasswordConfirmationPlaceholder"|trans }}{{ "account.required"|trans }}"
+					   name="passwordConfirmation"
+					   required="required">
+            {% endblock %}
+		</div>
+    {% endblock %}
+
+    {% block page_account_register_personal_password_description %}
+		<p>
+            {{ "account.personalPasswordDescription"|trans({
+                '%minLength%': shopware.config.register.minPasswordLength
+            }) }}
+		</p>
+    {% endblock %}
+
+    {% block page_account_register_personal_birthday %}
+        {% if shopware.config.register.birthdayField %}
+            {% block page_account_register_personal_birthday_label %}
+				<label for="personalBirthday">
+                    {{ "account.personalBirthdayLabel"|trans }}
+				</label>
+            {% endblock %}
+
+            {% block page_account_register_personal_birthday_selects %}
+				<div class="form-row">
+                    {% block page_account_register_personal_birthday_select_day %}
+						<div class="form-group col-md-4">
+							<select id="personalBirthday"
+									name="birthdayDay"
+									class="custom-select">
+								<option value="">{{ "account.personalBirthdaySelectDay"|trans }}</option>
+                                {% for day in range(1, 31) %}
+									<option value="{{ day }}">{{ day }}</option>
+                                {% endfor %}
+							</select>
+						</div>
+                    {% endblock %}
+
+                    {% block page_account_register_personal_birthday_select_month %}
+						<div class="form-group col-md-4">
+							<select name="birthdayMonth"
+									class="custom-select">
+								<option value="">{{ "account.personalBirthdaySelectMonth"|trans }}</option>
+                                {% for month in range(1, 12) %}
+									<option value="{{ month }}">{{ month }}</option>
+                                {% endfor %}
+							</select>
+						</div>
+                    {% endblock %}
+
+                    {% block page_account_register_personal_birthday_select_year %}
+						<div class="form-group col-md-4">
+                            {% set currentYear = "now"|date('Y') %}
+                            {% set startYear = currentYear - 120 %}
+
+							<select name="birthdayYear"
+									class="custom-select">
+								<option value="">{{ "account.personalBirthdaySelectYear"|trans }}</option>
+                                {% for year in range(currentYear, startYear) %}
+									<option value="{{ year }}">{{ year }}</option>
+                                {% endfor %}
+							</select>
+						</div>
+                    {% endblock %}
+				</div>
+            {% endblock %}
+        {% endif %}
+    {% endblock %}
+{% endblock %}

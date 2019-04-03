@@ -1,0 +1,95 @@
+.off-canvas.offcanvas-menu {
+    background-color: $gray-100;
+    overflow-x: hidden;
+
+    .offcanvas-menu {
+        position: relative;
+    }
+
+    .off-canvas-content-container {
+        padding: 0;
+    }
+}
+
+.offcanvas-menu-headline {
+    @extend .nav-link;
+    font-weight: $font-weight-bold;
+    color: $secondary;
+    padding-top: 20px;
+}
+
+.offcanvas-menu-list {
+    .offcanvas-menu-list-item-link-icon {
+        float: right;
+
+        i {
+            font-size: 11px;
+        }
+
+        .spinner-border {
+            width: 13px;
+            height: 13px;
+            left: 3px;
+            position: relative;
+        }
+    }
+}
+
+.offcanvas-menu-list-item {
+    border-bottom: 1px solid $gray-300;
+    background-color: $white;
+
+    &.go-back {
+        border-top: 1px solid $gray-300;
+        font-weight: $font-weight-bold;
+        color: $secondary;
+
+        .spinner-border {
+            width: 13px;
+            height: 13px;
+            top: -3px;
+            position: relative;
+        }
+    }
+
+    &.go-home {
+        .spinner-border {
+            width: 13px;
+            height: 13px;
+            top: -3px;
+            position: relative;
+        }
+    }
+}
+
+.offcanvas-menu-list-item-link {
+    @include transition(color 0.45s cubic-bezier(0.3, 0, 0.15, 1));
+    color: $body-color;
+
+    &.current-category {
+        color: $primary;
+        font-weight: $font-weight-bold;
+    }
+
+    &:hover,
+    &:active,
+    &:focus {
+        color: $primary;
+    }
+}
+
+.offcanvas-menu-overlay {
+    &.has-transition {
+        transition: left 0.5s ease-in;
+    }
+}
+
+.offcanvas-menu-placeholder,
+.offcanvas-menu-overlay {
+    width: 100%;
+    background-color: $gray-100;
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+

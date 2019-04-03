@@ -1,3 +1,53 @@
 {% block base_search_suggest %}
+    <div class="js-search-result">
+        {% block base_search_suggest_container %}
+            <ul class="search-suggest-container">
+            {# List of found product results #}
+                {% block base_search_suggest_results %}
+                    {% for product in page.listing.elements %}
+                        {% block base_search_suggest_result_product %}
+                            <li class="js-result result-product">
+                                {% block base_search_suggest_result_link %}
+                                    <a href="{{ path('frontend.detail.page', {'productId': product.id}) }}"
+                                       title="{{ product.name }}"
+                                       class="result-link">
+                                        {% block base_search_suggest_result_image %}
+                                            <span class="result-image">
+                                                <img srcset="{{ product.cover.media.url }}" alt="{{ product.name }}">
+                                            </span>
+                                        {% endblock %}
 
+                                        {% block base_search_suggest_result_name %}
+                                            <span class="result-name">{{ product.name }}</span>
+                                        {% endblock %}
+
+                                        {% block base_search_suggest_result_price %}
+                                            <span class="result-price">{{ product.price.gross|localizedcurrency(context.currency.shortName, app.request.locale) }}</span>
+                                        {% endblock %}
+                                    </a>
+                                {% endblock %}
+                            </li>
+                        {% endblock %}
+                    {% endfor %}
+                {% endblock %}
+
+                {# Total results link #}
+                {% block base_search_suggest_result_total %}
+                    <li class="js-result result-total">
+                        {% block base_search_suggest_result_total_link %}
+                            <a href="{{ path('frontend.search.page') }}?search={{ page.searchTerm }}"
+                               title="{{ "header.searchAllResults"|trans }}"
+                               class="total-link">
+                                <i class="fas fa-chevron-right total-link-icon"></i> {{ "header.searchAllResults"|trans }}
+                            </a>
+                        {% endblock %}
+
+                        {% block base_search_suggest_result_total_count %}
+                            <span class="total-count">{{ page.listing.total }} {{ "header.searchResults"|trans }}</span>
+                        {% endblock %}
+                    </li>
+                {% endblock %}
+            </ul>
+        {% endblock %}
+    </div>
 {% endblock %}

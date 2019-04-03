@@ -6,5 +6,14 @@
         {% set layout = 'basic' %}
     {% endif %}
 
-    {% sw_include "@Storefront/component/product/widget/box-#{layout}.html.twig" ignore missing %}
+	{% if layout == 'basic' %}
+		{% sw_include "@Storefront/component/product/widget/box-basic.html.twig" %}
+	{% elseif layout == 'minimal' %}
+		{% sw_include "@Storefront/component/product/widget/box-minimal.html.twig" %}
+	{% elseif layout == 'list' %}
+		{% sw_include "@Storefront/component/product/widget/box-list.html.twig" %}
+	{% else %}
+		{#TODO: NEXT-1904 - check why include with dynamic path isn't working anymore#}
+		{#{% sw_include "@Storefront/component/product/widget/box-#{layout}.html.twig" ignore missing %}#}
+	{% endif %}
 {% endblock %}

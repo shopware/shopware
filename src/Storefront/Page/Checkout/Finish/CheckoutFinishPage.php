@@ -3,9 +3,9 @@
 namespace Shopware\Storefront\Page\Checkout\Finish;
 
 use Shopware\Core\Checkout\Order\OrderEntity;
-use Shopware\Storefront\Framework\Page\GenericPage;
+use Shopware\Storefront\Framework\Page\PageWithHeader;
 
-class CheckoutFinishPage extends GenericPage
+class CheckoutFinishPage extends PageWithHeader
 {
     /**
      * @var OrderEntity

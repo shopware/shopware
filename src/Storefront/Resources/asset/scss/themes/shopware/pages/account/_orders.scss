@@ -1,0 +1,19 @@
+td.order-item-name {
+    color: $gray-800;
+}
+
+.order-item-number-value {
+    font-weight: $font-weight-bold;
+}
+
+.order-pseudo-price-value {
+    text-decoration: line-through;
+}
+
+.order-item-detail-summary dd {
+    font-weight: $font-weight-bold;
+}
+
+.order-detail-table-footer {
+    @extend .bg-light;
+}

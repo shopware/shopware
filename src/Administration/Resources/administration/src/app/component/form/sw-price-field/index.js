@@ -1,3 +1,5 @@
+import { Application } from 'src/core/shopware';
+import utils from 'src/core/service/util.service';
 import template from './sw-price-field.html.twig';
 import './sw-price-field.scss';
 
@@ -59,14 +61,20 @@ export default {
     watch: {
         'price.linked': function priceLinkedWatcher(value) {
             if (value === true) {
-                this.price.net = this.convertGrossToNet(this.price.gross);
+                this.convertGrossToNet(this.price.gross);
             }
         },
 
         'taxRate.taxRate': function taxRateWatcher() {
             if (this.price.linked === true) {
-                this.price.net = this.convertGrossToNet(this.price.gross);
+                this.convertGrossToNet(this.price.gross);
             }
+        }
+    },
+
+    computed: {
+        calculatePriceApiService() {
+            return Application.getContainer('factory').apiService.getByName('calculate-price');
         }
     },
 
@@ -77,44 +85,61 @@ export default {
             this.$emit('change', this.price);
         },
 
-        onPriceGrossChange(value) {
+        onPriceGrossChange: utils.debounce(function onPriceGrossChange(value) {
             this.$emit('priceGrossChange', value);
             this.$emit('change', this.price);
 
             if (this.price.linked) {
-                this.price.net = this.convertGrossToNet(value);
+                this.convertGrossToNet(value);
             }
-        },
+        }, 500),
 
-        onPriceNetChange(value) {
+        onPriceNetChange: utils.debounce(function onPriceNetChange(value) {
             this.$emit('priceNetChange', value);
             this.$emit('change', this.price);
 
             if (this.price.linked) {
-                this.price.gross = this.convertNetToGross(value);
+                this.convertNetToGross(value);
             }
-        },
+        }, 500),
 
-        /**
-         * Todo: We need to change this to server side calculation because of issues with floating point numbers
-         */
         convertNetToGross(value) {
-            if (!value || value === null || typeof value !== 'number') {
-                return null;
+            if (!value || typeof value !== 'number') {
+                return false;
             }
 
-            return value * this.getMathTaxRate();
+            this.requestTaxValue(value, 'net').then((res) => {
+                this.price.gross = this.price.net + res;
+            });
+            return true;
         },
 
-        /**
-         * Todo: We need to change this to server side calculation because of issues with floating point numbers
-         */
         convertGrossToNet(value) {
-            if (!value || value === null || typeof value !== 'number') {
-                return null;
+            if (!value || typeof value !== 'number') {
+                return false;
             }
 
-            return value / this.getMathTaxRate();
+            this.requestTaxValue(value, 'gross').then((res) => {
+                this.price.net = this.price.gross - res;
+            });
+            return true;
+        },
+
+        requestTaxValue(value, outputType) {
+            return new Promise((resolve) => {
+                if (!value || typeof value !== 'number' || !this.price[outputType] || !this.taxRate.id || !outputType) {
+                    return null;
+                }
+
+                this.calculatePriceApiService.calculatePrice({
+                    taxId: this.taxRate.id,
+                    price: this.price[outputType],
+                    output: outputType
+                }).then(({ data }) => {
+                    resolve(data.calculatedTaxes[0].tax);
+                });
+                return true;
+            });
         },
 
         getMathTaxRate() {

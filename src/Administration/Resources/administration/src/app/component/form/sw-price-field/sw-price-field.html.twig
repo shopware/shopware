@@ -12,7 +12,6 @@
                       :size="compact ? 'small' : 'default'"
                       :min="0"
                       @input="onPriceGrossChange"
-                      @change="onPriceGrossChange"
                       v-bind="$attrs"
                       v-model="price.gross">
             </sw-field>
@@ -33,7 +32,6 @@
                       :size="compact ? 'small' : 'default'"
                       :min="0"
                       @input="onPriceNetChange"
-                      @change="onPriceNetChange"
                       v-bind="$attrs"
                       v-model="price.net">
             </sw-field>

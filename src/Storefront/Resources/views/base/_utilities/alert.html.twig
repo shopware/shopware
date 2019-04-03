@@ -20,6 +20,15 @@ The template provides an easy way to display messages in the storefront. The fol
         content:"Primary Lorem ipsum dolor"
     } %}
 
+*Icons:
+To display icons, set the value of "icon" to true:
+
+    {% sw_include '@Storefront/base/_utilities/alert.html.twig' with {
+        type:"primary",
+        content:"Primary Lorem ipsum dolor",
+        icon: true
+    } %}
+
 *Message Content:
 The component requires the parameters ```content``` or ```list``` to display a message. If no ```type``` is defined it
 will use the fallback option (success).
@@ -65,41 +74,61 @@ To display a dismissible button set the value of "dismissible" to true.
 #}
 
 {% block base_utilities_alert %}
-    <div class="alert alert-{% if type %}{{ type }}{% else %}success{% endif %}{% if dismissible %} alert-dismissible fade show{% endif %}"
+    <div class="alert alert-{% if type %}{{ type }}{% else %}success{% endif %}{% if dismissible %} alert-dismissible fade show{% endif %}{% if icon %} alert-has-icon{% endif %}"
          role="alert">
         {% block base_utilities_alert_icon %}
-            {#TODO: NEXT-2666 - alert icon#}
-        {% endblock %}
+            {% if icon %}
+                {%  set iconClass = "check-circle" %} {# primary, secondary, succes #}
 
-        {% block base_utilities_alert_heading %}
-            {% if heading %}
-                <h4 class="alert-heading">
-                    {{ heading }}
-                </h4>
+                {% if type is same as("danger") %}
+                    {% set iconClass = "exclamation-circle" %}
+                {% elseif type is same as("warning") %}
+                    {% set iconClass = "exclamation-triangle" %}
+                {% elseif type is same as("info") or (type is same as("light")) or (type is same as("dark")) %}
+                    {% set iconClass = "info-circle" %}
+                {% endif %}
+
+                <div class="alert-icon alert-icon-{{ type }}">
+                    <i class="fas fa-{{ iconClass }}"></i>
+                </div>
             {% endif %}
         {% endblock %}
 
-        {% block base_utilities_alert_content %}
-            {% if content %}
-                {{ content }}
-            {% else %}
-                <ul>
-                    {% for entry in list %}
-                        <li>{{ entry }}</li>
-                    {% endfor %}
-                </ul>
-            {% endif %}
-        {% endblock %}
+        {% block base_utilities_alert_content_container %}
+            <div class="alert-content-container">
+                {% block base_utilities_alert_heading %}
+                    {% if heading %}
+                        <h4 class="alert-heading">
+                            {{ heading }}
+                        </h4>
+                    {% endif %}
+                {% endblock %}
 
-        {% block base_utilities_alert_dismissible %}
-            {% if dismissible %}
-                <button type="button"
-                        class="close"
-                        data-dismiss="alert"
-                        aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            {% endif %}
+                {% block base_utilities_alert_content %}
+                    <div class="alert-content">
+                        {% if content %}
+                            {{ content }}
+                        {% else %}
+                            <ul>
+                                {% for entry in list %}
+                                    <li>{{ entry }}</li>
+                                {% endfor %}
+                            </ul>
+                        {% endif %}
+                    </div>
+                {% endblock %}
+
+                {% block base_utilities_alert_dismissible %}
+                    {% if dismissible %}
+                        <button type="button"
+                                class="close"
+                                data-dismiss="alert"
+                                aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    {% endif %}
+                {% endblock %}
+            </div>
         {% endblock %}
     </div>
 {% endblock %}

@@ -24,8 +24,8 @@ describe('core/service/api/mediaService', () => {
             });
         }).then(() => {
             mediaStore.getByIdAsync(mediaItem.id).then((objUnderTest) => {
-                expect(objUnderTest.mimeType).to.equal('text/plain');
-                expect(objUnderTest.url).to.match(/.json$/);
+                expect(objUnderTest.mimeType).toBe('text/plain');
+                expect(objUnderTest.url).toMatch(/.json$/);
 
                 done();
             }).catch((err) => {

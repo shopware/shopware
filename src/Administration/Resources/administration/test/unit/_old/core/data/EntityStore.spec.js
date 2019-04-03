@@ -9,58 +9,63 @@ const State = Shopware.State;
 const Application = Shopware.Application;
 
 describe('core/data/EntityStore.js', () => {
-    it('should be iterate over the entities and create entity stores for each entity', () => {
-        const definitions = Entity.getDefinitionRegistry();
-        const definitionKeys = [...definitions.keys()];
+    test(
+        'should be iterate over the entities and create entity stores for each entity',
+        () => {
+            const definitions = Entity.getDefinitionRegistry();
+            const definitionKeys = [...definitions.keys()];
 
-        const stores = State.getStoreRegistry();
-        const storeKeys = [...stores.keys()];
+            const stores = State.getStoreRegistry();
+            const storeKeys = [...stores.keys()];
 
-        definitionKeys.forEach((key) => {
-            expect(storeKeys.includes(key)).to.be.equal(true);
-        });
-    });
+            definitionKeys.forEach((key) => {
+                expect(storeKeys.includes(key)).toBe(true);
+            });
+        }
+    );
 
-    it('should initialize an EntityStore using a predefined api service', () => {
+    test('should initialize an EntityStore using a predefined api service', () => {
         const store = new EntityStore('product', 'productService', EntityProxy);
 
-        expect(store.apiService).to.be.an('object');
-        expect(store.store).to.be.an('object');
-        expect(store.isLoading).to.be.equal(false);
-        expect(store.getEntityName()).to.be.equal('product');
+        expect(typeof store.apiService).toBe('object');
+        expect(typeof store.store).toBe('object');
+        expect(store.isLoading).toBe(false);
+        expect(store.getEntityName()).toBe('product');
     });
 
-    it('should initialized an EntityStore using an instance of an api service', () => {
-        const initContainer = Application.getContainer('init');
-        const serviceContainer = Application.getContainer('service');
+    test(
+        'should initialized an EntityStore using an instance of an api service',
+        () => {
+            const initContainer = Application.getContainer('init');
+            const serviceContainer = Application.getContainer('service');
 
-        const store = new EntityStore('product', new ApiService(
-            initContainer.httpClient,
-            serviceContainer.loginService,
-            'product'
-        ), EntityProxy);
+            const store = new EntityStore('product', new ApiService(
+                initContainer.httpClient,
+                serviceContainer.loginService,
+                'product'
+            ), EntityProxy);
 
-        expect(store.apiService).to.be.an('object');
-        expect(store.store).to.be.an('object');
-        expect(store.isLoading).to.be.equal(false);
-        expect(store.getEntityName()).to.be.equal('product');
-    });
+            expect(typeof store.apiService).toBe('object');
+            expect(typeof store.store).toBe('object');
+            expect(store.isLoading).toBe(false);
+            expect(store.getEntityName()).toBe('product');
+        }
+    );
 
-    it('should create a new entity in the store', () => {
+    test('should create a new entity in the store', () => {
         const store = new EntityStore('product', 'productService', EntityProxy);
 
         const entity = store.create();
 
-        expect(entity.isLocal).to.be.equal(true);
-        expect(entity.isDeleted).to.be.equal(false);
-        expect(entity.isLoading).to.be.equal(false);
-        expect(entity.id.length).to.be.equal(32);
+        expect(entity.isLocal).toBe(true);
+        expect(entity.isDeleted).toBe(false);
+        expect(entity.isLoading).toBe(false);
+        expect(entity.id.length).toBe(32);
 
         const newEntity = store.create(entity.id);
-        expect(newEntity.id.length).to.be.equal(32);
+        expect(newEntity.id.length).toBe(32);
 
-        // it should be the same entity
-        expect(entity.id).to.be.equal(newEntity.id);
+        expect(entity.id).toBe(newEntity.id);
     });
 
     itAsync('should create a new entity in the store and save it to the server', (done) => {
@@ -75,11 +80,11 @@ describe('core/data/EntityStore.js', () => {
         entity.name = 'Bitcoin';
 
         entity.save().then((response) => {
-            expect(response.id).to.be.equal(entity.id);
-            expect(response.factor).to.be.equal(entity.factor);
-            expect(response.symbol).to.be.equal(entity.symbol);
-            expect(response.shortName).to.be.equal(entity.shortName);
-            expect(response.name).to.be.equal(entity.name);
+            expect(response.id).toBe(entity.id);
+            expect(response.factor).toBe(entity.factor);
+            expect(response.symbol).toBe(entity.symbol);
+            expect(response.shortName).toBe(entity.shortName);
+            expect(response.name).toBe(entity.name);
 
             entity.delete(true).then(() => {
                 done();
@@ -105,10 +110,10 @@ describe('core/data/EntityStore.js', () => {
 
         entity.save().then((response) => {
             store.getByIdAsync(response.id).then((storeEntity) => {
-                expect(entity.id).to.be.equal(storeEntity.id);
-                expect(storeEntity.symbol).to.be.equal('Ƀ');
-                expect(storeEntity.shortName).to.be.equal('BTC');
-                expect(storeEntity.name).to.be.equal('Bitcoin');
+                expect(entity.id).toBe(storeEntity.id);
+                expect(storeEntity.symbol).toBe('Ƀ');
+                expect(storeEntity.shortName).toBe('BTC');
+                expect(storeEntity.name).toBe('Bitcoin');
 
                 storeEntity.delete(true).then(() => {
                     done();
@@ -143,10 +148,10 @@ describe('core/data/EntityStore.js', () => {
 
             entity.save().then(() => {
                 store.getList({ page, limit }).then((response) => {
-                    expect(response.total).to.be.equal(totalBeforeSave + 1);
+                    expect(response.total).toBe(totalBeforeSave + 1);
 
                     if (itemsBeforeSave.length < limit) {
-                        expect(response.items.length).to.be.equal(itemsBeforeSave.length + 1);
+                        expect(response.items.length).toBe(itemsBeforeSave.length + 1);
                     }
 
                     entity.delete(true).then(() => {
@@ -178,7 +183,7 @@ describe('core/data/EntityStore.js', () => {
                 limit: 1,
                 term: 'Bitcoin'
             }).then((response) => {
-                expect(response.items.length).to.be.equal(1);
+                expect(response.items.length).toBe(1);
 
                 entity.delete(true).then(() => {
                     done();
@@ -208,8 +213,8 @@ describe('core/data/EntityStore.js', () => {
                     page: 1,
                     limit: 1
                 }, true).then((response) => {
-                    expect(response.items.length).to.be.equal(1);
-                    expect(response.items[0].hasFile).to.be.equal(true);
+                    expect(response.items.length).toBe(1);
+                    expect(response.items[0].hasFile).toBe(true);
 
                     entity.delete(true).then(() => {
                         done();
@@ -242,8 +247,8 @@ describe('core/data/EntityStore.js', () => {
                     page: 1,
                     limit: 1
                 }).then((response) => {
-                    expect(response.items.length).to.be.equal(1);
-                    expect(response.items[0].thumbnails.length).to.be.equal(0);
+                    expect(response.items.length).toBe(1);
+                    expect(response.items[0].thumbnails.length).toBe(0);
 
                     entity.delete(true).then(() => {
                         done();
@@ -274,7 +279,7 @@ describe('core/data/EntityStore.js', () => {
         });
     });
 
-    it('should create a new empty local entity', () => {
+    test('should create a new empty local entity', () => {
         const store = new EntityStore('currency', 'currencyService', EntityProxy);
 
         const entity = store.create();
@@ -286,14 +291,14 @@ describe('core/data/EntityStore.js', () => {
 
         const storeEntry = store.store[entity.id];
 
-        expect(storeEntry.id).to.be.equal(entity.id);
-        expect(storeEntry.factor).to.be.equal(entity.factor);
-        expect(storeEntry.symbol).to.be.equal(entity.symbol);
-        expect(storeEntry.shortName).to.be.equal(entity.shortName);
-        expect(storeEntry.name).to.be.equal(entity.name);
+        expect(storeEntry.id).toBe(entity.id);
+        expect(storeEntry.factor).toBe(entity.factor);
+        expect(storeEntry.symbol).toBe(entity.symbol);
+        expect(storeEntry.shortName).toBe(entity.shortName);
+        expect(storeEntry.name).toBe(entity.name);
     });
 
-    it('should add entity to the store', () => {
+    test('should add entity to the store', () => {
         const store = new EntityStore('currency', 'currencyService', EntityProxy);
 
         const entity = new EntityProxy('currency', 'currencyService');
@@ -309,10 +314,10 @@ describe('core/data/EntityStore.js', () => {
 
         const storeEntity = store.store[entity.id];
 
-        expect(entity).to.be.deep.equal(storeEntity);
+        expect(entity).toBe(storeEntity);
     });
 
-    it('should duplicate the entity', () => {
+    test('should duplicate the entity', () => {
         const store = new EntityStore('tax', 'taxService', EntityProxy);
 
         const tax = new EntityProxy('tax', 'taxService');
@@ -331,10 +336,10 @@ describe('core/data/EntityStore.js', () => {
         expect(newTax.taxRate).equals(tax.taxRate);
         /* eslint no-unused-expressions: 0 */
         expect(newTax.products).to.be.empty;
-        expect(newTax.associations.products.store[product.id]).to.be.an('undefined');
+        expect(typeof newTax.associations.products.store[product.id]).toBe('undefined');
     });
 
-    it('should duplicate the entity with associations', () => {
+    test('should duplicate the entity with associations', () => {
         const store = new EntityStore('tax', 'taxService', EntityProxy);
 
         const tax = new EntityProxy('tax', 'taxService');
@@ -351,9 +356,9 @@ describe('core/data/EntityStore.js', () => {
         expect(newTax.id).not.equals(tax.id);
         expect(newTax.name).equals(tax.name);
         expect(newTax.taxRate).equals(tax.taxRate);
-        expect(newTax.products).to.have.length(1);
+        expect(newTax.products).toHaveLength(1);
         expect(newTax.products[0].id).equals(product.id);
-        expect(newTax.associations.products.store[product.id]).to.be.an('object');
+        expect(typeof newTax.associations.products.store[product.id]).toBe('object');
     });
 
     xitAsync('should handle multiple entityversions in parallel', (done) => {
@@ -370,8 +375,8 @@ describe('core/data/EntityStore.js', () => {
 
                 Promise.all([loadedOriginal, loadedVersioned]).then(() => {
                     expect(loadedOriginal.versionId).to.be.unequal(loadedVersioned.versionId);
-                    expect(loadedOriginal.name).to.be.equal('best');
-                    expect(loadedVersioned.name).to.be.equal('test');
+                    expect(loadedOriginal.name).toBe('best');
+                    expect(loadedVersioned.name).toBe('test');
                     done();
                 }).catch((error) => {
                     done(error);

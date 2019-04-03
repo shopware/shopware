@@ -1,5 +1,14 @@
+// Necessary cause the unit test aren't having the shopware module globally available.
+let Shopware = global.Shopware || window.Shopware;
+if (Shopware === undefined) {
+    Shopware = require('src/core/common.js'); // eslint-disable-line
+}
+
 export const Module = {
-    register: Shopware.Module.register
+    register: Shopware.Module.register,
+    getModuleRegistry: Shopware.Module.getModuleRegistry,
+    getModuleRoutes: Shopware.Module.getModuleRoutes,
+    getModuleByEntityName: Shopware.Module.getModuleByEntityName
 };
 
 export const Component = {

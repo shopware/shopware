@@ -12,54 +12,60 @@ describe('core/service/login.service.js', () => {
 
     itAsync('should request the token and expiry date from the server', (done) => {
         loginService.loginByUsername('admin', 'shopware').then((data) => {
-            expect(data).to.be.an('object');
-            expect(data.expiry).to.be.a('number');
-            expect(data.access).to.be.a('string');
-            expect(data.refresh).to.be.a('string');
+            expect(typeof data).toBe('object');
+            expect(typeof data.expiry).toBe('number');
+            expect(typeof data.access).toBe('string');
+            expect(typeof data.refresh).toBe('string');
             done();
         });
     });
 
-    it('should store the bearer authentication object in the localStorage', () => {
+    test(
+        'should store the bearer authentication object in the localStorage',
+        () => {
+            const authObject = loginService.setBearerAuthentication({
+                expiry: 9999999999,
+                access: 'foobar',
+                refresh: 'barbatz'
+            });
+            const localStorageObject = JSON.parse(localStorage.getItem('bearerAuth'));
+
+            expect(localStorageObject).toBe(authObject);
+        }
+    );
+
+    test(
+        'should get the bearer authentication object from the localStorage',
+        () => {
+            const authObject = loginService.setBearerAuthentication({
+                expiry: 9999999999,
+                access: 'foobar',
+                refresh: 'barbatz'
+            });
+            const localStorageObject = loginService.getBearerAuthentication();
+
+            expect(localStorageObject).toBe(authObject);
+        }
+    );
+
+    test('should clear the localStorage entry', () => {
         const authObject = loginService.setBearerAuthentication({
             expiry: 9999999999,
             access: 'foobar',
             refresh: 'barbatz'
         });
+
         const localStorageObject = JSON.parse(localStorage.getItem('bearerAuth'));
 
-        expect(localStorageObject).to.deep.equal(authObject);
-    });
-
-    it('should get the bearer authentication object from the localStorage', () => {
-        const authObject = loginService.setBearerAuthentication({
-            expiry: 9999999999,
-            access: 'foobar',
-            refresh: 'barbatz'
-        });
-        const localStorageObject = loginService.getBearerAuthentication();
-
-        expect(localStorageObject).to.deep.equal(authObject);
-    });
-
-    it('should clear the localStorage entry', () => {
-        const authObject = loginService.setBearerAuthentication({
-            expiry: 9999999999,
-            access: 'foobar',
-            refresh: 'barbatz'
-        });
-
-        const localStorageObject = JSON.parse(localStorage.getItem('bearerAuth'));
-
-        expect(localStorageObject).to.deep.equal(authObject);
+        expect(localStorageObject).toBe(authObject);
 
         loginService.logout();
         const clearedObject = localStorage.getItem('bearerAuth');
 
-        expect(clearedObject).to.equal(null);
+        expect(clearedObject).toBe(null);
     });
 
-    it('should provide the bearer token', () => {
+    test('should provide the bearer token', () => {
         const authObject = loginService.setBearerAuthentication({
             expiry: 9999999999,
             access: 'foobar',
@@ -67,10 +73,10 @@ describe('core/service/login.service.js', () => {
         });
         const token = loginService.getToken();
 
-        expect(token).to.equal(authObject.access);
+        expect(token).toBe(authObject.access);
     });
 
-    it('should provide the expiry date', () => {
+    test('should provide the expiry date', () => {
         const authObject = loginService.setBearerAuthentication({
             expiry: 9999999999,
             access: 'foobar',
@@ -78,19 +84,19 @@ describe('core/service/login.service.js', () => {
         });
         const expiry = loginService.getBearerAuthentication('expiry');
 
-        expect(expiry).to.equal(authObject.expiry);
+        expect(expiry).toBe(authObject.expiry);
     });
 
     itAsync('should refresh the token', (done) => {
         loginService.loginByUsername('admin', 'shopware').then((data) => {
             loginService.refreshToken().then((accessToken) => {
-                expect(accessToken).to.not.equal(data.access);
+                expect(accessToken).not.toBe(data.access);
                 done();
             });
         });
     });
 
-    it('should call the logout listener', () => {
+    test('should call the logout listener', () => {
         let wasCalled = false;
 
         loginService.addOnLogoutListener(() => {
@@ -98,7 +104,7 @@ describe('core/service/login.service.js', () => {
         });
         loginService.logout();
 
-        expect(wasCalled).to.equal(true);
+        expect(wasCalled).toBe(true);
     });
 
     itAsync('should call the token changed listener on login', (done) => {
@@ -110,8 +116,8 @@ describe('core/service/login.service.js', () => {
             auth = data;
         });
         loginService.loginByUsername('admin', 'shopware').then((data) => {
-            expect(wasCalled).to.equal(true);
-            expect(auth).to.equal(data);
+            expect(wasCalled).toBe(true);
+            expect(auth).toBe(data);
             done();
         });
     });
@@ -127,8 +133,8 @@ describe('core/service/login.service.js', () => {
             });
 
             loginService.refreshToken().then((accessToken) => {
-                expect(wasCalled).to.equal(true);
-                expect(auth.access).to.equal(accessToken);
+                expect(wasCalled).toBe(true);
+                expect(auth.access).toBe(accessToken);
                 done();
             });
         });
@@ -138,7 +144,7 @@ describe('core/service/login.service.js', () => {
         loginService.loginByUsername('admin', 'shopware').then(() => {
             const loggedIn = loginService.isLoggedIn();
 
-            expect(loggedIn).to.equal(true);
+            expect(loggedIn).toBe(true);
             done();
         });
     });

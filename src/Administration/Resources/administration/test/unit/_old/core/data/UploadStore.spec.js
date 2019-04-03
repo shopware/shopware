@@ -23,7 +23,7 @@ function defaultUpdateData() {
 
 /* eslint no-unused-expressions: 0 */
 describe('src/core/data/uploadStore.js', () => {
-    it('adds listener', () => {
+    test('adds listener', () => {
         const mediaService = mediaServiceMock();
         const uploadStore = new UploadStore(mediaService);
 
@@ -34,7 +34,7 @@ describe('src/core/data/uploadStore.js', () => {
         expect(uploadStore.$listeners['test-tag'][0]).to.be.equals(callback);
     });
 
-    it('removes the correct listener', () => {
+    test('removes the correct listener', () => {
         const mediaService = mediaServiceMock();
         const uploadStore = new UploadStore(mediaService);
 
@@ -51,7 +51,7 @@ describe('src/core/data/uploadStore.js', () => {
         expect(uploadStore.$listeners['test-tag-2']).to.exist;
     });
 
-    it('removes a given callback from listeners', () => {
+    test('removes a given callback from listeners', () => {
         const mediaService = mediaServiceMock();
         const uploadStore = new UploadStore(mediaService);
 
@@ -63,11 +63,11 @@ describe('src/core/data/uploadStore.js', () => {
 
         uploadStore.removeListener('test-tag', toRemove);
 
-        expect(uploadStore.$listeners['test-tag']).to.have.length(1);
+        expect(uploadStore.$listeners['test-tag']).toHaveLength(1);
         expect(uploadStore.$listeners['test-tag'][0]).to.be.equals(toStay);
     });
 
-    it('should save uploads', () => {
+    test('should save uploads', () => {
         const mediaService = mediaServiceMock();
         const uploadStore = new UploadStore(mediaService);
 
@@ -83,7 +83,7 @@ describe('src/core/data/uploadStore.js', () => {
         expect(listenerTwo.called).to.be.equals(false);
     });
 
-    it('calls default and correct listeners', () => {
+    test('calls default and correct listeners', () => {
         const mediaService = mediaServiceMock();
         const uploadStore = new UploadStore(mediaService);
 
@@ -106,7 +106,7 @@ describe('src/core/data/uploadStore.js', () => {
         expect(otherTagsListener.notCalled);
     });
 
-    it('does not stop just because one upload failed', () => {
+    test('does not stop just because one upload failed', () => {
         const mediaService = mediaServiceMock();
 
         // simulate that the first upload fails

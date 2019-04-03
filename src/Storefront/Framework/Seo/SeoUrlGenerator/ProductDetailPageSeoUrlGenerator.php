@@ -3,11 +3,11 @@
 namespace Shopware\Storefront\Framework\Seo\SeoUrlGenerator;
 
 use Cocur\Slugify\Slugify;
-use Shopware\Core\Checkout\Context\CheckoutContextFactoryInterface;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\System\SalesChannel\Context\CheckoutContextFactoryInterface;
 use Shopware\Storefront\Framework\Seo\SeoUrl\SeoUrlEntity;
 use Symfony\Component\Routing\RouterInterface;
 use Twig\Error\Error;

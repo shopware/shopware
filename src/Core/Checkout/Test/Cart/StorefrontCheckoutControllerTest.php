@@ -4,8 +4,8 @@ namespace Shopware\Core\Checkout\Test\Cart;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Cart\CartRuleLoader;
 use Shopware\Core\Checkout\Cart\Rule\CartAmountRule;
-use Shopware\Core\Checkout\Context\CheckoutRuleLoader;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Test\Payment\Handler\SyncTestPaymentHandler;
 use Shopware\Core\Defaults;
@@ -92,8 +92,8 @@ class StorefrontCheckoutControllerTest extends TestCase
         $this->context = Context::createDefaultContext();
 
         // reset rules
-        $ruleLoader = $this->getContainer()->get(CheckoutRuleLoader::class);
-        $rulesProperty = ReflectionHelper::getProperty(CheckoutRuleLoader::class, 'rules');
+        $ruleLoader = $this->getContainer()->get(CartRuleLoader::class);
+        $rulesProperty = ReflectionHelper::getProperty(CartRuleLoader::class, 'rules');
         $rulesProperty->setValue($ruleLoader, null);
     }
 
@@ -625,8 +625,8 @@ class StorefrontCheckoutControllerTest extends TestCase
             ],
         ], $context);
 
-        $ruleLoader = $this->getContainer()->get(CheckoutRuleLoader::class);
-        $rulesProperty = ReflectionHelper::getProperty(CheckoutRuleLoader::class, 'rules');
+        $ruleLoader = $this->getContainer()->get(CartRuleLoader::class);
+        $rulesProperty = ReflectionHelper::getProperty(CartRuleLoader::class, 'rules');
         $rulesProperty->setValue($ruleLoader, null);
 
         $client = $this->createCart();
@@ -692,8 +692,8 @@ class StorefrontCheckoutControllerTest extends TestCase
             ],
         ], $context);
 
-        $ruleLoader = $this->getContainer()->get(CheckoutRuleLoader::class);
-        $rulesProperty = ReflectionHelper::getProperty(CheckoutRuleLoader::class, 'rules');
+        $ruleLoader = $this->getContainer()->get(CartRuleLoader::class);
+        $rulesProperty = ReflectionHelper::getProperty(CartRuleLoader::class, 'rules');
         $rulesProperty->setValue($ruleLoader, null);
 
         $client = $this->createCart();
@@ -757,8 +757,8 @@ class StorefrontCheckoutControllerTest extends TestCase
         $this->addProduct($client, $productId, $quantity);
         static::assertSame(200, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
 
-        $ruleLoader = $this->getContainer()->get(CheckoutRuleLoader::class);
-        $rulesProperty = ReflectionHelper::getProperty(CheckoutRuleLoader::class, 'rules');
+        $ruleLoader = $this->getContainer()->get(CartRuleLoader::class);
+        $rulesProperty = ReflectionHelper::getProperty(CartRuleLoader::class, 'rules');
         $rulesProperty->setValue($ruleLoader, null);
 
         $this->guestOrder($client, $personal);

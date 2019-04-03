@@ -3,7 +3,7 @@
 namespace Shopware\Core\Profiling\Checkout;
 
 use Shopware\Core\Checkout\CheckoutContext;
-use Shopware\Core\Checkout\Context\CheckoutContextServiceInterface;
+use Shopware\Core\System\SalesChannel\Context\CheckoutContextServiceInterface;
 use Symfony\Component\Stopwatch\Stopwatch;
 
 class CheckoutContextServiceProfiler implements CheckoutContextServiceInterface

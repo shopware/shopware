@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Checkout\Context;
+namespace Shopware\Core\System\SalesChannel\Context;
 
 use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\PlatformRequest;

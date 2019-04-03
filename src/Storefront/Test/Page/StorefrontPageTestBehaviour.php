@@ -3,13 +3,11 @@
 namespace Shopware\Storefront\Test\Page;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Cart\CartRuleLoader;
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Storefront\CartService;
 use Shopware\Core\Checkout\CheckoutContext;
-use Shopware\Core\Checkout\Context\CheckoutContextFactory;
-use Shopware\Core\Checkout\Context\CheckoutContextService;
-use Shopware\Core\Checkout\Context\CheckoutRuleLoader;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\Cart\ProductCollector;
@@ -24,6 +22,8 @@ use Shopware\Core\Framework\Routing\InternalRequest;
 use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\SalesChannel\Context\CheckoutContextFactory;
+use Shopware\Core\System\SalesChannel\Context\CheckoutContextService;
 use Shopware\Storefront\Framework\Page\PageLoaderInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\EventDispatcher\Event;
@@ -275,8 +275,8 @@ trait StorefrontPageTestBehaviour
         $context = $factory
             ->create(Uuid::randomHex(), $salesChannelId, $options);
 
-        $ruleLoader = $this->getContainer()->get(CheckoutRuleLoader::class);
-        $rulesProperty = ReflectionHelper::getProperty(CheckoutRuleLoader::class, 'rules');
+        $ruleLoader = $this->getContainer()->get(CartRuleLoader::class);
+        $rulesProperty = ReflectionHelper::getProperty(CartRuleLoader::class, 'rules');
         $rulesProperty->setValue($ruleLoader, null);
         $ruleLoader->loadByToken($context, $context->getToken());
 

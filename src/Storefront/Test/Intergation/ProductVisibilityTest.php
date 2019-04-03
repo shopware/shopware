@@ -3,7 +3,6 @@
 namespace Shopware\Storefront\Test\Intergation;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\Context\CheckoutContextFactory;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\Exception\ProductNotFoundException;
 use Shopware\Core\Defaults;
@@ -13,6 +12,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\Routing\InternalRequest;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\SalesChannel\Context\CheckoutContextFactory;
 use Shopware\Storefront\Page\Listing\ListingPage;
 use Shopware\Storefront\Page\Listing\ListingPageLoader;
 use Shopware\Storefront\Page\Product\ProductPageLoader;

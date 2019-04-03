@@ -3,7 +3,7 @@
 namespace Shopware\Core\Checkout\Test\Customer;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\Context\CheckoutRuleLoader;
+use Shopware\Core\Checkout\Cart\CartRuleLoader;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Test\Payment\Handler\SyncTestPaymentHandler;
@@ -67,8 +67,8 @@ class StorefrontCustomerControllerTest extends TestCase
         $this->context = Context::createDefaultContext();
 
         // reset rules
-        $ruleLoader = $this->getContainer()->get(CheckoutRuleLoader::class);
-        $rulesProperty = ReflectionHelper::getProperty(CheckoutRuleLoader::class, 'rules');
+        $ruleLoader = $this->getContainer()->get(CartRuleLoader::class);
+        $rulesProperty = ReflectionHelper::getProperty(CartRuleLoader::class, 'rules');
         $rulesProperty->setValue($ruleLoader, null);
     }
 

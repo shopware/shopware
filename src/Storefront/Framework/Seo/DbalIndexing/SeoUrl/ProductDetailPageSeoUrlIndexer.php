@@ -2,10 +2,10 @@
 
 namespace Shopware\Storefront\Framework\Seo\DbalIndexing\SeoUrl;
 
-use Shopware\Core\Checkout\Context\CheckoutContextFactoryInterface;
 use Shopware\Core\Content\Product\Util\EventIdExtractor;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
+use Shopware\Core\System\SalesChannel\Context\CheckoutContextFactoryInterface;
 use Shopware\Storefront\Framework\Seo\SeoService;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 

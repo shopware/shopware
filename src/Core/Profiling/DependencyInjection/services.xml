@@ -6,7 +6,7 @@
 
     <services>
         <service id="Shopware\Core\Profiling\Checkout\CheckoutContextServiceProfiler"
-                 decorates="Shopware\Core\Checkout\Context\CheckoutContextService"
+                 decorates="Shopware\Core\System\SalesChannel\Context\CheckoutContextService"
                  decoration-priority="-1000">
 
             <argument type="service" id="Shopware\Core\Profiling\Checkout\CheckoutContextServiceProfiler.inner"/>

@@ -2,9 +2,9 @@
 
 namespace Shopware\Core\Framework\Routing;
 
-use Shopware\Core\Checkout\Context\CheckoutContextServiceInterface;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
+use Shopware\Core\System\SalesChannel\Context\CheckoutContextServiceInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Request as SymfonyRequest;
 

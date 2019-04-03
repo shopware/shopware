@@ -3,11 +3,11 @@
 namespace Shopware\Storefront\Pagelet\Header;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Util\Tree\Tree;
+use Shopware\Core\Framework\Language\LanguageCollection;
+use Shopware\Core\Framework\Language\LanguageEntity;
 use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\System\Currency\CurrencyCollection;
 use Shopware\Core\System\Currency\CurrencyEntity;
-use Shopware\Core\System\Language\LanguageCollection;
-use Shopware\Core\System\Language\LanguageEntity;
 
 class HeaderPagelet extends Struct
 {

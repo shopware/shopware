@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\System\Test\Language;
+namespace Shopware\Core\Framework\Test\Language;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;

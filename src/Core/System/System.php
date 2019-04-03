@@ -26,7 +26,6 @@ class System extends Bundle
         $loader->load('tax.xml');
         $loader->load('unit.xml');
         $loader->load('user.xml');
-        $loader->load('language.xml');
         $loader->load('integration.xml');
         $loader->load('state_machine.xml');
         $loader->load('configuration.xml');

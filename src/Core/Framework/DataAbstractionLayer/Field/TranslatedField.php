@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Field;
 
-use Shopware\Core\System\Language\LanguageDefinition;
+use Shopware\Core\Framework\Language\LanguageDefinition;
 
 class TranslatedField extends Field
 {

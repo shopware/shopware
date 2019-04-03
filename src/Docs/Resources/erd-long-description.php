@@ -61,7 +61,7 @@ EOD
 Account management of administration users.
 EOD
     ,
-    'Shopware\\Core\\System\\Language' => <<<'EOD'
+    'Shopware\\Core\\Framework\\Language' => <<<'EOD'
 The language table provides access to all possible content languages. Allmost all entities relate to this table, because almost all entities contain translatable content.
 EOD
     ,
@@ -233,7 +233,7 @@ EOD
 Simple M:N association related to the password recovery process.
 EOD
     ,
-    Shopware\Core\System\Language\LanguageDefinition::class => <<<'EOD'
+    Shopware\Core\Framework\Language\LanguageDefinition::class => <<<'EOD'
 The central language associated to all translation tables and dependant on a locale.
 EOD
     ,

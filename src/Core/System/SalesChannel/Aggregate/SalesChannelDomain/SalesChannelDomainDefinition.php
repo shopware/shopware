@@ -13,9 +13,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\UpdatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Language\LanguageDefinition;
 use Shopware\Core\Framework\Snippet\Aggregate\SnippetSet\SnippetSetDefinition;
 use Shopware\Core\System\Currency\CurrencyDefinition;
-use Shopware\Core\System\Language\LanguageDefinition;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 
 class SalesChannelDomainDefinition extends EntityDefinition

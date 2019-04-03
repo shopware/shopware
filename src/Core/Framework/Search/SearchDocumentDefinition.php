@@ -12,7 +12,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
-use Shopware\Core\System\Language\LanguageDefinition;
+use Shopware\Core\Framework\Language\LanguageDefinition;
 
 class SearchDocumentDefinition extends EntityDefinition
 {

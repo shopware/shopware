@@ -155,7 +155,7 @@
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface"/>
             <tag name="shopware.traceable" label="entity.writer"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\FieldSerializerRegistry"/>
-            <argument type="service" id="Shopware\Core\System\Language\LanguageLoader"/>
+            <argument type="service" id="Shopware\Core\Framework\Language\LanguageLoader"/>
         </service>
 
         <service id="Shopware\Core\Framework\DataAbstractionLayer\Write\WriteCommandExtractor">

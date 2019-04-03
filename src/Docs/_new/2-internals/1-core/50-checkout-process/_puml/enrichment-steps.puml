@@ -1,0 +1,27 @@
+@startuml
+
+title Enrichment
+
+control Enrichment
+participant ProductCollector
+participant PromotionCollector
+participant DiscountCollector
+
+group preparation
+    Enrichment -> ProductCollector : prepare
+    Enrichment -> PromotionCollector : prepare
+    Enrichment -> DiscountCollector : prepare
+end
+
+group collect
+    Enrichment -> ProductCollector : collect
+    Enrichment -> PromotionCollector : collect
+    Enrichment -> DiscountCollector : collect
+end
+
+group enrichment
+    Enrichment -> ProductCollector : enrich
+    Enrichment -> PromotionCollector : enrich
+    Enrichment -> DiscountCollector : enrich
+end
+@enduml

@@ -8,6 +8,10 @@ The Shopware Platform is an online eCommerce platform. It provides Services thro
 
 The diagram shows how the Shopware Platform fits into your enterprise. It provides web frontends for management and for commerce through a multitude of sales channels. It comes with a set of user facing interfaces and provides the ability to connect to your own infrastructure and outside services through REST-APIs.
 
+# Philosophy
+
+The central philosophy of the Shopware Platform is called **no waste**. The Shopware Platform is designed to not lightheartedly waste external resources. The Stack behaves predictably and executes in as few steps as possible. We do not wastefully iterate over data more often than necessary, we do not wastefully access the database more than necessary, weo do not wastefully perform costly calculations more than necessary. Apart from the performance perspective we keep the code clear and predictable and provide clear extension points across the different components.
+
 # On the inside
 
 ![Shopware Platform Container](./dist/platform-container.png)

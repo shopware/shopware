@@ -318,7 +318,7 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
         if (\is_a($fieldClass, IntField::class, true)) {
             $property['format'] = 'int64';
         }
-        if (\is_a($fieldClass, IdField::class, true)) {
+        if (\is_a($fieldClass, IdField::class, true) || \is_a($fieldClass, FkField::class, true)) {
             $property['type'] = 'string';
             $property['format'] = 'uuid';
         }

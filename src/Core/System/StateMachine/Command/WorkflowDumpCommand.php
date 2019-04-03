@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\System\Command;
+namespace Shopware\Core\System\StateMachine\Command;
 
 use Shopware\Core\Framework\Context;
 use Shopware\Core\System\StateMachine\StateMachineRegistry;

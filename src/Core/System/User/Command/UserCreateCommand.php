@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\System\Command;
+namespace Shopware\Core\System\User\Command;
 
 use Shopware\Core\Framework\Provisioning\UserProvisioner;
 use Symfony\Component\Console\Command\Command;

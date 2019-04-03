@@ -9,7 +9,7 @@ use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpKernel\Controller\ArgumentValueResolverInterface;
 use Symfony\Component\HttpKernel\ControllerMetadata\ArgumentMetadata;
 
-class CheckoutContextValueResolver implements ArgumentValueResolverInterface
+class SalesChannelContextValueResolver implements ArgumentValueResolverInterface
 {
     /**
      * @var RequestStack

@@ -17,8 +17,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\Demodata\DemodataContext;
 use Shopware\Core\Framework\Demodata\DemodataGeneratorInterface;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\System\SalesChannel\Context\CheckoutContextFactoryInterface;
-use Shopware\Core\System\SalesChannel\Context\CheckoutContextService;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactoryInterface;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 
 class OrderGenerator implements DemodataGeneratorInterface
 {
@@ -28,7 +28,7 @@ class OrderGenerator implements DemodataGeneratorInterface
     private $connection;
 
     /**
-     * @var CheckoutContextFactoryInterface
+     * @var SalesChannelContextFactoryInterface
      */
     private $contextFactory;
 
@@ -49,7 +49,7 @@ class OrderGenerator implements DemodataGeneratorInterface
 
     public function __construct(
         Connection $connection,
-        CheckoutContextFactoryInterface $contextFactory,
+        SalesChannelContextFactoryInterface $contextFactory,
         CartService $cartService,
         OrderConverter $orderConverter,
         EntityWriterInterface $writer
@@ -107,7 +107,7 @@ SQL;
             $customerId = $context->getFaker()->randomElement($customerIds);
 
             $options = [
-                CheckoutContextService::CUSTOMER_ID => $customerId,
+                SalesChannelContextService::CUSTOMER_ID => $customerId,
             ];
 
             if (isset($contexts[$customerId])) {

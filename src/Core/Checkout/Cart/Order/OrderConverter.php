@@ -40,8 +40,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaI
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInterface;
-use Shopware\Core\System\SalesChannel\Context\CheckoutContextFactory;
-use Shopware\Core\System\SalesChannel\Context\CheckoutContextService;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\StateMachine\StateMachineRegistry;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
@@ -61,7 +61,7 @@ class OrderConverter
     protected $customerRepository;
 
     /**
-     * @var CheckoutContextFactory
+     * @var SalesChannelContextFactory
      */
     protected $checkoutContextFactory;
 
@@ -82,7 +82,7 @@ class OrderConverter
 
     public function __construct(
         EntityRepositoryInterface $customerRepository,
-        CheckoutContextFactory $checkoutContextFactory,
+        SalesChannelContextFactory $checkoutContextFactory,
         StateMachineRegistry $stateMachineRegistry,
         EventDispatcherInterface $eventDispatcher,
         NumberRangeValueGeneratorInterface $numberRangeValueGenerator
@@ -245,14 +245,14 @@ class OrderConverter
         }
 
         $options = [
-            CheckoutContextService::CURRENCY_ID => $order->getCurrencyId(),
-            CheckoutContextService::CUSTOMER_ID => $customerId,
-            CheckoutContextService::STATE_ID => $order->getStateId(),
-            CheckoutContextService::CUSTOMER_GROUP_ID => $customerGroupId,
+            SalesChannelContextService::CURRENCY_ID => $order->getCurrencyId(),
+            SalesChannelContextService::CUSTOMER_ID => $customerId,
+            SalesChannelContextService::STATE_ID => $order->getStateId(),
+            SalesChannelContextService::CUSTOMER_GROUP_ID => $customerGroupId,
         ];
 
         if ($order->getTransactions()) {
-            $options[CheckoutContextService::PAYMENT_METHOD_ID] = $order->getTransactions()->first()->getPaymentMethodId();
+            $options[SalesChannelContextService::PAYMENT_METHOD_ID] = $order->getTransactions()->first()->getPaymentMethodId();
         }
 
         return $this->checkoutContextFactory->create(Uuid::randomHex(), $order->getSalesChannelId(), $options);

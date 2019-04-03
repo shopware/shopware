@@ -5,7 +5,7 @@
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
 
     <services>
-        <service id="Shopware\Core\Profiling\Checkout\CheckoutContextServiceProfiler"
+        <service id="SalesChannelContextServiceProfiler"
                  decorates="Shopware\Core\System\SalesChannel\Context\CheckoutContextService"
                  decoration-priority="-1000">
 

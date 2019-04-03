@@ -19,7 +19,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Core\System\Tax\TaxCollection;
 
-class CheckoutContextFactory implements CheckoutContextFactoryInterface
+class SalesChannelContextFactory implements SalesChannelContextFactoryInterface
 {
     /**
      * @var EntityRepositoryInterface
@@ -122,14 +122,14 @@ class CheckoutContextFactory implements CheckoutContextFactoryInterface
         }
 
         //load active language, fallback to shop language
-        if (array_key_exists(CheckoutContextService::LANGUAGE_ID, $options)) {
-            $salesChannel->setLanguageId($options[CheckoutContextService::LANGUAGE_ID]);
+        if (array_key_exists(SalesChannelContextService::LANGUAGE_ID, $options)) {
+            $salesChannel->setLanguageId($options[SalesChannelContextService::LANGUAGE_ID]);
         }
 
         //load active currency, fallback to shop currency
         $currency = $salesChannel->getCurrency();
-        if (array_key_exists(CheckoutContextService::CURRENCY_ID, $options)) {
-            $currency = $this->currencyRepository->search(new Criteria([$options[CheckoutContextService::CURRENCY_ID]]), $context)->get($options[CheckoutContextService::CURRENCY_ID]);
+        if (array_key_exists(SalesChannelContextService::CURRENCY_ID, $options)) {
+            $currency = $this->currencyRepository->search(new Criteria([$options[SalesChannelContextService::CURRENCY_ID]]), $context)->get($options[SalesChannelContextService::CURRENCY_ID]);
         }
 
         //fallback customer group is hard coded to 'EK'
@@ -139,7 +139,7 @@ class CheckoutContextFactory implements CheckoutContextFactoryInterface
 
         // customer
         $customer = null;
-        if (array_key_exists(CheckoutContextService::CUSTOMER_ID, $options)) {
+        if (array_key_exists(SalesChannelContextService::CUSTOMER_ID, $options)) {
             //load logged in customer and set active addresses
             $customer = $this->loadCustomer($options, $context);
         }
@@ -156,8 +156,8 @@ class CheckoutContextFactory implements CheckoutContextFactoryInterface
         }
 
         //customer group switched?
-        if (array_key_exists(CheckoutContextService::CUSTOMER_GROUP_ID, $options)) {
-            $customerGroup = $this->customerGroupRepository->search(new Criteria([$options[CheckoutContextService::CUSTOMER_GROUP_ID]]), $context)->get($options[CheckoutContextService::CUSTOMER_GROUP_ID]);
+        if (array_key_exists(SalesChannelContextService::CUSTOMER_GROUP_ID, $options)) {
+            $customerGroup = $this->customerGroupRepository->search(new Criteria([$options[SalesChannelContextService::CUSTOMER_GROUP_ID]]), $context)->get($options[SalesChannelContextService::CUSTOMER_GROUP_ID]);
         }
 
         //loads tax rules based on active customer group and delivery address
@@ -205,8 +205,8 @@ class CheckoutContextFactory implements CheckoutContextFactoryInterface
     private function getPaymentMethod(array $options, Context $context, SalesChannelEntity $salesChannel, ?CustomerEntity $customer): PaymentMethodEntity
     {
         //payment switched in checkout?
-        if (array_key_exists(CheckoutContextService::PAYMENT_METHOD_ID, $options)) {
-            return $this->paymentMethodRepository->search(new Criteria([$options[CheckoutContextService::PAYMENT_METHOD_ID]]), $context)->get($options[CheckoutContextService::PAYMENT_METHOD_ID]);
+        if (array_key_exists(SalesChannelContextService::PAYMENT_METHOD_ID, $options)) {
+            return $this->paymentMethodRepository->search(new Criteria([$options[SalesChannelContextService::PAYMENT_METHOD_ID]]), $context)->get($options[SalesChannelContextService::PAYMENT_METHOD_ID]);
         }
 
         if (!$customer) {
@@ -224,8 +224,8 @@ class CheckoutContextFactory implements CheckoutContextFactoryInterface
     private function getShippingMethod(array $options, Context $context, SalesChannelEntity $salesChannel): ShippingMethodEntity
     {
         $id = $salesChannel->getShippingMethodId();
-        if (array_key_exists(CheckoutContextService::SHIPPING_METHOD_ID, $options)) {
-            $id = $options[CheckoutContextService::SHIPPING_METHOD_ID];
+        if (array_key_exists(SalesChannelContextService::SHIPPING_METHOD_ID, $options)) {
+            $id = $options[SalesChannelContextService::SHIPPING_METHOD_ID];
         }
 
         return $this->shippingMethodRepository->search(new Criteria([$id]), $context)->get($id);
@@ -298,7 +298,7 @@ class CheckoutContextFactory implements CheckoutContextFactoryInterface
 
     private function loadCustomer(array $options, Context $context): ?CustomerEntity
     {
-        $customerId = $options[CheckoutContextService::CUSTOMER_ID];
+        $customerId = $options[SalesChannelContextService::CUSTOMER_ID];
 
         /** @var CustomerEntity|null $customer */
         $customer = $this->customerRepository->search(new Criteria([$customerId]), $context)->get($customerId);
@@ -307,16 +307,16 @@ class CheckoutContextFactory implements CheckoutContextFactoryInterface
             return null;
         }
 
-        $billingAddressId = $options[CheckoutContextService::BILLING_ADDRESS_ID] ?? null;
-        $shippingAddressId = $options[CheckoutContextService::SHIPPING_ADDRESS_ID] ?? null;
+        $billingAddressId = $options[SalesChannelContextService::BILLING_ADDRESS_ID] ?? null;
+        $shippingAddressId = $options[SalesChannelContextService::SHIPPING_ADDRESS_ID] ?? null;
 
         $addressIds = [];
-        if (array_key_exists(CheckoutContextService::BILLING_ADDRESS_ID, $options)) {
-            $addressIds[] = $options[CheckoutContextService::BILLING_ADDRESS_ID];
+        if (array_key_exists(SalesChannelContextService::BILLING_ADDRESS_ID, $options)) {
+            $addressIds[] = $options[SalesChannelContextService::BILLING_ADDRESS_ID];
         }
 
-        if (array_key_exists(CheckoutContextService::SHIPPING_ADDRESS_ID, $options)) {
-            $addressIds[] = $options[CheckoutContextService::SHIPPING_ADDRESS_ID];
+        if (array_key_exists(SalesChannelContextService::SHIPPING_ADDRESS_ID, $options)) {
+            $addressIds[] = $options[SalesChannelContextService::SHIPPING_ADDRESS_ID];
         }
 
         if (empty($addressIds)) {
@@ -344,9 +344,9 @@ class CheckoutContextFactory implements CheckoutContextFactoryInterface
         SalesChannelEntity $salesChannel
     ): ShippingLocation {
         //allows to preview cart calculation for a specify state for not logged in customers
-        if (array_key_exists(CheckoutContextService::STATE_ID, $options)) {
-            $state = $this->countryStateRepository->search(new Criteria([$options[CheckoutContextService::STATE_ID]]), $context)
-                ->get($options[CheckoutContextService::STATE_ID]);
+        if (array_key_exists(SalesChannelContextService::STATE_ID, $options)) {
+            $state = $this->countryStateRepository->search(new Criteria([$options[SalesChannelContextService::STATE_ID]]), $context)
+                ->get($options[SalesChannelContextService::STATE_ID]);
 
             $country = $this->countryRepository->search(new Criteria([$state->getCountryId()]), $context)
                 ->get($state->getCountryId());
@@ -355,8 +355,8 @@ class CheckoutContextFactory implements CheckoutContextFactoryInterface
         }
 
         $countryId = $salesChannel->getCountryId();
-        if (array_key_exists(CheckoutContextService::COUNTRY_ID, $options)) {
-            $countryId = $options[CheckoutContextService::COUNTRY_ID];
+        if (array_key_exists(SalesChannelContextService::COUNTRY_ID, $options)) {
+            $countryId = $options[SalesChannelContextService::COUNTRY_ID];
         }
 
         $country = $this->countryRepository->search(new Criteria([$countryId]), $context)
@@ -367,7 +367,7 @@ class CheckoutContextFactory implements CheckoutContextFactoryInterface
 
     private function buildLanguageChain(array $sessionOptions, string $defaultLanguageId, array $availableLanguageIds): array
     {
-        $current = $sessionOptions[CheckoutContextService::LANGUAGE_ID] ?? $defaultLanguageId;
+        $current = $sessionOptions[SalesChannelContextService::LANGUAGE_ID] ?? $defaultLanguageId;
 
         //check provided language is part of the available languages
         if (!\in_array($current, $availableLanguageIds, true)) {

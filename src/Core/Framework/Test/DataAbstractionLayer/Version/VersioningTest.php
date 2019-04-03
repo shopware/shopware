@@ -44,8 +44,8 @@ use Shopware\Core\Framework\Struct\ArrayEntity;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\System\SalesChannel\Context\CheckoutContextFactory;
-use Shopware\Core\System\SalesChannel\Context\CheckoutContextService;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\Tax\TaxDefinition;
 
 class VersioningTest extends TestCase
@@ -78,7 +78,7 @@ class VersioningTest extends TestCase
     private $orderRepository;
 
     /**
-     * @var CheckoutContextFactory
+     * @var SalesChannelContextFactory
      */
     private $checkoutContextFactory;
 
@@ -104,7 +104,7 @@ class VersioningTest extends TestCase
         $this->categoryRepository = $this->getContainer()->get('category.repository');
         $this->customerRepository = $this->getContainer()->get('customer.repository');
         $this->orderRepository = $this->getContainer()->get('order.repository');
-        $this->checkoutContextFactory = $this->getContainer()->get(CheckoutContextFactory::class);
+        $this->checkoutContextFactory = $this->getContainer()->get(SalesChannelContextFactory::class);
         $this->processor = $this->getContainer()->get(Processor::class);
         $this->orderPersister = $this->getContainer()->get(OrderPersister::class);
         $this->context = Context::createDefaultContext();
@@ -1682,8 +1682,8 @@ class VersioningTest extends TestCase
             Uuid::randomHex(),
             Defaults::SALES_CHANNEL,
             [
-                CheckoutContextService::CUSTOMER_ID => $customerId,
-                CheckoutContextService::PAYMENT_METHOD_ID => $paymentMethodId,
+                SalesChannelContextService::CUSTOMER_ID => $customerId,
+                SalesChannelContextService::PAYMENT_METHOD_ID => $paymentMethodId,
             ]
         );
         $context->setRuleIds([$ruleId]);

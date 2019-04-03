@@ -4,7 +4,7 @@ namespace Shopware\Core\Framework\Routing;
 
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
-use Shopware\Core\System\SalesChannel\Context\CheckoutContextServiceInterface;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Request as SymfonyRequest;
 
@@ -16,13 +16,13 @@ class SalesChannelRequestContextResolver implements RequestContextResolverInterf
     private $decorated;
 
     /**
-     * @var CheckoutContextServiceInterface
+     * @var SalesChannelContextServiceInterface
      */
     private $contextService;
 
     public function __construct(
         RequestContextResolverInterface $decorated,
-        CheckoutContextServiceInterface $contextService
+        SalesChannelContextServiceInterface $contextService
     ) {
         $this->decorated = $decorated;
         $this->contextService = $contextService;

@@ -26,7 +26,7 @@ use Shopware\Core\Framework\Validation\BuildValidationEvent;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
 use Shopware\Core\Framework\Validation\DataValidationDefinition;
 use Shopware\Core\Framework\Validation\DataValidator;
-use Shopware\Core\System\SalesChannel\Context\CheckoutContextPersister;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
 use Shopware\Core\System\Salutation\SalutationCollection;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
@@ -50,7 +50,7 @@ class AccountService
     private $salutationRepository;
 
     /**
-     * @var CheckoutContextPersister
+     * @var SalesChannelContextPersister
      */
     private $contextPersister;
 
@@ -73,7 +73,7 @@ class AccountService
         EntityRepositoryInterface $customerAddressRepository,
         EntityRepositoryInterface $customerRepository,
         EntityRepositoryInterface $salutationRepository,
-        CheckoutContextPersister $contextPersister,
+        SalesChannelContextPersister $contextPersister,
         EventDispatcherInterface $eventDispatcher,
         DataValidator $validator,
         CustomerValidationService $customerValidationService

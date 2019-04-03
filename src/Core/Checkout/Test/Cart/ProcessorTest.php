@@ -16,14 +16,14 @@ use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\System\SalesChannel\Context\CheckoutContextFactory;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 
 class ProcessorTest extends TestCase
 {
     use KernelTestBehaviour;
 
     /**
-     * @var CheckoutContextFactory
+     * @var SalesChannelContextFactory
      */
     private $factory;
 
@@ -40,7 +40,7 @@ class ProcessorTest extends TestCase
     protected function setUp(): void
     {
         $this->processor = $this->getContainer()->get(Processor::class);
-        $this->factory = $this->getContainer()->get(CheckoutContextFactory::class);
+        $this->factory = $this->getContainer()->get(SalesChannelContextFactory::class);
         $this->context = $this->factory->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
     }
 

@@ -43,8 +43,8 @@ use Shopware\Core\Framework\Test\TestCaseHelper\ExtensionHelper;
 use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
-use Shopware\Core\System\SalesChannel\Context\CheckoutContextFactory;
-use Shopware\Core\System\SalesChannel\Context\CheckoutContextService;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Symfony\Component\HttpFoundation\Response;
 
 class RecalculationServiceTest extends TestCase
@@ -77,13 +77,13 @@ class RecalculationServiceTest extends TestCase
         $this->customerId = $this->createCustomer();
         $shippingMethodId = $this->createShippingMethod($priceRuleId);
         $paymentMethodId = $this->createPaymentMethod($priceRuleId);
-        $this->checkoutContext = $this->getContainer()->get(CheckoutContextFactory::class)->create(
+        $this->checkoutContext = $this->getContainer()->get(SalesChannelContextFactory::class)->create(
             Uuid::randomHex(),
             Defaults::SALES_CHANNEL,
             [
-                CheckoutContextService::CUSTOMER_ID => $this->customerId,
-                CheckoutContextService::SHIPPING_METHOD_ID => $shippingMethodId,
-                CheckoutContextService::PAYMENT_METHOD_ID => $paymentMethodId,
+                SalesChannelContextService::CUSTOMER_ID => $this->customerId,
+                SalesChannelContextService::SHIPPING_METHOD_ID => $shippingMethodId,
+                SalesChannelContextService::PAYMENT_METHOD_ID => $paymentMethodId,
             ]
         );
 

@@ -3,13 +3,13 @@
 namespace Shopware\Core\Profiling\Checkout;
 
 use Shopware\Core\Checkout\CheckoutContext;
-use Shopware\Core\System\SalesChannel\Context\CheckoutContextServiceInterface;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceInterface;
 use Symfony\Component\Stopwatch\Stopwatch;
 
-class CheckoutContextServiceProfiler implements CheckoutContextServiceInterface
+class SalesChannelContextServiceProfiler implements SalesChannelContextServiceInterface
 {
     /**
-     * @var CheckoutContextServiceInterface
+     * @var SalesChannelContextServiceInterface
      */
     private $decorated;
 
@@ -18,7 +18,7 @@ class CheckoutContextServiceProfiler implements CheckoutContextServiceInterface
      */
     private $stopwatch;
 
-    public function __construct(CheckoutContextServiceInterface $decorated, Stopwatch $stopwatch)
+    public function __construct(SalesChannelContextServiceInterface $decorated, Stopwatch $stopwatch)
     {
         $this->decorated = $decorated;
         $this->stopwatch = $stopwatch;

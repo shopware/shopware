@@ -17,9 +17,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
-use Shopware\Core\System\SalesChannel\Context\CheckoutContextFactoryInterface;
-use Shopware\Core\System\SalesChannel\Context\CheckoutContextPersister;
-use Shopware\Core\System\SalesChannel\Context\CheckoutContextService;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactoryInterface;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -40,12 +40,12 @@ class StorefrontCheckoutController extends AbstractController
     private $cartService;
 
     /**
-     * @var CheckoutContextPersister
+     * @var SalesChannelContextPersister
      */
     private $contextPersister;
 
     /**
-     * @var CheckoutContextFactoryInterface
+     * @var SalesChannelContextFactoryInterface
      */
     private $checkoutContextFactory;
 
@@ -67,8 +67,8 @@ class StorefrontCheckoutController extends AbstractController
     public function __construct(
         PaymentService $paymentService,
         CartService $cartService,
-        CheckoutContextPersister $contextPersister,
-        CheckoutContextFactoryInterface $checkoutContextFactory,
+        SalesChannelContextPersister $contextPersister,
+        SalesChannelContextFactoryInterface $checkoutContextFactory,
         Serializer $serializer,
         EntityRepositoryInterface $orderRepository,
         AccountRegistrationService $accountRegisterService
@@ -188,7 +188,7 @@ class StorefrontCheckoutController extends AbstractController
         $checkoutContext = $this->checkoutContextFactory->create(
             $context->getToken(),
             $context->getSalesChannel()->getId(),
-            [CheckoutContextService::CUSTOMER_ID => $customerId]
+            [SalesChannelContextService::CUSTOMER_ID => $customerId]
         );
 
         // todo: load matching rules

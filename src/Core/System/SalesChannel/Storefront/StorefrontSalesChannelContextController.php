@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\System\SalesChannel\Context\Storefront;
+namespace Shopware\Core\System\SalesChannel\Storefront;
 
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Checkout\CheckoutContext;
@@ -12,14 +12,14 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\PlatformRequest;
-use Shopware\Core\System\SalesChannel\Context\CheckoutContextPersister;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Serializer\Serializer;
 
-class StorefrontCheckoutContextController extends AbstractController
+class StorefrontSalesChannelContextController extends AbstractController
 {
     /**
      * @var EntityRepositoryInterface
@@ -37,7 +37,7 @@ class StorefrontCheckoutContextController extends AbstractController
     protected $customerAddressRepository;
 
     /**
-     * @var CheckoutContextPersister
+     * @var SalesChannelContextPersister
      */
     protected $contextPersister;
 
@@ -50,7 +50,7 @@ class StorefrontCheckoutContextController extends AbstractController
         EntityRepositoryInterface $paymentMethodRepository,
         EntityRepositoryInterface $shippingMethodRepository,
         EntityRepositoryInterface $customerAddressRepository,
-        CheckoutContextPersister $contextPersister,
+        SalesChannelContextPersister $contextPersister,
         Serializer $serializer
     ) {
         $this->paymentMethodRepository = $paymentMethodRepository;

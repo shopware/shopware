@@ -15,7 +15,7 @@ use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\PlatformRequest;
-use Shopware\Core\System\SalesChannel\Context\CheckoutContextServiceInterface;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -41,7 +41,7 @@ class StorefrontCustomerController extends AbstractController
     private $accountRegisterService;
 
     /**
-     * @var CheckoutContextServiceInterface
+     * @var SalesChannelContextServiceInterface
      */
     private $checkoutContextService;
 
@@ -58,7 +58,7 @@ class StorefrontCustomerController extends AbstractController
     public function __construct(
         Serializer $serializer,
         AccountService $accountService,
-        CheckoutContextServiceInterface $checkoutContextService,
+        SalesChannelContextServiceInterface $checkoutContextService,
         EntityRepositoryInterface $orderRepository,
         AccountRegistrationService $accountRegisterService,
         AddressService $addressService

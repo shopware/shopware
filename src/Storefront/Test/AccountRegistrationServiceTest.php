@@ -12,7 +12,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
-use Shopware\Core\System\SalesChannel\Context\CheckoutContextFactory;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 
 class AccountRegistrationServiceTest extends TestCase
 {
@@ -37,7 +37,7 @@ class AccountRegistrationServiceTest extends TestCase
     {
         $this->accountRegistrationService = $this->getContainer()->get(AccountRegistrationService::class);
         $this->accountService = $this->getContainer()->get(AccountService::class);
-        $checkoutContextFactory = $this->getContainer()->get(CheckoutContextFactory::class);
+        $checkoutContextFactory = $this->getContainer()->get(SalesChannelContextFactory::class);
 
         $token = Uuid::randomHex();
         $this->checkoutContext = $checkoutContextFactory->create($token, Defaults::SALES_CHANNEL);

@@ -22,8 +22,8 @@ use Shopware\Core\Framework\Routing\InternalRequest;
 use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\System\SalesChannel\Context\CheckoutContextFactory;
-use Shopware\Core\System\SalesChannel\Context\CheckoutContextService;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Storefront\Framework\Page\PageLoaderInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\EventDispatcher\Event;
@@ -181,7 +181,7 @@ trait StorefrontPageTestBehaviour
         ];
 
         return $this->createContext($data, [
-            CheckoutContextService::CUSTOMER_ID => $this->createCustomer()->getId(),
+            SalesChannelContextService::CUSTOMER_ID => $this->createCustomer()->getId(),
         ]);
     }
 
@@ -263,7 +263,7 @@ trait StorefrontPageTestBehaviour
 
     private function createContext(array $salesChannel, array $options): CheckoutContext
     {
-        $factory = $this->getContainer()->get(CheckoutContextFactory::class);
+        $factory = $this->getContainer()->get(SalesChannelContextFactory::class);
         $salesChannelRepository = $this->getContainer()->get('sales_channel.repository');
 
         $salesChannelId = Uuid::randomHex();

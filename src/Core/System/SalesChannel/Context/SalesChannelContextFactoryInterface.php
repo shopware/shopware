@@ -4,7 +4,7 @@ namespace Shopware\Core\System\SalesChannel\Context;
 
 use Shopware\Core\Checkout\CheckoutContext;
 
-interface CheckoutContextFactoryInterface
+interface SalesChannelContextFactoryInterface
 {
     public function create(
         string $token,

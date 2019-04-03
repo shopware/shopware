@@ -12,7 +12,7 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\System\SalesChannel\Context\CheckoutContextFactory;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 
 class StorefrontCmsPageRepositoryTest extends TestCase
 {
@@ -35,7 +35,7 @@ class StorefrontCmsPageRepositoryTest extends TestCase
 
     protected function setUp(): void
     {
-        $contextFactory = $this->getContainer()->get(CheckoutContextFactory::class);
+        $contextFactory = $this->getContainer()->get(SalesChannelContextFactory::class);
 
         $this->pageRepository = $this->getContainer()->get(StorefrontCmsPageRepository::class);
         $this->cmsPageRepository = $this->getContainer()->get('cms_page.repository');

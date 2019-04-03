@@ -20,7 +20,7 @@ use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\System\SalesChannel\Context\CheckoutContextFactory;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 
 class DiscountSurchargeTest extends TestCase
 {
@@ -58,7 +58,7 @@ class DiscountSurchargeTest extends TestCase
     public static $enrichment;
 
     /**
-     * @var CheckoutContextFactory
+     * @var SalesChannelContextFactory
      */
     public static $factory;
 
@@ -75,7 +75,7 @@ class DiscountSurchargeTest extends TestCase
 
         self::$productRepository = $this->getContainer()->get('product.repository');
         self::$discountSurchargeRepository = $this->getContainer()->get('discount_surcharge.repository');
-        self::$factory = $this->getContainer()->get(CheckoutContextFactory::class);
+        self::$factory = $this->getContainer()->get(SalesChannelContextFactory::class);
 
         self::$context = self::$factory->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
 

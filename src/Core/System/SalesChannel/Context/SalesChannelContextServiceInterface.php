@@ -4,7 +4,7 @@ namespace Shopware\Core\System\SalesChannel\Context;
 
 use Shopware\Core\Checkout\CheckoutContext;
 
-interface CheckoutContextServiceInterface
+interface SalesChannelContextServiceInterface
 {
     public function get(string $salesChannelId, string $token, ?string $languageId): CheckoutContext;
 

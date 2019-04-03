@@ -12,7 +12,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\Routing\InternalRequest;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\System\SalesChannel\Context\CheckoutContextFactory;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Storefront\Page\Listing\ListingPage;
 use Shopware\Storefront\Page\Listing\ListingPageLoader;
 use Shopware\Storefront\Page\Product\ProductPageLoader;
@@ -70,7 +70,7 @@ class ProductVisibilityTest extends TestCase
     private $listingPageLoader;
 
     /**
-     * @var CheckoutContextFactory
+     * @var SalesChannelContextFactory
      */
     private $contextFactory;
 
@@ -94,7 +94,7 @@ class ProductVisibilityTest extends TestCase
         $this->productPageLoader = $this->getContainer()->get(ProductPageLoader::class);
 
         $this->productRepository = $this->getContainer()->get('product.repository');
-        $this->contextFactory = $this->getContainer()->get(CheckoutContextFactory::class);
+        $this->contextFactory = $this->getContainer()->get(SalesChannelContextFactory::class);
 
         $this->insertData();
     }

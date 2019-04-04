@@ -216,6 +216,7 @@ export default class Repository {
         const headers = this.buildHeaders(context);
 
         if (entity.isNew()) {
+            Object.assign(changes, { id: entity.id });
             return this.httpClient.post(`${this.route}`, changes, { headers });
         }
 

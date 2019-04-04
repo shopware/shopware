@@ -29,6 +29,9 @@ class ProductPageObject extends GeneralPageObject {
             )
             .fillSelectField('select[name=sw-field--product-taxId]', '19%')
             .fillField('input[name=sw-field--price-gross]', '99')
+            .expect.element(this.elements.productSaveAction).to.be.enabled;
+
+        this.browser
             .click(this.elements.productSaveAction)
             .checkNotification(`Product "${productName}" has been saved successfully.`);
     }

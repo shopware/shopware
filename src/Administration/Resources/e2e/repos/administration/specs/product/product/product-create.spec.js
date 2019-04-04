@@ -38,6 +38,9 @@ module.exports = {
                     searchTerm: global.AdminFixtureService.basicFixture.name
                 }
             )
+            .expect.element('.sw-product-detail__save-action').to.be.enabled;
+
+        browser
             .click('.sw-product-detail__save-action')
             .checkNotification('Product "Marci Darci" has been saved successfully')
             .assert.urlContains('#/sw/product/detail');

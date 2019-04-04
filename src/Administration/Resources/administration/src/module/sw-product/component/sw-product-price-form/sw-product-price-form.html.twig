@@ -29,7 +29,8 @@
                 :price="product.price"
                 :taxRate="productTaxRate"
                 :currency="defaultCurrency"
-                validation="required">
+                validation="required"
+                @calculating="priceIsCalculating">
             </sw-price-field>
         {% endblock %}
 

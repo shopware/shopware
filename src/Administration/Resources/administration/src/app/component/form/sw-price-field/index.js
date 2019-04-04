@@ -85,28 +85,39 @@ export default {
             this.$emit('change', this.price);
         },
 
-        onPriceGrossChange: utils.debounce(function onPriceGrossChange(value) {
+        onPriceGrossChange(value) {
+            if (this.price.linked) {
+                this.$emit('calculating', true);
+                this.onPriceGrossChangeDebounce(value);
+            }
+        },
+
+        onPriceGrossChangeDebounce: utils.debounce(function onPriceGrossChange(value) {
             this.$emit('priceGrossChange', value);
             this.$emit('change', this.price);
 
-            if (this.price.linked) {
-                this.convertGrossToNet(value);
-            }
+            this.convertGrossToNet(value);
         }, 500),
 
-        onPriceNetChange: utils.debounce(function onPriceNetChange(value) {
+        onPriceNetChange(value) {
+            if (this.price.linked) {
+                this.$emit('calculating', true);
+                this.onPriceNetChangeDebounce(value);
+            }
+        },
+
+        onPriceNetChangeDebounce: utils.debounce(function onPriceNetChange(value) {
             this.$emit('priceNetChange', value);
             this.$emit('change', this.price);
 
-            if (this.price.linked) {
-                this.convertNetToGross(value);
-            }
+            this.convertNetToGross(value);
         }, 500),
 
         convertNetToGross(value) {
             if (!value || typeof value !== 'number') {
                 return false;
             }
+            this.$emit('calculating', true);
 
             this.requestTaxValue(value, 'net').then((res) => {
                 this.price.gross = this.price.net + res;
@@ -118,6 +129,7 @@ export default {
             if (!value || typeof value !== 'number') {
                 return false;
             }
+            this.$emit('calculating', true);
 
             this.requestTaxValue(value, 'gross').then((res) => {
                 this.price.net = this.price.gross - res;
@@ -126,6 +138,7 @@ export default {
         },
 
         requestTaxValue(value, outputType) {
+            this.$emit('calculating', true);
             return new Promise((resolve) => {
                 if (!value || typeof value !== 'number' || !this.price[outputType] || !this.taxRate.id || !outputType) {
                     return null;
@@ -137,17 +150,10 @@ export default {
                     output: outputType
                 }).then(({ data }) => {
                     resolve(data.calculatedTaxes[0].tax);
+                    this.$emit('calculating', false);
                 });
                 return true;
             });
-        },
-
-        getMathTaxRate() {
-            if (!this.taxRate || !this.taxRate.taxRate) {
-                return 1;
-            }
-
-            return (this.taxRate.taxRate / 100) + 1;
         }
     }
 };

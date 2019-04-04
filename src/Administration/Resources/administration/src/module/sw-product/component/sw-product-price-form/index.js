@@ -39,5 +39,11 @@ Component.register('sw-product-price-form', {
                 return currency.isDefault;
             });
         }
+    },
+
+    methods: {
+        priceIsCalculating(value) {
+            this.$emit('calculating', value);
+        }
     }
 });

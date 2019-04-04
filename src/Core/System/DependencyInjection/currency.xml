@@ -16,6 +16,9 @@
         <service id="Shopware\Core\System\Currency\CurrencyLoadSubscriber">
             <tag name="kernel.event_subscriber"/>
         </service>
+
+        <service id="Shopware\Core\System\Currency\Rule\CurrencyRule">
+            <tag name="rule.definition"/>
+        </service>
     </services>
 </container>                
-                

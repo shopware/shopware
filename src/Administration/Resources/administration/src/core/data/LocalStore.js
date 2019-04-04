@@ -1,4 +1,4 @@
-import { hasOwnProperty, deepCopyObject } from 'src/core/service/utils/object.utils';
+import { hasOwnProperty } from 'src/core/service/utils/object.utils';
 import types from 'src/core/service/utils/types.utils';
 import utils from 'src/core/service/util.service';
 
@@ -31,11 +31,6 @@ export default class LocalStore {
 
         values.forEach(value => {
             this.store[value[propertyName]] = value;
-            if (this.store[value[propertyName]].meta) {
-                return;
-            }
-
-            this.store[value[propertyName]].meta = { viewData: deepCopyObject(value) };
         });
     }
 
@@ -151,12 +146,7 @@ export default class LocalStore {
 
     create(id = utils.createId()) {
         return {
-            [this.propertyName]: id,
-            meta: {
-                viewData: {
-                    [this.propertyName]: id
-                }
-            }
+            [this.propertyName]: id
         };
     }
 
@@ -174,7 +164,6 @@ export default class LocalStore {
         }
 
         this.store[entity[this.propertyName]] = entity;
-        this.store[entity[this.propertyName]].meta = { viewData: entity };
         return true;
     }
 

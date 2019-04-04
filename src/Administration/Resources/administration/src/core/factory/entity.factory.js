@@ -1,7 +1,7 @@
 /**
  * @module core/factory/entity
  */
-import { hasOwnProperty, deepCopyObject } from 'src/core/service/utils/object.utils';
+import { hasOwnProperty } from 'src/core/service/utils/object.utils';
 
 export default {
     addEntityDefinition,
@@ -71,7 +71,7 @@ function getRawEntityObject(schema, deep = true) {
         obj[property] = getRawPropertyValue(propSchema, deep);
     });
 
-    return Object.assign(obj, { meta: { viewData: deepCopyObject(obj) } });
+    return obj;
 }
 
 /**

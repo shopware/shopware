@@ -41,7 +41,7 @@ module.exports = {
         const customerFixture = global.OrderFixtureService.customerStorefrontFixture;
 
         browser.expect.element(`${page.elements.userMetadata}-user-name`).to.have.text.that.equals(
-            `${salutation.meta.viewData.displayName} ${customerFixture.firstName} ${customerFixture.lastName}`
+            `${salutation.translated.displayName} ${customerFixture.firstName} ${customerFixture.lastName}`
         );
         browser.expect.element('.sw-order-user-card__metadata-price').to.have.text.that.contains(global.ProductFixtureService.productFixture.price.gross);
         browser.expect.element('.sw-order-base__label-sales-channel').to.have.text.that.contains('Storefront API');

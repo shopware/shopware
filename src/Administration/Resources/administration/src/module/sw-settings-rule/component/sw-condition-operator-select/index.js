@@ -41,9 +41,7 @@ Component.register('sw-condition-operator-select', {
                     return;
                 }
 
-                operator.meta = {
-                    viewData: { label: this.$tc(operator.label) }
-                };
+                operator.translated.label = this.$tc(operator.label);
             });
 
             return new LocalStore(operators, 'identifier');

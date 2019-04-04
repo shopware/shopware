@@ -268,7 +268,7 @@ class EntityReaderTest extends TestCase
         /** @var ProductEntity $red */
         $red = $products->get($redId);
 
-        //check red product contains full inheritance of parent in "viewData"
+        //check red product contains full inheritance of parent
         static::assertInstanceOf(ProductEntity::class, $red);
 
         //has no own tax
@@ -300,7 +300,7 @@ class EntityReaderTest extends TestCase
         /** @var ProductEntity $red */
         $red = $products->get($redId);
 
-        //check red product contains full inheritance of parent in "viewData"
+        //check red product contains full inheritance of parent
         static::assertInstanceOf(ProductEntity::class, $red);
 
         //price and tax are inherited by parent

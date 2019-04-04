@@ -100,6 +100,17 @@ export default class Repository {
     }
 
     /**
+     * Detects if the entity or the relations has remaining changes which are not synchronized with the server
+     * @param {Entity} entity
+     * @returns {boolean}
+     */
+    hasChanges(entity) {
+        const { changes, deletionQueue } = this.changesetGenerator.generate(entity);
+
+        return changes !== null || deletionQueue.length > 0;
+    }
+
+    /**
      * Detects changes of all provided entities and send the changes to the server
      *
      * @param {Array} entities

@@ -59,7 +59,8 @@ export const types = {
     isFunction: typesUtils.isFunction,
     isDate: typesUtils.isDate,
     isString: typesUtils.isString,
-    isBoolean: typesUtils.isBoolean
+    isBoolean: typesUtils.isBoolean,
+    isNumber: typesUtils.isNumber
 };
 
 export const fileReader = {

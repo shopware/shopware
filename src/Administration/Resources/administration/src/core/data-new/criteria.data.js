@@ -81,7 +81,7 @@ export default class Criteria {
      * @param {int} mode
      */
     setTotalCountMode(mode) {
-        if (!types.isNumeric(mode)) {
+        if (!types.isNumber(mode)) {
             this.totalCountMode = null;
         }
 

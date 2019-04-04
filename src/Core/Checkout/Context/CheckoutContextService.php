@@ -4,6 +4,7 @@ namespace Shopware\Core\Checkout\Context;
 
 use Psr\Cache\CacheItemInterface;
 use Psr\Cache\CacheItemPoolInterface;
+use Shopware\Core\Checkout\Cart\Storefront\CartService;
 use Shopware\Core\Checkout\CheckoutContext;
 
 class CheckoutContextService implements CheckoutContextServiceInterface
@@ -48,16 +49,23 @@ class CheckoutContextService implements CheckoutContextServiceInterface
      */
     private $contextPersister;
 
+    /**
+     * @var CartService
+     */
+    private $cartService;
+
     public function __construct(
         CacheItemPoolInterface $cache,
         CheckoutContextFactoryInterface $factory,
         CheckoutRuleLoader $ruleLoader,
-        CheckoutContextPersister $contextPersister
+        CheckoutContextPersister $contextPersister,
+        CartService $cartService
     ) {
         $this->cache = $cache;
         $this->factory = $factory;
         $this->ruleLoader = $ruleLoader;
         $this->contextPersister = $contextPersister;
+        $this->cartService = $cartService;
     }
 
     public function get(string $salesChannelId, string $token, ?string $languageId = null): CheckoutContext
@@ -103,9 +111,9 @@ class CheckoutContextService implements CheckoutContextServiceInterface
             $this->cache->save($item);
         }
 
-        $rules = $this->ruleLoader->loadMatchingRules($context, $token);
-        $context->setRuleIds($rules->getIds());
-        $context->lockRules();
+        $result = $this->ruleLoader->loadByToken($context, $token);
+
+        $this->cartService->setCart($result->getCart());
 
         return $context;
     }

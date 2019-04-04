@@ -12,21 +12,19 @@ use Shopware\Core\Checkout\Cart\Exception\LineItemNotFoundException;
 use Shopware\Core\Checkout\Cart\Exception\LineItemNotRemovableException;
 use Shopware\Core\Checkout\Cart\Exception\LineItemNotStackableException;
 use Shopware\Core\Checkout\Cart\Exception\MixedLineItemTypeException;
-use Shopware\Core\Checkout\Cart\Exception\OrderNotFoundException;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Checkout\Cart\Order\OrderPersisterInterface;
 use Shopware\Core\Checkout\Cart\Processor;
 use Shopware\Core\Checkout\CheckoutContext;
+use Shopware\Core\Checkout\Context\CheckoutRuleLoader;
 use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 
 class CartService
 {
     public const STOREFRONT = 'storefront';
+
     /**
      * @var Processor
      */
@@ -53,22 +51,22 @@ class CartService
     private $enrichment;
 
     /**
-     * @var EntityRepositoryInterface
+     * @var CheckoutRuleLoader
      */
-    private $orderRepository;
+    private $checkoutRuleLoader;
 
     public function __construct(
         Enrichment $enrichment,
         Processor $processor,
         CartPersisterInterface $persister,
         OrderPersisterInterface $orderPersister,
-        EntityRepositoryInterface $orderRepository
+        CheckoutRuleLoader $checkoutRuleLoader
     ) {
         $this->processor = $processor;
         $this->persister = $persister;
         $this->orderPersister = $orderPersister;
         $this->enrichment = $enrichment;
-        $this->orderRepository = $orderRepository;
+        $this->checkoutRuleLoader = $checkoutRuleLoader;
     }
 
     public function setCart(Cart $cart): void
@@ -152,9 +150,6 @@ class CartService
         return $this->calculate($cart, $context, new CartBehaviorContext());
     }
 
-    /**
-     * @throws CartTokenNotFoundException
-     */
     public function order(Cart $cart, CheckoutContext $context): string
     {
         $calculatedCart = $this->calculate($cart, $context, new CartBehaviorContext());
@@ -169,41 +164,23 @@ class CartService
         return array_shift($ids);
     }
 
-    public function getOrderByDeepLinkCode(string $orderId, string $deepLinkCode, Context $context)
-    {
-        if ($orderId === '' || \strlen($deepLinkCode) !== 32) {
-            throw new OrderNotFoundException($orderId);
-        }
-
-        $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('id', $orderId));
-        $criteria->addFilter(new EqualsFilter('deepLinkCode', $deepLinkCode));
-
-        $orders = $this->orderRepository->search($criteria, $context);
-        if ($orders->getTotal() === 0) {
-            throw new OrderNotFoundException($orderId);
-        }
-
-        return $orders->first();
-    }
-
     public function recalculate(Cart $cart, CheckoutContext $context): Cart
     {
         return $this->calculate($cart, $context, new CartBehaviorContext());
     }
 
-    public function refresh(Cart $cart, CheckoutContext $context): Cart
-    {
-        $behaviorContext = (new CartBehaviorContext())->setBuildDeliveries(false);
-
-        return $this->calculate($cart, $context, $behaviorContext);
-    }
-
     private function calculate(Cart $cart, CheckoutContext $context, CartBehaviorContext $behaviorContext): Cart
     {
+        // enrich line items with missing data, e.g products which added in the call are enriched with their prices and labels
         $cart = $this->enrichment->enrich($cart, $context);
 
+        // all prices are now prepared for calculation -  starts the cart calculation
         $cart = $this->processor->process($cart, $context, $behaviorContext);
+
+        // validate cart against the context rules
+        $validated = $this->checkoutRuleLoader->loadByCart($context, $cart, $behaviorContext);
+
+        $cart = $validated->getCart();
 
         $this->persister->save($cart, $context);
 

@@ -391,6 +391,7 @@ class RecalculationServiceTest extends TestCase
 
         /** @var CalculatedPrice $newShippingCosts */
         $newShippingCosts = $deliveries->first()->getShippingCosts();
+
         static::assertSame(1, $newShippingCosts->getQuantity());
         static::assertSame(5.0, $newShippingCosts->getUnitPrice());
         static::assertSame(5.0, $newShippingCosts->getTotalPrice());

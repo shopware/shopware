@@ -18,6 +18,7 @@ use Shopware\Core\Checkout\Payment\PaymentService;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -130,9 +131,21 @@ class StorefrontCheckoutController extends AbstractController
     public function getDeepLinkOrder(string $id, Request $request, Context $context): JsonResponse
     {
         $deepLinkCode = (string) $request->query->get('accessCode');
-        $order = $this->cartService->getOrderByDeepLinkCode($id, $deepLinkCode, $context);
 
-        return new JsonResponse($this->serialize($order));
+        if ($id === '' || \strlen($deepLinkCode) !== 32) {
+            throw new OrderNotFoundException($id);
+        }
+
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('id', $id));
+        $criteria->addFilter(new EqualsFilter('deepLinkCode', $deepLinkCode));
+
+        $orders = $this->orderRepository->search($criteria, $context);
+        if ($orders->getTotal() === 0) {
+            throw new OrderNotFoundException($id);
+        }
+
+        return new JsonResponse($this->serialize($orders->first()));
     }
 
     /**

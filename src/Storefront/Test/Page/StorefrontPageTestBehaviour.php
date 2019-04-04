@@ -278,7 +278,7 @@ trait StorefrontPageTestBehaviour
         $ruleLoader = $this->getContainer()->get(CheckoutRuleLoader::class);
         $rulesProperty = ReflectionHelper::getProperty(CheckoutRuleLoader::class, 'rules');
         $rulesProperty->setValue($ruleLoader, null);
-        $ruleLoader->loadMatchingRules($context, $context->getToken());
+        $ruleLoader->loadByToken($context, $context->getToken());
 
         return $context;
     }

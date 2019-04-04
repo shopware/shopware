@@ -20,7 +20,8 @@ Component.register('sw-product-detail', {
             manufacturers: [],
             currencies: [],
             taxes: [],
-            attributeSets: []
+            attributeSets: [],
+            priceIsCalculating: false
         };
     },
 
@@ -47,6 +48,10 @@ Component.register('sw-product-detail', {
 
         attributeSetStore() {
             return State.getStore('attribute_set');
+        },
+
+        disableSaving() {
+            return this.product.isLoading || this.priceIsCalculating;
         }
     },
 
@@ -68,6 +73,10 @@ Component.register('sw-product-detail', {
             }
 
             this.$root.$on('sw-product-media-form-open-sidebar', this.openMediaSidebar);
+        },
+
+        updatePriceIsCalculating(value) {
+            this.priceIsCalculating = value;
         },
 
         loadEntityData() {

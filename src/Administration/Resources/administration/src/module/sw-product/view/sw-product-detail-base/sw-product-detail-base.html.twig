@@ -37,7 +37,10 @@
         {% block sw_product_detail_base_price_card %}
             <sw-card :title="$tc('sw-product.detailBase.cardTitlePrices')" :isLoading="product.isLoading">
                 {% block sw_product_detail_base_price_form %}
-                    <sw-product-price-form :product="product" :taxRates="taxes" :currencies="currencies"></sw-product-price-form>
+                    <sw-product-price-form :product="product"
+                                           :taxRates="taxes"
+                                           :currencies="currencies"
+                                           @calculating="priceIsCalculating"></sw-product-price-form>
                 {% endblock %}
 
                 {% block sw_product_detail_base_advanced_prices_link %}

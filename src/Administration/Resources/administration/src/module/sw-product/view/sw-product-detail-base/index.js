@@ -29,5 +29,11 @@ Component.register('sw-product-detail-base', {
             required: true,
             default: []
         }
+    },
+
+    methods: {
+        priceIsCalculating(value) {
+            this.$emit('calculating', value);
+        }
     }
 });

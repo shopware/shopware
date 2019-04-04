@@ -94,7 +94,7 @@ class CreateMigrationCommand extends Command
         $path = rtrim($directory, '/') . '/Migration' . $timestamp . $name . '.php';
         $file = fopen($path, 'wb');
 
-        $template = file_get_contents(dirname(__DIR__) . '/Migration/Template/MigrationTemplate.txt');
+        $template = file_get_contents(dirname(__DIR__) . '/Template/MigrationTemplate.txt');
         $params = [
             '%%namespace%%' => $namespace,
             '%%timestamp%%' => $timestamp,

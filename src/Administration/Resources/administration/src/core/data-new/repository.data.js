@@ -88,7 +88,7 @@ export default class Repository {
      * @returns {Promise<any>}
      */
     save(entity, context) {
-        const [changes, deletionQueue] = this.changesetGenerator.generate(entity);
+        const { changes, deletionQueue } = this.changesetGenerator.generate(entity);
 
         return new Promise((resolve) => {
             this.sendDeletions(deletionQueue, context).then(() => {
@@ -97,6 +97,25 @@ export default class Repository {
                 });
             });
         });
+    }
+
+    /**
+     * Detects changes of all provided entities and send the changes to the server
+     *
+     * @param {Array} entities
+     * @param {Object} context
+     * @returns {Promise<any[]>}
+     */
+    sync(entities, context) {
+        const promises = [];
+
+        Object.keys(entities).forEach((key) => {
+            const entity = entities[key];
+
+            promises.push(this.save(entity, context));
+        });
+
+        return Promise.all(promises);
     }
 
     /**

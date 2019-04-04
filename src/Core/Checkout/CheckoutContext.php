@@ -3,7 +3,6 @@
 namespace Shopware\Core\Checkout;
 
 use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingLocation;
-use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupEntity;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\DiscountSurcharge\Exception\ContextRulesLockedException;
@@ -83,13 +82,6 @@ class CheckoutContext extends Struct
      * @var bool
      */
     protected $rulesLocked = false;
-
-    /**
-     * @see CartPrice::TAX_STATE_GROSS, CartPrice::TAX_STATE_NET, CartPrice::TAX_STATE_FREE
-     *
-     * @var string
-     */
-    protected $taxState = CartPrice::TAX_STATE_GROSS;
 
     /**
      * @var Context
@@ -200,11 +192,11 @@ class CheckoutContext extends Struct
 
     public function getTaxState(): string
     {
-        return $this->taxState;
+        return $this->context->getTaxState();
     }
 
     public function setTaxState(string $taxState): void
     {
-        $this->taxState = $taxState;
+        $this->context->setTaxState($taxState);
     }
 }

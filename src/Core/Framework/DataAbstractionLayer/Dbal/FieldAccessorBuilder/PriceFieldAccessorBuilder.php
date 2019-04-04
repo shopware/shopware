@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Dbal\FieldAccessorBuilder;
 
+use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\PriceField;
@@ -14,12 +15,17 @@ class PriceFieldAccessorBuilder implements FieldAccessorBuilderInterface
             return null;
         }
 
+        $jsonAccessor = 'net';
+        if ($context->getTaxState() === CartPrice::TAX_STATE_GROSS) {
+            $jsonAccessor = 'gross';
+        }
+
         /*
          * It's not possible to cast to float/double, only decimal. But decimal has a fixed precision,
          * that would possibly result in rounding errors.
          *
          * We can indirectly cast to float by adding 0.0
          */
-        return sprintf('(JSON_UNQUOTE(JSON_EXTRACT(`%s`.`%s`, "$.gross")) + 0.0)', $root, $field->getStorageName());
+        return sprintf('(JSON_UNQUOTE(JSON_EXTRACT(`%s`.`%s`, "$.%s")) + 0.0)', $root, $field->getStorageName(), $jsonAccessor);
     }
 }

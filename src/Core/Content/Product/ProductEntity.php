@@ -775,7 +775,7 @@ class ProductEntity extends Entity
             $quantity = $rule->getQuantityEnd() ?? $rule->getQuantityStart();
 
             return new QuantityPriceDefinition(
-                $rule->getPrice()->getGross(),
+                $rule->getPrice()->getPriceForContext($context),
                 $taxRules,
                 $context->getCurrencyPrecision(),
                 $quantity,
@@ -789,7 +789,7 @@ class ProductEntity extends Entity
     public function getPriceDefinition(Context $context): QuantityPriceDefinition
     {
         return new QuantityPriceDefinition(
-            $this->getPrice()->getGross(),
+            $this->getPrice()->getPriceForContext($context),
             $this->getTaxRuleCollection(),
             $context->getCurrencyPrecision(),
             1,
@@ -815,7 +815,7 @@ class ProductEntity extends Entity
 
         if (!$prices) {
             return new QuantityPriceDefinition(
-                $this->getPrice()->getGross(),
+                $this->getPrice()->getPriceForContext($context),
                 $taxRules,
                 $context->getCurrencyPrecision(),
                 1,
@@ -825,7 +825,7 @@ class ProductEntity extends Entity
 
         if ($prices->count() <= 0) {
             return new QuantityPriceDefinition(
-                $this->getPrice()->getGross(),
+                $this->getPrice()->getPriceForContext($context),
                 $taxRules,
                 $context->getCurrencyPrecision(),
                 1,
@@ -837,7 +837,7 @@ class ProductEntity extends Entity
         $price = $prices->first();
 
         return new QuantityPriceDefinition(
-            $price->getPrice()->getGross(),
+            $price->getPrice()->getPriceForContext($context),
             $taxRules,
             $context->getCurrencyPrecision(),
             1,
@@ -858,7 +858,7 @@ class ProductEntity extends Entity
 
         if (!$prices) {
             return new QuantityPriceDefinition(
-                $this->getPrice()->getGross(),
+                $this->getPrice()->getPriceForContext($context),
                 $taxRules,
                 $context->getCurrencyPrecision(),
                 $quantity,
@@ -869,7 +869,7 @@ class ProductEntity extends Entity
         $price = $prices->getQuantityPrice($quantity);
 
         return new QuantityPriceDefinition(
-            $price->getPrice()->getGross(),
+            $price->getPrice()->getPriceForContext($context),
             $taxRules,
             $context->getCurrencyPrecision(),
             $quantity,

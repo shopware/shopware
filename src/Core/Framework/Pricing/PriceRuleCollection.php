@@ -57,13 +57,6 @@ class PriceRuleCollection extends EntityCollection
         return null;
     }
 
-    public function sortByPriceAscending(): void
-    {
-        $this->sort(function (PriceRuleEntity $a, PriceRuleEntity $b) {
-            return $a->getPrice()->getGross() <=> $b->getPrice()->getGross();
-        });
-    }
-
     protected function getExpectedClass(): string
     {
         return PriceRuleEntity::class;

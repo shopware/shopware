@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework;
 
+use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context\AdminApiSource;
 use Shopware\Core\Framework\Context\ContextSource;
@@ -59,6 +60,13 @@ class Context extends Struct
      */
     protected $considerInheritance;
 
+    /**
+     * @see CartPrice::TAX_STATE_GROSS, CartPrice::TAX_STATE_NET, CartPrice::TAX_STATE_FREE
+     *
+     * @var string
+     */
+    protected $taxState = CartPrice::TAX_STATE_GROSS;
+
     public function __construct(
         ContextSource $source,
         array $rules = [],
@@ -67,7 +75,8 @@ class Context extends Struct
         string $versionId = Defaults::LIVE_VERSION,
         float $currencyFactor = 1.0,
         int $currencyPrecision = 2,
-        bool $considerInheritance = false
+        bool $considerInheritance = false,
+        string $taxState = CartPrice::TAX_STATE_GROSS
     ) {
         $this->source = $source;
 
@@ -87,6 +96,7 @@ class Context extends Struct
         $this->languageIdChain = array_keys(array_flip(array_filter($languageIdChain)));
         $this->currencyPrecision = $currencyPrecision;
         $this->considerInheritance = $considerInheritance;
+        $this->taxState = $taxState;
     }
 
     public static function createDefaultContext(?ContextSource $source = null): self
@@ -140,7 +150,9 @@ class Context extends Struct
             $this->languageIdChain,
             $versionId,
             $this->currencyFactor,
-            $this->currencyPrecision
+            $this->currencyPrecision,
+            $this->considerInheritance,
+            $this->taxState
         );
 
         foreach ($this->getExtensions() as $key => $extension) {
@@ -196,5 +208,15 @@ class Context extends Struct
     public function setConsiderInheritance(bool $considerInheritance): void
     {
         $this->considerInheritance = $considerInheritance;
+    }
+
+    public function getTaxState(): string
+    {
+        return $this->taxState;
+    }
+
+    public function setTaxState(string $taxState): void
+    {
+        $this->taxState = $taxState;
     }
 }

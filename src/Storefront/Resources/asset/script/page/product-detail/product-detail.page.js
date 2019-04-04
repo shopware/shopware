@@ -1,5 +1,6 @@
-import GallerySlider from 'asset/script/page/product-detail/gallery-slider.page';
+import PluginManager from 'asset/script/helper/plugin/plugin.manager';
+import ZoomModalPlugin from 'asset/script/plugin/zoom-modal/zoom-modal.plugin';
+import MagnifierPlugin from 'asset/script/plugin/magnifier/magnifier.plugin';
 
-
-// Product Detail - Gallery Slider
-new GallerySlider();
+PluginManager.register('ZoomModal', ZoomModalPlugin, '[data-zoom-modal="true"]');
+PluginManager.register('Magnifier', MagnifierPlugin, '[data-magnify-lens="true"]');

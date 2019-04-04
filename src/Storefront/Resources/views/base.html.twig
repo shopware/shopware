@@ -115,6 +115,20 @@
                     "frontend.checkout.finish.page": '{{ path('frontend.checkout.finish.page') }}',
                     "widgets.checkout.info": '{{ path('widgets.checkout.info') }}',
                     "widgets.menu.offcanvas": '{{ path('widgets.menu.offcanvas') }}',
+                    "widgets.detail.images": '{{ path('widgets.detail.images') }}'
+                };
+            </script>
+        {% endblock %}
+
+        {% block base_script_breakpoints %}
+            {# Register the available viewport breakpoints the window.breakpoints object #}
+            <script>
+                window.breakpoints = {
+                    xs: 0,
+                    sm: 576,
+                    md: 768,
+                    lg: 992,
+                    xl: 1200,
                 };
             </script>
         {% endblock %}

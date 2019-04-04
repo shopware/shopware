@@ -252,7 +252,7 @@ class PluginManagerSingleton {
         // get current plugin
         const extendFrom = this._registry.get(fromName);
         const parentPlugin = extendFrom.get('class');
-        const mergedOptions = deepmerge(parentPlugin.options, options);
+        const mergedOptions = deepmerge(parentPlugin.options || {}, options || {});
 
         // Create plugin
         class InternallyExtendedPlugin extends parentPlugin {

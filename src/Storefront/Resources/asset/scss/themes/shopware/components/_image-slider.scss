@@ -1,6 +1,6 @@
 
-.gallery-controls-prev,
-.gallery-controls-next {
+.image-slider-controls-prev,
+.image-slider-controls-next {
     background-clip: padding-box;
     background: rgba($white, 0.5);
     border: 1px solid rgba($white, 0.5);
@@ -25,7 +25,7 @@
     }
 }
 
-.gallery-controls-prev {
+.image-slider-controls-prev {
     left: 15px;
     border-top-left-radius: 0;
     border-top-right-radius: 3px;
@@ -33,7 +33,7 @@
     border-bottom-left-radius: 0;
 }
 
-.gallery-controls-next {
+.image-slider-controls-next {
     right: 15px;
     border-top-left-radius: 3px;
     border-top-right-radius: 0;

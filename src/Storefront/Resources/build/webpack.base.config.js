@@ -15,7 +15,12 @@ const babelrc = require('../.babelrc');
  * @return {string}
  */
 function getPath(dir) {
-    return path.join(__dirname, '..', dir);
+    const basePath = path.join(__dirname, '..');
+    if (dir) {
+        return path.join(basePath, dir);
+    }
+
+    return basePath;
 }
 
 /**

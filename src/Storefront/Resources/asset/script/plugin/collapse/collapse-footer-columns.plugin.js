@@ -1,4 +1,4 @@
-import Plugin from 'asset/script/helper/plugin/plugin.class'
+import Plugin from 'asset/script/helper/plugin/plugin.class';
 import DomAccess from 'asset/script/helper/dom-access.helper';
 import ViewportDetection from 'asset/script/helper/viewport-detection.helper';
 import $ from 'jquery';
@@ -58,11 +58,11 @@ export default class CollapseFooterColumnsPlugin extends Plugin {
 
         $(collapse).collapse('toggle');
 
-        $(collapse).on('shown.bs.collapse', function() {
+        $(collapse).on('shown.bs.collapse', function () {
             trigger.classList.add(COLLAPSE_SHOW_CLASS);
         });
 
-        $(collapse).on('hidden.bs.collapse', function() {
+        $(collapse).on('hidden.bs.collapse', function () {
             trigger.classList.remove(COLLAPSE_SHOW_CLASS);
         });
     }

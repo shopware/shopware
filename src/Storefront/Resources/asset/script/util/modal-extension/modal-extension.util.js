@@ -71,18 +71,19 @@ export default class ModalExtensionUtil {
         client.get(url, (response) => {
 
             // append the temporarily created ajax modal content to the end of the DOM
-            const wrapper = document.body.insertAdjacentElement('beforeend', this._getElementFromResponse(response));
-            const modal = DomAccess.querySelector(wrapper, target);
+            const pseudoModal = this._createPseudoModal(response);
+            document.body.insertAdjacentElement('beforeend', pseudoModal);
+            const modal = DomAccess.querySelector(pseudoModal, target);
+
+            // register on modal hidden event to remove the
+            $(modal).on('hidden.bs.modal', () => {
+                // remove ajax modal pseudoModal
+                pseudoModal.remove();
+            });
 
             // show modal and remove the ButtonLoadingIndicator
             $(modal).modal('show');
             indicator.remove();
-
-            // register on modal hidden event to remove the
-            $(modal).on('hidden.bs.modal', () => {
-                // remove ajax modal wrapper
-                wrapper.remove();
-            });
         });
 
     }
@@ -90,14 +91,20 @@ export default class ModalExtensionUtil {
     /**
      * Prepare a temporarily needed wrapper div
      * to insert the response's html content into
-     * @param response
+     *
+     * @param {string} content
      * @returns {HTMLElement}
      * @private
      */
-    _getElementFromResponse(response) {
-        const element = document.createElement('div');
-        element.classList.add(MODAL_AJAX_CLASS);
-        element.innerHTML = response;
+    _createPseudoModal(content) {
+        let element = document.querySelector(`.${MODAL_AJAX_CLASS}`);
+
+        if (!element) {
+            element = document.createElement('div');
+            element.classList.add(MODAL_AJAX_CLASS);
+        }
+
+        element.innerHTML = content;
 
         return element;
     }

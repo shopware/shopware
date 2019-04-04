@@ -25,10 +25,10 @@ export default class OffCanvasAccountMenu extends Plugin{
     }
 
     /**
-     * Register events to handle opening the account menu OffCanvas
-     * by clicking a defined trigger selector
-     * @private
-     */
+   * Register events to handle opening the account menu OffCanvas
+   * by clicking a defined trigger selector
+   * @private
+   */
     _registerEventListeners() {
         const event = (DeviceDetection.isTouchDevice()) ? 'touchstart' : 'click';
         this.el.addEventListener(event, this._onClickAccountMenuTrigger.bind(this, this.el));
@@ -38,11 +38,11 @@ export default class OffCanvasAccountMenu extends Plugin{
 
 
     /**
-     * On clicking the trigger item the account menu OffCanvas shall open
-     * and the dropdown content may be fetched and shown inside the OffCanvas.
-     * @param trigger
-     * @private
-     */
+   * On clicking the trigger item the account menu OffCanvas shall open
+   * and the dropdown content may be fetched and shown inside the OffCanvas.
+   * @param trigger
+   * @private
+   */
     _onClickAccountMenuTrigger(trigger) {
 
         // if the current viewport is not allowed return
@@ -54,10 +54,10 @@ export default class OffCanvasAccountMenu extends Plugin{
     }
 
     /**
-     * If viewport has changed verify whether to close
-     * an already open account menu offcanvas or not
-     * @private
-     */
+   * If viewport has changed verify whether to close
+   * an already open account menu offcanvas or not
+   * @private
+   */
     _onViewportHasChanged() {
         if (this._isInAllowedViewports() === false && OffCanvas.exists()) {
             OffCanvas.close();
@@ -65,10 +65,10 @@ export default class OffCanvasAccountMenu extends Plugin{
     }
 
     /**
-     * Returns if the browser is in the allowed viewports
-     * @returns {boolean}
-     * @private
-     */
+   * Returns if the browser is in the allowed viewports
+   * @returns {boolean}
+   * @private
+   */
     _isInAllowedViewports() {
         return (ViewportDetection.isXS() || ViewportDetection.isSM());
     }

@@ -1,46 +1,48 @@
-.gallery-thumbnails {
+.image-slider-thumbnails {
     list-style: none;
     padding: 0;
     text-align: center;
 }
 
-.gallery-thumbnails-item {
-    border: 1px solid $border-color;
-    border-radius: $spacer-xs;
+.image-slider-thumbnails-item {
     cursor: pointer;
     display: inline-block;
     height: 80px;
-    margin-right: $spacer-xs;
+    padding: $spacer-xs;
     position: relative;
     width: 80px;
+}
 
-    &:last-child {
-        margin-right: 0;
-    }
+.image-slider-thumbnails-item-inner {
+    border: 1px solid $border-color;
+    width: 100%;
+    height: 100%;
+    padding: $spacer-xs;
+    display: flex;
+    align-items: center;
+    align-content: center;
+}
 
+.image-slider-thumbnails-item {
     &.tns-nav-active {
-        border-color: $primary;
+        .image-slider-thumbnails-item-inner {
+            border-color: $primary;
+        }
     }
 }
 
-.gallery-thumbnails-image,
-.gallery-slider-image {
-    bottom: 0;
-    left: 0;
+.image-slider-thumbnails-image,
+.image-slider-image {
     margin: auto;
     max-height: 100%;
     max-width: 100%;
-    padding: $spacer-xs;
-    position: absolute;
-    right: 0;
-    top: 0;
 }
 
-.gallery-slider {
+.image-slider {
     height: 200px;
 }
 
-.gallery-slider-item {
+.image-slider-item {
     backface-visibility: hidden;
     cursor: default;
     display: inline-block;
@@ -50,18 +52,18 @@
     width: 100%;
 }
 
-.gallery-slider-image {
+.image-slider-image {
     padding: 0;
 }
 
-.gallery-controls {
+.image-slider-controls {
     list-style: none;
     margin: 0;
     padding: 0;
 }
 
-.gallery-controls-prev,
-.gallery-controls-next {
+.image-slider-controls-prev,
+.image-slider-controls-next {
     &,
     &:focus {
         color: $gray-600;
@@ -73,34 +75,24 @@
 }
 
 @include media-breakpoint-up(md) {
-    .gallery-slider {
+    .image-slider {
         height: 400px;
     }
 }
 
 @include media-breakpoint-up(lg) {
-    .gallery-thumbnails {
+    .image-slider-thumbnails {
         text-align: left;
-
-        .gallery-thumbnails-item {
-            margin-right: $spacer;
-        }
     }
 
-    .gallery-slider {
+    .image-slider {
         height: 430px;
     }
 }
 
 @include media-breakpoint-up(xl) {
-    .gallery-thumbnails-item {
+    .image-slider-thumbnails-item {
         display: block;
-        margin-bottom: $spacer;
-        margin-right: 0;
         width: auto;
-    }
-
-    .gallery-slider {
-        margin-bottom: 0;
     }
 }

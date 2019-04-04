@@ -1,4 +1,4 @@
-import Plugin from 'asset/script/helper/plugin/plugin.class'
+import Plugin from 'asset/script/helper/plugin/plugin.class';
 import DomAccess from 'asset/script/helper/dom-access.helper';
 import HttpClient from 'asset/script/service/http-client.service';
 import OffCanvas from 'asset/script/plugin/off-canvas/offcanvas.plugin';

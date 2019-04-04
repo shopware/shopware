@@ -1,3 +1,5 @@
+import StringHelper from 'asset/script/helper/string.helper';
+
 export default class DomAccess {
 
     /**
@@ -54,6 +56,26 @@ export default class DomAccess {
     }
 
     /**
+     * Returns the value of a given elements dataset entry
+     *
+     * @param {Element|EventTarget} element
+     * @param {string} key
+     * @param {boolean} strict
+     * @returns {*|this|string}
+     */
+    static getDataAttribute(element, key, strict = true) {
+        const keyWithoutData = key.replace(/^data(|-)/, '');
+        const parsedKey = StringHelper.toLowerCamelCase(keyWithoutData, '-');
+        const attribute = element.dataset[parsedKey];
+
+        if (strict && typeof attribute === 'undefined') {
+            throw new Error(`The required data attribute "${key}" does not exist on ${element}!`);
+        }
+
+        return StringHelper.parsePrimitive(attribute);
+    }
+
+    /**
      * Returns the selected element of a defined parent node
      * @param {Element|EventTarget} parentNode
      * @param {string} selector
@@ -72,5 +94,30 @@ export default class DomAccess {
         }
 
         return element;
+    }
+
+    /**
+     * Returns the selected elements of a defined parent node
+     *
+     * @param {Element|EventTarget} parentNode
+     * @param {string} selector
+     * @param {boolean} strict
+     * @returns {NodeList|false}
+     */
+    static querySelectorAll(parentNode, selector, strict = true) {
+        if (strict && !DomAccess.isNode(parentNode)) {
+            throw new Error('The parent node is not a valid HTML Node!');
+        }
+
+        let elements = parentNode.querySelectorAll(selector);
+        if (elements.length === 0) {
+            elements = false;
+        }
+
+        if (strict && elements === false) {
+            throw new Error(`At least one item of "${selector}" must exist in parent node!`);
+        }
+
+        return elements;
     }
 }

@@ -47,6 +47,7 @@ import DifferentShippingPlugin from 'asset/script/plugin/register/different-ship
 import FormValidationPlugin from 'asset/script/plugin/register/form-validation.plugin';
 import FormSubmitLoaderPlugin from 'asset/script/plugin/forms/from-submit-loader.plugin';
 import OffCanvasTabsPlugin from 'asset/script/plugin/off-canvas-tabs/offcanvas-tabs.plugin';
+import ImageSliderPlugin from 'asset/script/plugin/image-slider/image-slider.plugin';
 
 /*
 import static plugins
@@ -97,6 +98,7 @@ PluginManager.register('FormValidation', FormValidationPlugin, '[data-form-valid
 PluginManager.register('FormSubmitLoader', FormSubmitLoaderPlugin, '[data-form-submit-loader]');
 PluginManager.register('AccountMenu', AccountMenuPlugin, '[data-offcanvas-account-menu]');
 PluginManager.register('OffCanvasTabs', OffCanvasTabsPlugin, '[data-offcanvas-tab]');
+PluginManager.register('ImageSlider', ImageSliderPlugin, '[data-image-slider="true"]');
 
 /*
 pages

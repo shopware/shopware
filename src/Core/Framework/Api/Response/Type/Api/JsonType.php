@@ -42,7 +42,7 @@ class JsonType extends JsonFactoryBase
         $decoded = $this->serializer->normalize($entity);
 
         $response = [
-            'data' => self::format($decoded),
+            'data' => $decoded,
         ];
 
         return new JsonResponse($response, JsonResponse::HTTP_OK, $headers);
@@ -53,8 +53,8 @@ class JsonType extends JsonFactoryBase
         $decoded = $this->serializer->normalize($searchResult);
 
         $response = [
-            'total' => $decoded['total'],
-            'data' => self::format($decoded),
+            'total' => $searchResult->getTotal(),
+            'data' => $decoded,
         ];
 
         $aggregations = [];
@@ -65,30 +65,6 @@ class JsonType extends JsonFactoryBase
         $response['aggregations'] = $aggregations;
 
         return new JsonResponse($response);
-    }
-
-    public static function format($decoded)
-    {
-        if (!\is_array($decoded) || empty($decoded)) {
-            return $decoded;
-        }
-
-        if (array_key_exists('_class', $decoded) && preg_match('/(Collection|SearchResult)$/', $decoded['_class'])) {
-            $elements = [];
-            foreach ($decoded['elements'] as $element) {
-                $elements[] = self::format($element);
-            }
-
-            return $elements;
-        }
-
-        unset($decoded['_class']);
-
-        foreach ($decoded as $key => $value) {
-            $decoded[$key] = self::format($value);
-        }
-
-        return $decoded;
     }
 
     protected function getApiBaseUrl(Request $request): string

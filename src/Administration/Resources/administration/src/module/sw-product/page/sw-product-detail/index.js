@@ -124,7 +124,7 @@ Component.register('sw-product-detail', {
         },
 
         onSave() {
-            const productName = this.product.name || this.product.meta.viewData.name;
+            const productName = this.product.name || this.product.translated.name;
             const titleSaveSuccess = this.$tc('sw-product.detail.titleSaveSuccess');
             const messageSaveSuccess = this.$tc('sw-product.detail.messageSaveSuccess', 0, { name: productName });
             const titleSaveError = this.$tc('global.notification.notificationSaveErrorTitle');

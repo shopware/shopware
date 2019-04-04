@@ -8,7 +8,6 @@ use Shopware\Core\Framework\Api\Exception\NoEntityClonedException;
 use Shopware\Core\Framework\Api\Exception\ResourceNotFoundException;
 use Shopware\Core\Framework\Api\OAuth\Scope\WriteScope;
 use Shopware\Core\Framework\Api\Response\ResponseFactoryInterface;
-use Shopware\Core\Framework\Api\Response\Type\Api\JsonType;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
@@ -95,7 +94,7 @@ class ApiController extends AbstractController
 
         $result = json_decode(json_encode($result), true);
 
-        return new JsonResponse(['data' => JsonType::format($result)]);
+        return new JsonResponse(['data' => $result]);
     }
 
     /**

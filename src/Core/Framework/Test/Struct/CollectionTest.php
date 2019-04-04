@@ -170,11 +170,7 @@ class CollectionTest extends TestCase
         $elements = ['a', 'b'];
         $collection = new TestCollection();
         static::assertEquals(
-            [
-                'elements' => [],
-                'extensions' => [],
-                '_class' => TestCollection::class,
-            ],
+            [],
             $collection->jsonSerialize()
         );
 
@@ -182,11 +178,7 @@ class CollectionTest extends TestCase
         $collection->add('b');
 
         static::assertEquals(
-            [
-                'elements' => $elements,
-                'extensions' => [],
-                '_class' => TestCollection::class,
-            ],
+            $elements,
             $collection->jsonSerialize()
         );
     }

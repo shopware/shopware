@@ -81,6 +81,11 @@ class Criteria extends Struct
      */
     protected $states = [];
 
+    /**
+     * @var bool
+     */
+    protected $inherited = false;
+
     public function __construct(array $ids = [])
     {
         if (\count($ids) > \count(array_filter($ids))) {

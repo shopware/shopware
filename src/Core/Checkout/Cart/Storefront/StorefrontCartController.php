@@ -13,7 +13,6 @@ use Shopware\Core\Checkout\Cart\Exception\MixedLineItemTypeException;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Content\Product\Cart\ProductCollector;
-use Shopware\Core\Framework\Api\Response\Type\Storefront\JsonType;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -253,7 +252,7 @@ class StorefrontCartController extends AbstractController
         $decoded = $this->serializer->normalize($data);
 
         return [
-            'data' => JsonType::format($decoded),
+            'data' => $decoded,
         ];
     }
 }

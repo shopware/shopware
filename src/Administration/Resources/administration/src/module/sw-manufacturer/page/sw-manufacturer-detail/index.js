@@ -119,7 +119,7 @@ Component.register('sw-manufacturer-detail', {
         },
 
         onSave() {
-            const manufacturerName = this.manufacturer.name || this.manufacturer.meta.viewData.name;
+            const manufacturerName = this.manufacturer.name || this.manufacturer.translated.name;
             const titleSaveSuccess = this.$tc('sw-manufacturer.detail.titleSaveSuccess');
             const messageSaveSuccess = this.$tc('sw-manufacturer.detail.messageSaveSuccess', 0, { name: manufacturerName });
             const titleSaveError = this.$tc('global.notification.notificationSaveErrorTitle');

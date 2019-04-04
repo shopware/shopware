@@ -41,7 +41,7 @@ class SearchKeywordAssociationFieldResolver implements FieldResolverInterface
         $query->addState($alias);
 
         $source = EntityDefinitionQueryHelper::escape($root) . '.' . EntityDefinitionQueryHelper::escape($field->getLocalField());
-        if ($field->is(Inherited::class)) {
+        if ($field->is(Inherited::class) && $context->considerInheritance()) {
             $source = EntityDefinitionQueryHelper::escape($root) . '.' . EntityDefinitionQueryHelper::escape($field->getPropertyName());
         }
 

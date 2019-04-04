@@ -20,7 +20,7 @@
                             {% block sw_mail_header_footer_list_grid_columns_name_link %}
                                 <router-link :to="{ name: 'sw.mail.template.detail_head_foot', params: { id: item.id } }">
                                     {% block sw_mail_header_footer_list_grid_columns_name_label %}
-                                        {{ item.meta.viewData.name }}
+                                        {{ item.translated.name }}
                                     {% endblock %}
                                 </router-link>
                             {% endblock %}
@@ -34,7 +34,7 @@
                                         dataIndex="description"
                                         truncate>
                             {% block sw_mail_header_footer_list_grid_columns_description_label %}
-                                <span>{{ item.meta.viewData.description }}</span>
+                                <span>{{ item.translated.description }}</span>
                             {% endblock %}
                         </sw-grid-column>
                     {% endblock %}
@@ -47,7 +47,7 @@
                                         sortable>
                             {% block sw_mail_header_footer_list_columns_sales_channels_label %}
                                 <span>
-                                    <span v-for="(salesChannel, index) in item.salesChannels.slice(0, 4)" :key="`salechannel-list-item--${index}`">{{ (index > 0) ?`, ${salesChannel.meta.viewData.name}`:`${salesChannel.meta.viewData.name}`}}</span>
+                                    <span v-for="(salesChannel, index) in item.salesChannels.slice(0, 4)" :key="`salechannel-list-item--${index}`">{{ (index > 0) ?`, ${salesChannel.translated.name}`:`${salesChannel.translated.name}`}}</span>
                                     <span v-if="item.salesChannels.length >= 5">, ...</span>
                                 </span>
                             {% endblock %}

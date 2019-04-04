@@ -12,8 +12,8 @@
                     <template slot="columns" slot-scope="{ item }">
 
                         {% block sw_property_assignment_grid_columns_name %}
-                            <sw-grid-column flex="200px" dataIndex="group.name" :label="$tc('sw-property-assignment.columnGroup')" class="sw-property-assignment__grid_group_column">
-                                {{ item.group.name }}
+                            <sw-grid-column flex="200px" dataIndex="group.translated.name" :label="$tc('sw-property-assignment.columnGroup')" class="sw-property-assignment__grid_group_column">
+                                {{ item.group.translated.name }}
                             </sw-grid-column>
                         {% endblock %}
 
@@ -21,7 +21,7 @@
                             <sw-grid-column dataIndex="options" :label="$tc('sw-property-assignment.columnOptions')" flex="minmax(100px, 1fr)" class="sw-property-assignment__grid_option_column">
                                 {% block sw_property_assignment_grid_columns_options_loop %}
                                     <div v-for="(option, index) in item.options" :key="option.id" class="sw-property-assignment__grid_option_item">
-                                        <span class="sw-property-assignment__grid_option_item_value">{{ option.name }}</span><span class="sw-property-assignment__grid_option_item_delete" @click="deleteOption(option)"><sw-icon name="default-basic-x-line" size="10" /></span>
+                                        <span class="sw-property-assignment__grid_option_item_value">{{ option.translated.name }}</span><span class="sw-property-assignment__grid_option_item_delete" @click="deleteOption(option)"><sw-icon name="default-basic-x-line" size="10" /></span>
                                     </div>
                                 {% endblock %}
                             </sw-grid-column>

@@ -330,8 +330,13 @@ class EntityDefinitionQueryHelper
      *
      * @param string|EntityDefinition $definition
      */
-    public function resolveAccessor(string $fieldName, string $definition, string $root, QueryBuilder $query, Context $context): void
-    {
+    public function resolveAccessor(
+        string $fieldName,
+        string $definition,
+        string $root,
+        QueryBuilder $query,
+        Context $context
+    ): void {
         $fieldName = str_replace('extensions.', '', $fieldName);
 
         //example: `product.manufacturer.media.name`
@@ -394,13 +399,17 @@ class EntityDefinitionQueryHelper
      *
      * @param string|EntityDefinition $definition
      */
-    public function addTranslationSelect(string $root, string $definition, QueryBuilder $query, Context $context): void
-    {
+    public function addTranslationSelect(
+        string $root,
+        string $definition,
+        QueryBuilder $query,
+        Context $context
+    ): void {
         /** @var string|EntityDefinition $translationDefinition */
         $translationDefinition = $definition::getTranslationDefinitionClass();
 
         $fields = $translationDefinition::getFields();
-        $chain = self::buildTranslationChain($root, $context, $definition::isInheritanceAware());
+        $chain = self::buildTranslationChain($root, $context, $definition::isInheritanceAware() && $context->considerInheritance());
 
         /** @var TranslatedField $field */
         foreach ($fields as $field) {
@@ -592,12 +601,7 @@ class EntityDefinitionQueryHelper
     {
         $sqlExps = [];
         foreach ($chain as $part) {
-            $sqlExps[] = $this->buildFieldSelector(
-                $part['alias'],
-                $field,
-                $context,
-                $accessor
-            );
+            $sqlExps[] = $this->buildFieldSelector($part['alias'], $field, $context, $accessor);
         }
 
         /*
@@ -611,11 +615,16 @@ class EntityDefinitionQueryHelper
         return sprintf('COALESCE(%s)', implode(',', $sqlExps));
     }
 
-    private function buildInheritedAccessor(Field $field, string $root, string $definition, Context $context, string $original): string
-    {
+    private function buildInheritedAccessor(
+        Field $field,
+        string $root,
+        string $definition,
+        Context $context,
+        string $original
+    ): string {
         /* @var string|EntityDefinition $definition */
         if ($field instanceof TranslatedField) {
-            $inheritedChain = self::buildTranslationChain($root, $context, $definition::isInheritanceAware());
+            $inheritedChain = self::buildTranslationChain($root, $context, $definition::isInheritanceAware() && $context->considerInheritance());
             /** @var Field|StorageAware $translatedField */
             $translatedField = self::getTranslatedField($definition, $field);
 
@@ -624,16 +633,11 @@ class EntityDefinitionQueryHelper
 
         $select = $this->buildFieldSelector($root, $field, $context, $original);
 
-        if (!$field->is(Inherited::class)) {
+        if (!$field->is(Inherited::class) || !$context->considerInheritance()) {
             return $select;
         }
 
-        $parentSelect = $this->buildFieldSelector(
-            $root . '.parent',
-            $field,
-            $context,
-            $original
-        );
+        $parentSelect = $this->buildFieldSelector($root . '.parent', $field, $context, $original);
 
         return sprintf('IFNULL(%s, %s)', $select, $parentSelect);
     }

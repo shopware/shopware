@@ -184,7 +184,7 @@ class EntityReader implements EntityReaderInterface
 
         $parentAssociation = null;
 
-        if ($definition::isInheritanceAware()) {
+        if ($definition::isInheritanceAware() && $context->considerInheritance()) {
             $parentAssociation = $definition::getFields()->get('parent');
             $this->queryHelper->resolveField($parentAssociation, $definition, $root, $query, $context);
         }
@@ -200,27 +200,6 @@ class EntityReader implements EntityReaderInterface
             //self references can not be resolved, otherwise we get an endless loop
             if (!$field instanceof ParentAssociationField && $field instanceof AssociationInterface && $field->getReferenceClass() === $definition) {
                 continue;
-            }
-
-            /** @var Field $field */
-            if ($field instanceof AssociationInterface && $field->is(Inherited::class)) {
-                if ($field instanceof ManyToOneAssociationField) {
-                    // tables with inherited associations containing a column with the association name,
-                    // this columns contains the uuid of the owner of this association
-                    $query->addSelect(
-                        EntityDefinitionQueryHelper::escape($root) . '.'
-                        . EntityDefinitionQueryHelper::escape($field->getStorageName()) . ' as '
-                        . EntityDefinitionQueryHelper::escape($root . '.' . $field->getPropertyName() . '.owner')
-                    );
-                } else {
-                    // tables with inherited associations containing a column with the association name,
-                    // this columns contains the uuid of the owner of this association
-                    $query->addSelect(
-                        EntityDefinitionQueryHelper::escape($root) . '.'
-                        . EntityDefinitionQueryHelper::escape($field->getPropertyName()) . ' as '
-                        . EntityDefinitionQueryHelper::escape($root . '.' . $field->getPropertyName() . '.owner')
-                    );
-                }
             }
 
             $accessor = $definition::getEntityName() . '.' . $field->getPropertyName();
@@ -259,7 +238,7 @@ class EntityReader implements EntityReaderInterface
 
                 //requested a paginated, filtered or sorted list
 
-                $this->addManyToManySelect($definition, $root, $field, $query);
+                $this->addManyToManySelect($definition, $root, $field, $query, $context);
                 continue;
             }
 
@@ -269,7 +248,7 @@ class EntityReader implements EntityReaderInterface
             }
 
             /** @var Field $field */
-            if ($parentAssociation !== null && $field instanceof StorageAware && $field->is(Inherited::class)) {
+            if ($parentAssociation !== null && $field instanceof StorageAware && $field->is(Inherited::class) && $context->considerInheritance()) {
                 $parentAlias = $root . '.' . $parentAssociation->getPropertyName();
 
                 //contains the field accessor for the child value (eg. `product.name`.`name`)
@@ -290,10 +269,6 @@ class EntityReader implements EntityReaderInterface
                 }
                 //add selection for resolved parent-child inheritance field
                 $query->addSelect(sprintf('COALESCE(%s, %s) as %s', $childAccessor, $parentAccessor, $fieldAlias));
-
-                //add selection for raw child value
-                $fieldAlias = EntityDefinitionQueryHelper::escape($root . '.' . $field->getPropertyName() . '.raw');
-                $query->addSelect(sprintf('%s as %s', $childAccessor, $fieldAlias));
 
                 continue;
             }
@@ -366,7 +341,7 @@ class EntityReader implements EntityReaderInterface
 
         $field = $definition::getFields()->getByStorageName($association->getStorageName());
         $ids = $collection->map(function (Entity $entity) use ($field) {
-            return $entity->getViewData()->get($field->getPropertyName());
+            return $entity->get($field->getPropertyName());
         });
 
         $ids = array_filter($ids);
@@ -386,30 +361,19 @@ class EntityReader implements EntityReaderInterface
         /** @var Entity $struct */
         foreach ($collection as $struct) {
             /** @var string $id */
-            $id = $struct->getViewData()->get($field->getPropertyName());
+            $id = $struct->get($field->getPropertyName());
 
             if (!$id) {
                 continue;
             }
 
-            $owner = $struct->get($field->getPropertyName());
-
-            //if the "association.owner" property is filled, the many to one association owner is the current entity
-            if ($owner !== null || !$association->is(Inherited::class)) {
-                if ($field->is(Extension::class)) {
-                    $struct->addExtension($association->getPropertyName(), $data->get($id));
-                } else {
-                    $struct->assign([$association->getPropertyName() => $data->get($id)]);
-                }
-            }
-
-            //otherwise the many to one association belongs to the parent and we only assign data to the resolve inherited viewData struct
+            //otherwise the many to one association belongs to the parent
             if ($association->is(Extension::class)) {
-                $struct->getViewData()->addExtension($association->getPropertyName(), $data->get($id));
+                $struct->addExtension($association->getPropertyName(), $data->get($id));
                 continue;
             }
 
-            $struct->getViewData()->assign([$association->getPropertyName() => $data->get($id)]);
+            $struct->assign([$association->getPropertyName() => $data->get($id)]);
         }
     }
 
@@ -447,7 +411,8 @@ class EntityReader implements EntityReaderInterface
         string $definition,
         string $root,
         ManyToManyAssociationField $field,
-        QueryBuilder $query
+        QueryBuilder $query,
+        Context $context
     ): void {
         /** @var EntityDefinition $mapping */
         $mapping = $field->getMappingDefinition();
@@ -459,11 +424,9 @@ class EntityReader implements EntityReaderInterface
             $versionCondition = ' AND #alias#.' . $versionField . ' = #root#.version_id';
         }
 
-        $source = EntityDefinitionQueryHelper::escape($root) . '.'
-            . EntityDefinitionQueryHelper::escape($field->getLocalField());
-        if ($field->is(Inherited::class)) {
-            $source = EntityDefinitionQueryHelper::escape($root) . '.'
-                . EntityDefinitionQueryHelper::escape($field->getPropertyName());
+        $source = EntityDefinitionQueryHelper::escape($root) . '.' . EntityDefinitionQueryHelper::escape($field->getLocalField());
+        if ($field->is(Inherited::class) && $context->considerInheritance()) {
+            $source = EntityDefinitionQueryHelper::escape($root) . '.' . EntityDefinitionQueryHelper::escape($field->getPropertyName());
         }
 
         $parameters = [
@@ -621,24 +584,21 @@ class EntityReader implements EntityReaderInterface
             /* @var Entity $entity */
 
             //if association is inherited, the data is shared by different entities - we can not reduce the data array
-            if ($association->is(Inherited::class)) {
+            if ($association->is(Inherited::class) && $context->considerInheritance()) {
                 $structData = $data->filterByProperty($propertyName, $entity->getUniqueIdentifier());
             } else {
                 $structData = $data->filterAndReduceByProperty($propertyName, $entity->getUniqueIdentifier());
             }
 
-            //assign data of child immediatly
+            //assign data of child immediately
             if ($association->is(Extension::class)) {
-                //definition extensions should be added to viewData and entity as extension property
                 $entity->addExtension($association->getPropertyName(), $structData);
-                $entity->getViewData()->addExtension($association->getPropertyName(), $structData);
             } else {
                 //otherwise the data will be assigned directly as properties
                 $entity->assign([$association->getPropertyName() => $structData]);
-                $entity->getViewData()->assign([$association->getPropertyName() => $structData]);
             }
 
-            if (!$association->is(Inherited::class) || $structData->count() > 0) {
+            if (!$association->is(Inherited::class) || $structData->count() > 0 || !$context->considerInheritance()) {
                 continue;
             }
 
@@ -646,10 +606,10 @@ class EntityReader implements EntityReaderInterface
             $structData = $data->filterByProperty($propertyName, $entity->get('parentId'));
 
             if ($association->is(Extension::class)) {
-                $entity->getViewData()->addExtension($association->getPropertyName(), $structData);
+                $entity->addExtension($association->getPropertyName(), $structData);
                 continue;
             }
-            $entity->getViewData()->assign([$association->getPropertyName() => $structData]);
+            $entity->assign([$association->getPropertyName() => $structData]);
         }
     }
 
@@ -708,18 +668,14 @@ class EntityReader implements EntityReaderInterface
 
             $structData = $data->getList($mappingIds);
 
-            //assign data of child immediatly
+            //assign data of child immediately
             if ($association->is(Extension::class)) {
-                //definition extensions should be added to viewData and entity as extension property
                 $entity->addExtension($association->getPropertyName(), $structData);
-                $entity->getViewData()->addExtension($association->getPropertyName(), $structData);
             } else {
-                //otherwise the data will be assigned directly as properties
                 $entity->assign([$association->getPropertyName() => $structData]);
-                $entity->getViewData()->assign([$association->getPropertyName() => $structData]);
             }
 
-            if (!$association->is(Inherited::class) || $structData->count() > 0) {
+            if (!$association->is(Inherited::class) || $structData->count() > 0 || !$context->considerInheritance()) {
                 continue;
             }
 
@@ -730,13 +686,11 @@ class EntityReader implements EntityReaderInterface
 
             $structData = $data->getList($mappingIds);
 
-            //assign data of child immediatly
+            //assign data of child immediately
             if ($association->is(Extension::class)) {
-                //definition extensions should be added to viewData and entity as extension property
-                $entity->getViewData()->addExtension($association->getPropertyName(), $structData);
+                $entity->addExtension($association->getPropertyName(), $structData);
             } else {
-                //otherwise the data will be assigned directly as properties
-                $entity->getViewData()->assign([$association->getPropertyName() => $structData]);
+                $entity->assign([$association->getPropertyName() => $structData]);
             }
         }
     }
@@ -770,34 +724,12 @@ class EntityReader implements EntityReaderInterface
                 $extension->get($association->getPropertyName())
             );
 
-            //if the association is inheritance aware, we have to check if the parent or the child is the owner of the association foreign key
-            //this value is saved in the internal storage extension with propertyName.owner
-            $owner = $struct->getUniqueIdentifier();
-            if ($association->is(Inherited::class)) {
-                $owner = $extension->get($association->getPropertyName() . '.owner');
-                /** @var string $owner */
-                $owner = $owner ? Uuid::fromBytesToHex($owner) : null;
-            }
-
             //if the association is added as extension (for plugins), we have to add the data as extension
             if ($association->is(Extension::class)) {
                 $struct->addExtension($association->getPropertyName(), $structData);
             } else {
-                //view data of the object should contains always the resolved data
-                $struct->getViewData()->assign([$association->getPropertyName() => $structData]);
+                $struct->assign([$association->getPropertyName() => $structData]);
             }
-
-            //if the current entity isn't the owner, the owner is the parent
-            if ($owner !== $struct->getUniqueIdentifier()) {
-                $structData = new $collectionClass();
-            }
-
-            if ($association->is(Extension::class)) {
-                $struct->addExtension($association->getPropertyName(), $structData);
-                continue;
-            }
-
-            $struct->assign([$association->getPropertyName() => $structData]);
         }
     }
 
@@ -929,7 +861,7 @@ class EntityReader implements EntityReaderInterface
 
                 //sort list by ids if the criteria contained a sorting
                 $structData->sortByIdArray($mapping[$id]);
-            } elseif (\array_key_exists($parentId, $mapping) && $association->is(Inherited::class)) {
+            } elseif (\array_key_exists($parentId, $mapping) && $association->is(Inherited::class) && $context->considerInheritance()) {
                 //filter mapping for the inherited parent association
                 $structData = $data->getList($mapping[$parentId]);
 
@@ -937,37 +869,12 @@ class EntityReader implements EntityReaderInterface
                 $structData->sortByIdArray($mapping[$parentId]);
             }
 
-            /** @var ArrayEntity $extension */
-            $extension = $struct->getExtension(self::INTERNAL_MAPPING_STORAGE);
-
-            //if the association is inheritance aware, we have to check if the parent or the child is the owner of the association foreign key
-            //this value is saved in the internal storage extension with propertyName.owner
-            $owner = $struct->getUniqueIdentifier();
-            if ($association->is(Inherited::class)) {
-                $owner = $extension->get($association->getPropertyName() . '.owner');
-                /** @var string $owner */
-                $owner = $owner ? Uuid::fromBytesToHex($owner) : null;
-            }
-
             //if the association is added as extension (for plugins), we have to add the data as extension
             if ($association->is(Extension::class)) {
                 $struct->addExtension($association->getPropertyName(), $structData);
             } else {
-                //view data of the object should contains always the resolved data
-                $struct->getViewData()->assign([$association->getPropertyName() => $structData]);
+                $struct->assign([$association->getPropertyName() => $structData]);
             }
-
-            //if the current entity isn't the owner, the owner is the parent
-            if ($owner !== $struct->getUniqueIdentifier()) {
-                $structData = new $collectionClass();
-            }
-
-            if ($association->is(Extension::class)) {
-                $struct->addExtension($association->getPropertyName(), $structData);
-                continue;
-            }
-
-            $struct->assign([$association->getPropertyName() => $structData]);
         }
     }
 
@@ -1129,6 +1036,7 @@ class EntityReader implements EntityReaderInterface
             return false;
         }
 
+        /** @var Criteria $fieldCriteria */
         $fieldCriteria = $criteria->getAssociation($accessor);
 
         return $fieldCriteria->getOffset() !== null
@@ -1136,7 +1044,6 @@ class EntityReader implements EntityReaderInterface
             || !empty($fieldCriteria->getSorting())
             || !empty($fieldCriteria->getFilters())
             || !empty($fieldCriteria->getPostFilters())
-            || !empty($fieldCriteria->getAssociations())
         ;
     }
 
@@ -1182,7 +1089,7 @@ class EntityReader implements EntityReaderInterface
 
         //check if the association is the owning side
         $ids = $collection->map(function (Entity $entity) use ($field) {
-            return $entity->getViewData()->get($field->getPropertyName());
+            return $entity->get($field->getPropertyName());
         });
 
         $ids = array_filter($ids);
@@ -1220,7 +1127,7 @@ class EntityReader implements EntityReaderInterface
         /** @var Entity $struct */
         foreach ($collection as $struct) {
             /** @var string $id */
-            $id = $struct->getViewData()->get($field->getPropertyName());
+            $id = $struct->get($field->getPropertyName());
 
             if (!$id) {
                 continue;
@@ -1231,28 +1138,16 @@ class EntityReader implements EntityReaderInterface
                 $record = $data->get($id);
             } else {
                 //otherwise the collection is indexed with an unknown identifier and we have to filter by the foreign key property
-                $record = $data->filterByProperty($fkField->getPropertyName(), $id)
-                    ->first();
+                $record = $data->filterByProperty($fkField->getPropertyName(), $id)->first();
             }
 
-            $owner = $struct->get($field->getPropertyName());
-
-            //if the "association.owner" property is filled, the many to one association owner is the current entity
-            if ($owner !== null || !$association->is(Inherited::class)) {
-                if ($field->is(Extension::class)) {
-                    $struct->addExtension($association->getPropertyName(), $record);
-                } else {
-                    $struct->assign([$association->getPropertyName() => $record]);
-                }
-            }
-
-            //otherwise the one to one association belongs to the parent and we only assign data to the resolve inherited viewData struct
+            //otherwise the one to one association belongs to the parent
             if ($association->is(Extension::class)) {
-                $struct->getViewData()->addExtension($association->getPropertyName(), $record);
+                $struct->addExtension($association->getPropertyName(), $record);
                 continue;
             }
 
-            $struct->getViewData()->assign([$association->getPropertyName() => $record]);
+            $struct->assign([$association->getPropertyName() => $record]);
         }
     }
 }

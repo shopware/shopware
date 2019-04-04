@@ -25,9 +25,9 @@ Mixin.register('placeholder', {
                 }
             }
 
-            // Return the field from viewData if set
-            if (entity.meta != null && entity.meta.viewData[field] !== null && entity.meta.viewData[field].length > 0) {
-                return entity.meta.viewData[field];
+            // Return the field from translated if set
+            if (entity.translated != null && entity.translated.hasOwnProperty(field)) {
+                return entity.translated[field];
             }
 
             // Return the placeholder snippet

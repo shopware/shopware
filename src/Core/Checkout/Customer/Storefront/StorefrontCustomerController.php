@@ -8,7 +8,6 @@ use Shopware\Core\Checkout\Context\CheckoutContextServiceInterface;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Checkout\Customer\Exception\AddressNotFoundException;
 use Shopware\Core\Framework\Api\Response\ResponseFactoryInterface;
-use Shopware\Core\Framework\Api\Response\Type\Storefront\JsonType;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -295,7 +294,7 @@ class StorefrontCustomerController extends AbstractController
         $decoded = $this->serializer->normalize($data);
 
         return [
-            'data' => JsonType::format($decoded),
+            'data' => $decoded,
         ];
     }
 }

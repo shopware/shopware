@@ -341,7 +341,11 @@ export default {
 
             if (this.highlightSearchTerm) {
                 response.items.forEach((item) => {
-                    item.meta.viewData[this.displayName] = this.highlight(item.meta.viewData[this.displayName]);
+                    if (item.translated && item.translated.hasOwnProperty(this.displayName)) {
+                        item.translated[this.displayName] = this.highlight(item.translated[this.displayName]);
+                    } else {
+                        item[this.displayName] = this.highlight(item[this.displayName]);
+                    }
                 });
             }
 
@@ -606,8 +610,12 @@ export default {
             }
 
             item = JSON.parse(JSON.stringify(item));
-            if (item.meta.viewData[this.displayName].constructor === String) {
-                item.meta.viewData[this.displayName] = item.meta.viewData[this.displayName].replace(/<[^>]+>/g, '');
+            if (item[this.displayName]) {
+                item[this.displayName] = item[this.displayName].replace(/<[^>]+>/g, '');
+            }
+
+            if (item.translated && item.translated.hasOwnProperty(this.displayName)) {
+                item.translated[this.displayName] = item.translated[this.displayName].replace(/<[^>]+>/g, '');
             }
 
             if (this.multi) {

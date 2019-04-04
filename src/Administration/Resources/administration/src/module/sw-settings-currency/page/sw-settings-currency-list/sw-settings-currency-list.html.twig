@@ -70,7 +70,7 @@
                                                         <router-link class="sw-currency-list__column-name" :title="$tc('sw-settings-currency.list.contextMenuEdit')"
                                                                      :to="{ name: 'sw.settings.currency.detail', params: { id: item.id } }">
                                                             {% block sw_settings_currency_list_columns_name_link %}
-                                                                {{ item.meta.viewData.name }}
+                                                                {{ item.translated.name }}
                                                             {% endblock %}
                                                         </router-link>
                                                     {% endblock %}
@@ -86,7 +86,7 @@
                                                                 editable
                                                                 :label="$tc('sw-settings-currency.list.columnShortName')">
                                                     {% block sw_settings_currency_list_columns_short_name_label %}
-                                                        {{ item.meta.viewData.shortName }}
+                                                        {{ item.translated.shortName }}
                                                     {% endblock %}
 
                                                     {% block sw_settings_currency_list_grid_columns_shortname_editor %}
@@ -165,7 +165,7 @@
                                                           variant="small">
                                                     {% block sw_settings_currency_list_delete_modal_confirm_text %}
                                                         <p>
-                                                            {{ $tc('sw-settings-currency.list.textDeleteConfirm', 0, { name: item.meta.viewData.name }) }}
+                                                            {{ $tc('sw-settings-currency.list.textDeleteConfirm', 0, { name: item.translated.name }) }}
                                                         </p>
                                                     {% endblock %}
 

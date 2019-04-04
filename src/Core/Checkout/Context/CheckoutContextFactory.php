@@ -178,7 +178,8 @@ class CheckoutContextFactory implements CheckoutContextFactoryInterface
             $context->getLanguageIdChain(),
             $context->getVersionId(),
             $currency->getFactor(),
-            $currency->getDecimalPrecision()
+            $currency->getDecimalPrecision(),
+            true
         );
 
         $checkoutContext = new CheckoutContext(
@@ -270,7 +271,8 @@ class CheckoutContextFactory implements CheckoutContextFactoryInterface
             $languageChain,
             Defaults::LIVE_VERSION,
             (float) $data['sales_channel_currency_factor'],
-            (int) $data['sales_channel_currency_decimal_precision']
+            (int) $data['sales_channel_currency_decimal_precision'],
+            true
         );
     }
 

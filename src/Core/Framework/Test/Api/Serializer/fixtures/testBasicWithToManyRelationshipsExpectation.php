@@ -86,6 +86,7 @@ return [
                 'uploadedAt' => null,
                 'mediaFolderId' => null,
                 'attributes' => null,
+                'translated' => [],
             ],
             'links' => [
                 'self' => '/api/media/548faa1f7846436c85944f4aea792d96',

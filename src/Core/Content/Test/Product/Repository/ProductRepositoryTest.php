@@ -473,10 +473,15 @@ class ProductRepositoryTest extends TestCase
             ['id' => $greenId, 'stock' => 10, 'price' => $greenPrice, 'parentId' => $parentId],
         ];
 
-        $this->repository->create($products, Context::createDefaultContext());
+        $context = Context::createDefaultContext();
+        $context->setConsiderInheritance(true);
+        $this->repository->create($products, $context);
 
-        $products = $this->repository->search(new Criteria([$redId, $greenId]), Context::createDefaultContext());
-        $parents = $this->repository->search(new Criteria([$parentId]), Context::createDefaultContext());
+        $criteria = new Criteria([$redId, $greenId]);
+        $products = $this->repository->search($criteria, $context);
+
+        $criteria = new Criteria([$parentId]);
+        $parents = $this->repository->search($criteria, $context);
 
         static::assertTrue($parents->has($parentId));
         static::assertTrue($products->has($redId));
@@ -494,11 +499,12 @@ class ProductRepositoryTest extends TestCase
         static::assertEquals($parentPrice['gross'], $parent->getPrice()->getGross());
         static::assertEquals($parentName, $parent->getName());
 
-        static::assertEquals($parentPrice['gross'], $red->getViewData()->getPrice()->getGross());
+        static::assertEquals($parentPrice['gross'], $red->getPrice()->getGross());
         static::assertEquals($redName, $red->getName());
 
-        static::assertEquals($greenPrice['gross'], $green->getViewData()->getPrice()->getGross());
-        static::assertEquals($parentName, $green->getViewData()->getName());
+        static::assertEquals($greenPrice['gross'], $green->getPrice()->getGross());
+        static::assertEquals($parentName, $green->getTranslated()['name']);
+        static::assertNull($green->getName());
 
         /** @var array $row */
         $row = $this->connection->fetchAssoc('SELECT * FROM product WHERE id = :id', ['id' => Uuid::fromHexToBytes($parentId)]);
@@ -743,11 +749,16 @@ class ProductRepositoryTest extends TestCase
         ];
 
         $context = Context::createDefaultContext();
+        $context->setConsiderInheritance(true);
 
         $this->repository->create($products, $context);
 
-        $products = $this->repository->search(new Criteria([$redId, $greenId]), $context);
-        $parents = $this->repository->search(new Criteria([$parentId]), $context);
+        $criteria = new Criteria([$redId, $greenId]);
+        $products = $this->repository->search($criteria, $context);
+
+        $criteria = new Criteria([$parentId]);
+        $context->setConsiderInheritance(false);
+        $parents = $this->repository->search($criteria, $context);
 
         static::assertTrue($parents->has($parentId));
         static::assertTrue($products->has($redId));
@@ -763,12 +774,12 @@ class ProductRepositoryTest extends TestCase
         $green = $products->get($greenId);
 
         static::assertEquals($parentTax, $parent->getTax()->getId());
-        static::assertEquals($parentTax, $red->getViewData()->getTax()->getId());
+        static::assertEquals($parentTax, $red->getTax()->getId());
         static::assertEquals($greenTax, $green->getTax()->getId());
 
         static::assertEquals($parentTax, $parent->getTaxId());
-        static::assertNull($red->getTaxId());
-        static::assertEquals($parentTax, $red->getViewData()->getTaxId());
+        static::assertEquals($parentTax, $red->getTaxId());
+        static::assertEquals($parentTax, $red->getTaxId());
         static::assertEquals($greenTax, $green->getTaxId());
 
         /** @var array $row */
@@ -785,6 +796,14 @@ class ProductRepositoryTest extends TestCase
         $row = $this->connection->fetchAssoc('SELECT * FROM product WHERE id = :id', ['id' => Uuid::fromHexToBytes($greenId)]);
         static::assertNull($row['price']);
         static::assertEquals($greenTax, Uuid::fromBytesToHex($row['tax_id']));
+
+        $criteria = new Criteria([$redId, $greenId]);
+        $context->setConsiderInheritance(false);
+        $products = $this->repository->search($criteria, $context);
+
+        /** @var ProductEntity $red */
+        $red = $products->get($redId);
+        static::assertNull($red->getTax());
     }
 
     public function testWriteProductWithSameTaxes(): void
@@ -853,10 +872,15 @@ class ProductRepositoryTest extends TestCase
 
         $criteria = new Criteria([$redId, $greenId]);
         $criteria->addAssociation('media');
-        $products = $this->repository->search($criteria, Context::createDefaultContext());
+
+        $context = Context::createDefaultContext();
+        $context->setConsiderInheritance(true);
+
+        $products = $this->repository->search($criteria, $context);
 
         $criteria = new Criteria([$parentId]);
         $criteria->addAssociation('media');
+
         $parents = $this->repository->search($criteria, Context::createDefaultContext());
 
         static::assertTrue($parents->has($parentId));
@@ -878,9 +902,8 @@ class ProductRepositoryTest extends TestCase
         static::assertCount(1, $green->getMedia());
         static::assertTrue($green->getMedia()->has($greenMedia));
 
-        static::assertCount(0, $red->getMedia());
-        static::assertCount(1, $red->getViewData()->getMedia());
-        static::assertTrue($red->getViewData()->getMedia()->has($parentMedia));
+        static::assertCount(1, $red->getMedia());
+        static::assertTrue($red->getMedia()->has($parentMedia));
 
         /** @var array $row */
         $row = $this->connection->fetchAssoc('SELECT * FROM product_media WHERE product_id = :id', ['id' => Uuid::fromHexToBytes($parentId)]);
@@ -928,15 +951,18 @@ class ProductRepositoryTest extends TestCase
             ],
         ];
 
-        $this->repository->create($products, Context::createDefaultContext());
+        $context = Context::createDefaultContext();
+        $context->setConsiderInheritance(true);
+
+        $this->repository->create($products, $context);
 
         $criteria = new Criteria([$redId, $greenId]);
         $criteria->addAssociation('categories');
-        $products = $this->repository->search($criteria, Context::createDefaultContext());
+        $products = $this->repository->search($criteria, $context);
 
         $criteria = new Criteria([$parentId]);
         $criteria->addAssociation('categories');
-        $parents = $this->repository->search($criteria, Context::createDefaultContext());
+        $parents = $this->repository->search($criteria, $context);
 
         static::assertTrue($parents->has($parentId));
         static::assertTrue($products->has($redId));
@@ -952,7 +978,7 @@ class ProductRepositoryTest extends TestCase
         $red = $products->get($redId);
 
         static::assertEquals([$parentCategory], array_values($parent->getCategories()->getIds()));
-        static::assertEquals([$parentCategory], array_values($red->getViewData()->getCategories()->getIds()));
+        static::assertEquals([$parentCategory], array_values($red->getCategories()->getIds()));
         static::assertEquals([$greenCategory], array_values($green->getCategories()->getIds()));
 
         /** @var array $row */
@@ -999,12 +1025,15 @@ class ProductRepositoryTest extends TestCase
             ['id' => $greenId, 'stock' => 10, 'price' => $greenPrice, 'parentId' => $parentId],
         ];
 
-        $this->repository->create($products, Context::createDefaultContext());
+        $context = Context::createDefaultContext();
+        $context->setConsiderInheritance(true);
+
+        $this->repository->create($products, $context);
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('product.name', $parentName));
 
-        $products = $this->repository->search($criteria, Context::createDefaultContext());
+        $products = $this->repository->search($criteria, $context);
         static::assertCount(2, $products);
         static::assertTrue($products->has($parentId));
         static::assertTrue($products->has($greenId));
@@ -1012,7 +1041,7 @@ class ProductRepositoryTest extends TestCase
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('product.name', $redName));
 
-        $products = $this->repository->search($criteria, Context::createDefaultContext());
+        $products = $this->repository->search($criteria, $context);
         static::assertCount(1, $products);
         static::assertTrue($products->has($redId));
     }
@@ -1047,13 +1076,15 @@ class ProductRepositoryTest extends TestCase
             ['id' => $greenId, 'stock' => 10, 'price' => $greenPrice, 'parentId' => $parentId],
         ];
 
-        $this->repository->create($products, Context::createDefaultContext());
+        $context = Context::createDefaultContext();
+        $context->setConsiderInheritance(true);
+        $this->repository->create($products, $context);
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('product.price', $parentPrice['gross']));
         $criteria->addFilter(new EqualsFilter('product.manufacturerId', $manufacturerId));
 
-        $products = $this->repository->search($criteria, Context::createDefaultContext());
+        $products = $this->repository->search($criteria, $context);
         static::assertCount(2, $products);
         static::assertTrue($products->has($parentId));
         static::assertTrue($products->has($redId));
@@ -1061,7 +1092,7 @@ class ProductRepositoryTest extends TestCase
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('product.price', $greenPrice['gross']));
 
-        $products = $this->repository->search($criteria, Context::createDefaultContext());
+        $products = $this->repository->search($criteria, $context);
         static::assertCount(1, $products);
         static::assertTrue($products->has($greenId));
     }
@@ -1099,13 +1130,15 @@ class ProductRepositoryTest extends TestCase
             ['id' => $greenId, 'stock' => 10, 'price' => $greenPrice, 'parentId' => $parentId],
         ];
 
-        $this->repository->create($products, Context::createDefaultContext());
+        $context = Context::createDefaultContext();
+        $context->setConsiderInheritance(true);
+        $this->repository->create($products, $context);
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('category.products.price', $greenPrice['gross']));
 
         $repository = $this->getContainer()->get('category.repository');
-        $categories = $repository->searchIds($criteria, Context::createDefaultContext());
+        $categories = $repository->searchIds($criteria, $context);
 
         static::assertEquals(1, $categories->getTotal());
         static::assertContains($categoryId, $categories->getIds());
@@ -1115,7 +1148,7 @@ class ProductRepositoryTest extends TestCase
         $criteria->addFilter(new EqualsFilter('category.products.parentId', null));
 
         $repository = $this->getContainer()->get('category.repository');
-        $categories = $repository->searchIds($criteria, Context::createDefaultContext());
+        $categories = $repository->searchIds($criteria, $context);
 
         static::assertEquals(1, $categories->getTotal());
         static::assertContains($categoryId, $categories->getIds());
@@ -1217,12 +1250,15 @@ class ProductRepositoryTest extends TestCase
             ['id' => $greenId, 'stock' => 10, 'price' => $greenPrice, 'parentId' => $parentId],
         ];
 
-        $this->repository->create($products, Context::createDefaultContext());
+        $context = Context::createDefaultContext();
+        $context->setConsiderInheritance(true);
+
+        $this->repository->create($products, $context);
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('product_manufacturer.products.price', $greenPrice['gross']));
 
-        $result = $this->getContainer()->get('product_manufacturer.repository')->searchIds($criteria, Context::createDefaultContext());
+        $result = $this->getContainer()->get('product_manufacturer.repository')->searchIds($criteria, $context);
 
         static::assertEquals(1, $result->getTotal());
         static::assertContains($manufacturerId, $result->getIds());

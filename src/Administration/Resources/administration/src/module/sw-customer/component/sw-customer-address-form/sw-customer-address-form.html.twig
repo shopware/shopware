@@ -22,7 +22,7 @@
                                       v-model="address.salutationId"
                                       validation="required">
                                 <option v-for="salutation in salutations" :key="salutation.id" :value="salutation.id">
-                                    {{ salutation.meta.viewData.displayName }}
+                                    {{ salutation.translated.displayName }}
                                 </option>
                             </sw-field>
                         {% endblock %}
@@ -93,7 +93,7 @@
                               v-model="address.countryId">
                         {% block sw_customer_address_form_country_field_options %}
                             <option v-for="country in countries" :key="country.id" :value="country.id">
-                                {{ country.meta.viewData.name }}
+                                {{ country.translated.name }}
                             </option>
                         {% endblock %}
                     </sw-field>

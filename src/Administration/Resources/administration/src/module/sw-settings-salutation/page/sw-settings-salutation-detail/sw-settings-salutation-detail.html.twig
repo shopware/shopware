@@ -10,7 +10,7 @@
                 {% block sw_settings_salutation_detail_smart_bar_header_title %}
                     <h2>
                         {% block sw_settings_salutation_detail_smart_bar_header_title_text %}
-                            {{ salutation.meta.viewData.salutationKey || $tc('sw-settings-salutation.detail.placeholderNewSalutation') }}
+                            {{ salutation.salutationKey || $tc('sw-settings-salutation.detail.placeholderNewSalutation') }}
                         {% endblock %}
                     </h2>
                 {% endblock %}

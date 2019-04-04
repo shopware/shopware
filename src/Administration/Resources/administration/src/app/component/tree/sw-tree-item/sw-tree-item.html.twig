@@ -57,9 +57,9 @@
                             {% block sw_tree_items_item_content_default %}
                                 <template v-else>
                                     <a v-if="onChangeRoute" class="tree-link" @click="onChangeRoute(item)">
-                                        <span class="sw-tree-item__label">{{ item.data.name || item.data.meta.viewData.name }}</span>
+                                        <span class="sw-tree-item__label">{{ item.data.name || item.data.translated.name }}</span>
                                     </a>
-                                    <span v-else class="sw-tree-item__label">{{ item.data.name || item.data.meta.viewData.name }}</span>
+                                    <span v-else class="sw-tree-item__label">{{ item.data.name || item.data.translated.name }}</span>
                                 </template>
                             {% endblock %}
                         </slot>
@@ -160,9 +160,9 @@
                                                     {% block sw_tree_item_children_items_slot_content_default %}
                                                         <template v-else>
                                                             <a v-if="onChangeRoute" class="tree-link" @click="onChangeRoute(item)">
-                                                                <span class="sw-tree-item__label">{{ item.data.name || item.data.meta.viewData.name }}</span>
+                                                                <span class="sw-tree-item__label">{{ item.data.name || item.data.translated.name }}</span>
                                                             </a>
-                                                            <span v-else class="sw-tree-item__label">{{ item.data.name || item.data.meta.viewData.name }}</span>
+                                                            <span v-else class="sw-tree-item__label">{{ item.data.name || item.data.translated.name }}</span>
                                                         </template>
                                                     {% endblock %}
                                                 </template>

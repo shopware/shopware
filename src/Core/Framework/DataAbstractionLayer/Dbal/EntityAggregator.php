@@ -141,8 +141,12 @@ class EntityAggregator implements EntityAggregatorInterface
     /**
      * @param string|EntityDefinition $definition
      */
-    private function getAggregationResult(string $definition, QueryBuilder $query, Aggregation $aggregation, Context $context): AggregationResult
-    {
+    private function getAggregationResult(
+        string $definition,
+        QueryBuilder $query,
+        Aggregation $aggregation,
+        Context $context
+    ): AggregationResult {
         $accessor = $this->queryHelper->getFieldAccessor(
             $aggregation->getField(),
             $definition,

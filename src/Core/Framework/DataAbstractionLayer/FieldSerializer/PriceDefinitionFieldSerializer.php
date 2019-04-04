@@ -3,7 +3,6 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer;
 
 use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
-use Shopware\Core\Framework\Api\Response\Type\Api\JsonType;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\PriceDefinitionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
@@ -24,8 +23,6 @@ class PriceDefinitionFieldSerializer extends JsonFieldSerializer
         WriteParameterBag $parameters
     ): \Generator {
         $value = json_decode(json_encode($data->getValue(), JSON_PRESERVE_ZERO_FRACTION), true);
-
-        $value = JsonType::format($value);
 
         unset($value['extensions']);
 

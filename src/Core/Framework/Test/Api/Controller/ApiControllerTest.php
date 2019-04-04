@@ -817,18 +817,13 @@ EOF;
         static::assertArrayHasKey('relationships', $catData);
         static::assertArrayHasKey('translations', $catData['relationships']);
         static::assertArrayHasKey('meta', $catData);
-        static::assertArrayHasKey('viewData', $catData['meta']);
-        static::assertArrayHasKey('name', $catData['meta']['viewData']);
+        static::assertArrayHasKey('translated', $catData['attributes']);
+        static::assertArrayHasKey('name', $catData['attributes']['translated']);
 
         static::assertEquals($id, $catData['id']);
         static::assertEquals('category', $catData['type']);
         static::assertEquals($insertData['name'], $catData['attributes']['name']);
-        static::assertEquals($insertData['name'], $catData['meta']['viewData']['name']);
-
-        $translations = $catData['relationships']['translations'];
-        static::assertCount(1, $translations['data']);
-        static::assertEquals($id . '-' . Defaults::LANGUAGE_SYSTEM, $translations['data'][0]['id']);
-        static::assertEquals('category_translation', $translations['data'][0]['type']);
+        static::assertEquals($insertData['name'], $catData['attributes']['translated']['name']);
     }
 
     public function testJsonApiResponseMulti(): void
@@ -859,11 +854,11 @@ EOF;
         $data = $respData['data'];
         static::assertEquals('category', $data[0]['type']);
         static::assertEquals($insertData[0]['name'], $data[0]['attributes']['name']);
-        static::assertEquals($insertData[0]['name'], $data[0]['meta']['viewData']['name']);
+        static::assertEquals($insertData[0]['name'], $data[0]['attributes']['translated']['name']);
 
         static::assertEquals('category', $data[1]['type']);
         static::assertEquals($insertData[1]['name'], $data[1]['attributes']['name']);
-        static::assertEquals($insertData[1]['name'], $data[1]['meta']['viewData']['name']);
+        static::assertEquals($insertData[1]['name'], $data[1]['attributes']['translated']['name']);
     }
 
     public function testCreateNewVersion(): void

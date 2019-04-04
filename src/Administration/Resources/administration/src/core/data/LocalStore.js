@@ -76,7 +76,7 @@ export default class LocalStore {
                             return true;
                         }
                     }
-                    property = value.meta.viewData[this.searchProperty];
+                    property = value[this.searchProperty];
                     if (types.isObject(property)) {
                         if (this.objectPropertiesContains(property, searchTerm)) {
                             return true;
@@ -84,7 +84,7 @@ export default class LocalStore {
                     }
 
                     return this.objectPropertiesContains(value, searchTerm) > 0
-                        || this.objectPropertiesContains(value.meta.viewData, searchTerm);
+                        || this.objectPropertiesContains(value, searchTerm);
                 });
             }
 

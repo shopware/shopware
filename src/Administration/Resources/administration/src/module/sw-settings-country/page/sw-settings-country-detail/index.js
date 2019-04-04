@@ -40,7 +40,7 @@ Component.register('sw-settings-country-detail', {
         },
 
         onSave() {
-            const countryName = this.country.name || this.country.meta.viewData.name;
+            const countryName = this.country.name || this.country.translated.name;
             const titleSaveSuccess = this.$tc('sw-settings-country.detail.titleSaveSuccess');
             const messageSaveSuccess = this.$tc('sw-settings-country.detail.messageSaveSuccess', 0, {
                 name: countryName

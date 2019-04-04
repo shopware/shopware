@@ -13,7 +13,6 @@ $rule->setId('f343a3c119cf42a7841aa0ac5094908c');
 $rule->setName('Test rule');
 $rule->setDescription('Test description');
 $rule->setPayload(new AndRule([new TrueRule(), new FalseRule()]));
-$rule->setViewData(new RuleEntity());
 $ruleCollection->add($rule);
 
 return $ruleCollection;

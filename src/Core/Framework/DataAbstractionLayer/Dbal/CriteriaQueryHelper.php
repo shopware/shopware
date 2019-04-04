@@ -22,7 +22,7 @@ trait CriteriaQueryHelper
 
         $query = $queryHelper->getBaseQuery($query, $definition, $context);
 
-        if ($definition::isInheritanceAware()) {
+        if ($definition::isInheritanceAware() && $context->considerInheritance()) {
             $parent = $definition::getFields()->get('parent');
             $queryHelper->resolveField($parent, $definition, $definition::getEntityName(), $query, $context);
         }

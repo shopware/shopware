@@ -91,7 +91,7 @@
                                                         <router-link v-else
                                                                      class="sw-settings-customer-group-list__columns"
                                                                      :to="{ name: 'sw.settings.customer.group.detail', params: { id: item.id } }">
-                                                            {{ item.meta.viewData.name }}
+                                                            {{ item.translated.name }}
                                                         </router-link>
                                                     {% endblock %}
 
@@ -145,7 +145,7 @@
                                                               variant="small">
                                                         {% block sw_settings_customer_group_list_delete_modal_confirm_delete_text %}
                                                             <p class="sw-settings-customer-group-list__confirm-delete-text">
-                                                                {{ $tc('sw-settings-customer-group.list.textDeleteConfirm', 0, { name: item.meta.viewData.name }) }}
+                                                                {{ $tc('sw-settings-customer-group.list.textDeleteConfirm', 0, { name: item.translated.name }) }}
                                                             </p>
                                                         {% endblock %}
 

@@ -5,9 +5,12 @@ namespace Shopware\Core\Framework\DataAbstractionLayer;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ChildCountField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ChildrenAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Computed;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Deferred;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Extension;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\SearchRanking;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ParentAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TreeLevelField;
@@ -84,6 +87,12 @@ abstract class EntityDefinition
         }
 
         $fields = static::defineFields();
+
+        if (static::getTranslationDefinitionClass()) {
+            $fields->add(
+                (new JsonField('translated', 'translated'))->addFlags(new Computed(), new Deferred())
+            );
+        }
 
         $extensions = static::$extensions[static::class] ?? [];
         foreach ($extensions as $extension) {

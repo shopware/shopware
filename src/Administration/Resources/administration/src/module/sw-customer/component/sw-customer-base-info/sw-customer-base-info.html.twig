@@ -13,7 +13,7 @@
 
                             {% block sw_customer_base_metadata_customer_group_content %}
                                 <dd v-if="!customerEditMode">
-                                    {{ customer.group.meta.viewData.name }}
+                                    {{ customer.group.translated.name }}
                                 </dd>
                             {% endblock %}
 
@@ -21,7 +21,7 @@
                                 <dd v-else>
                                     <sw-select-field v-model="customer.groupId" size="small">
                                         <option v-for="group in customerGroups" :key="group.id" :value="group.id">
-                                            {{ group.meta.viewData.name }}
+                                            {{ group.translated.name }}
                                         </option>
                                     </sw-select-field>
                                 </dd>
@@ -37,7 +37,7 @@
 
                             {% block sw_customer_base_metadata_default_payment_content %}
                                 <dd v-if="!customerEditMode" class="sw-customer-base__label-default-payment-method">
-                                   {{ customer.defaultPaymentMethod.meta.viewData.name }}
+                                   {{ customer.defaultPaymentMethod.translated.name }}
                                 </dd>
                             {% endblock %}
 
@@ -45,7 +45,7 @@
                                 <dd v-else>
                                     <sw-select-field v-model="customer.defaultPaymentMethodId" size="small">
                                         <option v-for="method in paymentMethods" :value="method.id">
-                                            {{ method.meta.viewData.name }}
+                                            {{ method.translated.name }}
                                         </option>
                                     </sw-select-field>
                                 </dd>

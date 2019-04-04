@@ -12,14 +12,14 @@ class Entity extends Struct
     protected $_uniqueIdentifier;
 
     /**
-     * @var static
-     */
-    protected $viewData;
-
-    /**
      * @var string|null
      */
     protected $versionId;
+
+    /**
+     * @var array
+     */
+    protected $translated = [];
 
     public function setUniqueIdentifier(string $identifier): void
     {
@@ -52,21 +52,23 @@ class Entity extends Struct
         return $this->$property;
     }
 
-    /**
-     * @return static
-     */
-    public function getViewData()
-    {
-        return $this->viewData;
-    }
-
-    public function setViewData(self $viewData): void
-    {
-        $this->viewData = $viewData;
-    }
-
     public function has(string $property): bool
     {
         return property_exists($this, $property);
+    }
+
+    public function getTranslated(): array
+    {
+        return $this->translated;
+    }
+
+    public function setTranslated(array $translated): void
+    {
+        $this->translated = $translated;
+    }
+
+    public function addTranslated(string $key, $value): void
+    {
+        $this->translated[$key] = $value;
     }
 }

@@ -6,7 +6,7 @@
                     <sw-grid-column flex="minmax(100px, 2fr)">
                         {% block sw_product_visibility_detail_columns_sales_channel_label %}
                             <span v-if="item.salesChannelInternal" class="sw-select__selection-item">
-                                {{ item.salesChannelInternal.meta.viewData.name }}
+                                {{ item.salesChannelInternal.translated.name }}
                             </span>
                             <span v-else>
                                 {{ item.salesChannel.name }}

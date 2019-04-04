@@ -52,12 +52,12 @@ class OneToManyAssociationFieldResolver implements FieldResolverInterface
         }
 
         $source = EntityDefinitionQueryHelper::escape($root) . '.' . EntityDefinitionQueryHelper::escape($field->getLocalField());
-        if ($field->is(Inherited::class)) {
+        if ($field->is(Inherited::class) && $context->considerInheritance()) {
             $source = EntityDefinitionQueryHelper::escape($root) . '.' . EntityDefinitionQueryHelper::escape($field->getPropertyName());
         }
 
         $referenceColumn = EntityDefinitionQueryHelper::escape($field->getReferenceField());
-        if ($field->is(ReverseInherited::class)) {
+        if ($field->is(ReverseInherited::class) && $context->considerInheritance()) {
             /** @var ReverseInherited $flag */
             $flag = $field->getFlag(ReverseInherited::class);
 
@@ -91,7 +91,7 @@ class OneToManyAssociationFieldResolver implements FieldResolverInterface
             return true;
         }
 
-        if (!$reference::isInheritanceAware()) {
+        if (!$reference::isInheritanceAware() || !$context->considerInheritance()) {
             return true;
         }
 

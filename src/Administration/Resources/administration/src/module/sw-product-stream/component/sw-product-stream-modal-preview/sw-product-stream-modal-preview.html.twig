@@ -39,7 +39,7 @@
                                 {% block sw_product_stream_modal_preview_grid_columns_name_link %}
                                     <router-link :to="{ name: 'sw.product.detail', params: { id: item.id } }">
                                         {% block sw_product_stream_modal_preview_grid_columns_name_label %}
-                                            {{ item.meta.viewData.name }}
+                                            {{ item.translated.name }}
                                         {% endblock %}
                                     </router-link>
                                 {% endblock %}
@@ -53,7 +53,7 @@
                                             dataIndex="manufacturer.name"
                                             truncate
                                             sortable>
-                                {{ item.manufacturer.meta.viewData.name }}
+                                {{ item.manufacturer.translated.name }}
                             </sw-grid-column>
                         {% endblock %}
 

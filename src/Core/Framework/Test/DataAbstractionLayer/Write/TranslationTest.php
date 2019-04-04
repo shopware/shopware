@@ -491,8 +491,7 @@ class TranslationTest extends TestCase
 
         static::assertNotNull($catSystem);
         static::assertEquals('system', $catSystem->getName());
-        static::assertEquals('system', $catSystem->getViewData()->getName());
-        static::assertCount(1, $catSystem->getTranslations());
+        static::assertEquals('system', $catSystem->getTranslated()['name']);
 
         $deDeContext = new Context(new SystemSource(), [], Defaults::CURRENCY, [Defaults::LANGUAGE_SYSTEM_DE, Defaults::LANGUAGE_SYSTEM]);
         /** @var CategoryEntity $catDeDe */
@@ -500,42 +499,7 @@ class TranslationTest extends TestCase
 
         static::assertNotNull($catDeDe);
         static::assertNull($catDeDe->getName());
-        static::assertEquals('system', $catDeDe->getViewData()->getName());
-
-        static::assertCount(1, $catDeDe->getTranslations());
-    }
-
-    public function testCascadeDeleteRootTranslation(): void
-    {
-        $rootId = Uuid::randomHex();
-        $id = Uuid::randomHex();
-
-        $this->addLanguage($id, $rootId);
-
-        $categoryRepository = $this->getContainer()->get('category.repository');
-
-        $catId = Uuid::randomHex();
-        $category = [
-            'id' => $catId,
-            'name' => 'system',
-            'translations' => [
-                $rootId => ['name' => 'root'],
-                $id => ['name' => 'child'],
-            ],
-        ];
-
-        $categoryRepository->create([$category], $this->context);
-
-        $categoryTranslationRepository = $this->getContainer()->get('category_translation.repository');
-        $deleteId = ['categoryId' => $catId, 'languageId' => $rootId];
-        $categoryTranslationRepository->delete([$deleteId], $this->context);
-
-        /* @var CategoryEntity $categoryResult */
-        $categoryResult = $categoryRepository->search(new Criteria(['id' => $catId]), $this->context)->first();
-
-        $translations = $categoryResult->getTranslations();
-        static::assertCount(1, $translations);
-        static::assertEquals(Defaults::LANGUAGE_SYSTEM, $translations->first()->getLanguageId());
+        static::assertEquals('system', $catDeDe->getTranslated()['name']);
     }
 
     public function testUpsert(): void

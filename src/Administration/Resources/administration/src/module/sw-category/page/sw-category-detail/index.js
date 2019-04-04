@@ -218,7 +218,7 @@ Component.register('sw-category-detail', {
 
         onSave() {
             const categoryView = this.$refs.categoryView;
-            const categoryName = this.category.name || this.category.meta.viewData.name;
+            const categoryName = this.category.name || this.category.translated.name;
             const titleSaveSuccess = this.$tc('sw-category.general.titleSaveSuccess');
             const messageSaveSuccess = this.$tc('sw-category.general.messageSaveSuccess', 0, { name: categoryName });
             const titleSaveError = this.$tc('global.notification.notificationSaveErrorTitle');

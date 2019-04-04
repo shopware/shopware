@@ -3,7 +3,6 @@
 namespace Shopware\Storefront\Framework\Seo\Controller;
 
 use Shopware\Core\Defaults;
-use Shopware\Core\Framework\Api\Response\Type\Api\JsonType;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
@@ -80,7 +79,7 @@ class SeoActionController extends AbstractController
 
         $context = $this->seoService->getSeoUrlContext($routeName, $entity);
 
-        return new JsonResponse(JsonType::format($context));
+        return new JsonResponse($context);
     }
 
     private function validateSeoUrlTemplate(Request $request): void

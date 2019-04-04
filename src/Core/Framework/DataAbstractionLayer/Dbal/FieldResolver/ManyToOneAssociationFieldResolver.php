@@ -43,7 +43,7 @@ class ManyToOneAssociationFieldResolver implements FieldResolverInterface
             return true;
         }
 
-        if (!$reference::isInheritanceAware()) {
+        if (!$reference::isInheritanceAware() || !$context->considerInheritance()) {
             return true;
         }
 
@@ -55,10 +55,6 @@ class ManyToOneAssociationFieldResolver implements FieldResolverInterface
         return true;
     }
 
-    /**
-     * @param EntityDefinition|string                                                 $definition
-     * @param AssociationInterface|ManyToOneAssociationField|OneToOneAssociationField $field
-     */
     private function join(
         string $definition,
         string $root,
@@ -82,7 +78,7 @@ class ManyToOneAssociationFieldResolver implements FieldResolverInterface
 
         $source = EntityDefinitionQueryHelper::escape($root) . '.' . EntityDefinitionQueryHelper::escape($field->getStorageName());
 
-        if ($field->is(Inherited::class)) {
+        if ($field->is(Inherited::class) && $context->considerInheritance()) {
             $inherited = EntityDefinitionQueryHelper::escape($root) . '.' . EntityDefinitionQueryHelper::escape($field->getPropertyName());
 
             $fk = $definition::getFields()->getByStorageName($field->getStorageName());
@@ -100,7 +96,7 @@ class ManyToOneAssociationFieldResolver implements FieldResolverInterface
         }
 
         $referenceColumn = EntityDefinitionQueryHelper::escape($field->getReferenceField());
-        if ($field->is(ReverseInherited::class)) {
+        if ($field->is(ReverseInherited::class) && $context->considerInheritance()) {
             /** @var ReverseInherited $flag */
             $flag = $field->getFlag(ReverseInherited::class);
 
@@ -158,7 +154,7 @@ class ManyToOneAssociationFieldResolver implements FieldResolverInterface
             return;
         }
 
-        //No Blacklisting Withlisting for ManyToOne Association because of possible Dependencies on subentities
+        //No Blacklisting Whitelisting for ManyToOne Association because of possible Dependencies on subentities
         $parameters = [
             '#source#' => $source,
             '#root#' => EntityDefinitionQueryHelper::escape($root),

@@ -706,7 +706,7 @@ class ProductEntity extends Entity
         $this->unit = $unit;
     }
 
-    public function getPrices(): ProductPriceCollection
+    public function getPrices(): ?ProductPriceCollection
     {
         return $this->prices;
     }

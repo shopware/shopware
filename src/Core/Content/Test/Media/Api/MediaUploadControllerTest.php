@@ -83,7 +83,7 @@ class MediaUploadControllerTest extends TestCase
         $responseData = json_decode($this->getClient()->getResponse()->getContent(), true);
 
         static::assertCount(
-            4,
+            3,
             $responseData['data']['attributes']['metaData'],
             print_r($responseData['data']['attributes'], true)
         );
@@ -93,7 +93,7 @@ class MediaUploadControllerTest extends TestCase
             print_r($responseData['data']['attributes'], true)
         );
         static::assertCount(
-            4,
+            3,
             $responseData['data']['attributes']['mediaType'],
             print_r($responseData['data']['attributes']['mediaType'], true)
         );
@@ -156,7 +156,7 @@ class MediaUploadControllerTest extends TestCase
         $responseData = json_decode($this->getClient()->getResponse()->getContent(), true);
 
         static::assertCount(
-            4,
+            3,
             $responseData['data']['attributes']['metaData'],
             print_r($responseData['data']['attributes'], true)
         );
@@ -166,7 +166,7 @@ class MediaUploadControllerTest extends TestCase
             print_r($responseData['data']['attributes'], true)
         );
         static::assertCount(
-            4,
+            3,
             $responseData['data']['attributes']['mediaType'],
             print_r($responseData['data']['attributes']['mediaType'], true)
         );
@@ -234,7 +234,7 @@ class MediaUploadControllerTest extends TestCase
         $responseData = json_decode($this->getClient()->getResponse()->getContent(), true);
 
         static::assertCount(
-            4,
+            3,
             $responseData['data']['attributes']['metaData'],
             print_r($responseData['data']['attributes'], true)
         );
@@ -244,7 +244,7 @@ class MediaUploadControllerTest extends TestCase
             print_r($responseData['data']['attributes'], true)
         );
         static::assertCount(
-            4,
+            3,
             $responseData['data']['attributes']['mediaType'],
             print_r($responseData['data']['attributes']['mediaType'], true)
         );

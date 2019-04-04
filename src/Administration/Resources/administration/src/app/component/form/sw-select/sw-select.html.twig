@@ -38,7 +38,12 @@
                                             {% block sw_select_selection_item_text %}
                                                 <span class="sw-select__selection-item">
                                                     <slot name="displayName" :item="selection">
-                                                        {{ getInlineSnippet(selection.meta.viewData[displayName]) }}
+                                                        <span v-if="selection.translated && selection.translated.hasOwnProperty(displayName)">
+                                                            {{ selection.translated[displayName] }}
+                                                        </span>
+                                                        <span v-else>
+                                                            {{ selection[displayName] }}
+                                                        </span>
                                                     </slot>
                                                 </span>
                                             {% endblock %}
@@ -92,7 +97,12 @@
                                       name="selected_option" :item="singleSelection">
                                     {% block sw_select_single_selection_slot_label %}
                                         <slot name="displayName" :item="singleSelection">
-                                            {{ getInlineSnippet(singleSelection.meta.viewData[displayName]) }}
+                                            <span v-if="singleSelection.translated && singleSelection.translated.hasOwnProperty(displayName)">
+                                                {{ singleSelection.translated[displayName] }}
+                                            </span>
+                                            <span v-else>
+                                                {{ singleSelection[displayName] }}
+                                            </span>
                                         </slot>
                                     {% endblock %}
                                 </slot>
@@ -170,8 +180,11 @@
                                                                            :index="index"
                                                                            :item="item">
                                                             <slot name="displayName" :item="item">
-                                                                <span v-html="getInlineSnippet(item.meta.viewData[displayName])">
-                                                                    {{ getInlineSnippet(item.meta.viewData[displayName]) }}
+                                                                <span v-if="item.translated && item.translated.hasOwnProperty(displayName)" v-html="item.translated[displayName]">
+                                                                    {{ item.translated[displayName] }}
+                                                                </span>
+                                                                <span v-else v-html="item[displayName]">
+                                                                    {{ item[displayName] }}
                                                                 </span>
                                                             </slot>
                                                          </sw-select-option>

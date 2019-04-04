@@ -73,7 +73,7 @@
                                                 {% block sw_product_list_grid_columns_name_link %}
                                                     <router-link :to="{ name: 'sw.product.stream.detail', params: { id: item.id } }">
                                                         {% block sw_product_stream_list_grid_columns_name_label %}
-                                                            {{ item.meta.viewData.name }}
+                                                            {{ item.translated.name }}
                                                         {% endblock %}
                                                     </router-link>
                                                 {% endblock %}
@@ -92,7 +92,7 @@
                                                             sortable
                                                             truncate
                                                             editable>
-                                                {{ item.meta.viewData.description }}
+                                                {{ item.translated.description }}
 
                                                 {% block sw_product_stream_list_grid_columns_description_editor %}
                                                     <sw-field type="text" v-model="item.description" slot="inline-edit"></sw-field>

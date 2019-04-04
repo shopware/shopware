@@ -136,7 +136,7 @@
                                         v-model="language.localeId">
                                     <template slot="selected_option" slot-scope="{ item }">
                                         <span v-if="item.meta !== undefined">
-                                            {{ item.meta.viewData.name }}, {{ item.meta.viewData.territory }}
+                                            {{ item.translated.name }}, {{ item.translated.territory }}
                                         </span>
                                     </template>
 
@@ -145,7 +145,7 @@
                                         <sw-select-option
                                                 :index="index"
                                                 :item="item">
-                                            {{ item.meta.viewData.name }}, {{ item.meta.viewData.territory }}
+                                            {{ item.translated.name }}, {{ item.translated.territory }}
                                         </sw-select-option>
                                     </template>
                                 </sw-select>

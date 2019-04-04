@@ -37,8 +37,12 @@ class SqlQueryParser
         $this->connection = $connection;
     }
 
-    public function parseRanking(array $queries, string $definition, string $root, Context $context): ParseResult
-    {
+    public function parseRanking(
+        array $queries,
+        string $definition,
+        string $root,
+        Context $context
+    ): ParseResult {
         $result = new ParseResult();
 
         /** @var ScoreQuery $query */
@@ -76,8 +80,12 @@ class SqlQueryParser
     /**
      * @param string|EntityDefinition $definition
      */
-    public function parse(Filter $query, string $definition, Context $context, ?string $root = null): ParseResult
-    {
+    public function parse(
+        Filter $query,
+        string $definition,
+        Context $context,
+        ?string $root = null
+    ): ParseResult {
         if ($root === null) {
             $root = $definition::getEntityName();
         }
@@ -100,8 +108,12 @@ class SqlQueryParser
         }
     }
 
-    private function parseRangeFilter(RangeFilter $query, string $definition, string $root, Context $context): ParseResult
-    {
+    private function parseRangeFilter(
+        RangeFilter $query,
+        string $definition,
+        string $root,
+        Context $context
+    ): ParseResult {
         $result = new ParseResult();
 
         $key = $this->getKey();

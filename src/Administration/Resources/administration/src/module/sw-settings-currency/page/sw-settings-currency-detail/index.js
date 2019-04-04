@@ -39,7 +39,7 @@ Component.register('sw-settings-currency-detail', {
         },
 
         onSave() {
-            const currencyName = this.currency.name || this.currency.meta.viewData.name;
+            const currencyName = this.currency.name || this.currency.translated.name;
             const titleSaveSuccess = this.$tc('sw-settings-currency.detail.titleSaveSuccess');
             const messageSaveSuccess = this.$tc('sw-settings-currency.detail.messageSaveSuccess', 0, { name: currencyName });
             return this.currency.save().then(() => {

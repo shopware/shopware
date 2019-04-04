@@ -88,8 +88,8 @@
                                                 <sw-grid-column flex="minmax(200px, 1fr)"
                                                                 :label="$tc('sw-settings-language.list.columnLocaleName')">
                                                     {% block sw_settings_language_list_columns_locale_name_label %}
-                                                        {{ item.locale.meta.viewData.name }},
-                                                        {{ item.locale.meta.viewData.territory }}
+                                                        {{ item.locale.translated.name }},
+                                                        {{ item.locale.translated.territory }}
                                                     {% endblock %}
                                                 </sw-grid-column>
                                             {% endblock %}

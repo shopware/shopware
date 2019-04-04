@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\Test\DataAbstractionLayer\Field;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Context\SystemSource;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -763,6 +764,6 @@ class WhitelistRuleFieldTest extends TestCase
 
     private function createContextWithRules(array $ruleIds = []): Context
     {
-        return new Context(new SystemSource(), $ruleIds);
+        return new Context(new SystemSource(), $ruleIds, Defaults::CURRENCY, [Defaults::LANGUAGE_SYSTEM], Defaults::LIVE_VERSION, 1.0, 2, true);
     }
 }

@@ -5,7 +5,7 @@ namespace Shopware\Core\Checkout\Test\DiscountSurcharge;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
-use Shopware\Core\Checkout\Cart\CartBehaviorContext;
+use Shopware\Core\Checkout\Cart\CartBehavior;
 use Shopware\Core\Checkout\Cart\Enrichment;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Processor;
@@ -103,12 +103,12 @@ class DiscountSurchargeTest extends TestCase
         );
 
         self::$context->setRuleIds([$ruleId]);
-        self::$enrichment->enrich($cart, self::$context);
+        self::$enrichment->enrich($cart, self::$context, new CartBehavior());
 
         $key = 'discount-surcharge-' . $id;
         static::assertTrue($cart->has($key));
 
-        $calculated = self::$processor->process($cart, self::$context, new CartBehaviorContext());
+        $calculated = self::$processor->process($cart, self::$context, new CartBehavior());
 
         static::assertTrue($calculated->has($key));
 
@@ -144,12 +144,12 @@ class DiscountSurchargeTest extends TestCase
         );
 
         self::$context->setRuleIds([$ruleId]);
-        self::$enrichment->enrich($cart, self::$context);
+        self::$enrichment->enrich($cart, self::$context, new CartBehavior());
 
         $key = 'discount-surcharge-' . $id;
         static::assertTrue($cart->has($key));
 
-        $calculated = self::$processor->process($cart, self::$context, new CartBehaviorContext());
+        $calculated = self::$processor->process($cart, self::$context, new CartBehavior());
 
         static::assertTrue($calculated->has($key));
 
@@ -185,12 +185,12 @@ class DiscountSurchargeTest extends TestCase
         );
 
         self::$context->setRuleIds([$ruleId]);
-        self::$enrichment->enrich($cart, self::$context);
+        self::$enrichment->enrich($cart, self::$context, new CartBehavior());
 
         $key = 'discount-surcharge-' . $id;
         static::assertTrue($cart->has($key));
 
-        $calculated = self::$processor->process($cart, self::$context, new CartBehaviorContext());
+        $calculated = self::$processor->process($cart, self::$context, new CartBehavior());
 
         static::assertTrue($calculated->has($key));
 
@@ -226,12 +226,12 @@ class DiscountSurchargeTest extends TestCase
         );
 
         self::$context->setRuleIds([$ruleId]);
-        self::$enrichment->enrich($cart, self::$context);
+        self::$enrichment->enrich($cart, self::$context, new CartBehavior());
 
         $key = 'discount-surcharge-' . $id;
         static::assertTrue($cart->has($key));
 
-        $calculated = self::$processor->process($cart, self::$context, new CartBehaviorContext());
+        $calculated = self::$processor->process($cart, self::$context, new CartBehavior());
 
         static::assertTrue($calculated->has($key));
 

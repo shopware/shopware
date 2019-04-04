@@ -53,12 +53,12 @@ class Calculator
         $this->amountCalculator = $amountCalculator;
     }
 
-    public function calculate(Cart $cart, CheckoutContext $context): LineItemCollection
+    public function calculate(Cart $cart, CheckoutContext $context, CartBehavior $behavior): LineItemCollection
     {
-        return $this->calculateLineItems($cart, $cart->getLineItems(), $context);
+        return $this->calculateLineItems($cart, $cart->getLineItems(), $context, $behavior);
     }
 
-    private function calculateLineItems(Cart $cart, LineItemCollection $lineItems, CheckoutContext $context): LineItemCollection
+    private function calculateLineItems(Cart $cart, LineItemCollection $lineItems, CheckoutContext $context, CartBehavior $behavior): LineItemCollection
     {
         $lineItems->sortByPriority();
 
@@ -67,13 +67,13 @@ class Calculator
         foreach ($lineItems as $original) {
             $lineItem = LineItem::createFromLineItem($original);
 
-            if (!$this->isValid($lineItem, $calculated, $context)) {
+            if (!$this->isValid($lineItem, $calculated, $context, $behavior)) {
                 $cart->getLineItems()->remove($lineItem->getKey());
                 continue;
             }
 
             try {
-                $price = $this->calculatePrice($cart, $lineItem, $context, $calculated);
+                $price = $this->calculatePrice($cart, $lineItem, $context, $calculated, $behavior);
             } catch (\Exception $e) {
                 // todo line item silently removed if an error occurs
                 $cart->getLineItems()->remove($lineItem->getKey());
@@ -105,10 +105,10 @@ class Calculator
         );
     }
 
-    private function calculatePrice(Cart $cart, LineItem $lineItem, CheckoutContext $context, LineItemCollection $calculated): CalculatedPrice
+    private function calculatePrice(Cart $cart, LineItem $lineItem, CheckoutContext $context, LineItemCollection $calculated, CartBehavior $behavior): CalculatedPrice
     {
         if ($lineItem->hasChildren()) {
-            $children = $this->calculateLineItems($cart, $lineItem->getChildren(), $context);
+            $children = $this->calculateLineItems($cart, $lineItem->getChildren(), $context, $behavior);
 
             $lineItem->setChildren($children);
 
@@ -142,9 +142,9 @@ class Calculator
         throw new MissingLineItemPriceException($lineItem->getKey());
     }
 
-    private function isValid(LineItem $lineItem, LineItemCollection $calculated, CheckoutContext $context): bool
+    private function isValid(LineItem $lineItem, LineItemCollection $calculated, CheckoutContext $context, CartBehavior $behavior): bool
     {
-        if (!$lineItem->getRequirement()) {
+        if (!$lineItem->getRequirement() || $behavior->isRecalculation()) {
             return true;
         }
 

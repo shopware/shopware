@@ -48,23 +48,22 @@ class Processor
         $this->transactionProcessor = $transactionProcessor;
     }
 
-    public function process(Cart $original, CheckoutContext $context, CartBehaviorContext $behaviorContext): Cart
+    public function process(Cart $original, CheckoutContext $context, CartBehavior $behavior): Cart
     {
         $cart = new Cart($original->getName(), $original->getToken());
 
         //calculate all line items and add new calculated line items to new cart
         $cart->setLineItems(
-            $this->calculator->calculate($original, $context)
+            $this->calculator->calculate($original, $context, $behavior)
         );
 
         //add line items to deliveries and calculate deliveries
-
         $cart->setDeliveries(
             $this->deliveryProcessor->process(
                 $original,
                 $cart->getLineItems(),
                 $context,
-                $behaviorContext
+                $behavior
             )
         );
 

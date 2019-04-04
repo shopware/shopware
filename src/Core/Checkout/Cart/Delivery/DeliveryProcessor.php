@@ -3,7 +3,7 @@
 namespace Shopware\Core\Checkout\Cart\Delivery;
 
 use Shopware\Core\Checkout\Cart\Cart;
-use Shopware\Core\Checkout\Cart\CartBehaviorContext;
+use Shopware\Core\Checkout\Cart\CartBehavior;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryCollection;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Checkout\CheckoutContext;
@@ -30,7 +30,7 @@ class DeliveryProcessor
         Cart $cart,
         LineItemCollection $lineItems,
         CheckoutContext $context,
-        CartBehaviorContext $behaviorContext
+        CartBehavior $behaviorContext
     ): DeliveryCollection {
         if ($behaviorContext->shouldBuildDeliveries()) {
             $deliveries = $this->builder->build(new DeliveryCollection(), $lineItems, $context, false);

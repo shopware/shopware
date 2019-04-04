@@ -3,6 +3,7 @@
 namespace Shopware\Core\Checkout\DiscountSurcharge\Cart;
 
 use Shopware\Core\Checkout\Cart\Cart;
+use Shopware\Core\Checkout\Cart\CartBehavior;
 use Shopware\Core\Checkout\Cart\CollectorInterface;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Price\Struct\AbsolutePriceDefinition;
@@ -32,7 +33,7 @@ class DiscountSurchargeCollector implements CollectorInterface
         $this->repository = $discountSurchargeRepository;
     }
 
-    public function prepare(StructCollection $definitions, Cart $cart, CheckoutContext $context): void
+    public function prepare(StructCollection $definitions, Cart $cart, CheckoutContext $context, CartBehavior $behavior): void
     {
         $ruleIds = $context->getRuleIds();
 
@@ -58,7 +59,7 @@ class DiscountSurchargeCollector implements CollectorInterface
         $definitions->set(self::DATA_KEY, new DiscountSurchargeFetchDefinition($ruleIds));
     }
 
-    public function collect(StructCollection $fetchDefinitions, StructCollection $data, Cart $cart, CheckoutContext $context): void
+    public function collect(StructCollection $fetchDefinitions, StructCollection $data, Cart $cart, CheckoutContext $context, CartBehavior $behavior): void
     {
         $discountDefinitions = $fetchDefinitions->filterInstance(DiscountSurchargeFetchDefinition::class);
 
@@ -82,7 +83,7 @@ class DiscountSurchargeCollector implements CollectorInterface
         $data->set(self::DATA_KEY, $discountSurcharges);
     }
 
-    public function enrich(StructCollection $data, Cart $cart, CheckoutContext $context): void
+    public function enrich(StructCollection $data, Cart $cart, CheckoutContext $context, CartBehavior $behavior): void
     {
         if (!$data->has(self::DATA_KEY)) {
             return;

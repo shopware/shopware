@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer;
 
-use Shopware\Core\System\Language\LanguageEntity;
+use Shopware\Core\Framework\Language\LanguageEntity;
 
 class TranslationEntity extends Entity
 {

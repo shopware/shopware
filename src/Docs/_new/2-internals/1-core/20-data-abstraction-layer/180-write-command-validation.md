@@ -11,7 +11,7 @@ There are two methods you can implement:
 
 Validators must throw a `\Shopware\Core\Framework\Validation\ConstraintViolationException`, to signal a constraint violation. Any thrown exception aborts and rollbacks the transaction.
 
-You can take a look at `\Shopware\Core\System\Language\LanguageValidator`
+You can take a look at `\Shopware\Core\Framework\Language\LanguageValidator`
 as an example.
 
 There are a few things to watch for. `WriteCommand`s use the `storageName` and not the `propertyName`. So it's `language_id` instead of `languageId`. Currently you cannot use the repositories or the `EntitySearcher` in the validate functions, until it's possible to disable the caching during the validation.

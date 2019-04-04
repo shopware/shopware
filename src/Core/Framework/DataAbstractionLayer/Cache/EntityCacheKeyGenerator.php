@@ -17,7 +17,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\StorageAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Aggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\System\Language\LanguageDefinition;
+use Shopware\Core\Framework\Language\LanguageDefinition;
 
 class EntityCacheKeyGenerator
 {

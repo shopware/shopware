@@ -4,7 +4,7 @@ namespace Shopware\Core\Framework\Search;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
-use Shopware\Core\System\Language\LanguageEntity;
+use Shopware\Core\Framework\Language\LanguageEntity;
 
 class SearchDocumentEntity extends Entity
 {

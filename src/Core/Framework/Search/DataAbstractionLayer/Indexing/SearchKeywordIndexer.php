@@ -21,9 +21,9 @@ use Shopware\Core\Framework\Doctrine\MultiInsertQueryQueue;
 use Shopware\Core\Framework\Event\ProgressAdvancedEvent;
 use Shopware\Core\Framework\Event\ProgressFinishedEvent;
 use Shopware\Core\Framework\Event\ProgressStartedEvent;
+use Shopware\Core\Framework\Language\LanguageEntity;
 use Shopware\Core\Framework\Search\Util\SearchAnalyzerRegistry;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\System\Language\LanguageEntity;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class SearchKeywordIndexer implements IndexerInterface

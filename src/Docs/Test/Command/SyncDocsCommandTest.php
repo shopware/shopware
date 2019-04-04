@@ -6,7 +6,6 @@ use GuzzleHttp\Exception\ClientException;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Docs\Command\SyncDocsCommand;
-use Symfony\Component\Console\Tester\CommandTester;
 
 class SyncDocsCommandTest extends TestCase
 {
@@ -25,9 +24,8 @@ class SyncDocsCommandTest extends TestCase
 
         $category = $this->getCategoryContents($commandTester, $categoryId);
 
-        //static::assertFalse($category['active']);
         static::assertCount(2, $category['localizations']);
-        static::assertEquals(SyncDocsCommand::ROOT_CATEGORY_ID, $category['parent']['id']);
+        static::assertEquals($commandTester->getRootCategoryId(), $category['parent']['id']);
 
         foreach ($category['localizations'] as $localizations) {
             if ($localizations['locale']['name'] === 'en_GB') {
@@ -215,24 +213,6 @@ class SyncDocsCommandTest extends TestCase
             $testCatName . 'de'
         );
 
-        /*$commandTester->syncFilesWithServer([
-            '/'.$testCatName.'/my/awesome/long/path/to/the/other/file.html' => [
-                'content' => '<p>My awesome content !!!</p>',
-                'metadata' => [
-                    'titleDe' => 'Hallo',
-                    'titleEn' => 'Hello',
-                ],
-            ],
-            '/'.$testCatName.'/my/awesome/long/path/to/the/other/secondfile.html' => [
-                'content' => '<p>My awesome second content !!!</p>',
-                'metadata' => [
-                    'titleDe' => 'Welt',
-                    'titleEn' => 'World',
-                ],
-            ],
-        ]);*/
-
-        var_dump($testCatId);
         $commandTester->syncFilesWithServer([
             '/' . $testCatName . '/file.html' => [
                 'content' => '<p>My awesome content !!!</p>',

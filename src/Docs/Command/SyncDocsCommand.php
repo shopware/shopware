@@ -38,6 +38,11 @@ class SyncDocsCommand extends Command
         }
     }
 
+    public function getRootCategoryId()
+    {
+        return $this->rootCategoryId;
+    }
+
     public function syncFilesWithServer(array $convertedFiles): void
     {
         echo 'Syncing markdownfiles ...' . PHP_EOL;

@@ -5,7 +5,7 @@ namespace Shopware\Core\Migration;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Migration\MigrationStep;
-use Shopware\Core\Framework\Struct\Uuid;
+use Shopware\Core\Framework\Uuid\Uuid;
 
 class Migration1553784849AddDoubleOptInConfig extends MigrationStep
 {
@@ -17,7 +17,7 @@ class Migration1553784849AddDoubleOptInConfig extends MigrationStep
     public function update(Connection $connection): void
     {
         $connection->insert('system_config', [
-            'id' => Uuid::uuid4()->getBytes(),
+            'id' => Uuid::randomBytes(),
             'namespace' => 'privacy',
             'configuration_key' => 'doi_enabled',
             'configuration_value' => true,

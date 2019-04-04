@@ -8,8 +8,8 @@ use Shopware\Core\Checkout\Promotion\PromotionEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
 
 class PromotionControllerTest extends TestCase
@@ -29,9 +29,9 @@ class PromotionControllerTest extends TestCase
     public function testCreatePromotion(): void
     {
         $context = Context::createDefaultContext();
-        $id = Uuid::uuid4()->getHex();
-        $absoluteDiscountId = Uuid::uuid4()->getHex();
-        $otherId = Uuid::uuid4()->getHex();
+        $id = Uuid::randomHex();
+        $absoluteDiscountId = Uuid::randomHex();
+        $otherId = Uuid::randomHex();
 
         $data = [
             'id' => $id,
@@ -88,8 +88,8 @@ class PromotionControllerTest extends TestCase
     {
         $client = $this->getClient();
         $context = Context::createDefaultContext();
-        $id = Uuid::uuid4()->getHex();
-        $absoluteDiscountId = Uuid::uuid4()->getHex();
+        $id = Uuid::randomHex();
+        $absoluteDiscountId = Uuid::randomHex();
 
         $this->promotionRepository->create([
             [
@@ -149,8 +149,8 @@ class PromotionControllerTest extends TestCase
     {
         $client = $this->getClient();
         $context = Context::createDefaultContext();
-        $id = Uuid::uuid4()->getHex();
-        $absoluteDiscountId = Uuid::uuid4()->getHex();
+        $id = Uuid::randomHex();
+        $absoluteDiscountId = Uuid::randomHex();
 
         $this->promotionRepository->create(
             [
@@ -210,8 +210,8 @@ class PromotionControllerTest extends TestCase
     {
         $client = $this->getClient();
         $context = Context::createDefaultContext();
-        $id = Uuid::uuid4()->getHex();
-        $absoluteDiscountId = Uuid::uuid4()->getHex();
+        $id = Uuid::randomHex();
+        $absoluteDiscountId = Uuid::randomHex();
 
         $this->promotionRepository->create(
             [
@@ -275,8 +275,8 @@ class PromotionControllerTest extends TestCase
     {
         $client = $this->getClient();
         $context = Context::createDefaultContext();
-        $id = Uuid::uuid4()->getHex();
-        $absoluteDiscountId = Uuid::uuid4()->getHex();
+        $id = Uuid::randomHex();
+        $absoluteDiscountId = Uuid::randomHex();
 
         $this->promotionRepository->create(
             [
@@ -327,8 +327,8 @@ class PromotionControllerTest extends TestCase
     {
         $client = $this->getClient();
         $context = Context::createDefaultContext();
-        $id = Uuid::uuid4()->getHex();
-        $absoluteDiscountId = Uuid::uuid4()->getHex();
+        $id = Uuid::randomHex();
+        $absoluteDiscountId = Uuid::randomHex();
 
         $this->promotionRepository->create(
             [
@@ -387,8 +387,8 @@ class PromotionControllerTest extends TestCase
     {
         $client = $this->getClient();
         $context = Context::createDefaultContext();
-        $id = Uuid::uuid4()->getHex();
-        $absoluteDiscountId = Uuid::uuid4()->getHex();
+        $id = Uuid::randomHex();
+        $absoluteDiscountId = Uuid::randomHex();
 
         $this->promotionRepository->create(
             [

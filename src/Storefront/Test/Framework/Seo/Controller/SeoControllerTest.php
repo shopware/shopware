@@ -5,8 +5,8 @@ namespace Shopware\Storefront\Test\Framework\Seo\Controller;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Defaults;
-use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Storefront\Framework\Seo\SeoUrlGenerator\ProductDetailPageSeoUrlGenerator;
 use Shopware\Storefront\Framework\Seo\SeoUrlTemplate\SeoUrlTemplateEntity;
 
@@ -59,7 +59,7 @@ class SeoControllerTest extends TestCase
     public function testGetSeoContext(): void
     {
         $product = [
-            'id' => Uuid::uuid4()->getHex(),
+            'id' => Uuid::randomHex(),
             'name' => 'test',
             'price' => [
                 'gross' => 10,
@@ -67,7 +67,7 @@ class SeoControllerTest extends TestCase
                 'linked' => false,
             ],
             'manufacturer' => [
-                'id' => Uuid::uuid4()->getHex(),
+                'id' => Uuid::randomHex(),
                 'name' => 'test',
             ],
             'tax' => ['name' => 'test', 'taxRate' => 15],

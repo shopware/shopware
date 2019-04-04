@@ -1,4 +1,4 @@
-import ConfirmOrder from "./confirm/confirm-order.page";
+import ConfirmOrder from 'asset/script/page/checkout/confirm/confirm-order.page';
 
 new ConfirmOrder();
 

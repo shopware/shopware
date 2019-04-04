@@ -13,7 +13,7 @@ export default class PluginRegistry {
      * returns if the plugin is set to the registry
      *
      * @param {string} name
-     * @return {boolean}
+     * @returns {boolean}
      */
     has(name) {
         return this._registry.has(name);
@@ -26,7 +26,7 @@ export default class PluginRegistry {
      * @param {Object} plugin
      * @param {string|NodeList|HTMLElement} selector
      * @param {Object} options
-     * @return {Map<any, any>}
+     * @returns {Map<any, any>}
      */
     set(name, plugin, selector, options) {
         return this._registry.set(name, { name, plugin, selector, options });
@@ -36,7 +36,7 @@ export default class PluginRegistry {
      * returns a plugin from the registry
      *
      * @param {string} name
-     * @return {any}
+     * @returns {any}
      */
     get(name) {
         return this._registry.get(name);
@@ -47,7 +47,7 @@ export default class PluginRegistry {
      *
      * @param {string} name
      *
-     * @return {boolean}
+     * @returns {boolean}
      */
     delete(name) {
         return this._registry.delete(name);
@@ -56,7 +56,7 @@ export default class PluginRegistry {
     /**
      * clears the registry
      *
-     * @return {boolean}
+     * @returns {boolean}
      */
     clear() {
         return this._registry.clear();
@@ -65,7 +65,7 @@ export default class PluginRegistry {
     /**
      * returns all defined plugin names from the registry
      *
-     * @return {[any , any]}
+     * @returns {[any , any]}
      */
     keys() {
         return Array.from(this._registry).reduce((accumulator, values) => {

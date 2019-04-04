@@ -1,4 +1,4 @@
-import Debouncer from "./debouncer.helper";
+import Debouncer from 'asset/script/helper/debouncer.helper';
 
 /**
  * Viewport Detection
@@ -122,7 +122,7 @@ export default class ViewportDetection {
      * @returns {boolean}
      */
     static isXS() {
-        return (ViewportDetection.getCurrentViewport() === "XS");
+        return (ViewportDetection.getCurrentViewport() === 'XS');
     }
 
     /**
@@ -130,7 +130,7 @@ export default class ViewportDetection {
      * @returns {boolean}
      */
     static isSM() {
-        return (ViewportDetection.getCurrentViewport() === "SM");
+        return (ViewportDetection.getCurrentViewport() === 'SM');
     }
 
     /**
@@ -138,7 +138,7 @@ export default class ViewportDetection {
      * @returns {boolean}
      */
     static isMD() {
-        return (ViewportDetection.getCurrentViewport() === "MD");
+        return (ViewportDetection.getCurrentViewport() === 'MD');
     }
 
     /**
@@ -146,7 +146,7 @@ export default class ViewportDetection {
      * @returns {boolean}
      */
     static isLG() {
-        return (ViewportDetection.getCurrentViewport() === "LG");
+        return (ViewportDetection.getCurrentViewport() === 'LG');
     }
 
     /**
@@ -154,7 +154,7 @@ export default class ViewportDetection {
      * @returns {boolean}
      */
     static isXL() {
-        return (ViewportDetection.getCurrentViewport() === "XL");
+        return (ViewportDetection.getCurrentViewport() === 'XL');
     }
 
     /**
@@ -163,7 +163,7 @@ export default class ViewportDetection {
      * @returns {string}
      */
     static getCurrentViewport() {
-        let viewport = window.getComputedStyle(document.documentElement, ':before').content;
+        const viewport = window.getComputedStyle(document.documentElement, ':before').content;
         return viewport.replace(/['"]+/g, '').toUpperCase();
     }
 

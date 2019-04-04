@@ -1,5 +1,5 @@
-import DeviceDetection from "../../helper/device-detection.helper";
-import Backdrop, { BACKDROP_EVENT } from "../../util/backdrop/backdrop.util";
+import DeviceDetection from 'asset/script/helper/device-detection.helper';
+import Backdrop, { BACKDROP_EVENT } from 'asset/script/util/backdrop/backdrop.util';
 
 const OFF_CANVAS_CLASS = 'js-off-canvas';
 const OFF_CANVAS_OPEN_CLASS = 'is-open';
@@ -34,7 +34,7 @@ class OffCanvasSingleton {
                 offCanvas.classList.add(OFF_CANVAS_OPEN_CLASS);
 
                 // if a callback function is being injected execute it after opening the OffCanvas
-                if (typeof callback === "function") {
+                if (typeof callback === 'function') {
                     callback();
                 }
             });
@@ -48,7 +48,7 @@ class OffCanvasSingleton {
      * @param {number} delay
      */
     setContent(content, closable, delay) {
-        let offCanvas = this.getOffCanvas();
+        const offCanvas = this.getOffCanvas();
         offCanvas[0].innerHTML = content;
 
         //register events again
@@ -103,7 +103,7 @@ class OffCanvasSingleton {
      * @private
      */
     _registerEvents(closable, delay) {
-        let event = (DeviceDetection.isTouchDevice()) ? 'touchstart' : 'click';
+        const event = (DeviceDetection.isTouchDevice()) ? 'touchstart' : 'click';
 
         if (closable) {
             const onBackdropClick = () => {
@@ -115,7 +115,7 @@ class OffCanvasSingleton {
             document.addEventListener(BACKDROP_EVENT.ON_CLICK, onBackdropClick);
         }
 
-        let closeTriggers = document.querySelectorAll(`.${OFF_CANVAS_CLOSE_TRIGGER_CLASS}`);
+        const closeTriggers = document.querySelectorAll(`.${OFF_CANVAS_CLOSE_TRIGGER_CLASS}`);
 
         closeTriggers.forEach((trigger) => {
             trigger.addEventListener(event, this.close.bind(this, delay));
@@ -149,7 +149,7 @@ class OffCanvasSingleton {
      * @private
      */
     _createOffCanvas(position, fullwidth) {
-        let offCanvas = document.createElement('div');
+        const offCanvas = document.createElement('div');
         offCanvas.classList.add(OFF_CANVAS_CLASS);
         offCanvas.classList.add(this._getPosition(position));
 

@@ -1,6 +1,6 @@
-import OffCanvas from "./offcanvas.plugin";
-import HttpClient from "../../service/http-client.service";
-import LoadingIndicator from "../../util/loading-indicator/loading-indicator.util";
+import OffCanvas from 'asset/script/plugin/off-canvas/offcanvas.plugin';
+import HttpClient from 'asset/script/service/http-client.service';
+import LoadingIndicator from 'asset/script/util/loading-indicator/loading-indicator.util';
 
 export default class AjaxOffCanvas extends OffCanvas {
 
@@ -14,11 +14,11 @@ export default class AjaxOffCanvas extends OffCanvas {
      * @param {boolean} fullwidth
      */
     static open(url, callback = null, position = 'left', closable = true, delay = OffCanvas.REMOVE_OFF_CANVAS_DELAY, fullwidth = false) {
-        let client = new HttpClient(window.accessKey, window.contextToken);
+        const client = new HttpClient(window.accessKey, window.contextToken);
 
         super.open(LoadingIndicator.getTemplate(), function() {
             client.get(url, (response) => {
-                if (typeof callback === "function") {
+                if (typeof callback === 'function') {
                     callback(response);
                 }
             });

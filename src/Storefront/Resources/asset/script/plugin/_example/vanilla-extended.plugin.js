@@ -1,4 +1,4 @@
-import SimplePlugin from "./simple.plugin";
+import SimplePlugin from 'asset/script/plugin/_example/simple.plugin';
 
 /**
  * extends a plugin with class inheritance

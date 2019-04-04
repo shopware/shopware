@@ -54,8 +54,8 @@ export default class CollapseFooterColumnsPlugin extends Plugin {
      * @private
      */
     _onClickCollapseTrigger(e) {
-        let trigger = e.target;
-        let collapse = trigger.parentNode.querySelector(COLLAPSE_COLUMN_CONTENT_SELECTOR);
+        const trigger = e.target;
+        const collapse = trigger.parentNode.querySelector(COLLAPSE_COLUMN_CONTENT_SELECTOR);
 
         $(collapse).collapse('toggle');
 

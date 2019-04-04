@@ -94,7 +94,7 @@ export default class HttpClient {
      * @private
      */
     _createPreparedRequest(type, url) {
-        let request = new XMLHttpRequest();
+        const request = new XMLHttpRequest();
 
         request.open(type, url);
         request.setRequestHeader('Content-type', 'application/json');

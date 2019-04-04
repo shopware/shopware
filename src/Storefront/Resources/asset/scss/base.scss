@@ -27,6 +27,7 @@
  * Base stuff
  * ---------- */
 @import 'base/base';
+@import 'base/input';
 
 /*
  * Layout-related sections
@@ -36,7 +37,7 @@
 @import 'layout/footer';
 @import 'layout/footer-minimal';
 @import 'layout/navigation';
-@import 'layout/navigation-flyouts';
+@import 'layout/navigation-flyout';
 @import 'layout/navigation-offcanvas';
 
 /*

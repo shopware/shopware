@@ -1,10 +1,10 @@
-import Plugin from '../../helper/plugin/plugin.class'
-import DomAccess from "../../helper/dom-access.helper";
-import HttpClient from "../../service/http-client.service";
-import OffCanvas from "../off-canvas/offcanvas.plugin";
-import LoadingIndicator from "../../util/loading-indicator/loading-indicator.util";
-import DeviceDetection from "../../helper/device-detection.helper";
-import CartWidget from "../actions/cart-widget.plugin";
+import Plugin from 'asset/script/helper/plugin/plugin.class'
+import DomAccess from 'asset/script/helper/dom-access.helper';
+import HttpClient from 'asset/script/service/http-client.service';
+import OffCanvas from 'asset/script/plugin/off-canvas/offcanvas.plugin';
+import LoadingIndicator from 'asset/script/util/loading-indicator/loading-indicator.util';
+import DeviceDetection from 'asset/script/helper/device-detection.helper';
+import CartWidget from 'asset/script/plugin/actions/cart-widget.plugin';
 
 const CART_MINI_OPEN_TRIGGER_DATA_ATTRIBUTE = 'data-cart-mini';
 const CART_MINI_REMOVE_PRODUCT_TRIGGER_SELECTOR = '*[data-remove-product=true]';
@@ -25,7 +25,7 @@ export default class CartMiniPlugin extends Plugin {
      * @private
      */
     _registerOpenTriggerEvents() {
-        let event = (DeviceDetection.isTouchDevice()) ? 'touchstart' : 'click';
+        const event = (DeviceDetection.isTouchDevice()) ? 'touchstart' : 'click';
 
         document.addEventListener(event, (e) => {
             e.path.forEach(item => {
@@ -57,7 +57,7 @@ export default class CartMiniPlugin extends Plugin {
      * @private
      */
     _registerFormEvents() {
-        let forms = document.querySelectorAll(CART_MINI_FORM_SELECTOR);
+        const forms = document.querySelectorAll(CART_MINI_FORM_SELECTOR);
 
         forms.forEach(form => {
             form.addEventListener('submit', this._onFormSubmit.bind(this));
@@ -96,7 +96,7 @@ export default class CartMiniPlugin extends Plugin {
      * @private
      */
     _convertFormDataToJSON(formData) {
-        let object = {};
+        const object = {};
         formData.forEach((value, key) => {
             object[key] = value;
         });
@@ -108,7 +108,7 @@ export default class CartMiniPlugin extends Plugin {
      * @private
      */
     _registerRemoveProductTriggerEvents() {
-        let forms = document.querySelectorAll(CART_MINI_REMOVE_PRODUCT_TRIGGER_SELECTOR);
+        const forms = document.querySelectorAll(CART_MINI_REMOVE_PRODUCT_TRIGGER_SELECTOR);
 
         forms.forEach(form => {
             form.addEventListener('submit', this._onRemoveProductFromCart.bind(this));
@@ -144,7 +144,7 @@ export default class CartMiniPlugin extends Plugin {
      * @private
      */
     _fetchCartMini() {
-        this.client.get(window.router["frontend.cart.detail"], (response) => {
+        this.client.get(window.router['frontend.cart.detail'], (response) => {
             OffCanvas.setContent(response);
             this._registerRemoveProductTriggerEvents();
         });

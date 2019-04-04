@@ -1,6 +1,6 @@
-import DomAccess from "../../helper/dom-access.helper";
-import HttpClient from "../../service/http-client.service";
-import ButtonLoadingIndicator from "../../util/loading-indicator/button-loading-indicator.util";
+import DomAccess from 'asset/script/helper/dom-access.helper';
+import HttpClient from 'asset/script/service/http-client.service';
+import ButtonLoadingIndicator from 'asset/script/util/loading-indicator/button-loading-indicator.util';
 
 const LOGOUT_TRIGGER_SELECTOR = '[data-logout]';
 
@@ -19,7 +19,7 @@ export default class Logout {
      * @private
      */
     _registerFormEvents() {
-        let forms = document.querySelectorAll(LOGOUT_TRIGGER_SELECTOR);
+        const forms = document.querySelectorAll(LOGOUT_TRIGGER_SELECTOR);
 
         forms.forEach(form => {
             form.addEventListener('submit', this._onFormSubmit.bind(this));

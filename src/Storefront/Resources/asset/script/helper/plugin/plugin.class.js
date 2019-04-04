@@ -1,4 +1,5 @@
 import deepmerge from 'deepmerge';
+import DomAccess from 'asset/script/helper/dom-access.helper';
 
 /**
  * Plugin Base class
@@ -13,8 +14,8 @@ export default class Plugin {
      * @param {string} instanceName
      */
     constructor(el, options = {}, instanceName = false) {
-        if (!Plugin._isNode(el)) {
-            throw new Error(`There is no valid element given.`);
+        if (!DomAccess.isNode(el)) {
+            throw new Error('There is no valid element given.');
         }
 
         this.el = el;
@@ -66,21 +67,6 @@ export default class Plugin {
         }
 
         plugins.set(instanceName, this);
-    }
-
-    /**
-     * returns if the passed element is a dom node
-     *
-     * @param el
-     * @return {*}
-     * @private
-     */
-    static _isNode(el) {
-        if (typeof Node === "object") {
-            return el instanceof Node;
-        }
-
-        return el && typeof el === "object" && typeof el.nodeType === "number" && typeof el.nodeName === "string";
     }
 
 }

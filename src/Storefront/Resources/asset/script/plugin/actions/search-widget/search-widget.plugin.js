@@ -1,15 +1,15 @@
-import Plugin from '../../../helper/plugin/plugin.class'
-import DomAccess from "../../../helper/dom-access.helper";
-import Debouncer from "../../../helper/debouncer.helper";
-import HttpClient from "../../../service/http-client.service";
-import InputLoadingIndicator from "../../../util/loading-indicator/input-loading-indicator.util";
-import DeviceDetection from "../../../helper/device-detection.helper";
-import ArrowNavigationHelper from "./helper/arrow-navigation.helper";
+import Plugin from 'asset/script/helper/plugin/plugin.class'
+import DomAccess from 'asset/script/helper/dom-access.helper';
+import Debouncer from 'asset/script/helper/debouncer.helper';
+import HttpClient from 'asset/script/service/http-client.service';
+import InputLoadingIndicator from 'asset/script/util/loading-indicator/input-loading-indicator.util';
+import DeviceDetection from 'asset/script/helper/device-detection.helper';
+import ArrowNavigationHelper from 'asset/script/plugin/actions/search-widget/helper/arrow-navigation.helper';
 
 const SEARCH_WIDGET_SELECTOR = '.js-search-form';
 const SEARCH_WIDGET_RESULTS_SELECTOR = '.js-search-result';
 const SEARCH_WIDGET_RESULT_ITEM_SELECTOR = '.js-result';
-const SEARCH_WIDGET_INPUT_FIELD_SELECTOR = "input[type=search]";
+const SEARCH_WIDGET_INPUT_FIELD_SELECTOR = 'input[type=search]';
 const SEARCH_WIDGET_URL_DATA_ATTRIBUTE = 'data-url';
 
 const SEARCH_WIDGET_DELAY = 250;
@@ -50,7 +50,7 @@ export default class SearchWidgetPlugin extends Plugin {
         );
 
         // add click event listener to body
-        let event = (DeviceDetection.isTouchDevice()) ? 'touchstart' : 'click';
+        const event = (DeviceDetection.isTouchDevice()) ? 'touchstart' : 'click';
         document.body.addEventListener(event, this._onBodyClick.bind(this));
     }
 
@@ -59,7 +59,7 @@ export default class SearchWidgetPlugin extends Plugin {
      * @private
      */
     _handleInputEvent() {
-        let value = this._inputField.value;
+        const value = this._inputField.value;
 
         // stop search if minimum input value length has not been reached
         if (value.length < SEARCH_WIDGET_MIN_CHARS) {
@@ -77,10 +77,10 @@ export default class SearchWidgetPlugin extends Plugin {
      * @private
      */
     _search(value) {
-        let url = this._url + encodeURI(value);
+        const url = this._url + encodeURI(value);
 
         // init loading indicator
-        let indicator = new InputLoadingIndicator(this._inputField);
+        const indicator = new InputLoadingIndicator(this._inputField);
         indicator.create();
 
         this._client.get(url, (response) => {
@@ -105,7 +105,7 @@ export default class SearchWidgetPlugin extends Plugin {
         this._navigationHelper.resetIterator();
 
         // remove all result popovers
-        let results = document.querySelectorAll(SEARCH_WIDGET_RESULTS_SELECTOR);
+        const results = document.querySelectorAll(SEARCH_WIDGET_RESULTS_SELECTOR);
         results.forEach(result => result.remove());
     }
 

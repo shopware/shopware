@@ -1,5 +1,5 @@
 {# Set variable to "true" to enable HMR (hot page reloading) mode #}
-{% set isHMRMode = true %}
+{% set isHMRMode = false %}
 
 {% block base_doctype %}
 <!DOCTYPE html>
@@ -104,7 +104,6 @@
         {% endblock %}
 
         {% block base_script_hmr_mode %}
-
             {% if isHMRMode %}
                 <script type="text/javascript" src="{{ app.request.server.get('APP_URL') }}:9999/js/main.bundle.js"></script>
             {% else %}

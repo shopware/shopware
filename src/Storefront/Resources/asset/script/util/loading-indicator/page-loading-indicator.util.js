@@ -1,5 +1,5 @@
-import LoadingIndicatorUtil from "./loading-indicator.util";
-import Backdrop from "../backdrop/backdrop.util";
+import LoadingIndicatorUtil from 'asset/script/util/loading-indicator/loading-indicator.util';
+import BackdropUtil from 'asset/script/util/backdrop/backdrop.util';
 
 class PageLoadingIndicatorUtilSingleton extends LoadingIndicatorUtil {
 
@@ -17,8 +17,8 @@ class PageLoadingIndicatorUtilSingleton extends LoadingIndicatorUtil {
     create() {
         if (this.exists()) return;
 
-        Backdrop.open();
-        let backdrop = document.querySelector(`.${Backdrop.SELECTOR_CLASS()}`);
+        BackdropUtil.open();
+        const backdrop = document.querySelector(`.${BackdropUtil.SELECTOR_CLASS()}`);
         backdrop.insertAdjacentHTML('beforeend', LoadingIndicatorUtil.getTemplate());
     }
 
@@ -28,7 +28,7 @@ class PageLoadingIndicatorUtilSingleton extends LoadingIndicatorUtil {
      */
     remove() {
         super.remove();
-        Backdrop.close();
+        BackdropUtil.close();
     }
 }
 

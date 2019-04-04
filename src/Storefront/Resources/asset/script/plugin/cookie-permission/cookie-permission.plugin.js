@@ -1,7 +1,7 @@
-import Plugin from '../../helper/plugin/plugin.class'
-import CookieHandler from '../../helper/cookie.helper';
-import Debouncer from '../../helper/debouncer.helper';
-import DeviceDetection from '../../helper/device-detection.helper';
+import Plugin from 'asset/script/helper/plugin/plugin.class'
+import CookieHandler from 'asset/script/helper/cookie.helper';
+import Debouncer from 'asset/script/helper/debouncer.helper';
+import DeviceDetection from 'asset/script/helper/device-detection.helper';
 
 const BUTTON_ID = 'cookieButton';
 const CONTAINER_ID = 'cookieContainer';
@@ -20,7 +20,7 @@ export default class CookiePermissionPlugin extends Plugin {
      * If there is no cookie permission set it initializes the cookie bar
      */
     _checkCookie() {
-        let cookiePermission = CookieHandler.hasCookie('allowCookie', '1');
+        const cookiePermission = CookieHandler.hasCookie('allowCookie', '1');
 
         if (cookiePermission) {
             this._hideCookieBar();
@@ -42,7 +42,7 @@ export default class CookiePermissionPlugin extends Plugin {
      * Hides cookie bar if the user clicks the accept cookie button
      */
     _registerHideEvent() {
-        let event = (DeviceDetection.isTouchDevice()) ? 'touchstart' : 'click';
+        const event = (DeviceDetection.isTouchDevice()) ? 'touchstart' : 'click';
 
         document.getElementById(BUTTON_ID).addEventListener(event, () => {
             this._hideCookieBar();

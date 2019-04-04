@@ -1,7 +1,7 @@
-import DomAccess from "../../helper/dom-access.helper";
-import OffCanvas from "../../plugin/off-canvas/offcanvas.plugin";
-import DeviceDetection from "../../helper/device-detection.helper";
-import ViewportDetection from "../../helper/viewport-detection.helper";
+import DomAccess from 'asset/script/helper/dom-access.helper';
+import OffCanvas from 'asset/script/plugin/off-canvas/offcanvas.plugin';
+import DeviceDetection from 'asset/script/helper/device-detection.helper';
+import ViewportDetection from 'asset/script/helper/viewport-detection.helper';
 
 const OFFCANVAS_ACCOUNT_MENU_CLASS = 'js-account-widget-dropdown';
 const OFFCANVAS_ACCOUNT_MENU_DATA_ATTRIBUTE = 'data-offcanvas-account-menu';
@@ -20,9 +20,9 @@ export default class OffCanvasAccountMenu {
      * @private
      */
     _registerEventListeners() {
-        let event = (DeviceDetection.isTouchDevice()) ? 'touchstart' : 'click';
+        const event = (DeviceDetection.isTouchDevice()) ? 'touchstart' : 'click';
 
-        let trigger = DomAccess.querySelector(document, `*[${OFFCANVAS_ACCOUNT_MENU_DATA_ATTRIBUTE}=true]`);
+        const trigger = DomAccess.querySelector(document, `*[${OFFCANVAS_ACCOUNT_MENU_DATA_ATTRIBUTE}=true]`);
         trigger.addEventListener(event, this._onClickAccountMenuTrigger.bind(this, trigger));
 
         document.addEventListener(ViewportDetection.EVENT_VIEWPORT_HAS_CHANGED(), this._onViewportHasChanged.bind(this));
@@ -40,7 +40,7 @@ export default class OffCanvasAccountMenu {
         // if the current viewport is not allowed return
         if (this._isInAllowedViewports() === false) return;
 
-        let html = DomAccess.querySelector(trigger.parentNode, `.${OFFCANVAS_ACCOUNT_MENU_CLASS}`);
+        const html = DomAccess.querySelector(trigger.parentNode, `.${OFFCANVAS_ACCOUNT_MENU_CLASS}`);
 
         OffCanvas.open(html.innerHTML, null, OFFCANVAS_ACCOUNT_MENU_DATA_POSITION, true, OffCanvas.REMOVE_OFF_CANVAS_DELAY());
     }

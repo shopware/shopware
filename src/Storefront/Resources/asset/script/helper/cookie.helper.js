@@ -7,10 +7,10 @@ export default class CookieHandler {
      * @param {number} expirationDays
      */
     static setCookie(cookieName, cookieValue, expirationDays) {
-        let date = new Date();
+        const date = new Date();
         date.setTime(date.getTime() + (expirationDays * 24 * 60 * 60 * 1000));
 
-        let expires = 'expires=' + date.toUTCString();
+        const expires = 'expires=' + date.toUTCString();
         document.cookie = cookieName + '=' + cookieValue + ';' + expires + ';path=/';
     }
 
@@ -20,8 +20,8 @@ export default class CookieHandler {
      * @returns {string} cookieValue
      */
     static getCookie(cookieName) {
-        let name = cookieName + '=';
-        let allCookies = document.cookie.split(';');
+        const name = cookieName + '=';
+        const allCookies = document.cookie.split(';');
 
         for (let i = 0; i < allCookies.length; i++) {
             let singleCookie = allCookies[i];

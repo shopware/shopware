@@ -1,5 +1,5 @@
-import Plugin from "../../helper/plugin/plugin.class";
-import DeviceDetection from "../../helper/device-detection.helper";
+import Plugin from 'asset/script/helper/plugin/plugin.class';
+import DeviceDetection from 'asset/script/helper/device-detection.helper';
 
 const DEBOUNCE_TIME = 125;
 
@@ -123,7 +123,7 @@ export default class FlyoutMenuPlugin extends Plugin {
     /**
      *
      * @param {Element} el
-     * @return {Element}
+     * @returns {Element}
      * @private
      */
     _retrieveTriggerEl(el) {
@@ -136,7 +136,7 @@ export default class FlyoutMenuPlugin extends Plugin {
      *
      * @param {Element} el
      *
-     * @return {boolean}
+     * @returns {boolean}
      * @private
      */
     _isOpen(el) {
@@ -151,7 +151,7 @@ export default class FlyoutMenuPlugin extends Plugin {
      * @param {function} fn
      * @param {array} args
      *
-     * @return {Function}
+     * @returns {Function}
      * @private
      */
     _debounce(fn, ...args) {

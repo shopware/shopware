@@ -5,7 +5,7 @@ export default class DeviceDetection {
      * @returns {boolean}
      */
     static isTouchDevice() {
-        return ("ontouchstart" in document.documentElement);
+        return ('ontouchstart' in document.documentElement);
     }
 
     /**
@@ -29,7 +29,7 @@ export default class DeviceDetection {
      * @returns {boolean}
      */
     static isIPhoneDevice() {
-        let userAgent = navigator.userAgent;
+        const userAgent = navigator.userAgent;
         return !!(userAgent.match(/iPhone/i));
     }
 
@@ -38,7 +38,7 @@ export default class DeviceDetection {
      * @returns {boolean}
      */
     static isIPadDevice() {
-        let userAgent = navigator.userAgent;
+        const userAgent = navigator.userAgent;
         return !!(userAgent.match(/iPad/i));
     }
 
@@ -47,7 +47,7 @@ export default class DeviceDetection {
      * @returns {boolean}
      */
     static isIEBrowser() {
-        let userAgent = navigator.userAgent.toLowerCase();
+        const userAgent = navigator.userAgent.toLowerCase();
         return userAgent.indexOf('msie') !== -1 || !!navigator.userAgent.match(/Trident.*rv[ :]*11\./);
     }
 
@@ -56,7 +56,7 @@ export default class DeviceDetection {
      * @returns {boolean}
      */
     static isEdgeBrowser() {
-        let userAgent = navigator.userAgent.toLowerCase();
+        const userAgent = navigator.userAgent.toLowerCase();
         return userAgent.indexOf('edge') !== -1;
     }
 }

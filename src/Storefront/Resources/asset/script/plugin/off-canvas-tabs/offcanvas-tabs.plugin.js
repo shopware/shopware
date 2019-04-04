@@ -1,7 +1,7 @@
-import DomAccess from "../../helper/dom-access.helper";
-import OffCanvas from "../../plugin/off-canvas/offcanvas.plugin";
-import DeviceDetection from "../../helper/device-detection.helper";
-import ViewportDetection from "../../helper/viewport-detection.helper";
+import DomAccess from 'asset/script/helper/dom-access.helper';
+import OffCanvas from 'asset/script/plugin/off-canvas/offcanvas.plugin';
+import DeviceDetection from 'asset/script/helper/device-detection.helper';
+import ViewportDetection from 'asset/script/helper/viewport-detection.helper';
 
 const OFFCANVAS_TAB_DATA_ATTRIBUTE = 'data-offcanvas-tab';
 const OFFCANVAS_TAB_POSITION = 'right';
@@ -19,9 +19,9 @@ export default class OffCanvasTabs {
      */
     _registerEventListeners() {
 
-        let event = (DeviceDetection.isTouchDevice()) ? 'touchstart' : 'click';
+        const event = (DeviceDetection.isTouchDevice()) ? 'touchstart' : 'click';
 
-        let tabs = document.querySelectorAll(`*[${OFFCANVAS_TAB_DATA_ATTRIBUTE}=true]`);
+        const tabs = document.querySelectorAll(`*[${OFFCANVAS_TAB_DATA_ATTRIBUTE}=true]`);
 
         tabs.forEach((tab) => {
             tab.addEventListener(event, this._onClickOffCanvasTab.bind(this));
@@ -41,7 +41,7 @@ export default class OffCanvasTabs {
         if (this._isInAllowedViewports() === false) return;
 
         e.preventDefault();
-        let tab = e.target;
+        const tab = e.target;
 
         if (DomAccess.hasAttribute(tab, 'href')) {
             const tabTarget = DomAccess.getAttribute(tab, 'href');

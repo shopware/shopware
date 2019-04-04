@@ -9,6 +9,7 @@ module.exports = {
             true, {
                 "ignore": ["attribute", "class"]
             }
-        ]
+        ],
+        "selector-class-pattern": null
     }
 };

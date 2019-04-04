@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\Command;
+namespace Shopware\Core\Framework\Demodata\Command;
 
 use function Flag\next739;
 use function Flag\next754;

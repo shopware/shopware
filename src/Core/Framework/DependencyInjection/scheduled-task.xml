@@ -29,12 +29,12 @@
             <tag name="messenger.message_handler"/>
         </service>
 
-        <service id="Shopware\Core\Framework\Command\RegisterScheduledTasksCommand">
+        <service id="Shopware\Core\Framework\ScheduledTask\Command\RegisterScheduledTasksCommand">
             <argument type="service" id="Shopware\Core\Framework\ScheduledTask\Registry\TaskRegistry"/>
             <tag name="console.command"/>
         </service>
 
-        <service id="Shopware\Core\Framework\Command\ScheduledTaskRunner">
+        <service id="Shopware\Core\Framework\ScheduledTask\Command\ScheduledTaskRunner">
             <argument type="service" id="Shopware\Core\Framework\ScheduledTask\Scheduler\TaskScheduler"/>
             <tag name="console.command"/>
         </service>

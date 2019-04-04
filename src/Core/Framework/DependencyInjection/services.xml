@@ -48,20 +48,11 @@
             <argument>%shopware.slug.config%</argument>
         </service>
 
-        <service id="Shopware\Core\Framework\Command\DemodataCommand">
-            <tag name="console.command"/>
-            <argument type="service" id="Shopware\Core\Framework\Demodata\DemodataService"/>
-            <argument>%kernel.environment%</argument>
-        </service>
-
         <service id="Shopware\Core\Framework\Provisioning\UserProvisioner">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
         </service>
 
-        <service id="Shopware\Core\Framework\Command\FeatureFlagCreateCommand">
-            <tag name="console.command" command="feature:add"/>
-            <argument type="service" id="Shopware\Core\Framework\FeatureFlag\FeatureFlagGenerator"/>
-        </service>
+
 
         <!-- Migration -->
         <service id="Shopware\Core\Framework\Migration\MigrationRuntime">
@@ -78,33 +69,28 @@
             <argument type="service" id="Shopware\Core\Framework\Migration\MigrationCollection"/>
         </service>
 
-        <service id="Shopware\Core\Framework\Command\CreateMigrationCommand">
+        <service id="Shopware\Core\Framework\Migration\Command\CreateMigrationCommand">
             <tag name="console.command"/>
             <argument>%kernel.project_dir%</argument>
             <argument>%kernel.plugin_dir%</argument>
         </service>
 
-        <service id="Shopware\Core\Framework\Command\RefreshMigrationCommand">
+        <service id="Shopware\Core\Framework\Migration\Command\RefreshMigrationCommand">
             <tag name="console.command"/>
         </service>
 
-        <service id="Shopware\Core\Framework\Command\MigrationCommand">
+        <service id="Shopware\Core\Framework\Migration\Command\MigrationCommand">
             <tag name="console.command"/>
             <argument type="service" id="Shopware\Core\Framework\Migration\MigrationCollectionLoader"/>
             <argument type="service" id="Shopware\Core\Framework\Migration\MigrationRuntime"/>
             <argument type="service" id="shopware.cache"/>
         </service>
 
-        <service id="Shopware\Core\Framework\Command\MigrationDestructiveCommand">
+        <service id="Shopware\Core\Framework\Migration\Command\MigrationDestructiveCommand">
             <tag name="console.command"/>
             <argument type="service" id="Shopware\Core\Framework\Migration\MigrationCollectionLoader"/>
             <argument type="service" id="Shopware\Core\Framework\Migration\MigrationRuntime"/>
             <argument type="service" id="shopware.cache"/>
-        </service>
-
-        <service id="Shopware\Core\Framework\Command\DumpSchemaCommand">
-            <tag name="console.command"/>
-            <argument type="service" id="Shopware\Core\Framework\Api\ApiDefinition\DefinitionService"/>
         </service>
 
         <service id="Shopware\Core\Framework\Api\Controller\MigrationController" public="true">
@@ -259,5 +245,10 @@
 
         <!-- Feature Flags -->
         <service id="Shopware\Core\Framework\FeatureFlag\FeatureFlagGenerator"/>
+
+        <service id="Shopware\Core\Framework\FeatureFlag\Command\FeatureFlagCreateCommand">
+            <tag name="console.command" command="feature:add"/>
+            <argument type="service" id="Shopware\Core\Framework\FeatureFlag\FeatureFlagGenerator"/>
+        </service>
     </services>
 </container>

@@ -1,9 +1,9 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\Test\Command;
+namespace Shopware\Core\Framework\Test\ScheduledTask;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\Command\RegisterScheduledTasksCommand;
+use Shopware\Core\Framework\ScheduledTask\Command\RegisterScheduledTasksCommand;
 use Shopware\Core\Framework\ScheduledTask\Registry\TaskRegistry;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Symfony\Component\Console\Tester\CommandTester;

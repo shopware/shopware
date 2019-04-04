@@ -45,7 +45,7 @@
             <tag name="shopware.entity.definition" entity="sales_channel_type_translation"/>
         </service>
 
-        <service id="Shopware\Core\System\Command\SalesChannelCreateCommand">
+        <service id="Shopware\Core\System\SalesChannel\Command\SalesChannelCreateCommand">
             <argument type="service" id="sales_channel.repository"/>
             <argument type="service" id="payment_method.repository"/>
             <argument type="service" id="shipping_method.repository"/>

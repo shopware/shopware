@@ -60,6 +60,11 @@
             </call>
         </service>
 
+        <service id="Shopware\Core\Framework\Api\Command\DumpSchemaCommand">
+            <tag name="console.command"/>
+            <argument type="service" id="Shopware\Core\Framework\Api\ApiDefinition\DefinitionService"/>
+        </service>
+
         <!-- Serializer -->
         <service id="Shopware\Core\Framework\Api\Serializer\JsonApiDecoder">
             <tag name="serializer.encoder"/>

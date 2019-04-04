@@ -42,6 +42,12 @@ class ClassNamespaceTest extends TestCase
         static::assertCount(0, $result, 'No global Exception directories allowed, put your exceptions in the right domain directory, violations: ' . print_r($result, true));
     }
 
+    public function testNoGlobalCommandDirectories(): void
+    {
+        $result = glob(__DIR__ . '/../../*/Command');
+        static::assertCount(0, $result, 'No global Command directories allowed, put your commands in the right domain directory, violations: ' . print_r($result, true));
+    }
+
     /**
      * @param string[] $basePathParts
      *

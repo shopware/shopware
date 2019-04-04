@@ -2,9 +2,7 @@
     <div class="col">
         {% block page_content_element_text_inner %}
             <p class="cms-text">
-				{% for text in element.viewData.config %}
-                	{{ text }}
-				{% endfor %}
+                {{ element.data.content }}
             </p>
         {% endblock %}
     </div>

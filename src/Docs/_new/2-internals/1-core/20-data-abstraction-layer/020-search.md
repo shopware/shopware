@@ -1,7 +1,4 @@
 [titleEn]: <>(Search)
-[titleDe]: <>(Search)
-[wikiUrl]: <>(../data-abstract-layer/search?category=shopware-platform-en/data-abstraction-layer)
-
 # Search
 
 The search is one of the most powerful yet fastest modules in Shopware.

@@ -1,8 +1,4 @@
 [titleEn]: <>(Indexing)
-[titleDe]: <>(Indexing)
-[wikiUrl]: <>(../data-abstract-layer/indexing?category=shopware-platform-en/data-abstraction-layer)
-
-# Indexing
 
 The DataAbstractionLayer provides several indexers to optimize the performance.
 
@@ -37,11 +33,7 @@ Your service definition needs to be tagged as
 
 ## Child Count indexer
 
-The child count indexer is helpful when your entity has parent/child relations.
-To make use of the child count indexer, your entity has to have a `ChildrenAssociationField`
-and a `ChildCountField`. If these two requirements are met, the
-`Shopware\Core\Framework\DataAbstractionLayer\Dbal\Indexing\ChildCountIndexer` will automatically update
-the child_count for your entities if you create a new entity one or change an existing one.
+The child count indexer is helpful when your entity has parent/child relations. To make use of the child count indexer, your entity has to have a `ChildrenAssociationField` and a `ChildCountField`. If these two requirements are met, the `Shopware\Core\Framework\DataAbstractionLayer\Dbal\Indexing\ChildCountIndexer` will automatically update the child_count for your entities if you create a new entity one or change an existing one.
 
-Note: Please be aware, that the child count will only consider direct children 
-and does not work recursively.
+*Note: Please be aware, that the child count will only consider direct children 
+and does not work recursively.*

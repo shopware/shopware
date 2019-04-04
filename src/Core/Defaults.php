@@ -23,5 +23,6 @@ final class Defaults
     public const SALES_CHANNEL_STOREFRONT_API = 'f183ee5650cf4bdb8a774337575067a6';
 
     public const SALES_CHANNEL_STOREFRONT = '8a243080f92e4c719546314b577cf82b';
+
     public const DATE_FORMAT = 'Y-m-d H:i:s.v';
 }

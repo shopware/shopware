@@ -1,6 +1,4 @@
 [titleEn]: <>(Write)
-[titleDe]: <>(Write)
-[wikiUrl]: <>(../data-abstract-layer/write?category=shopware-platform-en/data-abstraction-layer)
 
 # Write
 

@@ -1,8 +1,4 @@
 [titleEn]: <>(Field Accessor)
-[titleDe]: <>(Field Accessor)
-[wikiUrl]: <>(../data-abstract-layer/field-accessor?category=shopware-platform-en/data-abstraction-layer)
-
-# FieldAccessor
 
 A FieldAccessor is a selector for the data in your storage.
 

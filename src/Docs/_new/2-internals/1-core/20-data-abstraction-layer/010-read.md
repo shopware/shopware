@@ -1,8 +1,4 @@
 [titleEn]: <>(Read)
-[titleDe]: <>(Read)
-[wikiUrl]: <>(../data-abstract-layer/read?category=shopware-platform-en/data-abstraction-layer)
-
-# Read
 
 Reading entities from the storage is pretty straight-forward and does not require any special criteria object unless
 you already know what you are looking for.
@@ -13,8 +9,8 @@ The entity reader always works in batch mode, which means that you should not re
 
 The entity repositories provide a `read()` method which takes two arguments:
 
-1. The `Criteria` object, which holds a list of ids.
-2. The `Context` object to be read with
+1. The `Criteria` object, which holds a list of ids in hex format.
+2. The `Context` object to be read with.
 
 ```php
 $productRepository->read(

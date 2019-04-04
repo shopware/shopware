@@ -1,6 +1,4 @@
 [titleEn]: <>(Black-/Whitelisting)
-[titleDe]: <>(Black-/Whitelisting)
-# Black-/White Listing
 
 Black-/Whitelisting is an extension to define the visibility of Entities for certain Rules.
 
@@ -26,5 +24,4 @@ To add Black-/Whitelist Support to an Entity you add the corresponding Fields to
 
 ### Read/Search with Black-/Whitelist Support
 
-To Support the Black-/Whitelisting for Searches and Reads the Rules for the currently applied Black-/Whitelisting 
-have to be in the Context (_/Core/Framework/Context.php_)   
+To Support the Black-/Whitelisting for Searches and Reads the Rules for the currently applied Black-/Whitelisting have to be in the Context (_/Core/Framework/Context.php_)   

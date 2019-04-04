@@ -66,7 +66,7 @@ class OrderPersisterTest extends TestCase
 
         $persister = new OrderPersister($repository, $this->orderConverter);
 
-        $persister->persist($cart, $this->getCheckoutContext());
+        $persister->persist($cart, $this->getSalesChannelContext());
     }
 
     public function testSaveWithMissingLabel(): void
@@ -77,11 +77,11 @@ class OrderPersisterTest extends TestCase
                 ->setPriceDefinition(new AbsolutePriceDefinition(1, 2))
         );
 
-        $processedCart = $this->cartProcessor->process($cart, Generator::createCheckoutContext(), new CartBehavior());
+        $processedCart = $this->cartProcessor->process($cart, Generator::createSalesChannelContext(), new CartBehavior());
 
         $exception = null;
         try {
-            $this->orderPersister->persist($processedCart, $this->getCheckoutContext());
+            $this->orderPersister->persist($processedCart, $this->getSalesChannelContext());
         } catch (InvalidCartException $exception) {
         }
 
@@ -119,18 +119,18 @@ class OrderPersisterTest extends TestCase
         return $customer;
     }
 
-    private function getCheckoutContext(): MockObject
+    private function getSalesChannelContext(): MockObject
     {
         $customer = $this->getCustomer();
         $salesChannel = new SalesChannelEntity();
-        $checkoutContext = $this->createMock(SalesChannelContext::class);
-        $checkoutContext->method('getCustomer')->willReturn($customer);
+        $salesChannelContext = $this->createMock(SalesChannelContext::class);
+        $salesChannelContext->method('getCustomer')->willReturn($customer);
 
         $context = Context::createDefaultContext();
         $salesChannel->setId($context->getSalesChannelId());
-        $checkoutContext->method('getSalesChannel')->willReturn($salesChannel);
-        $checkoutContext->method('getContext')->willReturn($context);
+        $salesChannelContext->method('getSalesChannel')->willReturn($salesChannel);
+        $salesChannelContext->method('getContext')->willReturn($context);
 
-        return $checkoutContext;
+        return $salesChannelContext;
     }
 }

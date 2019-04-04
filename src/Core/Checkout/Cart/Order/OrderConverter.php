@@ -63,7 +63,7 @@ class OrderConverter
     /**
      * @var SalesChannelContextFactory
      */
-    protected $checkoutContextFactory;
+    protected $salesChannelContextFactory;
 
     /**
      * @var EventDispatcherInterface
@@ -82,13 +82,13 @@ class OrderConverter
 
     public function __construct(
         EntityRepositoryInterface $customerRepository,
-        SalesChannelContextFactory $checkoutContextFactory,
+        SalesChannelContextFactory $salesChannelContextFactory,
         StateMachineRegistry $stateMachineRegistry,
         EventDispatcherInterface $eventDispatcher,
         NumberRangeValueGeneratorInterface $numberRangeValueGenerator
     ) {
         $this->customerRepository = $customerRepository;
-        $this->checkoutContextFactory = $checkoutContextFactory;
+        $this->salesChannelContextFactory = $salesChannelContextFactory;
         $this->stateMachineRegistry = $stateMachineRegistry;
         $this->eventDispatcher = $eventDispatcher;
         $this->numberRangeValueGenerator = $numberRangeValueGenerator;
@@ -233,7 +233,7 @@ class OrderConverter
     /**
      * @throws InconsistentCriteriaIdsException
      */
-    public function assembleCheckoutContext(OrderEntity $order, Context $context): SalesChannelContext
+    public function assembleSalesChannelContext(OrderEntity $order, Context $context): SalesChannelContext
     {
         $customerId = $order->getOrderCustomer()->getCustomerId();
         $customerGroupId = null;
@@ -255,7 +255,7 @@ class OrderConverter
             $options[SalesChannelContextService::PAYMENT_METHOD_ID] = $order->getTransactions()->first()->getPaymentMethodId();
         }
 
-        return $this->checkoutContextFactory->create(Uuid::randomHex(), $order->getSalesChannelId(), $options);
+        return $this->salesChannelContextFactory->create(Uuid::randomHex(), $order->getSalesChannelId(), $options);
     }
 
     private function convertDeliveries(OrderDeliveryCollection $orderDeliveries, LineItemCollection $lineItems): DeliveryCollection

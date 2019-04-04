@@ -111,12 +111,12 @@ SQL;
             ];
 
             if (isset($contexts[$customerId])) {
-                $checkoutContext = $contexts[$customerId];
+                $salesChannelContext = $contexts[$customerId];
             } else {
-                $checkoutContext = $this->contextFactory->create($token, Defaults::SALES_CHANNEL, $options);
+                $salesChannelContext = $this->contextFactory->create($token, Defaults::SALES_CHANNEL, $options);
                 $taxStates = [CartPrice::TAX_STATE_FREE, CartPrice::TAX_STATE_GROSS, CartPrice::TAX_STATE_NET];
-                $checkoutContext->setTaxState($taxStates[array_rand($taxStates)]);
-                $contexts[$customerId] = $checkoutContext;
+                $salesChannelContext->setTaxState($taxStates[array_rand($taxStates)]);
+                $contexts[$customerId] = $salesChannelContext;
             }
 
             $itemCount = random_int(3, 5);
@@ -128,9 +128,9 @@ SQL;
             $cart = $this->cartService->createNew($token, 'demo-data');
             $cart->addLineItems($new);
 
-            $cart = $this->cartService->recalculate($cart, $checkoutContext);
+            $cart = $this->cartService->recalculate($cart, $salesChannelContext);
 
-            $payload[] = $this->orderConverter->convertToOrder($cart, $checkoutContext, new OrderConversionContext());
+            $payload[] = $this->orderConverter->convertToOrder($cart, $salesChannelContext, new OrderConversionContext());
 
             if (\count($payload) >= 20) {
                 $this->writer->upsert(OrderDefinition::class, $payload, $writeContext);

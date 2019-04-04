@@ -13,7 +13,7 @@ class CheckoutInfoPagelet extends Struct
      */
     protected $cart;
     /**
-     * @var \Shopware\Core\System\SalesChannel\SalesChannelContext
+     * @var SalesChannelContext
      */
     private $context;
 

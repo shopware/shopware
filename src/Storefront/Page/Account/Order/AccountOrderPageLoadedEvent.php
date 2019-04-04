@@ -43,7 +43,7 @@ class AccountOrderPageLoadedEvent extends NestedEvent
         return $this->context->getContext();
     }
 
-    public function getCheckoutContext(): SalesChannelContext
+    public function getSalesChannelContext(): SalesChannelContext
     {
         return $this->context;
     }

@@ -34,10 +34,10 @@ class AmountCalculatorTest extends TestCase
         $shop = $this->createMock(SalesChannelEntity::class);
         $shop->method('getTaxCalculationType')->willReturn(TaxAmountCalculator::CALCULATION_VERTICAL);
 
-        $checkoutContext = $this->createMock(SalesChannelContext::class);
-        $checkoutContext->method('getSalesChannel')->willReturn($shop);
+        $salesChannelContext = $this->createMock(SalesChannelContext::class);
+        $salesChannelContext->method('getSalesChannel')->willReturn($shop);
 
-        $checkoutContext->method('getContext')->willReturn(Context::createDefaultContext());
+        $salesChannelContext->method('getContext')->willReturn(Context::createDefaultContext());
 
         $calculator = new AmountCalculator(
             $detector,
@@ -52,7 +52,7 @@ class AmountCalculatorTest extends TestCase
             )
         );
 
-        $cartPrice = $calculator->calculate($prices, new PriceCollection(), $checkoutContext);
+        $cartPrice = $calculator->calculate($prices, new PriceCollection(), $salesChannelContext);
         static::assertEquals($expected, $cartPrice);
     }
 
@@ -68,10 +68,10 @@ class AmountCalculatorTest extends TestCase
         $shop = $this->createMock(SalesChannelEntity::class);
         $shop->method('getTaxCalculationType')->willReturn(TaxAmountCalculator::CALCULATION_VERTICAL);
 
-        $checkoutContext = $this->createMock(SalesChannelContext::class);
-        $checkoutContext->method('getSalesChannel')->willReturn($shop);
+        $salesChannelContext = $this->createMock(SalesChannelContext::class);
+        $salesChannelContext->method('getSalesChannel')->willReturn($shop);
 
-        $checkoutContext->method('getContext')->willReturn(Context::createDefaultContext());
+        $salesChannelContext->method('getContext')->willReturn(Context::createDefaultContext());
 
         $calculator = new AmountCalculator(
             $detector,
@@ -86,7 +86,7 @@ class AmountCalculatorTest extends TestCase
             )
         );
 
-        $cartPrice = $calculator->calculate($prices, new PriceCollection(), $checkoutContext);
+        $cartPrice = $calculator->calculate($prices, new PriceCollection(), $salesChannelContext);
         static::assertEquals($expected, $cartPrice);
     }
 

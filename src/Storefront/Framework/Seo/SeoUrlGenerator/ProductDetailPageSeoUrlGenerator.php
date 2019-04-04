@@ -25,13 +25,13 @@ class ProductDetailPageSeoUrlGenerator extends SeoUrlGenerator
 
     public function __construct(
         EntityRepositoryInterface $salesChannelRepository,
-        SalesChannelContextFactoryInterface $checkoutContextFactory,
+        SalesChannelContextFactoryInterface $salesChannelContextFactory,
         Slugify $slugify,
         RouterInterface $router,
         string $routeName,
         EntityRepositoryInterface $productRepository
     ) {
-        parent::__construct($salesChannelRepository, $checkoutContextFactory, $slugify, $router, $routeName);
+        parent::__construct($salesChannelRepository, $salesChannelContextFactory, $slugify, $router, $routeName);
 
         $this->productRepository = $productRepository;
     }

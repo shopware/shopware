@@ -16,15 +16,15 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
  */
 class PaymentMethodCollection extends EntityCollection
 {
-    public function filterByActiveRules(SalesChannelContext $checkoutContext): PaymentMethodCollection
+    public function filterByActiveRules(SalesChannelContext $salesChannelContext): PaymentMethodCollection
     {
         return $this->filter(
-            function (PaymentMethodEntity $paymentMethod) use ($checkoutContext) {
+            function (PaymentMethodEntity $paymentMethod) use ($salesChannelContext) {
                 if ($paymentMethod->getAvailabilityRuleIds() === null) {
                     return true;
                 }
 
-                $matches = array_intersect($paymentMethod->getAvailabilityRuleIds(), $checkoutContext->getRuleIds());
+                $matches = array_intersect($paymentMethod->getAvailabilityRuleIds(), $salesChannelContext->getRuleIds());
 
                 return !empty($matches);
             }

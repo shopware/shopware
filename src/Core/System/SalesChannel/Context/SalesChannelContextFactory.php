@@ -182,7 +182,7 @@ class SalesChannelContextFactory implements SalesChannelContextFactoryInterface
             true
         );
 
-        $checkoutContext = new SalesChannelContext(
+        $salesChannelContext = new SalesChannelContext(
             $context,
             $token,
             $salesChannel,
@@ -197,9 +197,9 @@ class SalesChannelContextFactory implements SalesChannelContextFactoryInterface
             []
         );
 
-        $checkoutContext->setTaxState($this->taxDetector->getTaxState($checkoutContext));
+        $salesChannelContext->setTaxState($this->taxDetector->getTaxState($salesChannelContext));
 
-        return $checkoutContext;
+        return $salesChannelContext;
     }
 
     private function getPaymentMethod(array $options, Context $context, SalesChannelEntity $salesChannel, ?CustomerEntity $customer): PaymentMethodEntity

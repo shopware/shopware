@@ -1,13 +1,14 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Checkout\Context;
+namespace Shopware\Core\System\SalesChannel\Context;
 
 use Psr\Cache\CacheItemInterface;
 use Psr\Cache\CacheItemPoolInterface;
+use Shopware\Core\Checkout\Cart\CartRuleLoader;
 use Shopware\Core\Checkout\Cart\Storefront\CartService;
-use Shopware\Core\Checkout\CheckoutContext;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
-class CheckoutContextService implements CheckoutContextServiceInterface
+class SalesChannelContextService implements SalesChannelContextServiceInterface
 {
     public const CURRENCY_ID = 'currencyId';
 
@@ -35,17 +36,17 @@ class CheckoutContextService implements CheckoutContextServiceInterface
     private $cache;
 
     /**
-     * @var CheckoutContextFactoryInterface
+     * @var SalesChannelContextFactoryInterface
      */
     private $factory;
 
     /**
-     * @var CheckoutRuleLoader
+     * @var CartRuleLoader
      */
     private $ruleLoader;
 
     /**
-     * @var CheckoutContextPersister
+     * @var SalesChannelContextPersister
      */
     private $contextPersister;
 
@@ -56,9 +57,9 @@ class CheckoutContextService implements CheckoutContextServiceInterface
 
     public function __construct(
         CacheItemPoolInterface $cache,
-        CheckoutContextFactoryInterface $factory,
-        CheckoutRuleLoader $ruleLoader,
-        CheckoutContextPersister $contextPersister,
+        SalesChannelContextFactoryInterface $factory,
+        CartRuleLoader $ruleLoader,
+        SalesChannelContextPersister $contextPersister,
         CartService $cartService
     ) {
         $this->cache = $cache;
@@ -68,7 +69,7 @@ class CheckoutContextService implements CheckoutContextServiceInterface
         $this->cartService = $cartService;
     }
 
-    public function get(string $salesChannelId, string $token, ?string $languageId = null): CheckoutContext
+    public function get(string $salesChannelId, string $token, ?string $languageId = null): SalesChannelContext
     {
         return $this->load($salesChannelId, $token, true, $languageId);
     }
@@ -78,7 +79,7 @@ class CheckoutContextService implements CheckoutContextServiceInterface
         $this->load($salesChannelId, $token, false, $languageId);
     }
 
-    private function load(string $salesChannelId, string $token, bool $useCache, ?string $languageId = null): CheckoutContext
+    private function load(string $salesChannelId, string $token, bool $useCache, ?string $languageId = null): SalesChannelContext
     {
         $key = $salesChannelId . '-' . $token;
 
@@ -118,12 +119,12 @@ class CheckoutContextService implements CheckoutContextServiceInterface
         return $context;
     }
 
-    private function loadFromCache(CacheItemInterface $item, string $token): CheckoutContext
+    private function loadFromCache(CacheItemInterface $item, string $token): SalesChannelContext
     {
         $cacheContext = $item->get();
 
-        /* @var CheckoutContext $cacheContext */
-        return new CheckoutContext(
+        /* @var SalesChannelContext $cacheContext */
+        return new SalesChannelContext(
             $cacheContext->getContext(),
             $token,
             $cacheContext->getSalesChannel(),

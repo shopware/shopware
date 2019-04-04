@@ -30,7 +30,7 @@ class ConfirmPageTest extends TestCase
     public function testItLoadsTheConfirmPage(): void
     {
         $request = new InternalRequest();
-        $context = $this->createCheckoutContextWithNavigation();
+        $context = $this->createSalesChannelContextWithNavigation();
 
         /** @var CheckoutConfirmPageLoadedEvent $event */
         $event = null;
@@ -51,7 +51,7 @@ class ConfirmPageTest extends TestCase
     public function testItIgnoresUnavailableShippingMethods(): void
     {
         $request = new InternalRequest();
-        $context = $this->createCheckoutContextWithNavigation();
+        $context = $this->createSalesChannelContextWithNavigation();
 
         /** @var EntityRepositoryInterface $shippingMethodRepository */
         $shippingMethodRepository = $this->getContainer()->get('shipping_method.repository');
@@ -89,7 +89,7 @@ class ConfirmPageTest extends TestCase
     public function testItIgnoresUnavailablePaymentMethods(): void
     {
         $request = new InternalRequest();
-        $context = $this->createCheckoutContextWithNavigation();
+        $context = $this->createSalesChannelContextWithNavigation();
 
         /** @var EntityRepositoryInterface $paymentMethodRepository */
         $paymentMethodRepository = $this->getContainer()->get('payment_method.repository');
@@ -120,7 +120,7 @@ class ConfirmPageTest extends TestCase
         $event = null;
         $this->catchEvent(CheckoutConfirmPageLoadedEvent::NAME, $event);
 
-        $context = $this->createCheckoutContextWithNavigation();
+        $context = $this->createSalesChannelContextWithNavigation();
 
         /** @var CheckoutConfirmPage $page */
         $page = $this->getPageLoader()->load($request, $context);

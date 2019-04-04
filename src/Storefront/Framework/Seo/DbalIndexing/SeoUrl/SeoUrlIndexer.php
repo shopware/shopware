@@ -39,7 +39,7 @@ abstract class SeoUrlIndexer implements IndexerInterface
     /**
      * @var SalesChannelContextFactoryInterface
      */
-    private $checkoutContextFactory;
+    private $salesChannelContextFactory;
 
     /**
      * @var string
@@ -55,7 +55,7 @@ abstract class SeoUrlIndexer implements IndexerInterface
         EntityRepositoryInterface $salesChannelRepository,
         EventDispatcherInterface $eventDispatcher,
         SeoService $seoService,
-        SalesChannelContextFactoryInterface $checkoutContextFactory,
+        SalesChannelContextFactoryInterface $salesChannelContextFactory,
         string $routeName,
         EntityRepositoryInterface $entityRepository
     ) {
@@ -63,7 +63,7 @@ abstract class SeoUrlIndexer implements IndexerInterface
         $this->eventDispatcher = $eventDispatcher;
 
         $this->seoService = $seoService;
-        $this->checkoutContextFactory = $checkoutContextFactory;
+        $this->salesChannelContextFactory = $salesChannelContextFactory;
 
         $this->routeName = $routeName;
         $this->entityRepository = $entityRepository;
@@ -82,7 +82,7 @@ abstract class SeoUrlIndexer implements IndexerInterface
 
         /** @var SalesChannelEntity $salesChannel */
         foreach ($salesChannels as $salesChannel) {
-            $context = $this->getCheckoutContext($salesChannel->getId())->getContext();
+            $context = $this->getSalesChannelContext($salesChannel->getId())->getContext();
             $iterator = new RepositoryIterator($this->entityRepository, $context);
 
             $this->eventDispatcher->dispatch(
@@ -139,7 +139,7 @@ abstract class SeoUrlIndexer implements IndexerInterface
         }
     }
 
-    private function getCheckoutContext(string $salesChannelId): SalesChannelContext
+    private function getSalesChannelContext(string $salesChannelId): SalesChannelContext
     {
         /** @var SalesChannelEntity $salesChannel */
         $salesChannel = $this->salesChannelRepository
@@ -147,7 +147,7 @@ abstract class SeoUrlIndexer implements IndexerInterface
             ->first();
         $options = $salesChannel->jsonSerialize();
 
-        return $this->checkoutContextFactory->create(
+        return $this->salesChannelContextFactory->create(
             Uuid::randomHex(),
             $salesChannelId,
             $options

@@ -29,7 +29,7 @@ class ValidatorTest extends TestCase
             public function validate(
                 Cart $cart,
                 ErrorCollection $errorCollection,
-                SalesChannelContext $checkoutContext
+                SalesChannelContext $salesChannelContext
             ): void {
                 $errorCollection->add($this->error);
             }

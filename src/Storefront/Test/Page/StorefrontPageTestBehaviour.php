@@ -33,13 +33,13 @@ trait StorefrontPageTestBehaviour
     public static function assertPageEvent(
         string $expectedClass,
         Event $event,
-        SalesChannelContext $checkoutContext,
+        SalesChannelContext $salesChannelContext,
         InternalRequest $request,
         Struct $page
     ): void {
         TestCase::assertInstanceOf($expectedClass, $event);
-        TestCase::assertSame($checkoutContext, $event->getCheckoutContext());
-        TestCase::assertSame($checkoutContext->getContext(), $event->getContext());
+        TestCase::assertSame($salesChannelContext, $event->getSalesChannelContext());
+        TestCase::assertSame($salesChannelContext->getContext(), $event->getContext());
         TestCase::assertSame($request, $event->getRequest());
         TestCase::assertSame($page, $event->getPage());
     }
@@ -49,7 +49,7 @@ trait StorefrontPageTestBehaviour
     protected function assertFailsWithoutNavigation(): void
     {
         $request = new InternalRequest();
-        $context = $this->createCheckoutContext();
+        $context = $this->createSalesChannelContext();
 
         $this->expectNavigationMissingException();
         $this->getPageLoader()->load($request, $context);
@@ -58,7 +58,7 @@ trait StorefrontPageTestBehaviour
     protected function assertLoginRequirement(array $queryParams = []): void
     {
         $request = new InternalRequest($queryParams);
-        $context = $this->createCheckoutContextWithNavigation();
+        $context = $this->createSalesChannelContextWithNavigation();
         $this->expectException(CustomerNotLoggedInException::class);
         $this->getPageLoader()->load($request, $context);
     }
@@ -123,7 +123,7 @@ trait StorefrontPageTestBehaviour
         return $searchResult->first();
     }
 
-    protected function createCheckoutContextWithNavigation(): SalesChannelContext
+    protected function createSalesChannelContextWithNavigation(): SalesChannelContext
     {
         $paymentMethodId = $this->getValidPaymentMethodId();
         $shippingMethodId = $this->getAvailableShippingMethodId();
@@ -153,7 +153,7 @@ trait StorefrontPageTestBehaviour
         return $this->createContext($data, []);
     }
 
-    protected function createCheckoutContextWithLoggedInCustomerAndWithNavigation(): SalesChannelContext
+    protected function createSalesChannelContextWithLoggedInCustomerAndWithNavigation(): SalesChannelContext
     {
         $paymentMethodId = $this->getValidPaymentMethodId();
         $shippingMethodId = $this->getAvailableShippingMethodId();
@@ -185,7 +185,7 @@ trait StorefrontPageTestBehaviour
         ]);
     }
 
-    protected function createCheckoutContext(): SalesChannelContext
+    protected function createSalesChannelContext(): SalesChannelContext
     {
         $paymentMethodId = $this->getValidPaymentMethodId();
         $shippingMethodId = $this->getAvailableShippingMethodId();

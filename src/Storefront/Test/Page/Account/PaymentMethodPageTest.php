@@ -30,7 +30,7 @@ class PaymentMethodPageTest extends TestCase
     public function testItlLoadsTheRequestedCustomersData(): void
     {
         $request = new InternalRequest();
-        $context = $this->createCheckoutContextWithLoggedInCustomerAndWithNavigation();
+        $context = $this->createSalesChannelContextWithLoggedInCustomerAndWithNavigation();
 
         /** @var AccountPaymentMethodPageLoadedEvent $event */
         $event = null;

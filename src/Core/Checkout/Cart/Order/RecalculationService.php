@@ -16,7 +16,6 @@ use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Order\Transformer\AddressTransformer;
 use Shopware\Core\Checkout\Cart\Processor;
 use Shopware\Core\Checkout\Cart\Storefront\CartService;
-use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Customer\Exception\AddressNotFoundException;
 use Shopware\Core\Checkout\Order\Exception\DeliveryWithoutAddressException;
 use Shopware\Core\Checkout\Order\Exception\EmptyCartException;
@@ -31,6 +30,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 class RecalculationService
 {
@@ -116,9 +116,9 @@ class RecalculationService
         $order = $this->orderRepository->search($criteria, $context)->get($orderId);
         $this->validateOrder($order, $orderId);
 
-        $checkoutContext = $this->orderConverter->assembleCheckoutContext($order, $context);
+        $salesChannelContext = $this->orderConverter->assembleSalesChannelContext($order, $context);
         $cart = $this->orderConverter->convertToCart($order, $context);
-        $recalculatedCart = $this->refresh($cart, $checkoutContext);
+        $recalculatedCart = $this->refresh($cart, $salesChannelContext);
 
         $conversionContext = (new OrderConversionContext())
             ->setIncludeCustomer(false)
@@ -126,7 +126,7 @@ class RecalculationService
             ->setIncludeDeliveries(true)
             ->setIncludeTransactions(false);
 
-        $orderData = $this->orderConverter->convertToOrder($recalculatedCart, $checkoutContext, $conversionContext);
+        $orderData = $this->orderConverter->convertToOrder($recalculatedCart, $salesChannelContext, $conversionContext);
         $orderData['id'] = $order->getId();
         $this->orderRepository->upsert([$orderData], $context);
     }
@@ -175,10 +175,10 @@ class RecalculationService
         $order = $this->orderRepository->search($criteria, $context)->get($orderId);
         $this->validateOrder($order, $orderId);
 
-        $checkoutContext = $this->orderConverter->assembleCheckoutContext($order, $context);
+        $salesChannelContext = $this->orderConverter->assembleSalesChannelContext($order, $context);
         $cart = $this->orderConverter->convertToCart($order, $context);
 
-        $recalculatedCart = $this->cartService->add($cart, $lineItem, $checkoutContext);
+        $recalculatedCart = $this->cartService->add($cart, $lineItem, $salesChannelContext);
 
         $conversionContext = (new OrderConversionContext())
             ->setIncludeCustomer(false)
@@ -186,7 +186,7 @@ class RecalculationService
             ->setIncludeDeliveries(false)
             ->setIncludeTransactions(false);
 
-        $orderData = $this->orderConverter->convertToOrder($recalculatedCart, $checkoutContext, $conversionContext);
+        $orderData = $this->orderConverter->convertToOrder($recalculatedCart, $salesChannelContext, $conversionContext);
         $orderData['id'] = $order->getId();
         $this->orderRepository->upsert([$orderData], $context);
     }
@@ -212,7 +212,7 @@ class RecalculationService
         $this->orderAddressRepository->upsert([$newOrderAddress], $context);
     }
 
-    private function refresh(Cart $cart, CheckoutContext $context): Cart
+    private function refresh(Cart $cart, SalesChannelContext $context): Cart
     {
         $behavior = (new CartBehavior())
             ->setIsRecalculation(true);

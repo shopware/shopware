@@ -17,11 +17,11 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
  */
 class ShippingMethodCollection extends EntityCollection
 {
-    public function filterByActiveRules(SalesChannelContext $checkoutContext): ShippingMethodCollection
+    public function filterByActiveRules(SalesChannelContext $salesChannelContext): ShippingMethodCollection
     {
         return $this->filter(
-            function (ShippingMethodEntity $shippingMethod) use ($checkoutContext) {
-                $matches = array_intersect($shippingMethod->getAvailabilityRuleIds(), $checkoutContext->getRuleIds());
+            function (ShippingMethodEntity $shippingMethod) use ($salesChannelContext) {
+                $matches = array_intersect($shippingMethod->getAvailabilityRuleIds(), $salesChannelContext->getRuleIds());
 
                 return !empty($matches);
             }

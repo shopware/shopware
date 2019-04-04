@@ -8,7 +8,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 abstract class GenericPage extends Struct
 {
     /**
-     * @var \Shopware\Core\System\SalesChannel\SalesChannelContext
+     * @var SalesChannelContext
      */
     protected $context;
 

@@ -90,10 +90,10 @@ class PaymentServiceTest extends TestCase
     public function testHandlePaymentByOrderWithInvalidOrderId(): void
     {
         $orderId = Uuid::randomHex();
-        $checkoutContext = Generator::createCheckoutContext();
+        $salesChannelContext = Generator::createSalesChannelContext();
         $this->expectException(InvalidOrderException::class);
         $this->expectExceptionMessage(sprintf('The order with id %s is invalid or could not be found.', $orderId));
-        $this->paymentService->handlePaymentByOrder($orderId, $checkoutContext);
+        $this->paymentService->handlePaymentByOrder($orderId, $salesChannelContext);
     }
 
     public function testHandlePaymentByOrderSyncPayment(): void
@@ -103,9 +103,9 @@ class PaymentServiceTest extends TestCase
         $orderId = $this->createOrder($customerId, $paymentMethodId, $this->context);
         $this->createTransaction($orderId, $paymentMethodId, $this->context);
 
-        $checkoutContext = $this->getCheckoutContext($paymentMethodId);
+        $salesChannelContext = $this->getSalesChannelContext($paymentMethodId);
 
-        static::assertNull($this->paymentService->handlePaymentByOrder($orderId, $checkoutContext));
+        static::assertNull($this->paymentService->handlePaymentByOrder($orderId, $salesChannelContext));
     }
 
     public function testHandlePaymentByOrderAsyncPayment(): void
@@ -115,9 +115,9 @@ class PaymentServiceTest extends TestCase
         $orderId = $this->createOrder($customerId, $paymentMethodId, $this->context);
         $this->createTransaction($orderId, $paymentMethodId, $this->context);
 
-        $checkoutContext = $this->getCheckoutContext($paymentMethodId);
+        $salesChannelContext = $this->getSalesChannelContext($paymentMethodId);
 
-        $response = $this->paymentService->handlePaymentByOrder($orderId, $checkoutContext);
+        $response = $this->paymentService->handlePaymentByOrder($orderId, $salesChannelContext);
 
         static::assertEquals(AsyncTestPaymentHandler::REDIRECT_URL, $response->getTargetUrl());
     }
@@ -129,9 +129,9 @@ class PaymentServiceTest extends TestCase
         $orderId = $this->createOrder($customerId, $paymentMethodId, $this->context);
         $transactionId = $this->createTransaction($orderId, $paymentMethodId, $this->context);
 
-        $checkoutContext = $this->getCheckoutContext($paymentMethodId);
+        $salesChannelContext = $this->getSalesChannelContext($paymentMethodId);
 
-        $response = $this->paymentService->handlePaymentByOrder($orderId, $checkoutContext);
+        $response = $this->paymentService->handlePaymentByOrder($orderId, $salesChannelContext);
 
         static::assertEquals(AsyncTestPaymentHandler::REDIRECT_URL, $response->getTargetUrl());
 
@@ -160,9 +160,9 @@ class PaymentServiceTest extends TestCase
         $orderId = $this->createOrder($customerId, $paymentMethodId, $this->context);
         $this->createTransaction($orderId, $paymentMethodId, $this->context);
 
-        $checkoutContext = $this->getCheckoutContext($paymentMethodId);
+        $salesChannelContext = $this->getSalesChannelContext($paymentMethodId);
 
-        static::assertNull($this->paymentService->handlePaymentByOrder($orderId, $checkoutContext));
+        static::assertNull($this->paymentService->handlePaymentByOrder($orderId, $salesChannelContext));
     }
 
     public function testFinalizeTransactionWithInvalidToken(): void
@@ -191,9 +191,9 @@ class PaymentServiceTest extends TestCase
         $orderId = $this->createOrder($customerId, $paymentMethodId, $this->context);
         $transactionId = $this->createTransaction($orderId, $paymentMethodId, $this->context);
 
-        $checkoutContext = $this->getCheckoutContext($paymentMethodId);
+        $salesChannelContext = $this->getSalesChannelContext($paymentMethodId);
 
-        $response = $this->paymentService->handlePaymentByOrder($orderId, $checkoutContext);
+        $response = $this->paymentService->handlePaymentByOrder($orderId, $salesChannelContext);
 
         static::assertEquals(AsyncTestPaymentHandler::REDIRECT_URL, $response->getTargetUrl());
 
@@ -218,9 +218,9 @@ class PaymentServiceTest extends TestCase
         );
     }
 
-    private function getCheckoutContext(string $paymentMethodId): SalesChannelContext
+    private function getSalesChannelContext(string $paymentMethodId): SalesChannelContext
     {
-        return Generator::createCheckoutContext(
+        return Generator::createSalesChannelContext(
             null,
             null,
             null,

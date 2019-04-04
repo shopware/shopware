@@ -25,7 +25,7 @@ class SearchPageTest extends TestCase
     public function testitRequiresSearchParam(): void
     {
         $request = new InternalRequest();
-        $context = $this->createCheckoutContextWithNavigation();
+        $context = $this->createSalesChannelContextWithNavigation();
 
         $this->expectParamMissingException('search');
         $this->getPageLoader()->load($request, $context);
@@ -34,7 +34,7 @@ class SearchPageTest extends TestCase
     public function testItDoesSearch(): void
     {
         $request = new InternalRequest(['search' => self::TEST_TERM]);
-        $context = $this->createCheckoutContextWithNavigation();
+        $context = $this->createSalesChannelContextWithNavigation();
         /** @var SearchPageLoadedEvent $homePageLoadedEvent */
         $homePageLoadedEvent = null;
         $this->catchEvent(SearchPageLoadedEvent::NAME, $homePageLoadedEvent);

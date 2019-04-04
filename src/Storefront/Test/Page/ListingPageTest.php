@@ -22,7 +22,7 @@ class ListingPageTest extends TestCase
 
     public function testItLoadsAListing(): void
     {
-        $context = $this->createCheckoutContextWithNavigation();
+        $context = $this->createSalesChannelContextWithNavigation();
         $product = $this->getRandomProduct($context);
         $request = new InternalRequest(['productId' => $product->getId()]);
 

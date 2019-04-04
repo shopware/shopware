@@ -24,7 +24,7 @@ class CartPageTest extends TestCase
     public function testItLoadsTheCart(): void
     {
         $request = new InternalRequest();
-        $context = $this->createCheckoutContextWithNavigation();
+        $context = $this->createSalesChannelContextWithNavigation();
 
         /** @var CheckoutCartPageLoadedEvent $event */
         $event = null;

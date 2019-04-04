@@ -26,7 +26,7 @@ class StorefrontCmsPageRepositoryTest extends TestCase
     /**
      * @var SalesChannelContext
      */
-    private $checkoutContext;
+    private $salesChannelContext;
 
     /**
      * @var EntityRepositoryInterface
@@ -39,12 +39,12 @@ class StorefrontCmsPageRepositoryTest extends TestCase
 
         $this->pageRepository = $this->getContainer()->get(StorefrontCmsPageRepository::class);
         $this->cmsPageRepository = $this->getContainer()->get('cms_page.repository');
-        $this->checkoutContext = $contextFactory->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
+        $this->salesChannelContext = $contextFactory->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
     }
 
     public function testWithEmptyIds(): void
     {
-        $pageCollection = $this->pageRepository->read([], $this->checkoutContext);
+        $pageCollection = $this->pageRepository->read([], $this->salesChannelContext);
 
         static::assertCount(0, $pageCollection);
     }
@@ -53,7 +53,7 @@ class StorefrontCmsPageRepositoryTest extends TestCase
     {
         $pageId = $this->createPage();
 
-        $pageCollection = $this->pageRepository->read([$pageId], $this->checkoutContext);
+        $pageCollection = $this->pageRepository->read([$pageId], $this->salesChannelContext);
 
         static::assertGreaterThanOrEqual(1, $pageCollection->count());
 
@@ -88,7 +88,7 @@ class StorefrontCmsPageRepositoryTest extends TestCase
             ],
         ];
 
-        $this->cmsPageRepository->create([$page], $this->checkoutContext->getContext());
+        $this->cmsPageRepository->create([$page], $this->salesChannelContext->getContext());
 
         return $page['id'];
     }

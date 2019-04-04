@@ -7,5 +7,5 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 interface CartValidatorInterface
 {
-    public function validate(Cart $cart, ErrorCollection $errorCollection, SalesChannelContext $checkoutContext): void;
+    public function validate(Cart $cart, ErrorCollection $errorCollection, SalesChannelContext $salesChannelContext): void;
 }

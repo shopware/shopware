@@ -18,7 +18,7 @@ class CheckoutRuleScope extends RuleScope
         $this->context = $context;
     }
 
-    public function getCheckoutContext(): SalesChannelContext
+    public function getSalesChannelContext(): SalesChannelContext
     {
         return $this->context;
     }

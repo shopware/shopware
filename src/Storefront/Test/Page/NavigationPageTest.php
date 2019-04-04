@@ -23,7 +23,7 @@ class NavigationPageTest extends TestCase
     public function testItDoesLoadAPage(): void
     {
         $request = new InternalRequest();
-        $context = $this->createCheckoutContextWithNavigation();
+        $context = $this->createSalesChannelContextWithNavigation();
 
         /** @var NavigationPageLoadedEvent $event */
         $event = null;

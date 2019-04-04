@@ -5,7 +5,7 @@ namespace Shopware\Core\Checkout\Cart;
 use Shopware\Core\Checkout\Cart\Delivery\DeliveryProcessor;
 use Shopware\Core\Checkout\Cart\Price\AmountCalculator;
 use Shopware\Core\Checkout\Cart\Transaction\TransactionProcessor;
-use Shopware\Core\Checkout\CheckoutContext;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 class Processor
 {
@@ -48,7 +48,7 @@ class Processor
         $this->transactionProcessor = $transactionProcessor;
     }
 
-    public function process(Cart $original, CheckoutContext $context, CartBehavior $behavior): Cart
+    public function process(Cart $original, SalesChannelContext $context, CartBehavior $behavior): Cart
     {
         $cart = new Cart($original->getName(), $original->getToken());
 

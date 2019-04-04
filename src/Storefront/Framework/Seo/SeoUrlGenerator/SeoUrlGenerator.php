@@ -36,14 +36,14 @@ abstract class SeoUrlGenerator implements SeoUrlGeneratorInterface
     /**
      * @var SalesChannelContextFactoryInterface
      */
-    protected $checkoutContextFactory;
+    protected $salesChannelContextFactory;
 
     /**
      * @var EntityRepositoryInterface
      */
     protected $salesChannelRepository;
 
-    public function __construct(EntityRepositoryInterface $salesChannelRepository, SalesChannelContextFactoryInterface $checkoutContextFactory, Slugify $slugify, RouterInterface $router, string $routeName)
+    public function __construct(EntityRepositoryInterface $salesChannelRepository, SalesChannelContextFactoryInterface $salesChannelContextFactory, Slugify $slugify, RouterInterface $router, string $routeName)
     {
         $this->twig = new Environment(new ArrayLoader());
         $this->twig->setCache(false);
@@ -59,7 +59,7 @@ abstract class SeoUrlGenerator implements SeoUrlGeneratorInterface
                 return $result;
             });
 
-        $this->checkoutContextFactory = $checkoutContextFactory;
+        $this->salesChannelContextFactory = $salesChannelContextFactory;
         $this->salesChannelRepository = $salesChannelRepository;
 
         $this->router = $router;
@@ -79,12 +79,12 @@ abstract class SeoUrlGenerator implements SeoUrlGeneratorInterface
             ->first();
         $options = $salesChannel->jsonSerialize();
 
-        $checkoutContext = $this->checkoutContextFactory->create(
+        $salesChannelContext = $this->salesChannelContextFactory->create(
             Uuid::randomHex(),
             $salesChannelId,
             $options
         );
 
-        return $checkoutContext->getContext();
+        return $salesChannelContext->getContext();
     }
 }

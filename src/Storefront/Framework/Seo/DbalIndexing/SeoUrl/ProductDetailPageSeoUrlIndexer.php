@@ -22,7 +22,7 @@ class ProductDetailPageSeoUrlIndexer extends SeoUrlIndexer
         EntityRepositoryInterface $salesChannelRepository,
         EventDispatcherInterface $eventDispatcher,
         SeoService $seoService,
-        SalesChannelContextFactoryInterface $checkoutContextFactory,
+        SalesChannelContextFactoryInterface $salesChannelContextFactory,
         EntityRepositoryInterface $entityRepository,
         EventIdExtractor $idExtractor
     ) {
@@ -30,7 +30,7 @@ class ProductDetailPageSeoUrlIndexer extends SeoUrlIndexer
             $salesChannelRepository,
             $eventDispatcher,
             $seoService,
-            $checkoutContextFactory,
+            $salesChannelContextFactory,
             self::ROUTE_NAME,
             $entityRepository
         );

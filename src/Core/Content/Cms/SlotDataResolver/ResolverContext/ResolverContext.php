@@ -16,7 +16,7 @@ class ResolverContext
         $this->context = $context;
     }
 
-    public function getCheckoutContext(): SalesChannelContext
+    public function getSalesChannelContext(): SalesChannelContext
     {
         return $this->context;
     }

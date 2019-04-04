@@ -75,8 +75,8 @@ class SlotDataResolver
         [$directReads, $searches] = $this->optimizeCriteriaObjects($slotCriteriaList);
 
         // fetch data from storage
-        $entities = $this->fetchByIdentifier($directReads, $resolverContext->getCheckoutContext());
-        $searchResults = $this->fetchByCriteria($searches, $resolverContext->getCheckoutContext());
+        $entities = $this->fetchByIdentifier($directReads, $resolverContext->getSalesChannelContext());
+        $searchResults = $this->fetchByCriteria($searches, $resolverContext->getSalesChannelContext());
 
         // create result for each slot with the requested data
         foreach ($slots as $slotId => $slot) {

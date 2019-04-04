@@ -43,7 +43,7 @@ class StorefrontCustomerController extends AbstractController
     /**
      * @var SalesChannelContextServiceInterface
      */
-    private $checkoutContextService;
+    private $salesChannelContextService;
 
     /**
      * @var EntityRepositoryInterface
@@ -58,14 +58,14 @@ class StorefrontCustomerController extends AbstractController
     public function __construct(
         Serializer $serializer,
         AccountService $accountService,
-        SalesChannelContextServiceInterface $checkoutContextService,
+        SalesChannelContextServiceInterface $salesChannelContextService,
         EntityRepositoryInterface $orderRepository,
         AccountRegistrationService $accountRegisterService,
         AddressService $addressService
     ) {
         $this->serializer = $serializer;
         $this->accountService = $accountService;
-        $this->checkoutContextService = $checkoutContextService;
+        $this->salesChannelContextService = $salesChannelContextService;
         $this->orderRepository = $orderRepository;
         $this->accountRegisterService = $accountRegisterService;
         $this->addressService = $addressService;
@@ -125,7 +125,7 @@ class StorefrontCustomerController extends AbstractController
     {
         $this->accountService->saveEmail($requestData, $context);
 
-        $this->checkoutContextService->refresh(
+        $this->salesChannelContextService->refresh(
             $context->getSalesChannel()->getId(),
             $context->getToken(),
             $context->getContext()->getLanguageId()
@@ -141,7 +141,7 @@ class StorefrontCustomerController extends AbstractController
     {
         $this->accountService->savePassword($requestData, $context);
 
-        $this->checkoutContextService->refresh(
+        $this->salesChannelContextService->refresh(
             $context->getSalesChannel()->getId(),
             $context->getToken(),
             $context->getContext()->getLanguageId()
@@ -156,7 +156,7 @@ class StorefrontCustomerController extends AbstractController
     public function saveProfile(RequestDataBag $requestData, SalesChannelContext $context): JsonResponse
     {
         $this->accountService->saveProfile($requestData, $context);
-        $this->checkoutContextService->refresh(
+        $this->salesChannelContextService->refresh(
             $context->getSalesChannel()->getId(),
             $context->getToken(),
             $context->getContext()->getLanguageId()
@@ -217,7 +217,7 @@ class StorefrontCustomerController extends AbstractController
     {
         $addressId = $this->addressService->create($requestData, $context);
 
-        $this->checkoutContextService->refresh(
+        $this->salesChannelContextService->refresh(
             $context->getSalesChannel()->getId(),
             $context->getToken(),
             $context->getContext()->getLanguageId()

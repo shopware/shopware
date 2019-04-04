@@ -6,8 +6,8 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\Rule\CartRuleScope;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\Currency\Rule\CurrencyRule;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 class CurrencyRuleTest extends TestCase
 {
@@ -17,19 +17,19 @@ class CurrencyRuleTest extends TestCase
 
         $cart = $this->createMock(Cart::class);
 
-        $checkoutContext = $this->createMock(SalesChannelContext::class);
+        $salesChannelContext = $this->createMock(SalesChannelContext::class);
 
         $context = $this->createMock(Context::class);
         $context
             ->method('getCurrencyId')
             ->willReturn('SWAG-CURRENCY-ID-1');
 
-        $checkoutContext
+        $salesChannelContext
             ->method('getContext')
             ->willReturn($context);
 
         static::assertTrue(
-            $rule->match(new CartRuleScope($cart, $checkoutContext))->matches()
+            $rule->match(new CartRuleScope($cart, $salesChannelContext))->matches()
         );
     }
 
@@ -39,19 +39,19 @@ class CurrencyRuleTest extends TestCase
 
         $cart = $this->createMock(Cart::class);
 
-        $checkoutContext = $this->createMock(SalesChannelContext::class);
+        $salesChannelContext = $this->createMock(SalesChannelContext::class);
 
         $context = $this->createMock(Context::class);
         $context
             ->method('getCurrencyId')
             ->willReturn('SWAG-CURRENCY-ID-5');
 
-        $checkoutContext
+        $salesChannelContext
             ->method('getContext')
             ->willReturn($context);
 
         static::assertFalse(
-            $rule->match(new CartRuleScope($cart, $checkoutContext))->matches()
+            $rule->match(new CartRuleScope($cart, $salesChannelContext))->matches()
         );
     }
 
@@ -61,19 +61,19 @@ class CurrencyRuleTest extends TestCase
 
         $cart = $this->createMock(Cart::class);
 
-        $checkoutContext = $this->createMock(SalesChannelContext::class);
+        $salesChannelContext = $this->createMock(SalesChannelContext::class);
 
         $context = $this->createMock(Context::class);
         $context
             ->method('getCurrencyId')
             ->willReturn('SWAG-CURRENCY-ID-3');
 
-        $checkoutContext
+        $salesChannelContext
             ->method('getContext')
             ->willReturn($context);
 
         static::assertTrue(
-            $rule->match(new CartRuleScope($cart, $checkoutContext))->matches()
+            $rule->match(new CartRuleScope($cart, $salesChannelContext))->matches()
         );
     }
 }

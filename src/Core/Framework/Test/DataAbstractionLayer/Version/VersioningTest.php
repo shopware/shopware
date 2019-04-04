@@ -80,7 +80,7 @@ class VersioningTest extends TestCase
     /**
      * @var SalesChannelContextFactory
      */
-    private $checkoutContextFactory;
+    private $salesChannelContextFactory;
 
     /**
      * @var Processor
@@ -104,7 +104,7 @@ class VersioningTest extends TestCase
         $this->categoryRepository = $this->getContainer()->get('category.repository');
         $this->customerRepository = $this->getContainer()->get('customer.repository');
         $this->orderRepository = $this->getContainer()->get('order.repository');
-        $this->checkoutContextFactory = $this->getContainer()->get(SalesChannelContextFactory::class);
+        $this->salesChannelContextFactory = $this->getContainer()->get(SalesChannelContextFactory::class);
         $this->processor = $this->getContainer()->get(Processor::class);
         $this->orderPersister = $this->getContainer()->get(OrderPersister::class);
         $this->context = Context::createDefaultContext();
@@ -1678,7 +1678,7 @@ class VersioningTest extends TestCase
         $customerId = $this->createCustomer();
         $paymentMethodId = $this->createPaymentMethod($ruleId);
 
-        $context = $this->checkoutContextFactory->create(
+        $context = $this->salesChannelContextFactory->create(
             Uuid::randomHex(),
             Defaults::SALES_CHANNEL,
             [

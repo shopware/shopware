@@ -2,8 +2,8 @@
 
 namespace Shopware\Core\Checkout\Cart;
 
-use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Framework\Struct\StructCollection;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 class Enrichment
 {
@@ -17,7 +17,7 @@ class Enrichment
         $this->collectors = $collectors;
     }
 
-    public function enrich(Cart $cart, CheckoutContext $context, CartBehavior $behavior): Cart
+    public function enrich(Cart $cart, SalesChannelContext $context, CartBehavior $behavior): Cart
     {
         $definitions = new StructCollection();
         foreach ($this->collectors as $collector) {

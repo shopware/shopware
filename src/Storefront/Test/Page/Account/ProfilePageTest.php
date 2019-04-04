@@ -30,7 +30,7 @@ class ProfilePageTest extends TestCase
     public function testItLoadsTheProfilePage(): void
     {
         $request = new InternalRequest();
-        $context = $this->createCheckoutContextWithLoggedInCustomerAndWithNavigation();
+        $context = $this->createSalesChannelContextWithLoggedInCustomerAndWithNavigation();
 
         /** @var AccountProfilePageLoadedEvent $event */
         $event = null;

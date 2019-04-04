@@ -115,7 +115,7 @@ class ProductBoxTypeDataResolverTest extends TestCase
             new ProductCollection([$product]),
             null,
             new Criteria(),
-            $resolverContext->getCheckoutContext()->getContext()
+            $resolverContext->getSalesChannelContext()->getContext()
         ));
 
         $fieldConfig = new FieldConfigCollection();
@@ -142,7 +142,7 @@ class ProductBoxTypeDataResolverTest extends TestCase
             new ProductCollection(),
             null,
             new Criteria(),
-            $resolverContext->getCheckoutContext()->getContext()
+            $resolverContext->getSalesChannelContext()->getContext()
         ));
 
         $fieldConfig = new FieldConfigCollection();

@@ -101,36 +101,36 @@ class ProductVisibilityTest extends TestCase
 
     public function testVisibilityInListing()
     {
-        $checkoutContext = $this->contextFactory->create(Uuid::randomHex(), $this->salesChannelId1);
+        $salesChannelContext = $this->contextFactory->create(Uuid::randomHex(), $this->salesChannelId1);
 
         $request = new InternalRequest();
 
         /** @var ListingPage $page */
-        $page = $this->listingPageLoader->load($request, $checkoutContext);
+        $page = $this->listingPageLoader->load($request, $salesChannelContext);
         static::assertCount(1, $page->getListing());
         static::assertTrue($page->getListing()->has($this->productId3));
 
-        $checkoutContext = $this->contextFactory->create(Uuid::randomHex(), $this->salesChannelId2);
-        $page = $this->listingPageLoader->load($request, $checkoutContext);
+        $salesChannelContext = $this->contextFactory->create(Uuid::randomHex(), $this->salesChannelId2);
+        $page = $this->listingPageLoader->load($request, $salesChannelContext);
         static::assertCount(1, $page->getListing());
         static::assertTrue($page->getListing()->has($this->productId1));
     }
 
     public function testVisibilityInSearch()
     {
-        $checkoutContext = $this->contextFactory->create(Uuid::randomHex(), $this->salesChannelId1);
+        $salesChannelContext = $this->contextFactory->create(Uuid::randomHex(), $this->salesChannelId1);
 
         $request = new InternalRequest(['search' => 'test']);
 
         /** @var SearchPage $page */
-        $page = $this->searchPageLoader->load($request, $checkoutContext);
+        $page = $this->searchPageLoader->load($request, $salesChannelContext);
 
         static::assertCount(2, $page->getListing());
         static::assertTrue($page->getListing()->has($this->productId2));
         static::assertTrue($page->getListing()->has($this->productId3));
 
-        $checkoutContext = $this->contextFactory->create(Uuid::randomHex(), $this->salesChannelId2);
-        $page = $this->searchPageLoader->load($request, $checkoutContext);
+        $salesChannelContext = $this->contextFactory->create(Uuid::randomHex(), $this->salesChannelId2);
+        $page = $this->searchPageLoader->load($request, $salesChannelContext);
 
         static::assertCount(2, $page->getListing());
         static::assertTrue($page->getListing()->has($this->productId1));
@@ -151,13 +151,13 @@ class ProductVisibilityTest extends TestCase
         ];
 
         foreach ($cases as $case) {
-            $checkoutContext = $this->contextFactory->create(Uuid::randomHex(), $case['salesChannelId']);
+            $salesChannelContext = $this->contextFactory->create(Uuid::randomHex(), $case['salesChannelId']);
 
             $request = new InternalRequest([], [], ['productId' => $case['productId']]);
 
             $e = null;
             try {
-                $page = $this->productPageLoader->load($request, $checkoutContext);
+                $page = $this->productPageLoader->load($request, $salesChannelContext);
             } catch (\Exception $e) {
             }
 
@@ -173,19 +173,19 @@ class ProductVisibilityTest extends TestCase
 
     public function testVisibilityInSuggest()
     {
-        $checkoutContext = $this->contextFactory->create(Uuid::randomHex(), $this->salesChannelId1);
+        $salesChannelContext = $this->contextFactory->create(Uuid::randomHex(), $this->salesChannelId1);
 
         $request = new InternalRequest(['search' => 'test']);
 
         /** @var SearchPage $page */
-        $page = $this->suggestPageletLoader->load($request, $checkoutContext);
+        $page = $this->suggestPageletLoader->load($request, $salesChannelContext);
 
         static::assertCount(2, $page->getListing());
         static::assertTrue($page->getListing()->has($this->productId2));
         static::assertTrue($page->getListing()->has($this->productId3));
 
-        $checkoutContext = $this->contextFactory->create(Uuid::randomHex(), $this->salesChannelId2);
-        $page = $this->searchPageLoader->load($request, $checkoutContext);
+        $salesChannelContext = $this->contextFactory->create(Uuid::randomHex(), $this->salesChannelId2);
+        $page = $this->searchPageLoader->load($request, $salesChannelContext);
 
         static::assertCount(2, $page->getListing());
         static::assertTrue($page->getListing()->has($this->productId1));

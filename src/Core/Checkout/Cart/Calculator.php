@@ -16,8 +16,8 @@ use Shopware\Core\Checkout\Cart\Price\Struct\PriceCollection;
 use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Checkout\Cart\Rule\CartRuleScope;
 use Shopware\Core\Checkout\Cart\Rule\LineItemScope;
-use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Framework\Rule\Rule;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 class Calculator
 {
@@ -53,12 +53,12 @@ class Calculator
         $this->amountCalculator = $amountCalculator;
     }
 
-    public function calculate(Cart $cart, CheckoutContext $context, CartBehavior $behavior): LineItemCollection
+    public function calculate(Cart $cart, SalesChannelContext $context, CartBehavior $behavior): LineItemCollection
     {
         return $this->calculateLineItems($cart, $cart->getLineItems(), $context, $behavior);
     }
 
-    private function calculateLineItems(Cart $cart, LineItemCollection $lineItems, CheckoutContext $context, CartBehavior $behavior): LineItemCollection
+    private function calculateLineItems(Cart $cart, LineItemCollection $lineItems, SalesChannelContext $context, CartBehavior $behavior): LineItemCollection
     {
         $lineItems->sortByPriority();
 
@@ -88,7 +88,7 @@ class Calculator
         return $calculated;
     }
 
-    private function filterLineItems(LineItemCollection $calculated, ?Rule $filter, CheckoutContext $context): LineItemCollection
+    private function filterLineItems(LineItemCollection $calculated, ?Rule $filter, SalesChannelContext $context): LineItemCollection
     {
         if (!$filter) {
             return $calculated;
@@ -105,7 +105,7 @@ class Calculator
         );
     }
 
-    private function calculatePrice(Cart $cart, LineItem $lineItem, CheckoutContext $context, LineItemCollection $calculated, CartBehavior $behavior): CalculatedPrice
+    private function calculatePrice(Cart $cart, LineItem $lineItem, SalesChannelContext $context, LineItemCollection $calculated, CartBehavior $behavior): CalculatedPrice
     {
         if ($lineItem->hasChildren()) {
             $children = $this->calculateLineItems($cart, $lineItem->getChildren(), $context, $behavior);
@@ -142,7 +142,7 @@ class Calculator
         throw new MissingLineItemPriceException($lineItem->getKey());
     }
 
-    private function isValid(LineItem $lineItem, LineItemCollection $calculated, CheckoutContext $context, CartBehavior $behavior): bool
+    private function isValid(LineItem $lineItem, LineItemCollection $calculated, SalesChannelContext $context, CartBehavior $behavior): bool
     {
         if (!$lineItem->getRequirement() || $behavior->isRecalculation()) {
             return true;

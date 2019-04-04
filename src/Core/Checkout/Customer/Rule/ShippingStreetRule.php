@@ -35,7 +35,7 @@ class ShippingStreetRule extends Rule
         }
 
         /** @var CheckoutRuleScope $scope */
-        if (!$location = $scope->getCheckoutContext()->getShippingLocation()->getAddress()) {
+        if (!$location = $scope->getSalesChannelContext()->getShippingLocation()->getAddress()) {
             return new Match(
                 false,
                 ['Shipping location has no address']

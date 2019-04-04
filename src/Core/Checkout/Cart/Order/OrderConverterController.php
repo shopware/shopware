@@ -75,7 +75,7 @@ class OrderConverterController extends AbstractController
 
         $this->cartPersister->save(
             $convertedCart,
-            $this->orderConverter->assembleCheckoutContext($order, $context)
+            $this->orderConverter->assembleSalesChannelContext($order, $context)
         );
 
         return new JsonResponse(['token' => $convertedCart->getToken()]);

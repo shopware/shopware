@@ -27,7 +27,7 @@ class IsNewCustomerRule extends Rule
         }
 
         /** @var CheckoutRuleScope $scope */
-        if (!$customer = $scope->getCheckoutContext()->getCustomer()) {
+        if (!$customer = $scope->getSalesChannelContext()->getCustomer()) {
             return new Match(false, ['Not logged in customer']);
         }
 

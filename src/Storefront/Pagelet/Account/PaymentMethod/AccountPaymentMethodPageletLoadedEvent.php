@@ -18,7 +18,7 @@ class AccountPaymentMethodPageletLoadedEvent extends NestedEvent
     protected $pagelet;
 
     /**
-     * @var \Shopware\Core\System\SalesChannel\SalesChannelContext
+     * @var SalesChannelContext
      */
     protected $context;
 
@@ -47,7 +47,7 @@ class AccountPaymentMethodPageletLoadedEvent extends NestedEvent
         return $this->context->getContext();
     }
 
-    public function getCheckoutContext(): SalesChannelContext
+    public function getSalesChannelContext(): SalesChannelContext
     {
         return $this->context;
     }

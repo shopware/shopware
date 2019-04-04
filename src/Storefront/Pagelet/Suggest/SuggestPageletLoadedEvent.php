@@ -17,7 +17,7 @@ class SuggestPageletLoadedEvent extends NestedEvent
     protected $page;
 
     /**
-     * @var \Shopware\Core\System\SalesChannel\SalesChannelContext
+     * @var SalesChannelContext
      */
     protected $context;
 
@@ -43,7 +43,7 @@ class SuggestPageletLoadedEvent extends NestedEvent
         return $this->context->getContext();
     }
 
-    public function getCheckoutContext(): SalesChannelContext
+    public function getSalesChannelContext(): SalesChannelContext
     {
         return $this->context;
     }

@@ -10,7 +10,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 class LineItemValidator implements CartValidatorInterface
 {
-    public function validate(Cart $cart, ErrorCollection $errorCollection, SalesChannelContext $checkoutContext): void
+    public function validate(Cart $cart, ErrorCollection $errorCollection, SalesChannelContext $salesChannelContext): void
     {
         /** @var LineItem $lineItem */
         foreach ($cart->getLineItems()->getFlat() as $lineItem) {

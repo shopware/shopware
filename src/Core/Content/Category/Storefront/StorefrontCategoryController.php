@@ -38,7 +38,7 @@ class StorefrontCategoryController extends AbstractController
     /**
      * @Route("/storefront-api/v{version}/category", name="storefront-api.category.list", methods={"GET", "POST"})
      */
-    public function list(Request $request, SalesChannelContext $checkoutContext, ResponseFactoryInterface $responseFactory): Response
+    public function list(Request $request, SalesChannelContext $salesChannelContext, ResponseFactoryInterface $responseFactory): Response
     {
         $criteria = new Criteria();
 
@@ -46,16 +46,16 @@ class StorefrontCategoryController extends AbstractController
             $request,
             $criteria,
             CategoryDefinition::class,
-            $checkoutContext->getContext()
+            $salesChannelContext->getContext()
         );
 
-        $result = $this->repository->search($criteria, $checkoutContext->getContext());
+        $result = $this->repository->search($criteria, $salesChannelContext->getContext());
 
         return $responseFactory->createListingResponse(
             $result,
             CategoryDefinition::class,
             $request,
-            $checkoutContext->getContext()
+            $salesChannelContext->getContext()
         );
     }
 
@@ -65,9 +65,9 @@ class StorefrontCategoryController extends AbstractController
      * @throws CategoryNotFoundException
      * @throws InvalidUuidException
      */
-    public function detail(string $categoryId, Request $request, SalesChannelContext $checkoutContext, ResponseFactoryInterface $responseFactory): Response
+    public function detail(string $categoryId, Request $request, SalesChannelContext $salesChannelContext, ResponseFactoryInterface $responseFactory): Response
     {
-        $categories = $this->repository->search(new Criteria([$categoryId]), $checkoutContext->getContext());
+        $categories = $this->repository->search(new Criteria([$categoryId]), $salesChannelContext->getContext());
         if (!$categories->has($categoryId)) {
             throw new CategoryNotFoundException($categoryId);
         }
@@ -76,7 +76,7 @@ class StorefrontCategoryController extends AbstractController
             $categories->get($categoryId),
             CategoryDefinition::class,
             $request,
-            $checkoutContext->getContext()
+            $salesChannelContext->getContext()
         );
     }
 }

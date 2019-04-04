@@ -38,7 +38,7 @@ class StorefrontProductController extends AbstractController
     /**
      * @Route("/storefront-api/v{version}/product", name="storefront-api.product.list")
      */
-    public function list(Request $request, SalesChannelContext $checkoutContext, ResponseFactoryInterface $responseFactory): Response
+    public function list(Request $request, SalesChannelContext $salesChannelContext, ResponseFactoryInterface $responseFactory): Response
     {
         $criteria = new Criteria();
 
@@ -46,16 +46,16 @@ class StorefrontProductController extends AbstractController
             $request,
             $criteria,
             ProductDefinition::class,
-            $checkoutContext->getContext()
+            $salesChannelContext->getContext()
         );
 
-        $result = $this->repository->search($criteria, $checkoutContext);
+        $result = $this->repository->search($criteria, $salesChannelContext);
 
         return $responseFactory->createListingResponse(
             $result,
             ProductDefinition::class,
             $request,
-            $checkoutContext->getContext()
+            $salesChannelContext->getContext()
         );
     }
 
@@ -65,13 +65,13 @@ class StorefrontProductController extends AbstractController
      * @throws ProductNotFoundException
      * @throws InvalidUuidException
      */
-    public function detail(string $productId, Request $request, SalesChannelContext $checkoutContext, ResponseFactoryInterface $responseFactory): Response
+    public function detail(string $productId, Request $request, SalesChannelContext $salesChannelContext, ResponseFactoryInterface $responseFactory): Response
     {
         if (!Uuid::isValid($productId)) {
             throw new InvalidUuidException($productId);
         }
 
-        $products = $this->repository->read(new Criteria([$productId]), $checkoutContext);
+        $products = $this->repository->read(new Criteria([$productId]), $salesChannelContext);
         if (!$products->has($productId)) {
             throw new ProductNotFoundException($productId);
         }
@@ -80,7 +80,7 @@ class StorefrontProductController extends AbstractController
             $products->get($productId),
             ProductDefinition::class,
             $request,
-            $checkoutContext->getContext()
+            $salesChannelContext->getContext()
         );
     }
 }

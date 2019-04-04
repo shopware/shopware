@@ -47,7 +47,7 @@ class StorefrontCheckoutController extends AbstractController
     /**
      * @var SalesChannelContextFactoryInterface
      */
-    private $checkoutContextFactory;
+    private $salesChannelContextFactory;
 
     /**
      * @var AccountRegistrationService
@@ -68,7 +68,7 @@ class StorefrontCheckoutController extends AbstractController
         PaymentService $paymentService,
         CartService $cartService,
         SalesChannelContextPersister $contextPersister,
-        SalesChannelContextFactoryInterface $checkoutContextFactory,
+        SalesChannelContextFactoryInterface $salesChannelContextFactory,
         Serializer $serializer,
         EntityRepositoryInterface $orderRepository,
         AccountRegistrationService $accountRegisterService
@@ -76,7 +76,7 @@ class StorefrontCheckoutController extends AbstractController
         $this->paymentService = $paymentService;
         $this->cartService = $cartService;
         $this->contextPersister = $contextPersister;
-        $this->checkoutContextFactory = $checkoutContextFactory;
+        $this->salesChannelContextFactory = $salesChannelContextFactory;
         $this->orderRepository = $orderRepository;
         $this->serializer = $serializer;
         $this->accountRegisterService = $accountRegisterService;
@@ -114,10 +114,10 @@ class StorefrontCheckoutController extends AbstractController
 
         $customerId = $this->accountRegisterService->register($data, true, $context);
 
-        $orderContext = $this->createCheckoutContext($customerId, $context);
+        $salesChannelContext = $this->createSalesChannelContext($customerId, $context);
 
-        $cart = $this->cartService->getCart($token, $orderContext);
-        $orderId = $this->cartService->order($cart, $orderContext);
+        $cart = $this->cartService->getCart($token, $salesChannelContext);
+        $orderId = $this->cartService->order($cart, $salesChannelContext);
         $this->contextPersister->save($context->getToken(), ['cartToken' => null]);
 
         return new JsonResponse($this->serialize($this->getOrderById($orderId, $context)));
@@ -183,18 +183,18 @@ class StorefrontCheckoutController extends AbstractController
         return $order;
     }
 
-    private function createCheckoutContext(string $customerId, SalesChannelContext $context): SalesChannelContext
+    private function createSalesChannelContext(string $customerId, SalesChannelContext $context): SalesChannelContext
     {
-        $checkoutContext = $this->checkoutContextFactory->create(
+        $salesChannelContext = $this->salesChannelContextFactory->create(
             $context->getToken(),
             $context->getSalesChannel()->getId(),
             [SalesChannelContextService::CUSTOMER_ID => $customerId]
         );
 
         // todo: load matching rules
-        $checkoutContext->setRuleIds($context->getRuleIds());
+        $salesChannelContext->setRuleIds($context->getRuleIds());
 
-        return $checkoutContext;
+        return $salesChannelContext;
     }
 
     private function serialize($data): array

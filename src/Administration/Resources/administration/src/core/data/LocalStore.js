@@ -54,6 +54,18 @@ export default class LocalStore {
         return new Promise(resolve => { resolve(this.getById(id)); });
     }
 
+    getSearchValue(value) {
+        if (!value.hasOwnProperty('translated')) {
+            return value[this.searchProperty];
+        }
+
+        if (value.translated.hasOwnProperty(this.searchProperty)) {
+            return value.translated[this.searchProperty];
+        }
+
+        return value[this.searchProperty];
+    }
+
     /**
      * @param {Object} params
      * @returns {Promise<any>}
@@ -66,20 +78,27 @@ export default class LocalStore {
                 store = store.filter((value) => {
                     // For inline snippets - example: value[searchProperty] = { 'de_DE': 'Größe', 'en_GB': 'Size' }
                     let property = value[this.searchProperty];
+
                     if (types.isObject(value[this.searchProperty])) {
                         if (this.objectPropertiesContains(property, searchTerm)) {
                             return true;
                         }
                     }
-                    property = value[this.searchProperty];
+
+                    property = this.getSearchValue(value);
+
                     if (types.isObject(property)) {
                         if (this.objectPropertiesContains(property, searchTerm)) {
                             return true;
                         }
                     }
 
+                    if (!value.hasOwnProperty('translated')) {
+                        return this.objectPropertiesContains(value, searchTerm) > 0;
+                    }
+
                     return this.objectPropertiesContains(value, searchTerm) > 0
-                        || this.objectPropertiesContains(value, searchTerm);
+                        || this.objectPropertiesContains(value.translated, searchTerm);
                 });
             }
 

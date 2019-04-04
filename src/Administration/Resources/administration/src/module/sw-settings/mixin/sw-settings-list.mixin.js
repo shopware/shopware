@@ -28,10 +28,15 @@ Mixin.register('sw-settings-list', {
         },
         messageSaveSuccess() {
             if (this.deleteEntity) {
+                let name = this.deleteEntity.name;
+                if (this.deleteEntity.hasOwnProperty('translated') && this.deleteEntity.translated.hasOwnProperty('name')) {
+                    name = this.deleteEntity.translated.name;
+                }
+
                 return this.$tc(
                     `sw-settings-${this.entityName.replace(/[_]/g, '-')}.list.messageDeleteSuccess`,
                     0,
-                    { name: this.deleteEntity.translated.name }
+                    { name: name }
                 );
             }
             return '';

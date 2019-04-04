@@ -40,10 +40,54 @@ Component.register('sw-settings-snippet-list', {
         },
         metaName() {
             return this.snippetSets[0].name;
+        },
+        filter() {
+            const filter = {};
+            if (this.isCustomState) {
+                filter.custom = true;
+            }
+            if (this.emptySnippets) {
+                filter.empty = true;
+            }
+            if (this.term) {
+                filter.term = this.term;
+            }
+            if (this.appliedFilter) {
+                filter.namespace = this.appliedFilter;
+            }
+            if (this.appliedAuthors) {
+                filter.author = this.appliedAuthors;
+            }
+
+            return filter;
         }
     },
 
+    created() {
+        this.createdComponent();
+    },
+
     methods: {
+        createdComponent() {
+            this.queryIds = Array.isArray(this.$route.query.ids) ? this.$route.query.ids : [this.$route.query.ids];
+            const criteria = CriteriaFactory.equalsAny('id', this.queryIds);
+            this.snippetSetStore.getList({ sortBy: 'name', sortDirection: 'ASC', criteria }).then((sets) => {
+                this.snippetSets = sets.items;
+            });
+
+            this.userService.getUser().then((response) => {
+                this.currentAuthor = `user/${response.data.name}`;
+            });
+
+            this.snippetService.getFilter().then((response) => {
+                this.filterItems = response.data;
+            });
+
+            this.snippetSetService.getAuthors().then((response) => {
+                this.authorFilters = response.data;
+            });
+        },
+
         getList() {
             this.initializeSnippetSet();
         },
@@ -56,46 +100,19 @@ Component.register('sw-settings-snippet-list', {
                 return;
             }
 
-            this.userService.getUser().then((response) => {
-                this.currentAuthor = `user/${response.data.name}`;
-            });
-
             this.isLoading = true;
-            this.queryIds = Array.isArray(this.$route.query.ids) ? this.$route.query.ids : [this.$route.query.ids];
-            const criteria = CriteriaFactory.equalsAny('id', this.queryIds);
-
-            this.snippetService.getFilter().then((response) => {
-                this.filterItems = response.data;
-            });
-
-            this.snippetSetService.getAuthors().then((response) => {
-                this.authorFilters = response.data;
-            });
-
-            const filter = {
-                custom: this.isCustomState,
-                empty: this.emptySnippets,
-                term: this.term,
-                namespace: this.appliedFilter,
-                author: this.appliedAuthors,
-                translationKey: []
-            };
 
             const sort = {
                 sortBy: this.sortBy,
                 sortDirection: this.sortDirection
             };
 
-            this.snippetSetService.getCustomList(this.page, this.limit, filter, sort).then((response) => {
-                this.snippetSetStore.getList({ sortBy: 'name', sortDirection: 'ASC', criteria }).then((sets) => {
-                    this.snippetSets = sets.items;
-                    this.metaId = this.queryIds[0];
-                    this.total = response.total;
+            this.snippetSetService.getCustomList(this.page, this.limit, this.filter, sort).then((response) => {
+                this.metaId = this.queryIds[0];
+                this.total = response.total;
 
-                    this.grid = this.prepareGrid(response.data);
-                }).then(() => {
-                    this.isLoading = false;
-                });
+                this.grid = this.prepareGrid(response.data);
+                this.isLoading = false;
             });
         },
 
@@ -178,7 +195,7 @@ Component.register('sw-settings-snippet-list', {
                     return;
                 }
 
-                item.value = item.resetTo;
+                item.value = item.origin;
             });
         },
 

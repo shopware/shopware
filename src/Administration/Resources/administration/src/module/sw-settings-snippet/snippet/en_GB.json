@@ -47,7 +47,6 @@
       "modalTitleDelete": "Snippets",
       "textDeleteConfirm": "Are you sure you want to delete the snippets for \"{key}\"?",
       "textResetConfirm": "Are you sure you want to reset the snippet \"{key}\" for this set? | Are you sure you want to reset the snippets for \"{key}\"?",
-      "textSidebarCustomItems": "Show custom snippets",
       "textSnippetList": "Snippets of \"{setName}\" | Snippets",
       "titleDeleteSuccess": "Success",
       "titleSaveError": "Error",
@@ -55,7 +54,8 @@
       "resetSuccessMessage": "Snippet \"{key}\" has been reset to \"{value}\" successfully.",
       "titleSaveSuccess": "Success",
       "titleSidebarCustomItems": "Custom snippets",
-      "titleSidebarItemRefresh": "Refresh"
+      "titleSidebarItemRefresh": "Refresh",
+      "titleSidebarItemFilter": "Filter"
     },
     "setList": {
       "title": "Manage snippets",
@@ -96,8 +96,8 @@
       "textDeleteConfirm": "Are you sure you want to delete the snippet set \"{name}\"?"
     },
     "filter": {
-      "switchOnlyEmpty": "Empty snippets",
       "showOnlyEmpty": "Show empty snippets only",
+      "showOnlyCustom": "Show custom snippets only",
       "author": "Author",
       "more": "More filters"
     }

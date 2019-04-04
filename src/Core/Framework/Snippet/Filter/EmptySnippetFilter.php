@@ -15,12 +15,8 @@ class EmptySnippetFilter extends AbstractFilter implements SnippetFilterInterfac
     /**
      * {@inheritdoc}
      */
-    public function filter(array $snippets, $requestFilterValue, array $additionalData = []): array
+    public function filter(array $snippets, $requestFilterValue): array
     {
-        if (empty($requestFilterValue) || !is_bool($requestFilterValue)) {
-            return $snippets;
-        }
-
         $result = [];
         foreach ($snippets as $setId => $set) {
             foreach ($set['snippets'] as $translationKey => $snippet) {

@@ -3,7 +3,7 @@
         {% block sw_settings_snippet_grid_sidebar_refresh %}
             <sw-sidebar-item
                     icon="default-arrow-360-left"
-                    :title="$tc('sw-product.list.titleSidebarItemRefresh')"
+                    :title="$tc('sw-settings-snippets.list.titleSidebarItemRefresh')"
                     @click="onRefresh">
             </sw-sidebar-item>
         {% endblock %}
@@ -12,7 +12,7 @@
             <sw-sidebar-item
                     ref="filterSideBar"
                     icon="default-action-filter"
-                    title="Filtern"
+                    :title="$tc('sw-settings-snippet.list.titleSidebarItemFilter')"
                     @sw-sidebar-item-close-content="closeContent"
                     @click="closeContent">
 
@@ -31,7 +31,7 @@
                             name="customSnippets"
                             group="customSnippets"
                             type="small"
-                            :label="$tc('sw-settings-snippet.list.textSidebarCustomItems')"
+                            :label="$tc('sw-settings-snippet.filter.showOnlyCustom')"
                             @change="onChange">
                     </sw-settings-snippet-boolean-filter-item>
                 {% endblock %}

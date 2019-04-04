@@ -3,7 +3,6 @@
 namespace Shopware\Core\Framework\Translation;
 
 use Psr\Cache\CacheItemPoolInterface;
-use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Snippet\SnippetServiceInterface;
 use Shopware\Core\StorefrontRequest;
 use Symfony\Component\HttpFoundation\RequestStack;
@@ -144,7 +143,10 @@ class Translator implements TranslatorInterface, TranslatorBagInterface, LegacyT
             return $catalog;
         }
 
-        $snippetSetId = $request->attributes->get(StorefrontRequest::ATTRIBUTE_DOMAIN_SNIPPET_SET_ID) ?? Defaults::SNIPPET_BASE_SET_EN;
+        $snippetSetId = $request->attributes->get(StorefrontRequest::ATTRIBUTE_DOMAIN_SNIPPET_SET_ID);
+        if ($snippetSetId === null) {
+            return $catalog;
+        }
 
         if (array_key_exists($snippetSetId, $this->isCustomized)) {
             return $this->isCustomized[$snippetSetId];

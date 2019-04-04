@@ -40,16 +40,23 @@ class SalesChannelCreateCommand extends Command
      */
     private $countryRepository;
 
+    /**
+     * @var EntityRepositoryInterface
+     */
+    private $snippetSetRepository;
+
     public function __construct(
         EntityRepositoryInterface $salesChannelRepository,
         EntityRepositoryInterface $paymentMethodRepository,
         EntityRepositoryInterface $shippingMethodRepository,
-        EntityRepositoryInterface $countryRepository
+        EntityRepositoryInterface $countryRepository,
+        EntityRepositoryInterface $snippetSetRepository
     ) {
         $this->salesChannelRepository = $salesChannelRepository;
         $this->paymentMethodRepository = $paymentMethodRepository;
         $this->shippingMethodRepository = $shippingMethodRepository;
         $this->countryRepository = $countryRepository;
+        $this->snippetSetRepository = $snippetSetRepository;
 
         parent::__construct();
     }
@@ -60,7 +67,7 @@ class SalesChannelCreateCommand extends Command
             ->addOption('id', null, InputOption::VALUE_REQUIRED, 'Id for the sales channel', Uuid::randomHex())
             ->addOption('name', null, InputOption::VALUE_REQUIRED, 'Name for the application', 'Storefront API endpoint')
             ->addOption('languageId', null, InputOption::VALUE_REQUIRED, 'Default language', Defaults::LANGUAGE_SYSTEM)
-            ->addOption('snippetSetId', null, InputOption::VALUE_REQUIRED, 'Default snippet set', Defaults::SNIPPET_BASE_SET_EN)
+            ->addOption('snippetSetId', null, InputOption::VALUE_REQUIRED, 'Default snippet set')
             ->addOption('currencyId', null, InputOption::VALUE_REQUIRED, 'Default currency', Defaults::CURRENCY)
             ->addOption('paymentMethodId', null, InputOption::VALUE_REQUIRED, 'Default payment method')
             ->addOption('shippingMethodId', null, InputOption::VALUE_REQUIRED, 'Default shipping method')
@@ -80,13 +87,14 @@ class SalesChannelCreateCommand extends Command
         $paymentMethod = $input->getOption('paymentMethodId') ?? $this->getFirstActivePaymentMethodId();
         $shippingMethod = $input->getOption('shippingMethodId') ?? $this->getFirstActiveShippingMethodId();
         $countryId = $input->getOption('countryId') ?? $this->getFirstActiveCountryId();
+        $snippetSet = $input->getOption('snippetSetId') ?? $this->getSnippetSetId();
 
         $data = [
             'id' => $id,
             'typeId' => $typeId ?? $this->getTypeId(),
             'accessKey' => AccessKeyHelper::generateAccessKey('sales-channel'),
             'languageId' => $input->getOption('languageId'),
-            'snippetSetId' => $input->getOption('snippetSetId'),
+            'snippetSetId' => $snippetSet,
             'currencyId' => $input->getOption('currencyId'),
             'currencyVersionId' => Defaults::LIVE_VERSION,
             'paymentMethodId' => $paymentMethod,
@@ -175,5 +183,20 @@ class SalesChannelCreateCommand extends Command
             ->addSorting(new FieldSorting('position'));
 
         return $this->countryRepository->searchIds($criteria, Context::createDefaultContext())->getIds()[0];
+    }
+
+    protected function getSnippetSetId(): string
+    {
+        $criteria = (new Criteria())
+            ->setLimit(1)
+            ->addFilter(new EqualsFilter('iso', 'en_GB'));
+
+        $id = $this->snippetSetRepository->searchIds($criteria, Context::createDefaultContext())->getIds()[0] ?? null;
+
+        if ($id === null) {
+            throw new \InvalidArgumentException('Unable to get default SnippetSet. Please provide a valid SnippetSetId.');
+        }
+
+        return $id;
     }
 }

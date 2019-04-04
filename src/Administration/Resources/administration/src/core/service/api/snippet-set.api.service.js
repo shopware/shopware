@@ -16,20 +16,12 @@ class SnippetSetApiService extends ApiService {
      */
     getCustomList(page = 1, limit = 25, filters = {}, sort = {}) {
         const headers = this.getBasicHeaders();
-        const defaultFilters = {
-            custom: false,
-            empty: false,
-            term: null,
-            namespace: [],
-            author: [],
-            translationKey: []
-        };
+
         const defaultSort = {
             sortBy: null,
             sortDirection: null
         };
 
-        filters = { ...defaultFilters, ...filters };
         sort = { ...defaultSort, ...sort };
 
         return this.httpClient

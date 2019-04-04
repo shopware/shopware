@@ -7,13 +7,20 @@ use Shopware\Core\Framework\Snippet\Exception\InvalidSnippetFileException;
 use Shopware\Core\Framework\Snippet\Files\de_DE\SnippetFile_de_DE;
 use Shopware\Core\Framework\Snippet\Files\en_EN\SnippetFile_en_GB;
 use Shopware\Core\Framework\Snippet\Files\SnippetFileCollection;
-use Shopware\Core\Framework\Test\Snippet\_fixtures\TestSnippetExtensionFile_de_DE;
+use Shopware\Core\Framework\Test\Snippet\_fixtures\MockSnippetFile;
 use Shopware\Core\Framework\Test\TestCaseBase\AssertArraySubsetBehaviour;
 use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
 
 class SnippetFileCollectionTest extends TestCase
 {
     use AssertArraySubsetBehaviour;
+
+    public static function tearDownAfterClass(): void
+    {
+        foreach (glob(__DIR__ . '/../_fixtures/*.json') as $mockFile) {
+            unlink($mockFile);
+        }
+    }
 
     public function testGet(): void
     {
@@ -97,7 +104,7 @@ class SnippetFileCollectionTest extends TestCase
     private function getCollection(): SnippetFileCollection
     {
         $collection = new SnippetFileCollection([]);
-        $collection->add(new TestSnippetExtensionFile_de_DE());
+        $collection->add(new MockSnippetFile('de_DE'));
         $collection->add(new SnippetFile_de_DE());
         $collection->add(new SnippetFile_en_GB());
 

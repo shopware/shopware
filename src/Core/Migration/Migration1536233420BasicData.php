@@ -503,8 +503,8 @@ class Migration1536233420BasicData extends MigrationStep
     {
         $queue = new MultiInsertQueryQueue($connection);
 
-        $queue->addInsert('snippet_set', ['id' => Uuid::fromHexToBytes(Defaults::SNIPPET_BASE_SET_DE), 'name' => 'BASE de_DE', 'base_file' => 'messages.de_DE', 'iso' => 'de_DE', 'created_at' => date(Defaults::DATE_FORMAT)]);
-        $queue->addInsert('snippet_set', ['id' => Uuid::fromHexToBytes(Defaults::SNIPPET_BASE_SET_EN), 'name' => 'BASE en_GB', 'base_file' => 'messages.en_GB', 'iso' => 'en_GB', 'created_at' => date(Defaults::DATE_FORMAT)]);
+        $queue->addInsert('snippet_set', ['id' => Uuid::randomBytes(), 'name' => 'BASE de_DE', 'base_file' => 'messages.de_DE', 'iso' => 'de_DE', 'created_at' => date(Defaults::DATE_FORMAT)]);
+        $queue->addInsert('snippet_set', ['id' => Uuid::randomBytes(), 'name' => 'BASE en_GB', 'base_file' => 'messages.en_GB', 'iso' => 'en_GB', 'created_at' => date(Defaults::DATE_FORMAT)]);
 
         $queue->execute();
     }

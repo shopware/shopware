@@ -236,7 +236,7 @@ class StorefrontProxyControllerTest extends TestCase
             'typeId' => Defaults::SALES_CHANNEL_STOREFRONT,
             'accessKey' => AccessKeyHelper::generateAccessKey('sales-channel'),
             'languageId' => Defaults::LANGUAGE_SYSTEM,
-            'snippetSetId' => Defaults::SNIPPET_BASE_SET_EN,
+            'snippetSetId' => $this->getSnippetSetIdForLocale('en_GB'),
             'currencyId' => Defaults::CURRENCY,
             'currencyVersionId' => Defaults::LIVE_VERSION,
             'paymentMethodId' => $this->getValidPaymentMethodId(),

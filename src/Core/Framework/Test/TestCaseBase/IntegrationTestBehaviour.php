@@ -8,5 +8,5 @@ trait IntegrationTestBehaviour
         DatabaseTransactionBehaviour,
         FilesystemBehaviour,
         CacheTestBehaviour,
-        DemoDataTestBehaviour;
+        BasicTestDataBehaviour;
 }

@@ -26,12 +26,14 @@ class SalesChannelCreateStorefrontCommand extends SalesChannelCreateCommand
 
     protected function getSalesChannelConfiguration(InputInterface $input, OutputInterface $output): array
     {
+        $snippetSet = $input->getOption('snippetSetId') ?? $this->getSnippetSetId();
+
         return [
             'domains' => [
                 [
                     'url' => $input->getOption('url'),
                     'languageId' => $input->getOption('languageId'),
-                    'snippetSetId' => $input->getOption('snippetSetId'),
+                    'snippetSetId' => $snippetSet,
                     'currencyId' => $input->getOption('currencyId'),
                 ],
             ],

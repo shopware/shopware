@@ -70,18 +70,11 @@ class SnippetService implements SnippetServiceInterface
         $fileSnippets = $this->getFileSnippets($languageFiles, $isoList);
         $dbSnippets = $this->databaseSnippetsToArray($this->findSnippetInDatabase(new Criteria(), $context));
 
-        $fileSnippetAuthors = $this->filterAuthors($fileSnippets);
-        $dbSnippetAuthors = array_diff($this->filterAuthors($dbSnippets), $fileSnippetAuthors);
-
         $snippets = array_replace_recursive($fileSnippets, $dbSnippets);
         $snippets = $this->fillBlankSnippets($snippets, $isoList);
 
-        $additionalData = [
-            'customAuthors' => $dbSnippetAuthors,
-        ];
-
         foreach ($requestFilters as $requestFilterName => $requestFilterValue) {
-            $snippets = $this->snippetFilterFactory->getFilter($requestFilterName)->filter($snippets, $requestFilterValue, $additionalData);
+            $snippets = $this->snippetFilterFactory->getFilter($requestFilterName)->filter($snippets, $requestFilterValue);
         }
 
         $snippets = $this->sortSnippets($sort, $snippets);
@@ -159,28 +152,18 @@ class SnippetService implements SnippetServiceInterface
 
     public function getAuthors(Context $context): array
     {
-        $authors = [];
         $files = $this->snippetFileCollection->toArray();
 
         $criteria = new Criteria();
         $criteria->addAggregation(new ValueAggregation('author', 'distinct_author'));
-        $result = $this->snippetRepository->aggregate($criteria, $context)->getAggregations()->get('distinct_author')->getResultByKey(null)['values'];
+        $result = $this->snippetRepository->aggregate($criteria, $context)->getAggregations()->get('distinct_author')->getResultByKey(null)['values'] ?? [];
 
+        $authors = array_flip($result);
         foreach ($files as $file) {
-            if (in_array($file['author'], $authors, true)) {
-                continue;
-            }
-            $authors[] = $file['author'];
+            $authors[$file['author']] = true;
         }
 
-        foreach ($result as $author) {
-            if (in_array($author, $authors, true)) {
-                continue;
-            }
-            $authors[] = $author;
-        }
-
-        return $authors;
+        return array_keys($authors);
     }
 
     private function fetchSnippetsFromDatabase(string $snippetSetId): array
@@ -341,22 +324,6 @@ class SnippetService implements SnippetServiceInterface
         }
 
         return $result;
-    }
-
-    private function filterAuthors(array $fileSnippets): array
-    {
-        $authors = [];
-        foreach ($fileSnippets as $snippets) {
-            foreach ($snippets['snippets'] as $snippet) {
-                if (in_array($snippet['author'], $authors, true)) {
-                    continue;
-                }
-
-                $authors[] = $snippet['author'];
-            }
-        }
-
-        return $authors;
     }
 
     private function findSnippetInDatabase(Criteria $criteria, Context $context): array

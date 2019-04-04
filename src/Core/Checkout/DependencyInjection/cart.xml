@@ -26,7 +26,6 @@
             <argument type="service" id="Shopware\Core\Checkout\Cart\Processor"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\CartPersister"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\Order\OrderPersister"/>
-            <argument type="service" id="order.repository"/>
             <argument type="service" id="Shopware\Core\Checkout\Context\CheckoutRuleLoader"/>
         </service>
 
@@ -181,6 +180,8 @@
             <argument type="service" id="product.repository"/>
             <argument type="service" id="order_address.repository"/>
             <argument type="service" id="customer_address.repository"/>
+            <argument type="service" id="Shopware\Core\Checkout\Cart\Enrichment"/>
+            <argument type="service" id="Shopware\Core\Checkout\Cart\Processor"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Context\CheckoutContextPersister">

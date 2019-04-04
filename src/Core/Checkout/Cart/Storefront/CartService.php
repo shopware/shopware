@@ -12,7 +12,6 @@ use Shopware\Core\Checkout\Cart\Exception\LineItemNotFoundException;
 use Shopware\Core\Checkout\Cart\Exception\LineItemNotRemovableException;
 use Shopware\Core\Checkout\Cart\Exception\LineItemNotStackableException;
 use Shopware\Core\Checkout\Cart\Exception\MixedLineItemTypeException;
-use Shopware\Core\Checkout\Cart\Exception\OrderNotFoundException;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Checkout\Cart\Order\OrderPersisterInterface;
@@ -21,9 +20,6 @@ use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Context\CheckoutRuleLoader;
 use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 
 class CartService
 {
@@ -55,11 +51,6 @@ class CartService
     private $enrichment;
 
     /**
-     * @var EntityRepositoryInterface
-     */
-    private $orderRepository;
-
-    /**
      * @var CheckoutRuleLoader
      */
     private $checkoutRuleLoader;
@@ -69,14 +60,12 @@ class CartService
         Processor $processor,
         CartPersisterInterface $persister,
         OrderPersisterInterface $orderPersister,
-        EntityRepositoryInterface $orderRepository,
         CheckoutRuleLoader $checkoutRuleLoader
     ) {
         $this->processor = $processor;
         $this->persister = $persister;
         $this->orderPersister = $orderPersister;
         $this->enrichment = $enrichment;
-        $this->orderRepository = $orderRepository;
         $this->checkoutRuleLoader = $checkoutRuleLoader;
     }
 
@@ -161,9 +150,6 @@ class CartService
         return $this->calculate($cart, $context, new CartBehaviorContext());
     }
 
-    /**
-     * @throws CartTokenNotFoundException
-     */
     public function order(Cart $cart, CheckoutContext $context): string
     {
         $calculatedCart = $this->calculate($cart, $context, new CartBehaviorContext());
@@ -178,34 +164,9 @@ class CartService
         return array_shift($ids);
     }
 
-    public function getOrderByDeepLinkCode(string $orderId, string $deepLinkCode, Context $context)
-    {
-        if ($orderId === '' || \strlen($deepLinkCode) !== 32) {
-            throw new OrderNotFoundException($orderId);
-        }
-
-        $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('id', $orderId));
-        $criteria->addFilter(new EqualsFilter('deepLinkCode', $deepLinkCode));
-
-        $orders = $this->orderRepository->search($criteria, $context);
-        if ($orders->getTotal() === 0) {
-            throw new OrderNotFoundException($orderId);
-        }
-
-        return $orders->first();
-    }
-
     public function recalculate(Cart $cart, CheckoutContext $context): Cart
     {
         return $this->calculate($cart, $context, new CartBehaviorContext());
-    }
-
-    public function refresh(Cart $cart, CheckoutContext $context): Cart
-    {
-        $behaviorContext = (new CartBehaviorContext())->setBuildDeliveries(false);
-
-        return $this->calculate($cart, $context, $behaviorContext);
     }
 
     private function calculate(Cart $cart, CheckoutContext $context, CartBehaviorContext $behaviorContext): Cart
@@ -217,7 +178,7 @@ class CartService
         $cart = $this->processor->process($cart, $context, $behaviorContext);
 
         // validate cart against the context rules
-        $validated = $this->checkoutRuleLoader->loadByCart($context, $cart);
+        $validated = $this->checkoutRuleLoader->loadByCart($context, $cart, $behaviorContext);
 
         $cart = $validated->getCart();
 

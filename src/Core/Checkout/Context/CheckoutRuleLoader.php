@@ -56,15 +56,15 @@ class CheckoutRuleLoader
             $cart = new Cart($context->getSalesChannel()->getTypeId(), $cartToken);
         }
 
-        return $this->loadByCart($context, $cart);
+        return $this->loadByCart($context, $cart, new CartBehaviorContext());
     }
 
-    public function loadByCart(CheckoutContext $context, Cart $cart): RuleLoaderResult
+    public function loadByCart(CheckoutContext $context, Cart $cart, CartBehaviorContext $behaviorContext): RuleLoaderResult
     {
-        return $this->load($context, $cart);
+        return $this->load($context, $cart, $behaviorContext);
     }
 
-    private function load(CheckoutContext $context, Cart $cart): RuleLoaderResult
+    private function load(CheckoutContext $context, Cart $cart, CartBehaviorContext $behaviorContext): RuleLoaderResult
     {
         $rules = $this->loadRules($context->getContext());
 
@@ -87,7 +87,7 @@ class CheckoutRuleLoader
             $context->setRuleIds($rules->getIds());
 
             //recalculate cart for new context rules
-            $new = $this->processor->process($cart, $context, new CartBehaviorContext());
+            $new = $this->processor->process($cart, $context, $behaviorContext);
 
             if ($this->cartChanged($cart, $new)) {
                 $valid = false;

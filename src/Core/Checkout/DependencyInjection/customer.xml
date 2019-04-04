@@ -48,52 +48,6 @@
             </call>
         </service>
 
-        <service id="Shopware\Core\Checkout\Context\CheckoutContextPersister">
-            <argument type="service" id="Doctrine\DBAL\Connection"/>
-        </service>
-
-        <service id="Shopware\Core\Checkout\Context\CheckoutContextFactory">
-            <argument type="service" id="sales_channel.repository"/>
-            <argument type="service" id="currency.repository"/>
-            <argument type="service" id="customer.repository"/>
-            <argument type="service" id="customer_group.repository"/>
-            <argument type="service" id="country.repository"/>
-            <argument type="service" id="tax.repository"/>
-            <argument type="service" id="customer_address.repository"/>
-            <argument type="service" id="payment_method.repository"/>
-            <argument type="service" id="shipping_method.repository"/>
-            <argument type="service" id="Doctrine\DBAL\Connection"/>
-            <argument type="service" id="country_state.repository"/>
-            <argument type="service" id="Shopware\Core\Checkout\Cart\Tax\TaxDetector"/>
-        </service>
-
-        <service id="Shopware\Core\Checkout\Context\CheckoutRuleLoader">
-            <argument type="service" id="Shopware\Core\Checkout\Cart\CartPersister"/>
-            <argument type="service" id="Shopware\Core\Checkout\Cart\Processor"/>
-            <argument type="service" id="shopware.cache"/>
-            <argument type="service" id="rule.repository"/>
-            <argument type="service" id="Shopware\Core\Checkout\Cart\Storefront\CartService"/>
-        </service>
-
-        <service id="Shopware\Core\Checkout\Context\CheckoutContextService">
-            <argument type="service" id="shopware.cache"/>
-            <argument type="service" id="Shopware\Core\Checkout\Context\CheckoutContextFactory"/>
-            <argument type="service" id="Shopware\Core\Checkout\Context\CheckoutRuleLoader"/>
-            <argument type="service" id="Shopware\Core\Checkout\Context\CheckoutContextPersister"/>
-            <tag name="shopware.traceable"/>
-        </service>
-
-        <service id="Shopware\Core\Checkout\Context\Storefront\StorefrontCheckoutContextController" public="true">
-            <argument type="service" id="payment_method.repository"/>
-            <argument type="service" id="shipping_method.repository"/>
-            <argument type="service" id="customer_address.repository"/>
-            <argument type="service" id="Shopware\Core\Checkout\Context\CheckoutContextPersister"/>
-            <argument type="service" id="serializer"/>
-            <call method="setContainer">
-                <argument type="service" id="service_container"/>
-            </call>
-        </service>
-
         <service id="Shopware\Core\Checkout\Customer\Storefront\AccountRegistrationService">
             <argument type="service" id="customer.repository"/>
             <argument type="service" id="event_dispatcher"/>

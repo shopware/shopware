@@ -2,6 +2,9 @@
 
 namespace Shopware\Core\Checkout\Cart\Order;
 
+use Shopware\Core\Checkout\Cart\Cart;
+use Shopware\Core\Checkout\Cart\CartBehaviorContext;
+use Shopware\Core\Checkout\Cart\Enrichment;
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Checkout\Cart\Exception\InvalidPayloadException;
 use Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException;
@@ -11,7 +14,9 @@ use Shopware\Core\Checkout\Cart\Exception\MixedLineItemTypeException;
 use Shopware\Core\Checkout\Cart\Exception\OrderRecalculationException;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Order\Transformer\AddressTransformer;
+use Shopware\Core\Checkout\Cart\Processor;
 use Shopware\Core\Checkout\Cart\Storefront\CartService;
+use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Customer\Exception\AddressNotFoundException;
 use Shopware\Core\Checkout\Order\Exception\DeliveryWithoutAddressException;
 use Shopware\Core\Checkout\Order\Exception\EmptyCartException;
@@ -59,13 +64,25 @@ class RecalculationService
      */
     protected $customerAddressRepository;
 
+    /**
+     * @var Enrichment
+     */
+    protected $enrichment;
+
+    /**
+     * @var Processor
+     */
+    protected $processor;
+
     public function __construct(
         EntityRepositoryInterface $orderRepository,
         OrderConverter $orderConverter,
         CartService $cartService,
         EntityRepositoryInterface $productRepository,
         EntityRepositoryInterface $orderAddressRepository,
-        EntityRepositoryInterface $customerAddressRepository
+        EntityRepositoryInterface $customerAddressRepository,
+        Enrichment $enrichment,
+        Processor $processor
     ) {
         $this->orderRepository = $orderRepository;
         $this->orderConverter = $orderConverter;
@@ -73,6 +90,8 @@ class RecalculationService
         $this->productRepository = $productRepository;
         $this->orderAddressRepository = $orderAddressRepository;
         $this->customerAddressRepository = $customerAddressRepository;
+        $this->enrichment = $enrichment;
+        $this->processor = $processor;
     }
 
     /**
@@ -93,12 +112,13 @@ class RecalculationService
             ->addAssociation('lineItems')
             ->addAssociation('transactions')
             ->addAssociation('deliveries');
+
         $order = $this->orderRepository->search($criteria, $context)->get($orderId);
         $this->validateOrder($order, $orderId);
 
         $checkoutContext = $this->orderConverter->assembleCheckoutContext($order, $context);
         $cart = $this->orderConverter->convertToCart($order, $context);
-        $recalculatedCart = $this->cartService->refresh($cart, $checkoutContext);
+        $recalculatedCart = $this->refresh($cart, $checkoutContext);
 
         $conversionContext = (new OrderConversionContext())
             ->setIncludeCustomer(false)
@@ -190,6 +210,18 @@ class RecalculationService
         $newOrderAddress = AddressTransformer::transform($customerAddress);
         $newOrderAddress['id'] = $orderAddressId;
         $this->orderAddressRepository->upsert([$newOrderAddress], $context);
+    }
+
+    private function refresh(Cart $cart, CheckoutContext $context): Cart
+    {
+        $behaviorContext = (new CartBehaviorContext())
+            ->setBuildDeliveries(false);
+
+        // enrich line items with missing data, e.g products which added in the call are enriched with their prices and labels
+        $cart = $this->enrichment->enrich($cart, $context);
+
+        // all prices are now prepared for calculation -  starts the cart calculation
+        return $this->processor->process($cart, $context, $behaviorContext);
     }
 
     /**

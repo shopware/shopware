@@ -256,11 +256,9 @@ Component.extend('sw-product-stream-filter', 'sw-condition-base', {
                     store[key].label = label;
                 }
                 store[key].name = key;
-                store[key].meta = {
-                    viewData: {
-                        label: store[key].label,
-                        name: store[key].name
-                    }
+                store[key].translated = {
+                    label: store[key].label,
+                    name: store[key].name
                 };
             });
             return store;

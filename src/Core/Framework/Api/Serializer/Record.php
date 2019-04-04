@@ -173,10 +173,6 @@ class Record implements \JsonSerializable
                 ];
             }
         }
-
-        if (isset($data['viewData'])) {
-            $this->addMeta('viewData', $data['viewData']);
-        }
     }
 
     public function setRelationships(array $relationships): void

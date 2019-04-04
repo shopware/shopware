@@ -29,11 +29,9 @@ Component.register('sw-settings-rule-detail', {
             }), 'id'),
             treeConfig: {
                 conditionStore: new LocalStore(this.ruleConditionDataProviderService.getConditions((condition) => {
-                    condition.meta = {
-                        viewData: {
-                            label: this.$tc(condition.label),
-                            type: this.$tc(condition.label)
-                        }
+                    condition.translated = {
+                        label: this.$tc(condition.label),
+                        type: this.$tc(condition.label)
                     };
                 }), 'type'),
                 entityName: 'rule',

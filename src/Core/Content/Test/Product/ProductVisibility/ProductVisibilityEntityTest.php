@@ -152,7 +152,7 @@ class ProductVisibilityEntityTest extends TestCase
         $data = [
             'id' => $id,
             'accessKey' => AccessKeyHelper::generateAccessKey('sales-channel'),
-            'typeId' => Defaults::SALES_CHANNEL_STOREFRONT_API,
+            'typeId' => Defaults::SALES_CHANNEL_TYPE_API,
             'languageId' => Defaults::LANGUAGE_SYSTEM,
             'currencyId' => Defaults::CURRENCY,
             'currencyVersionId' => Defaults::LIVE_VERSION,

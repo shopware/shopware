@@ -44,7 +44,7 @@ class Migration1551969523SeoUrlTemplate extends MigrationStep
             'route_name' => ProductDetailPageSeoUrlIndexer::ROUTE_NAME,
             'entity_name' => ProductDefinition::getEntityName(),
             'template' => ProductDetailPageSeoUrlGenerator::DEFAULT_TEMPLATE,
-            'created_at' => (new \DateTimeImmutable())->format(Defaults::DATE_FORMAT),
+            'created_at' => (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_FORMAT),
         ]);
     }
 

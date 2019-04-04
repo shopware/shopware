@@ -499,7 +499,7 @@ class DetailPageSeoUrlIndexerTest extends TestCase
         $repo->upsert([[
             'id' => $id,
             'name' => $name,
-            'typeId' => Defaults::SALES_CHANNEL_STOREFRONT,
+            'typeId' => Defaults::SALES_CHANNEL_TYPE_STOREFRONT,
             'accessKey' => 'foobar',
             'secretAccessKey' => 'foobar',
             'languageId' => $defaultLanguageId,

@@ -41,8 +41,8 @@ class VersionDefinition extends EntityDefinition
     public static function getDefaults(EntityExistence $existence): array
     {
         return [
-            'name' => sprintf('Draft %s', date(Defaults::DATE_FORMAT)),
-            'createdAt' => date(Defaults::DATE_FORMAT),
+            'name' => sprintf('Draft %s', date(Defaults::STORAGE_DATE_FORMAT)),
+            'createdAt' => date(Defaults::STORAGE_DATE_FORMAT),
         ];
     }
 

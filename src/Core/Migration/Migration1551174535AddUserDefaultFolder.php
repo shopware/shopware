@@ -20,7 +20,7 @@ class Migration1551174535AddUserDefaultFolder extends MigrationStep
             'id' => Uuid::randomBytes(),
             'association_fields' => '["avatarUser"]',
             'entity' => 'user',
-            'created_at' => (new \DateTime())->format(Defaults::DATE_FORMAT),
+            'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_FORMAT),
         ]);
     }
 

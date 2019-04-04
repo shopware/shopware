@@ -129,7 +129,7 @@ trait StorefrontPageTestBehaviour
         $shippingMethodId = $this->getAvailableShippingMethodId();
         $countryId = $this->getValidCountryId();
         $data = [
-            'typeId' => Defaults::SALES_CHANNEL_STOREFRONT,
+            'typeId' => Defaults::SALES_CHANNEL_TYPE_STOREFRONT,
             'name' => 'store front',
             'accessKey' => AccessKeyHelper::generateAccessKey('sales-channel'),
             'navigationId' => $this->getNavigationId(),
@@ -159,7 +159,7 @@ trait StorefrontPageTestBehaviour
         $shippingMethodId = $this->getAvailableShippingMethodId();
         $countryId = $this->getValidCountryId();
         $data = [
-            'typeId' => Defaults::SALES_CHANNEL_STOREFRONT,
+            'typeId' => Defaults::SALES_CHANNEL_TYPE_STOREFRONT,
             'name' => 'store front',
             'accessKey' => AccessKeyHelper::generateAccessKey('sales-channel'),
             'navigationId' => $this->getNavigationId(),
@@ -191,7 +191,7 @@ trait StorefrontPageTestBehaviour
         $shippingMethodId = $this->getAvailableShippingMethodId();
         $countryId = $this->getValidCountryId();
         $data = [
-            'typeId' => Defaults::SALES_CHANNEL_STOREFRONT,
+            'typeId' => Defaults::SALES_CHANNEL_TYPE_STOREFRONT,
             'name' => 'store front',
             'accessKey' => AccessKeyHelper::generateAccessKey('sales-channel'),
             'languageId' => Defaults::LANGUAGE_SYSTEM,

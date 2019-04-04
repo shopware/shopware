@@ -23,8 +23,10 @@ export default class EntityStore {
         this._entityName = entityName;
         this.EntityClass = EntityClass;
 
+        const serviceContainer = Application.getContainer('service');
+        this.versionId = serviceContainer.context.liveVersionId;
+
         if (types.isString(apiService)) {
-            const serviceContainer = Application.getContainer('service');
             this.apiService = serviceContainer[apiService];
         } else {
             this.apiService = apiService;
@@ -44,7 +46,7 @@ export default class EntityStore {
      * @param {String} [versionId]
      * @return {EntityProxy}
      */
-    getById(id, force = false, languageId = '', versionId = '20080911ffff4fffafffffff19830531') {
+    getById(id, force = false, languageId = '', versionId = this.versionId) {
         if (!languageId || languageId.length < 1) {
             languageId = this.getLanguageStore().getCurrentId();
         }
@@ -82,7 +84,7 @@ export default class EntityStore {
      * @param {String} [versionId]
      * @return {Promise<never> | Promise<any>}
      */
-    getByIdAsync(id, languageId = '', versionId = '20080911ffff4fffafffffff19830531') {
+    getByIdAsync(id, languageId = '', versionId = this.versionId) {
         if (!languageId || languageId.length < 1) {
             languageId = this.getLanguageStore().getCurrentId();
         }

@@ -59,7 +59,7 @@ class OrderActionControllerTest extends TestCase
 
     public function testOrderNotFoundException(): void
     {
-        $this->getClient()->request('GET', '/api/v' . PlatformRequest::API_VERSION . '/order/20080911ffff4fffafffffff19830531/actions/state');
+        $this->getClient()->request('GET', '/api/v' . PlatformRequest::API_VERSION . '/order/' . Uuid::randomHex() . '/actions/state');
 
         $response = $this->getClient()->getResponse()->getContent();
         $response = json_decode($response, true);
@@ -179,7 +179,7 @@ class OrderActionControllerTest extends TestCase
 
         $order = [
             'id' => $orderId,
-            'orderDate' => (new \DateTimeImmutable())->format(Defaults::DATE_FORMAT),
+            'orderDate' => (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_FORMAT),
             'price' => new CartPrice(10, 10, 10, new CalculatedTaxCollection(), new TaxRuleCollection(), CartPrice::TAX_STATE_NET),
             'shippingCosts' => new CalculatedPrice(10, 10, new CalculatedTaxCollection(), new TaxRuleCollection()),
             'orderCustomer' => [

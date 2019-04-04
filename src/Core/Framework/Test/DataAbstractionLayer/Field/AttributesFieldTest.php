@@ -640,7 +640,7 @@ class AttributesFieldTest extends TestCase
 
         $ids = [Uuid::randomHex(), Uuid::randomHex(), Uuid::randomHex(), Uuid::randomHex()];
         $nowId = Uuid::randomHex();
-        $now = (new \DateTime())->format(Defaults::DATE_FORMAT);
+        $now = (new \DateTime())->format(Defaults::STORAGE_DATE_FORMAT);
 
         $entities = [
             ['id' => $ids[0], 'attributes' => ['datetime' => new \DateTime('1990-01-01')]],

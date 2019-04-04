@@ -36,7 +36,7 @@ SQL;
             'association_fields' => '["mailTemplateMedia"]',
             'entity' => 'mail_template',
             'thumbnail_sizes' => '[]',
-            'created_at' => (new \DateTime())->format(Defaults::DATE_FORMAT),
+            'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_FORMAT),
         ]);
     }
 

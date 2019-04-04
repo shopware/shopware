@@ -114,7 +114,7 @@ trait StorefrontApiTestBehaviour
 
         $salesChannel = array_merge([
             'id' => Uuid::randomHex(),
-            'typeId' => Defaults::SALES_CHANNEL_STOREFRONT_API,
+            'typeId' => Defaults::SALES_CHANNEL_TYPE_API,
             'name' => 'API Test case sales channel',
             'accessKey' => $accessKey,
             'languageId' => Defaults::LANGUAGE_SYSTEM,

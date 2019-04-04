@@ -118,8 +118,8 @@ trait AdminApiTestBehaviour
             'id' => $avatarId,
             'mime_type' => 'image/png',
             'file_size' => 1024,
-            'uploaded_at' => (new \DateTime())->format(Defaults::DATE_FORMAT),
-            'created_at' => (new \DateTime())->format(Defaults::DATE_FORMAT),
+            'uploaded_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_FORMAT),
+            'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_FORMAT),
         ]);
 
         $connection->insert('user', [
@@ -132,7 +132,7 @@ trait AdminApiTestBehaviour
             'locale_id' => $this->getLocaleOfSystemLanguage($connection),
             'active' => 1,
             'avatar_id' => $avatarId,
-            'created_at' => (new \DateTime())->format(Defaults::DATE_FORMAT),
+            'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_FORMAT),
         ]);
 
         $this->apiUsernames[] = $username;

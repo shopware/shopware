@@ -244,7 +244,7 @@ class VersionManager
                 'integrationId' => $data->getIntegrationId(),
                 'entityName' => $data->getEntityName(),
                 'action' => $data->getAction(),
-                'createdAt' => (new \DateTime())->format(Defaults::DATE_FORMAT),
+                'createdAt' => (new \DateTime())->format(Defaults::STORAGE_DATE_FORMAT),
             ];
         }, $allChanges);
 
@@ -253,7 +253,7 @@ class VersionManager
             'data' => $newData,
             'userId' => $writeContext->getContext()->getUserId(),
             'isMerge' => true,
-            'message' => 'merge commit ' . (new \DateTime())->format(Defaults::DATE_FORMAT),
+            'message' => 'merge commit ' . (new \DateTime())->format(Defaults::STORAGE_DATE_FORMAT),
         ];
 
         // create new version commit for merge commit
@@ -439,7 +439,7 @@ class VersionManager
         $versionId = $versionId ?? $writeContext->getContext()->getVersionId();
         $commitId = Uuid::randomBytes();
 
-        $date = (new \DateTime())->format(Defaults::DATE_FORMAT);
+        $date = (new \DateTime())->format(Defaults::STORAGE_DATE_FORMAT);
 
         $userId = $writeContext->getContext()->getUserId() ? Uuid::fromHexToBytes($writeContext->getContext()->getUserId()) : null;
         $insert = new InsertCommand(

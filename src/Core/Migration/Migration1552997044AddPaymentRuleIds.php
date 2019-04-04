@@ -25,13 +25,13 @@ class Migration1552997044AddPaymentRuleIds extends MigrationStep
 
         // TODO: When merging migrations --> Add to Migration1536233420BasicData
         $ruleId = Uuid::randomBytes();
-        $connection->insert('rule', ['id' => $ruleId, 'name' => 'Cart >= 0 (Payment)', 'priority' => 100, 'created_at' => date(Defaults::DATE_FORMAT)]);
+        $connection->insert('rule', ['id' => $ruleId, 'name' => 'Cart >= 0 (Payment)', 'priority' => 100, 'created_at' => date(Defaults::STORAGE_DATE_FORMAT)]);
         $connection->insert('rule_condition', ['id' => Uuid::randomBytes(), 'rule_id' => $ruleId, 'type' => 'cartCartAmount', 'value' => json_encode(['operator' => '>=', 'amount' => 0])]);
         $connection->update('payment_method', ['availability_rule_ids' => json_encode([])], ['1' => '1']);
 
         $paymentMethodIds = $connection->executeQuery('SELECT id FROM payment_method')->fetchAll(FetchMode::COLUMN);
         foreach ($paymentMethodIds as $paymentMethodId) {
-            $connection->insert('payment_method_rule', ['payment_method_id' => $paymentMethodId, 'rule_id' => $ruleId, 'created_at' => date(Defaults::DATE_FORMAT)]);
+            $connection->insert('payment_method_rule', ['payment_method_id' => $paymentMethodId, 'rule_id' => $ruleId, 'created_at' => date(Defaults::STORAGE_DATE_FORMAT)]);
             $connection->update('payment_method', ['availability_rule_ids' => json_encode([Uuid::fromBytesToHex($ruleId)])], ['id' => $paymentMethodId]);
         }
     }

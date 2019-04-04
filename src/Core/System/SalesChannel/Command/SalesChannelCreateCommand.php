@@ -153,7 +153,7 @@ class SalesChannelCreateCommand extends Command
 
     protected function getTypeId(): string
     {
-        return Defaults::SALES_CHANNEL_STOREFRONT_API;
+        return Defaults::SALES_CHANNEL_TYPE_API;
     }
 
     protected function getFirstActiveShippingMethodId(): string

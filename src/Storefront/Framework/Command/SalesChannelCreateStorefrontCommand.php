@@ -21,7 +21,7 @@ class SalesChannelCreateStorefrontCommand extends SalesChannelCreateCommand
 
     protected function getTypeId(): string
     {
-        return Defaults::SALES_CHANNEL_STOREFRONT;
+        return Defaults::SALES_CHANNEL_TYPE_STOREFRONT;
     }
 
     protected function getSalesChannelConfiguration(InputInterface $input, OutputInterface $output): array

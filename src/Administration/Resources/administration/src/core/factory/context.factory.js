@@ -1,3 +1,5 @@
+import { Defaults } from 'src/core/shopware';
+
 /**
  * @module core/factory/context
  * @type factory
@@ -13,16 +15,14 @@ export default function createContext(context = {}) {
         apiPath: apiPath,
         apiResourcePath: `${apiPath}/v1`,
         currentUser: {},
-        assetsPath: getAssetsPath(installationPath, isDevMode),
-        versionId: '20080911ffff4fffafffffff19830531',
-        languageId: '20080911ffff4fffafffffff19830531'
+        assetsPath: getAssetsPath(installationPath, isDevMode)
     });
 
     if (isDevMode) {
         Object.assign(context, {
-            systemLanguageId: '20080911ffff4fffafffffff19830531',
-            defaultLanguageIds: ['20080911ffff4fffafffffff19830531', '00e84bd18c574a6ca748ac0db17654dc'],
-            liveVersionId: '20080911ffff4fffafffffff19830531'
+            systemLanguageId: Defaults.systemLanguageId,
+            defaultLanguageIds: Defaults.defaultLanguageIds,
+            liveVersionId: Defaults.versionId
         });
     }
 

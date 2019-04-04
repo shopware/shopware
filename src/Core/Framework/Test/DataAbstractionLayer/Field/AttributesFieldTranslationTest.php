@@ -182,7 +182,7 @@ class AttributesFieldTranslationTest extends TestCase
         $this->addLanguage($rootId, null);
         $this->addLanguage($childId, $rootId);
 
-        $now = (new \DateTime())->format(Defaults::DATE_FORMAT);
+        $now = (new \DateTime())->format(Defaults::STORAGE_DATE_FORMAT);
         $entity = [
             'id' => $id,
             'translations' => [
@@ -336,7 +336,7 @@ class AttributesFieldTranslationTest extends TestCase
         $this->addLanguage($rootId, null);
         $this->addLanguage($subId, $rootId);
 
-        $now = (new \DateTime())->format(Defaults::DATE_FORMAT);
+        $now = (new \DateTime())->format(Defaults::STORAGE_DATE_FORMAT);
         $entities = [
             [
                 'id' => $parentId,

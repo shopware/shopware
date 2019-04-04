@@ -229,6 +229,10 @@ $sw-login-error-animation-duration: .15s;
             transform: scale(1.3);
         }
 
+        .sw-login__content {
+            opacity: 0;
+        }
+
         .sw-login__image {
             opacity: 0;
         }

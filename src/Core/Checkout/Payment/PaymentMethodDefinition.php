@@ -13,7 +13,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CreatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\CascadeDelete;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Internal;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\RestrictDelete;
@@ -56,7 +55,7 @@ class PaymentMethodDefinition extends EntityDefinition
         return new FieldCollection([
             (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
             new FkField('plugin_id', 'pluginId', PluginDefinition::class),
-            (new StringField('handler_identifier', 'handlerIdentifier'))->addFlags(new WriteProtected(Context::SYSTEM_SCOPE), new Internal()),
+            (new StringField('handler_identifier', 'handlerIdentifier'))->addFlags(new WriteProtected(Context::SYSTEM_SCOPE)),
             (new TranslatedField('name'))->addFlags(new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
             new TranslatedField('description'),
             new IntField('position', 'position'),

@@ -60,9 +60,7 @@ class PluginManagementServiceTest extends TestCase
 
         $extractedPlugin = $this->filesystem->exists(__DIR__ . '/_fixture/plugins/SwagFashionTheme');
         $extractedPluginBaseClass = $this->filesystem->exists(__DIR__ . '/_fixture/plugins/SwagFashionTheme/SwagFashionTheme.php');
-        $extractedPluginIcon = $this->filesystem->exists(__DIR__ . '/_fixture/plugins/SwagFashionTheme/Resources/public/plugin.png');
         static::assertTrue($extractedPlugin);
         static::assertTrue($extractedPluginBaseClass);
-        static::assertTrue($extractedPluginIcon);
     }
 }

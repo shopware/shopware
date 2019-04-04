@@ -71,17 +71,18 @@ class PluginFinder
     private function isShopwarePluginPackage(PackageInterface $package): bool
     {
         return $package->getType() === 'shopware-platform-plugin'
-            && isset($package->getExtra()['installer-name']);
+            && isset($package->getExtra()['installer-name'])
+            && $package->getExtra()['installer-name'] !== '';
     }
 
-    private function getPluginNameFromPackage(PackageInterface $composerPackage): string
+    private function getPluginNameFromPackage(PackageInterface $pluginPackage): string
     {
-        return $composerPackage->getExtra()['installer-name'];
+        return $pluginPackage->getExtra()['installer-name'];
     }
 
-    private function getVendorPluginPath(PackageInterface $package, Composer $composer): string
+    private function getVendorPluginPath(PackageInterface $pluginPackage, Composer $composer): string
     {
-        return $composer->getConfig()->get('vendor-dir') . '/' . $package->getPrettyName();
+        return $composer->getConfig()->get('vendor-dir') . '/' . $pluginPackage->getPrettyName();
     }
 
     private function determinePluginName(SplFileInfo $filesystemPlugin): string

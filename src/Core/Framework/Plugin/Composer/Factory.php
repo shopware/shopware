@@ -8,13 +8,13 @@ use Composer\IO\NullIO;
 
 class Factory
 {
-    public static function createComposer(string $projectDir): Composer
+    public static function createComposer(string $composerJsonDir): Composer
     {
         return (new ComposerFactory())->createComposer(
             new NullIO(),
-            $projectDir . '/composer.json',
+            $composerJsonDir . '/composer.json',
             false,
-            $projectDir
+            $composerJsonDir
         );
     }
 }

@@ -14,6 +14,7 @@
     },
     "extra": {
         "installer-name": "SwagTest",
+        "plugin-icon": "Resources/public/plugin.png",
         "copyright": "(c) by shopware AG",
         "label": {
             "de_DE": "Deutscher Pluginname",

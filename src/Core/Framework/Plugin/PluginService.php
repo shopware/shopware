@@ -76,8 +76,7 @@ class PluginService
      */
     public function refreshPlugins(Context $shopwareContext, IOInterface $composerIO): array
     {
-        $pluginsFromFileSystem = $this->pluginFinder
-            ->findPlugins($this->pluginDir, $this->projectDir);
+        $pluginsFromFileSystem = $this->pluginFinder->findPlugins($this->pluginDir, $this->projectDir);
 
         $installedPlugins = $this->getPlugins(new Criteria(), $shopwareContext);
 
@@ -104,6 +103,7 @@ class PluginService
                 $authors = implode(', ', $authorNames);
             }
             $license = $info->getLicense();
+            $pluginIconPath = $extra['plugin-icon'] ?? 'src/Resources/config/plugin.png';
 
             $pluginData = [
                 'name' => $pluginName,
@@ -113,7 +113,7 @@ class PluginService
                 'copyright' => $extra['copyright'] ?? null,
                 'license' => implode(', ', $license),
                 'version' => $pluginVersion,
-                'iconRaw' => $this->getPluginIconRaw($pluginPath),
+                'iconRaw' => $this->getPluginIconRaw($pluginPath . '/' . $pluginIconPath),
                 'managedByComposer' => $pluginFromFileSystem->getManagedByComposer(),
             ];
 
@@ -237,14 +237,12 @@ class PluginService
         return $languageEntity->getId();
     }
 
-    private function getPluginIconRaw(string $pluginPath): ?string
+    private function getPluginIconRaw(string $pluginIconPath): ?string
     {
-        $png = $pluginPath . '/Resources/public/plugin.png';
-
-        if (!is_file($png)) {
+        if (!is_file($pluginIconPath)) {
             return null;
         }
 
-        return file_get_contents($png);
+        return file_get_contents($pluginIconPath);
     }
 }

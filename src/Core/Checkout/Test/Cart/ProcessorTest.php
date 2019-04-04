@@ -4,7 +4,7 @@ namespace Shopware\Core\Checkout\Test\Cart;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
-use Shopware\Core\Checkout\Cart\CartBehaviorContext;
+use Shopware\Core\Checkout\Cart\CartBehavior;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\Delivery;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryDate;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryInformation;
@@ -53,7 +53,7 @@ class ProcessorTest extends TestCase
                 ->setPriceDefinition(new QuantityPriceDefinition(100, new TaxRuleCollection(), 2))
         );
 
-        $calculated = $this->processor->process($cart, $this->context, new CartBehaviorContext());
+        $calculated = $this->processor->process($cart, $this->context, new CartBehavior());
 
         static::assertCount(1, $calculated->getLineItems());
         static::assertTrue($calculated->has('A'));
@@ -78,7 +78,7 @@ class ProcessorTest extends TestCase
                 )
         );
 
-        $calculated = $this->processor->process($cart, $this->context, new CartBehaviorContext());
+        $calculated = $this->processor->process($cart, $this->context, new CartBehavior());
 
         static::assertCount(1, $calculated->getLineItems());
         static::assertTrue($calculated->has('A'));

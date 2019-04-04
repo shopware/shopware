@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\Product\Cart;
 
 use Shopware\Core\Checkout\Cart\Cart;
+use Shopware\Core\Checkout\Cart\CartBehavior;
 use Shopware\Core\Checkout\Cart\CollectorInterface;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryInformation;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
@@ -28,7 +29,7 @@ class ProductCollector implements CollectorInterface
         $this->productGateway = $productGateway;
     }
 
-    public function prepare(StructCollection $definitions, Cart $cart, CheckoutContext $context): void
+    public function prepare(StructCollection $definitions, Cart $cart, CheckoutContext $context, CartBehavior $behavior): void
     {
         $lineItems = array_filter(
             $cart->getLineItems()->getFlat(),
@@ -56,7 +57,7 @@ class ProductCollector implements CollectorInterface
         $definitions->add(new ProductFetchDefinition($ids));
     }
 
-    public function collect(StructCollection $fetchDefinitions, StructCollection $data, Cart $cart, CheckoutContext $context): void
+    public function collect(StructCollection $fetchDefinitions, StructCollection $data, Cart $cart, CheckoutContext $context, CartBehavior $behavior): void
     {
         $productDefinitions = $fetchDefinitions->filterInstance(ProductFetchDefinition::class);
 
@@ -78,7 +79,7 @@ class ProductCollector implements CollectorInterface
         $data->set(self::DATA_KEY, $products);
     }
 
-    public function enrich(StructCollection $data, Cart $cart, CheckoutContext $context): void
+    public function enrich(StructCollection $data, Cart $cart, CheckoutContext $context, CartBehavior $behavior): void
     {
         if (!$data->has(self::DATA_KEY)) {
             return;

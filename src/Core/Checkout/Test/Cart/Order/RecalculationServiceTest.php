@@ -4,7 +4,7 @@ namespace Shopware\Core\Checkout\Test\Cart\Order;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
-use Shopware\Core\Checkout\Cart\CartBehaviorContext;
+use Shopware\Core\Checkout\Cart\CartBehavior;
 use Shopware\Core\Checkout\Cart\Delivery\DeliveryCalculator;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\Delivery;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryDate;
@@ -500,8 +500,8 @@ class RecalculationServiceTest extends TestCase
 
         // increase quantity for first LineItem
         $cart->getLineItems()->first()->setQuantity(8);
-        $cart = $this->getContainer()->get(Enrichment::class)->enrich($cart, $this->checkoutContext);
-        $cart = $this->getContainer()->get(Processor::class)->process($cart, $this->checkoutContext, new CartBehaviorContext());
+        $cart = $this->getContainer()->get(Enrichment::class)->enrich($cart, $this->checkoutContext, new CartBehavior());
+        $cart = $this->getContainer()->get(Processor::class)->process($cart, $this->checkoutContext, new CartBehavior());
         $orderId = $this->persistCart($cart);
 
         // create version of order
@@ -553,8 +553,8 @@ class RecalculationServiceTest extends TestCase
 
         // decrease price for first LineItem
         $cart->getLineItems()->first()->setPriceDefinition(new QuantityPriceDefinition(1, new TaxRuleCollection([new TaxRule(19)]), 5));
-        $cart = $this->getContainer()->get(Enrichment::class)->enrich($cart, $this->checkoutContext);
-        $cart = $this->getContainer()->get(Processor::class)->process($cart, $this->checkoutContext, new CartBehaviorContext());
+        $cart = $this->getContainer()->get(Enrichment::class)->enrich($cart, $this->checkoutContext, new CartBehavior());
+        $cart = $this->getContainer()->get(Processor::class)->process($cart, $this->checkoutContext, new CartBehavior());
         $orderId = $this->persistCart($cart);
 
         // create version of order
@@ -613,8 +613,8 @@ class RecalculationServiceTest extends TestCase
             false
         );
         $cart->getLineItems()->first()->setDeliveryInformation($deliveryInformation);
-        $cart = $this->getContainer()->get(Enrichment::class)->enrich($cart, $this->checkoutContext);
-        $cart = $this->getContainer()->get(Processor::class)->process($cart, $this->checkoutContext, new CartBehaviorContext());
+        $cart = $this->getContainer()->get(Enrichment::class)->enrich($cart, $this->checkoutContext, new CartBehavior());
+        $cart = $this->getContainer()->get(Processor::class)->process($cart, $this->checkoutContext, new CartBehavior());
         $orderId = $this->persistCart($cart);
 
         // create version of order
@@ -826,8 +826,8 @@ class RecalculationServiceTest extends TestCase
                         )
                 )
         );
-        $cart = $this->getContainer()->get(Enrichment::class)->enrich($cart, $this->checkoutContext);
-        $cart = $this->getContainer()->get(Processor::class)->process($cart, $this->checkoutContext, new CartBehaviorContext());
+        $cart = $this->getContainer()->get(Enrichment::class)->enrich($cart, $this->checkoutContext, new CartBehavior());
+        $cart = $this->getContainer()->get(Processor::class)->process($cart, $this->checkoutContext, new CartBehavior());
 
         return $cart;
     }

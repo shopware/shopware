@@ -3,7 +3,7 @@
 namespace Shopware\Core\Checkout\Cart\Order;
 
 use Shopware\Core\Checkout\Cart\Cart;
-use Shopware\Core\Checkout\Cart\CartBehaviorContext;
+use Shopware\Core\Checkout\Cart\CartBehavior;
 use Shopware\Core\Checkout\Cart\Enrichment;
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Checkout\Cart\Exception\InvalidPayloadException;
@@ -214,14 +214,14 @@ class RecalculationService
 
     private function refresh(Cart $cart, CheckoutContext $context): Cart
     {
-        $behaviorContext = (new CartBehaviorContext())
-            ->setBuildDeliveries(false);
+        $behavior = (new CartBehavior())
+            ->setIsRecalculation(true);
 
         // enrich line items with missing data, e.g products which added in the call are enriched with their prices and labels
-        $cart = $this->enrichment->enrich($cart, $context);
+        $cart = $this->enrichment->enrich($cart, $context, $behavior);
 
         // all prices are now prepared for calculation -  starts the cart calculation
-        return $this->processor->process($cart, $context, $behaviorContext);
+        return $this->processor->process($cart, $context, $behavior);
     }
 
     /**

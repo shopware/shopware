@@ -3,7 +3,7 @@
 namespace Shopware\Core\Checkout\Cart\Storefront;
 
 use Shopware\Core\Checkout\Cart\Cart;
-use Shopware\Core\Checkout\Cart\CartBehaviorContext;
+use Shopware\Core\Checkout\Cart\CartBehavior;
 use Shopware\Core\Checkout\Cart\CartPersisterInterface;
 use Shopware\Core\Checkout\Cart\Enrichment;
 use Shopware\Core\Checkout\Cart\Exception\CartTokenNotFoundException;
@@ -99,7 +99,7 @@ class CartService
             $cart = $this->createNew($token, $name);
         }
 
-        return $this->calculate($cart, $context, new CartBehaviorContext());
+        return $this->calculate($cart, $context);
     }
 
     /**
@@ -109,7 +109,7 @@ class CartService
     {
         $cart->add($item);
 
-        return $this->calculate($cart, $context, new CartBehaviorContext());
+        return $this->calculate($cart, $context);
     }
 
     public function fill(Cart $cart, LineItemCollection $lineItems, CheckoutContext $context): Cart
@@ -118,7 +118,7 @@ class CartService
             $cart->getLineItems()->add($lineItem);
         }
 
-        return $this->calculate($cart, $context, new CartBehaviorContext());
+        return $this->calculate($cart, $context);
     }
 
     /**
@@ -135,7 +135,7 @@ class CartService
 
         $lineItem->setQuantity($quantity);
 
-        return $this->calculate($cart, $context, new CartBehaviorContext());
+        return $this->calculate($cart, $context);
     }
 
     /**
@@ -147,12 +147,12 @@ class CartService
     {
         $cart->remove($identifier);
 
-        return $this->calculate($cart, $context, new CartBehaviorContext());
+        return $this->calculate($cart, $context);
     }
 
     public function order(Cart $cart, CheckoutContext $context): string
     {
-        $calculatedCart = $this->calculate($cart, $context, new CartBehaviorContext());
+        $calculatedCart = $this->calculate($cart, $context);
         $events = $this->orderPersister->persist($calculatedCart, $context);
 
         $this->persister->delete($context->getToken(), $context);
@@ -166,19 +166,21 @@ class CartService
 
     public function recalculate(Cart $cart, CheckoutContext $context): Cart
     {
-        return $this->calculate($cart, $context, new CartBehaviorContext());
+        return $this->calculate($cart, $context);
     }
 
-    private function calculate(Cart $cart, CheckoutContext $context, CartBehaviorContext $behaviorContext): Cart
+    private function calculate(Cart $cart, CheckoutContext $context): Cart
     {
+        $behavior = new CartBehavior();
+
         // enrich line items with missing data, e.g products which added in the call are enriched with their prices and labels
-        $cart = $this->enrichment->enrich($cart, $context);
+        $cart = $this->enrichment->enrich($cart, $context, $behavior);
 
         // all prices are now prepared for calculation -  starts the cart calculation
-        $cart = $this->processor->process($cart, $context, $behaviorContext);
+        $cart = $this->processor->process($cart, $context, $behavior);
 
         // validate cart against the context rules
-        $validated = $this->checkoutRuleLoader->loadByCart($context, $cart, $behaviorContext);
+        $validated = $this->checkoutRuleLoader->loadByCart($context, $cart, $behavior);
 
         $cart = $validated->getCart();
 

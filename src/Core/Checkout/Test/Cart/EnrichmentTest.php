@@ -5,6 +5,7 @@ namespace Shopware\Core\Checkout\Test\Cart;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
+use Shopware\Core\Checkout\Cart\CartBehavior;
 use Shopware\Core\Checkout\Cart\Enrichment;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
@@ -90,7 +91,7 @@ class EnrichmentTest extends TestCase
                 ->setPayload(['id' => $id])
         );
 
-        $enriched = $this->enrichment->enrich($cart, $this->context);
+        $enriched = $this->enrichment->enrich($cart, $this->context, new CartBehavior());
 
         static::assertCount(1, $enriched->getLineItems());
         static::assertTrue($enriched->getLineItems()->has('A'));
@@ -155,7 +156,7 @@ class EnrichmentTest extends TestCase
                 )
         );
 
-        $enriched = $this->enrichment->enrich($cart, $this->context);
+        $enriched = $this->enrichment->enrich($cart, $this->context, new CartBehavior());
 
         static::assertCount(1, $enriched->getLineItems());
         static::assertTrue($enriched->getLineItems()->has('A'));

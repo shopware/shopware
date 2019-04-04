@@ -6,7 +6,7 @@ use Faker\Factory;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
-use Shopware\Core\Checkout\Cart\CartBehaviorContext;
+use Shopware\Core\Checkout\Cart\CartBehavior;
 use Shopware\Core\Checkout\Cart\Exception\InvalidCartException;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Order\OrderConverter;
@@ -77,7 +77,7 @@ class OrderPersisterTest extends TestCase
                 ->setPriceDefinition(new AbsolutePriceDefinition(1, 2))
         );
 
-        $processedCart = $this->cartProcessor->process($cart, Generator::createCheckoutContext(), new CartBehaviorContext());
+        $processedCart = $this->cartProcessor->process($cart, Generator::createCheckoutContext(), new CartBehavior());
 
         $exception = null;
         try {

@@ -6,12 +6,15 @@ use Shopware\Core\Checkout\Cart\Exception\MissingLineItemPriceException;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Checkout\Cart\Price\AbsolutePriceCalculator;
+use Shopware\Core\Checkout\Cart\Price\AmountCalculator;
 use Shopware\Core\Checkout\Cart\Price\PercentagePriceCalculator;
 use Shopware\Core\Checkout\Cart\Price\QuantityPriceCalculator;
 use Shopware\Core\Checkout\Cart\Price\Struct\AbsolutePriceDefinition;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\PercentagePriceDefinition;
+use Shopware\Core\Checkout\Cart\Price\Struct\PriceCollection;
 use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
+use Shopware\Core\Checkout\Cart\Rule\CartRuleScope;
 use Shopware\Core\Checkout\Cart\Rule\LineItemScope;
 use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Framework\Rule\Rule;
@@ -33,22 +36,29 @@ class Calculator
      */
     protected $absolutePriceCalculator;
 
+    /**
+     * @var AmountCalculator
+     */
+    protected $amountCalculator;
+
     public function __construct(
         QuantityPriceCalculator $quantityPriceCalculator,
         PercentagePriceCalculator $percentagePriceCalculator,
-        AbsolutePriceCalculator $absolutePriceCalculator
+        AbsolutePriceCalculator $absolutePriceCalculator,
+        AmountCalculator $amountCalculator
     ) {
         $this->quantityPriceCalculator = $quantityPriceCalculator;
         $this->percentagePriceCalculator = $percentagePriceCalculator;
         $this->absolutePriceCalculator = $absolutePriceCalculator;
+        $this->amountCalculator = $amountCalculator;
     }
 
-    public function calculate(Cart $cart, CheckoutContext $context): LineItemCollection
+    public function calculate(Cart $cart, CheckoutContext $context, CartBehavior $behavior): LineItemCollection
     {
-        return $this->calculateLineItems($cart, $cart->getLineItems(), $context);
+        return $this->calculateLineItems($cart, $cart->getLineItems(), $context, $behavior);
     }
 
-    private function calculateLineItems(Cart $cart, LineItemCollection $lineItems, CheckoutContext $context): LineItemCollection
+    private function calculateLineItems(Cart $cart, LineItemCollection $lineItems, CheckoutContext $context, CartBehavior $behavior): LineItemCollection
     {
         $lineItems->sortByPriority();
 
@@ -57,8 +67,13 @@ class Calculator
         foreach ($lineItems as $original) {
             $lineItem = LineItem::createFromLineItem($original);
 
+            if (!$this->isValid($lineItem, $calculated, $context, $behavior)) {
+                $cart->getLineItems()->remove($lineItem->getKey());
+                continue;
+            }
+
             try {
-                $price = $this->calculatePrice($cart, $lineItem, $context, $calculated);
+                $price = $this->calculatePrice($cart, $lineItem, $context, $calculated, $behavior);
             } catch (\Exception $e) {
                 // todo line item silently removed if an error occurs
                 $cart->getLineItems()->remove($lineItem->getKey());
@@ -90,10 +105,10 @@ class Calculator
         );
     }
 
-    private function calculatePrice(Cart $cart, LineItem $lineItem, CheckoutContext $context, LineItemCollection $calculated): CalculatedPrice
+    private function calculatePrice(Cart $cart, LineItem $lineItem, CheckoutContext $context, LineItemCollection $calculated, CartBehavior $behavior): CalculatedPrice
     {
         if ($lineItem->hasChildren()) {
-            $children = $this->calculateLineItems($cart, $lineItem->getChildren(), $context);
+            $children = $this->calculateLineItems($cart, $lineItem->getChildren(), $context, $behavior);
 
             $lineItem->setChildren($children);
 
@@ -125,5 +140,27 @@ class Calculator
         }
 
         throw new MissingLineItemPriceException($lineItem->getKey());
+    }
+
+    private function isValid(LineItem $lineItem, LineItemCollection $calculated, CheckoutContext $context, CartBehavior $behavior): bool
+    {
+        if (!$lineItem->getRequirement() || $behavior->isRecalculation()) {
+            return true;
+        }
+
+        $cart = new Cart('validate', 'validate');
+        $cart->setLineItems($calculated);
+
+        $cart->setPrice(
+            $this->amountCalculator->calculate(
+                $calculated->getPrices(),
+                new PriceCollection(),
+                $context
+            )
+        );
+
+        $scope = new CartRuleScope($cart, $context);
+
+        return $lineItem->getRequirement()->match($scope)->matches();
     }
 }

@@ -5,7 +5,7 @@ namespace Shopware\Core\Framework\Test\DataAbstractionLayer\Version;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
-use Shopware\Core\Checkout\Cart\CartBehaviorContext;
+use Shopware\Core\Checkout\Cart\CartBehavior;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Order\OrderPersister;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
@@ -1688,7 +1688,7 @@ class VersioningTest extends TestCase
         );
         $context->setRuleIds([$ruleId]);
 
-        $cart = $this->processor->process($cart, $context, new CartBehaviorContext());
+        $cart = $this->processor->process($cart, $context, new CartBehavior());
 
         $orders = $this->orderPersister->persist($cart, $context)->getEventByDefinition(OrderDefinition::class)->getIds();
         $id = array_shift($orders);

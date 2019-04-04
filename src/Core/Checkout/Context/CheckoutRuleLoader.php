@@ -3,7 +3,7 @@
 namespace Shopware\Core\Checkout\Context;
 
 use Shopware\Core\Checkout\Cart\Cart;
-use Shopware\Core\Checkout\Cart\CartBehaviorContext;
+use Shopware\Core\Checkout\Cart\CartBehavior;
 use Shopware\Core\Checkout\Cart\CartPersisterInterface;
 use Shopware\Core\Checkout\Cart\Exception\CartTokenNotFoundException;
 use Shopware\Core\Checkout\Cart\Processor;
@@ -56,15 +56,15 @@ class CheckoutRuleLoader
             $cart = new Cart($context->getSalesChannel()->getTypeId(), $cartToken);
         }
 
-        return $this->loadByCart($context, $cart, new CartBehaviorContext());
+        return $this->loadByCart($context, $cart, new CartBehavior());
     }
 
-    public function loadByCart(CheckoutContext $context, Cart $cart, CartBehaviorContext $behaviorContext): RuleLoaderResult
+    public function loadByCart(CheckoutContext $context, Cart $cart, CartBehavior $behaviorContext): RuleLoaderResult
     {
         return $this->load($context, $cart, $behaviorContext);
     }
 
-    private function load(CheckoutContext $context, Cart $cart, CartBehaviorContext $behaviorContext): RuleLoaderResult
+    private function load(CheckoutContext $context, Cart $cart, CartBehavior $behaviorContext): RuleLoaderResult
     {
         $rules = $this->loadRules($context->getContext());
 

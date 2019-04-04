@@ -30,13 +30,17 @@ class DeliveryProcessor
         Cart $cart,
         LineItemCollection $lineItems,
         CheckoutContext $context,
-        CartBehavior $behaviorContext
+        CartBehavior $behavior
     ): DeliveryCollection {
-        if ($behaviorContext->shouldBuildDeliveries()) {
-            $deliveries = $this->builder->build(new DeliveryCollection(), $lineItems, $context, false);
-        } else {
+        if ($behavior->isRecalculation()) {
             $deliveries = $cart->getDeliveries();
+
+            $this->deliveryCalculator->calculate($deliveries, $context);
+
+            return $deliveries;
         }
+
+        $deliveries = $this->builder->build(new DeliveryCollection(), $lineItems, $context, false);
 
         $this->deliveryCalculator->calculate($deliveries, $context);
 

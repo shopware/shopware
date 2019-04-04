@@ -215,7 +215,6 @@ class RecalculationService
     private function refresh(Cart $cart, CheckoutContext $context): Cart
     {
         $behavior = (new CartBehavior())
-            ->setBuildDeliveries(false)
             ->setIsRecalculation(true);
 
         // enrich line items with missing data, e.g products which added in the call are enriched with their prices and labels

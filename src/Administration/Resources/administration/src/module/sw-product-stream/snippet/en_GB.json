@@ -29,17 +29,17 @@
     "filter": {
       "valid": "Show only valid product streams",
       "type": {
-        "equals": "Equals",
-        "equalsAny": "Equals any",
+        "equals": "Is equal to",
+        "equalsAny": "Is equal to any of",
         "contains": "Contains",
-        "greaterThan": "Greater",
-        "lessThan": "Less",
-        "greaterThanEquals": "Greater or equals",
-        "lessThanEquals": "Less or equals",
-        "notEquals": "Not equals",
-        "notEqualsAny": "Equals none",
-        "notContains": "Not contains",
-        "range": "Range"
+        "greaterThan": "Is greater than",
+        "lessThan": "Is less than",
+        "greaterThanEquals": "Is greater than or equals",
+        "lessThanEquals": "Is less than or equals",
+        "notEquals": "Is not equal to",
+        "notEqualsAny": "Is not equal to any of",
+        "notContains": "Does not contain",
+        "range": "Interval"
       },
       "values": {
         "active": "Active",

@@ -26,6 +26,10 @@ Component.register('sw-order-detail', {
 
         attributeSetStore() {
             return State.getStore('attribute_set');
+        },
+
+        showTabs() {
+            return this.$route.meta.$module.routes.detail.children.length > 1;
         }
     },
 

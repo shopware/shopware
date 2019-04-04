@@ -49,20 +49,24 @@
 
         {% block sw_order_detail_content %}
             <sw-card-view slot="content">
-                {% block sw_order_detail_content_view %}
-                    <router-view :order="order" ref="baseComponent" @sw-order-detail-base-error="onError"></router-view>
+                {% block sw_order_detail_content_tabs %}
+                    <sw-tabs v-if="showTabs" class="sw-product-detail-page__tabs">
+                        {% block sw_order_detail_content_tabs_general %}
+                            <sw-tabs-item :route="{ name: 'sw.order.detail.base', params: { id: $route.params.id } }"
+                                          :title="$tc('sw-order.detail.tabGeneral')">
+                                {{ $tc('sw-order.detail.tabGeneral') }}
+                            </sw-tabs-item>
+                        {% endblock %}
+                    </sw-tabs>
                 {% endblock %}
 
-                {% block sw_order_detail_attribute_sets %}
-                    <sw-card :title="$tc('sw-settings-attribute.general.mainMenuItemGeneral')"
-                             v-if="next754 && attributeSets.length > 0"
-                             :isLoading="order.isLoading">
-                        <sw-attribute-set-renderer
-                                :disabled="!isEditing"
-                                :entity="order"
-                                :sets="attributeSets">
-                        </sw-attribute-set-renderer>
-                    </sw-card>
+                {% block sw_order_detail_content_view %}
+                    <router-view
+                        :order="order"
+                        :attributeSets="attributeSets"
+                        ref="baseComponent"
+                        @sw-order-detail-base-error="onError">
+                    </router-view>
                 {% endblock %}
             </sw-card-view>
         {% endblock %}

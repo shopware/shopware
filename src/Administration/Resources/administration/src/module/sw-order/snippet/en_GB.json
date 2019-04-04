@@ -29,7 +29,8 @@
       "tabOrderDetails": "Order details",
       "tabDeliveries": "Deliveries",
       "textHeadline": "Order",
-      "textHeadlineNew": "New order"
+      "textHeadlineNew": "New order",
+      "tabGeneral": "General"
     },
     "detailBase": {
       "cardTitleDetails": "Details",

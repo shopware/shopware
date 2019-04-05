@@ -1,10 +1,9 @@
 [titleEn]: <>(Creating entities via DAL)
-[wikiUrl]: <>(../how-to/creating-entities-via-dal?category=platform-en/how-to)
 
 ## Overview
 
 You want to create a new entry for an existing entity in your plugin, e.g. adding a new tax rate upon installing your plugin.
-The best and **most recommended** way for this is to use the Shopware platform [data abstraction layer](./data-abstraction-layer.md).
+The best and **most recommended** way for this is to use the Shopware platform [data abstraction layer](../2-internals/1-core/20-data-abstraction-layer/__categoryInfo.md).
 
 All of the following methods are to be executed on the entities' respective repository.
 
@@ -54,7 +53,7 @@ The `upsert()` method is a great way for developers to ensure their data is refl
 no matter if they exists or not. It combines both `create()` and `update()` and is mainly used for syncing data.
 If the described record exists, it will be updated, otherwise it will be created.
 The method takes the same parameters as the `create()` or `update()` method.
-Make sure to have a look at the explanation on [how to update entities via DAL](./150-updating-entities.md).
+Make sure to have a look at the explanation on [how to update entities via DAL](./150-updating-entities-dal.md).
 
 - The first parameter `$data` is the payload to be written
 - The second parameter `$context` is the context to be used when writing the data

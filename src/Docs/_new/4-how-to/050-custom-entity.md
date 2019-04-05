@@ -1,10 +1,9 @@
 [titleEn]: <>(Creating a custom entity)
-[wikiUrl]: <>(../how-to/creating-a-custom-entity?category=platform-en/how-to)
 
 ## Overview
 
 Quite often, your plugin has to save data into a custom database table.
-The Shopware platform's [data abstraction layer](./data-abstraction-layer.md) fully supports custom entities,
+The Shopware platform's [data abstraction layer](../2-internals/1-core/20-data-abstraction-layer/__categoryInfo.md) fully supports custom entities,
 so you don't have to take care about the data handling at all.
 
 ## Plugin base class
@@ -40,8 +39,7 @@ since this example plugin is named `CustomEntity`.*
 ## The EntityDefinition class
 
 The main entry point for custom entities is an `EntityDefinition` class.
-For more information about what the `EntityDefinition` class does, have a look at the guide about the [Shopware platform
-data abstraction layer](./data-abstraction-layer.md).
+For more information about what the `EntityDefinition` class does, have a look at the guide about the [data abstraction layer](../2-internals/1-core/20-data-abstraction-layer/__categoryInfo.md).
 
 Your custom entity, as well as your `EntityDefinition` and the `EntityCollection` classes, should be placed inside a folder
 named after the domain it handles, e.g. "Checkout" if you were to include a Checkout entity.
@@ -208,7 +206,7 @@ Yet, there's a very important part missing: Creating the database table.
 As already mentioned earlier, the database table **has to** be named after your chosen entity name.
 
 You should create the database table using the plugin migration system.
-Read more about it [here](./080-plugin-migrations.md).
+Read more about it [here](./170-plugin-migrations.md).
 
 In short:
 Create a new folder named `Migration` in your plugin root and add a migration class like this in there:
@@ -267,4 +265,4 @@ $customId = $customRepository->searchIds(
 
 In this example, the ID of your custom entity, whose technical name equals to 'FOO', is requested.
 
-As a follow up, you might want to have a look at the documentation on [How to translate custom entities](./060-translating-custom-entites.md).
+As a follow up, you might want to have a look at the documentation on [How to translate custom entities](./060-custom-entity-translations.md).

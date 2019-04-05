@@ -1,12 +1,10 @@
 [titleEn]: <>(Setting up a scheduled task)
-[wikiUrl]: <>(../how-to/setting-up-a-scheduled-task?category=platform-en/how-to)
 
 ## Overview
 
 Quite often one might want to run any type of code on a regular basis, e.g. to clean up very old entries
 every once in a while, automatically.
 Formerly known as "Cronjobs", the Shopware platform supports a `ScheduledTask` for this.
-Read more about the scheduled tasks in the Shopware platform [here](./010-scheduled-tasks.md).
 
 A `ScheduledTask` and it's respective `ScheduledTaskHandler` are registered in a plugin's `services.xml`.
 
@@ -117,6 +115,3 @@ class MyTaskHandler extends ScheduledTaskHandler
 ```
 
 Now every five minutes, your task will be executed and it will print an output every time now.
-
-To find out more about the scheduled tasks, how and when they are executed, make sure to read the guide
-about the [Shopware platform scheduled tasks](./010-scheduled-tasks.md).

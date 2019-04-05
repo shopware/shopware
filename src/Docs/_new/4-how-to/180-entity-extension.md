@@ -1,10 +1,9 @@
 [titleEn]: <>(Entity extension)
-[wikiUrl]: <>(../how-to/entity-extension?category=platform-en/how-to)
 
 ## Overview
 
 If you're wondering how to extend existing core entities, this 'HowTo' will have you covered.
-Do not confuse entity extensions with entities' [attributes](./060-attributes-crud.mc) though, as they serve a different purpose.
+Do not confuse entity extensions with entities' attributes though, as they serve a different purpose.
 In short: Extensions are technical and not configurable by the admin user just like that.
 Also they can deal with more complex types than scalar ones.
 Attributes are, by default, configurable by the admin user in the administration and they mostly support scalar types, e.g. a
@@ -46,7 +45,7 @@ class CustomExtension implements EntityExtensionInterface
 
 This example adds another association named `custom_struct` to the `ProductDefinition`.
 The `Deferred` flag tells the data abstraction layer, that you're going to take care of the field's content yourself.
-Have a look at our detailed list of [flags](../3-flags.md) and what their purpose is, or find out which [fields](../4-fields.md) are available in the Shopware
+Have a look at our detailed list of [flags](../2-internals/1-core/20-data-abstraction-layer/090-flags.md) and what their purpose is, or find out which [field types](../2-internals/1-core/20-data-abstraction-layer/080-types.md) are available in the Shopware
 platform.
 
 So, time to take care about the product entities' new field yourself.

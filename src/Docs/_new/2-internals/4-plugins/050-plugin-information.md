@@ -47,27 +47,27 @@ Have a look at the [composer schema](https://getcomposer.org/doc/04-schema.md), 
 
 ## Explanation of the properties
 
-|         property         |                                                         description                                                  |
-|--------------------------|----------------------------------------------------------------------------------------------------------------------|
-| name                     | Name of your package                                                                                                 |
-| description              | The composer JSON schema requires a short description of your package                                                |
-| version                  | Current version of your plugin                                                                                       |
-| type                     | Set the type to `shopware-plugin`. Otherwise Shopware won't be able to recognize your plugin                         |
-| license                  | Provide the license model of your plugin, e.g. `MIT` or `proprietary`                                                |
-| authors                  | Collection of the authors of your plugin                                                                             |
-| require                  | Add your dependencies here. This should be `shopware/platform`, but could also be another plugin or composer package |
-| extra                    | The `extra` property is used to provide some Shopware specific information                                           |
-| extra - installer-name   | The technical name of your plugin. Must be unique and should contain your vendor prefix                              |
-| extra - copyright        | Set a copyright for your plugin                                                                                      |
-| extra - label            | The name of your plugin which is displayed to the Shopware user. [Translatable](#translations)                       |
-| extra - description      | The description of your plugin which is displayed to the Shopware user. [Translatable](#translations)                |
-| extra - manufacturerLink | Link to your homepage. [Translatable](#translations)                                                                 |
-| extra - supportLink      | A link to your support homepage. [Translatable](#translations)                                                       |
+|         property         |                                                             description                                                          |
+|--------------------------|----------------------------------------------------------------------------------------------------------------------------------|
+| name                     | Name of your package                                                                                                             |
+| description              | The composer JSON schema requires a short description of your package                                                            |
+| version                  | Current version of your plugin                                                                                                   |
+| type                     | Set the type to `shopware-plugin`. Otherwise Shopware won't be able to recognize your plugin                                     |
+| license                  | Provide the license model of your plugin, e.g. `MIT` or `proprietary`                                                            |
+| authors                  | Collection of the authors of your plugin                                                                                         |
+| require                  | Add your dependencies here. This should be `shopware/platform`, but could also be another plugin or composer package             |
+| extra                    | The `extra` property is used to provide some Shopware specific information                                                       |
+| extra - installer-name   | The technical name of your plugin. Must be unique and should contain your vendor prefix                                          |
+| extra - copyright        | Set a copyright for your plugin                                                                                                  |
+| extra - label            | The name of your plugin which is displayed to the Shopware user. [Translatable](./050-plugin-information.md#translations)        |
+| extra - description      | The description of your plugin which is displayed to the Shopware user. [Translatable](./050-plugin-information.md#translations) |
+| extra - manufacturerLink | Link to your homepage. [Translatable](./050-plugin-information.md#translations)                                                  |
+| extra - supportLink      | A link to your support homepage. [Translatable](./050-plugin-information.md#translations)                                        |
 
 ## Translations
 
 Some fields of the plugin entity are translatable.
 Shopware will try to match each of your provided translations with an existing language in the system.
-For more information about the translation system in Shopware have look [here](../20-data-abstraction-layer/9-translations.md).
+For more information about the translation system in Shopware have look [here](../1-core/20-data-abstraction-layer/040-translation-handling.md).
 Your translation locale code must look like that "de_DE", "en_GB", "de_CH", etc.
 If a language with this locale is not available, the translation will not be written.

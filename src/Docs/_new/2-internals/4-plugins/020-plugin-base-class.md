@@ -42,20 +42,20 @@ Those methods are used to deal with certain lifecycle events of your plugin.
 They are only executed once, when the user triggers one of those actions.
 The core Shopware DI container is available for all of them.
 
-|Method                           | Arguments                                                      | Usage                                     |
-|---------------------------------|----------------------------------------------------------------|-------------------------------------------|
-| [install()](#install())         | [InstallContext](./040-plugin-contexts.md#installContext)      | Called while your plugin gets installed   |
-| [postInstall()](#postInstall()) | [InstallContext](./040-plugin-contexts.md#installContext)      | Called after your plugin got installed    |
-| [update()](#update())           | [UpdateContext](./040-plugin-contexts.md#updateContext)        | Called while your plugin gets updated     |
-| [postUpdate()](#postUpdate())   | [UpdateContext](./040-plugin-contexts.md#updateContext)        | Called after your plugin got updated      |
-| [activate()](#activate())       | [ActivateContext](./040-plugin-contexts.md#activateContext)    | Called while your plugin gets activated   |
-| [deactivate()](#deactivate())   | [DeactivateContext](./040-plugin-contexts.md#deactivateContext)| Called while your plugin gets deactivated |
-| [uninstall()](#uninstall())     | [UninstallContext](./040-plugin-contexts.md#uninstallContext)  | Called while your plugin gets uninstalled |
+| Method                                                | Arguments                                                      | Usage                                     |
+|-------------------------------------------------------|----------------------------------------------------------------|-------------------------------------------|
+| [install](./020-plugin-base-class.md#install)         | [InstallContext](./040-plugin-contexts.md#installContext)      | Called while your plugin gets installed   |
+| [postInstall](./020-plugin-base-class.md#postInstall) | [InstallContext](./040-plugin-contexts.md#installContext)      | Called after your plugin got installed    |
+| [update](./020-plugin-base-class.md#update)           | [UpdateContext](./040-plugin-contexts.md#updateContext)        | Called while your plugin gets updated     |
+| [postUpdate](./020-plugin-base-class.md#postUpdate)   | [UpdateContext](./040-plugin-contexts.md#updateContext)        | Called after your plugin got updated      |
+| [activate](./020-plugin-base-class.md#activate)       | [ActivateContext](./040-plugin-contexts.md#activateContext)    | Called while your plugin gets activated   |
+| [deactivate](./020-plugin-base-class.md#deactivate)   | [DeactivateContext](./040-plugin-contexts.md#deactivateContext)| Called while your plugin gets deactivated |
+| [uninstall](./020-plugin-base-class.md#uninstall)     | [UninstallContext](./040-plugin-contexts.md#uninstallContext)  | Called while your plugin gets uninstalled |
 
 Also have a look at this diagram for a more detailed overview of the lifecycle methods:
-![Plugin lifecycle](./_img/plugin-lifecycle.png)
+![Plugin lifecycle](./img/plugin-lifecycle.png)
 
-### install()
+### install
 You can use this method to execute code you need to run while your plugin gets installed.
 For example, you could use this method to create a new payment method.
 
@@ -77,7 +77,7 @@ class BaseClass extends Plugin
 ```
 *Please note, if your code fails or throws an exception, your plugin will not be installed.*
 
-### postInstall()
+### postInstall
 You can use this method to execute code you need to run after your plugin is installed and migrations have run.
 
 ```php
@@ -98,7 +98,7 @@ class BaseClass extends Plugin
 ```
 *Please note, if your code fails or throws an exception, your plugin will not be activated in the same step.*
 
-### update()
+### update
 You can use this method to execute code you need to run while your plugin gets updated.
 
 ```php
@@ -120,7 +120,7 @@ class BaseClass extends Plugin
 ```
 *Please note, if your code fails or throws an exception, your plugin will not be updated.*
 
-### postUpdate()
+### postUpdate
 You can use this method, to execute code you need to run after your plugin is updated and migrations have run.
 
 ```php
@@ -140,7 +140,7 @@ class BaseClass extends Plugin
 }
 ```
 
-### activate()
+### activate
 You can use this method, to execute code you need to run while your plugin gets activated.
 
 ```php
@@ -162,7 +162,7 @@ class BaseClass extends Plugin
 ```
 *Please note, if your code fails or throws an exception your plugin will not be activated.*
 
-### deactivate()
+### deactivate
 You can use this method, to execute code you need to run while your plugin gets deactivated.
 
 ```php
@@ -183,7 +183,7 @@ class BaseClass extends Plugin
 ```
 *Please note, if your code fails or throws an exception, your plugin will not be deactivated.*
 
-### uninstall()
+### uninstall
 You can use this method, to execute code you need to run while your plugin gets uninstalled.
 
 ```php
@@ -209,15 +209,15 @@ class BaseClass extends Plugin
 Those methods are called to configure your plugin, e.g. configuring the path for your `routes.xml` file or to add `ActionEvents`.
 These are executed with each request, so be careful with them, due to performance and fatal error issues.
 
-|Method                                               | Arguments                                   | Usage                                                                                                 | Container available |
-|-----------------------------------------------------|---------------------------------------------|-------------------------------------------------------------------------------------------------------|---------------------|
-| [build()](#build())                                 | ContainerBuilder                            | Called while Symfony builds the [DI container](https://symfony.com/doc/current/service_container.html)|      Partially      |
-| [configureRoutes()](#configureRoutes())             | RouteCollectionBuilder, string $environment | Called on each kernel boot to register your controller routes                                         |         No          |
-| [getMigrationNamespace()](#getMigrationNamespace()) | N/A                                         | Called whenever migrations get executed to add your migration namespace to the migration collection   |         Yes         |
-| [getContainerPrefix()](#getContainerPrefix())       | N/A                                         | Prefixes automatic service registrations like filesystems for example                                 |      Partially      |
-| [getActionEvents()](#getActionEvents())             | N/A                                         | Registers action events for your plugin                                                               |      Partially      |
+| Method                                                                    | Arguments                                   | Usage                                                                                                 | Container available |
+|---------------------------------------------------------------------------|---------------------------------------------|-------------------------------------------------------------------------------------------------------|---------------------|
+| [build](./020-plugin-base-class.md#build)                                 | ContainerBuilder                            | Called while Symfony builds the [DI container](https://symfony.com/doc/current/service_container.html)|      Partially      |
+| [configureRoutes](./020-plugin-base-class.md#configureRoutes)             | RouteCollectionBuilder, string $environment | Called on each kernel boot to register your controller routes                                         |         No          |
+| [getMigrationNamespace](./020-plugin-base-class.md#getMigrationNamespace) | N/A                                         | Called whenever migrations get executed to add your migration namespace to the migration collection   |         Yes         |
+| [getContainerPrefix](./020-plugin-base-class.md#getContainerPrefix)       | N/A                                         | Prefixes automatic service registrations like filesystems for example                                 |      Partially      |
+| [getActionEvents](./020-plugin-base-class.md#getActionEvents)             | N/A                                         | Registers action events for your plugin                                                               |      Partially      |
 
-### build()
+### build
 You can use this method, to build the `Dependency Injection Container` (DIC) how you need it.
 For example, you can load your own `services.xml` into the DIC.
 
@@ -244,10 +244,10 @@ class BaseClass extends Plugin
 ```
 *Please note, if your code fails or throws an exception, the `Symfony Kernel` will no longer be able to boot.*
 
-### configureRoutes()
+### configureRoutes
 You can use this method, to configure routing for your plugin.
 Per default, you can configure your routes in `YourPlugin/Resources/routes.xml`.
-Click [here](./110-custom-api-routes.md#route-configuration) if you want to learn more.
+Click [here](../../4-how-to/020-api-controller.md#Loading the controllers via routes.xml) if you want to learn more.
 
 ```php
 <?php declare(strict_types=1);
@@ -267,7 +267,7 @@ class BaseClass extends Plugin
 ```
 *Please note, if your code fails or throws an exception, the `Symfony Kernel` will no longer be able to boot.*
 
-### getMigrationNamespace()
+### getMigrationNamespace
 You can use this method, to configure a custom migration namespace.
 For your example plugin `BaseClass` the default migration namespace would be `BaseClass\Migration`.
 If you're not familiar with plugin migrations yet, make sure to read our guide about our [plugin migration system](./080-plugin-migrations.md).
@@ -289,7 +289,7 @@ class BaseClass extends Plugin
 ```
 *Please note, if your code fails or throws an exception, your plugin migrations will no longer work.*
 
-### getContainerPrefix()
+### getContainerPrefix
 You can use this method, to configure your own container prefix.
 For your example plugin `BaseClass` the default container prefix would be `base_class`.
 
@@ -313,11 +313,11 @@ class BaseClass extends Plugin
 
 This method is executed at a very early point of the Shopware stack, but only if your plugin is active already.
 
-|Method                           | Arguments                   | Usage                                      | Container available |
-|---------------------------------|-----------------------------|--------------------------------------------|---------------------|
-| [boot()](#boot())               | N/A                         | Called while the Shopware kernel is booted |         Yes         |
+|Method                                   | Arguments                   | Usage                                      | Container available |
+|-----------------------------------------|-----------------------------|--------------------------------------------|---------------------|
+| [boot](./020-plugin-base-class.md#boot) | N/A                         | Called while the Shopware kernel is booted |         Yes         |
 
-## boot()
+## boot
 Boots your plugin and is called when the kernel gets booted.
 The container is available here already.
 

@@ -1,5 +1,4 @@
 [titleEn]: <>(Creating commands via plugin)
-[wikiUrl]: <>(../how-to/creating-commands-via-plugin?category=platform-en/how-to)
 
 ## Overview
 

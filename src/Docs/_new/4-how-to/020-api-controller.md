@@ -1,8 +1,7 @@
 [titleEn]: <>(API controller)
-[wikiUrl]: <>(../how-to/api-controller?category=platform-en/how-to)
 
 This HowTo will give you a brief introduction on how to setup a custom management API controller with your plugin.
-Read [here](../../070-api.md) for more information about the Shopware platform API.
+Read [here](../3-api/10-management-api.md) for more information about the management API itself.
 
 ## Plugin base class
 

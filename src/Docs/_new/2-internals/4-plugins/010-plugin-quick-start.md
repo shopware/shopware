@@ -1,11 +1,11 @@
 [titleEn]: <>(Plugin quick start)
 
 To be able to introduce extensions into the system, the core comes with an integrated plugin system.
-Plugins are [Symfony Bundles](https://symfony.com/doc/current/bundles.html) which can be activated and deactivated via the [plugin commands](./020-plugin-commands.md).
+Plugins are [Symfony Bundles](https://symfony.com/doc/current/bundles.html) which can be activated and deactivated via the [plugin commands](./030-plugin-commands.md).
 A plugin can change the behavior of the system including: 
-* Listening for events and executing afterwards ([Listening to events via Subscriber](#Listening to events via Subscriber))
+* Listening for events and executing afterwards ([Listening to events via Subscriber](#Listening to events via Subscriber)
 * Define new services, extend existing ones or exchange them completely to implement your custom logic and business cases (([Creating a service](#Creating a service)))
-* Include entities in the system and/or extend existing ones ([Custom entities via plugin](./090-custom-entities.md))
+* Include entities in the system and/or extend existing ones ([Custom entities via plugin](../../4-how-to/050-custom-entity.md)
 
 This document will give you a brief introduction on how to create your very first own plugin, including some
 basic setup, e.g. registering your first service or creating a new controller.
@@ -107,12 +107,12 @@ Here's a brief example of how this file could look like:
 ```
 *PluginQuickStart/composer.json*
 
-Read [here](./020-composer.md) for more information about the content of the composer.json file.
+Read [here](./050-plugin-information.md) for more information about the content of the composer.json file.
 
 # Installing the plugin
 
 Now, that you've created the two necessary plugin files, you're able to install the plugin.
-This is done using one of the [plugin commands](./020-plugin-commands.md).
+This is done using one of the [plugin commands](./030-plugin-commands.md).
 
 Starting in your project root directory, run the command `bin/console plugin:install --activate PluginQuickStart` to install and activate the plugin.
 
@@ -129,7 +129,7 @@ For this tutorial, a simple configuration containing a single text field is used
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-        xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/shopware/internals/master/src/Core/System/SystemConfig/Schema/config.xsd">
+        xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/shopware/platform/master/src/Core/System/SystemConfig/Schema/config.xsd">
     
     <card>
         <title>Minimal configuration</title>
@@ -150,7 +150,7 @@ Also, the text field's technical name is `example` in this case, and so would be
 Those will be rendered into the administration settings.
 
 For a more detailed guide on how to setup the `config.xml` and which input types exist, head over to
-the detailed [plugin configuration](./030-plugin-config.md) guide.
+the detailed [plugin configuration](./070-plugin-config.md) guide.
 
 # Listening to events via Subscriber
 
@@ -271,9 +271,6 @@ Your subscriber is now fully integrated:
 - The subscriber is mentioned in the `services.xml` file
 - The plugin is loading the custom `services.xml` file
 
-For a more in-depth guide on the available events and the available parameters,
-you might want to have a look into the [Finding events](./000-fix-me.md) guide.
-
 # Creating a controller
 
 Another common thing to be done in a plugin is registering a custom controller, e.g. to be used as a new custom API endpoint.
@@ -339,7 +336,7 @@ about [external routing resources](https://symfony.com/doc/current/routing/exter
 
 Now the controller should be fully working and accessible using the route mentioned in the method's `@Route` annotation.
 Since we've created an API route here, an authorization token is still necessary to actually access our controller.
-Remove the 'api' from the route to circumvent the authorization for testing purposes or get more into how the Shopware platform API works [here](./010-api.md). 
+Remove the 'api' from the route to circumvent the authorization for testing purposes or get more into how the Shopware platform API works [here](../../3-api/__categoryInfo.md). 
 
 # Creating a service
 

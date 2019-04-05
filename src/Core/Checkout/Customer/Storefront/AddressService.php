@@ -76,7 +76,8 @@ class AddressService
     public function getCountryList(SalesChannelContext $context): CountryCollection
     {
         $criteria = new Criteria([]);
-        $criteria->addFilter(new EqualsFilter('country.active', true));
+        $criteria->addFilter(new EqualsFilter('country.active', true))
+            ->addAssociation('country.states');
 
         /** @var CountryCollection $countries */
         $countries = $this->countryRepository->search($criteria, $context->getContext())

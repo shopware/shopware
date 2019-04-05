@@ -121,11 +121,7 @@ class CachedEntitySearcherTest extends TestCase
             $generator->getSearchCacheKey(TaxDefinition::class, $criteria, $context)
         );
 
-        static::assertInstanceOf(IdSearchResult::class, $cacheItem->get());
-
-        $metaData = $cacheItem->getMetadata();
-        static::assertArrayHasKey('tags', $metaData);
-        static::assertEquals($expectedTags, $metaData['tags']);
+        static::assertNull($cacheItem->get());
     }
 
     public function searchCases(): array

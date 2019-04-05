@@ -66,7 +66,7 @@ class CachedEntitySearcher implements EntitySearcherInterface
     public function search(string $definition, Criteria $criteria, Context $context): IdSearchResult
     {
         if (!$this->enabled) {
-            $this->decorated->search($definition, $criteria, $context);
+            return $this->decorated->search($definition, $criteria, $context);
         }
 
         if (in_array($definition, self::BLACKLIST, true)) {

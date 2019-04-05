@@ -30,7 +30,7 @@ class OverviewPageTest extends TestCase
     public function testItLoadsTheOverview(): void
     {
         $request = new InternalRequest();
-        $context = $this->createCheckoutContextWithLoggedInCustomerAndWithNavigation();
+        $context = $this->createSalesChannelContextWithLoggedInCustomerAndWithNavigation();
 
         /** @var AccountOverviewPageLoadedEvent $event */
         $event = null;

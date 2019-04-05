@@ -9,8 +9,8 @@ use Shopware\Core\Checkout\Cart\Price\QuantityPriceCalculator;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Checkout\Cart\Tax\PercentageTaxRuleBuilder;
-use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodPriceRule\ShippingMethodPriceRuleEntity;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 class DeliveryCalculator
 {
@@ -38,14 +38,14 @@ class DeliveryCalculator
         $this->percentageTaxRuleBuilder = $percentageTaxRuleBuilder;
     }
 
-    public function calculate(DeliveryCollection $deliveries, CheckoutContext $context): void
+    public function calculate(DeliveryCollection $deliveries, SalesChannelContext $context): void
     {
         foreach ($deliveries as $delivery) {
             $this->calculateDelivery($delivery, $context);
         }
     }
 
-    private function calculateDelivery(Delivery $delivery, CheckoutContext $context): void
+    private function calculateDelivery(Delivery $delivery, SalesChannelContext $context): void
     {
         $costs = null;
         if ($delivery->getShippingCosts()->getUnitPrice() > 0) {
@@ -108,7 +108,7 @@ class DeliveryCalculator
         return ($value >= $start) && (!$end || $value <= $end);
     }
 
-    private function calculateShippingCosts(float $price, LineItemCollection $calculatedLineItems, CheckoutContext $context): CalculatedPrice
+    private function calculateShippingCosts(float $price, LineItemCollection $calculatedLineItems, SalesChannelContext $context): CalculatedPrice
     {
         $rules = $this->percentageTaxRuleBuilder->buildRules(
             $calculatedLineItems->getPrices()->sum()

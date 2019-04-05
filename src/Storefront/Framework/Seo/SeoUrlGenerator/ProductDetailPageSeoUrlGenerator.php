@@ -3,11 +3,11 @@
 namespace Shopware\Storefront\Framework\Seo\SeoUrlGenerator;
 
 use Cocur\Slugify\Slugify;
-use Shopware\Core\Checkout\Context\CheckoutContextFactoryInterface;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactoryInterface;
 use Shopware\Storefront\Framework\Seo\SeoUrl\SeoUrlEntity;
 use Symfony\Component\Routing\RouterInterface;
 use Twig\Error\Error;
@@ -25,13 +25,13 @@ class ProductDetailPageSeoUrlGenerator extends SeoUrlGenerator
 
     public function __construct(
         EntityRepositoryInterface $salesChannelRepository,
-        CheckoutContextFactoryInterface $checkoutContextFactory,
+        SalesChannelContextFactoryInterface $salesChannelContextFactory,
         Slugify $slugify,
         RouterInterface $router,
         string $routeName,
         EntityRepositoryInterface $productRepository
     ) {
-        parent::__construct($salesChannelRepository, $checkoutContextFactory, $slugify, $router, $routeName);
+        parent::__construct($salesChannelRepository, $salesChannelContextFactory, $slugify, $router, $routeName);
 
         $this->productRepository = $productRepository;
     }

@@ -25,7 +25,7 @@ class LoginPageTest extends TestCase
     public function testItLoadsWithACustomer(): void
     {
         $request = new InternalRequest();
-        $context = $this->createCheckoutContextWithLoggedInCustomerAndWithNavigation();
+        $context = $this->createSalesChannelContextWithLoggedInCustomerAndWithNavigation();
 
         /** @var AccountLoginPageLoadedEvent $event */
         $event = null;
@@ -41,7 +41,7 @@ class LoginPageTest extends TestCase
     public function itLoadsWithoutACustomer(): void
     {
         $request = new InternalRequest();
-        $context = $this->createCheckoutContextWithNavigation();
+        $context = $this->createSalesChannelContextWithNavigation();
         $page = $this->getPageLoader()->load($request, $context);
 
         static::assertSame(34, $page->getCountries()->count());

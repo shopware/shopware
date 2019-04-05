@@ -2,8 +2,6 @@
 
 namespace Shopware\Storefront\Framework\Seo\DbalIndexing\SeoUrl;
 
-use Shopware\Core\Checkout\CheckoutContext;
-use Shopware\Core\Checkout\Context\CheckoutContextFactoryInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\RepositoryIterator;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Indexing\IndexerInterface;
@@ -14,7 +12,9 @@ use Shopware\Core\Framework\Event\ProgressAdvancedEvent;
 use Shopware\Core\Framework\Event\ProgressFinishedEvent;
 use Shopware\Core\Framework\Event\ProgressStartedEvent;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactoryInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Storefront\Framework\Seo\SeoService;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -37,9 +37,9 @@ abstract class SeoUrlIndexer implements IndexerInterface
     private $seoService;
 
     /**
-     * @var CheckoutContextFactoryInterface
+     * @var SalesChannelContextFactoryInterface
      */
-    private $checkoutContextFactory;
+    private $salesChannelContextFactory;
 
     /**
      * @var string
@@ -55,7 +55,7 @@ abstract class SeoUrlIndexer implements IndexerInterface
         EntityRepositoryInterface $salesChannelRepository,
         EventDispatcherInterface $eventDispatcher,
         SeoService $seoService,
-        CheckoutContextFactoryInterface $checkoutContextFactory,
+        SalesChannelContextFactoryInterface $salesChannelContextFactory,
         string $routeName,
         EntityRepositoryInterface $entityRepository
     ) {
@@ -63,7 +63,7 @@ abstract class SeoUrlIndexer implements IndexerInterface
         $this->eventDispatcher = $eventDispatcher;
 
         $this->seoService = $seoService;
-        $this->checkoutContextFactory = $checkoutContextFactory;
+        $this->salesChannelContextFactory = $salesChannelContextFactory;
 
         $this->routeName = $routeName;
         $this->entityRepository = $entityRepository;
@@ -82,7 +82,7 @@ abstract class SeoUrlIndexer implements IndexerInterface
 
         /** @var SalesChannelEntity $salesChannel */
         foreach ($salesChannels as $salesChannel) {
-            $context = $this->getCheckoutContext($salesChannel->getId())->getContext();
+            $context = $this->getSalesChannelContext($salesChannel->getId())->getContext();
             $iterator = new RepositoryIterator($this->entityRepository, $context);
 
             $this->eventDispatcher->dispatch(
@@ -139,7 +139,7 @@ abstract class SeoUrlIndexer implements IndexerInterface
         }
     }
 
-    private function getCheckoutContext(string $salesChannelId): CheckoutContext
+    private function getSalesChannelContext(string $salesChannelId): SalesChannelContext
     {
         /** @var SalesChannelEntity $salesChannel */
         $salesChannel = $this->salesChannelRepository
@@ -147,7 +147,7 @@ abstract class SeoUrlIndexer implements IndexerInterface
             ->first();
         $options = $salesChannel->jsonSerialize();
 
-        return $this->checkoutContextFactory->create(
+        return $this->salesChannelContextFactory->create(
             Uuid::randomHex(),
             $salesChannelId,
             $options

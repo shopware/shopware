@@ -5,12 +5,12 @@ namespace Shopware\Core\Checkout\Test\Cart\Validator\Container;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\Rule\CartRuleScope;
-use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\CheckoutRuleScope;
 use Shopware\Core\Checkout\Test\Cart\Common\FalseRule;
 use Shopware\Core\Checkout\Test\Cart\Common\TrueRule;
 use Shopware\Core\Framework\Rule\Container\AndRule;
 use Shopware\Core\Framework\Rule\Match;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 class AndRuleTest extends TestCase
 {
@@ -25,7 +25,7 @@ class AndRuleTest extends TestCase
             new Match(true),
             $rule->match(
                 new CheckoutRuleScope(
-                    $this->createMock(CheckoutContext::class)
+                    $this->createMock(SalesChannelContext::class)
                 )
             )
         );
@@ -43,7 +43,7 @@ class AndRuleTest extends TestCase
             $rule->match(
                 new CartRuleScope(
                     $this->createMock(Cart::class),
-                    $this->createMock(CheckoutContext::class)
+                    $this->createMock(SalesChannelContext::class)
                 )
             )
         );

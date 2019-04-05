@@ -6,10 +6,10 @@ use Doctrine\DBAL\Connection;
 use Shopware\Core\Checkout\Cart\Error\ErrorCollection;
 use Shopware\Core\Checkout\Cart\Exception\CartDeserializeFailedException;
 use Shopware\Core\Checkout\Cart\Exception\CartTokenNotFoundException;
-use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 class CartPersister implements CartPersisterInterface
 {
@@ -23,7 +23,7 @@ class CartPersister implements CartPersisterInterface
         $this->connection = $connection;
     }
 
-    public function load(string $token, CheckoutContext $context): Cart
+    public function load(string $token, SalesChannelContext $context): Cart
     {
         $content = $this->connection->fetchColumn(
             'SELECT `cart`.`cart` FROM cart WHERE `token` = :token',
@@ -45,7 +45,7 @@ class CartPersister implements CartPersisterInterface
     /**
      * @throws InvalidUuidException
      */
-    public function save(Cart $cart, CheckoutContext $context): void
+    public function save(Cart $cart, SalesChannelContext $context): void
     {
         //prevent empty carts
         if ($cart->getLineItems()->count() <= 0) {
@@ -76,7 +76,7 @@ class CartPersister implements CartPersisterInterface
         $this->connection->insert('cart', $data);
     }
 
-    public function delete(string $token, CheckoutContext $context): void
+    public function delete(string $token, SalesChannelContext $context): void
     {
         $this->connection->executeUpdate(
             'DELETE FROM cart WHERE `token` = :token',

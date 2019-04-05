@@ -2,9 +2,9 @@
 
 namespace Shopware\Core\Framework\Routing;
 
-use Shopware\Core\Checkout\Context\CheckoutContextServiceInterface;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Request as SymfonyRequest;
 
@@ -16,13 +16,13 @@ class SalesChannelRequestContextResolver implements RequestContextResolverInterf
     private $decorated;
 
     /**
-     * @var CheckoutContextServiceInterface
+     * @var SalesChannelContextServiceInterface
      */
     private $contextService;
 
     public function __construct(
         RequestContextResolverInterface $decorated,
-        CheckoutContextServiceInterface $contextService
+        SalesChannelContextServiceInterface $contextService
     ) {
         $this->decorated = $decorated;
         $this->contextService = $contextService;
@@ -58,7 +58,7 @@ class SalesChannelRequestContextResolver implements RequestContextResolverInterf
         $request->attributes->set(PlatformRequest::ATTRIBUTE_STOREFRONT_CONTEXT_OBJECT, $context);
     }
 
-    public function handleCheckoutContext(Request $request, Request $master, string $salesChannelId, string $contextToken): void
+    public function handleSalesChannelContext(Request $request, Request $master, string $salesChannelId, string $contextToken): void
     {
         // sub requests can use the context of the master request
         if ($master->attributes->has(PlatformRequest::ATTRIBUTE_STOREFRONT_CONTEXT_OBJECT)) {

@@ -30,7 +30,7 @@
             <argument type="service" id="customer_address.repository"/>
             <argument type="service" id="customer.repository"/>
             <argument type="service" id="salutation.repository"/>
-            <argument type="service" id="Shopware\Core\Checkout\Context\CheckoutContextPersister"/>
+            <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister"/>
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\Framework\Validation\DataValidator"/>
             <argument type="service" id="Shopware\Core\Checkout\Customer\Validation\CustomerValidationService"/>
@@ -39,7 +39,7 @@
         <service id="Shopware\Core\Checkout\Customer\Storefront\StorefrontCustomerController" public="true">
             <argument type="service" id="serializer"/>
             <argument type="service" id="Shopware\Core\Checkout\Customer\Storefront\AccountService"/>
-            <argument type="service" id="Shopware\Core\Checkout\Context\CheckoutContextService"/>
+            <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextService"/>
             <argument type="service" id="order.repository"/>
             <argument type="service" id="Shopware\Core\Checkout\Customer\Storefront\AccountRegistrationService"/>
             <argument type="service" id="Shopware\Core\Checkout\Customer\Storefront\AddressService"/>

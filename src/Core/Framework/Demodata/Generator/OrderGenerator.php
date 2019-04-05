@@ -9,8 +9,6 @@ use Shopware\Core\Checkout\Cart\Order\OrderConversionContext;
 use Shopware\Core\Checkout\Cart\Order\OrderConverter;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Cart\Storefront\CartService;
-use Shopware\Core\Checkout\Context\CheckoutContextFactoryInterface;
-use Shopware\Core\Checkout\Context\CheckoutContextService;
 use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Content\Product\Cart\ProductCollector;
 use Shopware\Core\Defaults;
@@ -19,6 +17,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\Demodata\DemodataContext;
 use Shopware\Core\Framework\Demodata\DemodataGeneratorInterface;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactoryInterface;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 
 class OrderGenerator implements DemodataGeneratorInterface
 {
@@ -28,7 +28,7 @@ class OrderGenerator implements DemodataGeneratorInterface
     private $connection;
 
     /**
-     * @var CheckoutContextFactoryInterface
+     * @var SalesChannelContextFactoryInterface
      */
     private $contextFactory;
 
@@ -49,7 +49,7 @@ class OrderGenerator implements DemodataGeneratorInterface
 
     public function __construct(
         Connection $connection,
-        CheckoutContextFactoryInterface $contextFactory,
+        SalesChannelContextFactoryInterface $contextFactory,
         CartService $cartService,
         OrderConverter $orderConverter,
         EntityWriterInterface $writer
@@ -107,16 +107,16 @@ SQL;
             $customerId = $context->getFaker()->randomElement($customerIds);
 
             $options = [
-                CheckoutContextService::CUSTOMER_ID => $customerId,
+                SalesChannelContextService::CUSTOMER_ID => $customerId,
             ];
 
             if (isset($contexts[$customerId])) {
-                $checkoutContext = $contexts[$customerId];
+                $salesChannelContext = $contexts[$customerId];
             } else {
-                $checkoutContext = $this->contextFactory->create($token, Defaults::SALES_CHANNEL, $options);
+                $salesChannelContext = $this->contextFactory->create($token, Defaults::SALES_CHANNEL, $options);
                 $taxStates = [CartPrice::TAX_STATE_FREE, CartPrice::TAX_STATE_GROSS, CartPrice::TAX_STATE_NET];
-                $checkoutContext->setTaxState($taxStates[array_rand($taxStates)]);
-                $contexts[$customerId] = $checkoutContext;
+                $salesChannelContext->setTaxState($taxStates[array_rand($taxStates)]);
+                $contexts[$customerId] = $salesChannelContext;
             }
 
             $itemCount = random_int(3, 5);
@@ -128,9 +128,9 @@ SQL;
             $cart = $this->cartService->createNew($token, 'demo-data');
             $cart->addLineItems($new);
 
-            $cart = $this->cartService->recalculate($cart, $checkoutContext);
+            $cart = $this->cartService->recalculate($cart, $salesChannelContext);
 
-            $payload[] = $this->orderConverter->convertToOrder($cart, $checkoutContext, new OrderConversionContext());
+            $payload[] = $this->orderConverter->convertToOrder($cart, $salesChannelContext, new OrderConversionContext());
 
             if (\count($payload) >= 20) {
                 $this->writer->upsert(OrderDefinition::class, $payload, $writeContext);

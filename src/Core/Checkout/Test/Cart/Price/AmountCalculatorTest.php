@@ -17,8 +17,8 @@ use Shopware\Core\Checkout\Cart\Tax\TaxAmountCalculator;
 use Shopware\Core\Checkout\Cart\Tax\TaxCalculator;
 use Shopware\Core\Checkout\Cart\Tax\TaxDetector;
 use Shopware\Core\Checkout\Cart\Tax\TaxRuleCalculator;
-use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 
 class AmountCalculatorTest extends TestCase
@@ -34,10 +34,10 @@ class AmountCalculatorTest extends TestCase
         $shop = $this->createMock(SalesChannelEntity::class);
         $shop->method('getTaxCalculationType')->willReturn(TaxAmountCalculator::CALCULATION_VERTICAL);
 
-        $checkoutContext = $this->createMock(CheckoutContext::class);
-        $checkoutContext->method('getSalesChannel')->willReturn($shop);
+        $salesChannelContext = $this->createMock(SalesChannelContext::class);
+        $salesChannelContext->method('getSalesChannel')->willReturn($shop);
 
-        $checkoutContext->method('getContext')->willReturn(Context::createDefaultContext());
+        $salesChannelContext->method('getContext')->willReturn(Context::createDefaultContext());
 
         $calculator = new AmountCalculator(
             $detector,
@@ -52,7 +52,7 @@ class AmountCalculatorTest extends TestCase
             )
         );
 
-        $cartPrice = $calculator->calculate($prices, new PriceCollection(), $checkoutContext);
+        $cartPrice = $calculator->calculate($prices, new PriceCollection(), $salesChannelContext);
         static::assertEquals($expected, $cartPrice);
     }
 
@@ -68,10 +68,10 @@ class AmountCalculatorTest extends TestCase
         $shop = $this->createMock(SalesChannelEntity::class);
         $shop->method('getTaxCalculationType')->willReturn(TaxAmountCalculator::CALCULATION_VERTICAL);
 
-        $checkoutContext = $this->createMock(CheckoutContext::class);
-        $checkoutContext->method('getSalesChannel')->willReturn($shop);
+        $salesChannelContext = $this->createMock(SalesChannelContext::class);
+        $salesChannelContext->method('getSalesChannel')->willReturn($shop);
 
-        $checkoutContext->method('getContext')->willReturn(Context::createDefaultContext());
+        $salesChannelContext->method('getContext')->willReturn(Context::createDefaultContext());
 
         $calculator = new AmountCalculator(
             $detector,
@@ -86,7 +86,7 @@ class AmountCalculatorTest extends TestCase
             )
         );
 
-        $cartPrice = $calculator->calculate($prices, new PriceCollection(), $checkoutContext);
+        $cartPrice = $calculator->calculate($prices, new PriceCollection(), $salesChannelContext);
         static::assertEquals($expected, $cartPrice);
     }
 
@@ -102,7 +102,7 @@ class AmountCalculatorTest extends TestCase
         $shop = $this->createMock(SalesChannelEntity::class);
         $shop->method('getTaxCalculationType')->willReturn(TaxAmountCalculator::CALCULATION_VERTICAL);
 
-        $context = $this->createMock(CheckoutContext::class);
+        $context = $this->createMock(SalesChannelContext::class);
         $context->method('getSalesChannel')->willReturn($shop);
 
         $calculator = new AmountCalculator(

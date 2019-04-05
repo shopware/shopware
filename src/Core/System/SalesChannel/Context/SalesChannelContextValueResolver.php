@@ -1,15 +1,15 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Checkout\Context;
+namespace Shopware\Core\System\SalesChannel\Context;
 
-use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\PlatformRequest;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpKernel\Controller\ArgumentValueResolverInterface;
 use Symfony\Component\HttpKernel\ControllerMetadata\ArgumentMetadata;
 
-class CheckoutContextValueResolver implements ArgumentValueResolverInterface
+class SalesChannelContextValueResolver implements ArgumentValueResolverInterface
 {
     /**
      * @var RequestStack
@@ -23,7 +23,7 @@ class CheckoutContextValueResolver implements ArgumentValueResolverInterface
 
     public function supports(Request $request, ArgumentMetadata $argument): bool
     {
-        return $argument->getType() === CheckoutContext::class;
+        return $argument->getType() === SalesChannelContext::class;
     }
 
     public function resolve(Request $request, ArgumentMetadata $argument): iterable

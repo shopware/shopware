@@ -15,8 +15,8 @@ use Shopware\Core\Checkout\Cart\Tax\TaxAmountCalculator;
 use Shopware\Core\Checkout\Cart\Tax\TaxCalculator;
 use Shopware\Core\Checkout\Cart\Tax\TaxDetector;
 use Shopware\Core\Checkout\Cart\Tax\TaxRuleCalculator;
-use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 
 class TaxAmountCalculatorTest extends TestCase
@@ -29,7 +29,7 @@ class TaxAmountCalculatorTest extends TestCase
         $shop = $this->createMock(SalesChannelEntity::class);
         $shop->method('getTaxCalculationType')->willReturn($calculationType);
 
-        $context = $this->createMock(CheckoutContext::class);
+        $context = $this->createMock(SalesChannelContext::class);
         $context->method('getSalesChannel')->willReturn($shop);
 
         $context->method('getContext')

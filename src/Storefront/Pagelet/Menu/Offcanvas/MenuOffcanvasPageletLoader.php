@@ -2,12 +2,12 @@
 
 namespace Shopware\Storefront\Pagelet\Menu\Offcanvas;
 
-use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Content\Navigation\NavigationEntity;
 use Shopware\Core\Content\Navigation\Service\NavigationTreeLoader;
 use Shopware\Core\Framework\DataAbstractionLayer\Util\Tree\Tree;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\Framework\Routing\InternalRequest;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Framework\Page\PageLoaderInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
@@ -29,7 +29,7 @@ class MenuOffcanvasPageletLoader implements PageLoaderInterface
         $this->navigationLoader = $navigationLoader;
     }
 
-    public function load(InternalRequest $request, CheckoutContext $context): MenuOffcanvasPagelet
+    public function load(InternalRequest $request, SalesChannelContext $context): MenuOffcanvasPagelet
     {
         $activeId = $context->getSalesChannel()->getNavigationId();
         $navigationId = $request->optionalGet('navigationId', $activeId);
@@ -56,7 +56,7 @@ class MenuOffcanvasPageletLoader implements PageLoaderInterface
      * if the category has no children,
      * the parent category will be used
      */
-    private function getCategoryTree(string $navigationId, CheckoutContext $context)
+    private function getCategoryTree(string $navigationId, SalesChannelContext $context)
     {
         /** @var Tree $navigation */
         $navigation = $this->navigationLoader->loadLevel($navigationId, $context);

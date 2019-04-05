@@ -3,7 +3,7 @@
 namespace Shopware\Core\Checkout\Cart;
 
 use Shopware\Core\Checkout\Cart\Error\ErrorCollection;
-use Shopware\Core\Checkout\CheckoutContext;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 class Validator
 {
@@ -17,7 +17,7 @@ class Validator
         $this->validators = $validators;
     }
 
-    public function validate(Cart $cart, CheckoutContext $context): ErrorCollection
+    public function validate(Cart $cart, SalesChannelContext $context): ErrorCollection
     {
         $errors = new ErrorCollection();
         foreach ($this->validators as $validator) {

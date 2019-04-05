@@ -10,12 +10,12 @@ use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Checkout\Cart\Rule\CartHasDeliveryFreeItemRule;
 use Shopware\Core\Checkout\Cart\Rule\CartRuleScope;
-use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 class CartHasFreeDeliveryItemRuleTest extends TestCase
 {
@@ -73,7 +73,7 @@ class CartHasFreeDeliveryItemRuleTest extends TestCase
 
         $rule = new CartHasDeliveryFreeItemRule();
 
-        $match = $rule->match(new CartRuleScope($cart, $this->createMock(CheckoutContext::class)));
+        $match = $rule->match(new CartRuleScope($cart, $this->createMock(SalesChannelContext::class)));
 
         static::assertTrue($match->matches());
     }

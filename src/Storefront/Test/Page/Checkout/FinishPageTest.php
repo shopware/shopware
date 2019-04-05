@@ -21,7 +21,7 @@ class FinishPageTest extends TestCase
     public function testItRequiresAOrderId(): void
     {
         $request = new InternalRequest();
-        $context = $this->createCheckoutContextWithNavigation();
+        $context = $this->createSalesChannelContextWithNavigation();
 
         $this->expectParamMissingException('orderId');
         $this->getPageLoader()->load($request, $context);
@@ -35,7 +35,7 @@ class FinishPageTest extends TestCase
     public function testMissingOrderThrows(): void
     {
         $request = new InternalRequest(['orderId' => 'foo']);
-        $context = $this->createCheckoutContextWithLoggedInCustomerAndWithNavigation();
+        $context = $this->createSalesChannelContextWithLoggedInCustomerAndWithNavigation();
 
         $this->expectException(OrderNotFoundException::class);
         $this->getPageLoader()->load($request, $context);
@@ -43,7 +43,7 @@ class FinishPageTest extends TestCase
 
     public function testFinishPageLoading(): void
     {
-        $context = $this->createCheckoutContextWithLoggedInCustomerAndWithNavigation();
+        $context = $this->createSalesChannelContextWithLoggedInCustomerAndWithNavigation();
         $orderId = $this->placeRandomOrder($context);
         $request = new InternalRequest(['orderId' => $orderId]);
 
@@ -51,6 +51,7 @@ class FinishPageTest extends TestCase
         $event = null;
         $this->catchEvent(CheckoutFinishPageLoadedEvent::NAME, $event);
 
+        /** @var CheckoutFinishPage $page */
         $page = $this->getPageLoader()->load($request, $context);
 
         static::assertInstanceOf(CheckoutFinishPage::class, $page);

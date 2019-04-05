@@ -3,8 +3,6 @@
 namespace Shopware\Storefront\Test;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\CheckoutContext;
-use Shopware\Core\Checkout\Context\CheckoutContextFactory;
 use Shopware\Core\Checkout\Customer\Exception\CustomerNotFoundException;
 use Shopware\Core\Checkout\Customer\Storefront\AccountRegistrationService;
 use Shopware\Core\Checkout\Customer\Storefront\AccountService;
@@ -13,6 +11,8 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 class AccountRegistrationServiceTest extends TestCase
 {
@@ -29,28 +29,28 @@ class AccountRegistrationServiceTest extends TestCase
     private $accountService;
 
     /**
-     * @var CheckoutContext
+     * @var SalesChannelContext
      */
-    private $checkoutContext;
+    private $salesChannelContext;
 
     protected function setUp(): void
     {
         $this->accountRegistrationService = $this->getContainer()->get(AccountRegistrationService::class);
         $this->accountService = $this->getContainer()->get(AccountService::class);
-        $checkoutContextFactory = $this->getContainer()->get(CheckoutContextFactory::class);
+        $salesChannelContextFactory = $this->getContainer()->get(SalesChannelContextFactory::class);
 
         $token = Uuid::randomHex();
-        $this->checkoutContext = $checkoutContextFactory->create($token, Defaults::SALES_CHANNEL);
+        $this->salesChannelContext = $salesChannelContextFactory->create($token, Defaults::SALES_CHANNEL);
     }
 
     public function testCreateCustomer(): void
     {
         $data = $this->getRegistrationData();
 
-        $customerId = $this->accountRegistrationService->register($data, false, $this->checkoutContext);
+        $customerId = $this->accountRegistrationService->register($data, false, $this->salesChannelContext);
         static::assertNotEmpty($customerId);
 
-        $customer = $this->accountService->getCustomerByEmail($data->get('email'), $this->checkoutContext);
+        $customer = $this->accountService->getCustomerByEmail($data->get('email'), $this->salesChannelContext);
         static::assertEquals($data->get('lastName'), $customer->getLastName());
         static::assertNotEquals($data->get('password'), $customer->getPassword());
         static::assertNotEmpty($customer->getCustomerNumber());
@@ -60,11 +60,11 @@ class AccountRegistrationServiceTest extends TestCase
     {
         $data = $this->getRegistrationData();
 
-        $customerId = $this->accountRegistrationService->register($data, false, $this->checkoutContext);
+        $customerId = $this->accountRegistrationService->register($data, false, $this->salesChannelContext);
         static::assertNotEmpty($customerId);
 
         $this->expectException(ConstraintViolationException::class);
-        $this->accountRegistrationService->register($data, false, $this->checkoutContext);
+        $this->accountRegistrationService->register($data, false, $this->salesChannelContext);
     }
 
     public function testCreateGuestWithExistingCustomer(): void
@@ -72,20 +72,20 @@ class AccountRegistrationServiceTest extends TestCase
         $data = $this->getRegistrationData();
         $guestData = $this->getRegistrationData(true);
 
-        $customerId = $this->accountRegistrationService->register($data, false, $this->checkoutContext);
+        $customerId = $this->accountRegistrationService->register($data, false, $this->salesChannelContext);
         static::assertNotEmpty($customerId);
 
-        $customerId = $this->accountRegistrationService->register($guestData, true, $this->checkoutContext);
+        $customerId = $this->accountRegistrationService->register($guestData, true, $this->salesChannelContext);
         static::assertNotEmpty($customerId);
 
-        $customers = $this->accountService->getCustomersByEmail($data->get('email'), $this->checkoutContext);
+        $customers = $this->accountService->getCustomersByEmail($data->get('email'), $this->salesChannelContext);
         static::assertCount(2, $customers);
 
-        $customers = $this->accountService->getCustomersByEmail($data->get('email'), $this->checkoutContext, false);
+        $customers = $this->accountService->getCustomersByEmail($data->get('email'), $this->salesChannelContext, false);
         static::assertCount(1, $customers);
 
         $this->expectException(CustomerNotFoundException::class);
-        $this->accountService->getCustomerByEmail($data->get('email'), $this->checkoutContext, true);
+        $this->accountService->getCustomerByEmail($data->get('email'), $this->salesChannelContext, true);
     }
 
     public function testLoginWithAdditionalGuestAccount(): void
@@ -93,13 +93,13 @@ class AccountRegistrationServiceTest extends TestCase
         $guestData = $this->getRegistrationData(true);
         $data = $this->getRegistrationData();
 
-        $customerId = $this->accountRegistrationService->register($guestData, true, $this->checkoutContext);
+        $customerId = $this->accountRegistrationService->register($guestData, true, $this->salesChannelContext);
         static::assertNotEmpty($customerId);
 
-        $customerId = $this->accountRegistrationService->register($data, false, $this->checkoutContext);
+        $customerId = $this->accountRegistrationService->register($data, false, $this->salesChannelContext);
         static::assertNotEmpty($customerId);
 
-        $customer = $this->accountService->getCustomerByEmail($data->get('email'), $this->checkoutContext);
+        $customer = $this->accountService->getCustomerByEmail($data->get('email'), $this->salesChannelContext);
         static::assertEquals($data->get('lastName'), $customer->getLastName());
     }
 

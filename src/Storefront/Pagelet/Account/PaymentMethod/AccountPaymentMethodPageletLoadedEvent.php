@@ -2,11 +2,11 @@
 
 namespace Shopware\Storefront\Pagelet\Account\PaymentMethod;
 
-use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Event\NestedEvent;
 use Shopware\Core\Framework\Routing\InternalRequest;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 class AccountPaymentMethodPageletLoadedEvent extends NestedEvent
 {
@@ -18,7 +18,7 @@ class AccountPaymentMethodPageletLoadedEvent extends NestedEvent
     protected $pagelet;
 
     /**
-     * @var CheckoutContext
+     * @var SalesChannelContext
      */
     protected $context;
 
@@ -29,7 +29,7 @@ class AccountPaymentMethodPageletLoadedEvent extends NestedEvent
 
     public function __construct(
         EntitySearchResult $pagelet,
-        CheckoutContext $context,
+        SalesChannelContext $context,
         InternalRequest $request
     ) {
         $this->pagelet = $pagelet;
@@ -47,7 +47,7 @@ class AccountPaymentMethodPageletLoadedEvent extends NestedEvent
         return $this->context->getContext();
     }
 
-    public function getCheckoutContext(): CheckoutContext
+    public function getSalesChannelContext(): SalesChannelContext
     {
         return $this->context;
     }

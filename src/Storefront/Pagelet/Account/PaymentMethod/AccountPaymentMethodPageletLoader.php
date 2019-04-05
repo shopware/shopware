@@ -2,11 +2,11 @@
 
 namespace Shopware\Storefront\Pagelet\Account\PaymentMethod;
 
-use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Routing\InternalRequest;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Framework\Page\PageLoaderInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
@@ -28,7 +28,7 @@ class AccountPaymentMethodPageletLoader implements PageLoaderInterface
         $this->eventDispatcher = $eventDispatcher;
     }
 
-    public function load(InternalRequest $request, CheckoutContext $context): EntitySearchResult
+    public function load(InternalRequest $request, SalesChannelContext $context): EntitySearchResult
     {
         $criteria = $this->createCriteria($request);
 

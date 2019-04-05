@@ -34,7 +34,7 @@ class CustomerGroupRule extends Rule
             return new Match(false, ['Wrong scope']);
         }
 
-        $id = $scope->getCheckoutContext()->getCurrentCustomerGroup()->getId();
+        $id = $scope->getSalesChannelContext()->getCurrentCustomerGroup()->getId();
 
         switch ($this->operator) {
             case self::OPERATOR_EQ:

@@ -3,7 +3,6 @@
 namespace Shopware\Core\Checkout\Customer\Storefront;
 
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
-use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressCollection;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
 use Shopware\Core\Checkout\Customer\CustomerEvents;
@@ -21,6 +20,7 @@ use Shopware\Core\Framework\Validation\DataBag\DataBag;
 use Shopware\Core\Framework\Validation\DataValidationDefinition;
 use Shopware\Core\Framework\Validation\DataValidator;
 use Shopware\Core\System\Country\CountryCollection;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class AddressService
@@ -68,12 +68,12 @@ class AddressService
      * @throws AddressNotFoundException
      * @throws InvalidUuidException
      */
-    public function getById(string $addressId, CheckoutContext $context): CustomerAddressEntity
+    public function getById(string $addressId, SalesChannelContext $context): CustomerAddressEntity
     {
         return $this->validateAddressId($addressId, $context);
     }
 
-    public function getCountryList(CheckoutContext $context): CountryCollection
+    public function getCountryList(SalesChannelContext $context): CountryCollection
     {
         $criteria = new Criteria([]);
         $criteria->addFilter(new EqualsFilter('country.active', true));
@@ -90,7 +90,7 @@ class AddressService
     /**
      * @throws CustomerNotLoggedInException
      */
-    public function getAddressByContext(CheckoutContext $context): array
+    public function getAddressByContext(SalesChannelContext $context): array
     {
         $this->validateCustomerIsLoggedIn($context);
         $customer = $context->getCustomer();
@@ -108,7 +108,7 @@ class AddressService
      * @throws CustomerNotLoggedInException
      * @throws InvalidUuidException
      */
-    public function create(DataBag $data, CheckoutContext $context): string
+    public function create(DataBag $data, SalesChannelContext $context): string
     {
         $this->validateCustomerIsLoggedIn($context);
 
@@ -155,7 +155,7 @@ class AddressService
      * @throws InvalidUuidException
      * @throws AddressNotFoundException
      */
-    public function delete(string $addressId, CheckoutContext $context): void
+    public function delete(string $addressId, SalesChannelContext $context): void
     {
         $this->validateCustomerIsLoggedIn($context);
         $this->validateAddressId($addressId, $context);
@@ -165,7 +165,7 @@ class AddressService
     /**
      * @throws CustomerNotLoggedInException
      */
-    private function validateCustomerIsLoggedIn(CheckoutContext $context): void
+    private function validateCustomerIsLoggedIn(SalesChannelContext $context): void
     {
         if (!$context->getCustomer()) {
             throw new CustomerNotLoggedInException();
@@ -176,7 +176,7 @@ class AddressService
      * @throws AddressNotFoundException
      * @throws InvalidUuidException
      */
-    private function validateAddressId(string $addressId, CheckoutContext $context): CustomerAddressEntity
+    private function validateAddressId(string $addressId, SalesChannelContext $context): CustomerAddressEntity
     {
         if (!Uuid::isValid($addressId)) {
             throw new InvalidUuidException($addressId);

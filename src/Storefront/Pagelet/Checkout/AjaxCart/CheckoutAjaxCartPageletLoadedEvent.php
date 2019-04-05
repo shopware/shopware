@@ -2,10 +2,10 @@
 
 namespace Shopware\Storefront\Pagelet\Checkout\AjaxCart;
 
-use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\NestedEvent;
 use Shopware\Core\Framework\Routing\InternalRequest;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 class CheckoutAjaxCartPageletLoadedEvent extends NestedEvent
 {
@@ -17,7 +17,7 @@ class CheckoutAjaxCartPageletLoadedEvent extends NestedEvent
     protected $pagelet;
 
     /**
-     * @var CheckoutContext
+     * @var SalesChannelContext
      */
     protected $context;
 
@@ -28,7 +28,7 @@ class CheckoutAjaxCartPageletLoadedEvent extends NestedEvent
 
     public function __construct(
         CheckoutAjaxCartPagelet $pagelet,
-        CheckoutContext $context,
+        SalesChannelContext $context,
         InternalRequest $request
     ) {
         $this->pagelet = $pagelet;
@@ -46,7 +46,7 @@ class CheckoutAjaxCartPageletLoadedEvent extends NestedEvent
         return $this->context->getContext();
     }
 
-    public function getCheckoutContext(): CheckoutContext
+    public function getSalesChannelContext(): SalesChannelContext
     {
         return $this->context;
     }

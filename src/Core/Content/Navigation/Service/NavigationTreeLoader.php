@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Content\Navigation\Service;
 
-use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Content\Navigation\Exception\NavigationNotFoundException;
 use Shopware\Core\Content\Navigation\NavigationEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
@@ -13,6 +12,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Util\Tree\Tree;
 use Shopware\Core\Framework\DataAbstractionLayer\Util\Tree\TreeBuilder;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 class NavigationTreeLoader
 {
@@ -38,7 +38,7 @@ class NavigationTreeLoader
      * @throws NavigationNotFoundException
      * @throws InconsistentCriteriaIdsException
      */
-    public function load(string $activeId, CheckoutContext $context): ?Tree
+    public function load(string $activeId, SalesChannelContext $context): ?Tree
     {
         /** @var NavigationEntity $active */
         $active = $this->loadActive($activeId, $context);
@@ -55,7 +55,7 @@ class NavigationTreeLoader
      * @throws NavigationNotFoundException
      * @throws InconsistentCriteriaIdsException
      */
-    public function loadLevel(string $navigationId, CheckoutContext $context): ?Tree
+    public function loadLevel(string $navigationId, SalesChannelContext $context): ?Tree
     {
         /** @var NavigationEntity $active */
         $active = $this->loadActive($navigationId, $context);
@@ -86,7 +86,7 @@ class NavigationTreeLoader
      * @throws NavigationNotFoundException
      * @throws InconsistentCriteriaIdsException
      */
-    private function loadActive(string $activeId, CheckoutContext $context): NavigationEntity
+    private function loadActive(string $activeId, SalesChannelContext $context): NavigationEntity
     {
         $criteria = new Criteria([$activeId]);
 

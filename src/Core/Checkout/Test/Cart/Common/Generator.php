@@ -15,7 +15,6 @@ use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Cart\Tax\TaxAmountCalculator;
 use Shopware\Core\Checkout\Cart\Tax\TaxDetector;
-use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupEntity;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
@@ -29,13 +28,14 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Country\Aggregate\CountryState\CountryStateEntity;
 use Shopware\Core\System\Country\CountryEntity;
 use Shopware\Core\System\Currency\CurrencyEntity;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Core\System\Tax\TaxCollection;
 use Shopware\Core\System\Tax\TaxEntity;
 
 class Generator extends TestCase
 {
-    public static function createCheckoutContext(
+    public static function createSalesChannelContext(
         ?Context $baseContext = null,
         $currentCustomerGroup = null,
         $fallbackCustomerGroup = null,
@@ -46,7 +46,7 @@ class Generator extends TestCase
         $state = null,
         $shipping = null,
         $paymentMethod = null
-    ): CheckoutContext {
+    ): SalesChannelContext {
         if (!$baseContext) {
             $baseContext = Context::createDefaultContext();
         }
@@ -122,7 +122,7 @@ class Generator extends TestCase
         $customer->setId(Uuid::randomHex());
         $customer->setGroup($currentCustomerGroup);
 
-        return new CheckoutContext(
+        return new SalesChannelContext(
             $baseContext,
             Uuid::randomHex(),
             $salesChannel,

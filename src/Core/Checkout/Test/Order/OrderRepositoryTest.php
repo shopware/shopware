@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartBehavior;
+use Shopware\Core\Checkout\Cart\CartRuleLoader;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Order\OrderPersister;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
@@ -14,9 +15,6 @@ use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Checkout\Cart\Processor;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
-use Shopware\Core\Checkout\Context\CheckoutContextFactory;
-use Shopware\Core\Checkout\Context\CheckoutContextService;
-use Shopware\Core\Checkout\Context\CheckoutRuleLoader;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryStates;
 use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Checkout\Order\OrderStates;
@@ -26,6 +24,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\StateMachine\StateMachineRegistry;
 
 class OrderRepositoryTest extends TestCase
@@ -53,9 +53,9 @@ class OrderRepositoryTest extends TestCase
     private $customerRepository;
 
     /**
-     * @var CheckoutContextFactory
+     * @var SalesChannelContextFactory
      */
-    private $checkoutContextFactory;
+    private $salesChannelContextFactory;
 
     /**
      * @var StateMachineRegistry
@@ -68,7 +68,7 @@ class OrderRepositoryTest extends TestCase
         $this->orderPersister = $this->getContainer()->get(OrderPersister::class);
         $this->customerRepository = $this->getContainer()->get('customer.repository');
         $this->processor = $this->getContainer()->get(Processor::class);
-        $this->checkoutContextFactory = $this->getContainer()->get(CheckoutContextFactory::class);
+        $this->salesChannelContextFactory = $this->getContainer()->get(SalesChannelContextFactory::class);
         $this->stateMachineRegistry = $this->getContainer()->get(StateMachineRegistry::class);
     }
 
@@ -105,14 +105,14 @@ class OrderRepositoryTest extends TestCase
 
         $customerId = $this->createCustomer();
 
-        $context = $this->checkoutContextFactory->create(
+        $context = $this->salesChannelContextFactory->create(
             Uuid::randomHex(),
             Defaults::SALES_CHANNEL,
             [
-                CheckoutContextService::CUSTOMER_ID => $customerId,
+                SalesChannelContextService::CUSTOMER_ID => $customerId,
             ]);
 
-        $this->getContainer()->get(CheckoutRuleLoader::class)->loadByToken($context, $context->getToken());
+        $this->getContainer()->get(CartRuleLoader::class)->loadByToken($context, $context->getToken());
 
         $cart = $this->processor->process($cart, $context, new CartBehavior());
 

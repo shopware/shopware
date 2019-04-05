@@ -6,7 +6,7 @@ use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartBehavior;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryCollection;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
-use Shopware\Core\Checkout\CheckoutContext;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 class DeliveryProcessor
 {
@@ -29,7 +29,7 @@ class DeliveryProcessor
     public function process(
         Cart $cart,
         LineItemCollection $lineItems,
-        CheckoutContext $context,
+        SalesChannelContext $context,
         CartBehavior $behavior
     ): DeliveryCollection {
         if ($behavior->isRecalculation()) {

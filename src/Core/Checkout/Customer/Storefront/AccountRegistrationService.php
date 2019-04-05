@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Checkout\Customer\Storefront;
 
-use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Checkout\Customer\CustomerEvents;
 use Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerEmailUnique;
@@ -17,6 +16,7 @@ use Shopware\Core\Framework\Validation\DataValidator;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
 use Shopware\Core\Framework\Validation\ValidationServiceInterface;
 use Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInterface;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Validator\Constraints\NotBlank;
 
@@ -68,7 +68,7 @@ class AccountRegistrationService
         $this->addressValidationService = $addressValidationService;
     }
 
-    public function register(DataBag $data, bool $isGuest, CheckoutContext $context): string
+    public function register(DataBag $data, bool $isGuest, SalesChannelContext $context): string
     {
         $this->validateRegistrationData($data, $isGuest, $context->getContext());
 
@@ -185,7 +185,7 @@ class AccountRegistrationService
         return $event->getOutput();
     }
 
-    private function mapCustomerData(DataBag $data, bool $isGuest, CheckoutContext $context): array
+    private function mapCustomerData(DataBag $data, bool $isGuest, SalesChannelContext $context): array
     {
         $customer = [
             'customerNumber' => $this->numberRangeValueGenerator->getValue(

@@ -3,13 +3,13 @@
 namespace Shopware\Storefront\PageController;
 
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException as CustomerNotLoggedInExceptionAlias;
-use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Customer\Exception\BadCredentialsException;
 use Shopware\Core\Checkout\Customer\Storefront\AccountRegistrationService;
 use Shopware\Core\Checkout\Customer\Storefront\AccountService;
 use Shopware\Core\Framework\Routing\InternalRequest;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Framework\Controller\StorefrontController;
 use Shopware\Storefront\Framework\Page\PageLoaderInterface;
 use Shopware\Storefront\Page\Account\Address\AccountAddressPageLoader;
@@ -99,7 +99,7 @@ class AccountPageController extends StorefrontController
      *
      * @throws CustomerNotLoggedInExceptionAlias
      */
-    public function index(InternalRequest $request, CheckoutContext $context): Response
+    public function index(InternalRequest $request, SalesChannelContext $context): Response
     {
         if (!$context->getCustomer()) {
             return $this->redirectToRoute('frontend.account.login.page');
@@ -113,7 +113,7 @@ class AccountPageController extends StorefrontController
     /**
      * @Route("/account/login", name="frontend.account.login.page", methods={"GET"})
      */
-    public function login(Request $request, InternalRequest $internal, CheckoutContext $context): Response
+    public function login(Request $request, InternalRequest $internal, SalesChannelContext $context): Response
     {
         /** @var string $redirect */
         $redirect = $request->get('redirectTo', $this->generateUrl('frontend.account.home.page'));
@@ -130,7 +130,7 @@ class AccountPageController extends StorefrontController
     /**
      * @Route("/account/login", name="frontend.account.login", methods={"POST"})
      */
-    public function loginCustomer(Request $request, RequestDataBag $data, CheckoutContext $context): Response
+    public function loginCustomer(Request $request, RequestDataBag $data, SalesChannelContext $context): Response
     {
         $redirect = $request->get('redirectTo', $this->generateUrl('frontend.account.home.page'));
 
@@ -154,7 +154,7 @@ class AccountPageController extends StorefrontController
     /**
      * @Route("/account/register", name="frontend.account.register.page", methods={"GET"})
      */
-    public function register(InternalRequest $request, RequestDataBag $data, CheckoutContext $context): Response
+    public function register(InternalRequest $request, RequestDataBag $data, SalesChannelContext $context): Response
     {
         if ($context->getCustomer()) {
             return $this->redirectToRoute('frontend.account.home.page');
@@ -170,7 +170,7 @@ class AccountPageController extends StorefrontController
     /**
      * @Route("/account/register", name="frontend.account.register.save", methods={"POST"})
      */
-    public function saveRegister(RequestDataBag $data, CheckoutContext $context): Response
+    public function saveRegister(RequestDataBag $data, SalesChannelContext $context): Response
     {
         if ($context->getCustomer()) {
             return $this->redirectToRoute('frontend.account.home.page');
@@ -192,7 +192,7 @@ class AccountPageController extends StorefrontController
      *
      * @throws CustomerNotLoggedInExceptionAlias
      */
-    public function paymentOverview(InternalRequest $request, CheckoutContext $context): Response
+    public function paymentOverview(InternalRequest $request, SalesChannelContext $context): Response
     {
         $this->denyAccessUnlessLoggedIn();
 
@@ -206,7 +206,7 @@ class AccountPageController extends StorefrontController
      *
      * @throws CustomerNotLoggedInExceptionAlias
      */
-    public function orderOverview(InternalRequest $request, CheckoutContext $context): Response
+    public function orderOverview(InternalRequest $request, SalesChannelContext $context): Response
     {
         $this->denyAccessUnlessLoggedIn();
 
@@ -220,7 +220,7 @@ class AccountPageController extends StorefrontController
      *
      * @throws CustomerNotLoggedInExceptionAlias
      */
-    public function profileOverview(InternalRequest $request, CheckoutContext $context): Response
+    public function profileOverview(InternalRequest $request, SalesChannelContext $context): Response
     {
         $this->denyAccessUnlessLoggedIn();
 
@@ -234,7 +234,7 @@ class AccountPageController extends StorefrontController
      *
      * @throws CustomerNotLoggedInExceptionAlias
      */
-    public function addressOverview(InternalRequest $request, CheckoutContext $context): Response
+    public function addressOverview(InternalRequest $request, SalesChannelContext $context): Response
     {
         $this->denyAccessUnlessLoggedIn();
 
@@ -246,7 +246,7 @@ class AccountPageController extends StorefrontController
     /**
      * @Route("/account/address/create", name="frontend.account.address.create.page", options={"seo"="false"}, methods={"GET"})
      */
-    public function createAddress(InternalRequest $request, CheckoutContext $context): Response
+    public function createAddress(InternalRequest $request, SalesChannelContext $context): Response
     {
         $page = $this->addressPageLoader->load($request, $context);
 
@@ -258,7 +258,7 @@ class AccountPageController extends StorefrontController
      *
      * @throws CustomerNotLoggedInExceptionAlias
      */
-    public function editAddress(InternalRequest $request, CheckoutContext $context): Response
+    public function editAddress(InternalRequest $request, SalesChannelContext $context): Response
     {
         $this->denyAccessUnlessLoggedIn();
 

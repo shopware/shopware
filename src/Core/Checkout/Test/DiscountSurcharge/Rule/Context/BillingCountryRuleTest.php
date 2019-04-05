@@ -5,11 +5,11 @@ namespace Shopware\Core\Checkout\Test\DiscountSurcharge\Rule\Context;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\Rule\CartRuleScope;
-use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Rule\BillingCountryRule;
 use Shopware\Core\System\Country\CountryEntity;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 class BillingCountryRuleTest extends TestCase
 {
@@ -19,7 +19,7 @@ class BillingCountryRuleTest extends TestCase
 
         $cart = $this->createMock(Cart::class);
 
-        $context = $this->createMock(CheckoutContext::class);
+        $context = $this->createMock(SalesChannelContext::class);
 
         $country = new CountryEntity();
         $country->setId('SWAG-AREA-COUNTRY-ID-1');
@@ -45,7 +45,7 @@ class BillingCountryRuleTest extends TestCase
 
         $cart = $this->createMock(Cart::class);
 
-        $context = $this->createMock(CheckoutContext::class);
+        $context = $this->createMock(SalesChannelContext::class);
 
         $country = new CountryEntity();
         $country->setId('SWAG-AREA-COUNTRY-ID-1');
@@ -71,7 +71,7 @@ class BillingCountryRuleTest extends TestCase
 
         $cart = $this->createMock(Cart::class);
 
-        $context = $this->createMock(CheckoutContext::class);
+        $context = $this->createMock(SalesChannelContext::class);
 
         $country = new CountryEntity();
         $country->setId('SWAG-AREA-COUNTRY-ID-1');
@@ -97,7 +97,7 @@ class BillingCountryRuleTest extends TestCase
 
         $cart = $this->createMock(Cart::class);
 
-        $context = $this->createMock(CheckoutContext::class);
+        $context = $this->createMock(SalesChannelContext::class);
 
         $context
             ->method('getCustomer')

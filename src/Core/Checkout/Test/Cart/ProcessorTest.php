@@ -12,23 +12,23 @@ use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Checkout\Cart\Processor;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
-use Shopware\Core\Checkout\CheckoutContext;
-use Shopware\Core\Checkout\Context\CheckoutContextFactory;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 class ProcessorTest extends TestCase
 {
     use KernelTestBehaviour;
 
     /**
-     * @var CheckoutContextFactory
+     * @var SalesChannelContextFactory
      */
     private $factory;
 
     /**
-     * @var CheckoutContext
+     * @var SalesChannelContext
      */
     private $context;
 
@@ -40,7 +40,7 @@ class ProcessorTest extends TestCase
     protected function setUp(): void
     {
         $this->processor = $this->getContainer()->get(Processor::class);
-        $this->factory = $this->getContainer()->get(CheckoutContextFactory::class);
+        $this->factory = $this->getContainer()->get(SalesChannelContextFactory::class);
         $this->context = $this->factory->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
     }
 

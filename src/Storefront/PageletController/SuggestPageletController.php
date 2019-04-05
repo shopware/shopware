@@ -2,8 +2,8 @@
 
 namespace Shopware\Storefront\PageletController;
 
-use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Framework\Routing\InternalRequest;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Framework\Controller\StorefrontController;
 use Shopware\Storefront\Framework\Page\PageLoaderInterface;
 use Shopware\Storefront\Pagelet\Suggest\SuggestPageletLoader;
@@ -25,7 +25,7 @@ class SuggestPageletController extends StorefrontController
     /**
      * @Route("/search/suggest", name="frontend.search.suggest", methods={"GET"})
      */
-    public function suggest(CheckoutContext $context, InternalRequest $request): Response
+    public function suggest(SalesChannelContext $context, InternalRequest $request): Response
     {
         $page = $this->suggestPageletLoader->load($request, $context);
 

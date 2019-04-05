@@ -25,7 +25,7 @@ class ProductPageTest extends TestCase
     public function testItRequiresProductParam(): void
     {
         $request = new InternalRequest();
-        $context = $this->createCheckoutContextWithNavigation();
+        $context = $this->createSalesChannelContextWithNavigation();
 
         $this->expectParamMissingException('productId');
         $this->getPageLoader()->load($request, $context);
@@ -34,7 +34,7 @@ class ProductPageTest extends TestCase
     public function testItRequiresAValidProductParam(): void
     {
         $request = new InternalRequest(['productId' => '99999911ffff4fffafffffff19830531']);
-        $context = $this->createCheckoutContextWithNavigation();
+        $context = $this->createSalesChannelContextWithNavigation();
 
         $this->expectException(ProductNotFoundException::class);
         $this->getPageLoader()->load($request, $context);
@@ -42,7 +42,7 @@ class ProductPageTest extends TestCase
 
     public function testItFailsWithANonExistingProduct(): void
     {
-        $context = $this->createCheckoutContextWithNavigation();
+        $context = $this->createSalesChannelContextWithNavigation();
         $request = new InternalRequest(['productId' => Uuid::randomHex()]);
 
         /** @var ProductPageLoadedEvent $event */
@@ -55,7 +55,7 @@ class ProductPageTest extends TestCase
 
     public function testItDoesLoadATestProduct(): void
     {
-        $context = $this->createCheckoutContextWithNavigation();
+        $context = $this->createSalesChannelContextWithNavigation();
         $product = $this->getRandomProduct($context);
 
         $request = new InternalRequest(['productId' => $product->getId()]);

@@ -8,13 +8,13 @@ use Shopware\Core\Checkout\Cart\CollectorInterface;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Price\Struct\AbsolutePriceDefinition;
 use Shopware\Core\Checkout\Cart\Price\Struct\PercentagePriceDefinition;
-use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\DiscountSurcharge\DiscountSurchargeCollection;
 use Shopware\Core\Checkout\DiscountSurcharge\Exception\UnsupportedModifierTypeException;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\Struct\StructCollection;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 class DiscountSurchargeCollector implements CollectorInterface
 {
@@ -33,7 +33,7 @@ class DiscountSurchargeCollector implements CollectorInterface
         $this->repository = $discountSurchargeRepository;
     }
 
-    public function prepare(StructCollection $definitions, Cart $cart, CheckoutContext $context, CartBehavior $behavior): void
+    public function prepare(StructCollection $definitions, Cart $cart, SalesChannelContext $context, CartBehavior $behavior): void
     {
         $ruleIds = $context->getRuleIds();
 
@@ -59,7 +59,7 @@ class DiscountSurchargeCollector implements CollectorInterface
         $definitions->set(self::DATA_KEY, new DiscountSurchargeFetchDefinition($ruleIds));
     }
 
-    public function collect(StructCollection $fetchDefinitions, StructCollection $data, Cart $cart, CheckoutContext $context, CartBehavior $behavior): void
+    public function collect(StructCollection $fetchDefinitions, StructCollection $data, Cart $cart, SalesChannelContext $context, CartBehavior $behavior): void
     {
         $discountDefinitions = $fetchDefinitions->filterInstance(DiscountSurchargeFetchDefinition::class);
 
@@ -83,7 +83,7 @@ class DiscountSurchargeCollector implements CollectorInterface
         $data->set(self::DATA_KEY, $discountSurcharges);
     }
 
-    public function enrich(StructCollection $data, Cart $cart, CheckoutContext $context, CartBehavior $behavior): void
+    public function enrich(StructCollection $data, Cart $cart, SalesChannelContext $context, CartBehavior $behavior): void
     {
         if (!$data->has(self::DATA_KEY)) {
             return;

@@ -3,9 +3,9 @@
 namespace Shopware\Storefront\Page\Checkout\Confirm;
 
 use Shopware\Core\Checkout\Cart\Cart;
-use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
 use Shopware\Core\Checkout\Shipping\ShippingMethodCollection;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Framework\Page\GenericPage;
 
 class CheckoutConfirmPage extends GenericPage
@@ -26,7 +26,7 @@ class CheckoutConfirmPage extends GenericPage
     protected $shippingMethods;
 
     public function __construct(
-        CheckoutContext $context,
+        SalesChannelContext $context,
         PaymentMethodCollection $paymentMethods,
         ShippingMethodCollection $shippingMethods
     ) {

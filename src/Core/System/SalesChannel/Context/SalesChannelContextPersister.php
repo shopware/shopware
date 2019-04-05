@@ -1,12 +1,12 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Checkout\Context;
+namespace Shopware\Core\System\SalesChannel\Context;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Api\Exception\InvalidContextTokenException;
 use Shopware\Core\Framework\Uuid\Uuid;
 
-class CheckoutContextPersister
+class SalesChannelContextPersister
 {
     /**
      * @var Connection

@@ -5,7 +5,7 @@ namespace Shopware\Core\System\Test\SalesChannel\Storefront;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\FetchMode;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\Context\CheckoutRuleLoader;
+use Shopware\Core\Checkout\Cart\CartRuleLoader;
 use Shopware\Core\Checkout\Test\Payment\Handler\SyncTestPaymentHandler;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
@@ -44,8 +44,8 @@ class StorefrontSalesChannelControllerTest extends TestCase
         $this->context = Context::createDefaultContext();
 
         // reset rules
-        $ruleLoader = $this->getContainer()->get(CheckoutRuleLoader::class);
-        $rulesProperty = ReflectionHelper::getProperty(CheckoutRuleLoader::class, 'rules');
+        $ruleLoader = $this->getContainer()->get(CartRuleLoader::class);
+        $rulesProperty = ReflectionHelper::getProperty(CartRuleLoader::class, 'rules');
         $rulesProperty->setValue($ruleLoader, null);
     }
 

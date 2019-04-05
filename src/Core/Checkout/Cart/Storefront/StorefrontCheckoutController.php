@@ -4,10 +4,6 @@ namespace Shopware\Core\Checkout\Cart\Storefront;
 
 use Shopware\Core\Checkout\Cart\Exception\CartTokenNotFoundException;
 use Shopware\Core\Checkout\Cart\Exception\OrderNotFoundException;
-use Shopware\Core\Checkout\CheckoutContext;
-use Shopware\Core\Checkout\Context\CheckoutContextFactoryInterface;
-use Shopware\Core\Checkout\Context\CheckoutContextPersister;
-use Shopware\Core\Checkout\Context\CheckoutContextService;
 use Shopware\Core\Checkout\Customer\Storefront\AccountRegistrationService;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Payment\Exception\AsyncPaymentProcessException;
@@ -20,6 +16,10 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactoryInterface;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -40,14 +40,14 @@ class StorefrontCheckoutController extends AbstractController
     private $cartService;
 
     /**
-     * @var CheckoutContextPersister
+     * @var SalesChannelContextPersister
      */
     private $contextPersister;
 
     /**
-     * @var CheckoutContextFactoryInterface
+     * @var SalesChannelContextFactoryInterface
      */
-    private $checkoutContextFactory;
+    private $salesChannelContextFactory;
 
     /**
      * @var AccountRegistrationService
@@ -67,8 +67,8 @@ class StorefrontCheckoutController extends AbstractController
     public function __construct(
         PaymentService $paymentService,
         CartService $cartService,
-        CheckoutContextPersister $contextPersister,
-        CheckoutContextFactoryInterface $checkoutContextFactory,
+        SalesChannelContextPersister $contextPersister,
+        SalesChannelContextFactoryInterface $salesChannelContextFactory,
         Serializer $serializer,
         EntityRepositoryInterface $orderRepository,
         AccountRegistrationService $accountRegisterService
@@ -76,7 +76,7 @@ class StorefrontCheckoutController extends AbstractController
         $this->paymentService = $paymentService;
         $this->cartService = $cartService;
         $this->contextPersister = $contextPersister;
-        $this->checkoutContextFactory = $checkoutContextFactory;
+        $this->salesChannelContextFactory = $salesChannelContextFactory;
         $this->orderRepository = $orderRepository;
         $this->serializer = $serializer;
         $this->accountRegisterService = $accountRegisterService;
@@ -88,7 +88,7 @@ class StorefrontCheckoutController extends AbstractController
      * @throws OrderNotFoundException
      * @throws CartTokenNotFoundException
      */
-    public function createOrder(Request $request, CheckoutContext $context): JsonResponse
+    public function createOrder(Request $request, SalesChannelContext $context): JsonResponse
     {
         $token = $request->request->getAlnum('token', $context->getToken());
         $cart = $this->cartService->getCart($token, $context);
@@ -107,17 +107,17 @@ class StorefrontCheckoutController extends AbstractController
      * @throws OrderNotFoundException
      * @throws CartTokenNotFoundException
      */
-    public function createGuestOrder(Request $request, RequestDataBag $data, CheckoutContext $context): JsonResponse
+    public function createGuestOrder(Request $request, RequestDataBag $data, SalesChannelContext $context): JsonResponse
     {
         $token = $request->request->getAlnum('token', $context->getToken());
         $request->request->remove('token');
 
         $customerId = $this->accountRegisterService->register($data, true, $context);
 
-        $orderContext = $this->createCheckoutContext($customerId, $context);
+        $salesChannelContext = $this->createSalesChannelContext($customerId, $context);
 
-        $cart = $this->cartService->getCart($token, $orderContext);
-        $orderId = $this->cartService->order($cart, $orderContext);
+        $cart = $this->cartService->getCart($token, $salesChannelContext);
+        $orderId = $this->cartService->order($cart, $salesChannelContext);
         $this->contextPersister->save($context->getToken(), ['cartToken' => null]);
 
         return new JsonResponse($this->serialize($this->getOrderById($orderId, $context)));
@@ -156,7 +156,7 @@ class StorefrontCheckoutController extends AbstractController
      * @throws SyncPaymentProcessException
      * @throws UnknownPaymentMethodException
      */
-    public function payOrder(string $orderId, Request $request, CheckoutContext $context): Response
+    public function payOrder(string $orderId, Request $request, SalesChannelContext $context): Response
     {
         $finishUrl = $request->request->get('finishUrl');
         $response = $this->paymentService->handlePaymentByOrder($orderId, $context, $finishUrl);
@@ -171,7 +171,7 @@ class StorefrontCheckoutController extends AbstractController
     /**
      * @throws OrderNotFoundException
      */
-    private function getOrderById(string $orderId, CheckoutContext $context): OrderEntity
+    private function getOrderById(string $orderId, SalesChannelContext $context): OrderEntity
     {
         $criteria = new Criteria([$orderId]);
         $order = $this->orderRepository->search($criteria, $context->getContext())->get($orderId);
@@ -183,18 +183,18 @@ class StorefrontCheckoutController extends AbstractController
         return $order;
     }
 
-    private function createCheckoutContext(string $customerId, CheckoutContext $context): CheckoutContext
+    private function createSalesChannelContext(string $customerId, SalesChannelContext $context): SalesChannelContext
     {
-        $checkoutContext = $this->checkoutContextFactory->create(
+        $salesChannelContext = $this->salesChannelContextFactory->create(
             $context->getToken(),
             $context->getSalesChannel()->getId(),
-            [CheckoutContextService::CUSTOMER_ID => $customerId]
+            [SalesChannelContextService::CUSTOMER_ID => $customerId]
         );
 
         // todo: load matching rules
-        $checkoutContext->setRuleIds($context->getRuleIds());
+        $salesChannelContext->setRuleIds($context->getRuleIds());
 
-        return $checkoutContext;
+        return $salesChannelContext;
     }
 
     private function serialize($data): array

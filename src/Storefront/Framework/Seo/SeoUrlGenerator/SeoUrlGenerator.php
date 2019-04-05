@@ -4,11 +4,11 @@ namespace Shopware\Storefront\Framework\Seo\SeoUrlGenerator;
 
 use Cocur\Slugify\Bridge\Twig\SlugifyExtension;
 use Cocur\Slugify\Slugify;
-use Shopware\Core\Checkout\Context\CheckoutContextFactoryInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactoryInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Symfony\Component\Routing\RouterInterface;
 use Twig\Environment;
@@ -34,16 +34,16 @@ abstract class SeoUrlGenerator implements SeoUrlGeneratorInterface
     protected $routeName;
 
     /**
-     * @var CheckoutContextFactoryInterface
+     * @var SalesChannelContextFactoryInterface
      */
-    protected $checkoutContextFactory;
+    protected $salesChannelContextFactory;
 
     /**
      * @var EntityRepositoryInterface
      */
     protected $salesChannelRepository;
 
-    public function __construct(EntityRepositoryInterface $salesChannelRepository, CheckoutContextFactoryInterface $checkoutContextFactory, Slugify $slugify, RouterInterface $router, string $routeName)
+    public function __construct(EntityRepositoryInterface $salesChannelRepository, SalesChannelContextFactoryInterface $salesChannelContextFactory, Slugify $slugify, RouterInterface $router, string $routeName)
     {
         $this->twig = new Environment(new ArrayLoader());
         $this->twig->setCache(false);
@@ -59,7 +59,7 @@ abstract class SeoUrlGenerator implements SeoUrlGeneratorInterface
                 return $result;
             });
 
-        $this->checkoutContextFactory = $checkoutContextFactory;
+        $this->salesChannelContextFactory = $salesChannelContextFactory;
         $this->salesChannelRepository = $salesChannelRepository;
 
         $this->router = $router;
@@ -79,12 +79,12 @@ abstract class SeoUrlGenerator implements SeoUrlGeneratorInterface
             ->first();
         $options = $salesChannel->jsonSerialize();
 
-        $checkoutContext = $this->checkoutContextFactory->create(
+        $salesChannelContext = $this->salesChannelContextFactory->create(
             Uuid::randomHex(),
             $salesChannelId,
             $options
         );
 
-        return $checkoutContext->getContext();
+        return $salesChannelContext->getContext();
     }
 }

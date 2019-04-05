@@ -227,7 +227,7 @@
         <service id="Shopware\Core\Framework\Routing\SalesChannelRequestContextResolver"
                  decorates="Shopware\Core\Framework\Routing\ApiRequestContextResolver">
             <argument type="service" id="Shopware\Core\Framework\Routing\SalesChannelRequestContextResolver.inner"/>
-            <argument type="service" id="Shopware\Core\Checkout\Context\CheckoutContextService"/>
+            <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextService"/>
         </service>
 
         <service id="Shopware\Core\Framework\Validation\CommandQueueValidator">

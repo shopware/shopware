@@ -24,7 +24,7 @@ class AddressPageTest extends TestCase
 
     public function testItLoadsAddressesAndCountriesForACustomer(): void
     {
-        $context = $this->createCheckoutContextWithLoggedInCustomerAndWithNavigation();
+        $context = $this->createSalesChannelContextWithLoggedInCustomerAndWithNavigation();
         $request = new InternalRequest();
 
         /** @var AccountAddressPageLoadedEvent $event */
@@ -41,7 +41,7 @@ class AddressPageTest extends TestCase
 
     public function testItFiltersByAnAddressId(): void
     {
-        $context = $this->createCheckoutContextWithLoggedInCustomerAndWithNavigation();
+        $context = $this->createSalesChannelContextWithLoggedInCustomerAndWithNavigation();
         $request = new InternalRequest(['addressId' => $context->getCustomer()->getActiveBillingAddress()->getId()]);
 
         /** @var AccountAddressPageLoadedEvent $event */

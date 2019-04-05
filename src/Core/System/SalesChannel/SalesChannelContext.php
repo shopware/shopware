@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Checkout;
+namespace Shopware\Core\System\SalesChannel;
 
 use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingLocation;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupEntity;
@@ -11,7 +11,6 @@ use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\System\Currency\CurrencyEntity;
-use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Core\System\Tax\TaxCollection;
 
 /**
@@ -19,7 +18,7 @@ use Shopware\Core\System\Tax\TaxCollection;
  *
  * @copyright Copyright (c) shopware AG (http://www.shopware.de)
  */
-class CheckoutContext extends Struct
+class SalesChannelContext extends Struct
 {
     /**
      * Unique token for context, e.g. stored in session or provided in request headers

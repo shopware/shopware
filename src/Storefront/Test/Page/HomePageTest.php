@@ -23,7 +23,7 @@ class HomePageTest extends TestCase
     public function testHomepageLoading(): void
     {
         $request = new InternalRequest();
-        $context = $this->createCheckoutContextWithNavigation();
+        $context = $this->createSalesChannelContextWithNavigation();
 
         /** @var HomePageLoadedEvent $event */
         $event = null;

@@ -69,7 +69,7 @@ class StorefrontProxyController extends AbstractController
         $cloned->headers->set(PlatformRequest::HEADER_CONTEXT_TOKEN, $contextToken);
         $cloned->attributes->set(PlatformRequest::ATTRIBUTE_OAUTH_CLIENT_ID, $salesChannel->getAccessKey());
 
-        $this->requestContextResolver->handleCheckoutContext(
+        $this->requestContextResolver->handleSalesChannelContext(
             $request,
             $cloned,
             $salesChannelId,

@@ -4,8 +4,8 @@ namespace Shopware\Core\Content\Rule;
 
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\Rule\CartRuleScope;
-use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
  * @method void            add(RuleEntity $entity)
@@ -18,7 +18,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
  */
 class RuleCollection extends EntityCollection
 {
-    public function filterMatchingRules(Cart $cart, CheckoutContext $context)
+    public function filterMatchingRules(Cart $cart, SalesChannelContext $context)
     {
         return $this->filter(
             function (RuleEntity $rule) use ($cart, $context) {

@@ -2,8 +2,8 @@
 
 namespace Shopware\Storefront\PageController;
 
-use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Framework\Routing\InternalRequest;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Framework\Controller\StorefrontController;
 use Shopware\Storefront\Framework\Page\PageLoaderInterface;
 use Shopware\Storefront\Page\Product\ProductPageLoader;
@@ -25,7 +25,7 @@ class ProductPageController extends StorefrontController
     /**
      * @Route("/detail/{productId}", name="frontend.detail.page", options={"seo"="true"}, methods={"GET"})
      */
-    public function index(CheckoutContext $context, InternalRequest $request): Response
+    public function index(SalesChannelContext $context, InternalRequest $request): Response
     {
         $page = $this->detailPageLoader->load($request, $context);
 

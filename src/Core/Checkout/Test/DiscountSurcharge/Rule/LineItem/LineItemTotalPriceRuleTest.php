@@ -9,8 +9,8 @@ use Shopware\Core\Checkout\Cart\Rule\LineItemScope;
 use Shopware\Core\Checkout\Cart\Rule\LineItemTotalPriceRule;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
-use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Framework\Rule\Rule;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 class LineItemTotalPriceRuleTest extends TestCase
 {
@@ -18,7 +18,7 @@ class LineItemTotalPriceRuleTest extends TestCase
     {
         $rule = (new LineItemTotalPriceRule())->assign(['amount' => 200, 'operator' => Rule::OPERATOR_EQ]);
 
-        $context = $this->createMock(CheckoutContext::class);
+        $context = $this->createMock(SalesChannelContext::class);
 
         $lineItem = (new LineItem('A', 'product'))
             ->setPrice(
@@ -34,7 +34,7 @@ class LineItemTotalPriceRuleTest extends TestCase
     {
         $rule = (new LineItemTotalPriceRule())->assign(['amount' => 199, 'operator' => Rule::OPERATOR_EQ]);
 
-        $context = $this->createMock(CheckoutContext::class);
+        $context = $this->createMock(SalesChannelContext::class);
 
         $lineItem = (new LineItem('A', 'product'))
             ->setPrice(
@@ -50,7 +50,7 @@ class LineItemTotalPriceRuleTest extends TestCase
     {
         $rule = (new LineItemTotalPriceRule())->assign(['amount' => 200, 'operator' => Rule::OPERATOR_LTE]);
 
-        $context = $this->createMock(CheckoutContext::class);
+        $context = $this->createMock(SalesChannelContext::class);
 
         $lineItem = (new LineItem('A', 'product'))
             ->setPrice(
@@ -66,7 +66,7 @@ class LineItemTotalPriceRuleTest extends TestCase
     {
         $rule = (new LineItemTotalPriceRule())->assign(['amount' => 201, 'operator' => Rule::OPERATOR_LTE]);
 
-        $context = $this->createMock(CheckoutContext::class);
+        $context = $this->createMock(SalesChannelContext::class);
 
         $lineItem = (new LineItem('A', 'product'))
             ->setPrice(
@@ -82,7 +82,7 @@ class LineItemTotalPriceRuleTest extends TestCase
     {
         $rule = (new LineItemTotalPriceRule())->assign(['amount' => 199, 'operator' => Rule::OPERATOR_LTE]);
 
-        $context = $this->createMock(CheckoutContext::class);
+        $context = $this->createMock(SalesChannelContext::class);
 
         $lineItem = (new LineItem('A', 'product'))
             ->setPrice(
@@ -98,7 +98,7 @@ class LineItemTotalPriceRuleTest extends TestCase
     {
         $rule = (new LineItemTotalPriceRule())->assign(['amount' => 200, 'operator' => Rule::OPERATOR_GTE]);
 
-        $context = $this->createMock(CheckoutContext::class);
+        $context = $this->createMock(SalesChannelContext::class);
 
         $lineItem = (new LineItem('A', 'product'))
             ->setPrice(
@@ -114,7 +114,7 @@ class LineItemTotalPriceRuleTest extends TestCase
     {
         $rule = (new LineItemTotalPriceRule())->assign(['amount' => 199, 'operator' => Rule::OPERATOR_GTE]);
 
-        $context = $this->createMock(CheckoutContext::class);
+        $context = $this->createMock(SalesChannelContext::class);
 
         $lineItem = (new LineItem('A', 'product'))
             ->setPrice(
@@ -135,7 +135,7 @@ class LineItemTotalPriceRuleTest extends TestCase
                 new CalculatedPrice(100, 200, new CalculatedTaxCollection(), new TaxRuleCollection())
             );
 
-        $context = $this->createMock(CheckoutContext::class);
+        $context = $this->createMock(SalesChannelContext::class);
 
         static::assertFalse(
             $rule->match(new LineItemScope($lineItem, $context))->matches()
@@ -151,7 +151,7 @@ class LineItemTotalPriceRuleTest extends TestCase
                 new CalculatedPrice(100, 200, new CalculatedTaxCollection(), new TaxRuleCollection())
             );
 
-        $context = $this->createMock(CheckoutContext::class);
+        $context = $this->createMock(SalesChannelContext::class);
 
         static::assertTrue(
             $rule->match(new LineItemScope($lineItem, $context))->matches()
@@ -167,7 +167,7 @@ class LineItemTotalPriceRuleTest extends TestCase
                 new CalculatedPrice(100, 200, new CalculatedTaxCollection(), new TaxRuleCollection())
             );
 
-        $context = $this->createMock(CheckoutContext::class);
+        $context = $this->createMock(SalesChannelContext::class);
 
         static::assertFalse(
             $rule->match(new LineItemScope($lineItem, $context))->matches()

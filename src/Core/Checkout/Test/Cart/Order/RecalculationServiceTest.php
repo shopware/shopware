@@ -25,9 +25,6 @@ use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRule;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Cart\Transaction\Struct\TransactionCollection;
-use Shopware\Core\Checkout\CheckoutContext;
-use Shopware\Core\Checkout\Context\CheckoutContextFactory;
-use Shopware\Core\Checkout\Context\CheckoutContextService;
 use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressEntity;
 use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Checkout\Order\OrderEntity;
@@ -45,6 +42,9 @@ use Shopware\Core\Framework\Test\TestCaseHelper\ExtensionHelper;
 use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Response;
 
 class RecalculationServiceTest extends TestCase
@@ -53,9 +53,9 @@ class RecalculationServiceTest extends TestCase
         AdminApiTestBehaviour;
 
     /**
-     * @var CheckoutContext
+     * @var SalesChannelContext
      */
-    protected $checkoutContext;
+    protected $salesChannelContext;
 
     /**
      * @var Context
@@ -77,17 +77,17 @@ class RecalculationServiceTest extends TestCase
         $this->customerId = $this->createCustomer();
         $shippingMethodId = $this->createShippingMethod($priceRuleId);
         $paymentMethodId = $this->createPaymentMethod($priceRuleId);
-        $this->checkoutContext = $this->getContainer()->get(CheckoutContextFactory::class)->create(
+        $this->salesChannelContext = $this->getContainer()->get(SalesChannelContextFactory::class)->create(
             Uuid::randomHex(),
             Defaults::SALES_CHANNEL,
             [
-                CheckoutContextService::CUSTOMER_ID => $this->customerId,
-                CheckoutContextService::SHIPPING_METHOD_ID => $shippingMethodId,
-                CheckoutContextService::PAYMENT_METHOD_ID => $paymentMethodId,
+                SalesChannelContextService::CUSTOMER_ID => $this->customerId,
+                SalesChannelContextService::SHIPPING_METHOD_ID => $shippingMethodId,
+                SalesChannelContextService::PAYMENT_METHOD_ID => $paymentMethodId,
             ]
         );
 
-        $this->checkoutContext->setRuleIds([$priceRuleId]);
+        $this->salesChannelContext->setRuleIds([$priceRuleId]);
     }
 
     public function testPersistOrderAndConvertToCart(): void
@@ -410,10 +410,10 @@ class RecalculationServiceTest extends TestCase
         $priceRuleId = Uuid::randomHex();
         $shippingMethodId = Uuid::randomHex();
         $shippingMethod = $this->addSecondPriceRuleToShippingMethod($priceRuleId, $shippingMethodId);
-        $this->checkoutContext->setRuleIds(array_merge($this->checkoutContext->getRuleIds(), [$priceRuleId]));
+        $this->salesChannelContext->setRuleIds(array_merge($this->salesChannelContext->getRuleIds(), [$priceRuleId]));
 
-        $prop = ReflectionHelper::getProperty(CheckoutContext::class, 'shippingMethod');
-        $prop->setValue($this->checkoutContext, $shippingMethod);
+        $prop = ReflectionHelper::getProperty(SalesChannelContext::class, 'shippingMethod');
+        $prop->setValue($this->salesChannelContext, $shippingMethod);
 
         // create order
         $cart = $this->generateDemoCart();
@@ -441,10 +441,10 @@ class RecalculationServiceTest extends TestCase
         $priceRuleId = Uuid::randomHex();
         $shippingMethodId = Uuid::randomHex();
         $shippingMethod = $this->addSecondShippingMethodPriceRule($priceRuleId, $shippingMethodId);
-        $this->checkoutContext->setRuleIds(array_merge($this->checkoutContext->getRuleIds(), [$priceRuleId]));
+        $this->salesChannelContext->setRuleIds(array_merge($this->salesChannelContext->getRuleIds(), [$priceRuleId]));
 
-        $prop = ReflectionHelper::getProperty(CheckoutContext::class, 'shippingMethod');
-        $prop->setValue($this->checkoutContext, $shippingMethod);
+        $prop = ReflectionHelper::getProperty(SalesChannelContext::class, 'shippingMethod');
+        $prop->setValue($this->salesChannelContext, $shippingMethod);
 
         // create order
         $cart = $this->generateDemoCart();
@@ -473,10 +473,10 @@ class RecalculationServiceTest extends TestCase
         $priceRuleId = Uuid::randomHex();
         $shippingMethodId = Uuid::randomHex();
         $shippingMethod = $this->addSecondShippingMethodPriceRule($priceRuleId, $shippingMethodId);
-        $this->checkoutContext->setRuleIds(array_merge($this->checkoutContext->getRuleIds(), [$priceRuleId]));
+        $this->salesChannelContext->setRuleIds(array_merge($this->salesChannelContext->getRuleIds(), [$priceRuleId]));
 
-        $prop = ReflectionHelper::getProperty(CheckoutContext::class, 'shippingMethod');
-        $prop->setValue($this->checkoutContext, $shippingMethod);
+        $prop = ReflectionHelper::getProperty(SalesChannelContext::class, 'shippingMethod');
+        $prop->setValue($this->salesChannelContext, $shippingMethod);
 
         // create order
         $cart = $this->generateDemoCart();
@@ -500,8 +500,8 @@ class RecalculationServiceTest extends TestCase
 
         // increase quantity for first LineItem
         $cart->getLineItems()->first()->setQuantity(8);
-        $cart = $this->getContainer()->get(Enrichment::class)->enrich($cart, $this->checkoutContext, new CartBehavior());
-        $cart = $this->getContainer()->get(Processor::class)->process($cart, $this->checkoutContext, new CartBehavior());
+        $cart = $this->getContainer()->get(Enrichment::class)->enrich($cart, $this->salesChannelContext, new CartBehavior());
+        $cart = $this->getContainer()->get(Processor::class)->process($cart, $this->salesChannelContext, new CartBehavior());
         $orderId = $this->persistCart($cart);
 
         // create version of order
@@ -526,10 +526,10 @@ class RecalculationServiceTest extends TestCase
         $priceRuleId = Uuid::randomHex();
         $shippingMethodId = Uuid::randomHex();
         $shippingMethod = $this->createTwoConditionsWithDifferentQuantities($priceRuleId, $shippingMethodId, DeliveryCalculator::CALCULATION_BY_PRICE);
-        $this->checkoutContext->setRuleIds(array_merge($this->checkoutContext->getRuleIds(), [$priceRuleId]));
+        $this->salesChannelContext->setRuleIds(array_merge($this->salesChannelContext->getRuleIds(), [$priceRuleId]));
 
-        $prop = ReflectionHelper::getProperty(CheckoutContext::class, 'shippingMethod');
-        $prop->setValue($this->checkoutContext, $shippingMethod);
+        $prop = ReflectionHelper::getProperty(SalesChannelContext::class, 'shippingMethod');
+        $prop->setValue($this->salesChannelContext, $shippingMethod);
 
         // create order
         $cart = $this->generateDemoCart();
@@ -553,8 +553,8 @@ class RecalculationServiceTest extends TestCase
 
         // decrease price for first LineItem
         $cart->getLineItems()->first()->setPriceDefinition(new QuantityPriceDefinition(1, new TaxRuleCollection([new TaxRule(19)]), 5));
-        $cart = $this->getContainer()->get(Enrichment::class)->enrich($cart, $this->checkoutContext, new CartBehavior());
-        $cart = $this->getContainer()->get(Processor::class)->process($cart, $this->checkoutContext, new CartBehavior());
+        $cart = $this->getContainer()->get(Enrichment::class)->enrich($cart, $this->salesChannelContext, new CartBehavior());
+        $cart = $this->getContainer()->get(Processor::class)->process($cart, $this->salesChannelContext, new CartBehavior());
         $orderId = $this->persistCart($cart);
 
         // create version of order
@@ -579,10 +579,10 @@ class RecalculationServiceTest extends TestCase
         $priceRuleId = Uuid::randomHex();
         $shippingMethodId = Uuid::randomHex();
         $shippingMethod = $this->createTwoConditionsWithDifferentQuantities($priceRuleId, $shippingMethodId, DeliveryCalculator::CALCULATION_BY_WEIGHT);
-        $this->checkoutContext->setRuleIds(array_merge($this->checkoutContext->getRuleIds(), [$priceRuleId]));
+        $this->salesChannelContext->setRuleIds(array_merge($this->salesChannelContext->getRuleIds(), [$priceRuleId]));
 
-        $prop = ReflectionHelper::getProperty(CheckoutContext::class, 'shippingMethod');
-        $prop->setValue($this->checkoutContext, $shippingMethod);
+        $prop = ReflectionHelper::getProperty(SalesChannelContext::class, 'shippingMethod');
+        $prop->setValue($this->salesChannelContext, $shippingMethod);
 
         // create order
         $cart = $this->generateDemoCart();
@@ -613,8 +613,8 @@ class RecalculationServiceTest extends TestCase
             false
         );
         $cart->getLineItems()->first()->setDeliveryInformation($deliveryInformation);
-        $cart = $this->getContainer()->get(Enrichment::class)->enrich($cart, $this->checkoutContext, new CartBehavior());
-        $cart = $this->getContainer()->get(Processor::class)->process($cart, $this->checkoutContext, new CartBehavior());
+        $cart = $this->getContainer()->get(Enrichment::class)->enrich($cart, $this->salesChannelContext, new CartBehavior());
+        $cart = $this->getContainer()->get(Processor::class)->process($cart, $this->salesChannelContext, new CartBehavior());
         $orderId = $this->persistCart($cart);
 
         // create version of order
@@ -826,15 +826,15 @@ class RecalculationServiceTest extends TestCase
                         )
                 )
         );
-        $cart = $this->getContainer()->get(Enrichment::class)->enrich($cart, $this->checkoutContext, new CartBehavior());
-        $cart = $this->getContainer()->get(Processor::class)->process($cart, $this->checkoutContext, new CartBehavior());
+        $cart = $this->getContainer()->get(Enrichment::class)->enrich($cart, $this->salesChannelContext, new CartBehavior());
+        $cart = $this->getContainer()->get(Processor::class)->process($cart, $this->salesChannelContext, new CartBehavior());
 
         return $cart;
     }
 
     private function persistCart(Cart $cart): string
     {
-        $events = $this->getContainer()->get(OrderPersister::class)->persist($cart, $this->checkoutContext);
+        $events = $this->getContainer()->get(OrderPersister::class)->persist($cart, $this->salesChannelContext);
         $orderIds = $events->getEventByDefinition(OrderDefinition::class)->getIds();
 
         if (count($orderIds) !== 1) {

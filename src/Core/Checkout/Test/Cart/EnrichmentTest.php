@@ -10,8 +10,6 @@ use Shopware\Core\Checkout\Cart\Enrichment;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
-use Shopware\Core\Checkout\CheckoutContext;
-use Shopware\Core\Checkout\Context\CheckoutContextFactory;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -19,6 +17,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 class EnrichmentTest extends TestCase
 {
@@ -41,19 +41,19 @@ class EnrichmentTest extends TestCase
     protected $connection;
 
     /**
-     * @var CheckoutContextFactory
+     * @var SalesChannelContextFactory
      */
     private $factory;
 
     /**
-     * @var CheckoutContext
+     * @var SalesChannelContext
      */
     private $context;
 
     protected function setUp(): void
     {
         $this->productRepository = $this->getContainer()->get('product.repository');
-        $this->factory = $this->getContainer()->get(CheckoutContextFactory::class);
+        $this->factory = $this->getContainer()->get(SalesChannelContextFactory::class);
         $this->context = $this->factory->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
         $this->enrichment = $this->getContainer()->get(Enrichment::class);
         $this->connection = $this->getContainer()->get(Connection::class);

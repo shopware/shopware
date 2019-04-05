@@ -1,20 +1,16 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Checkout\Context;
+namespace Shopware\Core\Checkout\Cart;
 
-use Shopware\Core\Checkout\Cart\Cart;
-use Shopware\Core\Checkout\Cart\CartBehavior;
-use Shopware\Core\Checkout\Cart\CartPersisterInterface;
 use Shopware\Core\Checkout\Cart\Exception\CartTokenNotFoundException;
-use Shopware\Core\Checkout\Cart\Processor;
-use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Content\Rule\RuleCollection;
 use Shopware\Core\Content\Rule\RuleEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
-class CheckoutRuleLoader
+class CartRuleLoader
 {
     private const MAX_ITERATION = 5;
 
@@ -48,7 +44,7 @@ class CheckoutRuleLoader
         $this->processor = $processor;
     }
 
-    public function loadByToken(CheckoutContext $context, string $cartToken): RuleLoaderResult
+    public function loadByToken(SalesChannelContext $context, string $cartToken): RuleLoaderResult
     {
         try {
             $cart = $this->cartPersister->load($cartToken, $context);
@@ -59,12 +55,12 @@ class CheckoutRuleLoader
         return $this->loadByCart($context, $cart, new CartBehavior());
     }
 
-    public function loadByCart(CheckoutContext $context, Cart $cart, CartBehavior $behaviorContext): RuleLoaderResult
+    public function loadByCart(SalesChannelContext $context, Cart $cart, CartBehavior $behaviorContext): RuleLoaderResult
     {
         return $this->load($context, $cart, $behaviorContext);
     }
 
-    private function load(CheckoutContext $context, Cart $cart, CartBehavior $behaviorContext): RuleLoaderResult
+    private function load(SalesChannelContext $context, Cart $cart, CartBehavior $behaviorContext): RuleLoaderResult
     {
         $rules = $this->loadRules($context->getContext());
 

@@ -5,9 +5,9 @@ namespace Shopware\Core\Checkout\Test\DiscountSurcharge\Rule\Context;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\Rule\CartRuleScope;
-use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupEntity;
 use Shopware\Core\Checkout\Customer\Rule\CustomerGroupRule;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 class CustomerGroupRuleTest extends TestCase
 {
@@ -20,7 +20,7 @@ class CustomerGroupRuleTest extends TestCase
         $group = new CustomerGroupEntity();
         $group->setId('SWAG-CUSTOMER-GROUP-ID-1');
 
-        $context = $this->createMock(CheckoutContext::class);
+        $context = $this->createMock(SalesChannelContext::class);
 
         $context
             ->method('getCurrentCustomerGroup')
@@ -40,7 +40,7 @@ class CustomerGroupRuleTest extends TestCase
         $group = new CustomerGroupEntity();
         $group->setId('SWAG-CUSTOMER-GROUP-ID-3');
 
-        $context = $this->createMock(CheckoutContext::class);
+        $context = $this->createMock(SalesChannelContext::class);
 
         $context
             ->method('getCurrentCustomerGroup')
@@ -60,7 +60,7 @@ class CustomerGroupRuleTest extends TestCase
         $group = new CustomerGroupEntity();
         $group->setId('SWAG-CUSTOMER-GROUP-ID-5');
 
-        $context = $this->createMock(CheckoutContext::class);
+        $context = $this->createMock(SalesChannelContext::class);
 
         $context
             ->method('getCurrentCustomerGroup')

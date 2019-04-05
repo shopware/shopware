@@ -28,7 +28,7 @@ class AddressListPageTest extends TestCase
 
     public function testItLoadsAnAddresseslist(): void
     {
-        $context = $this->createCheckoutContextWithLoggedInCustomerAndWithNavigation();
+        $context = $this->createSalesChannelContextWithLoggedInCustomerAndWithNavigation();
         $request = new InternalRequest(['addressId' => $context->getCustomer()->getActiveBillingAddress()->getId()]);
 
         /** @var AccountAddressListPageLoadedEvent $event */

@@ -5,10 +5,10 @@ namespace Shopware\Core\Checkout\Test\DiscountSurcharge\Rule\Context;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\Rule\CartRuleScope;
-use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Rule\DifferentAddressesRule;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 class DifferentAddressesRuleTest extends TestCase
 {
@@ -18,7 +18,7 @@ class DifferentAddressesRuleTest extends TestCase
 
         $cart = $this->createMock(Cart::class);
 
-        $context = $this->createMock(CheckoutContext::class);
+        $context = $this->createMock(SalesChannelContext::class);
 
         $billing = new CustomerAddressEntity();
         $billing->setId('SWAG-CUSTOMER-ADDRESS-ID-1');
@@ -45,7 +45,7 @@ class DifferentAddressesRuleTest extends TestCase
 
         $cart = $this->createMock(Cart::class);
 
-        $context = $this->createMock(CheckoutContext::class);
+        $context = $this->createMock(SalesChannelContext::class);
 
         $billing = new CustomerAddressEntity();
         $billing->setId('SWAG-CUSTOMER-ADDRESS-ID-1');
@@ -72,7 +72,7 @@ class DifferentAddressesRuleTest extends TestCase
 
         $cart = $this->createMock(Cart::class);
 
-        $context = $this->createMock(CheckoutContext::class);
+        $context = $this->createMock(SalesChannelContext::class);
 
         $context
             ->method('getCustomer')

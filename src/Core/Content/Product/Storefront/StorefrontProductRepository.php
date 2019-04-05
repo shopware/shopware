@@ -3,7 +3,6 @@
 namespace Shopware\Core\Content\Product\Storefront;
 
 use Shopware\Core\Checkout\Cart\Price\QuantityPriceCalculator;
-use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
@@ -13,6 +12,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 class StorefrontProductRepository
 {
@@ -34,7 +34,7 @@ class StorefrontProductRepository
         $this->priceCalculator = $priceCalculator;
     }
 
-    public function read(Criteria $criteria, CheckoutContext $context): ProductCollection
+    public function read(Criteria $criteria, SalesChannelContext $context): ProductCollection
     {
         $this->addActiveFilters($criteria, $context);
         $this->addDatasheet($criteria);
@@ -48,7 +48,7 @@ class StorefrontProductRepository
         return $this->loadListProducts($basics, $context);
     }
 
-    public function search(Criteria $criteria, CheckoutContext $context): EntitySearchResult
+    public function search(Criteria $criteria, SalesChannelContext $context): EntitySearchResult
     {
         $this->addActiveFilters($criteria, $context);
 
@@ -67,14 +67,14 @@ class StorefrontProductRepository
         return $basics;
     }
 
-    public function searchIds(Criteria $criteria, CheckoutContext $context): IdSearchResult
+    public function searchIds(Criteria $criteria, SalesChannelContext $context): IdSearchResult
     {
         $this->addActiveFilters($criteria, $context);
 
         return $this->productRepository->searchIds($criteria, $context->getContext());
     }
 
-    private function loadListProducts(ProductCollection $products, CheckoutContext $context): ProductCollection
+    private function loadListProducts(ProductCollection $products, SalesChannelContext $context): ProductCollection
     {
         $listingProducts = new ProductCollection();
 
@@ -89,7 +89,7 @@ class StorefrontProductRepository
         return $listingProducts;
     }
 
-    private function calculatePrices(CheckoutContext $context, StorefrontProductEntity $product): void
+    private function calculatePrices(SalesChannelContext $context, StorefrontProductEntity $product): void
     {
         //calculate listing price
         $listingPriceDefinition = $product->getListingPriceDefinition($context->getContext());
@@ -107,7 +107,7 @@ class StorefrontProductRepository
         $product->setCalculatedPrice($price);
     }
 
-    private function addActiveFilters(Criteria $criteria, CheckoutContext $context): void
+    private function addActiveFilters(Criteria $criteria, SalesChannelContext $context): void
     {
         $criteria->addFilter(new EqualsFilter('product.active', true));
 

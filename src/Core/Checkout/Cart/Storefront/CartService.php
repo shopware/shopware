@@ -5,6 +5,7 @@ namespace Shopware\Core\Checkout\Cart\Storefront;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartBehavior;
 use Shopware\Core\Checkout\Cart\CartPersisterInterface;
+use Shopware\Core\Checkout\Cart\CartRuleLoader;
 use Shopware\Core\Checkout\Cart\Enrichment;
 use Shopware\Core\Checkout\Cart\Exception\CartTokenNotFoundException;
 use Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException;
@@ -16,10 +17,9 @@ use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Checkout\Cart\Order\OrderPersisterInterface;
 use Shopware\Core\Checkout\Cart\Processor;
-use Shopware\Core\Checkout\CheckoutContext;
-use Shopware\Core\Checkout\Context\CheckoutRuleLoader;
 use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 class CartService
 {
@@ -51,22 +51,22 @@ class CartService
     private $enrichment;
 
     /**
-     * @var CheckoutRuleLoader
+     * @var CartRuleLoader
      */
-    private $checkoutRuleLoader;
+    private $cartRuleLoader;
 
     public function __construct(
         Enrichment $enrichment,
         Processor $processor,
         CartPersisterInterface $persister,
         OrderPersisterInterface $orderPersister,
-        CheckoutRuleLoader $checkoutRuleLoader
+        CartRuleLoader $cartRuleLoader
     ) {
         $this->processor = $processor;
         $this->persister = $persister;
         $this->orderPersister = $orderPersister;
         $this->enrichment = $enrichment;
-        $this->checkoutRuleLoader = $checkoutRuleLoader;
+        $this->cartRuleLoader = $cartRuleLoader;
     }
 
     public function setCart(Cart $cart): void
@@ -87,7 +87,7 @@ class CartService
     /**
      * @throws CartTokenNotFoundException
      */
-    public function getCart(string $token, CheckoutContext $context, string $name = self::STOREFRONT, bool $caching = true): Cart
+    public function getCart(string $token, SalesChannelContext $context, string $name = self::STOREFRONT, bool $caching = true): Cart
     {
         if (isset($this->cart[$token]) && $caching) {
             return $this->cart[$token];
@@ -105,14 +105,14 @@ class CartService
     /**
      * @throws MixedLineItemTypeException
      */
-    public function add(Cart $cart, LineItem $item, CheckoutContext $context): Cart
+    public function add(Cart $cart, LineItem $item, SalesChannelContext $context): Cart
     {
         $cart->add($item);
 
         return $this->calculate($cart, $context);
     }
 
-    public function fill(Cart $cart, LineItemCollection $lineItems, CheckoutContext $context): Cart
+    public function fill(Cart $cart, LineItemCollection $lineItems, SalesChannelContext $context): Cart
     {
         foreach ($lineItems as $lineItem) {
             $cart->getLineItems()->add($lineItem);
@@ -127,7 +127,7 @@ class CartService
      * @throws InvalidQuantityException
      * @throws CartTokenNotFoundException
      */
-    public function changeQuantity(Cart $cart, string $identifier, int $quantity, CheckoutContext $context): Cart
+    public function changeQuantity(Cart $cart, string $identifier, int $quantity, SalesChannelContext $context): Cart
     {
         if (!$lineItem = $cart->getLineItems()->get($identifier)) {
             throw new LineItemNotFoundException($identifier);
@@ -143,14 +143,14 @@ class CartService
      * @throws LineItemNotRemovableException
      * @throws CartTokenNotFoundException
      */
-    public function remove(Cart $cart, string $identifier, CheckoutContext $context): Cart
+    public function remove(Cart $cart, string $identifier, SalesChannelContext $context): Cart
     {
         $cart->remove($identifier);
 
         return $this->calculate($cart, $context);
     }
 
-    public function order(Cart $cart, CheckoutContext $context): string
+    public function order(Cart $cart, SalesChannelContext $context): string
     {
         $calculatedCart = $this->calculate($cart, $context);
         $events = $this->orderPersister->persist($calculatedCart, $context);
@@ -164,12 +164,12 @@ class CartService
         return array_shift($ids);
     }
 
-    public function recalculate(Cart $cart, CheckoutContext $context): Cart
+    public function recalculate(Cart $cart, SalesChannelContext $context): Cart
     {
         return $this->calculate($cart, $context);
     }
 
-    private function calculate(Cart $cart, CheckoutContext $context): Cart
+    private function calculate(Cart $cart, SalesChannelContext $context): Cart
     {
         $behavior = new CartBehavior();
 
@@ -180,7 +180,7 @@ class CartService
         $cart = $this->processor->process($cart, $context, $behavior);
 
         // validate cart against the context rules
-        $validated = $this->checkoutRuleLoader->loadByCart($context, $cart, $behavior);
+        $validated = $this->cartRuleLoader->loadByCart($context, $cart, $behavior);
 
         $cart = $validated->getCart();
 

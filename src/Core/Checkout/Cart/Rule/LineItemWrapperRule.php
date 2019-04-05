@@ -31,7 +31,7 @@ class LineItemWrapperRule extends Rule
         }
 
         foreach ($scope->getCart()->getLineItems() as $lineItem) {
-            $context = new LineItemScope($lineItem, $scope->getCheckoutContext());
+            $context = new LineItemScope($lineItem, $scope->getSalesChannelContext());
             $match = $this->container->match($context);
             if ($match->matches()) {
                 return $match;

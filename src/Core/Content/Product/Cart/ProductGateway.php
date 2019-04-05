@@ -2,10 +2,10 @@
 
 namespace Shopware\Core\Content\Product\Cart;
 
-use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 class ProductGateway implements ProductGatewayInterface
 {
@@ -19,7 +19,7 @@ class ProductGateway implements ProductGatewayInterface
         $this->repository = $repository;
     }
 
-    public function get(array $ids, CheckoutContext $context): ProductCollection
+    public function get(array $ids, SalesChannelContext $context): ProductCollection
     {
         /** @var ProductCollection $result */
         $result = $this->repository->search(new Criteria($ids), $context->getContext())->getEntities();

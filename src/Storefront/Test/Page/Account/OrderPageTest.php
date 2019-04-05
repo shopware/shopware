@@ -29,7 +29,7 @@ class OrderPageTest extends TestCase
     public function testItLoadsOrders(): void
     {
         $request = new InternalRequest();
-        $context = $this->createCheckoutContextWithLoggedInCustomerAndWithNavigation();
+        $context = $this->createSalesChannelContextWithLoggedInCustomerAndWithNavigation();
 
         /** @var AccountOrderPageLoadedEvent $event */
         $event = null;

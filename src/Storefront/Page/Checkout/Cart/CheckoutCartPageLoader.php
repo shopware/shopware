@@ -3,8 +3,8 @@
 namespace Shopware\Storefront\Page\Checkout\Cart;
 
 use Shopware\Core\Checkout\Cart\Storefront\CartService;
-use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Framework\Routing\InternalRequest;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Framework\Page\PageLoaderInterface;
 use Shopware\Storefront\Framework\Page\PageWithHeaderLoader;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -36,7 +36,7 @@ class CheckoutCartPageLoader implements PageLoaderInterface
         $this->cartService = $cartService;
     }
 
-    public function load(InternalRequest $request, CheckoutContext $context)
+    public function load(InternalRequest $request, SalesChannelContext $context)
     {
         $page = $this->genericLoader->load($request, $context);
 

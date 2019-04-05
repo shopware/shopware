@@ -3,8 +3,8 @@
 namespace Shopware\Core\Checkout\Cart\Rule;
 
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
-use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\CheckoutRuleScope;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 class LineItemScope extends CheckoutRuleScope
 {
@@ -13,7 +13,7 @@ class LineItemScope extends CheckoutRuleScope
      */
     protected $lineItem;
 
-    public function __construct(LineItem $lineItem, CheckoutContext $context)
+    public function __construct(LineItem $lineItem, SalesChannelContext $context)
     {
         parent::__construct($context);
         $this->lineItem = $lineItem;

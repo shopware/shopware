@@ -66,7 +66,7 @@ class CartPersisterTest extends TestCase
 
         $e = null;
         try {
-            $persister->load('not_existing_token', Generator::createCheckoutContext());
+            $persister->load('not_existing_token', Generator::createSalesChannelContext());
         } catch (\Exception $e) {
         }
 
@@ -85,7 +85,7 @@ class CartPersisterTest extends TestCase
             );
 
         $persister = new CartPersister($connection);
-        $cart = $persister->load('existing', Generator::createCheckoutContext());
+        $cart = $persister->load('existing', Generator::createSalesChannelContext());
 
         static::assertEquals(new Cart('shopware', 'existing'), $cart);
     }
@@ -99,7 +99,7 @@ class CartPersisterTest extends TestCase
 
         $calc = new Cart('shopware', 'existing');
 
-        $persister->save($calc, Generator::createCheckoutContext());
+        $persister->save($calc, Generator::createSalesChannelContext());
     }
 
     public function testSaveWithItems(): void
@@ -116,6 +116,6 @@ class CartPersisterTest extends TestCase
                 ->setLabel('test')
         );
 
-        $persister->save($calc, Generator::createCheckoutContext());
+        $persister->save($calc, Generator::createSalesChannelContext());
     }
 }

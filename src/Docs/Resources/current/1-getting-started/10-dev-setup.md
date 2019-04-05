@@ -406,7 +406,7 @@ You can customize your setup by
 <https://getcomposer.org/doc/articles/troubleshooting.md#memory-limit-errors>
 
 - if you get the following error when calling the storefront with a local setup (not docker): 
-  `Argument 1 passed to Shopware\\Storefront\\Content\\Controller\\Widget\\IndexController::shopMenuAction() must be an instance of Shopware\\Core\\Checkout\\CheckoutContext, null given`
+  `Argument 1 passed to Shopware\\Storefront\\Content\\Controller\\Widget\\IndexController::shopMenuAction() must be an instance of Shopware\\Core\\System\\SalesChannel\\CheckoutContext, null given`
   it usually means that you haven't configured the vhost properly or the configured host doesn't
   match with the host you are using to call the website
 

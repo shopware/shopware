@@ -3,13 +3,10 @@
 namespace Shopware\Storefront\Test\Page;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Cart\CartRuleLoader;
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Storefront\CartService;
-use Shopware\Core\Checkout\CheckoutContext;
-use Shopware\Core\Checkout\Context\CheckoutContextFactory;
-use Shopware\Core\Checkout\Context\CheckoutContextService;
-use Shopware\Core\Checkout\Context\CheckoutRuleLoader;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\Cart\ProductCollector;
@@ -24,6 +21,9 @@ use Shopware\Core\Framework\Routing\InternalRequest;
 use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Framework\Page\PageLoaderInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\EventDispatcher\Event;
@@ -33,13 +33,13 @@ trait StorefrontPageTestBehaviour
     public static function assertPageEvent(
         string $expectedClass,
         Event $event,
-        CheckoutContext $checkoutContext,
+        SalesChannelContext $salesChannelContext,
         InternalRequest $request,
         Struct $page
     ): void {
         TestCase::assertInstanceOf($expectedClass, $event);
-        TestCase::assertSame($checkoutContext, $event->getCheckoutContext());
-        TestCase::assertSame($checkoutContext->getContext(), $event->getContext());
+        TestCase::assertSame($salesChannelContext, $event->getSalesChannelContext());
+        TestCase::assertSame($salesChannelContext->getContext(), $event->getContext());
         TestCase::assertSame($request, $event->getRequest());
         TestCase::assertSame($page, $event->getPage());
     }
@@ -49,7 +49,7 @@ trait StorefrontPageTestBehaviour
     protected function assertFailsWithoutNavigation(): void
     {
         $request = new InternalRequest();
-        $context = $this->createCheckoutContext();
+        $context = $this->createSalesChannelContext();
 
         $this->expectNavigationMissingException();
         $this->getPageLoader()->load($request, $context);
@@ -58,7 +58,7 @@ trait StorefrontPageTestBehaviour
     protected function assertLoginRequirement(array $queryParams = []): void
     {
         $request = new InternalRequest($queryParams);
-        $context = $this->createCheckoutContextWithNavigation();
+        $context = $this->createSalesChannelContextWithNavigation();
         $this->expectException(CustomerNotLoggedInException::class);
         $this->getPageLoader()->load($request, $context);
     }
@@ -74,7 +74,7 @@ trait StorefrontPageTestBehaviour
         TestCase::expectExceptionMessage('Parameter "' . $paramName . '" is missing');
     }
 
-    protected function placeRandomOrder(CheckoutContext $context): string
+    protected function placeRandomOrder(SalesChannelContext $context): string
     {
         $product = $this->getRandomProduct($context);
 
@@ -90,7 +90,7 @@ trait StorefrontPageTestBehaviour
         return $cartService->order($cart, $context);
     }
 
-    protected function getRandomProduct(CheckoutContext $context): ProductEntity
+    protected function getRandomProduct(SalesChannelContext $context): ProductEntity
     {
         $id = Uuid::randomHex();
         $productRepository = $this->getContainer()->get('product.repository');
@@ -123,7 +123,7 @@ trait StorefrontPageTestBehaviour
         return $searchResult->first();
     }
 
-    protected function createCheckoutContextWithNavigation(): CheckoutContext
+    protected function createSalesChannelContextWithNavigation(): SalesChannelContext
     {
         $paymentMethodId = $this->getValidPaymentMethodId();
         $shippingMethodId = $this->getAvailableShippingMethodId();
@@ -153,7 +153,7 @@ trait StorefrontPageTestBehaviour
         return $this->createContext($data, []);
     }
 
-    protected function createCheckoutContextWithLoggedInCustomerAndWithNavigation(): CheckoutContext
+    protected function createSalesChannelContextWithLoggedInCustomerAndWithNavigation(): SalesChannelContext
     {
         $paymentMethodId = $this->getValidPaymentMethodId();
         $shippingMethodId = $this->getAvailableShippingMethodId();
@@ -181,11 +181,11 @@ trait StorefrontPageTestBehaviour
         ];
 
         return $this->createContext($data, [
-            CheckoutContextService::CUSTOMER_ID => $this->createCustomer()->getId(),
+            SalesChannelContextService::CUSTOMER_ID => $this->createCustomer()->getId(),
         ]);
     }
 
-    protected function createCheckoutContext(): CheckoutContext
+    protected function createSalesChannelContext(): SalesChannelContext
     {
         $paymentMethodId = $this->getValidPaymentMethodId();
         $shippingMethodId = $this->getAvailableShippingMethodId();
@@ -261,9 +261,9 @@ trait StorefrontPageTestBehaviour
         return $repo->search(new Criteria([$customerId]), Context::createDefaultContext())->first();
     }
 
-    private function createContext(array $salesChannel, array $options): CheckoutContext
+    private function createContext(array $salesChannel, array $options): SalesChannelContext
     {
-        $factory = $this->getContainer()->get(CheckoutContextFactory::class);
+        $factory = $this->getContainer()->get(SalesChannelContextFactory::class);
         $salesChannelRepository = $this->getContainer()->get('sales_channel.repository');
 
         $salesChannelId = Uuid::randomHex();
@@ -275,8 +275,8 @@ trait StorefrontPageTestBehaviour
         $context = $factory
             ->create(Uuid::randomHex(), $salesChannelId, $options);
 
-        $ruleLoader = $this->getContainer()->get(CheckoutRuleLoader::class);
-        $rulesProperty = ReflectionHelper::getProperty(CheckoutRuleLoader::class, 'rules');
+        $ruleLoader = $this->getContainer()->get(CartRuleLoader::class);
+        $rulesProperty = ReflectionHelper::getProperty(CartRuleLoader::class, 'rules');
         $rulesProperty->setValue($ruleLoader, null);
         $ruleLoader->loadByToken($context, $context->getToken());
 

@@ -3,18 +3,18 @@
 namespace Shopware\Core\Checkout\Cart\Order;
 
 use Shopware\Core\Checkout\Cart\Cart;
-use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\NestedEvent;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 class CartConvertedEvent extends NestedEvent
 {
     public const NAME = 'cart.converted-to-order.event';
 
     /**
-     * @var CheckoutContext
+     * @var SalesChannelContext
      */
-    private $checkoutContext;
+    private $salesChannelContext;
 
     /**
      * @var OrderConversionContext
@@ -39,10 +39,10 @@ class CartConvertedEvent extends NestedEvent
     public function __construct(
         Cart $cart,
         array $convertedCart,
-        CheckoutContext $checkoutContext,
+        SalesChannelContext $salesChannelContext,
         OrderConversionContext $conversionContext
     ) {
-        $this->checkoutContext = $checkoutContext;
+        $this->salesChannelContext = $salesChannelContext;
         $this->conversionContext = $conversionContext;
         $this->cart = $cart;
         $this->originalConvertedCart = $convertedCart;
@@ -56,7 +56,7 @@ class CartConvertedEvent extends NestedEvent
 
     public function getContext(): Context
     {
-        return $this->checkoutContext->getContext();
+        return $this->salesChannelContext->getContext();
     }
 
     public function getCart(): Cart
@@ -79,9 +79,9 @@ class CartConvertedEvent extends NestedEvent
         $this->convertedCart = $convertedCart;
     }
 
-    public function getCheckoutContext(): CheckoutContext
+    public function getSalesChannelContext(): SalesChannelContext
     {
-        return $this->checkoutContext;
+        return $this->salesChannelContext;
     }
 
     public function getConversionContext(): OrderConversionContext

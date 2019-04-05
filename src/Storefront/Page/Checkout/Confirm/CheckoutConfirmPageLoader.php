@@ -3,13 +3,13 @@
 namespace Shopware\Storefront\Page\Checkout\Confirm;
 
 use Shopware\Core\Checkout\Cart\Storefront\CartService;
-use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
 use Shopware\Core\Checkout\Shipping\ShippingMethodCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Routing\InternalRequest;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Framework\Page\PageLoaderInterface;
 use Shopware\Storefront\Framework\Page\PageWithHeaderLoader;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -55,7 +55,7 @@ class CheckoutConfirmPageLoader implements PageLoaderInterface
         $this->cartService = $cartService;
     }
 
-    public function load(InternalRequest $request, CheckoutContext $context)
+    public function load(InternalRequest $request, SalesChannelContext $context)
     {
         $page = $this->genericLoader->load($request, $context);
 
@@ -75,7 +75,7 @@ class CheckoutConfirmPageLoader implements PageLoaderInterface
         return $page;
     }
 
-    private function getPaymentMethods(CheckoutContext $context): PaymentMethodCollection
+    private function getPaymentMethods(SalesChannelContext $context): PaymentMethodCollection
     {
         $criteria = (new Criteria())->addFilter(new EqualsFilter('active', true));
         /** @var PaymentMethodCollection $paymentMethods */
@@ -84,7 +84,7 @@ class CheckoutConfirmPageLoader implements PageLoaderInterface
         return $paymentMethods->filterByActiveRules($context);
     }
 
-    private function getShippingMethods(CheckoutContext $context): ShippingMethodCollection
+    private function getShippingMethods(SalesChannelContext $context): ShippingMethodCollection
     {
         $criteria = (new Criteria())->addFilter(new EqualsFilter('active', true));
         /** @var ShippingMethodCollection $shippingMethods */

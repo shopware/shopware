@@ -16,7 +16,6 @@ use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Processor;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
-use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Test\Cart\Common\Generator;
@@ -24,6 +23,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 
 class OrderPersisterTest extends TestCase
@@ -66,7 +66,7 @@ class OrderPersisterTest extends TestCase
 
         $persister = new OrderPersister($repository, $this->orderConverter);
 
-        $persister->persist($cart, $this->getCheckoutContext());
+        $persister->persist($cart, $this->getSalesChannelContext());
     }
 
     public function testSaveWithMissingLabel(): void
@@ -77,11 +77,11 @@ class OrderPersisterTest extends TestCase
                 ->setPriceDefinition(new AbsolutePriceDefinition(1, 2))
         );
 
-        $processedCart = $this->cartProcessor->process($cart, Generator::createCheckoutContext(), new CartBehavior());
+        $processedCart = $this->cartProcessor->process($cart, Generator::createSalesChannelContext(), new CartBehavior());
 
         $exception = null;
         try {
-            $this->orderPersister->persist($processedCart, $this->getCheckoutContext());
+            $this->orderPersister->persist($processedCart, $this->getSalesChannelContext());
         } catch (InvalidCartException $exception) {
         }
 
@@ -119,18 +119,18 @@ class OrderPersisterTest extends TestCase
         return $customer;
     }
 
-    private function getCheckoutContext(): MockObject
+    private function getSalesChannelContext(): MockObject
     {
         $customer = $this->getCustomer();
         $salesChannel = new SalesChannelEntity();
-        $checkoutContext = $this->createMock(CheckoutContext::class);
-        $checkoutContext->method('getCustomer')->willReturn($customer);
+        $salesChannelContext = $this->createMock(SalesChannelContext::class);
+        $salesChannelContext->method('getCustomer')->willReturn($customer);
 
         $context = Context::createDefaultContext();
         $salesChannel->setId($context->getSalesChannelId());
-        $checkoutContext->method('getSalesChannel')->willReturn($salesChannel);
-        $checkoutContext->method('getContext')->willReturn($context);
+        $salesChannelContext->method('getSalesChannel')->willReturn($salesChannel);
+        $salesChannelContext->method('getContext')->willReturn($context);
 
-        return $checkoutContext;
+        return $salesChannelContext;
     }
 }

@@ -3,8 +3,8 @@
 namespace Shopware\Storefront\Page\Account\PaymentMethod;
 
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
-use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Framework\Routing\InternalRequest;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Framework\Page\PageLoaderInterface;
 use Shopware\Storefront\Framework\Page\PageWithHeaderLoader;
 use Shopware\Storefront\Pagelet\Account\PaymentMethod\AccountPaymentMethodPageletLoader;
@@ -37,7 +37,7 @@ class AccountPaymentMethodPageLoader implements PageLoaderInterface
         $this->accountPaymentMethodPageletLoader = $accountPaymentMethodPageletLoader;
     }
 
-    public function load(InternalRequest $request, CheckoutContext $context): AccountPaymentMethodPage
+    public function load(InternalRequest $request, SalesChannelContext $context): AccountPaymentMethodPage
     {
         $page = $this->pageWithHeaderLoader->load($request, $context);
 

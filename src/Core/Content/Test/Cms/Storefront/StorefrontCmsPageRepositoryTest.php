@@ -4,8 +4,6 @@ namespace Shopware\Core\Content\Test\Cms\Storefront;
 
 use Faker\Factory;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\CheckoutContext;
-use Shopware\Core\Checkout\Context\CheckoutContextFactory;
 use Shopware\Core\Content\Cms\Aggregate\CmsBlock\CmsBlockEntity;
 use Shopware\Core\Content\Cms\CmsPageEntity;
 use Shopware\Core\Content\Cms\Storefront\StorefrontCmsPageRepository;
@@ -13,6 +11,8 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 class StorefrontCmsPageRepositoryTest extends TestCase
 {
@@ -24,9 +24,9 @@ class StorefrontCmsPageRepositoryTest extends TestCase
     private $pageRepository;
 
     /**
-     * @var CheckoutContext
+     * @var SalesChannelContext
      */
-    private $checkoutContext;
+    private $salesChannelContext;
 
     /**
      * @var EntityRepositoryInterface
@@ -35,16 +35,16 @@ class StorefrontCmsPageRepositoryTest extends TestCase
 
     protected function setUp(): void
     {
-        $contextFactory = $this->getContainer()->get(CheckoutContextFactory::class);
+        $contextFactory = $this->getContainer()->get(SalesChannelContextFactory::class);
 
         $this->pageRepository = $this->getContainer()->get(StorefrontCmsPageRepository::class);
         $this->cmsPageRepository = $this->getContainer()->get('cms_page.repository');
-        $this->checkoutContext = $contextFactory->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
+        $this->salesChannelContext = $contextFactory->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
     }
 
     public function testWithEmptyIds(): void
     {
-        $pageCollection = $this->pageRepository->read([], $this->checkoutContext);
+        $pageCollection = $this->pageRepository->read([], $this->salesChannelContext);
 
         static::assertCount(0, $pageCollection);
     }
@@ -53,7 +53,7 @@ class StorefrontCmsPageRepositoryTest extends TestCase
     {
         $pageId = $this->createPage();
 
-        $pageCollection = $this->pageRepository->read([$pageId], $this->checkoutContext);
+        $pageCollection = $this->pageRepository->read([$pageId], $this->salesChannelContext);
 
         static::assertGreaterThanOrEqual(1, $pageCollection->count());
 
@@ -88,7 +88,7 @@ class StorefrontCmsPageRepositoryTest extends TestCase
             ],
         ];
 
-        $this->cmsPageRepository->create([$page], $this->checkoutContext->getContext());
+        $this->cmsPageRepository->create([$page], $this->salesChannelContext->getContext());
 
         return $page['id'];
     }

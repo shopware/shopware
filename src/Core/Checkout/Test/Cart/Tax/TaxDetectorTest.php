@@ -5,15 +5,15 @@ namespace Shopware\Core\Checkout\Test\Cart\Tax;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingLocation;
 use Shopware\Core\Checkout\Cart\Tax\TaxDetector;
-use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupEntity;
 use Shopware\Core\System\Country\CountryEntity;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 class TaxDetectorTest extends TestCase
 {
     public function testUseGrossPrices(): void
     {
-        $context = $this->createMock(CheckoutContext::class);
+        $context = $this->createMock(SalesChannelContext::class);
         $customerGroup = $this->createMock(CustomerGroupEntity::class);
         $customerGroup->expects(static::once())->method('getDisplayGross')->willReturn(true);
         $context->expects(static::once())->method('getCurrentCustomerGroup')->willReturn($customerGroup);
@@ -24,7 +24,7 @@ class TaxDetectorTest extends TestCase
 
     public function testDoNotUseGrossPrices(): void
     {
-        $context = $this->createMock(CheckoutContext::class);
+        $context = $this->createMock(SalesChannelContext::class);
         $customerGroup = $this->createMock(CustomerGroupEntity::class);
         $customerGroup->expects(static::once())->method('getDisplayGross')->willReturn(false);
         $context->expects(static::once())->method('getCurrentCustomerGroup')->willReturn($customerGroup);
@@ -35,7 +35,7 @@ class TaxDetectorTest extends TestCase
 
     public function testIsNetDelivery(): void
     {
-        $context = $this->createMock(CheckoutContext::class);
+        $context = $this->createMock(SalesChannelContext::class);
 
         $country = new CountryEntity();
         $country->setTaxFree(true);
@@ -50,7 +50,7 @@ class TaxDetectorTest extends TestCase
 
     public function testIsNotNetDelivery(): void
     {
-        $context = $this->createMock(CheckoutContext::class);
+        $context = $this->createMock(SalesChannelContext::class);
 
         $country = new CountryEntity();
         $country->setTaxFree(false);

@@ -3,7 +3,6 @@
 namespace Shopware\Core\Content\Test\Cms\SlotDataResolver\Type;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Content\Cms\Aggregate\CmsSlot\CmsSlotEntity;
 use Shopware\Core\Content\Cms\SlotDataResolver\ResolverContext\ListingResolverContext;
 use Shopware\Core\Content\Cms\SlotDataResolver\ResolverContext\ResolverContext;
@@ -16,6 +15,7 @@ use Shopware\Core\Content\Product\Storefront\StorefrontProductEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 class ProductListingTypeDataResolverTest extends TestCase
 {
@@ -36,7 +36,7 @@ class ProductListingTypeDataResolverTest extends TestCase
 
     public function testCollect(): void
     {
-        $resolverContext = new ResolverContext($this->createMock(CheckoutContext::class));
+        $resolverContext = new ResolverContext($this->createMock(SalesChannelContext::class));
 
         $slot = new CmsSlotEntity();
         $slot->setUniqueIdentifier('id');
@@ -49,7 +49,7 @@ class ProductListingTypeDataResolverTest extends TestCase
 
     public function testEnrichWithoutListingContext(): void
     {
-        $resolverContext = new ResolverContext($this->createMock(CheckoutContext::class));
+        $resolverContext = new ResolverContext($this->createMock(SalesChannelContext::class));
         $result = new SlotDataResolveResult();
 
         $slot = new CmsSlotEntity();
@@ -76,7 +76,7 @@ class ProductListingTypeDataResolverTest extends TestCase
         );
 
         $resolverContext = new ListingResolverContext(
-            $this->createMock(CheckoutContext::class),
+            $this->createMock(SalesChannelContext::class),
             ProductDefinition::class,
             $searchResult
         );

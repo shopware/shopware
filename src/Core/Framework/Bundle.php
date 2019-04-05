@@ -9,10 +9,11 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\DependencyInjection\Reference;
 use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\HttpKernel\Bundle\Bundle as SymfonyBundle;
 use Symfony\Component\Routing\RouteCollectionBuilder;
 use Symfony\Component\Serializer\NameConverter\CamelCaseToSnakeCaseNameConverter;
 
-abstract class Bundle extends \Symfony\Component\HttpKernel\Bundle\Bundle
+abstract class Bundle extends SymfonyBundle
 {
     public function build(ContainerBuilder $container): void
     {
@@ -49,6 +50,11 @@ abstract class Bundle extends \Symfony\Component\HttpKernel\Bundle\Bundle
             $routes->import($confDir . '/{routes}/' . $environment . '/**/*' . Kernel::CONFIG_EXTS, '/', 'glob');
             $routes->import($confDir . '/{routes}' . Kernel::CONFIG_EXTS, '/', 'glob');
         }
+    }
+
+    public function getConfigPath(): string
+    {
+        return '/Resources/config/config.xml';
     }
 
     protected function registerEvents(ContainerBuilder $container): void

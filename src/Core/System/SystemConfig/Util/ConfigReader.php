@@ -2,9 +2,9 @@
 
 namespace Shopware\Core\System\SystemConfig\Util;
 
+use Shopware\Core\Framework\Bundle;
 use Shopware\Core\Framework\Util\XmlReader;
 use Shopware\Core\System\SystemConfig\Exception\BundleConfigNotFoundException;
-use Symfony\Component\HttpKernel\Bundle\BundleInterface;
 
 class ConfigReader extends XmlReader
 {
@@ -18,12 +18,13 @@ class ConfigReader extends XmlReader
     /**
      * @throws BundleConfigNotFoundException
      */
-    public function getConfigFromBundle(BundleInterface $bundle): array
+    public function getConfigFromBundle(Bundle $bundle): array
     {
-        $configPath = $bundle->getPath() . '/Resources/config.xml';
+        $bundleConfigPath = $bundle->getConfigPath();
+        $configPath = $bundle->getPath() . $bundleConfigPath;
 
         if (!is_file($configPath)) {
-            throw new BundleConfigNotFoundException($bundle->getName());
+            throw new BundleConfigNotFoundException($bundleConfigPath, $bundle->getName());
         }
 
         return $this->read($configPath);

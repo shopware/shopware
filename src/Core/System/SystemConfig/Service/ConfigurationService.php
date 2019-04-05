@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\SystemConfig\Service;
 
+use Shopware\Core\Framework\Bundle;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -46,7 +47,7 @@ class ConfigurationService
     {
         $bundle = $this->getBundle($namespace);
 
-        if (!$bundle) {
+        if (!($bundle instanceof Bundle)) {
             throw new BundleNotFoundException($namespace);
         }
 

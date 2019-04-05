@@ -6,11 +6,14 @@ use Shopware\Core\Framework\ShopwareHttpException;
 
 class BundleConfigNotFoundException extends ShopwareHttpException
 {
-    public function __construct(string $bundleName)
+    public function __construct(string $configPath, string $bundleName)
     {
         parent::__construct(
-            'Could not find "Resources/config.xml" for bundle "{{ bundle }}".',
-            ['bundle' => $bundleName]
+            'Could not find "{{ configPath }}" for bundle "{{ bundle }}".',
+            [
+                'configPath' => $configPath,
+                'bundle' => $bundleName,
+            ]
         );
     }
 

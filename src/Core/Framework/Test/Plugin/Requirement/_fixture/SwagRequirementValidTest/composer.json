@@ -13,7 +13,7 @@
         "shopware/platform": "dev-master"
     },
     "extra": {
-        "installer-name": "SwagRequirement",
+        "shopware-plugin-class": "SwagRequirement\\SwagRequirement",
         "copyright": "(c) by shopware AG",
         "label": {
             "de_DE": "Test für Requirement Validator",

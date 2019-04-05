@@ -13,7 +13,7 @@
         "shopware/platform": "dev-master"
     },
     "extra": {
-        "installer-name": "SwagTest",
+        "shopware-plugin-class": "SwagTest\\SwagTest",
         "plugin-icon": "Resources/public/plugin.png",
         "copyright": "(c) by shopware AG",
         "label": {
@@ -32,6 +32,11 @@
         "supportLink": {
             "de_DE": "https://www.test.de/support",
             "en_GB": "https://www.test.com/support"
+        }
+    },
+    "autoload": {
+        "psr-4": {
+           "SwagTest\\": ""
         }
     }
 }

@@ -5,12 +5,15 @@ namespace Shopware\Core\Framework\Plugin\Util;
 use Composer\Composer;
 use Composer\Package\PackageInterface;
 use Shopware\Core\Framework\Plugin\Composer\Factory;
+use Shopware\Core\Framework\Plugin\Exception\PluginComposerJsonInvalidException;
 use Shopware\Core\Framework\Plugin\Struct\PluginFromFileSystemStruct;
 use Symfony\Component\Finder\Finder;
-use Symfony\Component\Finder\SplFileInfo;
 
 class PluginFinder
 {
+    private const COMPOSER_TYPE = 'shopware-platform-plugin';
+    private const SHOPWARE_PLUGIN_CLASS_EXTRA_IDENTIFIER = 'shopware-plugin-class';
+
     /**
      * @return PluginFromFileSystemStruct[]
      */
@@ -33,7 +36,7 @@ class PluginFinder
             ->getIterator();
 
         foreach ($filesystemPlugins as $filesystemPlugin) {
-            $pluginName = $this->determinePluginName($filesystemPlugin);
+            $pluginName = $this->determinePluginName($filesystemPlugin->getRealPath());
 
             $plugins[] = (new PluginFromFileSystemStruct())->assign([
                 'name' => $pluginName,
@@ -70,14 +73,14 @@ class PluginFinder
 
     private function isShopwarePluginPackage(PackageInterface $package): bool
     {
-        return $package->getType() === 'shopware-platform-plugin'
-            && isset($package->getExtra()['installer-name'])
-            && $package->getExtra()['installer-name'] !== '';
+        return $package->getType() === self::COMPOSER_TYPE
+            && isset($package->getExtra()[self::SHOPWARE_PLUGIN_CLASS_EXTRA_IDENTIFIER])
+            && $package->getExtra()[self::SHOPWARE_PLUGIN_CLASS_EXTRA_IDENTIFIER] !== '';
     }
 
     private function getPluginNameFromPackage(PackageInterface $pluginPackage): string
     {
-        return $pluginPackage->getExtra()['installer-name'];
+        return $pluginPackage->getExtra()[self::SHOPWARE_PLUGIN_CLASS_EXTRA_IDENTIFIER];
     }
 
     private function getVendorPluginPath(PackageInterface $pluginPackage, Composer $composer): string
@@ -85,19 +88,26 @@ class PluginFinder
         return $composer->getConfig()->get('vendor-dir') . '/' . $pluginPackage->getPrettyName();
     }
 
-    private function determinePluginName(SplFileInfo $filesystemPlugin): string
+    private function determinePluginName(string $pluginPath): string
     {
-        $default = $filesystemPlugin->getFilename();
-
         try {
-            $rootPackage = Factory::createComposer($filesystemPlugin->getRealPath())
+            $rootPackage = Factory::createComposer($pluginPath)
                 ->getPackage();
         } catch (\InvalidArgumentException $e) {
-            return $default;
+            throw new PluginComposerJsonInvalidException($pluginPath . '/composer.json', [$e->getMessage()]);
         }
 
         if (!$this->isShopwarePluginPackage($rootPackage)) {
-            return $default;
+            throw new PluginComposerJsonInvalidException(
+                $pluginPath . '/composer.json',
+                [
+                    sprintf(
+                        'Plugin composer.json has invalid "type" (must be "%s"), or invalid "extra/%s" value',
+                        self::COMPOSER_TYPE,
+                        self::SHOPWARE_PLUGIN_CLASS_EXTRA_IDENTIFIER
+                    ),
+                ]
+            );
         }
 
         return $this->getPluginNameFromPackage($rootPackage);

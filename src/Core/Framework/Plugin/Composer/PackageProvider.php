@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\Plugin\Composer;
 
-use Composer\Factory;
 use Composer\IO\IOInterface;
 use Composer\Package\RootPackageInterface;
 use Composer\Util\ConfigValidator;
@@ -29,6 +28,10 @@ class PackageProvider
             $composerIO->write(sprintf("Attention!\nThe '%s' has some warnings:\n%s", $composerJsonPath, $warningsString));
         }
 
-        return Factory::create($composerIO, $composerJsonPath)->getPackage();
+        try {
+            return Factory::createComposer($pluginPath, $composerIO)->getPackage();
+        } catch (\InvalidArgumentException $e) {
+            throw new PluginComposerJsonInvalidException($pluginPath . '/composer.json', [$e->getMessage()]);
+        }
     }
 }

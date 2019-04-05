@@ -6,8 +6,6 @@ use Shopware\Core\Framework\Plugin;
 
 class SwagTest extends Plugin
 {
-    public const PLUGIN_NAME = 'SwagTest';
-
     public const PLUGIN_LABEL = 'English plugin name';
 
     public const PLUGIN_VERSION = '1.0.1.0';

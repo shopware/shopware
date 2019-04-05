@@ -2,6 +2,7 @@
 
 namespace Shopware\Core;
 
+use Composer\Autoload\ClassLoader;
 use Doctrine\DBAL\Configuration;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DriverManager;
@@ -224,34 +225,8 @@ class Kernel extends HttpKernel
         );
         $pluginsInDatabase = $stmt->fetchAll();
 
-        foreach ($pluginsInDatabase as $pluginData) {
-            $pluginName = $pluginData['name'];
-            $pluginPath = $this->getProjectDir() . $pluginData['path'];
-            $pluginFile = $pluginPath . '/' . $pluginName . '.php';
-            if (!is_file($pluginFile)) {
-                continue;
-            }
-
-            $namespace = $pluginName;
-            $className = '\\' . $namespace . '\\' . $pluginName;
-
-            if (!class_exists($className)) {
-                throw new \RuntimeException(
-                    sprintf('Unable to load class %s for plugin %s in file %s', $className, $pluginName, $pluginFile)
-                );
-            }
-
-            /** @var Plugin $plugin */
-            $plugin = new $className((bool) $pluginData['active'], $pluginPath);
-
-            if (!$plugin instanceof Plugin) {
-                throw new \RuntimeException(
-                    sprintf('Class %s must extend %s in file %s', \get_class($plugin), Plugin::class, $pluginFile)
-                );
-            }
-
-            self::$plugins->add($plugin);
-        }
+        $this->registerPluginNamespaces($pluginsInDatabase);
+        $this->addPlugins($pluginsInDatabase);
     }
 
     protected function initializeFeatureFlags(): void
@@ -320,5 +295,41 @@ class Kernel extends HttpKernel
         }
 
         $connection->executeQuery(implode(';', $connectionVariables));
+    }
+
+    private function registerPluginNamespaces(array $pluginsInDatabase): void
+    {
+        $loader = new ClassLoader();
+        foreach ($pluginsInDatabase as $pluginData) {
+            $className = $pluginData['name'];
+            $psr4Prefix = substr($className, 0, strrpos($className, '\\'));
+            $pluginPath = $this->getProjectDir() . $pluginData['path'];
+
+            $loader->addPsr4($psr4Prefix . '\\', $pluginPath);
+        }
+        $loader->register();
+    }
+
+    private function addPlugins(array $pluginsInDatabase): void
+    {
+        foreach ($pluginsInDatabase as $pluginData) {
+            $className = $pluginData['name'];
+            $pluginPath = $this->getProjectDir() . $pluginData['path'];
+
+            if (!class_exists($className)) {
+                throw new \RuntimeException(sprintf('Unable to load plugin class "%s"', $className));
+            }
+
+            /** @var Plugin $plugin */
+            $plugin = new $className((bool) $pluginData['active'], $pluginPath);
+
+            if (!$plugin instanceof Plugin) {
+                throw new \RuntimeException(
+                    sprintf('Plugin class "%s" must extend "%s"', \get_class($plugin), Plugin::class)
+                );
+            }
+
+            self::$plugins->add($plugin);
+        }
     }
 }

@@ -13,7 +13,7 @@
         "shopware/platform": "1.0.0"
     },
     "extra": {
-        "installer-name": "SwagTest",
+        "shopware-plugin-class": "SwagTest\\SwagTest",
         "copyright": "(c) by shopware AG",
         "label": {
             "de_DE": "Deutscher Pluginname",

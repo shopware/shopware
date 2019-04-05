@@ -13,6 +13,6 @@
         "shopware/platform": "dev-master"
     },
     "extra": {
-        "installer-name": "Works"
+        "shopware-plugin-class": "Works\\Works"
     }
 }

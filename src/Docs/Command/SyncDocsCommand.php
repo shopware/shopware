@@ -104,7 +104,7 @@ class SyncDocsCommand extends Command
                     'title' => $fileMetadata['titleEn'],
                     'navigationTitle' => $fileMetadata['titleEn'],
                     'searchableInAllLanguages' => true,
-                    'active' => true,
+                    'active' => $this->getArticleActive($fileMetadata),
                     'fromProductVersion' => self::INITIAL_VERSION,
                     'metaTitle' => self::META_TITLE_PREFIX . $fileMetadata['titleEn'],
                     'metaDescription' => array_key_exists('metaDescription', $fileMetadata) ? $fileMetadata['metaDescription'] : '',
@@ -149,7 +149,7 @@ class SyncDocsCommand extends Command
                 $oldCategories[array_search($categoryId, $categoryIds, true)],
                 [
                     'orderPriority' => $categoryPriority,
-                    'active' => true,
+                    'active' => $this->getArticleActive($fileMetadata),
                 ],
                 [
                     'title' => $fileMetadata['titleEn'],
@@ -186,7 +186,7 @@ class SyncDocsCommand extends Command
                 'content' => '<p>Die Entwicklerdokumentation ist nur auf Englisch verfügbar.</p>',
                 'searchableInAllLanguages' => true,
                 'fromProductVersion' => self::INITIAL_VERSION,
-                'active' => true,
+                'active' => $this->getArticleActive($fileMetadata),
                 'metaTitle' => self::META_TITLE_PREFIX . $title,
             ]);
 
@@ -653,5 +653,14 @@ class SyncDocsCommand extends Command
         }));
 
         return $categoriesFlat;
+    }
+
+    private function getArticleActive(array $fileMetadata): bool
+    {
+        if (array_key_exists('isActive', $fileMetadata)) {
+            return filter_var($fileMetadata['isActive'], FILTER_VALIDATE_BOOLEAN);
+        }
+
+        return true;
     }
 }

@@ -17,7 +17,12 @@ class ConvertMarkdownDocsCommand extends Command
     public const WIKI_URL_TAG = 'wikiUrl';
     public const WIKI_URL_TAG_DE = 'wikiUrlDe';
     public const REQUIRED_METATAGS = ['titleEn'];
-    public const OPTIONAL_METATAGS = [self::WIKI_URL_TAG, 'metaDescription', 'titleDe'];
+    public const OPTIONAL_METATAGS = [
+        self::WIKI_URL_TAG,
+        'metaDescription',
+        'titleDe',
+        'isActive',
+    ];
 
     private const METATAG_REGEX = '/^\[(.*?)\]:\s*<>\((.*?)\)\s*?$/m';
     private $errorStack = [];
@@ -227,6 +232,10 @@ class ConvertMarkdownDocsCommand extends Command
             return $matches[0];
         }
 
+        if ($linkAnchor !== '') {
+            return str_replace($matches[1], $this->fixLinkAnchors($linkAnchor), $matches[0]);
+        }
+
         if ($referencedFile !== false) {
             return $this->replaceLinkToMedia($metadata, $matches, $file, $referencedFile);
         }
@@ -253,7 +262,7 @@ class ConvertMarkdownDocsCommand extends Command
         if ($linkAnchor !== '') {
             // If a #-anchor contains a dot '.', replace it with a dash '-'
             // Also convert the string to lowercase, as this is the convention for anchors
-            $linkAnchor = '#' . strtolower(str_replace('.', '-', $linkAnchor));
+            $linkAnchor = $this->fixLinkAnchors($linkAnchor);
         }
 
         if ($referencedFile !== false && is_file($referencedFile)) {
@@ -417,5 +426,10 @@ class ConvertMarkdownDocsCommand extends Command
         }
 
         return $allContents;
+    }
+
+    private function fixLinkAnchors(string $anchor): string
+    {
+        return '#' . strtolower(str_replace('.', '-', $anchor));
     }
 }

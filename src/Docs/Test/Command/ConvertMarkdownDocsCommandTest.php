@@ -137,8 +137,6 @@ class ConvertMarkdownDocsCommandTest extends TestCase
 
     public function testShouldNotModifyLocalAnchors(): void
     {
-        static::markTestSkipped('Dots in anchors do not work atm');
-
         $fileA = realpath(__DIR__ . '/Fixtures/relFileLinksA.md');
 
         $commandTester = new ConvertMarkdownDocsCommand();

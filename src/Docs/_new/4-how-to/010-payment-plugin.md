@@ -50,7 +50,7 @@ use Shopware\Core\Checkout\Payment\Cart\AsyncPaymentTransactionStruct;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\AsynchronousPaymentHandlerInterface;
 use Shopware\Core\Checkout\Payment\Exception\AsyncPaymentProcessException;
 use Shopware\Core\Checkout\Payment\Exception\CustomerCanceledAsyncPaymentException;
-use Shopware\Core\Defaults;
+use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStates;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\System\StateMachine\StateMachineRegistry;
@@ -116,15 +116,15 @@ class ExamplePayment implements AsynchronousPaymentHandlerInterface
         if ($paymentState === 'completed') {
             // Payment completed, set transaction status to "paid"
             $stateId = $this->stateMachineRegistry->getStateByTechnicalName(
-                Defaults::ORDER_TRANSACTION_STATE_MACHINE,
-                Defaults::ORDER_TRANSACTION_STATES_PAID,
+                OrderTransactionStates::STATE_MACHINE,
+                OrderTransactionStates::STATE_PAID,
                 $context
             )->getId();
         } else {
             // Payment not completed, set transaction status to "open"
             $stateId = $this->stateMachineRegistry->getStateByTechnicalName(
-                Defaults::ORDER_TRANSACTION_STATE_MACHINE,
-                Defaults::ORDER_TRANSACTION_STATES_OPEN,
+                OrderTransactionStates::STATE_MACHINE,
+                OrderTransactionStates::STATE_OPEN,
                 $context
             )->getId();
         }
@@ -161,7 +161,7 @@ namespace PaymentPlugin\Service;
 
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\SynchronousPaymentHandlerInterface;
 use Shopware\Core\Checkout\Payment\Cart\SyncPaymentTransactionStruct;
-use Shopware\Core\Defaults;
+use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStates;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\System\StateMachine\StateMachineRegistry;
@@ -187,8 +187,8 @@ class ExamplePayment implements SynchronousPaymentHandlerInterface
     public function pay(SyncPaymentTransactionStruct $transaction, Context $context): void
     {
         $stateId = $this->stateMachineRegistry->getStateByTechnicalName(
-            Defaults::ORDER_TRANSACTION_STATE_MACHINE,
-            Defaults::ORDER_TRANSACTION_STATES_PAID,
+            OrderTransactionStates::STATE_MACHINE,
+            OrderTransactionStates::STATE_PAID,
             $context
         )->getId();
 

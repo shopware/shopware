@@ -1,22 +1,28 @@
 {
   "sw-settings-shipping": {
     "general": {
-      "mainMenuItemGeneral": "Shipping costs",
-      "placeholderSearchBar": "Search shipping rates"
+      "mainMenuItemGeneral": "Shipping methods",
+      "placeholderSearchBar": "Search shipping methods"
     },
     "list": {
-      "textHeadline": "Shipping costs",
-      "textDeleteConfirm": "Are you sure you want to delete the shipping method \"{name}\"?",
-      "columnName": "Name",
-      "columnActive": "Active",
-      "columnShippingfree": "Free shipping",
-      "buttonAddShippingMethod": "Add shipping rate",
-      "contextMenuEdit": "Edit",
-      "modalTitleDelete": "Delete shipping rate",
-      "titleDeleteSuccess": "Success",
-      "messageDeleteSuccess": "Shipping rate \"{name}\" has been deleted successfully.",
+      "textHeadline": "Shipping method",
+      "buttonAddShippingMethod": "Add shipping methods",
       "buttonCancel": "Cancel",
-      "buttonDelete": "Delete"
+      "buttonDelete": "Delete",
+      "columnName": "Name",
+      "columnDescription": "Description",
+      "contextMenuEdit": "Edit",
+      "contextMenuDelete": "Delete",
+      "contextMenuDuplicate": "Duplicate",
+      "messageEmpty": "No shipping methods yet",
+      "modalTitleDelete": "Shipping methods",
+      "textDeleteConfirm": "Are you sure you really want to delete the shipping method \"{name}\"?",
+      "titleSidebarItemRefresh": "Refresh",
+      "titleSaveSuccess": "Success",
+      "messageSaveSuccess": "Shipping method \"{name}\" has been saved successfully.",
+      "messageSaveError": "Shipping method \"{name}\" could not be saved.",
+      "messageDeleteError": "Shipping method \"{name}\" could not be deleted.",
+      "messageDeleteSuccess": "Shipping method \"{name}\" has been deleted successfully."
     },
     "detail": {
       "textHeadline": "New shipping rate",

@@ -12,7 +12,7 @@ The diagram shows how the Shopware Platform fits into your enterprise. It provid
 
 ![Shopware Platform Container](dist/platform-container.svg)
 
-The [Shopware Platform][platform-gh] consists of 3 top level building blocks. The [**Core**][core] is the center of the Platform and wraps all eCommerce specific workflows and resources. The two satellites [**Storefront**][storefront] and [**Administration**][admin] provide web frontends for specific use cases. The **Storefront** is a Web-UI providing customer views and operating the sales channel interfaces of the core. The **Administration** on the other hand provides a Single Page Application that enables you to manage the core.
+The [Shopware Platform][platform-gh] consists of 3 top level building blocks. The [**Core**][core] is the center of the Platform and wraps all eCommerce specific workflows and resources. The two satellites **Storefront** and [**Administration**][admin] provide web frontends for specific use cases. The **Storefront** is a Web-UI providing customer views and operating the sales channel interfaces of the core. The **Administration** on the other hand provides a Single Page Application that enables you to manage the core.
 
 The next article introduces you to the [directory structure](30-directory-structure.md) of all applications so you should be able to find the general place you are looking for. 
 

@@ -15,23 +15,23 @@ PHP
 * `memory_limit` 512M minimum
 * `max_execution_time` 30 seconds minimum
 * Extensions: 
-** ext-dom  
-** ext-fileinfo  
-** ext-gd  
-** ext-iconv  
-** ext-intl  
-** ext-json  
-** ext-libxml  
-** ext-mbstring  
-** ext-openssl  
-** ext-pcre  
-** ext-pdo  
-** ext-pdo_mysql  
-** ext-phar  
- ** ext-simplexml  
- ** ext-xml  
- ** ext-zip  
- ** ext-zlib  
+    * ext-dom  
+    * ext-fileinfo  
+    * ext-gd  
+    * ext-iconv  
+    * ext-intl  
+    * ext-json  
+    * ext-libxml  
+    * ext-mbstring  
+    * ext-openssl  
+    * ext-pcre  
+    * ext-pdo  
+    * ext-pdo_mysql  
+    * ext-phar  
+    * ext-simplexml  
+    * ext-xml  
+    * ext-zip  
+    * ext-zlib  
 * Composer 1.6 or higher
 
 SQL

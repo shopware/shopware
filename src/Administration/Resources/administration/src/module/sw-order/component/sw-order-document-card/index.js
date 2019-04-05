@@ -1,22 +1,30 @@
 import { Component, Mixin, State } from 'src/core/shopware';
 import template from './sw-order-document-card.html.twig';
+import './sw-order-document.card.scss';
 import '../sw-order-document-settings-invoice-modal/';
 import '../sw-order-document-settings-storno-modal/';
 import '../sw-order-document-settings-delivery-note-modal/';
 import '../sw-order-document-settings-credit-note-modal/';
 import '../sw-order-document-settings-modal/';
-import './sw-order-document.card.scss';
 
 Component.register('sw-order-document-card', {
     template,
-
     inject: ['documentService', 'numberRangeService'],
-
     mixins: [Mixin.getByName('listing')],
-
+    props: {
+        order: {
+            type: Object,
+            required: true
+        },
+        isLoading: {
+            type: Boolean,
+            required: true
+        }
+    },
     data() {
         return {
-            documentLoading: false,
+            documentsLoading: false,
+            cardLoading: false,
             documents: [],
             documentTypes: null,
             showModal: false,
@@ -25,22 +33,6 @@ Component.register('sw-order-document-card', {
             documentComment: '',
             term: ''
         };
-    },
-    props: {
-        order: {
-            type: Object,
-            required: true,
-            default() {
-                return {};
-            }
-        },
-        isLoading: {
-            type: Boolean,
-            required: true,
-            default() {
-                return false;
-            }
-        }
     },
     computed: {
         documentStore() {
@@ -57,30 +49,33 @@ Component.register('sw-order-document-card', {
             return 'sw-order-document-settings-modal';
         }
     },
+    created() {
+        this.createdComponent();
+    },
     methods: {
-        getList() {
-            this.documentLoading = true;
+        createdComponent() {
+            this.cardLoading = true;
 
-            // todo on create component
-            const typePromise = this.documentTypeStore.getList(
+            this.documentTypeStore.getList(
                 { page: 1, limit: 100, sortBy: 'name' }
             ).then((response) => {
                 this.documentTypes = response.items;
+                this.cardLoading = false;
             });
-
+        },
+        getList() {
+            this.documentsLoading = true;
 
             const params = this.getListingParams();
             params.sortBy = 'createdAt';
             params.sortDirection = 'DESC';
             params.term = this.term;
 
-            const documentPromise = this.documentStore.getList(params).then((response) => {
+            this.documentStore.getList(params).then((response) => {
                 this.total = response.total;
                 this.documents = response.items;
-            });
-
-            Promise.all([typePromise, documentPromise]).then(() => {
-                this.documentLoading = false;
+            }).then(() => {
+                this.documentsLoading = false;
             });
         },
         onSearchTermChange(searchTerm) {
@@ -92,11 +87,10 @@ Component.register('sw-order-document-card', {
                 this.getList();
             });
         },
-        onCancelModal() {
+        onCancelCreation() {
             this.showModal = false;
             this.currentDocumentType = null;
         },
-
         onPrepareDocument(documentType) {
             this.currentDocumentType = documentType;
             this.showModal = true;

@@ -24,6 +24,7 @@ class BillingCountryRule extends Rule
 
     public function __construct()
     {
+        parent::__construct();
         $this->operator = self::OPERATOR_EQ;
     }
 

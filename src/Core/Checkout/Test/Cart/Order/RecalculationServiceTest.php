@@ -34,11 +34,11 @@ use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodPrice\ShippingMethod
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\Checkout\Test\Cart\Common\TrueRule;
 use Shopware\Core\Checkout\Test\Payment\Handler\SyncTestPaymentHandler;
-use Shopware\Core\Content\Product\Cart\ProductCollector;
 use Shopware\Core\Content\DeliveryTime\DeliveryTimeEntity;
+use Shopware\Core\Content\Product\Cart\ProductCollector;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Rule\Collector\RuleConditionRegistry;
@@ -100,7 +100,7 @@ class RecalculationServiceTest extends TestCase
     public function testPersistOrderAndConvertToCart(): void
     {
         $cart = $this->generateDemoCart();
-        $orderId = $this->persistCart($cart);
+        $orderId = $this->persistCart($cart)['orderId'];
 
         $deliveryCriteria = new Criteria();
         $deliveryCriteria->addAssociation('positions');
@@ -156,7 +156,7 @@ class RecalculationServiceTest extends TestCase
     public function testOrderConverterController(): void
     {
         $cart = $this->generateDemoCart();
-        $orderId = $this->persistCart($cart);
+        $orderId = $this->persistCart($cart)['orderId'];
 
         $client = $this->getClient();
 
@@ -197,21 +197,38 @@ class RecalculationServiceTest extends TestCase
 
         $content = json_decode($response->getContent(), true)['data'];
 
+        $lineItemData = $content['lineItems'];
+        static::assertCount(3, $lineItemData);
+        $lineItemLabels = array_flip(array_column($lineItemData, 'label'));
+        static::assertArrayHasKey('Third line item (multi level nested)', $lineItemLabels);
+        static::assertArrayHasKey('First product', $lineItemLabels);
+        static::assertArrayHasKey('Second custom line item with absolute price definition', $lineItemLabels);
+
         static::assertEquals(61.52, $content['price']['netPrice']);
         static::assertEquals(71.95, $content['price']['totalPrice']);
         static::assertEquals(71.95, $content['price']['positionPrice']);
         static::assertEquals(CartPrice::TAX_STATE_GROSS, $content['price']['taxStatus']);
         static::assertCount(3, $content['lineItems']);
 
-        $absoluteLineItem = $content['lineItems'][2];
-        static::assertEquals(
-            $absoluteLineItem['label'],
-            'Second custom line item with absolute price definition',
-            'lineItem[2] is not the absolute line item'
-        );
+        // check if the child line items were preserved
+        $absoluteLineItem = $lineItemData[$lineItemLabels['Second custom line item with absolute price definition']];
+
         static::assertCount(1, $absoluteLineItem['price']['calculatedTaxes']);
         static::assertEquals(19, $absoluteLineItem['price']['calculatedTaxes'][0]['taxRate']);
         static::assertEquals(0.48, $absoluteLineItem['price']['calculatedTaxes'][0]['tax']);
+        static::assertEquals('2', $absoluteLineItem['key']);
+        static::assertEquals(3, $absoluteLineItem['priceDefinition']['price']);
+        static::assertNotEmpty($absoluteLineItem['priceDefinition']['filter']);
+
+        $nestedLineItem = $lineItemData[$lineItemLabels['Third line item (multi level nested)']];
+
+        static::assertCount(1, $nestedLineItem['children']);
+        static::assertCount(1, $nestedLineItem['children'][0]['children']);
+        $lineItemWithPrice = $nestedLineItem['children'][0]['children'][0];
+        static::assertEquals('3-1-1', $lineItemWithPrice['key']);
+        static::assertEquals(9.45, $lineItemWithPrice['price']['totalPrice']);
+        static::assertCount(1, $lineItemWithPrice['price']['calculatedTaxes']);
+        static::assertEquals(0.45, $lineItemWithPrice['price']['calculatedTaxes'][0]['tax']);
 
         // increase quantity of line item from 5 to 10
         $client->request(
@@ -238,14 +255,18 @@ class RecalculationServiceTest extends TestCase
         static::assertEquals(111.52, $content['price']['netPrice']);
         static::assertEquals(131.45, $content['price']['totalPrice']);
         static::assertEquals(131.45, $content['price']['positionPrice']);
-        static::assertCount(3, $content['lineItems']);
+
+        $lineItemData = $content['lineItems'];
+
+        $boringLineItem = $lineItemData[$lineItemLabels['First product']];
+        static::assertEquals(10, $boringLineItem['quantity']);
     }
 
     public function testRecalculationController(): void
     {
         // create order
         $cart = $this->generateDemoCart();
-        $orderId = $this->persistCart($cart);
+        $orderId = $this->persistCart($cart)['orderId'];
 
         // create version of order
         $versionId = $this->createVersionedOrder($orderId);
@@ -298,7 +319,9 @@ class RecalculationServiceTest extends TestCase
     {
         // create order
         $cart = $this->generateDemoCart();
-        $orderId = $this->persistCart($cart);
+        $order = $this->persistCart($cart);
+        $orderId = $order['orderId'];
+        $oldTotal = $order['total'];
 
         // create version of order
         $versionId = $this->createVersionedOrder($orderId);
@@ -306,38 +329,42 @@ class RecalculationServiceTest extends TestCase
         $productName = 'Test';
         $productPrice = 10.0;
         $productTaxRate = 19.0;
-        $this->addProductToVersionedOrder($productName, $productPrice, $productTaxRate, $orderId, $versionId);
+        $this->addProductToVersionedOrder($productName, $productPrice, $productTaxRate, $orderId, $versionId, $oldTotal);
     }
 
     public function testAddCreditItemToOrder(): void
     {
         // create order
         $cart = $this->generateDemoCart();
-        $orderId = $this->persistCart($cart);
+        $order = $this->persistCart($cart);
 
         // create version of order
-        $versionId = $this->createVersionedOrder($orderId);
+        $versionId = $this->createVersionedOrder($order['orderId']);
 
-        $this->addCreditItemToVersionedOrder($orderId, $versionId);
+        $this->addCreditItemToVersionedOrder($order['orderId'], $versionId, $order['total']);
     }
 
     public function testAddCustomLineItemToOrder(): void
     {
         // create order
         $cart = $this->generateDemoCart();
-        $orderId = $this->persistCart($cart);
+        $order = $this->persistCart($cart);
+        $orderId = $order['orderId'];
+        $oldTotal = $order['total'];
 
         // create version of order
         $versionId = $this->createVersionedOrder($orderId);
 
-        $this->addCustomLineItemToVersionedOrder($orderId, $versionId);
+        $this->addCustomLineItemToVersionedOrder($orderId, $versionId, $oldTotal);
     }
 
     public function testCreatedVersionedOrderAndMerge(): void
     {
         // create order
         $cart = $this->generateDemoCart();
-        $orderId = $this->persistCart($cart);
+        $oldOrder = $this->persistCart($cart);
+        $orderId = $oldOrder['orderId'];
+        $oldTotal = $oldOrder['total'];
 
         // create version of order
         $versionId = $this->createVersionedOrder($orderId);
@@ -345,7 +372,13 @@ class RecalculationServiceTest extends TestCase
         $productName = 'Test';
         $productPrice = 10.0;
         $productTaxRate = 19.0;
-        $productId = $this->addProductToVersionedOrder($productName, $productPrice, $productTaxRate, $orderId, $versionId);
+        $productId = $this->addProductToVersionedOrder($productName,
+            $productPrice,
+            $productTaxRate,
+            $orderId,
+            $versionId,
+            $oldTotal
+        );
 
         // merge versioned order
         $this->getClient()->request(
@@ -387,7 +420,7 @@ class RecalculationServiceTest extends TestCase
     {
         // create order
         $cart = $this->generateDemoCart();
-        $orderId = $this->persistCart($cart);
+        $orderId = $this->persistCart($cart)['orderId'];
 
         // create version of order
         $versionId = $this->createVersionedOrder($orderId);
@@ -450,7 +483,7 @@ class RecalculationServiceTest extends TestCase
 
         // create order
         $cart = $this->generateDemoCart();
-        $orderId = $this->persistCart($cart);
+        $orderId = $this->persistCart($cart)['orderId'];
 
         // create version of order
         $versionId = $this->createVersionedOrder($orderId);
@@ -483,7 +516,7 @@ class RecalculationServiceTest extends TestCase
 
         // create order
         $cart = $this->generateDemoCart();
-        $orderId = $this->persistCart($cart);
+        $orderId = $this->persistCart($cart)['orderId'];
 
         // create version of order
         $versionId = $this->createVersionedOrder($orderId);
@@ -516,7 +549,7 @@ class RecalculationServiceTest extends TestCase
 
         // create order
         $cart = $this->generateDemoCart();
-        $orderId = $this->persistCart($cart);
+        $orderId = $this->persistCart($cart)['orderId'];
 
         // create version of order
         $versionId = $this->createVersionedOrder($orderId);
@@ -538,7 +571,7 @@ class RecalculationServiceTest extends TestCase
         $cart->getLineItems()->first()->setQuantity(8);
         $cart = $this->getContainer()->get(Enrichment::class)->enrich($cart, $this->salesChannelContext, new CartBehavior());
         $cart = $this->getContainer()->get(Processor::class)->process($cart, $this->salesChannelContext, new CartBehavior());
-        $orderId = $this->persistCart($cart);
+        $orderId = $this->persistCart($cart)['orderId'];
 
         // create version of order
         $versionId = $this->createVersionedOrder($orderId);
@@ -568,7 +601,7 @@ class RecalculationServiceTest extends TestCase
 
         // create order
         $cart = $this->generateDemoCart();
-        $orderId = $this->persistCart($cart);
+        $orderId = $this->persistCart($cart)['orderId'];
 
         // create version of order
         $versionId = $this->createVersionedOrder($orderId);
@@ -589,7 +622,7 @@ class RecalculationServiceTest extends TestCase
         $cart->getLineItems()->first()->setPriceDefinition(new QuantityPriceDefinition(1.0, new TaxRuleCollection([new TaxRule(19)]), 5));
         $cart = $this->getContainer()->get(Enrichment::class)->enrich($cart, $this->salesChannelContext, new CartBehavior());
         $cart = $this->getContainer()->get(Processor::class)->process($cart, $this->salesChannelContext, new CartBehavior());
-        $orderId = $this->persistCart($cart);
+        $orderId = $this->persistCart($cart)['orderId'];
 
         // create version of order
         $versionId = $this->createVersionedOrder($orderId);
@@ -619,7 +652,7 @@ class RecalculationServiceTest extends TestCase
 
         // create order
         $cart = $this->generateDemoCart();
-        $orderId = $this->persistCart($cart);
+        $orderId = $this->persistCart($cart)['orderId'];
 
         // create version of order
         $versionId = $this->createVersionedOrder($orderId);
@@ -647,7 +680,7 @@ class RecalculationServiceTest extends TestCase
         $cart->getLineItems()->first()->setDeliveryInformation($deliveryInformation);
         $cart = $this->getContainer()->get(Enrichment::class)->enrich($cart, $this->salesChannelContext, new CartBehavior());
         $cart = $this->getContainer()->get(Processor::class)->process($cart, $this->salesChannelContext, new CartBehavior());
-        $orderId = $this->persistCart($cart);
+        $orderId = $this->persistCart($cart)['orderId'];
 
         // create version of order
         $versionId = $this->createVersionedOrder($orderId);
@@ -669,7 +702,7 @@ class RecalculationServiceTest extends TestCase
     {
         // create order
         $cart = $this->generateDemoCart();
-        $orderId = $this->persistCart($cart);
+        $orderId = $this->persistCart($cart)['orderId'];
 
         // create version of order
         $versionId = $this->createVersionedOrder($orderId);
@@ -730,6 +763,38 @@ class RecalculationServiceTest extends TestCase
         static::assertSame($street, $orderAddress->getStreet());
         static::assertSame($city, $orderAddress->getCity());
         static::assertSame($zipcode, $orderAddress->getZipcode());
+    }
+
+    protected function getValidCountryIdWithTaxes(): string
+    {
+        /** @var EntityRepositoryInterface $repository */
+        $repository = $this->getContainer()->get('country.repository');
+
+        $countryId = Uuid::randomHex();
+
+        $data = [
+            'id' => $countryId,
+            'iso' => 'XX',
+            'iso3' => 'XXX',
+            'active' => true,
+            'taxFree' => false,
+            'position' => 10,
+            'displayStateInRegistration' => false,
+            'forceStateInRegistration' => false,
+            'translations' => [
+                [
+                    'languageId' => Defaults::LANGUAGE_SYSTEM,
+                    'name' => 'Takatuka',
+                ],
+            ],
+        ];
+
+        $repository->upsert(
+            [$data],
+            $this->context
+        );
+
+        return $countryId;
     }
 
     private function addAddressToCustomer(
@@ -805,7 +870,7 @@ class RecalculationServiceTest extends TestCase
                 [
                     'id' => $addressId,
                     'customerId' => $customerId,
-                    'countryId' => $this->getValidCountryId(),
+                    'countryId' => $this->getValidCountryIdWithTaxes(),
                     'salutationId' => $this->getValidSalutationId(),
                     'firstName' => 'Max',
                     'lastName' => 'Mustermann',
@@ -867,16 +932,19 @@ class RecalculationServiceTest extends TestCase
         return $cart;
     }
 
-    private function persistCart(Cart $cart): string
+    private function persistCart(Cart $cart): array
     {
         $events = $this->getContainer()->get(OrderPersister::class)->persist($cart, $this->salesChannelContext);
         $orderIds = $events->getEventByDefinition(OrderDefinition::class)->getIds();
+
+        /** @var CartPrice $writtenPrice */
+        $writtenPrice = $events->getEventByDefinition(OrderDefinition::class)->getPayloads()[0]['price'];
 
         if (count($orderIds) !== 1) {
             static::fail('Order could not be persisted');
         }
 
-        return $orderIds[0];
+        return ['orderId' => $orderIds[0], 'total' => $writtenPrice->getTotalPrice()];
     }
 
     private function createVersionedOrder(string $orderId): string
@@ -906,7 +974,8 @@ class RecalculationServiceTest extends TestCase
         float $productPrice,
         float $productTaxRate,
         string $orderId,
-        string $versionId): string
+        string $versionId,
+        float $oldTotal): string
     {
         $productId = $this->createProduct($productName, $productPrice, $productTaxRate);
 
@@ -950,10 +1019,12 @@ class RecalculationServiceTest extends TestCase
         $taxRule = $product->getPrice()->getTaxRules()->first();
         static::assertSame($taxRule->getTaxRate(), $productTaxRate);
 
+        static::assertEquals($oldTotal + $productPriceInclTax, $order->getAmountTotal());
+
         return $productId;
     }
 
-    private function addCustomLineItemToVersionedOrder(string $orderId, string $versionId): void
+    private function addCustomLineItemToVersionedOrder(string $orderId, string $versionId, float $oldTotal): void
     {
         $identifier = Uuid::randomHex();
         $data = [
@@ -1022,20 +1093,13 @@ class RecalculationServiceTest extends TestCase
         static::assertSame($calculatedTaxes->getPrice(), 333.1);
         static::assertSame($calculatedTaxes->getTaxRate(), 19.0);
         static::assertSame($calculatedTaxes->getTax(), 53.18);
+
+        static::assertSame($customLineItem->getPrice()->getTotalPrice() + $oldTotal, $order->getAmountTotal());
     }
 
-    private function addCreditItemToVersionedOrder(string $orderId, string $versionId): void
+    private function addCreditItemToVersionedOrder(string $orderId, string $versionId, float $oldTotal): void
     {
-        //get old total
-        $criteria = new Criteria([$orderId]);
-        $criteria->addAssociation('order.lineItems');
-        /** @var EntityRepository $orderRepository */
         $orderRepository = $this->getContainer()->get('order.repository');
-        $result = $orderRepository->search($criteria, $this->context->createWithVersionId($versionId));
-        static::assertEquals(1, $result->getTotal());
-        /** @var OrderEntity $oldOrder */
-        $oldOrder = $result->get($orderId);
-        $oldTotal = $oldOrder->getAmountTotal();
 
         $identifier = Uuid::randomHex();
         $creditAmount = -10;
@@ -1073,17 +1137,13 @@ class RecalculationServiceTest extends TestCase
         static::assertEquals(Response::HTTP_NO_CONTENT, $response->getStatusCode(), $response->getContent());
 
         // read versioned order
-        /** @var OrderEntity|null $order */
+        $criteria = new Criteria([$orderId]);
+        $criteria->addAssociation('order.lineItems');
         $order = $orderRepository->search($criteria, $this->context->createWithVersionId($versionId))->get($orderId);
         static::assertNotEmpty($order);
         static::assertEquals($oldTotal + $creditAmount, $order->getAmountTotal());
 
-        $creditItem = null;
-        foreach ($order->getLineItems() as $lineItem) {
-            if ($lineItem->getIdentifier() === $identifier) {
-                $creditItem = $lineItem;
-            }
-        }
+        $creditItem = $order->getLineItems()->filterByProperty('identifier', $identifier)->first();
 
         static::assertEquals($creditAmount, $creditItem->getPrice()->getTotalPrice());
         $taxRules = $creditItem->getPrice()->getCalculatedTaxes();
@@ -1133,7 +1193,6 @@ class RecalculationServiceTest extends TestCase
                     'price' => '10.00',
                     'currencyId' => Defaults::CURRENCY,
                     'rule' => [
-                        'id' => $priceRuleId,
                         'name' => 'true',
                         'priority' => 0,
                         'conditions' => [

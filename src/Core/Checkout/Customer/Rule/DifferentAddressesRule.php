@@ -16,6 +16,7 @@ class DifferentAddressesRule extends Rule
 
     public function __construct()
     {
+        parent::__construct();
         $this->isDifferent = true;
     }
 

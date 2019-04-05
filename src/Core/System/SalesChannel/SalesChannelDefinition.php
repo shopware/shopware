@@ -112,7 +112,7 @@ class SalesChannelDefinition extends EntityDefinition
             new ManyToManyAssociationField('mailTemplates', MailTemplateDefinition::class, MailTemplateSalesChannelDefinition::class, 'sales_channel_id', 'mail_template_id'),
             new OneToManyAssociationField('numberRangeSalesChannels', NumberRangeSalesChannelDefinition::class, 'sales_channel_id'),
             new OneToManyAssociationField('promotionSalesChannels', PromotionSalesChannelDefinition::class, 'sales_channel_id', 'id'),
-            new OneToManyAssociationField('documentBaseConfigSalesChannels', DocumentBaseConfigSalesChannelDefinition::class, 'sales_channel_id', false),
+            new OneToManyAssociationField('documentBaseConfigSalesChannels', DocumentBaseConfigSalesChannelDefinition::class, 'sales_channel_id', 'id'),
         ]);
     }
 }

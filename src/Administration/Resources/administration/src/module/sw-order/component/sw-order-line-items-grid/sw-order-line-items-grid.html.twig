@@ -145,15 +145,26 @@
                                 :editable="editable"
                                 :label="$tc('sw-order.detailBase.columnTax')">
                                 {% block sw_order_line_items_grid_columns_tax_label %}
-                                    {{ item.type !== 'credit' ? item.priceDefinition.taxRules.elements[0].taxRate : item.price.taxRules.elements[0].taxRate }} %
+                                    {{ item.type !== 'credit' ? item.priceDefinition.taxRules[0].taxRate : item.price.taxRules[0].taxRate }} %
                                 {% endblock %}
                                 {% block sw_order_line_items_grid_columns_tax_editor %}
-                                    <sw-field type="number"
-                                        v-model=" item.type !== 'credit' ? item.priceDefinition.taxRules.elements[0].taxRate : item.price.taxRules.elements[0].taxRate"
-                                        slot="inline-edit"
-                                        placeholder="0 %"
-                                        :disabled="itemCreatedFromProduct(item.id) || itemIsCredit(item.id)">
-                                    </sw-field>
+                                    <template slot="inline-edit">
+                                        <sw-field v-if="item.type === 'credit'"
+                                            type="number"
+                                            key="order-line-item-tax-edit-credit"
+                                            v-model="item.price.taxRules[0].taxRate"
+                                            placeholder="0"
+                                            suffix="%"
+                                            :disabled="true">
+                                        </sw-field>
+                                        <sw-field v-else type="number"
+                                            v-model="item.priceDefinition.taxRules[0].taxRate"
+                                            key="order-line-item-tax-edit-default"
+                                            placeholder="0"
+                                            suffix="%"
+                                            :disabled="itemCreatedFromProduct(item.id)">
+                                        </sw-field>
+                                    </template>
                                 {% endblock %}
                             </sw-grid-column>
                         {% endblock %}

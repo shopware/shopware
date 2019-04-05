@@ -4,6 +4,7 @@ namespace Shopware\Core\Checkout\Cart\Order;
 
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartBehavior;
+use Shopware\Core\Checkout\Cart\CartRuleLoader;
 use Shopware\Core\Checkout\Cart\Enrichment;
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Checkout\Cart\Exception\InvalidPayloadException;
@@ -74,6 +75,11 @@ class RecalculationService
      */
     protected $processor;
 
+    /**
+     * @var CartRuleLoader
+     */
+    private $cartRuleLoader;
+
     public function __construct(
         EntityRepositoryInterface $orderRepository,
         OrderConverter $orderConverter,
@@ -82,7 +88,8 @@ class RecalculationService
         EntityRepositoryInterface $orderAddressRepository,
         EntityRepositoryInterface $customerAddressRepository,
         Enrichment $enrichment,
-        Processor $processor
+        Processor $processor,
+        CartRuleLoader $cartRuleLoader
     ) {
         $this->orderRepository = $orderRepository;
         $this->orderConverter = $orderConverter;
@@ -92,6 +99,7 @@ class RecalculationService
         $this->customerAddressRepository = $customerAddressRepository;
         $this->enrichment = $enrichment;
         $this->processor = $processor;
+        $this->cartRuleLoader = $cartRuleLoader;
     }
 
     /**
@@ -186,7 +194,8 @@ class RecalculationService
         $cart = $this->orderConverter->convertToCart($order, $context);
         $cart->add($lineItem);
 
-        $recalculatedCart = $this->cartService->refresh($cart, $salesChannelContext);
+        $recalculatedCart = $this->recalculateCart($cart, $salesChannelContext);
+        //$recalculatedCart = $this->cartService->refresh($cart, $salesChannelContext);
 
         $conversionContext = (new OrderConversionContext())
             ->setIncludeCustomer(false)
@@ -284,5 +293,24 @@ class RecalculationService
         }
 
         $this->checkVersion($address);
+    }
+
+    private function recalculateCart(Cart $cart, SalesChannelContext $context): Cart
+    {
+        $behavior = new CartBehavior();
+        $behavior->setIsRecalculation(true);
+
+        // enrich line items with missing data, e.g products which added in the call are enriched with their prices and labels
+        $cart = $this->enrichment->enrich($cart, $context, $behavior);
+
+        // all prices are now prepared for calculation -  starts the cart calculation
+        $cart = $this->processor->process($cart, $context, $behavior);
+
+        // validate cart against the context rules
+        $validated = $this->cartRuleLoader->loadByCart($context, $cart, $behavior);
+
+        $cart = $validated->getCart();
+
+        return $cart;
     }
 }

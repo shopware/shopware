@@ -3,25 +3,7 @@ import template from './sw-order-document-settings-modal.html.twig';
 
 Component.register('sw-order-document-settings-modal', {
     template,
-
     inject: ['numberRangeService'],
-
-    data() {
-        return {
-            showModal: false,
-            documentConfig: {
-                custom: {},
-                documentNumber: 0,
-                documentComment: '',
-                documentDate: {}
-            },
-            documentNumberPreview: false
-        };
-    },
-    created() {
-        this.createdComponent();
-    },
-
     props: {
         order: {
             type: Object,
@@ -38,12 +20,26 @@ Component.register('sw-order-document-settings-modal', {
             }
         }
     },
+    data() {
+        return {
+            showModal: false,
+            documentConfig: {
+                custom: {},
+                documentNumber: 0,
+                documentComment: '',
+                documentDate: {}
+            },
+            documentNumberPreview: false
+        };
+    },
     computed: {
         documentPreconditionsFulfilled() {
             return true;
         }
     },
-
+    created() {
+        this.createdComponent();
+    },
     methods: {
         createdComponent() {
             this.numberRangeService.reserve(

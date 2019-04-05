@@ -119,8 +119,7 @@ Component.register('sw-order-line-items-grid', {
             const item = this.lineItemsStore.create();
             item.versionId = this.order.versionId;
             item.price.taxRules = [];
-            item.price.taxRules.elements = [];
-            item.price.taxRules.elements.push({ taxRate: 0, percentage: 100 });
+            item.price.taxRules.push({ taxRate: 0, percentage: 100 });
             item.priceDefinition.isCalculated = false;
             item.description = 'credit line item';
             item.quantity = 1;

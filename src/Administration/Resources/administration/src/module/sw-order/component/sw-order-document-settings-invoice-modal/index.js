@@ -3,20 +3,9 @@ import template from './sw-order-document-settings-invoice-modal.html.twig';
 
 Component.extend('sw-order-document-settings-invoice-modal', 'sw-order-document-settings-modal', {
     template,
-
-    data() {
-        return {
-
-        };
-    },
     created() {
         this.createdComponent();
     },
-
-    props: {
-
-    },
-
     methods: {
         onCreateDocument(mode = false) {
             if (this.documentConfig.documentNumberPreview === this.documentConfig.custom.invoiceNumber) {

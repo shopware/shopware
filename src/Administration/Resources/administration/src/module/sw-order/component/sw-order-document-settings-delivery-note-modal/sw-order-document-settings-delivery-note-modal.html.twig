@@ -4,28 +4,25 @@
     {% endblock %}
     <sw-container columns="1fr 1fr" gap="0px 10px">
         {% block sw_order_document_settings_modal_form_document_number %}
-
         {% endblock %}
 
         {% block sw_order_document_settings_modal_form_document_date %}
             <sw-datepicker
-                    v-if="documentConfig.documentDate"
-                    dateType="date"
-                    :label="$tc('sw-order.documentModal.labelDocumentDate')"
-                    :value="documentConfig.documentDate"
-                    v-model="documentConfig.documentDate"
-            >
+                v-if="documentConfig.documentDate"
+                dateType="date"
+                :label="$tc('sw-order.documentModal.labelDocumentDate')"
+                :value="documentConfig.documentDate"
+                v-model="documentConfig.documentDate">
             </sw-datepicker>
         {% endblock %}
 
         {% block sw_order_document_settings_modal_form_document_delivery_date %}
             <sw-datepicker
-                    v-if="documentConfig.custom.deliveryDate"
-                    dateType="date"
-                    :label="$tc('sw-order.documentModal.labelDeliveryDate')"
-                    :value="documentConfig.custom.deliveryDate"
-                    v-model="documentConfig.custom.deliveryDate"
-            >
+                v-if="documentConfig.custom.deliveryDate"
+                dateType="date"
+                :label="$tc('sw-order.documentModal.labelDeliveryDate')"
+                :value="documentConfig.custom.deliveryDate"
+                v-model="documentConfig.custom.deliveryDate">
             </sw-datepicker>
         {% endblock %}
     </sw-container>

@@ -184,6 +184,7 @@
             <argument type="service" id="customer_address.repository"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\Enrichment"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\Processor"/>
+            <argument type="service" id="Shopware\Core\Checkout\Cart\CartRuleLoader"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Cart\CartRuleLoader">

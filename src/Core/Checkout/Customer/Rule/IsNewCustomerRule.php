@@ -16,6 +16,7 @@ class IsNewCustomerRule extends Rule
 
     public function __construct()
     {
+        parent::__construct();
         $this->isNew = true;
     }
 

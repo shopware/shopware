@@ -57,9 +57,9 @@ SQL;
 
         $stornoId = Uuid::randomBytes();
 
-        $connection->insert('document_type', ['id' => $stornoId, 'technical_name' => DocumentTypes::STORNO, 'created_at' => date(Defaults::DATE_FORMAT)]);
-        $connection->insert('document_type_translation', ['document_type_id' => $stornoId, 'language_id' => Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM_DE), 'name' => 'Stornorechnung', 'created_at' => date(Defaults::DATE_FORMAT)]);
-        $connection->insert('document_type_translation', ['document_type_id' => $stornoId, 'language_id' => Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM), 'name' => 'Storno bill', 'created_at' => date(Defaults::DATE_FORMAT)]);
+        $connection->insert('document_type', ['id' => $stornoId, 'technical_name' => DocumentTypes::STORNO, 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_FORMAT)]);
+        $connection->insert('document_type_translation', ['document_type_id' => $stornoId, 'language_id' => Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM_DE), 'name' => 'Stornorechnung', 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_FORMAT)]);
+        $connection->insert('document_type_translation', ['document_type_id' => $stornoId, 'language_id' => Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM), 'name' => 'Storno bill', 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_FORMAT)]);
 
         $stornoConfigId = Uuid::randomBytes();
         $invoiceConfigId = Uuid::randomBytes();
@@ -94,9 +94,9 @@ SQL;
 
         $configJson = json_encode($defaultConfig);
 
-        $connection->insert('document_base_config', ['id' => $stornoConfigId, 'name' => DocumentTypes::STORNO, 'global' => 1, 'filename_prefix' => DocumentTypes::STORNO . '_', 'document_type_id' => $stornoId, 'config' => $configJson, 'created_at' => date(Defaults::DATE_FORMAT)]);
-        $connection->insert('document_base_config', ['id' => $invoiceConfigId, 'name' => DocumentTypes::INVOICE, 'global' => 1, 'filename_prefix' => DocumentTypes::INVOICE . '_', 'document_type_id' => $invoiceId, 'config' => $configJson, 'created_at' => date(Defaults::DATE_FORMAT)]);
-        $connection->insert('document_base_config', ['id' => $deliveryConfigId, 'name' => DocumentTypes::DELIVERY_NOTE, 'global' => 1, 'filename_prefix' => DocumentTypes::DELIVERY_NOTE . '_', 'document_type_id' => $deliverNoteId, 'config' => $configJson, 'created_at' => date(Defaults::DATE_FORMAT)]);
+        $connection->insert('document_base_config', ['id' => $stornoConfigId, 'name' => DocumentTypes::STORNO, 'global' => 1, 'filename_prefix' => DocumentTypes::STORNO . '_', 'document_type_id' => $stornoId, 'config' => $configJson, 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_FORMAT)]);
+        $connection->insert('document_base_config', ['id' => $invoiceConfigId, 'name' => DocumentTypes::INVOICE, 'global' => 1, 'filename_prefix' => DocumentTypes::INVOICE . '_', 'document_type_id' => $invoiceId, 'config' => $configJson, 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_FORMAT)]);
+        $connection->insert('document_base_config', ['id' => $deliveryConfigId, 'name' => DocumentTypes::DELIVERY_NOTE, 'global' => 1, 'filename_prefix' => DocumentTypes::DELIVERY_NOTE . '_', 'document_type_id' => $deliverNoteId, 'config' => $configJson, 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_FORMAT)]);
 
         $connection->insert('document_base_config_sales_channel', ['id' => Uuid::randomBytes(), 'document_base_config_id' => $stornoConfigId, 'document_type_id' => $stornoId]);
         $connection->insert('document_base_config_sales_channel', ['id' => Uuid::randomBytes(), 'document_base_config_id' => $invoiceConfigId, 'document_type_id' => $invoiceId]);

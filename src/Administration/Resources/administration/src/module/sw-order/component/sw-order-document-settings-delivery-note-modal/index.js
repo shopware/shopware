@@ -3,7 +3,6 @@ import template from './sw-order-document-settings-delivery-note-modal.html.twig
 
 Component.extend('sw-order-document-settings-delivery-note-modal', 'sw-order-document-settings-modal', {
     template,
-
     data() {
         return {
             documentConfig: {
@@ -20,11 +19,6 @@ Component.extend('sw-order-document-settings-delivery-note-modal', 'sw-order-doc
     created() {
         this.createdComponent();
     },
-
-    props: {
-
-    },
-
     methods: {
         onCreateDocument(mode = false) {
             if (this.documentConfig.documentNumberPreview === this.documentConfig.documentNumber) {

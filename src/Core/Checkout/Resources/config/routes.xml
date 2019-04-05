@@ -9,4 +9,5 @@
     <import resource="../../Payment/" type="annotation" />
     <import resource="../../Cart/SalesChannel/" type="annotation" />
     <import resource="../../Customer/SalesChannel/" type="annotation" />
+    <import resource="../../Document/" type="annotation" />
 </routes>

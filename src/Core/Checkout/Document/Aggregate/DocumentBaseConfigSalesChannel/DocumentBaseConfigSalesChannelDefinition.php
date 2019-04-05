@@ -27,9 +27,9 @@ class DocumentBaseConfigSalesChannelDefinition extends EntityDefinition
             (new FkField('document_base_config_id', 'documentBaseConfigId', DocumentBaseConfigDefinition::class))->addFlags(new Required()),
             new FkField('sales_channel_id', 'salesChannelId', SalesChannelDefinition::class),
             new FkField('document_type_id', 'documentTypeId', DocumentTypeDefinition::class),
-            new ManyToOneAssociationField('documentType', 'document_type_id', DocumentTypeDefinition::class, false),
-            new ManyToOneAssociationField('documentBaseConfig', 'document_base_config_id', DocumentBaseConfigDefinition::class, false),
-            new ManyToOneAssociationField('salesChannel', 'sales_channel_id', SalesChannelDefinition::class, false),
+            new ManyToOneAssociationField('documentType', 'document_type_id', DocumentTypeDefinition::class, 'id'),
+            new ManyToOneAssociationField('documentBaseConfig', 'document_base_config_id', DocumentBaseConfigDefinition::class, 'id'),
+            new ManyToOneAssociationField('salesChannel', 'sales_channel_id', SalesChannelDefinition::class, 'id'),
         ]);
     }
 }

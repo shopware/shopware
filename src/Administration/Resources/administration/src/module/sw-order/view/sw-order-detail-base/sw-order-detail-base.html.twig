@@ -74,7 +74,7 @@
                                                             message: shippingCostsDetail,
                                                         }"
                                                         :editable="isEditing"
-                                                        :value="currentOrder.deliveries[0].shippingCosts.unitPrice | currency(order.currency.shortName)"
+                                                        :value="currentOrder.deliveries[0].shippingCosts.unitPrice"
                                                         @valueChanged="onShippingChargeEdited">
                                                     </sw-order-saveable-field>
                                                 </dd>
@@ -128,20 +128,20 @@
             </sw-order-delivery-metadata>
         {% endblock %}
         {% block sw_order_detail_base_document_grid %}
-            <sw-order-document-card v-if="hasAssociations && next1046"
+            <sw-order-document-card v-if="hasAssociations && next1046 && !isEditing"
                 class="sw-order-detail-base__document-grid"
                 :order="currentOrder"
                 :isLoading="isLoading">
             </sw-order-document-card>
         {% endblock %}
         {% block sw_order_detail_attribute_sets %}
-            <sw-card :title="$tc('sw-settings-attribute.general.mainMenuItemGeneral')"
-                     v-if="next754 && attributeSets.length > 0"
-                     :isLoading="order.isLoading">
+            <sw-card v-if="next754 && attributeSets.length > 0 && !isEditing"
+                :title="$tc('sw-settings-attribute.general.mainMenuItemGeneral')"
+                :isLoading="order.isLoading">
                 <sw-attribute-set-renderer
-                        :disabled="!isEditing"
-                        :entity="order"
-                        :sets="attributeSets">
+                    :disabled="!isEditing"
+                    :entity="order"
+                    :sets="attributeSets">
                 </sw-attribute-set-renderer>
             </sw-card>
         {% endblock %}

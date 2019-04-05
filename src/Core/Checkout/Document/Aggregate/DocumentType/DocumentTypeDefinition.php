@@ -50,9 +50,9 @@ class DocumentTypeDefinition extends EntityDefinition
             new TranslatedField('attributes'),
 
             (new TranslationsAssociationField(DocumentTypeTranslationDefinition::class, 'document_type_id'))->addFlags(new Required()),
-            new OneToManyAssociationField('documents', DocumentDefinition::class, 'document_type_id', false),
-            new OneToManyAssociationField('documentBaseConfigs', DocumentBaseConfigDefinition::class, 'document_type_id', false),
-            new OneToManyAssociationField('documentBaseConfigSalesChannels', DocumentBaseConfigSalesChannelDefinition::class, 'document_type_id', false),
+            new OneToManyAssociationField('documents', DocumentDefinition::class, 'document_type_id'),
+            new OneToManyAssociationField('documentBaseConfigs', DocumentBaseConfigDefinition::class, 'document_type_id'),
+            new OneToManyAssociationField('documentBaseConfigSalesChannels', DocumentBaseConfigSalesChannelDefinition::class, 'document_type_id'),
         ]);
     }
 }

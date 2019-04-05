@@ -4,7 +4,16 @@ import template from './sw-order-document-settings-storno-modal.html.twig';
 
 Component.extend('sw-order-document-settings-storno-modal', 'sw-order-document-settings-modal', {
     template,
-
+    props: {
+        order: {
+            type: Object,
+            required: true
+        },
+        currentDocumentType: {
+            type: Object,
+            required: true
+        }
+    },
     data() {
         return {
             documentConfig: {
@@ -22,28 +31,6 @@ Component.extend('sw-order-document-settings-storno-modal', 'sw-order-document-s
     created() {
         this.createdComponent();
     },
-
-    props: {
-        order: {
-            type: Object,
-            required: true,
-            default() {
-                return {};
-            }
-        },
-        currentDocumentType: {
-            type: Object,
-            required: true,
-            default() {
-                return {};
-            }
-        }
-    },
-
-    computed: {
-
-    },
-
     methods: {
         createdComponent() {
             this.numberRangeService.reserve(

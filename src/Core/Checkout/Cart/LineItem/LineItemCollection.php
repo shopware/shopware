@@ -6,6 +6,7 @@ use Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException;
 use Shopware\Core\Checkout\Cart\Exception\LineItemNotStackableException;
 use Shopware\Core\Checkout\Cart\Exception\MixedLineItemTypeException;
 use Shopware\Core\Checkout\Cart\Price\Struct\PriceCollection;
+use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Framework\Struct\Collection;
 
 /**
@@ -93,16 +94,33 @@ class LineItemCollection extends Collection
 
     public function sortByPriority(): void
     {
-        $this->sort(
-            function (LineItem $a, LineItem $b) {
-                $result = $b->getPriority() <=> $a->getPriority();
-                if ($result === 0 && $a->getPriceDefinition() !== null && $b->getPriceDefinition() !== null) {
-                    $result = $b->getPriceDefinition()->getPriority() <=> $a->getPriceDefinition()->getPriority();
-                }
-
-                return $result;
+        $lineItemsByPriceType = [];
+        /** @var LineItem $lineItem */
+        foreach ($this->elements as $lineItem) {
+            $lineItemPriceDefPrio = QuantityPriceDefinition::SORTING_PRIORITY;
+            if ($lineItem->getPriceDefinition()) {
+                $lineItemPriceDefPrio = $lineItem->getPriceDefinition()->getPriority();
             }
-        );
+
+            if (!array_key_exists($lineItemPriceDefPrio, $lineItemsByPriceType)) {
+                $lineItemsByPriceType[$lineItemPriceDefPrio] = [];
+            }
+            $lineItemsByPriceType[$lineItemPriceDefPrio][] = $lineItem;
+        }
+
+        krsort($lineItemsByPriceType);
+
+        foreach ($lineItemsByPriceType as $lineItemByPriceType) {
+            uasort($lineItemByPriceType,
+                function (LineItem $a, LineItem $b) {
+                    return $b->getPriority() <=> $a->getPriority();
+                }
+            );
+        }
+
+        if (count($lineItemsByPriceType)) {
+            $this->elements = array_merge(...$lineItemsByPriceType);
+        }
     }
 
     public function filterGoods(): self

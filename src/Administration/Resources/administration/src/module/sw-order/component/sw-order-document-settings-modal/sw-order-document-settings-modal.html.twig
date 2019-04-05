@@ -2,21 +2,18 @@
     <sw-modal title="Modal title"
         @closeModal="onCancel"
         class="sw-order-document-settings-modal">
-
         {% block sw_order_document_settings_modal_form_first_row %}
             <sw-container columns="1fr 1fr" gap="0px 10px">
                 {% block sw_order_document_settings_modal_form_document_number %}
                     <sw-field type="text" :label="$tc('sw-order.documentModal.labelDocumentNumber')" :value="documentConfig.documentNumber" v-model="documentConfig.documentNumber" disabled></sw-field>
                 {% endblock %}
-
                 {% block sw_order_document_settings_modal_form_document_date %}
                     <sw-datepicker
-                              v-if="documentConfig.documentDate"
-                              dateType="date"
-                              :label="$tc('sw-order.documentModal.labelDocumentDate')"
-                              :value="documentConfig.documentDate"
-                              v-model="documentConfig.documentDate"
-                              >
+                        v-if="documentConfig.documentDate"
+                        dateType="date"
+                        :label="$tc('sw-order.documentModal.labelDocumentDate')"
+                        :value="documentConfig.documentDate"
+                        v-model="documentConfig.documentDate">
                     </sw-datepicker>
                 {% endblock %}
             </sw-container>
@@ -27,12 +24,10 @@
 
         {% block sw_order_document_settings_modal_form_document_comment %}
             <sw-text-field
-                      :label="$tc('sw-order.documentModal.labelDocumentComment')"
-                      v-model="documentConfig.documentComment"
-            >
+                :label="$tc('sw-order.documentModal.labelDocumentComment')"
+                v-model="documentConfig.documentComment">
             </sw-text-field>
         {% endblock %}
-
 
         {% block sw_order_document_settings_modal_form_document_footer %}
             <template slot="modal-footer">

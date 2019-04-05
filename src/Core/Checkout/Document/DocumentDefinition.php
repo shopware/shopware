@@ -54,7 +54,7 @@ class DocumentDefinition extends EntityDefinition
 
             new AttributesField(),
 
-            (new ManyToOneAssociationField('documentType', 'document_type_id', DocumentTypeDefinition::class, true))->addFlags(new SearchRanking(SearchRanking::ASSOCIATION_SEARCH_RANKING)),
+            (new ManyToOneAssociationField('documentType', 'document_type_id', DocumentTypeDefinition::class, 'id'))->addFlags(new SearchRanking(SearchRanking::ASSOCIATION_SEARCH_RANKING)),
             new ManyToOneAssociationField('order', 'order_id', OrderDefinition::class, 'id', false),
         ]);
     }

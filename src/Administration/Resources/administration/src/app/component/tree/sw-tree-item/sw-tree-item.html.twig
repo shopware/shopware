@@ -136,6 +136,7 @@
                                           :newElementId="newElementId"
                                           :translationContext="translationContext"
                                           :onChangeRoute="onChangeRoute"
+                                          :sortable="sortable"
                                           @itemChecked="emitCheckedItem" :disableContextMenu="disableContextMenu">
                                 {% block sw_tree_item_children_items_slots %}
                                     <template slot="content" slot-scope="{ item, openTreeItem }">

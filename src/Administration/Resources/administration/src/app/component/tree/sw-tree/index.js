@@ -95,6 +95,16 @@ export default {
         disableContextMenu: {
             type: Boolean,
             default: false
+        },
+
+        sortable: {
+            type: Boolean,
+            default: true
+        },
+
+        checkItemsInitial: {
+            type: Boolean,
+            default: false
         }
     },
 
@@ -193,7 +203,8 @@ export default {
                     childCount: item[this.childCountProperty],
                     children: this.getTreeItems(item.id),
                     initialOpened: false,
-                    active: false
+                    active: false,
+                    checked: !!this.checkItemsInitial
                 });
             });
             return sort.afterSort(treeItems, this.afterIdProperty);

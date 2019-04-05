@@ -64,6 +64,7 @@ const dropZones = [];
  */
 const defaultDragConfig = {
     delay: 100,
+    deactivate: false,
     dragGroup: 1,
     draggableCls: 'is--draggable',
     draggingStateCls: 'is--dragging',
@@ -114,6 +115,11 @@ function onDrag(el, dragConfig, event) {
     if (event.buttons !== 1) {
         return false;
     }
+
+    if (dragConfig.deactivate) {
+        return false;
+    }
+
     if (dragConfig.preventEvent === true) {
         event.preventDefault();
         event.stopPropagation();

@@ -21,7 +21,9 @@ export default class OffcanvasTabs extends Plugin {
         const event = (DeviceDetection.isTouchDevice()) ? 'touchstart' : 'click';
 
         document.addEventListener(event, (e) => {
-            e.path.forEach(item => {
+            const path = e.path || (e.composedPath && e.composedPath());
+
+            path.forEach(item => {
                 if (DomAccess.hasAttribute(item, OFFCANVAS_TAB_DATA_ATTRIBUTE)) {
                     e.preventDefault();
                     this._onOpenOffcanvasTab(e);

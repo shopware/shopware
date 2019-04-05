@@ -169,7 +169,7 @@ new TranslatedField('name')
 The `TranslatedField` is a mapping field to indicate that this field (in this case `name`) is translatable and
 can be found in the corresponding translation definition for the entity - just like a symlink.
 
-To learn more about translations, please refer to the [Translations Guide](120-translations.md).
+To learn more about translations, please refer to the [Translations Guide](./120-translations.md).
 
 ### JsonField
 

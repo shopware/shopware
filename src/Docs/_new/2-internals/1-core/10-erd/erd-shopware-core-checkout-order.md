@@ -1,5 +1,7 @@
 [titleEn]: <>(Orders)
 
+[Back to modules](./../10-modules.md)
+
 Order management of the Platform. Notice: The data structure in this module is mostly decoupled from the rest of the system so deleting customers, products and other entities will not break already placed orders.
 
 ![Orders](./dist/erm-shopware-core-checkout-order.svg)
@@ -40,3 +42,4 @@ A line item in general is an item that was ordered in a checkout process. It can
 A concrete possibly partial payment for a given order. Is always related to a payment method and the state machine responsible for the process management.
 
 
+[Back to modules](./../10-modules.md)

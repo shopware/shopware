@@ -98,8 +98,8 @@ class DocsDumpErd extends Command
         $destPath = __DIR__ . '/../_new/2-internals/1-core/10-erd';
 
         $fs = new Filesystem();
-        $fs->remove($destPath);
-        $fs->mkdir($destPath);
+        $fs->remove(glob($destPath . '/erd-*'));
+        $fs->remove($destPath . '/_puml');
         $fs->mkdir($destPath . '/_puml');
 
         $definitions = $this->loadDefinitions();

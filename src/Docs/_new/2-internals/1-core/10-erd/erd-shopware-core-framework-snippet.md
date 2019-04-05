@@ -1,5 +1,7 @@
 [titleEn]: <>(Custom placeholder translations)
 
+[Back to modules](./../10-modules.md)
+
 Snippets are translatble placeholders.
 
 ![Custom placeholder translations](./dist/erm-shopware-core-framework-snippet.svg)
@@ -15,3 +17,4 @@ A set of related snippets.
 A Key/Value pair of a translation string and a translation.
 
 
+[Back to modules](./../10-modules.md)

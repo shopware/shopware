@@ -1,5 +1,7 @@
 [titleEn]: <>(Sales channels)
 
+[Back to modules](./../10-modules.md)
+
 The sales channels provide access to all typical frontend related content. A sales channel provides managed and controlled access to the product catalogue or the checkout process. Contrary to admin access, sales channel access is bound to concrete and strict processes. The specific domain logic of Shopware.
 
 ![Sales channels](./dist/erm-shopware-core-system-saleschannel.svg)
@@ -20,3 +22,4 @@ List of domains under which the sales channel is reachable.
 Modifies the sales channel behaviour.
 
 
+[Back to modules](./../10-modules.md)

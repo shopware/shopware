@@ -10,12 +10,15 @@ class MarkdownErdDumper implements ErdDumper
     const TEMPALE_HEAD = <<<EOD
 [titleEn]: <>(%s)
 
+[Back to modules](./../10-modules.md)
+
 %s
 
 ![%s](./%s)
 
 %s
 
+[Back to modules](./../10-modules.md)
 
 EOD;
 

@@ -1,5 +1,7 @@
 [titleEn]: <>(Asynchronous messaging)
 
+[Back to modules](./../10-modules.md)
+
 The message queue provides the necessary glue code between the API and the internally used message bus.
 
 ![Asynchronous messaging](./dist/erm-shopware-core-framework-messagequeue.svg)
@@ -15,3 +17,4 @@ Failing messages in the queue. Requeued with an ever increasing threshold.
 The number of tasks currently in the queue.
 
 
+[Back to modules](./../10-modules.md)

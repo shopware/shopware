@@ -1,5 +1,7 @@
 [titleEn]: <>(Number ranges)
 
+[Back to modules](./../10-modules.md)
+
 Numberranges are used to provide and generate non random but unique numbers for a variety of entities. For example the default stock keeping units (SKU) are generated here.
 
 ![Number ranges](./dist/erm-shopware-core-system-numberrange.svg)
@@ -20,3 +22,4 @@ Represents the current state of a number range by storing the last value.
 A list of available types, that may be global or lead to associated number ranges.
 
 
+[Back to modules](./../10-modules.md)

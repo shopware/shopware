@@ -1,5 +1,7 @@
 [titleEn]: <>(Customer)
 
+[Back to modules](./../10-modules.md)
+
 The central customer entity of the platform. Is created through SalesChannel processes and used in the order and cart workflow.
 
 ![Customer](./dist/erm-shopware-core-checkout-customer.svg)
@@ -20,3 +22,4 @@ The customer address table contains all addresses of all customers. Each custome
 Customers can be categorized in different groups. The customer group is used so processes like the cart can incorporate different rules.
 
 
+[Back to modules](./../10-modules.md)

@@ -14,6 +14,7 @@ Module.register('sw-settings-number-range', {
     description: 'Number Range section in the settings module',
     color: '#9AA8B5',
     icon: 'default-action-settings',
+    favicon: 'icon-module-settings.png',
     entity: 'number_range',
 
     snippets: {

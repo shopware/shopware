@@ -27,6 +27,7 @@ Module.register('sw-media', {
     targetVersion: '1.0.0',
     color: '#FFD700',
     icon: 'default-object-image',
+    favicon: 'icon-module-media.png',
     entity: 'media',
 
     snippets: {

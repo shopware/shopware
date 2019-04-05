@@ -16,6 +16,7 @@ Module.register('sw-settings-rule', {
     description: 'sw-settings-rule.general.descriptionTextModule',
     color: '#9AA8B5',
     icon: 'default-action-settings',
+    favicon: 'icon-module-settings.png',
     entity: 'rule',
 
     snippets: {

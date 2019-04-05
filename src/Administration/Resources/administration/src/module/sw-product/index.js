@@ -28,6 +28,7 @@ Module.register('sw-product', {
     targetVersion: '1.0.0',
     color: '#57D9A3',
     icon: 'default-symbol-products',
+    favicon: 'icon-module-products.png',
     entity: 'product',
 
     snippets: {

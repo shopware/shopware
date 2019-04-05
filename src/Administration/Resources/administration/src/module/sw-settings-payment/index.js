@@ -16,6 +16,7 @@ Module.register('sw-settings-payment', {
     description: 'Payment section in the settings module',
     color: '#9AA8B5',
     icon: 'default-action-settings',
+    favicon: 'icon-module-settings.png',
     entity: 'payment_method',
 
     snippets: {

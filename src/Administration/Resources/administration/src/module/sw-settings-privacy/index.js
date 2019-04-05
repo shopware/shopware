@@ -17,6 +17,7 @@ Module.register('sw-settings-privacy', {
     targetVersion: '1.0.0',
     color: '#9AA8B5',
     icon: 'default-action-settings',
+    favicon: 'icon-module-settings.png',
     entity: 'store_settings',
 
     snippets: {

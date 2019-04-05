@@ -26,6 +26,7 @@ Module.register('sw-settings-attribute', {
     description: 'sw-settings-attribute.general.description',
     color: '#9AA8B5',
     icon: 'default-action-settings',
+    favicon: 'icon-module-settings.png',
     entity: 'attribute-set',
 
     snippets: {

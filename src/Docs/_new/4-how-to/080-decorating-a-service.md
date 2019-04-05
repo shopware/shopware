@@ -1,5 +1,4 @@
 [titleEn]: <>(Decorating a service)
-[wikiUrl]: <>(../how-to/decorating-a-service?category=platform-en/how-to)
 
 ## Overview
 

@@ -1,5 +1,4 @@
 [titleEn]: <>(Updating your plugin via migrations)
-[wikiUrl]: <>(../how-to/updating-your-plugin-via-migrations?category=platform-en/how-to)
 
 ## Overview
 
@@ -14,16 +13,16 @@ A very common solution to this issue is a database migration system, which the S
 for every plugin.
 
 Here's a brief introduction on how to use `Migrations` in your plugin.
-Make sure to have a look at our in-depth guide about [plugin migrations](../2-platform/4-extending-the-platform/1-plugins/080-plugin-migrations.md).
+Make sure to have a look at our in-depth guide about [plugin migrations](../2-internals/4-plugins/080-plugin-migrations.md).
 
 ## Setup
 
 This example won't explain how to create a plugin in the first instance.
-How to create your first plugin is explained in detail [here](./020-plugin-quick-start.md).
+How to create your first plugin is explained in detail [here](../2-internals/4-plugins/010-plugin-quick-start.md).
 
 By default, the Shopware platform is looking for migration files in a folder called `Migration` inside of your
 plugin root directory.
-You can adjust this behaviour by overwriting the [getMigrationNamespace](../2-platform/4-extending-the-platform/1-plugins/020-plugin-base-class.md##Customizing the migration path()) method in your plugin.
+You can adjust this behaviour by overwriting the [getMigrationNamespace](../2-internals/4-plugins/020-plugin-base-class.md#getMigrationNamespace()) method in your plugin.
 
 ## The migration file
 

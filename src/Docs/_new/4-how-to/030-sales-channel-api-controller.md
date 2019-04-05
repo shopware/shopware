@@ -1,9 +1,8 @@
-[titleEn]: <>(Storefront API controller)
-[wikiUrl]: <>(../how-to/storefront-api-controller?category=platform-en/how-to)
+[titleEn]: <>(SalesChannel-API controller)
 
-This HowTo will give you a brief introduction on how to setup a custom Storefront API controller with your plugin.
-Read [here](../../070-storefront-api.md) for more information about the Storefront API.
-Also, [this](./020-api-controller.md) guide covers the same subject for the core API.
+This HowTo will give you a brief introduction on how to setup a custom SalesChannel-API controller with your plugin.
+Read [here](../3-api/60-sales-channel-api.md) for more information about the SalesChannel-API.
+Also, [this](./020-api-controller.md) guide covers the same subject for the management API.
 
 ## Plugin base class
 
@@ -12,11 +11,11 @@ You don't have to override any method in the plugin's base class for this subjec
 ```php
 <?php declare(strict_types=1);
 
-namespace StorefrontApiController;
+namespace SalesChannelApiController;
 
 use Shopware\Core\Framework\Plugin;
 
-class StorefrontApiController extends Plugin
+class SalesChannelApiController extends Plugin
 {
 }
 ```
@@ -55,7 +54,7 @@ Here's an example of what the controller could then look like:
 ```php
 <?php declare(strict_types=1);
 
-namespace StorefrontApiController\Controller;
+namespace SalesChannelApiController\Controller;
 
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Routing\Annotation\Route;
@@ -64,16 +63,16 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 class MyController extends AbstractController
 {
     /**
-     * @Route("/storefront-api/v1/swag/my-storefront-api-action", name="storefront-api.action.swag.my-storefront-api-action", methods={"GET"})
+     * @Route("/sales-channel-api/v1/swag/my-sales-channel-api-action", name="sales-channel-api.action.swag.my-sales-channel-api-action", methods={"GET"})
      */
     public function myFirstApi(): JsonResponse
     {
-        return new JsonResponse(['You successfully created your first storefront api controller route']);
+        return new JsonResponse(['You successfully created your first SalesChannel-API controller route']);
     }
 }
 ```
 
 There are several things to note about the `@Route` annotation:
-- In order for your controller to be an Storefront API controller, your route needs to start with `/storefront-api/`
+- In order for your controller to be an SalesChannel-API controller, your route needs to start with `/sales-channel-api/`
 - The respective method only supports `GET` requests, hence the `methods={"GET"}` part of the annotation
 - Make sure to use your vendor prefix (`swag` in this example), so route collisions with other plugins won't be an issue

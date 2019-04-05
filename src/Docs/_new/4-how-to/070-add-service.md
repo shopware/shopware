@@ -1,5 +1,4 @@
 [titleEn]: <>(Creating a service)
-[wikiUrl]: <>(../how-to/creating-a-service?category=platform-en/how-to)
 
 ## Overview
 

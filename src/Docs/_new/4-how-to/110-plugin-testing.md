@@ -1,5 +1,4 @@
 [titleEn]: <>(Automated tests in plugins)
-[wikiUrl]: <>(../how-to/automated-tests-in-plugins?category=platform-en/how-to)
 
 ## Overview
 

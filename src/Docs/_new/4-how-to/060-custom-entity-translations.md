@@ -1,5 +1,4 @@
 [titleEn]: <>(Translating a custom entity)
-[wikiUrl]: <>(../how-to/translating-a-custom-entity?category=platform-en/how-to)
 
 ## Overview
 

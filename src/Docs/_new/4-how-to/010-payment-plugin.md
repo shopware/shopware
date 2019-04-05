@@ -1,5 +1,4 @@
 [titleEn]: <>(Payment plugin)
-[wikiUrl]: <>(../how-to/payment-plugin?category=platform-en/how-to)
 
 Payments are an essential part of the checkout process.
 That's the reason why Shopware offers an easy platform on which you can build payment plugins.

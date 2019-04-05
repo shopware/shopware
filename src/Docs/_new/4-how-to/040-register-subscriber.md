@@ -1,5 +1,4 @@
 [titleEn]: <>(How to create a subscriber)
-[wikiUrl]: <>(../how-to/how-to-create-a-subscriber?category=platform-en/how-to)
 
 This HowTo will cover what you need to know in order to create a subscriber using your plugin.
 
@@ -7,7 +6,7 @@ This HowTo will cover what you need to know in order to create a subscriber usin
 
 Registering a custom subscriber requires to load a custom `services.xml` file with your plugin.
 This is done in your plugins base class by using the `build` method.
-Make sure to have a look at the guide about the [plugin base class](../2-platform/4-extending-the-platform/1-plugins/020-plugin-base-class.md) for further information.
+Make sure to have a look at the guide about the [plugin base class](./../2-internals/4-plugins/020-plugin-base-class.md) for further information.
 
 ```php
 <?php declare(strict_types=1);
@@ -71,7 +70,7 @@ Unfortunately, your subscriber is not even loaded yet - this will be done in the
 ## Introducing your subscriber via services.xml
 
 Registering your subscriber to the Shopware platform is also as simple as it is in Symfony.
-You're simply [registering your (subscriber) service](./register-a-service.md) by mentioning it in the `services.xml`.
+You're simply [registering your (subscriber) service](./070-add-service.md) by mentioning it in the `services.xml`.
 The only difference to a normal service is, that you need to the `kernel.event_subscriber` tag to your subscriber for it
 to be recognized as such.
 

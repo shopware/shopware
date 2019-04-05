@@ -1,10 +1,10 @@
-import Plugin from '../../helper/plugin/plugin.class'
+import Plugin from 'asset/script/helper/plugin/plugin.class'
 import $ from 'jquery';
-import DomAccess from "../../helper/dom-access.helper";
-import DeviceDetection from "../../helper/device-detection.helper";
-import ViewportDetection from "../../helper/viewport-detection.helper";
+import DomAccess from 'asset/script/helper/dom-access.helper';
+import DeviceDetection from 'asset/script/helper/device-detection.helper';
+import ViewportDetection from 'asset/script/helper/viewport-detection.helper';
 
-const COLLAPSE_SHOW_CLASS = "show";
+const COLLAPSE_SHOW_CLASS = 'show';
 
 const COLLAPSE_COLUMN_SELECTOR = '.js-footer-column';
 const COLLAPSE_COLUMN_HEADLINE_SELECTOR = '.js-footer-column-headline';
@@ -40,7 +40,7 @@ export default class CollapseFooterColumnsPlugin extends Plugin {
         const event = (DeviceDetection.isTouchDevice()) ? 'touchstart' : 'click';
 
         this._columns.forEach((column) => {
-            let trigger = DomAccess.querySelector(column, COLLAPSE_COLUMN_HEADLINE_SELECTOR);
+            const trigger = DomAccess.querySelector(column, COLLAPSE_COLUMN_HEADLINE_SELECTOR);
 
             // remove possibly existing event listeners
             trigger.removeEventListener(event, this._onClickCollapseTrigger);

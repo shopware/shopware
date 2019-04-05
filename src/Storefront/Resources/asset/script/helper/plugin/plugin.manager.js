@@ -66,7 +66,7 @@ class PluginManagerSingleton {
      * @returns {*}
      */
     register(name, pluginClass, selector = document, options = {}) {
-        if (this._registry.has(name)) {
+        if (this._registry.has(name, selector)) {
             throw new Error(`Plugin "${name}" is already registered.`);
         }
 
@@ -77,14 +77,16 @@ class PluginManagerSingleton {
      * Removes a plugin from the plugin manager.
      *
      * @param {string} name
+     * @param {string} selector
+     *
      * @returns {*}
      */
-    deregister(name) {
-        if (!this._registry.has(name)) {
+    deregister(name, selector = document) {
+        if (!this._registry.has(name, selector)) {
             throw new Error(`The plugin "${name}" is not registered.`);
         }
 
-        return this._registry.delete(name);
+        return this._registry.delete(name, selector);
     }
 
     /**
@@ -99,11 +101,11 @@ class PluginManagerSingleton {
      *
      * @returns {boolean}
      */
-    extend(fromName, newName, pluginClass, selector, options = {}) {
+    extend(fromName, newName, pluginClass, selector = document, options = {}) {
         // Register the plugin under a new name
         // If the name is the same, replace it
         if (fromName === newName) {
-            this.deregister(fromName);
+            this.deregister(fromName, selector);
             return this.register(newName, pluginClass, selector, options);
         }
 
@@ -127,8 +129,8 @@ class PluginManagerSingleton {
      *
      * @returns {Object|null}
      */
-    getPluginInstance(el, name) {
-        const instances = this.getPluginInstances(el);
+    static getPluginInstance(el, name) {
+        const instances = PluginManagerSingleton.getPluginInstances(el);
 
         return instances.get(name);
     }
@@ -140,7 +142,11 @@ class PluginManagerSingleton {
      *
      * @returns {Map|null}
      */
-    getPluginInstances(el) {
+    static getPluginInstances(el) {
+        if (!DomAccess.isNode(el)) {
+            throw new Error('Passed element is not an Html element!')
+        }
+
         el.__plugins = el.__plugins || new Map();
 
         return el.__plugins;
@@ -157,8 +163,10 @@ class PluginManagerSingleton {
                     throw new Error(`The plugin "${pluginName}" is not registered.`);
                 }
 
-                const definition = this._registry.get(pluginName);
-                this.executePlugin(definition.name, definition.selector, definition.options);
+                const plugin = this._registry.get(pluginName);
+                plugin.get('registrations').forEach(entry => {
+                    this._executePlugin(plugin.get('class'), entry.selector, entry.options, plugin.get('name'));
+                });
             }
         });
     }
@@ -171,13 +179,16 @@ class PluginManagerSingleton {
      * @param {Object} options
      */
     executePlugin(name, selector, options) {
-        if (!this._registry.has(name)) {
-            throw new Error(`The plugin "${name}" is not registered.`);
+        if (!this._registry.has(name, selector)) {
+            throw new Error(`The plugin "${name}" for the selector "${selector}" is not registered.`);
         }
 
-        const definition = this._registry.get(name);
-        const mergedOptions = deepmerge(definition.options, options);
-        this._executePlugin(definition.plugin, selector, mergedOptions, definition);
+        const plugin = this._registry.get(name, selector);
+        const selectorOptions = plugin.get('registrations').get(selector);
+        const pluginClass = plugin.get('class');
+        const mergedOptions = deepmerge(pluginClass.options || {}, deepmerge(selectorOptions.options || {}, options || {}));
+
+        this._executePlugin(pluginClass, selector, mergedOptions, plugin.get('name'));
     }
 
     /**
@@ -186,11 +197,11 @@ class PluginManagerSingleton {
      * @param {Plugin} pluginClass
      * @param {String|NodeList|HTMLElement} selector
      * @param {Object} options
-     * @param {Object|boolean} definition
+     * @param {string} name
      */
-    _executePlugin(pluginClass, selector, options, definition = false) {
+    _executePlugin(pluginClass, selector, options, name = false) {
         if (DomAccess.isNode(selector)) {
-            return PluginManagerSingleton._executePluginOnElement(selector, pluginClass, options, definition);
+            return PluginManagerSingleton._executePluginOnElement(selector, pluginClass, options, name);
         }
 
         if (typeof selector === 'string') {
@@ -198,7 +209,7 @@ class PluginManagerSingleton {
         }
 
         return selector.forEach((el) => {
-            PluginManagerSingleton._executePluginOnElement(el, pluginClass, options, definition);
+            PluginManagerSingleton._executePluginOnElement(el, pluginClass, options, name);
         });
     }
 
@@ -208,15 +219,15 @@ class PluginManagerSingleton {
      * @param {String|NodeList|HTMLElement} el
      * @param {Plugin} pluginClass
      * @param {Object} options
-     * @param {Object|boolean} definition
+     * @param {string} name
      * @private
      */
-    static _executePluginOnElement(el, pluginClass, options, definition) {
+    static _executePluginOnElement(el, pluginClass, options, name) {
         if (typeof pluginClass !== 'function') {
             throw new Error('The passed plugin is not a function or a class.');
         }
 
-        new pluginClass(el, options, definition.name); // eslint-disable-line no-new
+        new pluginClass(el, options, name); // eslint-disable-line no-new
     }
 
     /**
@@ -232,14 +243,14 @@ class PluginManagerSingleton {
      * @private
      */
     _extendPlugin(fromName, newName, pluginClass, selector, options = {}) {
-        if (!this._registry.has(fromName)) {
+        if (!this._registry.has(fromName, selector)) {
             throw new Error(`The plugin "${fromName}" is not registered.`);
         }
 
         // get current plugin
         const extendFrom = this._registry.get(fromName);
-        const parentPlugin = extendFrom.plugin;
-        const mergedOptions = deepmerge(deepmerge(parentPlugin.options, extendFrom.options), options);
+        const parentPlugin = extendFrom.get('class');
+        const mergedOptions = deepmerge(parentPlugin.options, options);
 
         // Create plugin
         class InternallyExtendedPlugin extends parentPlugin {
@@ -285,10 +296,12 @@ export default class PluginManager {
      * Removes a plugin from the plugin manager.
      *
      * @param {string} name
+     * @param {string} selector
+     *
      * @returns {*}
      */
-    static deregister(name) {
-        return PluginManagerInstance.deregister(name);
+    static deregister(name, selector) {
+        return PluginManagerInstance.deregister(name, selector);
     }
 
     /**
@@ -325,7 +338,7 @@ export default class PluginManager {
      * @returns {Object|null}
      */
     static getPluginInstance(el, name) {
-        return PluginManagerInstance.getPluginInstance(el,name)
+        return PluginManagerSingleton.getPluginInstance(el, name);
     }
 
     /**
@@ -336,7 +349,7 @@ export default class PluginManager {
      * @returns {Map|null}
      */
     static getPluginInstances(el) {
-        return PluginManagerInstance.getPluginInstances(el);
+        return PluginManagerSingleton.getPluginInstances(el);
     }
 
     /**

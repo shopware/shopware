@@ -15,10 +15,10 @@ import ViewportDetection from 'asset/script/helper/viewport-detection.helper';
 import ModalExtensionUtil from 'asset/script/util/modal-extension/modal-extension.util';
 
 // plugins
-import SimplePlugin from 'asset/script/plugin/_example/simple.plugin';
-import VanillaExtendPlugin from 'asset/script/plugin/_example/vanilla-extended.plugin';
-import ExtendedPlugin from 'asset/script/plugin/_example/extended.plugin';
-import OverriddenPlugin from 'asset/script/plugin/_example/overridden.plugin';
+// import SimplePlugin from 'asset/script/plugin/_example/simple.plugin';
+// import VanillaExtendPlugin from 'asset/script/plugin/_example/vanilla-extended.plugin';
+// import ExtendedPlugin from 'asset/script/plugin/_example/extended.plugin';
+// import OverriddenPlugin from 'asset/script/plugin/_example/overridden.plugin';
 
 import CartWidgetPlugin from 'asset/script/plugin/actions/cart-widget.plugin';
 import CartMiniPlugin from 'asset/script/plugin/cart-mini/cart-mini.plugin';
@@ -58,15 +58,16 @@ register plugins
 */
 
 // example plugin (remove before release)
-PluginManager.register('Simple', SimplePlugin, 'body', { plugin: 'simple' });
-PluginManager.register('VanillaExtendSimple', SimplePlugin, 'body', { plugin: 'simple' });
-PluginManager.extend('VanillaExtendSimple', 'VanillaExtendSimple', VanillaExtendPlugin, 'body', { plugin: 'simple vanilla extend' });
-
-PluginManager.register('ExtendSimple', SimplePlugin, 'body', { plugin: 'simple' });
-PluginManager.extend('ExtendSimple', 'NewExtendSimple', ExtendedPlugin, 'body', { plugin: 'simple extend' });
-
-PluginManager.register('OverrideSimple', SimplePlugin, 'body', { plugin: 'simple' });
-PluginManager.extend('OverrideSimple', 'OverrideSimple', OverriddenPlugin, 'body', { plugin: 'simple override' });
+// PluginManager.register('Simple', SimplePlugin, 'body', { plugin: 'simple' });
+// PluginManager.executePlugin('Simple', 'body');
+// PluginManager.register('VanillaExtendSimple', SimplePlugin, 'body', { plugin: 'simple' });
+// PluginManager.extend('VanillaExtendSimple', 'VanillaExtendSimple', VanillaExtendPlugin, 'body', { plugin: 'simple vanilla extend' });
+//
+// PluginManager.register('ExtendSimple', SimplePlugin, 'body', { plugin: 'simple' });
+// PluginManager.extend('ExtendSimple', 'NewExtendSimple', ExtendedPlugin, 'body', { plugin: 'simple extend' });
+//
+// PluginManager.register('OverrideSimple', SimplePlugin, 'body', { plugin: 'simple' });
+// PluginManager.extend('OverrideSimple', 'OverrideSimple', OverriddenPlugin, 'body', { plugin: 'simple override' });
 // example plugin end (remove before release)
 
 PluginManager.register('SearchWidget', SearchWidgetPlugin, document);

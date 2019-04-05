@@ -7,11 +7,20 @@ export default class DomAccess {
      * @returns {boolean}
      */
     static isNode(element) {
+        if (!element) return false;
+
         if (typeof Node === 'object') {
             return element instanceof Node;
         }
 
-        return element && typeof element === 'object' && typeof element.nodeType === 'number' && typeof element.nodeName === 'string';
+        const isObject = typeof element === 'object';
+        const isNumber = typeof element.nodeType === 'number';
+        const isString = typeof element.nodeName === 'string';
+
+        const HtmlNode = isObject && isNumber && isString;
+        const RootNode = element === document || element === window;
+
+        return element && (HtmlNode || RootNode);
     }
 
     /**

@@ -25,7 +25,6 @@ return [
     'Framework/Version' => 'Version data management',
     'Framework/Snippet' => 'Translation management',
     'System/SalesChannel' => 'Sales Channels',
-    'System/Language' => 'Languages',
     'System/SystemConfig' => 'Platform Configuration',
     'System/StateMachine' => 'Order state management',
     'System/Currency' => 'Currencies',
@@ -56,4 +55,6 @@ return [
     'Framework/Store' => 'Plugin store',
     'Framework/Context' => 'Main context',
     'Content/NewsletterReceiver' => 'Newsletter',
+    'Framework/Uuid' => 'UUID Handling',
+    'Framework/Language' => 'Languages',
 ];

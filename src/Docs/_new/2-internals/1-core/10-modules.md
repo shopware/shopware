@@ -32,11 +32,15 @@ All core modules encapsulate domain concepts and provide a varying number of ext
 
 Routing
 
-### [Framework/FeatureFlag](https://github.com/shopware/platform/tree/master/src/Core/Framework/FeatureFlag) 
+### [Framework/FeatureFlag](https://github.com/shopware/platform/tree/master/src/Core/Framework/FeatureFlag) *[Maintenance]*
 
 Feature Flag configuration
 
-### [Framework/DataAbstractionLayer](https://github.com/shopware/platform/tree/master/src/Core/Framework/DataAbstractionLayer) *[Data store]*, *[Custom Extendable]*, *[Extension]*
+### [Framework/Uuid](https://github.com/shopware/platform/tree/master/src/Core/Framework/Uuid) 
+
+UUID Handling
+
+### [Framework/DataAbstractionLayer](https://github.com/shopware/platform/tree/master/src/Core/Framework/DataAbstractionLayer) *[Data store]*, *[Maintenance]*, *[Custom Extendable]*, *[Extension]*
 
 Data Abstraction Layer
 
@@ -64,7 +68,7 @@ Pricing
 
 Filesystem handling
 
-### [Framework/Migration](https://github.com/shopware/platform/tree/master/src/Core/Framework/Migration) *[Custom Extendable]*
+### [Framework/Migration](https://github.com/shopware/platform/tree/master/src/Core/Framework/Migration) *[Maintenance]*, *[Custom Extendable]*
 
 Database migration system
 
@@ -72,7 +76,11 @@ Database migration system
 
 Plugin services
 
-### [Framework/ScheduledTask](https://github.com/shopware/platform/tree/master/src/Core/Framework/ScheduledTask) *[Data store]*, *[Custom Extendable]*, *[Extension]*
+### [Framework/Language](https://github.com/shopware/platform/tree/master/src/Core/Framework/Language) *[Data store]*, *[Custom Extendable]*, *[Extension]*
+
+Languages
+
+### [Framework/ScheduledTask](https://github.com/shopware/platform/tree/master/src/Core/Framework/ScheduledTask) *[Data store]*, *[Maintenance]*, *[Custom Extendable]*, *[Extension]*
 
 Cron jobs
 
@@ -108,7 +116,7 @@ Attribute management
 
 Validation
 
-### [Framework/Api](https://github.com/shopware/platform/tree/master/src/Core/Framework/Api) *[SalesChannel-API]*, *[Custom Extendable]*
+### [Framework/Api](https://github.com/shopware/platform/tree/master/src/Core/Framework/Api) *[Maintenance]*, *[SalesChannel-API]*, *[Custom Extendable]*
 
 Rest-API
 
@@ -124,23 +132,19 @@ Version data management
 
 Translation management
 
-### [System/SalesChannel](https://github.com/shopware/platform/tree/master/src/Core/System/SalesChannel) *[Data store]*, *[SalesChannel-API]*, *[Extension]*
+### [System/SalesChannel](https://github.com/shopware/platform/tree/master/src/Core/System/SalesChannel) *[Data store]*, *[Maintenance]*, *[SalesChannel-API]*, *[Extension]*
 
 Sales Channels
-
-### [System/Language](https://github.com/shopware/platform/tree/master/src/Core/System/Language) *[Data store]*, *[Custom Extendable]*, *[Extension]*
-
-Languages
 
 ### [System/SystemConfig](https://github.com/shopware/platform/tree/master/src/Core/System/SystemConfig) *[Data store]*, *[Extension]*
 
 Platform Configuration
 
-### [System/StateMachine](https://github.com/shopware/platform/tree/master/src/Core/System/StateMachine) *[Data store]*, *[Extension]*
+### [System/StateMachine](https://github.com/shopware/platform/tree/master/src/Core/System/StateMachine) *[Data store]*, *[Maintenance]*, *[Extension]*
 
 Order state management
 
-### [System/Currency](https://github.com/shopware/platform/tree/master/src/Core/System/Currency) *[Data store]*, *[Extension]*
+### [System/Currency](https://github.com/shopware/platform/tree/master/src/Core/System/Currency) *[Data store]*, *[Rule Provider]*, *[Extension]*
 
 Currencies
 
@@ -168,7 +172,7 @@ Taxes
 
 Locales
 
-### [System/User](https://github.com/shopware/platform/tree/master/src/Core/System/User) *[Data store]*, *[Extension]*
+### [System/User](https://github.com/shopware/platform/tree/master/src/Core/System/User) *[Data store]*, *[Maintenance]*, *[Extension]*
 
 Admin Users
 

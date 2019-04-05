@@ -146,6 +146,7 @@ EOD;
                     'Profiling/Doctrine',
                     'Profiling/Resources',
                     'Profiling/Twig',
+                    'Checkout/Promotion',
                 ], true);
             })
             ->depth('1');

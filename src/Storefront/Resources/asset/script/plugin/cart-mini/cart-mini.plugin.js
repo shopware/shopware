@@ -28,7 +28,9 @@ export default class CartMiniPlugin extends Plugin {
         const event = (DeviceDetection.isTouchDevice()) ? 'touchstart' : 'click';
 
         document.addEventListener(event, (e) => {
-            e.path.forEach(item => {
+            const path = e.path || (e.composedPath && e.composedPath());
+
+            path.forEach(item => {
                 if (DomAccess.isNode(item) && DomAccess.hasAttribute(item, CART_MINI_OPEN_TRIGGER_DATA_ATTRIBUTE)) {
                     e.preventDefault();
                     this._onOpenCartMini(e);

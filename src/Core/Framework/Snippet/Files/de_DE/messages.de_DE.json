@@ -21,7 +21,8 @@
         "closeMenu": "Menü schließen",
         "back": "Zurück",
         "categories": "Kategorien",
-        "showCategory": "%category% anzeigen"
+        "showCategory": "%category% anzeigen",
+        "requiredFields": "* hierbei handelt es sich um ein Pflichtfeld"
     },
     "header": {
         "logoLink": "zur Startseite wechseln",
@@ -60,7 +61,10 @@
         "registerAdvantage4": "Verwalten Sie Ihr Newsletter-Abo",
         "required": "*",
         "registerPersonalHeader": "Ich bin Neukunde",
-        "registerAddressHeader": "Ihre Adresse",
+        "registerAddressBillingHeader": "Ihre Adresse",
+        "registerAddressShippingHeader": "Ihre abweichende Lieferadresse",
+        "personalSalutationLabel": "Anrede",
+        "personalSalutationPlaceholder": "Anrede",
         "personalTitleLabel": "Titel",
         "personalTitlePlaceholder": "Titel",
         "personalFirstNameLabel": "Vorname",
@@ -80,6 +84,7 @@
         "personalBirthdaySelectDay": "Tag",
         "personalBirthdaySelectMonth": "Monat",
         "personalBirthdaySelectYear": "Jahr",
+        "registerDifferentShipping": "Die Lieferadresse weicht von der Rechnungsadresse ab.",
         "registerSubmit": "Weiter",
         "overviewTitle": "Kundenkonto",
         "greetings": "Hi, ",
@@ -151,8 +156,7 @@
         "orderItemInfoNotAvailable": "Artikel ist für eine Folgebestellung nicht mehr verfügbar",
         "orderActionSlide": "Anzeigen",
         "orderInfoNoDispatch": "Nicht angegeben",
-        "orderLinkRepeat": "Bestellung wiederholen",
-        "requiredFields": "* hierbei handelt es sich um ein Pflichtfeld"
+        "orderLinkRepeat": "Bestellung wiederholen"
     },
     "address": {
         "streetLabel": "Straße und Nr.",
@@ -166,12 +170,11 @@
         "cityLabel": "Ort",
         "cityPlaceholder": "Ort",
         "countryLabel": "Land",
-        "requiredFields": "* hierbei handelt es sich um ein Pflichtfeld"
+        "countryPlaceholder": "Land"
     },
     "checkout": {
-        "stepAddress": "Ihre Adresse",
-        "stepConfig": "Zahlungsart & Versandart",
-        "stepConfirm": "Prüfen und Bestellen",
+        "registerLoginToggle": "Login anzeigen",
+        "registerGuestmodeLabel": "Kein Kundenkonto anlegen",
         "cartTitle": "Warenkorb",
         "cartHeader": "Warenkorb",
         "continueShopping": "Weiter einkaufen",
@@ -195,17 +198,11 @@
         "summaryNetPrice": "Gesamtsumme ohne MwSt.:",
         "summaryTax": "zzgl. %rate% % MwSt.:",
         "proceedLink": "Zur Kasse",
-        "configHeader": "Zahlungsart & Versandart",
-        "configPaymentHeader": "Zahlungsart wählen",
-        "configShippingHeader": "Versandart wählen",
-        "configNextLink": "Weiter",
         "addressEqualHeader": "Rechnungs- und Lieferadresse",
         "billingAddressHeader": "Rechnungsadresse",
         "shippingAddressHeader": "Lieferadresse",
-        "confirmHeaderPayment": "Zahlung und Versand",
-        "confirmPaymentMethod": "Zahlungsart: ",
-        "confirmDispatchMethod": "Versandart: ",
-        "confirmPaymentMethodChange": "Ändern",
+        "confirmPaymentHeader": "Zahlungsart wählen",
+        "confirmShippingHeader": "Versandart wählen",
         "confirmSubmit": "Zahlungspflichtig bestellen",
         "confirmTermsHeader": "AGB und Widerrufsbelehrung",
         "confirmRevocationNotice": "Bitte beachten Sie bei Ihrer Bestellung auch unsere <a href='#' title='Widerrufsbelehrung'>Widerrufsbelehrung</a>.",

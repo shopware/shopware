@@ -25,7 +25,6 @@ export default class SimplePlugin extends Plugin {
      */
     init() {
         this._getRandomColor();
-        console.log(this);
     }
 
     /**

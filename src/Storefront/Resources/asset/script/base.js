@@ -10,7 +10,6 @@ import 'asset/scss/base.scss';
 // helpers
 import PluginManager from 'asset/script/helper/plugin/plugin.manager';
 import ViewportDetection from 'asset/script/helper/viewport-detection.helper';
-import HttpClient from 'asset/script/service/http-client.service';
 
 // utils
 import ModalExtensionUtil from 'asset/script/util/modal-extension/modal-extension.util';
@@ -28,6 +27,9 @@ import CollapseFooterColumnsPlugin from 'asset/script/plugin/collapse/collapse-f
 import SearchWidgetPlugin from 'asset/script/plugin/actions/search-widget/search-widget.plugin';
 import FlyoutMenuPlugin from 'asset/script/plugin/main-menu/flyout-menu.plugin';
 import OffcanvasMenuPlugin from 'asset/script/plugin/main-menu/offcanvas-menu.plugin';
+import GuestModePlugin from 'asset/script/plugin/register/guest-mode.plugin';
+import DifferentShippingPlugin from 'asset/script/plugin/register/different-shipping.plugin';
+import FormValidationPlugin from 'asset/script/plugin/register/form-validation.plugin';
 
 // static plugins
 import Logout from 'asset/script/plugin/logout/logout.plugin';
@@ -53,14 +55,6 @@ if (module.hot) {
 }
 
 /*
-http client example
-*/
-const client = new HttpClient(window.accessKey, window.contextToken);
-client.get('/storefront-api/v1/product?page=1&limit=10', (response) => {
-    console.log('client response', JSON.parse(response));
-});
-
-/*
 register plugins
 */
 
@@ -83,6 +77,9 @@ PluginManager.register('CookiePermission', CookiePermissionPlugin, document);
 PluginManager.register('CollapseFooterColumns', CollapseFooterColumnsPlugin, document);
 PluginManager.register('FlyoutMenu', FlyoutMenuPlugin, '[data-offcanvas-menu="true"]');
 PluginManager.register('OffcanvasMenu', OffcanvasMenuPlugin, '[data-offcanvas-menu="true"]');
+PluginManager.register('DifferentShipping', DifferentShippingPlugin, '*[data-different-shipping="true"]');
+PluginManager.register('GuestMode', GuestModePlugin, '*[data-guest-mode="true"]');
+PluginManager.register('FormValidation', FormValidationPlugin, '*[data-form-validation="true"]');
 
 /*
 run plugins

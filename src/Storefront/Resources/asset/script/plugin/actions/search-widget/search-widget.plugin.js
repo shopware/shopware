@@ -18,10 +18,15 @@ const SEARCH_WIDGET_MIN_CHARS = 3;
 export default class SearchWidgetPlugin extends Plugin {
 
     init() {
+        try {
+            this._form = DomAccess.querySelector(document, SEARCH_WIDGET_SELECTOR);
+            this._inputField = DomAccess.querySelector(this._form, SEARCH_WIDGET_INPUT_FIELD_SELECTOR);
+            this._url = DomAccess.getAttribute(this._form, SEARCH_WIDGET_URL_DATA_ATTRIBUTE);
+        } catch (e) {
+            return;
+        }
+
         this._client = new HttpClient(window.accessKey, window.contextToken);
-        this._form = DomAccess.querySelector(document, SEARCH_WIDGET_SELECTOR);
-        this._inputField = DomAccess.querySelector(this._form, SEARCH_WIDGET_INPUT_FIELD_SELECTOR);
-        this._url = DomAccess.getAttribute(this._form, SEARCH_WIDGET_URL_DATA_ATTRIBUTE);
 
         // initialize the arrow navigation
         this._navigationHelper = new ArrowNavigationHelper(

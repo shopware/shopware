@@ -13,8 +13,13 @@ const COLLAPSE_COLUMN_CONTENT_SELECTOR = '.js-footer-column-content';
 export default class CollapseFooterColumnsPlugin extends Plugin {
 
     init() {
-        this._footer = DomAccess.querySelector(document, '#footerColumns');
-        this._columns = this._footer.querySelectorAll(COLLAPSE_COLUMN_SELECTOR);
+        try {
+            this._footer = DomAccess.querySelector(document, '#footerColumns');
+            this._columns = this._footer.querySelectorAll(COLLAPSE_COLUMN_SELECTOR);
+        } catch (e) {
+            return;
+        }
+
         this._registerEvents();
     }
 

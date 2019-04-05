@@ -1,3 +1,17 @@
+// general
+.checkout {
+    &.is-finish {
+        .checkout-main-left {
+            @extend .col-12;
+        }
+
+        .checkout-main-right {
+            @extend .offset-lg-8;
+            @extend .col-lg-4;
+        }
+    }
+}
+
 .finish-teaser {
     margin-bottom: $spacer-lg;
     text-align: center;
@@ -21,6 +35,20 @@
 
 .finish-address {
     margin-bottom: $spacer-lg;
+}
+
+// equal height checkout finish card
+.finish-card {
+    height: 100%;
+
+    .btn {
+        align-self: flex-start;
+    }
+}
+
+.finish-card-body {
+    display: flex;
+    flex-direction: column;
 }
 
 @include media-breakpoint-up(lg) {

@@ -29,7 +29,8 @@
       "tabOrderDetails": "Bestelldetails",
       "tabDeliveries": "Lieferungen",
       "textHeadline": "Bestellung",
-      "textHeadlineNew": "Neue Bestellung"
+      "textHeadlineNew": "Neue Bestellung",
+      "tabGeneral": "Allgemein"
     },
     "detailBase": {
       "cardTitleDetails": "Details",

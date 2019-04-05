@@ -54,13 +54,6 @@ Module.register('sw-order', {
                     meta: {
                         parentPath: 'sw.order.index'
                     }
-                },
-                deliveries: {
-                    component: 'sw-order-detail-deliveries',
-                    path: 'deliveries',
-                    meta: {
-                        parentPath: 'sw.order.index'
-                    }
                 }
             }
         }

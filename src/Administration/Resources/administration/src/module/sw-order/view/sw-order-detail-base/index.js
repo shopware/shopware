@@ -14,6 +14,10 @@ Component.register('sw-order-detail-base', {
         order: {
             type: Object,
             required: true
+        },
+        attributeSets: {
+            type: Array,
+            required: true
         }
     },
     data() {

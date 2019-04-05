@@ -155,7 +155,7 @@ export default {
 
     watch: {
         columns() {
-            this.currentColumns = this.columns;
+            this.initGridColumns();
         },
 
         dataSource() {

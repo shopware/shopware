@@ -1,46 +1,9 @@
+[titleEn]: <>(Management API usage)
 
-[titleEn]: <>(Standard Resources)
-[titleDe]: <>(Standard Resources)
-[wikiUrl]: <>(../using-the-api/standard-resources?category=shopware-platform-en/using-the-api)
+This guide describes the default usage with the default schema, which almost all resources are using.
+There are extended read possibilities for a few entities. Read [here](40-management-extended-read.md) for more information about that.
 
-All standard resources follow the same schema. There are only a few
-exceptions not following this schema. They are documented under [Special Resources](40-special-resources.md).
-The API is versioned by adding a version string to the query path.
-Currently, the only available version is **v1**.
-
-## Schema overview
-
-All HTTP methods follow the usual REST behavior. **GET** on a resource
-retrieves the resource. **POST** adds a new resource. **PATCH** updates
-some attributes of a resource. **DELETE** removes a resource.
-
-The resources are all named singular. Only the 1-n and n-m relation
-names of sub-resources are pluralized. For example: **/api/v1/category**
-and **/api/v1/category/products**.
-
-Some
-examples:
-
-| Method | Example                           | Description                                                  |
-| ------ | --------------------------------- | ------------------------------------------------------------ |
-| GET    | /api/v1/category                  | Get a list of categories                                     |
-| GET    | /api/v1/category/01bd7e7...       | Get the details of the category with id "01bd7e7..."         |
-| POST   | /api/v1/category                  | Add a new category                                           |
-| PATCH  | /api/v1/category/01bd7e7...       | Update the category with id "01bd7e7..."                     |
-| DELETE | /api/v1/category/01bd7e7...       | Delete the category with id "01bd7e7..."                     |
-| GET    | /api/v1/category/01bd.../products | Get the list of products belonging to the category "01bd..." |
-
-### Sub-resources
-
-All relationships are exposed as sub-resources. Only the **GET** method
-is allowed for sub-resources.
-
-### Identifier
-
-All identifiers are [UUIDs Version 4](https://en.wikipedia.org/wiki/Universally_unique_identifier#Version_4_\(random\)).
-You can generate the UUIDs yourself or let the API backend generate them for you.
-
-## Examples
+## Usage
 
 The examples use the simple JSON format for brevity.
 To get the examples running, you have to set the Authorization and Accept Header as shown below:

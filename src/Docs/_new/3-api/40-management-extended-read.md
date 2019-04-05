@@ -1,13 +1,17 @@
+[titleEn]: <>(Management API extended read)
 
-[titleEn]: <>(Special Resources)
-[titleDe]: <>(Special Resources)
-[wikiUrl]: <>(../using-the-api/special-resources?category=shopware-platform-en/using-the-api)
+## Overview
+
+The examples mentioned below are only available for the following entities:
+
+- Products
+- Customers
+- Media
+- Orders
 
 ## General search
 
 **GET /api/v1/_search**
-
-Search through products, customers, media and orders.
 
 Query parameters:
 
@@ -16,35 +20,29 @@ Query parameters:
 | term  | string | The term to search for  |    ✔     |
 | limit | int    | Limit of the result set |          |
 
- 
-
 ## Advanced search
 
 **POST /api/v1/search/{entity\_name}**
 
-The advanced search endpoint allowes you to query by complex conditions
-and aggregate at the same time.
+The advanced search endpoint allows you to query by complex conditions and aggregate at the same time.
 
-The following options are possible in the POST request
-body:
+The following options are possible in the POST request body:
 
-| Name         | Type   | Notes                                                                                                                  |
-| ------------ | ------ | ---------------------------------------------------------------------------------------------------------------------- |
-| term         | string | Simple term to search for                                                                                              |
+| Name         | Type   | Notes                                                                            |
+| ------------ | ------ | -------------------------------------------------------------------------------- |
+| term         | string | Term to search for                                                               |
 | limit        | string | Result set limit, see [Limit & page](./50-filter-search-limit.md#limit-and-page) |
 | page         | string | Result set page, see [Limit & page](./50-filter-search-limit.md#limit-and-page)  |
 | filter       | object | See [Filter](./50-filter-search-limit.md#filter)                                 |
-| post-filter  | object | Same as filter but does not affect aggregations                                                                        |
+| post-filter  | object | Same as filter but does not affect aggregations                                  |
 | sort         | mixed  | See [Sort](./50-filter-search-limit.md#sort)                                     |
-| aggregations | object | See below                                                                                                              |
+| aggregations | object | See below                                                                        |
 
 ### Aggregation
 
-Aggregations are a powerful tool which allows you to gather statistical
-data about your executed query.
+Aggregations are a powerful tool which allows you to gather statistical data about your executed query.
 
-The following aggregations are currently
-supported:
+The following aggregations are currently supported:
 
 | Description                                           | API name     | Type   | Return values             |
 | ----------------------------------------------------- | ------------ | ------ | ------------------------- |
@@ -97,12 +95,11 @@ supported:
 
 **GET /api/v1/_info/entity-schema.json**
 
-This endpoints response with simple schema describing the whole API.
+This endpoint responses with a simple schema describing the whole management API.
 
 ## OpenAPI 3 schema
 
 **GET /api/v1/_info/openapi3.json**
 
-This endpoints response with an
-[OpenAPI 3](https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.1.md)
-schema describing the whole API. 
+This endpoint's response with an [OpenAPI 3](https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.1.md)
+schema describing the whole management API. 

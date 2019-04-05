@@ -1,95 +1,41 @@
-
-[titleEn]: <>(Introduction)
-[titleDe]: <>(Introduction)
-[wikiUrl]: <>(../shopware-platform-en/using-the-api/introduction?category=shopware-platform-en/using-the-api)
-
-The API can be used to complete all administrative tasks, like creating
-products, updating prices and much more. For building a storefront or
-extending it, you can use the [Storefront
-API](./../40-storefront-api/10-introduction.md)
-
-The API makes it really easy to integrate *Shopware* into your
-environment.
+[titleEn]: <>(Management API)
 
 ## Getting started
 
-The API requires you to authenticate before using it. The API uses the
-[oauth2](https://oauth.net/2/) standard to authenticate users. The
-endpoint is at **/api/oauth/token**
+The management API requires an authentication before using it.
+It uses the [oauth2](https://oauth.net/2/) standard to authenticate users. The endpoint is located at **/api/oauth/token**.
+At the end of this guide you'll find a short example about the authentication.
 
-### Authentication example
+## Request body formats
 
-The following example shows how to authenticate a user by password.
-Detailed information about the authentication can be found
-[here](20-authentication.md).
+As in every Shopware platform, the request body has to be JSON encoded.
+It's required to use typesafe values, e.g. if the API expects an integer value, you're required to provide an actual integer.
+If you're using a Date field, make sure to use an ISO 8601 compatible date format.
 
-```javascript
-    const baseUrl = '{insert your url}';
-    const data = {
-        client_id: "administration",
-        grant_type: "password",
-        scopes: "write",
-        username: "admin",
-        password: "shopware"
-    };
-    const init = {
-        method: 'POST',
-        body: JSON.stringify(data),
-        headers: { "Content-Type": "application/json" }
-    };
-    fetch(`${baseUrl}/api/oauth/token`, init)
-        .then((response) => response.json())
-        .then(({ access_token }) => {
-            console.log('access_token', access_token);
-        });
-```
-### Fetching Products
-
-After fetching an access token you can access all other resources by
-sending the access token in the **Authorization** header. The following
-example shows how to get a list of products. For detailed information
-take a look at [Standard Resources](30-standard-resources.md) and [Special Resources](40-special-resources.md).
-
-```javascript
-    const baseUrl = '{insert your url}';
-    const data = {
-        client_id: "administration",
-        grant_type: "password",
-        scopes: "write",
-        username: "admin",
-        password: "shopware"
-    };
-    const init = {
-        method: 'POST',
-        body: JSON.stringify(data),
-        headers: { "Content-Type": "application/json" }
-    };
-    fetch(`${baseUrl}/api/oauth/token`, init)
-        .then((response) => response.json())
-        .then(({ access_token }) => {
-            const headers = { Authorization: "Bearer " + access_token };
-            fetch(`${baseUrl}/api/v1/product`, { headers })
-                .then((response) => response.json())
-                .then((products) => console.log('Products', products))
-        });
+### Example body
+```json
+{
+    "id": "01bd7e70a50443ec96a01fd34890dcc5",
+    "name": "Example product",
+    "taxId": "792203a53e564e28bcb7ffa1867fb485",
+    "stock": 708,
+    "createdAt": "2018-09-13T10:17:05+02:00"
+}
 ```
 
 ## Response body formats
 
-The API generally supports two response body formats. The first one is a
-simple JSON formatted response similar to the Shopware 5 API. The second
-one is the [json:api](http://jsonapi.org/) standard. By default, the
-response will be in json:api format.
+The management API generally supports two response body formats. The first one is a simple JSON formatted response similar to the Shopware 5 API.
+The second one is the [json:api](http://jsonapi.org/) standard. By default, the response will be in json:api format.
 
 ### json:api
 
-The json:api format has the **Content-Type: application/vnd.api+json**.
-Its the default response **Content-Type**. The format has a rich
-structure that eases discovering the API without using any
-documentation. It provides relationships to other resources and other
-extended information about the resource. For further details refer to
-the [json:api](http://jsonapi.org/) standard. You can see a shortened
-example response below:
+The json:api format has the **Content-Type: application/vnd.api+json**. It's the default response **Content-Type**.
+The format has a rich structure that eases discovering the API without using any documentation.
+It provides relationships to other resources and other extended information about the resource.
+For further details refer to the [json:api](http://jsonapi.org/) standard.
+You can see a shortened example response below:
+
 ```json
     {
         "data": [
@@ -159,9 +105,9 @@ example response below:
 
 ### Simple JSON
 
-The simple JSON format only contains essential information. The format
-can be requested by setting the **Accept** header to
-**application/json**. You can see a shortened example below:
+The simple JSON format only contains essential information. The format can be requested by setting the **Accept** header to **application/json**.
+You can see a shortened example below:
+
 ```json
     {
         "total": 50,
@@ -198,3 +144,61 @@ can be requested by setting the **Accept** header to
         "aggregations": []
     }
 ```
+
+
+### Example: Authentication
+
+The following example shows how to authenticate a user by his password.
+Detailed information about the authentication can be found [here](./20-management-authentication.md).
+
+```javascript
+    const baseUrl = '{insert your url}';
+    const data = {
+        client_id: "administration",
+        grant_type: "password",
+        scopes: "write",
+        username: "admin",
+        password: "shopware"
+    };
+    const init = {
+        method: 'POST',
+        body: JSON.stringify(data),
+        headers: { "Content-Type": "application/json" }
+    };
+    fetch(`${baseUrl}/api/oauth/token`, init)
+        .then((response) => response.json())
+        .then(({ access_token }) => {
+            console.log('access_token', access_token);
+        });
+```
+
+### Example: Fetching Products
+
+After fetching an access token you can access all other resources by sending the access token in the **Authorization** header.
+The following example shows how to get a list of products.
+For detailed information take a look at [Standard Resources](30-standard-resources.md) and [Special Resources](40-special-resources.md).
+
+```javascript
+    const baseUrl = '{insert your url}';
+    const data = {
+        client_id: "administration",
+        grant_type: "password",
+        scopes: "write",
+        username: "admin",
+        password: "shopware"
+    };
+    const init = {
+        method: 'POST',
+        body: JSON.stringify(data),
+        headers: { "Content-Type": "application/json" }
+    };
+    fetch(`${baseUrl}/api/oauth/token`, init)
+        .then((response) => response.json())
+        .then(({ access_token }) => {
+            const headers = { Authorization: "Bearer " + access_token };
+            fetch(`${baseUrl}/api/v1/product`, { headers })
+                .then((response) => response.json())
+                .then((products) => console.log('Products', products))
+        });
+```
+

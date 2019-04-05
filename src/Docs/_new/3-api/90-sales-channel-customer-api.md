@@ -1,15 +1,12 @@
-[titleEn]: <>(Customer endpoint)
-[titleDe]: <>(Customer endpoint)
-[wikiUrl]: <>(../using-the-storefront-api/customer-endpoint?category=shopware-platform-en/using-the-storefront-api)
-The customer endpoint is used to register and log in customers. It can
-also be used to change and receive customer related information.
+[titleEn]: <>(SalesChannel-API customer endpoint)
+
+The customer endpoint is used to register and log in customers. It can also be used to change and receive customer related information.
 
 ## Register a customer
 
 **POST  /storefront-api/v1/customer**
 
-**Description:** Register a new
-customer. 
+**Description:** Register a new customer. 
 
 **Parameter:**
 
@@ -61,18 +58,16 @@ customer. 
 
 **POST  /storefront-api/v1/customer/login**
 
-**Description:** Log in a
-customer. 
+**Description:** Log in a customer. 
 
 **Parameter:**
 
 | Name     | Type   | Notes                                               | Required |
-| -------- | ------ | --------------------------------------------------- | :------: |
+|----------|--------|-----------------------------------------------------|:--------:|
 | username | string | By default, the e-mail address is used as username  |    ✔     |
 | password | string | Plain password. Hashing will be handled by Shopware |    ✔     |
 
-**Response:** If successful, the x-sw-context-token will be returned.
-Include this token as a HTTP header for all future requests.
+**Response:** If successful, the x-sw-context-token will be returned. Include this token as a HTTP header for all future requests.
 
 ### Log out a customer
 
@@ -149,7 +144,7 @@ Include this token as a HTTP header for all future requests.
 
 **Header:** x-sw-context-token is required
 
-**Response: **List of all customer addresses
+**Response:** List of all customer addresses
 
 ### Get customer address
 
@@ -157,15 +152,14 @@ Include this token as a HTTP header for all future requests.
 
 **Header:** x-sw-context-token is required
 
-**Response:** Detailed information about the specified address id. Note:
-The address id must be assigned with the customer currently logged in.
+**Response:** Detailed information about the specified address id.
+Note: The address id must be assigned with the customer currently logged in.
 
 ### Create customer address
 
 **POST /storefront-api/v1/customer/address**
 
-**Header:** x-sw-context-token is
-required
+**Header:** x-sw-context-token is required
 
 **Parameter:**
 
@@ -210,6 +204,7 @@ required
     const baseUrl = '{insert your url}';
     
     const randomStr = Math.random().toString(36).substring(2, 15);
+    
     let customer = {
         firstName: 'Max',
         lastName: 'Mustermann',
@@ -219,6 +214,7 @@ required
         billingCity: 'Bielefeld',
         password: 'UNSECURE_PASSWORD'
     };
+    
     let headers = {
         "Content-Type": "application/json",
         "X-SW-Access-Key": accessKey

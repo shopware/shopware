@@ -1,5 +1,4 @@
 [titleEn]: <>(Plugin - Commands)
-[wikiUrl]: <>(../internals/plugins/plugin-commands?category=platform-en/extending-the-platform/plugins)
 
 ## Listing
 In this guide, you'll learn which `Plugin Commands` come with `Shopware` and what they are used for.

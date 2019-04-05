@@ -1,5 +1,4 @@
 [titleEn]: <>(Plugin configuration)
-[wikiUrl]: <>(../internals/plugins/quick-start?category=platform-en/extending-the-platform/plugins)
 
 The `Shopware plugin system` provides you with the option,
 to create a configuration page for your plugin without any knowledge of templating or the `Shopware Administration`.
@@ -23,7 +22,7 @@ Below you'll find the minimum `config.xml`.
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-        xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/shopware/internals/master/src/Core/System/SystemConfig/Schema/config.xsd">
+        xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/shopware/platform/master/src/Core/System/SystemConfig/Schema/config.xsd">
     
     <card>
         <title>Minimal configuration</title>
@@ -161,7 +160,7 @@ Now all that's left to do is to present you a working example `config.xml` and s
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-        xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/shopware/internals/master/src/Core/System/SystemConfig/Schema/config.xsd">
+        xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/shopware/platform/master/src/Core/System/SystemConfig/Schema/config.xsd">
 
     <card>
         <title>Basic Configuration</title>

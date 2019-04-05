@@ -1,5 +1,4 @@
 [titleEn]: <>(Plugin - Base Class)
-[wikiUrl]: <>(../internals/plugins/plugin-base-class?category=platform-en/extending-the-platform/plugins)
 
 # Overview
 In this guide, you will learn what a plugin base class is and how to use it.

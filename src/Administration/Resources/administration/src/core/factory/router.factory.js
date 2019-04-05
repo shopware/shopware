@@ -353,7 +353,6 @@ export default function createRouter(Router, View, moduleFactory, LoginService) 
         const favicon = moduleInfo.manifest.favicon || null;
         const favRef = document.getElementById('dynamic-favicon');
 
-        favRef.id = 'dynamic-favicon';
         favRef.rel = 'shortcut icon';
 
         if (assetsPath.length !== 0) {

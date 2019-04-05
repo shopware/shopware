@@ -5,7 +5,7 @@ namespace Shopware\Core\Migration;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Migration\MigrationStep;
-use Shopware\Core\Framework\Struct\Uuid;
+use Shopware\Core\Framework\Uuid\Uuid;
 
 class Migration1553761969SalutationAddNotSpecified extends MigrationStep
 {
@@ -16,7 +16,7 @@ class Migration1553761969SalutationAddNotSpecified extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $notSpecified = Uuid::uuid4()->getBytes();
+        $notSpecified = Uuid::randomBytes();
 
         $languageEn = Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM);
         $languageDe = Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM_DE);

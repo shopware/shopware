@@ -9,7 +9,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Demodata\DemodataContext;
 use Shopware\Core\Framework\Demodata\DemodataGeneratorInterface;
-use Shopware\Core\Framework\Struct\Uuid;
+use Shopware\Core\Framework\Uuid\Uuid;
 
 class ShippingMethodPriceGenerator implements DemodataGeneratorInterface
 {
@@ -40,7 +40,7 @@ class ShippingMethodPriceGenerator implements DemodataGeneratorInterface
 
         foreach ($shippingMethodIds as $shippingMethodId) {
             $data = [
-                'id' => Uuid::uuid4()->getHex(),
+                'id' => Uuid::randomHex(),
                 'shippingMethodId' => $shippingMethodId,
                 'price' => sprintf('%d.00', random_int(1, 50)),
                 'currencyId' => Defaults::CURRENCY,

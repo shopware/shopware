@@ -92,21 +92,31 @@
                                            {% endblock %}
 
                                             {% block sw_single_select_result_item_list %}
-                                             <template v-if="currentOptions" v-for="(item, index) in currentOptions">
-                                                 <slot name="result_items" :item="item" :index="index">
-                                                     {% block sw_single_select_result_item_slot %}
-                                                         <sw-single-select-option ref="swSelectOption" :index="index" :item="item">
-                                                            <slot name="valueProperty" :item="item">
-
-                                                                <span v-html="getInlineSnippet(item[valueProperty])">
-                                                                    {{ getInlineSnippet(item[valueProperty]) }}
-                                                                </span>
-
-                                                            </slot>
-                                                         </sw-single-select-option>
-                                                     {% endblock %}
-                                                 </slot>
-                                             </template>
+                                                {% block sw_single_select_result_item_list_default_option %}
+                                                    <sw-single-select-option
+                                                            v-if="defaultOption"
+                                                            :index="0" :item="defaultOption">
+                                                        <slot name="valueProperty">
+                                                            <span v-html="getInlineSnippet(defaultOption[valueProperty])"></span>
+                                                        </slot>
+                                                    </sw-single-select-option>
+                                                {% endblock %}
+                                                {% block sw_single_select_result_item_list_option %}
+                                                     <template v-if="currentOptions" v-for="(item, index) in currentOptions">
+                                                         <slot name="result_items" :item="item" :index="index+1">
+                                                             {% block sw_single_select_result_item_slot %}
+                                                                 <sw-single-select-option
+                                                                         ref="swSelectOption"
+                                                                         :index="index+1"
+                                                                         :item="item">
+                                                                    <slot name="valueProperty">
+                                                                        <span v-html="getInlineSnippet(item[valueProperty])"></span>
+                                                                    </slot>
+                                                                 </sw-single-select-option>
+                                                             {% endblock %}
+                                                         </slot>
+                                                     </template>
+                                                {% endblock %}
                                             {% endblock %}
 
                                             {% block sw_single_select_result_item_list_after %}

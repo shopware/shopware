@@ -35,7 +35,8 @@ export default {
         return {
             silent: false,
             page: 1,
-            limit: 10
+            limit: 10,
+            repository: {}
         };
     },
 
@@ -49,6 +50,10 @@ export default {
         },
 
         resolveKey(key) {
+            if (!key) {
+                return Promise.resolve(null);
+            }
+
             this.silent = true;
 
             return this.repository.get(key, this.context).then((item) => {

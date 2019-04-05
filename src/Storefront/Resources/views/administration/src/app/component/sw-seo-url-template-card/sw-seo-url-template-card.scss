@@ -11,6 +11,10 @@ $sw-seo-url-template-card-font-size-preview: $font-size-small;
     .sw-seo-url-template-card__seo-url {
         margin-bottom: 32px;
 
+        &:last-child {
+            margin-bottom: 0;
+        }
+
         .sw-field {
             margin-bottom: 0;
         }

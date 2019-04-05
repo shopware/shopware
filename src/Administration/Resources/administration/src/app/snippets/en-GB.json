@@ -514,6 +514,15 @@
     "titleModalButtonRevertUnsavedChanges": "Discard changes",
     "titleModalButtonSaveChanges": "Save"
   },
+  "sw-sales-channel-switch": {
+    "messageModalUnsavedChanges": "There are unsaved changes for the current sales channel. Do you want to save them now?",
+    "placeholderSelect": "Search...",
+    "titleModalUnsavedChanges": "Unsaved changes",
+    "titleModalButtonCancelUnsavedChanges": "Cancel",
+    "titleModalButtonRevertUnsavedChanges": "Discard changes",
+    "titleModalButtonSaveChanges": "Save",
+    "labelDefaultOption": "All sales channel"
+  },
   "sw-config-form-renderer": {
     "placeholder": "Please fill in {name}...",
     "option": "No label set for locale \"{locale}\"...",

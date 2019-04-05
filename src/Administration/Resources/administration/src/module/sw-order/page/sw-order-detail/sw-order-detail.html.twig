@@ -50,7 +50,7 @@
         {% block sw_order_detail_content %}
             <sw-card-view slot="content">
                 {% block sw_order_detail_content_tabs %}
-                    <sw-tabs v-if="showTabs" class="sw-product-detail-page__tabs">
+                    <sw-tabs v-if="showTabs" class="sw-order-detail__tabs">
                         {% block sw_order_detail_content_tabs_general %}
                             <sw-tabs-item :route="{ name: 'sw.order.detail.base', params: { id: $route.params.id } }"
                                           :title="$tc('sw-order.detail.tabGeneral')">

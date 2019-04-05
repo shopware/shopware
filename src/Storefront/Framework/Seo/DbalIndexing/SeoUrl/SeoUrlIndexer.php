@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Framework\Seo\DbalIndexing\SeoUrl;
 
+use function Flag\next741;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\RepositoryIterator;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Indexing\IndexerInterface;
@@ -78,6 +79,10 @@ abstract class SeoUrlIndexer implements IndexerInterface
 
     public function index(\DateTimeInterface $timestamp): void
     {
+        // skip if feature is disabled
+        if (!next741()) {
+            return;
+        }
         $salesChannels = $this->getSalesChannels();
 
         /** @var SalesChannelEntity $salesChannel */
@@ -122,6 +127,11 @@ abstract class SeoUrlIndexer implements IndexerInterface
 
     public function refresh(EntityWrittenContainerEvent $event): void
     {
+        // skip if feature is disabled
+        if (!next741()) {
+            return;
+        }
+
         $salesChannels = $this->getSalesChannels();
         $ids = $this->extractIds($event);
         if (empty($ids)) {

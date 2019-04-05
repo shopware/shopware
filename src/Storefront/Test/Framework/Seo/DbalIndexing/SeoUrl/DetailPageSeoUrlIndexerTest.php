@@ -3,6 +3,7 @@
 namespace Shopware\Storefront\Test\Framework\Seo\DbalIndexing\SeoUrl;
 
 use Doctrine\DBAL\Connection;
+use function Flag\skipTestNext741;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductEntity;
@@ -41,6 +42,8 @@ class DetailPageSeoUrlIndexerTest extends TestCase
     public function setUp(): void
     {
         parent::setUp();
+
+        skipTestNext741($this);
 
         $this->indexer = $this->getContainer()->get(ProductDetailPageSeoUrlIndexer::class);
         $this->templateRepository = $this->getContainer()->get('seo_url_template.repository');

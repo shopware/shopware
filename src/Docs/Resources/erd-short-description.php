@@ -152,4 +152,5 @@ return [
     Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodRules\ShippingMethodRuleDefinition::class => 'M:N Mapping',
     Shopware\Storefront\Framework\Seo\SeoUrl\SeoUrlDefinition::class => 'Seo urls',
     Shopware\Storefront\Framework\Seo\SeoUrlTemplate\SeoUrlTemplateDefinition::class => 'Template',
+    Shopware\Core\Content\MailTemplate\Aggregate\MailTemplateMedia\MailTemplateMediaDefinition::class => 'M:N Mapping',
 ];

@@ -30,9 +30,11 @@ Table(ShopwareCoreSystemCurrencyCurrencyDefinition, "currency\n(Currency)") {
    name translated
    not_null(decimalPrecision) int
    position int
+   isDefault bool
    attributes translated
    not_null(createdAt) createdAt
    not_null(updatedAt) updatedAt
+   translated json
 }
 TranslationTable(ShopwareCoreSystemCurrencyAggregateCurrencyTranslationCurrencyTranslationDefinition, "currency_translation\n((Translations))") {
    not_null(shortName) string
@@ -47,7 +49,7 @@ ForeignTable(ShopwareCoreSystemSalesChannelSalesChannelDefinition, "sales_channe
 }
 ForeignTable(ShopwareCoreCheckoutOrderOrderDefinition, "order") {
 }
-ForeignTable(ShopwareCoreContentProductAggregateProductPriceRuleProductPriceRuleDefinition, "product_price_rule") {
+ForeignTable(ShopwareCoreContentProductAggregateProductPriceProductPriceDefinition, "product_price") {
 }
 ForeignTable(ShopwareCoreCheckoutShippingAggregateShippingMethodPriceRuleShippingMethodPriceRuleDefinition, "shipping_method_price_rule") {
 }
@@ -55,7 +57,7 @@ ForeignTable(ShopwareCoreSystemSalesChannelAggregateSalesChannelCurrencySalesCha
 }
 ForeignTable(ShopwareCoreSystemSalesChannelAggregateSalesChannelDomainSalesChannelDomainDefinition, "sales_channel_domain") {
 }
-ForeignTable(ShopwareCoreSystemLanguageLanguageDefinition, "language") {
+ForeignTable(ShopwareCoreFrameworkLanguageLanguageDefinition, "language") {
 }
 
 ' relationshipd
@@ -63,9 +65,9 @@ ForeignTable(ShopwareCoreSystemLanguageLanguageDefinition, "language") {
 ShopwareCoreSystemCurrencyCurrencyDefinition --> ShopwareCoreSystemSalesChannelSalesChannelDefinition
 ShopwareCoreSystemCurrencyAggregateCurrencyTranslationCurrencyTranslationDefinition --> ShopwareCoreSystemCurrencyCurrencyDefinition
 ShopwareCoreSystemCurrencyCurrencyDefinition --> ShopwareCoreCheckoutOrderOrderDefinition
-ShopwareCoreSystemCurrencyCurrencyDefinition --> ShopwareCoreContentProductAggregateProductPriceRuleProductPriceRuleDefinition
+ShopwareCoreSystemCurrencyCurrencyDefinition --> ShopwareCoreContentProductAggregateProductPriceProductPriceDefinition
 ShopwareCoreSystemCurrencyCurrencyDefinition --> ShopwareCoreCheckoutShippingAggregateShippingMethodPriceRuleShippingMethodPriceRuleDefinition
 ShopwareCoreSystemCurrencyCurrencyDefinition --> ShopwareCoreSystemSalesChannelAggregateSalesChannelCurrencySalesChannelCurrencyDefinition
 ShopwareCoreSystemCurrencyCurrencyDefinition --> ShopwareCoreSystemSalesChannelAggregateSalesChannelDomainSalesChannelDomainDefinition
-ShopwareCoreSystemCurrencyAggregateCurrencyTranslationCurrencyTranslationDefinition --> ShopwareCoreSystemLanguageLanguageDefinition
+ShopwareCoreSystemCurrencyAggregateCurrencyTranslationCurrencyTranslationDefinition --> ShopwareCoreFrameworkLanguageLanguageDefinition
 @enduml

@@ -2,7 +2,7 @@
 
 A locale provides internationalization information for the locality of the admin user.
 
-![Locales](dist/erm-shopware-core-system-locale.svg)
+![Locales](./dist/erm-shopware-core-system-locale.svg)
 
 
 ### Table `locale`

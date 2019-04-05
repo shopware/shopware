@@ -2,6 +2,9 @@
 
 namespace Shopware\Docs\Command;
 
+use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountDefinition;
+use Shopware\Core\Checkout\Promotion\Aggregate\PromotionSalesChannel\PromotionSalesChannelDefinition;
+use Shopware\Core\Checkout\Promotion\PromotionDefinition;
 use Shopware\Core\Content\Cms\Aggregate\CmsBlock\CmsBlockDefinition;
 use Shopware\Core\Content\Cms\Aggregate\CmsPageTranslation\CmsPageTranslationDefinition;
 use Shopware\Core\Content\Cms\Aggregate\CmsSlot\CmsSlotDefinition;
@@ -9,6 +12,7 @@ use Shopware\Core\Content\Cms\Aggregate\CmsSlotTranslation\CmsSlotTranslationDef
 use Shopware\Core\Content\Cms\CmsPageDefinition;
 use Shopware\Core\Content\MailTemplate\Aggregate\MailHeaderFooter\MailHeaderFooterDefinition;
 use Shopware\Core\Content\MailTemplate\Aggregate\MailHeaderFooterTranslation\MailHeaderFooterTranslationDefinition;
+use Shopware\Core\Content\MailTemplate\Aggregate\MailTemplateMedia\MailTemplateMediaDefinition;
 use Shopware\Core\Content\MailTemplate\Aggregate\MailTemplateSalesChannel\MailTemplateSalesChannelDefinition;
 use Shopware\Core\Content\MailTemplate\Aggregate\MailTemplateTranslation\MailTemplateTranslationDefinition;
 use Shopware\Core\Content\MailTemplate\MailTemplateDefinition;
@@ -27,6 +31,7 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
+use Symfony\Component\Filesystem\Filesystem;
 
 class DocsDumpErd extends Command
 {
@@ -47,6 +52,11 @@ class DocsDumpErd extends Command
         MailTemplateSalesChannelDefinition::class,
         MailTemplateTranslationDefinition::class,
         MailTemplateDefinition::class,
+        MailTemplateMediaDefinition::class,
+
+        PromotionDefinition::class,
+        PromotionSalesChannelDefinition::class,
+        PromotionDiscountDefinition::class,
 
         StoreSettingsDefinition::class,
 
@@ -86,6 +96,11 @@ class DocsDumpErd extends Command
         $descriptionsShort = new ArrayWriter(__DIR__ . '/../Resources/erd-short-description.php');
         $descriptionsLong = new ArrayWriter(__DIR__ . '/../Resources/erd-long-description.php');
         $destPath = __DIR__ . '/../_new/2-internals/1-core/10-erd';
+
+        $fs = new Filesystem();
+        $fs->remove($destPath);
+        $fs->mkdir($destPath);
+        $fs->mkdir($destPath . '/_puml');
 
         $definitions = $this->loadDefinitions();
         $modules = $this->sortDefinitionsIntoModules($definitions);

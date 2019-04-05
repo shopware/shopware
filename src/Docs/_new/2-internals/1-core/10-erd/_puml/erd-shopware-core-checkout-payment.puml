@@ -34,6 +34,7 @@ Table(ShopwareCoreCheckoutPaymentPaymentMethodDefinition, "payment_method\n(Paym
    availabilityRuleIds list
    not_null(createdAt) createdAt
    not_null(updatedAt) updatedAt
+   translated json
 }
 TranslationTable(ShopwareCoreCheckoutPaymentAggregatePaymentMethodTranslationPaymentMethodTranslationDefinition, "payment_method_translation\n((Translations))") {
    not_null(name) string
@@ -60,7 +61,7 @@ ForeignTable(ShopwareCoreCheckoutOrderAggregateOrderTransactionOrderTransactionD
 }
 ForeignTable(ShopwareCoreSystemSalesChannelAggregateSalesChannelPaymentMethodSalesChannelPaymentMethodDefinition, "sales_channel_payment_method") {
 }
-ForeignTable(ShopwareCoreSystemLanguageLanguageDefinition, "language") {
+ForeignTable(ShopwareCoreFrameworkLanguageLanguageDefinition, "language") {
 }
 ForeignTable(ShopwareCoreContentRuleRuleDefinition, "rule") {
 }
@@ -74,6 +75,6 @@ ShopwareCoreCheckoutPaymentPaymentMethodDefinition --> ShopwareCoreCheckoutOrder
 ShopwareCoreCheckoutPaymentAggregatePaymentMethodTranslationPaymentMethodTranslationDefinition --> ShopwareCoreCheckoutPaymentPaymentMethodDefinition
 ShopwareCoreCheckoutPaymentPaymentMethodDefinition --> ShopwareCoreSystemSalesChannelAggregateSalesChannelPaymentMethodSalesChannelPaymentMethodDefinition
 ShopwareCoreCheckoutPaymentAggregatePaymentMethodRulesPaymentMethodRuleDefinition --> ShopwareCoreCheckoutPaymentPaymentMethodDefinition
-ShopwareCoreCheckoutPaymentAggregatePaymentMethodTranslationPaymentMethodTranslationDefinition --> ShopwareCoreSystemLanguageLanguageDefinition
+ShopwareCoreCheckoutPaymentAggregatePaymentMethodTranslationPaymentMethodTranslationDefinition --> ShopwareCoreFrameworkLanguageLanguageDefinition
 ShopwareCoreCheckoutPaymentAggregatePaymentMethodRulesPaymentMethodRuleDefinition --> ShopwareCoreContentRuleRuleDefinition
 @enduml

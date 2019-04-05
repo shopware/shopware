@@ -2,7 +2,7 @@
 
 Taxes used in price calculations.
 
-![Taxes](dist/erm-shopware-core-system-tax.svg)
+![Taxes](./dist/erm-shopware-core-system-tax.svg)
 
 
 ### Table `tax`

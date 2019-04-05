@@ -29,10 +29,9 @@ Table(ShopwareCoreCheckoutOrderOrderDefinition, "order\n(Order root table)") {
    orderNumber numberRange
    not_null(billingAddressId) foreignKey
    not_null(billingAddressVersionId) referenceVersion
-   not_null(orderCustomerId) foreignKey
-   not_null(orderCustomerVersionId) referenceVersion
    not_null(currencyId) foreignKey
    not_null(salesChannelId) foreignKey
+   not_null(orderDate) date
    price cartPrice
    amountTotal float
    amountNet float
@@ -75,6 +74,8 @@ Table(ShopwareCoreCheckoutOrderAggregateOrderCustomerOrderCustomerDefinition, "o
    primary_key(id) id
    primary_key(versionId) version
    customerId foreignKey
+   not_null(orderId) foreignKey
+   not_null(orderVersionId) referenceVersion
    not_null(email) string
    not_null(salutationId) foreignKey
    not_null(firstName) string
@@ -169,8 +170,6 @@ ForeignTable(ShopwareCoreSystemSalesChannelSalesChannelDefinition, "sales_channe
 }
 ForeignTable(ShopwareCoreCheckoutDocumentDocumentDefinition, "document") {
 }
-ForeignTable(ShopwareCoreFrameworkSearchSearchDocumentDefinition, "search_document") {
-}
 ForeignTable(ShopwareCoreSystemCountryCountryDefinition, "country") {
 }
 ForeignTable(ShopwareCoreSystemCountryAggregateCountryStateCountryStateDefinition, "country_state") {
@@ -198,7 +197,6 @@ ShopwareCoreCheckoutOrderAggregateOrderLineItemOrderLineItemDefinition --> Shopw
 ShopwareCoreCheckoutOrderAggregateOrderTransactionOrderTransactionDefinition --> ShopwareCoreCheckoutOrderOrderDefinition
 ShopwareCoreCheckoutOrderOrderDefinition --> ShopwareCoreCheckoutDocumentDocumentDefinition
 ShopwareCoreCheckoutOrderAggregateOrderTagOrderTagDefinition --> ShopwareCoreCheckoutOrderOrderDefinition
-ShopwareCoreCheckoutOrderOrderDefinition --> ShopwareCoreFrameworkSearchSearchDocumentDefinition
 ShopwareCoreCheckoutOrderAggregateOrderAddressOrderAddressDefinition --> ShopwareCoreSystemCountryCountryDefinition
 ShopwareCoreCheckoutOrderAggregateOrderAddressOrderAddressDefinition --> ShopwareCoreSystemCountryAggregateCountryStateCountryStateDefinition
 ShopwareCoreCheckoutOrderAggregateOrderAddressOrderAddressDefinition --> ShopwareCoreSystemSalutationSalutationDefinition

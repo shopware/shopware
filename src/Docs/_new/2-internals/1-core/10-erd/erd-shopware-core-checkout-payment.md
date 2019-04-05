@@ -2,7 +2,7 @@
 
 Payment processing, handling and settings.
 
-![Payments](dist/erm-shopware-core-checkout-payment.svg)
+![Payments](./dist/erm-shopware-core-checkout-payment.svg)
 
 
 ### Table `payment_method`

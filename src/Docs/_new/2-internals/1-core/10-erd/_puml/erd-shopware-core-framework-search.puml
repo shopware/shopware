@@ -31,10 +31,10 @@ Table(ShopwareCoreFrameworkSearchSearchDocumentDefinition, "search_document\n(Co
    not_null(ranking) float
    attributes attributes
 }
-ForeignTable(ShopwareCoreSystemLanguageLanguageDefinition, "language") {
+ForeignTable(ShopwareCoreFrameworkLanguageLanguageDefinition, "language") {
 }
 
 ' relationshipd
 
-ShopwareCoreFrameworkSearchSearchDocumentDefinition --> ShopwareCoreSystemLanguageLanguageDefinition
+ShopwareCoreFrameworkSearchSearchDocumentDefinition --> ShopwareCoreFrameworkLanguageLanguageDefinition
 @enduml

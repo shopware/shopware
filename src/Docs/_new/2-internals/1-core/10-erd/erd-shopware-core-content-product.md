@@ -2,7 +2,7 @@
 
 Central product representation. Contains products and variations based on configuration.
 
-![Products](dist/erm-shopware-core-content-product.svg)
+![Products](./dist/erm-shopware-core-content-product.svg)
 
 
 ### Table `product`
@@ -15,7 +15,7 @@ A rich domain model representing single products or its variants. This is done t
 Association from a root product to a configuration set. Used to generate variants and surcharge or discount the price.
 
 
-### Table `product_price_rule`
+### Table `product_price`
 
 Different product prices based on rules.
 

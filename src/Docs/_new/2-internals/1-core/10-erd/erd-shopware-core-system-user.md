@@ -2,7 +2,7 @@
 
 Account management of administration users.
 
-![Admin Accounts](dist/erm-shopware-core-system-user.svg)
+![Admin Accounts](./dist/erm-shopware-core-system-user.svg)
 
 
 ### Table `user`

@@ -7,11 +7,17 @@ use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\SearchRanking;
+use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\SearchFilterInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\TokenizerInterface;
 
 class LanguageAnalyzer implements SearchAnalyzerInterface
 {
+    /**
+     * @var FieldCollection[]
+     */
+    private $searchFields = [];
+
     /**
      * @var TokenizerInterface
      */
@@ -47,7 +53,7 @@ class LanguageAnalyzer implements SearchAnalyzerInterface
 
         $tokens = [];
 
-        $fields = $definition::getSearchFields();
+        $fields = $this->getSearchFields($definition);
 
         foreach ($fields as $field) {
             $value = $entity->get($field->getPropertyName());
@@ -103,5 +109,14 @@ class LanguageAnalyzer implements SearchAnalyzerInterface
         }
 
         return $existing;
+    }
+
+    private function getSearchFields(string $definition): FieldCollection
+    {
+        if (isset($this->searchFields[$definition])) {
+            return $this->searchFields[$definition];
+        }
+
+        return $this->searchFields[$definition] = $definition::getFields()->filterByFlag(SearchRanking::class);
     }
 }

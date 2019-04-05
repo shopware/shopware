@@ -2,7 +2,7 @@
 
 Manage Discounts and surcharges.
 
-![Discount/Surcharge](dist/erm-shopware-core-checkout-discountsurcharge.svg)
+![Discount/Surcharge](./dist/erm-shopware-core-checkout-discountsurcharge.svg)
 
 
 ### Table `discount_surcharge`

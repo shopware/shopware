@@ -2,7 +2,7 @@
 
 Main navigation tree of a sales channel. May either be a CMS page or a category page.
 
-![Navigation](dist/erm-shopware-core-content-navigation.svg)
+![Navigation](./dist/erm-shopware-core-content-navigation.svg)
 
 
 ### Table `navigation`

@@ -2,7 +2,7 @@
 
 Rules are used throughout the platform to provide dynamic decision management. For instance shipping and billing methods are matched to customers, carts and line items based on rules from these resources.
 
-![Rules](dist/erm-shopware-core-content-rule.svg)
+![Rules](./dist/erm-shopware-core-content-rule.svg)
 
 
 ### Table `rule`

@@ -12,7 +12,7 @@ class MarkdownErdDumper implements ErdDumper
 
 %s
 
-![%s](%s)
+![%s](./%s)
 
 %s
 

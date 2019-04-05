@@ -36,6 +36,7 @@ Table(ShopwareCoreCheckoutShippingShippingMethodDefinition, "shipping_method\n(S
    not_null(updatedAt) updatedAt
    description translated
    comment translated
+   translated json
 }
 Table(ShopwareCoreCheckoutShippingAggregateShippingMethodPriceRuleShippingMethodPriceRuleDefinition, "shipping_method_price_rule\n(Shipping rule prices)") {
    primary_key(id) id
@@ -76,7 +77,7 @@ ForeignTable(ShopwareCoreSystemCurrencyCurrencyDefinition, "currency") {
 }
 ForeignTable(ShopwareCoreContentRuleRuleDefinition, "rule") {
 }
-ForeignTable(ShopwareCoreSystemLanguageLanguageDefinition, "language") {
+ForeignTable(ShopwareCoreFrameworkLanguageLanguageDefinition, "language") {
 }
 
 ' relationshipd
@@ -89,6 +90,6 @@ ShopwareCoreCheckoutShippingAggregateShippingMethodRulesShippingMethodRuleDefini
 ShopwareCoreCheckoutShippingAggregateShippingMethodPriceRuleShippingMethodPriceRuleDefinition --> ShopwareCoreCheckoutShippingShippingMethodDefinition
 ShopwareCoreCheckoutShippingAggregateShippingMethodPriceRuleShippingMethodPriceRuleDefinition --> ShopwareCoreSystemCurrencyCurrencyDefinition
 ShopwareCoreCheckoutShippingAggregateShippingMethodPriceRuleShippingMethodPriceRuleDefinition --> ShopwareCoreContentRuleRuleDefinition
-ShopwareCoreCheckoutShippingAggregateShippingMethodTranslationShippingMethodTranslationDefinition --> ShopwareCoreSystemLanguageLanguageDefinition
+ShopwareCoreCheckoutShippingAggregateShippingMethodTranslationShippingMethodTranslationDefinition --> ShopwareCoreFrameworkLanguageLanguageDefinition
 ShopwareCoreCheckoutShippingAggregateShippingMethodRulesShippingMethodRuleDefinition --> ShopwareCoreContentRuleRuleDefinition
 @enduml

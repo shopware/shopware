@@ -31,6 +31,7 @@ Table(ShopwareCoreCheckoutDiscountSurchargeDiscountSurchargeDefinition, "discoun
    attributes translated
    not_null(createdAt) createdAt
    not_null(updatedAt) updatedAt
+   translated json
 }
 TranslationTable(ShopwareCoreCheckoutDiscountSurchargeAggregateDiscountSurchargeTranslationDiscountSurchargeTranslationDefinition, "discount_surcharge_translation\n((Translations))") {
    not_null(name) string
@@ -42,12 +43,12 @@ TranslationTable(ShopwareCoreCheckoutDiscountSurchargeAggregateDiscountSurcharge
 }
 ForeignTable(ShopwareCoreContentRuleRuleDefinition, "rule") {
 }
-ForeignTable(ShopwareCoreSystemLanguageLanguageDefinition, "language") {
+ForeignTable(ShopwareCoreFrameworkLanguageLanguageDefinition, "language") {
 }
 
 ' relationshipd
 
 ShopwareCoreCheckoutDiscountSurchargeAggregateDiscountSurchargeTranslationDiscountSurchargeTranslationDefinition --> ShopwareCoreCheckoutDiscountSurchargeDiscountSurchargeDefinition
 ShopwareCoreCheckoutDiscountSurchargeDiscountSurchargeDefinition --> ShopwareCoreContentRuleRuleDefinition
-ShopwareCoreCheckoutDiscountSurchargeAggregateDiscountSurchargeTranslationDiscountSurchargeTranslationDefinition --> ShopwareCoreSystemLanguageLanguageDefinition
+ShopwareCoreCheckoutDiscountSurchargeAggregateDiscountSurchargeTranslationDiscountSurchargeTranslationDefinition --> ShopwareCoreFrameworkLanguageLanguageDefinition
 @enduml

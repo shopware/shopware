@@ -28,7 +28,8 @@ Table(ShopwareCoreSystemUserUserDefinition, "user\n(Administration/ Management A
    avatarId foreignKey
    not_null(username) string
    not_null(password) password
-   not_null(name) string
+   not_null(firstName) string
+   not_null(lastName) string
    not_null(email) string
    active bool
    attributes attributes

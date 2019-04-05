@@ -35,6 +35,7 @@ Table(ShopwareCoreSystemCountryCountryDefinition, "country\n(Country)") {
    attributes translated
    not_null(createdAt) createdAt
    not_null(updatedAt) updatedAt
+   translated json
 }
 Table(ShopwareCoreSystemCountryAggregateCountryStateCountryStateDefinition, "country_state\n(A countries state)") {
    primary_key(id) id
@@ -46,6 +47,7 @@ Table(ShopwareCoreSystemCountryAggregateCountryStateCountryStateDefinition, "cou
    attributes translated
    not_null(createdAt) createdAt
    not_null(updatedAt) updatedAt
+   translated json
 }
 TranslationTable(ShopwareCoreSystemCountryAggregateCountryStateTranslationCountryStateTranslationDefinition, "country_state_translation\n((Translations))") {
    not_null(name) string
@@ -71,7 +73,7 @@ ForeignTable(ShopwareCoreCheckoutOrderAggregateOrderAddressOrderAddressDefinitio
 }
 ForeignTable(ShopwareCoreSystemSalesChannelAggregateSalesChannelCountrySalesChannelCountryDefinition, "sales_channel_country") {
 }
-ForeignTable(ShopwareCoreSystemLanguageLanguageDefinition, "language") {
+ForeignTable(ShopwareCoreFrameworkLanguageLanguageDefinition, "language") {
 }
 
 ' relationshipd
@@ -85,6 +87,6 @@ ShopwareCoreSystemCountryCountryDefinition --> ShopwareCoreSystemSalesChannelAgg
 ShopwareCoreSystemCountryAggregateCountryStateTranslationCountryStateTranslationDefinition --> ShopwareCoreSystemCountryAggregateCountryStateCountryStateDefinition
 ShopwareCoreSystemCountryAggregateCountryStateCountryStateDefinition --> ShopwareCoreCheckoutCustomerAggregateCustomerAddressCustomerAddressDefinition
 ShopwareCoreSystemCountryAggregateCountryStateCountryStateDefinition --> ShopwareCoreCheckoutOrderAggregateOrderAddressOrderAddressDefinition
-ShopwareCoreSystemCountryAggregateCountryStateTranslationCountryStateTranslationDefinition --> ShopwareCoreSystemLanguageLanguageDefinition
-ShopwareCoreSystemCountryAggregateCountryTranslationCountryTranslationDefinition --> ShopwareCoreSystemLanguageLanguageDefinition
+ShopwareCoreSystemCountryAggregateCountryStateTranslationCountryStateTranslationDefinition --> ShopwareCoreFrameworkLanguageLanguageDefinition
+ShopwareCoreSystemCountryAggregateCountryTranslationCountryTranslationDefinition --> ShopwareCoreFrameworkLanguageLanguageDefinition
 @enduml

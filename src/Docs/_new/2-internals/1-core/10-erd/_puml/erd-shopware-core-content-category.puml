@@ -40,6 +40,7 @@ Table(ShopwareCoreContentCategoryCategoryDefinition, "category\n(Category tree)"
    not_null(updatedAt) updatedAt
    name translated
    attributes translated
+   translated json
 }
 TranslationTable(ShopwareCoreContentCategoryAggregateCategoryTranslationCategoryTranslationDefinition, "category_translation\n((Translations))") {
    not_null(name) string
@@ -65,7 +66,7 @@ ForeignTable(ShopwareCoreContentProductAggregateProductCategoryProductCategoryDe
 }
 ForeignTable(ShopwareCoreContentProductAggregateProductCategoryTreeProductCategoryTreeDefinition, "product_category_tree") {
 }
-ForeignTable(ShopwareCoreSystemLanguageLanguageDefinition, "language") {
+ForeignTable(ShopwareCoreFrameworkLanguageLanguageDefinition, "language") {
 }
 ForeignTable(ShopwareCoreFrameworkTagTagDefinition, "tag") {
 }
@@ -79,6 +80,6 @@ ShopwareCoreContentCategoryCategoryDefinition --> ShopwareCoreContentNavigationN
 ShopwareCoreContentCategoryCategoryDefinition --> ShopwareCoreContentProductAggregateProductCategoryProductCategoryDefinition
 ShopwareCoreContentCategoryCategoryDefinition --> ShopwareCoreContentProductAggregateProductCategoryTreeProductCategoryTreeDefinition
 ShopwareCoreContentCategoryAggregateCategoryTagCategoryTagDefinition --> ShopwareCoreContentCategoryCategoryDefinition
-ShopwareCoreContentCategoryAggregateCategoryTranslationCategoryTranslationDefinition --> ShopwareCoreSystemLanguageLanguageDefinition
+ShopwareCoreContentCategoryAggregateCategoryTranslationCategoryTranslationDefinition --> ShopwareCoreFrameworkLanguageLanguageDefinition
 ShopwareCoreContentCategoryAggregateCategoryTagCategoryTagDefinition --> ShopwareCoreFrameworkTagTagDefinition
 @enduml

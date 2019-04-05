@@ -31,9 +31,10 @@ Table(ShopwareCoreContentProductStreamProductStreamDefinition, "product_stream\n
    name translated
    description translated
    attributes translated
+   translated json
 }
 TranslationTable(ShopwareCoreContentProductStreamAggregateProductStreamTranslationProductStreamTranslationDefinition, "product_stream_translation\n((Translations))") {
-   name string
+   not_null(name) string
    description longText
    attributes attributes
    primary_key(productStreamId) foreignKey
@@ -55,13 +56,13 @@ Table(ShopwareCoreContentProductStreamAggregateProductStreamFilterProductStreamF
    not_null(updatedAt) updatedAt
    attributes attributes
 }
-ForeignTable(ShopwareCoreSystemLanguageLanguageDefinition, "language") {
+ForeignTable(ShopwareCoreFrameworkLanguageLanguageDefinition, "language") {
 }
 
 ' relationshipd
 
 ShopwareCoreContentProductStreamAggregateProductStreamTranslationProductStreamTranslationDefinition --> ShopwareCoreContentProductStreamProductStreamDefinition
 ShopwareCoreContentProductStreamAggregateProductStreamFilterProductStreamFilterDefinition --> ShopwareCoreContentProductStreamProductStreamDefinition
-ShopwareCoreContentProductStreamAggregateProductStreamTranslationProductStreamTranslationDefinition --> ShopwareCoreSystemLanguageLanguageDefinition
+ShopwareCoreContentProductStreamAggregateProductStreamTranslationProductStreamTranslationDefinition --> ShopwareCoreFrameworkLanguageLanguageDefinition
 ShopwareCoreContentProductStreamAggregateProductStreamFilterProductStreamFilterDefinition --> ShopwareCoreContentProductStreamAggregateProductStreamFilterProductStreamFilterDefinition
 @enduml

@@ -44,6 +44,9 @@ Table(ShopwareCoreFrameworkScheduledTask, "Shopware\Core\Framework\ScheduledTask
 Table(ShopwareCoreFrameworkTag, "Shopware\Core\Framework\Tag\n(Tags)") {
    tag Table
 }
+Table(ShopwareCoreFrameworkLanguage, "Shopware\Core\Framework\Language\n(Languages)") {
+   language Table
+}
 Table(ShopwareCoreSystemSalesChannel, "Shopware\Core\System\SalesChannel\n(Sales channels)") {
    sales_channel Table
    sales_channel_translation Table
@@ -90,9 +93,6 @@ Table(ShopwareCoreSystemUser, "Shopware\Core\System\User\n(Admin Accounts)") {
    user_access_key Table
    user_recovery Table
 }
-Table(ShopwareCoreSystemLanguage, "Shopware\Core\System\Language\n(Languages)") {
-   language Table
-}
 Table(ShopwareCoreSystemIntegration, "Shopware\Core\System\Integration\n(O-Auth integrations)") {
    integration Table
 }
@@ -134,7 +134,7 @@ Table(ShopwareCoreContentProduct, "Shopware\Core\Content\Product\n(Products)") {
    product_category Table
    product_tag Table
    product_configurator Table
-   product_price_rule Table
+   product_price Table
    product_datasheet Table
    product_manufacturer Table
    product_manufacturer_translation Table
@@ -204,9 +204,11 @@ Table(ShopwareStorefront, "Shopware\Storefront\n(Storefront)") {
 }
 ForeignTable(ShopwareCoreContentNewsletterReceiver, "newsletter_receiver") {
 }
-ForeignTable(ShopwareCoreContentMailTemplate, "mail_header_footer_translation") {
-}
 ForeignTable(ShopwareCoreContentCms, "cms_page") {
+}
+ForeignTable(ShopwareCoreContentMailTemplate, "mail_template_media") {
+}
+ForeignTable(ShopwareCoreCheckoutPromotion, "promotion") {
 }
 ForeignTable(ShopwareCoreCheckoutDocument, "document") {
 }
@@ -217,14 +219,35 @@ ShopwareCoreFrameworkAttribute --> ShopwareCoreFrameworkAttribute
 ShopwareCoreFrameworkScheduledTask --> ShopwareCoreFrameworkMessageQueue
 ShopwareCoreFrameworkPlugin --> ShopwareCoreFrameworkPlugin
 ShopwareCoreCheckoutPayment --> ShopwareCoreFrameworkPlugin
-ShopwareCoreSystemLanguage --> ShopwareCoreFrameworkPlugin
+ShopwareCoreFrameworkLanguage --> ShopwareCoreFrameworkPlugin
 ShopwareCoreContentProduct --> ShopwareCoreFrameworkTag
 ShopwareCoreContentMedia --> ShopwareCoreFrameworkTag
 ShopwareCoreContentCategory --> ShopwareCoreFrameworkTag
 ShopwareCoreCheckoutCustomer --> ShopwareCoreFrameworkTag
 ShopwareCoreCheckoutOrder --> ShopwareCoreFrameworkTag
+ShopwareCoreFrameworkLanguage --> ShopwareCoreFrameworkLanguage
+ShopwareCoreSystemLocale --> ShopwareCoreFrameworkLanguage
+ShopwareCoreSystemSalesChannel --> ShopwareCoreFrameworkLanguage
+ShopwareCoreCheckoutCustomer --> ShopwareCoreFrameworkLanguage
+ShopwareCoreFrameworkLanguage --> ShopwareCoreContentNewsletterReceiver
+ShopwareCoreContentCategory --> ShopwareCoreFrameworkLanguage
+ShopwareCoreSystemCountry --> ShopwareCoreFrameworkLanguage
+ShopwareCoreSystemCurrency --> ShopwareCoreFrameworkLanguage
+ShopwareCoreContentMedia --> ShopwareCoreFrameworkLanguage
+ShopwareCoreCheckoutPayment --> ShopwareCoreFrameworkLanguage
+ShopwareCoreContentProduct --> ShopwareCoreFrameworkLanguage
+ShopwareCoreCheckoutShipping --> ShopwareCoreFrameworkLanguage
+ShopwareCoreSystemUnit --> ShopwareCoreFrameworkLanguage
+ShopwareCoreContentConfiguration --> ShopwareCoreFrameworkLanguage
+ShopwareCoreCheckoutDiscountSurcharge --> ShopwareCoreFrameworkLanguage
+ShopwareCoreSystemSalutation --> ShopwareCoreFrameworkLanguage
+ShopwareCoreFrameworkSearch --> ShopwareCoreFrameworkLanguage
+ShopwareCoreContentProductStream --> ShopwareCoreFrameworkLanguage
+ShopwareCoreSystemStateMachine --> ShopwareCoreFrameworkLanguage
+ShopwareCoreFrameworkLanguage --> ShopwareCoreContentCms
+ShopwareCoreContentNavigation --> ShopwareCoreFrameworkLanguage
+ShopwareCoreFrameworkLanguage --> ShopwareCoreContentMailTemplate
 ShopwareCoreSystemSalesChannel --> ShopwareCoreSystemSalesChannel
-ShopwareCoreSystemLanguage --> ShopwareCoreSystemSalesChannel
 ShopwareCoreCheckoutCustomer --> ShopwareCoreSystemSalesChannel
 ShopwareCoreSystemCurrency --> ShopwareCoreSystemSalesChannel
 ShopwareCoreCheckoutPayment --> ShopwareCoreSystemSalesChannel
@@ -234,21 +257,19 @@ ShopwareCoreCheckoutOrder --> ShopwareCoreSystemSalesChannel
 ShopwareCoreSystemSystemConfig --> ShopwareCoreSystemSalesChannel
 ShopwareCoreContentNavigation --> ShopwareCoreSystemSalesChannel
 ShopwareCoreContentProduct --> ShopwareCoreSystemSalesChannel
-ShopwareCoreSystemSalesChannel --> ShopwareCoreContentNewsletterReceiver
 ShopwareCoreSystemSalesChannel --> ShopwareCoreContentMailTemplate
+ShopwareCoreSystemSalesChannel --> ShopwareCoreContentNewsletterReceiver
 ShopwareCoreSystemNumberRange --> ShopwareCoreSystemSalesChannel
+ShopwareCoreSystemSalesChannel --> ShopwareCoreCheckoutPromotion
 ShopwareStorefront --> ShopwareCoreSystemSalesChannel
 ShopwareCoreFrameworkSnippet --> ShopwareCoreSystemSalesChannel
 ShopwareCoreSystemCountry --> ShopwareCoreSystemCountry
 ShopwareCoreCheckoutCustomer --> ShopwareCoreSystemCountry
 ShopwareCoreCheckoutOrder --> ShopwareCoreSystemCountry
-ShopwareCoreSystemLanguage --> ShopwareCoreSystemCountry
 ShopwareCoreSystemCurrency --> ShopwareCoreSystemCurrency
 ShopwareCoreCheckoutOrder --> ShopwareCoreSystemCurrency
 ShopwareCoreContentProduct --> ShopwareCoreSystemCurrency
 ShopwareCoreCheckoutShipping --> ShopwareCoreSystemCurrency
-ShopwareCoreSystemLanguage --> ShopwareCoreSystemCurrency
-ShopwareCoreSystemLanguage --> ShopwareCoreSystemLocale
 ShopwareCoreSystemLocale --> ShopwareCoreSystemLocale
 ShopwareCoreSystemUser --> ShopwareCoreSystemLocale
 ShopwareCoreFrameworkSnippet --> ShopwareCoreFrameworkSnippet
@@ -256,30 +277,12 @@ ShopwareCoreSystemSalutation --> ShopwareCoreSystemSalutation
 ShopwareCoreCheckoutCustomer --> ShopwareCoreSystemSalutation
 ShopwareCoreCheckoutOrder --> ShopwareCoreSystemSalutation
 ShopwareCoreSystemSalutation --> ShopwareCoreContentNewsletterReceiver
-ShopwareCoreSystemLanguage --> ShopwareCoreSystemSalutation
 ShopwareCoreContentProduct --> ShopwareCoreSystemTax
 ShopwareCoreContentProduct --> ShopwareCoreSystemUnit
 ShopwareCoreSystemUnit --> ShopwareCoreSystemUnit
-ShopwareCoreSystemLanguage --> ShopwareCoreSystemUnit
 ShopwareCoreContentMedia --> ShopwareCoreSystemUser
 ShopwareCoreSystemUser --> ShopwareCoreSystemUser
 ShopwareCoreSystemStateMachine --> ShopwareCoreSystemUser
-ShopwareCoreSystemLanguage --> ShopwareCoreSystemLanguage
-ShopwareCoreCheckoutCustomer --> ShopwareCoreSystemLanguage
-ShopwareCoreSystemLanguage --> ShopwareCoreContentNewsletterReceiver
-ShopwareCoreContentCategory --> ShopwareCoreSystemLanguage
-ShopwareCoreContentMedia --> ShopwareCoreSystemLanguage
-ShopwareCoreCheckoutPayment --> ShopwareCoreSystemLanguage
-ShopwareCoreContentProduct --> ShopwareCoreSystemLanguage
-ShopwareCoreCheckoutShipping --> ShopwareCoreSystemLanguage
-ShopwareCoreContentConfiguration --> ShopwareCoreSystemLanguage
-ShopwareCoreCheckoutDiscountSurcharge --> ShopwareCoreSystemLanguage
-ShopwareCoreFrameworkSearch --> ShopwareCoreSystemLanguage
-ShopwareCoreContentProductStream --> ShopwareCoreSystemLanguage
-ShopwareCoreSystemStateMachine --> ShopwareCoreSystemLanguage
-ShopwareCoreSystemLanguage --> ShopwareCoreContentCms
-ShopwareCoreContentNavigation --> ShopwareCoreSystemLanguage
-ShopwareCoreSystemLanguage --> ShopwareCoreContentMailTemplate
 ShopwareCoreSystemStateMachine --> ShopwareCoreSystemStateMachine
 ShopwareCoreCheckoutOrder --> ShopwareCoreSystemStateMachine
 ShopwareCoreSystemNumberRange --> ShopwareCoreSystemNumberRange
@@ -290,6 +293,7 @@ ShopwareCoreContentProduct --> ShopwareCoreContentCategory
 ShopwareCoreContentProduct --> ShopwareCoreContentMedia
 ShopwareCoreContentMedia --> ShopwareCoreContentMedia
 ShopwareCoreContentConfiguration --> ShopwareCoreContentMedia
+ShopwareCoreContentMedia --> ShopwareCoreContentMailTemplate
 ShopwareCoreContentProduct --> ShopwareCoreContentProduct
 ShopwareCoreContentProduct --> ShopwareCoreFrameworkSearch
 ShopwareCoreContentProduct --> ShopwareStorefront
@@ -301,15 +305,14 @@ ShopwareCoreContentRule --> ShopwareCoreContentRule
 ShopwareCoreCheckoutDiscountSurcharge --> ShopwareCoreContentRule
 ShopwareCoreCheckoutShipping --> ShopwareCoreContentRule
 ShopwareCoreCheckoutPayment --> ShopwareCoreContentRule
+ShopwareCoreContentRule --> ShopwareCoreCheckoutPromotion
 ShopwareCoreContentProductStream --> ShopwareCoreContentProductStream
 ShopwareCoreContentConfiguration --> ShopwareCoreContentConfiguration
 ShopwareCoreCheckoutCustomer --> ShopwareCoreCheckoutCustomer
 ShopwareCoreCheckoutPayment --> ShopwareCoreCheckoutCustomer
 ShopwareCoreCheckoutOrder --> ShopwareCoreCheckoutCustomer
-ShopwareCoreCheckoutCustomer --> ShopwareCoreFrameworkSearch
 ShopwareCoreCheckoutOrder --> ShopwareCoreCheckoutOrder
 ShopwareCoreCheckoutOrder --> ShopwareCoreCheckoutDocument
-ShopwareCoreCheckoutOrder --> ShopwareCoreFrameworkSearch
 ShopwareCoreCheckoutShipping --> ShopwareCoreCheckoutOrder
 ShopwareCoreCheckoutPayment --> ShopwareCoreCheckoutOrder
 ShopwareCoreCheckoutPayment --> ShopwareCoreCheckoutPayment

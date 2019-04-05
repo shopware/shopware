@@ -2,7 +2,7 @@
 
 Numberranges are used to provide and generate non random but unique numbers for a variety of entities. For example the default stock keeping units (SKU) are generated here.
 
-![Number ranges](dist/erm-shopware-core-system-numberrange.svg)
+![Number ranges](./dist/erm-shopware-core-system-numberrange.svg)
 
 
 ### Table `number_range`

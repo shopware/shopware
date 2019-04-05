@@ -34,7 +34,7 @@ Translations in the Shopware Platform are supported by two subsystems all correl
 Snippets
  : Snippets are dynamic translation texts that can be managed through the Management-API
  
-[Data Abstraction Layer](20-data-abstraction-layer)
+[Data Abstraction Layer](./20-data-abstraction-layer/__categoryInfo.md)
  : All customer facing data is by default translatable follow the link to see how.
  
  

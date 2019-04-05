@@ -68,7 +68,7 @@ To get help information about required and optional parameters, you can always s
 
 ## The sources
 
-Now that you have a idea how to execute the various Shopware Platform stacks, we will briefly point you to the sources directories. But keep in mind that there are entire documents describing the [directory structure](../2-platform/30-directory-structure.md) of the Shopware Platform.
+Now that you have a idea how to execute the various Shopware Platform stacks, we will briefly point you to the sources directories. But keep in mind that there are entire documents describing the [directory structure](./../2-internals/30-directory-structure.md) of the Shopware Platform.
 
 | Thing | Place
 | ----: | :----
@@ -80,4 +80,4 @@ Now that you have a idea how to execute the various Shopware Platform stacks, we
 
 ## And now?
 
-Look around! Add products, trigger orders, register customers and use the Shopware Platform. Maybe you want to add debug statements to some sources to get a deeper insight and if you are ready to learn more hop over to the [internals](../2-platform/10-platform.md).
+Look around! Add products, trigger orders, register customers and use the Shopware Platform. Maybe you want to add debug statements to some sources to get a deeper insight and if you are ready to learn more hop over to the [internals](./../2-internals/__categoryInfo.md).

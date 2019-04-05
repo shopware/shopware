@@ -2,7 +2,7 @@
 
 Contains the configuration options for product variants.
 
-![Product configuration](dist/erm-shopware-core-content-configuration.svg)
+![Product configuration](./dist/erm-shopware-core-content-configuration.svg)
 
 
 ### Table `configuration_group`

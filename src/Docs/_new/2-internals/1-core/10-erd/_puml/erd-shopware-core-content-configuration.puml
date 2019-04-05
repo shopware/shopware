@@ -31,6 +31,7 @@ Table(ShopwareCoreContentConfigurationConfigurationGroupDefinition, "configurati
    attributes translated
    not_null(createdAt) createdAt
    not_null(updatedAt) updatedAt
+   translated json
 }
 Table(ShopwareCoreContentConfigurationAggregateConfigurationGroupOptionConfigurationGroupOptionDefinition, "configuration_group_option\n(Product variant option)") {
    primary_key(id) id
@@ -42,6 +43,7 @@ Table(ShopwareCoreContentConfigurationAggregateConfigurationGroupOptionConfigura
    attributes translated
    not_null(createdAt) createdAt
    not_null(updatedAt) updatedAt
+   translated json
 }
 TranslationTable(ShopwareCoreContentConfigurationAggregateConfigurationGroupOptionTranslationConfigurationGroupOptionTranslationDefinition, "configuration_group_option_translation\n((Translations))") {
    not_null(name) string
@@ -69,7 +71,7 @@ ForeignTable(ShopwareCoreContentProductAggregateProductDatasheetProductDatasheet
 }
 ForeignTable(ShopwareCoreContentProductAggregateProductVariationProductVariationDefinition, "product_variation") {
 }
-ForeignTable(ShopwareCoreSystemLanguageLanguageDefinition, "language") {
+ForeignTable(ShopwareCoreFrameworkLanguageLanguageDefinition, "language") {
 }
 
 ' relationshipd
@@ -81,6 +83,6 @@ ShopwareCoreContentConfigurationAggregateConfigurationGroupOptionTranslationConf
 ShopwareCoreContentConfigurationAggregateConfigurationGroupOptionConfigurationGroupOptionDefinition --> ShopwareCoreContentProductAggregateProductConfiguratorProductConfiguratorDefinition
 ShopwareCoreContentConfigurationAggregateConfigurationGroupOptionConfigurationGroupOptionDefinition --> ShopwareCoreContentProductAggregateProductDatasheetProductDatasheetDefinition
 ShopwareCoreContentConfigurationAggregateConfigurationGroupOptionConfigurationGroupOptionDefinition --> ShopwareCoreContentProductAggregateProductVariationProductVariationDefinition
-ShopwareCoreContentConfigurationAggregateConfigurationGroupOptionTranslationConfigurationGroupOptionTranslationDefinition --> ShopwareCoreSystemLanguageLanguageDefinition
-ShopwareCoreContentConfigurationAggregateConfigurationGroupTranslationConfigurationGroupTranslationDefinition --> ShopwareCoreSystemLanguageLanguageDefinition
+ShopwareCoreContentConfigurationAggregateConfigurationGroupOptionTranslationConfigurationGroupOptionTranslationDefinition --> ShopwareCoreFrameworkLanguageLanguageDefinition
+ShopwareCoreContentConfigurationAggregateConfigurationGroupTranslationConfigurationGroupTranslationDefinition --> ShopwareCoreFrameworkLanguageLanguageDefinition
 @enduml

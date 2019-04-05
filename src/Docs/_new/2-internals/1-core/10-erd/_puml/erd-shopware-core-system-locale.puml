@@ -30,6 +30,7 @@ Table(ShopwareCoreSystemLocaleLocaleDefinition, "locale\n(A locale)") {
    attributes translated
    not_null(createdAt) createdAt
    not_null(updatedAt) updatedAt
+   translated json
 }
 TranslationTable(ShopwareCoreSystemLocaleAggregateLocaleTranslationLocaleTranslationDefinition, "locale_translation\n((Translations))") {
    not_null(name) string
@@ -40,15 +41,15 @@ TranslationTable(ShopwareCoreSystemLocaleAggregateLocaleTranslationLocaleTransla
    not_null(createdAt) createdAt
    not_null(updatedAt) updatedAt
 }
-ForeignTable(ShopwareCoreSystemLanguageLanguageDefinition, "language") {
+ForeignTable(ShopwareCoreFrameworkLanguageLanguageDefinition, "language") {
 }
 ForeignTable(ShopwareCoreSystemUserUserDefinition, "user") {
 }
 
 ' relationshipd
 
-ShopwareCoreSystemLocaleLocaleDefinition --> ShopwareCoreSystemLanguageLanguageDefinition
+ShopwareCoreSystemLocaleLocaleDefinition --> ShopwareCoreFrameworkLanguageLanguageDefinition
 ShopwareCoreSystemLocaleAggregateLocaleTranslationLocaleTranslationDefinition --> ShopwareCoreSystemLocaleLocaleDefinition
 ShopwareCoreSystemLocaleLocaleDefinition --> ShopwareCoreSystemUserUserDefinition
-ShopwareCoreSystemLocaleAggregateLocaleTranslationLocaleTranslationDefinition --> ShopwareCoreSystemLanguageLanguageDefinition
+ShopwareCoreSystemLocaleAggregateLocaleTranslationLocaleTranslationDefinition --> ShopwareCoreFrameworkLanguageLanguageDefinition
 @enduml

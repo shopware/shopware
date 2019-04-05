@@ -37,6 +37,7 @@ Table(ShopwareCoreContentNavigationNavigationDefinition, "navigation\n(SalesChan
    childCount childCount
    not_null(createdAt) createdAt
    not_null(updatedAt) updatedAt
+   translated json
 }
 TranslationTable(ShopwareCoreContentNavigationAggregateNavigationTranslationNavigationTranslationDefinition, "navigation_translation\n((Translations))") {
    not_null(name) string
@@ -53,7 +54,7 @@ ForeignTable(ShopwareCoreContentCmsCmsPageDefinition, "cms_page") {
 }
 ForeignTable(ShopwareCoreSystemSalesChannelSalesChannelDefinition, "sales_channel") {
 }
-ForeignTable(ShopwareCoreSystemLanguageLanguageDefinition, "language") {
+ForeignTable(ShopwareCoreFrameworkLanguageLanguageDefinition, "language") {
 }
 
 ' relationshipd
@@ -63,5 +64,5 @@ ShopwareCoreContentNavigationNavigationDefinition --> ShopwareCoreContentCmsCmsP
 ShopwareCoreContentNavigationAggregateNavigationTranslationNavigationTranslationDefinition --> ShopwareCoreContentNavigationNavigationDefinition
 ShopwareCoreContentNavigationNavigationDefinition --> ShopwareCoreContentNavigationNavigationDefinition
 ShopwareCoreContentNavigationNavigationDefinition --> ShopwareCoreSystemSalesChannelSalesChannelDefinition
-ShopwareCoreContentNavigationAggregateNavigationTranslationNavigationTranslationDefinition --> ShopwareCoreSystemLanguageLanguageDefinition
+ShopwareCoreContentNavigationAggregateNavigationTranslationNavigationTranslationDefinition --> ShopwareCoreFrameworkLanguageLanguageDefinition
 @enduml

@@ -1,12 +1,12 @@
 const fs = require('fs');
-const utils = require('./utils');
 const webpack = require('webpack');
-const config = require('../config');
 const merge = require('webpack-merge');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const TerserPlugin = require('terser-webpack-plugin');
 const OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin');
+const config = require('../config');
+const utils = require('./utils');
 const WebpackCopyAfterBuildPlugin = require('./plugins/copy-after-build');
 const env = process.env.NODE_ENV === 'testing'
     ? require('../config/test.env')
@@ -60,9 +60,9 @@ const webpackConfig = merge(baseWebpackConfig, {
         // copy custom static assets
         new CopyWebpackPlugin([
             {
-                from:utils.resolve('static'),
+                from: utils.resolve('static'),
                 to: config.build.assetsSubDirectory,
-                ignore: [ '.*' ]
+                ignore: ['.*']
             }
         ])
     ]
@@ -76,14 +76,12 @@ if (config.build.productionGzip) {
             asset: '[path].gz[query]',
             algorithm: 'gzip',
             test: new RegExp(
-                '\\.(' +
-                config.build.productionGzipExtensions.join('|') +
-                ')$'
+                `\\.(${config.build.productionGzipExtensions.join('|')})$`
             ),
             threshold: 10240,
             minRatio: 0.8
         })
-    )
+    );
 }
 
 if (pluginList.length) {
@@ -91,7 +89,7 @@ if (pluginList.length) {
         const pluginName = plugin.name;
         const basePath = plugin.basePath;
         const pluginPath = `${basePath}Resources/public/`;
-        const assetPath = `${basePath}Resources/views/administration/static`;
+        const assetPath = `${plugin.viewPath}static`;
         const publicStaticPath = `${basePath}Resources/public/static/`;
 
         webpackConfig.plugins.push(
@@ -107,14 +105,14 @@ if (pluginList.length) {
             })
         );
 
-        if(fs.existsSync(assetPath)) {
+        if (fs.existsSync(assetPath)) {
             webpackConfig.plugins.push(
                 // copy custom static assets
                 new CopyWebpackPlugin([
                     {
                         from: assetPath,
                         to: publicStaticPath,
-                        ignore: [ '.*' ]
+                        ignore: ['.*']
                     }
                 ])
             );

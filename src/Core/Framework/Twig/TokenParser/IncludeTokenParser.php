@@ -5,11 +5,17 @@ namespace Shopware\Core\Framework\Twig\TokenParser;
 use Shopware\Core\Framework\Twig\Node\SwInclude;
 use Shopware\Core\Framework\Twig\TemplateFinder;
 use Twig\Node\IncludeNode;
+use Twig\Parser;
 use Twig\Token;
 use Twig\TokenParser\AbstractTokenParser;
 
 final class IncludeTokenParser extends AbstractTokenParser
 {
+    /**
+     * @var Parser
+     */
+    protected $parser;
+
     /**
      * @var TemplateFinder
      */

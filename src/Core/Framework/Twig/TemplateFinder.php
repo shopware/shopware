@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Framework\Twig;
 
-use Symfony\Component\HttpKernel\Bundle\BundleInterface;
+use Shopware\Core\Framework\Bundle;
 use Twig\Error\LoaderError;
 use Twig\Loader\FilesystemLoader;
 
@@ -11,7 +11,7 @@ class TemplateFinder
     /**
      * @var array
      */
-    private $directories;
+    private $bundles;
 
     /**
      * @var FilesystemLoader
@@ -29,36 +29,38 @@ class TemplateFinder
 
         $defaults = [
             'Administration',
-            'Shopware',
-            'Storefront',
+            'ShopwareStorefront',
         ];
 
-        $directories = [];
+        $bundles = [];
 
         foreach ($loader->getNamespaces() as $namespace) {
             if ($namespace[0] === '!' || $namespace === '__main__' || \in_array($namespace, $defaults, true)) {
                 continue;
             }
 
-            $directories[] = $namespace;
+            $bundles[] = $namespace;
         }
 
-        $directories = array_merge($directories, $defaults);
-
-        $this->directories = $directories;
+        $this->bundles = $bundles;
     }
 
-    public function addBundle(BundleInterface $bundle): bool
+    public function addBundle(Bundle $bundle): void
     {
-        $directory = $bundle->getPath() . '/Resources/views/';
-        if (!file_exists($directory)) {
-            return false;
+        $bundlePath = $bundle->getPath();
+        $bundles = $this->bundles;
+
+        foreach ($bundle->getViewPaths() as $directory) {
+            $directory = $bundlePath . $directory;
+            if (!file_exists($directory)) {
+                continue;
+            }
+
+            array_unshift($bundles, $bundle->getName());
+            $this->loader->addPath($directory, $bundle->getName());
         }
 
-        array_unshift($this->directories, $bundle->getName());
-        $this->loader->addPath($directory, $bundle->getName());
-
-        return true;
+        $this->bundles = array_unique($bundles);
     }
 
     public function getTemplateName(string $template): string
@@ -87,7 +89,7 @@ class TemplateFinder
             $queue = $this->queue[$template];
         }
         if (empty($queue) || $wholeInheritance === true) {
-            $queue = $this->queue[$template] = $this->directories;
+            $queue = $this->queue[$template] = $this->bundles;
         }
 
         foreach ($queue as $index => $prefix) {

@@ -241,7 +241,7 @@ class Kernel extends HttpKernel
                 );
             }
 
-            /** @var \Shopware\Core\Framework\Plugin $plugin */
+            /** @var Plugin $plugin */
             $plugin = new $className((bool) $pluginData['active'], $pluginPath);
 
             if (!$plugin instanceof Plugin) {

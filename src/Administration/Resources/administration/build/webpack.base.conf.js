@@ -7,9 +7,8 @@ const vueLoaderConfig = require('./vue-loader.conf');
 const pluginList = utils.getPluginDefinitions('var/config_administration_plugins.json', true);
 
 const pluginSourceDirectories = pluginList.reduce((accumulator, plugin) => {
-    const srcPath = `${plugin.basePath}Resources/views/administration`;
-    if (fs.existsSync(srcPath)) {
-        accumulator.push(srcPath);
+    if (fs.existsSync(plugin.viewPath)) {
+        accumulator.push(plugin.viewPath);
     }
 
     return accumulator;

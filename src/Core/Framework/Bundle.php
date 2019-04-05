@@ -4,9 +4,12 @@ namespace Shopware\Core\Framework;
 
 use Shopware\Core\Framework\Event\BusinessEventRegistry;
 use Shopware\Core\Framework\Filesystem\PrefixFilesystem;
+use Shopware\Core\Framework\Twig\TemplateFinder;
 use Shopware\Core\Kernel;
+use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
+use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
 use Symfony\Component\DependencyInjection\Reference;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpKernel\Bundle\Bundle as SymfonyBundle;
@@ -23,33 +26,36 @@ abstract class Bundle extends SymfonyBundle
         $this->registerFilesystem($container, 'public');
         $this->registerMigrationPath($container);
         $this->registerEvents($container);
+        $this->registerContainerFile($container);
     }
 
-    public function getMigrationNamespace(): string
+    public function boot(): void
     {
-        return $this->getNamespace() . '\Migration';
+        $templateFinder = $this->container->get(TemplateFinder::class);
+        $templateFinder->addBundle($this);
+
+        parent::boot();
     }
 
-    public function getContainerPrefix(): string
+    /**
+     * @return string[]
+     */
+    public function getViewPaths(): array
     {
-        return (new CamelCaseToSnakeCaseNameConverter())->normalize($this->getName());
+        return [
+            '/Resources/views/',
+            '/Resources/',
+        ];
     }
 
-    public function getActionEvents(): array
+    public function getAdministrationEntryPath(): string
     {
-        return [];
+        return '/Resources/administration/';
     }
 
-    public function configureRoutes(RouteCollectionBuilder $routes, string $environment): void
+    public function getStorefrontEntryPath(): string
     {
-        $fileSystem = new Filesystem();
-        $confDir = $this->getPath() . '/Resources/config';
-
-        if ($fileSystem->exists($confDir)) {
-            $routes->import($confDir . '/{routes}/*' . Kernel::CONFIG_EXTS, '/', 'glob');
-            $routes->import($confDir . '/{routes}/' . $environment . '/**/*' . Kernel::CONFIG_EXTS, '/', 'glob');
-            $routes->import($confDir . '/{routes}' . Kernel::CONFIG_EXTS, '/', 'glob');
-        }
+        return '/Resources/storefront/';
     }
 
     public function getConfigPath(): string
@@ -57,10 +63,21 @@ abstract class Bundle extends SymfonyBundle
         return '/Resources/config/config.xml';
     }
 
-    protected function registerEvents(ContainerBuilder $container): void
+    public function getMigrationNamespace(): string
     {
-        $definition = $container->getDefinition(BusinessEventRegistry::class);
-        $definition->addMethodCall('addMultiple', [$this->getActionEvents()]);
+        return $this->getNamespace() . '\Migration';
+    }
+
+    public function configureRoutes(RouteCollectionBuilder $routes, string $environment): void
+    {
+        $fileSystem = new Filesystem();
+        $confDir = $this->getPath() . $this->getRoutesPath();
+
+        if ($fileSystem->exists($confDir)) {
+            $routes->import($confDir . '/{routes}/*' . Kernel::CONFIG_EXTS, '/', 'glob');
+            $routes->import($confDir . '/{routes}/' . $environment . '/**/*' . Kernel::CONFIG_EXTS, '/', 'glob');
+            $routes->import($confDir . '/{routes}' . Kernel::CONFIG_EXTS, '/', 'glob');
+        }
     }
 
     protected function registerFilesystem(ContainerBuilder $container, string $key): void
@@ -78,6 +95,11 @@ abstract class Bundle extends SymfonyBundle
         );
 
         $container->setDefinition($serviceId, $filesystem);
+    }
+
+    protected function getContainerPrefix(): string
+    {
+        return (new CamelCaseToSnakeCaseNameConverter())->normalize($this->getName());
     }
 
     protected function registerMigrationPath(ContainerBuilder $container): void
@@ -98,5 +120,38 @@ abstract class Bundle extends SymfonyBundle
         $directories[$this->getMigrationNamespace()] = $migrationPath;
 
         $container->setParameter('migration.directories', $directories);
+    }
+
+    protected function registerEvents(ContainerBuilder $container): void
+    {
+        $definition = $container->getDefinition(BusinessEventRegistry::class);
+        $definition->addMethodCall('addMultiple', [$this->getActionEvents()]);
+    }
+
+    protected function getRoutesPath(): string
+    {
+        return '/Resources/config/';
+    }
+
+    protected function getActionEvents(): array
+    {
+        return [];
+    }
+
+    protected function registerContainerFile(ContainerBuilder $container): void
+    {
+        $fileSystem = new Filesystem();
+        $containerFilePath = $this->getPath() . $this->getServicesFilePath();
+        if (!$fileSystem->exists($containerFilePath)) {
+            return;
+        }
+
+        $loader = new XmlFileLoader($container, new FileLocator($this->getPath()));
+        $loader->load($containerFilePath);
+    }
+
+    protected function getServicesFilePath(): string
+    {
+        return '/Resources/config/services.xml';
     }
 }

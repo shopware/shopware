@@ -171,7 +171,11 @@
             <tag name="shopware.snippet.filter"/>
         </service>
 
-        <service id="Shopware\Core\Framework\Snippet\Filter\CustomFilter">
+        <service id="Shopware\Core\Framework\Snippet\Filter\AddedFilter">
+            <tag name="shopware.snippet.filter"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Snippet\Filter\EditedFilter">
             <tag name="shopware.snippet.filter"/>
         </service>
 

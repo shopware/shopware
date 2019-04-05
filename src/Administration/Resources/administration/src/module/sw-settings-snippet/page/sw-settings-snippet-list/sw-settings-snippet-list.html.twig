@@ -34,7 +34,7 @@
         {% block sw_settings_snippet_list_smart_bar_actions %}
             <template slot="smart-bar-actions">
                 {% block sw_settings_snippet_list_smart_bar_actions_add %}
-                    <sw-button :routerLink="{ name: 'sw.settings.snippet.create', query: { ids: queryIds, limit, page, isCustomState: 'true' } }"
+                    <sw-button :routerLink="{ name: 'sw.settings.snippet.create', query: { ids: queryIds, limit, page } }"
                                :disabled="isLoading"
                                variant="primary">
                         {{ $tc('sw-settings-snippet.list.buttonAdd') }}
@@ -75,7 +75,7 @@
                                                     <router-link class="sw-settings-snippet-list__column-name" :to="{
                                                             name: 'sw.settings.snippet.detail',
                                                             params: { key: item[metaId].translationKey, origin: item[metaId].translationKey },
-                                                            query: { ids: queryIds, limit, page, isCustomState }
+                                                            query: { ids: queryIds, limit, page }
                                                     }">
                                                         {% block sw_settings_snippet_list_column_key_label %}
                                                             {{ item[metaId].translationKey }}
@@ -119,7 +119,7 @@
                                                         <sw-context-menu-item class="sw-settings-snippet-list__edit-action" :routerLink="{
                                                             name: 'sw.settings.snippet.detail',
                                                             params: { key: item[metaId].translationKey, origin: item[metaId].translationKey },
-                                                            query: { ids: queryIds, limit, page, isCustomState }
+                                                            query: { ids: queryIds, limit, page }
                                                         }">
                                                             {{ $tc('sw-settings-snippet.list.contextMenuEdit') }}
                                                         </sw-context-menu-item>

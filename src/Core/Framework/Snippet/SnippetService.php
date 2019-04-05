@@ -68,7 +68,7 @@ class SnippetService implements SnippetServiceInterface
         $languageFiles = $this->getSnippetFilesByIso($isoList);
 
         $fileSnippets = $this->getFileSnippets($languageFiles, $isoList);
-        $dbSnippets = $this->databaseSnippetsToArray($this->findSnippetInDatabase(new Criteria(), $context));
+        $dbSnippets = $this->databaseSnippetsToArray($this->findSnippetInDatabase(new Criteria(), $context), $fileSnippets);
 
         $snippets = array_replace_recursive($fileSnippets, $dbSnippets);
         $snippets = $this->fillBlankSnippets($snippets, $isoList);
@@ -255,7 +255,6 @@ class SnippetService implements SnippetServiceInterface
                             'translationKey' => $index,
                             'author' => '',
                             'origin' => '',
-                            'resetTo' => '',
                             'setId' => $currentSetId,
                             'id' => null,
                         ];
@@ -303,7 +302,7 @@ class SnippetService implements SnippetServiceInterface
         return $result;
     }
 
-    private function databaseSnippetsToArray(array $queryResult): array
+    private function databaseSnippetsToArray(array $queryResult, array $fileSnippets): array
     {
         $result = [];
         foreach ($queryResult as $snippet) {
@@ -318,8 +317,7 @@ class SnippetService implements SnippetServiceInterface
                 ])
             );
 
-            $currentSnippet['origin'] = '';
-            $currentSnippet['resetTo'] = $snippet->getValue();
+            $currentSnippet['origin'] = $fileSnippets[$snippet->getSetId()]['snippets'][$snippet->getTranslationKey()]['origin'] ?? $snippet->getValue();
             $result[$snippet->getSetId()]['snippets'][$snippet->getTranslationKey()] = $currentSnippet;
         }
 
@@ -390,7 +388,6 @@ class SnippetService implements SnippetServiceInterface
                     $result[$newIndex] = array_merge([
                         'value' => $value,
                         'origin' => $value,
-                        'resetTo' => $value,
                         'translationKey' => $newIndex,
                     ], $additionalParameters);
                     continue;

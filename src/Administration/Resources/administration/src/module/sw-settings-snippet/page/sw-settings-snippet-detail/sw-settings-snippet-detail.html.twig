@@ -52,7 +52,7 @@
                                                   :placeholder="$tc('sw-settings-snippet.detail.labelNamePlaceholder')"
                                                   v-model="translationKey"
                                                   @input="onChange"
-                                                  :disabled="!(isCreate || isCustomState)"
+                                                  :disabled="!(isCreate || isAddedSnippet)"
                                                   :errorMessage="invalidKeyErrorMessage">
                                         </sw-field>
                                     {% endblock %}

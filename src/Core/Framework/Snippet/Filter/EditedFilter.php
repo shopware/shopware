@@ -2,14 +2,14 @@
 
 namespace Shopware\Core\Framework\Snippet\Filter;
 
-class CustomFilter extends AbstractFilter implements SnippetFilterInterface
+class EditedFilter extends AbstractFilter implements SnippetFilterInterface
 {
     /**
      * {@inheritdoc}
      */
     public function getName(): string
     {
-        return 'custom';
+        return 'edited';
     }
 
     /**
@@ -20,7 +20,7 @@ class CustomFilter extends AbstractFilter implements SnippetFilterInterface
         $result = [];
         foreach ($snippets as $setId => $set) {
             foreach ($set['snippets'] as $translationKey => $snippet) {
-                if ($snippet['id'] === null) {
+                if ($snippet['id'] === null || strpos($snippet['author'], 'user/') === 0) {
                     continue;
                 }
 

@@ -153,8 +153,8 @@ module.exports = {
 
         browser
             .getLocationInView('.sw-condition-container__or-child--1')
-            .clickContextMenuItem('.sw-context-menu-item--danger', {
-                menuActionSelector: page.elements.contextMenuButton,
+            .clickContextMenuItem(page.elements.contextMenuButton, {
+                menuActionSelector: '.sw-context-menu-item--danger',
                 scope: `${page.elements.conditionOrContainer}--1 ${page.elements.conditionOrContainer}--1`
             })
             .waitForElementNotPresent(`${page.elements.conditionOrContainer}--1 ${page.elements.conditionOrContainer}--1 ${page.elements.baseCondition}`);

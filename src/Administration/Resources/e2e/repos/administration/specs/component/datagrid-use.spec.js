@@ -1,7 +1,7 @@
 const customerPage = require('administration/page-objects/module/sw-customer.page-object.js');
 
 module.exports = {
-    '@tags': ['component', 'datagrid', 'datagrid-usage'],
+    '@tags': ['component', 'datagrid', 'datagrid-usage', 'customer', 'inline-edit'],
     before: (browser, done) => {
         global.CustomerFixtureService.setCustomerFixture().then(() => {
             return global.CustomerFixtureService.setCustomerFixture({
@@ -114,14 +114,14 @@ module.exports = {
             .waitForElementNotPresent('.sw-data-grid-skeleton');
 
         browser.click(`${page.elements.dataGridHeader} ${page.elements.dataGridColumn}--1`)
-            .expect.element(`.sw-data-grid__row--0 ${page.elements.columnName}`).to.have.text.that.equals('Pep Eroni');
+            .expect.element(`.sw-data-grid__row--0 ${page.elements.columnName}`).to.have.text.that.equals('Zapp Zarapp');
     },
     'navigate to customer': (browser) => {
         const page = customerPage(browser);
 
-        browser.expect.element(`.sw-data-grid__row--0 ${page.elements.columnName} a`).to.have.text.that.equals('Pep Eroni');
+        browser.expect.element(`.sw-data-grid__row--0 ${page.elements.columnName} a`).to.have.text.that.equals('Zapp Zarapp');
         browser
             .click(`.sw-data-grid__row--0 ${page.elements.columnName} a`)
-            .expect.element(page.elements.smartBarHeader).to.have.text.that.equals('Mr. Pep Eroni');
+            .expect.element(page.elements.smartBarHeader).to.have.text.that.equals('Mr. Zapp Zarapp');
     }
 };

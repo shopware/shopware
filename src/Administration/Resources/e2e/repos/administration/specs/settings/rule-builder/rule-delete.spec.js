@@ -32,7 +32,7 @@ module.exports = {
 
         browser
             .clickContextMenuItem(page.elements.contextMenuButton, {
-                menuActionSelector: `${page.elements.gridRow}-item--danger`,
+                menuActionSelector: '.sw-context-menu-item--danger',
                 scope: `${page.elements.gridRow}--0`
             })
             .waitForElementVisible('.sw-modal')

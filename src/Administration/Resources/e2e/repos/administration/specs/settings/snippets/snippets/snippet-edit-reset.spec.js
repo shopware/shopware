@@ -50,10 +50,8 @@ module.exports = {
         browser
             .clickContextMenuItem(page.elements.contextMenuButton, {
                 menuActionSelector: '.sw-context-menu-item--danger',
-                scope: `${page.elements.gridRow}--0`
+                scope: `${page.elements.dataGridRow}--0`
             })
-            .expect.element(`${page.elements.modal}__body`).to.have.text.that.equals(`Are you sure you want to reset the snippet "${global.SnippetFixtureService.snippetFixture.translationKey}" for this set?`);
-            .clickContextMenuItem('.sw-context-menu-item--danger', page.elements.contextMenuButton, `${page.elements.gridRow}--0`)
             .expect.element(`${page.elements.modal}__body`).to.have.text.that.contains('Are you sure you want to reset the snippet');
 
         browser

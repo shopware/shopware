@@ -50,14 +50,14 @@ class MediaPageObject extends GeneralPageObject {
     }
 
     openMediaModal(action, itemPosition = null) {
-        let item = itemPosition !== null ? `${this.elements.gridItem}--${itemPosition}` : this.elements.mediaItem;
+        const item = itemPosition !== null ? `${this.elements.gridItem}--${itemPosition}` : this.elements.mediaItem;
 
         this.browser
-            .waitForElementVisible(`${this.elements.gridItem}--${itemPosition} ${this.elements.baseItem}`)
-            .moveToElement(this.elements.baseItem, 5, 5)
+            .waitForElementVisible(item)
+            .moveToElement(item, 5, 5)
             .clickContextMenuItem(this.elements.contextMenuButton, {
                 menuActionSelector: action,
-                scope: `${this.elements.gridItem}--0`
+                scope: item
             })
             .waitForElementVisible('.sw-modal__title');
     }
@@ -77,10 +77,10 @@ class MediaPageObject extends GeneralPageObject {
         }
 
         this.browser
-            .waitForElementVisible(`${this.elements.gridItem}--${position}`)
+            .waitForElementVisible(mediaItem)
             .clickContextMenuItem(this.elements.contextMenuButton, {
                 menuActionSelector: contextMenuItemSelector,
-                scope: `${this.elements.gridItem}--${position} `
+                scope: mediaItem
             })
             .expect.element(this.elements.modalTitle).to.have.text.that.equals(`Move "${name}"`);
         this.browser.expect.element('.sw-media-modal-move__confirm').to.not.be.enabled;
@@ -94,7 +94,7 @@ class MediaPageObject extends GeneralPageObject {
         if (itemType === 'folder') {
             this.browser
                 .checkNotification('Media items successfully moved', '.sw-notifications__notification--1')
-                .checkNotification('Folder "1st folder" has been moved successfully.');
+                .checkNotification(`Folder "${name}" has been moved successfully.`);
         } else {
             this.browser.checkNotification('Media items successfully moved');
         }

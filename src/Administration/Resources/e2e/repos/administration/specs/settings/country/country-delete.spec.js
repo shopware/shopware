@@ -23,12 +23,14 @@ module.exports = {
         const page = settingsPage(browser);
 
         browser
+            .waitForElementNotPresent(page.elements.loader)
             .clickContextMenuItem(page.elements.contextMenuButton, {
                 menuActionSelector: '.sw-context-menu-item--danger',
                 scope: `${page.elements.gridRow}--0`
             })
-            .expect.element(`${page.elements.modal} .sw-modal__body`).to.have.text.that
-            .contains(`Are you sure you want to delete the country "${global.AdminFixtureService.basicFixture.name}"?`)
+            .expect.element(`${page.elements.modal} .sw-modal__body`).to.have.text.that.contains(`Are you sure you want to delete the country "${global.AdminFixtureService.basicFixture.name}"?`);
+
+        browser
             .click(`${page.elements.modal}__footer button${page.elements.primaryButton}`)
             .checkNotification(`Country "${global.AdminFixtureService.basicFixture.name}" has been deleted successfully.`);
     }

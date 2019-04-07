@@ -41,7 +41,7 @@ module.exports = {
         browser
             .clickContextMenuItem(page.elements.contextMenuButton, {
                 menuActionSelector: '.sw-settings-snippet-list__edit-action',
-                scope: `${page.elements.gridRow}--0`
+                scope: `${page.elements.dataGridRow}--0`
             })
             .expect.element(page.elements.smartBarHeader).to.have.text.that.equals(global.SnippetFixtureService.snippetFixture.translationKey);
 

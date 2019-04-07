@@ -60,7 +60,10 @@ module.exports = {
                 targetPath: '#/sw/product/index',
                 mainMenuId: 'sw-product'
             })
-            .clickContextMenuItem('.sw-product-list__edit-action', page.elements.contextMenuButton, `${page.elements.dataGridRow}--0`);
+            .clickContextMenuItem(page.elements.contextMenuButton, {
+                menuActionSelector: '.sw-product-list__edit-action',
+                scope: `${page.elements.dataGridRow}--0`
+            });
         page.changeTranslation('Product name', 'Philippine English', 3);
 
         browser.expect.element('.sw-language-info').to.have.text.that.contains('"Product name" displayed in the language "Philippine English", which inherits from "English".');

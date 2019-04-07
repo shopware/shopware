@@ -8,10 +8,10 @@ module.exports = {
 
         browser
             .openMainMenuEntry({
-                targetPath: '#/sw/settings/snippet/index',
-                mainMenuId: 'sw-settings',
-                subMenuId: 'sw-settings-snippet'
+                targetPath: '#/sw/settings/index',
+                mainMenuId: 'sw-settings'
             })
+            .click('#sw-settings-snippet')
             .waitForElementNotPresent(page.elements.loader);
     },
     'open snippet set': (browser) => {

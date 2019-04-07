@@ -12,10 +12,11 @@ module.exports = {
 
         browser
             .openMainMenuEntry({
-                targetPath: '#/sw/settings/language/index',
-                mainMenuId: 'sw-settings',
-                subMenuId: 'sw-settings-language'
+                targetPath: '#/sw/settings/index',
+                mainMenuId: 'sw-settings'
             })
+            .click('#sw-settings-language')
+            .assert.urlContains('#/sw/settings/language/index')
             .expect.element(`${page.elements.gridRow}--2 ${page.elements.languageColumnName}`).to.have.text.that.contains(global.LanguageFixtureService.getLanguageName());
     },
     'delete language': (browser) => {

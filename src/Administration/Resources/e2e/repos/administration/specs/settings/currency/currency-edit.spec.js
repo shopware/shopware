@@ -12,10 +12,11 @@ module.exports = {
 
         browser
             .openMainMenuEntry({
-                targetPath: '#/sw/settings/currency/index',
-                mainMenuId: 'sw-settings',
-                subMenuId: 'sw-settings-currency'
+                targetPath: '#/sw/settings/index',
+                mainMenuId: 'sw-settings'
             })
+            .click('#sw-settings-currency')
+            .assert.urlContains('#/sw/settings/currency/index')
             .waitForElementVisible('.sw-settings-currency-list-grid')
             .waitForElementVisible(`${page.elements.gridRow}--3 ${page.elements.currencyColumnName}`)
             .assert.containsText(`${page.elements.gridRow}--3 ${page.elements.currencyColumnName}`, global.AdminFixtureService.basicFixture.name);

@@ -1,7 +1,7 @@
 {% block sw_settings_content_card_slot_default %}
     {% parent %}
 
-    <sw-settings-item :label="$tc('sw-integration.general.mainMenuItemIndex')" :to="{ name: 'sw.integration.index' }">
+    <sw-settings-item id="sw-integration" :label="$tc('sw-integration.general.mainMenuItemIndex')" :to="{ name: 'sw.integration.index' }">
         <template slot="icon">
             <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="80" height="80" viewBox="0 0 80 80">
                 <defs>

@@ -2,7 +2,8 @@
     {% parent %}
 
     {% block sw_settings_seo_item %}
-        <sw-settings-item v-if="next741"
+        <sw-settings-item id="sw-settings-seo"
+                          v-if="next741"
                           :label="$tc('sw-settings-seo.general.mainMenuItemGeneral')"
                           :to="{ name: 'sw.settings.seo.index' }">
             <template slot="icon">

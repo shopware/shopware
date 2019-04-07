@@ -10,10 +10,11 @@ module.exports = {
     'open country module': (browser) => {
         browser
             .openMainMenuEntry({
-                targetPath: '#/sw/settings/country/index',
-                mainMenuId: 'sw-settings',
-                subMenuId: 'sw-settings-country'
-            });
+                targetPath: '#/sw/settings/index',
+                mainMenuId: 'sw-settings'
+            })
+            .click('#sw-settings-country')
+            .assert.urlContains('#/sw/settings/country/index');
     },
     'inline edit country': (browser) => {
         const page = settingsPage(browser);

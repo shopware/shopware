@@ -10,10 +10,11 @@ module.exports = {
     'navigate to rule index': (browser) => {
         browser
             .openMainMenuEntry({
-                targetPath: '#/sw/settings/rule/index',
-                mainMenuId: 'sw-settings',
-                subMenuId: 'sw-settings-rule'
-            });
+                targetPath: '#/sw/settings/index',
+                mainMenuId: 'sw-settings'
+            })
+            .click('#sw-settings-rule')
+            .assert.urlContains('#/sw/settings/rule/index');
     },
     'find rule to be deleted': (browser) => {
         const page = ruleBuilderPage(browser);

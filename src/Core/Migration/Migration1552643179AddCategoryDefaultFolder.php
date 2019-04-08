@@ -20,7 +20,7 @@ class Migration1552643179AddCategoryDefaultFolder extends MigrationStep
             'id' => Uuid::randomBytes(),
             'association_fields' => '["categories"]',
             'entity' => 'category',
-            'created_at' => (new \DateTime())->format(Defaults::DATE_FORMAT),
+            'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_FORMAT),
         ]);
     }
 

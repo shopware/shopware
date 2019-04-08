@@ -49,7 +49,7 @@ module.exports = {
 
         browser
             .click(page.elements.smartBarBack)
-            .expect.element(`${page.elements.gridRow}--2 ${page.elements.languageColumnName}`).to.have.text.that.contains('Philippine English');
+            .expect.element(`${page.elements.gridRow}--2 ${page.elements.languageColumnName}`).to.have.text.that.contains(global.LanguageFixtureService.getLanguageName());
     },
     'check if language can be selected as translation': (browser) => {
         const page = productPage(browser);

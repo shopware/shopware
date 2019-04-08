@@ -20,7 +20,7 @@ class Migration1552991371CustomerGroupDeleteUnusedColumns extends MigrationStep
             'customer_group_id' => Uuid::fromHexToBytes(Defaults::FALLBACK_CUSTOMER_GROUP),
             'language_id' => Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM_DE),
             'name' => 'Standard-Kundengruppe',
-            'created_at' => date(Defaults::DATE_FORMAT),
+            'created_at' => date(Defaults::STORAGE_DATE_FORMAT),
         ]);
     }
 

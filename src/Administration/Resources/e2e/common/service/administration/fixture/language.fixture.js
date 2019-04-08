@@ -1,35 +1,26 @@
 const AdminFixtureService = require('./../fixture.service.js').default;
 
 export default class LanguageFixtureService extends AdminFixtureService {
-    constructor() {
-        super();
-        this.languageFixture = this.loadJson('language.json');
-    }
-
-    setLanguageBaseFixture(json) {
-        this.languageFixture = json;
+    getLanguageName() {
+        return 'Philippine English';
     }
 
     setLanguageFixtures(userData) {
         const startTime = new Date();
 
         global.logger.title('Set language fixtures...');
-        let localeId = '';
-
-        const languageData = this.languageFixture;
-
         return this.apiClient.post('/v1/search/locale', {
             filter: [{
-                field: "code",
-                type: "equals",
-                value: "en_PH",
+                field: 'code',
+                type: 'equals',
+                value: 'en_PH'
             }]
         }).then((data) => {
-            localeId = data.id;
-        }).then(() => {
-            return Object.assign({}, {
-                localeId: localeId,
-            }, languageData);
+            return {
+                name: this.getLanguageName(),
+                localeId: data.id,
+                parentId: '2fbb5fe2e29a4d70aa5854ce7ce3e20b'
+            };
         }).then((finalLanguageData) => {
             return this.apiClient.post('/v1/language?_response=true', finalLanguageData, userData);
         }).then((data) => {

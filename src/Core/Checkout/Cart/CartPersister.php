@@ -70,7 +70,7 @@ class CartPersister implements CartPersisterInterface
             'price' => $cart->getPrice()->getTotalPrice(),
             'line_item_count' => $cart->getLineItems()->count(),
             'cart' => $this->serializeCart($cart),
-            'created_at' => (new \DateTime())->format(Defaults::DATE_FORMAT),
+            'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_FORMAT),
         ];
 
         $this->connection->insert('cart', $data);

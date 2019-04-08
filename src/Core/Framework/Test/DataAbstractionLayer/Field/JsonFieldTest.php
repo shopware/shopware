@@ -442,7 +442,7 @@ EOF;
         $context = $context->getContext();
 
         $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('root.child.childDate', $firstDate->format(Defaults::DATE_FORMAT)));
+        $criteria->addFilter(new EqualsFilter('root.child.childDate', $firstDate->format(Defaults::STORAGE_DATE_FORMAT)));
         $result = $repo->search(JsonDefinition::class, $criteria, $context);
 
         static::assertCount(1, $result->getIds());

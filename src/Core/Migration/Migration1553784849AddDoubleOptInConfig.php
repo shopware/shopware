@@ -21,7 +21,7 @@ class Migration1553784849AddDoubleOptInConfig extends MigrationStep
             'namespace' => 'privacy',
             'configuration_key' => 'doi_enabled',
             'configuration_value' => true,
-            'created_at' => date(Defaults::DATE_FORMAT),
+            'created_at' => date(Defaults::STORAGE_DATE_FORMAT),
         ]);
     }
 

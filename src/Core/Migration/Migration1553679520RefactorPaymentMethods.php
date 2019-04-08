@@ -45,7 +45,7 @@ class Migration1553679520RefactorPaymentMethods extends MigrationStep
                 'position' => 1,
                 'active' => 1,
                 'availability_rule_ids' => json_encode([Uuid::fromBytesToHex($ruleId)]),
-                'created_at' => (new \DateTime())->format(Defaults::DATE_FORMAT),
+                'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_FORMAT),
             ]
         );
         $connection->insert(
@@ -53,7 +53,7 @@ class Migration1553679520RefactorPaymentMethods extends MigrationStep
             [
                 'payment_method_id' => $cash,
                 'rule_id' => $ruleId,
-                'created_at' => (new \DateTime())->format(Defaults::DATE_FORMAT),
+                'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_FORMAT),
             ]
         );
         $connection->insert(
@@ -63,7 +63,7 @@ class Migration1553679520RefactorPaymentMethods extends MigrationStep
                 'language_id' => $languageEN,
                 'name' => 'Cash on delivery',
                 'description' => '<p>Pay when you get the order</p>',
-                'created_at' => (new \DateTime())->format(Defaults::DATE_FORMAT),
+                'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_FORMAT),
             ]
         );
 
@@ -77,7 +77,7 @@ class Migration1553679520RefactorPaymentMethods extends MigrationStep
                 'position' => 2,
                 'active' => 1,
                 'availability_rule_ids' => json_encode([Uuid::fromBytesToHex($ruleId)]),
-                'created_at' => (new \DateTime())->format(Defaults::DATE_FORMAT),
+                'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_FORMAT),
             ]
         );
         $connection->insert(
@@ -85,7 +85,7 @@ class Migration1553679520RefactorPaymentMethods extends MigrationStep
             [
                 'payment_method_id' => $pre,
                 'rule_id' => $ruleId,
-                'created_at' => (new \DateTime())->format(Defaults::DATE_FORMAT),
+                'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_FORMAT),
             ]
         );
         $connection->insert(
@@ -95,7 +95,7 @@ class Migration1553679520RefactorPaymentMethods extends MigrationStep
                 'language_id' => $languageEN,
                 'name' => 'Paid in advance',
                 'description' => '<p>Pay in advance and get your order afterwards</p>',
-                'created_at' => (new \DateTime())->format(Defaults::DATE_FORMAT),
+                'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_FORMAT),
             ]
         );
     }

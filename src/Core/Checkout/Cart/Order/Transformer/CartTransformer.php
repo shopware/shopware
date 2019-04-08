@@ -14,7 +14,7 @@ class CartTransformer
         $currency = $context->getCurrency();
 
         return [
-            'orderDate' => (new \DateTimeImmutable())->format(Defaults::DATE_FORMAT),
+            'orderDate' => (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_FORMAT),
             'price' => $cart->getPrice(),
             'shippingCosts' => $cart->getShippingCosts(),
             'stateId' => $stateId,

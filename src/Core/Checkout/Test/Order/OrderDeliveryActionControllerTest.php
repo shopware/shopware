@@ -65,7 +65,7 @@ class OrderDeliveryActionControllerTest extends TestCase
 
     public function testOrderNotFoundException(): void
     {
-        $this->getClient()->request('GET', '/api/v' . PlatformRequest::API_VERSION . '/action/order-delivery/20080911ffff4fffafffffff19830531/state');
+        $this->getClient()->request('GET', '/api/v' . PlatformRequest::API_VERSION . '/action/order-delivery/' . Uuid::randomHex() . '/state');
 
         $response = $this->getClient()->getResponse()->getContent();
         $response = json_decode($response, true);
@@ -188,7 +188,7 @@ class OrderDeliveryActionControllerTest extends TestCase
 
         $order = [
             'id' => $orderId,
-            'orderDate' => (new \DateTimeImmutable())->format(Defaults::DATE_FORMAT),
+            'orderDate' => (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_FORMAT),
             'price' => new CartPrice(10, 10, 10, new CalculatedTaxCollection(), new TaxRuleCollection(), CartPrice::TAX_STATE_NET),
             'shippingCosts' => new CalculatedPrice(10, 10, new CalculatedTaxCollection(), new TaxRuleCollection()),
             'orderCustomer' => [
@@ -273,8 +273,8 @@ class OrderDeliveryActionControllerTest extends TestCase
         $delivery = [
             'id' => $deliveryId,
             'orderId' => $orderId,
-            'shippingDateEarliest' => (new \DateTime())->format(Defaults::DATE_FORMAT),
-            'shippingDateLatest' => (new \DateTime())->format(Defaults::DATE_FORMAT),
+            'shippingDateEarliest' => (new \DateTime())->format(Defaults::STORAGE_DATE_FORMAT),
+            'shippingDateLatest' => (new \DateTime())->format(Defaults::STORAGE_DATE_FORMAT),
             'shippingMethodId' => $this->getValidShippingMethodId(),
             'shippingCosts' => new CalculatedPrice(10, 10, new CalculatedTaxCollection(), new TaxRuleCollection()),
             'stateId' => $stateId,

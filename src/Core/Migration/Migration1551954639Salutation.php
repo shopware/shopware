@@ -65,84 +65,84 @@ class Migration1551954639Salutation extends MigrationStep
         $connection->insert('salutation', [
             'id' => $mr,
             'salutation_key' => 'mr',
-            'created_at' => date(Defaults::DATE_FORMAT),
+            'created_at' => date(Defaults::STORAGE_DATE_FORMAT),
         ]);
         $connection->insert('salutation_translation', [
             'salutation_id' => $mr,
             'language_id' => $languageEn,
             'display_name' => 'Mr.',
             'letter_name' => 'Dear Mr.',
-            'created_at' => date(Defaults::DATE_FORMAT),
+            'created_at' => date(Defaults::STORAGE_DATE_FORMAT),
         ]);
         $connection->insert('salutation_translation', [
             'salutation_id' => $mr,
             'language_id' => $languageDe,
             'display_name' => 'Herr',
             'letter_name' => 'Sehr geehrter Herr',
-            'created_at' => date(Defaults::DATE_FORMAT),
+            'created_at' => date(Defaults::STORAGE_DATE_FORMAT),
         ]);
 
         // Inserts for: Mrs.
         $connection->insert('salutation', [
             'id' => $mrs,
             'salutation_key' => 'mrs',
-            'created_at' => date(Defaults::DATE_FORMAT),
+            'created_at' => date(Defaults::STORAGE_DATE_FORMAT),
         ]);
         $connection->insert('salutation_translation', [
             'salutation_id' => $mrs,
             'language_id' => $languageEn,
             'display_name' => 'Mrs.',
             'letter_name' => 'Dear Mrs.',
-            'created_at' => date(Defaults::DATE_FORMAT),
+            'created_at' => date(Defaults::STORAGE_DATE_FORMAT),
         ]);
         $connection->insert('salutation_translation', [
             'salutation_id' => $mrs,
             'language_id' => $languageDe,
             'display_name' => 'Frau',
             'letter_name' => 'Sehr geehrte Frau',
-            'created_at' => date(Defaults::DATE_FORMAT),
+            'created_at' => date(Defaults::STORAGE_DATE_FORMAT),
         ]);
 
         // Inserts for: Miss
         $connection->insert('salutation', [
             'id' => $miss,
             'salutation_key' => 'miss',
-            'created_at' => date(Defaults::DATE_FORMAT),
+            'created_at' => date(Defaults::STORAGE_DATE_FORMAT),
         ]);
         $connection->insert('salutation_translation', [
             'salutation_id' => $miss,
             'language_id' => $languageEn,
             'display_name' => 'Miss',
             'letter_name' => 'Dear Miss',
-            'created_at' => date(Defaults::DATE_FORMAT),
+            'created_at' => date(Defaults::STORAGE_DATE_FORMAT),
         ]);
         $connection->insert('salutation_translation', [
             'salutation_id' => $miss,
             'language_id' => $languageDe,
             'display_name' => 'Fräulein',
             'letter_name' => 'Sehr geehrtes Fräulein',
-            'created_at' => date(Defaults::DATE_FORMAT),
+            'created_at' => date(Defaults::STORAGE_DATE_FORMAT),
         ]);
 
         // Inserts for: Diverse
         $connection->insert('salutation', [
             'id' => $diverse,
             'salutation_key' => 'diverse',
-            'created_at' => date(Defaults::DATE_FORMAT),
+            'created_at' => date(Defaults::STORAGE_DATE_FORMAT),
         ]);
         $connection->insert('salutation_translation', [
             'salutation_id' => $diverse,
             'language_id' => $languageEn,
             'display_name' => 'Mx.',
             'letter_name' => 'Dear Mx.',
-            'created_at' => date(Defaults::DATE_FORMAT),
+            'created_at' => date(Defaults::STORAGE_DATE_FORMAT),
         ]);
         $connection->insert('salutation_translation', [
             'salutation_id' => $diverse,
             'language_id' => $languageDe,
             'display_name' => 'Divers',
             'letter_name' => ' ',
-            'created_at' => date(Defaults::DATE_FORMAT),
+            'created_at' => date(Defaults::STORAGE_DATE_FORMAT),
         ]);
     }
 }

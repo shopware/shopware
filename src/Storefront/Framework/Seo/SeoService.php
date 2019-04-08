@@ -78,7 +78,7 @@ class SeoService implements SeoServiceInterface
     public function updateSeoUrls(string $salesChannelId, string $routeName, array $foreignKeys, iterable $seoUrls): void
     {
         $canonicals = $this->findCanonicalPaths($salesChannelId, $routeName, $foreignKeys);
-        $dateTime = (new \DateTimeImmutable())->format(Defaults::DATE_FORMAT);
+        $dateTime = (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_FORMAT);
         $insertQuery = new MultiInsertQueryQueue($this->connection, 250, false, false);
 
         $updatedFks = [];

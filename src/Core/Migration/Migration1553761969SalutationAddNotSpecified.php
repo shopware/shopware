@@ -25,21 +25,21 @@ class Migration1553761969SalutationAddNotSpecified extends MigrationStep
         $connection->insert('salutation', [
             'id' => $notSpecified,
             'salutation_key' => 'not_specified',
-            'created_at' => date(Defaults::DATE_FORMAT),
+            'created_at' => date(Defaults::STORAGE_DATE_FORMAT),
         ]);
         $connection->insert('salutation_translation', [
             'salutation_id' => $notSpecified,
             'language_id' => $languageEn,
             'display_name' => 'Not specified',
             'letter_name' => ' ',
-            'created_at' => date(Defaults::DATE_FORMAT),
+            'created_at' => date(Defaults::STORAGE_DATE_FORMAT),
         ]);
         $connection->insert('salutation_translation', [
             'salutation_id' => $notSpecified,
             'language_id' => $languageDe,
             'display_name' => 'Keine Angabe',
             'letter_name' => ' ',
-            'created_at' => date(Defaults::DATE_FORMAT),
+            'created_at' => date(Defaults::STORAGE_DATE_FORMAT),
         ]);
     }
 

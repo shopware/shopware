@@ -4,6 +4,7 @@ namespace Shopware\Core\System\Test\SystemConfig;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -76,7 +77,7 @@ class ConfigurationServiceTest extends TestCase
     public function testThatWrongNamespaceThrowsException(): void
     {
         $this->expectException(BundleNotFoundException::class);
-        $this->configurationService->getConfiguration('InvalidNamespace', $this->context, '20080911ffff4fffafffffff19830531');
+        $this->configurationService->getConfiguration('InvalidNamespace', $this->context, Defaults::SALES_CHANNEL);
     }
 
     public function testThatBundleWithoutConfigThrowsException(): void
@@ -85,7 +86,7 @@ class ConfigurationServiceTest extends TestCase
         $this->configurationService->getConfiguration(
             \SwagInvalidTest\SwagInvalidTest::PLUGIN_NAME,
             $this->context,
-            '20080911ffff4fffafffffff19830531'
+            Defaults::SALES_CHANNEL
         );
     }
 
@@ -94,7 +95,7 @@ class ConfigurationServiceTest extends TestCase
         $actualConfig = $this->configurationService->getConfiguration(
             \SwagExampleTest\SwagExampleTest::PLUGIN_NAME,
             $this->context,
-            '20080911ffff4fffafffffff19830531'
+            Defaults::SALES_CHANNEL
         );
 
         static::assertSame($this->getConfigWithoutValues(), $actualConfig);
@@ -110,7 +111,7 @@ class ConfigurationServiceTest extends TestCase
             $this->configurationService,
             $this->getConfigWithoutValues(),
             \SwagExampleTest\SwagExampleTest::PLUGIN_NAME,
-            '20080911ffff4fffafffffff19830531',
+            Defaults::SALES_CHANNEL,
             $this->context
         );
 
@@ -191,13 +192,13 @@ class ConfigurationServiceTest extends TestCase
                 'namespace' => \SwagExampleTest\SwagExampleTest::PLUGIN_NAME,
                 'configurationKey' => 'email',
                 'configurationValue' => 'test@example.com',
-                'salesChannelId' => '20080911ffff4fffafffffff19830531',
+                'salesChannelId' => Defaults::SALES_CHANNEL,
             ],
             [
                 'namespace' => \SwagExampleTest\SwagExampleTest::PLUGIN_NAME,
                 'configurationKey' => 'mailMethod',
                 'configurationValue' => 'smtp',
-                'salesChannelId' => '20080911ffff4fffafffffff19830531',
+                'salesChannelId' => Defaults::SALES_CHANNEL,
             ],
         ], $this->context);
     }

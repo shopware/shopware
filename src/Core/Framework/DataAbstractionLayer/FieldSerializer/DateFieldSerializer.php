@@ -73,7 +73,7 @@ class DateFieldSerializer implements FieldSerializerInterface
             return;
         }
 
-        yield $field->getStorageName() => $value->format(Defaults::DATE_FORMAT);
+        yield $field->getStorageName() => $value->format(Defaults::STORAGE_DATE_FORMAT);
     }
 
     public function decode(Field $field, $value): ?\DateTimeInterface

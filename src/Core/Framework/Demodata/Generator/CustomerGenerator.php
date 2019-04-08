@@ -97,6 +97,9 @@ class CustomerGenerator implements DemodataGeneratorInterface
         $shippingAddressId = Uuid::randomHex();
         $billingAddressId = Uuid::randomHex();
         $salutationId = Uuid::fromBytesToHex($this->getRandomSalutationId());
+        $countries = $this->connection
+            ->executeQuery('SELECT id FROM country WHERE active = 1')
+            ->fetchAll(FetchMode::COLUMN);
 
         $customer = [
             'id' => $id,
@@ -115,7 +118,7 @@ class CustomerGenerator implements DemodataGeneratorInterface
                 [
                     'id' => $shippingAddressId,
                     'customerId' => $id,
-                    'countryId' => 'ffe61e1c99154f9597014a310ab5482d',
+                    'countryId' => Uuid::fromBytesToHex($countries[array_rand($countries)]),
                     'salutationId' => $salutationId,
                     'firstName' => 'Max',
                     'lastName' => 'Mustermann',
@@ -126,7 +129,7 @@ class CustomerGenerator implements DemodataGeneratorInterface
                 [
                     'id' => $billingAddressId,
                     'customerId' => $id,
-                    'countryId' => 'ffe61e1c99154f9597014a310ab5482d',
+                    'countryId' => Uuid::fromBytesToHex($countries[array_rand($countries)]),
                     'salutationId' => $salutationId,
                     'firstName' => 'Max',
                     'lastName' => 'Mustermann',

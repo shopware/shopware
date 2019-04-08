@@ -14,7 +14,7 @@ use Shopware\Core\Framework\Event\ProgressStartedEvent;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
-class ProductVariationIndexer implements IndexerInterface
+class ProductOptionIndexer implements IndexerInterface
 {
     /**
      * @var EventDispatcherInterface
@@ -49,7 +49,7 @@ class ProductVariationIndexer implements IndexerInterface
 
         $this->eventDispatcher->dispatch(
             ProgressStartedEvent::NAME,
-            new ProgressStartedEvent('Start indexing variations', $iterator->fetchCount())
+            new ProgressStartedEvent('Start indexing options', $iterator->fetchCount())
         );
 
         while ($ids = $iterator->fetch()) {
@@ -67,7 +67,7 @@ class ProductVariationIndexer implements IndexerInterface
 
         $this->eventDispatcher->dispatch(
             ProgressFinishedEvent::NAME,
-            new ProgressFinishedEvent('Finished indexing variations')
+            new ProgressFinishedEvent('Finished indexing options')
         );
     }
 
@@ -85,12 +85,12 @@ class ProductVariationIndexer implements IndexerInterface
         }
 
         $sql = <<<SQL
-UPDATE product, product_variation SET product.variation_ids = (
-    SELECT CONCAT('[', GROUP_CONCAT(JSON_QUOTE(LOWER(HEX(product_variation.configuration_group_option_id)))), ']')
-    FROM product_variation
-    WHERE product_variation.product_id = product.id
+UPDATE product, product_option SET product.option_ids = (
+    SELECT CONCAT('[', GROUP_CONCAT(JSON_QUOTE(LOWER(HEX(product_option.configuration_group_option_id)))), ']')
+    FROM product_option
+    WHERE product_option.product_id = product.id
 )
-WHERE product_variation.product_id = product.id
+WHERE product_option.product_id = product.id
 AND product.id IN (:ids)
 SQL;
 

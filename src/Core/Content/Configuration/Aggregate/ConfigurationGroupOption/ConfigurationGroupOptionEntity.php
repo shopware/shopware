@@ -62,7 +62,7 @@ class ConfigurationGroupOptionEntity extends Entity
     /**
      * @var ProductCollection|null
      */
-    protected $productVariations;
+    protected $productOptions;
 
     /**
      * @var \DateTimeInterface
@@ -184,14 +184,14 @@ class ConfigurationGroupOptionEntity extends Entity
         $this->productDatasheets = $productDatasheets;
     }
 
-    public function getProductVariations(): ?ProductCollection
+    public function getProductOptions(): ?ProductCollection
     {
-        return $this->productVariations;
+        return $this->productOptions;
     }
 
-    public function setProductVariations(ProductCollection $productVariations): void
+    public function setProductOptions(ProductCollection $productOptions): void
     {
-        $this->productVariations = $productVariations;
+        $this->productOptions = $productOptions;
     }
 
     public function getMedia(): ?MediaEntity

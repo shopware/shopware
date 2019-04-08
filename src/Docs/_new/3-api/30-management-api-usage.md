@@ -238,7 +238,7 @@ Get a list of products belonging to the category.
                 "createdAt": "2018-09-14T09:38:37+02:00",
                 "updatedAt": null,
                 "categoryTree": [],
-                "variationIds": [],
+                "optionIds": [],
                 "datasheetIds": [],
                 "additionalText": null,
                 "name": "Aerodynamic Rubber Essentia",

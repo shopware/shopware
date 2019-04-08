@@ -40,13 +40,12 @@
         >
 
             <template slot="column-name" slot-scope="{ item }">
-                <template v-if="item.variations">
-                    <span v-for="singleVariation in item.variations.elements">
+                <template v-if="getVariantOptions(item)">
+                    <span v-for="singleVariation in getVariantOptions(item)">
                         {{ singleVariation.translated.name }} – &#160;
                     </span>
                 </template>
             </template>
-
 
             <template slot="column-price" slot-scope="{ item, isInlineEdit, compact }">
                 <template v-if="isInlineEdit">

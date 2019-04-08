@@ -1396,7 +1396,7 @@ class ProductRepositoryTest extends TestCase
         static::assertEquals($colorId, $blue->getGroupId());
     }
 
-    public function testCreateAndAssignProductVariation(): void
+    public function testCreateAndAssignProductOption(): void
     {
         $id = Uuid::randomHex();
         $redId = Uuid::randomHex();
@@ -1410,7 +1410,7 @@ class ProductRepositoryTest extends TestCase
             'tax' => ['name' => 'test', 'taxRate' => 15],
             'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
             'manufacturer' => ['name' => 'test'],
-            'variations' => [
+            'options' => [
                 [
                     'id' => $redId,
                     'name' => 'red',
@@ -1427,11 +1427,11 @@ class ProductRepositoryTest extends TestCase
         $this->repository->create([$data], Context::createDefaultContext());
 
         $criteria = new Criteria([$id]);
-        $criteria->addAssociation('variations');
+        $criteria->addAssociation('options');
         /** @var ProductEntity $product */
         $product = $this->repository->search($criteria, Context::createDefaultContext())->get($id);
 
-        $sheet = $product->getVariations();
+        $sheet = $product->getOptions();
 
         static::assertCount(2, $sheet);
 

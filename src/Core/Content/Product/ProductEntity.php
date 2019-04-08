@@ -194,7 +194,7 @@ class ProductEntity extends Entity
     /**
      * @var array|null
      */
-    protected $variationIds;
+    protected $optionIds;
 
     /**
      * @var array|null
@@ -304,7 +304,7 @@ class ProductEntity extends Entity
     /**
      * @var ConfigurationGroupOptionCollection|null
      */
-    protected $variations;
+    protected $options;
 
     /**
      * @var ProductConfiguratorCollection|null
@@ -911,14 +911,14 @@ class ProductEntity extends Entity
         return $this->releaseDate < new \DateTime();
     }
 
-    public function getVariationIds(): ?array
+    public function getOptionIds(): ?array
     {
-        return $this->variationIds;
+        return $this->optionIds;
     }
 
-    public function setVariationIds(?array $variationIds): void
+    public function setOptionIds(?array $optionIds): void
     {
-        $this->variationIds = $variationIds;
+        $this->optionIds = $optionIds;
     }
 
     public function getDatasheetIds(): ?array
@@ -1021,14 +1021,14 @@ class ProductEntity extends Entity
         $this->datasheet = $datasheet;
     }
 
-    public function getVariations(): ?ConfigurationGroupOptionCollection
+    public function getOptions(): ?ConfigurationGroupOptionCollection
     {
-        return $this->variations;
+        return $this->options;
     }
 
-    public function setVariations(ConfigurationGroupOptionCollection $variations): void
+    public function setOptions(ConfigurationGroupOptionCollection $options): void
     {
-        $this->variations = $variations;
+        $this->options = $options;
     }
 
     public function getConfigurators(): ?ProductConfiguratorCollection

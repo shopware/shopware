@@ -50,7 +50,7 @@ export default function conditionService() {
         'coverId',
         'productMediaVersionId',
         'datasheetIds',
-        'variationIds',
+        'optionIds',
         'orders',
         'customers',
         'seoUrls',
@@ -118,7 +118,7 @@ export default function conditionService() {
             'productConfigurators',
             'productServices',
             'productDatasheets',
-            'productVariations',
+            'productOptions',
             'attributes'
         ],
         configuration_group: [

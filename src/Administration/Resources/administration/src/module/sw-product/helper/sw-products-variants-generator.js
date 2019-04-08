@@ -108,7 +108,7 @@ export default class VariantsGenerator extends EventEmitter {
                 if (exist !== undefined) {
                     delete deleteQueue[hash];
                 } else {
-                    const variations = variation.map((optionId) => {
+                    const options = variation.map((optionId) => {
                         return { id: optionId };
                     });
 
@@ -117,7 +117,7 @@ export default class VariantsGenerator extends EventEmitter {
                     // Add to create list
                     createQueue.push({
                         parentId: this.product.id,
-                        variations: variations,
+                        options: options,
                         stock: this.product.stock,
                         price: { gross: 200, net: 100, linked: false }
                     });

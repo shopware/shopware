@@ -73,8 +73,8 @@
             <tag name="shopware.entity.definition" entity="product_translation"/>
         </service>
 
-        <service id="Shopware\Core\Content\Product\Aggregate\ProductVariation\ProductVariationDefinition">
-            <tag name="shopware.entity.definition" entity="product_variation"/>
+        <service id="Shopware\Core\Content\Product\Aggregate\ProductOption\ProductOptionDefinition">
+            <tag name="shopware.entity.definition" entity="product_option"/>
         </service>
 
         <service id="Shopware\Core\Content\Product\Aggregate\ProductCategoryTree\ProductCategoryTreeDefinition">
@@ -85,7 +85,7 @@
             <argument type="service" id="product.repository"/>
         </service>
 
-        <service id="Shopware\Core\Content\Product\DataAbstractionLayer\Indexing\ProductVariationIndexer">
+        <service id="Shopware\Core\Content\Product\DataAbstractionLayer\Indexing\ProductOptionIndexer">
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\Content\Product\Util\EventIdExtractor"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>

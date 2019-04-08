@@ -15,7 +15,7 @@ class IndexerRegistry implements IndexerInterface, EventSubscriberInterface
      * 400  => Shopware\Core\Content\Product\DataAbstractionLayer\Indexing\ProductDatasheetIndexer
      * 500  => Shopware\Core\Content\Product\DataAbstractionLayer\Indexing\ProductCategoryTreeIndexer
      * 500  => Shopware\Core\Content\Media\DataAbstractionLayer\Indexing\MediaFolderConfigIndexer
-     * 900  => Shopware\Core\Content\Product\DataAbstractionLayer\Indexing\ProductVariationIndexer
+     * 900  => Shopware\Core\Content\Product\DataAbstractionLayer\Indexing\ProductOptionIndexer
      * 1000 => Shopware\Core\Framework\DataAbstractionLayer\Dbal\Indexing\ChildCountIndexer
      * 1000 => Shopware\Core\Framework\DataAbstractionLayer\Dbal\Indexing\TreeIndexer
      * 1500 => Shopware\Core\Framework\DataAbstractionLayer\Dbal\Indexing\InheritanceIndexer

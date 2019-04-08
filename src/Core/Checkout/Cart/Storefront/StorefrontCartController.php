@@ -11,6 +11,8 @@ use Shopware\Core\Checkout\Cart\Exception\LineItemNotRemovableException;
 use Shopware\Core\Checkout\Cart\Exception\LineItemNotStackableException;
 use Shopware\Core\Checkout\Cart\Exception\MixedLineItemTypeException;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
+use Shopware\Core\Checkout\Promotion\Cart\Builder\PromotionItemBuilder;
+use Shopware\Core\Checkout\Promotion\Cart\CartPromotionsCollector;
 use Shopware\Core\Content\Product\Cart\ProductCollector;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
@@ -104,6 +106,35 @@ class StorefrontCartController extends AbstractController
             ->setPayload($payload)
             ->setRemovable(true)
             ->setStackable(true);
+
+        $cart = $this->cartService->add($this->cartService->getCart($token, $context), $lineItem, $context);
+
+        return new JsonResponse($this->serialize($cart));
+    }
+
+    /**
+     * Adds the provided promotion code to the cart and recalculates it.
+     * The code will be added as a separate promotion placeholder line item.
+     * That one will be replaced with a real promotion (if valid) within the
+     * promotion collector service.
+     *
+     * @Route("/storefront-api/v{version}/checkout/cart/code/{code}", name="storefront-api.checkout.frontend.cart.code.add", methods={"POST"})
+     *
+     * @throws CartTokenNotFoundException
+     * @throws InvalidQuantityException
+     * @throws MixedLineItemTypeException
+     */
+    public function addCode(string $code, Request $request, SalesChannelContext $context): JsonResponse
+    {
+        /** @var string $token */
+        $token = $request->request->getAlnum('token', $context->getToken());
+
+        $itemBuilder = new PromotionItemBuilder(CartPromotionsCollector::LINE_ITEM_TYPE);
+
+        $lineItem = $itemBuilder->buildPlaceholderItem(
+            $code,
+            $context->getContext()->getCurrencyPrecision()
+        );
 
         $cart = $this->cartService->add($this->cartService->getCart($token, $context), $lineItem, $context);
 

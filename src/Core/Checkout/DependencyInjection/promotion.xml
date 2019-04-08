@@ -5,6 +5,7 @@
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
 
     <services>
+
         <service id="Shopware\Core\Checkout\Promotion\PromotionDefinition">
             <tag name="shopware.entity.definition" entity="promotion"/>
         </service>
@@ -15,6 +16,15 @@
 
         <service id="Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountDefinition">
             <tag name="shopware.entity.definition"/>
+        </service>
+
+        <service id="Shopware\Core\Checkout\Promotion\PromotionGateway">
+            <argument type="service" id="promotion.repository"/>
+        </service>
+
+        <service id="Shopware\Core\Checkout\Promotion\Cart\CartPromotionsCollector">
+            <argument type="service" id="Shopware\Core\Checkout\Promotion\PromotionGateway"/>
+            <tag name="Shopware\Core\Checkout\Cart\CollectorInterface"/>
         </service>
 
     </services>

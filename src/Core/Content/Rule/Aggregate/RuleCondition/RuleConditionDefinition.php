@@ -50,7 +50,7 @@ class RuleConditionDefinition extends EntityDefinition
             new JsonField('value', 'value'),
             new IntField('position', 'position'),
             new ManyToOneAssociationField('rule', 'rule_id', RuleDefinition::class, 'id', false),
-            new ParentAssociationField(self::class, 'id', false),
+            new ParentAssociationField(self::class, 'id'),
             new ChildrenAssociationField(self::class),
             new AttributesField(),
         ]);

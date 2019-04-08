@@ -74,7 +74,7 @@ class NavigationDefinition extends EntityDefinition
 
             (new TranslationsAssociationField(NavigationTranslationDefinition::class, 'navigation_id'))->addFlags(new Required()),
             new ChildrenAssociationField(self::class),
-            new ParentAssociationField(self::class, 'id', false),
+            new ParentAssociationField(self::class, 'id'),
 
             new OneToManyAssociationField('salesChannelNavigations', SalesChannelDefinition::class, 'navigation_id'),
         ]);

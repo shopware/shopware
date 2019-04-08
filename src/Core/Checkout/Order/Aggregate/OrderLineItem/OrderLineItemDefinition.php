@@ -86,7 +86,7 @@ class OrderLineItemDefinition extends EntityDefinition
             new UpdatedAtField(),
             new ManyToOneAssociationField('order', 'order_id', OrderDefinition::class, 'id', false),
             (new OneToManyAssociationField('orderDeliveryPositions', OrderDeliveryPositionDefinition::class, 'order_line_item_id', 'id'))->addFlags(new CascadeDelete(), new WriteProtected()),
-            new ParentAssociationField(self::class, 'id', false),
+            new ParentAssociationField(self::class, 'id'),
             new ChildrenAssociationField(self::class),
         ]);
     }

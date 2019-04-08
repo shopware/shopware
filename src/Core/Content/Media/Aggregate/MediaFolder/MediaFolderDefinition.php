@@ -68,7 +68,7 @@ class MediaFolderDefinition extends EntityDefinition
             new FkField('default_folder_id', 'defaultFolderId', MediaDefaultFolderDefinition::class),
 
             new ParentFkField(self::class),
-            new ParentAssociationField(self::class, 'id', false),
+            new ParentAssociationField(self::class, 'id'),
 
             new ChildrenAssociationField(self::class),
             new ChildCountField(),

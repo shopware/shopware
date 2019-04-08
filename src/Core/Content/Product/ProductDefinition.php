@@ -164,7 +164,7 @@ class ProductDefinition extends EntityDefinition
             new TranslatedField('attributes'),
 
             //parent - child inheritance
-            new ParentAssociationField(self::class, 'id', false),
+            new ParentAssociationField(self::class, 'id'),
             new ChildrenAssociationField(self::class),
 
             //inherited associations and associations which are loaded immediately

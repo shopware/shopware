@@ -24,16 +24,16 @@
             <argument>%shopware.cache.entity_cache.expiration_time%</argument>
         </service>
 
-<!--        <service id="Shopware\Core\Framework\DataAbstractionLayer\Cache\CachedEntityReader"-->
-<!--                 decorates="Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface"-->
-<!--                 decoration-priority="-1000">-->
+        <service id="Shopware\Core\Framework\DataAbstractionLayer\Cache\CachedEntityReader"
+                 decorates="Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface"
+                 decoration-priority="-1000">
 
-<!--            <argument type="service" id="shopware.cache"/>-->
-<!--            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Cache\CachedEntityReader.inner"/>-->
-<!--            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator"/>-->
-<!--            <argument>%shopware.cache.entity_cache.enabled%</argument>-->
-<!--            <argument>%shopware.cache.entity_cache.expiration_time%</argument>-->
-<!--        </service>-->
+            <argument type="service" id="shopware.cache"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Cache\CachedEntityReader.inner"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator"/>
+            <argument>%shopware.cache.entity_cache.enabled%</argument>
+            <argument>%shopware.cache.entity_cache.expiration_time%</argument>
+        </service>
 
         <service id="Shopware\Core\Framework\DataAbstractionLayer\Cache\CachedEntityAggregator"
                  decorates="Shopware\Core\Framework\DataAbstractionLayer\Search\EntityAggregatorInterface"

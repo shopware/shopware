@@ -4,8 +4,8 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Field;
 
 class ParentAssociationField extends ManyToOneAssociationField
 {
-    public function __construct(string $referenceClass, string $referenceField = 'id', bool $autoload = true)
+    public function __construct(string $referenceClass, string $referenceField = 'id')
     {
-        parent::__construct('parent', 'parent_id', $referenceClass, $referenceField, $autoload);
+        parent::__construct('parent', 'parent_id', $referenceClass, $referenceField, false);
     }
 }

@@ -19,7 +19,7 @@ module.exports = {
     ],
 
     moduleNameMapper: {
-        '\\.(css|less|scss)$': '<rootDir>/specs/@tools/__mocks__/styleMock.js',
+        '\\.(css|less|scss)$': '<rootDir>/test/@tool/__mocks__/styleMock.js',
         '^src(.*)$': '<rootDir>/src$1'
     },
 
@@ -34,11 +34,10 @@ module.exports = {
 
     transform: {
         '^.+\\.jsx?$': 'babel-jest',
-        '^.+\\.twig$': '<rootDir>/specs/@tools/twig-to-vue-transformer/index.js'
+        '^.+\\.twig$': '<rootDir>/test/@tool/twig-to-vue-transformer/index.js'
     },
 
     testMatch: [
-        '<rootDir>/specs/**/*.spec.js',
-        '<rootDir>/src/**/*.spec.js'
+        '<rootDir>/test/**/*.spec.js'
     ]
 };

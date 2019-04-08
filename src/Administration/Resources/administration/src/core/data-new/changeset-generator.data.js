@@ -110,9 +110,9 @@ export default class ChangesetGenerator {
      */
     handleManyToMany(draft, origin, deletionQueue) {
         const changes = [];
-        const originIds = Object.keys(origin);
+        const originIds = Object.keys(origin.elements);
 
-        Object.keys(draft).forEach((key) => {
+        Object.keys(draft.elements).forEach((key) => {
             const entity = draft[key];
 
             if (!originIds.includes(entity.id)) {
@@ -139,11 +139,11 @@ export default class ChangesetGenerator {
      */
     handleOneToMany(draft, origin, deletionQueue) {
         const changes = [];
-        const originIds = Object.keys(origin);
+        const originIds = Object.keys(origin.elements);
 
         // check for new and updated items
-        Object.keys(draft).forEach((key) => {
-            const entity = draft[key];
+        Object.keys(draft.elements).forEach((key) => {
+            const entity = draft.elements[key];
             // new record?
             if (!originIds.includes(key)) {
                 let change = this.recursion(entity, []);

@@ -37,7 +37,6 @@ class ShippingMethodTranslationDefinition extends EntityTranslationDefinition
         return new FieldCollection([
             (new StringField('name', 'name'))->addFlags(new Required()),
             new LongTextField('description', 'description'),
-            new StringField('comment', 'comment'),
             new AttributesField(),
         ]);
     }

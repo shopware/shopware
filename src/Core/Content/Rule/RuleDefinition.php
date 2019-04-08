@@ -6,8 +6,7 @@ use Shopware\Core\Checkout\DiscountSurcharge\DiscountSurchargeDefinition;
 use Shopware\Core\Checkout\Payment\Aggregate\PaymentMethodRules\PaymentMethodRuleDefinition;
 use Shopware\Core\Checkout\Payment\PaymentMethodDefinition;
 use Shopware\Core\Checkout\Promotion\PromotionDefinition;
-use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodPriceRule\ShippingMethodPriceRuleDefinition;
-use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodRules\ShippingMethodRuleDefinition;
+use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodPrice\ShippingMethodPriceDefinition;
 use Shopware\Core\Checkout\Shipping\ShippingMethodDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductPrice\ProductPriceDefinition;
 use Shopware\Core\Content\Rule\Aggregate\RuleCondition\RuleConditionDefinition;
@@ -67,8 +66,9 @@ class RuleDefinition extends EntityDefinition
             (new OneToManyAssociationField('conditions', RuleConditionDefinition::class, 'rule_id', 'id'))->addFlags(new CascadeDelete()),
             (new OneToManyAssociationField('discountSurcharges', DiscountSurchargeDefinition::class, 'rule_id', 'id'))->addFlags(new CascadeDelete()),
             (new OneToManyAssociationField('productPrices', ProductPriceDefinition::class, 'rule_id', 'id'))->addFlags(new CascadeDelete()),
-            (new OneToManyAssociationField('shippingMethodPriceRules', ShippingMethodPriceRuleDefinition::class, 'rule_id', 'id'))->addFlags(new CascadeDelete()),
-            (new ManyToManyAssociationField('shippingMethods', ShippingMethodDefinition::class, ShippingMethodRuleDefinition::class, 'rule_id', 'shipping_method_id'))->addFlags(new CascadeDelete()),
+            (new OneToManyAssociationField('shippingMethodPrices', ShippingMethodPriceDefinition::class, 'rule_id', 'id'))->addFlags(new CascadeDelete()),
+            (new OneToManyAssociationField('shippingMethodPriceCalculations', ShippingMethodPriceDefinition::class, 'calculation_rule_id', 'id'))->addFlags(new CascadeDelete()),
+            (new OneToManyAssociationField('shippingMethods', ShippingMethodDefinition::class, 'availability_rule_id'))->addFlags(new CascadeDelete()),
             (new ManyToManyAssociationField('paymentMethods', PaymentMethodDefinition::class, PaymentMethodRuleDefinition::class, 'rule_id', 'payment_method_id'))->addFlags(new CascadeDelete()),
             (new OneToManyAssociationField('personaPromotions', PromotionDefinition::class, 'persona_rule_id', 'id'))->addFlags(new CascadeDelete()),
             (new OneToManyAssociationField('scopePromotions', PromotionDefinition::class, 'scope_rule_id', 'id'))->addFlags(new CascadeDelete()),

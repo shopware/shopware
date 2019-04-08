@@ -23,11 +23,6 @@ class ShippingMethodTranslationEntity extends TranslationEntity
     protected $description;
 
     /**
-     * @var string|null
-     */
-    protected $comment;
-
-    /**
      * @var ShippingMethodEntity|null
      */
     protected $shippingMethod;
@@ -65,16 +60,6 @@ class ShippingMethodTranslationEntity extends TranslationEntity
     public function setDescription(?string $description): void
     {
         $this->description = $description;
-    }
-
-    public function getComment(): ?string
-    {
-        return $this->comment;
-    }
-
-    public function setComment(?string $comment): void
-    {
-        $this->comment = $comment;
     }
 
     public function getShippingMethod(): ?ShippingMethodEntity

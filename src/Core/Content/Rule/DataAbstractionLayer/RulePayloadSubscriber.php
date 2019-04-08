@@ -33,7 +33,7 @@ class RulePayloadSubscriber implements EventSubscriberInterface
 
         /** @var RuleEntity $entity */
         foreach ($event->getEntities() as $entity) {
-            if (!$entity->getPayload()) {
+            if (!$entity->getPayload() || !is_string($entity->getPayload())) {
                 continue;
             }
 

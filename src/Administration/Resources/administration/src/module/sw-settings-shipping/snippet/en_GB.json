@@ -37,37 +37,56 @@
       "buttonCancel": "Cancel",
       "buttonSave": "Save",
       "labelSetRules": "Select rules",
-      "tabGeneral": "General",
-      "tabAdvancedPrices": "Price settings",
+      "labelBasicInfo": "Basic information",
       "columnQuantityStart": "Amount from",
       "columnQuantityEnd": "Amount to",
       "columnPrice": "Price",
-      "columnFactor": "Factor"
+      "columnFactor": "Factor",
+      "topRule": "Availability rule",
+      "labelLogoUpload": "Upload logo"
     },
     "constants": {
       "weight": "Weight",
       "price": "Price",
       "lineItemCount": "Line item count"
     },
-    "priceRules": {
-      "cardTitlePriceRule": "New price rule",
-      "placeholderRule": "Please choose ...",
-      "placeholderQuantityEnd": "Infinite",
-      "buttonPriceRuleDelete": "Delete price rule",
-      "buttonPriceRuleDuplicate": "Duplicate price rule",
-      "buttonPriceRuleCurrencyAdd": "Add currency",
-      "buttonAddAdditionalPriceRule": "Add additionally price rule",
-      "textCurrencyDefault": "(Default)",
-      "textPriceRuleForCurrency": "Price rule for currency",
-      "columnQuantityStart": "Amount from",
-      "columnQuantityEnd": "Amount to",
-      "columnWeightStart": "Weight from",
-      "columnWeightEnd": "Weight to",
-      "columnPriceStart": "Price from",
-      "columnPriceEnd": "Price to",
-      "columnPrice": "Price (Gross)",
-      "contextMenuDuplicate": "Duplicate",
-      "contextMenuDelete": "Delete"
+    "priceMatrix": {
+      "placeholderName": "Price matrix",
+      "noRestriction": "No rule restriction",
+      "addNewRule": "Add new rule",
+      "addNewPriceRule": "Add new price rule",
+      "duplicateMatrixContextLabel": "duplicate price matrix",
+      "deleteMatrixContextLabel": "delete price matrix",
+      "contextMenuDuplicatePrice": "duplicate price rule",
+      "contextMenuDeletePrice": "delete price rule",
+      "contextMenuModifyPrice": "modify price rule",
+      "selectProperty": "Select property ...",
+      "useRules": "Or use rules",
+      "emptyText": "To use the price matrix you have to choose between the use of properties or rules",
+      "calculationLineItemCount": "Line item count ",
+      "calculationPrice": "Cart price",
+      "calculationWeight": "Weight",
+      "calculationVolume": "Volume",
+      "columnQuantityStart": "Quantity start",
+      "columnQuantityEnd": "Quantity end",
+      "columnWeightStart": "Weight start",
+      "columnWeightEnd": "Weight end",
+      "columnPriceStart": "Price start",
+      "columnPriceEnd": "Price end",
+      "columnVolumeStart": "Volume start",
+      "columnVolumeEnd": "Volume end",
+      "columnPrice": "Price (gross)",
+      "columnCalculationRule": "Rule",
+      "buttonAddAdditionalPriceRule": "Add additional price rule"
+    },
+    "sidebar": {
+      "labelUseAsLogo": "Use as logo"
+    },
+    "priceRuleModal": {
+      "modalTitleNew": "New price rule",
+      "modalTitleModify": "Modify price rule",
+      "labelPrice": "Price",
+      "placeholderPrice": "Enter price ..."
     }
   }
 }

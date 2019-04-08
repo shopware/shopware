@@ -3,11 +3,13 @@
 namespace Shopware\Core\Checkout\Shipping;
 
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryCollection;
-use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodPriceRule\ShippingMethodPriceRuleCollection;
+use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodPrice\ShippingMethodPriceCollection;
 use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodTranslation\ShippingMethodTranslationCollection;
-use Shopware\Core\Content\Rule\RuleCollection;
+use Shopware\Core\Content\Media\MediaEntity;
+use Shopware\Core\Content\Rule\RuleEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
+use Shopware\Core\Framework\Tag\TagCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 
 class ShippingMethodEntity extends Entity
@@ -89,24 +91,38 @@ class ShippingMethodEntity extends Entity
     protected $attributes;
 
     /**
-     * @var RuleCollection|null
+     * @var RuleEntity|null
      */
-    protected $availabilityRules;
+    protected $availabilityRule;
 
     /**
-     * @var array
+     * @var string|null
      */
-    protected $availabilityRuleIds;
+    protected $availabilityRuleId;
 
     /**
-     * @var ShippingMethodPriceRuleCollection|null
+     * @var ShippingMethodPriceCollection
      */
-    protected $priceRules;
+    protected $prices;
+
+    /**
+     * @var string|null
+     */
+    protected $mediaId;
+
+    /**
+     * @var MediaEntity|null
+     */
+    protected $media;
+
+    /**
+     * @var TagCollection|null
+     */
+    protected $tags;
 
     public function __construct()
     {
-        $this->availabilityRuleIds = [];
-        $this->priceRules = new ShippingMethodPriceRuleCollection();
+        $this->prices = new ShippingMethodPriceCollection();
     }
 
     public function getBindShippingfree(): bool
@@ -259,33 +275,63 @@ class ShippingMethodEntity extends Entity
         $this->attributes = $attributes;
     }
 
-    public function getAvailabilityRules(): ?RuleCollection
+    public function getPrices(): ShippingMethodPriceCollection
     {
-        return $this->availabilityRules;
+        return $this->prices;
     }
 
-    public function setAvailabilityRules(?RuleCollection $availabilityRules): void
+    public function setPrices(ShippingMethodPriceCollection $prices): void
     {
-        $this->availabilityRules = $availabilityRules;
+        $this->prices = $prices;
     }
 
-    public function getAvailabilityRuleIds(): array
+    public function getAvailabilityRule(): ?RuleEntity
     {
-        return $this->availabilityRuleIds;
+        return $this->availabilityRule;
     }
 
-    public function setAvailabilityRuleIds(array $availabilityRuleIds): void
+    public function setAvailabilityRule(?RuleEntity $availabilityRule): void
     {
-        $this->availabilityRuleIds = $availabilityRuleIds;
+        $this->availabilityRule = $availabilityRule;
     }
 
-    public function getPriceRules(): ?ShippingMethodPriceRuleCollection
+    public function getAvailabilityRuleId(): ?string
     {
-        return $this->priceRules;
+        return $this->availabilityRuleId;
     }
 
-    public function setPriceRules(?ShippingMethodPriceRuleCollection $priceRules): void
+    public function setAvailabilityRuleId(string $availabilityRuleId): void
     {
-        $this->priceRules = $priceRules;
+        $this->availabilityRuleId = $availabilityRuleId;
+    }
+
+    public function getMediaId(): ?string
+    {
+        return $this->mediaId;
+    }
+
+    public function setMediaId(string $mediaId): void
+    {
+        $this->mediaId = $mediaId;
+    }
+
+    public function getMedia(): ?MediaEntity
+    {
+        return $this->media;
+    }
+
+    public function setMedia(MediaEntity $media): void
+    {
+        $this->media = $media;
+    }
+
+    public function getTags(): ?TagCollection
+    {
+        return $this->tags;
+    }
+
+    public function setTags(TagCollection $tags): void
+    {
+        $this->tags = $tags;
     }
 }

@@ -46,14 +46,14 @@ class ShippingMethodRepositoryTest extends TestCase
         $this->shippingRepository->create($shippingMethod, $defaultContext);
 
         $criteria = new Criteria([$this->shippingMethodId]);
-        $criteria->addAssociation('availabilityRules');
+        $criteria->addAssociation('availabilityRule');
 
         /** @var ShippingMethodCollection $resultSet */
         $resultSet = $this->shippingRepository->search($criteria, $defaultContext);
 
         static::assertSame($this->shippingMethodId, $resultSet->first()->getId());
-        static::assertSame($this->ruleId, $resultSet->first()->getAvailabilityRules()->first()->getId());
-        static::assertSame([$this->ruleId], $resultSet->first()->getAvailabilityRuleIds());
+        static::assertSame($this->ruleId, $resultSet->first()->getAvailabilityRule()->getId());
+        static::assertSame($this->ruleId, $resultSet->first()->getAvailabilityRuleId());
     }
 
     public function testUpdateShippingMethod(): void
@@ -66,25 +66,23 @@ class ShippingMethodRepositoryTest extends TestCase
 
         $updateParameter = [
             'id' => $this->shippingMethodId,
-            'availabilityRules' => [
-                [
-                    'id' => Uuid::randomHex(),
-                    'name' => 'test update',
-                    'priority' => 5,
-                    'created_at' => new \DateTime(),
-                ],
+            'availabilityRule' => [
+                'id' => Uuid::randomHex(),
+                'name' => 'test update',
+                'priority' => 5,
+                'created_at' => new \DateTime(),
             ],
         ];
 
         $this->shippingRepository->update([$updateParameter], $defaultContext);
 
         $criteria = new Criteria([$this->shippingMethodId]);
-        $criteria->addAssociation('availabilityRules');
+        $criteria->addAssociation('availabilityRule');
 
         /** @var ShippingMethodCollection $resultSet */
         $resultSet = $this->shippingRepository->search($criteria, $defaultContext);
 
-        static::assertCount(2, $resultSet->first()->getAvailabilityRules());
+        static::assertSame('test update', $resultSet->first()->getAvailabilityRule()->getName());
     }
 
     public function testShippingMethodCanBeDeleted(): void
@@ -134,17 +132,6 @@ class ShippingMethodRepositoryTest extends TestCase
         static::assertEmpty($result);
     }
 
-    private function createRuleDummyArray(): array
-    {
-        return [
-            [
-                'id' => $this->ruleId,
-                'name' => 'asd',
-                'priority' => 2,
-            ],
-        ];
-    }
-
     private function createShippingMethodDummyArray(): array
     {
         return [
@@ -152,7 +139,11 @@ class ShippingMethodRepositoryTest extends TestCase
                 'id' => $this->shippingMethodId,
                 'bindShippingfree' => false,
                 'name' => 'test',
-                'availabilityRules' => $this->createRuleDummyArray(),
+                'availabilityRule' => [
+                    'id' => $this->ruleId,
+                    'name' => 'asd',
+                    'priority' => 2,
+                ],
             ],
         ];
     }

@@ -1,4 +1,4 @@
-import { Component } from 'src/core/shopware';
+import { Component, State } from 'src/core/shopware';
 import utils from 'src/core/service/util.service';
 import template from './sw-settings-shipping-create.html.twig';
 
@@ -12,15 +12,23 @@ Component.extend('sw-settings-shipping-create', 'sw-settings-shipping-detail', {
         next();
     },
 
+    computed: {
+        languageStore() {
+            return State.getStore('language');
+        }
+    },
+
     methods: {
         createdComponent() {
+            if (this.languageStore.getCurrentId() !== this.languageStore.systemLanguageId) {
+                this.languageStore.setCurrentId(this.languageStore.systemLanguageId);
+            }
+
             if (this.$route.params.id) {
                 this.shippingMethodStore.create(this.$route.params.id);
             }
 
             this.$super.createdComponent();
-            // This is actual a required parameter
-            this.shippingMethod.type = 0;
         },
 
         onSave() {

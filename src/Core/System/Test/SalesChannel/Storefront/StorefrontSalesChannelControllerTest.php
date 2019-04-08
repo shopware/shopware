@@ -453,18 +453,16 @@ class StorefrontSalesChannelControllerTest extends TestCase
             'id' => Uuid::randomHex(),
             'name' => 'Express shipping',
             'bindShippingfree' => false,
-            'availabilityRules' => [
-                [
-                    'id' => Uuid::randomHex(),
-                    'name' => 'Rule',
-                    'priority' => 100,
-                    'conditions' => [
-                        [
-                            'type' => 'cartCartAmount',
-                            'value' => [
-                                'operator' => '>=',
-                                'amount' => 0,
-                            ],
+            'availabilityRule' => [
+                'id' => Uuid::randomHex(),
+                'name' => 'Rule',
+                'priority' => 100,
+                'conditions' => [
+                    [
+                        'type' => 'cartCartAmount',
+                        'value' => [
+                            'operator' => '>=',
+                            'amount' => 0,
                         ],
                     ],
                 ],
@@ -478,7 +476,7 @@ class StorefrontSalesChannelControllerTest extends TestCase
             ],
         ];
         $this->salesChannelRepository->update([$data], $this->context);
-        unset($shippingMethod['availabilityRules']);
+        unset($shippingMethod['availabilityRule']);
 
         return $shippingMethod;
     }

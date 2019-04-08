@@ -522,5 +522,21 @@
   "locale": {
     "de-DE": "German",
     "en-GB": "English"
+  },
+  "sw-rule-modal": {
+    "modalTitleNew": "Create new global rule",
+    "modalTitleModify": "Modify global rule",
+    "labelDescription": "Description",
+    "placeholderDescription": "Set a description for this rule...",
+    "labelName": "Name",
+    "placeholderName": "Set a name for this rule...",
+    "labelPriority": "Priority",
+    "placeholderPriority": "Set a priority for this rule...",
+    "buttonAbort": "Abort",
+    "buttonSave": "Save",
+    "titleSaveSuccess": "Success",
+    "messageSaveSuccess": "The rule \"{name}\" has been saved successfully.",
+    "titleSaveError": "Error",
+    "messageSaveError": "An error occurred while saving rule \"{name}\"."
   }
 }

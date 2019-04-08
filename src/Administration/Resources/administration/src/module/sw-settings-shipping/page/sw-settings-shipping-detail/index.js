@@ -6,15 +6,27 @@ import './sw-settings-shipping-detail.scss';
 Component.register('sw-settings-shipping-detail', {
     template,
 
+    inject: ['ruleConditionDataProviderService'],
+
     mixins: [
         Mixin.getByName('notification'),
         Mixin.getByName('placeholder'),
         Mixin.getByName('discard-detail-page-changes')('shippingMethod')
     ],
 
+    watch: {
+        'shippingMethod.mediaId'() {
+            if (this.shippingMethod.mediaId) {
+                this.setMediaItem({ targetId: this.shippingMethod.mediaId });
+            }
+        }
+    },
+
     data() {
         return {
-            shippingMethod: {}
+            shippingMethod: {},
+            logoMediaItem: null,
+            uploadTag: 'sw-shipping-method-upload-tag'
         };
     },
 
@@ -22,8 +34,18 @@ Component.register('sw-settings-shipping-detail', {
         shippingMethodStore() {
             return State.getStore('shipping_method');
         },
-        shippingMethodRuleAssociation() {
-            return this.shippingMethod.getAssociation('availabilityRules');
+        ruleStore() {
+            return State.getStore('rule');
+        },
+        priceRuleStore() {
+            return State.getStore('shipping_method_price');
+        },
+        mediaStore() {
+            return State.getStore('media');
+        },
+        isLoading() {
+            return Object.keys(this.shippingMethod).length === 0
+                || this.shippingMethod.isLoading;
         }
     },
 
@@ -35,7 +57,7 @@ Component.register('sw-settings-shipping-detail', {
         createdComponent() {
             if (this.$route.params.id) {
                 this.shippingMethodId = this.$route.params.id;
-                this.shippingMethod = this.shippingMethodStore.getById(this.shippingMethodId);
+                this.loadEntityData();
             }
         },
 
@@ -67,6 +89,8 @@ Component.register('sw-settings-shipping-detail', {
             );
 
             return this.shippingMethod.save().then(() => {
+                this.$refs.mediaSidebarItem.getList();
+
                 this.createNotificationSuccess({
                     title: titleSaveSuccess,
                     message: messageSaveSuccess
@@ -79,6 +103,27 @@ Component.register('sw-settings-shipping-detail', {
                 warn(this._name, exception.message, exception.response);
                 throw exception;
             });
+        },
+
+        setMediaItem({ targetId }) {
+            this.mediaStore.getByIdAsync(targetId).then((updatedMedia) => {
+                this.logoMediaItem = updatedMedia;
+            });
+            this.shippingMethod.mediaId = targetId;
+        },
+
+        setMediaFromSidebar(mediaEntity) {
+            this.logoMediaItem = mediaEntity;
+            this.shippingMethod.mediaId = mediaEntity.id;
+        },
+
+        onUnlinkLogo() {
+            this.logoMediaItem = null;
+            this.shippingMethod.mediaId = null;
+        },
+
+        openMediaSidebar() {
+            this.$refs.mediaSidebarItem.openContent();
         }
     }
 });

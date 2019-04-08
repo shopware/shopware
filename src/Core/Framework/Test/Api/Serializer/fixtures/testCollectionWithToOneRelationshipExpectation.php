@@ -98,6 +98,12 @@ return [
                         'related' => '/api/media/3e352be2d85846dd97529c0f6b544870/mail-template-media',
                     ],
                 ],
+                'shippingMethods' => [
+                    'data' => [],
+                    'links' => [
+                        'related' => '/api/media/3e352be2d85846dd97529c0f6b544870/shipping-methods',
+                    ],
+                ],
             ],
             'meta' => null,
         ], [
@@ -193,6 +199,12 @@ return [
                     'data' => [],
                     'links' => [
                         'related' => '/api/media/f1ad1d0c02454a40abf250f764d16248/mail-template-media',
+                    ],
+                ],
+                'shippingMethods' => [
+                    'data' => [],
+                    'links' => [
+                        'related' => '/api/media/f1ad1d0c02454a40abf250f764d16248/shipping-methods',
                     ],
                 ],
             ],

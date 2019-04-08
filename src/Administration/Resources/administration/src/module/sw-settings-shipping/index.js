@@ -5,8 +5,9 @@ import './extension/sw-settings-index';
 import './page/sw-settings-shipping-list';
 import './page/sw-settings-shipping-detail';
 import './page/sw-settings-shipping-create';
-import './view/sw-settings-shipping-detail-base';
-import './view/sw-settings-shipping-detail-advanced-prices';
+import './component/sw-price-rule-modal';
+import './component/sw-settings-shipping-price-matrices';
+import './component/sw-settings-shipping-price-matrix';
 
 import deDE from './snippet/de_DE.json';
 import enGB from './snippet/en_GB.json';
@@ -36,26 +37,7 @@ Module.register('sw-settings-shipping', {
         },
         detail: {
             component: 'sw-settings-shipping-detail',
-            path: 'detail/:id',
-            redirect: {
-                name: 'sw.settings.shipping.detail.base'
-            },
-            children: {
-                base: {
-                    component: 'sw-settings-shipping-detail-base',
-                    path: 'base',
-                    meta: {
-                        parentPath: 'sw.settings.shipping.index'
-                    }
-                },
-                advancedPrices: {
-                    component: 'sw-settings-shipping-detail-advanced-prices',
-                    path: 'advancedPrices',
-                    meta: {
-                        parentPath: 'sw.settings.shipping.index'
-                    }
-                }
-            }
+            path: 'detail/:id'
         },
         create: {
             component: 'sw-settings-shipping-create',

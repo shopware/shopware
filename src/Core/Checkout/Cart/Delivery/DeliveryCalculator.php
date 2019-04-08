@@ -9,7 +9,7 @@ use Shopware\Core\Checkout\Cart\Price\QuantityPriceCalculator;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Checkout\Cart\Tax\PercentageTaxRuleBuilder;
-use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodPriceRule\ShippingMethodPriceRuleEntity;
+use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodPrice\ShippingMethodPriceEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 class DeliveryCalculator
@@ -60,7 +60,7 @@ class DeliveryCalculator
             return;
         }
 
-        foreach ($delivery->getShippingMethod()->getPriceRules() as $priceRule) {
+        foreach ($delivery->getShippingMethod()->getPrices() as $priceRule) {
             // TODO: Ticket number: NEXT-2360, Price rules shouldn't be loaded in general (access price rules different at this point)
             if (!in_array($priceRule->getRuleId(), $context->getRuleIds(), true)) {
                 continue;
@@ -85,12 +85,12 @@ class DeliveryCalculator
         $delivery->setShippingCosts($costs);
     }
 
-    private function matchesQuantity(Delivery $delivery, ShippingMethodPriceRuleEntity $shippingMethodPriceRule): bool
+    private function matchesQuantity(Delivery $delivery, ShippingMethodPriceEntity $shippingMethodPrice): bool
     {
-        $start = $shippingMethodPriceRule->getQuantityStart();
-        $end = $shippingMethodPriceRule->getQuantityEnd();
+        $start = $shippingMethodPrice->getQuantityStart();
+        $end = $shippingMethodPrice->getQuantityEnd();
 
-        switch ($shippingMethodPriceRule->getCalculation()) {
+        switch ($shippingMethodPrice->getCalculation()) {
             case self::CALCULATION_BY_PRICE:
                 $value = $delivery->getPositions()->getPrices()->sum()->getTotalPrice();
                 break;

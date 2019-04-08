@@ -37,37 +37,56 @@
       "buttonCancel": "Abbrechen",
       "buttonSave": "Speichern",
       "labelSetRules": "Regel auswählen",
-      "tabGeneral": "Allgemein",
-      "tabAdvancedPrices": "Erweiterte Preise",
+      "labelBasicInfo": "Basisinformation",
       "columnQuantityStart": "Menge ab",
       "columnQuantityEnd": "Menge bis",
       "columnPrice": "Preis",
-      "columnFactor": "Faktor"
+      "columnFactor": "Faktor",
+      "topRule": "Verfügbarkeitsregel",
+      "labelLogoUpload": "Logo hochladen"
     },
     "constants": {
       "weight": "Gewicht",
       "price": "Preis",
       "lineItemCount": "Anzahl Produkte"
     },
-    "priceRules": {
-      "cardTitlePriceRule": "Neue Preisregel",
-      "placeholderRule": "Bitte wählen ...",
-      "placeholderQuantityEnd": "Unendlich",
-      "buttonPriceRuleDelete": "Preisregel löschen",
-      "buttonPriceRuleDuplicate": "Preisregel duplizieren",
-      "buttonPriceRuleCurrencyAdd": "Währung hinzufügen",
-      "buttonAddAdditionalPriceRule": "Weitere Preisregel hinzufügen",
-      "textCurrencyDefault": "(Standard)",
-      "textPriceRuleForCurrency": "Preisregel für Währung",
+    "priceMatrix": {
+      "placeholderName": "Preismatrix",
+      "noRestriction": "Keine Regel einschränkung",
+      "addNewRule": "Neue Regel erstellen",
+      "addNewPriceRule": "Neue Preisregel hinzufügen",
+      "duplicateMatrixContextLabel": "Preismatrix duplizieren",
+      "deleteMatrixContextLabel": "Preismatrix löschen",
+      "contextMenuDuplicatePrice": "Preisregel duplizieren",
+      "contextMenuDeletePrice": "Preisregel löschen",
+      "contextMenuModifyPrice": "Preisregel ändern",
+      "selectProperty": "Eigenschaft auswählen",
+      "useRules": "Oder Regeln benutzen",
+      "emptyText": "Um die Preismatrix zu nutzen, musst du zwischen der Verwendung von Eigenschaften oder Regeln wählen.",
+      "calculationLineItemCount": "Anzahl Positionen",
+      "calculationPrice": "Warenkorb Wert",
+      "calculationWeight": "Gewicht",
+      "calculationVolume": "Volumen",
       "columnQuantityStart": "Menge von",
       "columnQuantityEnd": "Menge bis",
       "columnWeightStart": "Gewicht von",
       "columnWeightEnd": "Gewicht bis",
       "columnPriceStart": "Preis von",
       "columnPriceEnd": "Preis bis",
+      "columnVolumeStart": "Volumen von",
+      "columnVolumeEnd": "Volumen bis",
       "columnPrice": "Preis (Brutto)",
-      "contextMenuDuplicate": "Duplizieren",
-      "contextMenuDelete": "Löschen"
+      "columnCalculationRule": "Regel",
+      "buttonAddAdditionalPriceRule": "Weitere Preisregel hinzufügen"
+    },
+    "sidebar": {
+      "labelUseAsLogo": "Als Logo verwenden"
+    },
+    "priceRuleModal": {
+      "modalTitleNew": "Neue Preisregel hinzufügen",
+      "modalTitleModify": "Preisregel bearbeiten",
+      "labelPrice": "Preis",
+      "placeholderPrice": "Preis eingeben ..."
     }
   }
 }

@@ -55,24 +55,19 @@ class ConfirmPageTest extends TestCase
 
         /** @var EntityRepositoryInterface $shippingMethodRepository */
         $shippingMethodRepository = $this->getContainer()->get('shipping_method.repository');
-        $shippingMethodRuleRepository = $this->getContainer()->get('shipping_method_rule.repository');
         $shippingMethods = $shippingMethodRepository->search(new Criteria(), $context->getContext())->getEntities();
 
-        $ruleToDelete = [];
+        $updates = [];
 
         /** @var ShippingMethodEntity $shippingMethod */
         foreach ($shippingMethods as $shippingMethod) {
-            foreach ($shippingMethod->getAvailabilityRuleIds() as $availabilityRuleId) {
-                $ruleToDelete[] = [
-                    'shippingMethodId' => $shippingMethod->getId(),
-                    'ruleId' => $availabilityRuleId,
-                ];
-            }
+            $updates[] = [
+                'id' => $shippingMethod->getId(),
+                'availabilityRuleId' => null,
+            ];
         }
 
-        if (\count($ruleToDelete) > 0) {
-            $shippingMethodRuleRepository->delete($ruleToDelete, $context->getContext());
-        }
+        $shippingMethodRepository->update($updates, $context->getContext());
 
         /** @var CheckoutConfirmPageLoadedEvent $event */
         $event = null;

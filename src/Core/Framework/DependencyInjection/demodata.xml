@@ -40,7 +40,7 @@
         </service>
 
         <service id="Shopware\Core\Framework\Demodata\Generator\ShippingMethodPriceGenerator">
-            <argument type="service" id="shipping_method_price_rule.repository" />
+            <argument type="service" id="shipping_method_price.repository" />
             <argument type="service" id="shipping_method.repository" />
             <tag name="shopware.demodata_generator"/>
         </service>

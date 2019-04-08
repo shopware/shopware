@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\Tag;
 
 use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Order\OrderCollection;
+use Shopware\Core\Checkout\Shipping\ShippingMethodCollection;
 use Shopware\Core\Content\Category\CategoryCollection;
 use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Product\ProductCollection;
@@ -53,6 +54,11 @@ class TagEntity extends Entity
      * @var OrderCollection|null
      */
     protected $orders;
+
+    /**
+     * @var ShippingMethodCollection|null
+     */
+    protected $shippingMethods;
 
     public function getName(): string
     {
@@ -132,5 +138,15 @@ class TagEntity extends Entity
     public function setOrders(OrderCollection $orders): void
     {
         $this->orders = $orders;
+    }
+
+    public function getShippingMethods(): ?ShippingMethodCollection
+    {
+        return $this->shippingMethods;
+    }
+
+    public function setShippingMethods(ShippingMethodCollection $shippingMethods): void
+    {
+        $this->shippingMethods = $shippingMethods;
     }
 }

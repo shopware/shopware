@@ -13,9 +13,9 @@ class ShippingMethodValidator implements CartValidatorInterface
     public function validate(Cart $cart, ErrorCollection $errors, SalesChannelContext $context): void
     {
         foreach ($cart->getDeliveries() as $delivery) {
-            $matches = array_intersect($delivery->getShippingMethod()->getAvailabilityRuleIds(), $context->getRuleIds());
+            $matches = in_array($delivery->getShippingMethod()->getAvailabilityRuleId(), $context->getRuleIds(), true);
 
-            if (!empty($matches)) {
+            if ($matches) {
                 continue;
             }
 

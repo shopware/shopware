@@ -44,7 +44,7 @@ trait BasicTestDataBehaviour
 
         /** @var ShippingMethodEntity $shippingMethod */
         foreach ($shippingMethods as $shippingMethod) {
-            if (\count($shippingMethod->getAvailabilityRuleIds()) > 0) {
+            if ($shippingMethod->getAvailabilityRuleId() !== null) {
                 return $shippingMethod->getId();
             }
         }

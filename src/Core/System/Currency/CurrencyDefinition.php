@@ -3,7 +3,7 @@
 namespace Shopware\Core\System\Currency;
 
 use Shopware\Core\Checkout\Order\OrderDefinition;
-use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodPriceRule\ShippingMethodPriceRuleDefinition;
+use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodPrice\ShippingMethodPriceDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductPrice\ProductPriceDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
@@ -63,7 +63,7 @@ class CurrencyDefinition extends EntityDefinition
             (new TranslationsAssociationField(CurrencyTranslationDefinition::class, 'currency_id'))->addFlags(new Required()),
             (new OneToManyAssociationField('orders', OrderDefinition::class, 'currency_id', 'id'))->addFlags(new RestrictDelete()),
             new OneToManyAssociationField('productPrices', ProductPriceDefinition::class, 'currency_id', 'id'),
-            new OneToManyAssociationField('shippingMethodPriceRules', ShippingMethodPriceRuleDefinition::class, 'currency_id', 'id'),
+            new OneToManyAssociationField('shippingMethodPrices', ShippingMethodPriceDefinition::class, 'currency_id', 'id'),
             new ManyToManyAssociationField('salesChannels', SalesChannelDefinition::class, SalesChannelCurrencyDefinition::class, 'currency_id', 'sales_channel_id'),
             (new OneToManyAssociationField('salesChannelDomains', SalesChannelDomainDefinition::class, 'currency_id'))->addFlags(new RestrictDelete()),
         ]);

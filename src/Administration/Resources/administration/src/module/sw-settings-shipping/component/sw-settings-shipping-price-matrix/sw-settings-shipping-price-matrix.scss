@@ -1,0 +1,55 @@
+@import "~scss/variables";
+
+$sw-shipping-list-color-error: $color-crimson;
+
+.sw-settings-shipping-price-matrix {
+    &.sw-card .sw-card__content {
+        padding: 0;
+    }
+
+    .sw-settings-shipping-price-matrix__top-container {
+        padding: 32px 24px;
+        background-color: #F9FAFB;
+        border-bottom: 1px solid #D1D9E0;
+        border-top-left-radius: 4px;
+        border-top-right-radius: 4px;
+    }
+
+    .sw-settings-shipping-price-matrix__price-group-context {
+        width: 35px;
+        border: 1px solid #D6DDE5;
+        border-radius: 3px;
+        padding: 0;
+        cursor: pointer;
+
+        &.sw-context-button {
+            height: 100%;
+            display: flex;
+            align-items: center;
+
+            .sw-context-button__button {
+                border: none;
+                width: 100%;
+                padding: 0;
+            }
+        }
+    }
+
+    .sw-settings-shipping-price-matrix__empty {
+        max-width: 400px;
+        margin: 47px auto 50px;
+    }
+
+    .sw-settings-shipping-price-matrix__empty-text {
+        max-width: 400px;
+        font-size: 14px;
+        text-align: center;
+        margin-bottom: 17px;
+    }
+
+    .sw-settings-shipping-price-matrix__use-rules {
+        line-height: 35px;
+        cursor: pointer;
+        color: $color-shopware-blue;
+    }
+}

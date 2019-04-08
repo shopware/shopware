@@ -12,7 +12,7 @@ final class StorefrontPageTestConstants
 
     public const SHIPPING_METHOD_COUNT = 2;
 
-    public const AVAILABLE_SHIPPING_METHOD_COUNT = 1;
+    public const AVAILABLE_SHIPPING_METHOD_COUNT = 2;
 
     public const AVAILABLE_PAYMENT_METHOD_COUNT = 4;
 

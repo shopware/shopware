@@ -1,6 +1,5 @@
 .sw-settings-shipping-detail {
-    .sw-field.sw-field--checkbox {
-        align-self: center;
-        margin: 0;
+    .sw-settings-shipping-detail__description textarea {
+        min-height: 148px;
     }
 }

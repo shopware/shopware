@@ -11,17 +11,6 @@ class PromotionDiscountEntity extends Entity
 {
     use EntityIdTrait;
 
-    const TYPE_PERCENTAL = 'percental';
-    const TYPE_ABSOLUTE = 'absolute';
-
-    const ORDER_PRICE_ASCENDING = 'priceAscending';
-    const ORDER_PRICE_DESCENDING = 'priceDescending';
-
-    const APPLY_TOWARDS_CART = 'cart';
-    const APPLY_TOWARDS_SHIPPING_COST = 'shippingCost';
-    const APPLY_TOWARDS_ALL_GROUPS = 'allGroups';
-    const APPLY_TOWARDS_SINGLE_GROUP = 'singleGroup';
-
     /**
      * @var string
      */

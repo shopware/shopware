@@ -43,7 +43,7 @@ class PromotionGateway implements PromotionGatewayInterface
         $criteria->addFilter(new MultiFilter(
             MultiFilter::CONNECTION_AND,
             [
-                $this->getActiveFilter(),
+                new EqualsFilter('active', true),
                 $this->getDateRangeFilter(),
                 $this->getRuleConditionFilters($contextRules),
                 new EqualsFilter('codeType', PromotionEntity::CODE_TYPE_NO_CODE),
@@ -66,25 +66,21 @@ class PromotionGateway implements PromotionGatewayInterface
     {
         $criteria = new Criteria([]);
 
-        $criteria->addFilter(new MultiFilter(MultiFilter::CONNECTION_AND, [
-            $this->getActiveFilter(),
-            $this->getDateRangeFilter(),
-            $this->getCodesFilter($codes),
-        ]));
+        $criteria->addFilter(
+            new MultiFilter(
+                MultiFilter::CONNECTION_AND,
+                [
+                    new EqualsFilter('active', true),
+                    $this->getDateRangeFilter(),
+                    new EqualsAnyFilter('code', $codes),
+                ]
+            )
+        );
 
         /* @var EntityCollection $result */
         $result = $this->promotionRepository->search($criteria, $context->getContext())->getEntities();
 
         return $result;
-    }
-
-    /**
-     * Gets the predefined filter for the
-     * active flag of promotions
-     */
-    private function getActiveFilter(): Filter
-    {
-        return new EqualsFilter('active', true);
     }
 
     /**
@@ -172,14 +168,5 @@ class PromotionGateway implements PromotionGatewayInterface
         );
 
         return $filterRules;
-    }
-
-    /**
-     * Gets the filters to query for either a list of provided global codes
-     * or individual codes.
-     */
-    private function getCodesFilter(array $codes): Filter
-    {
-        return new EqualsAnyFilter('code', $codes);
     }
 }

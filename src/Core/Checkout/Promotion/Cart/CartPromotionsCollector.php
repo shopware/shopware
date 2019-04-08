@@ -14,7 +14,6 @@ use Shopware\Core\Checkout\Promotion\Cart\Validator\LineItemRuleValidator;
 use Shopware\Core\Checkout\Promotion\PromotionCollection;
 use Shopware\Core\Checkout\Promotion\PromotionEntity;
 use Shopware\Core\Checkout\Promotion\PromotionGatewayInterface;
-use Shopware\Core\Content\Product\Cart\ProductGatewayInterface;
 use Shopware\Core\Framework\FeatureFlag\FeatureConfig;
 use Shopware\Core\Framework\Struct\Collection;
 use Shopware\Core\Framework\Struct\StructCollection;
@@ -26,11 +25,6 @@ class CartPromotionsCollector implements CollectorInterface
     public const LINE_ITEM_TYPE = 'promotion';
 
     /**
-     * @var ProductGatewayInterface|null
-     */
-    private $productGateway = null;
-
-    /**
      * @var PromotionGatewayInterface
      */
     private $promotionGateway;
@@ -38,23 +32,21 @@ class CartPromotionsCollector implements CollectorInterface
     /**
      * @var PromotionItemBuilder
      */
-    private $itemBuilder = null;
+    private $itemBuilder;
 
     /**
      * @var LineItemRuleValidator
      */
-    private $itemValidator = null;
+    private $itemValidator;
 
     /**
      * @var bool
      */
     private $featureFlagUnlocked = false;
 
-    public function __construct(ProductGatewayInterface $productGateway, PromotionGatewayInterface $promotionGateway)
+    public function __construct(PromotionGatewayInterface $promotionGateway)
     {
-        $this->productGateway = $productGateway;
         $this->promotionGateway = $promotionGateway;
-
         $this->itemBuilder = new PromotionItemBuilder(self::LINE_ITEM_TYPE);
         $this->itemValidator = new LineItemRuleValidator(self::LINE_ITEM_TYPE);
     }
@@ -95,18 +87,22 @@ class CartPromotionsCollector implements CollectorInterface
                     $placeholderItemIds[] = $lineItem->getKey();
                 }
             }
-        } else {
-            // in "live checkout mode", we have to ensure we also REMOVE line items
-            // if conditions are not met anymore for a promotion!
-            // thus we collect all our existing promotion line items (placeholders and real ones)
-            // to re-apply them again if still valid...or remove them later on.
-            /** @var LineItem $lineItem */
-            foreach ($promotionLineItems as $lineItem) {
-                if ($this->isPromotionPlaceholder($lineItem)) {
-                    $placeholderItemIds[] = $lineItem->getKey();
-                } elseif ($this->isRealPromotionItem($lineItem)) {
-                    $placeholderItemIds[] = $lineItem->getKey();
-                }
+
+            $definitions->add(new CartPromotionsFetchDefinition($placeholderItemIds));
+
+            return;
+        }
+
+        // in "live checkout mode", we have to ensure we also REMOVE line items
+        // if conditions are not met anymore for a promotion!
+        // thus we collect all our existing promotion line items (placeholders and real ones)
+        // to re-apply them again if still valid...or remove them later on.
+        /** @var LineItem $lineItem */
+        foreach ($promotionLineItems as $lineItem) {
+            if ($this->isPromotionPlaceholder($lineItem)) {
+                $placeholderItemIds[] = $lineItem->getKey();
+            } elseif ($this->isRealPromotionItem($lineItem)) {
+                $placeholderItemIds[] = $lineItem->getKey();
             }
         }
 
@@ -264,7 +260,7 @@ class CartPromotionsCollector implements CollectorInterface
     {
         // check if our flag mechanism works
         // we do this with this way due to problems with unit tests
-        if (key_exists('next700', FeatureConfig::getAll())) {
+        if (array_key_exists('next700', FeatureConfig::getAll())) {
             return true;
         }
 
@@ -278,14 +274,12 @@ class CartPromotionsCollector implements CollectorInterface
      */
     private function getPromotionLineItems(Cart $cart): array
     {
-        $lineItems = array_filter(
+        return array_filter(
             $cart->getLineItems()->getElements(),
             function (LineItem $lineItem) {
                 return $lineItem->getType() === self::LINE_ITEM_TYPE;
             }
         );
-
-        return $lineItems;
     }
 
     /**
@@ -299,9 +293,7 @@ class CartPromotionsCollector implements CollectorInterface
             return false;
         }
 
-        $startsWithPlaceholderPrefix = (substr($lineItem->getKey(), 0, strlen(PromotionItemBuilder::PLACEHOLDER_PREFIX)) === PromotionItemBuilder::PLACEHOLDER_PREFIX);
-
-        return $startsWithPlaceholderPrefix;
+        return substr($lineItem->getKey(), 0, strlen(PromotionItemBuilder::PLACEHOLDER_PREFIX)) === PromotionItemBuilder::PLACEHOLDER_PREFIX;
     }
 
     /**
@@ -333,12 +325,14 @@ class CartPromotionsCollector implements CollectorInterface
         foreach ($promotionLineItems as $lineItem) {
             // if our line item is in our list of Ids and
             // if it is a placeholder item, then collect that code.
-            if (in_array($lineItem->getKey(), $lineItemIDs, true)) {
-                // grab our code from the payload
-                // just verify if it really exists to avoid exceptions
-                if (key_exists('code', $lineItem->getPayload())) {
-                    $codes[] = $lineItem->getPayload()['code'];
-                }
+            if (!in_array($lineItem->getKey(), $lineItemIDs, true)) {
+                continue;
+            }
+
+            // grab our code from the payload
+            // just verify if it really exists to avoid exceptions
+            if (array_key_exists('code', $lineItem->getPayload())) {
+                $codes[] = $lineItem->getPayload()['code'];
             }
         }
 

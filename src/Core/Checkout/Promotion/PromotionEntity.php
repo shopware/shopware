@@ -12,9 +12,8 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 class PromotionEntity extends Entity
 {
     use EntityIdTrait;
+
     public const CODE_TYPE_NO_CODE = 'no_code';
-    public const CODE_TYPE_STANDARD = 'standard';
-    public const CODE_TYPE_INDIVIDUAL = 'individual';
 
     /**
      * @var string|null

@@ -23,7 +23,6 @@
         </service>
 
         <service id="Shopware\Core\Checkout\Promotion\Cart\CartPromotionsCollector">
-            <argument type="service" id="Shopware\Core\Content\Product\Cart\ProductGateway"/>
             <argument type="service" id="Shopware\Core\Checkout\Promotion\PromotionGateway"/>
             <tag name="Shopware\Core\Checkout\Cart\CollectorInterface"/>
         </service>

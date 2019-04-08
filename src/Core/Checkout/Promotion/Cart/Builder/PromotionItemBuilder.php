@@ -22,7 +22,7 @@ class PromotionItemBuilder
     /**
      * @var string
      */
-    private $lineItemType = '';
+    private $lineItemType;
 
     public function __construct(string $lineItemType)
     {
@@ -77,7 +77,7 @@ class PromotionItemBuilder
 
         // our promotion values are always negative values.
         // either type percentage or absolute needs to be negative to get
-        // automatically substracted within the calculation process
+        // automatically subtracted within the calculation process
         $promotionValue = -$promotion->getValue();
 
         if ($promotion->isPercental()) {

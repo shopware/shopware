@@ -14,7 +14,6 @@ use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Checkout\Promotion\Cart\CartPromotionsCollector;
 use Shopware\Core\Checkout\Promotion\Cart\CartPromotionsDataDefinition;
 use Shopware\Core\Checkout\Promotion\PromotionEntity;
-use Shopware\Core\Checkout\Test\Cart\Promotion\Fakes\FakeProductGateway;
 use Shopware\Core\Checkout\Test\Cart\Promotion\Fakes\FakePromotionGateway;
 use Shopware\Core\Content\Product\Cart\ProductCollector;
 use Shopware\Core\Content\Rule\RuleEntity;
@@ -111,8 +110,7 @@ class CartPromotionsCollectorTest extends TestCase
         $definitions = new StructCollection();
         $data = new StructCollection();
 
-        $fakeProductGateway = new FakeProductGateway();
-        $collector = new CartPromotionsCollector($fakeProductGateway, $fakePromotionGateway);
+        $collector = new CartPromotionsCollector($fakePromotionGateway);
         $collector->setFeatureFlagUnlocked(true);
 
         // make sure we have some prepared placeholders
@@ -155,9 +153,8 @@ class CartPromotionsCollectorTest extends TestCase
     public function testEnrichWithPromotionLineItem()
     {
         $fakePromotionGateway = new FakePromotionGateway([], []);
-        $fakeProductGateway = new FakeProductGateway();
 
-        $collector = new CartPromotionsCollector($fakeProductGateway, $fakePromotionGateway);
+        $collector = new CartPromotionsCollector($fakePromotionGateway);
         $collector->setFeatureFlagUnlocked(true);
 
         // add a fake promotion to our definition

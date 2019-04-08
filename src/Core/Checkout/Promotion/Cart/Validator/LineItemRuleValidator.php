@@ -16,7 +16,7 @@ class LineItemRuleValidator
     /**
      * @var string
      */
-    private $promotionLineItemPlaceholder = '';
+    private $promotionLineItemPlaceholder;
 
     public function __construct(string $promotionLineItemType)
     {
@@ -48,29 +48,24 @@ class LineItemRuleValidator
 
         /** @var LineItem $lineItem */
         foreach ($lineItems as $lineItem) {
-            $addItemPromotion = true;
-
-            // todo: this section has to be adopted to the new product/art conditions (separate ticket). still there are no exceptions or problems if no rule is set.
-            if ($discountCondition instanceof Rule) {
-                try {
-                    $itemScope = new LineItemScope($lineItem, $context);
-
-                    /** @var Match $matchResult */
-                    $matchResult = $discountCondition->match($itemScope);
-
-                    // if the rule matches, we are allowed
-                    // to add a promotion for this line item
-                    $addItemPromotion = $matchResult->matches();
-                } catch (\Throwable $ex) {
-                    // todo: conditions like "total prices" might not work here, because the calculation does happen afterwards.
-                    $addItemPromotion = false;
-                }
+            if (!$discountCondition instanceof Rule) {
+                $eligibleItems[] = $lineItem->getKey();
+                continue;
             }
 
-            // if it matches, we add it to the list
-            // of items where promotions are valid
-            if ($addItemPromotion) {
-                $eligibleItems[] = $lineItem->getKey();
+            try {
+                $itemScope = new LineItemScope($lineItem, $context);
+
+                /** @var Match $matchResult */
+                $matchResult = $discountCondition->match($itemScope);
+
+                // if the rule matches, we are allowed to add a promotion for this line item
+                if ($matchResult->matches()) {
+                    $eligibleItems[] = $lineItem->getKey();
+                }
+            } catch (\Throwable $ex) {
+                // todo: conditions like "total prices" might not work here, because the calculation does happen afterwards.
+                continue;
             }
         }
 

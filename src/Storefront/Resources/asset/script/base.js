@@ -1,20 +1,34 @@
-// Provides polyfills based on the configured browser list
+/*
+import polyfills
+ */
 import '@babel/polyfill';
 import 'asset/script/helper/polyfill-loader.helper';
+
+/*
+import base requirements
+ */
 import 'bootstrap';
 import jQuery from 'jquery';
 
-// Import styles
+/*
+import styles
+ */
 import 'asset/scss/base.scss';
 
-// helpers
+/*
+import helpers
+ */
 import PluginManager from 'asset/script/helper/plugin/plugin.manager';
 import ViewportDetection from 'asset/script/helper/viewport-detection.helper';
 
-// utils
+/*
+import utils
+ */
 import ModalExtensionUtil from 'asset/script/util/modal-extension/modal-extension.util';
 
-// plugins
+/*
+import plugins
+ */
 // import SimplePlugin from 'asset/script/plugin/_example/simple.plugin';
 // import VanillaExtendPlugin from 'asset/script/plugin/_example/vanilla-extended.plugin';
 // import ExtendedPlugin from 'asset/script/plugin/_example/extended.plugin';
@@ -34,12 +48,10 @@ import FormValidationPlugin from 'asset/script/plugin/register/form-validation.p
 import FormSubmitLoaderPlugin from 'asset/script/plugin/forms/from-submit-loader.plugin';
 import OffCanvasTabsPlugin from 'asset/script/plugin/off-canvas-tabs/offcanvas-tabs.plugin';
 
-// static plugins
+/*
+import static plugins
+ */
 import Logout from 'asset/script/plugin/logout/logout.plugin';
-
-// pages
-import 'asset/script/page/product-detail/product-detail.page';
-import 'asset/script/page/account/addressbook.page';
 
 /*
 initialisation
@@ -71,19 +83,27 @@ register plugins
 // PluginManager.extend('OverrideSimple', 'OverrideSimple', OverriddenPlugin, 'body', { plugin: 'simple override' });
 // example plugin end (remove before release)
 
-PluginManager.register('SearchWidget', SearchWidgetPlugin, document);
-PluginManager.register('CartWidget', CartWidgetPlugin, document);
-PluginManager.register('CartMini', CartMiniPlugin, document);
-PluginManager.register('CookiePermission', CookiePermissionPlugin, document);
+
+PluginManager.register('CookiePermission', CookiePermissionPlugin, '[data-cookie-permission]');
+PluginManager.register('SearchWidget', SearchWidgetPlugin, '[data-search-form]');
+PluginManager.register('CartWidget', CartWidgetPlugin, '[data-cart-widget]');
+PluginManager.register('CartMini', CartMiniPlugin, '[data-cart-mini]');
 PluginManager.register('CollapseFooterColumns', CollapseFooterColumnsPlugin, '[data-collapse-footer]');
-PluginManager.register('FlyoutMenu', FlyoutMenuPlugin, '[data-offcanvas-menu="true"]');
-PluginManager.register('OffcanvasMenu', OffcanvasMenuPlugin, '[data-offcanvas-menu="true"]');
-PluginManager.register('DifferentShipping', DifferentShippingPlugin, '*[data-different-shipping="true"]');
-PluginManager.register('GuestMode', GuestModePlugin, '*[data-guest-mode="true"]');
-PluginManager.register('FormValidation', FormValidationPlugin, '*[data-form-validation="true"]');
+PluginManager.register('FlyoutMenu', FlyoutMenuPlugin, '[data-offcanvas-menu]');
+PluginManager.register('OffcanvasMenu', OffcanvasMenuPlugin, '[data-offcanvas-menu]');
+PluginManager.register('DifferentShipping', DifferentShippingPlugin, '[data-different-shipping]');
+PluginManager.register('GuestMode', GuestModePlugin, '[data-guest-mode]');
+PluginManager.register('FormValidation', FormValidationPlugin, '[data-form-validation]');
 PluginManager.register('FormSubmitLoader', FormSubmitLoaderPlugin, '[data-form-submit-loader]');
 PluginManager.register('AccountMenu', AccountMenuPlugin, '[data-offcanvas-account-menu]');
 PluginManager.register('OffCanvasTabs', OffCanvasTabsPlugin, '[data-offcanvas-tab]');
+
+/*
+pages
+ */
+import 'asset/script/page/product-detail/product-detail.page';
+import 'asset/script/page/account/addressbook.page';
+import 'asset/script/page/account/profile.page';
 
 /*
 run plugins

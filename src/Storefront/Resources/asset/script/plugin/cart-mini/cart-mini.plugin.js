@@ -6,8 +6,7 @@ import LoadingIndicator from 'asset/script/util/loading-indicator/loading-indica
 import DeviceDetection from 'asset/script/helper/device-detection.helper';
 import CartWidget from 'asset/script/plugin/header/cart-widget.plugin';
 
-const CART_MINI_OPEN_TRIGGER_DATA_ATTRIBUTE = 'data-cart-mini';
-const CART_MINI_REMOVE_PRODUCT_TRIGGER_SELECTOR = '*[data-remove-product=true]';
+const CART_MINI_REMOVE_PRODUCT_TRIGGER_SELECTOR = '[data-cart-mini-remove-product]';
 const CART_MINI_FORM_SELECTOR = 'form[data-add-to-cart=true]';
 const CART_MINI_POSITION = 'right';
 
@@ -27,16 +26,7 @@ export default class CartMiniPlugin extends Plugin {
     _registerOpenTriggerEvents() {
         const event = (DeviceDetection.isTouchDevice()) ? 'touchstart' : 'click';
 
-        document.addEventListener(event, (e) => {
-            const path = e.path || (e.composedPath && e.composedPath());
-
-            path.forEach(item => {
-                if (DomAccess.isNode(item) && DomAccess.hasAttribute(item, CART_MINI_OPEN_TRIGGER_DATA_ATTRIBUTE)) {
-                    e.preventDefault();
-                    this._onOpenCartMini(e);
-                }
-            });
-        });
+        this.el.addEventListener(event, this._onOpenCartMini.bind(this));
     }
 
     /**
@@ -48,9 +38,7 @@ export default class CartMiniPlugin extends Plugin {
     _onOpenCartMini(e) {
         e.preventDefault();
 
-        OffCanvas.open(LoadingIndicator.getTemplate(), () => {
-            this._fetchCartMini();
-        }, CART_MINI_POSITION);
+        OffCanvas.open(LoadingIndicator.getTemplate(), this._fetchCartMini.bind(this), CART_MINI_POSITION);
     }
 
     /**

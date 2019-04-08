@@ -27,7 +27,7 @@
 									<form class="cart-item-remove"
 									      action="{{ path('frontend.checkout.line-item.delete', {'id': lineItem.key}) }}"
 									      method="post"
-									      data-remove-product="true">
+										  data-cart-mini-remove-product="true">
 										<input type="hidden" name="forwardTo" value="frontend.cart.detail">
 										<button type="submit"
 										        title="{{ "checkout.removeLineItem"|trans }}"

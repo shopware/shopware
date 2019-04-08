@@ -2,8 +2,9 @@
     <div class="header-search">
         <form action="{{ path('frontend.search.page') }}"
               method="get"
+              data-search-form="true"
               data-url="{{ path('frontend.search.suggest') }}?search="
-              class="js-search-form search-form">
+              class="search-form">
             {% block base_header_search_input_group %}
                 <div class="input-group">
                     {% block base_header_search_input %}

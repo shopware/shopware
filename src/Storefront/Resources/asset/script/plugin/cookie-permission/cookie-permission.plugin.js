@@ -3,15 +3,20 @@ import CookieHandler from 'asset/script/helper/cookie.helper';
 import Debouncer from 'asset/script/helper/debouncer.helper';
 import DeviceDetection from 'asset/script/helper/device-detection.helper';
 
-const BUTTON_ID = 'cookieButton';
-const CONTAINER_ID = 'cookieContainer';
 const EXPIRATION = 1;
 const RESIZE_DEBOUNCE_TIME = 200;
+
+const BUTTON_SELECTOR = '.js-cookie-permission-button';
 
 export default class CookiePermissionPlugin extends Plugin {
 
     init() {
-        this._checkCookie();
+        this._button = this.el.querySelector(BUTTON_SELECTOR);
+
+        if (!this._isCookieAllowed()) {
+            this._setBodyPadding();
+            this._registerEvents();
+        }
     }
 
     /**
@@ -19,35 +24,51 @@ export default class CookiePermissionPlugin extends Plugin {
      * Hides cookie bar if cookie permission is already set
      * If there is no cookie permission set it initializes the cookie bar
      */
-    _checkCookie() {
+    _isCookieAllowed() {
         const cookiePermission = CookieHandler.hasCookie('allowCookie', '1');
 
-        if (cookiePermission) {
-            this._hideCookieBar();
-            return;
+        if (!cookiePermission) {
+            this._showCookieBar();
+            return false;
         }
-        this._setBodyPadding();
-        this._registerResizeEvent();
-        this._registerHideEvent();
+
+        return true;
     }
 
     /**
-     * Hides cookie bar by setting display to none
+     * Shows cookie bar
+     */
+    _showCookieBar() {
+        this.el.style.display = 'block';
+    }
+
+    /**
+     * Hides cookie bar
      */
     _hideCookieBar() {
-        document.getElementById(CONTAINER_ID).style.display = 'none';
+        this.el.style.display = 'none';
     }
 
-    /**
-     * Hides cookie bar if the user clicks the accept cookie button
-     */
-    _registerHideEvent() {
-        const event = (DeviceDetection.isTouchDevice()) ? 'touchstart' : 'click';
 
-        document.getElementById(BUTTON_ID).addEventListener(event, () => {
-            this._hideCookieBar();
-            this._removeBodyPadding();
-            CookieHandler.setCookie('allowCookie', '1', EXPIRATION);
+    /**
+     * register all needed events
+     *
+     * @private
+     */
+    _registerEvents() {
+        const submitEvent = (DeviceDetection.isTouchDevice()) ? 'touchstart' : 'click';
+
+        if (this._button) {
+            this._button.addEventListener(submitEvent, () => {
+                this._hideCookieBar();
+                this._removeBodyPadding();
+                CookieHandler.setCookie('allowCookie', '1', EXPIRATION);
+            });
+        }
+
+        window.addEventListener('resize', Debouncer.debounce(this._setBodyPadding.bind(this), RESIZE_DEBOUNCE_TIME, false), {
+            capture: true,
+            passive: true
         });
     }
 
@@ -55,7 +76,7 @@ export default class CookiePermissionPlugin extends Plugin {
      * Calculates cookie bar height
      */
     _calculateCookieBarHeight() {
-        return document.getElementById(CONTAINER_ID).offsetHeight;
+        return this.el.offsetHeight;
     }
 
     /**
@@ -70,19 +91,5 @@ export default class CookiePermissionPlugin extends Plugin {
      */
     _removeBodyPadding() {
         document.body.style.paddingBottom = '0';
-    }
-
-    /**
-     * Recalculates body padding-bottom on browser resize
-     */
-    _registerResizeEvent() {
-        window.addEventListener(
-            'resize',
-            Debouncer.debounce(this._setBodyPadding.bind(this), RESIZE_DEBOUNCE_TIME, false),
-            {
-                capture: true,
-                passive: true
-            }
-        );
     }
 }

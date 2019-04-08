@@ -19,9 +19,8 @@ export default class SearchWidgetPlugin extends Plugin {
 
     init() {
         try {
-            this._form = DomAccess.querySelector(document, SEARCH_WIDGET_SELECTOR);
-            this._inputField = DomAccess.querySelector(this._form, SEARCH_WIDGET_INPUT_FIELD_SELECTOR);
-            this._url = DomAccess.getAttribute(this._form, SEARCH_WIDGET_URL_DATA_ATTRIBUTE);
+            this._inputField = DomAccess.querySelector(this.el, SEARCH_WIDGET_INPUT_FIELD_SELECTOR);
+            this._url = DomAccess.getAttribute(this.el, SEARCH_WIDGET_URL_DATA_ATTRIBUTE);
         } catch (e) {
             return;
         }
@@ -96,7 +95,7 @@ export default class SearchWidgetPlugin extends Plugin {
             indicator.remove();
 
             // attach search results to the DOM
-            this._form.insertAdjacentHTML('beforeend', response);
+            this.el.insertAdjacentHTML('beforeend', response);
         });
 
     }

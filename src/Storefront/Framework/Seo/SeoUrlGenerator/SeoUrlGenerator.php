@@ -71,8 +71,11 @@ abstract class SeoUrlGenerator implements SeoUrlGeneratorInterface
         return $this->routeName;
     }
 
-    protected function getContext(string $salesChannelId): Context
+    protected function getContext(?string $salesChannelId): Context
     {
+        if (!$salesChannelId) {
+            return Context::createDefaultContext();
+        }
         /** @var SalesChannelEntity $salesChannel */
         $salesChannel = $this->salesChannelRepository
             ->search(new Criteria([$salesChannelId]), Context::createDefaultContext())

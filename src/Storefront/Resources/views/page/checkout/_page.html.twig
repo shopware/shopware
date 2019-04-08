@@ -1,13 +1,5 @@
 {% sw_extends '@Storefront/base.html.twig' %}
 
-{% block base_main_container %}
-    {% block page_checkout_steps %}
-        {% sw_include '@Storefront/page/checkout/steps.html.twig' %}
-    {% endblock %}
-
-	{{ parent() }}
-{% endblock %}
-
 {% block base_content %}
 	{% block page_checkout %}
 		<div class="checkout is-{{ controllerAction }}">

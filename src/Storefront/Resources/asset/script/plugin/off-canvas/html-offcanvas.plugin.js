@@ -1,4 +1,4 @@
-import OffCanvas from "./offcanvas.plugin";
+import OffCanvas from 'asst/script/plugin/offcanvas.plugin';
 
 export default class HtmlOffCanvas extends OffCanvas {
 
@@ -23,7 +23,7 @@ export default class HtmlOffCanvas extends OffCanvas {
      * @private
      */
     static _getContent(selector) {
-        let parent = document.querySelector(selector);
+        const parent = document.querySelector(selector);
 
         if (parent instanceof Element === false) {
             throw Error('Parent element does not exist!');

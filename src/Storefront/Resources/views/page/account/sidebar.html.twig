@@ -44,11 +44,11 @@
 							</a>
 						{% endblock %}
 
-						{% block page_account_sidebar_link_order %}
+						{% block page_account_sidebar_link_orders %}
 							<a href="{{ path('frontend.account.order.page') }}"
-							   title="{{ "account.orderLink"|trans }}"
+							   title="{{ "account.ordersLink"|trans }}"
 							   class="list-group-item list-group-item-action account-sidebar-item{% if controllerName is same as('AccountPage') and controllerAction is same as('orderOverview') %} active{% endif %}">
-								{{ "account.orderLink"|trans }}
+								{{ "account.ordersLink"|trans }}
 							</a>
 						{% endblock %}
 					{% endblock %}

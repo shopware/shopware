@@ -1,4 +1,4 @@
-import LoadingIndicatorUtil from "./loading-indicator.util";
+import LoadingIndicatorUtil from 'asset/script/util/loading-indicator/loading-indicator.util';
 
 export default class ButtonLoadingIndicatorUtil extends LoadingIndicatorUtil {
 
@@ -7,7 +7,7 @@ export default class ButtonLoadingIndicatorUtil extends LoadingIndicatorUtil {
      * @param {Element|string} parent
      * @param position
      */
-    constructor(parent, position = "before") {
+    constructor(parent, position = 'before') {
         super(parent, position);
 
         if (this._isButtonElement() === false) {
@@ -37,6 +37,6 @@ export default class ButtonLoadingIndicatorUtil extends LoadingIndicatorUtil {
      * @private
      */
     _isButtonElement() {
-        return (this.parent.tagName.toLowerCase() === "button");
+        return (this.parent.tagName.toLowerCase() === 'button');
     }
 }

@@ -1,9 +1,9 @@
 {% block page_checkout_confirm_address_inner %}
 	{% set billingAddress = page.context.customer.defaultBillingAddress %}
 	{% set shippingAddress = page.context.customer.defaultShippingAddress %}
-	
-	<div class="card checkout-card">
-		<div class="card-body checkout-card-body">
+
+	<div class="card confirm-card">
+		<div class="card-body confirm-card-body">
 			{#TODO: NEXT-2017, NEXT-2018 - address modals#}
 			{% block page_checkout_confirm_address_title_equal %}
 				<div class="card-title">

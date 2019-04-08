@@ -1,8 +1,8 @@
-import DeviceDetection from "../../helper/device-detection.helper";
+import DeviceDetection from 'asset/script/helper/device-detection.helper';
 
-const SELECTOR_CLASS = "modal-backdrop";
-const BACKDROP_OPEN_CLASS = "modal-backdrop-open";
-const NO_SCROLL_CLASS = "no-scroll";
+const SELECTOR_CLASS = 'modal-backdrop';
+const BACKDROP_OPEN_CLASS = 'modal-backdrop-open';
+const NO_SCROLL_CLASS = 'no-scroll';
 const REMOVE_BACKDROP_DELAY = 350;
 
 export const BACKDROP_EVENT = {
@@ -32,7 +32,7 @@ class BackdropSingleton {
         this._removeExistingBackdrops();
 
         document.body.insertAdjacentHTML('beforeend', this._getTemplate());
-        let backdrop = document.body.lastChild;
+        const backdrop = document.body.lastChild;
 
         // override body scroll behaviour
         document.documentElement.classList.add(NO_SCROLL_CLASS);
@@ -42,7 +42,7 @@ class BackdropSingleton {
             backdrop.classList.add(BACKDROP_OPEN_CLASS);
 
             // if a callback function is being injected execute it after opening the backdrop
-            if (typeof callback === "function") {
+            if (typeof callback === 'function') {
                 callback();
             }
         }, 1);
@@ -70,7 +70,7 @@ class BackdropSingleton {
      * @private
      */
     _dispatchEvents() {
-        let event = (DeviceDetection.isTouchDevice()) ? 'touchstart' : 'click';
+        const event = (DeviceDetection.isTouchDevice()) ? 'touchstart' : 'click';
 
         document.addEventListener(event, function(e) {
             if (e.target.classList.contains(SELECTOR_CLASS)) {

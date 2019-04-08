@@ -27,14 +27,17 @@
  * Base stuff
  * ---------- */
 @import 'base/base';
+@import 'base/input';
 
 /*
  * Layout-related sections
  * ----------------------- */
 @import 'layout/header';
+@import 'layout/header-minimal';
 @import 'layout/footer';
+@import 'layout/footer-minimal';
 @import 'layout/navigation';
-@import 'layout/navigation-flyouts';
+@import 'layout/navigation-flyout';
 @import 'layout/navigation-offcanvas';
 
 /*
@@ -63,13 +66,13 @@
 @import 'pages/account/register';
 @import 'pages/account/address';
 @import 'pages/account/profile';
+@import 'pages/account/orders';
 
 @import 'pages/checkout/cart';
 @import 'pages/checkout/cart-item';
-@import 'pages/checkout/config';
+@import 'pages/checkout/register';
 @import 'pages/checkout/confirm';
 @import 'pages/checkout/finish';
-@import 'pages/checkout/steps';
 
 /*
  * Themes

@@ -1,5 +1,5 @@
-import DomAccess from "../../../helper/dom-access.helper";
-import ButtonLoadingIndicator from "../../../util/loading-indicator/button-loading-indicator.util";
+import DomAccess from 'asset/script/helper/dom-access.helper';
+import ButtonLoadingIndicator from 'asset/script/util/loading-indicator/button-loading-indicator.util';
 
 const CONFIRM_ORDER_FORM_ID = 'confirmOrderForm';
 
@@ -34,10 +34,10 @@ export default class ConfirmOrder {
      * @private
      */
     _onFormSubmit() {
-        const submitButton = DomAccess.querySelector(this._form, `button[type=submit]`);
+        const submitButton = DomAccess.querySelector(this._form, 'button[type=submit]');
 
         // show loading indicator in submit button
-        let loader = new ButtonLoadingIndicator(submitButton);
+        const loader = new ButtonLoadingIndicator(submitButton);
         loader.create();
     }
 }

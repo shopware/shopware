@@ -1,25 +1,25 @@
-import DomAccess from "../../helper/dom-access.helper";
-import Client from "../../service/http-client.service";
+import DomAccess from 'asset/script/helper/dom-access.helper';
+import HttpClient from 'asset/script/service/http-client.service';
 
-const client = new Client(window.accessKey, window.contextToken);
+const client = new HttpClient(window.accessKey, window.contextToken);
 
 // basic js to create a new address
 const ACC_ADDRESS_CREATE_ID = 'createAddressForm';
-let createAddressForm = document.getElementById(ACC_ADDRESS_CREATE_ID);
+const createAddressForm = document.getElementById(ACC_ADDRESS_CREATE_ID);
 
 if (createAddressForm){
     createAddressForm.addEventListener('submit', function(e) {
         e.preventDefault();
 
-        const form = e.srcElement;
+        const form = e.target;
         const requestUrl = DomAccess.getAttribute(form, 'action');
 
-        let object = {};
-        let formData = new FormData(form);
+        const object = {};
+        const formData = new FormData(form);
         formData.forEach(function(value, key){
             object[key] = value;
         });
-        let json = JSON.stringify(object);
+        const json = JSON.stringify(object);
 
         client.post(requestUrl.toLowerCase(), json, function(response) {
             console.log('created address', response);
@@ -29,13 +29,13 @@ if (createAddressForm){
 
 // basic js to delete an address
 const ACC_ADDRESS_DELETE_SELECTOR = 'form[data-address-delete=true]';
-let deleteForms = document.querySelectorAll(ACC_ADDRESS_DELETE_SELECTOR);
+const deleteForms = document.querySelectorAll(ACC_ADDRESS_DELETE_SELECTOR);
 
 deleteForms.forEach(form => {
     form.addEventListener('submit', function (e) {
         e.preventDefault();
 
-        const form = e.srcElement;
+        const form = e.target;
         const requestUrl = DomAccess.getAttribute(form, 'action');
 
         client.delete(requestUrl.toLowerCase(), (response) => {
@@ -47,13 +47,13 @@ deleteForms.forEach(form => {
 
 // basic js to set default billing and shipping address
 const ACC_ADDRESS_SET_DEFAULT_SELECTOR = 'form[data-address-set-default=true]';
-let setDefaultForms = document.querySelectorAll(ACC_ADDRESS_SET_DEFAULT_SELECTOR);
+const setDefaultForms = document.querySelectorAll(ACC_ADDRESS_SET_DEFAULT_SELECTOR);
 
 setDefaultForms.forEach(form => {
     form.addEventListener('submit', function (e) {
         e.preventDefault();
 
-        const form = e.srcElement;
+        const form = e.target;
         const requestUrl = DomAccess.getAttribute(form, 'action');
 
         client.patch(requestUrl.toLowerCase(), (response) => {

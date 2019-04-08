@@ -1,5 +1,11 @@
 {% sw_extends '@Storefront/page/checkout/_page.html.twig' %}
 
+{% block base_header %}
+    {% sw_include '@Storefront/base/header/header-minimal.html.twig' %}
+{% endblock %}
+
+{% block base_navigation %}{% endblock %}
+
 {% block page_checkout_container %}
     {% block page_checkout_confirm_errors %}
         {% if formViolations.getViolations() %}
@@ -13,83 +19,85 @@
     {% block page_checkout_confirm_agb %}
         <div class="card confirm-terms">
             <div class="card-body">
-                {% block page_checkout_confirm_agb_header %}
+				{% block page_checkout_confirm_agb_header %}
                     <div class="card-title">
-                        {{ "checkout.confirmTermsHeader"|trans }}
+						{{ "checkout.confirmTermsHeader"|trans }}
                     </div>
-                {% endblock %}
+				{% endblock %}
 
-                {% block page_checkout_confirm_revocation_notice %}
-                    {% if shopware.config.confirm.revocationNotice %}
-                        {#TODO: NEXT-1951 - add link to shop page in snippet #}
+				{% block page_checkout_confirm_revocation_notice %}
+					{% if shopware.config.confirm.revocationNotice %}
+						{#TODO: NEXT-1951 - add link to shop page in snippet #}
                         <p>{{ "checkout.confirmRevocationNotice"|trans }}</p>
-                    {% endif %}
-                {% endblock %}
+					{% endif %}
+				{% endblock %}
 
-                {% block page_checkout_confirm_agb_control %}
+				{% block page_checkout_confirm_agb_control %}
                     <div class="custom-control custom-checkbox">
-                        {% block page_checkout_confirm_agb_control_checkbox %}
+						{% block page_checkout_confirm_agb_control_checkbox %}
                             <input type="checkbox"
                                    class="custom-control-input"
                                    required="required"
                                    id="sAGB"
                                    form="confirmOrderForm"
                                    name="sAGB"/>
-                        {% endblock %}
+						{% endblock %}
 
-                        {% block page_checkout_confirm_agb_control_label %}
-                            {#TODO: NEXT-1951 - add link to shop page in snippet #}
+						{% block page_checkout_confirm_agb_control_label %}
+							{#TODO: NEXT-1951 - add link to shop page in snippet #}
                             <label for="sAGB" class="custom-control-label">
-                                {{ "checkout.confirmTerms"|trans|raw }}
+								{{ "checkout.confirmTerms"|trans|raw }}
                             </label>
-                        {% endblock %}
+						{% endblock %}
                     </div>
-                {% endblock %}
+				{% endblock %}
             </div>
         </div>
-    {% endblock %}
+	{% endblock %}
 
-    {% block page_checkout_confirm_info %}
-        <div class="row confirm-info">
-            {% block page_checkout_confirm_address %}
-                <div class="col-md-8 confirm-address">
-                    {% sw_include '@Storefront/page/checkout/confirm/confirm-address.html.twig' %}
-                </div>
-            {% endblock %}
-
-            {% block page_checkout_confirm_payment %}
-                <div class="col-md-4 confirm-payment">
-                    {% sw_include '@Storefront/page/checkout/confirm/confirm-payment.html.twig' %}
-                </div>
-            {% endblock %}
+	{% block page_checkout_confirm_address %}
+        <div class="confirm-address">
+			{% sw_include '@Storefront/page/checkout/confirm/confirm-address.html.twig' %}
         </div>
-    {% endblock %}
+	{% endblock %}
 
-    {#TODO: NEXT-1950 - order comment#}
+	{% block page_checkout_confirm_payment %}
+        <div class="confirm-payment">
+			{% sw_include '@Storefront/page/checkout/confirm/confirm-payment.html.twig' %}
+        </div>
+	{% endblock %}
 
-    {{ parent() }}
+	{% block page_checkout_confirm_shipping %}
+        <div class="confirm-shipping">
+			{% sw_include '@Storefront/page/checkout/confirm/confirm-shipping.html.twig' %}
+        </div>
+	{% endblock %}
+
+	{#TODO: NEXT-1950 - order comment#}
+
+	{{ parent() }}
 {% endblock %}
 
 {% block page_checkout_main_content %}
-    {% block page_checkout_confirm %}
-        {% block page_checkout_confirm_table %}
+	{% block page_checkout_confirm %}
+		{% block page_checkout_confirm_table %}
             <div class="card cart-table confirm-table">
                 <div class="card-body cart-table-body">
-                    {% block page_checkout_confirm_table_header %}
-                        {% sw_include '@Storefront/page/checkout/confirm/confirm-header.html.twig' %}
-                    {% endblock %}
+					{% block page_checkout_confirm_table_header %}
+						{% sw_include '@Storefront/page/checkout/confirm/confirm-header.html.twig' %}
+					{% endblock %}
 
-                    {% block page_checkout_confirm_items %}
-                        {% for lineItem in page.cart.lineItems.elements %}
-                            {% block page_checkout_confirm_item %}
-                                {% sw_include '@Storefront/page/checkout/confirm/confirm-item.html.twig' %}
-                            {% endblock %}
-                        {% endfor %}
-                    {% endblock %}
+					{% block page_checkout_confirm_items %}
+						{% for lineItem in page.cart.lineItems.elements %}
+							{% block page_checkout_confirm_item %}
+								{% sw_include '@Storefront/page/checkout/confirm/confirm-item.html.twig' %}
+							{% endblock %}
+						{% endfor %}
+					{% endblock %}
                 </div>
             </div>
-        {% endblock %}
-    {% endblock %}
+		{% endblock %}
+	{% endblock %}
 {% endblock %}
 
 {#TODO: NEXT-1947 - messages (errors, laststock, invalid address)#}
@@ -98,17 +106,17 @@
     <form id="confirmOrderForm"
           action="{{ path('frontend.checkout.finish.order') }}"
           method="post">
-        {% block page_checkout_confirm_form_submit %}
+		{% block page_checkout_confirm_form_submit %}
             <button id="confirmFormSubmit"
                     class="btn btn-primary btn-block btn-lg"
                     form="confirmOrderForm"
                     type="submit">
-                {{ "checkout.confirmSubmit"|trans }}
+				{{ "checkout.confirmSubmit"|trans }}
             </button>
-        {% endblock %}
+		{% endblock %}
     </form>
 {% endblock %}
 
 {% block base_footer %}
-    {% sw_include '@Storefront/base/footer/footer-minimal.html.twig' %}
+	{% sw_include '@Storefront/base/footer/footer-minimal.html.twig' %}
 {% endblock %}

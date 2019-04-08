@@ -1,10 +1,10 @@
-import Plugin from "../../helper/plugin/plugin.class";
-import OffCanvas from "../off-canvas/offcanvas.plugin";
-import LoadingIndicator from "../../util/loading-indicator/loading-indicator.util";
-import HttpClient from "../../service/http-client.service";
-import DomAccess from "../../helper/dom-access.helper";
+import Plugin from 'asset/script/helper/plugin/plugin.class';
+import OffCanvas from 'asset/script/plugin/off-canvas/offcanvas.plugin';
+import LoadingIndicator from 'asset/script/util/loading-indicator/loading-indicator.util';
+import HttpClient from 'asset/script/service/http-client.service';
+import DomAccess from 'asset/script/helper/dom-access.helper';
 
-const NAVIGATION_URL = window.router["widgets.menu.offcanvas"];
+const NAVIGATION_URL = window.router['widgets.menu.offcanvas'];
 const CURRENT_NAVIGATION_URL = `${NAVIGATION_URL}?navigationId=${window.activeNavigationId}`;
 
 const POSITION = 'left';
@@ -237,11 +237,11 @@ export default class OffcanvasMenuPlugin extends Plugin {
      * form the complete offcanvas response
      *
      * @param content
-     * @return {string}
+     * @returns {string}
      * @private
      */
     static _getMenuContentFromResponse(content) {
-        const html = new DOMParser().parseFromString(content, "text/html");
+        const html = new DOMParser().parseFromString(content, 'text/html');
         return OffcanvasMenuPlugin._getOverlayContent(html);
     }
 
@@ -250,7 +250,7 @@ export default class OffcanvasMenuPlugin extends Plugin {
      * from the overlay content container
      *
      * @param element
-     * @return {string}
+     * @returns {string}
      * @private
      */
     static _getOverlayContent(element) {
@@ -284,7 +284,7 @@ export default class OffcanvasMenuPlugin extends Plugin {
     /**
      * @param {HTMLElement} container
      *
-     * @return {HTMLElement}
+     * @returns {HTMLElement}
      * @private
      */
     static _createNavigationOverlay(container) {
@@ -305,7 +305,7 @@ export default class OffcanvasMenuPlugin extends Plugin {
     /**
      * @param {HTMLElement} container
      *
-     * @return {HTMLElement}
+     * @returns {HTMLElement}
      * @private
      */
     static _createPlaceholder(container) {
@@ -374,7 +374,7 @@ export default class OffcanvasMenuPlugin extends Plugin {
     /**
      * returns the offcanvas element
      *
-     * @return {Node}
+     * @returns {Node}
      * @private
      */
     static _getOffcanvas() {
@@ -384,7 +384,7 @@ export default class OffcanvasMenuPlugin extends Plugin {
     /**
      * returns the offcanvas main menu element
      *
-     * @return {Element|any}
+     * @returns {Element|any}
      * @private
      */
     static _getOffcanvasMenu() {

@@ -1,0 +1,71 @@
+{% sw_extends '@Storefront/page/checkout/_page.html.twig' %}
+
+{% block base_header %}
+	{% sw_include '@Storefront/base/header/header-minimal.html.twig' %}
+{% endblock %}
+
+{% block base_navigation %}{% endblock %}
+
+{% block page_checkout_main_content %}
+	{% block page_checkout_register %}
+		{% block page_checkout_login %}
+			{% block page_checkout_login_collapse_toggle %}
+				<button class="btn btn-dark login-collapse-toggle"
+				        type="button"
+				        data-toggle="collapse"
+				        data-target="#loginCollapse"
+				        aria-expanded="false"
+				        aria-controls="loginCollapse">
+					{{ "checkout.registerLoginToggle"|trans }}
+				</button>
+			{% endblock %}
+
+			{% block page_checkout_login_collapse %}
+				<div class="collapse" id="loginCollapse">
+					{% block page_checkout_login_card %}
+						{% sw_include '@Storefront/component/account/login.html.twig' %}
+					{% endblock %}
+				</div>
+			{% endblock %}
+		{% endblock %}
+
+		{% block page_checkout_register_card %}
+			{% sw_include '@Storefront/page/checkout/address/register.html.twig' %}
+		{% endblock %}
+	{% endblock %}
+{% endblock %}
+
+{% block page_checkout_sidebar_summary %}
+	{% block page_checkout_register_summary_products %}
+		<ul class="list-group list-group-flush checkout-summary-products">
+			{% block page_checkout_register_summary_products_inner %}
+				{% for lineItem in page.cart.lineItems.elements %}
+					{% block page_checkout_register_summary_product %}
+						<li class="list-group-item checkout-summary-product">
+							{% block page_checkout_register_summary_product_label %}
+								<div class="checkout-summary-label">
+									<a href="{{ path('frontend.detail.page', {'productId': lineItem.key}) }}"
+									   title="{{ lineItem.label }}">
+										{{ lineItem.label|truncate(60) }}
+									</a>
+								</div>
+							{% endblock %}
+
+							{% block page_checkout_register_summary_product_price %}
+								<div class="checkout-summary-value">
+									{{ lineItem.price.unitPrice|localizedcurrency(page.context.currency.shortName, app.request.locale) }}{{ "general.star"|trans }}
+								</div>
+							{% endblock %}
+						</li>
+					{% endblock %}
+				{% endfor %}
+			{% endblock %}
+		</ul>
+	{% endblock %}
+
+	{{ parent() }}
+{% endblock %}
+
+{% block base_footer %}
+	{% sw_include '@Storefront/base/footer/footer-minimal.html.twig' %}
+{% endblock %}

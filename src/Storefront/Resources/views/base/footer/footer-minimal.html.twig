@@ -1,15 +1,15 @@
 {% sw_extends '@Storefront/base/footer/footer.html.twig' %}
 
 {% block base_footer_inner_container %}
-    <footer class="minimal-footer">
+    <footer class="footer-minimal">
         {% block base_footer_minimal_navigation %}
             {% block base_footer_minimal_content %}
-                <ul class="minimal-footer-list">
-                    {#TODO: NEXT-1987 - Replace with service links#}
+                <ul class="footer-minimal-list">
+                    {#TODO: NEXT-2669 - Replace with service links#}
                     {% for treeItem in page.header.navigation.tree %}
                         {% block base_footer_minimal_item %}
-                            <li class="minimal-footer-item">
-                                <a class="minimal-footer-link"
+                            <li class="footer-minimal-item">
+                                <a class="footer-minimal-link"
                                    href="{{ path('frontend.navigation.page', {'navigationId': treeItem.entity.id}) }}"
                                    title="{{ treeItem.entity.name }}">
                                     {{ treeItem.entity.name }}

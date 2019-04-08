@@ -1,4 +1,4 @@
-const SELECTOR_CLASS = "spinner-border";
+const SELECTOR_CLASS = 'spinner-border';
 
 export default class LoadingIndicatorUtil {
 
@@ -7,7 +7,7 @@ export default class LoadingIndicatorUtil {
      * @param {Element|string} parent
      * @param position
      */
-    constructor(parent, position = "before") {
+    constructor(parent, position = 'before') {
         this.parent = (parent instanceof Element) ? parent : document.body.querySelector(parent);
         this.position = position;
     }
@@ -24,7 +24,7 @@ export default class LoadingIndicatorUtil {
      * Removes all existing loading indicators inside the parent
      */
     remove() {
-        let indicators = this.parent.querySelectorAll(`.${SELECTOR_CLASS}`);
+        const indicators = this.parent.querySelectorAll(`.${SELECTOR_CLASS}`);
         indicators.forEach(indicator => indicator.remove());
     }
 
@@ -44,7 +44,7 @@ export default class LoadingIndicatorUtil {
      * @private
      */
     _getPosition() {
-        return (this.position === "before") ? "afterbegin" : "beforeend";
+        return (this.position === 'before') ? 'afterbegin' : 'beforeend';
     }
 
     /**

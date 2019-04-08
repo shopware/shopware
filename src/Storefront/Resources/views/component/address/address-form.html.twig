@@ -13,11 +13,11 @@
 
 			{% block component_address_form_street_input %}
 				<input type="text"
-				       class="form-control"
+				       class="form-control js-required"
 				       id="{{ prefix }}AddressStreet"
 				       placeholder="{{ "address.streetPlaceholder"|trans }}{{ "account.required"|trans }}"
 				       name="{{ prefix }}[street]"
-                       value="{{ address.street }}"
+				       value="{{ data.get('street') }}"
 				       required="required">
 			{% endblock %}
 		</div>
@@ -38,7 +38,7 @@
 					       id="{{ prefix }}AdditionalField1"
 					       placeholder="{{ "address.additionalField1Placeholder"|trans }}"
 					       name="{{ prefix }}[additionalAddressLine1]"
-                           value="{{ address.additionalAddressLine1 }}">
+					       value="{{ data.get('additionalAddressLine1') }}">
 				{% endblock %}
 			</div>
 		{% endif %}
@@ -59,7 +59,7 @@
 					       id="{{ prefix }}AdditionalField2"
 					       placeholder="{{ "address.additionalField2Placeholder"|trans }}"
 					       name="{{ prefix }}[additionalAddressLine2]"
-                           value="{{ address.additionalAddressLine2 }}">
+					       value="{{ data.get('additionalAddressLine2') }}">
 				{% endblock %}
 			</div>
 		{% endif %}
@@ -67,51 +67,51 @@
 
 	{% block component_address_form_zipcode_city %}
 		<div class="form-row">
-            {% set zipcodeField %}
-                <label class="form-label" for="{{ prefix }}AddressZipcode">
-                    {{ "address.zipcodeLabel"|trans }}
-                </label>
+			{% set zipcodeField %}
+				<label class="form-label" for="{{ prefix }}AddressZipcode">
+					{{ "address.zipcodeLabel"|trans }}
+				</label>
 
-                <input type="text"
-                       class="form-control"
-                       id="{{ prefix }}AddressZipcode"
-                       placeholder="{{ "address.zipcodePlaceholder"|trans }}{{ "account.required"|trans }}"
-                       name="{{ prefix }}[zipcode]"
-                       value="{{ address.zipcode }}"
-                       required="required">
-            {% endset %}
+				<input type="text"
+				       class="form-control js-required"
+				       id="{{ prefix }}AddressZipcode"
+				       placeholder="{{ "address.zipcodePlaceholder"|trans }}{{ "account.required"|trans }}"
+				       name="{{ prefix }}[zipcode]"
+				       value="{{ data.get('zipcode') }}"
+				       required="required">
+			{% endset %}
 
-            {% set cityField %}
-                <label class="form-label" for="{{ prefix }}AddressCity">
-                    {{ "address.cityLabel"|trans }}
-                </label>
+			{% set cityField %}
+				<label class="form-label" for="{{ prefix }}AddressCity">
+					{{ "address.cityLabel"|trans }}
+				</label>
 
-                <input type="text"
-                       class="form-control"
-                       id="{{ prefix }}AddressCity"
-                       placeholder="{{ "address.cityPlaceholder"|trans }}{{ "account.required"|trans }}"
-                       name="{{ prefix }}[city]"
-                       value="{{ address.city }}"
-                       required="required">
-            {% endset %}
+				<input type="text"
+				       class="form-control js-required"
+				       id="{{ prefix }}AddressCity"
+				       placeholder="{{ "address.cityPlaceholder"|trans }}{{ "account.required"|trans }}"
+				       name="{{ prefix }}[city]"
+				       value="{{ data.get('city') }}"
+				       required="required">
+			{% endset %}
 
-            {% if shopware.config.address.zipBeforeCity %}
-                <div class="form-group col-md-4">
-                    {{ zipcodeField }}
-                </div>
+			{% if shopware.config.address.zipBeforeCity %}
+				<div class="form-group col-md-4">
+					{{ zipcodeField }}
+				</div>
 
-                <div class="form-group col-md-8">
-                    {{ cityField }}
-                </div>
-            {% else %}
-                <div class="form-group col-md-8">
-                    {{ cityField }}
-                </div>
+				<div class="form-group col-md-8">
+					{{ cityField }}
+				</div>
+			{% else %}
+				<div class="form-group col-md-8">
+					{{ cityField }}
+				</div>
 
-                <div class="form-group col-md-4">
-                    {{ zipcodeField }}
-                </div>
-            {% endif %}
+				<div class="form-group col-md-4">
+					{{ zipcodeField }}
+				</div>
+			{% endif %}
 		</div>
 	{% endblock %}
 
@@ -124,12 +124,20 @@
 			{% endblock %}
 
 			{% block component_address_form_country_select %}
-				{#TODO: remove dirty field name hack (country vs countryId)#}
-				<select class="custom-select"
+				{#TODO: NEXT-2529 - remove dirty field name hack (country vs countryId)#}
+				<select class="custom-select js-required"
 				        id="{{ prefix }}AddressCountry"
 				        name="{{ prefix }}[countryId]">
+					{% if not data.get('countryId') %}
+						<option disabled="disabled" value="" selected="selected">
+							{{ "address.countryPlaceholder"|trans }}{{ "account.required"|trans }}
+						</option>
+					{% endif %}
 					{% for country in page.countries.elements %}
-						<option value="{{ country.id }}">
+						<option {% if country.id == data.get('countryId') %}
+							selected="selected"
+							{% endif %}
+							value="{{ country.id }}">
 							{{ country.name }}
 						</option>
 					{% endfor %}
@@ -138,5 +146,5 @@
 		</div>
 	{% endblock %}
 
-	{#TODO: NEXT-1930 - country states#}
+	{#TODO: NEXT-2671 - country states#}
 {% endblock %}

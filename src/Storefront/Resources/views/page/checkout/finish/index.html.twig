@@ -1,6 +1,10 @@
 {% sw_extends '@Storefront/page/checkout/_page.html.twig' %}
 
-{% block page_checkout_steps %}{% endblock %}
+{% block base_header %}
+	{% sw_include '@Storefront/base/header/header-minimal.html.twig' %}
+{% endblock %}
+
+{% block base_navigation %}{% endblock %}
 
 {% block page_checkout_container %}
 	{% block page_checkout_finish_teaser %}
@@ -46,8 +50,8 @@
 
 			{% block page_checkout_finish_order_details %}
 				<div class="col-md-4 finish-order-details">
-					<div class="card checkout-card">
-						<div class="card-body checkout-card-body">
+					<div class="card finish-card">
+						<div class="card-body finish-card-body">
 							{% block page_checkout_finish_order_details_title %}
 								<div class="card-title">
 									{{ "checkout.finishInfoHeader"|trans }}

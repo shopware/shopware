@@ -33,20 +33,24 @@
         {% block page_account_address_form_main %}
             <div class="card">
                 <div class="card-body">
-                    {# TODO: NEXT-1935 - add form action and edit functionality #}
+                    {# TODO: NEXT-2494 - add form action and edit functionality #}
                     {% block page_account_address_form_edit %}
                         <form id="editAddressForm" method="post" action="#">
                             {% block page_account_address_form_edit_personal %}
-                                {% sw_include '@Storefront/component/address/address-personal.html.twig' with {'address': page.address} %}
+	                            {% sw_include '@Storefront/component/address/address-personal.html.twig' with {
+		                            'data': page.address
+	                            } %}
                             {% endblock %}
 
                             {% block page_account_address_form_edit_general %}
-                                {% sw_include '@Storefront/component/address/address-form.html.twig' with {'address': page.address} %}
+	                            {% sw_include '@Storefront/component/address/address-form.html.twig' with {
+		                            'data': page.address
+	                            } %}
                             {% endblock %}
 
                             {% block page_account_address_required %}
                                 <p class="address-required-info required-fields">
-                                    {{ "account.requiredFields"|trans }}
+                                    {{ "general.requiredFields"|trans }}
                                 </p>
                             {% endblock %}
 

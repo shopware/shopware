@@ -1,4 +1,4 @@
-import Plugin from '../../helper/plugin/plugin.class';
+import Plugin from 'asset/script/helper/plugin/plugin.class';
 
 /**
  * extends a plugin without class inheritance

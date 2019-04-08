@@ -19,7 +19,7 @@ export default class GallerySlider {
      * @private
      */
     _init() {
-        let galleries = document.querySelectorAll(`*[${DETAIL_MEDIA_GALLERY_DATA_ATTRIBUTE}=true]`);
+        const galleries = document.querySelectorAll(`*[${DETAIL_MEDIA_GALLERY_DATA_ATTRIBUTE}=true]`);
         
         galleries.forEach((gallery) => {
             const gallerySlider = gallery.querySelector(`*[${GALLERY_SLIDER_DATA_ATTRIBUTE}=true]`);

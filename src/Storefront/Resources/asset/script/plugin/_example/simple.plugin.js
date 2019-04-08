@@ -1,4 +1,4 @@
-import Plugin from '../../helper/plugin/plugin.class';
+import Plugin from 'asset/script/helper/plugin/plugin.class';
 
 /**
  * base plugin for example purposes
@@ -25,13 +25,12 @@ export default class SimplePlugin extends Plugin {
      */
     init() {
         this._getRandomColor();
-        console.log(this);
     }
 
     /**
      * returns a random color
      *
-     * @return {string}
+     * @returns {string}
      * @private
      */
     _getRandomColor() {

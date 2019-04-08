@@ -1,4 +1,4 @@
-import Plugin from '../../helper/plugin/plugin.class';
+import Plugin from 'asset/script/helper/plugin/plugin.class';
 
 
 /**
@@ -20,7 +20,6 @@ export default class OverriddenPlugin extends Plugin {
 
     init() {
         this._getRandomColor();
-        console.log(this);
     }
 
     _getRandomColor() {

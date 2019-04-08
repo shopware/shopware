@@ -5,44 +5,41 @@ import 'bootstrap';
 import jQuery from 'jquery';
 
 // Import styles
-import '../scss/base.scss';
+import 'asset/scss/base.scss';
 
 // helpers
-import PluginManager from './helper/plugin/plugin.manager';
-import ViewportDetection from "./helper/viewport-detection.helper";
-import HttpClient from './service/http-client.service';
+import PluginManager from 'asset/script/helper/plugin/plugin.manager';
+import ViewportDetection from 'asset/script/helper/viewport-detection.helper';
 
 // utils
-import ModalExtensionUtil from "./util/modal-extension/modal-extension.util";
+import ModalExtensionUtil from 'asset/script/util/modal-extension/modal-extension.util';
 
 // plugins
-import SimplePlugin from './plugin/_example/simple.plugin';
-import VanillaExtendPlugin from './plugin/_example/vanilla-extended.plugin';
-import ExtendedPlugin from './plugin/_example/extended.plugin';
-import OverriddenPlugin from './plugin/_example/overridden.plugin';
+import SimplePlugin from 'asset/script/plugin/_example/simple.plugin';
+import VanillaExtendPlugin from 'asset/script/plugin/_example/vanilla-extended.plugin';
+import ExtendedPlugin from 'asset/script/plugin/_example/extended.plugin';
+import OverriddenPlugin from 'asset/script/plugin/_example/overridden.plugin';
 
-import CartWidgetPlugin from './plugin/actions/cart-widget.plugin';
-import CartMiniPlugin from './plugin/cart-mini/cart-mini.plugin';
-import CookiePermissionPlugin from './plugin/cookie-permission/cookie-permission.plugin';
-import CollapseFooterColumnsPlugin from "./plugin/collapse/collapse-footer.plugin";
-import SearchWidgetPlugin from "./plugin/actions/search-widget/search-widget.plugin";
-import FlyoutMenuPlugin from "./plugin/main-menu/flyout-menu.plugin";
-import OffcanvasMenuPlugin from "./plugin/main-menu/offcanvas-menu.plugin";
-
+import CartWidgetPlugin from 'asset/script/plugin/actions/cart-widget.plugin';
+import CartMiniPlugin from 'asset/script/plugin/cart-mini/cart-mini.plugin';
+import CookiePermissionPlugin from 'asset/script/plugin/cookie-permission/cookie-permission.plugin';
+import CollapseFooterColumnsPlugin from 'asset/script/plugin/collapse/collapse-footer.plugin';
+import SearchWidgetPlugin from 'asset/script/plugin/actions/search-widget/search-widget.plugin';
+import FlyoutMenuPlugin from 'asset/script/plugin/main-menu/flyout-menu.plugin';
+import OffcanvasMenuPlugin from 'asset/script/plugin/main-menu/offcanvas-menu.plugin';
+import GuestModePlugin from 'asset/script/plugin/register/guest-mode.plugin';
+import DifferentShippingPlugin from 'asset/script/plugin/register/different-shipping.plugin';
+import FormValidationPlugin from 'asset/script/plugin/register/form-validation.plugin';
 
 // static plugins
-import Logout from "./plugin/logout/logout.plugin";
-import OffCanvasAccountMenu from "./plugin/off-canvas-account-menu/offcanvas-account-menu.plugin";
+import Logout from 'asset/script/plugin/logout/logout.plugin';
+import OffCanvasAccountMenu from 'asset/script/plugin/off-canvas-account-menu/offcanvas-account-menu.plugin';
 
 // pages
-import './page/product-detail/product-detail.page';
-import './page/account/register.page';
-import './page/account/addressbook.page';
-import './page/account/profile.page';
-import './page/checkout/confirm.page';
-
-// Import styles
-import '../scss/base.scss';
+import 'asset/script/page/product-detail/product-detail.page';
+import 'asset/script/page/account/addressbook.page';
+import 'asset/script/page/account/profile.page';
+import 'asset/script/page/checkout/confirm.page';
 
 /*
 initialisation
@@ -56,14 +53,6 @@ window.$ = jQuery;
 if (module.hot) {
     module.hot.accept();
 }
-
-/*
-http client example
-*/
-const client = new HttpClient(window.accessKey, window.contextToken);
-client.get('/storefront-api/v1/product?page=1&limit=10', (response) => {
-    console.log('client response', JSON.parse(response));
-});
 
 /*
 register plugins
@@ -88,6 +77,9 @@ PluginManager.register('CookiePermission', CookiePermissionPlugin, document);
 PluginManager.register('CollapseFooterColumns', CollapseFooterColumnsPlugin, document);
 PluginManager.register('FlyoutMenu', FlyoutMenuPlugin, '[data-offcanvas-menu="true"]');
 PluginManager.register('OffcanvasMenu', OffcanvasMenuPlugin, '[data-offcanvas-menu="true"]');
+PluginManager.register('DifferentShipping', DifferentShippingPlugin, '*[data-different-shipping="true"]');
+PluginManager.register('GuestMode', GuestModePlugin, '*[data-guest-mode="true"]');
+PluginManager.register('FormValidation', FormValidationPlugin, '*[data-form-validation="true"]');
 
 /*
 run plugins

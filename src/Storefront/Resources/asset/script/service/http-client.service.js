@@ -88,13 +88,13 @@ export default class HttpClient {
     /**
      * Returns a new and configured XMLHttpRequest object which
      * is prepared to being used
-     * @param {'GET'|'POST'|'DELETE'} type
+     * @param {'GET'|'POST'|'DELETE'|'PATCH'} type
      * @param {string} url
      * @returns {XMLHttpRequest}
      * @private
      */
     _createPreparedRequest(type, url) {
-        let request = new XMLHttpRequest();
+        const request = new XMLHttpRequest();
 
         request.open(type, url);
         request.setRequestHeader('Content-type', 'application/json');

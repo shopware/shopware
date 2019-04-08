@@ -1,6 +1,6 @@
-import PluginManager from '../../helper/plugin/plugin.manager';
-import OffCanvasTabsPlugin from './../../plugin/off-canvas-tabs/offcanvas-tabs.plugin';
-import GallerySlider from './gallery-slider.page';
+import PluginManager from 'asset/script/helper/plugin/plugin.manager';
+import OffCanvasTabsPlugin from 'asset/script/plugin/off-canvas-tabs/offcanvas-tabs.plugin';
+import GallerySlider from 'asset/script/page/product-detail/gallery-slider.page';
 
 /**
  * REGISTER PLUGINS

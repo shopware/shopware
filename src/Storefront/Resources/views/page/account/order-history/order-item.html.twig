@@ -1,0 +1,79 @@
+{% block page_account_order_item_overview %}
+    {#TODO: NEXT-2695 - delivery admin configs not available#}
+    {% set orderDispatchName = order.deliveries.elements|first.shippingMethod.name %}
+
+    <tr>
+        {% block page_account_order_item_date %}
+            <td class="col-12 col-md order-item order-item-date">
+                {% block page_account_order_item_date_label %}
+                    <strong class="order-item-label order-item-date-label">{{ "account.orderItemColumnDate"|trans }}</strong>
+                {% endblock %}
+
+                {% block page_account_order_item_date_value %}
+                    <span class="order-item-value order-item-date-value">
+                        {{ order.orderDate|localizeddate('short', 'none', app.request.locale) }}
+                    </span>
+                {% endblock %}
+            </td>
+        {% endblock %}
+
+        {% block page_account_order_item_number %}
+            <td class="col-12 col-md order-item order-item-number">
+                {% block page_account_order_item_number_label %}
+                    <strong class="order-item-label order-item-number-label">{{ "account.orderItemColumnNumber"|trans }}</strong>
+                {% endblock %}
+
+                {% block page_account_order_item_number_value %}
+                    <span class="order-item-value order-item-number-value">{{ order.orderNumber }}</span>
+                {% endblock %}
+            </td>
+        {% endblock %}
+
+        {% block page_account_order_item_dispatch %}
+            <td class="col-12 col-md order-item order-item-dispatch">
+                {% block page_account_order_item_dispatch_label %}
+                    <strong class="order-item-label order-item-dispatch-label">{{ "account.orderItemColumnDispatch"|trans }}</strong>
+                {% endblock %}
+
+                {% block page_account_order_item_dispatch_value %}
+                    <span class="order-item-value order-item-dispatch-value">
+                        {% if orderDispatchName %}
+                            {{ orderDispatchName }}
+                        {% else %}
+                            {{ "account.orderInfoNoDispatch"|trans }}
+                        {% endif %}
+                    </span>
+                {% endblock %}
+            </td>
+        {% endblock %}
+
+        {% block page_account_order_item_status %}
+            <td class="col-12 col-md order-item order-item-status">
+                {% block page_account_order_item_status_label %}
+                    <strong class="order-item-label order-item-status-label">{{ "account.orderItemColumnStatus"|trans }}</strong>
+                {% endblock %}
+
+                {% block page_account_order_item_status_value %}
+                    <span class="order-item-value order-item-status-value">{{ order.stateMachineState.name }}</span>
+                {% endblock %}
+            </td>
+        {% endblock %}
+
+        {% block page_account_order_item_actions %}
+            <td class="col-12 col-md order-item order-item-actions">
+                {% block page_account_order_item_actions_value %}
+                    <button class="btn btn-light btn-sm"
+                            type="button"
+                            data-toggle="collapse"
+                            data-target="#order{{ order.orderNumber }}"
+                            aria-expanded="false"
+                            aria-controls="collapseExample">{{ "account.orderActionSlide"|trans }}</button>
+                {% endblock %}
+            </td>
+        {% endblock %}
+    </tr>
+
+    {% block page_account_order_item_detail %}
+        {% sw_include '@Storefront/page/account/order-history/order-detail.html.twig' %}
+    {% endblock %}
+{% endblock %}

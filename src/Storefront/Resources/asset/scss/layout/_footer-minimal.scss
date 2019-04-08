@@ -1,0 +1,29 @@
+.footer-minimal-list {
+    list-style-type: none;
+    padding: 0;
+    text-align: center;
+}
+
+.footer-minimal-item,
+.footer-minimal-link {
+    display: inline-block;
+}
+
+.footer-minimal-link {
+    padding: $spacer-sm 0;
+}
+
+.footer-minimal-item {
+    &::after {
+        display: inline-block;
+        height: 10px;
+        width: 1px;
+        border-left: 1px solid $gray-500;
+        content: '';
+        margin: 0 $spacer-sm;
+    }
+
+    &:last-child::after {
+        content: none;
+    }
+}

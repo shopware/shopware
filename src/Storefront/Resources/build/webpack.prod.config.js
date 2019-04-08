@@ -22,13 +22,13 @@ const modules = {
             test: /\.scss$/,
             use: [
                 {
-                    loader: MiniCssExtractPlugin.loader
+                    loader: MiniCssExtractPlugin.loader //compiles a CSS file
                 },
                 {
                     loader: 'css-loader'
                 },
                 {
-                    loader: 'postcss-loader'
+                    loader: 'postcss-loader' //needs to be AFTER css/style-loader and BEFORE sass-loader
                 },
                 {
                     loader: 'sass-loader'
@@ -37,18 +37,6 @@ const modules = {
         }
     ]
 };
-
-/**
- * Webpack plugins
- * https://webpack.js.org/configuration/plugins/#plugins
- * @type {*[]}
- */
-const plugins = [
-    new MiniCssExtractPlugin({
-        filename: "css/main.bundle.css",
-        chunkFilename: "css/main.bundle.css"
-    })
-];
 
 /**
  * Optimizations configuration
@@ -77,6 +65,5 @@ module.exports = {
     devtool: 'source-map',
     mode: 'production',
     module: modules,
-    optimization: optimization,
-    plugins: plugins
+    optimization: optimization
 };

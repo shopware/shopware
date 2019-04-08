@@ -1,9 +1,9 @@
-{% block component_payment_fields %}
-	<div class="payment-fields">
+{% block component_payment_methods %}
+	<div class="payment-methods">
 		{% for payment in page.paymentMethods.elements %}
 			{% block component_payment_method %}
 				<div class="payment-method">
-					{% block component_payment_field %}
+					{% block component_payment_method_field %}
 						<div class="payment-form-group form-group">
 							{% block component_payment_method_control %}
 								<div class="custom-control custom-radio payment-control">

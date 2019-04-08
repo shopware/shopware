@@ -110,7 +110,7 @@
 }
 
 @include media-breakpoint-up(sm) {
-    .off-canvas-close {
+    .js-off-canvas-close {
         display: none;
     }
 

@@ -89,8 +89,8 @@
                                     {% endblock %}
                                 {% endif %}
 
-
-                                {% for treeItem in  page.navigation.tree[0].children %}
+                                {% set firstCategoryItem = page.navigation.tree|first %}
+                                {% for treeItem in  firstCategoryItem.children %}
                                     {% set entity = treeItem.entity %}
 
                                     {% if entity.id is not same as( activeItem.id) %}

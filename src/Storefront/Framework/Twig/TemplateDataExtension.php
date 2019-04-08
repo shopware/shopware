@@ -69,10 +69,6 @@ class TemplateDataExtension extends AbstractExtension implements GlobalsInterfac
                     'tablet' => 'img/logo-desktop.png',
                     'mobile' => 'img/logo-mobile.png',
                 ],
-                'general' => [
-                    'ajaxVariantSwitch' => true,
-                    'offcanvasCart' => true,
-                ],
                 'breakpoint' => [
                     'xs' => '0',
                     'sm' => '576',
@@ -96,6 +92,8 @@ class TemplateDataExtension extends AbstractExtension implements GlobalsInterfac
             'metaIsFamilyFriendly' => true,
             'register' => [
                 'titleField' => true,
+                'emailConfirmation' => false,
+                'passwordConfirmation' => false,
                 'minPasswordLength' => 8,
                 'birthdayField' => true,
             ],

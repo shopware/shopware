@@ -1,8 +1,8 @@
 import $ from 'jquery';
-import HttpClient from "../../service/http-client.service";
-import DomAccess from "../../helper/dom-access.helper";
-import ButtonLoadingIndicator from "../loading-indicator/button-loading-indicator.util";
-import DeviceDetection from "../../helper/device-detection.helper";
+import HttpClient from 'asset/script/service/http-client.service';
+import DomAccess from 'asset/script/helper/dom-access.helper';
+import ButtonLoadingIndicator from 'asset/script/util/loading-indicator/button-loading-indicator.util';
+import DeviceDetection from 'asset/script/helper/device-detection.helper';
 
 const MODAL_REMOTE_DATA_ATTRIBUTE = 'data-url';
 const MODAL_AJAX_CLASS = 'js-ajax-modal';
@@ -39,8 +39,8 @@ export default class ModalExtensionUtil {
      * @private
      */
     _registerAjaxModalExtension() {
-        let modalTriggers = document.querySelectorAll('[data-toggle="modal"]');
-        let event = (DeviceDetection.isTouchDevice()) ? 'touchstart' : 'click';
+        const modalTriggers = document.querySelectorAll('[data-toggle="modal"]');
+        const event = (DeviceDetection.isTouchDevice()) ? 'touchstart' : 'click';
 
         modalTriggers.forEach(trigger => {
             if (DomAccess.hasAttribute(trigger, MODAL_REMOTE_DATA_ATTRIBUTE)) {
@@ -59,7 +59,7 @@ export default class ModalExtensionUtil {
     _onClickHandleAjaxModal(e) {
         e.stopPropagation();
 
-        const trigger = e.srcElement;
+        const trigger = e.target;
         const url = DomAccess.getAttribute(trigger, MODAL_REMOTE_DATA_ATTRIBUTE);
         const target = DomAccess.getAttribute(trigger, 'data-target');
         const client = new HttpClient(window.accessKey, window.contextToken);
@@ -95,7 +95,7 @@ export default class ModalExtensionUtil {
      * @private
      */
     _getElementFromResponse(response) {
-        let element = document.createElement('div');
+        const element = document.createElement('div');
         element.classList.add(MODAL_AJAX_CLASS);
         element.innerHTML = response;
 

@@ -2,11 +2,16 @@
 	{% if  page.header.languages.elements|length > 1 %}
 		<div class="top-bar-nav-item top-bar-language">
 			{% block base_header_actions_language_widget_form %}
-			{#TODO: NEXT-1980 - add form functionality#}
+			{#TODO: NEXT-2514 - add form functionality#}
 				<form method="post"
 					  class="language-form">
 					{% block base_header_actions_language_widget_content %}
-						<div class="language-flag {{ page.header.activeLanguage.translationCode.code }}"></div>
+                        {#TODO: NEXT-2661 - maybe already add those variables to the translationCode struct #}
+					    {% set isoCode = page.header.activeLanguage.translationCode.code|lower|split('_') %}
+                        {% set country = isoCode[0] %}
+                        {% set language = isoCode[1] %}
+
+						<div class="language-flag country-{{ country }} language-{{ language }}"></div>
 						<div class="top-bar-select">
 							{% block base_header_actions_language_widget_form_select %}
 								<select name="__shop"

@@ -1,12 +1,13 @@
 import deepmerge from 'deepmerge';
-import PluginRegistry from './plugin.registry';
+import PluginRegistry from 'asset/script/helper/plugin/plugin.registry';
+import DomAccess from 'asset/script/helper/dom-access.helper';
 
 /**
  * this file handles the plugin functionality of shopware
  *
  * to use the PluginManager import:
  * ```
- *     import PluginManager from '.../plugin.helper.js';
+ *     import PluginManager from 'asset/script/helper/plugin/plugin.manager.js';
  *
  *     PluginManager.register(.....);
  *
@@ -15,7 +16,7 @@ import PluginRegistry from './plugin.registry';
  *
  * to extend from the base plugin import:
  * ```
- *     import { Plugin } from '.../plugin.helper.js';
+ *     import Plugin from 'asset/script/helper/plugin/plugin.class.js';
  *
  *     export default MyFancyPlugin extends Plugin {}
  * ```
@@ -62,7 +63,7 @@ class PluginManagerSingleton {
      * @param {string|NodeList|HTMLElement} selector
      * @param {Object} options
      *
-     * @return {*}
+     * @returns {*}
      */
     register(name, pluginClass, selector = document, options = {}) {
         if (this._registry.has(name)) {
@@ -76,7 +77,7 @@ class PluginManagerSingleton {
      * Removes a plugin from the plugin manager.
      *
      * @param {string} name
-     * @return {*}
+     * @returns {*}
      */
     deregister(name) {
         if (!this._registry.has(name)) {
@@ -96,7 +97,7 @@ class PluginManagerSingleton {
      * @param {string|NodeList|HTMLElement} selector
      * @param {Object} options
      *
-     * @return {boolean}
+     * @returns {boolean}
      */
     extend(fromName, newName, pluginClass, selector, options = {}) {
         // Register the plugin under a new name
@@ -112,7 +113,7 @@ class PluginManagerSingleton {
     /**
      * Returns a list of all registered plugins.
      *
-     * @return {*}
+     * @returns {*}
      */
     getPlugins() {
         return this._registry.keys();
@@ -188,11 +189,11 @@ class PluginManagerSingleton {
      * @param {Object|boolean} definition
      */
     _executePlugin(pluginClass, selector, options, definition = false) {
-        if (PluginManagerSingleton._isNode(selector)) {
+        if (DomAccess.isNode(selector)) {
             return PluginManagerSingleton._executePluginOnElement(selector, pluginClass, options, definition);
         }
 
-        if (typeof selector === "string") {
+        if (typeof selector === 'string') {
             selector = document.querySelectorAll(selector);
         }
 
@@ -227,7 +228,7 @@ class PluginManagerSingleton {
      * @param {string|NodeList|HTMLElement} selector
      * @param {Object} options
      *
-     * @return {*}
+     * @returns {*}
      * @private
      */
     _extendPlugin(fromName, newName, pluginClass, selector, options = {}) {
@@ -249,21 +250,6 @@ class PluginManagerSingleton {
         InternallyExtendedPlugin.prototype.constructor = InternallyExtendedPlugin;
 
         return this.register(newName, InternallyExtendedPlugin, selector, mergedOptions);
-    }
-
-    /**
-     * returns if the passed element is a dom node
-     *
-     * @param el
-     * @return {*}
-     * @private
-     */
-    static _isNode(el) {
-        if (typeof Node === "object") {
-            return el instanceof Node;
-        }
-
-        return el && typeof el === "object" && typeof el.nodeType === "number" && typeof el.nodeName === "string";
     }
 
 }
@@ -289,7 +275,7 @@ export default class PluginManager {
      * @param {string|NodeList|HTMLElement} selector
      * @param {Object} options
      *
-     * @return {*}
+     * @returns {*}
      */
     static register(name, pluginClass, selector = document, options = {}) {
         return PluginManagerInstance.register(name, pluginClass, selector, options);
@@ -299,7 +285,7 @@ export default class PluginManager {
      * Removes a plugin from the plugin manager.
      *
      * @param {string} name
-     * @return {*}
+     * @returns {*}
      */
     static deregister(name) {
         return PluginManagerInstance.deregister(name);
@@ -315,7 +301,7 @@ export default class PluginManager {
      * @param {string|NodeList|HTMLElement} selector
      * @param {Object} options
      *
-     * @return {boolean}
+     * @returns {boolean}
      */
     static extend(fromName, newName, pluginClass, selector, options = {}) {
         return PluginManagerInstance.extend(fromName, newName, pluginClass, selector, options);
@@ -324,7 +310,7 @@ export default class PluginManager {
     /**
      * Returns a list of all registered plugins.
      *
-     * @return {*}
+     * @returns {*}
      */
     static getPlugins() {
         return PluginManagerInstance.getPlugins();

@@ -1,12 +1,31 @@
 export default class DomAccess {
 
     /**
+     * Returns whether or not the element is an HTML node
+     *
+     * @param {Element} element
+     * @returns {boolean}
+     */
+    static isNode(element) {
+        if (typeof Node === 'object') {
+            return element instanceof Node;
+        }
+
+        return element && typeof element === 'object' && typeof element.nodeType === 'number' && typeof element.nodeName === 'string';
+    }
+
+    /**
      * Returns if the given element has the requested attribute/property
      * @param {Element} element
      * @param {string} attribute
      */
     static hasAttribute(element, attribute) {
-        if (element instanceof Element === false) return false;
+        if (!DomAccess.isNode(element)) {
+            throw new Error('The element must be a valid HTML Node!');
+        }
+
+        if (typeof element.hasAttribute !== 'function') return false;
+
         return element.hasAttribute(attribute);
     }
 
@@ -33,7 +52,11 @@ export default class DomAccess {
      * @returns {Element}
      */
     static querySelector(parentNode, selector, strict = true) {
-        let element = parentNode.querySelector(selector) || false;
+        if (strict && !DomAccess.isNode(parentNode)) {
+            throw new Error('The parent node is not a valid HTML Node!');
+        }
+
+        const element = parentNode.querySelector(selector) || false;
 
         if (strict && element === false) {
             throw new Error(`The required element "${selector}" does not exist in parent node!`);

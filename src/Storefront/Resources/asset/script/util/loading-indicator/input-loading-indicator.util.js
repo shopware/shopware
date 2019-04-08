@@ -1,4 +1,4 @@
-import LoadingIndicatorUtil from "./loading-indicator.util";
+import LoadingIndicatorUtil from 'asset/script/util/loading-indicator/loading-indicator.util';
 
 export default class InputLoadingIndicatorUtil extends LoadingIndicatorUtil {
 
@@ -7,7 +7,7 @@ export default class InputLoadingIndicatorUtil extends LoadingIndicatorUtil {
      * @param {Element|string} parent
      * @param position
      */
-    constructor(parent, position = "before") {
+    constructor(parent, position = 'before') {
         super(parent, position);
 
         if (this._isInputElement() === false) {
@@ -27,7 +27,7 @@ export default class InputLoadingIndicatorUtil extends LoadingIndicatorUtil {
      * remove loading indicators
      */
     remove() {
-        let indicators = this.parent.parentNode.querySelectorAll(`.${LoadingIndicatorUtil.SELECTOR_CLASS()}`);
+        const indicators = this.parent.parentNode.querySelectorAll(`.${LoadingIndicatorUtil.SELECTOR_CLASS()}`);
         indicators.forEach(indicator => indicator.remove());
     }
 
@@ -37,6 +37,6 @@ export default class InputLoadingIndicatorUtil extends LoadingIndicatorUtil {
      * @private
      */
     _isInputElement() {
-        return (this.parent.tagName.toLowerCase() === "input");
+        return (this.parent.tagName.toLowerCase() === 'input');
     }
 }

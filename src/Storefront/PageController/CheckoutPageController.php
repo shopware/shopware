@@ -164,7 +164,6 @@ class CheckoutPageController extends StorefrontController
 
         $page = $this->registerPageLoader->load($internal, $context);
 
-        // TODO change template NEXT-1930
-        return $this->renderStorefront('@Storefront/page/account/register/index.html.twig', ['redirectTo' => $redirect, 'page' => $page]);
+        return $this->renderStorefront('@Storefront/page/checkout/address/index.html.twig', ['redirectTo' => $redirect, 'page' => $page]);
     }
 }

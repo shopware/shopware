@@ -1,11 +1,21 @@
 const webpack = require('webpack');
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const WebpackBar = require('webpackbar');
 const StyleLintPlugin = require('stylelint-webpack-plugin');
-const { resolve } = require('path');
-const buildDirectory = resolve(process.env.PROJECT_ROOT, 'public');
+const path = require('path');
+const buildDirectory = path.resolve(process.env.PROJECT_ROOT, 'public');
 const CopyPlugin = require('copy-webpack-plugin');
-
 const publicPath = `${process.env.APP_URL}${(process.env.ENV === 'watch') ? ':9999' : ''}/`;
+
+/**
+ * helper function to get a path relative to the root folder
+ *
+ * @param dir
+ * @return {string}
+ */
+function getPath(dir) {
+    return path.join(__dirname, '..', dir);
+}
 
 /**
  * -------------------------------------------------------
@@ -17,13 +27,18 @@ const publicPath = `${process.env.APP_URL}${(process.env.ENV === 'watch') ? ':99
  * -------------------------------------------------------
  */
 
+const context = getPath('asset/script');
+
 /**
  * Configuration of the applications entrypoints
  * https://webpack.js.org/configuration/entry-context#entry
+ *
+ * relative to the webpack context
+ *
  * @type {{main: string}}
  */
 const entries = {
-    main: './asset/script/base.js'
+    main: './base.js'
 };
 
 /**
@@ -56,7 +71,10 @@ const modules = {
                     }
                 },
                 {
-                    loader: 'eslint-loader'
+                    loader: 'eslint-loader',
+                    options: {
+                        fix: true
+                    }
                 }
             ]
         },
@@ -67,8 +85,8 @@ const modules = {
                     loader: 'file-loader',
                     options: {
                         name: '[name].[ext]',
-                        outputPath: 'css/fonts',
-                        publicPath: '/css/fonts'
+                        outputPath: 'fonts',
+                        publicPath: '/fonts'
                     }
                 }
             ]
@@ -86,13 +104,21 @@ const plugins = [
     new WebpackBar({
         name: 'Shopware Next Storefront'
     }),
-    new StyleLintPlugin(),
+    new StyleLintPlugin({
+        context: getPath('asset/scss'),
+        syntax: 'scss',
+        fix: true
+    }),
     new CopyPlugin([
         {
-            from: 'asset/img',
+            from: getPath('asset/img'),
             to: 'img'
         }
-    ])
+    ]),
+    new MiniCssExtractPlugin({
+        filename: "css/main.bundle.css",
+        chunkFilename: "css/main.bundle.css"
+    })
 ];
 
 /**
@@ -110,6 +136,19 @@ const optimization = {};
 const devServer = {};
 
 /**
+ * Options for the import resolver
+ * https://webpack.js.org/configuration/resolve
+ * @type {{}}}
+ */
+const resolve = {
+    extensions: ['.js', '.jsx', '.json', '.less', '.sass', '.scss', '.twig'],
+    alias: {
+        asset: getPath('asset'),
+    }
+};
+
+
+/**
  * Export the webpack configuration
  */
 module.exports = {
@@ -117,6 +156,7 @@ module.exports = {
     devServer: devServer,
     devtool: 'inline-cheap-source-map',
     entry: entries,
+    context: context,
     mode: 'development',
     module: modules,
     name: 'shopware-next-storefront',
@@ -126,6 +166,7 @@ module.exports = {
         hints: false
     },
     plugins: plugins,
+    resolve: resolve,
     stats: {
         colors: true
     },

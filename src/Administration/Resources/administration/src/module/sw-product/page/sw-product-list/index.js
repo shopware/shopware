@@ -15,6 +15,8 @@ Component.register('sw-product-list', {
         return {
             products: [],
             showDeleteModal: false,
+            sortBy: 'productNumber',
+            sortDirection: 'DESC',
             isLoading: false,
             total: 0
         };
@@ -92,6 +94,19 @@ Component.register('sw-product-list', {
             const params = this.getListingParams();
 
             params.criteria = CriteriaFactory.equals('product.parentId', null);
+
+            if (!params.sortBy) {
+                params.sortBy = this.sortBy;
+                params.sortDirection = this.sortDirection;
+            }
+
+            if (params.sortBy === 'productNumber') {
+                params.sortings = [{
+                    field: 'productNumber',
+                    order: params.sortDirection,
+                    naturalSorting: true
+                }];
+            }
 
             this.products = [];
 

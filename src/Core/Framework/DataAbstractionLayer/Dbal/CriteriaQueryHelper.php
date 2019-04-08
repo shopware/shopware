@@ -122,7 +122,7 @@ trait CriteriaQueryHelper
             $accessor = $queryHelper->getFieldAccessor($sorting->getField(), $definition, $definition::getEntityName(), $context);
 
             if ($sorting->getNaturalSorting()) {
-                $query->addOrderBy('LENGTH(' . $accessor . ')');
+                $query->addOrderBy('LENGTH(' . $accessor . ')', $sorting->getDirection());
             }
 
             $query->addOrderBy($accessor, $sorting->getDirection());

@@ -12,6 +12,8 @@ Component.register('sw-order-list', {
     data() {
         return {
             orders: [],
+            sortBy: 'orderDate',
+            sortDirection: 'DESC',
             isLoading: false
         };
     },
@@ -54,8 +56,8 @@ Component.register('sw-order-list', {
 
             // Use the order date as the default sorting
             if (!params.sortBy && !params.sortDirection) {
-                params.sortBy = 'orderDate';
-                params.sortDirection = 'DESC';
+                params.sortBy = this.sortBy;
+                params.sortDirection = this.sortDirection;
             }
 
             if (!params.associations) {

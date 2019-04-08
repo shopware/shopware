@@ -15,7 +15,7 @@ Component.register('sw-settings-snippet-detail', {
         return {
             isLoading: true,
             isCreate: false,
-            isCustomState: this.$route.query.isCustomState,
+            isAddedSnippet: false,
             isSavable: false,
             isInvalidKey: false,
             queryIds: this.$route.query.ids,
@@ -71,7 +71,7 @@ Component.register('sw-settings-snippet-detail', {
     methods: {
         createdComponent() {
             this.userService.getUser().then((response) => {
-                this.currentAuthor = `user/${response.data.name}`;
+                this.currentAuthor = `user/${response.data.username}`;
             });
 
             if (!this.$route.params.key && !this.isCreate) {
@@ -95,7 +95,7 @@ Component.register('sw-settings-snippet-detail', {
             this.snippets = this.createSnippetDummy();
             this.getCustomList().then((response) => {
                 if (!response.total) {
-                    this.isCustomState = true;
+                    this.isAddedSnippet = true;
                     return;
                 }
                 this.applySnippetsToDummies(response.data[this.translationKey]);
@@ -113,7 +113,7 @@ Component.register('sw-settings-snippet-detail', {
                 patchedSnippets.push(snippet);
             });
             this.snippets = patchedSnippets;
-            this.isCustomState = data.some(item => item.author.startsWith('user/') || item.author === '');
+            this.isAddedSnippet = data.some(item => item.author.startsWith('user/') || item.author === '');
         },
 
         createSnippetDummy() {

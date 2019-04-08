@@ -3,20 +3,20 @@
 namespace Shopware\Core\Framework\Test\Snippet\Filter;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\Snippet\Filter\CustomFilter;
+use Shopware\Core\Framework\Snippet\Filter\AddedFilter;
 
-class CustomFilterTest extends TestCase
+class AddedFilterTest extends TestCase
 {
     public function testGetFilterName()
     {
-        static::assertSame('custom', (new CustomFilter())->getName());
+        static::assertSame('added', (new AddedFilter())->getName());
     }
 
     public function testSupports()
     {
-        static::assertTrue((new CustomFilter())->supports('custom'));
-        static::assertFalse((new CustomFilter())->supports(''));
-        static::assertFalse((new CustomFilter())->supports('test'));
+        static::assertTrue((new AddedFilter())->supports('added'));
+        static::assertFalse((new AddedFilter())->supports(''));
+        static::assertFalse((new AddedFilter())->supports('test'));
     }
 
     public function testFilterOnlyCustomSnippets()
@@ -26,11 +26,11 @@ class CustomFilterTest extends TestCase
                 'snippets' => [
                     '1.bar' => [
                         'value' => '1_bar',
-                        'id' => 1,
+                        'author' => 'user/admin',
                     ],
                     '1.bas' => [
                         'value' => '1_bas',
-                        'id' => null,
+                        'author' => 'shopware',
                     ],
                 ],
             ],
@@ -38,11 +38,11 @@ class CustomFilterTest extends TestCase
                 'snippets' => [
                     '2.bar' => [
                         'value' => '2_bar',
-                        'id' => 2,
+                        'author' => 'user/admin',
                     ],
                     '2.baz' => [
                         'value' => '2_baz',
-                        'id' => null,
+                        'author' => 'shopware',
                     ],
                 ],
             ],
@@ -53,7 +53,7 @@ class CustomFilterTest extends TestCase
                 'snippets' => [
                     '1.bar' => [
                         'value' => '1_bar',
-                        'id' => 1,
+                        'author' => 'user/admin',
                     ],
                     '2.bar' => [
                         'value' => '',
@@ -77,13 +77,13 @@ class CustomFilterTest extends TestCase
                     ],
                     '2.bar' => [
                         'value' => '2_bar',
-                        'id' => 2,
+                        'author' => 'user/admin',
                     ],
                 ],
             ],
         ];
 
-        $result = (new CustomFilter())->filter($snippets, true);
+        $result = (new AddedFilter())->filter($snippets, true);
 
         static::assertEquals($expected, $result);
     }

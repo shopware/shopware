@@ -28,10 +28,20 @@
 
                 {% block sw_settings_snippet_grid_sidebar_filter_custom %}
                     <sw-settings-snippet-boolean-filter-item
-                            name="customSnippets"
-                            group="customSnippets"
+                            name="editedSnippets"
+                            group="editedSnippets"
                             type="small"
                             :label="$tc('sw-settings-snippet.filter.showOnlyCustom')"
+                            @change="onChange">
+                    </sw-settings-snippet-boolean-filter-item>
+                {% endblock %}
+
+                {% block sw_settings_snippet_grid_sidebar_filter_added %}
+                    <sw-settings-snippet-boolean-filter-item
+                            name="addedSnippets"
+                            group="addedSnippets"
+                            type="small"
+                            :label="$tc('sw-settings-snippet.filter.showOnlyAdded')"
                             @change="onChange">
                     </sw-settings-snippet-boolean-filter-item>
                 {% endblock %}

@@ -97,7 +97,8 @@
     },
     "filter": {
       "showOnlyEmpty": "Show empty snippets only",
-      "showOnlyCustom": "Show custom snippets only",
+      "showOnlyCustom": "Show edited snippets only",
+      "showOnlyAdded": "Show added snippets only",
       "author": "Author",
       "more": "More filters"
     }

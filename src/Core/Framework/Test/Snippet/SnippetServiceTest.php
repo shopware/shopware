@@ -241,7 +241,7 @@ json
 
         static::assertSame(2, $result['total']);
         $this->assertSnippetResult($result, 'foo.bar', $fooId, 'foo_bar', 'foo_bar');
-        $this->assertSnippetResult($result, 'foo.baz', $fooId, 'foo_baz');
+        $this->assertSnippetResult($result, 'foo.baz', $fooId, 'foo_baz', 'foo_baz');
     }
 
     public function testGetListDbOverwritesFile(): void
@@ -280,7 +280,7 @@ json
         $result = $service->getList(1, 25, Context::createDefaultContext(), [], []);
 
         static::assertSame(1, $result['total']);
-        $this->assertSnippetResult($result, 'foo.bar', $fooId, 'foo_baz');
+        $this->assertSnippetResult($result, 'foo.bar', $fooId, 'foo_baz', 'foo_bar');
     }
 
     public function testGetListWithMultipleSets(): void
@@ -328,7 +328,7 @@ json
 
         static::assertSame(2, $result['total']);
         $this->assertSnippetResult($result, 'foo.bar', $fooId, 'foo_bar', 'foo_bar');
-        $this->assertSnippetResult($result, 'bar.baz', $barId, 'bar_baz');
+        $this->assertSnippetResult($result, 'bar.baz', $barId, 'bar_baz', 'bar_baz');
     }
 
     public function testGetListWithSameTranslationKeyInMultipleSets(): void
@@ -444,7 +444,7 @@ json
         $this->assertSnippetResult(['data' => $data], 'foo.foo', $fooId, 'foo_foo', 'foo_foo');
         $this->assertSnippetResult(['data' => $data], 'foo.baz', $fooId, 'foo_baz', 'foo_baz');
         $this->assertSnippetResult(['data' => $data], 'foo.bas', $fooId, 'foo_bas', 'foo_bas');
-        $this->assertSnippetResult(['data' => $data], 'foo.test', $fooId, 'foo_test');
+        $this->assertSnippetResult(['data' => $data], 'foo.test', $fooId, 'foo_test', 'foo_test');
     }
 
     public function testGetListSortsByTranslationKey(): void
@@ -494,7 +494,7 @@ json
         $this->assertSnippetResult($result, 'bar.zz', $fooId, 'bar_zz', 'bar_zz');
         $this->assertSnippetResult($result, 'foo.baz', $fooId, 'foo_baz', 'foo_baz');
         $this->assertSnippetResult($result, 'foo.bas', $fooId, 'foo_bas', 'foo_bas');
-        $this->assertSnippetResult($result, 'foo.ab', $fooId, 'foo_ab');
+        $this->assertSnippetResult($result, 'foo.ab', $fooId, 'foo_ab', 'foo_ab');
 
         static::assertSame([
             'bar.zz',
@@ -551,7 +551,7 @@ json
         $this->assertSnippetResult($result, 'bar.zz', $fooId, 'bar_zz', 'bar_zz');
         $this->assertSnippetResult($result, 'foo.baz', $fooId, 'foo_baz', 'foo_baz');
         $this->assertSnippetResult($result, 'foo.bas', $fooId, 'foo_bas', 'foo_bas');
-        $this->assertSnippetResult($result, 'foo.ab', $fooId, 'foo_ab');
+        $this->assertSnippetResult($result, 'foo.ab', $fooId, 'foo_ab', 'foo_ab');
 
         static::assertSame([
             'foo.baz',
@@ -608,7 +608,7 @@ json
         $this->assertSnippetResult($result, 'bar.zz', $fooId, 'bar_zz', 'bar_zz');
         $this->assertSnippetResult($result, 'foo.baz', $fooId, 'foo_baz', 'foo_baz');
         $this->assertSnippetResult($result, 'foo.bas', $fooId, 'foo_bas', 'foo_bas');
-        $this->assertSnippetResult($result, 'foo.ab', $fooId, 'foo_ab');
+        $this->assertSnippetResult($result, 'foo.ab', $fooId, 'foo_ab', 'foo_ab');
 
         $this->assertFirstSnippetSetIdEquals($result, $fooId);
 
@@ -669,7 +669,7 @@ json
         $this->assertSnippetResult($result, 'bar.zz', $fooId, 'bar_zz', 'bar_zz');
         $this->assertSnippetResult($result, 'foo.baz', $fooId, 'foo_baz', 'foo_baz');
         $this->assertSnippetResult($result, 'foo.bas', $fooId, 'foo_bas', 'foo_bas');
-        $this->assertSnippetResult($result, 'foo.ab', $fooId, 'foo_ab');
+        $this->assertSnippetResult($result, 'foo.ab', $fooId, 'foo_ab', 'foo_ab');
 
         static::assertSame([
             'foo.baz',
@@ -725,7 +725,7 @@ json
         $this->assertSnippetResult($result, 'bar.zz', $fooId, 'bar_zz', 'bar_zz');
         $this->assertSnippetResult($result, 'foo.baz', $fooId, 'foo_baz', 'foo_baz');
         $this->assertSnippetResult($result, 'foo.bas', $fooId, 'foo_bas', 'foo_bas');
-        $this->assertSnippetResult($result, 'foo.ab', $fooId, 'foo_ab');
+        $this->assertSnippetResult($result, 'foo.ab', $fooId, 'foo_ab', 'foo_ab');
 
         static::assertSame([
             'bar.zz',
@@ -786,7 +786,7 @@ json
 
         $this->assertSnippetResult($result, 'foo.baz', $fooId, 'foo_baz', 'foo_baz');
         $this->assertSnippetResult($result, 'foo.bas', $fooId, 'foo_bas', 'foo_bas');
-        $this->assertSnippetResult($result, 'foo.ab', $fooId, 'foo_ab');
+        $this->assertSnippetResult($result, 'foo.ab', $fooId, 'foo_ab', 'foo_ab');
     }
 
     public function testGetEmptyList(): void
@@ -808,14 +808,14 @@ json
         string $translationKey,
         string $snippetSetId,
         string $value,
-        ?string $originValue = null
+        string $originValue
     ): void {
         foreach ($result['data'][$translationKey] as $snippetSetData) {
             if ($snippetSetData['setId'] !== Uuid::fromBytesToHex($snippetSetId)) {
                 static::assertEmpty($snippetSetData['value']);
             } else {
                 static::assertSame($value, $snippetSetData['value']);
-                $originValue === null ?: static::assertSame($originValue, $snippetSetData['origin']);
+                static::assertSame($originValue, $snippetSetData['origin']);
             }
         }
     }

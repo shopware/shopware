@@ -19,7 +19,8 @@ Component.register('sw-settings-snippet-list', {
             currentAuthor: '',
             snippetSets: {},
             hasResetableItems: true,
-            isCustomState: false,
+            showOnlyEdited: false,
+            showOnlyAdded: false,
             emptySnippets: false,
             grid: [],
             resetItems: [],
@@ -43,8 +44,11 @@ Component.register('sw-settings-snippet-list', {
         },
         filter() {
             const filter = {};
-            if (this.isCustomState) {
-                filter.custom = true;
+            if (this.showOnlyEdited) {
+                filter.edited = true;
+            }
+            if (this.showOnlyAdded) {
+                filter.added = true;
             }
             if (this.emptySnippets) {
                 filter.empty = true;
@@ -52,10 +56,10 @@ Component.register('sw-settings-snippet-list', {
             if (this.term) {
                 filter.term = this.term;
             }
-            if (this.appliedFilter) {
+            if (this.appliedFilter.length > 0) {
                 filter.namespace = this.appliedFilter;
             }
-            if (this.appliedAuthors) {
+            if (this.appliedAuthors.length > 0) {
                 filter.author = this.appliedAuthors;
             }
 
@@ -119,6 +123,7 @@ Component.register('sw-settings-snippet-list', {
         prepareGrid(grid) {
             function prepareContent(items) {
                 const content = items.reduce((acc, item) => {
+                    item.resetTo = item.value;
                     acc[item.setId] = item;
                     acc.isCustomSnippet = item.author.includes('user/');
                     return acc;
@@ -152,7 +157,7 @@ Component.register('sw-settings-snippet-list', {
             this.snippetSets.forEach((item) => {
                 const snippet = result[item.id];
 
-                if (snippet.value === '') {
+                if (!snippet.value || snippet.value.length === 0) {
                     snippet.value = snippet.origin;
                 }
 
@@ -162,7 +167,7 @@ Component.register('sw-settings-snippet-list', {
 
                 if (snippet.origin !== snippet.value) {
                     responses.push(this.snippetService.save(snippet));
-                } else if (snippet.id !== null) {
+                } else if (snippet.id !== null && !snippet.author.startsWith('user/')) {
                     responses.push(this.snippetService.delete(snippet.id));
                 }
             });
@@ -177,7 +182,7 @@ Component.register('sw-settings-snippet-list', {
         },
 
         onEmptyClick() {
-            this.isCustomState = false;
+            this.showOnlyEdited = false;
             this.getList();
         },
 
@@ -195,7 +200,7 @@ Component.register('sw-settings-snippet-list', {
                     return;
                 }
 
-                item.value = item.origin;
+                item.value = item.resetTo;
             });
         },
 
@@ -283,7 +288,7 @@ Component.register('sw-settings-snippet-list', {
 
         onConfirmReset(fullSelection) {
             let items;
-            if (this.isCustomState) {
+            if (this.showOnlyEdited) {
                 items = Object.values(fullSelection).filter(item => typeof item !== 'string');
             } else if (this.selection !== undefined) {
                 items = Object.values(this.selection);
@@ -343,8 +348,14 @@ Component.register('sw-settings-snippet-list', {
 
         onChange(field) {
             this.page = 1;
-            if (field.group === 'customSnippets') {
-                this.isCustomState = field.value;
+            if (field.group === 'editedSnippets') {
+                this.showOnlyEdited = field.value;
+                this.initializeSnippetSet();
+                return;
+            }
+
+            if (field.group === 'addedSnippets') {
+                this.showOnlyAdded = field.value;
                 this.initializeSnippetSet();
                 return;
             }
@@ -375,7 +386,7 @@ Component.register('sw-settings-snippet-list', {
         },
 
         onSidebarClose() {
-            this.isCustomState = false;
+            this.showOnlyEdited = false;
             this.emptySnippets = false;
             this.appliedAuthors = [];
             this.appliedFilter = [];

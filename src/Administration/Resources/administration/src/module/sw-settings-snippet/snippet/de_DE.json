@@ -98,6 +98,7 @@
     "filter": {
       "showOnlyEmpty": "Nur leere Textbausteine anzeigen",
       "showOnlyCustom": "Nur angepasste Textbausteine anzeigen",
+      "showOnlyAdded": "Nur hinzugefügte Textbausteine anzeigen",
       "author": "Autor",
       "more": "Weitere Filter"
     }

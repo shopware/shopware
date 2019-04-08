@@ -30,7 +30,6 @@
                                         {% block sw_admin_menu_navigation_main_items %}
                                             <sw-admin-menu-item v-for="(entry, index) in mainMenuEntries"
                                                                 @menuItemHovered="openFlyout"
-                                                                @menuItemLeaved="closeFlyout"
                                                                 @menuItemClicked="openSubMenu"
                                                                 :sidebarExpanded="isExpanded"
                                                                 :entry="entry"

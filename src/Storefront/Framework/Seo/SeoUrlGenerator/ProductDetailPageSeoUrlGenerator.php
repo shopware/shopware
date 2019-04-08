@@ -57,7 +57,7 @@ class ProductDetailPageSeoUrlGenerator extends SeoUrlGenerator
         ];
     }
 
-    public function generateSeoUrls(string $salesChannelId, array $ids, ?string $template = null, bool $skipInvalid = true): iterable
+    public function generateSeoUrls(?string $salesChannelId, array $ids, ?string $template = null, bool $skipInvalid = true): iterable
     {
         $template = $template ?? self::DEFAULT_TEMPLATE;
         $template = "{% autoescape '" . self::ESCAPE_SLUGIFY . "' %}$template{% endautoescape %}";
@@ -65,13 +65,14 @@ class ProductDetailPageSeoUrlGenerator extends SeoUrlGenerator
 
         $criteria = new Criteria($ids);
         $criteria->addAssociation('manufacturer');
-
         $products = $this->productRepository->search(new Criteria($ids), $this->getContext($salesChannelId));
 
         /** @var ProductEntity $product */
         foreach ($products as $product) {
             $seoUrl = new SeoUrlEntity();
-            $seoUrl->setSalesChannelId($salesChannelId);
+            if ($salesChannelId) {
+                $seoUrl->setSalesChannelId($salesChannelId);
+            }
             $seoUrl->setForeignKey($product->getId());
 
             $pathInfo = $this->router->generate(self::ROUTE_NAME, ['productId' => $product->getId()]);

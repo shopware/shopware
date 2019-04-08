@@ -2,7 +2,6 @@
 
 namespace Shopware\Storefront\Framework\Seo\Controller;
 
-use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
@@ -92,7 +91,7 @@ class SeoActionController extends AbstractController
         }
     }
 
-    private function getPreview(array $seoUrlTemplate, Context $context): iterable
+    private function getPreview(array $seoUrlTemplate, Context $context): array
     {
         $repo = $this->definitionRegistry->getRepository($seoUrlTemplate['entityName']);
 
@@ -100,12 +99,12 @@ class SeoActionController extends AbstractController
         $criteria->setLimit(10);
         $ids = $repo->searchIds($criteria, $context)->getIds();
 
-        return $this->seoService->generateSeoUrls(
-            $seoUrlTemplate['salesChannelId'] ?? Defaults::SALES_CHANNEL,
+        return iterator_to_array($this->seoService->generateSeoUrls(
+            $seoUrlTemplate['salesChannelId'] ?? null,
             $seoUrlTemplate['routeName'],
             $ids,
             $seoUrlTemplate['template'],
             false
-        );
+        ));
     }
 }

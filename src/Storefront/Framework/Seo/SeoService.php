@@ -65,7 +65,7 @@ class SeoService implements SeoServiceInterface
         return $generator->getSeoUrlContext($entity);
     }
 
-    public function generateSeoUrls(string $salesChannelId, string $routeName, array $ids, ?string $templateOverride = null, bool $skipInvalid = true): iterable
+    public function generateSeoUrls(?string $salesChannelId, string $routeName, array $ids, ?string $templateOverride = null, bool $skipInvalid = true): iterable
     {
         $generator = $this->getGenerator($routeName);
         $template = $templateOverride ?? $this->getTemplateString($salesChannelId, $routeName, $generator->getDefaultTemplate());
@@ -143,7 +143,7 @@ class SeoService implements SeoServiceInterface
         throw new \RuntimeException('SeoUrlGenerator with ' . $routeName . ' not found.');
     }
 
-    private function getTemplateString(string $salesChannelId, string $routeName, string $defaultTemplate): ?string
+    private function getTemplateString(?string $salesChannelId, string $routeName, string $defaultTemplate): ?string
     {
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('salesChannelId', $salesChannelId));
@@ -151,14 +151,6 @@ class SeoService implements SeoServiceInterface
 
         /** @var SeoUrlTemplateEntity|null $seoUrlTemplate */
         $seoUrlTemplate = $this->seoUrlTemplateRepository->search($criteria, Context::createDefaultContext())->first();
-        if (!$seoUrlTemplate) {
-            $criteria = new Criteria();
-            $criteria->addFilter(new EqualsFilter('salesChannelId', null));
-            $criteria->addFilter(new EqualsFilter('routeName', $routeName));
-
-            // default
-            $seoUrlTemplate = $this->seoUrlTemplateRepository->search($criteria, Context::createDefaultContext())->first();
-        }
 
         return $seoUrlTemplate ? $seoUrlTemplate->getTemplate() : $defaultTemplate;
     }

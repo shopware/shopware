@@ -12,5 +12,5 @@ interface SeoUrlGeneratorInterface
 
     public function getSeoUrlContext(Entity $entity): array;
 
-    public function generateSeoUrls(string $salesChannelId, array $ids, string $template, bool $skipInvalid): iterable;
+    public function generateSeoUrls(?string $salesChannelId, array $ids, string $template, bool $skipInvalid): iterable;
 }

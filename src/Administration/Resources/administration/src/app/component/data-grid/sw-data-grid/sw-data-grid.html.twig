@@ -210,7 +210,7 @@
                                                             <template v-if="isInlineEditActive && currentInlineEditId === item.id">
 
                                                                 {% block sw_data_grid_inline_edit_actions_cancel %}
-                                                                    <sw-button @click="disableInlineEdit"
+                                                                    <sw-button @click="onClickCancelInlineEdit(item)"
                                                                                class="sw-data-grid__inline-edit-cancel"
                                                                                size="x-small"
                                                                                :title="$tc('global.sw-data-grid.titleButtonInlineEditCancel')"

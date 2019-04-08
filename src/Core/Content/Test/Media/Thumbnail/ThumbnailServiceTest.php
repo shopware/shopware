@@ -275,10 +275,6 @@ class ThumbnailServiceTest extends TestCase
             ],
         ], $this->context);
 
-        $c = new Criteria();
-        $c->addFilter(new EqualsFilter('mediaId', $media->getId()));
-        dump($this->thumbnailRepository->search($c, $this->context)->getEntities());
-
         $media = $this->mediaRepository->search(new Criteria([$media->getId()]), $this->context)->get($media->getId());
 
         $this->getPublicFilesystem()->putStream(

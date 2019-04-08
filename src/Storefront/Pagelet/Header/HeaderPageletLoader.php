@@ -1,7 +1,6 @@
 <?php declare(strict_types=1);
 
 namespace Shopware\Storefront\Pagelet\Header;
-
 use Shopware\Core\Content\Category\Service\NavigationLoader;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
@@ -61,6 +60,7 @@ class HeaderPageletLoader implements PageLoaderInterface
         }
 
         $category = $this->navigationLoader->load((string) $navigationId, $context);
+        $offCanvasNavigation = $this->navigationLoader->loadLevel((string) $navigationId, $context);
 
         /** @var LanguageCollection $languages */
         $languages = $this->loadLanguages($context);
@@ -70,6 +70,7 @@ class HeaderPageletLoader implements PageLoaderInterface
 
         $page = new HeaderPagelet(
             $category,
+            $offCanvasNavigation,
             $languages,
             $currencies,
             $languages->get($context->getContext()->getLanguageId()),

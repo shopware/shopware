@@ -5,7 +5,6 @@ import HttpClient from 'asset/script/service/http-client.service';
 import DomAccess from 'asset/script/helper/dom-access.helper';
 
 const NAVIGATION_URL = window.router['widgets.menu.offcanvas'];
-const CURRENT_NAVIGATION_URL = `${NAVIGATION_URL}?navigationId=${window.activeNavigationId}`;
 
 const POSITION = 'left';
 const TRIGGER_EVENT = 'click';
@@ -16,6 +15,7 @@ const LINK_SELECTOR = '.js-offcanvas-menu-link';
 const LOADING_ICON_SELECTOR = '.js-offcanvas-menu-loading-icon';
 const MENU_SELECTOR = '.js-offcanvas-menu';
 const OVERLAY_CONTENT_SELECTOR = '.js-offcanvas-menu-overlay-content';
+const INITIAL_CONTENT_SELECTOR = '.js-offcanvas-menu-initial-content';
 
 const HOME_BTN_CLASS = 'go-home';
 const BACK_BTN_CLASS = 'go-back';
@@ -25,7 +25,6 @@ const PLACEHOLDER_CLASS = '.offcanvas-menu-placeholder';
 
 const FORWARD_ANIMATION_TYPE = 'forwards';
 const BACKWARD_ANIMATION_TYPE = 'backwards';
-const INSTANT_ANIMATION_TYPE = 'instant';
 
 export default class OffcanvasMenuPlugin extends Plugin {
 
@@ -33,11 +32,6 @@ export default class OffcanvasMenuPlugin extends Plugin {
         this._cache = {};
         this._client = new HttpClient(window.accessKey, window.contextToken);
         this._content = LoadingIndicator.getTemplate();
-
-        // always fetch home menu to warm the cache
-        this._fetchMenu(NAVIGATION_URL);
-        // fetch current menu
-        this._fetchMenu(CURRENT_NAVIGATION_URL, this._updateOverlay.bind(this, INSTANT_ANIMATION_TYPE));
 
         this._registerEvents();
     }
@@ -48,8 +42,8 @@ export default class OffcanvasMenuPlugin extends Plugin {
      * @private
      */
     _registerEvents() {
-        this.el.removeEventListener(TRIGGER_EVENT, this._openMenu.bind(this));
-        this.el.addEventListener(TRIGGER_EVENT, this._openMenu.bind(this));
+        this.el.removeEventListener(TRIGGER_EVENT, this._getLinkEventHandler.bind(this));
+        this.el.addEventListener(TRIGGER_EVENT, this._getLinkEventHandler.bind(this));
 
         if (OffCanvas.exists()) {
             const offcanvasElements = OffCanvas.getOffCanvas();
@@ -86,10 +80,19 @@ export default class OffcanvasMenuPlugin extends Plugin {
      * @private
      */
     _getLinkEventHandler(event, link) {
+        if (!link) {
+            // fetch home menu to warm the cache
+            this._fetchMenu(NAVIGATION_URL);
+
+            const initialContentElement = DomAccess.querySelector(document, INITIAL_CONTENT_SELECTOR);
+            this._content = initialContentElement.innerHTML;
+            return this._openMenu(event);
+        }
+
         OffcanvasMenuPlugin._stopEvent(event);
+        OffcanvasMenuPlugin._setLoader(link);
 
         const url = DomAccess.getAttribute(link, 'href', true);
-        OffcanvasMenuPlugin._setLoader(link);
 
         let animationType = FORWARD_ANIMATION_TYPE;
         if (link.classList.contains(HOME_BTN_CLASS) || link.classList.contains(BACK_BTN_CLASS)) {

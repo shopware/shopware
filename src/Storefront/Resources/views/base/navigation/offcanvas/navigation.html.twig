@@ -2,9 +2,15 @@
 
 {% block base_utilities_offcanvas_content %}
 
+    {% if page.header.offcanvasNavigation %}
+        {% set offcanvasNavigation = page.header.offcanvasNavigation %}
+    {% else %}
+        {% set offcanvasNavigation = page.navigation %}
+    {% endif %}
+
     {% block base_navigation_offcanvas_navigation %}
-        {% set isRootLevel = page.navigation.active.parentId is null %}
-        {% set activeItem = page.navigation.active %}
+        {% set isRootLevel = offcanvasNavigation.active.parentId is null %}
+        {% set activeItem = offcanvasNavigation.active %}
 
         <div class="offcanvas-menu js-offcanvas-menu">
 
@@ -89,7 +95,7 @@
                                     {% endblock %}
                                 {% endif %}
 
-                                {% set firstCategoryItem = page.navigation.tree|first %}
+                                {% set firstCategoryItem = offcanvasNavigation.tree|first %}
                                 {% for treeItem in  firstCategoryItem.children %}
                                     {% set entity = treeItem.category %}
 

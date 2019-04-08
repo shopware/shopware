@@ -47,6 +47,14 @@
             </div>
         {% endblock %}
 
+        {% block initial_offcanvas_navigation %}
+            <div class="d-none js-offcanvas-menu-initial-content">
+                {% block initial_offcanvas_navigation_inner %}
+                    {% sw_include '@Storefront/base/navigation/offcanvas/navigation.html.twig' %}
+                {% endblock %}
+            </div>
+        {% endblock %}
+
         {% block base_main %}
             <main class="content-main">
                 {% block base_main_inner %}

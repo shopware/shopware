@@ -150,7 +150,7 @@ class ProductCollector implements CollectorInterface
             $lineItem->replacePayload([
                 'tags' => $product->getTagIds(),
                 'categories' => $product->getCategoryTree(),
-                'datasheet' => $product->getDatasheetIds(),
+                'properties' => $product->getPropertyIds(),
             ]);
         }
     }
@@ -170,6 +170,6 @@ class ProductCollector implements CollectorInterface
         return $lineItem->getPayload() !== null
             && $lineItem->hasPayloadValue('tags')
             && $lineItem->hasPayloadValue('categories')
-            && $lineItem->hasPayloadValue('datasheet');
+            && $lineItem->hasPayloadValue('properties');
     }
 }

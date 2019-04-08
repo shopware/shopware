@@ -41,7 +41,7 @@
             <tag name="kernel.event_subscriber"/>
         </service>
 
-        <service id="Shopware\Storefront\Pagelet\Listing\Subscriber\DatasheetAggregationSubscriber">
+        <service id="Shopware\Storefront\Pagelet\Listing\Subscriber\PropertiesAggregationSubscriber">
             <tag name="kernel.event_subscriber"/>
         </service>
 

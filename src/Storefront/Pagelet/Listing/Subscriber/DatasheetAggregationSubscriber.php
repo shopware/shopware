@@ -10,15 +10,15 @@ use Shopware\Storefront\Event\ListingEvents;
 use Shopware\Storefront\Pagelet\Listing\ListingPageletCriteriaCreatedEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
-class DatasheetAggregationSubscriber implements EventSubscriberInterface
+class PropertiesAggregationSubscriber implements EventSubscriberInterface
 {
-    public const DATASHEET_FILTER_FIELD = 'product.datasheetIds';
+    public const PROPERTIES_FILTER_FIELD = 'product.propertyIds';
 
-    public const DATASHEET_PARAMETER = 'option';
+    public const PROPERTIES_PARAMETER = 'option';
 
-    public const AGGREGATION_NAME = 'datasheet';
+    public const AGGREGATION_NAME = 'properties';
 
-    public const DATASHEET_AGGREGATION_FIELD = 'product.datasheet.id';
+    public const PROPERTIES_AGGREGATION_FIELD = 'product.properties.id';
 
     public static function getSubscribedEvents(): array
     {
@@ -33,20 +33,20 @@ class DatasheetAggregationSubscriber implements EventSubscriberInterface
 
         $event->getCriteria()->addAggregation(
             new EntityAggregation(
-                self::DATASHEET_AGGREGATION_FIELD,
+                self::PROPERTIES_AGGREGATION_FIELD,
                 ConfigurationGroupOptionDefinition::class,
                 self::AGGREGATION_NAME
             )
         );
 
-        $ids = $request->optionalGet(self::DATASHEET_PARAMETER, '');
+        $ids = $request->optionalGet(self::PROPERTIES_PARAMETER, '');
         $ids = array_filter(explode('|', $ids));
 
         if (empty($ids)) {
             return;
         }
 
-        $query = new EqualsAnyFilter(self::DATASHEET_FILTER_FIELD, $ids);
+        $query = new EqualsAnyFilter(self::PROPERTIES_FILTER_FIELD, $ids);
 
         //add query as extension to transport active aggregation view elements
         $criteria = $event->getCriteria();

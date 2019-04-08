@@ -47,8 +47,8 @@ class CachedEntityAggregatorTest extends TestCase
 
         $criteria = new Criteria([$id1, $id2]);
 
-        $datasheetAggregation = new EntityAggregation('product.datasheet.id', ConfigurationGroupOptionDefinition::class, 'datasheet');
-        $criteria->addAggregation($datasheetAggregation);
+        $propertiesAggregation = new EntityAggregation('product.properties.id', ConfigurationGroupOptionDefinition::class, 'properties');
+        $criteria->addAggregation($propertiesAggregation);
 
         $manufacturerAggregation = new EntityAggregation('product.manufacturer.id', ProductManufacturerDefinition::class, 'manufacturer');
         $criteria->addAggregation($manufacturerAggregation);
@@ -72,7 +72,7 @@ class CachedEntityAggregatorTest extends TestCase
                     new AggregationResultCollection(
                         [
                             new AggregationResult(
-                                $datasheetAggregation,
+                                $propertiesAggregation,
                                 [
                                     [
                                         'key' => null,
@@ -119,7 +119,7 @@ class CachedEntityAggregatorTest extends TestCase
 
         $criteria = new Criteria([$id1, $id2]);
         $criteria->addAggregation(
-            new EntityAggregation('product.datasheet.id', ConfigurationGroupOptionDefinition::class, 'datasheet')
+            new EntityAggregation('product.properties.id', ConfigurationGroupOptionDefinition::class, 'properties')
         );
         $criteria->addAggregation(
             new EntityAggregation('product.manufacturer.id', ProductManufacturerDefinition::class, 'manufacturer')
@@ -151,9 +151,9 @@ class CachedEntityAggregatorTest extends TestCase
                                 [
                                     new AggregationResult(
                                         new EntityAggregation(
-                                            'product.datasheet.id',
+                                            'product.properties.id',
                                             ConfigurationGroupOptionDefinition::class,
-                                            'datasheet'
+                                            'properties'
                                         ),
                                         [
                                             [
@@ -228,8 +228,8 @@ class CachedEntityAggregatorTest extends TestCase
 
         $criteria = new Criteria([$id1, $id2]);
 
-        $datasheetAggregation = new EntityAggregation('product.datasheet.id', ConfigurationGroupOptionDefinition::class, 'datasheet');
-        $criteria->addAggregation($datasheetAggregation);
+        $propertiesAggregation = new EntityAggregation('product.properties.id', ConfigurationGroupOptionDefinition::class, 'properties');
+        $criteria->addAggregation($propertiesAggregation);
 
         $manufacturerAggregation = new EntityAggregation('product.manufacturer.id', ProductManufacturerDefinition::class, 'manufacturer');
         $criteria->addAggregation($manufacturerAggregation);
@@ -253,7 +253,7 @@ class CachedEntityAggregatorTest extends TestCase
                     new AggregationResultCollection(
                         [
                             new AggregationResult(
-                                $datasheetAggregation,
+                                $propertiesAggregation,
                                 [
                                     [
                                         'key' => null,

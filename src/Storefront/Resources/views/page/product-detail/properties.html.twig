@@ -1,5 +1,5 @@
 {% block page_product_detail_properties_inner %}
-    {% set propertyItems = page.product.datasheet.elements %}
+    {% set propertyItems = page.product.properties.elements %}
     {% set propertyGroups = [] %}
 
     {% if propertyItems|length > 0 %}

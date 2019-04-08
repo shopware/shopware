@@ -7,11 +7,11 @@ use Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupOption\Confi
 use Shopware\Core\Content\Product\Aggregate\ProductCategory\ProductCategoryDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductCategoryTree\ProductCategoryTreeDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductConfiguratorSetting\ProductConfiguratorSettingDefinition;
-use Shopware\Core\Content\Product\Aggregate\ProductDatasheet\ProductDatasheetDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductOption\ProductOptionDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductPrice\ProductPriceDefinition;
+use Shopware\Core\Content\Product\Aggregate\ProductProperty\ProductPropertyDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductTag\ProductTagDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductTranslation\ProductTranslationDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
@@ -147,7 +147,7 @@ class ProductDefinition extends EntityDefinition
             (new FloatField('length', 'length'))->addFlags(new Inherited()),
             (new DateField('release_date', 'releaseDate'))->addFlags(new Inherited()),
             (new ListField('category_tree', 'categoryTree', IdField::class))->addFlags(new Inherited(), new WriteProtected()),
-            (new ListField('datasheet_ids', 'datasheetIds', IdField::class))->addFlags(new Inherited()),
+            (new ListField('property_ids', 'propertyIds', IdField::class))->addFlags(new Inherited()),
             new ListField('option_ids', 'optionIds', IdField::class),
             (new IntField('min_delivery_time', 'minDeliveryTime'))->addFlags(new Inherited()),
             (new IntField('max_delivery_time', 'maxDeliveryTime'))->addFlags(new Inherited()),
@@ -178,7 +178,7 @@ class ProductDefinition extends EntityDefinition
             (new OneToManyAssociationField('media', ProductMediaDefinition::class, 'product_id'))->addFlags(new CascadeDelete(), new Inherited()),
 
             //associations which are not loaded immediately
-            (new ManyToManyAssociationField('datasheet', ConfigurationGroupOptionDefinition::class, ProductDatasheetDefinition::class, 'product_id', 'configuration_group_option_id'))->addFlags(new CascadeDelete(), new Inherited()),
+            (new ManyToManyAssociationField('properties', ConfigurationGroupOptionDefinition::class, ProductPropertyDefinition::class, 'product_id', 'configuration_group_option_id'))->addFlags(new CascadeDelete(), new Inherited()),
             (new ManyToManyAssociationField('categories', CategoryDefinition::class, ProductCategoryDefinition::class, 'product_id', 'category_id'))->addFlags(new CascadeDelete(), new Inherited()),
             (new ManyToManyAssociationField('tags', TagDefinition::class, ProductTagDefinition::class, 'product_id', 'tag_id'))->addFlags(new Inherited()),
 

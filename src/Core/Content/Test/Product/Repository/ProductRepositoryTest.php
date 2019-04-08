@@ -1344,7 +1344,7 @@ class ProductRepositoryTest extends TestCase
         static::assertEquals($manufacturerId, $product->getManufacturerId());
     }
 
-    public function testCreateAndAssignProductDatasheet(): void
+    public function testCreateAndAssignProductProperty(): void
     {
         $id = Uuid::randomHex();
         $redId = Uuid::randomHex();
@@ -1358,7 +1358,7 @@ class ProductRepositoryTest extends TestCase
             'tax' => ['name' => 'test', 'taxRate' => 15],
             'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
             'manufacturer' => ['name' => 'test'],
-            'datasheet' => [
+            'properties' => [
                 [
                     'id' => $redId,
                     'name' => 'red',
@@ -1375,11 +1375,11 @@ class ProductRepositoryTest extends TestCase
         $this->repository->create([$data], Context::createDefaultContext());
 
         $criteria = new Criteria([$id]);
-        $criteria->addAssociation('datasheet');
+        $criteria->addAssociation('properties');
         /** @var ProductEntity $product */
         $product = $this->repository->search($criteria, Context::createDefaultContext())->get($id);
 
-        $sheet = $product->getDatasheet();
+        $sheet = $product->getProperties();
 
         static::assertCount(2, $sheet);
 

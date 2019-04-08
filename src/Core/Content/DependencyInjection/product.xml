@@ -48,8 +48,8 @@
             <tag name="shopware.entity.definition" entity="product_price"/>
         </service>
 
-        <service id="Shopware\Core\Content\Product\Aggregate\ProductDatasheet\ProductDatasheetDefinition">
-            <tag name="shopware.entity.definition" entity="product_datasheet"/>
+        <service id="Shopware\Core\Content\Product\Aggregate\ProductProperty\ProductPropertyDefinition">
+            <tag name="shopware.entity.definition" entity="product_property"/>
         </service>
 
         <service id="Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerDefinition">
@@ -92,7 +92,7 @@
             <tag name="shopware.dbal_indexing.indexer" priority="900"/>
         </service>
 
-        <service id="Shopware\Core\Content\Product\DataAbstractionLayer\Indexing\ProductDatasheetIndexer">
+        <service id="Shopware\Core\Content\Product\DataAbstractionLayer\Indexing\ProductPropertyIndexer">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\Content\Product\Util\EventIdExtractor"/>

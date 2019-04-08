@@ -135,7 +135,7 @@ Table(ShopwareCoreContentProduct, "Shopware\Core\Content\Product\n(Products)") {
    product_tag Table
    product_configurator Table
    product_price Table
-   product_datasheet Table
+   product_property Table
    product_manufacturer Table
    product_manufacturer_translation Table
    product_media Table

@@ -67,7 +67,7 @@ ForeignTable(ShopwareCoreContentMediaMediaDefinition, "media") {
 }
 ForeignTable(ShopwareCoreContentProductAggregateProductConfiguratorProductConfiguratorDefinition, "product_configurator") {
 }
-ForeignTable(ShopwareCoreContentProductAggregateProductDatasheetProductDatasheetDefinition, "product_datasheet") {
+ForeignTable(ShopwareCoreContentProductAggregateProductDatasheetProductDatasheetDefinition, "product_property") {
 }
 ForeignTable(ShopwareCoreContentProductAggregateProductVariationProductVariationDefinition, "product_variation") {
 }

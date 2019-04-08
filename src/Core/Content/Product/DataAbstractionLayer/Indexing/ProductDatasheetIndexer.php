@@ -14,7 +14,7 @@ use Shopware\Core\Framework\Event\ProgressStartedEvent;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
-class ProductDatasheetIndexer implements IndexerInterface
+class ProductPropertyIndexer implements IndexerInterface
 {
     /**
      * @var EventDispatcherInterface
@@ -49,7 +49,7 @@ class ProductDatasheetIndexer implements IndexerInterface
 
         $this->eventDispatcher->dispatch(
             ProgressStartedEvent::NAME,
-            new ProgressStartedEvent('Start indexing datasheets', $iterator->fetchCount())
+            new ProgressStartedEvent('Start indexing properties', $iterator->fetchCount())
         );
 
         while ($ids = $iterator->fetch()) {
@@ -67,7 +67,7 @@ class ProductDatasheetIndexer implements IndexerInterface
 
         $this->eventDispatcher->dispatch(
             ProgressFinishedEvent::NAME,
-            new ProgressFinishedEvent('Finished indexing datasheets')
+            new ProgressFinishedEvent('Finished indexing properties')
         );
     }
 
@@ -85,12 +85,12 @@ class ProductDatasheetIndexer implements IndexerInterface
         }
 
         $sql = <<<SQL
-UPDATE product, product_datasheet SET product.datasheet_ids = (
-    SELECT CONCAT('[', GROUP_CONCAT(JSON_QUOTE(LOWER(HEX(product_datasheet.configuration_group_option_id)))), ']')
-    FROM product_datasheet
-    WHERE product_datasheet.product_id = product.datasheet
+UPDATE product, product_property SET product.property_ids = (
+    SELECT CONCAT('[', GROUP_CONCAT(JSON_QUOTE(LOWER(HEX(product_property.configuration_group_option_id)))), ']')
+    FROM product_property
+    WHERE product_property.product_id = product.properties
 )
-WHERE product_datasheet.product_id = product.datasheet
+WHERE product_property.product_id = product.properties
 AND product.id IN (:ids)
 SQL;
 

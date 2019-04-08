@@ -127,32 +127,32 @@ class ProductEvents
     /**
      * @Event("Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent")
      */
-    public const PRODUCT_DATASHEET_WRITTEN_EVENT = 'product_datasheet.written';
+    public const PRODUCT_PROPERTY_WRITTEN_EVENT = 'product_property.written';
 
     /**
      * @Event("Shopware\Core\Framework\DataAbstractionLayer\Event\EntityDeletedEvent")
      */
-    public const PRODUCT_DATASHEET_DELETED_EVENT = 'product_datasheet.deleted';
+    public const PRODUCT_PROPERTY_DELETED_EVENT = 'product_property.deleted';
 
     /**
      * @Event("Shopware\Core\Framework\DataAbstractionLayer\Event\EntityLoadedEvent")
      */
-    public const PRODUCT_DATASHEET_LOADED_EVENT = 'product_datasheet.loaded';
+    public const PRODUCT_PROPERTY_LOADED_EVENT = 'product_property.loaded';
 
     /**
      * @Event("Shopware\Core\Framework\DataAbstractionLayer\Event\EntitySearchResultLoadedEvent")
      */
-    public const PRODUCT_DATASHEET_SEARCH_RESULT_LOADED_EVENT = 'product_datasheet.search.result.loaded';
+    public const PRODUCT_PROPERTY_SEARCH_RESULT_LOADED_EVENT = 'product_property.search.result.loaded';
 
     /**
      * @Event("Shopware\Core\Framework\DataAbstractionLayer\Event\EntityAggregationResultLoadedEvent")
      */
-    public const PRODUCT_DATASHEET_AGGREGATION_LOADED_EVENT = 'product_datasheet.aggregation.result.loaded';
+    public const PRODUCT_PROPERTY_AGGREGATION_LOADED_EVENT = 'product_property.aggregation.result.loaded';
 
     /**
      * @Event("Shopware\Core\Framework\DataAbstractionLayer\Event\EntityIdSearchResultLoadedEvent")
      */
-    public const PRODUCT_DATASHEET_ID_SEARCH_RESULT_LOADED_EVENT = 'product_datasheet.id.search.result.loaded';
+    public const PRODUCT_PROPERTY_ID_SEARCH_RESULT_LOADED_EVENT = 'product_property.id.search.result.loaded';
 
     /**
      * @Event("Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent")

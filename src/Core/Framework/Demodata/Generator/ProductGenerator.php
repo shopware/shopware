@@ -156,7 +156,7 @@ class ProductGenerator implements DemodataGeneratorInterface
                 random_int(10, 30)
             );
 
-            $product['datasheet'] = array_map(function ($config) {
+            $product['properties'] = array_map(function ($config) {
                 return ['id' => $config];
             }, $productProperties);
 

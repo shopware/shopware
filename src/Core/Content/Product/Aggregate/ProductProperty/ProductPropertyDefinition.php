@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Content\Product\Aggregate\ProductDatasheet;
+namespace Shopware\Core\Content\Product\Aggregate\ProductProperty;
 
 use Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupOption\ConfigurationGroupOptionDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
@@ -12,11 +12,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\MappingEntityDefinition;
 
-class ProductDatasheetDefinition extends MappingEntityDefinition
+class ProductPropertyDefinition extends MappingEntityDefinition
 {
     public static function getEntityName(): string
     {
-        return 'product_datasheet';
+        return 'product_property';
     }
 
     protected static function defineFields(): FieldCollection

@@ -13,8 +13,8 @@ Component.register('sw-product-detail-properties', {
     },
 
     computed: {
-        datasheetStore() {
-            return this.product.getAssociation('datasheet');
+        propertiesStore() {
+            return this.product.getAssociation('properties');
         }
     }
 });

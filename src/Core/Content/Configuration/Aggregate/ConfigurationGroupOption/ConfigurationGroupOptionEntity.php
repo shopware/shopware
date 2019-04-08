@@ -57,7 +57,7 @@ class ConfigurationGroupOptionEntity extends Entity
     /**
      * @var ProductCollection|null
      */
-    protected $productDatasheets;
+    protected $productProperties;
 
     /**
      * @var ProductCollection|null
@@ -174,14 +174,14 @@ class ConfigurationGroupOptionEntity extends Entity
         $this->productConfigurators = $productConfigurators;
     }
 
-    public function getProductDatasheets(): ?ProductCollection
+    public function getProductProperties(): ?ProductCollection
     {
-        return $this->productDatasheets;
+        return $this->productProperties;
     }
 
-    public function setProductDatasheets(ProductCollection $productDatasheets): void
+    public function setProductProperties(ProductCollection $productProperties): void
     {
-        $this->productDatasheets = $productDatasheets;
+        $this->productProperties = $productProperties;
     }
 
     public function getProductOptions(): ?ProductCollection

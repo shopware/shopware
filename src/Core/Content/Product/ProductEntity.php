@@ -199,7 +199,7 @@ class ProductEntity extends Entity
     /**
      * @var array|null
      */
-    protected $datasheetIds;
+    protected $propertyIds;
 
     /**
      * @var string|null
@@ -299,7 +299,7 @@ class ProductEntity extends Entity
     /**
      * @var ConfigurationGroupOptionCollection|null
      */
-    protected $datasheet;
+    protected $properties;
 
     /**
      * @var ConfigurationGroupOptionCollection|null
@@ -921,14 +921,14 @@ class ProductEntity extends Entity
         $this->optionIds = $optionIds;
     }
 
-    public function getDatasheetIds(): ?array
+    public function getPropertyIds(): ?array
     {
-        return $this->datasheetIds;
+        return $this->propertyIds;
     }
 
-    public function setDatasheetIds(?array $datasheetIds): void
+    public function setPropertyIds(?array $propertyIds): void
     {
-        $this->datasheetIds = $datasheetIds;
+        $this->propertyIds = $propertyIds;
     }
 
     public function getCover(): ?ProductMediaEntity
@@ -1011,14 +1011,14 @@ class ProductEntity extends Entity
         $this->tags = $tags;
     }
 
-    public function getDatasheet(): ?ConfigurationGroupOptionCollection
+    public function getProperties(): ?ConfigurationGroupOptionCollection
     {
-        return $this->datasheet;
+        return $this->properties;
     }
 
-    public function setDatasheet(ConfigurationGroupOptionCollection $datasheet): void
+    public function setProperties(ConfigurationGroupOptionCollection $properties): void
     {
-        $this->datasheet = $datasheet;
+        $this->properties = $properties;
     }
 
     public function getOptions(): ?ConfigurationGroupOptionCollection

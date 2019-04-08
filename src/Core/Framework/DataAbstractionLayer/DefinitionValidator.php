@@ -47,7 +47,7 @@ class DefinitionValidator
     protected $registry;
 
     private static $pluralExceptions = [
-        'children', 'categoriesRo', 'datasheet', 'media',
+        'children', 'categoriesRo', 'properties', 'media',
     ];
 
     private static $customPrefixedNames = [
@@ -61,7 +61,7 @@ class DefinitionValidator
     ];
 
     private static $ignoredInPrefixCheck = [
-        'datasheet', 'options', 'translationcode', 'blocks',
+        'properties', 'options', 'translationcode', 'blocks',
     ];
 
     private static $tablesWithoutDefinition = [

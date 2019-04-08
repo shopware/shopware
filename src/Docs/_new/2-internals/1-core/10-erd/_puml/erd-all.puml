@@ -675,7 +675,7 @@ Table(ShopwareCoreContentProductProductDefinition, "product\n(Product)") {
    length float
    releaseDate date
    categoryTree list
-   datasheetIds list
+   propertyIds list
    variationIds list
    minDeliveryTime int
    maxDeliveryTime int

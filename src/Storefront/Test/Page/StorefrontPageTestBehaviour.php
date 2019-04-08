@@ -93,11 +93,13 @@ trait StorefrontPageTestBehaviour
     protected function getRandomProduct(SalesChannelContext $context): ProductEntity
     {
         $id = Uuid::randomHex();
+        $productNumber = Uuid::randomHex();
         $productRepository = $this->getContainer()->get('product.repository');
         $productVisibilityRepository = $this->getContainer()->get('product_visibility.repository');
 
         $data = [
             'id' => $id,
+            'productNumber' => $productNumber,
             'stock' => 1,
             'name' => StorefrontPageTestConstants::PRODUCT_NAME,
             'price' => ['gross' => 15, 'net' => 10, 'linked' => false],

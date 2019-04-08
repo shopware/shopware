@@ -88,9 +88,11 @@ class SalesChannelCartControllerTest extends TestCase
     public function testAddProduct(): void
     {
         $productId = Uuid::randomHex();
+        $productNumber = Uuid::randomHex();
         $this->productRepository->create([
             [
                 'id' => $productId,
+                'productNumber' => $productNumber,
                 'stock' => 1,
                 'name' => 'Test',
                 'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
@@ -121,11 +123,14 @@ class SalesChannelCartControllerTest extends TestCase
     public function testAddMultipleProducts(): void
     {
         $productId1 = Uuid::randomHex();
+        $productNumber1 = Uuid::randomHex();
         $productId2 = Uuid::randomHex();
+        $productNumber2 = Uuid::randomHex();
 
         $this->productRepository->create([
             [
                 'id' => $productId1,
+                'productNumber' => $productNumber1,
                 'stock' => 1,
                 'name' => 'Test 1',
                 'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
@@ -134,6 +139,7 @@ class SalesChannelCartControllerTest extends TestCase
             ],
             [
                 'id' => $productId2,
+                'productNumber' => $productNumber2,
                 'stock' => 1,
                 'name' => 'Test 2',
                 'price' => ['gross' => 20, 'net' => 9, 'linked' => false],
@@ -159,10 +165,12 @@ class SalesChannelCartControllerTest extends TestCase
     public function testChangeQuantity(): void
     {
         $productId1 = Uuid::randomHex();
+        $productNumber1 = Uuid::randomHex();
 
         $this->productRepository->create([
             [
                 'id' => $productId1,
+                'productNumber' => $productNumber1,
                 'stock' => 1,
                 'name' => 'Test 1',
                 'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
@@ -190,10 +198,12 @@ class SalesChannelCartControllerTest extends TestCase
     public function testChangeLineItemQuantity(): void
     {
         $productId1 = Uuid::randomHex();
+        $productNumber1 = Uuid::randomHex();
 
         $this->productRepository->create([
             [
                 'id' => $productId1,
+                'productNumber' => $productNumber1,
                 'stock' => 1,
                 'name' => 'Test 1',
                 'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
@@ -221,10 +231,12 @@ class SalesChannelCartControllerTest extends TestCase
     public function testChangeWithInvalidQuantity(): void
     {
         $productId1 = Uuid::randomHex();
+        $productNumber1 = Uuid::randomHex();
 
         $this->productRepository->create([
             [
                 'id' => $productId1,
+                'productNumber' => $productNumber1,
                 'stock' => 1,
                 'name' => 'Test 1',
                 'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
@@ -250,11 +262,14 @@ class SalesChannelCartControllerTest extends TestCase
     public function testRemoveLineItem(): void
     {
         $productId1 = Uuid::randomHex();
+        $productNumber1 = Uuid::randomHex();
         $productId2 = Uuid::randomHex();
+        $productNumber2 = Uuid::randomHex();
 
         $this->productRepository->create([
             [
                 'id' => $productId1,
+                'productNumber' => $productNumber1,
                 'stock' => 1,
                 'name' => 'Test 1',
                 'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
@@ -263,6 +278,7 @@ class SalesChannelCartControllerTest extends TestCase
             ],
             [
                 'id' => $productId2,
+                'productNumber' => $productNumber2,
                 'stock' => 1,
                 'name' => 'Test 2',
                 'price' => ['gross' => 20, 'net' => 9, 'linked' => false],
@@ -314,11 +330,14 @@ class SalesChannelCartControllerTest extends TestCase
     public function testMergeSameProduct(): void
     {
         $productId1 = Uuid::randomHex();
+        $productNumber1 = Uuid::randomHex();
         $productId2 = Uuid::randomHex();
+        $productNumber2 = Uuid::randomHex();
 
         $this->productRepository->create([
             [
                 'id' => $productId1,
+                'productNumber' => $productNumber1,
                 'stock' => 1,
                 'name' => 'Test 1',
                 'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
@@ -327,6 +346,7 @@ class SalesChannelCartControllerTest extends TestCase
             ],
             [
                 'id' => $productId2,
+                'productNumber' => $productNumber2,
                 'stock' => 1,
                 'name' => 'Test 2',
                 'price' => ['gross' => 20, 'net' => 9, 'linked' => false],
@@ -368,9 +388,11 @@ class SalesChannelCartControllerTest extends TestCase
     public function testAddProductUsingGenericLineItemRoute(): void
     {
         $productId = Uuid::randomHex();
+        $productNumber = Uuid::randomHex();
         $this->productRepository->create([
             [
                 'id' => $productId,
+                'productNumber' => $productNumber,
                 'stock' => 1,
                 'name' => 'Test',
                 'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
@@ -441,9 +463,11 @@ class SalesChannelCartControllerTest extends TestCase
     public function testUpdateLineItem(): void
     {
         $productId = Uuid::randomHex();
+        $productNumber = Uuid::randomHex();
         $this->productRepository->create([
             [
                 'id' => $productId,
+                'productNumber' => $productNumber,
                 'stock' => 1,
                 'name' => 'Test',
                 'price' => ['gross' => 10, 'net' => 9, 'linked' => false],

@@ -749,8 +749,10 @@ class RecalculationServiceTest extends TestCase
     private function createProduct(string $name, float $price, float $taxRate): string
     {
         $productId = Uuid::randomHex();
+        $productNumber = Uuid::randomHex();
         $data = [
             'id' => $productId,
+            'productNumber' => $productNumber,
             'stock' => 1,
             'name' => $name,
             'price' => ['gross' => $price + ($price * $taxRate / 100), 'net' => $price, 'linked' => false],

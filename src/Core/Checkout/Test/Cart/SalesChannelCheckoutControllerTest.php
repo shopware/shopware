@@ -100,11 +100,13 @@ class SalesChannelCheckoutControllerTest extends TestCase
     public function testOrderProcess(): void
     {
         $productId = Uuid::randomHex();
+        $productNumber = Uuid::randomHex();
         $context = Context::createDefaultContext();
 
         $this->productRepository->create([
             [
                 'id' => $productId,
+                'productNumber' => $productNumber,
                 'stock' => 1,
                 'name' => 'Test',
                 'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
@@ -143,6 +145,7 @@ class SalesChannelCheckoutControllerTest extends TestCase
     public function testOrderProcessWithDifferentCurrency(): void
     {
         $productId = Uuid::randomHex();
+        $productNumber = Uuid::randomHex();
         $yen = [
             'id' => Uuid::randomHex(),
             'symbol' => '¥',
@@ -160,6 +163,7 @@ class SalesChannelCheckoutControllerTest extends TestCase
         $this->productRepository->create([
             [
                 'id' => $productId,
+                'productNumber' => $productNumber,
                 'stock' => 1,
                 'name' => 'Test',
                 'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
@@ -201,12 +205,14 @@ class SalesChannelCheckoutControllerTest extends TestCase
     public function testGuestOrderProcess(): void
     {
         $productId = Uuid::randomHex();
+        $productNumber = Uuid::randomHex();
         $context = Context::createDefaultContext();
 
         $grossPrice = 10;
         $this->productRepository->create([
             [
                 'id' => $productId,
+                'productNumber' => $productNumber,
                 'stock' => 1,
                 'name' => 'Test',
                 'price' => ['gross' => $grossPrice, 'net' => 9, 'linked' => false],
@@ -281,12 +287,14 @@ class SalesChannelCheckoutControllerTest extends TestCase
     {
         // todo write test
         $productId = Uuid::randomHex();
+        $productNumber = Uuid::randomHex();
         $context = Context::createDefaultContext();
 
         $grossPrice = 10;
         $this->productRepository->create([
             [
                 'id' => $productId,
+                'productNumber' => $productNumber,
                 'stock' => 1,
                 'name' => 'Test',
                 'price' => ['gross' => $grossPrice, 'net' => 9, 'linked' => false],
@@ -353,12 +361,14 @@ class SalesChannelCheckoutControllerTest extends TestCase
     public function testGuestOrderProcessWithExistingCustomer(): void
     {
         $productId = Uuid::randomHex();
+        $productNumber = Uuid::randomHex();
         $context = Context::createDefaultContext();
 
         $grossPrice = 10;
         $this->productRepository->create([
             [
                 'id' => $productId,
+                'productNumber' => $productNumber,
                 'stock' => 1,
                 'name' => 'Test',
                 'price' => ['gross' => $grossPrice, 'net' => 9, 'linked' => false],
@@ -399,12 +409,14 @@ class SalesChannelCheckoutControllerTest extends TestCase
     public function testGuestOrderProcessWithLoggedInCustomer(): void
     {
         $productId = Uuid::randomHex();
+        $productNumber = Uuid::randomHex();
         $context = Context::createDefaultContext();
 
         $grossPrice = 10;
         $this->productRepository->create([
             [
                 'id' => $productId,
+                'productNumber' => $productNumber,
                 'stock' => 1,
                 'name' => 'Test',
                 'price' => ['gross' => $grossPrice, 'net' => 9, 'linked' => false],
@@ -727,12 +739,14 @@ class SalesChannelCheckoutControllerTest extends TestCase
     private function createGuestOrder()
     {
         $productId = Uuid::randomHex();
+        $productNumber = Uuid::randomHex();
         $context = Context::createDefaultContext();
 
         $grossPrice = 10;
         $this->productRepository->create([
             [
                 'id' => $productId,
+                'productNumber' => $productNumber,
                 'stock' => 1,
                 'name' => 'Test',
                 'price' => ['gross' => $grossPrice, 'net' => 9, 'linked' => false],

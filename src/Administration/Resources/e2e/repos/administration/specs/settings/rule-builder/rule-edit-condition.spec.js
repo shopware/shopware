@@ -41,7 +41,8 @@ module.exports = {
     'add an and-condition as subcondition to the rule': (browser) => {
         const page = ruleBuilderPage(browser);
 
-        browser.click('.sw-condition-and-container__actions--and');
+        browser.click('.sw-condition-and-container__actions--and')
+            .waitForElementVisible(`${page.elements.conditionOrContainer}--0 ${page.elements.conditionAndContainer}--1`);
 
         page.createBasicInputCondition({
             type: 'Cart amount',

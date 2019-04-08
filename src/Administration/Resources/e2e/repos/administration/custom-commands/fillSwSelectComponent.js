@@ -36,7 +36,7 @@ exports.command = function fillSwSelectComponent(
 
     if (!isMulti) {
         // open results list
-        this.moveToElement(`${selector}`, 10, 10)
+        this.moveToElement(`${selector}`, 3, 3)
             .mouseButtonClick('left')
             .waitForElementVisible(`${selector} ${swSelectResultsCssSelector}`);
     }

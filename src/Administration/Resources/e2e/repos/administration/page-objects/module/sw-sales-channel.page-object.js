@@ -68,7 +68,7 @@ class SalesChannelPageObject extends GeneralPageObject {
                 {
                     value: 'Standard customer group',
                     isMulti: false,
-                    searchTerm: 'Standard'
+                    searchTerm: 'Standard customer group'
                 }
             )
             .click(this.elements.salesChannelSaveAction)

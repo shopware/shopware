@@ -82,7 +82,7 @@ export default class ChangesetGenerator {
             }
 
             if (type.type === 'association' && type.relation === 'one_to_one') {
-                const change = this.generate(draftValue, deletionQueue);
+                const change = this.recursion(draftValue, deletionQueue);
 
                 if (change !== null) {
                     // if a change is detected, add id as identifier for updates
@@ -151,7 +151,7 @@ export default class ChangesetGenerator {
             }
 
             // check if some properties changed
-            const change = this.generate(entity, deletionQueue);
+            const change = this.recursion(entity, deletionQueue);
             if (change !== null) {
                 // if a change is detected, add id as identifier for updates
                 change.id = entity.id;

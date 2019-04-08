@@ -9,7 +9,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Computed;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Deferred;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Extension;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\SearchRanking;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ParentAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
@@ -24,11 +23,6 @@ abstract class EntityDefinition
      * @var FieldCollection[]|null[]
      */
     protected static $fields = [];
-
-    /**
-     * @var Field[][]
-     */
-    protected static $searchFields = [];
 
     /**
      * @var EntityExtensionInterface[][]
@@ -57,28 +51,6 @@ abstract class EntityDefinition
     }
 
     abstract public static function getEntityName(): string;
-
-    /**
-     * @return Field[]
-     */
-    public static function getSearchFields(): array
-    {
-        if (isset(static::$searchFields[static::class])) {
-            return static::$searchFields[static::class];
-        }
-
-        $fields = static::getFields()->fmap(
-            function (Field $field) {
-                if ($field->is(SearchRanking::class)) {
-                    return $field;
-                }
-
-                return null;
-            }
-        );
-
-        return static::$searchFields[static::class] = $fields;
-    }
 
     public static function getFields(): FieldCollection
     {

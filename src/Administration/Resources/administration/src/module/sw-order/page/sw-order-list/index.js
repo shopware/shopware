@@ -58,6 +58,12 @@ Component.register('sw-order-list', {
                 params.sortDirection = 'DESC';
             }
 
+            if (!params.associations) {
+                params.associations = {};
+            }
+
+            params.associations.addresses = {};
+
             return this.orderStore.getList(params, true).then((response) => {
                 this.total = response.total;
                 this.orders = response.items;

@@ -399,7 +399,7 @@ Get a list of products belonging to the category.
                 "categories": null,
                 "datasheet": null,
                 "variations": null,
-                "configurators": null,
+                "configuratorSettings": null,
                 "services": null,
                 "categoriesRo": null,
                 "catalog": null,

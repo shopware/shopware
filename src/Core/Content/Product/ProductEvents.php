@@ -67,32 +67,32 @@ class ProductEvents
     /**
      * @Event("Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent")
      */
-    public const PRODUCT_CONFIGURATOR_WRITTEN_EVENT = 'product_configurator.written';
+    public const PRODUCT_CONFIGURATOR_SETTING_WRITTEN_EVENT = 'product_configurator_setting.written';
 
     /**
      * @Event("Shopware\Core\Framework\DataAbstractionLayer\Event\EntityDeletedEvent")
      */
-    public const PRODUCT_CONFIGURATOR_DELETED_EVENT = 'product_configurator.deleted';
+    public const PRODUCT_CONFIGURATOR_SETTING_DELETED_EVENT = 'product_configurator_setting.deleted';
 
     /**
      * @Event("Shopware\Core\Framework\DataAbstractionLayer\Event\EntityLoadedEvent")
      */
-    public const PRODUCT_CONFIGURATOR_LOADED_EVENT = 'product_configurator.loaded';
+    public const PRODUCT_CONFIGURATOR_SETTING_LOADED_EVENT = 'product_configurator_setting.loaded';
 
     /**
      * @Event("Shopware\Core\Framework\DataAbstractionLayer\Event\EntitySearchResultLoadedEvent")
      */
-    public const PRODUCT_CONFIGURATOR_SEARCH_RESULT_LOADED_EVENT = 'product_configurator.search.result.loaded';
+    public const PRODUCT_CONFIGURATOR_SETTING_SEARCH_RESULT_LOADED_EVENT = 'product_configurator_setting.search.result.loaded';
 
     /**
      * @Event("Shopware\Core\Framework\DataAbstractionLayer\Event\EntityAggregationResultLoadedEvent")
      */
-    public const PRODUCT_CONFIGURATOR_AGGREGATION_LOADED_EVENT = 'product_configurator.aggregation.result.loaded';
+    public const PRODUCT_CONFIGURATOR_SETTING_AGGREGATION_LOADED_EVENT = 'product_configurator_setting.aggregation.result.loaded';
 
     /**
      * @Event("Shopware\Core\Framework\DataAbstractionLayer\Event\EntityIdSearchResultLoadedEvent")
      */
-    public const PRODUCT_CONFIGURATOR_ID_SEARCH_RESULT_LOADED_EVENT = 'product_configurator.id.search.result.loaded';
+    public const PRODUCT_CONFIGURATOR_SETTING_ID_SEARCH_RESULT_LOADED_EVENT = 'product_configurator_setting.id.search.result.loaded';
 
     /**
      * @Event("Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent")

@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Content\Product\Aggregate\ProductConfigurator;
+namespace Shopware\Core\Content\Product\Aggregate\ProductConfiguratorSetting;
 
 use Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupOption\ConfigurationGroupOptionEntity;
 use Shopware\Core\Content\Product\ProductEntity;
@@ -8,7 +8,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\Pricing\Price;
 
-class ProductConfiguratorEntity extends Entity
+class ProductConfiguratorSettingEntity extends Entity
 {
     use EntityIdTrait;
     /**

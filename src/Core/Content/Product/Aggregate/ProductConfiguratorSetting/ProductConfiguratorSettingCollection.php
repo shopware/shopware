@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Content\Product\Aggregate\ProductConfigurator;
+namespace Shopware\Core\Content\Product\Aggregate\ProductConfiguratorSetting;
 
 use Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupOption\ConfigurationGroupOptionCollection;
 use Shopware\Core\Content\Configuration\ConfigurationGroupCollection;
@@ -8,40 +8,40 @@ use Shopware\Core\Content\Configuration\ConfigurationGroupEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 /**
- * @method void                           add(ProductConfiguratorEntity $entity)
- * @method void                           set(string $key, ProductConfiguratorEntity $entity)
- * @method ProductConfiguratorEntity[]    getIterator()
- * @method ProductConfiguratorEntity[]    getElements()
- * @method ProductConfiguratorEntity|null get(string $key)
- * @method ProductConfiguratorEntity|null first()
- * @method ProductConfiguratorEntity|null last()
+ * @method void                                  add(ProductConfiguratorSettingEntity $entity)
+ * @method void                                  set(string $key, ProductConfiguratorSettingEntity $entity)
+ * @method ProductConfiguratorSettingEntity[]    getIterator()
+ * @method ProductConfiguratorSettingEntity[]    getElements()
+ * @method ProductConfiguratorSettingEntity|null get(string $key)
+ * @method ProductConfiguratorSettingEntity|null first()
+ * @method ProductConfiguratorSettingEntity|null last()
  */
-class ProductConfiguratorCollection extends EntityCollection
+class ProductConfiguratorSettingCollection extends EntityCollection
 {
     public function getProductIds(): array
     {
-        return $this->fmap(function (ProductConfiguratorEntity $productConfigurator) {
+        return $this->fmap(function (ProductConfiguratorSettingEntity $productConfigurator) {
             return $productConfigurator->getProductId();
         });
     }
 
     public function filterByProductId(string $id): self
     {
-        return $this->filter(function (ProductConfiguratorEntity $productConfigurator) use ($id) {
+        return $this->filter(function (ProductConfiguratorSettingEntity $productConfigurator) use ($id) {
             return $productConfigurator->getProductId() === $id;
         });
     }
 
     public function getOptionIds(): array
     {
-        return $this->fmap(function (ProductConfiguratorEntity $productConfigurator) {
+        return $this->fmap(function (ProductConfiguratorSettingEntity $productConfigurator) {
             return $productConfigurator->getOptionId();
         });
     }
 
     public function filterByOptionId(string $id): self
     {
-        return $this->filter(function (ProductConfiguratorEntity $productConfigurator) use ($id) {
+        return $this->filter(function (ProductConfiguratorSettingEntity $productConfigurator) use ($id) {
             return $productConfigurator->getOptionId() === $id;
         });
     }
@@ -49,7 +49,7 @@ class ProductConfiguratorCollection extends EntityCollection
     public function getOptions(): ConfigurationGroupOptionCollection
     {
         return new ConfigurationGroupOptionCollection(
-            $this->fmap(function (ProductConfiguratorEntity $productConfigurator) {
+            $this->fmap(function (ProductConfiguratorSettingEntity $productConfigurator) {
                 return $productConfigurator->getOption();
             })
         );
@@ -80,7 +80,7 @@ class ProductConfiguratorCollection extends EntityCollection
         return $groups;
     }
 
-    public function getByOptionId(string $optionId): ?ProductConfiguratorEntity
+    public function getByOptionId(string $optionId): ?ProductConfiguratorSettingEntity
     {
         foreach ($this->getIterator() as $element) {
             if ($element->getOptionId() === $optionId) {
@@ -93,6 +93,6 @@ class ProductConfiguratorCollection extends EntityCollection
 
     protected function getExpectedClass(): string
     {
-        return ProductConfiguratorEntity::class;
+        return ProductConfiguratorSettingEntity::class;
     }
 }

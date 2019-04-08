@@ -17,7 +17,7 @@ export default class VariantsGenerator extends EventEmitter {
         this.httpClient = this.syncService.httpClient;
 
         // local data
-        this.configuratorStore = this.product.getAssociation('configurators');
+        this.configuratorStore = this.product.getAssociation('configuratorSettings');
         this.languageId = null;
         this.productStore = this.State.getStore('product');
         this.languageStore = this.State.getStore('language');
@@ -139,8 +139,8 @@ export default class VariantsGenerator extends EventEmitter {
         });
     }
 
-    groupTheOptions(configurators) {
-        const groupedData = Object.values(configurators.store).reduce((accumulator, configurator) => {
+    groupTheOptions(configuratorSettings) {
+        const groupedData = Object.values(configuratorSettings.store).reduce((accumulator, configurator) => {
             if (configurator.isDeleted) {
                 return accumulator;
             }

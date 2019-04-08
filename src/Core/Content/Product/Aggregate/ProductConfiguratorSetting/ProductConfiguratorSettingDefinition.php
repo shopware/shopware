@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Content\Product\Aggregate\ProductConfigurator;
+namespace Shopware\Core\Content\Product\Aggregate\ProductConfiguratorSetting;
 
 use Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupOption\ConfigurationGroupOptionDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
@@ -19,21 +19,21 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\UpdatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 
-class ProductConfiguratorDefinition extends EntityDefinition
+class ProductConfiguratorSettingDefinition extends EntityDefinition
 {
     public static function getEntityName(): string
     {
-        return 'product_configurator';
+        return 'product_configurator_setting';
     }
 
     public static function getCollectionClass(): string
     {
-        return ProductConfiguratorCollection::class;
+        return ProductConfiguratorSettingCollection::class;
     }
 
     public static function getEntityClass(): string
     {
-        return ProductConfiguratorEntity::class;
+        return ProductConfiguratorSettingEntity::class;
     }
 
     public static function getParentDefinitionClass(): ?string

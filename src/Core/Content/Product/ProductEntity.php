@@ -9,7 +9,7 @@ use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRule;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Content\Category\CategoryCollection;
 use Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupOption\ConfigurationGroupOptionCollection;
-use Shopware\Core\Content\Product\Aggregate\ProductConfigurator\ProductConfiguratorCollection;
+use Shopware\Core\Content\Product\Aggregate\ProductConfiguratorSetting\ProductConfiguratorSettingCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaEntity;
@@ -307,9 +307,9 @@ class ProductEntity extends Entity
     protected $options;
 
     /**
-     * @var ProductConfiguratorCollection|null
+     * @var ProductConfiguratorSettingCollection|null
      */
-    protected $configurators;
+    protected $configuratorSettings;
 
     /**
      * @var CategoryCollection|null
@@ -1031,14 +1031,14 @@ class ProductEntity extends Entity
         $this->options = $options;
     }
 
-    public function getConfigurators(): ?ProductConfiguratorCollection
+    public function getConfiguratorSettings(): ?ProductConfiguratorSettingCollection
     {
-        return $this->configurators;
+        return $this->configuratorSettings;
     }
 
-    public function setConfigurators(ProductConfiguratorCollection $configurators): void
+    public function setConfiguratorSettings(ProductConfiguratorSettingCollection $configuratorSettings): void
     {
-        $this->configurators = $configurators;
+        $this->configuratorSettings = $configuratorSettings;
     }
 
     public function getCategoriesRo(): ?CategoryCollection

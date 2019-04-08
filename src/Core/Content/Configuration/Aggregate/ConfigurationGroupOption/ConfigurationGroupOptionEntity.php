@@ -5,7 +5,7 @@ namespace Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupOption
 use Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupOptionTranslation\ConfigurationGroupOptionTranslationCollection;
 use Shopware\Core\Content\Configuration\ConfigurationGroupEntity;
 use Shopware\Core\Content\Media\MediaEntity;
-use Shopware\Core\Content\Product\Aggregate\ProductConfigurator\ProductConfiguratorCollection;
+use Shopware\Core\Content\Product\Aggregate\ProductConfiguratorSetting\ProductConfiguratorSettingCollection;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
@@ -50,7 +50,7 @@ class ConfigurationGroupOptionEntity extends Entity
     protected $translations;
 
     /**
-     * @var ProductConfiguratorCollection|null
+     * @var ProductConfiguratorSettingCollection|null
      */
     protected $productConfigurators;
 
@@ -164,12 +164,12 @@ class ConfigurationGroupOptionEntity extends Entity
         $this->translations = $translations;
     }
 
-    public function getProductConfigurators(): ?ProductConfiguratorCollection
+    public function getProductConfigurators(): ?ProductConfiguratorSettingCollection
     {
         return $this->productConfigurators;
     }
 
-    public function setProductConfigurators(ProductConfiguratorCollection $productConfigurators): void
+    public function setProductConfigurators(ProductConfiguratorSettingCollection $productConfigurators): void
     {
         $this->productConfigurators = $productConfigurators;
     }

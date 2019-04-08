@@ -5,7 +5,7 @@ namespace Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupOption
 use Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupOptionTranslation\ConfigurationGroupOptionTranslationDefinition;
 use Shopware\Core\Content\Configuration\ConfigurationGroupDefinition;
 use Shopware\Core\Content\Media\MediaDefinition;
-use Shopware\Core\Content\Product\Aggregate\ProductConfigurator\ProductConfiguratorDefinition;
+use Shopware\Core\Content\Product\Aggregate\ProductConfiguratorSetting\ProductConfiguratorSettingDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductDatasheet\ProductDatasheetDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductOption\ProductOptionDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
@@ -69,7 +69,7 @@ class ConfigurationGroupOptionDefinition extends EntityDefinition
             new ManyToOneAssociationField('media', 'media_id', MediaDefinition::class, 'id', true),
             new ManyToOneAssociationField('group', 'configuration_group_id', ConfigurationGroupDefinition::class, 'id', false),
             (new TranslationsAssociationField(ConfigurationGroupOptionTranslationDefinition::class, 'configuration_group_option_id'))->addFlags(new Required()),
-            (new OneToManyAssociationField('productConfigurators', ProductConfiguratorDefinition::class, 'configuration_group_option_id', 'id'))->addFlags(new CascadeDelete()),
+            (new OneToManyAssociationField('productConfigurators', ProductConfiguratorSettingDefinition::class, 'configuration_group_option_id', 'id'))->addFlags(new CascadeDelete()),
             (new ManyToManyAssociationField('productDatasheets', ProductDefinition::class, ProductDatasheetDefinition::class, 'configuration_group_option_id', 'product_id'))->addFlags(new CascadeDelete(), new ReverseInherited('datasheet')),
             (new ManyToManyAssociationField('productOptions', ProductDefinition::class, ProductOptionDefinition::class, 'configuration_group_option_id', 'product_id'))->addFlags(new CascadeDelete()),
         ]);

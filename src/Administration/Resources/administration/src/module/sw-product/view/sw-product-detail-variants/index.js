@@ -22,7 +22,7 @@ Component.register('sw-product-detail-variants', {
 
     computed: {
         configuratorStore() {
-            return this.product.getAssociation('configurators');
+            return this.product.getAssociation('configuratorSettings');
         }
     },
 

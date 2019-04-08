@@ -90,7 +90,7 @@ return [
     Shopware\Core\Content\Media\Aggregate\MediaThumbnailSize\MediaThumbnailSizeDefinition::class => 'Generated Thumbnails',
     Shopware\Core\Content\Media\Aggregate\MediaFolderConfiguration\MediaFolderConfigurationDefinition::class => 'Configuration',
     Shopware\Core\Content\Product\ProductDefinition::class => 'Product',
-    Shopware\Core\Content\Product\Aggregate\ProductConfigurator\ProductConfiguratorDefinition::class => 'The root product configurator.',
+    Shopware\Core\Content\Product\Aggregate\ProductConfiguratorSetting\ProductConfiguratorSettingDefinition::class => 'The root product configurator.',
     Shopware\Core\Content\Product\Aggregate\ProductPrice\ProductPriceDefinition::class => 'Staggered pricing',
     Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerDefinition::class => 'Manufacturer',
     Shopware\Core\Content\Product\Aggregate\ProductManufacturerTranslation\ProductManufacturerTranslationDefinition::class => 'Translations',

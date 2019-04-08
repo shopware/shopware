@@ -105,7 +105,7 @@ export default function conditionService() {
             'attributes',
             'shortCode'
         ],
-        product_configurator: [
+        product_configurator_setting: [
             'versionId',
             'prices',
             'createdAt',

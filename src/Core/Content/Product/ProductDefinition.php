@@ -6,7 +6,7 @@ use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupOption\ConfigurationGroupOptionDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductCategory\ProductCategoryDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductCategoryTree\ProductCategoryTreeDefinition;
-use Shopware\Core\Content\Product\Aggregate\ProductConfigurator\ProductConfiguratorDefinition;
+use Shopware\Core\Content\Product\Aggregate\ProductConfiguratorSetting\ProductConfiguratorSettingDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductDatasheet\ProductDatasheetDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaDefinition;
@@ -189,7 +189,7 @@ class ProductDefinition extends EntityDefinition
             (new ManyToManyAssociationField('categoriesRo', CategoryDefinition::class, ProductCategoryTreeDefinition::class, 'product_id', 'category_id'))->addFlags(new CascadeDelete(), new WriteProtected()),
             (new TranslationsAssociationField(ProductTranslationDefinition::class, 'product_id'))->addFlags(new Inherited(), new Required()),
 
-            (new OneToManyAssociationField('configurators', ProductConfiguratorDefinition::class, 'product_id', 'id'))->addFlags(new CascadeDelete()),
+            (new OneToManyAssociationField('configuratorSettings', ProductConfiguratorSettingDefinition::class, 'product_id', 'id'))->addFlags(new CascadeDelete()),
             (new ManyToManyAssociationField('options', ConfigurationGroupOptionDefinition::class, ProductOptionDefinition::class, 'product_id', 'configuration_group_option_id'))->addFlags(new CascadeDelete()),
 
             (new OneToManyAssociationField('visibilities', ProductVisibilityDefinition::class, 'product_id'))->addFlags(new CascadeDelete()),

@@ -36,7 +36,7 @@ class DefinitionValidator
         'customer.defaultShippingAddress',
         'customer.activeShippingAddress',
         'customer.activeBillingAddress',
-        'product_configurator.selected',
+        'product_configurator_setting.selected',
     ];
 
     private const FOREIGN_KEY_PREFIX = 'fk';

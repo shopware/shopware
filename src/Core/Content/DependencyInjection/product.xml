@@ -40,8 +40,8 @@
             <tag name="shopware.entity.definition" entity="product_tag"/>
         </service>
 
-        <service id="Shopware\Core\Content\Product\Aggregate\ProductConfigurator\ProductConfiguratorDefinition">
-            <tag name="shopware.entity.definition" entity="product_configurator"/>
+        <service id="Shopware\Core\Content\Product\Aggregate\ProductConfiguratorSetting\ProductConfiguratorSettingDefinition">
+            <tag name="shopware.entity.definition" entity="product_configurator_setting"/>
         </service>
 
         <service id="Shopware\Core\Content\Product\Aggregate\ProductPrice\ProductPriceDefinition">

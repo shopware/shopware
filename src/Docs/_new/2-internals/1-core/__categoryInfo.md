@@ -67,4 +67,4 @@ The required layers are `Presentation` and `Data access` with an optional `Appli
 **SalesChannel-API**
  : These modules provide logic through a sales channel for the storefront.
 
-Although a module can contain all or any of the characteristics above, this is not required. Please refer to the [list of modules and characteristics](10-modules.md) to get a full overview.
+Although a module can contain all or any of the characteristics above, this is not required. Please refer to the [list of modules and characteristics](./10-modules.md) to get a full overview.

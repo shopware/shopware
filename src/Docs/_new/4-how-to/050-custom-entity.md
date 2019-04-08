@@ -3,7 +3,7 @@
 ## Overview
 
 Quite often, your plugin has to save data into a custom database table.
-The Shopware platform's [data abstraction layer](../2-internals/1-core/20-data-abstraction-layer/__categoryInfo.md) fully supports custom entities,
+The Shopware platform's [data abstraction layer](./../2-internals/1-core/20-data-abstraction-layer/__categoryInfo.md) fully supports custom entities,
 so you don't have to take care about the data handling at all.
 
 ## Plugin base class
@@ -18,7 +18,7 @@ This way, the Shopware platform is able to automatically find and load your `ser
 ## The EntityDefinition class
 
 The main entry point for custom entities is an `EntityDefinition` class.
-For more information about what the `EntityDefinition` class does, have a look at the guide about the [data abstraction layer](../2-internals/1-core/20-data-abstraction-layer/__categoryInfo.md).
+For more information about what the `EntityDefinition` class does, have a look at the guide about the [data abstraction layer](./../2-internals/1-core/20-data-abstraction-layer/__categoryInfo.md).
 
 Your custom entity, as well as your `EntityDefinition` and the `EntityCollection` classes, should be placed inside a folder
 named after the domain it handles, e.g. "Checkout" if you were to include a Checkout entity.

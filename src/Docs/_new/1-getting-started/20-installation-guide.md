@@ -1,6 +1,6 @@
 [titleEn]: <>(Installation guide)
 
-Before digging deeper into the Shopware Platform we recommend creating a local installation. You should have chosen if you want to install it on your local host or with docker by now and have your system already set up to fulfill the [requirements](10-requirements.md). 
+Before digging deeper into the Shopware Platform we recommend creating a local installation. You should have chosen if you want to install it on your local host or with docker by now and have your system already set up to fulfill the [requirements](./10-requirements.md). 
 
 ## Preparation
 
@@ -55,7 +55,7 @@ To be sure that the installation succeeded, just open the following url in your 
 ## Local installation
 If you are working on a Mac or it's otherwise impossible to get docker up and running on your development environment you can install the Shopware Platform locally. **But be aware that this will be the by far more complex solution since additional or changed system requirements need to be managed by you.**
 
-Once you setup all the required packages mentioned in [requirements](10-requirements.md) there are two main goals you need to accomplish:
+Once you setup all the required packages mentioned in [requirements](./10-requirements.md) there are two main goals you need to accomplish:
 
 ### Setting up your webserver
 

@@ -4,7 +4,7 @@
 
 Central product representation. Contains products and variations based on configuration.
 
-![Products](./dist/erm-shopware-core-content-product.svg)
+![Products](./dist/erd-shopware-core-content-product.svg)
 
 
 ### Table `product`

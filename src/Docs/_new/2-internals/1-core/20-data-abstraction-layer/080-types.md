@@ -367,7 +367,7 @@ This field is the relation to the definition which holds the translations of the
 ## Custom types
 
 Custom types are mostly fields for a single purpose and to handle them separately when processing data.
-It is possible that a custom type has its own [FieldResolver](160-field-resolver.md) and [FieldAccessor](170-field-accessor.md).
+It is possible that a custom type has its own [FieldResolver](./160-field-resolver.md) and [FieldAccessor](./170-field-accessor.md).
 
 ### PriceField
 

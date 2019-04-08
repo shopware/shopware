@@ -45,7 +45,7 @@ class CustomExtension implements EntityExtensionInterface
 
 This example adds another association named `custom_struct` to the `ProductDefinition`.
 The `Deferred` flag tells the data abstraction layer, that you're going to take care of the field's content yourself.
-Have a look at our detailed list of [flags](../2-internals/1-core/20-data-abstraction-layer/090-flags.md) and what their purpose is, or find out which [field types](../2-internals/1-core/20-data-abstraction-layer/080-types.md) are available in the Shopware
+Have a look at our detailed list of [flags](./../2-internals/1-core/20-data-abstraction-layer/090-flags.md) and what their purpose is, or find out which [field types](./../2-internals/1-core/20-data-abstraction-layer/080-types.md) are available in the Shopware
 platform.
 
 So, time to take care about the product entities' new field yourself.

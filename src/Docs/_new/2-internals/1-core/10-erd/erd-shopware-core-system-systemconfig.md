@@ -4,7 +4,7 @@
 
 Basic system configuration.
 
-![System configuration](./dist/erm-shopware-core-system-systemconfig.svg)
+![System configuration](./dist/erd-shopware-core-system-systemconfig.svg)
 
 
 ### Table `system_config`

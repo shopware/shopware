@@ -4,7 +4,7 @@
 
 Product streams describe stored filter conditions that applied to the catalogue as a whole to create dynamic streams.
 
-![Product streams](./dist/erm-shopware-core-content-productstream.svg)
+![Product streams](./dist/erd-shopware-core-content-productstream.svg)
 
 
 ### Table `product_stream`

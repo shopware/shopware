@@ -141,11 +141,13 @@ class PluginLifecycleService
             return $installContext;
         }
 
-        // TODO NEXT-1797: Not usable with Composer 1.8, Wait for Release of Composer 2.0
-        if (next1797()) {
-            $this->executor->require($plugin->getComposerName());
-        } else {
-            $this->requirementValidator->validateRequirements($pluginBaseClass, $shopwareContext, 'install');
+        if ($plugin->isManagedByComposer()) {
+            // TODO NEXT-1797: Not usable with Composer 1.8, Wait for Release of Composer 2.0
+            if (next1797()) {
+                $this->executor->require($plugin->getComposerName());
+            } else {
+                $this->requirementValidator->validateRequirements($pluginBaseClass, $shopwareContext, 'install');
+            }
         }
 
         $pluginData['id'] = $plugin->getId();

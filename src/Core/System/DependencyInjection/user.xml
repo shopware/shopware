@@ -32,6 +32,14 @@
         <service id="Shopware\Core\System\User\Recovery\UserRecoveryController" public="true">
             <argument type="service" id="Shopware\Core\System\User\Recovery\UserRecoveryService"/>
         </service>
+
+        <service id="Shopware\Core\System\User\DuplicateEmailService">
+            <argument type="service" id="user.repository"/>
+        </service>
+
+        <service id="Shopware\Core\System\User\DuplicateEmailController" public="true">
+            <argument type="service" id="Shopware\Core\System\User\DuplicateEmailService"/>
+        </service>
     </services>
 </container>                
                 

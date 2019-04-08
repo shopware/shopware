@@ -8,12 +8,15 @@ module.exports = {
     extends: '../common/eslint-config-base/index.js',
     env: {
         browser: true,
+        'jest/globals': true
     },
 
     globals: {
         Shopware: true,
         VueJS: true
     },
+
+    plugins: ['jest'],
 
     settings: {
         'import/resolver': {

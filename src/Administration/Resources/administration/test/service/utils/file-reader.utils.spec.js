@@ -4,16 +4,16 @@ import fileReaderUtils from 'src/core/service/utils/file-reader.utils';
 describe('src/core/service/utils/file-reader.utils.js', () => {
     it('should provide promised based file access', () => {
         const fileMock = new Blob();
-        expect(fileReaderUtils.readFileAsText(fileMock)).to.be.a('Promise');
-        expect(fileReaderUtils.readFileAsDataURL(fileMock)).to.be.a('Promise');
-        expect(fileReaderUtils.readFileAsArrayBuffer(fileMock)).to.be.a('Promise');
+        expect(fileReaderUtils.readFileAsText(fileMock)).toBeInstanceOf(Object);
+        expect(fileReaderUtils.readFileAsDataURL(fileMock)).toBeInstanceOf(Object);
+        expect(fileReaderUtils.readFileAsArrayBuffer(fileMock)).toBeInstanceOf(Object);
     });
 
     it('should read a file as text', (done) => {
         const fileMock = new Blob(['this is test data']);
 
         fileReaderUtils.readFileAsText(fileMock).then((loadedText) => {
-            expect(loadedText).to.equal('this is test data');
+            expect(loadedText).toBe('this is test data');
         }).finally(done);
     });
 
@@ -21,7 +21,7 @@ describe('src/core/service/utils/file-reader.utils.js', () => {
         const fileMock = new Blob(['this is test data']);
 
         fileReaderUtils.readFileAsDataURL(fileMock).then((dataURL) => {
-            expect(dataURL).to.match(/^data:;base64/);
+            expect(dataURL).toMatch(/^data:;base64/);
         }).finally(done);
     });
 
@@ -29,7 +29,7 @@ describe('src/core/service/utils/file-reader.utils.js', () => {
         const fileMock = new Blob(['this is test data']);
 
         fileReaderUtils.readFileAsArrayBuffer(fileMock).then((dataBuffer) => {
-            expect(dataBuffer).to.be.a('ArrayBuffer');
+            expect(dataBuffer).toBeInstanceOf(ArrayBuffer);
         }).finally(done);
     });
 });

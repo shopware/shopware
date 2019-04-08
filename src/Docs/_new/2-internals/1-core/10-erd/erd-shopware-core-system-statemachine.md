@@ -1,5 +1,7 @@
 [titleEn]: <>(State machine)
 
+[Back to modules](./../10-modules.md)
+
 Like the rule system, that makes core decisions configurable through the Rest-API, the state machine makes core workflows configurable. State machines in checkout, payment and delivery processing are used to adapt the Shopware Platform to custom needs.
 
 ![State machine](./dist/erm-shopware-core-system-statemachine.svg)
@@ -25,3 +27,4 @@ A transition connects two states with each other and calls an action on transiti
 The concrete transition history of a given context (namely `entityName`, `entityId`).
 
 
+[Back to modules](./../10-modules.md)

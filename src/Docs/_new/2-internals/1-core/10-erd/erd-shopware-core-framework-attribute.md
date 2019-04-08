@@ -1,5 +1,7 @@
 [titleEn]: <>(Attributes/EAV)
 
+[Back to modules](./../10-modules.md)
+
 Attributes are part of almost every entity of the system. The term describes object attribute-values (see EAV). The configuration of these attributes is stored here.
 
 ![Attributes/EAV](./dist/erm-shopware-core-framework-attribute.svg)
@@ -20,3 +22,4 @@ A defined and named set of attributes.
 Relates a set to a entity type.
 
 
+[Back to modules](./../10-modules.md)

@@ -103,7 +103,7 @@ EOD;
             $io->write($modulePathName . ': ' . implode(', ', $tags) . PHP_EOL);
         }
 
-        $descriptions->dump();
+        $descriptions->dump(true);
         file_put_contents(__DIR__ . '/../_new/2-internals/1-core/10-modules.md', sprintf(self::TEMPLATE_HEADER, implode(PHP_EOL, $markdown)));
 
         $io->success('Done');
@@ -147,6 +147,8 @@ EOD;
                     'Profiling/Resources',
                     'Profiling/Twig',
                     'Checkout/Promotion',
+                    'Framework/Version',
+                    'Content/MailTemplate',
                 ], true);
             })
             ->depth('1');

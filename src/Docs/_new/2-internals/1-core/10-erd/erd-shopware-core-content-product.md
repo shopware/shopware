@@ -1,5 +1,7 @@
 [titleEn]: <>(Products)
 
+[Back to modules](./../10-modules.md)
+
 Central product representation. Contains products and variations based on configuration.
 
 ![Products](./dist/erm-shopware-core-content-product.svg)
@@ -35,3 +37,4 @@ Relates products to media items, usually images.
 Set the visibility of a single product in a sales channel
 
 
+[Back to modules](./../10-modules.md)

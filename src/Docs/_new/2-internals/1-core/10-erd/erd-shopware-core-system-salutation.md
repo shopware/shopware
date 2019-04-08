@@ -1,5 +1,7 @@
 [titleEn]: <>(Solutations)
 
+[Back to modules](./../10-modules.md)
+
 List of available salutations, readily consumed by other components.
 
 ![Solutations](./dist/erm-shopware-core-system-salutation.svg)
@@ -10,3 +12,4 @@ List of available salutations, readily consumed by other components.
 A list of possible salutations for customers to choose from.
 
 
+[Back to modules](./../10-modules.md)

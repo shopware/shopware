@@ -1,5 +1,7 @@
 [titleEn]: <>(Product streams)
 
+[Back to modules](./../10-modules.md)
+
 Product streams describe stored filter conditions that applied to the catalogue as a whole to create dynamic streams.
 
 ![Product streams](./dist/erm-shopware-core-content-productstream.svg)
@@ -15,3 +17,4 @@ Product streams are a dynamic collection of products based on stored search filt
 Represents a single filter property. All to a stream related filters build a persisted and nested search query.
 
 
+[Back to modules](./../10-modules.md)

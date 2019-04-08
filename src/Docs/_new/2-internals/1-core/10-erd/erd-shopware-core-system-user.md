@@ -1,5 +1,7 @@
 [titleEn]: <>(Admin Accounts)
 
+[Back to modules](./../10-modules.md)
+
 Account management of administration users.
 
 ![Admin Accounts](./dist/erm-shopware-core-system-user.svg)
@@ -20,3 +22,4 @@ Stores the oAuth access for a specific account to the admin.
 Simple M:N association related to the password recovery process.
 
 
+[Back to modules](./../10-modules.md)

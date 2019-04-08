@@ -1,5 +1,7 @@
 [titleEn]: <>(Storefront)
 
+[Back to modules](./../10-modules.md)
+
 The storefront application of the Shopware Platform. Therefore contains Storefront specific entities that do not need to be part of the core and just support inner workings of this particular Storefront.
 
 ![Storefront](./dist/erm-shopware-storefront.svg)
@@ -15,3 +17,4 @@ Search engine optimized urls manually created from user input to optimize for di
 A template to generate seo urls from.
 
 
+[Back to modules](./../10-modules.md)

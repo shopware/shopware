@@ -7,7 +7,7 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Events;
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\Table;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
@@ -329,7 +329,7 @@ class DefinitionValidator
     {
         $violations = [];
 
-        $associations = $definition::getFields()->filterInstance(AssociationInterface::class);
+        $associations = $definition::getFields()->filterInstance(AssociationField::class);
 
         $instance = new $definition();
 
@@ -337,7 +337,7 @@ class DefinitionValidator
             return [];
         }
 
-        /** @var AssociationInterface|Field $association */
+        /** @var AssociationField $association */
         foreach ($associations as $association) {
             $key = $definition::getEntityName() . '.' . $association->getPropertyName();
 
@@ -428,7 +428,7 @@ class DefinitionValidator
 
         $translatedFields = array_keys($translationDefinition::getFields()->filter(function (Field $f) {
             return !$f->is(PrimaryKey::class)
-                && !$f instanceof AssociationInterface
+                && !$f instanceof AssociationField
                 && !in_array($f->getPropertyName(), ['createdAt', 'updatedAt'], true);
         })->getElements());
 
@@ -474,16 +474,6 @@ class DefinitionValidator
             );
         }
 
-        if ($reverseSide && $association->loadInBasic() && $reverseSide->loadInBasic()) {
-            $associationViolations[$definition][] = sprintf(
-                'Circular load in basic violation for %s <-> %s (property: %s & property: %s)',
-                $definition,
-                $association->getReferenceClass(),
-                $association->getPropertyName(),
-                $reverseSide->getPropertyName()
-            );
-        }
-
         if ($association->is(CascadeDelete::class) && $reverseSide->is(CascadeDelete::class)) {
             $associationViolations[$definition][] = sprintf(
                 'Remove cascade delete in definition %s association: %s. One to One association should only have one side defined cascade delete flag',
@@ -519,16 +509,6 @@ class DefinitionValidator
                 $definition,
                 $association->getReferenceClass(),
                 $association->getPropertyName()
-            );
-        }
-
-        if ($reverseSide && $association->loadInBasic() && $reverseSide->loadInBasic()) {
-            $associationViolations[$definition][] = sprintf(
-                'Circular load in basic violation for %s <-> %s (property: %s & property: %s)',
-                $definition,
-                $association->getReferenceClass(),
-                $association->getPropertyName(),
-                $reverseSide->getPropertyName()
             );
         }
 
@@ -570,17 +550,6 @@ class DefinitionValidator
                 $association->getReferenceField(),
                 $definition::getEntityName(),
                 $association->getPropertyName()
-            );
-        }
-
-        /** @var AssociationInterface $reverseSide */
-        if ($reverseSide && $association->loadInBasic() && $reverseSide->loadInBasic()) {
-            $associationViolations[$definition][] = sprintf(
-                'Circular load in basic violation for %s <-> %s (property: %s & property: %s)',
-                $definition,
-                $association->getReferenceClass(),
-                $association->getPropertyName(),
-                $reverseSide->getPropertyName()
             );
         }
 
@@ -669,17 +638,6 @@ class DefinitionValidator
             $violations[$reference][] = sprintf('Missing reverse many to many association for original %s.%s', $definition, $association->getPropertyName());
         }
 
-        /** @var AssociationInterface $reverse */
-        if ($reverse && $association->loadInBasic() && $reverse->loadInBasic()) {
-            $violations[$definition][] = sprintf(
-                'Circular load in basic violation for %s <-> %s (property: %s & property: %s)',
-                $definition,
-                $association->getReferenceClass(),
-                $association->getPropertyName(),
-                $reverse->getPropertyName()
-            );
-        }
-
         return $violations;
     }
 
@@ -709,7 +667,7 @@ class DefinitionValidator
             /** @var Field $association */
             $association = $definition::getFields()->get($column->getName());
 
-            if ($association instanceof AssociationInterface && $association->is(Inherited::class)) {
+            if ($association instanceof AssociationField && $association->is(Inherited::class)) {
                 continue;
             }
 
@@ -722,7 +680,7 @@ class DefinitionValidator
         return [$definition => $violations];
     }
 
-    private function validateIsPlural(string $definition, AssociationInterface $association): array
+    private function validateIsPlural(string $definition, AssociationField $association): array
     {
         if (!$association instanceof ManyToManyAssociationField && !$association instanceof OneToManyAssociationField) {
             return [];
@@ -763,7 +721,7 @@ class DefinitionValidator
         return self::$customShortNames[$normalized];
     }
 
-    private function validateReferenceNameContainedInName(string $definition, AssociationInterface $association): array
+    private function validateReferenceNameContainedInName(string $definition, AssociationField $association): array
     {
         if ($definition === $association->getReferenceClass()) {
             return [];

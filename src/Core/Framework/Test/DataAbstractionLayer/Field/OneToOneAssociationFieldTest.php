@@ -209,7 +209,8 @@ DROP TABLE IF EXISTS `root_sub_many`;
         static::assertSame($id, $sub->get('rootId'));
 
         $criteria = new Criteria([$id2]);
-        $criteria->addAssociation('root_sub.root');
+        $criteria->addAssociation('root');
+        $criteria->addAssociation('manies');
 
         $sub = $this->subRepository->search($criteria, $context)->first();
         static::assertInstanceOf(ArrayEntity::class, $sub->get('root'));

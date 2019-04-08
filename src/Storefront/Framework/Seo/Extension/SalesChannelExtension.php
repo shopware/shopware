@@ -14,10 +14,10 @@ class SalesChannelExtension implements EntityExtensionInterface
     public function extendFields(FieldCollection $collection): void
     {
         $collection->add(
-            new OneToManyAssociationField('seoUrls', SeoUrlDefinition::class, 'sales_channel_id', false, 'id')
+            new OneToManyAssociationField('seoUrls', SeoUrlDefinition::class, 'sales_channel_id', 'id')
         );
         $collection->add(
-            new OneToManyAssociationField('seoUrlTemplates', SeoUrlTemplateDefinition::class, 'sales_channel_id', false)
+            new OneToManyAssociationField('seoUrlTemplates', SeoUrlTemplateDefinition::class, 'sales_channel_id')
         );
     }
 

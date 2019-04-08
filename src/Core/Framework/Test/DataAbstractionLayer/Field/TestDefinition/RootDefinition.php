@@ -29,7 +29,7 @@ class RootDefinition extends EntityDefinition
             (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
             new VersionField(),
             new StringField('name', 'name'),
-            new OneToOneAssociationField('sub', 'id', 'root_id', SubDefinition::class, true),
+            new OneToOneAssociationField('sub', 'id', 'root_id', SubDefinition::class),
         ]);
     }
 }
@@ -51,7 +51,7 @@ class SubDefinition extends EntityDefinition
             new FkField('root_id', 'rootId', RootDefinition::class, 'id'),
             (new ReferenceVersionField(RootDefinition::class))->addFlags(new Required()),
             new OneToOneAssociationField('root', 'root_id', 'id', RootDefinition::class, false),
-            new OneToManyAssociationField('manies', SubManyDefinition::class, 'root_sub_id', true),
+            new OneToManyAssociationField('manies', SubManyDefinition::class, 'root_sub_id'),
         ]);
     }
 }
@@ -71,7 +71,7 @@ class SubManyDefinition extends EntityDefinition
             new StringField('name', 'name'),
             (new FkField('root_sub_id', 'subId', SubDefinition::class, 'id'))->addFlags(new Required()),
             (new ReferenceVersionField(SubDefinition::class))->addFlags(new Required()),
-            new ManyToOneAssociationField('sub', 'root_sub_id', SubDefinition::class, false),
+            new ManyToOneAssociationField('sub', 'root_sub_id', SubDefinition::class, 'id', false),
         ]);
     }
 }

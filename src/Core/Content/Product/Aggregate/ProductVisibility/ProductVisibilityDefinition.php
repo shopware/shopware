@@ -50,8 +50,8 @@ class ProductVisibilityDefinition extends EntityDefinition
             (new FkField('sales_channel_id', 'salesChannelId', SalesChannelDefinition::class))->addFlags(new Required()),
             (new IntField('visibility', 'visibility'))->addFlags(new Required()),
 
-            new ManyToOneAssociationField('salesChannel', 'sales_channel_id', SalesChannelDefinition::class, false),
-            new ManyToOneAssociationField('product', 'product_id', ProductDefinition::class, false),
+            new ManyToOneAssociationField('salesChannel', 'sales_channel_id', SalesChannelDefinition::class, 'id', false),
+            new ManyToOneAssociationField('product', 'product_id', ProductDefinition::class, 'id', false),
 
             new CreatedAtField(),
             new UpdatedAtField(),

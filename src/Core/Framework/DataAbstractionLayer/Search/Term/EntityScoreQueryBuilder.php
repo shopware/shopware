@@ -3,7 +3,7 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer\Search\Term;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\SearchRanking;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
@@ -47,7 +47,7 @@ class EntityScoreQueryBuilder
                 continue;
             }
 
-            if ($field instanceof AssociationInterface) {
+            if ($field instanceof AssociationField) {
                 $queries = array_merge(
                     $queries,
                     $this->buildScoreQueries($term, $field->getReferenceClass(), $select, $ranking)

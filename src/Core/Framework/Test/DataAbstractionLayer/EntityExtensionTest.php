@@ -75,7 +75,7 @@ class EntityExtensionTest extends TestCase
 
     public function testICanWriteOneToManyAssociationsExtensions(): void
     {
-        $field = (new OneToManyAssociationField('myPrices', ProductPriceDefinition::class, 'product_id', true))
+        $field = (new OneToManyAssociationField('myPrices', ProductPriceDefinition::class, 'product_id'))
             ->addFlags(new Extension());
 
         ProductDefinition::getFields()->add($field);
@@ -112,7 +112,7 @@ class EntityExtensionTest extends TestCase
 
     public function testICanReadOneToManyAssociationsExtensionsInBasic(): void
     {
-        $field = (new OneToManyAssociationField('myPrices', ProductPriceDefinition::class, 'product_id', true))
+        $field = (new OneToManyAssociationField('myPrices', ProductPriceDefinition::class, 'product_id'))
             ->addFlags(new Extension());
 
         ProductDefinition::getFields()->add($field);
@@ -123,8 +123,11 @@ class EntityExtensionTest extends TestCase
 
         $this->productRepository->create([$data], Context::createDefaultContext());
 
+        $criteria = new Criteria([$id]);
+        $criteria->addAssociation('myPrices');
+
         /** @var ProductEntity $product */
-        $product = $this->productRepository->search(new Criteria([$id]), Context::createDefaultContext())
+        $product = $this->productRepository->search($criteria, Context::createDefaultContext())
             ->first();
 
         static::assertInstanceOf(ProductEntity::class, $product);
@@ -135,7 +138,7 @@ class EntityExtensionTest extends TestCase
 
     public function testICanReadOneToManyAssociationsExtensionsNotInBasic(): void
     {
-        $field = (new OneToManyAssociationField('myPrices', ProductPriceDefinition::class, 'product_id', false))
+        $field = (new OneToManyAssociationField('myPrices', ProductPriceDefinition::class, 'product_id'))
             ->addFlags(new Extension());
 
         ProductDefinition::getFields()->add($field);
@@ -154,7 +157,7 @@ class EntityExtensionTest extends TestCase
         static::assertFalse($product->hasExtension('myPrices'));
 
         $criteria = new Criteria([$id]);
-        $criteria->addAssociation('product.myPrices');
+        $criteria->addAssociation('myPrices');
 
         /** @var ProductEntity $product */
         $product = $this->productRepository->search($criteria, Context::createDefaultContext())
@@ -166,7 +169,7 @@ class EntityExtensionTest extends TestCase
         static::assertCount(2, $product->getExtension('myPrices'));
 
         $criteria = new Criteria([$id]);
-        $criteria->addAssociation('product.extensions.myPrices');
+        $criteria->addAssociation('extensions.myPrices');
 
         /** @var ProductEntity $product */
         $product = $this->productRepository->search($criteria, Context::createDefaultContext())
@@ -180,7 +183,7 @@ class EntityExtensionTest extends TestCase
 
     public function testICanSearchOneToManyAssociationsExtensions(): void
     {
-        $field = (new OneToManyAssociationField('myPrices', ProductPriceDefinition::class, 'product_id', false))
+        $field = (new OneToManyAssociationField('myPrices', ProductPriceDefinition::class, 'product_id'))
             ->addFlags(new Extension());
 
         ProductDefinition::getFields()->add($field);
@@ -216,7 +219,7 @@ class EntityExtensionTest extends TestCase
 
     public function testICanReadPaginatedOneToManyAssociationsExtensions(): void
     {
-        $field = (new OneToManyAssociationField('myPrices', ProductPriceDefinition::class, 'product_id', false))
+        $field = (new OneToManyAssociationField('myPrices', ProductPriceDefinition::class, 'product_id'))
             ->addFlags(new Extension());
 
         ProductDefinition::getFields()->add($field);
@@ -251,7 +254,7 @@ class EntityExtensionTest extends TestCase
     {
         $field = (new ManyToManyAssociationField(
             'myCategories', CategoryDefinition::class,
-            ProductCategoryDefinition::class, false, 'product_id', 'category_id'
+            ProductCategoryDefinition::class, 'product_id', 'category_id'
         ))->addFlags(new Extension());
 
         ProductDefinition::getFields()->add($field);
@@ -290,7 +293,7 @@ class EntityExtensionTest extends TestCase
     {
         $field = (new ManyToManyAssociationField(
             'myCategories', CategoryDefinition::class,
-            ProductCategoryDefinition::class, true, 'product_id', 'category_id'
+            ProductCategoryDefinition::class, 'product_id', 'category_id'
         ))->addFlags(new Extension());
 
         ProductDefinition::getFields()->add($field);
@@ -301,8 +304,11 @@ class EntityExtensionTest extends TestCase
 
         $this->productRepository->create([$data], Context::createDefaultContext());
 
+        $criteria = new Criteria([$id]);
+        $criteria->addAssociation('myCategories');
+
         /** @var ProductEntity $product */
-        $product = $this->productRepository->search(new Criteria([$id]), Context::createDefaultContext())
+        $product = $this->productRepository->search($criteria, Context::createDefaultContext())
             ->first();
 
         static::assertInstanceOf(ProductEntity::class, $product);
@@ -315,7 +321,7 @@ class EntityExtensionTest extends TestCase
     {
         $field = (new ManyToManyAssociationField(
             'myCategories', CategoryDefinition::class,
-            ProductCategoryDefinition::class, false, 'product_id', 'category_id'
+            ProductCategoryDefinition::class, 'product_id', 'category_id'
         ))->addFlags(new Extension());
 
         ProductDefinition::getFields()->add($field);
@@ -334,7 +340,7 @@ class EntityExtensionTest extends TestCase
         static::assertFalse($product->hasExtension('myCategories'));
 
         $criteria = new Criteria([$id]);
-        $criteria->addAssociation('product.myCategories');
+        $criteria->addAssociation('myCategories');
 
         /** @var ProductEntity $product */
         $product = $this->productRepository->search($criteria, Context::createDefaultContext())
@@ -346,7 +352,7 @@ class EntityExtensionTest extends TestCase
         static::assertCount(2, $product->getExtension('myCategories'));
 
         $criteria = new Criteria([$id]);
-        $criteria->addAssociation('product.myCategories');
+        $criteria->addAssociation('myCategories');
 
         /** @var ProductEntity $product */
         $product = $this->productRepository->search($criteria, Context::createDefaultContext())
@@ -362,7 +368,7 @@ class EntityExtensionTest extends TestCase
     {
         $field = (new ManyToManyAssociationField(
             'myCategories', CategoryDefinition::class,
-            ProductCategoryDefinition::class, false, 'product_id', 'category_id'
+            ProductCategoryDefinition::class, 'product_id', 'category_id'
         ))->addFlags(new Extension());
 
         ProductDefinition::getFields()->add($field);
@@ -400,7 +406,7 @@ class EntityExtensionTest extends TestCase
     {
         $field = (new ManyToManyAssociationField(
             'myCategories', CategoryDefinition::class,
-            ProductCategoryDefinition::class, false, 'product_id', 'category_id'
+            ProductCategoryDefinition::class, 'product_id', 'category_id'
         ))->addFlags(new Extension());
 
         ProductDefinition::getFields()->add($field);

@@ -80,7 +80,7 @@ class OrderRepositoryTest extends TestCase
         $this->orderRepository->create($orderData, $defaultContext);
 
         $nestedCriteria2 = new Criteria();
-        $nestedCriteria2->addAssociation('customer.addresses');
+        $nestedCriteria2->addAssociation('addresses');
 
         $criteria = new Criteria([$orderId]);
 

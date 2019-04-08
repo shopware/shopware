@@ -4,10 +4,8 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Field;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 
-class ManyToManyAssociationField extends Field implements AssociationInterface
+class ManyToManyAssociationField extends AssociationField
 {
-    use AssociationTrait;
-
     /**
      * @var string
      */
@@ -42,7 +40,6 @@ class ManyToManyAssociationField extends Field implements AssociationInterface
         string $propertyName,
         string $referenceDefinition,
         string $mappingDefinition,
-        bool $loadInBasic,
         string $mappingLocalColumn,
         string $mappingReferenceColumn,
         string $sourceColumn = 'id',
@@ -51,7 +48,6 @@ class ManyToManyAssociationField extends Field implements AssociationInterface
         parent::__construct($propertyName);
         $this->referenceDefinition = $referenceDefinition;
         $this->referenceClass = $mappingDefinition;
-        $this->loadInBasic = $loadInBasic;
         $this->mappingDefinition = $mappingDefinition;
         $this->mappingLocalColumn = $mappingLocalColumn;
         $this->mappingReferenceColumn = $mappingReferenceColumn;

@@ -15,7 +15,7 @@ public static function getParentPropertyName(): string
 ```
 new FkField('parent_id', 'parentId', self::class),
 new ParentAssociationField(self::class, false))->addFlags(new WriteOnly(),
-new OneToManyAssociationField('children', self::class, 'parent_id', false, 'id'))->addFlags(new CascadeDelete(),
+new OneToManyAssociationField('children', self::class, 'parent_id', 'id'))->addFlags(new CascadeDelete(),
 ```
 
 If all requirements are fulfilled, each field (even associations) can be flagged with `Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Inherited`.
@@ -37,7 +37,7 @@ class HumanDefinition extends EntityDefinition
             new StringField('name', 'name'),
             (new StringField('last_name', 'lastName'))->addFlags(new Inherited()),
             new ParentAssociationField(self::class, false),
-            new OneToManyAssociationField('children', self::class, 'parent_id', false, 'id'),
+            new OneToManyAssociationField('children', self::class, 'parent_id', 'id'),
         ]);
     }
 }
@@ -124,7 +124,7 @@ class HumanDefinition extends EntityDefinition
             (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
             //...
                         
-            (new OneToManyAssociationField('pets', PetDefinition::class, 'human_id', false))->addFlags(new CascadeDelete(), new Inherited())
+            (new OneToManyAssociationField('pets', PetDefinition::class, 'human_id'))->addFlags(new CascadeDelete(), new Inherited())
         ]);
     }
 }

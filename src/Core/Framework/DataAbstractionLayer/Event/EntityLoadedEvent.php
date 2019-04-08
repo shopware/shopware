@@ -5,7 +5,7 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Event;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Extension;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
@@ -98,7 +98,7 @@ class EntityLoadedEvent extends NestedEvent
         $events = [];
         /** @var Field $association */
         foreach ($associations as $association) {
-            if (!$association instanceof AssociationInterface) {
+            if (!$association instanceof AssociationField) {
                 continue;
             }
 

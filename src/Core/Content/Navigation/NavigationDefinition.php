@@ -57,10 +57,10 @@ class NavigationDefinition extends EntityDefinition
 
             new FkField('category_id', 'categoryId', CategoryDefinition::class),
             new ReferenceVersionField(CategoryDefinition::class, 'category_version_id'),
-            new ManyToOneAssociationField('category', 'category_id', CategoryDefinition::class, false),
+            new ManyToOneAssociationField('category', 'category_id', CategoryDefinition::class, 'id', false),
 
             new FkField('cms_page_id', 'cmsPageId', CmsPageDefinition::class),
-            new ManyToOneAssociationField('cmsPage', 'cms_page_id', CmsPageDefinition::class, false),
+            new ManyToOneAssociationField('cmsPage', 'cms_page_id', CmsPageDefinition::class, 'id', false),
 
             new TranslatedField('name'),
             new TranslatedField('slotConfig'),
@@ -74,9 +74,9 @@ class NavigationDefinition extends EntityDefinition
 
             (new TranslationsAssociationField(NavigationTranslationDefinition::class, 'navigation_id'))->addFlags(new Required()),
             new ChildrenAssociationField(self::class),
-            new ParentAssociationField(self::class, false),
+            new ParentAssociationField(self::class, 'id'),
 
-            new OneToManyAssociationField('salesChannelNavigations', SalesChannelDefinition::class, 'navigation_id', false),
+            new OneToManyAssociationField('salesChannelNavigations', SalesChannelDefinition::class, 'navigation_id'),
         ]);
     }
 }

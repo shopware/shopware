@@ -19,6 +19,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\CreatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\DateField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\CascadeDelete;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Computed;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Deferred;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Internal;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
@@ -82,19 +83,20 @@ class MediaDefinition extends EntityDefinition
             (new StringField('url', 'url'))->addFlags(new Deferred()),
             new TranslatedField('attributes'),
 
-            new ManyToOneAssociationField('user', 'user_id', UserDefinition::class, false),
+            new ManyToOneAssociationField('user', 'user_id', UserDefinition::class, 'id', false),
 
-            new OneToManyAssociationField('categories', CategoryDefinition::class, 'media_id', false, 'id'),
-            new OneToManyAssociationField('productManufacturers', ProductManufacturerDefinition::class, 'media_id', false, 'id'),
-            (new OneToManyAssociationField('productMedia', ProductMediaDefinition::class, 'media_id', false, 'id'))->addFlags(new CascadeDelete()),
+            new OneToManyAssociationField('categories', CategoryDefinition::class, 'media_id', 'id'),
+            new OneToManyAssociationField('productManufacturers', ProductManufacturerDefinition::class, 'media_id', 'id'),
+            (new OneToManyAssociationField('productMedia', ProductMediaDefinition::class, 'media_id', 'id'))->addFlags(new CascadeDelete()),
             (new OneToOneAssociationField('avatarUser', 'id', 'avatar_id', UserDefinition::class, false))->addFlags(new CascadeDelete()),
             (new TranslationsAssociationField(MediaTranslationDefinition::class, 'media_id'))->addFlags(new Required()),
-            (new OneToManyAssociationField('thumbnails', MediaThumbnailDefinition::class, 'media_id', true))->addFlags(new CascadeDelete()),
+            (new OneToManyAssociationField('thumbnails', MediaThumbnailDefinition::class, 'media_id'))->addFlags(new CascadeDelete()),
+            (new BlobField('thumbnails_ro', 'thumbnailsRo'))->addFlags(new Computed(), new Internal()),
             (new BoolField('has_file', 'hasFile'))->addFlags(new Deferred()),
-            new ManyToOneAssociationField('mediaFolder', 'media_folder_id', MediaFolderDefinition::class, false),
-            new OneToManyAssociationField('configurationGroupOptions', ConfigurationGroupOptionDefinition::class, 'media_id', false),
-            new ManyToManyAssociationField('tags', TagDefinition::class, MediaTagDefinition::class, false, 'media_id', 'tag_id'),
-            (new OneToManyAssociationField('mailTemplateMedia', MailTemplateMediaDefinition::class, 'media_id', false, 'id'))->addFlags(new CascadeDelete()),
+            new ManyToOneAssociationField('mediaFolder', 'media_folder_id', MediaFolderDefinition::class, 'id', false),
+            new OneToManyAssociationField('configurationGroupOptions', ConfigurationGroupOptionDefinition::class, 'media_id'),
+            new ManyToManyAssociationField('tags', TagDefinition::class, MediaTagDefinition::class, 'media_id', 'tag_id'),
+            (new OneToManyAssociationField('mailTemplateMedia', MailTemplateMediaDefinition::class, 'media_id', 'id'))->addFlags(new CascadeDelete()),
         ]);
     }
 }

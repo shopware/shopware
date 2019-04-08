@@ -5,7 +5,7 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Dbal;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AttributesField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Extension;
@@ -115,7 +115,7 @@ class EntityHydrator
             }
 
             //other association fields are not handled in entity reader query
-            if ($field instanceof AssociationInterface) {
+            if ($field instanceof AssociationField) {
                 continue;
             }
 
@@ -217,7 +217,7 @@ class EntityHydrator
         return $primaryKey;
     }
 
-    private function hydrateManyToOne(array $row, string $root, Context $context, AssociationInterface $field): ?Entity
+    private function hydrateManyToOne(array $row, string $root, Context $context, AssociationField $field): ?Entity
     {
         /** @var OneToOneAssociationField $field */
         if (!$field instanceof OneToOneAssociationField && !$field instanceof ManyToOneAssociationField) {

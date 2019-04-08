@@ -322,8 +322,12 @@ class ProductRepositoryTest extends TestCase
         ];
 
         $this->repository->create([$data], Context::createDefaultContext());
+
+        $criteria = new Criteria([$id]);
+        $criteria->addAssociation('prices');
+
         $products = $this->repository
-            ->search(new Criteria([$id]), Context::createDefaultContext())
+            ->search($criteria, Context::createDefaultContext())
             ->getEntities();
 
         static::assertInstanceOf(ProductCollection::class, $products);
@@ -1607,7 +1611,10 @@ class ProductRepositoryTest extends TestCase
         $context = Context::createDefaultContext();
         $this->repository->create([$data], $context);
 
-        $products = $this->repository->search(new Criteria([$id]), $context);
+        $criteria = new Criteria([$id]);
+        $criteria->addAssociation('prices');
+
+        $products = $this->repository->search($criteria, $context);
         static::assertTrue($products->has($id));
 
         /** @var ProductEntity $product */
@@ -1641,7 +1648,10 @@ class ProductRepositoryTest extends TestCase
 
         $this->repository->upsert([$data], $context);
 
-        $products = $this->repository->search(new Criteria([$id]), $context);
+        $criteria = new Criteria([$id]);
+        $criteria->addAssociation('prices');
+
+        $products = $this->repository->search($criteria, $context);
         static::assertTrue($products->has($id));
 
         /** @var ProductEntity $product */
@@ -1674,7 +1684,10 @@ class ProductRepositoryTest extends TestCase
 
         $this->repository->upsert([$data], $context);
 
-        $products = $this->repository->search(new Criteria([$id]), $context);
+        $criteria = new Criteria([$id]);
+        $criteria->addAssociation('prices');
+
+        $products = $this->repository->search($criteria, $context);
         static::assertTrue($products->has($id));
 
         /** @var ProductEntity $product */

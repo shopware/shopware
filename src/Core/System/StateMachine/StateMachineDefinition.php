@@ -51,8 +51,8 @@ class StateMachineDefinition extends EntityDefinition
             (new TranslatedField('name'))->setFlags(new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
             new TranslatedField('attributes'),
 
-            new OneToManyAssociationField('states', StateMachineStateDefinition::class, 'state_machine_id', false),
-            new OneToManyAssociationField('transitions', StateMachineTransitionDefinition::class, 'state_machine_id', false),
+            new OneToManyAssociationField('states', StateMachineStateDefinition::class, 'state_machine_id'),
+            new OneToManyAssociationField('transitions', StateMachineTransitionDefinition::class, 'state_machine_id'),
 
             new FkField('initial_state_id', 'initialStateId', StateMachineStateDefinition::class),
 
@@ -61,7 +61,7 @@ class StateMachineDefinition extends EntityDefinition
             new CreatedAtField(),
             new UpdatedAtField(),
 
-            new OneToManyAssociationField('historyEntries', StateMachineHistoryDefinition::class, 'state_machine_id', false),
+            new OneToManyAssociationField('historyEntries', StateMachineHistoryDefinition::class, 'state_machine_id'),
         ]);
     }
 }

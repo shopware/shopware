@@ -49,7 +49,7 @@ class SeoUrlTemplateDefinition extends EntityDefinition
             new UpdatedAtField(),
 
             new AttributesField(),
-            new ManyToOneAssociationField('salesChannel', 'sales_channel_id', SalesChannelDefinition::class, false),
+            new ManyToOneAssociationField('salesChannel', 'sales_channel_id', SalesChannelDefinition::class, 'id', false),
         ]);
     }
 }

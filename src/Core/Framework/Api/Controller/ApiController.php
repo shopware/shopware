@@ -16,7 +16,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityTranslationDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\DefinitionNotFoundException;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
@@ -331,7 +331,7 @@ class ApiController extends AbstractController
 
         $definition = $child['definition'];
 
-        /** @var AssociationInterface $association */
+        /** @var AssociationField $association */
         $association = $child['field'];
 
         // DELETE api/product/{id}/manufacturer/{id}
@@ -713,11 +713,11 @@ class ApiController extends AbstractController
         throw new \RuntimeException('Unsupported write operation.');
     }
 
-    private function getAssociation(FieldCollection $fields, array $keys): AssociationInterface
+    private function getAssociation(FieldCollection $fields, array $keys): AssociationField
     {
         $key = array_shift($keys);
 
-        /** @var AssociationInterface $field */
+        /** @var AssociationField $field */
         $field = $fields->get($key);
 
         if (empty($keys)) {
@@ -779,7 +779,7 @@ class ApiController extends AbstractController
         ];
 
         foreach ($parts as $part) {
-            /** @var AssociationInterface|null $field */
+            /** @var AssociationField|null $field */
             $field = $root::getFields()->get($part['entity']);
             if (!$field) {
                 $path = implode('.', array_column($entities, 'entity')) . '.' . $part['entity'];

@@ -91,16 +91,16 @@ class CategoryDefinition extends EntityDefinition
             (new TranslatedField('name'))->addFlags(new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
             new TranslatedField('attributes'),
 
-            new ParentAssociationField(self::class, false),
-            new ManyToOneAssociationField('media', 'media_id', MediaDefinition::class, false),
+            new ParentAssociationField(self::class, 'id'),
+            new ManyToOneAssociationField('media', 'media_id', MediaDefinition::class, 'id', false),
             new ChildrenAssociationField(self::class),
             (new TranslationsAssociationField(CategoryTranslationDefinition::class, 'category_id'))->addFlags(new Required()),
 
-            (new OneToManyAssociationField('navigations', NavigationDefinition::class, 'category_id', false))->addFlags(new CascadeDelete()),
+            (new OneToManyAssociationField('navigations', NavigationDefinition::class, 'category_id'))->addFlags(new CascadeDelete()),
 
-            (new ManyToManyAssociationField('products', ProductDefinition::class, ProductCategoryDefinition::class, false, 'category_id', 'product_id', 'id', 'id'))->addFlags(new CascadeDelete(), new ReverseInherited('categories')),
-            (new ManyToManyAssociationField('nestedProducts', ProductDefinition::class, ProductCategoryTreeDefinition::class, false, 'category_id', 'product_id'))->addFlags(new CascadeDelete(), new WriteProtected()),
-            (new ManyToManyAssociationField('tags', TagDefinition::class, CategoryTagDefinition::class, false, 'category_id', 'tag_id')),
+            (new ManyToManyAssociationField('products', ProductDefinition::class, ProductCategoryDefinition::class, 'category_id', 'product_id'))->addFlags(new CascadeDelete(), new ReverseInherited('categories')),
+            (new ManyToManyAssociationField('nestedProducts', ProductDefinition::class, ProductCategoryTreeDefinition::class, 'category_id', 'product_id'))->addFlags(new CascadeDelete(), new WriteProtected()),
+            new ManyToManyAssociationField('tags', TagDefinition::class, CategoryTagDefinition::class, 'category_id', 'tag_id'),
         ]);
     }
 }

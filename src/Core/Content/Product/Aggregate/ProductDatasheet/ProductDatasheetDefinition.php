@@ -25,8 +25,8 @@ class ProductDatasheetDefinition extends MappingEntityDefinition
             (new FkField('product_id', 'productId', ProductDefinition::class))->addFlags(new PrimaryKey(), new Required()),
             (new ReferenceVersionField(ProductDefinition::class))->addFlags(new Required()),
             (new FkField('configuration_group_option_id', 'optionId', ConfigurationGroupOptionDefinition::class))->addFlags(new PrimaryKey(), new Required()),
-            new ManyToOneAssociationField('product', 'product_id', ProductDefinition::class, false),
-            new ManyToOneAssociationField('option', 'configuration_group_option_id', ConfigurationGroupOptionDefinition::class, false),
+            new ManyToOneAssociationField('product', 'product_id', ProductDefinition::class, 'id', false),
+            new ManyToOneAssociationField('option', 'configuration_group_option_id', ConfigurationGroupOptionDefinition::class, 'id', false),
         ]);
     }
 }

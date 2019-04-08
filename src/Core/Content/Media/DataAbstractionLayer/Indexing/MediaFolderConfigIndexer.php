@@ -5,6 +5,9 @@ namespace Shopware\Core\Content\Media\DataAbstractionLayer\Indexing;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Media\Aggregate\MediaFolder\MediaFolderDefinition;
 use Shopware\Core\Content\Media\Aggregate\MediaFolder\MediaFolderEntity;
+use Shopware\Core\Content\Media\Aggregate\MediaFolderConfiguration\MediaFolderConfigurationCollection;
+use Shopware\Core\Content\Media\Aggregate\MediaFolderConfiguration\MediaFolderConfigurationDefinition;
+use Shopware\Core\Content\Media\Aggregate\MediaFolderConfigurationMediaThumbnailSize\MediaFolderConfigurationMediaThumbnailSizeDefinition;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Indexing\IndexerInterface;
@@ -41,14 +44,21 @@ class MediaFolderConfigIndexer implements IndexerInterface
      */
     private $cache;
 
+    /**
+     * @var EntityRepositoryInterface
+     */
+    private $folderConfigRepository;
+
     public function __construct(
         Connection $connection,
         EntityRepositoryInterface $folderRepository,
+        EntityRepositoryInterface $folderConfigRepository,
         EntityCacheKeyGenerator $cacheKeyGenerator,
         TagAwareAdapter $cache
     ) {
         $this->connection = $connection;
         $this->folderRepository = $folderRepository;
+        $this->folderConfigRepository = $folderConfigRepository;
         $this->cacheKeyGenerator = $cacheKeyGenerator;
         $this->cache = $cache;
     }
@@ -61,6 +71,8 @@ class MediaFolderConfigIndexer implements IndexerInterface
         foreach ($this->fetchFoldersWithOwnConfig($context) as $folder) {
             $this->updateChildren($folder->getId(), $folder->getConfigurationId(), $context);
         }
+
+        $this->updateSizesRoField(null, $context);
     }
 
     public function refresh(EntityWrittenContainerEvent $event): void
@@ -68,6 +80,11 @@ class MediaFolderConfigIndexer implements IndexerInterface
         $entityWrittenEvent = $event->getEventByDefinition(MediaFolderDefinition::class);
         if ($entityWrittenEvent) {
             $this->updateConfigOnRefresh($entityWrittenEvent);
+        }
+
+        if ($sizesEvent = $event->getEventByDefinition(MediaFolderConfigurationMediaThumbnailSizeDefinition::class)) {
+            $configIds = array_column($sizesEvent->getIds(), 'media_folder_configuration_id');
+            $this->updateSizesRoField($configIds, $event->getContext());
         }
     }
 
@@ -161,5 +178,33 @@ class MediaFolderConfigIndexer implements IndexerInterface
         $criteria->addFilter(new EqualsFilter('media_folder.useParentConfiguration', false));
 
         return $this->folderRepository->search($criteria, $context)->getEntities();
+    }
+
+    private function updateSizesRoField(?array $configIds, Context $context): void
+    {
+        $criteria = new Criteria();
+        $criteria->addAssociation('mediaThumbnailSizes');
+
+        if ($configIds !== null) {
+            $criteria->setIds($configIds);
+        }
+
+        $cacheIds = [];
+
+        /** @var MediaFolderConfigurationCollection $configs */
+        $configs = $this->folderConfigRepository->search($criteria, $context);
+        foreach ($configs as $config) {
+            $cacheIds[] = $this->cacheKeyGenerator->getEntityTag($config->getId(), MediaFolderConfigurationDefinition::class);
+
+            $this->connection->update(
+                MediaFolderConfigurationDefinition::getEntityName(),
+                ['media_thumbnail_sizes_ro' => serialize($config->getMediaThumbnailSizes())],
+                ['id' => Uuid::fromHexToBytes($config->getId())]
+            );
+        }
+
+        if (count($cacheIds)) {
+            $this->cache->invalidateTags($cacheIds);
+        }
     }
 }

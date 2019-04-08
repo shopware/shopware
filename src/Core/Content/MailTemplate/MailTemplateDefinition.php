@@ -54,8 +54,8 @@ class MailTemplateDefinition extends EntityDefinition
             new UpdatedAtField(),
 
             (new TranslationsAssociationField(MailTemplateTranslationDefinition::class, 'mail_template_id'))->addFlags(new Required()),
-            new ManyToManyAssociationField('salesChannels', SalesChannelDefinition::class, MailTemplateSalesChannelDefinition::class, false, 'mail_template_id', 'sales_channel_id'),
-            (new OneToManyAssociationField('media', MailTemplateMediaDefinition::class, 'mail_template_id', false, 'id'))->addFlags(new CascadeDelete()),
+            new ManyToManyAssociationField('salesChannels', SalesChannelDefinition::class, MailTemplateSalesChannelDefinition::class, 'mail_template_id', 'sales_channel_id'),
+            (new OneToManyAssociationField('media', MailTemplateMediaDefinition::class, 'mail_template_id', 'id'))->addFlags(new CascadeDelete()),
         ]);
     }
 }

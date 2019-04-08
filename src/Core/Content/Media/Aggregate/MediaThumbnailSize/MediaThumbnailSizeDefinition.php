@@ -44,7 +44,6 @@ class MediaThumbnailSizeDefinition extends EntityDefinition
                 'mediaFolderConfigurations',
                 MediaFolderConfigurationDefinition::class,
                 MediaFolderConfigurationMediaThumbnailSizeDefinition::class,
-                false,
                 'media_thumbnail_size_id',
                 'media_folder_configuration_id'
             ),

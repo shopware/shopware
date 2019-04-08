@@ -22,8 +22,8 @@ class WriteProtectedReferenceDefinition extends MappingEntityDefinition
             (new FkField('wp_id', 'wpId', WriteProtectedDefinition::class))->addFlags(new PrimaryKey(), new Required()),
             (new FkField('relation_id', 'relationId', WriteProtectedRelationDefinition::class))->addFlags(new PrimaryKey(), new Required()),
 
-            new ManyToOneAssociationField('wp', 'wp_id', WriteProtectedDefinition::class, false),
-            new ManyToOneAssociationField('relation', 'relation_id', WriteProtectedRelationDefinition::class, false),
+            new ManyToOneAssociationField('wp', 'wp_id', WriteProtectedDefinition::class, 'id', false),
+            new ManyToOneAssociationField('relation', 'relation_id', WriteProtectedRelationDefinition::class, 'id', false),
         ]);
     }
 }

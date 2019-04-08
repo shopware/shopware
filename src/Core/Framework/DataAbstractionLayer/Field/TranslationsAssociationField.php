@@ -19,7 +19,7 @@ class TranslationsAssociationField extends OneToManyAssociationField
             throw new \InvalidArgumentException('$referenceClass needs to be an `EntityTranslationDefinition`');
         }
 
-        parent::__construct($propertyName, $referenceClass, $referenceField, false, $localField);
+        parent::__construct($propertyName, $referenceClass, $referenceField, $localField);
         $this->addFlags(new CascadeDelete());
     }
 

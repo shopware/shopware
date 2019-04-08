@@ -67,7 +67,7 @@ class PromotionControllerTest extends TestCase
         );
 
         $criteria = new Criteria([$id]);
-        $criteria->addAssociation('promotion.discounts');
+        $criteria->addAssociation('discounts');
 
         /** @var PromotionEntity $promotion */
         $promotion = $this->promotionRepository->search($criteria, $context)->get($id);
@@ -258,7 +258,7 @@ class PromotionControllerTest extends TestCase
         static::assertEquals(204, $client->getResponse()->getStatusCode());
 
         $criteria = new Criteria([$id]);
-        $criteria->addAssociation('promotion.discounts');
+        $criteria->addAssociation('discounts');
 
         /** @var PromotionEntity $promotion */
         $promotion = $this->promotionRepository->search($criteria, $context)->get($id);
@@ -315,7 +315,7 @@ class PromotionControllerTest extends TestCase
         static::assertEquals(204, $client->getResponse()->getStatusCode());
 
         $criteria = new Criteria([$id]);
-        $criteria->addAssociation('promotion.discounts');
+        $criteria->addAssociation('discounts');
 
         /** @var PromotionEntity $promotion */
         $promotion = $this->promotionRepository->search($criteria, $context)->get($id);
@@ -372,7 +372,7 @@ class PromotionControllerTest extends TestCase
         );
 
         $criteria = new Criteria([$id]);
-        $criteria->addAssociation('promotion.discounts');
+        $criteria->addAssociation('discounts');
 
         /** @var PromotionEntity $promotion */
         $promotion = $this->promotionRepository->search($criteria, $context)->get($id);
@@ -424,7 +424,7 @@ class PromotionControllerTest extends TestCase
         static::assertEquals(204, $client->getResponse()->getStatusCode());
 
         $criteria = new Criteria([$id]);
-        $criteria->addAssociation('promotion.discounts');
+        $criteria->addAssociation('discounts');
 
         $promotions = $this->promotionRepository->search($criteria, $context);
         static::assertFalse($promotions->has($id));

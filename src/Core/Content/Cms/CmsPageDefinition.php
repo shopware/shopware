@@ -55,10 +55,10 @@ class CmsPageDefinition extends EntityDefinition
 
             new TranslatedField('attributes'),
 
-            (new OneToManyAssociationField('blocks', CmsBlockDefinition::class, 'cms_page_id', false))->addFlags(new CascadeDelete()),
+            (new OneToManyAssociationField('blocks', CmsBlockDefinition::class, 'cms_page_id'))->addFlags(new CascadeDelete()),
             new TranslationsAssociationField(CmsPageTranslationDefinition::class, 'cms_page_id'),
 
-            new OneToManyAssociationField('navigations', NavigationDefinition::class, 'cms_page_id', false),
+            new OneToManyAssociationField('navigations', NavigationDefinition::class, 'cms_page_id'),
 
             new CreatedAtField(),
             new UpdatedAtField(),

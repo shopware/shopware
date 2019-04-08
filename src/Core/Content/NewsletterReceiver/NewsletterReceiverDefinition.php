@@ -52,13 +52,13 @@ class NewsletterReceiverDefinition extends EntityDefinition
             new UpdatedAtField(),
 
             (new FkField('salutation_id', 'salutationId', SalutationDefinition::class))->addFlags(new Required()),
-            (new ManyToOneAssociationField('salutation', 'salutation_id', SalutationDefinition::class, true, 'id'))->addFlags(new Required(), new SearchRanking(SearchRanking::ASSOCIATION_SEARCH_RANKING)),
+            (new ManyToOneAssociationField('salutation', 'salutation_id', SalutationDefinition::class, 'id', true))->addFlags(new Required(), new SearchRanking(SearchRanking::ASSOCIATION_SEARCH_RANKING)),
 
             (new FkField('language_id', 'languageId', LanguageDefinition::class))->addFlags(new Required()),
-            (new ManyToOneAssociationField('language', 'language_id', LanguageDefinition::class, true, 'id'))->addFlags(new Required(), new SearchRanking(SearchRanking::ASSOCIATION_SEARCH_RANKING)),
+            (new ManyToOneAssociationField('language', 'language_id', LanguageDefinition::class, 'id', true))->addFlags(new Required(), new SearchRanking(SearchRanking::ASSOCIATION_SEARCH_RANKING)),
 
             (new FkField('sales_channel_id', 'salesChannelId', SalesChannelDefinition::class))->addFlags(new Required()),
-            (new ManyToOneAssociationField('salesChannel', 'sales_channel_id', SalesChannelDefinition::class, true, 'id'))->addFlags(new Required(), new SearchRanking(SearchRanking::ASSOCIATION_SEARCH_RANKING)),
+            (new ManyToOneAssociationField('salesChannel', 'sales_channel_id', SalesChannelDefinition::class, 'id', true))->addFlags(new Required(), new SearchRanking(SearchRanking::ASSOCIATION_SEARCH_RANKING)),
         ]);
     }
 }

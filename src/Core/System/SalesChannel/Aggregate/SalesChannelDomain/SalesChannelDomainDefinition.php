@@ -50,10 +50,10 @@ class SalesChannelDomainDefinition extends EntityDefinition
             new CreatedAtField(),
             new UpdatedAtField(),
 
-            new ManyToOneAssociationField('salesChannel', 'sales_channel_id', SalesChannelDefinition::class, false),
-            new ManyToOneAssociationField('language', 'language_id', LanguageDefinition::class, false),
-            new ManyToOneAssociationField('currency', 'currency_id', CurrencyDefinition::class, false),
-            new ManyToOneAssociationField('snippetSet', 'snippet_set_id', SnippetSetDefinition::class, false),
+            new ManyToOneAssociationField('salesChannel', 'sales_channel_id', SalesChannelDefinition::class, 'id', false),
+            new ManyToOneAssociationField('language', 'language_id', LanguageDefinition::class, 'id', false),
+            new ManyToOneAssociationField('currency', 'currency_id', CurrencyDefinition::class, 'id', false),
+            new ManyToOneAssociationField('snippetSet', 'snippet_set_id', SnippetSetDefinition::class, 'id', false),
 
             new AttributesField(),
         ]);

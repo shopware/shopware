@@ -4,22 +4,17 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Field;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 
-trait AssociationTrait
+class AssociationField extends Field
 {
-    /**
-     * @var bool
-     */
-    protected $loadInBasic = false;
-
     /**
      * @var string
      */
     protected $referenceClass;
 
-    public function loadInBasic(): bool
-    {
-        return $this->loadInBasic;
-    }
+    /**
+     * @var bool
+     */
+    protected $autoload = false;
 
     /**
      * @return string|EntityDefinition
@@ -27,5 +22,10 @@ trait AssociationTrait
     public function getReferenceClass(): string
     {
         return $this->referenceClass;
+    }
+
+    final public function getAutoload(): bool
+    {
+        return $this->autoload;
     }
 }

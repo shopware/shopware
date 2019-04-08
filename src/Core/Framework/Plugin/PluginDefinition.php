@@ -69,7 +69,7 @@ class PluginDefinition extends EntityDefinition
             new CreatedAtField(),
             new UpdatedAtField(),
             (new TranslationsAssociationField(PluginTranslationDefinition::class, 'plugin_id'))->addFlags(new Required(), new CascadeDelete()),
-            new OneToManyAssociationField('paymentMethods', PaymentMethodDefinition::class, 'plugin_id', false, 'id'),
+            new OneToManyAssociationField('paymentMethods', PaymentMethodDefinition::class, 'plugin_id', 'id'),
         ]);
     }
 }

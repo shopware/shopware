@@ -228,7 +228,10 @@ class SalesChannelContextFactory implements SalesChannelContextFactoryInterface
             $id = $options[SalesChannelContextService::SHIPPING_METHOD_ID];
         }
 
-        return $this->shippingMethodRepository->search(new Criteria([$id]), $context)->get($id);
+        $criteria = new Criteria([$id]);
+        $criteria->addAssociation('priceRules');
+
+        return $this->shippingMethodRepository->search($criteria, $context)->get($id);
     }
 
     private function getContext(string $salesChannelId, array $session): Context

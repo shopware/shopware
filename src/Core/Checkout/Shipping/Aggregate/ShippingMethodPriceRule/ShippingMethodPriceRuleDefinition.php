@@ -56,9 +56,9 @@ class ShippingMethodPriceRuleDefinition extends EntityDefinition
             new AttributesField(),
             new CreatedAtField(),
             new UpdatedAtField(),
-            (new ManyToOneAssociationField('shippingMethod', 'shipping_method_id', ShippingMethodDefinition::class, false, 'id'))->addFlags(new ReverseInherited('priceRules')),
-            new ManyToOneAssociationField('currency', 'currency_id', CurrencyDefinition::class, false),
-            new ManyToOneAssociationField('rule', 'rule_id', RuleDefinition::class, false),
+            (new ManyToOneAssociationField('shippingMethod', 'shipping_method_id', ShippingMethodDefinition::class, 'id', false))->addFlags(new ReverseInherited('priceRules')),
+            new ManyToOneAssociationField('currency', 'currency_id', CurrencyDefinition::class, 'id', false),
+            new ManyToOneAssociationField('rule', 'rule_id', RuleDefinition::class, 'id', false),
         ]);
     }
 }

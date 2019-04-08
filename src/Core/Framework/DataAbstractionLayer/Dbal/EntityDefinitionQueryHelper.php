@@ -8,7 +8,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Exception\UnmappedFieldExc
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\FieldAccessorBuilder\FieldAccessorBuilderRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\FieldResolver\FieldResolverRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Inherited;
@@ -82,7 +82,7 @@ class EntityDefinitionQueryHelper
 
             $accessorFields[] = $field;
 
-            if (!$field instanceof AssociationInterface) {
+            if (!$field instanceof AssociationField) {
                 break;
             }
 
@@ -135,7 +135,7 @@ class EntityDefinitionQueryHelper
             return self::getTranslatedField($definition, $field);
         }
 
-        if (!$field instanceof AssociationInterface) {
+        if (!$field instanceof AssociationField) {
             return $field;
         }
 
@@ -200,13 +200,16 @@ class EntityDefinitionQueryHelper
             throw new UnmappedFieldException($original, $definition);
         }
 
-        /** @var AssociationInterface|Field $field */
+        /** @var Field $field */
         $field = $fields->get($associationKey);
 
         //case for json object fields, other fields has now same option to act with more point notations but hasn't to be an association field. E.g. price.gross
-        if (!$field instanceof AssociationInterface && ($field instanceof StorageAware || $field instanceof TranslatedField)) {
+        if (!$field instanceof AssociationField && ($field instanceof StorageAware || $field instanceof TranslatedField)) {
             return $this->buildInheritedAccessor($field, $root, $definition, $context, $fieldName);
         }
+
+        /** @var AssociationField $field */
+        $field = $field;
 
         $referenceClass = $field->getReferenceClass();
         if ($field instanceof ManyToManyAssociationField) {
@@ -364,12 +367,12 @@ class EntityDefinitionQueryHelper
             return;
         }
 
-        /** @var AssociationInterface|Field $field */
+        /** @var AssociationField $field */
         $field = $fields->get($fieldName);
 
         $this->fieldResolverRegistry->resolve($definition, $root, $field, $query, $context, $this);
 
-        if (!$field instanceof AssociationInterface) {
+        if (!$field instanceof AssociationField) {
             return;
         }
 

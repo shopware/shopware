@@ -17,10 +17,10 @@ class CanonicalUrlAssociationField extends ManyToOneAssociationField
     public function __construct(
         string $propertyName,
         string $storageName,
-        bool $loadInBasic,
-        string $routeName
+        string $routeName,
+        bool $autoload = true
     ) {
-        parent::__construct($propertyName, $storageName, SeoUrlDefinition::class, $loadInBasic, 'foreign_key');
+        parent::__construct($propertyName, $storageName, SeoUrlDefinition::class, 'foreign_key', $autoload);
         $this->addFlags(new WriteProtected(), new Extension());
         $this->routeName = $routeName;
     }

@@ -48,11 +48,11 @@ class TagDefinition extends EntityDefinition
             new CreatedAtField(),
             new UpdatedAtField(),
 
-            new ManyToManyAssociationField('products', ProductDefinition::class, ProductTagDefinition::class, false, 'tag_id', 'product_id'),
-            new ManyToManyAssociationField('media', MediaDefinition::class, MediaTagDefinition::class, false, 'tag_id', 'media_id'),
-            new ManyToManyAssociationField('categories', CategoryDefinition::class, CategoryTagDefinition::class, false, 'tag_id', 'category_id'),
-            new ManyToManyAssociationField('customers', CustomerDefinition::class, CustomerTagDefinition::class, false, 'tag_id', 'customer_id'),
-            new ManyToManyAssociationField('orders', OrderDefinition::class, OrderTagDefinition::class, false, 'tag_id', 'order_id'),
+            new ManyToManyAssociationField('products', ProductDefinition::class, ProductTagDefinition::class, 'tag_id', 'product_id'),
+            new ManyToManyAssociationField('media', MediaDefinition::class, MediaTagDefinition::class, 'tag_id', 'media_id'),
+            new ManyToManyAssociationField('categories', CategoryDefinition::class, CategoryTagDefinition::class, 'tag_id', 'category_id'),
+            new ManyToManyAssociationField('customers', CustomerDefinition::class, CustomerTagDefinition::class, 'tag_id', 'customer_id'),
+            new ManyToManyAssociationField('orders', OrderDefinition::class, OrderTagDefinition::class, 'tag_id', 'order_id'),
         ]);
     }
 }

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Media\Subscriber;
 
+use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailCollection;
 use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailEntity;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Media\MediaEvents;
@@ -87,6 +88,14 @@ class MediaLoadedSubscriber implements EventSubscriberInterface
 
             if ($media->getMediaTypeRaw()) {
                 $media->setMediaType(unserialize($media->getMediaTypeRaw()));
+            }
+
+            if ($media->getThumbnails() === null) {
+                if ($media->getThumbnailsRo()) {
+                    $media->setThumbnails(unserialize($media->getThumbnailsRo()));
+                } else {
+                    $media->setThumbnails(new MediaThumbnailCollection());
+                }
             }
         }
     }

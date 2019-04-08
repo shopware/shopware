@@ -47,7 +47,7 @@ class DiscountSurchargeDefinition extends EntityDefinition
             new CreatedAtField(),
             new UpdatedAtField(),
             (new TranslationsAssociationField(DiscountSurchargeTranslationDefinition::class, 'discount_surcharge_id'))->addFlags(new Required()),
-            new ManyToOneAssociationField('rule', 'rule_id', RuleDefinition::class, true),
+            new ManyToOneAssociationField('rule', 'rule_id', RuleDefinition::class, 'id', true),
         ]);
     }
 }

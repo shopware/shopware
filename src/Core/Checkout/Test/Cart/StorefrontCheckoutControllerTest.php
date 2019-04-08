@@ -262,12 +262,15 @@ class StorefrontCheckoutControllerTest extends TestCase
 
         static::assertNotEmpty($order['orderCustomer']['customerId']);
 
+        $criteria = new Criteria([$order['orderCustomer']['customerId']]);
+        $criteria->addAssociation('addresses');
+
         /** @var CustomerEntity $customer */
-        $customer = $this->customerRepository->search(new Criteria([$order['orderCustomer']['customerId']]), $context)->first();
+        $customer = $this->customerRepository->search($criteria, $context)->first();
 
         static::assertEquals($firstName, $customer->getFirstName());
         static::assertEquals($lastName, $customer->getLastName());
-        static::assertEquals($countryId, $order['addresses'][0]['country']['id']);
+        static::assertEquals($countryId, $order['addresses'][0]['country']['id'], print_r($order['addresses'], true));
         static::assertEquals($street, $order['addresses'][0]['street']);
         static::assertEquals($zipcode, $order['addresses'][0]['zipcode']);
         static::assertEquals($city, $order['addresses'][0]['city']);
@@ -331,8 +334,11 @@ class StorefrontCheckoutControllerTest extends TestCase
 
         static::assertNotEmpty($order['orderCustomer']['customerId']);
 
+        $criteria = new Criteria([$order['orderCustomer']['customerId']]);
+        $criteria->addAssociation('addresses');
+
         /** @var CustomerEntity $customer */
-        $customer = $this->customerRepository->search(new Criteria([$order['orderCustomer']['customerId']]), $context)->first();
+        $customer = $this->customerRepository->search($criteria, $context)->first();
 
         static::assertEquals($firstName, $customer->getFirstName());
         static::assertEquals($lastName, $customer->getLastName());
@@ -463,8 +469,11 @@ class StorefrontCheckoutControllerTest extends TestCase
 
         static::assertNotEmpty($order['orderCustomer']['customerId']);
 
+        $criteria = new Criteria([$order['orderCustomer']['customerId']]);
+        $criteria->addAssociation('addresses');
+
         /** @var CustomerEntity $customer */
-        $customer = $this->customerRepository->search(new Criteria([$order['orderCustomer']['customerId']]), $context)->first();
+        $customer = $this->customerRepository->search($criteria, $context)->first();
 
         static::assertEquals($firstName, $customer->getFirstName());
         static::assertEquals($lastName, $customer->getLastName());

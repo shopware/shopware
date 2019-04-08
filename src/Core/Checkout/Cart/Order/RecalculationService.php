@@ -108,10 +108,13 @@ class RecalculationService
      */
     public function recalculateOrder(string $orderId, Context $context): void
     {
+        $deliveryCriteria = new Criteria();
+        $deliveryCriteria->addAssociation('positions');
+
         $criteria = (new Criteria([$orderId]))
             ->addAssociation('lineItems')
             ->addAssociation('transactions')
-            ->addAssociation('deliveries');
+            ->addAssociation('deliveries', $deliveryCriteria);
 
         $order = $this->orderRepository->search($criteria, $context)->get($orderId);
         $this->validateOrder($order, $orderId);
@@ -167,10 +170,14 @@ class RecalculationService
      */
     public function addCustomLineItem(string $orderId, LineItem $lineItem, Context $context): void
     {
+        $deliveryCriteria = new Criteria();
+        $deliveryCriteria->addAssociation('positions');
+
         $criteria = (new Criteria([$orderId]))
             ->addAssociation('lineItems')
             ->addAssociation('transactions')
-            ->addAssociation('deliveries');
+            ->addAssociation('order.deliveries', $deliveryCriteria);
+
         /** @var OrderEntity|null $order */
         $order = $this->orderRepository->search($criteria, $context)->get($orderId);
         $this->validateOrder($order, $orderId);

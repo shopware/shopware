@@ -6,7 +6,7 @@ use Shopware\Core\Framework\Api\ApiDefinition\ApiDefinitionGeneratorInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AttributesField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BlacklistRuleField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BlobField;
@@ -169,9 +169,8 @@ class EntitySchemaGenerator implements ApiDefinitionGeneratorInterface
             case $field instanceof OneToManyAssociationField:
             case $field instanceof ChildrenAssociationField:
             case $field instanceof TranslationsAssociationField:
-                /** @var AssociationInterface $field */
-                if (!$field instanceof AssociationInterface) {
-                    throw new \RuntimeException('Field should implement AssociationInterface');
+                if (!$field instanceof AssociationField) {
+                    throw new \RuntimeException('Field should extend AssociationField');
                 }
 
                 return [
@@ -183,9 +182,8 @@ class EntitySchemaGenerator implements ApiDefinitionGeneratorInterface
 
             case $field instanceof ParentAssociationField:
             case $field instanceof ManyToOneAssociationField:
-                /** @var AssociationInterface $field */
-                if (!$field instanceof AssociationInterface) {
-                    throw new \RuntimeException('Field should implement AssociationInterface');
+                if (!$field instanceof AssociationField) {
+                    throw new \RuntimeException('Field should extend AssociationField');
                 }
 
                 return [
@@ -196,7 +194,6 @@ class EntitySchemaGenerator implements ApiDefinitionGeneratorInterface
                 ];
 
             case $field instanceof ManyToManyAssociationField:
-                /* @var AssociationInterface $field */
                 return [
                     'type' => 'association',
                     'relation' => 'many_to_many',

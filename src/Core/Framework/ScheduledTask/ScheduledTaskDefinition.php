@@ -55,7 +55,7 @@ class ScheduledTaskDefinition extends EntityDefinition
             new DateField('last_execution_time', 'lastExecutionTime'),
             (new DateField('next_execution_time', 'nextExecutionTime'))->setFlags(new Required()),
 
-            new OneToManyAssociationField('deadMessages', DeadMessageDefinition::class, 'scheduled_task_id', false),
+            new OneToManyAssociationField('deadMessages', DeadMessageDefinition::class, 'scheduled_task_id'),
         ]);
     }
 }

@@ -64,15 +64,15 @@ class RuleDefinition extends EntityDefinition
             new UpdatedAtField(),
             new JsonField('module_types', 'moduleTypes'),
 
-            (new OneToManyAssociationField('conditions', RuleConditionDefinition::class, 'rule_id', false, 'id'))->addFlags(new CascadeDelete()),
-            (new OneToManyAssociationField('discountSurcharges', DiscountSurchargeDefinition::class, 'rule_id', false, 'id'))->addFlags(new CascadeDelete()),
-            (new OneToManyAssociationField('productPrices', ProductPriceDefinition::class, 'rule_id', false, 'id'))->addFlags(new CascadeDelete()),
-            (new OneToManyAssociationField('shippingMethodPriceRules', ShippingMethodPriceRuleDefinition::class, 'rule_id', false, 'id'))->addFlags(new CascadeDelete()),
-            (new ManyToManyAssociationField('shippingMethods', ShippingMethodDefinition::class, ShippingMethodRuleDefinition::class, false, 'rule_id', 'shipping_method_id'))->addFlags(new CascadeDelete()),
-            (new ManyToManyAssociationField('paymentMethods', PaymentMethodDefinition::class, PaymentMethodRuleDefinition::class, false, 'rule_id', 'payment_method_id'))->addFlags(new CascadeDelete()),
-            (new OneToManyAssociationField('personaPromotions', PromotionDefinition::class, 'persona_rule_id', false, 'id'))->addFlags(new CascadeDelete()),
-            (new OneToManyAssociationField('scopePromotions', PromotionDefinition::class, 'scope_rule_id', false, 'id'))->addFlags(new CascadeDelete()),
-            (new OneToManyAssociationField('discountPromotions', PromotionDefinition::class, 'discount_rule_id', false, 'id'))->addFlags(new CascadeDelete()),
+            (new OneToManyAssociationField('conditions', RuleConditionDefinition::class, 'rule_id', 'id'))->addFlags(new CascadeDelete()),
+            (new OneToManyAssociationField('discountSurcharges', DiscountSurchargeDefinition::class, 'rule_id', 'id'))->addFlags(new CascadeDelete()),
+            (new OneToManyAssociationField('productPrices', ProductPriceDefinition::class, 'rule_id', 'id'))->addFlags(new CascadeDelete()),
+            (new OneToManyAssociationField('shippingMethodPriceRules', ShippingMethodPriceRuleDefinition::class, 'rule_id', 'id'))->addFlags(new CascadeDelete()),
+            (new ManyToManyAssociationField('shippingMethods', ShippingMethodDefinition::class, ShippingMethodRuleDefinition::class, 'rule_id', 'shipping_method_id'))->addFlags(new CascadeDelete()),
+            (new ManyToManyAssociationField('paymentMethods', PaymentMethodDefinition::class, PaymentMethodRuleDefinition::class, 'rule_id', 'payment_method_id'))->addFlags(new CascadeDelete()),
+            (new OneToManyAssociationField('personaPromotions', PromotionDefinition::class, 'persona_rule_id', 'id'))->addFlags(new CascadeDelete()),
+            (new OneToManyAssociationField('scopePromotions', PromotionDefinition::class, 'scope_rule_id', 'id'))->addFlags(new CascadeDelete()),
+            (new OneToManyAssociationField('discountPromotions', PromotionDefinition::class, 'discount_rule_id', 'id'))->addFlags(new CascadeDelete()),
         ]);
     }
 }

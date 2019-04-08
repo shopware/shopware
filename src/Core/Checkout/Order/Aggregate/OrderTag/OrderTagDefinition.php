@@ -36,8 +36,8 @@ class OrderTagDefinition extends MappingEntityDefinition
 
             new CreatedAtField(),
             new UpdatedAtField(),
-            new ManyToOneAssociationField('order', 'order_id', OrderDefinition::class, false),
-            new ManyToOneAssociationField('tag', 'tag_id', TagDefinition::class, false),
+            new ManyToOneAssociationField('order', 'order_id', OrderDefinition::class, 'id', false),
+            new ManyToOneAssociationField('tag', 'tag_id', TagDefinition::class, 'id', false),
         ]);
     }
 }

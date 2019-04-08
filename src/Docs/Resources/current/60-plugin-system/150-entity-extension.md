@@ -29,7 +29,7 @@ class PromotionExtension implements EntityExtensionInterface, EventSubscriberInt
     public function extendFields(FieldCollection $collection): void
     {
         $collection->add(
-            (new OneToManyAssociationField('promotion', PromotionDefinition::class, 'product_id', true))->addFlags(new Extension())
+            (new OneToManyAssociationField('promotion', PromotionDefinition::class, 'product_id'))->addFlags(new Extension())
         );
     }
 

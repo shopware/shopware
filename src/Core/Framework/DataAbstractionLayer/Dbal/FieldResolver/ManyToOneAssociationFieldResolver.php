@@ -7,7 +7,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\QueryBuilder;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Inherited;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
@@ -58,7 +58,7 @@ class ManyToOneAssociationFieldResolver implements FieldResolverInterface
     private function join(
         string $definition,
         string $root,
-        AssociationInterface $field,
+        AssociationField $field,
         QueryBuilder $query,
         Context $context,
         EntityDefinitionQueryHelper $queryHelper
@@ -174,7 +174,7 @@ class ManyToOneAssociationFieldResolver implements FieldResolverInterface
         );
     }
 
-    private function createSubVersionQuery(AssociationInterface $field, QueryBuilder $query, Context $context, EntityDefinitionQueryHelper $queryHelper): QueryBuilder
+    private function createSubVersionQuery(AssociationField $field, QueryBuilder $query, Context $context, EntityDefinitionQueryHelper $queryHelper): QueryBuilder
     {
         $subRoot = $field->getReferenceClass()::getEntityName();
 

@@ -47,7 +47,7 @@ class DocumentDefinition extends EntityDefinition
             new BoolField('sent', 'sent'),
             new CreatedAtField(),
 
-            new ManyToOneAssociationField('order', 'order_id', OrderDefinition::class, false),
+            new ManyToOneAssociationField('order', 'order_id', OrderDefinition::class, 'id', false),
         ]);
     }
 }

@@ -79,7 +79,7 @@ class ProductVisibilityEntityTest extends TestCase
         static::assertCount(2, $event->getWriteResults());
 
         $criteria = new Criteria([$id]);
-        $criteria->addAssociation('product.visibilities');
+        $criteria->addAssociation('visibilities');
 
         /** @var ProductEntity $product */
         $product = $this->productRepository->search($criteria, $context)->first();

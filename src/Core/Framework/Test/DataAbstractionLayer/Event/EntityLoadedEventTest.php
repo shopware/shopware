@@ -219,9 +219,9 @@ class TestDefinition extends EntityDefinition
     {
         return new FieldCollection([
             new IdField('id', 'id'),
-            new ManyToOneAssociationField('many_to_one', 'many_to_one', self::class, true),
-            new OneToManyAssociationField('one_to_many', self::class, 'test_id', true),
-            new ManyToManyAssociationField('many_to_many', self::class, ProductCategoryDefinition::class, true, 'test_id', 'test_id'),
+            new ManyToOneAssociationField('many_to_one', 'many_to_one', self::class, 'id', true),
+            new OneToManyAssociationField('one_to_many', self::class, 'test_id'),
+            new ManyToManyAssociationField('many_to_many', self::class, ProductCategoryDefinition::class, 'test_id', 'test_id'),
         ]);
     }
 }

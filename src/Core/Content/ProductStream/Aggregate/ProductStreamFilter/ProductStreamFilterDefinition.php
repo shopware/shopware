@@ -59,8 +59,8 @@ class ProductStreamFilterDefinition extends EntityDefinition
             new CreatedAtField(),
             new UpdatedAtField(),
 
-            new ManyToOneAssociationField('productStream', 'product_stream_id', ProductStreamDefinition::class, false, 'id'),
-            new ParentAssociationField(self::class, false),
+            new ManyToOneAssociationField('productStream', 'product_stream_id', ProductStreamDefinition::class, 'id', false),
+            new ParentAssociationField(self::class, 'id'),
             new ChildrenAssociationField(self::class, 'queries'),
             new AttributesField(),
         ]);

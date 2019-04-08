@@ -45,8 +45,8 @@ class CustomerGroupDefinition extends EntityDefinition
             new TranslatedField('attributes'),
             new CreatedAtField(),
             new UpdatedAtField(),
-            (new OneToManyAssociationField('customers', CustomerDefinition::class, 'customer_group_id', false, 'id'))->addFlags(new RestrictDelete()),
-            (new OneToManyAssociationField('salesChannels', SalesChannelDefinition::class, 'customer_group_id', false, 'id'))->addFlags(new RestrictDelete()),
+            (new OneToManyAssociationField('customers', CustomerDefinition::class, 'customer_group_id', 'id'))->addFlags(new RestrictDelete()),
+            (new OneToManyAssociationField('salesChannels', SalesChannelDefinition::class, 'customer_group_id', 'id'))->addFlags(new RestrictDelete()),
             (new TranslationsAssociationField(CustomerGroupTranslationDefinition::class, 'customer_group_id'))->addFlags(new Required()),
         ]);
     }

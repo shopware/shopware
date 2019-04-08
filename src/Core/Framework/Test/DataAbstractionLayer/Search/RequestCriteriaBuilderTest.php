@@ -62,15 +62,15 @@ class RequestCriteriaBuilderTest extends TestCase
             Context::createDefaultContext()
         );
 
-        static::assertTrue($criteria->hasAssociation('product.prices'));
-        $nested = $criteria->getAssociation('product.prices');
+        static::assertTrue($criteria->hasAssociation('prices'));
+        $nested = $criteria->getAssociation('prices');
 
         static::assertInstanceOf(Criteria::class, $nested);
         static::assertCount(1, $nested->getFilters());
         static::assertCount(1, $nested->getSorting());
 
-        static::assertTrue($nested->hasAssociation('product_price.currency'));
-        $nested = $nested->getAssociation('product_price.currency');
+        static::assertTrue($nested->hasAssociation('currency'));
+        $nested = $nested->getAssociation('currency');
         static::assertInstanceOf(Criteria::class, $nested);
         static::assertCount(1, $nested->getFilters());
     }

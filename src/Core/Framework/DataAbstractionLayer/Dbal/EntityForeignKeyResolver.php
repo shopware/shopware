@@ -6,7 +6,7 @@ use Doctrine\DBAL\Connection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\CascadeDelete;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\RestrictDelete;
@@ -135,7 +135,7 @@ class EntityForeignKeyResolver
 
     private function joinCascades(string $definition, FieldCollection $cascades, string $root, QueryBuilder $query, string $class, Context $context): void
     {
-        /** @var AssociationInterface $cascade */
+        /** @var AssociationField $cascade */
         foreach ($cascades as $cascade) {
             $alias = $root . '.' . $cascade->getPropertyName();
 
@@ -245,7 +245,7 @@ class EntityForeignKeyResolver
 
                 $value = array_map('strtolower', $value);
 
-                /** @var AssociationInterface|null $field */
+                /** @var AssociationField|null $field */
                 $field = $this->queryHelper->getField($key, $definition, $root);
 
                 if (!$field) {
@@ -276,7 +276,7 @@ class EntityForeignKeyResolver
                     continue;
                 }
 
-                if (!$field instanceof AssociationInterface) {
+                if (!$field instanceof AssociationField) {
                     continue;
                 }
 

@@ -122,7 +122,7 @@ class OrderEntity extends Entity
     protected $salesChannel;
 
     /**
-     * @var OrderAddressCollection
+     * @var OrderAddressCollection|null
      */
     protected $addresses;
 
@@ -326,7 +326,7 @@ class OrderEntity extends Entity
         $this->salesChannel = $salesChannel;
     }
 
-    public function getAddresses(): OrderAddressCollection
+    public function getAddresses(): ?OrderAddressCollection
     {
         return $this->addresses;
     }

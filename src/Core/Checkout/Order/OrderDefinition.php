@@ -85,22 +85,22 @@ class OrderDefinition extends EntityDefinition
             new StringField('deep_link_code', 'deepLinkCode'),
 
             (new FkField('state_id', 'stateId', StateMachineStateDefinition::class))->setFlags(new Required()),
-            new ManyToOneAssociationField('stateMachineState', 'state_id', StateMachineStateDefinition::class, true),
+            new ManyToOneAssociationField('stateMachineState', 'state_id', StateMachineStateDefinition::class, 'id', true),
 
             new AttributesField(),
 
             new CreatedAtField(),
             new UpdatedAtField(),
 
-            (new OneToOneAssociationField('orderCustomer', 'id', 'order_id', OrderCustomerDefinition::class, true))->addFlags(new CascadeDelete(), new SearchRanking(0.5)),
-            new ManyToOneAssociationField('currency', 'currency_id', CurrencyDefinition::class, true),
-            new ManyToOneAssociationField('salesChannel', 'sales_channel_id', SalesChannelDefinition::class, true),
-            (new OneToManyAssociationField('addresses', OrderAddressDefinition::class, 'order_id', true))->addFlags(new CascadeDelete()),
-            (new OneToManyAssociationField('deliveries', OrderDeliveryDefinition::class, 'order_id', true))->addFlags(new CascadeDelete()),
-            (new OneToManyAssociationField('lineItems', OrderLineItemDefinition::class, 'order_id', false))->addFlags(new CascadeDelete()),
-            (new OneToManyAssociationField('transactions', OrderTransactionDefinition::class, 'order_id', false))->addFlags(new CascadeDelete()),
-            new OneToManyAssociationField('documents', DocumentDefinition::class, 'order_id', false),
-            new ManyToManyAssociationField('tags', TagDefinition::class, OrderTagDefinition::class, false, 'order_id', 'tag_id'),
+            (new OneToOneAssociationField('orderCustomer', 'id', 'order_id', OrderCustomerDefinition::class))->addFlags(new CascadeDelete(), new SearchRanking(0.5)),
+            new ManyToOneAssociationField('currency', 'currency_id', CurrencyDefinition::class, 'id', true),
+            new ManyToOneAssociationField('salesChannel', 'sales_channel_id', SalesChannelDefinition::class, 'id', true),
+            (new OneToManyAssociationField('addresses', OrderAddressDefinition::class, 'order_id'))->addFlags(new CascadeDelete()),
+            (new OneToManyAssociationField('deliveries', OrderDeliveryDefinition::class, 'order_id'))->addFlags(new CascadeDelete()),
+            (new OneToManyAssociationField('lineItems', OrderLineItemDefinition::class, 'order_id'))->addFlags(new CascadeDelete()),
+            (new OneToManyAssociationField('transactions', OrderTransactionDefinition::class, 'order_id'))->addFlags(new CascadeDelete()),
+            new OneToManyAssociationField('documents', DocumentDefinition::class, 'order_id'),
+            new ManyToManyAssociationField('tags', TagDefinition::class, OrderTagDefinition::class, 'order_id', 'tag_id'),
         ]);
     }
 }

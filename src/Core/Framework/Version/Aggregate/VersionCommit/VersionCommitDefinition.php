@@ -68,8 +68,8 @@ class VersionCommitDefinition extends EntityDefinition
             new BoolField('is_merge', 'isMerge'),
             (new StringField('message', 'message'))->addFlags(new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
             new CreatedAtField(),
-            (new OneToManyAssociationField('data', VersionCommitDataDefinition::class, 'version_commit_id', true))->addFlags(new CascadeDelete()),
-            new ManyToOneAssociationField('version', 'version_id', VersionDefinition::class, false),
+            (new OneToManyAssociationField('data', VersionCommitDataDefinition::class, 'version_commit_id'))->addFlags(new CascadeDelete()),
+            new ManyToOneAssociationField('version', 'version_id', VersionDefinition::class, 'id', false),
         ]);
     }
 }

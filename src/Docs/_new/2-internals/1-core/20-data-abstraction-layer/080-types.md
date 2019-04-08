@@ -263,7 +263,7 @@ This field is used for a foreign key for relation.
 ### OneToManyAssociationField
 
 ```php
-new OneToManyAssociationField('languages', LanguageDefinition::class, 'locale_id', false, 'id')
+new OneToManyAssociationField('languages', LanguageDefinition::class, 'locale_id', 'id')
 ```
 
 This field is used for building `1:n` relations. It does not have a storage field and is needed for searching,
@@ -284,7 +284,7 @@ the data.
 ### ManyToOneAssociationField
 
 ```php
-new ManyToOneAssociationField('language', 'language_id', LanguageDefinition::class, false)
+new ManyToOneAssociationField('language', 'language_id', LanguageDefinition::class, 'id', false)
 ```
 
 This field is used for building `n:1` relations.
@@ -302,7 +302,7 @@ set this parameter to `true` as it can simply be joined without a further query.
 ### ManyToManyAssociationField
 
 ```php
-new ManyToManyAssociationField('categories', CategoryDefinition::class, ProductCategoryDefinition::class, false, 'product_id', 'category_id')
+new ManyToManyAssociationField('categories', CategoryDefinition::class, ProductCategoryDefinition::class, 'product_id', 'category_id')
 ```
 
 This field is used for building `n:m` relations. It does not have a storage field as it will be mapped using a

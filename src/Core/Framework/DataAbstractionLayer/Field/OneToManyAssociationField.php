@@ -2,10 +2,8 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Field;
 
-class OneToManyAssociationField extends Field implements AssociationInterface
+class OneToManyAssociationField extends AssociationField
 {
-    use AssociationTrait;
-
     /**
      * @var string
      */
@@ -20,11 +18,9 @@ class OneToManyAssociationField extends Field implements AssociationInterface
         string $propertyName,
         string $referenceClass,
         string $referenceField,
-        bool $loadInBasic,
         string $localField = 'id'
     ) {
         parent::__construct($propertyName);
-        $this->loadInBasic = $loadInBasic;
         $this->localField = $localField;
         $this->referenceField = $referenceField;
         $this->referenceClass = $referenceClass;

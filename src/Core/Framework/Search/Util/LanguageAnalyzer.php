@@ -5,7 +5,7 @@ namespace Shopware\Core\Framework\Search\Util;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\SearchRanking;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\SearchFilterInterface;
@@ -64,7 +64,7 @@ class LanguageAnalyzer implements SearchAnalyzerInterface
             /** @var SearchRanking|null $flag */
             $flag = $field->getFlag(SearchRanking::class);
 
-            if (!$field instanceof AssociationInterface) {
+            if (!$field instanceof AssociationField) {
                 $fieldTokens = $this->tokenizer->tokenize((string) $value);
 
                 $score = $flag ? $flag->getRanking() : 100;

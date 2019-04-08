@@ -50,7 +50,7 @@ class SnippetDefinition extends EntityDefinition
             new AttributesField(),
             new CreatedAtField(),
             new UpdatedAtField(),
-            new ManyToOneAssociationField('set', 'snippet_set_id', SnippetSetDefinition::class, false),
+            new ManyToOneAssociationField('set', 'snippet_set_id', SnippetSetDefinition::class, 'id', false),
         ]);
     }
 }

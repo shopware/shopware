@@ -60,10 +60,10 @@ class CountryStateDefinition extends EntityDefinition
             new TranslatedField('attributes'),
             new CreatedAtField(),
             new UpdatedAtField(),
-            new ManyToOneAssociationField('country', 'country_id', CountryDefinition::class, false),
+            new ManyToOneAssociationField('country', 'country_id', CountryDefinition::class, 'id', false),
             (new TranslationsAssociationField(CountryStateTranslationDefinition::class, 'country_state_id'))->addFlags(new Required()),
-            new OneToManyAssociationField('customerAddresses', CustomerAddressDefinition::class, 'country_state_id', false, 'id'),
-            (new OneToManyAssociationField('orderAddresses', OrderAddressDefinition::class, 'country_state_id', false, 'id'))->addFlags(new RestrictDelete()),
+            new OneToManyAssociationField('customerAddresses', CustomerAddressDefinition::class, 'country_state_id', 'id'),
+            (new OneToManyAssociationField('orderAddresses', OrderAddressDefinition::class, 'country_state_id', 'id'))->addFlags(new RestrictDelete()),
         ]);
     }
 }

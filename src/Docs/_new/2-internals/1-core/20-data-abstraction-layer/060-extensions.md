@@ -23,7 +23,7 @@ The example below will add a new `1:n` relation to a new promotion entity.
 
 ```php
 $fields->add(
-    (new OneToManyAssociationField('promotions', PromotionDefinition::class, 'product_id', true))->addFlags(new Extension())
+    (new OneToManyAssociationField('promotions', PromotionDefinition::class, 'product_id'))->addFlags(new Extension())
 );
 ```
 

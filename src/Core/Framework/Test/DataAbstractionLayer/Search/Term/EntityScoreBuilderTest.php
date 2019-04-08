@@ -111,7 +111,7 @@ class ScoreBuilderTestDefinition extends EntityDefinition
             (new StringField('name', 'name'))->addFlags(new SearchRanking(100)),
             (new StringField('description', 'description'))->addFlags(new SearchRanking(200)),
             new StringField('long_description', 'longDescription'),
-            (new ManyToOneAssociationField('nested', 'nested_id', NestedDefinition::class, true))->addFlags(new SearchRanking(0.5)),
+            (new ManyToOneAssociationField('nested', 'nested_id', NestedDefinition::class, 'id', true))->addFlags(new SearchRanking(0.5)),
         ]);
     }
 }

@@ -2,7 +2,7 @@
 
 namespace Shopware\Docs\Inspection;
 
-use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 
 class ErdGenerator
@@ -38,7 +38,7 @@ class ErdGenerator
                 );
 
                 foreach ($definition->fields() as $field) {
-                    if (!$field instanceof AssociationInterface) {
+                    if (!$field instanceof AssociationField) {
                         continue;
                     }
                     $associated = new ErdDefinition($field->getReferenceClass());
@@ -70,7 +70,7 @@ class ErdGenerator
             );
 
             foreach ($definition->fields() as $field) {
-                if ($field instanceof AssociationInterface) {
+                if ($field instanceof AssociationField) {
                     $associated = new ErdDefinition($field->getReferenceClass());
 
                     $dumper->addAssociation(

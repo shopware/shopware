@@ -43,7 +43,7 @@ class PromotionDiscountDefinition extends EntityDefinition
             (new BoolField('graduated', 'graduated'))->addFlags(new Required()),
             new IntField('graduation_step', 'graduationStep'),
             new StringField('graduation_order', 'graduationOrder', 32),
-            new ManyToOneAssociationField('promotion', 'promotion_id', PromotionDefinition::class, false, 'id'),
+            new ManyToOneAssociationField('promotion', 'promotion_id', PromotionDefinition::class, 'id', false),
 
             (new StringField('apply_towards', 'applyTowards'))->addFlags(new Required()),
             // TODO FK apply_towards_single_group_id, once promotion-group entity is defined

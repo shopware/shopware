@@ -68,14 +68,14 @@ class MediaFolderDefinition extends EntityDefinition
             new FkField('default_folder_id', 'defaultFolderId', MediaDefaultFolderDefinition::class),
 
             new ParentFkField(self::class),
-            new ParentAssociationField(self::class, false),
+            new ParentAssociationField(self::class, 'id'),
 
             new ChildrenAssociationField(self::class),
             new ChildCountField(),
 
-            new OneToManyAssociationField('media', MediaDefinition::class, 'media_folder_id', false),
+            new OneToManyAssociationField('media', MediaDefinition::class, 'media_folder_id'),
             new OneToOneAssociationField('defaultFolder', 'default_folder_id', 'id', MediaDefaultFolderDefinition::class, false),
-            new ManyToOneAssociationField('configuration', 'media_folder_configuration_id', MediaFolderConfigurationDefinition::class, true),
+            new ManyToOneAssociationField('configuration', 'media_folder_configuration_id', MediaFolderConfigurationDefinition::class, 'id', true),
 
             (new StringField('name', 'name'))->addFlags(new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING), new Required()),
 

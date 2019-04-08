@@ -57,9 +57,9 @@ class ProductPriceDefinition extends EntityDefinition
             new IntField('quantity_end', 'quantityEnd'),
             new CreatedAtField(),
             new UpdatedAtField(),
-            (new ManyToOneAssociationField('product', 'product_id', ProductDefinition::class, false, 'id'))->addFlags(new ReverseInherited('prices')),
-            new ManyToOneAssociationField('currency', 'currency_id', CurrencyDefinition::class, false),
-            new ManyToOneAssociationField('rule', 'rule_id', RuleDefinition::class, false),
+            (new ManyToOneAssociationField('product', 'product_id', ProductDefinition::class, 'id', false))->addFlags(new ReverseInherited('prices')),
+            new ManyToOneAssociationField('currency', 'currency_id', CurrencyDefinition::class, 'id', false),
+            new ManyToOneAssociationField('rule', 'rule_id', RuleDefinition::class, 'id', false),
             new AttributesField(),
         ]);
     }

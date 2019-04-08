@@ -41,7 +41,7 @@ class SearchDocumentDefinition extends EntityDefinition
             (new StringField('keyword', 'keyword'))->addFlags(new Required()),
             (new FloatField('ranking', 'ranking'))->addFlags(new Required()),
             new AttributesField(),
-            new ManyToOneAssociationField('language', 'language_id', LanguageDefinition::class, false),
+            new ManyToOneAssociationField('language', 'language_id', LanguageDefinition::class, 'id', false),
         ]);
     }
 }

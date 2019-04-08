@@ -2,7 +2,7 @@
 
 namespace Shopware\Storefront\Pagelet\Listing\Subscriber;
 
-use Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupOption\ConfigurationGroupOptionDefinition;
+use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOptionDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\EntityAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\Struct\ArrayEntity;
@@ -34,7 +34,7 @@ class PropertiesAggregationSubscriber implements EventSubscriberInterface
         $event->getCriteria()->addAggregation(
             new EntityAggregation(
                 self::PROPERTIES_AGGREGATION_FIELD,
-                ConfigurationGroupOptionDefinition::class,
+                PropertyGroupOptionDefinition::class,
                 self::AGGREGATION_NAME
             )
         );

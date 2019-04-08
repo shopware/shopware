@@ -55,8 +55,8 @@ class DefinitionValidator
     ];
 
     private static $customShortNames = [
-        'configuration_group' => 'group',
-        'configuration_group_option' => 'option',
+        'property_group' => 'group',
+        'property_group_option' => 'option',
         'version_commit' => 'commit',
     ];
 

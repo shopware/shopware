@@ -2,9 +2,9 @@
 
 namespace Shopware\Core\Content\Product\Aggregate\ProductConfiguratorSetting;
 
-use Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupOption\ConfigurationGroupOptionCollection;
-use Shopware\Core\Content\Configuration\ConfigurationGroupCollection;
-use Shopware\Core\Content\Configuration\ConfigurationGroupEntity;
+use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOptionCollection;
+use Shopware\Core\Content\Property\PropertyGroupCollection;
+use Shopware\Core\Content\Property\PropertyGroupEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 /**
@@ -46,31 +46,31 @@ class ProductConfiguratorSettingCollection extends EntityCollection
         });
     }
 
-    public function getOptions(): ConfigurationGroupOptionCollection
+    public function getOptions(): PropertyGroupOptionCollection
     {
-        return new ConfigurationGroupOptionCollection(
+        return new PropertyGroupOptionCollection(
             $this->fmap(function (ProductConfiguratorSettingEntity $productConfigurator) {
                 return $productConfigurator->getOption();
             })
         );
     }
 
-    public function getGroupedOptions(): ConfigurationGroupCollection
+    public function getGroupedOptions(): PropertyGroupCollection
     {
-        $groups = new ConfigurationGroupCollection();
+        $groups = new PropertyGroupCollection();
 
         foreach ($this->getIterator() as $element) {
             if ($groups->has($element->getOption()->getGroupId())) {
                 $group = $groups->get($element->getOption()->getGroupId());
             } else {
-                $group = ConfigurationGroupEntity::createFrom(
+                $group = PropertyGroupEntity::createFrom(
                     $element->getOption()->getGroup()
                 );
 
                 $groups->add($group);
 
                 $group->setOptions(
-                    new ConfigurationGroupOptionCollection()
+                    new PropertyGroupOptionCollection()
                 );
             }
 

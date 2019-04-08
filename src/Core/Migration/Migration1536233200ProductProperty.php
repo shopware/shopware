@@ -18,12 +18,12 @@ class Migration1536233200ProductProperty extends MigrationStep
             CREATE TABLE `product_property` (
               `product_id` BINARY(16) NOT NULL,
               `product_version_id` BINARY(16) NOT NULL,
-              `configuration_group_option_id` BINARY(16) NOT NULL,
-              PRIMARY KEY (`product_id`, `product_version_id`, `configuration_group_option_id`),
+              `property_group_option_id` BINARY(16) NOT NULL,
+              PRIMARY KEY (`product_id`, `product_version_id`, `property_group_option_id`),
               CONSTRAINT `fk.product_property.product_id` FOREIGN KEY (`product_id`, `product_version_id`)
                 REFERENCES `product` (`id`, `version_id`) ON DELETE CASCADE ON UPDATE CASCADE,
-              CONSTRAINT `fk.product_property.configuration_option_id` FOREIGN KEY (`configuration_group_option_id`)
-                REFERENCES `configuration_group_option` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+              CONSTRAINT `fk.product_property.configuration_option_id` FOREIGN KEY (`property_group_option_id`)
+                REFERENCES `property_group_option` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
             );
         ');
     }

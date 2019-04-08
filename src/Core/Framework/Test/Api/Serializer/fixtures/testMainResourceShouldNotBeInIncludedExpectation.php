@@ -143,10 +143,10 @@ return [
                         'related' => '/api/media/3e352be2d85846dd97529c0f6b544870/media-folder',
                     ],
                 ],
-                'configurationGroupOptions' => [
+                'propertyGroupOptions' => [
                     'data' => [],
                     'links' => [
-                        'related' => '/api/media/3e352be2d85846dd97529c0f6b544870/configuration-group-options',
+                        'related' => '/api/media/3e352be2d85846dd97529c0f6b544870/property-group-options',
                     ],
                 ],
                 'tags' => [

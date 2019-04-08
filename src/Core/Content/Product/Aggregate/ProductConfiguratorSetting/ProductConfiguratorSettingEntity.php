@@ -2,8 +2,8 @@
 
 namespace Shopware\Core\Content\Product\Aggregate\ProductConfiguratorSetting;
 
-use Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupOption\ConfigurationGroupOptionEntity;
 use Shopware\Core\Content\Product\ProductEntity;
+use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOptionEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\Pricing\Price;
@@ -32,7 +32,7 @@ class ProductConfiguratorSettingEntity extends Entity
     protected $prices;
 
     /**
-     * @var ConfigurationGroupOptionEntity
+     * @var PropertyGroupOptionEntity
      */
     protected $option;
 
@@ -121,12 +121,12 @@ class ProductConfiguratorSettingEntity extends Entity
         $this->prices = $prices;
     }
 
-    public function getOption(): ConfigurationGroupOptionEntity
+    public function getOption(): PropertyGroupOptionEntity
     {
         return $this->option;
     }
 
-    public function setOption(ConfigurationGroupOptionEntity $option): void
+    public function setOption(PropertyGroupOptionEntity $option): void
     {
         $this->option = $option;
     }

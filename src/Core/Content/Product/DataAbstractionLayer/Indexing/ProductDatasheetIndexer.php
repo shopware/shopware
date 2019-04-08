@@ -86,7 +86,7 @@ class ProductPropertyIndexer implements IndexerInterface
 
         $sql = <<<SQL
 UPDATE product, product_property SET product.property_ids = (
-    SELECT CONCAT('[', GROUP_CONCAT(JSON_QUOTE(LOWER(HEX(product_property.configuration_group_option_id)))), ']')
+    SELECT CONCAT('[', GROUP_CONCAT(JSON_QUOTE(LOWER(HEX(product_property.property_group_option_id)))), ']')
     FROM product_property
     WHERE product_property.product_id = product.properties
 )

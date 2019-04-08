@@ -4,7 +4,6 @@ namespace Shopware\Core\Content\Media;
 
 use Shopware\Core\Checkout\Shipping\ShippingMethodCollection;
 use Shopware\Core\Content\Category\CategoryCollection;
-use Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupOption\ConfigurationGroupOptionCollection;
 use Shopware\Core\Content\MailTemplate\Aggregate\MailTemplateMedia\MailTemplateMediaCollection;
 use Shopware\Core\Content\Media\Aggregate\MediaFolder\MediaFolderEntity;
 use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailCollection;
@@ -13,6 +12,7 @@ use Shopware\Core\Content\Media\MediaType\MediaType;
 use Shopware\Core\Content\Media\Metadata\Metadata;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaCollection;
+use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOptionCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\Tag\TagCollection;
@@ -148,9 +148,9 @@ class MediaEntity extends Entity
     protected $hasFile = false;
 
     /**
-     * @var ConfigurationGroupOptionCollection|null
+     * @var PropertyGroupOptionCollection|null
      */
-    protected $configurationGroupOptions;
+    protected $propertyGroupOptions;
 
     /**
      * @var MailTemplateMediaCollection|null
@@ -411,14 +411,14 @@ class MediaEntity extends Entity
         $this->mediaFolder = $mediaFolder;
     }
 
-    public function getConfigurationGroupOptions(): ?ConfigurationGroupOptionCollection
+    public function getPropertyGroupOptions(): ?PropertyGroupOptionCollection
     {
-        return $this->configurationGroupOptions;
+        return $this->propertyGroupOptions;
     }
 
-    public function setConfigurationGroupOptions(ConfigurationGroupOptionCollection $configurationGroupOptions): void
+    public function setPropertyGroupOptions(PropertyGroupOptionCollection $propertyGroupOptions): void
     {
-        $this->configurationGroupOptions = $configurationGroupOptions;
+        $this->propertyGroupOptions = $propertyGroupOptions;
     }
 
     public function getMetaDataRaw(): ?string

@@ -1,0 +1,152 @@
+{% block sw_property_list %}
+    <sw-page class="sw-property-list">
+
+        {% block sw_property_list_search_bar %}
+            <template slot="search-bar">
+                <sw-search-bar initialSearchType="property"
+                               :placeholder="$tc('sw-property.general.placeholderSearchBar')"
+                               @search="onSearch">
+                </sw-search-bar>
+            </template>
+        {% endblock %}
+
+        {% block sw_property_list_smart_bar_header %}
+            <template slot="smart-bar-header">
+
+                {% block sw_property_list_smart_bar_header_title %}
+                    <h2>
+
+                        {% block sw_property_list_smart_bar_header_title_text %}
+                            {{ $tc('sw-property.list.textProperties') }}
+                        {% endblock %}
+
+                        {% block sw_property_list_smart_bar_header_title_amount %}
+                            <span v-if="!isLoading" class="sw-page__smart-bar-amount">
+                                ({{ total }})
+                            </span>
+                        {% endblock %}
+
+                    </h2>
+                {% endblock %}
+
+            </template>
+        {% endblock %}
+
+        {% block sw_property_list_ %}
+            <template slot="smart-bar-actions">
+
+                {% block sw_property_list_add_button %}
+                    <sw-button :routerLink="{ name: 'sw.property.create' }" variant="primary">
+                        {{ $tc('sw-property.list.buttonAddProperty') }}
+                    </sw-button>
+                {% endblock %}
+
+            </template>
+        {% endblock %}
+
+        <template slot="content">
+
+            {% block sw_property_list_content %}
+                <div class="sw-property-list__content">
+
+                    {% block sw_property_list_grid %}
+                        <sw-grid v-if="total || term" :items="properties" :selectable="false" isFullpage>
+
+                            {% block sw_property_list_grid_slots %}
+                                <template slot="columns" slot-scope="{ item }">
+
+                                    {% block sw_property_list_grid_columns %}
+
+                                        {% block sw_property_list_grid_columns_name %}
+                                            <sw-grid-column flex="minmax(100px, 1fr)" :label="$tc('sw-property.list.columnName')" dataIndex="name" truncate sortable>
+                                                <router-link :to="{ name: 'sw.property.detail', params: { id: item.id } }">
+                                                    {{ item.name }}
+                                                </router-link>
+                                            </sw-grid-column>
+                                        {% endblock %}
+
+                                        {% block sw_property_list_grid_columns_options %}
+                                            <sw-grid-column flex="minmax(200px, 2fr)" :label="$tc('sw-property.list.columnOptions')" truncate>
+                                                <span v-for="(option, index) in item.options" :key="option.id" v-if="index < 4">{{ (index > 0) ?`, ${option.name}`:`${option.name}`}}</span>
+                                                <span v-if="item.options.length >= 5">
+                                                    , ...
+                                                </span>
+                                            </sw-grid-column>
+                                        {% endblock %}
+
+                                        {% block sw_property_list_grid_columns_description %}
+                                            <sw-grid-column flex="minmax(200px, 2fr)" :label="$tc('sw-property.list.columnDescription')" truncate sortable >
+                                                {{ item.description }}
+                                            </sw-grid-column>
+                                        {% endblock %}
+
+                                        {% block sw_property_list_grid_columns_actions %}
+                                            <sw-grid-column flex="minmax(100px, 100px)" align="center">
+                                                <sw-context-button>
+
+                                                    {% block sw_property_list_grid_columns_actions_detail %}
+                                                        <sw-context-menu-item :routerLink="{ name: 'sw.property.detail', params: { id: item.id } }">
+                                                            {{ $tc('sw-property.list.contextMenuView') }}
+                                                        </sw-context-menu-item>
+                                                    {% endblock %}
+
+
+                                                    {% block sw_property_list_grid_columns_actions_delete %}
+                                                        <sw-context-menu-item variant="danger" @click="onDelete(item.id)">
+                                                            {{ $tc('sw-property.list.contextMenuDelete') }}
+                                                        </sw-context-menu-item>
+                                                    {% endblock %}
+
+                                                </sw-context-button>
+                                            </sw-grid-column>
+                                        {% endblock %}
+
+                                    {% endblock %}
+
+                                    <sw-modal v-if="showDeleteModal === item.id" @closeModal="onCloseDeleteModal" :title="$tc('sw-property.list.modalTitleDelete')" variant="small">
+                                        <p class="sw-property-list__confirm-delete-text">
+                                            {{ $tc('sw-property.list.textDeleteConfirm', 0, { name: item.name }) }}
+                                        </p>
+
+                                        <template slot="modal-footer">
+                                            <sw-button @click="onCloseDeleteModal" size="small">
+                                                {{ $tc('sw-property.list.buttonCancel') }}
+                                            </sw-button>
+
+                                            <sw-button @click="onConfirmDelete(item.id)" variant="primary" size="small">
+                                                {{ $tc('sw-property.list.buttonDelete') }}
+                                            </sw-button>
+                                        </template>
+                                    </sw-modal>
+                                </template>
+                            {% endblock %}
+
+                            <template slot="pagination">
+                                {% block sw_property_list_grid_pagination %}
+                                    <sw-pagination :page="page" :limit="limit" :total="total" :total-visible="7" @page-change="onPageChange" />
+                                {% endblock %}
+                            </template>
+
+                        </sw-grid>
+                    {% endblock %}
+
+                    {% block sw_property_list_empty_state %}
+                        <sw-empty-state v-else-if="!isLoading && !total" :title="$tc('sw-property.list.messageEmpty')"></sw-empty-state>
+                    {% endblock %}
+
+                    {% block sw_property_list_loader %}
+                        <sw-loader v-if="isLoading"></sw-loader>
+                    {% endblock %}
+                </div>
+            {% endblock %}
+        </template>
+
+        {% block sw_property_list_sidebar %}
+            <sw-sidebar slot="sidebar">
+                {% block sw_property_list_sidebar_refresh_item %}
+                    <sw-sidebar-item icon="default-arrow-360-left" :title="$tc('sw-property.list.titleSidebarItemRefresh')" @click="onRefresh" />
+                {% endblock %}
+            </sw-sidebar>
+        {% endblock %}
+    </sw-page>
+{% endblock %}

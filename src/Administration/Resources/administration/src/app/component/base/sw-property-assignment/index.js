@@ -23,7 +23,7 @@ export default {
 
     computed: {
         groupStore() {
-            return State.getStore('configuration_group');
+            return State.getStore('property_group');
         }
     },
 

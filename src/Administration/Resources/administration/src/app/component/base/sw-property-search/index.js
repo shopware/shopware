@@ -49,11 +49,11 @@ export default {
         },
 
         groupStore() {
-            return State.getStore('configuration_group');
+            return State.getStore('property_group');
         },
 
         optionStore() {
-            return State.getStore('configuration_group_option');
+            return State.getStore('property_group_option');
         }
     },
 
@@ -173,7 +173,7 @@ export default {
                 queries.push({
                     query: {
                         type: 'equals',
-                        field: 'configuration_group_option.name',
+                        field: 'property_group_option.name',
                         value: term
                     },
                     score: 5000
@@ -182,7 +182,7 @@ export default {
                 queries.push({
                     query: {
                         type: 'contains',
-                        field: 'configuration_group_option.name',
+                        field: 'property_group_option.name',
                         value: term
                     },
                     score: 500
@@ -191,7 +191,7 @@ export default {
                 queries.push({
                     query: {
                         type: 'contains',
-                        field: 'configuration_group_option.group.name',
+                        field: 'property_group_option.group.name',
                         value: this.searchTerm
                     },
                     score: 100

@@ -78,10 +78,10 @@ return [
                     'related' => '/api/media/548faa1f7846436c85944f4aea792d96/media-folder',
                 ],
             ],
-            'configurationGroupOptions' => [
+            'propertyGroupOptions' => [
                 'data' => [],
                 'links' => [
-                    'related' => '/api/media/548faa1f7846436c85944f4aea792d96/configuration-group-options',
+                    'related' => '/api/media/548faa1f7846436c85944f4aea792d96/property-group-options',
                 ],
             ],
             'tags' => [

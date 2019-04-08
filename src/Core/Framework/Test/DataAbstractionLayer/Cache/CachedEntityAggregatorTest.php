@@ -3,10 +3,10 @@
 namespace Shopware\Core\Framework\Test\DataAbstractionLayer\Cache;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupOption\ConfigurationGroupOptionDefinition;
-use Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupOption\ConfigurationGroupOptionEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerEntity;
+use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOptionDefinition;
+use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOptionEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\CachedEntityAggregator;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
@@ -47,7 +47,7 @@ class CachedEntityAggregatorTest extends TestCase
 
         $criteria = new Criteria([$id1, $id2]);
 
-        $propertiesAggregation = new EntityAggregation('product.properties.id', ConfigurationGroupOptionDefinition::class, 'properties');
+        $propertiesAggregation = new EntityAggregation('product.properties.id', PropertyGroupOptionDefinition::class, 'properties');
         $criteria->addAggregation($propertiesAggregation);
 
         $manufacturerAggregation = new EntityAggregation('product.manufacturer.id', ProductManufacturerDefinition::class, 'manufacturer');
@@ -58,7 +58,7 @@ class CachedEntityAggregatorTest extends TestCase
 
         $context = Context::createDefaultContext();
 
-        $configGroupEntity = new ConfigurationGroupOptionEntity();
+        $configGroupEntity = new PropertyGroupOptionEntity();
         $configGroupEntity->setUniqueIdentifier('test');
 
         $manufacturerEntity = new ProductManufacturerEntity();
@@ -119,7 +119,7 @@ class CachedEntityAggregatorTest extends TestCase
 
         $criteria = new Criteria([$id1, $id2]);
         $criteria->addAggregation(
-            new EntityAggregation('product.properties.id', ConfigurationGroupOptionDefinition::class, 'properties')
+            new EntityAggregation('product.properties.id', PropertyGroupOptionDefinition::class, 'properties')
         );
         $criteria->addAggregation(
             new EntityAggregation('product.manufacturer.id', ProductManufacturerDefinition::class, 'manufacturer')
@@ -140,7 +140,7 @@ class CachedEntityAggregatorTest extends TestCase
             ->method('aggregate')
             ->willReturnCallback(
                 function ($definition, $criteria, $context) {
-                    $configGroupEntity = new ConfigurationGroupOptionEntity();
+                    $configGroupEntity = new PropertyGroupOptionEntity();
                     $configGroupEntity->setUniqueIdentifier('test');
 
                     $manufacturerEntity = new ProductManufacturerEntity();
@@ -152,7 +152,7 @@ class CachedEntityAggregatorTest extends TestCase
                                     new AggregationResult(
                                         new EntityAggregation(
                                             'product.properties.id',
-                                            ConfigurationGroupOptionDefinition::class,
+                                            PropertyGroupOptionDefinition::class,
                                             'properties'
                                         ),
                                         [
@@ -228,7 +228,7 @@ class CachedEntityAggregatorTest extends TestCase
 
         $criteria = new Criteria([$id1, $id2]);
 
-        $propertiesAggregation = new EntityAggregation('product.properties.id', ConfigurationGroupOptionDefinition::class, 'properties');
+        $propertiesAggregation = new EntityAggregation('product.properties.id', PropertyGroupOptionDefinition::class, 'properties');
         $criteria->addAggregation($propertiesAggregation);
 
         $manufacturerAggregation = new EntityAggregation('product.manufacturer.id', ProductManufacturerDefinition::class, 'manufacturer');
@@ -239,7 +239,7 @@ class CachedEntityAggregatorTest extends TestCase
 
         $context = Context::createDefaultContext();
 
-        $configGroupEntity = new ConfigurationGroupOptionEntity();
+        $configGroupEntity = new PropertyGroupOptionEntity();
         $configGroupEntity->setUniqueIdentifier('test');
 
         $manufacturerEntity = new ProductManufacturerEntity();

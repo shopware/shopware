@@ -112,7 +112,7 @@ export default function conditionService() {
             'updatedAt',
             'attributes'
         ],
-        configuration_group_option: [
+        property_group_option: [
             'position',
             'colorHexCode',
             'productConfigurators',
@@ -121,7 +121,7 @@ export default function conditionService() {
             'productOptions',
             'attributes'
         ],
-        configuration_group: [
+        property_group: [
             'description',
             'position',
             'filterable',

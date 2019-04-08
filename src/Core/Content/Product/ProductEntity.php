@@ -8,7 +8,6 @@ use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRule;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Content\Category\CategoryCollection;
-use Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupOption\ConfigurationGroupOptionCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductConfiguratorSetting\ProductConfiguratorSettingCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaCollection;
@@ -17,6 +16,7 @@ use Shopware\Core\Content\Product\Aggregate\ProductPrice\ProductPriceCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductPrice\ProductPriceEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductTranslation\ProductTranslationCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityCollection;
+use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOptionCollection;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
@@ -297,12 +297,12 @@ class ProductEntity extends Entity
     protected $tags;
 
     /**
-     * @var ConfigurationGroupOptionCollection|null
+     * @var PropertyGroupOptionCollection|null
      */
     protected $properties;
 
     /**
-     * @var ConfigurationGroupOptionCollection|null
+     * @var PropertyGroupOptionCollection|null
      */
     protected $options;
 
@@ -1011,22 +1011,22 @@ class ProductEntity extends Entity
         $this->tags = $tags;
     }
 
-    public function getProperties(): ?ConfigurationGroupOptionCollection
+    public function getProperties(): ?PropertyGroupOptionCollection
     {
         return $this->properties;
     }
 
-    public function setProperties(ConfigurationGroupOptionCollection $properties): void
+    public function setProperties(PropertyGroupOptionCollection $properties): void
     {
         $this->properties = $properties;
     }
 
-    public function getOptions(): ?ConfigurationGroupOptionCollection
+    public function getOptions(): ?PropertyGroupOptionCollection
     {
         return $this->options;
     }
 
-    public function setOptions(ConfigurationGroupOptionCollection $options): void
+    public function setOptions(PropertyGroupOptionCollection $options): void
     {
         $this->options = $options;
     }

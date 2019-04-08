@@ -31,7 +31,7 @@ class EntitySearcherTest extends TestCase
     {
         parent::setUp();
 
-        $this->groupRepository = $this->getContainer()->get('configuration_group.repository');
+        $this->groupRepository = $this->getContainer()->get('property_group.repository');
         $this->productRepository = $this->getContainer()->get('product.repository');
     }
 

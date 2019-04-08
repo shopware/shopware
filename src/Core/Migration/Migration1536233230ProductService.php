@@ -20,7 +20,7 @@ class Migration1536233230ProductService extends MigrationStep
               `version_id` BINARY(16) NOT NULL,
               `product_id` BINARY(16) NOT NULL,
               `product_version_id` BINARY(16) NOT NULL,
-              `configuration_group_option_id` BINARY(16) NOT NULL,
+              `property_group_option_id` BINARY(16) NOT NULL,
               `tax_id` BINARY(16) NOT NULL,
               `price` JSON NULL,
               `prices` JSON NULL,
@@ -33,8 +33,8 @@ class Migration1536233230ProductService extends MigrationStep
               CONSTRAINT `json.attributes` CHECK (JSON_VALID(`attributes`)),
               CONSTRAINT `fk.product_service.product_id` FOREIGN KEY (`product_id`, `product_version_id`) 
                 REFERENCES `product` (`id`, `version_id`) ON DELETE CASCADE ON UPDATE CASCADE,
-              CONSTRAINT `fk.product_service.configuration_group_option_id` FOREIGN KEY (`configuration_group_option_id`) 
-                REFERENCES `configuration_group_option` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+              CONSTRAINT `fk.product_service.property_group_option_id` FOREIGN KEY (`property_group_option_id`) 
+                REFERENCES `property_group_option` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
               CONSTRAINT `fk.product_service.tax_id` FOREIGN KEY (`tax_id`) 
                 REFERENCES `tax` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
             );

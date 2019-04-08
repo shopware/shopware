@@ -86,7 +86,7 @@ class ProductOptionIndexer implements IndexerInterface
 
         $sql = <<<SQL
 UPDATE product, product_option SET product.option_ids = (
-    SELECT CONCAT('[', GROUP_CONCAT(JSON_QUOTE(LOWER(HEX(product_option.configuration_group_option_id)))), ']')
+    SELECT CONCAT('[', GROUP_CONCAT(JSON_QUOTE(LOWER(HEX(product_option.property_group_option_id)))), ']')
     FROM product_option
     WHERE product_option.product_id = product.id
 )

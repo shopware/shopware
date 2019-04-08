@@ -6,6 +6,7 @@ const path = require('path');
 const buildDirectory = path.resolve(process.env.PROJECT_ROOT, 'public');
 const CopyPlugin = require('copy-webpack-plugin');
 const publicPath = `${process.env.APP_URL}${(process.env.ENV === 'watch') ? ':9999' : ''}/`;
+const babelrc = require('../.babelrc');
 
 /**
  * helper function to get a path relative to the root folder
@@ -65,10 +66,7 @@ const modules = {
             use: [
                 {
                     loader: 'babel-loader',
-                    options: {
-                        presets: ['@babel/preset-env'],
-                        plugins: ['@babel/plugin-proposal-class-properties'],
-                    }
+                    options: babelrc,
                 },
                 {
                     loader: 'eslint-loader',

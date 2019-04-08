@@ -74,7 +74,7 @@ class BackdropSingleton {
 
         document.addEventListener(event, function(e) {
             if (e.target.classList.contains(SELECTOR_CLASS)) {
-                document.dispatchEvent(new Event(BACKDROP_EVENT.ON_CLICK));
+                document.dispatchEvent(new CustomEvent(BACKDROP_EVENT.ON_CLICK));
             }
         });
     }

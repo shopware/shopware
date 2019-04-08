@@ -1,6 +1,6 @@
 // Provides polyfills based on the configured browser list
 import '@babel/polyfill';
-import 'form-association-polyfill/register-with-polyfills'
+import 'asset/script/helper/polyfill-loader.helper';
 import 'bootstrap';
 import jQuery from 'jquery';
 

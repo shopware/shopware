@@ -16,10 +16,21 @@ class PluginFinder
      */
     public function findPlugins(string $pluginDir, string $projectDir): array
     {
-        return array_merge(
-            $this->loadLocalPlugins($pluginDir),
-            $this->loadVendorInstalledPlugins($projectDir)
-        );
+        $localPlugins = $this->loadLocalPlugins($pluginDir);
+        $vendorPlugins = $this->loadVendorInstalledPlugins($projectDir);
+        $vendorPluginNames = array_map(function (PluginFromFileSystemStruct $plugin) {
+            return $plugin->getName();
+        }, $vendorPlugins);
+
+        // If a plugin is both added locally and via composer, use plugins from the vendor directory with higher
+        // priority by removing the reference of the locally added plugin with the same name.
+        foreach ($localPlugins as $key => $localPlugin) {
+            if (in_array($localPlugin->getName(), $vendorPluginNames, true)) {
+                unset($localPlugins[$key]);
+            }
+        }
+
+        return array_merge($localPlugins, $vendorPlugins);
     }
 
     private function loadLocalPlugins(string $pluginDir): array

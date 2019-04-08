@@ -128,6 +128,46 @@ class StorefrontCustomerControllerTest extends TestCase
         static::assertNotEmpty($content['errors']);
     }
 
+    public function testLoginWithLegacyPassword(): void
+    {
+        $email = Uuid::randomHex() . '@example.com';
+        $password = 'shopware';
+        $customerId = $this->createCustomer('dummy', $email);
+        $this->customerRepository->update([
+            [
+                'id' => $customerId,
+                'legacyEncoder' => 'Md5',
+                'legacyPassword' => md5($password),
+            ],
+        ], $this->context);
+
+        $this->getStorefrontClient()->request('POST', '/storefront-api/v1/customer/login', [
+            'username' => $email,
+            'password' => $password,
+        ]);
+        $response = $this->getStorefrontClient()->getResponse();
+        $content = json_decode($response->getContent(), true);
+
+        static::assertEquals(200, $response->getStatusCode());
+        static::assertNotEmpty($content);
+        static::assertArrayHasKey('x-sw-context-token', $content);
+        static::assertNotEmpty($content['x-sw-context-token']);
+
+        $this->getStorefrontClient()->request('GET', '/storefront-api/v1/customer');
+        $response = $this->getStorefrontClient()->getResponse();
+        $content = json_decode($response->getContent(), true);
+
+        $customer = $this->readCustomer($customerId);
+        static::assertNull($customer->getLegacyPassword());
+        static::assertNull($customer->getLegacyEncoder());
+        static::assertTrue(password_verify($password, $customer->getPassword()));
+
+        $customerData = $this->serialize($customer);
+        static::assertEquals(200, $response->getStatusCode());
+        static::assertNotEmpty($content);
+        static::assertEquals($customerData, $content);
+    }
+
     public function testLogout(): void
     {
         $this->createCustomerAndLogin();

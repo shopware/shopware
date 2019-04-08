@@ -11,6 +11,7 @@ use Shopware\Core\Checkout\Customer\Event\CustomerLogoutEvent;
 use Shopware\Core\Checkout\Customer\Exception\AddressNotFoundException;
 use Shopware\Core\Checkout\Customer\Exception\BadCredentialsException;
 use Shopware\Core\Checkout\Customer\Exception\CustomerNotFoundException;
+use Shopware\Core\Checkout\Customer\Password\LegacyPasswordVerifier;
 use Shopware\Core\Checkout\Customer\Validation\CustomerValidationService;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
@@ -68,6 +69,10 @@ class AccountService
      * @var CustomerValidationService
      */
     private $customerValidationService;
+    /**
+     * @var LegacyPasswordVerifier
+     */
+    private $legacyPasswordVerifier;
 
     public function __construct(
         EntityRepositoryInterface $customerAddressRepository,
@@ -76,7 +81,8 @@ class AccountService
         SalesChannelContextPersister $contextPersister,
         EventDispatcherInterface $eventDispatcher,
         DataValidator $validator,
-        CustomerValidationService $customerValidationService
+        CustomerValidationService $customerValidationService,
+        LegacyPasswordVerifier $legacyPasswordVerifier
     ) {
         $this->customerAddressRepository = $customerAddressRepository;
         $this->customerRepository = $customerRepository;
@@ -85,6 +91,7 @@ class AccountService
         $this->eventDispatcher = $eventDispatcher;
         $this->validator = $validator;
         $this->customerValidationService = $customerValidationService;
+        $this->legacyPasswordVerifier = $legacyPasswordVerifier;
     }
 
     /**
@@ -94,6 +101,16 @@ class AccountService
     public function getCustomerByLogin(string $email, string $password, SalesChannelContext $context): CustomerEntity
     {
         $customer = $this->getCustomerByEmail($email, $context);
+
+        if ($customer->hasLegacyPassword()) {
+            if (!$this->legacyPasswordVerifier->verify($password, $customer)) {
+                throw new BadCredentialsException();
+            }
+
+            $this->updatePasswordHash($password, $customer, $context->getContext());
+
+            return $customer;
+        }
 
         if (!password_verify($password, $customer->getPassword())) {
             throw new BadCredentialsException();
@@ -284,7 +301,7 @@ class AccountService
         }
 
         try {
-            $user = $this->getCustomerByLogin(
+            $customer = $this->getCustomerByLogin(
                 $data->get('username'),
                 $data->get('password'),
                 $context
@@ -296,7 +313,7 @@ class AccountService
         $this->contextPersister->save(
             $context->getToken(),
             [
-                'customerId' => $user->getId(),
+                'customerId' => $customer->getId(),
                 'billingAddressId' => null,
                 'shippingAddressId' => null,
             ]
@@ -304,12 +321,12 @@ class AccountService
 
         $this->customerRepository->update([
             [
-                'id' => $user->getId(),
+                'id' => $customer->getId(),
                 'lastLogin' => new \DateTimeImmutable(),
             ],
         ], $context->getContext());
 
-        $event = new CustomerLoginEvent($context->getContext(), $user);
+        $event = new CustomerLoginEvent($context->getContext(), $customer);
         $this->eventDispatcher->dispatch($event->getName(), $event);
 
         return $context->getToken();
@@ -386,5 +403,17 @@ class AccountService
         $this->eventDispatcher->dispatch($validationEvent->getName(), $validationEvent);
 
         return $validation;
+    }
+
+    private function updatePasswordHash(string $password, CustomerEntity $customer, Context $context): void
+    {
+        $this->customerRepository->update([
+            [
+                'id' => $customer->getId(),
+                'password' => $password,
+                'legacyPassword' => null,
+                'legacyEncoder' => null,
+            ],
+        ], $context);
     }
 }

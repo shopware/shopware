@@ -135,6 +135,16 @@ class CustomerEntity extends Entity
     protected $updatedAt;
 
     /**
+     * @var string|null
+     */
+    protected $legacyEncoder;
+
+    /**
+     * @var string|null
+     */
+    protected $legacyPassword;
+
+    /**
      * @var CustomerGroupEntity
      */
     protected $group;
@@ -447,6 +457,31 @@ class CustomerEntity extends Entity
     public function setUpdatedAt(\DateTimeInterface $updatedAt): void
     {
         $this->updatedAt = $updatedAt;
+    }
+
+    public function getLegacyEncoder(): ?string
+    {
+        return $this->legacyEncoder;
+    }
+
+    public function setLegacyEncoder(?string $legacyEncoder): void
+    {
+        $this->legacyEncoder = $legacyEncoder;
+    }
+
+    public function getLegacyPassword(): ?string
+    {
+        return $this->legacyPassword;
+    }
+
+    public function setLegacyPassword(?string $legacyPassword): void
+    {
+        $this->legacyPassword = $legacyPassword;
+    }
+
+    public function hasLegacyPassword(): bool
+    {
+        return $this->legacyPassword !== null && $this->legacyEncoder !== null;
     }
 
     public function getGroup(): CustomerGroupEntity

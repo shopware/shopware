@@ -180,11 +180,10 @@
                                                                            :index="index"
                                                                            :item="item">
                                                             <slot name="displayName" :item="item">
-                                                                <span v-if="item.translated && item.translated.hasOwnProperty(displayName)" v-html="item.translated[displayName]">
-                                                                    {{ item.translated[displayName] }}
+                                                                <span v-if="item.translated && item.translated.hasOwnProperty(displayName)"
+                                                                      v-html="getInlineSnippet(item.translated[displayName])">
                                                                 </span>
-                                                                <span v-else v-html="item[displayName]">
-                                                                    {{ item[displayName] }}
+                                                                <span v-else v-html="getInlineSnippet(item[displayName])">
                                                                 </span>
                                                             </slot>
                                                          </sw-select-option>

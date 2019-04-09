@@ -19,10 +19,10 @@ class PluginIdProvider
         $this->pluginRepo = $pluginRepo;
     }
 
-    public function getPluginIdByTechnicalName(string $pluginName, Context $context): string
+    public function getPluginIdByBaseClass(string $pluginBaseClassName, Context $context): string
     {
         $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('name', $pluginName));
+        $criteria->addFilter(new EqualsFilter('name', $pluginBaseClassName));
         $pluginIds = $this->pluginRepo->searchIds($criteria, $context)->getIds();
 
         return array_pop($pluginIds);

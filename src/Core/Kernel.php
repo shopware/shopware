@@ -10,8 +10,10 @@ use Doctrine\DBAL\FetchMode;
 use Shopware\Core\Framework\Framework;
 use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Framework\Plugin;
+use Shopware\Core\Framework\Plugin\Composer\Factory as ComposerFactory;
 use Shopware\Core\Framework\Plugin\KernelPluginCollection;
 use Symfony\Bundle\FrameworkBundle\Kernel\MicroKernelTrait;
+use Symfony\Component\Cache\Simple\FilesystemCache;
 use Symfony\Component\Config\ConfigCache;
 use Symfony\Component\Config\Loader\LoaderInterface;
 use Symfony\Component\Config\Resource\FileResource;
@@ -225,7 +227,8 @@ class Kernel extends HttpKernel
         );
         $pluginsInDatabase = $stmt->fetchAll();
 
-        $this->registerPluginNamespaces($pluginsInDatabase);
+        $pluginNamespaces = $this->getPluginNamespaces($pluginsInDatabase);
+        $this->registerPluginNamespaces($pluginNamespaces);
         $this->addPlugins($pluginsInDatabase);
     }
 
@@ -297,31 +300,73 @@ class Kernel extends HttpKernel
         $connection->executeQuery(implode(';', $connectionVariables));
     }
 
-    private function registerPluginNamespaces(array $pluginsInDatabase): void
+    private function getPluginNamespaces(array $pluginsInDatabase): array
+    {
+        $cache = new FilesystemCache('ShopwarePluginAutoloadInfo', 0, $this->getCacheDir());
+
+        $namespaces = null;
+        if ($cache->has('plugin-autoload-info')) {
+            $namespaces = $cache->get('plugin-autoload-info');
+        }
+
+        if ($namespaces !== null) {
+            return $namespaces;
+        }
+
+        $namespaces = [];
+        foreach ($pluginsInDatabase as $pluginData) {
+            $pluginPath = $this->getProjectDir() . $pluginData['path'];
+            $namespaces[$pluginPath] = $this->readPluginNamespaces($pluginPath);
+        }
+
+        $cache->set('plugin-autoload-info', $namespaces);
+
+        return $namespaces;
+    }
+
+    /**
+     * @param array[] $pluginsNamespaces
+     */
+    private function registerPluginNamespaces(array $pluginsNamespaces): void
     {
         $loader = new ClassLoader();
-        foreach ($pluginsInDatabase as $pluginData) {
-            $className = $pluginData['name'];
-            $psr4Prefix = substr($className, 0, strrpos($className, '\\'));
-            $pluginPath = $this->getProjectDir() . $pluginData['path'];
 
-            $loader->addPsr4($psr4Prefix . '\\', $pluginPath);
+        foreach ($pluginsNamespaces as $pluginPath => $pluginNamespaces) {
+            foreach ($pluginNamespaces as $namespace => $path) {
+                $loader->addPsr4($namespace, $pluginPath . '/' . $path);
+            }
         }
         $loader->register();
+    }
+
+    private function readPluginNamespaces(string $pluginPath): array
+    {
+        try {
+            $autoload = ComposerFactory::createComposer($pluginPath)->getPackage()->getAutoload();
+        } catch (\Exception $e) {
+            throw new \RuntimeException(sprintf('Invalid or no composer.json found at "%s".', $pluginPath), 0, $e);
+        }
+
+        if (!array_key_exists('psr-4', $autoload)) {
+            throw new \RuntimeException(
+                sprintf('Invalid composer.json found at "%s". PSR-4 autoload information is required', $pluginPath)
+            );
+        }
+
+        return $autoload['psr-4'];
     }
 
     private function addPlugins(array $pluginsInDatabase): void
     {
         foreach ($pluginsInDatabase as $pluginData) {
             $className = $pluginData['name'];
-            $pluginPath = $this->getProjectDir() . $pluginData['path'];
 
             if (!class_exists($className)) {
                 throw new \RuntimeException(sprintf('Unable to load plugin class "%s"', $className));
             }
 
             /** @var Plugin $plugin */
-            $plugin = new $className((bool) $pluginData['active'], $pluginPath);
+            $plugin = new $className((bool) $pluginData['active']);
 
             if (!$plugin instanceof Plugin) {
                 throw new \RuntimeException(

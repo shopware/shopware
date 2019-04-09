@@ -9,7 +9,6 @@ use Composer\Semver\Constraint\Constraint;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Plugin;
 use Shopware\Core\Framework\Plugin\Composer\Factory;
 use Shopware\Core\Framework\Plugin\Composer\PackageProvider;
 use Shopware\Core\Framework\Plugin\Exception\PluginComposerJsonInvalidException;
@@ -41,11 +40,11 @@ class RequirementsValidator
      * @throws PluginComposerJsonInvalidException
      * @throws RequirementStackException
      */
-    public function validateRequirements(Plugin $pluginBaseClass, Context $context, string $method): void
+    public function validateRequirements(PluginEntity $plugin, Context $context, string $method): void
     {
         $exceptionStack = new RequirementExceptionStack();
 
-        $pluginRequirements = $this->getPluginRequirements($pluginBaseClass);
+        $pluginRequirements = $this->getPluginRequirements($plugin);
 
         $pluginRequirements = $this->validateComposerPackages($pluginRequirements, $exceptionStack);
         $pluginRequirements = $this->validateInstalledPlugins($context, $pluginRequirements, $exceptionStack);
@@ -60,9 +59,9 @@ class RequirementsValidator
      *
      * @return Link[]
      */
-    private function getPluginRequirements(Plugin $pluginBaseClass): array
+    private function getPluginRequirements(PluginEntity $plugin): array
     {
-        $pluginInformation = (new PackageProvider())->getPluginInformation($pluginBaseClass->getPath(), new NullIO());
+        $pluginInformation = (new PackageProvider())->getPluginInformation($this->projectDir . $plugin->getPath(), new NullIO());
 
         return $pluginInformation->getRequires();
     }

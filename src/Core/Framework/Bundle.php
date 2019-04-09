@@ -37,6 +37,11 @@ abstract class Bundle extends SymfonyBundle
         parent::boot();
     }
 
+    public function getClassName(): string
+    {
+        return get_class($this);
+    }
+
     /**
      * @return string[]
      */

@@ -111,6 +111,7 @@ EOF;
 
         $data = [
             'id' => $id,
+            'productNumber' => Uuid::randomHex(),
             'stock' => 1,
             'name' => 'test',
             'price' => ['gross' => 15, 'linked' => false],
@@ -142,6 +143,7 @@ EOF;
 
         $data = [
             'id' => $id,
+            'productNumber' => Uuid::randomHex(),
             'stock' => 1,
             'name' => 'test',
             'price' => ['foo' => 'bar', 'linked' => false],
@@ -181,6 +183,7 @@ EOF;
 
         $data = [
             'id' => $id,
+            'productNumber' => Uuid::randomHex(),
             'stock' => 1,
             'name' => 'test',
             'price' => ['gross' => 15, 'net' => 'strings are not allowed', 'linked' => false],
@@ -212,6 +215,7 @@ EOF;
 
         $data = [
             'id' => $id,
+            'productNumber' => Uuid::randomHex(),
             'stock' => 1,
             'name' => 'test',
             'price' => ['gross' => 15, 'net' => 13.2, 'linked' => false, 'fail' => 'me'],

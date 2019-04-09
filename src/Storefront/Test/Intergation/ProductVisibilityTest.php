@@ -233,6 +233,7 @@ class ProductVisibilityTest extends TestCase
 
         return [
             'id' => $id,
+            'productNumber' => Uuid::randomHex(),
             'stock' => 1,
             'name' => 'test',
             'price' => ['gross' => 15, 'net' => 10, 'linked' => false],

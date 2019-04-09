@@ -155,6 +155,7 @@ class EntityRepositoryTest extends TestCase
             [
                 [
                     'id' => $id,
+                    'productNumber' => Uuid::randomHex(),
                     'stock' => 1,
                     'name' => 'Test',
                     'tax' => ['name' => 'test', 'taxRate' => 5],
@@ -163,6 +164,7 @@ class EntityRepositoryTest extends TestCase
                 ],
                 [
                     'id' => $id2,
+                    'productNumber' => Uuid::randomHex(),
                     'stock' => 1,
                     'name' => 'Test',
                     'tax' => ['name' => 'test', 'taxRate' => 5],
@@ -233,6 +235,7 @@ class EntityRepositoryTest extends TestCase
             [
                 [
                     'id' => $id,
+                    'productNumber' => Uuid::randomHex(),
                     'stock' => 1,
                     'name' => 'Test',
                     'tax' => ['name' => 'test', 'taxRate' => 5],
@@ -262,6 +265,7 @@ class EntityRepositoryTest extends TestCase
                 ],
                 [
                     'id' => $id2,
+                    'productNumber' => Uuid::randomHex(),
                     'stock' => 1,
                     'name' => 'Test',
                     'tax' => ['name' => 'test', 'taxRate' => 5],
@@ -328,6 +332,7 @@ class EntityRepositoryTest extends TestCase
         $id = Uuid::randomHex();
         $data = [
             'id' => $id,
+            'productNumber' => Uuid::randomHex(),
             'stock' => 1,
             'name' => 'test',
             'price' => ['gross' => 15, 'net' => 10, 'linked' => false],
@@ -372,6 +377,7 @@ class EntityRepositoryTest extends TestCase
         $id = Uuid::randomHex();
         $data = [
             'id' => $id,
+            'productNumber' => Uuid::randomHex(),
             'stock' => 1,
             'name' => 'test',
             'price' => ['gross' => 15, 'net' => 10, 'linked' => false],
@@ -427,6 +433,7 @@ class EntityRepositoryTest extends TestCase
         $id = Uuid::randomHex();
         $data = [
             'id' => $id,
+            'productNumber' => Uuid::randomHex(),
             'stock' => 1,
             'name' => 'test',
             'price' => ['gross' => 15, 'net' => 10, 'linked' => false],
@@ -499,6 +506,7 @@ class EntityRepositoryTest extends TestCase
         $id = Uuid::randomHex();
         $data = [
             'id' => $id,
+            'productNumber' => Uuid::randomHex(),
             'stock' => 1,
             'name' => 'test',
             'price' => ['gross' => 15, 'net' => 10, 'linked' => false],
@@ -559,14 +567,23 @@ class EntityRepositoryTest extends TestCase
 
         $data = [
             'id' => $id,
+            'productNumber' => Uuid::randomHex(),
             'stock' => 1,
             'name' => 'parent',
             'price' => ['gross' => 15, 'net' => 10, 'linked' => false],
             'manufacturer' => ['id' => $id, 'name' => 'test'],
             'tax' => ['id' => $id, 'name' => 'test', 'taxRate' => 15],
             'children' => [
-                ['id' => $child1, 'stock' => 1],
-                ['id' => $child2, 'stock' => 1],
+                [
+                    'id' => $child1,
+                    'productNumber' => Uuid::randomHex(),
+                    'stock' => 1,
+                ],
+                [
+                    'id' => $child2,
+                    'productNumber' => Uuid::randomHex(),
+                    'stock' => 1,
+                ],
             ],
         ];
 
@@ -604,6 +621,7 @@ class EntityRepositoryTest extends TestCase
 
         $data = [
             'id' => $id,
+            'productNumber' => Uuid::randomHex(),
             'name' => 'test rule',
             'priority' => 1,
             'conditions' => [

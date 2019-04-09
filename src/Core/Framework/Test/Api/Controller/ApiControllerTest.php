@@ -75,6 +75,7 @@ EOF;
 
         $data = [
             'id' => $id,
+            'productNumber' => Uuid::randomHex(),
             'stock' => 1,
             'name' => $id,
             'tax' => ['name' => 'test', 'taxRate' => 10],
@@ -143,6 +144,7 @@ EOF;
 
         $data = [
             'id' => $id,
+            'productNumber' => Uuid::randomHex(),
             'stock' => 1,
             'name' => $id,
             'tax' => ['name' => 'test', 'taxRate' => 10],
@@ -185,6 +187,7 @@ EOF;
 
         $data = [
             'id' => $id,
+            'productNumber' => Uuid::randomHex(),
             'stock' => 1,
             'name' => $id,
             'tax' => ['name' => 'test', 'taxRate' => 10],
@@ -227,6 +230,7 @@ EOF;
 
         $data = [
             'id' => $id,
+            'productNumber' => Uuid::randomHex(),
             'stock' => 1,
             'name' => $id,
             'tax' => ['name' => 'test', 'taxRate' => 10],
@@ -313,6 +317,7 @@ EOF;
 
         $data = [
             'id' => $id,
+            'productNumber' => Uuid::randomHex(),
             'stock' => 1,
             'name' => 'Test',
             'price' => ['gross' => 50, 'net' => 25, 'linked' => false],
@@ -380,6 +385,7 @@ EOF;
 
         $data = [
             'id' => $id,
+            'productNumber' => Uuid::randomHex(),
             'stock' => 1,
             'name' => 'Cotton Shirt',
             'tax' => ['name' => 'test', 'taxRate' => 10],
@@ -470,6 +476,7 @@ EOF;
 
         $data = [
             'id' => $id,
+            'productNumber' => Uuid::randomHex(),
             'stock' => 1,
             'name' => 'price test',
             'price' => ['gross' => 15, 'net' => 10, 'linked' => false],
@@ -541,6 +548,7 @@ EOF;
 
         $data = [
             'id' => $id,
+            'productNumber' => Uuid::randomHex(),
             'stock' => 1,
             'name' => 'price test',
             'price' => ['gross' => 15, 'net' => 10, 'linked' => false],
@@ -604,6 +612,7 @@ EOF;
 
         $data = [
             'id' => $id,
+            'productNumber' => Uuid::randomHex(),
             'stock' => 1,
             'name' => 'price test',
             'price' => ['gross' => 15, 'net' => 10, 'linked' => false],
@@ -655,6 +664,7 @@ EOF;
 
         $data = [
             'id' => $id,
+            'productNumber' => Uuid::randomHex(),
             'stock' => 1,
             'name' => 'Wool Shirt',
             'tax' => ['name' => 'test', 'taxRate' => 10],
@@ -690,6 +700,7 @@ EOF;
         $productA = Uuid::randomHex();
         $data = [
             'id' => $productA,
+            'productNumber' => Uuid::randomHex(),
             'name' => 'Wool Shirt',
             'tax' => ['name' => 'test', 'taxRate' => 10],
             'manufacturer' => ['name' => $manufacturerName],
@@ -702,6 +713,7 @@ EOF;
         $productB = Uuid::randomHex();
         $data = [
             'id' => $productB,
+            'productNumber' => Uuid::randomHex(),
             'name' => 'Wool Shirt 2',
             'tax' => ['name' => 'test', 'taxRate' => 10],
             'manufacturer' => ['name' => $manufacturerName],

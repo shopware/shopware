@@ -93,6 +93,7 @@ trait MediaFixtures
                         'id' => Uuid::randomHex(),
                         'product' => [
                             'id' => Uuid::randomHex(),
+                            'productNumber' => Uuid::randomHex(),
                             'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
                             'stock' => 10,
                             'manufacturer' => [

@@ -65,6 +65,7 @@ class ProductRepositoryTest extends TestCase
 
         $data = [
             'id' => $id,
+            'productNumber' => Uuid::randomHex(),
             'stock' => 10,
             'name' => 'test',
             'price' => ['gross' => 15, 'net' => 10, 'linked' => false],
@@ -94,6 +95,7 @@ class ProductRepositoryTest extends TestCase
         $data = [
             [
                 'id' => Uuid::randomHex(),
+                'productNumber' => Uuid::randomHex(),
                 'stock' => 10,
                 'name' => 'Test',
                 'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
@@ -102,6 +104,7 @@ class ProductRepositoryTest extends TestCase
             ],
             [
                 'id' => Uuid::randomHex(),
+                'productNumber' => Uuid::randomHex(),
                 'stock' => 10,
                 'name' => 'Test',
                 'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
@@ -110,6 +113,7 @@ class ProductRepositoryTest extends TestCase
             ],
             [
                 'id' => Uuid::randomHex(),
+                'productNumber' => Uuid::randomHex(),
                 'stock' => 10,
                 'name' => 'Test',
                 'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
@@ -118,6 +122,7 @@ class ProductRepositoryTest extends TestCase
             ],
             [
                 'id' => Uuid::randomHex(),
+                'productNumber' => Uuid::randomHex(),
                 'stock' => 10,
                 'name' => 'Test',
                 'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
@@ -170,6 +175,7 @@ class ProductRepositoryTest extends TestCase
         $data = [
             [
                 'id' => Uuid::randomHex(),
+                'productNumber' => Uuid::randomHex(),
                 'stock' => 10,
                 'name' => 'Test',
                 'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
@@ -178,6 +184,7 @@ class ProductRepositoryTest extends TestCase
             ],
             [
                 'id' => Uuid::randomHex(),
+                'productNumber' => Uuid::randomHex(),
                 'stock' => 10,
                 'name' => 'Test',
                 'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
@@ -186,6 +193,7 @@ class ProductRepositoryTest extends TestCase
             ],
             [
                 'id' => Uuid::randomHex(),
+                'productNumber' => Uuid::randomHex(),
                 'stock' => 10,
                 'name' => 'Test',
                 'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
@@ -194,6 +202,7 @@ class ProductRepositoryTest extends TestCase
             ],
             [
                 'id' => Uuid::randomHex(),
+                'productNumber' => Uuid::randomHex(),
                 'stock' => 10,
                 'name' => 'Test',
                 'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
@@ -249,6 +258,7 @@ class ProductRepositoryTest extends TestCase
         $this->repository->create([
             [
                 'id' => $id,
+                'productNumber' => Uuid::randomHex(),
                 'stock' => 10,
                 'name' => 'Test',
                 'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
@@ -297,6 +307,7 @@ class ProductRepositoryTest extends TestCase
         $id = Uuid::randomHex();
         $data = [
             'id' => $id,
+            'productNumber' => Uuid::randomHex(),
             'stock' => 10,
             'name' => 'price test',
             'price' => ['gross' => 15, 'net' => 10, 'linked' => false],
@@ -368,6 +379,7 @@ class ProductRepositoryTest extends TestCase
         $data = [
             [
                 'id' => $id,
+                'productNumber' => Uuid::randomHex(),
                 'name' => 'price test 1',
                 'stock' => 10,
                 'price' => ['gross' => 500, 'net' => 400, 'linked' => false],
@@ -385,6 +397,7 @@ class ProductRepositoryTest extends TestCase
             ],
             [
                 'id' => $id2,
+                'productNumber' => Uuid::randomHex(),
                 'name' => 'price test 2',
                 'stock' => 10,
                 'price' => ['gross' => 500, 'net' => 400, 'linked' => false],
@@ -402,6 +415,7 @@ class ProductRepositoryTest extends TestCase
             ],
             [
                 'id' => $id3,
+                'productNumber' => Uuid::randomHex(),
                 'name' => 'price test 3',
                 'stock' => 10,
                 'price' => ['gross' => 500, 'net' => 400, 'linked' => false],
@@ -462,6 +476,7 @@ class ProductRepositoryTest extends TestCase
         $products = [
             [
                 'id' => $parentId,
+                'productNumber' => Uuid::randomHex(),
                 'stock' => 10,
                 'name' => $parentName,
                 'price' => $parentPrice,
@@ -470,10 +485,22 @@ class ProductRepositoryTest extends TestCase
             ],
 
             //price should be inherited
-            ['id' => $redId, 'stock' => 10, 'name' => $redName, 'parentId' => $parentId],
+            [
+                'id' => $redId,
+                'productNumber' => Uuid::randomHex(),
+                'stock' => 10,
+                'name' => $redName,
+                'parentId' => $parentId,
+            ],
 
             //name should be inherited
-            ['id' => $greenId, 'stock' => 10, 'price' => $greenPrice, 'parentId' => $parentId],
+            [
+                'id' => $greenId,
+                'productNumber' => Uuid::randomHex(),
+                'stock' => 10,
+                'price' => $greenPrice,
+                'parentId' => $parentId,
+            ],
         ];
 
         $context = Context::createDefaultContext();
@@ -540,6 +567,7 @@ class ProductRepositoryTest extends TestCase
         $data = [
             [
                 'id' => $id,
+                'productNumber' => Uuid::randomHex(),
                 'stock' => 10,
                 'name' => 'Insert',
                 'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
@@ -549,6 +577,7 @@ class ProductRepositoryTest extends TestCase
             ],
             [
                 'id' => $id,
+                'productNumber' => Uuid::randomHex(),
                 'stock' => 10,
                 'name' => 'Update',
                 'price' => ['gross' => 12, 'net' => 10, 'linked' => false],
@@ -578,8 +607,8 @@ class ProductRepositoryTest extends TestCase
 
         $filterId = Uuid::randomHex();
         $data = [
-            ['id' => $id, 'stock' => 10, 'name' => 'Insert', 'price' => ['gross' => 10, 'net' => 9, 'linked' => false], 'tax' => ['name' => 'test', 'taxRate' => 10], 'manufacturer' => ['name' => 'test'], 'ean' => $filterId],
-            ['id' => $child, 'stock' => 10, 'parentId' => $id, 'name' => 'Update', 'price' => ['gross' => 12, 'net' => 11, 'linked' => false], 'ean' => $filterId],
+            ['id' => $id, 'productNumber' => Uuid::randomHex(), 'stock' => 10, 'name' => 'Insert', 'price' => ['gross' => 10, 'net' => 9, 'linked' => false], 'tax' => ['name' => 'test', 'taxRate' => 10], 'manufacturer' => ['name' => 'test'], 'ean' => $filterId],
+            ['id' => $child, 'productNumber' => Uuid::randomHex(), 'stock' => 10, 'parentId' => $id, 'name' => 'Update', 'price' => ['gross' => 12, 'net' => 11, 'linked' => false], 'ean' => $filterId],
         ];
 
         $this->repository->upsert($data, Context::createDefaultContext());
@@ -615,6 +644,7 @@ class ProductRepositoryTest extends TestCase
         $data = [
             [
                 'id' => $child,
+                'productNumber' => Uuid::randomHex(),
                 'stock' => 10,
                 'parentId' => null,
                 'name' => 'Child transformed to parent',
@@ -737,6 +767,7 @@ class ProductRepositoryTest extends TestCase
         $products = [
             [
                 'id' => $parentId,
+                'productNumber' => Uuid::randomHex(),
                 'stock' => 10,
                 'price' => ['gross' => 10, 'net' => 9, 'linked' => true],
                 'manufacturer' => ['name' => 'test'],
@@ -745,10 +776,25 @@ class ProductRepositoryTest extends TestCase
             ],
 
             //price should be inherited
-            ['id' => $redId, 'stock' => 10, 'parentId' => $parentId],
+            [
+                'id' => $redId,
+                'productNumber' => Uuid::randomHex(),
+                'stock' => 10,
+                'parentId' => $parentId,
+            ],
 
             //name should be inherited
-            ['id' => $greenId, 'stock' => 10, 'parentId' => $parentId, 'tax' => ['id' => $greenTax, 'taxRate' => 13, 'name' => 'green']],
+            [
+                'id' => $greenId,
+                'productNumber' => Uuid::randomHex(),
+                'stock' => 10,
+                'parentId' => $parentId,
+                'tax' => [
+                    'id' => $greenTax,
+                    'taxRate' => 13,
+                    'name' => 'green',
+                ],
+            ],
         ];
 
         $context = Context::createDefaultContext();
@@ -814,11 +860,11 @@ class ProductRepositoryTest extends TestCase
         $tax = ['id' => Uuid::randomHex(), 'taxRate' => 19, 'name' => 'test'];
         $price = ['gross' => 10, 'net' => 9, 'linked' => false];
         $data = [
-            ['name' => 'test', 'stock' => 10, 'tax' => $tax, 'price' => $price, 'manufacturer' => ['name' => 'test']],
-            ['name' => 'test', 'stock' => 10, 'tax' => $tax, 'price' => $price, 'manufacturer' => ['name' => 'test']],
-            ['name' => 'test', 'stock' => 10, 'tax' => $tax, 'price' => $price, 'manufacturer' => ['name' => 'test']],
-            ['name' => 'test', 'stock' => 10, 'tax' => $tax, 'price' => $price, 'manufacturer' => ['name' => 'test']],
-            ['name' => 'test', 'stock' => 10, 'tax' => $tax, 'price' => $price, 'manufacturer' => ['name' => 'test']],
+            ['productNumber' => Uuid::randomHex(), 'name' => 'test', 'stock' => 10, 'tax' => $tax, 'price' => $price, 'manufacturer' => ['name' => 'test']],
+            ['productNumber' => Uuid::randomHex(), 'name' => 'test', 'stock' => 10, 'tax' => $tax, 'price' => $price, 'manufacturer' => ['name' => 'test']],
+            ['productNumber' => Uuid::randomHex(), 'name' => 'test', 'stock' => 10, 'tax' => $tax, 'price' => $price, 'manufacturer' => ['name' => 'test']],
+            ['productNumber' => Uuid::randomHex(), 'name' => 'test', 'stock' => 10, 'tax' => $tax, 'price' => $price, 'manufacturer' => ['name' => 'test']],
+            ['productNumber' => Uuid::randomHex(), 'name' => 'test', 'stock' => 10, 'tax' => $tax, 'price' => $price, 'manufacturer' => ['name' => 'test']],
         ];
 
         $taxes = $this->repository->create($data, Context::createDefaultContext())->getEventByDefinition(TaxDefinition::class);
@@ -838,6 +884,7 @@ class ProductRepositoryTest extends TestCase
         $products = [
             [
                 'id' => $parentId,
+                'productNumber' => Uuid::randomHex(),
                 'name' => 'T-shirt',
                 'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
                 'manufacturer' => ['name' => 'test'],
@@ -853,9 +900,16 @@ class ProductRepositoryTest extends TestCase
                     ],
                 ],
             ],
-            ['id' => $redId, 'parentId' => $parentId, 'name' => 'red', 'stock' => 10],
+            [
+                'id' => $redId,
+                'productNumber' => Uuid::randomHex(),
+                'parentId' => $parentId,
+                'name' => 'red',
+                'stock' => 10,
+            ],
             [
                 'id' => $greenId,
+                'productNumber' => Uuid::randomHex(),
                 'parentId' => $parentId,
                 'stock' => 10,
                 'name' => 'green',
@@ -933,6 +987,7 @@ class ProductRepositoryTest extends TestCase
         $products = [
             [
                 'id' => $parentId,
+                'productNumber' => Uuid::randomHex(),
                 'stock' => 10,
                 'name' => 'T-shirt',
                 'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
@@ -942,9 +997,16 @@ class ProductRepositoryTest extends TestCase
                     ['id' => $parentCategory, 'name' => 'parent'],
                 ],
             ],
-            ['id' => $redId, 'stock' => 10, 'parentId' => $parentId, 'name' => 'red'],
+            [
+                'id' => $redId,
+                'productNumber' => Uuid::randomHex(),
+                'stock' => 10,
+                'parentId' => $parentId,
+                'name' => 'red',
+            ],
             [
                 'id' => $greenId,
+                'productNumber' => Uuid::randomHex(),
                 'stock' => 10,
                 'parentId' => $parentId,
                 'name' => 'green',
@@ -1014,6 +1076,7 @@ class ProductRepositoryTest extends TestCase
         $products = [
             [
                 'id' => $parentId,
+                'productNumber' => Uuid::randomHex(),
                 'stock' => 10,
                 'name' => $parentName,
                 'manufacturer' => ['name' => 'test'],
@@ -1022,10 +1085,22 @@ class ProductRepositoryTest extends TestCase
             ],
 
             //price should be inherited
-            ['id' => $redId, 'stock' => 10, 'name' => $redName, 'parentId' => $parentId],
+            [
+                'id' => $redId,
+                'productNumber' => Uuid::randomHex(),
+                'stock' => 10,
+                'name' => $redName,
+                'parentId' => $parentId,
+            ],
 
             //name should be inherited
-            ['id' => $greenId, 'stock' => 10, 'price' => $greenPrice, 'parentId' => $parentId],
+            [
+                'id' => $greenId,
+                'productNumber' => Uuid::randomHex(),
+                'stock' => 10,
+                'price' => $greenPrice,
+                'parentId' => $parentId,
+            ],
         ];
 
         $context = Context::createDefaultContext();
@@ -1065,6 +1140,7 @@ class ProductRepositoryTest extends TestCase
         $products = [
             [
                 'id' => $parentId,
+                'productNumber' => Uuid::randomHex(),
                 'stock' => 10,
                 'manufacturer' => ['name' => 'test', 'id' => $manufacturerId],
                 'tax' => ['name' => 'test', 'taxRate' => 15],
@@ -1073,10 +1149,22 @@ class ProductRepositoryTest extends TestCase
             ],
 
             //price should be inherited
-            ['id' => $redId, 'stock' => 10, 'name' => $redName, 'parentId' => $parentId],
+            [
+                'id' => $redId,
+                'productNumber' => Uuid::randomHex(),
+                'stock' => 10,
+                'name' => $redName,
+                'parentId' => $parentId,
+            ],
 
             //name should be inherited
-            ['id' => $greenId, 'stock' => 10, 'price' => $greenPrice, 'parentId' => $parentId],
+            [
+                'id' => $greenId,
+                'productNumber' => Uuid::randomHex(),
+                'stock' => 10,
+                'price' => $greenPrice,
+                'parentId' => $parentId,
+            ],
         ];
 
         $context = Context::createDefaultContext();
@@ -1116,6 +1204,7 @@ class ProductRepositoryTest extends TestCase
         $products = [
             [
                 'id' => $parentId,
+                'productNumber' => Uuid::randomHex(),
                 'stock' => 10,
                 'tax' => ['name' => 'test', 'taxRate' => 15],
                 'name' => $parentName,
@@ -1127,10 +1216,22 @@ class ProductRepositoryTest extends TestCase
             ],
 
             //price should be inherited
-            ['id' => $redId, 'stock' => 10, 'name' => $redName, 'parentId' => $parentId],
+            [
+                'id' => $redId,
+                'productNumber' => Uuid::randomHex(),
+                'stock' => 10,
+                'name' => $redName,
+                'parentId' => $parentId,
+            ],
 
             //name should be inherited
-            ['id' => $greenId, 'stock' => 10, 'price' => $greenPrice, 'parentId' => $parentId],
+            [
+                'id' => $greenId,
+                'productNumber' => Uuid::randomHex(),
+                'stock' => 10,
+                'price' => $greenPrice,
+                'parentId' => $parentId,
+            ],
         ];
 
         $context = Context::createDefaultContext();
@@ -1174,6 +1275,7 @@ class ProductRepositoryTest extends TestCase
         $products = [
             [
                 'id' => $parentId,
+                'productNumber' => Uuid::randomHex(),
                 'stock' => 10,
                 'tax' => ['name' => 'test', 'taxRate' => 15],
                 'name' => 'Parent',
@@ -1183,6 +1285,7 @@ class ProductRepositoryTest extends TestCase
             ],
             [
                 'id' => $redId,
+                'productNumber' => Uuid::randomHex(),
                 'stock' => 10,
                 'name' => 'Red',
                 'parentId' => $parentId,
@@ -1191,7 +1294,12 @@ class ProductRepositoryTest extends TestCase
                 'categories' => $redCategories,
             ],
 
-            ['id' => $greenId, 'stock' => 10, 'parentId' => $parentId],
+            [
+                'id' => $greenId,
+                'productNumber' => Uuid::randomHex(),
+                'stock' => 10,
+                'parentId' => $parentId,
+            ],
         ];
 
         $this->repository->upsert($products, $this->context);
@@ -1228,6 +1336,7 @@ class ProductRepositoryTest extends TestCase
         $products = [
             [
                 'id' => $parentId,
+                'productNumber' => Uuid::randomHex(),
                 'stock' => 10,
                 'tax' => ['name' => 'test', 'taxRate' => 15],
                 'name' => $parentName,
@@ -1240,6 +1349,7 @@ class ProductRepositoryTest extends TestCase
             //price should be inherited
             [
                 'id' => $redId,
+                'productNumber' => Uuid::randomHex(),
                 'stock' => 10,
                 'name' => $redName,
                 'parentId' => $parentId,
@@ -1248,9 +1358,14 @@ class ProductRepositoryTest extends TestCase
                     'name' => 'test',
                 ],
             ],
-
             //manufacturer should be inherited
-            ['id' => $greenId, 'stock' => 10, 'price' => $greenPrice, 'parentId' => $parentId],
+            [
+                'id' => $greenId,
+                'productNumber' => Uuid::randomHex(),
+                'stock' => 10,
+                'price' => $greenPrice,
+                'parentId' => $parentId,
+            ],
         ];
 
         $context = Context::createDefaultContext();
@@ -1279,6 +1394,7 @@ class ProductRepositoryTest extends TestCase
                 'products' => [
                     [
                         'id' => $productId,
+                        'productNumber' => Uuid::randomHex(),
                         'stock' => 10,
                         'tax' => ['name' => 'test', 'taxRate' => 15],
                         'name' => 'test',
@@ -1317,6 +1433,7 @@ class ProductRepositoryTest extends TestCase
                 'products' => [
                     [
                         'id' => $productId,
+                        'productNumber' => Uuid::randomHex(),
                         'stock' => 10,
                         'name' => 'test',
                         'tax' => ['name' => 'test', 'taxRate' => 15],
@@ -1352,6 +1469,7 @@ class ProductRepositoryTest extends TestCase
 
         $data = [
             'id' => $id,
+            'productNumber' => Uuid::randomHex(),
             'name' => 'test',
             'stock' => 10,
             'tax' => ['name' => 'test', 'taxRate' => 15],
@@ -1404,6 +1522,7 @@ class ProductRepositoryTest extends TestCase
 
         $data = [
             'id' => $id,
+            'productNumber' => Uuid::randomHex(),
             'stock' => 10,
             'name' => 'test',
             'tax' => ['name' => 'test', 'taxRate' => 15],
@@ -1456,6 +1575,7 @@ class ProductRepositoryTest extends TestCase
 
         $data = [
             'id' => $id,
+            'productNumber' => Uuid::randomHex(),
             'name' => 'test',
             'stock' => 10,
             'tax' => ['name' => 'test', 'taxRate' => 15],
@@ -1524,6 +1644,7 @@ class ProductRepositoryTest extends TestCase
 
         $data = [
             'id' => $id,
+            'productNumber' => Uuid::randomHex(),
             'stock' => 10,
             'name' => 'price test',
             'price' => ['gross' => 15, 'net' => 10, 'linked' => false],
@@ -1590,6 +1711,7 @@ class ProductRepositoryTest extends TestCase
 
         $data = [
             'id' => $id,
+            'productNumber' => Uuid::randomHex(),
             'stock' => 10,
             'name' => 'price test',
             'price' => ['gross' => 15, 'net' => 10, 'linked' => false],
@@ -1670,6 +1792,7 @@ class ProductRepositoryTest extends TestCase
 
         $data = [
             'id' => $id,
+            'productNumber' => Uuid::randomHex(),
             'prices' => [
                 [
                     'id' => $id3,
@@ -1710,6 +1833,7 @@ class ProductRepositoryTest extends TestCase
         $ruleId2 = Uuid::randomHex();
 
         $default = [
+            'productNumber' => Uuid::randomHex(),
             'stock' => 10,
             'tax' => ['name' => 'test', 'taxRate' => 15, 'id' => $manufacturerId],
             'name' => 'test product',
@@ -1778,6 +1902,7 @@ class ProductRepositoryTest extends TestCase
 
         $data = [
             'id' => $id,
+            'productNumber' => Uuid::randomHex(),
             'name' => 'product',
             'stock' => 10,
             'ean' => 'test',

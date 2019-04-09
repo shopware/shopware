@@ -200,6 +200,7 @@ class WriterTest extends TestCase
         $this->getWriter()->insert(ProductDefinition::class, [
             [
                 'id' => $productId,
+                'productNumber' => Uuid::randomHex(),
                 'stock' => 1,
                 'name' => 'test 1',
                 'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
@@ -252,6 +253,7 @@ class WriterTest extends TestCase
         $this->getWriter()->insert(ProductDefinition::class, [
             [
                 'id' => $productId,
+                'productNumber' => Uuid::randomHex(),
                 'name' => 'test 1',
                 'stock' => 1,
                 'price' => ['gross' => 10, 'net' => 8.10, 'linked' => false],
@@ -263,6 +265,7 @@ class WriterTest extends TestCase
             ],
             [
                 'id' => $productId2,
+                'productNumber' => Uuid::randomHex(),
                 'name' => 'test 1',
                 'stock' => 1,
                 'price' => ['gross' => 10, 'net' => 8.10, 'linked' => false],
@@ -273,6 +276,7 @@ class WriterTest extends TestCase
                 ],
             ],
             [
+                'productNumber' => Uuid::randomHex(),
                 'name' => 'test 1',
                 'stock' => 1,
                 'price' => ['gross' => 10, 'net' => 8.10, 'linked' => false],
@@ -314,6 +318,7 @@ class WriterTest extends TestCase
             [
                 [
                     'id' => $this->id,
+                    'productNumber' => Uuid::randomHex(),
                     'name' => 'test',
                     'stock' => 1,
                     'price' => ['gross' => 10, 'net' => 8.10, 'linked' => false],
@@ -347,6 +352,7 @@ class WriterTest extends TestCase
             ProductDefinition::class,
             [
                 [
+                    'productNumber' => Uuid::randomHex(),
                     'the_unknown_field' => 'do nothing?',
                     'tax' => ['name' => 'test', 'taxRate' => 5],
                     'name' => 'foo',
@@ -370,6 +376,7 @@ class WriterTest extends TestCase
             [
                 [
                     'id' => $this->id,
+                    'productNumber' => Uuid::randomHex(),
                     'name' => 'ConfiguratorTest',
                     'description' => 'A test article',
                     'stock' => 1,
@@ -730,6 +737,7 @@ class WriterTest extends TestCase
             [
                 [
                     'id' => $this->id,
+                    'productNumber' => Uuid::randomHex(),
                     'stock' => 1,
                     'name' => 'Test product',
                     'price' => ['gross' => 10, 'net' => 8.10, 'linked' => false],

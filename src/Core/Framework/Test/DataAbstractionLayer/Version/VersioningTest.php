@@ -128,6 +128,7 @@ class VersioningTest extends TestCase
 
         $product = [
             'id' => $id,
+            'productNumber' => Uuid::randomHex(),
             'stock' => 1,
             'name' => 'test',
             'manufacturer' => ['id' => $id, 'name' => 'test'],
@@ -151,6 +152,7 @@ class VersioningTest extends TestCase
         $id = Uuid::randomHex();
         $data = [
             'id' => $id,
+            'productNumber' => Uuid::randomHex(),
             'stock' => 1,
             'name' => 'test',
             'ean' => 'EAN',
@@ -199,6 +201,7 @@ class VersioningTest extends TestCase
         $id = Uuid::randomHex();
         $data = [
             'id' => $id,
+            'productNumber' => Uuid::randomHex(),
             'stock' => 1,
             'name' => 'test',
             'ean' => 'EAN',
@@ -413,6 +416,7 @@ class VersioningTest extends TestCase
         $id = Uuid::randomHex();
         $data = [
             'id' => $id,
+            'productNumber' => Uuid::randomHex(),
             'stock' => 1,
             'name' => 'test',
             'ean' => 'EAN',
@@ -441,6 +445,7 @@ class VersioningTest extends TestCase
         $id = Uuid::randomHex();
         $data = [
             'id' => $id,
+            'productNumber' => Uuid::randomHex(),
             'stock' => 1,
             'name' => 'test',
             'ean' => 'EAN',
@@ -465,6 +470,7 @@ class VersioningTest extends TestCase
         $id = Uuid::randomHex();
         $data = [
             'id' => $id,
+            'productNumber' => Uuid::randomHex(),
             'stock' => 1,
             'name' => 'test',
             'ean' => 'EAN',
@@ -500,6 +506,7 @@ class VersioningTest extends TestCase
         $id = Uuid::randomHex();
         $data = [
             'id' => $id,
+            'productNumber' => Uuid::randomHex(),
             'stock' => 1,
             'name' => 'test',
             'ean' => 'EAN',
@@ -533,6 +540,7 @@ class VersioningTest extends TestCase
         $id = Uuid::randomHex();
         $data = [
             'id' => $id,
+            'productNumber' => Uuid::randomHex(),
             'stock' => 1,
             'name' => 'test',
             'ean' => 'EAN',
@@ -624,6 +632,7 @@ class VersioningTest extends TestCase
 
         $product = [
             'id' => $productId,
+            'productNumber' => Uuid::randomHex(),
             'name' => 'to clone',
             'stock' => 1,
             'manufacturer' => ['name' => 'test'],
@@ -688,6 +697,7 @@ class VersioningTest extends TestCase
 
         $product = [
             'id' => $productId,
+            'productNumber' => Uuid::randomHex(),
             'stock' => 1,
             'name' => 'to clone',
             'manufacturer' => ['name' => 'test'],
@@ -744,6 +754,7 @@ class VersioningTest extends TestCase
         $id = Uuid::randomHex();
         $data = [
             'id' => $id,
+            'productNumber' => Uuid::randomHex(),
             'stock' => 1,
             'name' => 'test',
             'ean' => 'EAN',
@@ -790,6 +801,7 @@ class VersioningTest extends TestCase
         //create live product with two prices
         $product = [
             'id' => $productId,
+            'productNumber' => Uuid::randomHex(),
             'stock' => 1,
             'name' => 'to clone',
             'manufacturer' => ['name' => 'test'],
@@ -998,6 +1010,7 @@ class VersioningTest extends TestCase
 
         $product = [
             'id' => $productId,
+            'productNumber' => Uuid::randomHex(),
             'stock' => 1,
             'name' => 'to clone',
             'manufacturer' => ['name' => 'test'],
@@ -1061,6 +1074,7 @@ class VersioningTest extends TestCase
         $id = Uuid::randomHex();
         $data = [
             'id' => $id,
+            'productNumber' => Uuid::randomHex(),
             'stock' => 1,
             'name' => 'test',
             'ean' => 'EAN',
@@ -1117,6 +1131,7 @@ class VersioningTest extends TestCase
         //create live product with two prices
         $product = [
             'id' => $productId,
+            'productNumber' => Uuid::randomHex(),
             'stock' => 1,
             'name' => 'to clone',
             'manufacturer' => ['name' => 'test'],
@@ -1218,6 +1233,7 @@ class VersioningTest extends TestCase
 
         $product = [
             'id' => $productId,
+            'productNumber' => Uuid::randomHex(),
             'stock' => 1,
             'name' => 'to clone',
             'manufacturer' => ['name' => 'test'],
@@ -1275,6 +1291,7 @@ class VersioningTest extends TestCase
         $data = [
             [
                 'id' => $id1,
+                'productNumber' => Uuid::randomHex(),
                 'stock' => 1,
                 'name' => 'test',
                 'ean' => 'EAN',
@@ -1284,6 +1301,7 @@ class VersioningTest extends TestCase
             ],
             [
                 'id' => $id2,
+                'productNumber' => Uuid::randomHex(),
                 'stock' => 1,
                 'name' => 'test',
                 'ean' => null,
@@ -1323,6 +1341,7 @@ class VersioningTest extends TestCase
         $id = Uuid::randomHex();
         $data = [
             'id' => $id,
+            'productNumber' => Uuid::randomHex(),
             'stock' => 1,
             'name' => 'test',
             'ean' => 'EAN',
@@ -1386,6 +1405,7 @@ class VersioningTest extends TestCase
         //create live product with two prices
         $product = [
             'id' => $productId,
+            'productNumber' => Uuid::randomHex(),
             'stock' => 1,
             'name' => 'to clone',
             'manufacturer' => ['name' => 'test'],
@@ -1469,6 +1489,7 @@ class VersioningTest extends TestCase
 
         $product = [
             'id' => $productId,
+            'productNumber' => Uuid::randomHex(),
             'stock' => 1,
             'name' => 'to clone',
             'manufacturer' => ['name' => 'test'],
@@ -1525,6 +1546,7 @@ class VersioningTest extends TestCase
         $data = [
             [
                 'id' => $id1,
+                'productNumber' => Uuid::randomHex(),
                 'stock' => 1,
                 'name' => 'test',
                 'ean' => 'EAN',
@@ -1534,6 +1556,7 @@ class VersioningTest extends TestCase
             ],
             [
                 'id' => $id2,
+                'productNumber' => Uuid::randomHex(),
                 'stock' => 1,
                 'name' => 'test',
                 'ean' => 'EAN',
@@ -1588,6 +1611,7 @@ class VersioningTest extends TestCase
         $data = [
             [
                 'id' => $id1,
+                'productNumber' => Uuid::randomHex(),
                 'stock' => 1,
                 'name' => 'test',
                 'ean' => 'EAN-1',
@@ -1597,6 +1621,7 @@ class VersioningTest extends TestCase
             ],
             [
                 'id' => $id2,
+                'productNumber' => Uuid::randomHex(),
                 'stock' => 1,
                 'name' => 'test',
                 'ean' => 'EAN-2',
@@ -1671,6 +1696,7 @@ class VersioningTest extends TestCase
     {
         $product = [
             'id' => Uuid::randomHex(),
+            'productNumber' => Uuid::randomHex(),
             'name' => '😄',
             'stock' => 1,
             'ean' => 'EAN-1',

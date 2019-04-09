@@ -41,6 +41,7 @@ class ProductControllerTest extends TestCase
         $this->productRepository->create([
             [
                 'id' => Uuid::randomHex(),
+                'productNumber' => Uuid::randomHex(),
                 'stock' => 1,
                 'name' => 'Test',
                 'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
@@ -86,6 +87,7 @@ class ProductControllerTest extends TestCase
         $this->productRepository->create([
             [
                 'id' => $productId,
+                'productNumber' => Uuid::randomHex(),
                 'stock' => 1,
                 'name' => 'Test',
                 'price' => ['gross' => 10, 'net' => 9, 'linked' => false],

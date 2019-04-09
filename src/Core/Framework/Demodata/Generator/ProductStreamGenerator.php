@@ -49,7 +49,6 @@ class ProductStreamGenerator implements DemodataGeneratorInterface
             ['field' => 'width', 'type' => 'range', 'parameters' => [RangeFilter::GT => random_int(1, 500), RangeFilter::LT => random_int(500, 1000)]],
             ['field' => 'weight', 'type' => 'range', 'parameters' => [RangeFilter::GT => random_int(1, 500), RangeFilter::LT => random_int(500, 1000)]],
             ['field' => 'stock', 'type' => 'equals', 'value' => '1000'],
-            ['field' => 'maxDeliveryTime', 'type' => 'range', 'parameters' => [RangeFilter::LT => random_int(0, 5)]],
             ['field' => 'name', 'type' => 'contains', 'value' => 'Awesome'],
             ['field' => 'categories.id', 'type' => 'equalsAny', 'value' => implode('|', [$categories[random_int(0, \count($categories) - 1)], $categories[random_int(0, \count($categories) - 1)]])],
             ['field' => 'id', 'type' => 'equalsAny', 'value' => implode('|', [$products[random_int(0, \count($products) - 1)], $products[random_int(0, \count($products) - 1)]])],

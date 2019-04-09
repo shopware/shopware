@@ -137,5 +137,10 @@
 
             <tag name="shopware.dbal_indexing.indexer"/>
         </service>
+
+        <service id="Shopware\Core\Content\DeliveryTime\DeliveryTimeDefinition">
+            <tag name="shopware.entity.definition" entity="delivery_time"/>
+        </service>
+
     </services>
 </container>                

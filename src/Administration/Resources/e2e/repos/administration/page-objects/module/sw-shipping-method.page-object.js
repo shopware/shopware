@@ -18,7 +18,11 @@ class ShippingMethodPageObject extends GeneralPageObject {
             .fillField('input[name=sw-field--shippingMethod-name]', name)
             .tickCheckbox('input[name=sw-field--shippingMethod-active]', true)
             .tickCheckbox('input[name=sw-field--shippingMethod-bindShippingfree]', true)
-            .tickCheckbox('input[name=sw-field--shippingMethod-bindShippingfree]', false);
+            .tickCheckbox('input[name=sw-field--shippingMethod-bindShippingfree]', false)
+            .fillSwSelectComponent('.sw-settings-shipping-detail-base__delivery-time', {
+                value: '1-3 days',
+                searchTerm: '1-3'
+            });
 
         this.browser
             .click(this.elements.shippingSaveAction)

@@ -5,6 +5,7 @@ namespace Shopware\Core\Checkout\Shipping;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryCollection;
 use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodPrice\ShippingMethodPriceCollection;
 use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodTranslation\ShippingMethodTranslationCollection;
+use Shopware\Core\Content\DeliveryTime\DeliveryTimeEntity;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Rule\RuleEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
@@ -15,6 +16,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 class ShippingMethodEntity extends Entity
 {
     use EntityIdTrait;
+
     /**
      * @var bool
      */
@@ -56,14 +58,14 @@ class ShippingMethodEntity extends Entity
     protected $comment;
 
     /**
-     * @var int
+     * @var string
      */
-    protected $minDeliveryTime;
+    protected $deliveryTimeId;
 
     /**
-     * @var int
+     * @var DeliveryTimeEntity|null
      */
-    protected $maxDeliveryTime;
+    protected $deliveryTime;
 
     /**
      * @var ShippingMethodTranslationCollection|null
@@ -205,24 +207,24 @@ class ShippingMethodEntity extends Entity
         $this->comment = $comment;
     }
 
-    public function getMinDeliveryTime(): int
+    public function getDeliveryTimeId(): string
     {
-        return $this->minDeliveryTime;
+        return $this->deliveryTimeId;
     }
 
-    public function setMinDeliveryTime(int $minDeliveryTime): void
+    public function setDeliveryTimeId(string $deliveryTimeId): void
     {
-        $this->minDeliveryTime = $minDeliveryTime;
+        $this->deliveryTimeId = $deliveryTimeId;
     }
 
-    public function getMaxDeliveryTime(): int
+    public function getDeliveryTime(): ?DeliveryTimeEntity
     {
-        return $this->maxDeliveryTime;
+        return $this->deliveryTime;
     }
 
-    public function setMaxDeliveryTime(int $maxDeliveryTime): void
+    public function setDeliveryTime(?DeliveryTimeEntity $deliveryTime): void
     {
-        $this->maxDeliveryTime = $maxDeliveryTime;
+        $this->deliveryTime = $deliveryTime;
     }
 
     public function getTranslations(): ?ShippingMethodTranslationCollection

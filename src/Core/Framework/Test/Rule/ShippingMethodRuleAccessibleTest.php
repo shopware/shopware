@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\Test\Rule;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Shipping\ShippingMethodCollection;
+use Shopware\Core\Content\DeliveryTime\DeliveryTimeEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -62,6 +63,7 @@ class ShippingMethodRuleAccessibleTest extends TestCase
             'id' => Uuid::randomHex(),
             'type' => 1,
             'bindShippingfree' => true,
+            'deliveryTime' => $this->createDeliveryTimeData(),
             'created_at' => new \DateTime(),
             'name' => 'additional ShippingMethod',
         ];
@@ -145,6 +147,7 @@ class ShippingMethodRuleAccessibleTest extends TestCase
             'id' => Uuid::randomHex(),
             'type' => 1,
             'bindShippingfree' => false,
+            'deliveryTime' => $this->createDeliveryTimeData(),
             'created_at' => new \DateTime(),
             'name' => 'test',
         ];
@@ -170,6 +173,7 @@ class ShippingMethodRuleAccessibleTest extends TestCase
                 'id' => Uuid::randomHex(),
                 'type' => 1,
                 'bindShippingfree' => false,
+                'deliveryTime' => $this->createDeliveryTimeData(),
                 'active' => true,
                 'created_at' => new \DateTime(),
                 'name' => 'test',
@@ -179,6 +183,7 @@ class ShippingMethodRuleAccessibleTest extends TestCase
                 'type' => 1,
                 'active' => true,
                 'bindShippingfree' => true,
+                'deliveryTime' => $this->createDeliveryTimeData(),
                 'created_at' => new \DateTime('-2 days'),
                 'name' => 'shippingFreeShipping',
             ],
@@ -187,6 +192,7 @@ class ShippingMethodRuleAccessibleTest extends TestCase
                 'type' => 1,
                 'active' => false,
                 'bindShippingfree' => false,
+                'deliveryTime' => $this->createDeliveryTimeData(),
                 'created_at' => new \DateTime(),
                 'name' => 'unused shippingMethod',
             ],
@@ -213,5 +219,16 @@ class ShippingMethodRuleAccessibleTest extends TestCase
         ];
 
         return $rules;
+    }
+
+    private function createDeliveryTimeData(): array
+    {
+        return [
+            'id' => Uuid::randomHex(),
+            'name' => 'test',
+            'min' => 1,
+            'max' => 90,
+            'unit' => DeliveryTimeEntity::DELIVERY_TIME_DAY,
+        ];
     }
 }

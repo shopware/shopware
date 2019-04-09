@@ -10,6 +10,7 @@ use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodTranslation\Shipping
 use Shopware\Core\Content\Category\Aggregate\CategoryTranslation\CategoryTranslationCollection;
 use Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupOptionTranslation\ConfigurationGroupOptionTranslationCollection;
 use Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupTranslation\ConfigurationGroupTranslationCollection;
+use Shopware\Core\Content\DeliveryTime\DeliveryTimeCollection;
 use Shopware\Core\Content\MailTemplate\Aggregate\MailHeaderFooter\MailHeaderFooterCollection;
 use Shopware\Core\Content\MailTemplate\MailTemplateCollection;
 use Shopware\Core\Content\Media\Aggregate\MediaTranslation\MediaTranslationCollection;
@@ -267,6 +268,11 @@ class LanguageEntity extends Entity
      * @var MailHeaderFooterCollection|null
      */
     protected $mailHeaderFooterTranslations;
+
+    /**
+     * @var DeliveryTimeCollection|null
+     */
+    protected $deliveryTimeTranslations;
 
     /**
      * @var NewsletterReceiverCollection|null
@@ -721,6 +727,16 @@ class LanguageEntity extends Entity
     public function setMailTemplateTranslations(?MailTemplateCollection $mailTemplateTranslations): void
     {
         $this->mailTemplateTranslations = $mailTemplateTranslations;
+    }
+
+    public function getDeliveryTimeTranslations(): ?DeliveryTimeCollection
+    {
+        return $this->deliveryTimeTranslations;
+    }
+
+    public function setDeliveryTimeTranslations(?DeliveryTimeCollection $deliveryTimeTranslations): void
+    {
+        $this->deliveryTimeTranslations = $deliveryTimeTranslations;
     }
 
     public function getNewsletterReceivers(): ?NewsletterReceiverCollection

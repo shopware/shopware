@@ -21,6 +21,7 @@ use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\Checkout\Test\Payment\Handler\SyncTestPaymentHandler;
+use Shopware\Core\Content\DeliveryTime\DeliveryTimeEntity;
 use Shopware\Core\Content\Product\Cart\ProductGateway;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -113,10 +114,14 @@ class Generator extends TestCase
             );
         }
 
+        $deliveryTime = new DeliveryTimeEntity();
+        $deliveryTime->setMin(1);
+        $deliveryTime->setMax(2);
+        $deliveryTime->setUnit(DeliveryTimeEntity::DELIVERY_TIME_DAY);
+
         $shippingMethod = new ShippingMethodEntity();
+        $shippingMethod->setDeliveryTime($deliveryTime);
         $shippingMethod->setId('8beeb66e9dda46b18891a059257a590e');
-        $shippingMethod->setMinDeliveryTime(1);
-        $shippingMethod->setMaxDeliveryTime(2);
 
         $customer = (new CustomerEntity())->assign(['id' => Uuid::randomHex()]);
         $customer->setId(Uuid::randomHex());

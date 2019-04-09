@@ -31,6 +31,7 @@ use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\Checkout\Test\Cart\Common\TrueRule;
 use Shopware\Core\Checkout\Test\Payment\Handler\SyncTestPaymentHandler;
+use Shopware\Core\Content\DeliveryTime\DeliveryTimeEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -1005,10 +1006,22 @@ class RecalculationServiceTest extends TestCase
         static::assertSame($calculatedTaxes->getTax(), 53.18);
     }
 
+    private function createDeliveryTime(): array
+    {
+        return [
+            'id' => Uuid::randomHex(),
+            'name' => 'test',
+            'min' => 1,
+            'max' => 90,
+            'unit' => DeliveryTimeEntity::DELIVERY_TIME_DAY,
+        ];
+    }
+
     private function createShippingMethod(string $priceRuleId): string
     {
         $shippingMethodId = Uuid::randomHex();
         $repository = $this->getContainer()->get('shipping_method.repository');
+        $deliveryTimeData = $this->createDeliveryTime();
 
         $ruleRegistry = $this->getContainer()->get(RuleConditionRegistry::class);
         $prop = ReflectionHelper::getProperty(RuleConditionRegistry::class, 'rules');
@@ -1020,6 +1033,7 @@ class RecalculationServiceTest extends TestCase
             'name' => 'test shipping method',
             'bindShippingfree' => false,
             'active' => true,
+            'deliveryTime' => $deliveryTimeData,
             'prices' => [
                 [
                     'price' => '10.00',
@@ -1065,6 +1079,7 @@ class RecalculationServiceTest extends TestCase
             'type' => 0,
             'name' => 'test shipping method 2',
             'bindShippingfree' => false,
+            'deliveryTime' => $this->createDeliveryTime(),
             'active' => true,
             'prices' => [
                 [
@@ -1130,6 +1145,7 @@ class RecalculationServiceTest extends TestCase
             'type' => 0,
             'name' => 'test shipping method 3',
             'bindShippingfree' => false,
+            'deliveryTime' => $this->createDeliveryTime(),
             'active' => true,
             'prices' => [
                 [
@@ -1198,6 +1214,7 @@ class RecalculationServiceTest extends TestCase
             'type' => 0,
             'name' => 'test shipping method 4',
             'bindShippingfree' => false,
+            'deliveryTime' => $this->createDeliveryTime(),
             'active' => true,
             'prices' => [
                 [

@@ -21,7 +21,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\PaginationCriteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriter;
-use Shopware\Core\Framework\Rule\Container\AndRule;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 
@@ -456,8 +455,8 @@ class EntityExtensionTest extends TestCase
 
         $this->getContainer()->get('rule.repository')->create(
             [
-                ['id' => $ruleA, 'name' => 'test', 'payload' => new AndRule(), 'priority' => 1],
-                ['id' => $ruleB, 'name' => 'test', 'payload' => new AndRule(), 'priority' => 2],
+                ['id' => $ruleA, 'name' => 'test', 'priority' => 1],
+                ['id' => $ruleB, 'name' => 'test', 'priority' => 2],
             ],
             Context::createDefaultContext()
         );

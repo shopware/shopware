@@ -22,7 +22,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\PaginationCriteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Pricing\Price;
-use Shopware\Core\Framework\Rule\Container\AndRule;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Tax\TaxEntity;
@@ -325,8 +324,8 @@ class EntityReaderTest extends TestCase
         $ruleB = Uuid::randomHex();
 
         $this->getContainer()->get('rule.repository')->create([
-            ['id' => $ruleA, 'name' => 'test', 'payload' => new AndRule(), 'priority' => 1],
-            ['id' => $ruleB, 'name' => 'test', 'payload' => new AndRule(), 'priority' => 2],
+            ['id' => $ruleA, 'name' => 'test', 'priority' => 1],
+            ['id' => $ruleB, 'name' => 'test', 'priority' => 2],
         ], Context::createDefaultContext());
 
         $redId = Uuid::randomHex();
@@ -412,8 +411,8 @@ class EntityReaderTest extends TestCase
         $ruleB = Uuid::randomHex();
 
         $this->getContainer()->get('rule.repository')->create([
-            ['id' => $ruleA, 'name' => 'test', 'payload' => new AndRule(), 'priority' => 1],
-            ['id' => $ruleB, 'name' => 'test', 'payload' => new AndRule(), 'priority' => 2],
+            ['id' => $ruleA, 'name' => 'test', 'priority' => 1],
+            ['id' => $ruleB, 'name' => 'test', 'priority' => 2],
         ], Context::createDefaultContext());
 
         $redId = Uuid::randomHex();

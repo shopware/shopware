@@ -21,7 +21,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException\WriteStackException;
 use Shopware\Core\Framework\Pricing\Price;
 use Shopware\Core\Framework\Pricing\PriceRuleEntity;
-use Shopware\Core\Framework\Rule\Container\AndRule;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Tax\TaxDefinition;
@@ -291,8 +290,8 @@ class ProductRepositoryTest extends TestCase
         $ruleB = Uuid::randomHex();
 
         $this->getContainer()->get('rule.repository')->create([
-            ['id' => $ruleA, 'name' => 'test', 'payload' => new AndRule(), 'priority' => 1],
-            ['id' => $ruleB, 'name' => 'test', 'payload' => new AndRule(), 'priority' => 2],
+            ['id' => $ruleA, 'name' => 'test', 'priority' => 1],
+            ['id' => $ruleB, 'name' => 'test', 'priority' => 2],
         ], Context::createDefaultContext());
 
         $id = Uuid::randomHex();
@@ -361,7 +360,7 @@ class ProductRepositoryTest extends TestCase
         $ruleA = Uuid::randomHex();
 
         $this->getContainer()->get('rule.repository')->create([
-            ['id' => $ruleA, 'name' => 'test', 'payload' => new AndRule(), 'priority' => 1],
+            ['id' => $ruleA, 'name' => 'test', 'priority' => 1],
         ], Context::createDefaultContext());
 
         $filterId = Uuid::randomHex();
@@ -1517,8 +1516,8 @@ class ProductRepositoryTest extends TestCase
         $ruleB = Uuid::randomHex();
 
         $this->getContainer()->get('rule.repository')->create([
-            ['id' => $ruleA, 'name' => 'test', 'payload' => new AndRule(), 'priority' => 1],
-            ['id' => $ruleB, 'name' => 'test', 'payload' => new AndRule(), 'priority' => 2],
+            ['id' => $ruleA, 'name' => 'test', 'priority' => 1],
+            ['id' => $ruleB, 'name' => 'test', 'priority' => 2],
         ], Context::createDefaultContext());
 
         $id = Uuid::randomHex();
@@ -1583,8 +1582,8 @@ class ProductRepositoryTest extends TestCase
         $ruleB = Uuid::randomHex();
 
         $this->getContainer()->get('rule.repository')->create([
-            ['id' => $ruleA, 'name' => 'test', 'payload' => new AndRule(), 'priority' => 1],
-            ['id' => $ruleB, 'name' => 'test', 'payload' => new AndRule(), 'priority' => 2],
+            ['id' => $ruleA, 'name' => 'test', 'priority' => 1],
+            ['id' => $ruleB, 'name' => 'test', 'priority' => 2],
         ], Context::createDefaultContext());
 
         $id = Uuid::randomHex();

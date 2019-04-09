@@ -58,3 +58,8 @@ In this example, it would be located in the directory `<plugin root>/src/Command
 After installing, you can now execute your command by running this command: `bin/console plugin-commands:example`
 
 Make sure to read the full guide about [Symfony commands](https://symfony.com/doc/current/console.html) to understand, how to deal with commands and how they can be configured.
+
+## Source
+
+There's a GitHub repository available, containing this example source.
+Check it out [here](https://github.com/shopware/swag-docs-plugin-commands).

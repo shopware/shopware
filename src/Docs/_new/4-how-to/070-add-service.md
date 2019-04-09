@@ -45,3 +45,8 @@ class MyService
 
 *Note: By default, all services on the Shopware platform are marked as `private`.*
 Read more about private and public services [here](https://symfony.com/doc/current/service_container/alias_private.html#marking-services-as-public-private).
+
+## Source
+
+There's a GitHub repository available, containing this example source.
+Check it out [here](https://github.com/shopware/swag-docs-custom-service).

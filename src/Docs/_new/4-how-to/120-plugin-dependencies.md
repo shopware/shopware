@@ -71,3 +71,8 @@ Just as in composer itself, you can also use version wildcards, such as `v1.0.*`
 minor version to be 1.1, not considering the patch version.
 
 Now your plugin isn't installable anymore, until that requirement is fulfilled.
+
+## Source
+
+There's a GitHub repository available, containing this example source.
+Check it out [here](https://github.com/shopware/swag-docs-plugin-dependency).

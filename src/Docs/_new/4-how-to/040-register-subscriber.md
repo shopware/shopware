@@ -94,3 +94,8 @@ to be recognized as such.
 
 That's it, your subscriber service is now automatically loaded at runtime and it should start listening to the mentioned events
 to be dispatched.
+
+## Source
+
+There's a GitHub repository available, containing this example source.
+Check it out [here](https://github.com/shopware/swag-docs-subscriber-plugin).

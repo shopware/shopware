@@ -67,3 +67,8 @@ class DecoratedService
 ```
 
 Note: It's **highly recommended** to work with interfaces when using the decoration pattern.
+
+## Source
+
+There's a GitHub repository available, containing this example source.
+Check it out [here](https://github.com/shopware/swag-docs-service-decoration).

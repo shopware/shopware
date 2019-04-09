@@ -246,3 +246,8 @@ $customId = $customRepository->searchIds(
 In this example, the ID of your custom entity, whose technical name equals to 'FOO', is requested.
 
 As a follow up, you might want to have a look at the documentation on [How to translate custom entities](./060-custom-entity-translations.md).
+
+## Source
+
+There's a GitHub repository available, containing this example source.
+Check it out [here](https://github.com/shopware/swag-docs-custom-entity).

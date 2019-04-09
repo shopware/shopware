@@ -111,3 +111,8 @@ Make sure the path in the following file actually fits.
 
 Now you can simply run `bin/phpunit.sh` inside your plugin root directory to execute your plugin's tests.
 Also make sure to have a look at the [Symfony PHPUnit documentation](https://symfony.com/doc/current/testing.html).
+
+## Source
+
+There's a GitHub repository available, containing this example source.
+Check it out [here](https://github.com/shopware/swag-docs-plugin-testing).

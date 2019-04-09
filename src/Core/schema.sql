@@ -5,6 +5,7 @@ CREATE TABLE `plugin` (
     `active`              TINYINT(1)                              NOT NULL DEFAULT 0,
     `managed_by_composer` TINYINT(1)                              NOT NULL DEFAULT 0,
     `path`                VARCHAR(255) COLLATE utf8mb4_unicode_ci NULL,
+    `namespaces`          JSON                                    NULL,
     `author`              VARCHAR(255) COLLATE utf8mb4_unicode_ci NULL,
     `copyright`           VARCHAR(255) COLLATE utf8mb4_unicode_ci NULL,
     `license`             VARCHAR(255) COLLATE utf8mb4_unicode_ci NULL,

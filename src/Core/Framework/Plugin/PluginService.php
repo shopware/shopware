@@ -114,6 +114,7 @@ class PluginService
                 'license' => implode(', ', $license),
                 'version' => $pluginVersion,
                 'iconRaw' => $this->getPluginIconRaw($pluginPath . '/' . $pluginIconPath),
+                'namespaces' => $info->getAutoload()['psr-4'] ?? null,
                 'managedByComposer' => $pluginFromFileSystem->getManagedByComposer(),
             ];
 

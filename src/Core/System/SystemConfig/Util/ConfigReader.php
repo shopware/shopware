@@ -21,7 +21,7 @@ class ConfigReader extends XmlReader
     public function getConfigFromBundle(Bundle $bundle): array
     {
         $bundleConfigPath = $bundle->getConfigPath();
-        $configPath = $bundle->getPath() . $bundleConfigPath;
+        $configPath = $bundle->getPath() . '/' . ltrim($bundleConfigPath, '/');
 
         if (!is_file($configPath)) {
             throw new BundleConfigNotFoundException($bundleConfigPath, $bundle->getName());

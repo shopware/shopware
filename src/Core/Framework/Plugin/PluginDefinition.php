@@ -15,6 +15,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\WriteProtected;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
@@ -46,6 +47,7 @@ class PluginDefinition extends EntityDefinition
             (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
             (new StringField('name', 'name'))->addFlags(new Required()),
             new StringField('composer_name', 'composerName'),
+            new JsonField('namespaces', 'namespaces'),
             new BoolField('active', 'active'),
             new BoolField('managed_by_composer', 'managedByComposer'),
             new StringField('path', 'path'),

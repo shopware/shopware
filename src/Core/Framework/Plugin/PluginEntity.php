@@ -131,6 +131,11 @@ class PluginEntity extends Entity
      */
     protected $attributes;
 
+    /**
+     * @var array|null
+     */
+    protected $namespaces;
+
     public function getName(): string
     {
         return $this->name;
@@ -369,6 +374,16 @@ class PluginEntity extends Entity
     public function setAttributes(?array $attributes): void
     {
         $this->attributes = $attributes;
+    }
+
+    public function getNamespaces(): ?array
+    {
+        return $this->namespaces;
+    }
+
+    public function setNamespaces(array $namespaces): void
+    {
+        $this->namespaces = $namespaces;
     }
 
     public function jsonSerialize(): array

@@ -51,7 +51,7 @@ class TemplateFinder
         $bundles = $this->bundles;
 
         foreach ($bundle->getViewPaths() as $directory) {
-            $directory = $bundlePath . $directory;
+            $directory = $bundlePath . '/' . ltrim($directory, '/');
             if (!file_exists($directory)) {
                 continue;
             }

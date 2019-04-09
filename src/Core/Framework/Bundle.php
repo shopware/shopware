@@ -48,24 +48,23 @@ abstract class Bundle extends SymfonyBundle
     public function getViewPaths(): array
     {
         return [
-            '/Resources/views/',
-            '/Resources/',
+            'Resources/views',
         ];
     }
 
     public function getAdministrationEntryPath(): string
     {
-        return '/Resources/administration/';
+        return 'Resources/administration';
     }
 
     public function getStorefrontEntryPath(): string
     {
-        return '/Resources/storefront/';
+        return 'Resources/storefront';
     }
 
     public function getConfigPath(): string
     {
-        return '/Resources/config/config.xml';
+        return 'Resources/config/config.xml';
     }
 
     public function getMigrationNamespace(): string
@@ -76,13 +75,23 @@ abstract class Bundle extends SymfonyBundle
     public function configureRoutes(RouteCollectionBuilder $routes, string $environment): void
     {
         $fileSystem = new Filesystem();
-        $confDir = $this->getPath() . $this->getRoutesPath();
+        $confDir = $this->getPath() . '/' . ltrim($this->getRoutesPath(), '/');
 
         if ($fileSystem->exists($confDir)) {
             $routes->import($confDir . '/{routes}/*' . Kernel::CONFIG_EXTS, '/', 'glob');
             $routes->import($confDir . '/{routes}/' . $environment . '/**/*' . Kernel::CONFIG_EXTS, '/', 'glob');
             $routes->import($confDir . '/{routes}' . Kernel::CONFIG_EXTS, '/', 'glob');
         }
+    }
+
+    protected function getRoutesPath(): string
+    {
+        return 'Resources/config/';
+    }
+
+    protected function getServicesFilePath(): string
+    {
+        return 'Resources/config/services.xml';
     }
 
     protected function registerFilesystem(ContainerBuilder $container, string $key): void
@@ -133,11 +142,6 @@ abstract class Bundle extends SymfonyBundle
         $definition->addMethodCall('addMultiple', [$this->getActionEvents()]);
     }
 
-    protected function getRoutesPath(): string
-    {
-        return '/Resources/config/';
-    }
-
     protected function getActionEvents(): array
     {
         return [];
@@ -146,17 +150,12 @@ abstract class Bundle extends SymfonyBundle
     protected function registerContainerFile(ContainerBuilder $container): void
     {
         $fileSystem = new Filesystem();
-        $containerFilePath = $this->getPath() . $this->getServicesFilePath();
-        if (!$fileSystem->exists($containerFilePath)) {
+        $containerFilePath = ltrim($this->getServicesFilePath(), '/');
+        if (!$fileSystem->exists($this->getPath() . '/' . $containerFilePath)) {
             return;
         }
 
         $loader = new XmlFileLoader($container, new FileLocator($this->getPath()));
         $loader->load($containerFilePath);
-    }
-
-    protected function getServicesFilePath(): string
-    {
-        return '/Resources/config/services.xml';
     }
 }

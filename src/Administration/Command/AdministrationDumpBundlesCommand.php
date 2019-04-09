@@ -57,22 +57,22 @@ class AdministrationDumpBundlesCommand extends Command
             }
             $bundleName = $bundle->getName();
 
-            $adminEntryPath = $bundle->getAdministrationEntryPath();
+            $adminEntryPath = trim($bundle->getAdministrationEntryPath(), '/');
             // First try to load the main.js, otherwise try the main.ts
-            $indexFile = $this->locateResource($bundleName, $adminEntryPath . 'main.js')
-                ?? $this->locateResource($bundleName, $adminEntryPath . 'main.ts');
+            $indexFile = $this->locateResource($bundleName, '/' . $adminEntryPath . '/main.js')
+                ?? $this->locateResource($bundleName, '/' . $adminEntryPath . '/main.ts');
 
             if (!$indexFile) {
                 continue;
             }
 
             $baseDirectory = $this->locateResource($bundleName);
-            $customWebPackConfig = $this->locateResource($bundleName, $adminEntryPath . 'build/webpack.config.js');
+            $customWebPackConfig = $this->locateResource($bundleName, '/' . $adminEntryPath . '/build/webpack.config.js');
 
             // return the path relative to the project dir
             $bundles[$bundleName] = [
                 'basePath' => rtrim($baseDirectory, '/') . '/',
-                'viewPath' => $this->locateResource($bundleName, $adminEntryPath),
+                'viewPath' => $this->locateResource($bundleName, '/' . $adminEntryPath),
                 'entry' => $this->getPathRelativeToProjectDir($indexFile),
                 'webpackConfig' => $customWebPackConfig ? $this->getPathRelativeToProjectDir($customWebPackConfig) : false,
             ];

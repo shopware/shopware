@@ -66,7 +66,6 @@ Component.register('sw-attribute-set-detail-base', {
                     }
                 });
 
-                // Object.assign(entity, { translated: searchField });
                 entity = Object.assign({}, entity, { searchField: searchField });
                 entityNameStoreEntities.push(entity);
             });

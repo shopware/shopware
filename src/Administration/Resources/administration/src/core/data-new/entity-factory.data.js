@@ -62,12 +62,12 @@ export default class EntityFactory {
     createCollection(entity, id, property, related, context) {
         const subRoute = property.replace(/_/g, '-');
         const route = entity.replace(/_/g, '-');
-        const source = `${route}/${id}/${subRoute}`;
+        const source = `/${route}/${id}/${subRoute}`;
 
         const criteria = new Criteria();
         criteria.setLimit(10);
         criteria.setPage(1);
 
-        return new EntityCollection(source, related, context, criteria);
+        return new EntityCollection(source, related, context, criteria, this.view);
     }
 }

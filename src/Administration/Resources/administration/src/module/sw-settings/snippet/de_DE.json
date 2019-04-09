@@ -5,12 +5,6 @@
     },
     "index": {
       "title": "Einstellungen"
-    },
-    "sw-system-config": {
-      "titleSaveSuccess":"Konfiguration gespeichert",
-      "messageSaveSuccess":"Die Konfiguration wurde erfolgreich gespeichert.",
-      "save": "Speichern",
-      "title": "{title} Konfiguration"
     }
   }
 }

@@ -7,15 +7,14 @@ Component.register('sw-system-config', {
 
     template,
 
-    mixins: [Mixin.getByName('notification'), Mixin.getByName('sw-inline-snippet')],
-    inject: ['systemConfigApiService'],
+    mixins: [
+        Mixin.getByName('notification'),
+        Mixin.getByName('sw-inline-snippet')
+    ],
 
+    inject: ['systemConfigApiService', 'getDetailComponent'],
 
     props: {
-        title: {
-            required: true,
-            type: String
-        },
         domain: {
             required: true,
             type: String
@@ -25,6 +24,7 @@ Component.register('sw-system-config', {
     data() {
         return {
             salesChannelId: null,
+            isLoading: false,
             config: {},
             actualConfigData: {}
         };
@@ -34,8 +34,16 @@ Component.register('sw-system-config', {
         this.createdComponent();
     },
 
+    destroyedComponent() {
+        this.destroyedComponent();
+    },
+
     methods: {
         createdComponent() {
+            this.getDetailComponent().$on('save', () => {
+                this.saveAll();
+            });
+
             this.readConfig()
                 .then(this.readAll)
                 .catch(({ response: { data } }) => {
@@ -43,6 +51,11 @@ Component.register('sw-system-config', {
                         this.createErrorNotification(data.errors);
                     }
                 });
+        },
+        destroyedComponent() {
+            this.getDetailComponent().$off('save', () => {
+                this.saveAll();
+            });
         },
         readConfig() {
             this.isLoading = true;
@@ -66,14 +79,13 @@ Component.register('sw-system-config', {
         },
         saveAll() {
             this.isLoading = true;
-            this.systemConfigApiService.saveValues(this.actualConfigData, this.salesChannelId).then(() => {
-                this.createNotificationSuccess({
-                    title: this.$tc('sw-settings.sw-system-config.titleSaveSuccess'),
-                    message: this.$tc('sw-settings.sw-system-config.messageSaveSuccess')
+            const savePromise = this.systemConfigApiService
+                .saveValues(this.actualConfigData, this.salesChannelId)
+                .finally(() => {
+                    this.isLoading = false;
                 });
-            }).finally(() => {
-                this.isLoading = false;
-            });
+
+            this.$emit('save', savePromise);
         },
         createErrorNotification(errors) {
             let message = `<div>${this.$tc(

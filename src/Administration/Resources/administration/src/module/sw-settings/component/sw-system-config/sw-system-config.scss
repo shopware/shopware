@@ -1,3 +1,5 @@
-.sw-system-config__config-element:not(:first-child){
-  padding-top: 20px;
+.sw-system-config {
+    .sw-select {
+        margin-bottom: 22px;
+    }
 }

@@ -123,5 +123,12 @@
       "messageUpdatesSuccess":"Die Plugins wurden erfolgreich aktualisiert",
       "cancelUpdates": "Abbrechen"
     }
+  },
+  "sw-plugin-config": {
+    "buttonSave": "Speichern",
+    "buttonCancel": "Abbrechen",
+    "titleSaveSuccess": "Konfiguration gespeichert",
+    "messageSaveSuccess": "Die Konfiguration wurde erfolgreich gespeichert.",
+    "titleSaveError": "Fehler beim Speichern der Konfiguration"
   }
 }

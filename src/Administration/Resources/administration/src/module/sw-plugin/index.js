@@ -68,7 +68,10 @@ Module.register('sw-plugin', {
         },
         settings: {
             component: pluginSettings,
-            path: 'settings/:namespace'
+            path: 'settings/:namespace',
+            meta: {
+                parentPath: 'sw.plugin.index'
+            }
         }
     },
 

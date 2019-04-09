@@ -53,6 +53,7 @@ class TemplateFinder
 
             array_unshift($bundles, $bundle->getName());
             $this->loader->addPath($directory, $bundle->getName());
+            $this->loader->addPath($directory);
         }
 
         $this->bundles = array_unique($bundles);

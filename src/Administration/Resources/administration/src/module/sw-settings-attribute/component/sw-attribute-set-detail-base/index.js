@@ -56,7 +56,7 @@ Component.register('sw-attribute-set-detail-base', {
             const entityNameStoreEntities = [];
 
             entityNames.forEach((name) => {
-                const entity = this.attributeSetRelationStore.create();
+                let entity = this.attributeSetRelationStore.create();
                 this.attributeSetRelationStore.removeById(entity.id);
                 entity.entityName = name;
                 const searchField = { name: name };
@@ -65,8 +65,9 @@ Component.register('sw-attribute-set-detail-base', {
                         searchField[locale] = this.$tc(`global.entities.${name}`, 2, locale);
                     }
                 });
-                entity.meta.viewData.searchField = searchField;
-                entity.meta.viewData.entityName = name;
+
+                // Object.assign(entity, { translated: searchField });
+                entity = Object.assign({}, entity, { searchField: searchField });
                 entityNameStoreEntities.push(entity);
             });
 

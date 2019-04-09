@@ -36,7 +36,9 @@ exports.command = function fillSwSelectComponent(
 
     if (!isMulti) {
         // open results list
-        this.click(`${selector}`).waitForElementVisible(`${selector} ${swSelectResultsCssSelector}`);
+        this.moveToElement(`${selector}`, 3, 3)
+            .mouseButtonClick('left')
+            .waitForElementVisible(`${selector} ${swSelectResultsCssSelector}`);
     }
 
     // type in the search term if available
@@ -62,7 +64,7 @@ exports.command = function fillSwSelectComponent(
     this.expect.element(`${selector} ${swSelectedItemCssSelector}`).to.have.text.that.contains(value);
 
     // close search results
-    this.setValue(`${selector} ${inputCssSelector}`, this.Keys.ESCAPE);
-
+    this.setValue(`${selector} ${inputCssSelector}`, this.Keys.ESCAPE)
+        .waitForElementNotPresent(`${selector} ${swSelectResultsCssSelector}`);
     return this;
 };

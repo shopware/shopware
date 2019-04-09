@@ -39,16 +39,16 @@ module.exports = {
 
         browser
             .clickContextMenuItem('.sw-context-menu-item--danger', page.elements.contextMenuButton, `${page.elements.gridRow}--0`)
-            .expect.element(`${page.elements.modal}__body`).to.have.text.that.equals(`Are you sure you want to reset the snippet "${global.SnippetFixtureService.snippetFixture.translationKey}" for this set?`);
+            .expect.element(`${page.elements.modal}__body`).to.have.text.that.contains(`Are you sure you want to delete the snippets for "${global.SnippetFixtureService.snippetFixture.translationKey}"?`);
 
         browser
             .click(`${page.elements.modalFooter} button${page.elements.primaryButton}`)
             .waitForElementNotPresent(page.elements.modal)
-            .checkNotification(`Snippet "${global.SnippetFixtureService.snippetFixture.value}" has been reset to "" successfully.`);
+            .checkNotification(`Snippet "${global.SnippetFixtureService.snippetFixture.value}" has been reset to "${global.SnippetFixtureService.snippetFixture.value}" successfully.`);
     },
     'verify deletion of snippet': (browser) => {
         const page = settingsPage(browser);
 
-        browser.expect.element(`${page.elements.gridRow}--0`).to.have.text.that.not.contains('Mine yours theirs');
+        browser.expect.element(`${page.elements.gridRow}--0`).to.have.text.that.not.contains(global.SnippetFixtureService.snippetFixture.translationKey);
     }
 };

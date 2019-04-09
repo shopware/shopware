@@ -35,12 +35,7 @@ class Migration1552464237SalutationDefaultsCustomerUpdate extends MigrationStep
 
         $connection->executeQuery('
             ALTER TABLE `customer`
-            ADD `salutation_id` BINARY(16) NULL AFTER `customer_number`,
-            ADD CONSTRAINT `fk.customer.salutation_id`
-              FOREIGN KEY (`salutation_id`)
-              REFERENCES `salutation` (`id`)
-              ON DELETE RESTRICT
-              ON UPDATE CASCADE
+            ADD `salutation_id` BINARY(16) NULL AFTER `customer_number`;
         ');
 
         $connection->executeQuery('
@@ -51,6 +46,15 @@ class Migration1552464237SalutationDefaultsCustomerUpdate extends MigrationStep
         $connection->executeQuery('
             ALTER TABLE `customer`
             CHANGE `salutation_id` `salutation_id` BINARY(16) NOT NULL;
+        ');
+
+        $connection->executeQuery('
+            ALTER TABLE `customer`
+            ADD CONSTRAINT `fk.customer.salutation_id`
+              FOREIGN KEY (`salutation_id`)
+              REFERENCES `salutation` (`id`)
+              ON DELETE RESTRICT
+              ON UPDATE CASCADE
         ');
     }
 
@@ -63,12 +67,7 @@ class Migration1552464237SalutationDefaultsCustomerUpdate extends MigrationStep
 
         $connection->executeQuery('
                 ALTER TABLE `customer_address`
-                ADD `salutation_id` BINARY(16) NULL AFTER `department`,
-                ADD CONSTRAINT `fk.customer_address.salutation_id`
-                  FOREIGN KEY (`salutation_id`)
-                  REFERENCES `salutation` (`id`)
-                  ON DELETE RESTRICT
-                  ON UPDATE CASCADE
+                ADD `salutation_id` BINARY(16) NULL AFTER `department`;
             ');
 
         $connection->executeQuery('
@@ -79,6 +78,14 @@ class Migration1552464237SalutationDefaultsCustomerUpdate extends MigrationStep
         $connection->executeQuery('
                 ALTER TABLE `customer_address`
                 CHANGE `salutation_id` `salutation_id` BINARY(16) NOT NULL;
+            ');
+        $connection->executeQuery('
+                ALTER TABLE `customer_address`
+                ADD CONSTRAINT `fk.customer_address.salutation_id`
+                  FOREIGN KEY (`salutation_id`)
+                  REFERENCES `salutation` (`id`)
+                  ON DELETE RESTRICT
+                  ON UPDATE CASCADE;
             ');
     }
 
@@ -91,12 +98,7 @@ class Migration1552464237SalutationDefaultsCustomerUpdate extends MigrationStep
 
         $connection->executeQuery('
                 ALTER TABLE `order_customer`
-                ADD `salutation_id` BINARY(16) NULL AFTER `email`,
-                ADD CONSTRAINT `fk.order_customer.salutation_id`
-                  FOREIGN KEY (`salutation_id`)
-                  REFERENCES `salutation` (`id`)
-                  ON DELETE RESTRICT
-                  ON UPDATE CASCADE
+                ADD `salutation_id` BINARY(16) NULL AFTER `email`;
             ');
 
         $connection->executeQuery('
@@ -107,6 +109,15 @@ class Migration1552464237SalutationDefaultsCustomerUpdate extends MigrationStep
         $connection->executeQuery('
                 ALTER TABLE `order_customer`
                 CHANGE `salutation_id` `salutation_id` BINARY(16) NOT NULL;
+            ');
+
+        $connection->executeQuery('
+                ALTER TABLE `order_customer`
+                ADD CONSTRAINT `fk.order_customer.salutation_id`
+                  FOREIGN KEY (`salutation_id`)
+                  REFERENCES `salutation` (`id`)
+                  ON DELETE RESTRICT
+                  ON UPDATE CASCADE
             ');
     }
 
@@ -119,12 +130,7 @@ class Migration1552464237SalutationDefaultsCustomerUpdate extends MigrationStep
 
         $connection->executeQuery('
                 ALTER TABLE `order_address`
-                ADD `salutation_id` BINARY(16) NULL AFTER `department`,
-                ADD CONSTRAINT `fk.order_address.salutation_id`
-                  FOREIGN KEY (`salutation_id`)
-                  REFERENCES `salutation` (`id`)
-                  ON DELETE RESTRICT
-                  ON UPDATE CASCADE
+                ADD `salutation_id` BINARY(16) NULL AFTER `department`;
             ');
 
         $connection->executeQuery('
@@ -135,6 +141,15 @@ class Migration1552464237SalutationDefaultsCustomerUpdate extends MigrationStep
         $connection->executeQuery('
                 ALTER TABLE `order_address`
                 CHANGE `salutation_id` `salutation_id` BINARY(16) NOT NULL;
+            ');
+
+        $connection->executeQuery('
+                ALTER TABLE `order_address`
+                ADD CONSTRAINT `fk.order_address.salutation_id`
+                  FOREIGN KEY (`salutation_id`)
+                  REFERENCES `salutation` (`id`)
+                  ON DELETE RESTRICT
+                  ON UPDATE CASCADE
             ');
     }
 }

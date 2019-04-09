@@ -1,17 +1,18 @@
 [titleEn]: <>(Plugin configuration)
 
-The `Shopware plugin system` provides you with the option,
-to create a configuration page for your plugin without any knowledge of templating or the `Shopware Administration`.
-All you need to do is creating a `config.xml` file inside of a `Resources` directory in your plugin root.
+The `Shopware plugin system` provides you with the option to create a configuration page for your plugin without any knowledge of templating or the `Shopware Administration`.
+All you need to do is creating a `config.xml` file inside of a `Resources/config` directory in your plugin root.
 The content of the `config.xml` will be dynamically rendered in the administration.
 Below you'll find an example structure.
 
 ```
 └── plugins
     └── PluginConfig
-        ├── Resources
-        │   └── config.xml
-        ├── PluginConfig.php
+        ├── src
+        │   ├── Resources
+        │   │   └── config
+        │   │       └── config.xml 
+        │   └── PluginConfig.php
         └── composer.json
 ```
 
@@ -32,12 +33,13 @@ Below you'll find the minimum `config.xml`.
     </card>
 </config>
 ```
-*Resources/config.xml*
+*Resources/config/config.xml*
 
 Please make sure to specify the `xsi:noNamespaceSchemaLocation` as shown above and fetch the external resource into your IDE if possible.
 This enables auto-completion and suggestions for this XML file and will therefore help you to prevent issues and bugs.
 
 ## Card Titles
+
 A `<card>` `<title>` is translatable, this is managed via the `lang` attribute.
 By default the `lang` attribute is set to `en_GB`, to change the locale of a `<title>` just add the attribute as follows:
 
@@ -51,11 +53,13 @@ By default the `lang` attribute is set to `en_GB`, to change the locale of a `<t
 ```
 
 ## Configuring input fields
+
 As you can see above, every `<input-field>` has to contain at least a `<name>` element.
 The `<name>` element is not translatable and has to be unique, since it will be used as the technical identifier for the config element.
 The field `<name>` must at least be 4 characters long and consist of only lower and upper case letters.
 
 ## The different types of input field
+
 Your `<input-field>` can be of different types, this is managed via the `type` attribute.
 Unless defined otherwise, your `<input-field>` will be a text field per default.
 Below you'll find a list of all available `<input-field type="?">`.
@@ -76,11 +80,13 @@ Below you'll find a list of all available `<input-field type="?">`.
 
 
 ## Options
+
 Options are used to configure your `<input-field>`.
 **Every `<input-field>` has to start with the `<name>` element.**
 After the `<name>` element you can configure any of the other options mentioned above.
 
 ### disabled
+
 You can add the `<disabled>` option to any of your `<input-field>` elements to disable it.
 
 Below you'll find an example how to use this option.
@@ -94,6 +100,7 @@ Below you'll find an example how to use this option.
 *Please note, `<disabled>` only takes boolean values.*
 
 ### copyable
+
 You can add the `<copyable>` option to your `<input-field>` with the default type `text`.
 This will add a button at the right, which on click copies the content of your `<input-field>` into the clipboard.
 
@@ -108,6 +115,7 @@ Below you'll find an example how to use this option.
 *Please note, that `<copyable>` only takes boolean values*
 
 ### options
+
 You can use `<options>` to add options to a `<input-field>` of the types `select` and `radio`.
 For the type `select` each `<option>` represents one option you can select.
 For the type `radio` each `<option>` represents one radio button.
@@ -137,6 +145,7 @@ Each `<option>` element must contain at least one `<value>` and one `<label>` el
 As you can see above, `<label>` elements are translatable via the `lang` attribute.
 
 ### Label, placeholder and help text
+
 The options `<label>`, `<placeholder>` and `<helpText>` are used to label and explain your `<input-field>` and are translatable.
 You define your `<label>`, `<placeholder>` and `<helpText>` the same way as the `<card><title>`, with the `lang` attribute.
 Please remember, that the `lang` attribute is set to `en_GB` per default.
@@ -155,6 +164,7 @@ Below you'll find an example.
 ```
 
 ## Example
+
 Now all that's left to do is to present you a working example `config.xml` and show you the result.
 
 ```xml

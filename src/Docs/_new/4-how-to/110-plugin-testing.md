@@ -38,7 +38,7 @@ Here's what your plugin's `phpunit.xml.dist` file could look like:
 
     <testsuites>
         <testsuite name="Example Testsuite">
-            <directory>Test</directory>
+            <directory>tests/</directory>
         </testsuite>
     </testsuites>
 
@@ -52,14 +52,14 @@ Here's what your plugin's `phpunit.xml.dist` file could look like:
 
 You're also free to add and remove configurations, so the testsuite perfectly fits your needs.
 Important to note is the `bootstrap` configuration in the `phpunit` element.
-In this example, you're required to put your tests into the `Test` directory.
+In this example, you're required to put your tests into the `tests` directory.
 
 Here's an example test, which simply tries to instantiate every `.php` class, to see if any used core classes
 went missing:
 ```php
 <?php declare(strict_types=1);
 
-namespace PluginTesting\Test;
+namespace Swag\PluginTestingTests;
 
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use PHPUnit\Framework\TestCase;

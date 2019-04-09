@@ -13,7 +13,7 @@
         "shopware/platform": "@latest"
     },
     "extra": {
-        "installer-name": "SwagCustomRule",
+        "shopware-plugin-class": "SwagCustomRule\\SwagCustomRule",
         "copyright": "(c) by shopware AG",
         "label": {
             "de_DE": "Weitere Regeln für Shopware",

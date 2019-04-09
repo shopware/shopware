@@ -11,7 +11,7 @@ You don't have to override any method in the plugin's base class for this subjec
 ```php
 <?php declare(strict_types=1);
 
-namespace SalesChannelApiController;
+namespace Swag\SalesChannelApiController;
 
 use Shopware\Core\Framework\Plugin;
 
@@ -23,13 +23,13 @@ class SalesChannelApiController extends Plugin
 ## Loading the controllers via routes.xml
 
 The `routes.xml` file is necessary to introduce your controllers to the Shopware platform.
-The Shopware platform automatically searches for an `xml` file in a `Resources/config/` folder, whose path contains `routes`.
+The Shopware platform automatically searches for an `xml` file in a `src/Resources/config/` directory, whose path contains `routes`.
 Therefore possible default locations would be:
-- <plugin-root>/Resources/config/**routes**.xml
-- <plugin-root>/Resources/config/**routes**/my_controller.xml
+- <plugin-root>/src/Resources/config/**routes**.xml
+- <plugin-root>/src/Resources/config/**routes**/my_controller.xml
 
 Since only a single `xml` file is necessary for this example, the file is called `routes.xml` and will be put
-into the `<plugin root>/Resources/config` directory.
+into the `<plugin root>/src/Resources/config` directory.
 
 It only has to contain the path to the plugins controllers.
 This example will have it's API controller inside a `Controller` folder.
@@ -48,13 +48,13 @@ This example will have it's API controller inside a `Controller` folder.
 
 ## The controller class
 
-Next you create a folder `Controller` inside your plugin root and in there you create a new `php` file for your actual controller.
+Next you create a directory `src/Controller` inside your plugin root and in there you create a new `php` file for your actual controller.
 
 Here's an example of what the controller could then look like:
 ```php
 <?php declare(strict_types=1);
 
-namespace SalesChannelApiController\Controller;
+namespace Swag\SalesChannelApiController\Controller;
 
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Routing\Annotation\Route;

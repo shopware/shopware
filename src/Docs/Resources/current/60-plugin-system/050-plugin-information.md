@@ -24,7 +24,7 @@ Have a look at the [composer schema](https://getcomposer.org/doc/04-schema.md), 
         "shopware/platform": "1.1.1"
     },
     "extra": {
-        "installer-name": "SwagPayPal",
+        "shopware-plugin-class": "SwagPayPal\\SwagPayPal",
         "copyright": "(c) by shopware AG",
         "label": {
             "de_DE": "PayPal Produkte für Shopware",
@@ -58,7 +58,7 @@ Have a look at the [composer schema](https://getcomposer.org/doc/04-schema.md), 
 | authors | Collection of the authors of your plugin |
 | require | Add your dependencies here. This should be `shopware/platform`, but could also be another plugin or composer package |
 | extra | The `extra` property is used to provide some Shopware specific information |
-| extra - installer-name | The technical name of your plugin. Must be unique and should contain your vendor prefix |
+| extra - shopware-plugin-class | The technical name of your plugin. Must be unique and should contain your vendor prefix |
 | extra - copyright | Set a copyright for your plugin |
 | extra - label | The name of your plugin which is displayed to the Shopware user. [Translatable](#translations) |
 | extra - description | The description of your plugin which is displayed to the Shopware user. [Translatable](#translations) |

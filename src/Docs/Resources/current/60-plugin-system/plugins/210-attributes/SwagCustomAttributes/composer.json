@@ -10,7 +10,7 @@
         }
     ],
     "extra": {
-        "installer-name": "SwagCustomAttribute",
+        "shopware-plugin-class": "SwagCustomAttribute\\SwagCustomAttribute",
         "copyright": "(c) by shopware AG",
         "label": {
             "de_DE": "Weitere Freitextfelder",

@@ -10,31 +10,10 @@ so you don't have to take care about the data handling at all.
 
 So let's start with the plugin base class.
 
-All it has to do, is to register your `services.xml` file again.
+All it has to do, is to register your `services.xml` file by simply putting it into the proper directory `<plugin root>/src/Resources/config/`.
+This way, the Shopware platform is able to automatically find and load your `services.xml` file.
 
-```php
-<?php declare(strict_types=1);
-
-namespace CustomEntity;
-
-use Shopware\Core\Framework\Plugin;
-use Symfony\Component\Config\FileLocator;
-use Symfony\Component\DependencyInjection\ContainerBuilder;
-use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
-
-class CustomEntity extends Plugin
-{
-    public function build(ContainerBuilder $container): void
-    {
-        parent::build($container);
-        $loader = new XmlFileLoader($container, new FileLocator(__DIR__ . '/DependencyInjection/'));
-        $loader->load('services.xml');
-    }
-}
-```
-
-*Note: The namespace does **not** have to include `Entity` in order to work. This is just the plugin's namespace,
-since this example plugin is named `CustomEntity`.*
+*Note: You can change your plugin's `services.xml` location by overriding the method `getContainerPath` of your [plugin's base class](../2-internals/4-plugins/020-plugin-base-class.md#getContainerPath()).*
 
 ## The EntityDefinition class
 
@@ -44,12 +23,12 @@ For more information about what the `EntityDefinition` class does, have a look a
 Your custom entity, as well as your `EntityDefinition` and the `EntityCollection` classes, should be placed inside a folder
 named after the domain it handles, e.g. "Checkout" if you were to include a Checkout entity.
 
-In this example, they will be put into a folder called `Custom` inside of the plugin root directory.
+In this example, they will be put into a folder called `src/Custom` inside of the plugin root directory.
 
 ```php
 <?php declare(strict_types=1);
 
-namespace CustomEntity\Custom;
+namespace Swag\CustomEntity\Custom;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CreatedAtField;
@@ -107,7 +86,7 @@ The entity class itself is a simple value object, like a struct, which contains 
 ```php
 <?php declare(strict_types=1);
 
-namespace CustomEntity\Custom;
+namespace Swag\CustomEntity\Custom;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
@@ -174,7 +153,7 @@ It will be automatically returned by the DAL when dealing with the custom entity
 ```php
 <?php declare(strict_types=1);
 
-namespace CustomEntity\Custom;
+namespace Swag\CustomEntity\Custom;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
@@ -201,20 +180,21 @@ Make sure to replace every occurrence of `CustomEntity` in there with your actua
 
 ## Creating the table
 
-Basically that's it for your custom entity itself.
+Basically that's it for your custom entity.
 Yet, there's a very important part missing: Creating the database table.
 As already mentioned earlier, the database table **has to** be named after your chosen entity name.
 
 You should create the database table using the plugin migration system.
-Read more about it [here](./170-plugin-migrations.md).
+For a short example how to use migrations, have a look [here](./170-plugin-migrations.md).
+A more detailed explanation about the plugin migration system can be found in [this guide](../2-internals/4-plugins/080-plugin-migrations.md).
 
 In short:
-Create a new folder named `Migration` in your plugin root and add a migration class like this in there:
+Create a new directory named `src/Resources/migration` in your plugin root and add a migration class like this in there:
 
 ```php
 <?php declare(strict_types=1);
 
-namespace CustomEntity\Migration;
+namespace Swag\CustomEntity\Migration;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Migration\MigrationStep;

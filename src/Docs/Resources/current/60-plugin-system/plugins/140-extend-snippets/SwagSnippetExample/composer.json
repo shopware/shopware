@@ -10,7 +10,7 @@
         }
     ],
     "extra": {
-        "installer-name": "SwagSnippetExample",
+        "shopware-plugin-class": "SwagSnippetExample\\SwagSnippetExample",
         "copyright": "(c) by shopware AG",
         "label": {
             "de_DE": "Beispiel-Textbausteine für Shopware",

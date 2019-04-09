@@ -7,19 +7,20 @@ Throughout this guide, you will find the `$` symbol representing your command li
 
 ## Overview
 
-By default, the Shopware platform is looking for migration files in a folder called `Migration` inside of your
-plugin root directory.
+By default, the Shopware platform is looking for migration files in a directory called `Migration` relative to your plugin's
+base class.
 
 ```
 └── plugins
     └── PluginMigrationExample
-        ├── Migration
-        │   └── Migration1546422281ExampleDescription.php
-        └── PluginMigrationExample.php
+        └── src
+            ├── Migration/
+            │   └── Migration1546422281ExampleDescription.php
+            └── PluginMigrationExample.php
 ```
 *File structure*
 
-As you can see there is one file in the `Migration` directory. Below you find a break down of what each part means.
+As you can see there is one file in the `src/Migration` directory. Below you find a break down of what each part means.
 
 | File Name Snippet       | Meaning                                                   |
 |-------------------------|-----------------------------------------------------------|
@@ -30,6 +31,7 @@ As you can see there is one file in the `Migration` directory. Below you find a 
 
 
 ## Creating A Migration
+
 To create a new migration for your plugin, open your `Shopware` root directory in your terminal.
 The command to create a new migration for your plugin is the `database:create-migration` command.
 Below you can see the command used in this example to create the migration seen above in the file structure.
@@ -53,7 +55,7 @@ If you take a look at your created migration it should look similar to this:
 ```php
 <?php declare(strict_types=1);
 
-namespace PluginMigrationExample\Migration;
+namespace Swag\PluginMigrationExample\Migration;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Migration\MigrationStep;
@@ -92,7 +94,7 @@ Below you find an example of a nondestructive migration, creating a new table fo
 ```php
 <?php declare(strict_types=1);
 
-namespace PluginMigrationExample\Migration;
+namespace Swag\PluginMigrationExample\Migration;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Migration\MigrationStep;
@@ -155,16 +157,18 @@ $ ./bin/console database:migrate --all PluginMigrationExample\\Migration
 $ ./bin/console database:migrate PluginMigrationExample\\Migration --all
 ```
 
-## Customizing the migration path
+## Customizing the migration path / namespace
 
-While the Shopware platform searches for your plugin's migrations in `Migration` directory per default,
+While the Shopware platform searches for your plugin's migrations in a `Migration` directory per default,
 you can manually set another directory to be considered for your plugin.
 
-This is done overwriting your plugin's `getMigrationNamespace` method:
+This is done by choosing another namespace for your migrations, which can be changed by overwriting your plugin's [getMigrationNamespace()](020-plugin-base-class.md#getMigrationNamespace()) method:
 
 ```php
 public function getMigrationNamespace(): string
-{
-    return $this->getNamespace() . '\CustomMigration';
-}
+    {
+        return 'Swag\BaseClass\MyMigrationNamespace';
+    }
 ```
+
+Since the path is read from the namespace, your Migration directory would have to be named `MyMigrationNamespace` now.

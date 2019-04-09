@@ -5,41 +5,15 @@
 Creating a command for the Shopware platform via a plugin works exactly like you would add a command to Symfony.
 Make sure to have a look at the [Symfony commands guide](https://symfony.com/doc/current/console.html#registering-the-command).
 
-The only difference here is, that you need to let the Shopware platform know about your plugin's custom `services.xml` location,
-in which you register your plugin's command.
+## Registering your command
 
-This is done in the plugin's base class.
-
-## Plugin base class
-
-You need to overwrite the base class' `build` method to load your `services.xml` file.
-
-```php
-<?php declare(strict_types=1);
-
-namespace PluginCommands;
-
-use Shopware\Core\Framework\Plugin;
-use Symfony\Component\DependencyInjection\ContainerBuilder;
-use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
-use Symfony\Component\Config\FileLocator;
-
-class PluginCommands extends Plugin
-{
-    public function build(ContainerBuilder $container): void
-    {
-        parent::build($container);
-        $loader = new XmlFileLoader($container, new FileLocator(__DIR__ . '/DependencyInjection/'));
-        $loader->load('services.xml');
-    }
-}
-```
-
-It now tries to load the `services.xml` file inside the `<plugin-root>/DependencyInjection` directory.
+The main requirement here is to have a `services.xml` file loaded in your plugin.
+This can be achieved by placing the file into a `Resources/config` directory relative to your plugin's base class location.
+Make sure to also have a look at the method [getContainerPath()](../2-internals/4-plugins/020-plugin-base-class.md#getContainerPath())
 
 From here on, everything works exactly like in Symfony itself.
 
-Here's an example `services.xml`:
+Here's an example `services.xml` which registers your custom command:
 
 ```xml
 <?xml version="1.0" ?>
@@ -49,7 +23,7 @@ Here's an example `services.xml`:
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
 
     <services>
-        <service id="PluginCommands\Command\ExampleCommand">
+        <service id="Swag\PluginCommands\Command\ExampleCommand">
             <tag name="console.command"/>
         </service>
     </services>
@@ -60,7 +34,7 @@ And the related example command:
 ```php
 <?php declare(strict_types = 1);
 
-namespace PluginCommands\Command;
+namespace Swag\PluginCommands\Command;
 
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -80,6 +54,7 @@ class ExampleCommand extends Command
 }
 ```
 
+In this example, it would be located in the directory `<plugin root>/src/Command`.
 After installing, you can now execute your command by running this command: `bin/console plugin-commands:example`
 
 Make sure to read the full guide about [Symfony commands](https://symfony.com/doc/current/console.html) to understand, how to deal with commands and how they can be configured.

@@ -47,7 +47,8 @@ class ConfigurationService
             throw new BundleNotFoundException($bundleName);
         }
 
-        $config = $this->configReader->getConfigFromBundle($bundle, $scope);
+        // TODO: allow custom config loading
+        $config = $this->configReader->getConfigFromBundle($bundle);
         $domain = $scope . '.' . $bundleName . '.';
 
         foreach ($config as $i => $card) {

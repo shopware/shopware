@@ -18,13 +18,13 @@ class ConfigReader extends XmlReader
     /**
      * @throws BundleConfigNotFoundException
      */
-    public function getConfigFromBundle(Bundle $bundle, ?string $configName = null): array
+    public function getConfigFromBundle(Bundle $bundle, ?string $bundleConfigPath = null): array
     {
-        $bundleConfigPath = $bundle->getConfigPath();
+        $bundleConfigPath = $bundleConfigPath ?? $bundle->getConfigPath();
         $configPath = $bundle->getPath() . '/' . ltrim($bundleConfigPath, '/');
 
         if (!is_file($configPath)) {
-            throw new BundleConfigNotFoundException($bundle->getName(), ($configName ?? 'config') . '.xml');
+            throw new BundleConfigNotFoundException($bundleConfigPath, $bundle->getName());
         }
 
         return $this->read($configPath);

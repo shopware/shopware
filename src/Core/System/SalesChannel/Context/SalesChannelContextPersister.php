@@ -3,8 +3,6 @@
 namespace Shopware\Core\System\SalesChannel\Context;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Core\Framework\Api\Exception\InvalidContextTokenException;
-use Shopware\Core\Framework\Uuid\Uuid;
 
 class SalesChannelContextPersister
 {
@@ -27,7 +25,7 @@ class SalesChannelContextPersister
         $this->connection->executeUpdate(
             'REPLACE INTO storefront_api_context (`token`, `payload`) VALUES (:token, :payload)',
             [
-                'token' => Uuid::fromHexToBytes($token),
+                'token' => $token,
                 'payload' => json_encode($parameters),
             ]
         );
@@ -35,13 +33,9 @@ class SalesChannelContextPersister
 
     public function load(string $token): array
     {
-        if (!Uuid::isValid($token)) {
-            throw new InvalidContextTokenException($token);
-        }
-
         $parameter = $this->connection->fetchColumn(
             'SELECT `payload` FROM storefront_api_context WHERE token = :token',
-            ['token' => Uuid::fromHexToBytes($token)]
+            ['token' => $token]
         );
 
         if (!$parameter) {

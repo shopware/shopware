@@ -4,6 +4,22 @@ namespace Shopware\Docs\Convert;
 
 class RenderedDocument
 {
+    const GLOBAL_STYLE_CONTENT = <<<EOD
+<style type="text/css">
+
+dl dt {
+    font-weight: bolder;
+    margin-top: 1rem;
+}
+
+dl dd {
+    padding-left: 2rem;
+}
+
+</style>
+
+
+EOD;
     /**
      * @var string
      */
@@ -32,7 +48,7 @@ class RenderedDocument
             $result = str_replace($key, $link, $result);
         }
 
-        return $result;
+        return self::GLOBAL_STYLE_CONTENT . $result;
     }
 
     public function getImages(): array

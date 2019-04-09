@@ -79,33 +79,6 @@ class DocumentHtml
         }
 
         return $matches[0];
-//        die;
-//        $related = $this->toAbsolutePath($linkHref);
-//
-//        var_dump($linkAnchor);
-//        return '';
-//
-//        $referencedFile = realpath(dirname($file) . '/' . $linkHref);
-//
-//        if (preg_match('/(?:\.\/.*)\.md(?:#.*)?$/m', $linkHref) === 1) {
-//            if ($referencedFile !== false || strlen($linkAnchor) !== 0) {
-//                return $this->replaceLinkToMarkdown($matches, $file, $metadata, $linkAnchor, $referencedFile);
-//            }
-//
-//            $this->warningStack[] = vsprintf('The markdownfile "%s" referenced in "%s" does not exist !', [$linkHref, $file]);
-//
-//            return $matches[0];
-//        }
-//
-//        if ($linkAnchor !== '') {
-//            return str_replace($matches[1], $this->fixLinkAnchors($linkAnchor), $matches[0]);
-//        }
-//
-//        if ($referencedFile !== false) {
-//            return $this->replaceLinkToMedia($metadata, $matches, $file, $referencedFile);
-//        }
-//
-//        return $matches[0];
     }
 
     private function toAbsolutePath(string $link): string
@@ -128,64 +101,11 @@ class DocumentHtml
         return str_replace($matches[1], $key, $matches[0]);
     }
 
-//    public function replaceLinkToMedia(array &$metadata, array $matches, string $file, string $referencedFile): string
-//    {
-//        if (!key_exists('media', $metadata[$file])) {
-//            $metadata[$file]['media'] = [];
-//        }
-//
-//        $mediaId = count($metadata[$file]['media']);
-//        $mediaStub = '__MEDIAITEM' . $mediaId;
-//        $metadata[$file]['media'][$mediaStub] = $referencedFile;
-//
-//        return str_replace($matches[1], $mediaStub, $matches[0]);
-//    }
-//
-//    public function replaceLinkToMarkdown(array $matches, string $file, array $metadata, string $linkAnchor, $referencedFile): string
-//    {
-//        // If the link contains a anchor, correct it
-//        if ($linkAnchor !== '') {
-//            // If a #-anchor contains a dot '.', replace it with a dash '-'
-//            // Also convert the string to lowercase, as this is the convention for anchors
-//            $linkAnchor = $this->fixLinkAnchors($linkAnchor);
-//        }
-//
-//        if ($referencedFile !== false && is_file($referencedFile)) {
-//            // If the link is another markdown file, check if we previously extracted a wikiUrl from it
-//            if (!key_exists($referencedFile, $metadata) || !key_exists(self::WIKI_URL_TAG, $metadata[$referencedFile])) {
-//                $this->errorStack[]
-//                    = vsprintf('Unable to resolve wikiUrl for the file %s referenced in %s. The resulting link will be broken.', [$referencedFile, $file]);
-//                // Return the original href tag
-//                return $matches[0];
-//            }
-//
-//            // Resolve the markdown filepath and append the anchor if there is any
-//            $resolvedLink = $metadata[$referencedFile][self::WIKI_URL_TAG] . $linkAnchor;
-//
-//            return str_replace($matches[1], $resolvedLink, $matches[0]);
-//        }
-//
-//        $this->warningStack[] = vsprintf('The markdownfile "%s" referenced in "%s" does not exist !', [$matches[1], $file]);
-//
-//        // If there is no filename preceding the anchor, just return the anchor
-//        if ($linkAnchor !== '') {
-//            return str_replace($matches[1], $linkAnchor, $matches[0]);
-//        }
-//
-//        // Nothing to be done
-//        return $matches[0];
-//    }
-
     private function fixLinkAnchors(string $anchor): string
     {
         return '#' . strtolower(str_replace('.', '-', $anchor));
     }
 
-    /**
-     * @param $linkHref
-     *
-     * @return mixed
-     */
     private function resolveLinkUrl(array $matches, DocumentTree $tree, $linkHref, string $linkAnchor): string
     {
         $absolutePath = $this->toAbsolutePath($linkHref);

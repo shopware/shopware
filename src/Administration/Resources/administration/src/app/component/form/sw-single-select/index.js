@@ -1,5 +1,5 @@
 import { Mixin } from 'src/core/shopware';
-import utils from 'src/core/service/util.service';
+import utils, { types } from 'src/core/service/util.service';
 import './sw-single-select.scss';
 import template from './sw-single-select.html.twig';
 
@@ -25,7 +25,7 @@ export default {
             required: false,
             default: ''
         },
-        defaultOptionValue: {
+        defaultOption: {
             type: [Object, String],
             required: false,
             default: null
@@ -75,7 +75,7 @@ export default {
             hasError: false,
             singleSelection: null,
             currentOptions: [],
-            defaultOption: null
+            defaultSelectOption: null
         };
     },
 
@@ -114,8 +114,13 @@ export default {
 
     methods: {
         createdComponent() {
-            if (this.defaultOptionValue) {
-                this.defaultOption = { [this.keyProperty]: null, [this.valueProperty]: this.defaultOptionValue };
+            if (this.defaultOption) {
+                if (types.isString(this.defaultOption)) {
+                    // Create default option with null as keyProperty
+                    this.defaultSelectOption = { [this.keyProperty]: null, [this.valueProperty]: this.defaultOption };
+                } else {
+                    this.defaultSelectOption = this.defaultOption;
+                }
             }
 
             this.init();
@@ -144,8 +149,11 @@ export default {
         },
 
         loadSelected() {
-            if (!this.value && this.defaultOption) {
-                this.singleSelection = this.defaultOption;
+            if (this.defaultSelectOption
+                    && (this.value === this.defaultSelectOption[this.keyProperty]
+                        || (types.isEmpty(this.value) && types.isEmpty(this.defaultSelectOption[this.keyProperty])))
+            ) {
+                this.singleSelection = this.defaultSelectOption;
                 return;
             }
             this.resolveKey(this.value).then((item) => {
@@ -292,7 +300,7 @@ export default {
         navigateUpResults() {
             this.$emit('sw-single-select-on-arrow-up', this.activeResultPosition);
 
-            const firstOptionPosition = (this.defaultOption) ? 0 : 1;
+            const firstOptionPosition = (this.defaultSelectOption) ? 0 : 1;
 
             if (this.activeResultPosition === firstOptionPosition) {
                 return;

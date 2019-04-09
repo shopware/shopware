@@ -50,10 +50,6 @@ export default {
         },
 
         resolveKey(key) {
-            if (!key) {
-                return Promise.resolve(null);
-            }
-
             this.silent = true;
 
             return this.repository.get(key, this.context).then((item) => {

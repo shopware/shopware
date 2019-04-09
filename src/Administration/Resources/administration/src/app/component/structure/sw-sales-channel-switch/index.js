@@ -1,7 +1,6 @@
 import { Component, State } from 'src/core/shopware';
 import { debug } from 'src/core/service/util.service';
 import template from './sw-sales-channel-switch.html.twig';
-import './sw-sales-channel-switch.scss';
 
 /**
  * @public

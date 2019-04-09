@@ -94,10 +94,10 @@
                                             {% block sw_single_select_result_item_list %}
                                                 {% block sw_single_select_result_item_list_default_option %}
                                                     <sw-single-select-option
-                                                            v-if="defaultOption"
-                                                            :index="0" :item="defaultOption">
+                                                            v-if="defaultSelectOption"
+                                                            :index="0" :item="defaultSelectOption">
                                                         <slot name="valueProperty">
-                                                            <span v-html="getInlineSnippet(defaultOption[valueProperty])"></span>
+                                                            <span v-html="getInlineSnippet(defaultSelectOption[valueProperty])"></span>
                                                         </slot>
                                                     </sw-single-select-option>
                                                 {% endblock %}

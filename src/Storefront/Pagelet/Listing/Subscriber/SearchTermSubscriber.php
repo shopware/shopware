@@ -45,7 +45,7 @@ class SearchTermSubscriber implements EventSubscriberInterface
 
         $criteria = $event->getCriteria();
 
-        $pattern = $this->interpreter->interpret($term, ProductDefinition::class, $event->getContext());
+        $pattern = $this->interpreter->interpret($term, ProductDefinition::getEntityName(), $event->getContext());
 
         $keywordField = 'product.searchKeywords.keyword';
         $rankingField = 'product.searchKeywords.ranking';

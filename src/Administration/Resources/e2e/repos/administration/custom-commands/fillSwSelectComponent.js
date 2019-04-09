@@ -64,6 +64,7 @@ exports.command = function fillSwSelectComponent(
     this.expect.element(`${selector} ${swSelectedItemCssSelector}`).to.have.text.that.contains(value);
 
     // close search results
-    this.setValue(`${selector} ${inputCssSelector}`, this.Keys.ESCAPE);
+    this.setValue(`${selector} ${inputCssSelector}`, this.Keys.ESCAPE)
+        .waitForElementNotPresent(`${selector} ${swSelectResultsCssSelector}`);
     return this;
 };

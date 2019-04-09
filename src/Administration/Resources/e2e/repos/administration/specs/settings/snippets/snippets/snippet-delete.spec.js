@@ -44,7 +44,7 @@ module.exports = {
         browser
             .click(`${page.elements.modalFooter} button${page.elements.primaryButton}`)
             .waitForElementNotPresent(page.elements.modal)
-            .checkNotification(`Snippet "${global.SnippetFixtureService.snippetFixture.value}" has been reset to "${global.SnippetFixtureService.snippetFixture.translationKey}" successfully.`);
+            .checkNotification(`Snippet "${global.SnippetFixtureService.snippetFixture.value}" has been reset to "${global.SnippetFixtureService.snippetFixture.value}" successfully.`);
     },
     'verify deletion of snippet': (browser) => {
         const page = settingsPage(browser);

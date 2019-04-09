@@ -12,7 +12,7 @@ Central product representation. Contains products and variations based on config
 A rich domain model representing single products or its variants. This is done through relations, so a root product is related to its variants through a foreign key.
 
 
-### Table `product_configurator`
+### Table `product_configurator_setting`
 
 Association from a root product to a configuration set. Used to generate variants and surcharge or discount the price.
 

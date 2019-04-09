@@ -115,7 +115,7 @@
 </style>
 <div class="platform-main-content">
     <div class="upper-ct">
-        <a class="container" href="/en/shopware-platform-en/getting-started">
+        <a class="container" href="/en/shopware-platform-dev-en/getting-started">
             <div class="title">Getting started</div>
             <div class="short-desc">
                 New to the Shopware platform?<br />
@@ -127,15 +127,15 @@
         </a>
     </div>
     <div class="lower-ct">
-        <a class="api-ct container" href="/en/shopware-platform-en/api">
+        <a class="api-ct container" href="/en/shopware-platform-dev-en/api">
             <div class="title">API</div>
             <div class="link"><span>learn more</span></div>
         </a>
-        <a class="technology-ct container" href="/en/shopware-platform-en/internals">
+        <a class="technology-ct container" href="/en/shopware-platform-dev-en/internals">
             <div class="title">Internals</div>
             <div class="link"><span>learn more</span></div>
         </a>
-        <a class="how-to-ct container" href="/en/shopware-platform-en/how-to">
+        <a class="how-to-ct container" href="/en/shopware-platform-dev-en/how-to">
             <div class="title">How-To's</div>
             <div class="link"><span>learn more</span></div>
         </a>

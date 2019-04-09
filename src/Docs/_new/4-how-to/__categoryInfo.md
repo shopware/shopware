@@ -131,7 +131,7 @@
                     'categories'
                 ],
                 facetFilters: [
-                    'categories:Shopware Platform > HowTo\'s'
+                    'categories: Shopware Platform > HowTo\'s'
                 ]
             },
         });

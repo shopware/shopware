@@ -49,6 +49,8 @@ Table(ShopwareCoreCheckoutCustomerCustomerDefinition, "customer\n(The sales chan
    attributes attributes
    not_null(createdAt) createdAt
    not_null(updatedAt) updatedAt
+   legacyPassword string
+   legacyEncoder string
 }
 TranslationTable(ShopwareCoreCheckoutCustomerAggregateCustomerGroupTranslationCustomerGroupTranslationDefinition, "customer_group_translation\n((Translations))") {
    not_null(name) string

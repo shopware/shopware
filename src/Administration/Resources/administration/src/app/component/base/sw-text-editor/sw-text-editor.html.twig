@@ -1,29 +1,47 @@
 {% block sw_text_editor %}
     <div class="sw-text-editor" :class="classes" @click="onClick">
 
-        {% block sw_text_editor_toolbar %}
-            <sw-text-editor-toolbar v-if="hasSelection || !isInlineEdit"
-                                    :parentIsActive="isActive"
-                                    :isInlineEdit="isInlineEdit"
-                                    :selection="selection"
-                                    :buttonConfig="buttonConfig"
-                                    @created-el="onToolbarCreated"
-                                    @destroyed-el="onToolbarDestroyed"
-                                    @on-set-link="onSetLink"
-                                    @text-style-change="onTextStyleChange">
-            </sw-text-editor-toolbar>
+        {% block sw_text_editor_label %}
+            <div class="sw-text-editor__label" v-if="getInlineSnippet(label).length">{{ getInlineSnippet(label) }}</div>
         {% endblock %}
 
-        {% block sw_text_editor_content %}
-            <div class="sw-text-editor__content">
-                <div class="sw-text-editor__content-editor"
-                     ref="contentEditor"
-                     :contenteditable="true"
-                     spellcheck="false"
-                     @focus="onFocus"
-                     tabindex="-1"
-                     v-html="value">
-                </div>
+        {% block sw_text_editor_box %}
+            <div class="sw-text-editor__box">
+                {% block sw_text_editor_box_toolbar %}
+                    <sw-text-editor-toolbar v-if="hasSelection || !isInlineEdit"
+                                            :parentIsActive="isActive"
+                                            :isInlineEdit="isInlineEdit"
+                                            :selection="selection"
+                                            :buttonConfig="buttonConfig"
+                                            @created-el="onToolbarCreated"
+                                            @destroyed-el="onToolbarDestroyed"
+                                            @on-set-link="onSetLink"
+                                            @text-style-change="onTextStyleChange">
+                    </sw-text-editor-toolbar>
+                {% endblock %}
+
+                {% block sw_text_editor_box_content %}
+                    <div class="sw-text-editor__content">
+                        <div class="sw-text-editor__content-editor"
+                             ref="editor"
+                             :contenteditable="true"
+                             spellcheck="false"
+                             @focus="onFocus"
+                             @keyup="onContentChange"
+                             tabindex="-1"
+                             v-html="content">
+                        </div>
+                        <div v-if="placeholderVisible" class="sw-text-editor__content-placeholder" v-html="placeholder"></div>
+                    </div>
+                {% endblock %}
+
+                {% block sw_text_editor_box_word_count %}
+                    <div v-if="!isInlineEdit" class="sw-text-editor__word_count">
+                        <sw-container columns="1fr" justify="right">
+                            <span class="sw-text-editor__text-length">{{ $tc('global.sw-text-editor.labelTextLength', textLength, { count: textLength }) }}</span>
+                        </sw-container>
+                    </div>
+                {% endblock %}
             </div>
         {% endblock %}
     </div>

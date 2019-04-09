@@ -8,7 +8,7 @@
 
                 {% block sw_text_editor_toolbar_item_button %}
                     <template v-if="button.icon">
-                        <div @click="onToggleMenu(button)">
+                        <div class="sw-text-editor-toolbar__item-button" @click="onToggleMenu(button)">
                             <sw-icon :name="button.icon" size="16"></sw-icon>
                             <sw-icon v-if="button.children" name="default-arrow-head-down" size="8"></sw-icon>
                         </div>
@@ -40,7 +40,7 @@
                         {% block sw_text_editor_toolbar_item_link_menu_content %}
                             <p class="sw-text-editor-toolbar__link-menu-text">{{ $tc('sw-text-editor-toolbar.link.linkTo') }}</p>
                             <sw-field v-model="button.value" type="text" :placeholder="$tc('sw-text-editor-toolbar.link.placeholder')"></sw-field>
-                            <sw-field v-model="button.newTab" type="checkbox" :label="$tc('sw-text-editor-toolbar.link.openInNewTab')"></sw-field>
+                            <sw-field v-model="button.newTab" type="switch" :label="$tc('sw-text-editor-toolbar.link.openInNewTab')"></sw-field>
                             <div class="sw-text-editor-toolbar__link-menu-buttons">
                                 {% block sw_text_editor_toolbar_item_link_menu_buttons %}
                                     <sw-button size="small" varian="primary" @click="handleTextStyleChangeLink(button)">{{ $tc('sw-text-editor-toolbar.link.insert') }}</sw-button>

@@ -11,7 +11,7 @@ exports.command = function clearField(selector, type = 'input') {
         .setValue(selector, ['', this.Keys.DELETE]);
 
     if (type === 'editor') {
-        this.waitForElementPresent('.ql-editor.ql-blank');
+        this.waitForElementPresent('.sw-text-editor__content-editor');
         return this;
     }
 

@@ -21,6 +21,10 @@ export default {
             required: false,
             default: 'id'
         },
+        localMode: {
+            type: Boolean,
+            default: false
+        },
         collection: {
             type: Object,
             required: true
@@ -53,6 +57,12 @@ export default {
             this.selectedIds = this.collection.getIds();
 
             this.$on('scroll', this.paginate);
+
+            this.displayAssigned(this.collection);
+
+            if (this.localMode) {
+                return Promise.resolve();
+            }
 
             return this.repository.search(this.collection.criteria, this.collection.context).then(this.displayAssigned);
         },
@@ -97,6 +107,10 @@ export default {
                 return Promise.resolve();
             }
 
+            if (this.localMode) {
+                return Promise.resolve();
+            }
+
             this.searchCriteria.setPage(this.searchCriteria.page + 1);
             return this.sendSearchRequest();
         },
@@ -111,6 +125,11 @@ export default {
                 return id !== identifier;
             });
 
+            if (this.localMode) {
+                this.collection.remove(identifier);
+                return Promise.resolve();
+            }
+
             return this.repository.delete(identifier, this.collection.context);
         },
 
@@ -122,6 +141,11 @@ export default {
 
             this.visibleValues.push(item);
             this.selectedIds.push(item[this.keyProperty]);
+
+            if (this.localMode) {
+                this.collection.add(item);
+                return Promise.resolve();
+            }
 
             return this.repository.assign(item[this.keyProperty], this.collection.context);
         },

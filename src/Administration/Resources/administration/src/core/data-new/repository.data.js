@@ -90,12 +90,17 @@ export default class Repository {
     save(entity, context) {
         const { changes, deletionQueue } = this.changesetGenerator.generate(entity);
 
-        return new Promise((resolve) => {
-            this.sendDeletions(deletionQueue, context).then(() => {
-                this.sendChanges(entity, changes, context).then(() => {
-                    resolve();
+        return new Promise((resolve, reject) => {
+            this.sendDeletions(deletionQueue, context)
+                .then(() => {
+                    this.sendChanges(entity, changes, context)
+                        .then(() => {
+                            resolve();
+                        })
+                        .catch((exception) => {
+                            reject(exception);
+                        });
                 });
-            });
         });
     }
 
@@ -237,17 +242,18 @@ export default class Repository {
      * @returns {*}
      */
     sendChanges(entity, changes, context) {
+        const headers = this.buildHeaders(context);
+
+        if (entity.isNew()) {
+            changes = changes || {};
+            Object.assign(changes, { id: entity.id });
+            return this.httpClient.post(`${this.route}`, changes, { headers });
+        }
+
         if (changes === null) {
             return new Promise((resolve) => {
                 resolve();
             });
-        }
-
-        const headers = this.buildHeaders(context);
-
-        if (entity.isNew()) {
-            Object.assign(changes, { id: entity.id });
-            return this.httpClient.post(`${this.route}`, changes, { headers });
         }
 
         return this.httpClient.patch(`${this.route}/${entity.id}`, changes, { headers });

@@ -65,6 +65,7 @@ export default {
             this.total = result.total;
             this.page = result.criteria.page;
             this.limit = result.criteria.limit;
+            this.loading = false;
         },
 
         deleteItem(id) {
@@ -72,20 +73,25 @@ export default {
 
             // send delete request to the server, immediately
             return this.repository.delete(id, this.records.context).then(() => {
-                return this.repository.search(this.records.criteria, this.records.context).then(this.applyResult);
+                return this.doSearch();
             });
+        },
+
+        doSearch() {
+            this.loading = true;
+            return this.repository.search(this.records.criteria, this.records.context).then(this.applyResult);
         },
 
         save(record) {
             // send save request to the server, immediately
             return this.repository.save(record, this.records.context).then(() => {
-                return this.repository.search(this.records.criteria, this.records.context).then(this.applyResult);
+                return this.doSearch();
             });
         },
 
         revert() {
             // reloads the grid to revert all changes
-            return this.repository.search(this.records.criteria, this.records.context).then(this.applyResult);
+            return this.doSearch();
         },
 
         sort(column) {
@@ -105,14 +111,14 @@ export default {
             this.currentSortBy = column.dataIndex;
             this.currentSortDirection = direction;
 
-            return this.repository.search(this.records.criteria, this.records.context).then(this.applyResult);
+            return this.doSearch();
         },
 
         paginate({ page = 1, limit = 25 }) {
             this.records.criteria.setPage(page);
             this.records.criteria.setLimit(limit);
 
-            return this.repository.search(this.records.criteria, this.records.context).then(this.applyResult);
+            return this.doSearch();
         },
 
         showDelete(id) {

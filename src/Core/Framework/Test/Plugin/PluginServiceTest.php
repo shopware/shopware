@@ -130,6 +130,7 @@ class PluginServiceTest extends TestCase
                     'name' => 'SwagFoo',
                     'version' => '1.1.1',
                     'label' => 'Foo Label',
+                    'autoload' => [],
                 ],
             ],
             $this->context

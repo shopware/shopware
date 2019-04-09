@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Test\TestCaseBase;
 
+use Composer\Autoload\ClassLoader;
 use Shopware\Core\Framework\Test\Filesystem\Adapter\MemoryAdapterFactory;
 use Symfony\Bundle\FrameworkBundle\Client;
 use Symfony\Component\DependencyInjection\ResettableContainerInterface;
@@ -98,7 +99,7 @@ class KernelLifecycleManager
             $debug = true;
         }
 
-        return new static::$class($env, $debug);
+        return new static::$class($env, $debug, new ClassLoader());
     }
 
     /**

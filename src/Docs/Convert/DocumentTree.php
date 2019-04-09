@@ -5,9 +5,10 @@ namespace Shopware\Docs\Convert;
 class DocumentTree
 {
     /**
-     * @var Document[]
+     * @var Document
      */
-    private $roots = [];
+    private $root;
+
     /**
      * @var Document[]
      */
@@ -16,11 +17,6 @@ class DocumentTree
     public function add(Document $document): void
     {
         $this->documents[] = $document;
-    }
-
-    public function addRoot(Document $document): void
-    {
-        $this->roots[] = $document;
     }
 
     public function getAll(): array
@@ -51,5 +47,15 @@ class DocumentTree
         }
 
         throw new \RuntimeException(sprintf('No file found named %s', $absolutePath));
+    }
+
+    public function setRoot(Document $root): void
+    {
+        $this->root = $root;
+    }
+
+    public function getRoot(): ?Document
+    {
+        return $this->root;
     }
 }

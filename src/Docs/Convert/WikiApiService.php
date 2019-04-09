@@ -51,6 +51,7 @@ class WikiApiService
 
         $this->syncArticles($tree);
         $this->syncCategories($tree);
+        $this->syncRoot($tree);
     }
 
     private function insertGermanStubArticle(array $articleInfoDe, Document $document): void
@@ -665,5 +666,34 @@ class WikiApiService
                 $tree
             );
         }
+    }
+
+    private function syncRoot(DocumentTree $tree)
+    {
+        $root = $tree->getRoot();
+
+        $oldCategories = $this->getAllCategories();
+        $categoryIds = array_column($oldCategories, 'id');
+
+        $index = array_search($this->rootCategoryId, $categoryIds, true);
+        $category = $oldCategories[$index];
+
+        $enIndex = -1;
+
+        foreach ($category['localizations'] as $index => $localization) {
+            if ($localization['locale']['name'] === 'en_GB') {
+                $enIndex = $index;
+            }
+        }
+
+        $category['localizations'][$enIndex]['content'] = $root->getHtml()->render($tree)->getContents();
+
+        $this->client->put(
+            vsprintf('/wiki/categories/%d', [$this->rootCategoryId]),
+            [
+                'json' => $category,
+                'headers' => $this->getBasicHeaders(),
+            ]
+        );
     }
 }

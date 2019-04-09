@@ -55,7 +55,7 @@ class ConvertMarkdownDocsCommand extends Command
         $fs = new Filesystem();
 
         /** @var Document $document */
-        foreach ($tree->getAll() as $document) {
+        foreach (array_merge($tree->getAll(), [$tree->getRoot()]) as $document) {
             $path = $outPath . '/' . $document->getFile()->getRelativePath();
 
             $htmlFile = $path . '/' . $document->getFile()->getBasename('.md') . '.html';
@@ -100,6 +100,7 @@ class ConvertMarkdownDocsCommand extends Command
             ->files()
             ->in($fromPath)
             ->sortByName()
+            ->depth('>=1')
             ->name('*.md');
 
         $documents = [];
@@ -135,7 +136,7 @@ class ConvertMarkdownDocsCommand extends Command
 
             //find parent
             if (!isset($documents[$parentPath])) {
-                $tree->addRoot($document);
+                // found a root, but not necessarily THE root so we skip here
                 continue;
             }
 
@@ -144,6 +145,17 @@ class ConvertMarkdownDocsCommand extends Command
             $document->setParent($parent);
             $parent->addChild($document);
         }
+
+        $root = new Document(
+            new SplFileInfo(
+                $fromPath . '/__categoryInfo.md',
+                '',
+                '__categoryInfo.md'
+            ),
+            true,
+            $baseUrl
+        );
+        $tree->setRoot($root);
 
         return $tree;
     }

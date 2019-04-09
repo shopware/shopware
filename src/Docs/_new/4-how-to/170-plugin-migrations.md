@@ -67,3 +67,7 @@ SQL;
 }
 ```
 
+## Source
+
+There's a GitHub repository available, containing this example source.
+Check it out [here](https://github.com/shopware/swag-docs-plugin-migration-example).

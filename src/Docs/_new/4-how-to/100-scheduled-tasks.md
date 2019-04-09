@@ -92,3 +92,8 @@ class MyTaskHandler extends ScheduledTaskHandler
 ```
 
 Now every five minutes, your task will be executed and it will print an output every time now.
+
+## Source
+
+There's a GitHub repository available, containing this example source.
+Check it out [here](https://github.com/shopware/swag-docs-scheduled-task-plugin).

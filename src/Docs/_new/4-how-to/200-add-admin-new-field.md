@@ -92,3 +92,8 @@ In order to do this, create a new file called `index.html.twig`, next to your `m
 ```
 
 Your minified javascript file will now be loaded in production environments.
+
+## Source
+
+There's a GitHub repository available, containing this example source.
+Check it out [here](https://github.com/shopware/swag-docs-administration-new-field).

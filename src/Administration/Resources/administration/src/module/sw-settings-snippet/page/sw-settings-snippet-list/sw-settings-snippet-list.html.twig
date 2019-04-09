@@ -192,7 +192,7 @@
                                                     {% block sw_settings_snippet_list_delete_modal_cancel %}
                                                         <sw-button @click="onCloseDeleteModal"
                                                                    size="small">
-                                                            {{ $tc('sw-settings-snippet.list.buttonCancel', isCustomState) }}
+                                                            {{ $tc('sw-settings-snippet.list.buttonCancel', item.isCustomSnippet) }}
                                                         </sw-button>
                                                     {% endblock %}
 

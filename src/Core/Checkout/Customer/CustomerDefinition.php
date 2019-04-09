@@ -89,6 +89,8 @@ class CustomerDefinition extends EntityDefinition
             new AttributesField(),
             new CreatedAtField(),
             new UpdatedAtField(),
+            new StringField('legacy_password', 'legacyPassword'),
+            new StringField('legacy_encoder', 'legacyEncoder'),
             new ManyToOneAssociationField('group', 'customer_group_id', CustomerGroupDefinition::class, 'id', true),
             new ManyToOneAssociationField('defaultPaymentMethod', 'default_payment_method_id', PaymentMethodDefinition::class, 'id', true),
             new ManyToOneAssociationField('salesChannel', 'sales_channel_id', SalesChannelDefinition::class, 'id', true),

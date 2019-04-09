@@ -229,6 +229,9 @@ export default {
         },
 
         saveGridColumns() {
+            if (!this.identifier) {
+                return;
+            }
             window.localStorage.setItem(this.localStorageItemKey, JSON.stringify(this.currentColumns));
         },
 

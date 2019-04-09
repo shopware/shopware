@@ -19,6 +19,6 @@ class PluginFinderTest extends TestCase
         $plugins = (new PluginFinder())->findPlugins(__DIR__ . '/_finderFixtures', TEST_PROJECT_DIR);
 
         static::assertCount(1, $plugins);
-        static::assertSame($plugins[0]->getName(), 'Works\Works');
+        static::assertSame($plugins['Works\Works']->getName(), 'Works\Works');
     }
 }

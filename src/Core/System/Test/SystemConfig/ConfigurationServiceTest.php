@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\Test\SystemConfig;
 
+use Composer\Autoload\ClassLoader;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -38,7 +39,7 @@ class ConfigurationServiceTest extends TestCase
 
     protected function setUp(): void
     {
-        $kernel = new TestKernel('system_config_test', true);
+        $kernel = new TestKernel('system_config_test', true, new ClassLoader());
         $kernel->boot();
         $this->container = $kernel->getContainer();
         $this->systemConfigRepository = $this->container->get('system_config.repository');

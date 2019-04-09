@@ -102,7 +102,7 @@
 							{% block page_checkout_finish_items %}
 								{% for lineItem in page.order.lineItems.elements %}
 									{% block page_checkout_finish_item %}
-										{% sw_include '@Storefront/page/checkout/confirm/confirm-item.html.twig' %}
+										{% sw_include '@Storefront/page/checkout/finish/finish-item.html.twig' %}
 									{% endblock %}
 								{% endfor %}
 							{% endblock %}

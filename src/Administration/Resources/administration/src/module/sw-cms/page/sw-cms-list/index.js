@@ -1,4 +1,4 @@
-import { Component, Mixin, State } from 'src/core/shopware';
+import { Component, Mixin, State, Application } from 'src/core/shopware';
 import CriteriaFactory from 'src/core/factory/criteria.factory';
 import template from './sw-cms-list.html.twig';
 import './sw-cms-list.scss';
@@ -7,14 +7,15 @@ Component.register('sw-cms-list', {
     template,
 
     beforeRouteEnter(to, from, next) {
+        const serviceContainer = Application.getContainer('service');
+        const contextService = serviceContainer.context;
         if (!from.path.includes('/cms') && to.path !== from.path && from.path !== '/') {
-            window.open(`${window.origin}/#${to.path}`, '_blank');
+            window.open(`${contextService.installationPath}${contextService.pathInfo}/#${to.path}`, '_blank');
             return next(false);
         }
 
         return next();
     },
-
 
     mixins: [
         Mixin.getByName('listing')

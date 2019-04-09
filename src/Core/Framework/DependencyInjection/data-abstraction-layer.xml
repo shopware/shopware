@@ -5,6 +5,23 @@
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
 
     <services>
+        <service id="Shopware\Core\Framework\DataAbstractionLayer\SchemaGenerator"/>
+        <service id="Shopware\Core\Framework\DataAbstractionLayer\EntityGenerator"/>
+
+        <service id="Shopware\Core\Framework\DataAbstractionLayer\Command\CreateSchemaCommand">
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\SchemaGenerator"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionRegistry"/>
+            <argument>%kernel.root_dir%</argument>
+            <tag name="console.command"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\DataAbstractionLayer\Command\CreateEntitiesCommand">
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\EntityGenerator"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionRegistry"/>
+            <argument>%kernel.root_dir%</argument>
+            <tag name="console.command"/>
+        </service>
+
         <service id="Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator" public="true"/>
 
         <service id="Shopware\Core\Framework\DataAbstractionLayer\Cache\InvalidateCacheSubscriber">

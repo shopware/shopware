@@ -33,7 +33,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\PasswordField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\PriceDefinitionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\PriceField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\PriceRulesJsonField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\SearchKeywordAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
@@ -79,7 +78,6 @@ class ErdTypeMap
         PasswordField::class => 'password',
         PriceDefinitionField::class => 'priceDefinition',
         PriceField::class => 'price',
-        ReferenceField::class => 'reference',
         ReferenceVersionField::class => 'referenceVersion',
         SearchKeywordAssociationField::class => 'searchKeywordAssociation',
         StringField::class => 'string',

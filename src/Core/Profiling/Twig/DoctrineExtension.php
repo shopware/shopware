@@ -117,7 +117,7 @@ class DoctrineExtension extends AbstractExtension
                 break;
         }
 
-        return $result;
+        return (string) $result;
     }
 
     /**

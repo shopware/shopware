@@ -247,7 +247,6 @@ class EntityRepositoryTest extends TestCase
                             'rule' => [
                                 'name' => 'rule 1',
                                 'priority' => 1,
-                                'payload' => new AndRule(),
                             ],
                         ],
                         [
@@ -257,7 +256,6 @@ class EntityRepositoryTest extends TestCase
                             'rule' => [
                                 'name' => 'rule 2',
                                 'priority' => 1,
-                                'payload' => new AndRule(),
                             ],
                         ],
                     ],
@@ -278,7 +276,6 @@ class EntityRepositoryTest extends TestCase
                             'rule' => [
                                 'name' => 'rule 3',
                                 'priority' => 1,
-                                'payload' => new AndRule(),
                             ],
                         ],
                         [
@@ -288,7 +285,6 @@ class EntityRepositoryTest extends TestCase
                             'rule' => [
                                 'name' => 'rule 4',
                                 'priority' => 1,
-                                'payload' => new AndRule(),
                             ],
                         ],
                     ],
@@ -424,8 +420,8 @@ class EntityRepositoryTest extends TestCase
         $ruleB = Uuid::randomHex();
 
         $this->getContainer()->get('rule.repository')->create([
-            ['id' => $ruleA, 'name' => 'test', 'payload' => new AndRule(), 'priority' => 1],
-            ['id' => $ruleB, 'name' => 'test', 'payload' => new AndRule(), 'priority' => 2],
+            ['id' => $ruleA, 'name' => 'test', 'priority' => 1],
+            ['id' => $ruleB, 'name' => 'test', 'priority' => 2],
         ], Context::createDefaultContext());
 
         $id = Uuid::randomHex();

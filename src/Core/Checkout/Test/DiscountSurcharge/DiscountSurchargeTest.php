@@ -14,7 +14,6 @@ use Shopware\Core\Checkout\DiscountSurcharge\Cart\DiscountSurchargeCollector;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
-use Shopware\Core\Framework\Rule\Container\AndRule;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
@@ -88,7 +87,7 @@ class DiscountSurchargeTest extends TestCase
         $productA = $this->createProduct('Product A', 20, 20, 19);
         $productB = $this->createProduct('Product B', 31, 31, 19);
 
-        $ruleId = $this->createRule([]);
+        $ruleId = $this->createRule();
 
         $id = $this->createDiscountSurcharge($ruleId, DiscountSurchargeCollector::ABSOLUTE_MODIFIER, 2);
 
@@ -129,7 +128,7 @@ class DiscountSurchargeTest extends TestCase
         $productA = $this->createProduct('Product A', 20, 20, 19);
         $productB = $this->createProduct('Product B', 31, 31, 19);
 
-        $ruleId = $this->createRule([]);
+        $ruleId = $this->createRule();
 
         $id = $this->createDiscountSurcharge($ruleId, DiscountSurchargeCollector::ABSOLUTE_MODIFIER, -2);
 
@@ -170,7 +169,7 @@ class DiscountSurchargeTest extends TestCase
         $productA = $this->createProduct('Product A', 20, 20, 19);
         $productB = $this->createProduct('Product B', 30, 30, 19);
 
-        $ruleId = $this->createRule([]);
+        $ruleId = $this->createRule();
 
         $id = $this->createDiscountSurcharge($ruleId, DiscountSurchargeCollector::PERCENTAL_MODIFIER, 10);
 
@@ -211,7 +210,7 @@ class DiscountSurchargeTest extends TestCase
         $productA = $this->createProduct('Product A', 20, 20, 19);
         $productB = $this->createProduct('Product B', 30, 30, 19);
 
-        $ruleId = $this->createRule([]);
+        $ruleId = $this->createRule();
 
         $id = $this->createDiscountSurcharge($ruleId, DiscountSurchargeCollector::PERCENTAL_MODIFIER, -10);
 
@@ -247,7 +246,7 @@ class DiscountSurchargeTest extends TestCase
         );
     }
 
-    private function createRule(array $rules, string $name = 'Test rule', int $priority = 1): string
+    private function createRule(string $name = 'Test rule', int $priority = 1): string
     {
         $id = Uuid::randomHex();
 
@@ -257,7 +256,6 @@ class DiscountSurchargeTest extends TestCase
                     'id' => $id,
                     'name' => $name,
                     'priority' => $priority,
-                    'payload' => new AndRule($rules),
                 ],
             ],
             Context::createDefaultContext()

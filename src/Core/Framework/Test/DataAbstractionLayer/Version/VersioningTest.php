@@ -39,7 +39,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\VersionManager;
 use Shopware\Core\Framework\Rule\Collector\RuleConditionRegistry;
-use Shopware\Core\Framework\Rule\Container\AndRule;
 use Shopware\Core\Framework\Struct\ArrayEntity;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
@@ -620,7 +619,7 @@ class VersioningTest extends TestCase
         $context = Context::createDefaultContext();
 
         $this->getContainer()->get('rule.repository')->create([
-            ['id' => $ruleId, 'name' => 'test', 'payload' => new AndRule(), 'priority' => 1],
+            ['id' => $ruleId, 'name' => 'test', 'priority' => 1],
         ], $context);
 
         $product = [
@@ -785,7 +784,7 @@ class VersioningTest extends TestCase
         $context = Context::createDefaultContext();
 
         $this->getContainer()->get('rule.repository')->create([
-            ['id' => $ruleId, 'name' => 'test', 'payload' => new AndRule(), 'priority' => 1],
+            ['id' => $ruleId, 'name' => 'test', 'priority' => 1],
         ], $context);
 
         //create live product with two prices
@@ -1112,7 +1111,7 @@ class VersioningTest extends TestCase
         $context = Context::createDefaultContext();
 
         $this->getContainer()->get('rule.repository')->create([
-            ['id' => $ruleId, 'name' => 'test', 'payload' => new AndRule(), 'priority' => 1],
+            ['id' => $ruleId, 'name' => 'test', 'priority' => 1],
         ], $context);
 
         //create live product with two prices
@@ -1381,7 +1380,7 @@ class VersioningTest extends TestCase
         $context = Context::createDefaultContext();
 
         $this->getContainer()->get('rule.repository')->create([
-            ['id' => $ruleId, 'name' => 'test', 'payload' => new AndRule(), 'priority' => 1],
+            ['id' => $ruleId, 'name' => 'test', 'priority' => 1],
         ], $context);
 
         //create live product with two prices

@@ -7,7 +7,6 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Rule\Container\AndRule;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\BasicTestDataBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\FilesystemBehaviour;
@@ -465,8 +464,8 @@ EOF;
         $ruleB = Uuid::randomHex();
 
         $this->getContainer()->get('rule.repository')->create([
-            ['id' => $ruleA, 'name' => 'test', 'payload' => new AndRule(), 'priority' => 1],
-            ['id' => $ruleB, 'name' => 'test', 'payload' => new AndRule(), 'priority' => 2],
+            ['id' => $ruleA, 'name' => 'test', 'priority' => 1],
+            ['id' => $ruleB, 'name' => 'test', 'priority' => 2],
         ], Context::createDefaultContext());
 
         $data = [
@@ -536,8 +535,8 @@ EOF;
         $ruleB = Uuid::randomHex();
 
         $this->getContainer()->get('rule.repository')->create([
-            ['id' => $ruleA, 'name' => 'test', 'payload' => new AndRule(), 'priority' => 1],
-            ['id' => $ruleB, 'name' => 'test', 'payload' => new AndRule(), 'priority' => 2],
+            ['id' => $ruleA, 'name' => 'test', 'priority' => 1],
+            ['id' => $ruleB, 'name' => 'test', 'priority' => 2],
         ], Context::createDefaultContext());
 
         $data = [

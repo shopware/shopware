@@ -98,6 +98,10 @@ class ConvertMarkdownDocsCommand extends Command
             $fs->dumpFile($phpFile, '<?php return ' . var_export($document->getMetadata()->toArray($tree), true) . ';');
         }
 
+        if (!$isSync || !file_exists(self::CREDENTIAL_PATH)) {
+            return;
+        }
+
         $credentialsContents = (file_get_contents(self::CREDENTIAL_PATH));
         $credentials = json_decode($credentialsContents, true);
         $token = $credentials['token'];

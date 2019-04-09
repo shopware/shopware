@@ -49,7 +49,7 @@ class ConfigurationService
 
         // TODO: allow custom config loading
         $config = $this->configReader->getConfigFromBundle($bundle);
-        $domain = $scope . '.' . $bundleName . '.';
+        $domain = $scope . '.' . $bundle->getName() . '.';
 
         foreach ($config as $i => $card) {
             foreach ($card['elements'] as $j => $field) {
@@ -64,8 +64,9 @@ class ConfigurationService
 
     private function getBundle(string $bundleName): ?BundleInterface
     {
+        [$last] = explode('\\', $bundleName);
         foreach ($this->kernel->getBundles() as $bundle) {
-            if ($bundle->getName() === $bundleName) {
+            if ($bundle->getName() === $last) {
                 return $bundle;
             }
         }

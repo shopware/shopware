@@ -47,7 +47,7 @@ class Migration1554447846NumberRangeTranslationAndConfiguration extends Migratio
                 'global' => 1,
                 'typeId' => $definitionNumberRangeTypes['product']['id'],
                 'pattern' => '{n}',
-                'start' => 1,
+                'start' => 100000,
             ],
             'order' => [
                 'id' => Uuid::randomHex(),
@@ -56,7 +56,7 @@ class Migration1554447846NumberRangeTranslationAndConfiguration extends Migratio
                 'global' => 1,
                 'typeId' => $definitionNumberRangeTypes['order']['id'],
                 'pattern' => '{n}',
-                'start' => 1,
+                'start' => 1000,
             ],
             'customer' => [
                 'id' => Uuid::randomHex(),
@@ -65,7 +65,7 @@ class Migration1554447846NumberRangeTranslationAndConfiguration extends Migratio
                 'global' => 1,
                 'typeId' => $definitionNumberRangeTypes['customer']['id'],
                 'pattern' => '{n}',
-                'start' => 1,
+                'start' => 1000,
             ],
         ];
 

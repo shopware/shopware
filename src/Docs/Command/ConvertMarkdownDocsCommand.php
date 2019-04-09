@@ -56,7 +56,6 @@ class ConvertMarkdownDocsCommand extends Command
         $this->setName('docs:convert')
             ->addOption('input', 'i', InputOption::VALUE_REQUIRED, 'The path to parse for markdown files.', './platform/src/Docs/Resources/current/')
             ->addOption('output', 'o', InputOption::VALUE_REQUIRED, 'The path in which the resulting hmtl files will be saved.')
-            ->addOption('blacklist', 'b', InputOption::VALUE_REQUIRED, 'Path to a file containing blacklisted items (files or paths). Each line must contain one entry.', './platform/src/Docs/Resources/current/article.blacklist')
             ->addOption('baseurl', 'u', InputOption::VALUE_REQUIRED, '', '/shopware-platform')
             ->addOption('sync', 's', InputOption::VALUE_NONE)
             ->setDescription('Converts Markdown to Wikihtml');
@@ -68,13 +67,6 @@ class ConvertMarkdownDocsCommand extends Command
         $outPath = $input->getOption('output');
         $baseUrl = $input->getOption('baseurl');
         $isSync = $input->getOption('sync');
-        $blackListFile = $input->getOption('blacklist');
-
-        $blacklist = [];
-        if ($blackListFile !== null) {
-            $blacklistContents = file_get_contents($blackListFile);
-            $blacklist = explode("\n", $blacklistContents);
-        }
 
         $output->writeln('Scanning \"' . $inPath . '" for .md files ...');
         $tree = $this->loadDocuments($inPath, $baseUrl);

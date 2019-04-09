@@ -93,9 +93,9 @@ Component.register('sw-order-line-items-grid', {
         onInsertBlankItem() {
             const item = this.lineItemsStore.create();
             item.versionId = this.order.versionId;
-            item.priceDefinition.taxRules.elements = [];
+            item.priceDefinition.taxRules = [];
             item.priceDefinition.isCalculated = false;
-            item.priceDefinition.taxRules.elements.push({ taxRate: 0, percentage: 100 });
+            item.priceDefinition.taxRules.push({ taxRate: 0, percentage: 100 });
             item.description = 'custom line item';
             item.quantity = 1;
             item.type = 'custom';
@@ -105,8 +105,8 @@ Component.register('sw-order-line-items-grid', {
         onInsertExistingItem() {
             const item = this.lineItemsStore.create();
             item.versionId = this.order.versionId;
-            item.priceDefinition.taxRules.elements = [];
-            item.priceDefinition.taxRules.elements.push({ taxRate: 0 });
+            item.priceDefinition.taxRules = [];
+            item.priceDefinition.taxRules.push({ taxRate: 0 });
             item.quantity = 1;
             this.orderLineItems.unshift(item);
         },

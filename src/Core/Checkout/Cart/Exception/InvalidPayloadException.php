@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Checkout\Cart\Exception;
 
-use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -11,8 +10,8 @@ class InvalidPayloadException extends ShopwareHttpException
     public function __construct(string $key, string $lineItemId)
     {
         parent::__construct(
-            'Unable to save payload with key `{{ key }}` on line item `{{ lineItemId }}`. Only scalar data types with a max length of {{ limit }} are allowed.',
-            ['key' => $key, 'lineItemId' => $lineItemId, 'limit' => LineItem::PAYLOAD_LIMIT]
+            'Unable to save payload with key `{{ key }}` on line item `{{ lineItemId }}`. Only scalar data types are allowed.',
+            ['key' => $key, 'lineItemId' => $lineItemId]
         );
     }
 

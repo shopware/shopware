@@ -86,7 +86,7 @@ const modules = {
                     options: {
                         name: '[name].[ext]',
                         outputPath: 'fonts',
-                        publicPath: '/fonts'
+                        publicPath: './../fonts'
                     }
                 }
             ]
@@ -116,8 +116,8 @@ const plugins = [
         }
     ]),
     new MiniCssExtractPlugin({
-        filename: "css/main.bundle.css",
-        chunkFilename: "css/main.bundle.css"
+        filename: 'css/main.bundle.css',
+        chunkFilename: 'css/main.bundle.css'
     })
 ];
 

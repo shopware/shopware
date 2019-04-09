@@ -10,7 +10,7 @@ use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
 
 class Storefront extends Bundle
 {
-    protected $name = 'ShopwareStorefrontBundle';
+    protected $name = 'Storefront';
 
     /**
      * {@inheritdoc}

@@ -27,15 +27,10 @@ class TemplateFinder
     {
         $this->loader = $loader;
 
-        $defaults = [
-            'Administration',
-            'ShopwareStorefront',
-        ];
-
         $bundles = [];
 
         foreach ($loader->getNamespaces() as $namespace) {
-            if ($namespace[0] === '!' || $namespace === '__main__' || \in_array($namespace, $defaults, true)) {
+            if ($namespace[0] === '!' || $namespace === '__main__') {
                 continue;
             }
 

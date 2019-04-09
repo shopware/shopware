@@ -162,7 +162,7 @@ class Document
         }
 
         $files = [];
-        foreach (scandir($path) as $file) {
+        foreach (scandir($path, SCANDIR_SORT_ASCENDING) as $file) {
             $files[] = $file;
         }
 

@@ -2,7 +2,6 @@
 
 namespace Shopware\Docs\Command;
 
-use Cocur\Slugify\Slugify;
 use Shopware\Docs\Convert\Document;
 use Shopware\Docs\Convert\DocumentTree;
 use Shopware\Docs\Convert\WikiApiService;
@@ -16,40 +15,11 @@ use Symfony\Component\Finder\SplFileInfo;
 
 class ConvertMarkdownDocsCommand extends Command
 {
-    public const CATEGORY_SITE_FILENAME = '__categoryInfo.md';
-    public const WIKI_URL_TAG = 'wikiUrl';
-    public const WIKI_URL_TAG_DE = 'wikiUrlDe';
-    public const REQUIRED_METATAGS = ['titleEn'];
-    public const OPTIONAL_METATAGS = [
-        self::WIKI_URL_TAG,
-        'metaDescription',
-        'titleDe',
-        'isActive',
-    ];
+    private const CATEGORY_SITE_FILENAME = '__categoryInfo.md';
+
+    private const BLACKLIST = 'article.blacklist';
+
     private const CREDENTIAL_PATH = __DIR__ . '/wiki.secret';
-
-    private const METATAG_REGEX = '/^\[(.*?)\]:\s*<>\((.*?)\)\s*?$/m';
-    private $errorStack = [];
-    private $warningStack = [];
-
-    private $slugify;
-
-    public function __construct()
-    {
-        parent::__construct();
-
-        $this->slugify = new Slugify();
-    }
-
-    public function getErrorStack(): array
-    {
-        return $this->errorStack;
-    }
-
-    public function getWarningStack(): array
-    {
-        return $this->warningStack;
-    }
 
     protected function configure(): void
     {
@@ -68,8 +38,14 @@ class ConvertMarkdownDocsCommand extends Command
         $baseUrl = $input->getOption('baseurl');
         $isSync = $input->getOption('sync');
 
+        $blacklist = [];
+        $blacklistFile = $inPath . self::BLACKLIST;
+        if (is_file($blacklistFile)) {
+            $blacklist = file($blacklistFile);
+        }
+
         $output->writeln('Scanning \"' . $inPath . '" for .md files ...');
-        $tree = $this->loadDocuments($inPath, $baseUrl);
+        $tree = $this->loadDocuments($inPath, $baseUrl, $blacklist);
         $output->writeln('Read ' . count($tree->getAll()) . ' markdown files');
 
         if ($outPath === null) {
@@ -118,17 +94,26 @@ class ConvertMarkdownDocsCommand extends Command
         return $allContents;
     }
 
-    private function loadDocuments(string $fromPath, string $baseUrl): DocumentTree
+    private function loadDocuments(string $fromPath, string $baseUrl, array $blacklist): DocumentTree
     {
         $files = (new Finder())
             ->files()
             ->in($fromPath)
+            ->sortByName()
             ->name('*.md');
 
         $documents = [];
 
         /** @var SplFileInfo $file */
         foreach ($files as $file) {
+            foreach ($blacklist as $blacklistedFile) {
+                $blacklistedFile = trim($blacklistedFile);
+                if (strpos($file->getRelativePathname(), $blacklistedFile) === 0) {
+                    echo 'Blacklisted ' . $file->getRelativePathname() . "\n";
+                    continue 2;
+                }
+            }
+
             $documents[$file->getRelativePathname()] = new Document(
                 $file,
                 $file->getFilename() === self::CATEGORY_SITE_FILENAME,

@@ -156,7 +156,7 @@ class DocsDumpErd extends Command
             $dump = $this->erdGenerator->generateFromDefinitions($moduleDefinition, new MarkdownErdDumper(
                 $descriptionsShort->get($moduleName),
                 $descriptionsLong->get($moduleName),
-                'dist/erd-' . $this->toFileName($moduleName) . '.svg'
+                'dist/erd-' . $this->toFileName($moduleName) . '.png'
             ), $descriptionsLong);
             file_put_contents(
                 $destPath . '/erd-' . $this->toFileName($moduleName) . '.md',

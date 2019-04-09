@@ -20,14 +20,14 @@ The `Framework` is the technical basis for Shopware. `System`, `Content` and `Ch
 
 The relation between these different categories is shown in the diagram below:
 
-![Shopware Core](./dist/core-component.svg)
+![Shopware Core](./dist/core-component.png)
 
 
 ## Functional layers
 
 The relationship between the `eCommerce` and `Framework` directories is of course the most interesting. 
 
-![Shopware Core eCommerce](./dist/core-component-eCommerce.svg)
+![Shopware Core eCommerce](./dist/core-component-eCommerce.png)
 
 `Framework`
  : Framework itself is not the eCommerce Core, but enables eCommerce on a technical level. On the inside you find general abstractions for relational data handling, file handling, internationalization and routing and the general rest API. 
@@ -49,7 +49,7 @@ The relationship between the `eCommerce` and `Framework` directories is of cours
   
 The required layers are `Presentation` and `Data access` with an optional `Application` and `Business` layer,  depending on the complexity of the case.
   
-  ![layers](./dist/core-component-module-layers.svg) 
+  ![layers](./dist/core-component-module-layers.png) 
  
  The modules are structured with discoverability as the central objective. You should take away the following:
  

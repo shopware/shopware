@@ -60,12 +60,12 @@ class DocumentMetadata
 
     public function getPrefixedUrlDe(): string
     {
-        return 'de' . $this->document->getBaseUrl() . '-de' . $this->getUrl();
+        return '/de' . $this->document->getBaseUrl() . '-de' . $this->getUrl();
     }
 
     public function getPrefixedUrlEn(): string
     {
-        return 'en' . $this->document->getBaseUrl() . '-en' . $this->getUrl();
+        return '/en' . $this->document->getBaseUrl() . '-en' . $this->getUrl();
     }
 
     public function getUrlDe(): string
@@ -153,9 +153,5 @@ class DocumentMetadata
         }
 
         return $metadata[$key];
-    }
-
-    private function determinePriority()
-    {
     }
 }

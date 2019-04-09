@@ -2,7 +2,7 @@
 
 The DataAbstractionLayer (DAL) centrally handles data **retrieval**, **modification** and **search** through am object oriented interface. The following diagram illustrates the generall architecture of the component.
 
-![Data abstraction layer](./img/dal-structure.svg)
+![Data abstraction layer](./img/dal-structure.png)
 
 The dashed line in the middle represents the differentiation between userland and internal space. The diferent containers mean:
 

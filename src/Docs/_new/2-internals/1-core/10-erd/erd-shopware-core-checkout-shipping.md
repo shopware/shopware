@@ -4,7 +4,7 @@
 
 Shipping processes and especially rules.
 
-![Shipping](./dist/erd-shopware-core-checkout-shipping.svg)
+![Shipping](./dist/erd-shopware-core-checkout-shipping.png)
 
 
 ### Table `shipping_method`

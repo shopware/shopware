@@ -4,7 +4,7 @@
 
 Contains the configuration options for product variants.
 
-![Product configuration](./dist/erd-shopware-core-content-configuration.svg)
+![Product configuration](./dist/erd-shopware-core-content-configuration.png)
 
 
 ### Table `configuration_group`

@@ -12,6 +12,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\PlatformRequest;
 use Symfony\Component\HttpFoundation\Response;
 
 class SalesChannelContextControllerTest extends TestCase
@@ -162,7 +163,13 @@ class SalesChannelContextControllerTest extends TestCase
             'username' => $email,
             'password' => $password,
         ]);
-        static::assertSame(Response::HTTP_OK, $this->getSalesChannelClient()->getResponse()->getStatusCode());
+
+        $response = $this->getSalesChannelClient()->getResponse();
+
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode());
+
+        $content = json_decode($response->getContent(), true);
+        $this->getSalesChannelClient()->setServerParameter('HTTP_X_SW_CONTEXT_TOKEN', $content[PlatformRequest::HEADER_CONTEXT_TOKEN]);
 
         return $customerId;
     }

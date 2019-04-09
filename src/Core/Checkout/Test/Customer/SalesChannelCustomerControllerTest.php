@@ -14,6 +14,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelFunctionalTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\PlatformRequest;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Serializer\Serializer;
 
@@ -90,8 +91,10 @@ class SalesChannelCustomerControllerTest extends TestCase
         static::assertArrayHasKey('x-sw-context-token', $content);
         static::assertNotEmpty($content['x-sw-context-token']);
 
+        $this->getSalesChannelClient()->setServerParameter('HTTP_X_SW_CONTEXT_TOKEN', $content[PlatformRequest::HEADER_CONTEXT_TOKEN]);
         $this->getSalesChannelClient()->request('GET', '/sales-channel-api/v1/customer');
         $response = $this->getSalesChannelClient()->getResponse();
+
         $content = json_decode($response->getContent(), true);
 
         $customer = $this->serialize($this->readCustomer($customerId));
@@ -153,8 +156,10 @@ class SalesChannelCustomerControllerTest extends TestCase
         static::assertArrayHasKey('x-sw-context-token', $content);
         static::assertNotEmpty($content['x-sw-context-token']);
 
+        $this->getSalesChannelClient()->setServerParameter('HTTP_X_SW_CONTEXT_TOKEN', $content[PlatformRequest::HEADER_CONTEXT_TOKEN]);
         $this->getSalesChannelClient()->request('GET', '/sales-channel-api/v1/customer');
         $response = $this->getSalesChannelClient()->getResponse();
+
         $content = json_decode($response->getContent(), true);
 
         $customer = $this->readCustomer($customerId);
@@ -552,6 +557,12 @@ class SalesChannelCustomerControllerTest extends TestCase
             'username' => $email,
             'password' => $password,
         ]);
+        $response = $this->getSalesChannelClient()->getResponse();
+
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode());
+
+        $content = json_decode($response->getContent(), true);
+        $this->getSalesChannelClient()->setServerParameter('HTTP_X_SW_CONTEXT_TOKEN', $content[PlatformRequest::HEADER_CONTEXT_TOKEN]);
 
         return $customerId;
     }

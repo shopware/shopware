@@ -68,7 +68,6 @@ trait SalesChannelApiTestBehaviour
         $salesChannelApiClient->setServerParameters([
             'HTTP_X-Requested-With' => 'XMLHttpRequest',
             'HTTP_Accept' => 'application/json',
-            'HTTP_X_SW_CONTEXT_TOKEN' => Uuid::randomHex(),
         ]);
         $this->authorizeSalesChannelClient($salesChannelApiClient, $salesChannelOverride);
 
@@ -96,7 +95,6 @@ trait SalesChannelApiTestBehaviour
         $salesChannelApiClient->setServerParameters([
             'HTTP_X-Requested-With' => 'XMLHttpRequest',
             'HTTP_Accept' => 'application/json',
-            'HTTP_X_SW_CONTEXT_TOKEN' => Uuid::randomHex(),
         ]);
         $this->authorizeSalesChannelClient($salesChannelApiClient);
 

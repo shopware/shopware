@@ -275,8 +275,9 @@ class AccountService
             throw new UnauthorizedHttpException('json', $exception->getMessage());
         }
 
+        $newToken = $this->contextPersister->replace($context->getToken());
         $this->contextPersister->save(
-            $context->getToken(),
+            $newToken,
             [
                 'customerId' => $user->getId(),
                 'billingAddressId' => null,
@@ -287,7 +288,7 @@ class AccountService
         $event = new CustomerLoginEvent($context->getContext(), $user);
         $this->eventDispatcher->dispatch($event->getName(), $event);
 
-        return $context->getToken();
+        return $newToken;
     }
 
     /**
@@ -310,8 +311,9 @@ class AccountService
             throw new UnauthorizedHttpException('json', $exception->getMessage());
         }
 
+        $newToken = $this->contextPersister->replace($context->getToken());
         $this->contextPersister->save(
-            $context->getToken(),
+            $newToken,
             [
                 'customerId' => $customer->getId(),
                 'billingAddressId' => null,
@@ -329,7 +331,7 @@ class AccountService
         $event = new CustomerLoginEvent($context->getContext(), $customer);
         $this->eventDispatcher->dispatch($event->getName(), $event);
 
-        return $context->getToken();
+        return $newToken;
     }
 
     public function logout(SalesChannelContext $context): void

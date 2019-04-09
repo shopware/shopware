@@ -84,14 +84,14 @@ class NumberRangeValueGenerator implements NumberRangeValueGeneratorInterface
                 [
                     new MultiFilter(
                         MultiFilter::CONNECTION_AND, [
-                            new EqualsFilter('number_range.salesChannels.id', $salesChannelId),
-                            new EqualsFilter('number_range.type.typeName', $definition),
+                            new EqualsFilter('number_range.numberRangeSalesChannels.id', $salesChannelId),
+                            new EqualsFilter('number_range.type.technicalName', $definition),
                         ]
                     ),
                     new MultiFilter(
                         MultiFilter::CONNECTION_AND, [
                             new EqualsFilter('number_range.type.global', 1),
-                            new EqualsFilter('number_range.type.typeName', $definition),
+                            new EqualsFilter('number_range.type.technicalName', $definition),
                         ]
                     ),
                 ]
@@ -111,8 +111,8 @@ class NumberRangeValueGenerator implements NumberRangeValueGeneratorInterface
             $criteria->addFilter(
                 new MultiFilter(
                     MultiFilter::CONNECTION_AND, [
-                        new EqualsFilter('number_range.salesChannels.id', null),
-                        new EqualsFilter('number_range.type.typeName', $definition),
+                        new EqualsFilter('number_range.numberRangeSalesChannels.id', null),
+                        new EqualsFilter('number_range.type.technicalName', $definition),
                     ]
                 )
             );
@@ -133,7 +133,7 @@ class NumberRangeValueGenerator implements NumberRangeValueGeneratorInterface
     protected function createPreviewConfiguration(string $definition, string $pattern, int $start): void
     {
         $entity = new NumberRangeTypeEntity();
-        $entity->setTypeName($definition);
+        $entity->setTechnicalName($definition);
         $entity->setGlobal(true);
         $this->configuration = new NumberRangeEntity();
         $this->configuration->setId(Uuid::randomHex());

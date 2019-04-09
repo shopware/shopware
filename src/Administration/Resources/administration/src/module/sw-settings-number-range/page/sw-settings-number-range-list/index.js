@@ -38,9 +38,11 @@ Component.register('sw-settings-number-range-list', {
 
             const params = this.getListingParams();
             params.associations = {
-                salesChannels: {
-                    page: 1,
-                    limit: 5
+                type: {},
+                numberRangeSalesChannels: {
+                    associations: {
+                        salesChannel: {}
+                    }
                 }
             };
 

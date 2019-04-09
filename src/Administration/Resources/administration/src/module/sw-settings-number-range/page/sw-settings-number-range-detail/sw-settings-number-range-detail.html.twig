@@ -7,7 +7,13 @@
                 <h2 v-else>{{ $tc('sw-settings-number-range.detail.textHeadline') }}</h2>
             </template>
         {% endblock %}
-
+        {% block sw_settings_customer_group_list_language_switch %}
+        <template slot="language-switch">
+            <sw-language-switch @on-change="onChangeLanguage"
+                                :saveChangesFunction="saveOnLanguageChange"
+                                :abortChangeFunction="abortOnLanguageChange"></sw-language-switch>
+        </template>
+        {% endblock %}
         {% block sw_settings_number_range_detail_actions %}
             <template slot="smart-bar-actions">
                 {% block sw_settings_number_range_detail_actions_abort %}
@@ -17,7 +23,7 @@
                 {% endblock %}
 
                 {% block sw_settings_number_range_detail_actions_save %}
-                    <sw-button class="sw-settings-number-range-detail__save-action" variant="primary" :disabled="numberRange.isLoading" @click.prevent="onSave">
+                    <sw-button class="sw-settings-number-range-detail__save-action" variant="primary" :disabled="numberRange.isLoading" @click.prevent="onSave()">
                         {{ $tc('sw-settings-number-range.detail.buttonSave') }}
                     </sw-button>
                 {% endblock %}
@@ -61,6 +67,7 @@
 
                             {% block sw_settings_number_range_detail_content_field_start %}
                                 <sw-field type="number"
+                                          numberType="int"
                                           @input="onChange()"
                                           :label="$tc('sw-settings-number-range.detail.labelStart')"
                                           :placeholder="$tc('sw-settings-number-range.detail.placeholderStart')"
@@ -80,29 +87,10 @@
                         </sw-container>
 
                         <sw-container columns="repeat(auto-fit, minmax(250px, 1fr)" gap="0px 30px">
-                            {% block sw_settings_number_range_detail_content_field_current_number %}
-                                <sw-field type="text"
-                                          disabled
-                                          :label="$tc('sw-settings-number-range.detail.labelCurrentNumber')"
-                                          :placeholder="numberRange.start"
-                                          v-if="state"
-                                          v-model="state">
-                                </sw-field>
-                            {% endblock %}
-
-                            {% block sw_settings_number_range_detail_content_field_preview %}
-                                <sw-field type="text"
-                                          disabled
-                                          :label="$tc('sw-settings-number-range.detail.labelPreview')"
-                                          v-model="preview">
-                                </sw-field>
-                            {% endblock %}
-
                             {% block sw_settings_number_range_detail_content_field_default %}
                                 <div class="sw-settings-number-range-detail__field_default">
                                     <sw-field type="boolean"
                                               v-model="advanced"
-                                              :disabled="!simplePossible"
                                               :label="$tc('sw-settings-number-range.detail.labelAdvanced')">
                                     </sw-field>
                                     <sw-help-text :width="380" :text="$tc('sw-settings-number-range.detail.helpTextAdvancedField')"></sw-help-text>
@@ -117,6 +105,25 @@
                                           :placeholder="$tc('sw-settings-number-range.detail.placeholderPattern')"
                                           v-model="numberRange.pattern">
                                 </sw-field>
+                                <div v-if="!advanced"></div>
+                            {% endblock %}
+
+                            {% block sw_settings_number_range_detail_content_field_current_number %}
+                            <sw-field type="text"
+                                      disabled
+                                      :label="$tc('sw-settings-number-range.detail.labelCurrentNumber')"
+                                      :placeholder="numberRange.start?numberRange.start.toString():''"
+                                      v-if="state"
+                                      v-model="state">
+                            </sw-field>
+                            {% endblock %}
+
+                            {% block sw_settings_number_range_detail_content_field_preview %}
+                            <sw-field type="text"
+                                      disabled
+                                      :label="$tc('sw-settings-number-range.detail.labelPreview')"
+                                      v-model="preview">
+                            </sw-field>
                             {% endblock %}
                         </sw-container>
                     </sw-card>
@@ -129,26 +136,38 @@
                                             v-model="numberRange.type.id"
                                             v-if="numberRange.type"
                                             id="numberRangeTypes"
+                                            :criteria="typeCriteria"
                                             displayName="typeName"
                                             :label="$tc('sw-settings-number-range.detail.labelType')"
                                             class="sw-number-range-detail__select-type"
                                             :showSearch="false"
                                             @input="onChangeType"
+                                            :disabled="
+                                            numberRange.type.global ||
+                                            numberRange.global ||
+                                            (
+                                                numberRange.type !== null &&
+                                                numberRangeSalesChannels &&
+                                                numberRangeSalesChannels.length > 0
+                                            )"
                                             validation="required">
                                 </sw-select>
                             {% endblock %}
                             {% block sw_sales_channel_detail_base_general_input_sales_channel %}
                                 <sw-select :store="salesChannelStore"
                                         multi
-                                        v-model="numberRange.salesChannels"
-                                        :associationStore="salesChannelAssociationStore"
+                                        v-model="numberRangeSalesChannels"
+                                        :associationStore="numberRangeSalesChannelsStore"
                                         id="numberRangeSalesChannel"
-                                        v-if="isGlobal"
+                                        :criteria="salesChannelsTypeCriteria"
+                                        v-if="numberRange && (!numberRange.global || numberRange.global === false)"
                                         :label="$tc('sw-settings-number-range.detail.labelSalesChannel')"
                                         class="sw-number-range-detail__select-type"
+                                        :disabled="selectedType.id === undefined"
                                         :showSearch="false"
+                                        ref="numberRangeSalesChannel"
                                         validation="required">
-                            </sw-select>
+                                </sw-select>
                             {% endblock %}
                         </sw-container>
                     </sw-card>

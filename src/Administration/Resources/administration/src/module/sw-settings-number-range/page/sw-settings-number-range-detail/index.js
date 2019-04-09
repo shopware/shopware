@@ -1,4 +1,6 @@
 import { Component, State, Mixin } from 'src/core/shopware';
+import LocalStore from 'src/core/data/LocalStore';
+import CriteriaFactory from 'src/core/factory/criteria.factory';
 import template from './sw-settings-number-range-detail.html.twig';
 import './sw-settings-number-range-detail.scss';
 
@@ -15,6 +17,12 @@ Component.register('sw-settings-number-range-detail', {
         return {
             numberRange: {},
             selectedType: {},
+            typeCriteria: {},
+            numberRangeSalesChannelsStore: {},
+            numberRangeSalesChannels: [],
+            numberRangeSalesChannelsAssoc: {},
+            salesChannelsTypeCriteria: {},
+            salesChannels: {},
             advanced: false,
             simplePossible: true,
             prefix: '',
@@ -35,23 +43,14 @@ Component.register('sw-settings-number-range-detail', {
             return State.getStore('sales_channel');
         },
         salesChannelAssociationStore() {
-            return this.numberRange.getAssociation('salesChannels');
+            return this.numberRange.getAssociation('numberRangeSalesChannels');
         },
-        isGlobal() {
-            return (
-                this.numberRange.salesChannels
-                && (
-                    (
-                        this.selectedType.id === this.numberRange.type.id
-                        && this.numberRange.type.global === false
-                    )
-                    || this.selectedType.global === false
-                )
-            );
+        numberRangeStateStore() {
+            return State.getStore('number_range_state');
         },
         firstSalesChannel() {
-            if (this.numberRange.salesChannels && this.numberRange.salesChannels.length > 0) {
-                return this.numberRange.salesChannels[0].id;
+            if (this.numberRange.numberRangeSalesChannels && this.numberRange.numberRangeSalesChannels.length > 0) {
+                return this.numberRange.numberRangeSalesChannels[0].salesChannelId;
             }
             return '';
         }
@@ -63,10 +62,26 @@ Component.register('sw-settings-number-range-detail', {
 
     methods: {
         createdComponent() {
-            if (this.$route.params.id) {
+            this.isLoading = true;
+            this.numberRangeSalesChannelsStore = new LocalStore();
+            this.typeCriteria = CriteriaFactory.equals('global', false);
+            if (this.$route.params.id && this.numberRange.isLoading !== true) {
                 this.numberRangeId = this.$route.params.id;
                 this.loadEntityData();
             }
+            this.isLoading = false;
+        },
+
+        onChangeLanguage() {
+            this.createdComponent();
+        },
+
+        abortOnLanguageChange() {
+            return this.numberRange.hasChanges();
+        },
+
+        saveOnLanguageChange() {
+            return this.onSave();
         },
 
         splitPattern() {
@@ -86,8 +101,6 @@ Component.register('sw-settings-number-range-detail', {
                 this.suffix = (patternCheck[3] ? patternCheck[3] : '');
                 this.simplePossible = true;
             } else {
-                this.prefix = '';
-                this.suffix = '';
                 this.advanced = true;
                 this.simplePossible = false;
             }
@@ -95,7 +108,7 @@ Component.register('sw-settings-number-range-detail', {
 
         getPreview() {
             this.numberRangeService.previewPattern(
-                this.numberRange.type.typeName,
+                this.numberRange.type.technicalName,
                 this.numberRange.pattern,
                 this.numberRange.start
             ).then((response) => {
@@ -104,12 +117,14 @@ Component.register('sw-settings-number-range-detail', {
         },
 
         getState() {
-            this.numberRangeService.reserve(
-                this.numberRange.type.typeName,
-                this.firstSalesChannel,
-                true
-            ).then((response) => {
-                this.state = response.number - 1;
+            this.numberRangeStateStore.getList({
+                criteria: CriteriaFactory.equals('numberRangeId', this.numberRangeId)
+            }).then((response) => {
+                if (response.total === 1) {
+                    this.state = response.items[0].lastValue;
+                } else {
+                    this.state = this.numberRange.start;
+                }
             });
         },
 
@@ -129,9 +144,12 @@ Component.register('sw-settings-number-range-detail', {
         },
 
         loadEntityData() {
+            this.salesChannelStore.getList().then((response) => {
+                this.salesChannels = response;
+            });
             this.numberRangeStore.getByIdAsync(this.numberRangeId).then((response) => {
                 this.numberRange = response;
-                this.selectedType = this.numberRangeTypeStore.getById(this.numberRange.typeId);
+                this.onChangeType(this.numberRange.typeId);
                 this.getPreview();
                 this.getState();
                 this.splitPattern();
@@ -143,14 +161,117 @@ Component.register('sw-settings-number-range-detail', {
         },
 
         onChangeType(id) {
+            if (!id) {
+                this.selectedType = {};
+                return;
+            }
             this.selectedType = this.numberRangeTypeStore.getById(id);
+            this.salesChannelsTypeCriteria = CriteriaFactory.multi('OR',
+                CriteriaFactory.equals('numberRangeSalesChannels.numberRangeTypeId', null),
+                CriteriaFactory.not(
+                    'AND',
+                    CriteriaFactory.equals('numberRangeSalesChannels.numberRangeTypeId', this.selectedType.id),
+                ),
+                CriteriaFactory.equals('numberRangeSalesChannels.numberRange.id', this.numberRange.id));
+            if (this.numberRange.global === false) {
+                this.salesChannelAssociationStore.getList({
+                    associations: { salesChannel: {} }
+                }).then((responseAssoc) => {
+                    this.numberRangeSalesChannels = [];
+                    // get all salesChannels which are not assigned to this numberRangeType
+                    // and all SalesChannels already assigned to the current NumberRange
+                    this.numberRangeSalesChannelsAssoc = responseAssoc;
+                    this.numberRangeSalesChannelsAssoc.items.forEach((salesChannelAssoc) => {
+                        if (salesChannelAssoc.salesChannelId !== null) {
+                            this.numberRangeSalesChannelsStore.add(salesChannelAssoc.salesChannel);
+                            this.numberRangeSalesChannels.push(salesChannelAssoc.salesChannel.id);
+                        }
+                    });
+                    if (this.$refs.numberRangeSalesChannel) {
+                        this.$refs.numberRangeSalesChannel.loadSelected(true);
+                    }
+                });
+            }
+        },
+        onChangeSalesChannel() {
+            if (this.$refs.numberRangeSalesChannel) {
+                this.$refs.numberRangeSalesChannel.updateValue();
+            }
+            if (Object.keys(this.numberRange).length === 0) {
+                return;
+            }
+            // check selected saleschannels and associate to config
+            if (this.numberRangeSalesChannels && this.numberRangeSalesChannels.length > 0) {
+                this.numberRangeSalesChannels.forEach((salesChannel) => {
+                    if (!this.configHasSaleschannel(salesChannel)) {
+                        const assocConfig = this.salesChannelAssociationStore.create();
+                        assocConfig.numberRangeId = this.numberRange.id;
+                        assocConfig.numberRangeTypeId = this.selectedType.id;
+                        assocConfig.salesChannelId = salesChannel;
+                    } else {
+                        this.undeleteSaleschannel(salesChannel);
+                    }
+                });
+            }
+            this.salesChannelAssociationStore.forEach((salesChannelAssoc) => {
+                if (!this.selectHasSaleschannel(salesChannelAssoc.salesChannelId)) {
+                    salesChannelAssoc.delete();
+                }
+            });
+        },
+
+        configHasSaleschannel(salesChannelId) {
+            let found = false;
+            this.salesChannelAssociationStore.forEach((salesChannelAssoc) => {
+                if (salesChannelAssoc.salesChannelId === salesChannelId) {
+                    found = true;
+                }
+            });
+            return found;
+        },
+
+        selectHasSaleschannel(salesChannelId) {
+            return (this.numberRangeSalesChannels && this.numberRangeSalesChannels.indexOf(salesChannelId) !== -1);
+        },
+
+        undeleteSaleschannel(salesChannelId) {
+            this.salesChannelAssociationStore.forEach((salesChannelAssoc) => {
+                if (salesChannelAssoc.salesChannelId === salesChannelId && salesChannelAssoc.isDeleted === true) {
+                    salesChannelAssoc.isDeleted = false;
+                }
+            });
         },
 
         onSave() {
+            this.onChangeSalesChannel();
             const numberRangeName = this.numberRange.name;
+            if (this.noSalesChannelSelected()) {
+                this.createNotificationError(
+                    {
+                        title: this.$tc('sw-settings-number-range.detail.errorSalesChannelNeededTitle'),
+                        message: this.$tc('sw-settings-number-range.detail.errorSalesChannelNeededMessage')
+                    }
+                );
+                return false;
+            }
+            if (!this.numberRange.pattern) {
+                this.createNotificationError(
+                    {
+                        title: this.$tc('sw-settings-number-range.detail.errorPatternNeededTitle'),
+                        message: this.$tc('sw-settings-number-range.detail.errorPatternNeededMessage')
+                    }
+                );
+                return false;
+            }
             const titleSaveSuccess = this.$tc('sw-settings-number-range.detail.titleSaveSuccess');
             const messageSaveSuccess = this.$tc(
                 'sw-settings-number-range.detail.messageSaveSuccess',
+                0,
+                { name: numberRangeName }
+            );
+            const titleSaveError = this.$tc('sw-settings-number-range.detail.titleSaveError');
+            const messageSaveError = this.$tc(
+                'sw-settings-number-range.detail.messageSaveError',
                 0,
                 { name: numberRangeName }
             );
@@ -159,7 +280,29 @@ Component.register('sw-settings-number-range-detail', {
                     title: titleSaveSuccess,
                     message: messageSaveSuccess
                 });
+            }).catch((exception) => {
+                this.createNotificationError({
+                    title: titleSaveError,
+                    message: messageSaveError
+                });
+                throw exception;
             });
+        },
+
+        noSalesChannelSelected() {
+            return (
+                (
+                    this.numberRange.global === false &&
+                    (
+                        this.numberRange.type.global === false ||
+                        this.numberRange.type.global === null
+                    )
+                ) &&
+                (
+                    !this.numberRangeSalesChannels ||
+                    this.numberRangeSalesChannels.length === 0
+                )
+            );
         }
     }
 });

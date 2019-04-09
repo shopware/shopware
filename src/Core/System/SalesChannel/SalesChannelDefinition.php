@@ -36,7 +36,6 @@ use Shopware\Core\Framework\Language\LanguageDefinition;
 use Shopware\Core\System\Country\CountryDefinition;
 use Shopware\Core\System\Currency\CurrencyDefinition;
 use Shopware\Core\System\NumberRange\Aggregate\NumberRangeSalesChannel\NumberRangeSalesChannelDefinition;
-use Shopware\Core\System\NumberRange\NumberRangeDefinition;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelCountry\SalesChannelCountryDefinition;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelCurrency\SalesChannelCurrencyDefinition;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainDefinition;
@@ -110,7 +109,7 @@ class SalesChannelDefinition extends EntityDefinition
             new ManyToOneAssociationField('mailHeaderFooter', 'mail_header_footer_id', MailHeaderFooterDefinition::class, 'id', true),
             new OneToManyAssociationField('newsletterReceivers', NewsletterReceiverDefinition::class, 'sales_channel_id', 'id'),
             new ManyToManyAssociationField('mailTemplates', MailTemplateDefinition::class, MailTemplateSalesChannelDefinition::class, 'sales_channel_id', 'mail_template_id'),
-            new ManyToManyAssociationField('numberRanges', NumberRangeDefinition::class, NumberRangeSalesChannelDefinition::class, 'sales_channel_id', 'number_range_id'),
+            new OneToManyAssociationField('numberRangeSalesChannels', NumberRangeSalesChannelDefinition::class, 'sales_channel_id'),
             new OneToManyAssociationField('promotionSalesChannels', PromotionSalesChannelDefinition::class, 'sales_channel_id', 'id'),
         ]);
     }

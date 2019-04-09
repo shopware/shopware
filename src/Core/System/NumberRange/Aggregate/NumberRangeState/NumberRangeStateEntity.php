@@ -3,10 +3,12 @@
 namespace Shopware\Core\System\NumberRange\Aggregate\NumberRangeState;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\System\NumberRange\NumberRangeEntity;
 
 class NumberRangeStateEntity extends Entity
 {
+    use EntityIdTrait;
     /**
      * @var string
      */

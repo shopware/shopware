@@ -4,9 +4,10 @@ namespace Shopware\Core\System\NumberRange;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
+use Shopware\Core\System\NumberRange\Aggregate\NumberRangeSalesChannel\NumberRangeSalesChannelCollection;
 use Shopware\Core\System\NumberRange\Aggregate\NumberRangeState\NumberRangeStateEntity;
+use Shopware\Core\System\NumberRange\Aggregate\NumberRangeTranslation\NumberRangeTranslationCollection;
 use Shopware\Core\System\NumberRange\Aggregate\NumberRangeType\NumberRangeTypeEntity;
-use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 
 class NumberRangeEntity extends Entity
 {
@@ -16,6 +17,11 @@ class NumberRangeEntity extends Entity
      * @var string|null
      */
     protected $typeId;
+
+    /**
+     * @var bool
+     */
+    protected $global;
 
     /**
      * @var string|null
@@ -53,14 +59,24 @@ class NumberRangeEntity extends Entity
     protected $type;
 
     /**
-     * @var SalesChannelCollection|null
+     * @var NumberRangeSalesChannelCollection|null
      */
-    protected $salesChannels;
+    protected $numberRangeSalesChannels;
 
     /**
      * @var NumberRangeStateEntity|null
      */
     protected $state;
+
+    /**
+     * @var array|null
+     */
+    protected $attributes;
+
+    /**
+     * @var NumberRangeTranslationCollection|null
+     */
+    protected $translations;
 
     public function getName(): ?string
     {
@@ -152,13 +168,43 @@ class NumberRangeEntity extends Entity
         $this->typeId = $typeId;
     }
 
-    public function getSalesChannels(): ?SalesChannelCollection
+    public function isGlobal(): bool
     {
-        return $this->salesChannels;
+        return $this->global;
     }
 
-    public function setSalesChannels(?SalesChannelCollection $salesChannels): void
+    public function setGlobal(bool $global): void
     {
-        $this->salesChannels = $salesChannels;
+        $this->global = $global;
+    }
+
+    public function getAttributes(): ?array
+    {
+        return $this->attributes;
+    }
+
+    public function setAttributes(?array $attributes): void
+    {
+        $this->attributes = $attributes;
+    }
+
+    public function getTranslations(): ?NumberRangeTranslationCollection
+    {
+        return $this->translations;
+    }
+
+    public function setTranslations(?NumberRangeTranslationCollection $translations): void
+    {
+        $this->translations = $translations;
+    }
+
+    public function getNumberRangeSalesChannels(): ?NumberRangeSalesChannelCollection
+    {
+        return $this->numberRangeSalesChannels;
+    }
+
+    public function setNumberRangeSalesChannels(?NumberRangeSalesChannelCollection $numberRangeSalesChannels): void
+    {
+        $this->numberRangeSalesChannels = $numberRangeSalesChannels;
     }
 }

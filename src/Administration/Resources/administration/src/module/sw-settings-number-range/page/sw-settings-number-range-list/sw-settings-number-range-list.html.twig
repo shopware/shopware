@@ -84,7 +84,7 @@
                                                 <sw-grid-column flex="minmax(120px, 1fr)"
                                                                 :label="$tc('sw-settings-number-range.list.columnUsedIn')">
                                                     {% block sw_settings_number_range_list_columns_used_in_label %}
-                                                        {{ item.type.typeName }}
+                                                        {{ item.type.translated.typeName }}
                                                     {% endblock %}
                                                 </sw-grid-column>
                                             {% endblock %}
@@ -93,13 +93,13 @@
                                                 <sw-grid-column flex="minmax(150px, 1fr)"
                                                                 :label="$tc('sw-settings-number-range.list.columnAssignment')">
                                                     {% block sw_settings_number_range_list_columns_assignment_label %}
-                                                        <sw-label small class="sw-settings-number-range-list__columns-assignment-tag" v-if="item.type.global">
+                                                        <sw-label small class="sw-settings-number-range-list__columns-assignment-tag" v-if="item.type.global || item.global">
                                                             {{ $tc('sw-settings-number-range.list.global') }}
                                                         </sw-label>
 
-                                                        <template v-if="!item.meta.viewData.type.global">
-                                                            <sw-label small class="sw-settings-number-range-list__columns-assignment-tag" v-for="salesChannel in item.salesChannels">
-                                                                {{ salesChannel.translated.name }}
+                                                        <template v-if="!item.type.global && !item.global">
+                                                            <sw-label :key="numberRangeSalesChannel.id" small class="sw-settings-number-range-list__columns-assignment-tag" v-for="numberRangeSalesChannel in item.numberRangeSalesChannels">
+                                                                {{ numberRangeSalesChannel.salesChannel.translated.name }}
                                                             </sw-label>
                                                         </template>
                                                     {% endblock %}

@@ -6,6 +6,8 @@ class DocumentHtml
 {
     private const METATAG_REGEX = '/^\[(.*?)\]:\s*<>\((.*?)\)\s*?$/m';
 
+    private const RAW_TRIGGER = '[__RAW__]: <>(__RAW__)';
+
     /**
      * @var Document
      */
@@ -20,9 +22,9 @@ class DocumentHtml
 
     public function render(DocumentTree $documentTree): RenderedDocument
     {
-        $contents = $this->document->getFile()->getContents();
-
-        $contents = $this->stripMetatags($contents);
+        $contents = $this->document
+            ->getFile()
+            ->getContents();
 
         return $this->convertMarkdownToHtml($contents, $documentTree);
     }
@@ -35,9 +37,15 @@ class DocumentHtml
     private function convertMarkdownToHtml(string $contents, DocumentTree $documentTree): RenderedDocument
     {
         $this->media = [];
-        $parsedown = new \ParsedownExtra();
 
-        $html = $parsedown->parse($contents);
+        if (strpos($contents, self::RAW_TRIGGER) !== false) {
+            $parts = explode(self::RAW_TRIGGER, $contents);
+            $html = end($parts);
+        } else {
+            $contents = $this->stripMetatags($contents);
+            $parsedown = new \ParsedownExtra();
+            $html = $parsedown->parse($contents);
+        }
 
         $relativeLinkReplacementRegex = '/(?:href|src)=\"(.*?)\"/m';
         $out = preg_replace_callback(

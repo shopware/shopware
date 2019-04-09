@@ -102,7 +102,7 @@ Component.register('sw-order-detail-base', {
             this.isLoading = true;
 
             this.orderService.versionize(this.order.id).then((response) => {
-                const tmpVersionId = response.data.version_id;
+                const tmpVersionId = response.data.versionId;
                 this.reloadVersionedOrder(tmpVersionId);
             }).catch((error) => {
                 this.$emit('sw-order-detail-base-error', error);

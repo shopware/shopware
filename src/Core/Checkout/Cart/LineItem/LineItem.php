@@ -24,8 +24,6 @@ class LineItem extends Struct
 
     public const DISCOUNT_PRIORITY = 25;
 
-    public const PAYLOAD_LIMIT = 500;
-
     /**
      * @var string
      */
@@ -243,9 +241,7 @@ class LineItem extends Struct
      */
     public function setPayloadValue(string $key, $value): self
     {
-        if (!is_string($key) || strlen($key) > self::PAYLOAD_LIMIT
-            || !is_scalar($value) || strlen((string) $value) > self::PAYLOAD_LIMIT
-        ) {
+        if (!is_string($key) || ($value !== null && !is_scalar($value) && !is_array($value))) {
             throw new InvalidPayloadException($key, $this->getKey());
         }
 

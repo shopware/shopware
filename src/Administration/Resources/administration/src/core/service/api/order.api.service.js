@@ -43,7 +43,7 @@ class OrderApiService extends ApiService {
         const headers = Object.assign(ApiService.getVersionHeader(versionId), this.getBasicHeaders(additionalHeaders));
 
         const dummyPrice = deepCopyObject(item.priceDefinition);
-        dummyPrice.taxRules = item.priceDefinition.taxRules.elements;
+        dummyPrice.taxRules = item.priceDefinition.taxRules;
 
         return this.httpClient
             .post(route,

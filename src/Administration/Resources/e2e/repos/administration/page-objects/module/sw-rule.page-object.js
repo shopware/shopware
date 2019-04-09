@@ -82,15 +82,15 @@ class RuleBuilderPageObject extends GeneralPageObject {
                 isMulti: false,
                 searchTerm: ruleData.type
             })
-            .fillSwSelectComponent(`${ruleData.ruleSelector} .sw-select[name=id]`, {
-                value: ruleData.firstValue,
-                isMulti: ruleData.isMulti,
-                searchTerm: ruleData.firstValue
-            })
             .fillSwSelectComponent(`${ruleData.ruleSelector} .sw-condition-operator-select`, {
                 value: ruleData.operator,
                 isMulti: ruleData.isMulti,
                 searchTerm: ruleData.operator
+            })
+            .fillSwSelectComponent(`${ruleData.ruleSelector} .sw-select[name=id]`, {
+                value: ruleData.firstValue,
+                isMulti: ruleData.isMulti,
+                searchTerm: ruleData.firstValue
             })
             .fillField(`${ruleData.ruleSelector} input[name=${ruleData.inputName}]`, ruleData.secondValue);
     }

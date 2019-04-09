@@ -1,4 +1,4 @@
-[titleEn]: <>(Shopware Platform Administration)
+[titleEn]: <>(Administration)
 
 Repository Link: `https://github.com/shopware/platform/tree/master/src/Adminitration/Resources/administration/source`
 

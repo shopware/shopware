@@ -49,87 +49,8 @@ class WikiApiService
 
         $this->deleteCategoryChildren();
 
-        $i = 0;
-        /** @var Document $document */
-        foreach ($tree->getArticles() as $document) {
-            ++$i;
-            echo 'Syncing file ' . $i . ' ' . $document->getFile()->getRelativePathname() . ' of ' . count($tree->getArticles()) . PHP_EOL;
-
-            $articleInfo = $this->createLocalizedVersionedArticle($document->getMetadata()->getUrlEn(), $document->getMetadata()->getUrlDe());
-            $categoryId = $this->getOrCreateMissingCategoryTree($document);
-            $this->addArticleToCategory($articleInfo['en_GB'], $categoryId);
-
-            // handle media files for articles
-            $images = $document->getHtml()->render($tree)->getImages();
-            $imageMap = [];
-            if (count($images)) {
-                echo '=> Uploading ' . count($images) . ' mediafile(s) ...' . PHP_EOL;
-                foreach ($images as $key => $mediaFile) {
-                    $mediaLink = $this->uploadArticleMedia($articleInfo['en_GB'], $mediaFile);
-                    $imageMap[$key] = $mediaLink;
-                }
-            }
-
-            $this->updateArticleLocale($articleInfo['en_GB'],
-                [
-                    'seoUrl' => $document->getMetadata()->getUrlEn(),
-                    'searchableInAllLanguages' => true,
-                ]
-            );
-            $this->updateArticleVersion($articleInfo['en_GB'],
-                [
-                    'content' => $document->getHtml()->render($tree)->getContents($imageMap),
-                    'title' => $document->getMetadata()->getTitleEn(),
-                    'navigationTitle' => $document->getMetadata()->getTitleEn(),
-                    'searchableInAllLanguages' => true,
-                    'active' => $document->getMetadata()->isActive(),
-                    'fromProductVersion' => self::INITIAL_VERSION,
-                    'metaTitle' => $document->getMetadata()->getMetaTitleEn(),
-                    'metaDescription' => '', // todo add again later,
-                ]
-            );
-
-            $this->updateArticlePriority($articleInfo['en_GB'], $document->getPriority());
-            $this->insertGermanStubArticle($articleInfo['de_DE'], $document);
-        }
-
-        echo 'Syncing ' . count($tree->getCategories()) . ' categories ...' . PHP_EOL;
-        $oldCategories = $this->getAllCategories();
-        $categoryIds = array_column($oldCategories, 'id');
-
-        foreach ($tree->getCategories() as $document) {
-            echo 'Syncing ' . $document->getFile()->getRelativePathname() . ' with prio ' . $document->getPriority() . ' ... ' . PHP_EOL;
-            $parentId = $this->rootCategoryId;
-            $categoryId = $document->getCategoryId();
-
-            if ($document->getParent()) {
-                $parentId = $document->getParent()->getCategoryId();
-            }
-
-            if (!$categoryId) {
-                echo 'Skipping category ' . $document->getFile()->getRelativePathname() . " - no sync reason found\n";
-                continue;
-            }
-
-            if (!$parentId) {
-                echo 'Skipping category ' . $document->getFile()->getRelativePathname() . " - parent not synced\n";
-                continue;
-            }
-
-            $baseContents = $oldCategories[array_search($categoryId, $categoryIds, true)];
-
-            if (!$baseContents) {
-                throw new \RuntimeException('Unable to update category, no contents found');
-            }
-
-            $this->updateCategory(
-                $categoryId,
-                $parentId,
-                $baseContents,
-                $document,
-                $tree
-            );
-        }
+        $this->syncArticles($tree);
+        $this->syncCategories($tree);
     }
 
     private function insertGermanStubArticle(array $articleInfoDe, Document $document): void
@@ -634,5 +555,111 @@ class WikiApiService
             vsprintf('/wiki/categories/%s', [$categoryId]),
             ['headers' => $this->getBasicHeaders()]
         );
+    }
+
+    private function syncArticles(DocumentTree $tree)
+    {
+        $i = 0;
+        /** @var Document $document */
+        foreach ($tree->getArticles() as $document) {
+            ++$i;
+            echo 'Syncing article (' . $i . '/' . count($tree->getArticles()) . ') ' . $document->getFile()->getRelativePathname() . ' with prio ' . $document->getPriority() . PHP_EOL;
+
+            $articleInfo = $this->createLocalizedVersionedArticle($document->getMetadata()->getUrlEn(), $document->getMetadata()->getUrlDe());
+            $categoryId = $this->getOrCreateMissingCategoryTree($document);
+            $this->addArticleToCategory($articleInfo['en_GB'], $categoryId);
+
+            // handle media files for articles
+            $images = $document->getHtml()->render($tree)->getImages();
+            $imageMap = [];
+            if (count($images)) {
+                echo '=> Uploading ' . count($images) . ' mediafile(s) ...' . PHP_EOL;
+                foreach ($images as $key => $mediaFile) {
+                    $mediaLink = $this->uploadArticleMedia($articleInfo['en_GB'], $mediaFile);
+                    $imageMap[$key] = $mediaLink;
+                }
+            }
+
+            $this->updateArticleLocale($articleInfo['en_GB'],
+                [
+                    'seoUrl' => $document->getMetadata()->getUrlEn(),
+                    'searchableInAllLanguages' => true,
+                ]
+            );
+            $this->updateArticleVersion($articleInfo['en_GB'],
+                [
+                    'content' => $document->getHtml()->render($tree)->getContents($imageMap),
+                    'title' => $document->getMetadata()->getTitleEn(),
+                    'navigationTitle' => $document->getMetadata()->getTitleEn(),
+                    'searchableInAllLanguages' => true,
+                    'active' => $document->getMetadata()->isActive(),
+                    'fromProductVersion' => self::INITIAL_VERSION,
+                    'metaTitle' => $document->getMetadata()->getMetaTitleEn(),
+                    'metaDescription' => '', // todo add again later,
+                ]
+            );
+
+            $this->updateArticlePriority($articleInfo['en_GB'], $document->getPriority());
+            $this->insertGermanStubArticle($articleInfo['de_DE'], $document);
+        }
+    }
+
+    private function syncCategories(DocumentTree $tree): void
+    {
+        echo 'Syncing ' . count($tree->getCategories()) . ' categories ...' . PHP_EOL;
+
+        $this->addEmptyCategories($tree);
+        $this->syncCategoryContents($tree);
+    }
+
+    private function addEmptyCategories(DocumentTree $tree)
+    {
+        foreach ($tree->getCategories() as $document) {
+            if ($document->getCategoryId()) {
+                continue;
+            }
+
+            $this->getOrCreateMissingCategoryTree($document);
+        }
+    }
+
+    private function syncCategoryContents(DocumentTree $tree): void
+    {
+        $oldCategories = $this->getAllCategories();
+        $categoryIds = array_column($oldCategories, 'id');
+
+        foreach ($tree->getCategories() as $document) {
+            echo 'Syncing category ' . $document->getFile()->getRelativePathname() . ' with prio ' . $document->getPriority() . ' ... ' . PHP_EOL;
+            $parentId = $this->rootCategoryId;
+            $categoryId = $document->getCategoryId();
+
+            if ($document->getParent()) {
+                $parentId = $document->getParent()->getCategoryId();
+            }
+
+            if (!$categoryId) {
+                echo 'Skipping category ' . $document->getFile()->getRelativePathname() . " - no sync reason found\n";
+                continue;
+            }
+
+            if (!$parentId) {
+                echo 'Skipping category ' . $document->getFile()->getRelativePathname() . " - parent not synced\n";
+                continue;
+            }
+
+            $baseContents = $oldCategories[array_search($categoryId, $categoryIds, true)];
+
+            if (!$baseContents) {
+                throw new \RuntimeException('Unable to update category, no contents found');
+            }
+
+            $this->updateCategory(
+                $categoryId,
+                $parentId,
+                $baseContents,
+                $document,
+                $tree
+            );
+        }
     }
 }

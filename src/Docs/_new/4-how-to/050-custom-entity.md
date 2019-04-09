@@ -13,7 +13,7 @@ So let's start with the plugin base class.
 All it has to do, is to register your `services.xml` file by simply putting it into the proper directory `<plugin root>/src/Resources/config/`.
 This way, the Shopware platform is able to automatically find and load your `services.xml` file.
 
-*Note: You can change your plugin's `services.xml` location by overriding the method `getContainerPath` of your [plugin's base class](../2-internals/4-plugins/020-plugin-base-class.md#getContainerPath()).*
+*Note: You can change your plugin's `services.xml` location by overriding the method `getContainerPath` of your [plugin's base class](./../2-internals/4-plugins/020-plugin-base-class.md#getContainerPath()).*
 
 ## The EntityDefinition class
 
@@ -186,7 +186,7 @@ As already mentioned earlier, the database table **has to** be named after your 
 
 You should create the database table using the plugin migration system.
 For a short example how to use migrations, have a look [here](./170-plugin-migrations.md).
-A more detailed explanation about the plugin migration system can be found in [this guide](../2-internals/4-plugins/080-plugin-migrations.md).
+A more detailed explanation about the plugin migration system can be found in [this guide](./../2-internals/4-plugins/080-plugin-migrations.md).
 
 In short:
 Create a new directory named `src/Resources/migration` in your plugin root and add a migration class like this in there:

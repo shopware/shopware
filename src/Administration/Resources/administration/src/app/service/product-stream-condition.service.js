@@ -52,7 +52,15 @@ export default function conditionService() {
         'datasheetIds',
         'variationIds',
         'orders',
-        'customers'
+        'customers',
+        'seoUrls',
+        'translated',
+        'tagIds',
+        'customerGroupId',
+        'newsletterReceivers',
+        'numberRanges',
+        'promotionSalesChannels',
+        'seoUrlTemplates'
     ];
 
     const entityBlacklist = {
@@ -145,12 +153,13 @@ export default function conditionService() {
             'productVisibilities',
             'mailHeaderFooter',
             'mailTemplates',
-            'seoUrls',
             'language',
             'taxCalculationType',
             'paymentMethod',
             'shippingMethod',
-            'currency'
+            'currency',
+            'customerGroup',
+            'shortName'
         ],
         product: [
             'blacklistIds',

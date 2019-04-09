@@ -293,22 +293,19 @@ class EntityReader implements EntityReaderInterface
         Context $context,
         EntityCollection $collection
     ): void {
+        $associationCriteria = $criteria->getAssociation($association->getPropertyName(), $definition) ?? new Criteria();
+
         //check if the requested criteria is restricted (limit, offset, sorting, filtering)
         if ($this->isAssociationRestricted($criteria, $definition, $association->getPropertyName())) {
             //if restricted load paginated list of many to many
-            $this->loadManyToManyWithCriteria(
-                $criteria->getAssociation($association->getPropertyName(), $definition),
-                $association,
-                $context,
-                $collection
-            );
+            $this->loadManyToManyWithCriteria($associationCriteria, $association, $context, $collection);
 
             return;
         }
 
         //otherwise the association is loaded in the root query of the entity as sub select which contains all ids
         //the ids are extracted in the entity hydrator (see: \Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityHydrator::extractManyToManyIds)
-        $this->loadManyToManyOverExtension($association, $context, $collection);
+        $this->loadManyToManyOverExtension($associationCriteria, $association, $context, $collection);
     }
 
     private function addManyToManySelect(
@@ -568,17 +565,20 @@ class EntityReader implements EntityReaderInterface
     }
 
     private function loadManyToManyOverExtension(
+        Criteria $criteria,
         ManyToManyAssociationField $association,
         Context $context,
         EntityCollection $collection
     ): void {
         //collect all ids of many to many association which already stored inside the struct instances
         $ids = $this->collectManyToManyIds($collection, $association);
+        $criteria->setIds($ids);
 
         $referenceClass = $association->getReferenceDefinition();
         $collectionClass = $referenceClass::getCollectionClass();
+
         $data = $this->_read(
-            new Criteria($ids),
+            $criteria,
             $referenceClass,
             $context,
             $referenceClass::getEntityClass(),

@@ -41,17 +41,19 @@ class Kernel extends HttpKernel
     /**
      * @var ClassLoader
      */
-    protected static $classLoader;
+    protected $classLoader;
 
     /**
      * {@inheritdoc}
      */
-    public function __construct(string $environment, bool $debug)
+    public function __construct(string $environment, bool $debug, ClassLoader $classLoader)
     {
         parent::__construct($environment, $debug);
 
         self::$plugins = new KernelPluginCollection();
         self::$connection = null;
+
+        $this->classLoader = $classLoader;
     }
 
     public function registerBundles()
@@ -226,7 +228,7 @@ class Kernel extends HttpKernel
     protected function initializePlugins(): void
     {
         $sql = <<<SQL
-SELECT `name`, IF(`active` = 1 AND `installed_at` IS NOT NULL, 1, 0) AS active, `path`, `namespaces` FROM `plugin`
+SELECT `name`, IF(`active` = 1 AND `installed_at` IS NOT NULL, 1, 0) AS active, `path`, `autoload`, `managed_by_composer` FROM `plugin`
 SQL;
 
         $plugins = self::getConnection()->executeQuery($sql)->fetchAll();
@@ -306,13 +308,30 @@ SQL;
     private function registerPluginNamespaces(array $plugins): void
     {
         foreach ($plugins as $plugin) {
-            $namespaces = [];
-            if ($plugin['namespaces'] !== null) {
-                $namespaces = json_decode($plugin['namespaces'], true);
+            // plugins managed by composer are already in the classMap
+            if ($plugin['managed_by_composer']) {
+                continue;
             }
 
-            foreach ($namespaces as $namespace => $path) {
-                self::$classLoader->addPsr4($namespace, $this->getProjectDir() . $plugin['path'] . '/' . $path);
+            if (empty($plugin['autoload'])) {
+                throw new \RuntimeException(sprintf('Unable to register plugin "%s" in autoload.', $plugin['name']));
+            }
+
+            $autoload = json_decode($plugin['autoload'], true);
+
+            $psr4 = $autoload['psr-4'] ?? [];
+            $psr0 = $autoload['psr-0'] ?? [];
+
+            if (empty($psr4) && empty($psr0)) {
+                throw new \RuntimeException(sprintf('Unable to register plugin "%s" in autoload.', $plugin['name']));
+            }
+
+            foreach ($psr4 as $namespace => $path) {
+                $this->classLoader->addPsr4($namespace, $this->getProjectDir() . $plugin['path'] . '/' . $path);
+            }
+
+            foreach ($psr0 as $namespace => $path) {
+                $this->classLoader->add($namespace, $this->getProjectDir() . $plugin['path'] . '/' . $path);
             }
         }
     }

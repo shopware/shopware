@@ -5,7 +5,7 @@ CREATE TABLE `plugin` (
     `active`              TINYINT(1)                              NOT NULL DEFAULT 0,
     `managed_by_composer` TINYINT(1)                              NOT NULL DEFAULT 0,
     `path`                VARCHAR(255) COLLATE utf8mb4_unicode_ci NULL,
-    `namespaces`          JSON                                    NULL,
+    `autoload`            JSON                                    NOT NULL,
     `author`              VARCHAR(255) COLLATE utf8mb4_unicode_ci NULL,
     `copyright`           VARCHAR(255) COLLATE utf8mb4_unicode_ci NULL,
     `license`             VARCHAR(255) COLLATE utf8mb4_unicode_ci NULL,
@@ -18,7 +18,7 @@ CREATE TABLE `plugin` (
     `updated_at`          DATETIME(3)                             NULL,
     PRIMARY KEY (`id`),
     UNIQUE KEY `uniq.name` (`name`),
-    CONSTRAINT `json.namespaces` CHECK (JSON_VALID(`namespaces`))
+    CONSTRAINT `json.autoload` CHECK (JSON_VALID(`autoload`))
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS `migration` (

@@ -132,9 +132,9 @@ class PluginEntity extends Entity
     protected $attributes;
 
     /**
-     * @var array|null
+     * @var array
      */
-    protected $namespaces;
+    protected $autoload;
 
     public function getName(): string
     {
@@ -376,14 +376,14 @@ class PluginEntity extends Entity
         $this->attributes = $attributes;
     }
 
-    public function getNamespaces(): ?array
+    public function getAutoload(): array
     {
-        return $this->namespaces;
+        return $this->autoload;
     }
 
-    public function setNamespaces(array $namespaces): void
+    public function setAutoload(array $autoload): void
     {
-        $this->namespaces = $namespaces;
+        $this->autoload = $autoload;
     }
 
     public function jsonSerialize(): array

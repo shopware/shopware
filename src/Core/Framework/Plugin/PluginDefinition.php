@@ -47,7 +47,7 @@ class PluginDefinition extends EntityDefinition
             (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
             (new StringField('name', 'name'))->addFlags(new Required()),
             new StringField('composer_name', 'composerName'),
-            new JsonField('namespaces', 'namespaces'),
+            (new JsonField('autoload', 'autoload'))->addFlags(new Required()),
             new BoolField('active', 'active'),
             new BoolField('managed_by_composer', 'managedByComposer'),
             new StringField('path', 'path'),

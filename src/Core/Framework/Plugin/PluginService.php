@@ -92,6 +92,15 @@ class PluginService
                 continue;
             }
 
+            $autoload = $info->getAutoload();
+            if (empty($autoload) || (empty($autoload['psr-4']) && empty($autoload['psr-0']))) {
+                $errors[] = new PluginComposerJsonInvalidException(
+                    $pluginPath . '/composer.json',
+                    ['Neither a PSR-4 nor PSR-0 autoload information is given.']
+                );
+                continue;
+            }
+
             $pluginVersion = $info->getVersion();
             /** @var array $extra */
             $extra = $info->getExtra();
@@ -114,7 +123,7 @@ class PluginService
                 'license' => implode(', ', $license),
                 'version' => $pluginVersion,
                 'iconRaw' => $this->getPluginIconRaw($pluginPath . '/' . $pluginIconPath),
-                'namespaces' => $info->getAutoload()['psr-4'] ?? null,
+                'autoload' => $info->getAutoload(),
                 'managedByComposer' => $pluginFromFileSystem->getManagedByComposer(),
             ];
 

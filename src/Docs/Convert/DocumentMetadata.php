@@ -30,6 +30,24 @@ class DocumentMetadata
         return self::META_TITLE_PREFIX . $this->requireMetadata('titleEn');
     }
 
+    public function getMetaDescriptionDe(): string
+    {
+        try {
+            return $this->requireMetadata('metaDescriptionDe');
+        } catch (\InvalidArgumentException $e) {
+            return '';
+        }
+    }
+
+    public function getMetaDescriptionEn(): string
+    {
+        try {
+            return $this->requireMetadata('metaDescriptionEn');
+        } catch (\InvalidArgumentException $e) {
+            return '';
+        }
+    }
+
     public function getTitleDe(): string
     {
         return $this->requireMetadata('titleEn');
@@ -96,7 +114,7 @@ class DocumentMetadata
                     'fromProductVersion' => self::INITIAL_VERSION,
                     'active' => $this->isActive(),
                     'metaTitle' => $this->getMetaTitleDe(),
-                    'metaDescription' => '',
+                    'metaDescription' => $this->getMetaDescriptionDe(),
                 ],
                 'en_GB' => [
                     'title' => $this->requireMetadata('titleEn'),
@@ -106,7 +124,7 @@ class DocumentMetadata
                     'fromProductVersion' => self::INITIAL_VERSION,
                     'active' => $this->isActive(),
                     'metaTitle' => $this->getMetaTitleEn(),
-                    'metaDescription' => '',
+                    'metaDescription' => $this->getMetaDescriptionEn(),
                 ],
             ],
         ];

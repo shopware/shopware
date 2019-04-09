@@ -71,6 +71,7 @@ class WikiApiService
                 'fromProductVersion' => self::INITIAL_VERSION,
                 'active' => $document->getMetadata()->isActive(),
                 'metaTitle' => $document->getMetadata()->getMetaTitleDe(),
+                'metaDescription' => $document->getMetadata()->getMetaDescriptionDe(),
             ]);
 
         $this->updateArticlePriority($articleInfoDe, $document->getPriority());
@@ -246,6 +247,7 @@ class WikiApiService
             'content' => $document->getHtml()->render($tree)->getContents($imageMap),
             'searchableInAllLanguages' => true,
             'seoUrl' => $document->getMetadata()->getUrlEn(),
+            'metaDescription' => $document->getMetadata()->getMetaDescriptionEn(),
         ];
 
         $payloadDe = [
@@ -254,6 +256,7 @@ class WikiApiService
             'content' => '<p>Die Entwicklerdokumentation ist nur auf Englisch verfügbar.</p>',
             'searchableInAllLanguages' => true,
             'seoUrl' => $document->getMetadata()->getUrlDe(),
+            'metaDescription' => $document->getMetadata()->getMetaDescriptionDe(),
         ];
 
         $payloadDe = array_merge($oldContentDe, $payloadDe);
@@ -595,7 +598,7 @@ class WikiApiService
                     'active' => $document->getMetadata()->isActive(),
                     'fromProductVersion' => self::INITIAL_VERSION,
                     'metaTitle' => $document->getMetadata()->getMetaTitleEn(),
-                    'metaDescription' => '', // todo add again later,
+                    'metaDescription' => $document->getMetadata()->getMetaDescriptionEn(),
                 ]
             );
 
@@ -628,6 +631,7 @@ class WikiApiService
         $oldCategories = $this->getAllCategories();
         $categoryIds = array_column($oldCategories, 'id');
 
+        /** @var Document $document */
         foreach ($tree->getCategories() as $document) {
             echo 'Syncing category ' . $document->getFile()->getRelativePathname() . ' with prio ' . $document->getPriority() . ' ... ' . PHP_EOL;
             $parentId = $this->rootCategoryId;

@@ -9,6 +9,8 @@ use Symfony\Component\HttpKernel\Bundle\Bundle;
 
 class System extends Bundle
 {
+    protected $name = 'System';
+
     /**
      * {@inheritdoc}
      */

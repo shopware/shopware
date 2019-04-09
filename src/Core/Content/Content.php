@@ -9,6 +9,8 @@ use Symfony\Component\HttpKernel\Bundle\Bundle;
 
 class Content extends Bundle
 {
+    protected $name = 'Content';
+
     /**
      * {@inheritdoc}
      */

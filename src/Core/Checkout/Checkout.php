@@ -9,6 +9,8 @@ use Symfony\Component\HttpKernel\Bundle\Bundle;
 
 class Checkout extends Bundle
 {
+    protected $name = 'Checkout';
+
     /**
      * {@inheritdoc}
      */

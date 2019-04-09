@@ -67,13 +67,15 @@ module.exports = {
         browser
             .click('.icon--default-action-filter')
             .tickCheckbox('input[name=addedSnippets]', true)
-            .expect.element(`${page.elements.gridRow}--0 .sw-settings-snippet-list__column-name`).to.have.text.that.equals('a.woodech');
+            .waitForElementNotPresent(page.elements.loader)
+            .waitForElementVisible(`${page.elements.dataGridRow}--0`)
+            .expect.element(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--id`).to.have.text.that.equals('a.woodech');
     },
     'delete snippet': (browser) => {
         const page = settingsPage(browser);
 
         browser
-            .clickContextMenuItem('.sw-context-menu-item--danger', page.elements.contextMenuButton, `${page.elements.gridRow}--0`)
+            .clickContextMenuItem('.sw-context-menu-item--danger', page.elements.contextMenuButton, `${page.elements.dataGridRow}--0`)
             .expect.element(`${page.elements.modal}__body`).to.have.text.that.contains('Are you sure you want to delete the snippets');
 
         browser
@@ -83,6 +85,6 @@ module.exports = {
     'verify deletion of snippet': (browser) => {
         const page = settingsPage(browser);
 
-        browser.waitForElementNotPresent(`${page.elements.gridRow}--0`);
+        browser.waitForElementNotPresent(`${page.elements.dataGridRow}--0`);
     }
 };

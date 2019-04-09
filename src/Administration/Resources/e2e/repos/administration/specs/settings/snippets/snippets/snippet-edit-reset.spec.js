@@ -27,17 +27,17 @@ module.exports = {
         const page = settingsPage(browser);
 
         browser
-            .waitForElementVisible(`${page.elements.gridRow}--0`)
-            .moveToElement(`${page.elements.gridRow}--0`, 1, 1)
+            .waitForElementVisible(`${page.elements.dataGridRow}--0`)
+            .moveToElement(`${page.elements.dataGridRow}--0`, 1, 1)
             .doubleClick()
-            .waitForElementPresent('.is--inline-editing ')
+            .waitForElementPresent('.is--inline-edit ')
             .fillField(
-                '.sw-grid__row--0 .sw-field__input input',
+                `${page.elements.dataGridRow}--0 .sw-field__input input`,
                 '- some more'
             )
-            .waitForElementVisible(`${page.elements.gridRow}--0 ${page.elements.gridRowInlineEdit}`)
-            .click(` ${page.elements.gridRowInlineEdit}`)
-            .expect.element(`${page.elements.gridRow}--0`).to.have.text.that.contains('- some more');
+            .waitForElementVisible(`${page.elements.dataGridRow}--0 ${page.elements.dataGridInlineEditSave}`)
+            .click(` ${page.elements.dataGridInlineEditSave}`)
+            .expect.element(`${page.elements.dataGridRow}--0`).to.have.text.that.contains('- some more');
 
         browser
             .waitForElementNotPresent(page.elements.loader)
@@ -47,7 +47,7 @@ module.exports = {
         const page = settingsPage(browser);
 
         browser
-            .clickContextMenuItem('.sw-context-menu-item--danger', page.elements.contextMenuButton, `${page.elements.gridRow}--0`)
+            .clickContextMenuItem('.sw-context-menu-item--danger', page.elements.contextMenuButton, `${page.elements.dataGridRow}--0`)
             .expect.element(`${page.elements.modal}__body`).to.have.text.that.contains('Are you sure you want to reset the snippet');
 
         browser
@@ -58,6 +58,6 @@ module.exports = {
     'verify deletion of snippet': (browser) => {
         const page = settingsPage(browser);
 
-        browser.expect.element(`${page.elements.gridRow}--0`).to.have.text.that.not.contains(global.SnippetFixtureService.snippetFixture.translationKey);
+        browser.expect.element(`${page.elements.dataGridRow}--0`).to.have.text.that.not.contains(global.SnippetFixtureService.snippetFixture.translationKey);
     }
 };

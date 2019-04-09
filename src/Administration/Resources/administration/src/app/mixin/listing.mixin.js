@@ -79,7 +79,7 @@ Mixin.register('listing', {
             this.sortDirection = customData.sortDirection || this.sortDirection;
         },
 
-        updateRoute(customQuery) {
+        updateRoute(customQuery, queryExtension = {}) {
             // Get actual query parameter
             const query = customQuery || this.$route.query;
             const routeQuery = this.$route.query;
@@ -92,7 +92,8 @@ Mixin.register('listing', {
                     page: query.page || this.page,
                     term: query.term || this.term,
                     sortBy: query.sortBy || this.sortBy,
-                    sortDirection: query.sortDirection || this.sortDirection
+                    sortDirection: query.sortDirection || this.sortDirection,
+                    ...queryExtension
                 }
             };
 

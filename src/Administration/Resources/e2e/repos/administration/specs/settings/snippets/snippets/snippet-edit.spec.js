@@ -32,7 +32,7 @@ module.exports = {
         const page = settingsPage(browser);
 
         browser
-            .expect.element(`${page.elements.gridRow}--0 .sw-settings-snippet-list__column-name`).to.have.text.that.equals(global.SnippetFixtureService.snippetFixture.translationKey);
+            .expect.element(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--id`).to.have.text.that.equals(global.SnippetFixtureService.snippetFixture.translationKey);
     },
     'edit snippet': (browser) => {
         const page = settingsPage(browser);
@@ -41,7 +41,7 @@ module.exports = {
             .clickContextMenuItem(
                 '.sw-settings-snippet-list__edit-action',
                 page.elements.contextMenuButton,
-                `${page.elements.gridRow}--0`
+                `${page.elements.dataGridRow}--0`
             )
             .expect.element(page.elements.smartBarHeader).to.have.text.that.equals(global.SnippetFixtureService.snippetFixture.translationKey);
 
@@ -62,6 +62,6 @@ module.exports = {
 
         browser
             .click(page.elements.smartBarBack)
-            .expect.element(`${page.elements.gridRow}--0`).to.have.text.that.contains('Mine yours theirs');
+            .expect.element(`${page.elements.dataGridRow}--0`).to.have.text.that.contains('Mine yours theirs');
     }
 };

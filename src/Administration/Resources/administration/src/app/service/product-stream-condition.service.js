@@ -60,7 +60,8 @@ export default function conditionService() {
         'newsletterReceivers',
         'numberRanges',
         'promotionSalesChannels',
-        'seoUrlTemplates'
+        'seoUrlTemplates',
+        'shippingMethods'
     ];
 
     const entityBlacklist = {
@@ -178,7 +179,8 @@ export default function conditionService() {
             'categoriesRo',
             'canonicalUrl',
             'position',
-            'purchaseSteps'
+            'purchaseSteps',
+            'options'
         ]
     };
 

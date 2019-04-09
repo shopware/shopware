@@ -14,6 +14,8 @@ Component.register('sw-customer-list', {
     data() {
         return {
             customers: [],
+            sortBy: 'customerNumber',
+            sortDirection: 'DESC',
             isLoading: false,
             showDeleteModal: false
         };
@@ -66,7 +68,7 @@ Component.register('sw-customer-list', {
             if (params.sortBy === 'customerNumber') {
                 params.sortings = [{
                     field: 'customerNumber',
-                    direction: 'DESC',
+                    order: params.sortDirection,
                     naturalSorting: true
                 }];
             }

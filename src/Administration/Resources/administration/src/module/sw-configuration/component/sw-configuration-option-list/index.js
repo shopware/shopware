@@ -41,19 +41,19 @@ Component.register('sw-configuration-option-list', {
             if (this.group.sortingType === 'alphanumeric') {
                 this.sortings = [{
                     field: 'configuration_group_option.name',
-                    direction: 'ASC',
+                    order: 'ASC',
                     naturalSorting: false
                 }];
             } else if (this.group.sortingType === 'numeric') {
                 this.sortings = [{
                     field: 'configuration_group_option.name',
-                    direction: 'ASC',
+                    order: 'ASC',
                     naturalSorting: true
                 }];
             } else if (this.group.sortingType === 'position') {
                 this.sortings = [{
                     field: 'configuration_group_option.position',
-                    direction: 'ASC',
+                    order: 'ASC',
                     naturalSorting: false
                 }];
             }

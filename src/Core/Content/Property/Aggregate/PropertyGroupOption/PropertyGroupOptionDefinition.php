@@ -69,7 +69,7 @@ class PropertyGroupOptionDefinition extends EntityDefinition
             new ManyToOneAssociationField('media', 'media_id', MediaDefinition::class, 'id', true),
             new ManyToOneAssociationField('group', 'property_group_id', PropertyGroupDefinition::class, 'id', false),
             (new TranslationsAssociationField(PropertyGroupOptionTranslationDefinition::class, 'property_group_option_id'))->addFlags(new Required()),
-            (new OneToManyAssociationField('productConfigurators', ProductConfiguratorSettingDefinition::class, 'property_group_option_id', 'id'))->addFlags(new CascadeDelete()),
+            (new OneToManyAssociationField('productConfiguratorSettings', ProductConfiguratorSettingDefinition::class, 'property_group_option_id', 'id'))->addFlags(new CascadeDelete()),
             (new ManyToManyAssociationField('productProperties', ProductDefinition::class, ProductPropertyDefinition::class, 'property_group_option_id', 'product_id'))->addFlags(new CascadeDelete(), new ReverseInherited('properties')),
             (new ManyToManyAssociationField('productOptions', ProductDefinition::class, ProductOptionDefinition::class, 'property_group_option_id', 'product_id'))->addFlags(new CascadeDelete()),
         ]);

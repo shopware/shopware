@@ -8,9 +8,9 @@ use Shopware\Core\Checkout\DiscountSurcharge\Aggregate\DiscountSurchargeTranslat
 use Shopware\Core\Checkout\Payment\Aggregate\PaymentMethodTranslation\PaymentMethodTranslationCollection;
 use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodTranslation\ShippingMethodTranslationCollection;
 use Shopware\Core\Content\Category\Aggregate\CategoryTranslation\CategoryTranslationCollection;
+use Shopware\Core\Content\DeliveryTime\DeliveryTimeCollection;
 use Shopware\Core\Content\MailTemplate\Aggregate\MailHeaderFooter\MailHeaderFooterCollection;
 use Shopware\Core\Content\MailTemplate\MailTemplateCollection;
-use Shopware\Core\Content\DeliveryTime\DeliveryTimeCollection;
 use Shopware\Core\Content\Media\Aggregate\MediaTranslation\MediaTranslationCollection;
 use Shopware\Core\Content\Navigation\Aggregate\NavigationTranslation\NavigationTranslationCollection;
 use Shopware\Core\Content\NewsletterReceiver\NewsletterReceiverCollection;

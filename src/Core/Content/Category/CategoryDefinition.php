@@ -41,11 +41,6 @@ use Shopware\Core\Framework\Tag\TagDefinition;
 
 class CategoryDefinition extends EntityDefinition
 {
-    public static function getStorefrontDefinition(): string
-    {
-        return self::class;
-    }
-
     public static function getEntityName(): string
     {
         return 'category';

@@ -52,7 +52,7 @@ class PropertyGroupOptionEntity extends Entity
     /**
      * @var ProductConfiguratorSettingCollection|null
      */
-    protected $productConfigurators;
+    protected $productConfiguratorSettings;
 
     /**
      * @var ProductCollection|null
@@ -164,14 +164,14 @@ class PropertyGroupOptionEntity extends Entity
         $this->translations = $translations;
     }
 
-    public function getProductConfigurators(): ?ProductConfiguratorSettingCollection
+    public function getProductConfiguratorSettings(): ?ProductConfiguratorSettingCollection
     {
-        return $this->productConfigurators;
+        return $this->productConfiguratorSettings;
     }
 
-    public function setProductConfigurators(ProductConfiguratorSettingCollection $productConfigurators): void
+    public function setProductConfiguratorSettings(ProductConfiguratorSettingCollection $productConfiguratorSettings): void
     {
-        $this->productConfigurators = $productConfigurators;
+        $this->productConfiguratorSettings = $productConfiguratorSettings;
     }
 
     public function getProductProperties(): ?ProductCollection

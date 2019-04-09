@@ -128,6 +128,7 @@ SQL;
               `number_range_id` BINARY(16) NOT NULL,
               `last_value` INTEGER(8) NOT NULL,
               PRIMARY KEY (`number_range_id`),
+              UNIQUE `uniq.id` (`id`),
               INDEX `idx.number_range_id` (`number_range_id`)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 SQL;

@@ -63,7 +63,7 @@ Component.register('sw-product-stream-detail', {
                 isPlaceholder(condition) {
                     return (!condition.field || condition.field === 'id')
                         && (!condition.type || condition.type === 'equals')
-                        && !(condition.value || Object.keys(condition.parameters).length);
+                        && !(condition.value || (condition.parameters && Object.keys(condition.parameters).length));
                 }
             },
             showModalPreview: false

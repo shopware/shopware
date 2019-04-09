@@ -12,7 +12,7 @@ Component.register('sw-system-config', {
         Mixin.getByName('sw-inline-snippet')
     ],
 
-    inject: ['systemConfigApiService', 'getDetailComponent'],
+    inject: ['systemConfigApiService'],
 
     props: {
         domain: {
@@ -34,16 +34,8 @@ Component.register('sw-system-config', {
         this.createdComponent();
     },
 
-    destroyedComponent() {
-        this.destroyedComponent();
-    },
-
     methods: {
         createdComponent() {
-            this.getDetailComponent().$on('save', () => {
-                this.saveAll();
-            });
-
             this.readConfig()
                 .then(this.readAll)
                 .catch(({ response: { data } }) => {
@@ -51,11 +43,6 @@ Component.register('sw-system-config', {
                         this.createErrorNotification(data.errors);
                     }
                 });
-        },
-        destroyedComponent() {
-            this.getDetailComponent().$off('save', () => {
-                this.saveAll();
-            });
         },
         readConfig() {
             this.isLoading = true;
@@ -79,13 +66,11 @@ Component.register('sw-system-config', {
         },
         saveAll() {
             this.isLoading = true;
-            const savePromise = this.systemConfigApiService
+            return this.systemConfigApiService
                 .saveValues(this.actualConfigData, this.salesChannelId)
                 .finally(() => {
                     this.isLoading = false;
                 });
-
-            this.$emit('save', savePromise);
         },
         createErrorNotification(errors) {
             let message = `<div>${this.$tc(

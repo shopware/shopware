@@ -9,14 +9,6 @@ export default {
         Mixin.getByName('sw-inline-snippet')
     ],
 
-    provide() {
-        return {
-            getDetailComponent: () => {
-                return this;
-            }
-        };
-    },
-
     template,
 
     data() {
@@ -25,30 +17,23 @@ export default {
             domain: `bundle.${this.$route.params.namespace}`,
             salesChannelId: null,
             config: {},
-            actualConfigData: {},
-            promises: []
+            actualConfigData: {}
         };
     },
 
     methods: {
         onSave() {
-            this.$emit('save');
-
-            Promise.all(this.promises).then(() => {
+            this.$refs.systemConfig.saveAll().then(() => {
                 this.createNotificationSuccess({
                     title: this.$tc('sw-plugin-config.titleSaveSuccess'),
                     message: this.$tc('sw-plugin-config.messageSaveSuccess')
                 });
             }).catch((err) => {
-                console.dir('err : ', err);
                 this.createNotificationError({
                     title: this.$tc('sw-plugin-config.titleSaveError'),
                     message: err
                 });
             });
-        },
-        onSaveConfig(promise) {
-            this.promises.push(promise);
         }
     }
 };

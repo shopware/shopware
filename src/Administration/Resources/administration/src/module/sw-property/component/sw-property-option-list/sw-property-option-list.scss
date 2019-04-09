@@ -1,0 +1,48 @@
+@import "~scss/variables";
+
+.sw-property-option-list {
+    height: 865px;
+
+    .sw-empty-state {
+        position: static
+    }
+
+    .media-column .sw-grid__cell-content {
+        padding: 0;
+    }
+
+    &.sw-card .sw-card__content {
+        padding: 0;
+    }
+
+    .sw-property-option-list__toolbar {
+        padding: 25px 35px;
+        background-color: $color-light-gray;
+        border-bottom: 1px solid $color-steam-cloud;
+
+        .sw-property-option-list__delete-button {
+            border-color: $color-crimson;
+
+            .sw-icon {
+                color: $color-crimson;
+            }
+            &.sw-button--disabled {
+                opacity: 0.2;
+            }
+        }
+
+        .sw-simple-search-field .sw-simple-search-field__input {
+            margin-bottom: 0;
+
+            input {
+                height: 32px;
+                background: $color-white;
+                padding: 0 20px 0 56px;
+            }
+        }
+    }
+
+	.sw-simple-search-field {
+		margin: unset;
+	}
+}

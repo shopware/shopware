@@ -1343,7 +1343,7 @@ class ProductRepositoryTest extends TestCase
         static::assertEquals($manufacturerId, $product->getManufacturerId());
     }
 
-    public function testCreateAndAssignProductDatasheet(): void
+    public function testCreateAndAssignProductProperty(): void
     {
         $id = Uuid::randomHex();
         $redId = Uuid::randomHex();
@@ -1357,7 +1357,7 @@ class ProductRepositoryTest extends TestCase
             'tax' => ['name' => 'test', 'taxRate' => 15],
             'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
             'manufacturer' => ['name' => 'test'],
-            'datasheet' => [
+            'properties' => [
                 [
                     'id' => $redId,
                     'name' => 'red',
@@ -1374,11 +1374,11 @@ class ProductRepositoryTest extends TestCase
         $this->repository->create([$data], Context::createDefaultContext());
 
         $criteria = new Criteria([$id]);
-        $criteria->addAssociation('datasheet');
+        $criteria->addAssociation('properties');
         /** @var ProductEntity $product */
         $product = $this->repository->search($criteria, Context::createDefaultContext())->get($id);
 
-        $sheet = $product->getDatasheet();
+        $sheet = $product->getProperties();
 
         static::assertCount(2, $sheet);
 
@@ -1395,7 +1395,7 @@ class ProductRepositoryTest extends TestCase
         static::assertEquals($colorId, $blue->getGroupId());
     }
 
-    public function testCreateAndAssignProductVariation(): void
+    public function testCreateAndAssignProductOption(): void
     {
         $id = Uuid::randomHex();
         $redId = Uuid::randomHex();
@@ -1409,7 +1409,7 @@ class ProductRepositoryTest extends TestCase
             'tax' => ['name' => 'test', 'taxRate' => 15],
             'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
             'manufacturer' => ['name' => 'test'],
-            'variations' => [
+            'options' => [
                 [
                     'id' => $redId,
                     'name' => 'red',
@@ -1426,11 +1426,11 @@ class ProductRepositoryTest extends TestCase
         $this->repository->create([$data], Context::createDefaultContext());
 
         $criteria = new Criteria([$id]);
-        $criteria->addAssociation('variations');
+        $criteria->addAssociation('options');
         /** @var ProductEntity $product */
         $product = $this->repository->search($criteria, Context::createDefaultContext())->get($id);
 
-        $sheet = $product->getVariations();
+        $sheet = $product->getOptions();
 
         static::assertCount(2, $sheet);
 
@@ -1461,7 +1461,7 @@ class ProductRepositoryTest extends TestCase
             'tax' => ['name' => 'test', 'taxRate' => 15],
             'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
             'manufacturer' => ['name' => 'test'],
-            'configurators' => [
+            'configuratorSettings' => [
                 [
                     'id' => $redId,
                     'price' => ['gross' => 50, 'net' => 25, 'linked' => false],
@@ -1486,19 +1486,19 @@ class ProductRepositoryTest extends TestCase
         $this->repository->create([$data], Context::createDefaultContext());
 
         $criteria = new Criteria([$id]);
-        $criteria->addAssociation('configurators');
+        $criteria->addAssociation('configuratorSettings');
         /** @var ProductEntity $product */
         $product = $this->repository->search($criteria, Context::createDefaultContext())->get($id);
 
-        $configurators = $product->getConfigurators();
+        $configuratorSettings = $product->getConfiguratorSettings();
 
-        static::assertCount(2, $configurators);
+        static::assertCount(2, $configuratorSettings);
 
-        static::assertTrue($configurators->has($redId));
-        static::assertTrue($configurators->has($blueId));
+        static::assertTrue($configuratorSettings->has($redId));
+        static::assertTrue($configuratorSettings->has($blueId));
 
-        $blue = $configurators->get($blueId);
-        $red = $configurators->get($redId);
+        $blue = $configuratorSettings->get($blueId);
+        $red = $configuratorSettings->get($redId);
 
         static::assertEquals(new Price(25, 50, false), $red->getPrice());
         static::assertEquals(new Price(90, 100, false), $blue->getPrice());

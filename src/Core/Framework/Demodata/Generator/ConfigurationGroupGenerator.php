@@ -2,27 +2,27 @@
 
 namespace Shopware\Core\Framework\Demodata\Generator;
 
-use Shopware\Core\Content\Configuration\ConfigurationGroupDefinition;
+use Shopware\Core\Content\Property\PropertyGroupDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\Demodata\DemodataContext;
 use Shopware\Core\Framework\Demodata\DemodataGeneratorInterface;
 use Shopware\Core\Framework\Uuid\Uuid;
 
-class ConfigurationGroupGenerator implements DemodataGeneratorInterface
+class PropertyGroupGenerator implements DemodataGeneratorInterface
 {
     /**
      * @var EntityRepositoryInterface
      */
-    private $configurationGroupRepository;
+    private $propertyGroupRepository;
 
-    public function __construct(EntityRepositoryInterface $configurationGroupRepository)
+    public function __construct(EntityRepositoryInterface $propertyGroupRepository)
     {
-        $this->configurationGroupRepository = $configurationGroupRepository;
+        $this->propertyGroupRepository = $propertyGroupRepository;
     }
 
     public function getDefinition(): string
     {
-        return ConfigurationGroupDefinition::class;
+        return PropertyGroupDefinition::class;
     }
 
     public function generate(int $numberOfItems, DemodataContext $context, array $options = []): void
@@ -42,7 +42,7 @@ class ConfigurationGroupGenerator implements DemodataGeneratorInterface
                 $options[] = ['id' => $id, 'name' => $context->getFaker()->colorName];
             }
 
-            $this->configurationGroupRepository->create(
+            $this->propertyGroupRepository->create(
                 [
                     [
                         'id' => Uuid::randomHex(),
@@ -61,6 +61,6 @@ class ConfigurationGroupGenerator implements DemodataGeneratorInterface
 
         $context->getConsole()->progressFinish();
 
-        $context->add(ConfigurationGroupDefinition::class, ...$optionIds);
+        $context->add(PropertyGroupDefinition::class, ...$optionIds);
     }
 }

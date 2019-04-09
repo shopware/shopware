@@ -8,8 +8,7 @@ use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRule;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Content\Category\CategoryCollection;
-use Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupOption\ConfigurationGroupOptionCollection;
-use Shopware\Core\Content\Product\Aggregate\ProductConfigurator\ProductConfiguratorCollection;
+use Shopware\Core\Content\Product\Aggregate\ProductConfiguratorSetting\ProductConfiguratorSettingCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaEntity;
@@ -17,6 +16,7 @@ use Shopware\Core\Content\Product\Aggregate\ProductPrice\ProductPriceCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductPrice\ProductPriceEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductTranslation\ProductTranslationCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityCollection;
+use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOptionCollection;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
@@ -194,12 +194,12 @@ class ProductEntity extends Entity
     /**
      * @var array|null
      */
-    protected $variationIds;
+    protected $optionIds;
 
     /**
      * @var array|null
      */
-    protected $datasheetIds;
+    protected $propertyIds;
 
     /**
      * @var string|null
@@ -297,19 +297,19 @@ class ProductEntity extends Entity
     protected $tags;
 
     /**
-     * @var ConfigurationGroupOptionCollection|null
+     * @var PropertyGroupOptionCollection|null
      */
-    protected $datasheet;
+    protected $properties;
 
     /**
-     * @var ConfigurationGroupOptionCollection|null
+     * @var PropertyGroupOptionCollection|null
      */
-    protected $variations;
+    protected $options;
 
     /**
-     * @var ProductConfiguratorCollection|null
+     * @var ProductConfiguratorSettingCollection|null
      */
-    protected $configurators;
+    protected $configuratorSettings;
 
     /**
      * @var CategoryCollection|null
@@ -911,24 +911,24 @@ class ProductEntity extends Entity
         return $this->releaseDate < new \DateTime();
     }
 
-    public function getVariationIds(): ?array
+    public function getOptionIds(): ?array
     {
-        return $this->variationIds;
+        return $this->optionIds;
     }
 
-    public function setVariationIds(?array $variationIds): void
+    public function setOptionIds(?array $optionIds): void
     {
-        $this->variationIds = $variationIds;
+        $this->optionIds = $optionIds;
     }
 
-    public function getDatasheetIds(): ?array
+    public function getPropertyIds(): ?array
     {
-        return $this->datasheetIds;
+        return $this->propertyIds;
     }
 
-    public function setDatasheetIds(?array $datasheetIds): void
+    public function setPropertyIds(?array $propertyIds): void
     {
-        $this->datasheetIds = $datasheetIds;
+        $this->propertyIds = $propertyIds;
     }
 
     public function getCover(): ?ProductMediaEntity
@@ -1011,34 +1011,34 @@ class ProductEntity extends Entity
         $this->tags = $tags;
     }
 
-    public function getDatasheet(): ?ConfigurationGroupOptionCollection
+    public function getProperties(): ?PropertyGroupOptionCollection
     {
-        return $this->datasheet;
+        return $this->properties;
     }
 
-    public function setDatasheet(ConfigurationGroupOptionCollection $datasheet): void
+    public function setProperties(PropertyGroupOptionCollection $properties): void
     {
-        $this->datasheet = $datasheet;
+        $this->properties = $properties;
     }
 
-    public function getVariations(): ?ConfigurationGroupOptionCollection
+    public function getOptions(): ?PropertyGroupOptionCollection
     {
-        return $this->variations;
+        return $this->options;
     }
 
-    public function setVariations(ConfigurationGroupOptionCollection $variations): void
+    public function setOptions(PropertyGroupOptionCollection $options): void
     {
-        $this->variations = $variations;
+        $this->options = $options;
     }
 
-    public function getConfigurators(): ?ProductConfiguratorCollection
+    public function getConfiguratorSettings(): ?ProductConfiguratorSettingCollection
     {
-        return $this->configurators;
+        return $this->configuratorSettings;
     }
 
-    public function setConfigurators(ProductConfiguratorCollection $configurators): void
+    public function setConfiguratorSettings(ProductConfiguratorSettingCollection $configuratorSettings): void
     {
-        $this->configurators = $configurators;
+        $this->configuratorSettings = $configuratorSettings;
     }
 
     public function getCategoriesRo(): ?CategoryCollection

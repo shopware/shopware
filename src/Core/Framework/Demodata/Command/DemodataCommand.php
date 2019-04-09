@@ -9,7 +9,6 @@ use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodPrice\ShippingMethodPriceDefinition;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Cms\CmsPageDefinition;
-use Shopware\Core\Content\Configuration\ConfigurationGroupDefinition;
 use Shopware\Core\Content\MailTemplate\Aggregate\MailHeaderFooter\MailHeaderFooterDefinition;
 use Shopware\Core\Content\MailTemplate\MailTemplateDefinition;
 use Shopware\Core\Content\Media\MediaDefinition;
@@ -17,6 +16,7 @@ use Shopware\Core\Content\Navigation\NavigationDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\ProductStream\ProductStreamDefinition;
+use Shopware\Core\Content\Property\PropertyGroupDefinition;
 use Shopware\Core\Content\Rule\RuleDefinition;
 use Shopware\Core\Framework\Attribute\Aggregate\AttributeSet\AttributeSetDefinition;
 use Shopware\Core\Framework\Context;
@@ -96,7 +96,7 @@ class DemodataCommand extends Command
 
         $request->add(RuleDefinition::class, 5);
         $request->add(CustomerDefinition::class, (int) $input->getOption('customers'));
-        $request->add(ConfigurationGroupDefinition::class, (int) $input->getOption('properties'));
+        $request->add(PropertyGroupDefinition::class, (int) $input->getOption('properties'));
         $request->add(ShippingMethodPriceDefinition::class, 1);
         $request->add(CategoryDefinition::class, (int) $input->getOption('categories'));
         $request->add(ProductManufacturerDefinition::class, (int) $input->getOption('manufacturers'));

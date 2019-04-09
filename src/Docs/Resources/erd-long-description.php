@@ -305,7 +305,7 @@ EOD
 A rich domain model representing single products or its variants. This is done through relations, so a root product is related to its variants through a foreign key.
 EOD
     ,
-    Shopware\Core\Content\Product\Aggregate\ProductConfigurator\ProductConfiguratorDefinition::class => <<<'EOD'
+    Shopware\Core\Content\Product\Aggregate\ProductConfiguratorSetting\ProductConfiguratorSettingDefinition::class => <<<'EOD'
 Association from a root product to a configuration set. Used to generate variants and surcharge or discount the price.
 EOD
     ,

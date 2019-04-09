@@ -37,7 +37,7 @@ class StorefrontProductRepository
     public function read(Criteria $criteria, SalesChannelContext $context): ProductCollection
     {
         $this->addActiveFilters($criteria, $context);
-        $this->addDatasheet($criteria);
+        $this->addProperties($criteria);
         $this->addMedia($criteria);
         $this->addPriceRules($criteria);
 
@@ -131,12 +131,12 @@ class StorefrontProductRepository
         );
     }
 
-    private function addDatasheet(Criteria $criteria): void
+    private function addProperties(Criteria $criteria): void
     {
-        $datasheetCriteria = new Criteria();
-        $datasheetCriteria->addAssociation('group');
+        $propertiesCriteria = new Criteria();
+        $propertiesCriteria->addAssociation('group');
 
-        $criteria->addAssociation('product.datasheet', $datasheetCriteria);
+        $criteria->addAssociation('product.properties', $propertiesCriteria);
     }
 
     private function addMedia(Criteria $criteria): void

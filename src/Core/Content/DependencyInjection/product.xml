@@ -40,16 +40,16 @@
             <tag name="shopware.entity.definition" entity="product_tag"/>
         </service>
 
-        <service id="Shopware\Core\Content\Product\Aggregate\ProductConfigurator\ProductConfiguratorDefinition">
-            <tag name="shopware.entity.definition" entity="product_configurator"/>
+        <service id="Shopware\Core\Content\Product\Aggregate\ProductConfiguratorSetting\ProductConfiguratorSettingDefinition">
+            <tag name="shopware.entity.definition" entity="product_configurator_setting"/>
         </service>
 
         <service id="Shopware\Core\Content\Product\Aggregate\ProductPrice\ProductPriceDefinition">
             <tag name="shopware.entity.definition" entity="product_price"/>
         </service>
 
-        <service id="Shopware\Core\Content\Product\Aggregate\ProductDatasheet\ProductDatasheetDefinition">
-            <tag name="shopware.entity.definition" entity="product_datasheet"/>
+        <service id="Shopware\Core\Content\Product\Aggregate\ProductProperty\ProductPropertyDefinition">
+            <tag name="shopware.entity.definition" entity="product_property"/>
         </service>
 
         <service id="Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerDefinition">
@@ -73,8 +73,8 @@
             <tag name="shopware.entity.definition" entity="product_translation"/>
         </service>
 
-        <service id="Shopware\Core\Content\Product\Aggregate\ProductVariation\ProductVariationDefinition">
-            <tag name="shopware.entity.definition" entity="product_variation"/>
+        <service id="Shopware\Core\Content\Product\Aggregate\ProductOption\ProductOptionDefinition">
+            <tag name="shopware.entity.definition" entity="product_option"/>
         </service>
 
         <service id="Shopware\Core\Content\Product\Aggregate\ProductCategoryTree\ProductCategoryTreeDefinition">
@@ -85,14 +85,14 @@
             <argument type="service" id="product.repository"/>
         </service>
 
-        <service id="Shopware\Core\Content\Product\DataAbstractionLayer\Indexing\ProductVariationIndexer">
+        <service id="Shopware\Core\Content\Product\DataAbstractionLayer\Indexing\ProductOptionIndexer">
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\Content\Product\Util\EventIdExtractor"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <tag name="shopware.dbal_indexing.indexer" priority="900"/>
         </service>
 
-        <service id="Shopware\Core\Content\Product\DataAbstractionLayer\Indexing\ProductDatasheetIndexer">
+        <service id="Shopware\Core\Content\Product\DataAbstractionLayer\Indexing\ProductPropertyIndexer">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\Content\Product\Util\EventIdExtractor"/>

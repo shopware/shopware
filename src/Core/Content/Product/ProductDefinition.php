@@ -3,18 +3,18 @@
 namespace Shopware\Core\Content\Product;
 
 use Shopware\Core\Content\Category\CategoryDefinition;
-use Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupOption\ConfigurationGroupOptionDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductCategory\ProductCategoryDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductCategoryTree\ProductCategoryTreeDefinition;
-use Shopware\Core\Content\Product\Aggregate\ProductConfigurator\ProductConfiguratorDefinition;
-use Shopware\Core\Content\Product\Aggregate\ProductDatasheet\ProductDatasheetDefinition;
+use Shopware\Core\Content\Product\Aggregate\ProductConfiguratorSetting\ProductConfiguratorSettingDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaDefinition;
+use Shopware\Core\Content\Product\Aggregate\ProductOption\ProductOptionDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductPrice\ProductPriceDefinition;
+use Shopware\Core\Content\Product\Aggregate\ProductProperty\ProductPropertyDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductTag\ProductTagDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductTranslation\ProductTranslationDefinition;
-use Shopware\Core\Content\Product\Aggregate\ProductVariation\ProductVariationDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
+use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOptionDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BlacklistRuleField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
@@ -147,8 +147,8 @@ class ProductDefinition extends EntityDefinition
             (new FloatField('length', 'length'))->addFlags(new Inherited()),
             (new DateField('release_date', 'releaseDate'))->addFlags(new Inherited()),
             (new ListField('category_tree', 'categoryTree', IdField::class))->addFlags(new Inherited(), new WriteProtected()),
-            (new ListField('datasheet_ids', 'datasheetIds', IdField::class))->addFlags(new Inherited()),
-            new ListField('variation_ids', 'variationIds', IdField::class),
+            (new ListField('property_ids', 'propertyIds', IdField::class))->addFlags(new Inherited()),
+            new ListField('option_ids', 'optionIds', IdField::class),
             (new IntField('min_delivery_time', 'minDeliveryTime'))->addFlags(new Inherited()),
             (new IntField('max_delivery_time', 'maxDeliveryTime'))->addFlags(new Inherited()),
             (new IntField('restock_time', 'restockTime'))->addFlags(new Inherited()),
@@ -178,7 +178,7 @@ class ProductDefinition extends EntityDefinition
             (new OneToManyAssociationField('media', ProductMediaDefinition::class, 'product_id'))->addFlags(new CascadeDelete(), new Inherited()),
 
             //associations which are not loaded immediately
-            (new ManyToManyAssociationField('datasheet', ConfigurationGroupOptionDefinition::class, ProductDatasheetDefinition::class, 'product_id', 'configuration_group_option_id'))->addFlags(new CascadeDelete(), new Inherited()),
+            (new ManyToManyAssociationField('properties', PropertyGroupOptionDefinition::class, ProductPropertyDefinition::class, 'product_id', 'property_group_option_id'))->addFlags(new CascadeDelete(), new Inherited()),
             (new ManyToManyAssociationField('categories', CategoryDefinition::class, ProductCategoryDefinition::class, 'product_id', 'category_id'))->addFlags(new CascadeDelete(), new Inherited()),
             (new ManyToManyAssociationField('tags', TagDefinition::class, ProductTagDefinition::class, 'product_id', 'tag_id'))->addFlags(new Inherited()),
 
@@ -189,8 +189,8 @@ class ProductDefinition extends EntityDefinition
             (new ManyToManyAssociationField('categoriesRo', CategoryDefinition::class, ProductCategoryTreeDefinition::class, 'product_id', 'category_id'))->addFlags(new CascadeDelete(), new WriteProtected()),
             (new TranslationsAssociationField(ProductTranslationDefinition::class, 'product_id'))->addFlags(new Inherited(), new Required()),
 
-            (new OneToManyAssociationField('configurators', ProductConfiguratorDefinition::class, 'product_id', 'id'))->addFlags(new CascadeDelete()),
-            (new ManyToManyAssociationField('variations', ConfigurationGroupOptionDefinition::class, ProductVariationDefinition::class, 'product_id', 'configuration_group_option_id'))->addFlags(new CascadeDelete()),
+            (new OneToManyAssociationField('configuratorSettings', ProductConfiguratorSettingDefinition::class, 'product_id', 'id'))->addFlags(new CascadeDelete()),
+            (new ManyToManyAssociationField('options', PropertyGroupOptionDefinition::class, ProductOptionDefinition::class, 'product_id', 'property_group_option_id'))->addFlags(new CascadeDelete()),
 
             (new OneToManyAssociationField('visibilities', ProductVisibilityDefinition::class, 'product_id'))->addFlags(new CascadeDelete()),
         ]);

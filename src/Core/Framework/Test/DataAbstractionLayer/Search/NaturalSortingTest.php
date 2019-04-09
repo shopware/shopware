@@ -3,7 +3,7 @@
 namespace Shopware\Core\Framework\Test\DataAbstractionLayer\Search;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupOption\ConfigurationGroupOptionEntity;
+use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOptionEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -29,8 +29,8 @@ class NaturalSortingTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->groupRepository = $this->getContainer()->get('configuration_group.repository');
-        $this->optionRepository = $this->getContainer()->get('configuration_group_option.repository');
+        $this->groupRepository = $this->getContainer()->get('property_group.repository');
+        $this->optionRepository = $this->getContainer()->get('property_group_option.repository');
     }
 
     /**
@@ -52,11 +52,11 @@ class NaturalSortingTest extends TestCase
         $this->groupRepository->create([$data], $context);
 
         $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('configuration_group_option.groupId', $groupId));
+        $criteria->addFilter(new EqualsFilter('property_group_option.groupId', $groupId));
 
         //add sorting for none natural
         $criteria->addSorting(
-            new FieldSorting('configuration_group_option.name', FieldSorting::ASCENDING, false)
+            new FieldSorting('property_group_option.name', FieldSorting::ASCENDING, false)
         );
 
         $options = $this->optionRepository->search($criteria, $context);
@@ -64,7 +64,7 @@ class NaturalSortingTest extends TestCase
         static::assertCount(\count($naturalOrder), $options);
 
         //extract names to compare them
-        $actual = $options->map(function (ConfigurationGroupOptionEntity $option) {
+        $actual = $options->map(function (PropertyGroupOptionEntity $option) {
             return $option->getName();
         });
 
@@ -72,11 +72,11 @@ class NaturalSortingTest extends TestCase
 
         //check natural sorting
         $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('configuration_group_option.groupId', $groupId));
-        $criteria->addSorting(new FieldSorting('configuration_group_option.name', FieldSorting::ASCENDING, true));
+        $criteria->addFilter(new EqualsFilter('property_group_option.groupId', $groupId));
+        $criteria->addSorting(new FieldSorting('property_group_option.name', FieldSorting::ASCENDING, true));
 
         $options = $this->optionRepository->search($criteria, $context);
-        $actual = $options->map(function (ConfigurationGroupOptionEntity $option) {
+        $actual = $options->map(function (PropertyGroupOptionEntity $option) {
             return $option->getName();
         });
 

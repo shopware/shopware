@@ -8,8 +8,6 @@ use Shopware\Core\Checkout\DiscountSurcharge\Aggregate\DiscountSurchargeTranslat
 use Shopware\Core\Checkout\Payment\Aggregate\PaymentMethodTranslation\PaymentMethodTranslationCollection;
 use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodTranslation\ShippingMethodTranslationCollection;
 use Shopware\Core\Content\Category\Aggregate\CategoryTranslation\CategoryTranslationCollection;
-use Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupOptionTranslation\ConfigurationGroupOptionTranslationCollection;
-use Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupTranslation\ConfigurationGroupTranslationCollection;
 use Shopware\Core\Content\DeliveryTime\DeliveryTimeCollection;
 use Shopware\Core\Content\MailTemplate\Aggregate\MailHeaderFooter\MailHeaderFooterCollection;
 use Shopware\Core\Content\MailTemplate\MailTemplateCollection;
@@ -19,6 +17,8 @@ use Shopware\Core\Content\NewsletterReceiver\NewsletterReceiverCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturerTranslation\ProductManufacturerTranslationCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductTranslation\ProductTranslationCollection;
 use Shopware\Core\Content\ProductStream\Aggregate\ProductStreamTranslation\ProductStreamTranslationCollection;
+use Shopware\Core\Content\Property\Aggregate\PropertyGroupOptionTranslation\PropertyGroupOptionTranslationCollection;
+use Shopware\Core\Content\Property\Aggregate\PropertyGroupTranslation\PropertyGroupTranslationCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\Plugin\Aggregate\PluginTranslation\PluginTranslationCollection;
@@ -171,14 +171,14 @@ class LanguageEntity extends Entity
     protected $unitTranslations;
 
     /**
-     * @var ConfigurationGroupTranslationCollection|null
+     * @var PropertyGroupTranslationCollection|null
      */
-    protected $configurationGroupTranslations;
+    protected $propertyGroupTranslations;
 
     /**
-     * @var ConfigurationGroupOptionTranslationCollection|null
+     * @var PropertyGroupOptionTranslationCollection|null
      */
-    protected $configurationGroupOptionTranslations;
+    protected $propertyGroupOptionTranslations;
 
     /**
      * @var DiscountSurchargeTranslationCollection|null
@@ -555,24 +555,24 @@ class LanguageEntity extends Entity
         $this->salutationTranslations = $salutationTranslations;
     }
 
-    public function getConfigurationGroupTranslations(): ?ConfigurationGroupTranslationCollection
+    public function getPropertyGroupTranslations(): ?PropertyGroupTranslationCollection
     {
-        return $this->configurationGroupTranslations;
+        return $this->propertyGroupTranslations;
     }
 
-    public function setConfigurationGroupTranslations(ConfigurationGroupTranslationCollection $configurationGroupTranslations): void
+    public function setPropertyGroupTranslations(PropertyGroupTranslationCollection $propertyGroupTranslations): void
     {
-        $this->configurationGroupTranslations = $configurationGroupTranslations;
+        $this->propertyGroupTranslations = $propertyGroupTranslations;
     }
 
-    public function getConfigurationGroupOptionTranslations(): ?ConfigurationGroupOptionTranslationCollection
+    public function getPropertyGroupOptionTranslations(): ?PropertyGroupOptionTranslationCollection
     {
-        return $this->configurationGroupOptionTranslations;
+        return $this->propertyGroupOptionTranslations;
     }
 
-    public function setConfigurationGroupOptionTranslations(ConfigurationGroupOptionTranslationCollection $configurationGroupOptionTranslations): void
+    public function setPropertyGroupOptionTranslations(PropertyGroupOptionTranslationCollection $propertyGroupOptionTranslations): void
     {
-        $this->configurationGroupOptionTranslations = $configurationGroupOptionTranslations;
+        $this->propertyGroupOptionTranslations = $propertyGroupOptionTranslations;
     }
 
     public function getDiscountsurchargeTranslations(): ?DiscountSurchargeTranslationCollection

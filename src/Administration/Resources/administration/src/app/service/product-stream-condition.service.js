@@ -49,8 +49,8 @@ export default function conditionService() {
         'taxId',
         'coverId',
         'productMediaVersionId',
-        'datasheetIds',
-        'variationIds',
+        'propertyIds',
+        'optionIds',
         'orders',
         'customers',
         'seoUrls',
@@ -105,23 +105,23 @@ export default function conditionService() {
             'attributes',
             'shortCode'
         ],
-        product_configurator: [
+        product_configurator_setting: [
             'versionId',
             'prices',
             'createdAt',
             'updatedAt',
             'attributes'
         ],
-        configuration_group_option: [
+        property_group_option: [
             'position',
             'colorHexCode',
             'productConfigurators',
             'productServices',
-            'productDatasheets',
-            'productVariations',
+            'productProperties',
+            'productOptions',
             'attributes'
         ],
-        configuration_group: [
+        property_group: [
             'description',
             'position',
             'filterable',
@@ -173,7 +173,7 @@ export default function conditionService() {
             'metaTitle',
             'prices',
             'services',
-            'datasheet',
+            'properties',
             'searchKeywords',
             'categoriesRo',
             'canonicalUrl',

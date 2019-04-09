@@ -60,7 +60,7 @@ Component.register('sw-product-variants-overview', {
 
             params.criteria = CriteriaFactory.equals('product.parentId', this.product.id);
             params.associations = {
-                variations: {
+                options: {
                     sort: [
                         { field: 'groupId' },
                         { field: 'id' }
@@ -73,17 +73,21 @@ Component.register('sw-product-variants-overview', {
             }
 
             params.sortings = [
-                { field: 'product.variations.groupId' },
-                { field: 'product.variations.id' }
+                { field: 'product.options.groupId' },
+                { field: 'product.options.id' }
             ];
 
             delete params.term;
-            this.variantStore.getList(params).then((res) => {
+            this.variantStore.getList(params, true).then((res) => {
                 this.total = res.total;
                 this.variantList = res.items;
                 this.isLoading = false;
                 this.$emit('variantListUpdated', this.variantList);
             });
+        },
+
+        getVariantOptions(item) {
+            return item.getAssociation('options').store;
         },
 
         buildQueries(input) {
@@ -99,7 +103,7 @@ Component.register('sw-product-variants-overview', {
                 queries.push({
                     query: {
                         type: 'equals',
-                        field: 'product.variations.name',
+                        field: 'product.options.name',
                         value: term
                     },
                     score: 3500
@@ -108,7 +112,7 @@ Component.register('sw-product-variants-overview', {
                 queries.push({
                     query: {
                         type: 'contains',
-                        field: 'product.variations.name',
+                        field: 'product.options.name',
                         value: term
                     },
                     score: 500

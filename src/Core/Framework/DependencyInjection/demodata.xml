@@ -34,8 +34,8 @@
             <tag name="shopware.demodata_generator"/>
         </service>
 
-        <service id="Shopware\Core\Framework\Demodata\Generator\ConfigurationGroupGenerator">
-            <argument type="service" id="configuration_group.repository" />
+        <service id="Shopware\Core\Framework\Demodata\Generator\PropertyGroupGenerator">
+            <argument type="service" id="property_group.repository" />
             <tag name="shopware.demodata_generator"/>
         </service>
 

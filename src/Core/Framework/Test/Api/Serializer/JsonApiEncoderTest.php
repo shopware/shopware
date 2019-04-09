@@ -134,10 +134,10 @@ class JsonApiEncoderTest extends TestCase
                             'related' => '/api/media/1d23c1b015bf43fb97e89008cf42d6fe/media-folder',
                         ],
                     ],
-                    'configurationGroupOptions' => [
+                    'propertyGroupOptions' => [
                         'data' => [],
                         'links' => [
-                            'related' => '/api/media/1d23c1b015bf43fb97e89008cf42d6fe/configuration-group-options',
+                            'related' => '/api/media/1d23c1b015bf43fb97e89008cf42d6fe/property-group-options',
                         ],
                     ],
                     'tags' => [

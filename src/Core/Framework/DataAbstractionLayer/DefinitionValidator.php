@@ -36,7 +36,7 @@ class DefinitionValidator
         'customer.defaultShippingAddress',
         'customer.activeShippingAddress',
         'customer.activeBillingAddress',
-        'product_configurator.selected',
+        'product_configurator_setting.selected',
     ];
 
     private const FOREIGN_KEY_PREFIX = 'fk';
@@ -47,7 +47,7 @@ class DefinitionValidator
     protected $registry;
 
     private static $pluralExceptions = [
-        'children', 'categoriesRo', 'datasheet', 'media',
+        'children', 'categoriesRo', 'properties', 'media',
     ];
 
     private static $customPrefixedNames = [
@@ -55,13 +55,13 @@ class DefinitionValidator
     ];
 
     private static $customShortNames = [
-        'configuration_group' => 'group',
-        'configuration_group_option' => 'option',
+        'property_group' => 'group',
+        'property_group_option' => 'option',
         'version_commit' => 'commit',
     ];
 
     private static $ignoredInPrefixCheck = [
-        'datasheet', 'variations', 'translationcode', 'blocks',
+        'properties', 'options', 'translationcode', 'blocks',
     ];
 
     private static $tablesWithoutDefinition = [

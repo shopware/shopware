@@ -60,7 +60,7 @@ Table(ShopwareCoreContentProductProductDefinition, "product\n(Product)") {
    length float
    releaseDate date
    categoryTree list
-   datasheetIds list
+   propertyIds list
    variationIds list
    minDeliveryTime int
    maxDeliveryTime int
@@ -116,7 +116,7 @@ Table(ShopwareCoreContentProductAggregateProductPriceProductPriceDefinition, "pr
    not_null(updatedAt) updatedAt
    attributes attributes
 }
-Table(ShopwareCoreContentProductAggregateProductDatasheetProductDatasheetDefinition, "product_datasheet\n(M:N Mapping)") {
+Table(ShopwareCoreContentProductAggregateProductDatasheetProductDatasheetDefinition, "product_property\n(M:N Mapping)") {
    primary_key(productId) foreignKey
    not_null(productVersionId) referenceVersion
    primary_key(optionId) foreignKey

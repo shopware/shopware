@@ -156,7 +156,7 @@ class ProductGenerator implements DemodataGeneratorInterface
                 random_int(10, 30)
             );
 
-            $product['datasheet'] = array_map(function ($config) {
+            $product['properties'] = array_map(function ($config) {
                 return ['id' => $config];
             }, $productProperties);
 
@@ -369,7 +369,7 @@ class ProductGenerator implements DemodataGeneratorInterface
 
     private function getProperties()
     {
-        $options = $this->connection->fetchAll('SELECT LOWER(HEX(id)) as id FROM configuration_group_option LIMIT 5000');
+        $options = $this->connection->fetchAll('SELECT LOWER(HEX(id)) as id FROM property_group_option LIMIT 5000');
 
         return array_column($options, 'id');
     }

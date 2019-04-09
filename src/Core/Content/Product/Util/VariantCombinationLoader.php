@@ -22,13 +22,13 @@ class VariantCombinationLoader
     public function load(string $productId, Context $context): array
     {
         $query = $this->connection->createQueryBuilder();
-        $query->select('LOWER(HEX(product.id))', 'product.variation_ids');
+        $query->select('LOWER(HEX(product.id))', 'product.option_ids');
         $query->from('product');
         $query->where('product.parent_id = :id');
         $query->andWhere('product.version_id = :versionId');
         $query->setParameter('id', Uuid::fromHexToBytes($productId));
         $query->setParameter('versionId', Uuid::fromHexToBytes($context->getVersionId()));
-        $query->andWhere('product.variation_ids IS NOT NULL');
+        $query->andWhere('product.option_ids IS NOT NULL');
 
         $combinations = $query->execute()->fetchAll();
         $combinations = FetchModeHelper::keyPair($combinations);

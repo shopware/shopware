@@ -15,12 +15,12 @@ class Migration1536233220ProductConfigurator extends MigrationStep
     public function update(Connection $connection): void
     {
         $connection->executeQuery('
-            CREATE TABLE `product_configurator` (
+            CREATE TABLE `product_configurator_setting` (
               `id` BINARY(16) NOT NULL,
               `version_id` BINARY(16) NOT NULL,
               `product_id` BINARY(16) NOT NULL,
               `product_version_id` BINARY(16) NOT NULL,
-              `configuration_group_option_id` BINARY(16) NOT NULL,
+              `property_group_option_id` BINARY(16) NOT NULL,
               `price` JSON NULL,
               `prices` JSON NULL,
               `attributes` JSON NULL,
@@ -30,10 +30,10 @@ class Migration1536233220ProductConfigurator extends MigrationStep
               CONSTRAINT `json.price` CHECK (JSON_VALID(`price`)),
               CONSTRAINT `json.prices` CHECK (JSON_VALID(`prices`)),
               CONSTRAINT `json.attributes` CHECK (JSON_VALID(`attributes`)),
-              CONSTRAINT `fk.product_configurator.product_id` FOREIGN KEY (`product_id`, `product_version_id`) 
+              CONSTRAINT `fk.product_configurator_setting.product_id` FOREIGN KEY (`product_id`, `product_version_id`) 
                 REFERENCES `product` (`id`, `version_id`) ON DELETE CASCADE ON UPDATE CASCADE,
-              CONSTRAINT `fk.product_configurator.configuration_group_option_id` FOREIGN KEY (`configuration_group_option_id`) 
-                REFERENCES `configuration_group_option` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+              CONSTRAINT `fk.product_configurator_setting.property_group_option_id` FOREIGN KEY (`property_group_option_id`) 
+                REFERENCES `property_group_option` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
             );
         ');
     }

@@ -31,7 +31,7 @@ class EntitySearcherTest extends TestCase
     {
         parent::setUp();
 
-        $this->groupRepository = $this->getContainer()->get('configuration_group.repository');
+        $this->groupRepository = $this->getContainer()->get('property_group.repository');
         $this->productRepository = $this->getContainer()->get('product.repository');
     }
 
@@ -138,37 +138,37 @@ class EntitySearcherTest extends TestCase
                 'id' => $variant1,
                 'parentId' => $id,
                 'stock' => 10,
-                'variations' => [['id' => $redId], ['id' => $bigId]],
+                'options' => [['id' => $redId], ['id' => $bigId]],
             ],
             [
                 'id' => $variant2,
                 'parentId' => $id,
                 'stock' => 10,
-                'variations' => [['id' => $redId], ['id' => $smallId]],
+                'options' => [['id' => $redId], ['id' => $smallId]],
             ],
             [
                 'id' => $variant3,
                 'parentId' => $id,
                 'stock' => 10,
-                'variations' => [['id' => $greenId], ['id' => $bigId]],
+                'options' => [['id' => $greenId], ['id' => $bigId]],
             ],
             [
                 'id' => $variant4,
                 'parentId' => $id,
                 'stock' => 10,
-                'variations' => [['id' => $greenId], ['id' => $smallId]],
+                'options' => [['id' => $greenId], ['id' => $smallId]],
             ],
             [
                 'id' => $variant5,
                 'parentId' => $id,
                 'stock' => 10,
-                'variations' => [['id' => $yellowId], ['id' => $bigId]],
+                'options' => [['id' => $yellowId], ['id' => $bigId]],
             ],
             [
                 'id' => $variant6,
                 'parentId' => $id,
                 'stock' => 10,
-                'variations' => [['id' => $yellowId], ['id' => $smallId]],
+                'options' => [['id' => $yellowId], ['id' => $smallId]],
             ],
         ];
 
@@ -176,8 +176,8 @@ class EntitySearcherTest extends TestCase
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('product.parentId', $id));
-        $criteria->addSorting(new FieldSorting('product.variations.groupId'));
-        $criteria->addSorting(new FieldSorting('product.variations.id'));
+        $criteria->addSorting(new FieldSorting('product.options.groupId'));
+        $criteria->addSorting(new FieldSorting('product.options.id'));
 
         $criteria->setLimit(25);
         $criteria->setTotalCountMode(Criteria::TOTAL_COUNT_MODE_EXACT);

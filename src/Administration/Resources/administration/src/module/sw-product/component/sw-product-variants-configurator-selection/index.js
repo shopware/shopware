@@ -59,7 +59,7 @@ Component.extend('sw-product-variants-configurator-selection', 'sw-property-sear
         },
 
         configuratorStore() {
-            return this.product.getAssociation('configurators');
+            return this.product.getAssociation('configuratorSettings');
         },
 
         progressInPercentage() {

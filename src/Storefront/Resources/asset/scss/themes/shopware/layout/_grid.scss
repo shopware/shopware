@@ -13,7 +13,7 @@
 .content-main-inner {
     background: $white;
     min-height: 200px;
-    padding: 0 10px 16px;
+    padding: 0 ($grid-gutter-width / 2) 16px;
 }
 
 @include media-breakpoint-up(md) {

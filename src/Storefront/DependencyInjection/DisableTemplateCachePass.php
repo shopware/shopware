@@ -12,6 +12,9 @@ class DisableTemplateCachePass implements CompilerPassInterface
      */
     public function process(ContainerBuilder $container): void
     {
+        if (!$container->hasDefinition('twig.cache_warmer') || !$container->hasDefinition('twig.template_cache_warmer')) {
+            return;
+        }
         // disable cache warm-up as it breaks the inheritance
         $container->getDefinition('twig.cache_warmer')->clearTag('kernel.cache_warmer');
         $container->getDefinition('twig.template_cache_warmer')->clearTag('kernel.cache_warmer');

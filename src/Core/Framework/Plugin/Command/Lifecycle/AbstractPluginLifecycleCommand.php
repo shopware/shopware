@@ -5,7 +5,8 @@ namespace Shopware\Core\Framework\Plugin\Command\Lifecycle;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\ContainsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\Plugin\PluginCollection;
 use Shopware\Core\Framework\Plugin\PluginLifecycleService;
 use Symfony\Component\Console\Application;
@@ -91,9 +92,14 @@ abstract class AbstractPluginLifecycleCommand extends Command
     private function parsePluginArgument(array $arguments, Context $context): PluginCollection
     {
         $plugins = array_unique($arguments);
+        $filter = [];
+        foreach ($plugins as $plugin) {
+            $filter[] = new ContainsFilter('name', $plugin);
+        }
 
         $criteria = new Criteria();
-        $criteria->addFilter(new EqualsAnyFilter('name', $plugins));
+        $criteria->addFilter(new MultiFilter(MultiFilter::CONNECTION_OR, $filter));
+
         /** @var PluginCollection $pluginCollection */
         $pluginCollection = $this->pluginRepo->search($criteria, $context)->getEntities();
 

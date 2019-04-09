@@ -1,16 +1,17 @@
 require('./check-versions')();
 
-const config = require('../config');
-if (!process.env.NODE_ENV) {
-    process.env.NODE_ENV = JSON.parse(config.dev.env.NODE_ENV)
-}
-const fs =  require('fs');
+const fs = require('fs');
 const opn = require('opn');
 const express = require('express');
 const webpack = require('webpack');
 const openInEditor = require('launch-editor-middleware');
 const proxy = require('http-proxy-middleware');
 const utils = require('./utils');
+const config = require('../config');
+
+if (!process.env.NODE_ENV) {
+    process.env.NODE_ENV = JSON.parse(config.dev.env.NODE_ENV);
+}
 const webpackConfig = process.env.NODE_ENV === 'testing'
     ? require('./webpack.prod.conf')
     : require('./webpack.dev.conf');
@@ -58,7 +59,7 @@ app.use(hotMiddleware);
 
 const pluginList = utils.getPluginDefinitions('var/config_administration_plugins.json', true);
 const staticPaths = pluginList.reduce((accumulator, plugin) => {
-    const assetPath = `/${plugin.basePath}Resources/views/administration/static/`;
+    const assetPath = `/${plugin.viewPath}static/`;
 
     if (fs.existsSync(assetPath)) {
         accumulator.push({
@@ -72,7 +73,7 @@ const staticPaths = pluginList.reduce((accumulator, plugin) => {
 
 // serve pure static assets, see https://github.com/webpack/webpack-dev-server/issues/200#issuecomment-139666063
 staticPaths.splice(0, 0, {
-    staticPath: `/administration/static`,
+    staticPath: '/administration/static',
     systemPath: './static'
 });
 
@@ -83,7 +84,7 @@ staticPaths.forEach((paths) => {
     app.use('/static', express.static(paths.systemPath));
 });
 
-const uri = 'http://' + host + ':' + port;
+const uri = `http://${host}:${port}`;
 
 app.use('/api', proxy({ target: process.argv[2], changeOrigin: true }));
 
@@ -97,7 +98,7 @@ console.log();
 console.log('# Starting hot module reloading dev server');
 
 devMiddleware.waitUntilValid(() => {
-    console.log('Dev server listening at ' + uri + '\n');
+    console.log(`Dev server listening at ${uri}\n`);
 });
 
 module.exports = app.listen(port, host, (err) => {

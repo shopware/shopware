@@ -55,11 +55,11 @@ You can either install or uninstall one plugin at a time or even a list of plugi
 Have a look at the example below to get an idea on how to use the `plugin:install` and `plugin:uninstall` command.
 
 ```
-$ ./bin/console plugin:install YourPlugin
-$ ./bin/console plugin:uninstall YourPlugin
+$ ./bin/console plugin:install YourPluginWithNamespace
+$ ./bin/console plugin:uninstall YourPluginWithNamespace
 
-$ ./bin/console plugin:install YourPlugin ThirdPartyPlugin
-$ ./bin/console plugin:uninstall YourPlugin ThirdPartyPlugin
+$ ./bin/console plugin:install YourPluginWithNamespace ThirdPartyPluginWithNamespace
+$ ./bin/console plugin:uninstall YourPluginWithNamespace ThirdPartyPluginWithNamespace
 ```
 *Plugin un-, install command*
 
@@ -68,9 +68,9 @@ $ ./bin/console plugin:uninstall YourPlugin ThirdPartyPlugin
 You can either update one plugin at a time or a list of plugins.
 
 ```
-$ ./bin/console plugin:update YourPlugin
+$ ./bin/console plugin:update YourPluginWithNamespace
 
-$ ./bin/console plugin:update YourPlugin ThirdPartyPlugin
+$ ./bin/console plugin:update YourPluginWithNamespace ThirdPartyPluginWithNamespace
 ```
 *Plugin update command*
 
@@ -83,10 +83,10 @@ Activating and deactivating plugins works in a similar fashion.
 You can either activate or deactivate one plugin at a time or a list of plugins at once.
 
 ```
-$ ./bin/console plugin:activate YourPlugin
-$ ./bin/console plugin:deactivate YourPlugin
+$ ./bin/console plugin:activate YourPluginWithNamespace
+$ ./bin/console plugin:deactivate YourPluginWithNamespace
 
-$ ./bin/console plugin:activate YourPlugin ThirdPartyPlugin
-$ ./bin/console plugin:deactivate YourPlugin ThirdPartyPlugin
+$ ./bin/console plugin:activate YourPluginWithNamespace ThirdPartyPluginWithNamespace
+$ ./bin/console plugin:deactivate YourPluginWithNamespace ThirdPartyPluginWithNamespace
 ```
 *Plugin de-. activate command*

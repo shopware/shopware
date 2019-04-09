@@ -7,11 +7,14 @@ This HowTo will cover what you need to know in order to create a subscriber usin
 Registering a custom subscriber requires to load a custom `services.xml` file with your plugin.
 This is done in your plugins base class by using the `build` method.
 Make sure to have a look at the guide about the [plugin base class](./../2-internals/4-plugins/020-plugin-base-class.md) for further information.
+Registering a custom subscriber requires to load a `services.xml` file with your plugin.
+This is done by either placing a file with name `services.xml` into a directory called `src/Resources/config/` or by overriding
+the method [getContainerPath()](../2-internals/4-plugins/020-plugin-base-class.md#getContainerPath()) of your plugin base class.
 
 ```php
 <?php declare(strict_types=1);
 
-namespace SubscriberPlugin;
+namespace Swag\SubscriberPlugin;
 
 use Shopware\Core\Framework\Plugin;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -20,11 +23,9 @@ use Symfony\Component\Config\FileLocator;
 
 class SubscriberPlugin extends Plugin
 {
-    public function build(ContainerBuilder $container): void
+    public function getContainerPath(): string
     {
-        parent::build($container);
-        $loader = new XmlFileLoader($container, new FileLocator(__DIR__ . '/DependencyInjection/'));
-        $loader->load('services.xml');
+        return 'Resources/custom_path/custom_file.xml';
     }
 }
 ```
@@ -35,12 +36,12 @@ Don't worry, we got you covered here as well.
 ## Creating the subscriber class
 
 As mentioned above, a subscriber for the Shopware platform looks exactly the same like in Symfony itself.
-Therefore, this is how your subscriber could then look like.
+Therefore, this is how your subscriber could then look like:
 
 ```php
 <?php declare(strict_types=1);
 
-namespace SubscriberPlugin\Subscriber;
+namespace Swag\SubscriberPlugin\Subscriber;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityLoadedEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -64,6 +65,8 @@ class MySubscriber implements EventSubscriberInterface
 }
 ```
 
+In this example, the subscriber would be located in the `<plugin root>/src/Subscriber` directory.
+
 The subscriber is now listening for the `product.loaded` event to trigger.
 Unfortunately, your subscriber is not even loaded yet - this will be done in the previously registered `services.xml` file.
 
@@ -71,7 +74,7 @@ Unfortunately, your subscriber is not even loaded yet - this will be done in the
 
 Registering your subscriber to the Shopware platform is also as simple as it is in Symfony.
 You're simply [registering your (subscriber) service](./070-add-service.md) by mentioning it in the `services.xml`.
-The only difference to a normal service is, that you need to the `kernel.event_subscriber` tag to your subscriber for it
+The only difference to a normal service is, that you need to add the `kernel.event_subscriber` tag to your subscriber for it
 to be recognized as such.
 
 ```xml
@@ -82,7 +85,7 @@ to be recognized as such.
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
 
     <services>
-        <service id="SubscriberPlugin\Subscriber\MySubscriber">
+        <service id="Swag\SubscriberPlugin\Subscriber\MySubscriber">
             <tag name="kernel.event_subscriber"/>
         </service>
     </services>

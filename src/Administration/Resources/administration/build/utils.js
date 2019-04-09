@@ -1,4 +1,3 @@
-const config = require('../config');
 const path = require('path');
 const appModulePath = require('app-module-path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
@@ -6,7 +5,8 @@ const merge = require('webpack-merge');
 const dotenv = require('dotenv');
 const fs = require('fs');
 const process = require('process');
-const MiniCssExtractPlugin = require("mini-css-extract-plugin");
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+const config = require('../config');
 
 const projectRoot = process.env.PROJECT_ROOT || '';
 
@@ -16,7 +16,7 @@ const projectRoot = process.env.PROJECT_ROOT || '';
  * @param {String} directory
  * @returns {String}
  */
-exports.resolveFromRootPath = function(directory) {
+exports.resolveFromRootPath = function (directory) {
     return path.join(projectRoot, directory);
 };
 
@@ -26,8 +26,8 @@ exports.resolveFromRootPath = function(directory) {
  * @param {String} directory
  * @returns {String}
  */
-exports.resolve = function(directory) {
-    return path.join(__dirname, '..', directory)
+exports.resolve = function (directory) {
+    return path.join(__dirname, '..', directory);
 };
 
 /**
@@ -47,12 +47,12 @@ const includePaths = [
  * @param {Boolean} silent
  * @returns {Array}
  */
-exports.getPluginDefinitions = function(definitionFilePath, silent = false) {
+exports.getPluginDefinitions = function (definitionFilePath, silent = false) {
     const plugins = [];
     const path = exports.resolveFromRootPath(definitionFilePath);
 
     if (!fs.existsSync(path)) {
-        return []
+        return [];
     }
 
     if (!silent) {
@@ -65,11 +65,12 @@ exports.getPluginDefinitions = function(definitionFilePath, silent = false) {
         }
         const pluginsDefinition = require(path);
 
-        Object.keys(pluginsDefinition).forEach(function (pluginName) {
+        Object.keys(pluginsDefinition).forEach((pluginName) => {
             const pluginDefinition = pluginsDefinition[pluginName];
             plugins.push({
                 name: pluginName,
-                basePath: pluginDefinition.base,
+                basePath: pluginDefinition.basePath,
+                viewPath: pluginDefinition.viewPath,
                 entryFile: exports.resolveFromRootPath(pluginDefinition.entry),
                 webpackConfig: (pluginDefinition.webpackConfig === false ?
                     pluginDefinition.webpackConfig :
@@ -80,7 +81,7 @@ exports.getPluginDefinitions = function(definitionFilePath, silent = false) {
         if (!silent) {
             console.log(`Found ${plugins.length} plugin definition(s): ${plugins.map(plugin => plugin.name).join(', ')}`);
         }
-    } catch(err) {
+    } catch (err) {
         if (!silent) {
             console.log(`Could not load Shopware administration plugin definitions from "${path}"`);
         }
@@ -103,17 +104,17 @@ exports.getPluginDefinitions = function(definitionFilePath, silent = false) {
  * @param {Boolean} insertDevClient
  * @returns {Object}
  */
-exports.iteratePluginDefinitions = function(baseWebPackConfig, pluginList, insertDevClient = true) {
+exports.iteratePluginDefinitions = function (baseWebPackConfig, pluginList, insertDevClient = true) {
     console.log('# Adding Shopware administration plugins to Webpack');
 
     baseWebPackConfig = exports.pluginDefinitionWalker(baseWebPackConfig, pluginList);
 
     // Apply the dev client to the entry definition
-    Object.keys(baseWebPackConfig.entry).forEach(function (name) {
+    Object.keys(baseWebPackConfig.entry).forEach((name) => {
         if (insertDevClient) {
             baseWebPackConfig.entry[name] = ['./build/dev-client'].concat(baseWebPackConfig.entry[name]);
         } else {
-            baseWebPackConfig.entry[name]
+            baseWebPackConfig.entry[name];
         }
     });
 
@@ -129,7 +130,7 @@ exports.iteratePluginDefinitions = function(baseWebPackConfig, pluginList, inser
  * @param {Array} pluginList
  * @returns {Object}
  */
-exports.pluginDefinitionWalker = function(baseWebPackConfig, pluginList) {
+exports.pluginDefinitionWalker = function (baseWebPackConfig, pluginList) {
     pluginList.forEach((plugin) => {
         const name = plugin.name;
 
@@ -141,7 +142,7 @@ exports.pluginDefinitionWalker = function(baseWebPackConfig, pluginList) {
         };
 
         baseWebPackConfig.entry[name] = plugin.entryFile;
-        includePaths.push(`${plugin.basePath}Resources/views/administration/src`);
+        includePaths.push(`${plugin.viewPath}src`);
 
         if (plugin.webpackConfig) {
             console.log(`Plugin "${name}" using an extended Webpack config`);
@@ -149,7 +150,7 @@ exports.pluginDefinitionWalker = function(baseWebPackConfig, pluginList) {
             appModulePath.addPath(plugin.basePath);
 
             // Get the custom configuration.
-            let customConfig = require(plugin.webpackConfig)(Object.assign({}, {
+            const customConfig = require(plugin.webpackConfig)(Object.assign({}, {
                 basePath: plugin.basePath
             }, customWebpackConfigParams));
             baseWebPackConfig = merge(baseWebPackConfig, customConfig);
@@ -168,8 +169,8 @@ exports.pluginDefinitionWalker = function(baseWebPackConfig, pluginList) {
  * @param {Object} webpackConfig
  * @returns {Object}
  */
-exports.injectSwDevModeLoader = function(webpackConfig) {
-    console.log(`# Injecting SW DevMode Loader`);
+exports.injectSwDevModeLoader = function (webpackConfig) {
+    console.log('# Injecting SW DevMode Loader');
     console.log(`Additional custom loader directory "${path.resolve(__dirname, 'loaders')}" added.`);
     console.log(`JavaScript files in "${includePaths.join(', ')}" are affected by the loader.`);
     console.log('');
@@ -184,13 +185,13 @@ exports.injectSwDevModeLoader = function(webpackConfig) {
         },
         module: {
             // Configure the sw-devmode-loader.
-            rules: [ {
-                test:  /\.(js|tsx?|vue)$/,
+            rules: [{
+                test: /\.(js|tsx?|vue)$/,
                 loader: 'sw-devmode-loader',
-                include: includePaths,
-            } ]
+                include: includePaths
+            }]
         }
-    })
+    });
 };
 
 /**
@@ -199,7 +200,7 @@ exports.injectSwDevModeLoader = function(webpackConfig) {
  * @param {Object} config
  * @returns {Array<String>}
  */
-exports.getChunks = function(config) {
+exports.getChunks = function (config) {
     console.log('# Collecting chunks. Each chunk will be a separate bundle');
 
     const chunks = Object.keys(config.entry).map((entry) => {
@@ -219,12 +220,12 @@ exports.getChunks = function(config) {
  * @param {Object} featureFlags
  * @returns {HtmlWebpackPlugin}
  */
-exports.injectHtmlPlugin = function(config, featureFlags) {
+exports.injectHtmlPlugin = function (config, featureFlags) {
     return new HtmlWebpackPlugin({
         filename: 'index.html',
         template: 'index.html.tpl',
         templateParameters: {
-            'featureFlags': JSON.stringify(featureFlags)
+            featureFlags: JSON.stringify(featureFlags)
         },
         inject: 'head'
     });
@@ -238,7 +239,7 @@ exports.injectHtmlPlugin = function(config, featureFlags) {
  * @param {Array} paths
  * @returns {Object}
  */
-exports.injectIncludePathsToLoader = function(config, paths) {
+exports.injectIncludePathsToLoader = function (config, paths) {
     config.module.rules.forEach((rule, index) => {
         if (rule.loader === 'eslint-loader' || rule.loader === 'babel-loader') {
             config.module.rules[index].include = paths;
@@ -253,7 +254,7 @@ exports.injectIncludePathsToLoader = function(config, paths) {
  *
  * @returns {Array<String>}
  */
-exports.getIncludePaths = function() {
+exports.getIncludePaths = function () {
     return includePaths;
 };
 
@@ -268,7 +269,7 @@ exports.assetsPath = function (_path) {
         ? config.build.assetsSubDirectory
         : config.dev.assetsSubDirectory;
 
-    return path.posix.join(assetsSubDirectory, _path)
+    return path.posix.join(assetsSubDirectory, _path);
 };
 
 /**
@@ -289,18 +290,18 @@ exports.cssLoaders = function (options) {
 
     // generate loader string to be used with extract text plugin
     function generateLoaders(loader, loaderOptions) {
-        const loaders = [ MiniCssExtractPlugin.loader, cssLoader ];
+        const loaders = [MiniCssExtractPlugin.loader, cssLoader];
         if (loader) {
             loaders.push({
-                loader: loader + '-loader',
+                loader: `${loader}-loader`,
                 options: Object.assign({}, loaderOptions, {
                     sourceMap: options.sourceMap
                 }),
-                loader: loader + '-loader'
+                loader: `${loader}-loader`
             });
         }
 
-        return [ 'vue-style-loader' ].concat(loaders);
+        return ['vue-style-loader'].concat(loaders);
     }
 
     // http://vuejs.github.io/vue-loader/en/configurations/extract-css.html
@@ -312,22 +313,22 @@ exports.cssLoaders = function (options) {
         scss: generateLoaders('sass'),
         stylus: generateLoaders('stylus'),
         styl: generateLoaders('stylus')
-    }
+    };
 };
 
 // Generate loaders for standalone style files (outside of .vue)
 exports.styleLoaders = function (options) {
     const output = [];
     const loaders = exports.cssLoaders(options);
-    for (let extension in loaders) {
-        const loader = loaders[ extension ];
+    for (const extension in loaders) {
+        const loader = loaders[extension];
         output.push({
-            test: new RegExp('\\.' + extension + '$'),
+            test: new RegExp(`\\.${extension}$`),
             use: loader
-        })
+        });
     }
 
-    return output
+    return output;
 };
 
 /**
@@ -337,10 +338,10 @@ exports.styleLoaders = function (options) {
  * @param {String} envFile
  * @returns {Object}
  */
-exports.loadFeatureFlags = function(envFile) {
-    const envResult = dotenv.config({ path: envFile});
+exports.loadFeatureFlags = function (envFile) {
+    const envResult = dotenv.config({ path: envFile });
 
-    if(envResult.hasOwnProperty('error')) {
+    if (envResult.hasOwnProperty('error')) {
         console.error('utils-load-feature-flags', 'Unable to load .env file, no features registered.', envResult.error);
         return {};
     }
@@ -367,7 +368,7 @@ exports.loadFeatureFlags = function(envFile) {
                     return part[0].toUpperCase() + part.substr(1).toLowerCase();
                 })
                 .join('')
-                .replace(/^./, (part) => {return part.toLowerCase(); });
+                .replace(/^./, (part) => { return part.toLowerCase(); });
 
             if (envResult.parsed[key] === '1') {
                 obj[clearedKey] = true;

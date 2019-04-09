@@ -2,7 +2,7 @@
     "name": "swag/customattribute",
     "description": "An example plugin to extend the attribute system",
     "version": "v1.0.0",
-    "type": "shopware-plugin",
+    "type": "shopware-platform-plugin",
     "license": "MIT",
     "authors": [
         {
@@ -10,7 +10,7 @@
         }
     ],
     "extra": {
-        "installer-name": "SwagCustomAttribute",
+        "shopware-plugin-class": "SwagCustomAttribute\\SwagCustomAttribute",
         "copyright": "(c) by shopware AG",
         "label": {
             "de_DE": "Weitere Freitextfelder",

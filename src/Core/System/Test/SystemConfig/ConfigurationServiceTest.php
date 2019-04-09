@@ -2,14 +2,12 @@
 
 namespace Shopware\Core\System\Test\SystemConfig;
 
-use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
-use Shopware\Core\Kernel;
 use Shopware\Core\System\SystemConfig\Exception\BundleConfigNotFoundException;
 use Shopware\Core\System\SystemConfig\Exception\BundleNotFoundException;
 use Shopware\Core\System\SystemConfig\Service\ConfigurationService;
@@ -29,19 +27,9 @@ class ConfigurationServiceTest extends TestCase
     private $systemConfigRepository;
 
     /**
-     * @var Kernel
-     */
-    private $kernel;
-
-    /**
      * @var ConfigurationService
      */
     private $configurationService;
-
-    /**
-     * @var Connection
-     */
-    private $connection;
 
     /**
      * @var Context
@@ -50,11 +38,10 @@ class ConfigurationServiceTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->kernel = new TestKernel('system_config_test', true);
-        $this->kernel->boot();
-        $this->container = $this->kernel->getContainer();
+        $kernel = new TestKernel('system_config_test', true);
+        $kernel->boot();
+        $this->container = $kernel->getContainer();
         $this->systemConfigRepository = $this->container->get('system_config.repository');
-        $this->connection = $this->container->get(Connection::class);
         $this->context = Context::createDefaultContext();
         $this->configurationService = $this->getConfigurationService();
     }

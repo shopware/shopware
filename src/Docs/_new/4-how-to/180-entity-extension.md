@@ -19,7 +19,7 @@ Once this extension is accessed in the system, the extension can add more fields
 ```php
 <?php declare(strict_types=1);
 
-namespace EntityExtension\Extension\Content\Product;
+namespace Swag\EntityExtension\Extension\Content\Product;
 
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityExtensionInterface;
@@ -54,9 +54,9 @@ You're going to need a new subscriber for this. Have a look [here](./040-registe
 ```php
 <?php declare(strict_types=1);
 
-namespace EntityExtension\Subscriber;
+namespace Swag\EntityExtension\Subscriber;
 
-use EntityExtension\Struct\MyCustomStruct;
+use Swag\EntityExtension\Struct\MyCustomStruct;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityLoadedEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -94,11 +94,11 @@ Content of the respective `services.xml`:
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
 
     <services>
-        <service id="EntityExtension\Extension\Content\Product\CustomExtension">
+        <service id="Swag\EntityExtension\Extension\Content\Product\CustomExtension">
             <tag name="shopware.entity.extension"/>
         </service>
 
-        <service id="EntityExtension\Subscriber\MySubscriber">
+        <service id="Swag\EntityExtension\Subscriber\MySubscriber">
             <tag name="kernel.event_subscriber" />
         </service>
     </services>

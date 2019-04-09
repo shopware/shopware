@@ -3,11 +3,17 @@
 namespace Shopware\Core\Framework\Twig\TokenParser;
 
 use Shopware\Core\Framework\Twig\TemplateFinder;
+use Twig\Parser;
 use Twig\Token;
 use Twig\TokenParser\AbstractTokenParser;
 
 final class ExtendsTokenParser extends AbstractTokenParser
 {
+    /**
+     * @var Parser
+     */
+    protected $parser;
+
     /**
      * @var TemplateFinder
      */
@@ -18,7 +24,7 @@ final class ExtendsTokenParser extends AbstractTokenParser
         $this->finder = $finder;
     }
 
-    public function parse(\Twig_Token $token)
+    public function parse(Token $token)
     {
         //get full token stream to inject extends token for inheritance
         $stream = $this->parser->getStream();

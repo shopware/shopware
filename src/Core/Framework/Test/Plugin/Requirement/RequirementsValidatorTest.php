@@ -4,21 +4,26 @@ namespace Shopware\Core\Framework\Test\Plugin\Requirement;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Plugin\PluginEntity;
 use Shopware\Core\Framework\Plugin\Requirement\Exception\RequirementStackException;
 use Shopware\Core\Framework\Plugin\Requirement\RequirementsValidator;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 
-class ValidatorTest extends TestCase
+class RequirementsValidatorTest extends TestCase
 {
     use KernelTestBehaviour;
 
     public function testValidateRequirementsValid(): void
     {
-        require_once __DIR__ . '/_fixture/SwagRequirementValidTest/SwagRequirementValidTest.php';
-        $pluginBaseClass = new \SwagRequirementValidTest\SwagRequirementValidTest();
+        $projectDir = $this->getContainer()->getParameter('kernel.project_dir');
+        $path = __DIR__ . '/_fixture/SwagRequirementValidTest';
+        $path = str_replace($projectDir, '', $path);
+
+        $plugin = new PluginEntity();
+        $plugin->setPath($path);
 
         try {
-            $this->createValidator()->validateRequirements($pluginBaseClass, Context::createDefaultContext(), 'test');
+            $this->createValidator()->validateRequirements($plugin, Context::createDefaultContext(), 'test');
         } catch (\Exception $e) {
             static::fail('This test should not throw an exception');
         }
@@ -27,12 +32,16 @@ class ValidatorTest extends TestCase
 
     public function testValidateRequirementsDoNotMatch(): void
     {
-        require_once __DIR__ . '/_fixture/SwagRequirementInvalidTest/SwagRequirementInvalidTest.php';
-        $pluginBaseClass = new \SwagRequirementInvalidTest\SwagRequirementInvalidTest();
+        $projectDir = $this->getContainer()->getParameter('kernel.project_dir');
+        $path = __DIR__ . '/_fixture/SwagRequirementInvalidTest';
+        $path = str_replace($projectDir, '', $path);
+
+        $plugin = new PluginEntity();
+        $plugin->setPath($path);
 
         $exception = null;
         try {
-            $this->createValidator()->validateRequirements($pluginBaseClass, Context::createDefaultContext(), 'test');
+            $this->createValidator()->validateRequirements($plugin, Context::createDefaultContext(), 'test');
         } catch (RequirementStackException $exception) {
         }
 
@@ -50,12 +59,16 @@ class ValidatorTest extends TestCase
 
     public function testValidateRequirementsMissing(): void
     {
-        require_once __DIR__ . '/_fixture/SwagRequirementInvalidTest/SwagRequirementInvalidTest.php';
-        $pluginBaseClass = new \SwagRequirementInvalidTest\SwagRequirementInvalidTest();
+        $projectDir = $this->getContainer()->getParameter('kernel.project_dir');
+        $path = __DIR__ . '/_fixture/SwagRequirementInvalidTest';
+        $path = str_replace($projectDir, '', $path);
+
+        $plugin = new PluginEntity();
+        $plugin->setPath($path);
 
         $exception = null;
         try {
-            $this->createValidator()->validateRequirements($pluginBaseClass, Context::createDefaultContext(), 'test');
+            $this->createValidator()->validateRequirements($plugin, Context::createDefaultContext(), 'test');
         } catch (RequirementStackException $exception) {
         }
 

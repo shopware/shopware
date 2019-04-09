@@ -16,41 +16,42 @@ At the very end, your plugin structure should look something like this:
 └── custom
     └── plugins
         └── PluginQuickStart
-            ├── Controller
-            │   └── MyController.php
-            ├── DependendencyInjection
-            │   └── services.xml
-            ├── Resources
-            │   ├── config
-            │   │   └── routes.xml
-            │   └── config.xml
-            ├── Service
-            │   └──  MyService.php
-            ├── Subscriber
-            │   └── MySubscriber.php
-            ├── composer.json
-            └── PluginQuickStart.php
+            ├── src
+            │   ├── Controller
+            │   │   └── MyController.php
+            │   ├── Resources
+            │   │   ├── config
+            │   │   │   ├── config.xml
+            │   │   │   ├── routes.xml
+            │   │   │   └── services.xml
+            │   ├── Service
+            │   │   └──  MyService.php
+            │   ├── Subscriber
+            │   │   └── MySubscriber.php
+            │   └── PluginQuickStart.php
+            └── composer.json
 ```
 
 ## Plugin base
 
-The corresponding plugin sources can be stored in the `/custom/plugins/<plugin-directory>` directory.
-It is also possible to `require` your plugin via composer, since Shopware searches the `vendor` directory for packages with the type `shopware-plugin`.
+The corresponding plugin sources can be stored in the `/custom/plugins/<plugin-directory>/src` directory.
+It is also possible to `require` your plugin via composer, since Shopware searches the `vendor` directory for packages with the type `shopware-platform-plugin`.
 
 Each plugin has to come with a base class, which serves as an entry point into the system.
 Just create a new directory inside of `custom/plugins` and choose a proper name for your plugin directory, in this example `PluginQuickStart` is used.
-Afterwards create a new .php file inside of your plugin directory.
+For better structuring, we highly recommend creating a `src` directory next, in which you place your plugin's base class.
+Therefore create a new .php file inside of your `<plugin root>/src` directory.
 
-Note: Whatever name you choose for your base class file, it is **mandatory** to also choose the same name
-for both the PHP class as well as the classes namespace.
+Note: Whatever name you choose for your base class file, it is also highly recommended to use the same name
+for the plugin's namespace, which should then consist of your individual vendor prefix and your plugin name.
 
 The following example should shed some light into this matter.
-Your plugins base class should look like this, if you were to name your plugin "PluginQuickStart":
+Your plugins base class should look like this, if you were to name your plugin "PluginQuickStart" and your vendor prefix would be "swag":
 
 ```php
 <?php declare(strict_types=1);
 
-namespace PluginQuickStart;
+namespace Swag\PluginQuickStart;
 
 use Shopware\Core\Framework\Plugin;
 
@@ -58,7 +59,7 @@ class PluginQuickStart extends Plugin
 {
 }
 ```
-*PluginQuickStart/PluginQuickStart.php*
+*PluginQuickStart/src/PluginQuickStart.php*
 
 The directory structure could then look like this:
 
@@ -67,14 +68,16 @@ The directory structure could then look like this:
 └── custom
     └── plugins
         └── PluginQuickStart
-            └── PluginQuickStart.php
+            └── src
+                └── PluginQuickStart.php
 ```
 
 # Plugin meta data
 
 Another requirement for a working plugin is the `composer.json` file.
-It contains all the necessary meta data of your plugin, e.g. the plugin version, it's supported Shopware platform versions,
+It contains all the necessary meta data of your plugin, e.g. the plugin version, its supported Shopware platform versions,
 the plugin description, the plugin title and many more.
+This has to be located in your plugin **root** directory.
 
 Here's a brief example of how this file could look like:
 ```json
@@ -82,7 +85,7 @@ Here's a brief example of how this file could look like:
     "name": "swag/plugin-quick-start",
     "description": "Plugin quick start plugin",
     "version": "v1.0.0",
-    "type": "shopware-plugin",
+    "type": "shopware-platform-plugin",
     "license": "MIT",
     "authors": [
         {
@@ -93,7 +96,7 @@ Here's a brief example of how this file could look like:
         "shopware/platform": "dev-master"
     },
     "extra": {
-        "installer-name": "PluginQuickStart",
+        "shopware-plugin-class": "Swag\\PluginQuickStart\\PluginQuickStart",
         "label": {
             "de_DE": "Beispiel Plugin",
             "en_GB": "Example Plugin"
@@ -101,6 +104,11 @@ Here's a brief example of how this file could look like:
         "description": {
             "de_DE": "Deutsche Beschreibung des Plugins",
             "en_GB": "English description of the plugin"
+        }
+    },
+    "autoload": {
+        "psr-4": {
+            "Swag\\PluginQuickStart\\": "src/"
         }
     }
 }
@@ -114,15 +122,19 @@ Read [here](./050-plugin-information.md) for more information about the content 
 Now, that you've created the two necessary plugin files, you're able to install the plugin.
 This is done using one of the [plugin commands](./030-plugin-commands.md).
 
-Starting in your project root directory, run the command `bin/console plugin:install --activate PluginQuickStart` to install and activate the plugin.
+Starting in your **project root** directory, run the command `bin/console plugin:install --activate Swag\\PluginQuickStart\\PluginQuickStart` to install and activate the plugin.
 
 # Plugin configuration
 
 When shipping a plugin to your customer, you might want to ship the plugin with some built-in configurations.
 This way you can make sure your customers can configure your plugin to perfectly fit their needs.
 
-The Shopware platform supports this out of the box by adding a `config.xml` file to a `Resources` directory inside your plugin.
-Both the file naming as well as the directory naming is important here, so the autoloading of the `config.xml` file works as intended.
+The Shopware platform supports this out of the box by adding a `config.xml` file to your plugin.
+By default, this should be placed relative to your plugin's base class in a directory called `Resources/config`.
+Both the file naming as well as the directory naming is important here for the auto-loading of the `config.xml` file to work as intended.
+In this example, the location would be the following: `PluginQuickStart/src/Resources/config/config.xml`
+
+The default location can be changed in your plugin's base class though. For a detailed explanation about this, have a look at our guide about the [plugin's base class](./020-plugin-base-class.md#getConfigPath).
 
 For this tutorial, a simple configuration containing a single text field is used:
 
@@ -142,15 +154,14 @@ For this tutorial, a simple configuration containing a single text field is used
     </card>
 </config>
 ```
-*PluginQuickStart/Resources/config.xml*
+*PluginQuickStart/src/Resources/config/config.xml*
 
 This configuration would now create a new text field inside a panel with the title "Minimal configuration", depending on
 the language chosen.
 Also, the text field's technical name is `example` in this case, and so would be the label if you didn't provide a specific label for it.
 Those will be rendered into the administration settings.
 
-For a more detailed guide on how to setup the `config.xml` and which input types exist, head over to
-the detailed [plugin configuration](./070-plugin-config.md) guide.
+For a more detailed guide on how to setup the `config.xml` and which input types exist, head over to the detailed [plugin configuration](./070-plugin-config.md) guide.
 
 # Listening to events via Subscriber
 
@@ -168,14 +179,14 @@ Inside the method you'll have to return an associative array, where the key repr
 and the actual value pointing to the method to execute once the event was dispatched.
 
 In this example the `product.loaded` event is used, which is triggered once one or more products were loaded..
-The subscriber class could be placed into a directory named `Subscriber` on the plugin root directory, the actual
-naming for both the file as well as the directory is irrelevant here though.
+The subscriber class could be placed into a directory named `Subscriber` in the plugin's `src` directory, the actual
+naming for both the file as well as the directory `Subscriber` is irrelevant here though.
 
 An example of a subscriber could look like this:
 ```php
 <?php declare(strict_types=1);
 
-namespace PluginQuickStart\Subscriber;
+namespace Swag\PluginQuickStart\Subscriber;
 
 use Shopware\Core\Content\Product\ProductEvents;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityLoadedEvent;
@@ -197,7 +208,7 @@ class MySubscriber implements EventSubscriberInterface
     }
 }
 ```
-*PluginQuickStart/Subscriber/MySubscriber.php*
+*PluginQuickStart/src/Subscriber/MySubscriber.php*
 
 The subscriber would now listen to the event `example_event` and once the event is dispatched, the method `onExampleEvent` is executed.
 
@@ -206,41 +217,18 @@ The subscriber would now listen to the event `example_event` and once the event 
 Your subscriber now has to be registered into the [DI container](https://symfony.com/doc/current/service_container.html).
 In the platform, the services in the DI container are defined in XML.
 
-To integrate your own `services.xml` in your plugin, the `build` method of your base class has to be overwritten.
-Also make sure to import all the classes necessary, just as in this example:
+A `services.xml` file is automatically loaded, if you place it into the proper directory.
+This works just like the plugin's `config.xml` explained above. Once again, the proper directory for the `services.xml` has to be located relative
+to your plugin's base class in a directory called `Resources/config`.
 
-```php
-<?php declare(strict_types=1);
+Therefore the path to the `services.xml` would look like this: `PluginQuickStart/src/Resources/config/services.xml`
 
-namespace PluginQuickStart;
+This location can also be adjusted by overwriting the `getContainerPath` method of your plugin's base class.
+For a detailed explanation on how to override this, have a look at our guide about the [plugin's base class](./020-plugin-base-class.md#getContainerPath).
 
-use Shopware\Core\Framework\Plugin;
-use Symfony\Component\DependencyInjection\ContainerBuilder;
-use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
-use Symfony\Component\Config\FileLocator;
+### Registering your subscriber
 
-class PluginQuickStart extends Plugin
-{
-    public function build(ContainerBuilder $container): void
-    {
-        parent::build($container);
-        $loader = new XmlFileLoader($container, new FileLocator(__DIR__ . '/DependencyInjection/'));
-        $loader->load('services.xml');
-    }
-    
-}
-``` 
-*PluginQuickStart/PluginQuickStart.php*
-
-This way your plugin will be looking for a file called `services.xml` inside of a `DependencyInjection` directory,
-which has to be created in your plugin root directory.
-The directory name `DependencyInjection` as well as the file name are **not** a requirement, just a suggestion and free for change.
-
-## Registering your subscriber
-
-You've created a subscriber class and you've made sure your plugin is actually looking for a `services.xml` file.
-Now it's time to create the `services.xml` file itself. As mentioned above it needs to be inside of a directory called
-`DependencyInjection`.
+You've created a subscriber class and you've made sure your plugin is actually containing a `services.xml` file.
 
 It could then contain the following XML:
 
@@ -252,13 +240,13 @@ It could then contain the following XML:
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
 
     <services>
-        <service id="PluginQuickStart\Subscriber\MySubscriber">
+        <service id="Swag\PluginQuickStart\Subscriber\MySubscriber">
             <tag name="kernel.event_subscriber"/>
         </service>
     </services>
 </container>
 ```
-*PluginQuickStart/DependencyInjection/services.xml*
+*PluginQuickStart/src/Resources/config/services.xml*
 
 The service ID represents the fully qualified class name of your subscriber class.
 If you chose another name for the `Subscriber` directory, make sure to change it here as well.
@@ -269,12 +257,11 @@ with the `kernel.event_subscriber` tag, which is the Symfony default tag for sub
 Your subscriber is now fully integrated:
 - The subscriber class exists and it listens to an event
 - The subscriber is mentioned in the `services.xml` file
-- The plugin is loading the custom `services.xml` file
 
 # Creating a controller
 
 Another common thing to be done in a plugin is registering a custom controller, e.g. to be used as a new custom API endpoint.
-For this case you could create a new directory called `Controller`, but once again, the naming and structure can be freely chosen here.
+For this case you could create a new directory called `Controller` inside the `src` directory , but once again, the naming and structure can be freely chosen here.
 
 Inside this directory, just create a new PHP class for the controller, in this example it's named `MyController`.
 The controller should extend from the Symfony `AbstractController` class, since it provides common features needed in the
@@ -284,7 +271,7 @@ An example of the `MyController` controller could look like this:
 ```PHP
 <?php declare(strict_types=1);
 
-namespace PluginQuickStart\Controller;
+namespace Swag\PluginQuickStart\Controller;
 
 use Shopware\Core\Framework\Context;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -303,16 +290,14 @@ class MyController extends AbstractController
     }
 }
 ```
-*PluginQuickStart/Controller/MyController.php*
+*PluginQuickStart/src/Controller/MyController.php*
 
-Important to notice is the `@Route` annotation above the `myFirstApi`, which basically defines
-the actual route to access the controller.
+Important to notice is the `@Route` annotation above the `myFirstApi`, which basically defines the actual route to access the controller.
 
 Additional to that, the Shopware platform needs to learn where to search for your controller in the first place.
-This is done by adding a `routes.xml` file into a `Resources/config/` directory.
-The naming for the directory is not only suggested, it is highly recommended here.
-With this way, the Shopware platform finds the `routes.xml` automatically.
-This is done by looking for any .xml file, whose path contains `routes`, so the path `Resources/config/routes/example.xml` would also work.
+This is done by adding a `routes.xml` file into a `src/Resources/config/` directory.
+The naming for the directory is not only suggested, it is highly recommended again here, so the auto-loading works.
+This is done by looking for any .xml file, whose path contains `routes`, so the path `src/Resources/config/routes/example.xml` would also work.
 
 The XML file then simply points to the directory containing your controller, in this example it would be `Controller`.
 
@@ -328,28 +313,28 @@ Here's the example for the `routes.xml` content:
     <import resource="../../Controller" type="annotation" />
 </routes>
 ```
-*PluginQuickStart/Resources/config/routes.xml*
+*PluginQuickStart/src/Resources/config/routes.xml*
 
-Since the Shopware platform uses Symfony fullstack, it's also supporting configuration files written in YML or PHP. 
+Since the Shopware platform uses Symfony fullstack, it's technically also possible to use configuration files written in YML or PHP.
+Yet, the Shopware platform is looking for XML files by default. This can be overridden in the plugin's [base class](./020-plugin-base-class.md).
 An representation of the same routes configuration using a YAML or PHP file instead, can be found in the Symfony documentation
 about [external routing resources](https://symfony.com/doc/current/routing/external_resources.html).
 
 Now the controller should be fully working and accessible using the route mentioned in the method's `@Route` annotation.
 Since we've created an API route here, an authorization token is still necessary to actually access our controller.
-Remove the 'api' from the route to circumvent the authorization for testing purposes or get more into how the Shopware platform API works [here](../../3-api/__categoryInfo.md). 
+Remove the 'api' from the route to circumvent the authorization for testing purposes or get more into how the Shopware platform management API works [here](../3-api/010-management-api.md). 
 
 # Creating a service
 
 Since you don't want any business logic to be executed inside of a controller or subscriber, you usually want to put your business logic
-into services.
-Earlier in this tutorial you already created a `services.xml` file, and as the name suggests, you can also define new services in there.
+into services. Earlier in this tutorial you already created a `services.xml` file, and as the name suggests, you can also define new services in there.
 
-Sticking to the previous examples, you could just name it `MyService` and place it into a `Service` directory.
+Sticking to the previous examples, you could just name it `MyService` and place it into a `src/Service` directory.
 
 ```php
 <?php declare(strict_types = 1);
 
-namespace PluginQuickStart\Service;
+namespace Swag\PluginQuickStart\Service;
 
 class MyService
 {
@@ -358,9 +343,9 @@ class MyService
     }
 }
 ```
-*PluginQuickStart/Service/MyService.php*
+*PluginQuickStart/src/Service/MyService.php*
 
-In order to access it via the [DI container](https://symfony.com/doc/current/service_container.html), you need to mention it in the said `services.xml` file:
+In order to access it via the [DI container](https://symfony.com/doc/current/service_container.html), you need to mention the service in the said `services.xml` file:
 
 ```xml
 <?xml version="1.0" ?>
@@ -370,15 +355,15 @@ In order to access it via the [DI container](https://symfony.com/doc/current/ser
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
 
     <services>
-        <service id="PluginQuickStart\Subscriber\MySubscriber">
+        <service id="Swag\PluginQuickStart\Subscriber\MySubscriber">
             <tag name="kernel.event_subscriber"/>
         </service>
         
-        <service id="PluginQuickStart\Service\MyService" />
+        <service id="Swag\PluginQuickStart\Service\MyService" />
     </services>
 </container>
 ```
-*PluginQuickStart/DependencyInjection/services.xml*
+*PluginQuickStart/src/Resources/config/services.xml*
 
 Your service is now part of the DI container, but only as a [private service](https://symfony.com/doc/current/service_container/alias_private.html).
 An example usage would be in your new controller.
@@ -386,9 +371,9 @@ An example usage would be in your new controller.
 ```PHP
 <?php declare(strict_types=1);
 
-namespace PluginQuickStart\Controller;
+namespace Swag\PluginQuickStart\Controller;
 
-use PluginQuickStart\Service\MyService;
+use Swag\PluginQuickStart\Service\MyService;
 use Shopware\Core\Framework\Context;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -433,14 +418,14 @@ Your `services.xml` should now look like this:
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
 
     <services>
-        <service id="PluginQuickStart\Subscriber\MySubscriber">
+        <service id="Swag\PluginQuickStart\Subscriber\MySubscriber">
             <tag name="kernel.event_subscriber"/>
         </service>
 
-        <service id="PluginQuickStart\Service\MyService" />
+        <service id="Swag\PluginQuickStart\Service\MyService" />
 
-        <service id="PluginQuickStart\Controller\MyController" public="true">
-            <argument type="service" id="PluginQuickStart\Service\MyService" />
+        <service id="Swag\PluginQuickStart\Controller\MyController" public="true">
+            <argument type="service" id="Swag\PluginQuickStart\Service\MyService" />
         </service>
     </services>
 </container>

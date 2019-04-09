@@ -21,9 +21,8 @@ class KernelPluginCollection
 
     public function add(Plugin $bundle): void
     {
-        $class = \get_class($bundle);
         /** @var string|false $class */
-        $class = substr($class, 0, strpos($class, '\\'));
+        $class = \get_class($bundle);
 
         if ($class === false) {
             return;

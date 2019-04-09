@@ -12,7 +12,7 @@ Have a look at the [composer schema](https://getcomposer.org/doc/04-schema.md), 
     "name": "swag/example-plugin",
     "description": "Example plugin",
     "version": "v1.0.1",
-    "type": "shopware-plugin",
+    "type": "shopware-platform-plugin",
     "license": "MIT",
     "authors": [
         {
@@ -23,7 +23,8 @@ Have a look at the [composer schema](https://getcomposer.org/doc/04-schema.md), 
         "shopware/platform": "dev/master"
     },
     "extra": {
-        "installer-name": "ExamplePlugin",
+        "shopware-plugin-class": "Swag\\ExamplePlugin\\ExamplePlugin",
+        "plugin-icon": "src/Resources/config/plugin.png",
         "copyright": "(c) by shopware AG",
         "label": {
             "de_DE": "Beispiel Plugin für Shopware",
@@ -41,7 +42,12 @@ Have a look at the [composer schema](https://getcomposer.org/doc/04-schema.md), 
             "de_DE": "https://docs.shopware.com/de",
             "en_GB": "https://docs.shopware.com/en"
         }
-    }
+    },
+    "autoload": {
+        "psr-4": {
+            "Swag\\BaseClass\\": "src/",
+        }
+    },
 }
 ```
 
@@ -52,17 +58,19 @@ Have a look at the [composer schema](https://getcomposer.org/doc/04-schema.md), 
 | name                     | Name of your package                                                                                                             |
 | description              | The composer JSON schema requires a short description of your package                                                            |
 | version                  | Current version of your plugin                                                                                                   |
-| type                     | Set the type to `shopware-plugin`. Otherwise Shopware won't be able to recognize your plugin                                     |
+| type                     | Set the type to `shopware-platform-plugin`. Otherwise Shopware won't be able to recognize your plugin                                     |
 | license                  | Provide the license model of your plugin, e.g. `MIT` or `proprietary`                                                            |
 | authors                  | Collection of the authors of your plugin                                                                                         |
 | require                  | Add your dependencies here. This should be `shopware/platform`, but could also be another plugin or composer package             |
 | extra                    | The `extra` property is used to provide some Shopware specific information                                                       |
-| extra - installer-name   | The technical name of your plugin. Must be unique and should contain your vendor prefix                                          |
+| extra - shopware-plugin-class   | The fully qualified class name of your plugin's base class                                                                    |
+| extra - plugin-icon      | The path to the plugin's icon file. This is optional if you don't have any custom plugin icon                                 |
 | extra - copyright        | Set a copyright for your plugin                                                                                                  |
 | extra - label            | The name of your plugin which is displayed to the Shopware user. [Translatable](./050-plugin-information.md#translations)        |
 | extra - description      | The description of your plugin which is displayed to the Shopware user. [Translatable](./050-plugin-information.md#translations) |
 | extra - manufacturerLink | Link to your homepage. [Translatable](./050-plugin-information.md#translations)                                                  |
 | extra - supportLink      | A link to your support homepage. [Translatable](./050-plugin-information.md#translations)                                        |
+| autoload                 | Required to have a custom [PSR-4 autoloader](https://getcomposer.org/doc/04-schema.md#psr-4) for your custom plugin directory |
 
 ## Translations
 

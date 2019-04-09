@@ -38,7 +38,7 @@ trait PluginTestsHelper
         $pluginRepo->create(
             [
                 [
-                    'name' => \SwagTest\SwagTest::PLUGIN_NAME,
+                    'name' => \SwagTest\SwagTest::class,
                     'version' => $version,
                     'label' => \SwagTest\SwagTest::PLUGIN_LABEL,
                     'installedAt' => $installedAt,

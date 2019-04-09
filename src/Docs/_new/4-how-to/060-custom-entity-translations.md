@@ -14,7 +14,7 @@ Imagine you're dealing with with an `EntityDefinition` class like this one:
 ```php
 <?php declare(strict_types=1);
 
-namespace CustomEntityTranslations\Custom;
+namespace Swag\CustomEntityTranslations\Custom;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CreatedAtField;
@@ -54,10 +54,10 @@ class CustomEntityDefinition extends EntityDefinition
 }
 ```
 
-This class defined a string field `technical_name`, which must not be translated, since it's main purpose is to be a unique identifier, next to the ID.
+This class defined a string field `technical_name`, which must not be translated, since its main purpose is to be a unique identifier, next to the ID.
 Now imagine this class would also provide a `label` field, which is also basically a `StringField`.
 Simply adding a `StringField` here is tempting, isn't it?
-Since a `label` should be translatable, you have to add a `TranslatableField` instead.
+Since a `label` should be translatable, you have to add a `TranslatedField` instead.
 
 ```php
 protected static function defineFields(): FieldCollection
@@ -83,9 +83,9 @@ Next thing you gotta add this translation association to your custom entity.
 ```php
 <?php declare(strict_types=1);
 
-namespace CustomEntityTranslations\Custom;
+namespace Swag\CustomEntityTranslations\Custom;
 
-use CustomEntityTranslations\Custom\Aggregate\CustomTranslation\CustomEntityTranslationCollection;
+use Swag\CustomEntityTranslations\Custom\Aggregate\CustomTranslation\CustomEntityTranslationCollection;
 ...
 
 class CustomEntity extends Entity
@@ -117,7 +117,7 @@ The class `CustomEntityTranslationCollection` will be added in the next steps, d
 ## Custom translation entity
 
 Since the translation is going to be saved in another table just for your custom entity,
-the translations need an own `Entity`, `EntityDefinition` and an `EntityCollection`, such as the `CustomEntityTranslationCollection` mentioned above.
+the translations need an own `Entity`, `EntityDefinition` and an `EntityCollection` class, such as the `CustomEntityTranslationCollection` mentioned above.
 
 So, once more, let's create all these classes. By default, the Shopware platform places the entity translation classes
 inside a directory called `Aggregate`.
@@ -125,15 +125,16 @@ In this example, the directory structure would look like this:
 
 ```
 <plugin-root>
-    ├── Custom
-    │    ├── Aggregate
-    │    │    └── CustomEntityTranslation
-    │    │        └── CustomTranslationEntity.php
-    │    │        ...
-    │    ├── CustomEntity.php
-    │    └── CustomEntityCollection.php
-    │    ...
-    └──  <BaseClass>.php
+    └──src
+        ├── Custom
+        │    ├── Aggregate
+        │    │    └── CustomEntityTranslation
+        │    │        └── CustomTranslationEntity.php
+        │    │        ...
+        │    ├── CustomEntity.php
+        │    └── CustomEntityCollection.php
+        │    ...
+        └──  <BaseClass>.php
 ```
 
 ### Translation Entity Definition
@@ -143,9 +144,9 @@ Since creating an `EntityCollection` was already explained in the [previous HowT
 ```php
 <?php declare(strict_types = 1);
 
-namespace CustomEntityTranslations\Custom\Aggregate\CustomTranslation;
+namespace Swag\CustomEntityTranslations\Custom\Aggregate\CustomTranslation;
 
-use CustomEntity\Custom\CustomEntityDefinition;
+use Swag\CustomEntityTranslations\Custom\CustomEntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityTranslationDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
@@ -201,9 +202,9 @@ parent's id, `customEntityId` in this case, as well as a property for the actual
 ```php
 <?php declare(strict_types = 1);
 
-namespace CustomEntityTranslations\Custom\Aggregate\CustomTranslation;
+namespace Swag\CustomEntityTranslations\Custom\Aggregate\CustomTranslation;
 
-use CustomEntityTranslations\Custom\CustomEntity;
+use Swag\CustomEntityTranslations\Custom\CustomEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\TranslationEntity;
 
 class CustomTranslationEntity extends TranslationEntity
@@ -280,7 +281,7 @@ Your custom translation entity also has to come with a respective collection cla
 ```php
 <?php declare(strict_types = 1);
 
-namespace CustomEntityTranslations\Custom\Aggregate\CustomTranslation;
+namespace Swag\CustomEntityTranslations\Custom\Aggregate\CustomTranslation;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
@@ -319,7 +320,7 @@ Finally, you have to adjust your plugin migration to also create your translatio
 ```php
 <?php declare(strict_types=1);
 
-namespace CustomEntityTranslations\Migration;
+namespace Swag\CustomEntityTranslations\Migration;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Migration\MigrationStep;

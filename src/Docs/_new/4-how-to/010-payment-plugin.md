@@ -37,6 +37,25 @@ Throw the `CustomerCanceledAsyncPaymentException` if the customer canceled the p
 If another general error occurs throw the `AsyncPaymentFinalizeException` e.g. if your call to the payment provider API fails.
 Again Shopware will handle these exceptions and will set the transaction to the `cancelled` state.
 
+You also need to make sure to register your custom payment in the DI container.
+
+```xml
+<?xml version="1.0" ?>
+
+<container xmlns="http://symfony.com/schema/dic/services"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+
+    <services>
+        <service id="Swag\PaymentPlugin\Service\ExamplePayment">
+            <tag name="payment.method.async" />
+        </service>
+    </services>
+</container>
+```
+
+The mentioned example class `Swag\PaymentPlugin\Service\ExamplePayment` is created in the next step.
+
 ### Asynchronous example
 
 An implementation of your custom asynchronous payment handler could look like this:
@@ -44,7 +63,7 @@ An implementation of your custom asynchronous payment handler could look like th
 ```php
 <?php declare(strict_types=1);
 
-namespace PaymentPlugin\Service;
+namespace Swag\PaymentPlugin\Service;
 
 use Shopware\Core\Checkout\Payment\Cart\AsyncPaymentTransactionStruct;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\AsynchronousPaymentHandlerInterface;
@@ -213,9 +232,9 @@ An example for your plugin could look like this:
 ```php
 <?php declare(strict_types=1);
 
-namespace PaymentPlugin;
+namespace Swag\PaymentPlugin;
 
-use PaymentPlugin\Service\ExamplePayment;
+use Swag\PaymentPlugin\Service\ExamplePayment;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -226,19 +245,9 @@ use Shopware\Core\Framework\Plugin\Context\DeactivateContext;
 use Shopware\Core\Framework\Plugin\Context\InstallContext;
 use Shopware\Core\Framework\Plugin\Context\UninstallContext;
 use Shopware\Core\Framework\Plugin\Util\PluginIdProvider;
-use Symfony\Component\DependencyInjection\ContainerBuilder;
-use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
-use Symfony\Component\Config\FileLocator;
 
 class PaymentPlugin extends Plugin
 {
-    public function build(ContainerBuilder $container): void
-    {
-        parent::build($container);
-        $loader = new XmlFileLoader($container, new FileLocator(__DIR__ . '/DependencyInjection/'));
-        $loader->load('services.xml');
-    }
-
     public function install(InstallContext $context): void
     {
         $this->addPaymentMethod($context->getContext());
@@ -274,7 +283,7 @@ class PaymentPlugin extends Plugin
 
         /** @var PluginIdProvider $pluginIdProvider */
         $pluginIdProvider = $this->container->get(PluginIdProvider::class);
-        $pluginId = $pluginIdProvider->getPluginIdByTechnicalName($this->getName(), $context);
+        $pluginId = $pluginIdProvider->getPluginIdByBaseClass($this->getClassName(), $context);
 
         $examplePaymentData = [
             // payment handler will be selected by the identifier

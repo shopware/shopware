@@ -4,17 +4,22 @@ namespace Shopware\Core\Framework\Plugin\Composer;
 
 use Composer\Composer;
 use Composer\Factory as ComposerFactory;
+use Composer\IO\IOInterface;
 use Composer\IO\NullIO;
 
 class Factory
 {
-    public static function createComposer(string $projectDir): Composer
+    public static function createComposer(string $composerJsonDir, ?IOInterface $composerIO = null): Composer
     {
+        if ($composerIO === null) {
+            $composerIO = new NullIO();
+        }
+
         return (new ComposerFactory())->createComposer(
-            new NullIO(),
-            $projectDir . '/composer.json',
+            $composerIO,
+            $composerJsonDir . '/composer.json',
             false,
-            $projectDir
+            $composerJsonDir
         );
     }
 }

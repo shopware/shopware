@@ -145,7 +145,7 @@ class PluginLifecycleService
         if (next1797()) {
             $this->executor->require($plugin->getComposerName());
         } else {
-            $this->requirementValidator->validateRequirements($pluginBaseClass, $shopwareContext, 'install');
+            $this->requirementValidator->validateRequirements($plugin, $shopwareContext, 'install');
         }
 
         $pluginData['id'] = $plugin->getId();
@@ -260,7 +260,7 @@ class PluginLifecycleService
         if (next1797()) {
             $this->executor->require($plugin->getComposerName());
         } else {
-            $this->requirementValidator->validateRequirements($pluginBaseClass, $shopwareContext, 'update');
+            $this->requirementValidator->validateRequirements($plugin, $shopwareContext, 'update');
         }
 
         $this->eventDispatcher->dispatch(
@@ -406,12 +406,15 @@ class PluginLifecycleService
 
     private function runMigrations(Plugin $pluginBaseClass): void
     {
-        $migrationPath = $pluginBaseClass->getPath()
-            . str_replace(
+        $migrationPath = str_replace(
+            '\\',
+            '/',
+            $pluginBaseClass->getPath() . str_replace(
                 $pluginBaseClass->getNamespace(),
                 '',
-                str_replace('\\', '/', $pluginBaseClass->getMigrationNamespace())
-            );
+                $pluginBaseClass->getMigrationNamespace()
+            )
+        );
 
         if (!is_dir($migrationPath)) {
             return;

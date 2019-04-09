@@ -5,36 +5,11 @@
 Decorating a service with your plugin is as simple as it is in Symfony.
 Make sure to have a look at the [Symfony guide about decorating services](https://symfony.com/doc/current/service_container/service_decoration.html).
 
-The only difference here is, that you need to let the Shopware platform know about your plugin's custom `services.xml` location.
+## Decorating a service
 
-This is done in the plugin's base class.
-
-## Plugin base class
-
-You need to overwrite the base class' `build` method to load your `services.xml` file.
-
-```php
-<?php declare(strict_types=1);
-
-namespace ServiceDecoration;
-
-use Shopware\Core\Framework\Plugin;
-use Symfony\Component\DependencyInjection\ContainerBuilder;
-use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
-use Symfony\Component\Config\FileLocator;
-
-class ServiceDecoration extends Plugin
-{
-    public function build(ContainerBuilder $container): void
-    {
-        parent::build($container);
-        $loader = new XmlFileLoader($container, new FileLocator(__DIR__ . '/DependencyInjection/'));
-        $loader->load('services.xml');
-    }
-}
-```
-
-It now tries to load the `services.xml` file inside the `<plugin-root>/DependencyInjection` directory.
+The main requirement here is to have a `services.xml` file loaded in your plugin.
+This can be achieved by placing the file into a `Resources/config` directory relative to your plugin's base class location.
+Make sure to also have a look at the method [getContainerPath()](../2-internals/4-plugins/020-plugin-base-class.md#getContainerPath())
 
 From here on, everything works exactly like in Symfony itself.
 
@@ -48,10 +23,10 @@ Here's an example `services.xml`:
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
 
     <services>
-        <service id="ServiceDecoration\Service\MyService" />
+        <service id="Swag\ServiceDecoration\Service\MyService" />
 
-        <service id="ServiceDecoration\Service\DecoratedService" decorates="ServiceDecoration\Service\MyService">
-            <argument type="service" id="ServiceDecoration\Service\MyService.inner" />
+        <service id="Swag\ServiceDecoration\Service\DecoratedService" decorates="Swag\ServiceDecoration\Service\MyService">
+            <argument type="service" id="Swag\ServiceDecoration\Service\MyService.inner" />
         </service>
     </services>
 </container>
@@ -61,7 +36,7 @@ And the related example services:
 ```php
 <?php declare(strict_types = 1);
 
-namespace ServiceDecoration\Service;
+namespace Swag\ServiceDecoration\Service;
 
 class MyService implements MyServiceInterface
 {
@@ -74,7 +49,7 @@ class MyService implements MyServiceInterface
 ```php
 <?php declare(strict_types=1);
 
-namespace ServiceDecoration\Service;
+namespace Swag\ServiceDecoration\Service;
 
 class DecoratedService
 {

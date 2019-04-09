@@ -201,8 +201,8 @@
         </service>
 
         <service id="Shopware\Core\Framework\Twig\InheritanceExtension">
-            <tag name="twig.extension"/>
             <argument type="service" id="Shopware\Core\Framework\Twig\TemplateFinder"/>
+            <tag name="twig.extension"/>
         </service>
 
         <service id="Shopware\Core\Framework\Twig\FeatureFlagExtension">

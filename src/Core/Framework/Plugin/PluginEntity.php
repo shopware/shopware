@@ -131,6 +131,11 @@ class PluginEntity extends Entity
      */
     protected $attributes;
 
+    /**
+     * @var array
+     */
+    protected $autoload;
+
     public function getName(): string
     {
         return $this->name;
@@ -369,6 +374,16 @@ class PluginEntity extends Entity
     public function setAttributes(?array $attributes): void
     {
         $this->attributes = $attributes;
+    }
+
+    public function getAutoload(): array
+    {
+        return $this->autoload;
+    }
+
+    public function setAutoload(array $autoload): void
+    {
+        $this->autoload = $autoload;
     }
 
     public function jsonSerialize(): array

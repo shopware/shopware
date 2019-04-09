@@ -20,8 +20,7 @@ Make sure to have a look at our in-depth guide about [plugin migrations](../2-in
 This example won't explain how to create a plugin in the first instance.
 How to create your first plugin is explained in detail [here](../2-internals/4-plugins/010-plugin-quick-start.md).
 
-By default, the Shopware platform is looking for migration files in a folder called `Migration` inside of your
-plugin root directory.
+By default, the Shopware platform is looking for migration files in a folder called `Migration` relative to your plugin's base class directory.
 You can adjust this behaviour by overwriting the [getMigrationNamespace](../2-internals/4-plugins/020-plugin-base-class.md#getMigrationNamespace()) method in your plugin.
 
 ## The migration file
@@ -33,7 +32,7 @@ So, here's how an example migration could look like:
 ```php
 <?php declare(strict_types=1);
 
-namespace PluginMigrationExample\Migration;
+namespace Swag\PluginMigrationExample\Migration;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Migration\MigrationStep;

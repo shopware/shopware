@@ -2,6 +2,7 @@
 
 namespace Shopware\Core;
 
+use Composer\Autoload\ClassLoader;
 use Doctrine\DBAL\Configuration;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DriverManager;
@@ -38,14 +39,21 @@ class Kernel extends HttpKernel
     protected static $plugins;
 
     /**
+     * @var ClassLoader
+     */
+    protected $classLoader;
+
+    /**
      * {@inheritdoc}
      */
-    public function __construct(string $environment, bool $debug)
+    public function __construct(string $environment, bool $debug, ClassLoader $classLoader)
     {
         parent::__construct($environment, $debug);
 
         self::$plugins = new KernelPluginCollection();
         self::$connection = null;
+
+        $this->classLoader = $classLoader;
     }
 
     public function registerBundles()
@@ -219,39 +227,14 @@ class Kernel extends HttpKernel
 
     protected function initializePlugins(): void
     {
-        $stmt = self::getConnection()->executeQuery(
-            'SELECT `name`, IF(`active` = 1 AND `installed_at` IS NOT NULL, 1, 0) AS active, `path` FROM `plugin`'
-        );
-        $pluginsInDatabase = $stmt->fetchAll();
+        $sql = <<<SQL
+SELECT `name`, IF(`active` = 1 AND `installed_at` IS NOT NULL, 1, 0) AS active, `path`, `autoload`, `managed_by_composer` FROM `plugin`
+SQL;
 
-        foreach ($pluginsInDatabase as $pluginData) {
-            $pluginName = $pluginData['name'];
-            $pluginPath = $this->getProjectDir() . $pluginData['path'];
-            $pluginFile = $pluginPath . '/' . $pluginName . '.php';
-            if (!is_file($pluginFile)) {
-                continue;
-            }
+        $plugins = self::getConnection()->executeQuery($sql)->fetchAll();
 
-            $namespace = $pluginName;
-            $className = '\\' . $namespace . '\\' . $pluginName;
-
-            if (!class_exists($className)) {
-                throw new \RuntimeException(
-                    sprintf('Unable to load class %s for plugin %s in file %s', $className, $pluginName, $pluginFile)
-                );
-            }
-
-            /** @var \Shopware\Core\Framework\Plugin $plugin */
-            $plugin = new $className((bool) $pluginData['active'], $pluginPath);
-
-            if (!$plugin instanceof Plugin) {
-                throw new \RuntimeException(
-                    sprintf('Class %s must extend %s in file %s', \get_class($plugin), Plugin::class, $pluginFile)
-                );
-            }
-
-            self::$plugins->add($plugin);
-        }
+        $this->registerPluginNamespaces($plugins);
+        $this->instantiatePlugins($plugins);
     }
 
     protected function initializeFeatureFlags(): void
@@ -320,5 +303,58 @@ class Kernel extends HttpKernel
         }
 
         $connection->executeQuery(implode(';', $connectionVariables));
+    }
+
+    private function registerPluginNamespaces(array $plugins): void
+    {
+        foreach ($plugins as $plugin) {
+            // plugins managed by composer are already in the classMap
+            if ($plugin['managed_by_composer']) {
+                continue;
+            }
+
+            if (empty($plugin['autoload'])) {
+                throw new \RuntimeException(sprintf('Unable to register plugin "%s" in autoload.', $plugin['name']));
+            }
+
+            $autoload = json_decode($plugin['autoload'], true);
+
+            $psr4 = $autoload['psr-4'] ?? [];
+            $psr0 = $autoload['psr-0'] ?? [];
+
+            if (empty($psr4) && empty($psr0)) {
+                throw new \RuntimeException(sprintf('Unable to register plugin "%s" in autoload.', $plugin['name']));
+            }
+
+            foreach ($psr4 as $namespace => $path) {
+                $this->classLoader->addPsr4($namespace, $this->getProjectDir() . $plugin['path'] . '/' . $path);
+            }
+
+            foreach ($psr0 as $namespace => $path) {
+                $this->classLoader->add($namespace, $this->getProjectDir() . $plugin['path'] . '/' . $path);
+            }
+        }
+    }
+
+    private function instantiatePlugins(array $plugins): void
+    {
+        foreach ($plugins as $pluginData) {
+            $className = $pluginData['name'];
+
+            if (!class_exists($className)) {
+                throw new \RuntimeException(sprintf('Unable to load plugin class "%s"', $className));
+            }
+
+            /** @var Plugin $plugin */
+            $plugin = new $className((bool) $pluginData['active']);
+
+            if (!$plugin instanceof Plugin) {
+                throw new \RuntimeException(
+                    sprintf('Plugin class "%s" must extend "%s"', \get_class($plugin), Plugin::class)
+                );
+            }
+
+            self::$plugins->add($plugin);
+        }
     }
 }

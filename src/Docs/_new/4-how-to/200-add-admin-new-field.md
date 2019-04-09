@@ -17,8 +17,9 @@ learn creating a plugin at first.
 ## Injecting into the administration
 
 The main entry point to customize the administration via plugin, is the `main.js` file.
-It has to be placed into a `<plugin root>/Resources/views/admininistration` directory in order to be found by the Shopware
+It has to be placed into a `<plugin root>/src/Resources/admininistration` directory in order to be automatically found by the Shopware
 platform.
+*Note: This path can be changed by overriding the [getAdministrationEntryPath()](../2-internals/4-plugins/020-plugin-base-class.md#getAdministrationEntryPath()) method of your plugin's base class.*
 
 Your `main.js` file then needs to override the [Vue component](https://vuejs.org/v2/guide/components.html) using the
 `override` method of our `ComponentFactory`.
@@ -73,7 +74,7 @@ As mentioned above, the Shopware platform is looking for a `main.js` file in you
 It's contents then get minified into a new file named after your plugin and will be moved to the `public` directory
 of the Shopware platform root directory.
 Given this plugin would be named "AdministrationNewField", the minified javascript code for this example would be
-located under `<plugin root>/Resources/public/static/js/AdministrationNewField.js`, once you run the command `psh administration:build` in your shopware root directory.
+located under `<plugin root>/src/Resources/public/static/js/AdministrationNewField.js`, once you run the command `psh administration:build` in your shopware root directory.
 *Note: Your plugin has to be activated for this to work.*
 Make sure to also include that file when publishing your plugin!
 A copy of this file will then be put into the directory `<shopware root>/public/bundles/administrationnewfield/static/js/AdministrationNewField.js`.

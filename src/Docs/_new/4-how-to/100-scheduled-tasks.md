@@ -7,35 +7,12 @@ every once in a while, automatically.
 Formerly known as "Cronjobs", the Shopware platform supports a `ScheduledTask` for this.
 
 A `ScheduledTask` and it's respective `ScheduledTaskHandler` are registered in a plugin's `services.xml`.
+For it to be found by the Shopware platform automatically, you need to place the `services.xml` file in a
+`Resources/config/` directory, relative to the location of your plugin's base class.
+The path could look like this: `<plugin root>/src/Resources/config/services.xml`, if you were to place your plugin's base class in
+`<plugin root>/src`.
 
-## Plugin base class
-
-You need to overwrite your plugin's base class' `build` method to load your `services.xml` file.
-
-```php
-<?php declare(strict_types=1);
-
-namespace ScheduledTaskPlugin;
-
-use Shopware\Core\Framework\Plugin;
-use Symfony\Component\Config\FileLocator;
-use Symfony\Component\DependencyInjection\ContainerBuilder;
-use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
-
-class ScheduledTaskPlugin extends Plugin
-{
-    public function build(ContainerBuilder $container): void
-    {
-        parent::build($container);
-        $loader = new XmlFileLoader($container, new FileLocator(__DIR__ . '/DependencyInjection/'));
-        $loader->load('services.xml');
-    }
-}
-```
-
-It now tries to load the `services.xml` file inside the `<plugin-root>/DependencyInjection` directory.
-
-## Services.xml
+## Registering scheduled task in the DI container
 
 Here's an example `services.xml` containing a new `ScheduledTask` as well as a new `ScheduledTaskHandler`:
 
@@ -47,11 +24,11 @@ Here's an example `services.xml` containing a new `ScheduledTask` as well as a n
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
 
     <services>
-        <service id="ScheduledTaskPlugin\ScheduledTask\MyTask">
+        <service id="Swag\ScheduledTaskPlugin\ScheduledTask\MyTask">
             <tag name="shopware.scheduled.task" />
         </service>
 
-        <service id="ScheduledTaskPlugin\ScheduledTask\MyTaskHandler">
+        <service id="Swag\ScheduledTaskPlugin\ScheduledTask\MyTaskHandler">
             <argument type="service" id="scheduled_task.repository" />
             <tag name="messenger.message_handler" />
         </service>
@@ -68,11 +45,11 @@ As you might have noticed, the `services.xml` file tries to find both the task i
 a directory called `ScheduledTask`.
 This naming is up to you, the Shopware platform decided to use this name though.
 
-Here's the mentioned example `ScheduledTask` file:
+Here's the mentioned example `ScheduledTask` file in `<plugin root>/src/ScheduledTask/`:
 ```php
 <?php declare(strict_types=1);
 
-namespace ScheduledTaskPlugin\ScheduledTask;
+namespace Swag\ScheduledTaskPlugin\ScheduledTask;
 
 use Shopware\Core\Framework\ScheduledTask\ScheduledTask;
 
@@ -96,7 +73,7 @@ Following will be the respective task handler:
 ```php
 <?php declare(strict_types=1);
 
-namespace ScheduledTaskPlugin\ScheduledTask;
+namespace Swag\ScheduledTaskPlugin\ScheduledTask;
 
 use Shopware\Core\Framework\ScheduledTask\ScheduledTaskHandler;
 

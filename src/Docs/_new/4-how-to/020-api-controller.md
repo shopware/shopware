@@ -10,7 +10,7 @@ The plugin's base class does not have to overwrite any method just for this obje
 ```php
 <?php declare(strict_types=1);
 
-namespace ApiController;
+namespace Swag\ApiController;
 
 use Shopware\Core\Framework\Plugin;
 
@@ -22,17 +22,17 @@ class ApiController extends Plugin
 ## Loading the controllers via routes.xml
 
 The `routes.xml` file is necessary to introduce our controllers to the Shopware platform.
-The Shopware platform automatically searches for an `xml` / `yml` / `php` file in a `Resources/config/` folder, whose path contains `routes`.
+The Shopware platform automatically searches for an `xml` / `yml` / `php` file in a `src/Resources/config/` directory, whose path contains `routes`.
 In this example, only `xml` is used.
 Therefore possible default locations would be:
-- <plugin-root>/Resources/config/**routes**.xml
-- <plugin-root>/Resources/config/**routes**/my_controller.xml
+- <plugin-root>/src/Resources/config/**routes**.xml
+- <plugin-root>/src/Resources/config/**routes**/my_controller.xml
 
 Since only a single `xml` file is necessary for this example, the file is called `routes.xml` and will be put
-into the `<plugin root>/Resources/config/` directory.
+into the `<plugin root>/src/Resources/config/` directory.
 
 It only has to contain the path to the controllers, that should be known to the Shopware platform.
-This example will have it's API controller inside a `Controller` folder.
+This example will have it's API controller inside a `Controller` directory.
 
 ```xml
 <?xml version="1.0" encoding="UTF-8" ?>
@@ -48,14 +48,14 @@ This example will have it's API controller inside a `Controller` folder.
 
 ## The controller class
 
-Next you create a folder `Controller` inside your plugin root and in there you create a new `php` file for your actual controller.
+Next you create a directory `src/Controller` inside your plugin root and in there you create a new `php` file for your actual controller.
 Controllers contain actions that handle requests and return responses.
 
 Here's an example of what the controller could then look like:
 ```php
 <?php declare(strict_types=1);
 
-namespace ApiController\Controller;
+namespace Swag\ApiController\Controller;
 
 use Shopware\Core\Framework\Context;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;

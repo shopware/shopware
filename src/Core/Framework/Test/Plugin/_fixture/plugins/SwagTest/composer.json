@@ -2,7 +2,7 @@
     "name": "swag/test",
     "description": "Test description",
     "version": "v1.0.1",
-    "type": "shopware-plugin",
+    "type": "shopware-platform-plugin",
     "license": "MIT",
     "authors": [
         {
@@ -13,7 +13,8 @@
         "shopware/platform": "dev-master"
     },
     "extra": {
-        "installer-name": "SwagTest",
+        "shopware-plugin-class": "SwagTest\\SwagTest",
+        "plugin-icon": "Resources/public/plugin.png",
         "copyright": "(c) by shopware AG",
         "label": {
             "de_DE": "Deutscher Pluginname",
@@ -31,6 +32,11 @@
         "supportLink": {
             "de_DE": "https://www.test.de/support",
             "en_GB": "https://www.test.com/support"
+        }
+    },
+    "autoload": {
+        "psr-4": {
+           "SwagTest\\": ""
         }
     }
 }

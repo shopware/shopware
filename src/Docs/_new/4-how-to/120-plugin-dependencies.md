@@ -35,7 +35,7 @@ own `composer.json` as a key value pair:
     "name": "swag/plugin-dependency",
     "description": "Plugin requiring other plugins",
     "version": "v1.0.0",
-    "type": "shopware-plugin",
+    "type": "shopware-platform-plugin",
     "license": "MIT",
     "authors": [
         {
@@ -47,7 +47,7 @@ own `composer.json` as a key value pair:
         "swag/plugin-quick-start": "v1.0.0"
     },
     "extra": {
-        "installer-name": "PluginDependency",
+        "shopware-plugin-class": "Swag\\PluginDependency\\PluginDependency",
         "label": {
             "de_DE": "Plugin mit Plugin-Abhängigkeiten",
             "en_GB": "Plugin with plugin dependencies"
@@ -55,6 +55,11 @@ own `composer.json` as a key value pair:
         "description": {
             "de_DE": "Plugin mit Plugin-Abhängigkeiten",
             "en_GB": "Plugin with plugin dependencies"
+        }
+    },
+    "autoload": {
+        "psr-4": {
+            "Swag\\PluginDependency\\": "src/"
         }
     }
 }

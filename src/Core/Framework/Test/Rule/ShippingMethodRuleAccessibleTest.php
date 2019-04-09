@@ -101,11 +101,11 @@ class ShippingMethodRuleAccessibleTest extends TestCase
         $this->ruleRepository->create($this->rule, $defaultContext);
 
         $criteria = new Criteria([$this->rule[0]['shippingMethods'][0]['id']]);
-        $criteria->addAssociation('availabilityRules');
+        $criteria->addAssociation('availabilityRule');
 
         $searchResult = $this->getContainer()->get('shipping_method.repository')->search($criteria, $defaultContext);
 
-        static::assertSame($this->ruleId, $searchResult->first()->getAvailabilityRules()->first()->getId());
+        static::assertSame($this->ruleId, $searchResult->first()->getAvailabilityRule()->getId());
     }
 
     public function testRuleAssociationsStayLikeLinked(): void

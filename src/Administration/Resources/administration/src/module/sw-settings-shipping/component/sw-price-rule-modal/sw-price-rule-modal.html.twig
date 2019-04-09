@@ -1,0 +1,16 @@
+{% block sw_rule_modal_basic_info_priority %}
+    {% block sw_price_rule_modal_basic_info_price %}
+        <sw-field type="number"
+                  :label="$tc('sw-settings-shipping.priceRuleModal.labelPrice')"
+                  :placeholder="$tc('sw-settings-shipping.priceRuleModal.placeholderPrice')"
+                  validation="required"
+                  v-model="currentPriceRule.price">
+            <template slot="suffix" slot-scope="{}">
+                {{ currencySuffix }}
+            </template>
+        </sw-field>
+    {% endblock %}
+{% endblock %}
+
+{% block sw_rule_modal_basic_info_description %}
+{% endblock %}

@@ -33,9 +33,9 @@ return [
                     'data' => [],
                     'links' => ['related' => '/api/rule/f343a3c119cf42a7841aa0ac5094908c/shipping-methods'],
                 ],
-                'shippingMethodPriceRules' => [
+                'shippingMethodPrices' => [
                     'data' => [],
-                    'links' => ['related' => '/api/rule/f343a3c119cf42a7841aa0ac5094908c/shipping-method-price-rules'],
+                    'links' => ['related' => '/api/rule/f343a3c119cf42a7841aa0ac5094908c/shipping-method-prices'],
                 ],
                 'paymentMethods' => [
                     'data' => [],
@@ -52,6 +52,10 @@ return [
                 'discountPromotions' => [
                     'data' => [],
                     'links' => ['related' => '/api/rule/f343a3c119cf42a7841aa0ac5094908c/discount-promotions'],
+                ],
+                'shippingMethodPriceCalculations' => [
+                    'data' => [],
+                    'links' => ['related' => '/api/rule/f343a3c119cf42a7841aa0ac5094908c/shipping-method-price-calculations'],
                 ],
             ],
             'meta' => null,

@@ -6,7 +6,7 @@ use function Flag\next739;
 use function Flag\next754;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Checkout\Order\OrderDefinition;
-use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodPriceRule\ShippingMethodPriceRuleDefinition;
+use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodPrice\ShippingMethodPriceDefinition;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Cms\CmsPageDefinition;
 use Shopware\Core\Content\Configuration\ConfigurationGroupDefinition;
@@ -97,7 +97,7 @@ class DemodataCommand extends Command
         $request->add(RuleDefinition::class, 5);
         $request->add(CustomerDefinition::class, (int) $input->getOption('customers'));
         $request->add(ConfigurationGroupDefinition::class, (int) $input->getOption('properties'));
-        $request->add(ShippingMethodPriceRuleDefinition::class, 1);
+        $request->add(ShippingMethodPriceDefinition::class, 1);
         $request->add(CategoryDefinition::class, (int) $input->getOption('categories'));
         $request->add(ProductManufacturerDefinition::class, (int) $input->getOption('manufacturers'));
         $request->add(ProductDefinition::class, (int) $input->getOption('products'), $this->getProductOptions($input));

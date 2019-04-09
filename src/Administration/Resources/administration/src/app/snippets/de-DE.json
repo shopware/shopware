@@ -523,5 +523,21 @@
   "locale": {
     "de-DE": "Deutsch",
     "en-GB": "Englisch"
+  },
+  "sw-rule-modal": {
+    "modalTitleNew": "Neue Globale Regel erstellen",
+    "labelDescription": "Beschreibung",
+    "placeholderDescription": "Lege eine Beschreibung für diese Regel fest...",
+    "labelName": "Name",
+    "placeholderName": "Lege einen Namen für diese Regel fest...",
+    "labelPriority": "Priorität",
+    "placeholderPriority": "Lege eine Priorität für diese Regel fest...",
+    "buttonAbort": "Abbrechen",
+    "buttonSave": "Speichern",
+    "titleSaveSuccess": "Erfolg",
+    "messageSaveSuccess": "Die Regel \"{name}\" wurde erfolgreich gespeichert.",
+    "ruleCard": "Bedingungen",
+    "titleSaveError": "Fehler",
+    "messageSaveError": "Beim Speichern der Regel \"{name}\" ist ein Fehler aufgetreten."
   }
 }

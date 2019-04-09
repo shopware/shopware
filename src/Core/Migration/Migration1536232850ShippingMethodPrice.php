@@ -18,17 +18,27 @@ class Migration1536232850ShippingMethodPrice extends MigrationStep
             CREATE TABLE `shipping_method_price` (
               `id` BINARY(16) NOT NULL,
               `shipping_method_id` BINARY(16) NOT NULL,
-              `quantity_from` DECIMAL(10, 3) unsigned NOT NULL,
-              `price` DECIMAL(10, 2) NOT NULL,
-              `factor` DECIMAL(10, 2) NOT NULL,
+              `calculation` INT(1) unsigned NULL,
+              `rule_id` BINARY(16) NULL,
+              `currency_id` BINARY(16) NOT NULL,
+              `calculation_rule_id` BINARY(16) NULL,
+              `price` DOUBLE NOT NULL,
+              `quantity_start` DOUBLE NULL,
+              `quantity_end` DOUBLE NULL,
               `attributes` JSON NULL,
               `created_at` DATETIME(3) NOT NULL,
               `updated_at` DATETIME(3) NULL,
               PRIMARY KEY (`id`),
-              CONSTRAINT `uniq.shipping_method_quantity_from` UNIQUE KEY (`shipping_method_id`, `quantity_from`),
+              CONSTRAINT `uniq.shipping_method_quantity_start` UNIQUE KEY (`shipping_method_id`, `rule_id`, `currency_id`, `quantity_start`),
               CONSTRAINT `json.attributes` CHECK (JSON_VALID(`attributes`)),
-              CONSTRAINT `fk.shipping_method_price.shipping_method_id` FOREIGN KEY (`shipping_method_id`)
-                REFERENCES `shipping_method` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+              CONSTRAINT `fk.shipping_method_price.shipping_method_id` FOREIGN KEY (`shipping_method_id`) 
+                REFERENCES `shipping_method` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+              CONSTRAINT `fk.shipping_method_price.currency_id` FOREIGN KEY (`currency_id`) 
+                REFERENCES `currency` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+              CONSTRAINT `fk.shipping_method_price_rule.rule_id` FOREIGN KEY (`rule_id`) 
+                REFERENCES `rule` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+              CONSTRAINT `fk.shipping_method_price_calculation_rule.rule_id` FOREIGN KEY (`calculation_rule_id`) 
+                REFERENCES `rule` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
         ');
     }

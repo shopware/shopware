@@ -3,7 +3,7 @@
 namespace Shopware\Core\System\Currency;
 
 use Shopware\Core\Checkout\Order\OrderCollection;
-use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodPriceRule\ShippingMethodPriceRuleCollection;
+use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodPrice\ShippingMethodPriceCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductPrice\ProductPriceCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
@@ -90,9 +90,9 @@ class CurrencyEntity extends Entity
     protected $attributes;
 
     /**
-     * @var ShippingMethodPriceRuleCollection|null
+     * @var ShippingMethodPriceCollection|null
      */
-    protected $shippingMethodPriceRules;
+    protected $shippingMethodPrices;
 
     /**
      * @var bool|null
@@ -249,14 +249,14 @@ class CurrencyEntity extends Entity
         $this->decimalPrecision = $decimalPrecision;
     }
 
-    public function getShippingMethodPriceRules(): ?ShippingMethodPriceRuleCollection
+    public function getShippingMethodPrices(): ?ShippingMethodPriceCollection
     {
-        return $this->shippingMethodPriceRules;
+        return $this->shippingMethodPrices;
     }
 
-    public function setShippingMethodPriceRules(?ShippingMethodPriceRuleCollection $shippingMethodPriceRules): void
+    public function setShippingMethodPrices(?ShippingMethodPriceCollection $shippingMethodPrices): void
     {
-        $this->shippingMethodPriceRules = $shippingMethodPriceRules;
+        $this->shippingMethodPrices = $shippingMethodPrices;
     }
 
     public function getIsDefault(): ?bool

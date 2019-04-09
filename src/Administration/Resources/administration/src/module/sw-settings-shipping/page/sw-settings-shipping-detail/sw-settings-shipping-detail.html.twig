@@ -11,13 +11,13 @@
         {% block sw_settings_shipping_detail_actions %}
             <template slot="smart-bar-actions">
                 {% block sw_settings_shipping_detail_actions_abort %}
-                    <sw-button :disabled="shippingMethod.isLoading" :routerLink="{ name: 'sw.settings.shipping.index' }">
+                    <sw-button :disabled="isLoading" :routerLink="{ name: 'sw.settings.shipping.index' }">
                         {{ $tc('sw-settings-shipping.detail.buttonCancel') }}
                     </sw-button>
                 {% endblock %}
 
                 {% block sw_settings_shipping_detail_actions_save %}
-                    <sw-button variant="primary" class="sw-settings-shipping-method-detail__save-action" :disabled="shippingMethod.isLoading" @click.prevent="onSave">
+                    <sw-button variant="primary" class="sw-settings-shipping-method-detail__save-action" :disabled="isLoading" @click.prevent="onSave">
                         {{ $tc('sw-settings-shipping.detail.buttonSave') }}
                     </sw-button>
                 {% endblock %}
@@ -41,30 +41,101 @@
                     </sw-language-info>
                 {% endblock %}
 
-                {% block sw_settings_shipping_detail_content_tabs %}
-                    <sw-tabs class="sw-shipping-detail-page__tabs">
-                        {% block sw_settings_shipping_detail_content_tabs_general %}
-                            <sw-tabs-item :route="{ name: 'sw.settings.shipping.detail.base', params: { id: $route.params.id } }"
-                                          :title="$tc('sw-settings-shipping.detail.tabGeneral')">
-                                {{ $tc('sw-settings-shipping.detail.tabGeneral') }}
-                            </sw-tabs-item>
+                {% block sw_settings_shipping_detail_base %}
+                    <sw-card :title="$tc('sw-settings-shipping.detail.labelBasicInfo')"
+                             :isLoading="isLoading">
+                        {% block sw_settings_shipping_detail_base_content_field_name %}
+                            <sw-field type="text"
+                                      :label="$tc('sw-settings-shipping.detail.labelName')"
+                                      :placeholder="placeholder(shippingMethod, 'name', $tc('sw-settings-shipping.detail.placeholderName'))"
+                                      v-model="shippingMethod.name">
+                            </sw-field>
                         {% endblock %}
+                        <sw-container columns="repeat(auto-fit, minmax(250px, 1fr)" gap="0px 30px">
+                            {% block sw_settings_shipping_detail_base_content_field_description %}
+                                <sw-textarea-field :value="shippingMethod.description"
+                                                   class="sw-settings-shipping-detail__description"
+                                                   :label="$tc('sw-settings-shipping.detail.labelDescription')"
+                                                   :placeholder="placeholder(shippingMethod, 'description', $tc('sw-settings-shipping.detail.placeholderDescription'))"
+                                                   v-model="shippingMethod.description">
+                                </sw-textarea-field>
+                            {% endblock %}
 
-                        {% block sw_settings_shipping_detail_content_tabs_advanced_prices %}
-                            <sw-tabs-item :route="{ name: 'sw.settings.shipping.detail.advancedPrices', params: { id: $route.params.id } }"
-                                          :title="$tc('sw-settings-shipping.detail.tabAdvancedPrices')"
-                                          class="sw-shipping-detail-page__price-settings">
-                                {{ $tc('sw-settings-shipping.detail.tabAdvancedPrices') }}
-                            </sw-tabs-item>
+                            {% block sw_settings_shipping_detail_base_content_media_upload %}
+                                <sw-upload-store-listener :uploadTag="uploadTag"
+                                                          autoUpload
+                                                          @sw-media-upload-finished="setMediaItem">
+                                </sw-upload-store-listener>
+                                <sw-media-upload v-if="!isLoading"
+                                                 :uploadTag="uploadTag"
+                                                 :source="logoMediaItem"
+                                                 class="sw-settings-shipping-detail__logo-image-upload"
+                                                 :allowMultiSelect="false"
+                                                 variant="regular"
+                                                 :label="$tc('sw-settings-shipping.detail.labelLogoUpload')"
+                                                 :defaultFolder="shippingMethod.getEntityName()"
+                                                 @sw-media-upload-open-sidebar="openMediaSidebar"
+                                                 @sw-media-upload-remove-image="onUnlinkLogo">
+                                </sw-media-upload>
+                            {% endblock %}
+                        </sw-container>
+
+                        <sw-container columns="repeat(auto-fit, minmax(250px, 1fr)" gap="0px 30px">
+                            {% block sw_settings_shipping_detail_base_content_field_min_delivery_time %}
+                                <sw-field type="number"
+                                          :label="$tc('sw-settings-shipping.detail.labelMinDeliveryTime')"
+                                          v-model="shippingMethod.minDeliveryTime">
+                                </sw-field>
+                            {% endblock %}
+
+                            {% block sw_settings_shipping_detail_base_content_field_max_delivery_time %}
+                                <sw-field type="number"
+                                          :label="$tc('sw-settings-shipping.detail.labelMaxDeliveryTime')"
+                                          v-model="shippingMethod.maxDeliveryTime">
+                                </sw-field>
+                            {% endblock %}
+                        </sw-container>
+
+                        {% block sw_settings_shipping_detail_base_content_tags_field %}
+                            <sw-tag-field :entity="shippingMethod"></sw-tag-field>
                         {% endblock %}
-                    </sw-tabs>
+                    </sw-card>
                 {% endblock %}
 
-                {% block sw_settings_shipping_detail_content_card %}
-                    <router-view :shippingMethod="shippingMethod">
-                    </router-view>
+                {% block sw_settings_shipping_detail_top_rule %}
+                    <sw-card class="sw-settings-shipping-detail__condition_container"
+                             :title="$tc('sw-settings-shipping.detail.topRule')">
+                        {% block sw_settings_shipping_detail_top_rule_select %}
+                            <sw-select id="rule"
+                                       required
+                                       v-model="shippingMethod.availabilityRuleId"
+                                       :store="ruleStore">
+                            </sw-select>
+                        {% endblock %}
+                    </sw-card>
+                {% endblock %}
+
+                {% block sw_settings_shipping_detail_price_matrices %}
+                    <sw-settings-shipping-price-matrices v-if="!isLoading" :shippingMethod="shippingMethod"></sw-settings-shipping-price-matrices>
                 {% endblock %}
             </sw-card-view>
         {% endblock %}
+
+        <template slot="sidebar">
+            {% block sw_settings_shipping_detail_sidebar %}
+                <sw-sidebar :propagateWidth="true">
+                    {% block sw_setting_shipping_detail_sidebar_media_item %}
+                        <sw-sidebar-media-item ref="mediaSidebarItem">
+                            <template slot="context-menu-items" slot-scope="media">
+                                <sw-context-menu-item @click="setMediaFromSidebar(media.mediaItem)">
+                                    {{ $tc('sw-settings-shipping.sidebar.labelUseAsLogo') }}
+                                </sw-context-menu-item>
+                            </template>
+                        </sw-sidebar-media-item>
+                    {% endblock %}
+                </sw-sidebar>
+            {% endblock %}
+        </template>
+
     </sw-page>
 {% endblock %}

@@ -5,7 +5,7 @@ namespace Shopware\Core\Content\Rule;
 use Shopware\Core\Checkout\DiscountSurcharge\DiscountSurchargeCollection;
 use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
 use Shopware\Core\Checkout\Promotion\PromotionCollection;
-use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodPriceRule\ShippingMethodPriceRuleCollection;
+use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodPrice\ShippingMethodPriceCollection;
 use Shopware\Core\Checkout\Shipping\ShippingMethodCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductPrice\ProductPriceCollection;
 use Shopware\Core\Content\Rule\Aggregate\RuleCondition\RuleConditionCollection;
@@ -88,9 +88,9 @@ class RuleEntity extends Entity
     protected $attributes;
 
     /**
-     * @var ShippingMethodPriceRuleCollection|null
+     * @var ShippingMethodPriceCollection|null
      */
-    protected $shippingMethodPriceRules;
+    protected $shippingMethodPrices;
 
     /**
      * @var PromotionCollection|null
@@ -106,6 +106,11 @@ class RuleEntity extends Entity
      * @var PromotionCollection|null
      */
     protected $discountPromotions;
+
+    /**
+     * @var ShippingMethodPriceCollection|null
+     */
+    protected $shippingMethodPriceCalculations;
 
     public function getName(): string
     {
@@ -192,7 +197,7 @@ class RuleEntity extends Entity
         return $this->shippingMethods;
     }
 
-    public function setShippingMethods(?ShippingMethodCollection $shippingMethods): void
+    public function setShippingMethods(ShippingMethodCollection $shippingMethods): void
     {
         $this->shippingMethods = $shippingMethods;
     }
@@ -247,14 +252,14 @@ class RuleEntity extends Entity
         $this->attributes = $attributes;
     }
 
-    public function getShippingMethodPriceRules(): ?ShippingMethodPriceRuleCollection
+    public function getShippingMethodPrices(): ?ShippingMethodPriceCollection
     {
-        return $this->shippingMethodPriceRules;
+        return $this->shippingMethodPrices;
     }
 
-    public function setShippingMethodPriceRules(?ShippingMethodPriceRuleCollection $shippingMethodPriceRules): void
+    public function setShippingMethodPrices(ShippingMethodPriceCollection $shippingMethodPrices): void
     {
-        $this->shippingMethodPriceRules = $shippingMethodPriceRules;
+        $this->shippingMethodPrices = $shippingMethodPrices;
     }
 
     public function getPersonaPromotions(): ?PromotionCollection
@@ -285,5 +290,15 @@ class RuleEntity extends Entity
     public function setDiscountPromotions(PromotionCollection $discountPromotions): void
     {
         $this->discountPromotions = $discountPromotions;
+    }
+
+    public function getShippingMethodPriceCalculations(): ?ShippingMethodPriceCollection
+    {
+        return $this->shippingMethodPriceCalculations;
+    }
+
+    public function setShippingMethodPriceCalculations(ShippingMethodPriceCollection $shippingMethodPriceCalculations): void
+    {
+        $this->shippingMethodPriceCalculations = $shippingMethodPriceCalculations;
     }
 }

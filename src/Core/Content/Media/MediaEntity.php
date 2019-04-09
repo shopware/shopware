@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Media;
 
+use Shopware\Core\Checkout\Shipping\ShippingMethodCollection;
 use Shopware\Core\Content\Category\CategoryCollection;
 use Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupOption\ConfigurationGroupOptionCollection;
 use Shopware\Core\Content\MailTemplate\Aggregate\MailTemplateMedia\MailTemplateMediaCollection;
@@ -170,6 +171,11 @@ class MediaEntity extends Entity
      * @var string|null
      */
     protected $thumbnailsRo;
+
+    /**
+     * @var ShippingMethodCollection|null
+     */
+    protected $shippingMethods;
 
     public function get(string $property)
     {
@@ -473,6 +479,16 @@ class MediaEntity extends Entity
     public function setThumbnailsRo(string $thumbnailsRo): void
     {
         $this->thumbnailsRo = $thumbnailsRo;
+    }
+
+    public function getShippingMethods(): ?ShippingMethodCollection
+    {
+        return $this->shippingMethods;
+    }
+
+    public function setShippingMethods(?ShippingMethodCollection $shippingMethods): void
+    {
+        $this->shippingMethods = $shippingMethods;
     }
 
     public function jsonSerialize(): array

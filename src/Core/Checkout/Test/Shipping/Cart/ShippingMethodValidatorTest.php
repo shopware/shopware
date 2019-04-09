@@ -36,7 +36,7 @@ class ShippingMethodValidatorTest extends TestCase
         $context = $this->createMock(SalesChannelContext::class);
         $shippingMethod = new ShippingMethodEntity();
         $shippingMethod->setId('1');
-        $shippingMethod->setAvailabilityRuleIds(['1']);
+        $shippingMethod->setAvailabilityRuleId('1');
         $shippingMethod->setMinDeliveryTime(1);
         $shippingMethod->setMaxDeliveryTime(3);
         $deliveryDate = new DeliveryDate(new \DateTime(), new \DateTime());
@@ -90,7 +90,7 @@ class ShippingMethodValidatorTest extends TestCase
 
         $shippingMethod = new ShippingMethodEntity();
         $shippingMethod->setId('1');
-        $shippingMethod->setAvailabilityRuleIds(['1']);
+        $shippingMethod->setAvailabilityRuleId('1');
         $shippingMethod->setMinDeliveryTime(1);
         $shippingMethod->setMaxDeliveryTime(3);
 
@@ -122,7 +122,7 @@ class ShippingMethodValidatorTest extends TestCase
         $shippingMethod->setName('Express');
         $shippingMethod->setMinDeliveryTime(1);
         $shippingMethod->setMaxDeliveryTime(3);
-        $shippingMethod->setAvailabilityRuleIds(['1']);
+        $shippingMethod->setAvailabilityRuleId('1');
         $deliveryDate = new DeliveryDate(new \DateTime(), new \DateTime());
         $delivery = new Delivery(
             new DeliveryPositionCollection(),
@@ -141,35 +141,6 @@ class ShippingMethodValidatorTest extends TestCase
         static::assertCount(1, $errors);
         static::assertInstanceOf(ShippingMethodBlockedError::class, $errors->first());
         static::assertSame('shipping-method-blocked-Express', $errors->first()->getKey());
-    }
-
-    public function testValidateWithMultiRules(): void
-    {
-        $cart = $this->createMock(Cart::class);
-        $context = $this->createMock(SalesChannelContext::class);
-        $context->expects(static::once())->method('getRuleIds')->willReturn(['rule2']);
-
-        $shippingMethod = new ShippingMethodEntity();
-        $shippingMethod->setId('1');
-        $shippingMethod->setName('Express');
-        $shippingMethod->setMinDeliveryTime(1);
-        $shippingMethod->setMaxDeliveryTime(3);
-        $shippingMethod->setAvailabilityRuleIds(['rule1', 'rule2']);
-        $deliveryDate = new DeliveryDate(new \DateTime(), new \DateTime());
-        $delivery = new Delivery(
-            new DeliveryPositionCollection(),
-            $deliveryDate,
-            $shippingMethod,
-            $this->createMock(ShippingLocation::class),
-            $this->createMock(CalculatedPrice::class)
-        );
-        $cart->expects(static::once())->method('getDeliveries')->willReturn(new DeliveryCollection([$delivery]));
-
-        $validator = new ShippingMethodValidator();
-        $errors = new ErrorCollection();
-        $validator->validate($cart, $errors, $context);
-
-        static::assertCount(0, $errors);
     }
 
     public function testValidateWithMultiDeliveries(): void

@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Checkout\Shipping;
 
-use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodPriceRule\ShippingMethodPriceRuleCollection;
+use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodPrice\ShippingMethodPriceCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
@@ -21,9 +21,7 @@ class ShippingMethodCollection extends EntityCollection
     {
         return $this->filter(
             function (ShippingMethodEntity $shippingMethod) use ($salesChannelContext) {
-                $matches = array_intersect($shippingMethod->getAvailabilityRuleIds(), $salesChannelContext->getRuleIds());
-
-                return !empty($matches);
+                return in_array($shippingMethod->getAvailabilityRuleId(), $salesChannelContext->getRuleIds(), true);
             }
         );
     }
@@ -33,23 +31,23 @@ class ShippingMethodCollection extends EntityCollection
         $ids = [[]];
 
         foreach ($this->getIterator() as $element) {
-            $ids[] = $element->getPriceRules()->getIds();
+            $ids[] = $element->getPrices()->getIds();
         }
 
         return array_merge(...$ids);
     }
 
-    public function getPriceRules(): ShippingMethodPriceRuleCollection
+    public function getPrices(): ShippingMethodPriceCollection
     {
         $prices = [[]];
 
         foreach ($this->getIterator() as $element) {
-            $prices[] = $element->getPriceRules();
+            $prices[] = $element->getPrices();
         }
 
         $prices = array_merge(...$prices);
 
-        return new ShippingMethodPriceRuleCollection($prices);
+        return new ShippingMethodPriceCollection($prices);
     }
 
     protected function getExpectedClass(): string

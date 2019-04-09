@@ -30,6 +30,7 @@ import OffcanvasMenuPlugin from 'asset/script/plugin/main-menu/offcanvas-menu.pl
 import GuestModePlugin from 'asset/script/plugin/register/guest-mode.plugin';
 import DifferentShippingPlugin from 'asset/script/plugin/register/different-shipping.plugin';
 import FormValidationPlugin from 'asset/script/plugin/register/form-validation.plugin';
+import FormSubmitLoaderPlugin from 'asset/script/plugin/forms/from-submit-loader.plugin';
 
 // static plugins
 import Logout from 'asset/script/plugin/logout/logout.plugin';
@@ -38,7 +39,6 @@ import OffCanvasAccountMenu from 'asset/script/plugin/off-canvas-account-menu/of
 // pages
 import 'asset/script/page/product-detail/product-detail.page';
 import 'asset/script/page/account/addressbook.page';
-import 'asset/script/page/checkout/confirm.page';
 
 /*
 initialisation
@@ -80,6 +80,7 @@ PluginManager.register('OffcanvasMenu', OffcanvasMenuPlugin, '[data-offcanvas-me
 PluginManager.register('DifferentShipping', DifferentShippingPlugin, '*[data-different-shipping="true"]');
 PluginManager.register('GuestMode', GuestModePlugin, '*[data-guest-mode="true"]');
 PluginManager.register('FormValidation', FormValidationPlugin, '*[data-form-validation="true"]');
+PluginManager.register('FormSubmitLoader', FormSubmitLoaderPlugin, '[data-form-submit-loader]');
 
 /*
 run plugins

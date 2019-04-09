@@ -104,6 +104,7 @@
 
 {% block page_checkout_sidebar_actions %}
     <form id="confirmOrderForm"
+          data-form-submit-loader="true"
           action="{{ path('frontend.checkout.finish.order') }}"
           method="post">
 		{% block page_checkout_confirm_form_submit %}

@@ -164,9 +164,11 @@ class PluginManagerSingleton {
                 }
 
                 const plugin = this._registry.get(pluginName);
-                plugin.get('registrations').forEach(entry => {
-                    this._executePlugin(plugin.get('class'), entry.selector, entry.options, plugin.get('name'));
-                });
+                if (plugin.has('registrations')) {
+                    plugin.get('registrations').forEach(entry => {
+                        this._executePlugin(plugin.get('class'), entry.selector, entry.options, plugin.get('name'));
+                    });
+                }
             }
         });
     }

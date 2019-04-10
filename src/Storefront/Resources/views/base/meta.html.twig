@@ -33,10 +33,8 @@
             {% endblock %}
 
             {% block base_head_meta_tags_schema_webpage %}
-                {#TODO: NEXT-1891 - check: copyrightHolder snippet contains twig code#}
-                <meta itemprop="copyrightHolder" content="{{ "meta.copyrightHolder"|trans }}"/>
+                <meta itemprop="copyrightHolder" content="{{ shopware.config.shopName }}"/>
                 <meta itemprop="copyrightYear" content="{{ "meta.copyrightYear"|trans }}"/>
-                {#TODO: NEXT-1891 - check: if there is another way#}
                 <meta itemprop="isFamilyFriendly" content="{% if shopware.config.metaIsFamilyFriendly %}true{% else %}false{% endif %}"/>
                 <meta itemprop="image" content="{{ asset(shopware.theme.logo.desktop) }}"/>
             {% endblock %}

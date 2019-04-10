@@ -341,8 +341,13 @@ SQL;
         foreach ($plugins as $pluginData) {
             $className = $pluginData['name'];
 
-            if (!class_exists($className)) {
-                throw new \RuntimeException(sprintf('Unable to load plugin class "%s"', $className));
+            $pluginClassFilePath = $this->classLoader->findFile($className);
+            if ($pluginClassFilePath === false) {
+                continue;
+            }
+
+            if (!file_exists($pluginClassFilePath)) {
+                continue;
             }
 
             /** @var Plugin $plugin */

@@ -1,4 +1,4 @@
-[titleEn]: <>(HowTo's)
+[titleEn]: <>(HowTos)
 [__RAW__]: <>(__RAW__)
 
 <style type='text/css'>
@@ -132,7 +132,7 @@
                 ],
                 facetFilters: [
                      [ "localization:en" ],
-                     [ "categories:Shopware Plattform > HowTo's" ]
+                     [ "categories:Shopware Platform > HowTos" ]
                 ]
             },
         });
@@ -150,7 +150,7 @@
         search.addWidget(
             instantsearch.widgets.searchBox({
                 container: '#how-to-search-box',
-                placeholder: 'Search for HowTo\'s or keywords'
+                placeholder: 'Search for HowTos or keywords'
             })
         );
 
@@ -161,7 +161,7 @@
 <div class="how-to-main-content">
     <div class="header-ct">
         <div class="headline">
-            HowTo's
+            HowTos
         </div>
         <div class="header--search">
             <div class="algolia-search-box">

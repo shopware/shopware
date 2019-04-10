@@ -6,7 +6,7 @@
 					  action="{{ path('frontend.checkout.configure') }}"
 					  class="language-form">
 					{% block base_header_actions_language_widget_content %}
-                        {#TODO: NEXT-2661 - maybe already add those variables to the translationCode struct #}
+                        {#TODO: maybe already add those variables to the translationCode struct #}
 					    {% set isoCode = page.header.activeLanguage.translationCode.code|lower|split('_') %}
                         {% set country = isoCode[0] %}
                         {% set language = isoCode[1] %}

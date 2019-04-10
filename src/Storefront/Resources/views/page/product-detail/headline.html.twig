@@ -12,20 +12,19 @@
 	{% block page_product_detail_manufacturer %}
 		<div class="col-md-auto product-detail-manufacturer">
 			{% block page_product_detail_manufacturer_inner %}
-				{#TODO: NEXT-1974 - manufacturer listing link #}
 				{% block page_product_detail_manufacturer_link %}
 					<a href="{{ page.product.manufacturer.link }}"
 					   class="product-detail-manufacturer-link"
-					   title="{{ page.product.manufacturer.name|e }}">
+					   title="{{ page.product.manufacturer.name }}">
 						{% if page.product.manufacturer.media %}
 							{% block page_product_detail_manufacturer_logo %}
 								<img src="{{ page.product.manufacturer.media.url }}"
 								     class="product-detail-manufacturer-logo"
-								     alt="{{ page.product.manufacturer.name|e }}"/>
+								     alt="{{ page.product.manufacturer.name }}"/>
 							{% endblock %}
 						{% else %}
 							{% block page_product_detail_manufacturer_text %}
-								{{ page.product.manufacturer.name|e }}
+								{{ page.product.manufacturer.name }}
 							{% endblock %}
 						{% endif %}
 					</a>

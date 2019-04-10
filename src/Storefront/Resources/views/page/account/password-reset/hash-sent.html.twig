@@ -1,0 +1,13 @@
+{% sw_extends '@Storefront/base.html.twig' %}
+
+{% block base_content %}
+    <div class="account-password-reset">
+        {% sw_include '@Storefront/base/_utilities/alert.html.twig' with {
+            type: "success",
+            content: "Wir haben Ihnen eine Bestätigungs-E-Mail gesendet, sofern die von Ihnen eingegebene E-Mail Adresse registriert ist."
+        } %}
+        <a href="{{ path('frontend.account.password.page') }}" class="btn btn-dark">
+            <i class="fas fa-chevron-left"></i> Zurück
+        </a>
+    </div>
+{% endblock %}

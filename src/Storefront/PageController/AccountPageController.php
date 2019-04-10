@@ -444,6 +444,34 @@ class AccountPageController extends StorefrontController
     }
 
     /**
+     * @Route("/account/password", name="frontend.account.password.page", options={"seo"="false"}, methods={"GET","POST"})
+     */
+    public function password(Request $request): Response
+    {
+        if ($request->isMethod(Request::METHOD_POST)) {
+            // @todo: send recovery email
+            return $this->renderStorefront('@Storefront/page/account/password-reset/hash-sent.html.twig', ['page' => []]);
+        }
+
+        return $this->renderStorefront('@Storefront/page/account/password-reset/index.html.twig', ['page' => []]);
+    }
+
+    /**
+     * @Route("/account/resetPassword/{hash}", name="frontend.account.password.reset.page", options={"seo"="false"}, methods={"GET","POST"})
+     */
+    public function resetPassword(Request $request): Response
+    {
+        // @todo verify hash and if not valid show error page with message
+
+        if ($request->isMethod(Request::METHOD_POST)) {
+            // @todo: update password, login customer and redirect to account and show success message
+            return $this->redirectToRoute('frontend.account.home.page', []);
+        }
+
+        return $this->renderStorefront('@Storefront/page/account/password-reset/password-reset.html.twig', ['page' => []]);
+    }
+
+    /**
      * @Route("/account/address/default-{type}/{addressId}", name="frontend.account.address.set-default-address", methods={"POST"})
      *
      * @throws CustomerNotLoggedInException

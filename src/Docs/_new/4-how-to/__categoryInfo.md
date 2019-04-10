@@ -131,7 +131,7 @@
                     'categories'
                 ],
                 facetFilters: [
-                    'categories: Shopware Plattform > HowTo\'s'
+                    'categories: Shopware Plattform > HowTo\'s AND localization:en'
                 ]
             },
         });

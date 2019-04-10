@@ -1,4 +1,5 @@
 [titleEn]: <>(Setting up a scheduled task)
+[metaDescriptionEn]: <>(A scheduled task in the Shopware platform is mainly what people know as a 'cronjob'. If you were wondering how to set up such a scheduled task, then you've found the right article.)
 
 ## Overview
 

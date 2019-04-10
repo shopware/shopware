@@ -1,4 +1,5 @@
 [titleEn]: <>(Deleting entities via DAL)
+[metaDescriptionEn]: <>(When you want to get rid of an database entry, you'd probably write a SQL 'DELETE' query to do the job. In the Shopware platform though it is highly recommended to use the data abstraction layer for such tasks.)
 
 ## Overview
 

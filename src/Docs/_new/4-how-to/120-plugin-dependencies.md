@@ -1,4 +1,5 @@
 [titleEn]: <>(Depending on other plugins)
+[metaDescriptionEn]: <>(New in the Shopware platform is the possibility to properly require on other plugins to be in the system. This HowTo will cover that subject.)
 
 ## Overview
 

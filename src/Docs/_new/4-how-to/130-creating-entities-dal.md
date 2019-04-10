@@ -1,4 +1,5 @@
 [titleEn]: <>(Creating entities via DAL)
+[metaDescriptionEn]: <>(You want to create a new entry for an existing entity in your plugin, e.g. adding a new tax rate upon installing your plugin. The best and most recommended way for this is to use the Shopware platform data abstraction layer.)
 
 ## Overview
 

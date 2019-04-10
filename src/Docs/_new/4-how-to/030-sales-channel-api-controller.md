@@ -1,4 +1,5 @@
 [titleEn]: <>(SalesChannel-API controller)
+[metaDescriptionEn]: <>(This HowTo will give you a brief introduction on how to setup a custom SalesChannel-API controller with your plugin.)
 
 This HowTo will give you a brief introduction on how to setup a custom SalesChannel-API controller with your plugin.
 Read [here](./../3-api/60-sales-channel-api.md) for more information about the SalesChannel-API.

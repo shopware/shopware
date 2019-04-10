@@ -1,4 +1,5 @@
 [titleEn]: <>(Updating entities via DAL)
+[metaDescriptionEn]: <>(After creating entity, business processes often require you to update the previously created entity automatically. This can and should be done using the Shopware platform data abstraction layer.)
 
 ## Overview
 

@@ -1,4 +1,5 @@
 [titleEn]: <>(Reading entities via DAL)
+[metaDescriptionEn]: <>(Very often one wants to read data from the database and therefore has to write his own queries using PDO. In the Shopware platform, it's highly recommended to not write custom queries in order to fetch data, but to use the methods from our data abstraction layer, in short DAL.)
 
 ## Overview
 

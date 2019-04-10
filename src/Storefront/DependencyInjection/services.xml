@@ -244,6 +244,9 @@
             <argument type="service" id="Shopware\Storefront\Page\Account\PaymentMethod\AccountPaymentMethodPageLoader"/>
             <argument type="service" id="Shopware\Storefront\Page\Account\Order\AccountOrderPageLoader"/>
             <argument type="service" id="Shopware\Storefront\Page\Account\Address\AccountAddressPageLoader"/>
+            <argument type="service" id="Shopware\Core\Checkout\Customer\Storefront\AccountService"/>
+            <argument type="service" id="Shopware\Core\Checkout\Customer\Storefront\AccountRegistrationService"/>
+            <argument type="service" id="Shopware\Core\Checkout\Context\CheckoutContextService"/>
             <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\AccountService"/>
             <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\AccountRegistrationService"/>
             <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextService"/>

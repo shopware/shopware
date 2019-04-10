@@ -4,6 +4,9 @@ namespace Shopware\Storefront\PageController;
 
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException as CustomerNotLoggedInExceptionAlias;
+use Shopware\Core\Checkout\CheckoutContext;
+use Shopware\Core\Checkout\Context\CheckoutContextService;
+use Shopware\Core\Checkout\Context\CheckoutContextServiceInterface;
 use Shopware\Core\Checkout\Customer\Exception\AddressNotFoundException;
 use Shopware\Core\Checkout\Customer\Exception\BadCredentialsException;
 use Shopware\Core\Checkout\Customer\Exception\CannotDeleteDefaultAddressException;
@@ -89,6 +92,11 @@ class AccountPageController extends StorefrontController
      */
     private $salesChannelContextService;
 
+    /**
+     * @var CheckoutContextService|CheckoutContextServiceInterface
+     */
+    private $checkoutContextService;
+
     public function __construct(
         PageLoaderInterface $accountLoginPageLoader,
         PageLoaderInterface $accountOverviewPageLoader,
@@ -99,6 +107,7 @@ class AccountPageController extends StorefrontController
         PageLoaderInterface $addressPageLoader,
         AccountService $accountService,
         AccountRegistrationService $accountRegistrationService,
+        CheckoutContextServiceInterface $checkoutContextService,
         SalesChannelContextServiceInterface $salesChannelContextService,
         AddressService $addressService
     ) {
@@ -111,6 +120,7 @@ class AccountPageController extends StorefrontController
         $this->addressPageLoader = $addressPageLoader;
         $this->accountService = $accountService;
         $this->accountRegistrationService = $accountRegistrationService;
+        $this->checkoutContextService = $checkoutContextService;
         $this->salesChannelContextService = $salesChannelContextService;
         $this->addressService = $addressService;
     }
@@ -275,6 +285,97 @@ class AccountPageController extends StorefrontController
         $page = $this->profilePageLoader->load($request, $context);
 
         return $this->renderStorefront('@Storefront/page/account/profile/index.html.twig', ['page' => $page]);
+    }
+
+    /**
+     * @Route("/account/profile/email", name="frontend.account.profile.save", methods={"POST"})
+     *
+     * @throws CustomerNotLoggedInExceptionAlias
+     */
+    public function saveProfile(RequestDataBag $data, CheckoutContext $context): Response
+    {
+        $this->denyAccessUnlessLoggedIn();
+
+        /*
+         * @todo validate:
+         * firstName not blank
+         * lastName not blank
+         */
+
+        try {
+            $parameters = [];
+            $this->accountService->saveProfile($data, $context);
+            $this->checkoutContextService->refresh(
+                $context->getSalesChannel()->getId(),
+                $context->getToken(),
+                $context->getContext()->getLanguageId()
+            );
+        } catch (ConstraintViolationException $formViolations) {
+            $parameters = ['formViolations' => $formViolations];
+        }
+
+        return $this->redirectToRoute('frontend.account.profile.page', $parameters);
+    }
+
+    /**
+     * @Route("/account/profile/email", name="frontend.account.profile.email.save", methods={"POST"})
+     *
+     * @throws CustomerNotLoggedInExceptionAlias
+     */
+    public function saveEmail(RequestDataBag $data, CheckoutContext $context): Response
+    {
+        $this->denyAccessUnlessLoggedIn();
+
+        /*
+         * @todo validate:
+         * email and email_confirm are identical
+         * current password is valid
+         * email is not already existing (except being the user's current email)
+         */
+
+        try {
+            $parameters = [];
+            $this->accountService->saveEmail($data, $context);
+            $this->checkoutContextService->refresh(
+                $context->getSalesChannel()->getId(),
+                $context->getToken(),
+                $context->getContext()->getLanguageId()
+            );
+        } catch (ConstraintViolationException $formViolations) {
+            $parameters = ['formViolations' => $formViolations];
+        }
+
+        return $this->redirectToRoute('frontend.account.profile.page', $parameters);
+    }
+
+    /**
+     * @Route("/account/profile/password", name="frontend.account.profile.password.save", methods={"POST"})
+     *
+     * @throws CustomerNotLoggedInExceptionAlias
+     */
+    public function savePassword(RequestDataBag $data, CheckoutContext $context): Response
+    {
+        $this->denyAccessUnlessLoggedIn();
+
+        /*
+         * @todo validate:
+         * password and password_confirm are identical
+         * current password is valid
+         */
+
+        try {
+            $parameters = [];
+            $this->accountService->savePassword($data, $context);
+            $this->checkoutContextService->refresh(
+                $context->getSalesChannel()->getId(),
+                $context->getToken(),
+                $context->getContext()->getLanguageId()
+            );
+        } catch (ConstraintViolationException $formViolations) {
+            $parameters = ['formViolations' => $formViolations];
+        }
+
+        return $this->redirectToRoute('frontend.account.profile.page', $parameters);
     }
 
     /**

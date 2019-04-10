@@ -4,7 +4,7 @@ import Debouncer from 'asset/script/helper/debouncer.helper';
 import HttpClient from 'asset/script/service/http-client.service';
 import InputLoadingIndicator from 'asset/script/util/loading-indicator/input-loading-indicator.util';
 import DeviceDetection from 'asset/script/helper/device-detection.helper';
-import ArrowNavigationHelper from 'asset/script/plugin/actions/search-widget/helper/arrow-navigation.helper';
+import ArrowNavigationHelper from 'asset/script/plugin/header/search-widget/helper/arrow-navigation.helper';
 
 const SEARCH_WIDGET_SELECTOR = '.js-search-form';
 const SEARCH_WIDGET_RESULTS_SELECTOR = '.js-search-result';

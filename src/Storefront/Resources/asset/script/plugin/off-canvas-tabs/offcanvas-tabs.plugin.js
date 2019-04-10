@@ -1,12 +1,19 @@
 import DomAccess from 'asset/script/helper/dom-access.helper';
 import OffCanvas from 'asset/script/plugin/off-canvas/offcanvas.plugin';
-import DeviceDetection from 'asset/script/helper/device-detection.helper';
 import ViewportDetection from 'asset/script/helper/viewport-detection.helper';
+import Plugin from 'asset/script/helper/plugin/plugin.class';
 
-const OFFCANVAS_TAB_DATA_ATTRIBUTE = 'data-offcanvas-tab';
-const OFFCANVAS_TAB_POSITION = 'right';
 
-export default class OffCanvasTabs {
+export default class OffCanvasTabs extends Plugin {
+
+    static options = {
+
+        /**
+         * from which direction the
+         * offcanvas opens
+         */
+        offcanvasPostion: 'right',
+    };
 
     init() {
         this._registerEventListeners();
@@ -18,14 +25,7 @@ export default class OffCanvasTabs {
      * @private
      */
     _registerEventListeners() {
-
-        const event = (DeviceDetection.isTouchDevice()) ? 'touchstart' : 'click';
-
-        const tabs = document.querySelectorAll(`*[${OFFCANVAS_TAB_DATA_ATTRIBUTE}=true]`);
-
-        tabs.forEach((tab) => {
-            tab.addEventListener(event, this._onClickOffCanvasTab.bind(this));
-        });
+        this.el.addEventListener('click', this._onClickOffCanvasTab.bind(this));
     }
 
     /**
@@ -46,7 +46,7 @@ export default class OffCanvasTabs {
         if (DomAccess.hasAttribute(tab, 'href')) {
             const tabTarget = DomAccess.getAttribute(tab, 'href');
             const pane = DomAccess.querySelector(document, tabTarget);
-            OffCanvas.open(pane.innerHTML, null, OFFCANVAS_TAB_POSITION, true, OffCanvas.REMOVE_OFF_CANVAS_DELAY(), true);
+            OffCanvas.open(pane.innerHTML, null, this.options.offcanvasPostion, true, OffCanvas.REMOVE_OFF_CANVAS_DELAY(), true);
         }
     }
 

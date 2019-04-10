@@ -4,7 +4,7 @@ import HttpClient from 'asset/script/service/http-client.service';
 import OffCanvas from 'asset/script/plugin/off-canvas/offcanvas.plugin';
 import LoadingIndicator from 'asset/script/util/loading-indicator/loading-indicator.util';
 import DeviceDetection from 'asset/script/helper/device-detection.helper';
-import CartWidget from 'asset/script/plugin/actions/cart-widget.plugin';
+import CartWidget from 'asset/script/plugin/header/cart-widget.plugin';
 
 const CART_MINI_OPEN_TRIGGER_DATA_ATTRIBUTE = 'data-cart-mini';
 const CART_MINI_REMOVE_PRODUCT_TRIGGER_SELECTOR = '*[data-remove-product=true]';

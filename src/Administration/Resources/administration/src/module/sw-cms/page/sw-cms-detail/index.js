@@ -31,8 +31,7 @@ Component.register('sw-cms-detail', {
             currentSkin: 'default',
             currentMappingEntity: null,
             currentMappingEntityStore: null,
-            demoEntityId: null,
-            styleElement: null
+            demoEntityId: null
         };
     },
 
@@ -55,8 +54,7 @@ Component.register('sw-cms-detail', {
 
         cmsStageClasses() {
             return [
-                `is--${this.currentDeviceView}`,
-                `sw-cms-skin__${this.currentSkin}`
+                `is--${this.currentDeviceView}`
             ];
         },
 
@@ -77,14 +75,6 @@ Component.register('sw-cms-detail', {
             return {
                 entity: null,
                 mode: 'static'
-            };
-        },
-
-        cmsSkins() {
-            return {
-                '06476486f70c499eb8bdd65482a24f63': 'default',
-                '20080911ffff4fffafffffff19830531': 'fancy',
-                '9a00221baf80421f9383f4fcc7b9457d': 'crazy'
             };
         },
 
@@ -131,7 +121,6 @@ Component.register('sw-cms-detail', {
 
                     if (this.salesChannels.length > 0) {
                         this.currentSalesChannelKey = this.salesChannels[0].id;
-                        this.loadSkin(this.currentSalesChannelKey);
                         this.loadPage(this.pageId);
                     }
                 });
@@ -169,10 +158,6 @@ Component.register('sw-cms-detail', {
 
         beforeDestroyedComponent() {
             cmsState.currentPage = null;
-
-            if (this.styleElement !== null) {
-                this.styleElement.remove();
-            }
         },
 
         loadPage(pageId) {
@@ -216,27 +201,6 @@ Component.register('sw-cms-detail', {
                 warn(this._name, exception.message, exception.response);
                 throw exception;
             });
-        },
-
-        loadSkin(salesChannelId) {
-            let skinType = 'default';
-
-            if (this.cmsSkins[salesChannelId]) {
-                skinType = this.cmsSkins[salesChannelId];
-            }
-
-            if (this.styleElement === null) {
-                this.styleElement = document.createElement('link');
-                this.styleElement.rel = 'stylesheet';
-                this.styleElement.type = 'text/css';
-                this.styleElement.media = 'all';
-
-                const head = document.getElementsByTagName('head')[0];
-                head.appendChild(this.styleElement);
-            }
-
-            this.styleElement.href = `/administration/static/skins/${skinType}.css`;
-            this.currentSkin = skinType;
         },
 
         updateDataMapping() {
@@ -285,7 +249,6 @@ Component.register('sw-cms-detail', {
         },
 
         onSalesChannelChange() {
-            this.loadSkin(this.currentSalesChannelKey);
             this.loadPage(this.pageId);
         },
 
@@ -296,8 +259,9 @@ Component.register('sw-cms-detail', {
         onDemoEntityChange(demoEntityId) {
             const demoEntity = this.currentMappingEntityStore.getById(demoEntityId);
 
+            cmsState.currentDemoEntity = null;
+
             if (!demoEntity) {
-                cmsState.currentDemoEntity = null;
                 return;
             }
 

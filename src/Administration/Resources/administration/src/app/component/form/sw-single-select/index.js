@@ -181,7 +181,13 @@ export default {
 
         openResultList(event) {
             if (event.relatedTarget && event.relatedTarget.type === 'submit') {
-                this.$refs.swSelectInput.blur();
+                this.$nextTick(() => {
+                    if (!this.$refs.swSelectInput) {
+                        return;
+                    }
+
+                    this.$refs.swSelectInput.blur();
+                });
                 return;
             }
 
@@ -205,7 +211,13 @@ export default {
                 return;
             }
 
-            this.$refs.swSelectInput.blur();
+            this.$nextTick(() => {
+                if (!this.$refs.swSelectInput) {
+                    return;
+                }
+
+                this.$refs.swSelectInput.blur();
+            });
         },
 
         setFocus(event) {

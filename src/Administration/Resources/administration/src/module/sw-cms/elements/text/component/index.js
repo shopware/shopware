@@ -1,4 +1,5 @@
 import { Component, Mixin } from 'src/core/shopware';
+import cmsPageState from 'src/module/sw-cms/state/cms-page.state';
 import template from './sw-cms-el-text.html.twig';
 import './sw-cms-el-text.scss';
 
@@ -12,8 +13,26 @@ Component.register('sw-cms-el-text', {
     data() {
         return {
             editable: true,
-            hasFocus: false
+            hasFocus: false,
+            demoValue: ''
         };
+    },
+
+    computed: {
+        cmsPageState() {
+            return cmsPageState;
+        }
+    },
+
+    watch: {
+        'cmsPageState.currentDemoEntity': {
+            handler() {
+                console.log('Watcher', 'cmsPageState.currentDemoEntity', this.element);
+                if (this.element.config.content.source === 'mapped') {
+                    this.demoValue = this.getDemoValue(this.element.config.content.value) || '';
+                }
+            }
+        }
     },
 
     created() {
@@ -23,6 +42,12 @@ Component.register('sw-cms-el-text', {
     methods: {
         createdComponent() {
             this.initElementConfig('text');
+
+            console.log('Text Componenent', this.cmsPageState);
+
+            if (this.element.config.content.source === 'mapped') {
+                this.demoValue = this.getDemoValue(this.element.config.content.value) || '';
+            }
         },
 
         getContent() {

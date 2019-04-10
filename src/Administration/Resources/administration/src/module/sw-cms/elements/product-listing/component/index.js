@@ -1,19 +1,13 @@
 import { Component, Mixin } from 'src/core/shopware';
-import template from './sw-cms-el-product-box.html.twig';
-import './sw-cms-el-product-box.scss';
+import template from './sw-cms-el-product-listing.html.twig';
+import './sw-cms-el-product-listing.scss';
 
-Component.register('sw-cms-el-product-box', {
+Component.register('sw-cms-el-product-listing', {
     template,
 
     mixins: [
         Mixin.getByName('cms-element')
     ],
-
-    computed: {
-        product() {
-            return this.element.data.product;
-        }
-    },
 
     created() {
         this.createdComponent();

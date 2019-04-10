@@ -41,9 +41,9 @@ Component.register('sw-cms-mapping-field', {
         return {
             initialStaticValue: null,
             currentMapping: null,
-            currentDemoValue: null,
             mappingTypes: {},
-            allowedMappingTypes: []
+            allowedMappingTypes: [],
+            demoValue: null
         };
     },
 
@@ -53,7 +53,7 @@ Component.register('sw-cms-mapping-field', {
         },
 
         isMapped() {
-            return this.config.source === 'entity';
+            return this.config.source === 'mapped';
         },
 
         hasPreview() {
@@ -66,6 +66,14 @@ Component.register('sw-cms-mapping-field', {
             handler() {
                 this.mappingTypes = this.cmsState.currentMappingTypes;
                 this.getAllowedMappingTypes();
+            }
+        },
+
+        'cmsState.currentDemoEntity': {
+            handler() {
+                if (this.config.source === 'mapped') {
+                    this.demoValue = this.getDemoValue(this.config.value);
+                }
             }
         }
     },
@@ -80,20 +88,24 @@ Component.register('sw-cms-mapping-field', {
                 this.initialStaticValue = this.config.value;
             }
 
+            if (this.config.source === 'mapped') {
+                this.demoValue = this.getDemoValue(this.config.value);
+            }
+
             this.mappingTypes = this.cmsState.currentMappingTypes;
             this.getAllowedMappingTypes();
         },
 
         onMappingSelect(property) {
-            this.config.source = 'entity';
+            this.config.source = 'mapped';
             this.config.value = property;
-            this.currentDemoValue = this.getDemoValue(property);
+            this.demoValue = this.getDemoValue(property);
         },
 
         onMappingRemove() {
             this.config.source = 'static';
             this.config.value = this.initialStaticValue;
-            this.currentDemoValue = null;
+            this.demoValue = null;
         },
 
         getAllowedMappingTypes() {

@@ -10,7 +10,10 @@
              v-if="element.config.content.source === 'static'">
         </div>
 
-        <div class="content-editor" v-if="element.config.content.source === 'entity'"></div>
+        <div class="content-editor"
+             v-html="demoValue"
+             v-if="element.config.content.source === 'mapped'">
+        </div>
 
         <div class="content-editor__toolbar" v-if="hasFocus">
             <button @click="onSetBold"><sw-icon name="default-text-style-bold" size="18"></sw-icon></button>

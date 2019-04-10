@@ -1,4 +1,3 @@
-// ToDo: Create solution for more than one page
 export default {
     currentPage: null,
     currentMappingEntity: null,

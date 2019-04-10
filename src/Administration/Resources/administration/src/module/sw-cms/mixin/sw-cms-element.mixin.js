@@ -32,6 +32,10 @@ Mixin.register('cms-element', {
             if (!this.element.config || this.element.config === null || !Object.keys(this.element.config).length) {
                 this.element.config = elementConfig.defaultConfig || {};
             }
+        },
+
+        getDemoValue(mappingPath) {
+            return cmsService.getPropertyByMappingPath(this.cmsPageState.currentDemoEntity, mappingPath);
         }
     }
 });

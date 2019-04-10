@@ -48,6 +48,7 @@ import FormValidationPlugin from 'asset/script/plugin/register/form-validation.p
 import FormSubmitLoaderPlugin from 'asset/script/plugin/forms/from-submit-loader.plugin';
 import OffCanvasTabsPlugin from 'asset/script/plugin/off-canvas-tabs/offcanvas-tabs.plugin';
 import ImageSliderPlugin from 'asset/script/plugin/image-slider/image-slider.plugin';
+import ScrollToInvalidFieldPlugin from 'asset/script/plugin/forms/scroll-to-invalid-field.plugin';
 
 /*
 import static plugins
@@ -99,6 +100,7 @@ PluginManager.register('FormSubmitLoader', FormSubmitLoaderPlugin, '[data-form-s
 PluginManager.register('AccountMenu', AccountMenuPlugin, '[data-offcanvas-account-menu]');
 PluginManager.register('OffCanvasTabs', OffCanvasTabsPlugin, '[data-offcanvas-tab]');
 PluginManager.register('ImageSlider', ImageSliderPlugin, '[data-image-slider="true"]');
+PluginManager.register('ScrollToInvalidField', ScrollToInvalidFieldPlugin, 'form');
 
 /*
 pages

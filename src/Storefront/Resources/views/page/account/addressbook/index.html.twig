@@ -40,6 +40,12 @@
                     content: "account.addressDeleted"|trans
                 } %}
             {% endif %}
+            {% if app.request.get('addressSaved') %}
+                {% sw_include '@Storefront/base/_utilities/alert.html.twig' with {
+                    type:"success",
+                    content: "account.addressSaved"|trans
+                } %}
+            {% endif %}
         {% endblock %}
         {% block page_account_address_error_messages %}
             {% if app.request.get('changedDefaultAddress') == '0' %}

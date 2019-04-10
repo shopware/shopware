@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Page\Account\Address;
 
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
 use Shopware\Core\Checkout\Customer\SalesChannel\AccountService;
 use Shopware\Core\Checkout\Customer\SalesChannel\AddressService;
 use Shopware\Core\Framework\Routing\InternalRequest;
@@ -56,9 +57,8 @@ class AccountAddressPageLoader implements PageLoaderInterface
 
         $page->setSalutations($this->accountService->getSalutationList($context));
 
-        $addressId = $request->optionalGet('addressId');
-        if ($addressId) {
-            $address = $this->addressService->getById((string) $addressId, $context);
+        $address = $this->getAddress($request, $context);
+        if ($address) {
             $page->setAddress($address);
         }
 
@@ -68,5 +68,19 @@ class AccountAddressPageLoader implements PageLoaderInterface
         );
 
         return $page;
+    }
+
+    private function getAddress(InternalRequest $request, SalesChannelContext $context): ?CustomerAddressEntity
+    {
+        if ($request->hasPost('address')) {
+            return (new CustomerAddressEntity())->assign($request->optionalPost('address'));
+        }
+
+        $addressId = $request->optionalGet('addressId');
+        if ($addressId) {
+            return $this->addressService->getById((string) $addressId, $context);
+        }
+
+        return null;
     }
 }

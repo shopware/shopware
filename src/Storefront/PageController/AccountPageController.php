@@ -13,7 +13,6 @@ use Shopware\Core\Checkout\Customer\SalesChannel\AddressService;
 use Shopware\Core\Framework\Routing\InternalRequest;
 use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceInterface;
@@ -89,6 +88,11 @@ class AccountPageController extends StorefrontController
      * @var SalesChannelContextServiceInterface
      */
     private $salesChannelContextService;
+
+    /**
+     * @var AddressService
+     */
+    private $addressService;
 
     public function __construct(
         PageLoaderInterface $accountLoginPageLoader,
@@ -274,6 +278,10 @@ class AccountPageController extends StorefrontController
      */
     public function createAddress(InternalRequest $request, SalesChannelContext $context): Response
     {
+        if (!$context->getCustomer()) {
+            return $this->redirectToRoute('frontend.account.login.page');
+        }
+
         $page = $this->addressPageLoader->load($request, $context);
 
         return $this->renderStorefront('@Storefront/page/account/addressbook/create.html.twig', ['page' => $page]);
@@ -281,12 +289,12 @@ class AccountPageController extends StorefrontController
 
     /**
      * @Route("/account/address/{addressId}", name="frontend.account.address.edit.page", options={"seo"="false"}, methods={"GET"})
-     *
-     * @throws CustomerNotLoggedInExceptionAlias
      */
     public function editAddress(InternalRequest $request, SalesChannelContext $context): Response
     {
-        $this->denyAccessUnlessLoggedIn();
+        if (!$context->getCustomer()) {
+            return $this->redirectToRoute('frontend.account.login.page');
+        }
 
         $page = $this->addressPageLoader->load($request, $context);
 
@@ -346,5 +354,33 @@ class AccountPageController extends StorefrontController
         }
 
         return new RedirectResponse($this->generateUrl('frontend.account.address.page', ['addressDeleted' => $success]));
+    }
+
+    /**
+     * @Route("/account/address/{addressId}", name="frontend.account.address.edit.save", options={"seo"="false"}, methods={"POST"})
+     * @Route("/account/address/create", name="frontend.account.address.create", options={"seo"="false"}, methods={"POST"})
+     */
+    public function saveAddress(RequestDataBag $data, SalesChannelContext $context): Response
+    {
+        if (!$context->getCustomer()) {
+            return $this->redirectToRoute('frontend.account.login.page');
+        }
+
+        /** @var RequestDataBag $address */
+        $address = $data->get('address');
+        try {
+            $this->addressService->create($address, $context);
+
+            return new RedirectResponse($this->generateUrl('frontend.account.address.page', ['addressSaved' => true]));
+        } catch (ConstraintViolationException $formViolations) {
+        }
+
+        $forwardAction = $address->get('id') ? 'editAddress' : 'createAddress';
+
+        return $this->forward(
+            'Shopware\Storefront\PageController\AccountPageController::' . $forwardAction,
+            ['formViolations' => $formViolations],
+            ['addressId' => $address->get('id')]
+        );
     }
 }

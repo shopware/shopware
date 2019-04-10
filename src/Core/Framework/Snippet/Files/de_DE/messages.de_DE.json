@@ -133,6 +133,7 @@
         "addressNotDeleted": "Adresse konnte nicht gelöscht werden",
         "addressDefaultChanged": "Standardadresse erfolgreich geändert.",
         "addressDefaultNotChanged": "Standardadresse konnte nicht geändert werden.",
+        "addressSaved": "Adresse erfolgreich gespeichert",
         "ordersWelcome": "Hier finden Sie ihre Bestellungen nach Datum sortiert.",
         "ordersInfoEmpty": "Sie haben noch keine Bestellung durchgeführt.",
         "orderItemColumnDate": "Datum",

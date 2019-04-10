@@ -204,6 +204,29 @@ class AccountPageController extends StorefrontController
     }
 
     /**
+     * @Route("/account/logout", name="frontend.account.logout", options={"seo"="false"}, methods={"GET"})
+     */
+    public function logout(CheckoutContext $context): Response
+    {
+        try {
+            $this->denyAccessUnlessLoggedIn();
+            $parameters = [];
+            $this->accountService->logout($context);
+            $this->checkoutContextService->refresh(
+                $context->getSalesChannel()->getId(),
+                $context->getToken(),
+                $context->getContext()->getLanguageId()
+            );
+        } catch (ConstraintViolationException $formViolations) {
+            $parameters = ['formViolations' => $formViolations];
+        } catch (CustomerNotLoggedInException $exception) {
+            $parameters = [];
+        }
+
+        return $this->redirectToRoute('frontend.account.login.page', $parameters);
+    }
+
+    /**
      * @Route("/account/register", name="frontend.account.register.page", methods={"GET"})
      */
     public function register(Request $request, RequestDataBag $data, SalesChannelContext $context): Response

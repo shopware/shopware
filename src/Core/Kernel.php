@@ -327,11 +327,11 @@ SQL;
             }
 
             foreach ($psr4 as $namespace => $path) {
-                $this->classLoader->addPsr4($namespace, $this->getProjectDir() . $plugin['path'] . '/' . $path);
+                $this->classLoader->addPsr4($namespace, $this->getProjectDir() . '/' . $plugin['path'] . '/' . $path);
             }
 
             foreach ($psr0 as $namespace => $path) {
-                $this->classLoader->add($namespace, $this->getProjectDir() . $plugin['path'] . '/' . $path);
+                $this->classLoader->add($namespace, $this->getProjectDir() . '/' . $plugin['path'] . '/' . $path);
             }
         }
     }

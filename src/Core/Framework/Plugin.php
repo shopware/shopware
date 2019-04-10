@@ -12,14 +12,19 @@ use Symfony\Component\Routing\RouteCollectionBuilder;
 abstract class Plugin extends Bundle
 {
     /**
+     * @var string
+     */
+    protected $pluginPath;
+    /**
      * @var bool
      */
     private $active;
 
-    final public function __construct(bool $active = true, ?string $path = null)
+    final public function __construct(bool $active = true, ?string $pluginPath = null)
     {
         $this->active = $active;
-        $this->path = $path;
+        $this->pluginPath = $pluginPath;
+        $this->path = $this->computePluginClassPath($pluginPath);
     }
 
     final public function isActive(): bool
@@ -62,5 +67,24 @@ abstract class Plugin extends Bundle
         }
 
         parent::configureRoutes($routes, $environment);
+    }
+
+    public function getPluginPath(): string
+    {
+        return $this->pluginPath;
+    }
+
+    private function computePluginClassPath(string $pluginPath)
+    {
+        $canonicalizedPluginClassPath = parent::getPath();
+        $canonicalizedPluginPath = realpath($pluginPath);
+
+        if (mb_strpos($canonicalizedPluginClassPath, $canonicalizedPluginPath) === 0) {
+            $relativePluginClassPath = mb_substr($canonicalizedPluginClassPath, mb_strlen($canonicalizedPluginPath));
+
+            return $pluginPath . $relativePluginClassPath;
+        }
+
+        return parent::getPath();
     }
 }

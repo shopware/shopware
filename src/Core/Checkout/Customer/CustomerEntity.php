@@ -8,6 +8,7 @@ use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderCustomer\OrderCustomerCollection;
 use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Shopware\Core\Checkout\Promotion\PromotionCollection;
+use Shopware\Core\Content\Product\Aggregate\ProductReview\ProductReviewCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\Language\LanguageEntity;
@@ -236,6 +237,11 @@ class CustomerEntity extends Entity
      * @var array|null
      */
     protected $customFields;
+
+    /**
+     * @var ProductReviewCollection|null
+     */
+    protected $reviews;
 
     public function __toString()
     {
@@ -671,5 +677,15 @@ class CustomerEntity extends Entity
     public function setPromotions(PromotionCollection $promotions): void
     {
         $this->promotions = $promotions;
+    }
+
+    public function getReviews(): ?ProductReviewCollection
+    {
+        return $this->reviews;
+    }
+
+    public function setReviews(?ProductReviewCollection $reviews): void
+    {
+        $this->reviews = $reviews;
     }
 }

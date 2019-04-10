@@ -64,11 +64,13 @@ Skeleton screen for reloading product-listing with subtle shimmer effect
 
 .has-element-loader .cms-element-product-listing {
     .product-badges,
-    .product-image-link {
+    .product-image-link,
+    .product-review-rating {
         display: none;
     }
 
     .product-image-wrapper,
+    .product-rating,
     .product-name,
     .product-description,
     .product-price-unit,
@@ -78,6 +80,10 @@ Skeleton screen for reloading product-listing with subtle shimmer effect
         animation: skeletonShimmer 1.5s linear 0s infinite normal forwards running;
         background: linear-gradient(to right, $gray-300 8%, $gray-100 18%, $gray-300 28%);
         background-size: 800px 100px;
+    }
+
+    .product-rating {
+        width: 50%;
     }
 
     .product-name {

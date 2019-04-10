@@ -15,6 +15,7 @@ use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\MailTemplate\Aggregate\MailHeaderFooter\MailHeaderFooterEntity;
 use Shopware\Core\Content\MailTemplate\Aggregate\MailTemplateSalesChannel\MailTemplateSalesChannelCollection;
 use Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipient\NewsletterRecipientCollection;
+use Shopware\Core\Content\Product\Aggregate\ProductReview\ProductReviewCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
@@ -253,6 +254,11 @@ class SalesChannelEntity extends Entity
      * @var DocumentBaseConfigDefinition|null
      */
     protected $documentBaseConfigSalesChannels;
+
+    /**
+     * @var ProductReviewCollection|null
+     */
+    protected $reviews;
 
     public function getMailHeaderFooter(): ?MailHeaderFooterEntity
     {
@@ -692,5 +698,15 @@ class SalesChannelEntity extends Entity
     public function setDocumentBaseConfigSalesChannels(DocumentBaseConfigDefinition $documentBaseConfigSalesChannels): void
     {
         $this->documentBaseConfigSalesChannels = $documentBaseConfigSalesChannels;
+    }
+
+    public function getReviews(): ?ProductReviewCollection
+    {
+        return $this->reviews;
+    }
+
+    public function setReviews(?ProductReviewCollection $reviews): void
+    {
+        $this->reviews = $reviews;
     }
 }

@@ -1,0 +1,42 @@
+@import "~scss/variables";
+
+.sw-review-detail {
+    .sw-review-detail__container {
+        margin-bottom: 16px;
+    }
+
+    .status-switch {
+        margin: 0;
+    }
+
+    .sw-description-list {
+        display: grid;
+        margin-bottom: 22px;
+
+        dt:last-of-type {
+            border-bottom: 1px solid $color-gray-300;
+        }
+
+        dd:last-of-type {
+            border-bottom: 1px solid $color-gray-300;
+        }
+    }
+
+    .contents-border-styling {
+        dt:last-of-type {
+            border: 0;
+        }
+
+        dd:last-of-type {
+            border: 0;
+        }
+    }
+
+    .review-status-true {
+        color: $color-emerald-500;
+    }
+
+    .review-status-false {
+        color: $color-crimson-500;
+    }
+}

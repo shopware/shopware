@@ -511,6 +511,12 @@
             <tag name="validator.constraint_validator"/>
         </service>
 
+        <service id="Shopware\Core\Framework\DataAbstractionLayer\Validation\EntityNotExistsValidator">
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface"/>
+            <tag name="validator.constraint_validator"/>
+        </service>
+
         <service id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
         </service>

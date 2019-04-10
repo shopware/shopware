@@ -12,6 +12,7 @@ use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufactu
 use Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductPrice\ProductPriceCollection;
+use Shopware\Core\Content\Product\Aggregate\ProductReview\ProductReviewCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductSearchKeyword\ProductSearchKeywordCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductTranslation\ProductTranslationCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityCollection;
@@ -359,6 +360,16 @@ class ProductEntity extends Entity
      */
     protected $tagIds;
 
+    /**
+     * @var ProductReviewCollection|null
+     */
+    protected $reviews;
+
+    /**
+     * @var float|null
+     */
+    protected $ratingAverage;
+
     public function __construct()
     {
         $this->prices = new ProductPriceCollection();
@@ -367,6 +378,16 @@ class ProductEntity extends Entity
     public function __toString()
     {
         return (string) $this->getName();
+    }
+
+    public function getReviews(): ?ProductReviewCollection
+    {
+        return $this->reviews;
+    }
+
+    public function setReviews(?ProductReviewCollection $reviews): void
+    {
+        $this->reviews = $reviews;
     }
 
     public function getParentId(): ?string
@@ -1070,5 +1091,15 @@ class ProductEntity extends Entity
     public function setChildCount(int $childCount): void
     {
         $this->childCount = $childCount;
+    }
+
+    public function getRatingAverage(): ?float
+    {
+        return $this->ratingAverage;
+    }
+
+    public function setRatingAverage(?float $ratingAverage): void
+    {
+        $this->ratingAverage = $ratingAverage;
     }
 }

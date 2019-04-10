@@ -52,10 +52,14 @@
         <service id="Shopware\Core\Content\Product\Aggregate\ProductSearchKeyword\ProductSearchKeywordDefinition">
             <tag name="shopware.entity.definition" entity="product_search_keyword"/>
         </service>
+
         <service id="Shopware\Core\Content\Product\Aggregate\ProductKeywordDictionary\ProductKeywordDictionaryDefinition">
             <tag name="shopware.entity.definition" entity="product_keyword_dictionary"/>
         </service>
 
+        <service id="Shopware\Core\Content\Product\Aggregate\ProductReview\ProductReviewDefinition">
+            <tag name="shopware.entity.definition" entity="product_review"/>
+        </service>
 
         <service id="Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerDefinition">
             <tag name="shopware.entity.definition" entity="product_manufacturer"/>
@@ -84,6 +88,16 @@
 
         <service id="Shopware\Core\Content\Product\Cart\ProductGateway">
             <argument type="service" id="product.repository"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Product\DataAbstractionLayer\Indexing\ProductRatingAverageIndexer">
+            <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory"/>
+            <argument type="service" id="Shopware\Core\Content\Product\ProductDefinition"/>
+            <argument type="service" id="shopware.cache"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator"/>
+            <tag name="shopware.dal_indexing.indexer" priority="900"/>
         </service>
 
         <service id="Shopware\Core\Content\Product\DataAbstractionLayer\Indexing\ProductListingPriceIndexer">
@@ -197,5 +211,10 @@
         </service>
 
         <service id="Shopware\Core\Content\Product\Cart\ProductLineItemFactory"/>
+
+        <service id="Shopware\Core\Content\Product\SalesChannel\ProductReviewService">
+            <argument type="service" id="product_review.repository"/>
+            <argument type="service" id="Shopware\Core\Framework\Validation\DataValidator"/>
+        </service>
     </services>
-</container>                
+</container>

@@ -40,6 +40,33 @@ Component.register('sw-product-detail-base', {
                    !this.loading.parentProduct &&
                    !this.loading.customFieldSets &&
                    !this.loading.media;
+        },
+
+        reviewColumns() {
+            return [{
+                property: 'status',
+                dataIndex: 'status',
+                label: this.$tc('sw-product.reviewForm.labelStatus')
+            }, {
+                property: 'createdAt',
+                dataIndex: 'createdAt',
+                label: this.$tc('sw-product.reviewForm.labelCreatedAt')
+            }, {
+                property: 'points',
+                dataIndex: 'points',
+                label: this.$tc('sw-product.reviewForm.labelPoints')
+            }, {
+                property: 'content',
+                dataIndex: 'content',
+                label: this.$tc('sw-product.reviewForm.labelContent')
+            }];
+        },
+
+        reviewItemData() {
+            this.product.reviews.forEach((review) => {
+                review.additional = true;
+            });
+            return this.product.reviews;
         }
     },
 

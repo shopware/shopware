@@ -55,6 +55,7 @@ import AddressEditorPlugin from 'src/script/plugin/address-editor/address-editor
 import DateFormat from 'src/script/plugin/date-format/date-format.plugin';
 import SetBrowserClassPlugin from 'src/script/plugin/set-browser-class/set-browser-class.plugin';
 import NativeEventEmitter from 'src/script/helper/emitter.helper';
+import RatingSystemPlugin from 'src/script/plugin/rating-system/rating-system.plugin';
 
 window.eventEmitter = new NativeEventEmitter();
 
@@ -101,6 +102,7 @@ PluginManager.register('CmsSlotHistoryReload', CmsSlotHistoryReloadPlugin, docum
 PluginManager.register('RemoteClick', RemoteClickPlugin, '[data-remote-click]');
 PluginManager.register('AddressEditor', AddressEditorPlugin, '[data-address-editor]');
 PluginManager.register('SetBrowserClass', SetBrowserClassPlugin, 'html');
+PluginManager.register('RatingSystemPlugin', RatingSystemPlugin, '[data-rating-system]');
 
 /*
 run plugins

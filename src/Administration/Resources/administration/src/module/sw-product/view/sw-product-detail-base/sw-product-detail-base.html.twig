@@ -120,5 +120,19 @@
                     </sw-custom-field-set-renderer>
                 </sw-card>
         {% endblock %}
+
+        {% block sw_product_detail_base_ratings_card %}
+            <sw-card :title="$tc('sw-product.detailBase.cardTitleReviews')" :isLoading="product.isLoading">
+                <template slot="grid">
+                        <sw-one-to-many-grid :collection="reviewItemData"
+                                             :localMode="true"
+                                             :columns="reviewColumns"
+                                             :showSelection="false"
+                                             :isLoading="loading.product"
+                                             :showActions="true">
+                        </sw-one-to-many-grid>
+                </template>
+            </sw-card>
+        {% endblock %}
     </div>
 {% endblock %}

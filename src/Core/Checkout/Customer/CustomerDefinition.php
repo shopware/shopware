@@ -9,6 +9,7 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderCustomer\OrderCustomerDefinition
 use Shopware\Core\Checkout\Payment\PaymentMethodDefinition;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionPersonaCustomer\PromotionPersonaCustomerDefinition;
 use Shopware\Core\Checkout\Promotion\PromotionDefinition;
+use Shopware\Core\Content\Product\Aggregate\ProductReview\ProductReviewDefinition;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Context\AdminApiSource;
 use Shopware\Core\Framework\Context\SalesChannelApiSource;
@@ -108,8 +109,8 @@ class CustomerDefinition extends EntityDefinition
             (new OneToManyAssociationField('addresses', CustomerAddressDefinition::class, 'customer_id', 'id'))->addFlags(new CascadeDelete()),
             new OneToManyAssociationField('orderCustomers', OrderCustomerDefinition::class, 'customer_id', 'id'),
             new ManyToManyAssociationField('tags', TagDefinition::class, CustomerTagDefinition::class, 'customer_id', 'tag_id'),
-
             new ManyToManyAssociationField('promotions', PromotionDefinition::class, PromotionPersonaCustomerDefinition::class, 'customer_id', 'promotion_id'),
+            (new OneToManyAssociationField('reviews', ProductReviewDefinition::class, 'customer_id'))->addFlags(new CascadeDelete()),
         ]);
     }
 }

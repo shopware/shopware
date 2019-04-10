@@ -9,6 +9,7 @@ use Shopware\Core\Content\MailTemplate\Aggregate\MailHeaderFooter\MailHeaderFoot
 use Shopware\Core\Content\MailTemplate\MailTemplateDefinition;
 use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerDefinition;
+use Shopware\Core\Content\Product\Aggregate\ProductReview\ProductReviewDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\ProductStream\ProductStreamDefinition;
 use Shopware\Core\Content\Property\PropertyGroupDefinition;
@@ -58,6 +59,10 @@ class DemodataCommand extends Command
         $this->addOption('mail-template', 'mt', InputOption::VALUE_REQUIRED, 'Mail template count', 10);
         $this->addOption('mail-header-footer', 'mhf', InputOption::VALUE_REQUIRED, 'Mail header/footer count', 3);
 
+        $this->addOption('with-media', 'y', InputOption::VALUE_OPTIONAL, 'Enables media for products', 1);
+
+        $this->addOption('reviews', 'r', InputOption::VALUE_OPTIONAL, 'Reviews count', 20);
+
         $this->addOption('attribute-sets', null, InputOption::VALUE_REQUIRED, 'CustomField set count', 4);
 
         $this->addOption('product-attributes', null, InputOption::VALUE_REQUIRED, 'Products attribute count');
@@ -91,6 +96,7 @@ class DemodataCommand extends Command
         $request->add(ProductDefinition::class, (int) $input->getOption('products'));
         $request->add(ProductStreamDefinition::class, (int) $input->getOption('product-streams'));
         $request->add(OrderDefinition::class, (int) $input->getOption('orders'));
+        $request->add(ProductReviewDefinition::class, (int) $input->getOption('reviews'));
 
         $request->add(
             CustomFieldSetDefinition::class,

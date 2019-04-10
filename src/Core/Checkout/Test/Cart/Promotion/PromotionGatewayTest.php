@@ -172,6 +172,7 @@ class PromotionGatewayTest extends TestCase
                     [
                         new EqualsFilter('personaRuleId', null),
                         new EqualsFilter('scopeRuleId', null),
+                        new EqualsFilter('promotion.orderRules.id', null),
                     ]
                 ),
                 new MultiFilter(
@@ -179,6 +180,7 @@ class PromotionGatewayTest extends TestCase
                     [
                         new EqualsAnyFilter('personaRuleId', $contextRuleIds),
                         new EqualsAnyFilter('scopeRuleId', $contextRuleIds),
+                        new EqualsAnyFilter('promotion.orderRules.id', $contextRuleIds),
                     ]
                 ),
             ]

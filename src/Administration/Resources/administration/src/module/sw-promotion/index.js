@@ -6,7 +6,7 @@ import enGB from './snippet/en_GB.json';
 
 import './component/sw-promotion-basic-form';
 import './component/sw-promotion-code-form';
-import './component/sw-promotion-discount-form';
+import './component/sw-promotion-order-condition-form';
 import './component/sw-promotion-persona-form';
 import './component/sw-promotion-rebate-form';
 import './component/sw-promotion-scope-form';

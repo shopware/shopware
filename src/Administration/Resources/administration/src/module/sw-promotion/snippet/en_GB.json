@@ -49,11 +49,14 @@
             "cardTitleScopeRules": "Cart"
         },
 
-        "discountForm": {
-            "descriptionTextDiscount": "Bavaria ipsum dolor sit amet hallelujah sog i, luja Biazelt wos mei Meidromml oa wolln Biazelt, woaß? Etza Milli Sauakraud, Engelgwand Watschnbaam a bissal liberalitas Bavariae zünftig Schmankal heid gfoids ma sagrisch guad.",
-            "descriptionTitleDiscount": "Define the properties an order needs for this promotion.",
-            "labelDiscountRule": "Discount rule",
-            "ruleModuleLink": "Open rule builder"
+        "orderCondition": {
+            "title": "Determine which properties an order additionally has to have for this promotion.",
+            "subheading": "Use order type rules to define which conditions must be met for this discount promotion to be applied.",
+            "linkRuleBuilder": "Open rule builder",
+            "rules": {
+                "caption" : "Order Rules",
+                "placeholder" : "Assign Order Rules..."
+            }
         },
 
         "general": {

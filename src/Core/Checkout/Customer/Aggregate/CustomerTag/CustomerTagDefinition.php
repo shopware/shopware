@@ -11,7 +11,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField
 use Shopware\Core\Framework\DataAbstractionLayer\Field\UpdatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\MappingEntityDefinition;
-use Shopware\Core\Framework\Tag\TagDefinition;
+use Shopware\Core\System\Tag\TagDefinition;
 
 class CustomerTagDefinition extends MappingEntityDefinition
 {

@@ -8,7 +8,7 @@ use Shopware\Core\Content\Navigation\NavigationCollection;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
-use Shopware\Core\Framework\Tag\TagCollection;
+use Shopware\Core\System\Tag\TagCollection;
 
 class CategoryEntity extends Entity
 {

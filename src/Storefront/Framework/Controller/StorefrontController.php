@@ -36,7 +36,7 @@ abstract class StorefrontController extends AbstractController
         /** @var TemplateFinder $templateFinder */
         $templateFinder = $this->get(TemplateFinder::class);
 
-        return $templateFinder->find($view, true);
+        return $templateFinder->find($view);
     }
 
     /**

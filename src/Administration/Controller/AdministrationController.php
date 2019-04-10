@@ -26,7 +26,7 @@ class AdministrationController extends AbstractController
      */
     public function index(): Response
     {
-        $template = $this->finder->find('administration/index.html.twig', true);
+        $template = $this->finder->find('administration/index.html.twig');
 
         return $this->render($template, [
             'features' => FeatureConfig::getAll(),

@@ -15,7 +15,12 @@
 						<div class="cart-item">
 							{% block base_cart_mini_item_image %}
 								<div class="cart-item-image">
-									<img srcset="{{ lineItem.cover.url }}"
+									{% if lineItem.cover.url %}
+										{% set imgSrc = lineItem.cover.url %}
+									{% else %}
+										{% set imgSrc = shopware.theme.general.noPicture %}
+									{% endif %}
+									<img src="{{ asset(imgSrc) }}"
 									     class="img-fluid"
 									     alt="{{ lineItem.label }}"
 									     title="{{ lineItem.label }}">

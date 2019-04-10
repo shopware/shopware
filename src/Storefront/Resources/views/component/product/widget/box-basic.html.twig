@@ -11,8 +11,13 @@
                         <a href="{{ path('frontend.detail.page', {'productId': product.id}) }}"
                            title="{{ product.name }}"
                            class="product-image-link">
+								{% if product.cover.media.url %}
+									{% set imgSrc = product.cover.media.url %}
+								{% else %}
+									{% set imgSrc = shopware.theme.general.noPicture %}
+								{% endif %}
                                 <img class="product-image img-fluid"
-                                     src="{{ asset(product.cover.media.url) }}"
+                                     src="{{ asset(imgSrc) }}"
                                      alt="{{ product.cover.media.alt }}">
                         </a>
                     </div>

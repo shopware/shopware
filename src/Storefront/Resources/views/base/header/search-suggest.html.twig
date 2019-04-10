@@ -13,7 +13,13 @@
                                        class="result-link">
                                         {% block base_search_suggest_result_image %}
                                             <span class="result-image">
-                                                <img srcset="{{ product.cover.media.url }}" alt="{{ product.name }}">
+                                                {% if product.cover.media.url %}
+													{% set imgSrc = product.cover.media.url %}
+												{% else %}
+													{% set imgSrc = shopware.theme.general.noPicture %}
+												{% endif %}
+                                                <img src="{{ asset(imgSrc) }}"
+													 alt="{{ product.name }}">
                                             </span>
                                         {% endblock %}
 

@@ -42,9 +42,14 @@
                     {% else %}
                         {% block page_product_detail_image_container %}
                             <div class="product-detail-image-container js-magnify-lens-container">
-                                <img src="{{ mediaItems|first.media.url }}"
+	                            {% if mediaItems %}
+		                            {% set imgSrc = mediaItems|first.media.url %}
+	                            {% else %}
+		                            {% set imgSrc = shopware.theme.general.noPicture %}
+	                            {% endif %}
+                                <img src="{{ asset(imgSrc) }}"
                                     class="img-fluid image-slider-image magnifier-image js-magnifier-image"
-                                    data-full-image="{{ mediaItems|first.media.url }}"
+                                    data-full-image="{{ asset(imgSrc) }}"
                                     alt="{{ page.product.name }}"/>
                             </div>
                         {% endblock %}

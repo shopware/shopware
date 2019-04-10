@@ -76,6 +76,9 @@ class TemplateDataExtension extends AbstractExtension implements GlobalsInterfac
                     'lg' => '992',
                     'xl' => '1200',
                 ],
+                'general' => [
+                    'noPicture' => 'img/no-picture.png',
+                ],
             ]
         );
 

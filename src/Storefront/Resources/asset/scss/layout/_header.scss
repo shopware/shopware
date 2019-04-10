@@ -33,7 +33,7 @@
 }
 
 .header-row {
-    padding-top: $spacer;
+    padding: $spacer-sm 0;
 }
 
 .logo-main-link {
@@ -48,6 +48,10 @@
 .header-actions-col {
     display: inline-flex;
     justify-content: flex-end;
+}
+
+.nav-main-toggle {
+    flex: 1 1 auto;
 }
 
 .account-widget {
@@ -93,6 +97,10 @@
     .header-search {
         max-width: 350px;
         margin: auto;
+    }
+    
+    .nav-main-toggle {
+        display: none;
     }
 
     .account-widget-title,

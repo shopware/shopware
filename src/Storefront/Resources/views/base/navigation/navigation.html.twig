@@ -3,17 +3,6 @@
     <div class="main-navigation" id="mainNavigation" data-menu-flyout="true">
         {% block base_main_navigation_navbar %}
             <nav class="navbar navbar-expand-lg navbar-light">
-                {% block base_main_navigation_toggle %}
-                    <button class="navbar-toggler"
-                        type="button"
-                        data-offcanvas-menu="true"
-                        aria-label="{{ "general.menuLink"|trans }}">
-                        {% block base_main_navigation_toggle_icon %}
-                            <span class="navbar-toggler-icon"></span>
-                        {% endblock %}
-                    </button>
-                {% endblock %}
-
                 {% block base_main_navigation_menu %}
                     <div class="navbar-nav navigation-menu"
                         itemscope="itemscope"

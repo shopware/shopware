@@ -56,8 +56,9 @@
     background: $white;
 }
 
-.account-widget .account-widget-btn,
-.cart-widget .cart-widget-btn {
+.nav-main-toggle-btn,
+.account-widget-btn,
+.cart-widget-btn {
     width: 40px;
     height: 40px;
 }
@@ -67,8 +68,8 @@
 }
 
 @include media-breakpoint-up(md) {
-    .account-widget .account-widget-btn,
-    .cart-widget .cart-widget-btn {
+    .account-widget-btn,
+    .cart-widget-btn {
         width: auto;
         height: auto;
     }

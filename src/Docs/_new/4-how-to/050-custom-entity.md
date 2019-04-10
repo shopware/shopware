@@ -1,4 +1,5 @@
 [titleEn]: <>(Creating a custom entity)
+[metaDescriptionEn]: <>(Quite often, your plugin has to save data into a custom database table. The Shopware platform's data abstraction layer fully supports custom entities, so you don't have to take care about the data handling at all.)
 
 ## Overview
 

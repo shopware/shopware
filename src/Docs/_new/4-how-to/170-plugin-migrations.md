@@ -1,4 +1,5 @@
 [titleEn]: <>(Updating your plugin via migrations)
+[metaDescriptionEn]: <>(Whenever you decide to release a new version of your plugin, including new features, you might have to take care about new database tables or about updating existing ones. This can be done using the Migration system in your plugin.)
 
 ## Overview
 

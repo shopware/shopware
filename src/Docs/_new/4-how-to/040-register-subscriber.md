@@ -1,4 +1,5 @@
 [titleEn]: <>(How to create a subscriber)
+[metaDescriptionEn]: <>(Registering a subscriber in the Shopware platform is as easy as it is in Symfony. This HowTo will cover what you need to know in order to create a subscriber using your plugin.)
 
 This HowTo will cover what you need to know in order to create a subscriber using your plugin.
 

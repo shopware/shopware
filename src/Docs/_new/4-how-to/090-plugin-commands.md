@@ -1,4 +1,5 @@
 [titleEn]: <>(Creating commands via plugin)
+[metaDescriptionEn]: <>(Sometimes you want to bring some helper commands with your plugin. Here you'll learn how that's done.)
 
 ## Overview
 

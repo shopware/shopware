@@ -1,4 +1,5 @@
 [titleEn]: <>(Payment plugin)
+[metaDescriptionEn]: <>(Payments are an essential part of the checkout process. That's the reason why Shopware offers an easy platform on which you can build payment plugins. Learn here, how that's done.)
 
 Payments are an essential part of the checkout process.
 That's the reason why Shopware offers an easy platform on which you can build payment plugins.

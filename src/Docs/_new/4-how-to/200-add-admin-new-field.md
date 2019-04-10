@@ -1,5 +1,5 @@
 [titleEn]: <>(Add field to module in administration)
-[wikiUrl]: <>(../how-to/add-field-to-module-in-administration?category=platform-en/how-to)
+[metaDescriptionEn]: <>(If you were wondering, how you can add a new field to an existing module in the Administration via plugin, then you've found the right HowTo to cover that subject.)
 
 ## Overview
 

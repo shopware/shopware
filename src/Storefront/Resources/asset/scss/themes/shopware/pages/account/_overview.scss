@@ -10,21 +10,6 @@
     font-weight: $font-weight-bold;
 }
 
-.account-sidebar-item {
-    border: 0;
-
-    &.active {
-        color: $primary;
-        background: none;
-        font-weight: $font-weight-bold;
-    }
-
-    &:hover {
-        color: $primary;
-        background: none;
-    }
-}
-
 .account-sidebar-footer {
     background: none;
     margin-top: 1px;

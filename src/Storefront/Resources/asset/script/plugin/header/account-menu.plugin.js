@@ -8,10 +8,16 @@ export default class OffCanvasAccountMenu extends Plugin{
 
     static options = {
 
+
         /**
-         * the additional class
+         * selector for the dropdown menu content which is inserted into the offcanvas
          */
-        additionalClass: 'js-account-widget-dropdown',
+        dropdownMenuSelector: 'js-account-widget-dropdown',
+
+        /**
+         * additional class for the offcanvas
+         */
+        additionalClass: 'offcanvas-account-menu',
 
         /**
          * from which direction the
@@ -48,9 +54,10 @@ export default class OffCanvasAccountMenu extends Plugin{
         // if the current viewport is not allowed return
         if (this._isInAllowedViewports() === false) return;
 
-        const html = DomAccess.querySelector(trigger.parentNode, `.${this.options.additionalClass}`);
+        const html = DomAccess.querySelector(trigger.parentNode, `.${this.options.dropdownMenuSelector}`);
 
         OffCanvas.open(html.innerHTML, null, this.options.offcanvasPostion, true, OffCanvas.REMOVE_OFF_CANVAS_DELAY());
+        OffCanvas.setAdditionalClassName(this.options.additionalClass);
     }
 
     /**

@@ -1,4 +1,4 @@
-.footer-headline {
+.footer-column-headline {
     font-size: $font-size-lg;
     font-weight: $font-weight-bold;
 }
@@ -12,11 +12,6 @@
     }
 }
 
-.footer-link-list {
-    padding: $spacer-sm 0;
-    border: 0;
-}
-
 .footer-hotline a {
     @extend .footer-link;
     display: block;
@@ -26,7 +21,7 @@
 }
 
 @include media-breakpoint-up(md) {
-    .footer-link-list {
-        padding: 0;
+    .footer-link-item {
+        padding: 2px 0;
     }
 }

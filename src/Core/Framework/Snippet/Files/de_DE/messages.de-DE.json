@@ -213,6 +213,7 @@
         "addressEqualHeader": "Rechnungs- und Lieferadresse",
         "billingAddressHeader": "Rechnungsadresse",
         "shippingAddressHeader": "Lieferadresse",
+        "confirmHeader": "Prüfen und Bestellen",
         "confirmPaymentHeader": "Zahlungsart wählen",
         "confirmShippingHeader": "Versandart wählen",
         "confirmSubmit": "Zahlungspflichtig bestellen",

@@ -7,6 +7,12 @@
 {% block base_navigation %}{% endblock %}
 
 {% block page_checkout_container %}
+    {% block page_checkout_confirm_header %}
+        <h1 class="confirm-main-header">
+            {{ "checkout.confirmHeader"|trans }}
+        </h1>
+    {% endblock %}
+
     {% block page_checkout_confirm_errors %}
         {% if formViolations.getViolations() %}
             {% sw_include '@Storefront/base/_utilities/alert.html.twig' with {

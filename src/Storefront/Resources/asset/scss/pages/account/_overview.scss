@@ -15,3 +15,18 @@
     align-items: flex-start;
     margin-top: auto;
 }
+
+.account-sidebar-item {
+    border: 0;
+
+    &.active {
+        color: $primary;
+        background: $list-group-bg;
+        font-weight: $font-weight-bold;
+    }
+
+    &:hover {
+        color: $primary;
+        background: $list-group-bg;
+    }
+}

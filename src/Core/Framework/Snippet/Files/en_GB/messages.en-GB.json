@@ -214,6 +214,7 @@
         "addressEqualHeader": "Billing and shipping address",
         "billingAddressHeader": "Billing address",
         "shippingAddressHeader": "Shipping address",
+        "confirmHeader": "Complete order",
         "confirmPaymentHeader": "Change payment method",
         "confirmShippingHeader": "Change shipping method",
         "confirmSubmit": "Send order",

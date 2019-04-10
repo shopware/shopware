@@ -1,24 +1,18 @@
 import Plugin from 'asset/script/helper/plugin/plugin.class'
-import $ from 'jquery';
 import DomAccess from 'asset/script/helper/dom-access.helper';
-import DeviceDetection from 'asset/script/helper/device-detection.helper';
 import ViewportDetection from 'asset/script/helper/viewport-detection.helper';
+import $ from 'jquery';
 
 const COLLAPSE_SHOW_CLASS = 'show';
 
 const COLLAPSE_COLUMN_SELECTOR = '.js-footer-column';
-const COLLAPSE_COLUMN_HEADLINE_SELECTOR = '.js-footer-column-headline';
+const COLLAPSE_COLUMN_TRIGGER_SELECTOR = '.js-collapse-footer-column-trigger';
 const COLLAPSE_COLUMN_CONTENT_SELECTOR = '.js-footer-column-content';
 
 export default class CollapseFooterColumnsPlugin extends Plugin {
 
     init() {
-        try {
-            this._footer = DomAccess.querySelector(document, '#footerColumns');
-            this._columns = this._footer.querySelectorAll(COLLAPSE_COLUMN_SELECTOR);
-        } catch (e) {
-            return;
-        }
+        this._columns = this.el.querySelectorAll(COLLAPSE_COLUMN_SELECTOR);
 
         this._registerEvents();
     }
@@ -37,10 +31,10 @@ export default class CollapseFooterColumnsPlugin extends Plugin {
      * @private
      */
     _onViewportHasChanged() {
-        const event = (DeviceDetection.isTouchDevice()) ? 'touchstart' : 'click';
+        const event = 'click';
 
         this._columns.forEach((column) => {
-            const trigger = DomAccess.querySelector(column, COLLAPSE_COLUMN_HEADLINE_SELECTOR);
+            const trigger = DomAccess.querySelector(column, COLLAPSE_COLUMN_TRIGGER_SELECTOR);
 
             // remove possibly existing event listeners
             trigger.removeEventListener(event, this._onClickCollapseTrigger);

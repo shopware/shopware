@@ -23,7 +23,7 @@ import ModalExtensionUtil from 'asset/script/util/modal-extension/modal-extensio
 import CartWidgetPlugin from 'asset/script/plugin/actions/cart-widget.plugin';
 import CartMiniPlugin from 'asset/script/plugin/cart-mini/cart-mini.plugin';
 import CookiePermissionPlugin from 'asset/script/plugin/cookie-permission/cookie-permission.plugin';
-import CollapseFooterColumnsPlugin from 'asset/script/plugin/collapse/collapse-footer.plugin';
+import CollapseFooterColumnsPlugin from 'asset/script/plugin/collapse/collapse-footer-columns.plugin';
 import SearchWidgetPlugin from 'asset/script/plugin/actions/search-widget/search-widget.plugin';
 import FlyoutMenuPlugin from 'asset/script/plugin/main-menu/flyout-menu.plugin';
 import OffcanvasMenuPlugin from 'asset/script/plugin/main-menu/offcanvas-menu.plugin';
@@ -74,7 +74,7 @@ PluginManager.register('SearchWidget', SearchWidgetPlugin, document);
 PluginManager.register('CartWidget', CartWidgetPlugin, document);
 PluginManager.register('CartMini', CartMiniPlugin, document);
 PluginManager.register('CookiePermission', CookiePermissionPlugin, document);
-PluginManager.register('CollapseFooterColumns', CollapseFooterColumnsPlugin, document);
+PluginManager.register('CollapseFooterColumns', CollapseFooterColumnsPlugin, '[data-collapse-footer]');
 PluginManager.register('FlyoutMenu', FlyoutMenuPlugin, '[data-offcanvas-menu="true"]');
 PluginManager.register('OffcanvasMenu', OffcanvasMenuPlugin, '[data-offcanvas-menu="true"]');
 PluginManager.register('DifferentShipping', DifferentShippingPlugin, '*[data-different-shipping="true"]');

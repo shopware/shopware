@@ -1,10 +1,10 @@
 {% block base_footer_inner_container %}
     {% block base_footer_navigation %}
-        <div id="footerColumns" class="row footer-columns">
+        <div id="footerColumns" class="row footer-columns" data-collapse-footer="true">
             {% block base_footer_navigation_hotline %}
                 <div class="col-md-4 footer-column js-footer-column">
                     {% block base_footer_navigation_hotline_headline %}
-                        <div class="column-headline footer-headline js-footer-column-headline"
+                        <div class="column-headline footer-headline js-collapse-footer-column-trigger"
                              data-target="#collapseOneFooter"
                              aria-expanded="true"
                              aria-controls="collapseOneFooter">
@@ -31,7 +31,7 @@
             {% block base_footer_navigation_service %}
                 <div class="col-md-4 footer-column js-footer-column">
                     {% block base_footer_navigation_service_headline %}
-                        <div class="column-headline footer-headline js-footer-column-headline"
+                        <div class="column-headline footer-headline js-collapse-footer-column-trigger"
                              data-target="#collapseTwoFooter"
                              aria-expanded="true"
                              aria-controls="collapseTwoFooter">
@@ -75,7 +75,7 @@
             {% block base_footer_navigation_information %}
                 <div class="col-md-4 footer-column js-footer-column">
                     {% block base_footer_navigation_information_headline %}
-                        <div class="column-headline footer-headline js-footer-column-headline"
+                        <div class="column-headline footer-headline js-collapse-footer-column-trigger"
                              data-target="#collapseThreeFooter"
                              aria-expanded="true"
                              aria-controls="collapseThreeFooter">

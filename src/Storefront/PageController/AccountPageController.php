@@ -472,6 +472,20 @@ class AccountPageController extends StorefrontController
     }
 
     /**
+     * @Route("/account/saveNewsletter", name="frontend.account.newsletter.save", methods={"POST"})
+     *
+     * @throws CustomerNotLoggedInException
+     */
+    public function saveNewsletter()
+    {
+        $this->denyAccessUnlessLoggedIn();
+
+        // @todo update newsletter field in customer entity
+
+        return $this->redirectToRoute('frontend.account.home.page', []);
+    }
+
+    /**
      * @Route("/account/address/default-{type}/{addressId}", name="frontend.account.address.set-default-address", methods={"POST"})
      *
      * @throws CustomerNotLoggedInException

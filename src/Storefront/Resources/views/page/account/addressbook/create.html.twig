@@ -37,7 +37,7 @@
                     {% block page_account_address_form_create %}
                         <form id="createAddressForm"
                               method="post"
-                              action="{{ path('storefront-api.customer.address.create', {'version': 1}) }}">
+                              action="{{ path('sales-channel-api.customer.address.create', {'version': 1}) }}">
                             {% block page_account_address_form_create_personal %}
                                 {% sw_include '@Storefront/component/address/address-personal.html.twig' %}
                             {% endblock %}

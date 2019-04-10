@@ -13,7 +13,7 @@ use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
 use Shopware\Core\Framework\Test\Translation\_fixtures\SnippetFile_UnitTest;
 use Shopware\Core\Framework\Translation\Translator;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\StorefrontRequest;
+use Shopware\Core\SalesChannelRequest;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 
@@ -56,8 +56,8 @@ class TranslatorTest extends TestCase
 
         // fake request
         $request = new Request();
-        $request->attributes->set(StorefrontRequest::ATTRIBUTE_DOMAIN_SNIPPET_SET_ID, $this->getSnippetSetIdForLocale('en_GB'));
-        $request->attributes->set(StorefrontRequest::ATTRIBUTE_DOMAIN_LOCALE, 'en_GB');
+        $request->attributes->set(SalesChannelRequest::ATTRIBUTE_DOMAIN_SNIPPET_SET_ID, $this->getSnippetSetIdForLocale('en_GB'));
+        $request->attributes->set(SalesChannelRequest::ATTRIBUTE_DOMAIN_LOCALE, 'en_GB');
 
         $stack->push($request);
         $result = $this->translator->getCatalogue('en_GB')->get('frontend.note.item.NoteLinkZoom');
@@ -84,8 +84,8 @@ class TranslatorTest extends TestCase
         // fake request
         $request = new Request();
 
-        $request->attributes->set(StorefrontRequest::ATTRIBUTE_DOMAIN_SNIPPET_SET_ID, $this->getSnippetSetIdForLocale('en_GB'));
-        $request->attributes->set(StorefrontRequest::ATTRIBUTE_DOMAIN_LOCALE, 'en_GB');
+        $request->attributes->set(SalesChannelRequest::ATTRIBUTE_DOMAIN_SNIPPET_SET_ID, $this->getSnippetSetIdForLocale('en_GB'));
+        $request->attributes->set(SalesChannelRequest::ATTRIBUTE_DOMAIN_LOCALE, 'en_GB');
 
         $this->getContainer()->get(RequestStack::class)->push($request);
 

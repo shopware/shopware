@@ -111,7 +111,7 @@ class SlotDataResolver
         $entities = [];
 
         foreach ($directReads as $definition => $ids) {
-            $repository = $this->getStorefrontRepository($definition);
+            $repository = $this->getSalesChannelApiRepository($definition);
             if ($repository) {
                 $entities[$definition] = $repository->search(new Criteria($ids), $context);
             } else {
@@ -130,7 +130,7 @@ class SlotDataResolver
         /** @var Criteria[] $criteriaObjects */
         foreach ($searches as $definition => $criteriaObjects) {
             foreach ($criteriaObjects as $criteriaHash => $criteria) {
-                $repository = $this->getStorefrontRepository($definition);
+                $repository = $this->getSalesChannelApiRepository($definition);
                 if ($repository) {
                     $result = $repository->search($criteria, $context);
                 } else {
@@ -236,7 +236,7 @@ class SlotDataResolver
      *
      * @return mixed|null
      */
-    private function getStorefrontRepository(string $definition)
+    private function getSalesChannelApiRepository(string $definition)
     {
         return $this->repositories[$definition::getEntityName()] ?? null;
     }

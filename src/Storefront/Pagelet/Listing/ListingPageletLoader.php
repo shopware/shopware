@@ -2,7 +2,7 @@
 
 namespace Shopware\Storefront\Pagelet\Listing;
 
-use Shopware\Core\Content\Product\Storefront\StorefrontProductRepository;
+use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
@@ -18,7 +18,7 @@ class ListingPageletLoader implements PageLoaderInterface
     public const PRODUCT_VISIBILITY = 'product-min-visibility';
 
     /**
-     * @var StorefrontProductRepository
+     * @var SalesChannelProductRepository
      */
     private $productRepository;
 
@@ -28,7 +28,7 @@ class ListingPageletLoader implements PageLoaderInterface
     private $eventDispatcher;
 
     public function __construct(
-        StorefrontProductRepository $productRepository,
+        SalesChannelProductRepository $productRepository,
         EventDispatcherInterface $eventDispatcher
     ) {
         $this->productRepository = $productRepository;
@@ -50,7 +50,7 @@ class ListingPageletLoader implements PageLoaderInterface
                 )
             );
 
-            $criteria->addState(StorefrontProductRepository::VISIBILITY_FILTERED);
+            $criteria->addState(SalesChannelProductRepository::VISIBILITY_FILTERED);
         }
 
         $this->eventDispatcher->dispatch(

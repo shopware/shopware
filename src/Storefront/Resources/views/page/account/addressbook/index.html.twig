@@ -68,7 +68,7 @@
                                                     {% block page_account_address_item_content_set_default_shipping %}
                                                         {% if defaultShippingAddress != address.id %}
                                                             <form id="setDefaultShippingAddressForm-{{ loop.index }}"
-                                                                  action="{{ path('storefront-api.customer.address.set-default-shipping-address', {'version': 1, 'id': address.id}) }}"
+                                                                  action="{{ path('sales-channel-api.customer.address.set-default-shipping-address', {'version': 1, 'id': address.id}) }}"
                                                                   method="post"
                                                                   data-address-set-default="true">
                                                                 <input name="_method" type="hidden" value="PATCH">
@@ -84,7 +84,7 @@
                                                     {% block page_account_address_item_content_set_default_billing %}
                                                         {% if defaultBillingAddress != address.id %}
                                                             <form id="setDefaultBillingAddressForm-{{ loop.index }}"
-                                                                  action="{{ path('storefront-api.customer.address.set-default-billing-address', {'version': 1, 'id': address.id}) }}"
+                                                                  action="{{ path('sales-channel-api.customer.address.set-default-billing-address', {'version': 1, 'id': address.id}) }}"
                                                                   method="post"
                                                                   data-address-set-default="true">
                                                                 <input name="_method" type="hidden" value="PATCH">
@@ -112,7 +112,7 @@
                                                     {% if defaultShippingAddress != address.id and defaultBillingAddress != address.id %}
                                                         <form id="deleteAddressForm-{{ loop.index }}"
                                                               method="post"
-                                                              action="{{ path('storefront-api.customer.address.delete', {'version': 1, 'id': address.id}) }}"
+                                                              action="{{ path('sales-channel-api.customer.address.delete', {'version': 1, 'id': address.id}) }}"
                                                               data-address-delete="true">
                                                             <button type="submit"
                                                                     class="btn btn-light btn-sm"

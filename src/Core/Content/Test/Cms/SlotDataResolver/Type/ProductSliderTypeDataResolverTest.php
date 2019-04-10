@@ -13,7 +13,7 @@ use Shopware\Core\Content\Cms\SlotDataResolver\ResolverContext\ResolverContext;
 use Shopware\Core\Content\Cms\SlotDataResolver\Type\ProductSliderTypeDataResolver;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductDefinition;
-use Shopware\Core\Content\Product\Storefront\StorefrontProductEntity;
+use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -125,10 +125,10 @@ class ProductSliderTypeDataResolverTest extends TestCase
 
     public function testCollectWithMappedConfig(): void
     {
-        $product1 = new StorefrontProductEntity();
+        $product1 = new SalesChannelProductEntity();
         $product1->setUniqueIdentifier('product1');
 
-        $product2 = new StorefrontProductEntity();
+        $product2 = new SalesChannelProductEntity();
         $product2->setUniqueIdentifier('product2');
 
         $products = new ProductCollection([$product1, $product2]);
@@ -178,7 +178,7 @@ class ProductSliderTypeDataResolverTest extends TestCase
 
     public function testCollectWithMappedConfigButEmptyOneToManyRelation(): void
     {
-        $product = new StorefrontProductEntity();
+        $product = new SalesChannelProductEntity();
         $product->setUniqueIdentifier('product1');
 
         $resolverContext = new EntityResolverContext($this->createMock(SalesChannelContext::class), ProductDefinition::class, $product);

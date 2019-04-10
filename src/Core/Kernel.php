@@ -383,7 +383,7 @@ SQL;
             }
 
             /** @var Plugin $plugin */
-            $plugin = new $className((bool) $pluginData['active']);
+            $plugin = new $className((bool) $pluginData['active'], $this->getProjectDir() . '/' . $pluginData['path']);
 
             if (!$plugin instanceof Plugin) {
                 throw new \RuntimeException(

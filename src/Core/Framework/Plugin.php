@@ -16,10 +16,16 @@ abstract class Plugin extends Bundle
      */
     private $active;
 
-    final public function __construct(bool $active = true, ?string $path = null)
+    /**
+     * @var string
+     */
+    private $basePath;
+
+    final public function __construct(bool $active, string $basePath)
     {
         $this->active = $active;
-        $this->path = $path;
+        $this->basePath = $basePath;
+        $this->path = $this->computePluginClassPath();
     }
 
     final public function isActive(): bool
@@ -62,5 +68,24 @@ abstract class Plugin extends Bundle
         }
 
         parent::configureRoutes($routes, $environment);
+    }
+
+    public function getBasePath(): string
+    {
+        return $this->basePath;
+    }
+
+    private function computePluginClassPath(): string
+    {
+        $canonicalizedPluginClassPath = parent::getPath();
+        $canonicalizedPluginPath = realpath($this->basePath);
+
+        if (mb_strpos($canonicalizedPluginClassPath, $canonicalizedPluginPath) === 0) {
+            $relativePluginClassPath = mb_substr($canonicalizedPluginClassPath, mb_strlen($canonicalizedPluginPath));
+
+            return $this->basePath . $relativePluginClassPath;
+        }
+
+        return parent::getPath();
     }
 }

@@ -42,8 +42,8 @@ class TestKernel extends Kernel
 
     protected function initializePlugins(): void
     {
-        self::$plugins->add(new \SwagExampleTest\SwagExampleTest());
-        self::$plugins->add(new \SwagInvalidTest\SwagInvalidTest());
+        self::$plugins->add(new \SwagExampleTest\SwagExampleTest(true, __DIR__ . '/_fixtures/SwagExampleTest'));
+        self::$plugins->add(new \SwagInvalidTest\SwagInvalidTest(true, __DIR__ . '/_fixtures/SwagInvalidTest/SwagInvalidTest.php'));
     }
 
     protected function initializeFeatureFlags(): void

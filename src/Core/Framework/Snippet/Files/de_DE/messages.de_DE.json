@@ -129,6 +129,8 @@
         "addressCreateWelcome": "Neue Adresse erstellen",
         "addressEditWelcome": "Adresse bearbeiten",
         "addressSaveChange": "Adresse speichern",
+        "addressDeleted": "Adresse erfolgreich gelöscht",
+        "addressNotDeleted": "Adresse konnte nicht gelöscht werden",
         "addressDefaultChanged": "Standardadresse erfolgreich geändert.",
         "addressDefaultNotChanged": "Standardadresse konnte nicht geändert werden.",
         "ordersWelcome": "Hier finden Sie ihre Bestellungen nach Datum sortiert.",

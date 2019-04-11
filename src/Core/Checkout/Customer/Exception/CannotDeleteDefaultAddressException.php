@@ -5,19 +5,19 @@ namespace Shopware\Core\Checkout\Customer\Exception;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
-class AddressNotFoundException extends ShopwareHttpException
+class CannotDeleteDefaultAddressException extends ShopwareHttpException
 {
     public function __construct(string $id)
     {
         parent::__construct(
-            'Customer address with id "{{ addressId }}" not found.',
+            'Customer address with id "{{ addressId }}" is a default address and cannot be deleted.',
             ['addressId' => $id]
         );
     }
 
     public function getErrorCode(): string
     {
-        return 'CHECKOUT__CUSTOMER_ADDRESS_NOT_FOUND';
+        return 'CHECKOUT__CUSTOMER_ADDRESS_IS_DEFAULT';
     }
 
     public function getStatusCode(): int

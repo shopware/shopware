@@ -34,12 +34,24 @@
                     content: "account.addressDefaultChanged"|trans
                 } %}
             {% endif %}
+            {% if app.request.get('addressDeleted') == '1' %}
+                {% sw_include '@Storefront/base/_utilities/alert.html.twig' with {
+                    type:"success",
+                    content: "account.addressDeleted"|trans
+                } %}
+            {% endif %}
         {% endblock %}
         {% block page_account_address_error_messages %}
             {% if app.request.get('changedDefaultAddress') == '0' %}
                 {% sw_include '@Storefront/base/_utilities/alert.html.twig' with {
                     type:"danger",
                     content: "account.addressDefaultNotChanged"|trans
+                } %}
+            {% endif %}
+            {% if app.request.get('addressDeleted') == '0' %}
+                {% sw_include '@Storefront/base/_utilities/alert.html.twig' with {
+                    type:"danger",
+                    content: "account.addressNotDeleted"|trans
                 } %}
             {% endif %}
         {% endblock %}
@@ -118,10 +130,8 @@
 
                                                 {% block page_account_address_item_content_actions_delete %}
                                                     {% if defaultShippingAddress != address.id and defaultBillingAddress != address.id %}
-                                                        <form id="deleteAddressForm-{{ loop.index }}"
-                                                              method="post"
-                                                              action="{{ path('sales-channel-api.customer.address.delete', {'version': 1, 'id': address.id}) }}"
-                                                              data-address-delete="true">
+                                                        <form method="post"
+                                                              action="{{ path('frontend.account.address.delete', {'addressId': address.id}) }}">
                                                             <button type="submit"
                                                                     class="btn btn-light btn-sm"
                                                                     title="{{ "account.addressesContentItemActionDelete"|trans }}">

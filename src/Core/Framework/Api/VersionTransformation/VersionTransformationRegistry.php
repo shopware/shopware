@@ -14,17 +14,13 @@ class VersionTransformationRegistry
         $this->buildTransformationIndex($transformations);
     }
 
-    public function getTransformationIndex(): array
-    {
-        return $this->transformationIndex;
-    }
-
-    public function hasTransformationsForVersionAndRoute(int $version, string $route): bool
-    {
-        return count($this->getTransformationsForVersionAndRoute($version, $route)) > 0;
-    }
-
-    public function getTransformationsForVersionAndRoute(int $version, string $route): array
+    /**
+     * Returns all API version transformations that should be allied for requests of `$version` to the passed `$route`
+     * in the order of application.
+     *
+     * @return ApiVersionTransformation[]
+     */
+    public function getRequestTransformationsForVersionAndRoute(int $version, string $route): array
     {
         return array_reduce(
             $this->getTransformationsForVersion($version),
@@ -35,7 +31,21 @@ class VersionTransformationRegistry
         );
     }
 
-    public function getTransformationsForVersion(int $version): array
+    /**
+     * Returns all API version transformations that should be allied for responses to requests of `$version` to the
+     * passed `$route` in the order of application.
+     *
+     * The returned transformations are the same as the ones returned by
+     * {@link self::getRequestTransformationsForVersionAndRoute()}, but in reverse order.
+     *
+     * @return ApiVersionTransformation[]
+     */
+    public function getResponseTransformationsForVersionAndRoute(int $version, string $route): array
+    {
+        return array_reverse($this->getRequestTransformationsForVersionAndRoute($version, $route));
+    }
+
+    private function getTransformationsForVersion(int $version): array
     {
         return array_filter(
             $this->transformationIndex,

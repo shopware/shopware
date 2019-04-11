@@ -6,6 +6,10 @@
 
     <services>
 
+        <service id="Shopware\Core\Framework\Api\VersionTransformation\FooApiVersionTransformation">
+            <tag name="shopware.api.version_transformation"/>
+        </service>
+
         <service id="Shopware\Core\Framework\Api\VersionTransformation\VersionTransformationRegistry" />
 
         <service id="Shopware\Core\Framework\Api\EventListener\CorsListener">

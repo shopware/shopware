@@ -2,8 +2,6 @@
 
 namespace Shopware\Core\Framework\Api\VersionTransformation;
 
-use Shopware\Core\Content\Product\ProductActionController;
-
 class FooApiVersionTransformation implements ApiVersionTransformation
 {
     public function getVersion(): int
@@ -11,8 +9,8 @@ class FooApiVersionTransformation implements ApiVersionTransformation
         return 10;
     }
 
-    public function getControllerAction(): string
+    public function getRoute(): string
     {
-        return ProductActionController::class . '::fooLatest';
+        return 'api.action.product.foo';
     }
 }

@@ -19,17 +19,17 @@ class VersionTransformationRegistry
         return $this->transformationIndex;
     }
 
-    public function hasTransformationsForVersionAndAction(int $version, string $action): bool
+    public function hasTransformationsForVersionAndRoute(int $version, string $route): bool
     {
-        return count($this->getTransformationsForVersionAndAction($version, $action)) > 0;
+        return count($this->getTransformationsForVersionAndRoute($version, $route)) > 0;
     }
 
-    public function getTransformationsForVersionAndAction(int $version, string $action): array
+    public function getTransformationsForVersionAndRoute(int $version, string $route): array
     {
         return array_reduce(
             $this->getTransformationsForVersion($version),
-            function (array $carry, array $item) use ($action) {
-                return array_merge($carry, $item[$action] ?? []);
+            function (array $carry, array $item) use ($route) {
+                return array_merge($carry, $item[$route] ?? []);
             },
             []
         );
@@ -53,9 +53,9 @@ class VersionTransformationRegistry
             $version = $transformation->getVersion();
             $this->transformationIndex[$version] = $this->transformationIndex[$version] ?? [];
 
-            $controllerAction = $transformation->getControllerAction();
-            $this->transformationIndex[$version][$controllerAction] = $this->transformationIndex[$version][$controllerAction] ?? [];
-            $this->transformationIndex[$version][$controllerAction][] = $transformation;
+            $route = $transformation->getRoute();
+            $this->transformationIndex[$version][$route] = $this->transformationIndex[$version][$route] ?? [];
+            $this->transformationIndex[$version][$route][] = $transformation;
         }
         ksort($this->transformationIndex);
     }

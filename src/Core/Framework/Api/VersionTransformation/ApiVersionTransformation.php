@@ -6,5 +6,5 @@ interface ApiVersionTransformation
 {
     public function getVersion(): int;
 
-    public function getControllerAction(): string;
+    public function getRoute(): string;
 }

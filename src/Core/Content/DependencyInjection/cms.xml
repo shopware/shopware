@@ -50,7 +50,7 @@
         </service>
 
         <service id="Shopware\Core\Content\Cms\DataAbstractionLayer\FieldSerializer\SlotConfigFieldSerializer">
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\FieldSerializerRegistry" />
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry" />
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\ConstraintBuilder" />
             <argument type="service" id="validator" />
             <tag name="shopware.field_serializer"/>

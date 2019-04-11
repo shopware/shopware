@@ -1,11 +1,11 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\DependencyInjection\CompilerPass;
+namespace Shopware\Core\System\DependencyInjection\CompilerPass;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface;
-use Shopware\Core\Framework\DataAbstractionLayer\SalesChannelDefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntityAggregatorInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface;
+use Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInstanceRegistry;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Symfony\Component\DependencyInjection\Alias;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
@@ -42,15 +42,18 @@ class SalesChannelEntityCompilerPass implements CompilerPassInterface
                 $container->setAlias(self::PREFIX . $serviceId, new Alias($serviceId, true));
             }
 
-            // if both mask extended as base
+            // if both mask base with extended extended as base
             if (isset($definitions['extended']) && isset($definitions['base'])) {
                 $container->setAlias(self::PREFIX . $definitions['base'], new Alias($definitions['extended'], true));
             }
 
-            // if base only copy definition
+            // if base only clone definition
             if (count($definitions) === 1 && isset($definitions['base'])) {
                 $service = $container->getDefinition($definitions['base']);
-                $container->setDefinition(self::PREFIX . $definitions['base'], clone $service);
+
+                $clone = clone $service;
+                $clone->removeMethodCall('compile');
+                $container->setDefinition(self::PREFIX . $definitions['base'], $clone);
                 $this->setUpEntityDefinitionService($container, self::PREFIX . $definitions['base']);
             }
         }

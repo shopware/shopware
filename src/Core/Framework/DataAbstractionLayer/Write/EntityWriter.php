@@ -13,7 +13,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StorageAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
-use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\FieldSerializerRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\MappingEntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\DeleteCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\InsertCommand;
@@ -50,11 +49,6 @@ class EntityWriter implements EntityWriterInterface
     private $gateway;
 
     /**
-     * @var FieldSerializerRegistry
-     */
-    private $fieldHandler;
-
-    /**
      * @var LanguageLoaderInterface
      */
     private $languageLoader;
@@ -68,14 +62,12 @@ class EntityWriter implements EntityWriterInterface
         WriteCommandExtractor $writeResource,
         EntityForeignKeyResolver $foreignKeyResolver,
         EntityWriteGatewayInterface $gateway,
-        FieldSerializerRegistry $fieldHandler,
         LanguageLoaderInterface $languageLoader,
         DefinitionInstanceRegistry $registry
     ) {
         $this->foreignKeyResolver = $foreignKeyResolver;
         $this->writeResource = $writeResource;
         $this->gateway = $gateway;
-        $this->fieldHandler = $fieldHandler;
         $this->languageLoader = $languageLoader;
         $this->registry = $registry;
     }
@@ -157,7 +149,7 @@ class EntityWriter implements EntityWriterInterface
                     return new RestrictDeleteViolation($restriction['pk'], $restriction['restrictions']);
                 }, $restrictions);
 
-                throw new RestrictDeleteViolationException($definition, $restrictions);
+                throw new RestrictDeleteViolationException($definition, $restrictions, $this->registry);
             }
         }
 
@@ -171,16 +163,16 @@ class EntityWriter implements EntityWriterInterface
             }
 
             foreach ($cascades as $affectedDefinitionClass => &$cascade) {
-                $affactedDefinition = $this->registry->get($affectedDefinitionClass);
+                $affectedDefinition = $this->registry->get($affectedDefinitionClass);
 
-                $cascade = array_map(function ($key) use ($affactedDefinition) {
+                $cascade = array_map(function ($key) use ($affectedDefinition) {
                     $payload = $key;
 
                     if (!\is_array($key)) {
                         $payload = ['id' => $key];
                     }
 
-                    return new EntityWriteResult($key, $payload, $affactedDefinition, null);
+                    return new EntityWriteResult($key, $payload, $affectedDefinition, null);
                 }, $cascade);
             }
         }
@@ -271,7 +263,7 @@ class EntityWriter implements EntityWriterInterface
                 }
 
                 $field = $command->getDefinition()->getFields()->getByStorageName($command->getStorageName());
-                $decodedPayload = $this->fieldHandler->decode(
+                $decodedPayload = $field->getSerializer()->decode(
                     $field,
                     json_encode($command->getPayload(), JSON_PRESERVE_ZERO_FRACTION)
                 );
@@ -311,7 +303,6 @@ class EntityWriter implements EntityWriterInterface
             $this->writeResource->extract($row, $parameters);
         }
 
-        /* @var string|EntityDefinition $definition */
         if ($ensure) {
             $commandQueue->ensureIs($definition, $ensure);
         }
@@ -371,7 +362,7 @@ class EntityWriter implements EntityWriterInterface
                 continue;
             }
 
-            $convertedPayload[$field->getPropertyName()] = $this->fieldHandler->decode($field, $value);
+            $convertedPayload[$field->getPropertyName()] = $field->getSerializer()->decode($field, $value);
         }
 
         $primaryKeys = $command->getDefinition()->getPrimaryKeys();

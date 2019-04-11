@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Checkout\Customer\SalesChannel;
 
-use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Checkout\Customer\CustomerEvents;
 use Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerEmailUnique;
 use Shopware\Core\Framework\Context;
@@ -52,19 +51,13 @@ class AccountRegistrationService
      */
     private $accountValidationService;
 
-    /**
-     * @var CustomerDefinition
-     */
-    private $customerDefinition;
-
     public function __construct(
         EntityRepositoryInterface $customerRepository,
         EventDispatcherInterface $eventDispatcher,
         NumberRangeValueGeneratorInterface $numberRangeValueGenerator,
         DataValidator $validator,
         ValidationServiceInterface $accountValidationService,
-        ValidationServiceInterface $addressValidationService,
-        CustomerDefinition $customerDefinition
+        ValidationServiceInterface $addressValidationService
     ) {
         $this->customerRepository = $customerRepository;
         $this->eventDispatcher = $eventDispatcher;
@@ -72,7 +65,6 @@ class AccountRegistrationService
         $this->validator = $validator;
         $this->accountValidationService = $accountValidationService;
         $this->addressValidationService = $addressValidationService;
-        $this->customerDefinition = $customerDefinition;
     }
 
     public function register(DataBag $data, bool $isGuest, SalesChannelContext $context): string
@@ -196,7 +188,7 @@ class AccountRegistrationService
     {
         $customer = [
             'customerNumber' => $this->numberRangeValueGenerator->getValue(
-                $this->customerDefinition->getEntityName(), $context->getContext(),
+                $this->customerRepository->getDefinition()->getEntityName(), $context->getContext(),
                 $context->getSalesChannel()->getId()
             ),
             'salesChannelId' => $context->getSalesChannel()->getId(),

@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\Test\DataAbstractionLayer\FieldSerializer;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ConfigJsonField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\ConfigJsonFieldSerializer;
@@ -83,6 +84,8 @@ class JsonFieldSerializerTest extends TestCase
      */
     public function testEncode(JsonField $field, $input, $expected): void
     {
+        $field->compile($this->getContainer()->get(DefinitionInstanceRegistry::class));
+
         $kvPair = new KeyValuePair('password', $input, true);
         $actual = $this->serializer->encode($field, $this->existence, $kvPair, $this->parameters)->current();
 
@@ -113,6 +116,7 @@ class JsonFieldSerializerTest extends TestCase
      */
     public function testDecode(JsonField $field, $input, $expected): void
     {
+        $field->compile($this->getContainer()->get(DefinitionInstanceRegistry::class));
         $actual = $this->serializer->decode($field, $input);
         static::assertEquals($expected, $actual);
     }

@@ -5,8 +5,6 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Dbal;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Exception\UnmappedFieldException;
-use Shopware\Core\Framework\DataAbstractionLayer\Dbal\FieldAccessorBuilder\FieldAccessorBuilderRegistry;
-use Shopware\Core\Framework\DataAbstractionLayer\Dbal\FieldResolver\FieldResolverRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
@@ -27,24 +25,6 @@ use Shopware\Core\Framework\Uuid\Uuid;
 class EntityDefinitionQueryHelper
 {
     public const HAS_TO_MANY_JOIN = 'has_to_many_join';
-
-    /**
-     * @var FieldResolverRegistry
-     */
-    private $fieldResolverRegistry;
-
-    /**
-     * @var FieldAccessorBuilderRegistry
-     */
-    private $fieldAccessorBuilderRegistry;
-
-    public function __construct(
-        FieldResolverRegistry $fieldResolverRegistry,
-        FieldAccessorBuilderRegistry $fieldAccessorBuilderRegistry
-    ) {
-        $this->fieldResolverRegistry = $fieldResolverRegistry;
-        $this->fieldAccessorBuilderRegistry = $fieldAccessorBuilderRegistry;
-    }
 
     public static function escape(string $string): string
     {
@@ -351,16 +331,18 @@ class EntityDefinitionQueryHelper
             return;
         }
 
+        /** @var AssociationField|null $field */
         $field = $fields->get($fieldName);
 
-        if (!$field) {
+        if ($field === null) {
             return;
         }
 
-        /** @var AssociationField $field */
-        $field = $fields->get($fieldName);
+        $resolver = $field->getResolver();
 
-        $this->fieldResolverRegistry->resolve($definition, $root, $field, $query, $context, $this);
+        if ($resolver !== null) {
+            $resolver->resolve($definition, $root, $field, $query, $context, $this);
+        }
 
         if (!$field instanceof AssociationField) {
             return;
@@ -382,7 +364,13 @@ class EntityDefinitionQueryHelper
 
     public function resolveField(Field $field, EntityDefinition $definition, string $root, QueryBuilder $query, Context $context): void
     {
-        $this->fieldResolverRegistry->resolve($definition, $root, $field, $query, $context, $this);
+        $resolver = $field->getResolver();
+
+        if ($resolver === null) {
+            return;
+        }
+
+        $resolver->resolve($definition, $root, $field, $query, $context, $this);
     }
 
     /**
@@ -396,7 +384,6 @@ class EntityDefinitionQueryHelper
         QueryBuilder $query,
         Context $context
     ): void {
-        /** @var string|EntityDefinition $translationDefinition */
         $translationDefinition = $definition->getTranslationDefinition();
 
         $fields = $translationDefinition->getFields();
@@ -632,6 +619,7 @@ class EntityDefinitionQueryHelper
 
     private function buildFieldSelector(string $root, Field $field, Context $context, string $accessor): string
     {
-        return $this->fieldAccessorBuilderRegistry->buildAccessor($root, $field, $context, $accessor);
+        return $field->getAccessorBuilder()->buildAccessor($root, $field, $context, $accessor);
+//        return $this->fieldAccessorBuilderRegistry->buildAccessor($root, $field, $context, $accessor);
     }
 }

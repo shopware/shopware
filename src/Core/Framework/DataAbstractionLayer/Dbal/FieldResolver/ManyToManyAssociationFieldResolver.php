@@ -40,7 +40,6 @@ class ManyToManyAssociationFieldResolver implements FieldResolverInterface
         $query->addState($mappingAlias);
 
         $versionJoinCondition = '';
-        /** @var string|EntityDefinition $definition */
         if ($definition->isVersionAware() && $field->is(CascadeDelete::class)) {
             $versionField = $definition->getEntityName() . '_version_id';
             $versionJoinCondition = ' AND #root#.version_id = #alias#.' . $versionField;

@@ -140,7 +140,6 @@ class WriteCommandQueue
                     return false;
                 }
 
-                // @todo@jp is $storage === $field always?
                 $storage = $definition->getFields()->getByStorageName($field->getStorageName());
 
                 return $storage instanceof FkField;

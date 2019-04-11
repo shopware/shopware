@@ -76,13 +76,11 @@ class EntityLoadedEvent extends NestedEvent
             return null;
         }
 
-        // @todo@jp fix data format
-        [$definitions, $associations] = $this->extractAssociations($this->definition, $this->entities);
+        $associations = $this->extractAssociations($this->definition, $this->entities);
 
         $events = [];
-
-        foreach ($associations as $definitionClass => $entities) {
-            $events[] = $this->createNested($definitions[$definitionClass], $entities);
+        foreach ($associations as $association) {
+            $events[] = $this->createNested($association['definition'], $association['entities']);
         }
 
         return new NestedEventCollection($events);
@@ -90,10 +88,23 @@ class EntityLoadedEvent extends NestedEvent
 
     protected function extractAssociations(EntityDefinition $definition, iterable $entities): array
     {
+        $events = $this->extractAssociationsInCurrentLevel($definition, $entities);
+        $recursive = $this->loadRecursivelyNestedAssociations($events);
+        $events = $this->mergeIntoEvents($recursive, $events);
+
+        return $events;
+    }
+
+    protected function createNested(EntityDefinition $definition, array $entities): EntityLoadedEvent
+    {
+        return new EntityLoadedEvent($definition, $entities, $this->context, false);
+    }
+
+    private function extractAssociationsInCurrentLevel(EntityDefinition $definition, iterable $entities): array
+    {
         $associations = $definition->getFields();
 
         $events = [];
-        $definitions = [];
         /** @var Field $association */
         foreach ($associations as $association) {
             if (!$association instanceof AssociationField) {
@@ -116,8 +127,17 @@ class EntityLoadedEvent extends NestedEvent
                     }
 
                     if ($reference) {
-                        $events[$association->getReferenceDefinition()->getClass()][] = $reference;
-                        $definitions[$association->getReferenceDefinition()->getClass()] = $association->getReferenceDefinition();
+                        $associatedDefinition = $association->getReferenceDefinition();
+                        $associationClass = $associatedDefinition->getClass();
+
+                        if (!isset($events[$associationClass])) {
+                            $events[$associationClass] = [
+                                'definition' => $associatedDefinition,
+                                'entities' => [],
+                            ];
+                        }
+
+                        $events[$associationClass]['entities'][] = $reference;
                     }
                 }
 
@@ -144,48 +164,65 @@ class EntityLoadedEvent extends NestedEvent
                     continue;
                 }
 
-                foreach ($references as $reference) {
-                    $events[$referenceDefinition->getClass()][] = $reference;
+                $referenceDefinitionClass = $referenceDefinition->getClass();
+
+                if (!isset($events[$referenceDefinitionClass])) {
+                    $events[$referenceDefinitionClass] = [
+                        'definition' => $referenceDefinition,
+                        'entities' => [],
+                    ];
                 }
-                $definitions[$referenceDefinition->getClass()] = $referenceDefinition;
+
+                foreach ($references as $reference) {
+                    $events[$referenceDefinitionClass]['entities'][] = $reference;
+                }
             }
         }
 
+        return $events;
+    }
+
+    private function loadRecursivelyNestedAssociations(array $events): array
+    {
         $recursive = [];
-        foreach ($events as $nestedDefinition => $nested) {
+
+        foreach ($events as $nested) {
             /*
              * contains now an array of arrays
              *
              * [
              *      [
-             *          ProductManufacturerDefinition => [$entity,$entity,$entity,$entity,$entity],
-             *          ProductPriceDefinition => [$entity,$entity,$entity,$entity,$entity]
+             *          ProductManufacturerDefinition => ['definition' =>  $definition, 'entities' => [$entity,$entity,$entity,$entity,$entity]],
+             *          ProductPriceDefinition => ['definition' =>  $definition, 'entities' => [$entity,$entity,$entity,$entity,$entity]]
              *      ]
              * ]
              */
-            [$associationDefinitions, $associationEvents] = $this->extractAssociations($definitions[$nestedDefinition], $nested);
-
-            $recursive[] = $associationEvents;
-            $definitions = array_merge($definitions, $associationDefinitions);
+            $recursive[] = $this->extractAssociations($nested['definition'], $nested['entities']);
         }
 
+        return $recursive;
+    }
+
+    private function mergeIntoEvents(array $recursive, array $events): array
+    {
         foreach ($recursive as $nested) {
             if (empty($nested)) {
                 continue;
             }
+
             //iterate nested array of definitions and entities and merge them into root $events
-            foreach ($nested as $nestedDefinition => $nestedEntities) {
-                foreach ($nestedEntities as $nestedEntity) {
-                    $events[$nestedDefinition][] = $nestedEntity;
+            foreach ($nested as $nestedDefinition => $nestedCollection) {
+                if (!isset($events[$nestedDefinition])) {
+                    $events[$nestedDefinition] = $nestedCollection;
+                    continue;
+                }
+
+                foreach ($nestedCollection['entities'] as $nestedEntity) {
+                    $events[$nestedDefinition]['entities'][] = $nestedEntity;
                 }
             }
         }
 
-        return [$definitions, $events];
-    }
-
-    protected function createNested(EntityDefinition $definition, array $entities): EntityLoadedEvent
-    {
-        return new EntityLoadedEvent($definition, $entities, $this->context, false);
+        return $events;
     }
 }

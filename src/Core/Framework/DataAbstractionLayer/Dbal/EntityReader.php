@@ -107,12 +107,7 @@ class EntityReader implements EntityReaderInterface
 
         $rows = $this->fetch($criteria, $definition, $context, $fields);
 
-        $entities = $this->hydrator->hydrate($entity, $definition, $rows, $definition->getEntityName(), $context);
-
-        // @todo@jp remove iteration here
-        foreach ($entities as $row) {
-            $collection->add($row);
-        }
+        $collection = $this->hydrator->hydrate($collection, $entity, $definition, $rows, $definition->getEntityName(), $context);
 
         $collection = $this->fetchAssociations($criteria, $definition, $context, $collection, $fields);
 
@@ -301,11 +296,9 @@ class EntityReader implements EntityReaderInterface
         QueryBuilder $query,
         Context $context
     ): void {
-        /** @var EntityDefinition $mapping */
         $mapping = $field->getMappingDefinition();
 
         $versionCondition = '';
-        /** @var string|EntityDefinition $definition */
         if ($mapping->isVersionAware() && $definition->isVersionAware() && $field->is(CascadeDelete::class)) {
             $versionField = $definition->getEntityName() . '_version_id';
             $versionCondition = ' AND #alias#.' . $versionField . ' = #root#.version_id';

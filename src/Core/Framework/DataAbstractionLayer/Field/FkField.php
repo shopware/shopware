@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Field;
 
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\FkFieldSerializer;
 
 class FkField extends Field implements StorageAware
 {
@@ -65,5 +66,10 @@ class FkField extends Field implements StorageAware
     public function getExtractPriority(): int
     {
         return self::PRIORITY;
+    }
+
+    protected function getSerializerClass(): string
+    {
+        return FkFieldSerializer::class;
     }
 }

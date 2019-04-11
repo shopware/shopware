@@ -4,6 +4,7 @@ namespace Shopware\Storefront\Framework\Seo\Entity\Field;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\WriteProtected;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
+use Shopware\Storefront\Framework\Seo\Entity\Serializer\CanonicalUrlFieldSerializer;
 use Shopware\Storefront\Framework\Seo\SeoUrl\SeoUrlDefinition;
 
 class CanonicalUrlAssociationField extends ManyToOneAssociationField
@@ -27,5 +28,10 @@ class CanonicalUrlAssociationField extends ManyToOneAssociationField
     public function getRouteName(): string
     {
         return $this->routeName;
+    }
+
+    protected function getSerializerClass(): string
+    {
+        return CanonicalUrlFieldSerializer::class;
     }
 }

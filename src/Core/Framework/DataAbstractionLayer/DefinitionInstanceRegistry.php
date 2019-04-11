@@ -2,8 +2,12 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer;
 
+use Shopware\Core\Framework\DataAbstractionLayer\Dbal\FieldAccessorBuilder\FieldAccessorBuilderInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Dbal\FieldResolver\FieldResolverInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\DefinitionNotFoundException;
+use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\FieldSerializerInterface;
 use Symfony\Component\DependencyInjection\Container;
+use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
 
 class DefinitionInstanceRegistry
 {
@@ -31,12 +35,12 @@ class DefinitionInstanceRegistry
     public function __debugInfo()
     {
         return [
-            //            'repositoryMap' => $this->repositoryMap,
-            //            'definitions' => $this->definitions,
+            'repositoryMapCount' => count($this->repositoryMap),
+            'definitionCount' => count($this->definitions),
         ];
     }
 
-    public function getRepository(string $entityName) //: EntityRepositoryInterface
+    public function getRepository(string $entityName): EntityRepositoryInterface
     {
         return $this->container->get($this->repositoryMap[$entityName]);
     }
@@ -48,8 +52,11 @@ class DefinitionInstanceRegistry
 
     public function getByEntityName(string $name): EntityDefinition
     {
-        // @todo@jp DefinitionNotFoundException
-        return $this->get($this->definitions[$name]);
+        try {
+            return $this->get($this->definitions[$name]);
+        } catch (ServiceNotFoundException $e) {
+            throw new DefinitionNotFoundException($name);
+        }
     }
 
     /**
@@ -60,5 +67,20 @@ class DefinitionInstanceRegistry
         return array_map(function (string $name): EntityDefinition {
             return $this->get($name);
         }, $this->definitions);
+    }
+
+    public function getSerializer(string $serializerClass): FieldSerializerInterface
+    {
+        return $this->container->get($serializerClass);
+    }
+
+    public function getResolver(string $resolverClass): FieldResolverInterface
+    {
+        return $this->container->get($resolverClass);
+    }
+
+    public function getAccessorBuilder(string $accessorBuilderClass): FieldAccessorBuilderInterface
+    {
+        return $this->container->get($accessorBuilderClass);
     }
 }

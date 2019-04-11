@@ -58,10 +58,12 @@ class ProductSearchKeywordIndexer implements IndexerInterface
      * @var ProductSearchKeywordAnalyzerInterface
      */
     private $analyzer;
+
     /**
      * @var ProductSearchKeywordDefinition
      */
     private $productSearchKeywordDefinition;
+
     /**
      * @var ProductKeywordDictionaryDefinition
      */

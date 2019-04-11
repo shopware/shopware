@@ -3,7 +3,6 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ChildCountField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\ChildrenAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CreatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Computed;
@@ -19,13 +18,10 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\UpdatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\Struct\ArrayEntity;
 
-/**
- * @todo@jp move getFields()->get('special') to FieldCollection
- */
 abstract class EntityDefinition
 {
     /**
-     * @var FieldCollection|null
+     * @var CompiledFieldCollection|null
      */
     protected $fields;
 
@@ -35,9 +31,9 @@ abstract class EntityDefinition
     protected $extensions = [];
 
     /**
-     * @var EntityDefinition|null
+     * @var TranslationsAssociationField|null
      */
-    protected $translationDefinition;
+    protected $translationField;
 
     /**
      * @var bool|null
@@ -45,7 +41,7 @@ abstract class EntityDefinition
     protected $keywordSearchDefinition;
 
     /**
-     * @var FieldCollection|null
+     * @var CompiledFieldCollection|null
      */
     protected $primaryKeys;
 
@@ -97,7 +93,7 @@ abstract class EntityDefinition
 
     abstract public function getEntityName(): string;
 
-    public function getFields(): FieldCollection
+    final public function getFields(): CompiledFieldCollection
     {
         if ($this->fields !== null) {
             return $this->fields;
@@ -113,7 +109,6 @@ abstract class EntityDefinition
             $new = new FieldCollection();
 
             $extension->extendFields($new);
-            $new->compile($this->registry);
 
             /** @var Field $field */
             foreach ($new as $field) {
@@ -122,11 +117,13 @@ abstract class EntityDefinition
             }
         }
 
-        $fields->compile($this->registry);
+        foreach ($this->getBaseFields() as $baseField) {
+            $fields->add($baseField);
+        }
 
         foreach ($fields as $field) {
             if ($field instanceof TranslationsAssociationField) {
-                $this->translationDefinition = $field->getReferenceDefinition();
+                $this->translationField = $field;
                 $fields->add(
                     (new JsonField('translated', 'translated'))->addFlags(new Computed(), new Deferred())
                 );
@@ -134,7 +131,7 @@ abstract class EntityDefinition
             }
         }
 
-        $this->fields = $fields;
+        $this->fields = $fields->compile($this->registry);
 
         return $this->fields;
     }
@@ -169,10 +166,14 @@ abstract class EntityDefinition
         // value is initialized from this method
         $this->getFields();
 
-        return $this->translationDefinition;
+        if ($this->translationField === null) {
+            return null;
+        }
+
+        return $this->translationField->getReferenceDefinition();
     }
 
-    final public function getPrimaryKeys(): FieldCollection
+    final public function getPrimaryKeys(): CompiledFieldCollection
     {
         if ($this->primaryKeys !== null) {
             return $this->primaryKeys;
@@ -192,7 +193,8 @@ abstract class EntityDefinition
 
     public function isChildrenAware(): bool
     {
-        return $this->getFields()->filterInstance(ChildrenAssociationField::class)->count() > 0;
+        //used in VersionManager
+        return $this->getFields()->getChildrenAssociationField() !== null;
     }
 
     public function isChildCountAware(): bool
@@ -249,4 +251,9 @@ abstract class EntityDefinition
     }
 
     abstract protected function defineFields(): FieldCollection;
+
+    protected function getBaseFields(): array
+    {
+        return [];
+    }
 }

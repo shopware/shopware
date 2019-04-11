@@ -177,7 +177,7 @@ class CachedEntityReader implements EntityReaderInterface
 
         $tags = $this->cacheKeyGenerator->getAssociatedTags($definition, $entity, $context);
 
-        /* @var string|EntityDefinition $definition */
+        /* @var EntityDefinition $definition */
         $tags[] = 'entity_' . $definition->getEntityName();
 
         //add cache keys for associated data
@@ -213,13 +213,13 @@ class CachedEntityReader implements EntityReaderInterface
         $item->tag($key);
         $item->expiresAfter($this->expirationTime);
 
-        $tags = [];
+        $tagsOfTags = [[]];
         foreach ($entityCollection as $entity) {
-            $tags = array_merge($tags, $this->cacheKeyGenerator->getAssociatedTags($definition, $entity, $context));
+            $tagsOfTags[] = $this->cacheKeyGenerator->getAssociatedTags($definition, $entity, $context);
         }
 
-        $fieldTags = $this->cacheKeyGenerator->getSearchTags($definition, $criteria);
-        $tags = array_merge($tags, $fieldTags);
+        $tagsOfTags[] = $this->cacheKeyGenerator->getSearchTags($definition, $criteria);
+        $tags = array_merge(...$tagsOfTags);
 
         //add cache keys for associated data
         $item->tag(array_keys(array_flip($tags)));

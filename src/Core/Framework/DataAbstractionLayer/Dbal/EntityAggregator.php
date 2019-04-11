@@ -7,7 +7,6 @@ use Doctrine\DBAL\FetchMode;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
-use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\FieldSerializerRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Aggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\AggregationResult;
@@ -54,10 +53,6 @@ class EntityAggregator implements EntityAggregatorInterface
     private $queryHelper;
 
     /**
-     * @var FieldSerializerRegistry
-     */
-    private $fieldSerializerRegistry;
-    /**
      * @var DefinitionInstanceRegistry
      */
     private $registry;
@@ -67,14 +62,12 @@ class EntityAggregator implements EntityAggregatorInterface
         EntityReaderInterface $reader,
         SqlQueryParser $queryParser,
         EntityDefinitionQueryHelper $queryHelper,
-        FieldSerializerRegistry $fieldSerializerRegistry,
         DefinitionInstanceRegistry $registry
     ) {
         $this->connection = $connection;
         $this->reader = $reader;
         $this->queryParser = $queryParser;
         $this->queryHelper = $queryHelper;
-        $this->fieldSerializerRegistry = $fieldSerializerRegistry;
         $this->registry = $registry;
     }
 
@@ -234,7 +227,7 @@ class EntityAggregator implements EntityAggregatorInterface
         $data = $this->mapResult($definition, $aggregation, $data, function (array $current, array $row) use ($field) {
             $value = $row['key'];
             try {
-                $value = $this->fieldSerializerRegistry->decode($field, $value);
+                $value = $field->getSerializer()->decode($field, $value);
             } catch (\Throwable $e) {
                 $value = $this->tryToCast($value);
             }
@@ -311,7 +304,7 @@ class EntityAggregator implements EntityAggregatorInterface
         $data = $this->mapResult($definition, $aggregation, $data, function (array $current, array $row) use ($field) {
             $value = $row['value'];
             try {
-                $value = $this->fieldSerializerRegistry->decode($field, $value);
+                $value = $field->getSerializer()->decode($field, $value);
             } catch (\Throwable $e) {
                 $value = $this->tryToCast($value);
             }
@@ -407,7 +400,7 @@ class EntityAggregator implements EntityAggregatorInterface
             $id = '';
             foreach ($aggregation->getGroupByFields() as $groupByField) {
                 $field = $this->queryHelper->getField($groupByField, $definition, $definition->getEntityName());
-                $key[$groupByField] = $this->fieldSerializerRegistry->decode($field, $row[$groupByField]);
+                $key[$groupByField] = $field->getSerializer()->decode($field, $row[$groupByField]);
                 $id .= $row[$groupByField];
                 unset($row[$groupByField]);
             }

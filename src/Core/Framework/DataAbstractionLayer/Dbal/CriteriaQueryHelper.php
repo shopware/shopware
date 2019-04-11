@@ -103,7 +103,6 @@ trait CriteriaQueryHelper
 
     protected function addSortings(EntityDefinitionQueryHelper $queryHelper, EntityDefinition $definition, Criteria $criteria, QueryBuilder $query, Context $context): void
     {
-        /* @var string|EntityDefinition $definition */
         foreach ($criteria->getSorting() as $sorting) {
             $this->validateSortingDirection($sorting->getDirection());
 

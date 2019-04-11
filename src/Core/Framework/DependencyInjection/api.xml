@@ -225,7 +225,7 @@
 
         <service id="Shopware\Core\Framework\Api\Route\ApiRouteLoader">
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\SalesChannelDefinitionInstanceRegistry"/>
+            <argument type="service" id="Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInstanceRegistry"/>
             <tag name="routing.loader"/>
         </service>
 

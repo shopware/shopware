@@ -4,7 +4,6 @@ namespace Shopware\Core\Content\Category;
 
 use Shopware\Core\Content\Category\Aggregate\CategoryTag\CategoryTagDefinition;
 use Shopware\Core\Content\Category\Aggregate\CategoryTranslation\CategoryTranslationDefinition;
-use Shopware\Core\Content\Category\SalesChannel\SalesChannelCategoryDefinition;
 use Shopware\Core\Content\Cms\CmsPageDefinition;
 use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductCategory\ProductCategoryDefinition;

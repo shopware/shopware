@@ -35,7 +35,7 @@
         </service>
 
         <service id="Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscountRule\PromotionDiscountRuleDefinition">
-            <tag name="shopware.entity.definition"/>
+            <tag name="shopware.entity.definition" entity="promotion_discount_rule"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Promotion\Aggregate\PromotionTranslation\PromotionTranslationDefinition">

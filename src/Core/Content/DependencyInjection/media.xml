@@ -81,8 +81,6 @@
             <argument type="service" id="media_folder_configuration.repository"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator"/>
             <argument type="service" id="shopware.cache"/>
-            <argument type="service" id="Shopware\Core\Content\Media\Aggregate\MediaFolder\MediaFolderDefinition"/>
-            <argument type="service" id="Shopware\Core\Content\Media\Aggregate\MediaFolderConfiguration\MediaFolderConfigurationDefinition"/>
             <tag name="shopware.dbal_indexing.indexer" priority="500"/>
         </service>
 

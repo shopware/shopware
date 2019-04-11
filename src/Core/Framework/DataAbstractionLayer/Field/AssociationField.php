@@ -5,7 +5,7 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 
-class AssociationField extends Field
+abstract class AssociationField extends Field
 {
     /**
      * @var string
@@ -27,6 +27,8 @@ class AssociationField extends Field
         if ($this->referenceDefinition !== null) {
             return;
         }
+
+        parent::compile($registry);
 
         $this->referenceDefinition = $registry->get($this->referenceClass);
     }

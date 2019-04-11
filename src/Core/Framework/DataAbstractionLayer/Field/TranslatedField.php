@@ -2,6 +2,8 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Field;
 
+use Shopware\Core\Framework\DataAbstractionLayer\Dbal\FieldResolver\TranslationFieldResolver;
+use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\TranslatedFieldSerializer;
 use Shopware\Core\Framework\Language\LanguageDefinition;
 
 class TranslatedField extends Field
@@ -38,5 +40,15 @@ class TranslatedField extends Field
     public function getForeignFieldName(): string
     {
         return $this->foreignFieldName;
+    }
+
+    protected function getSerializerClass(): string
+    {
+        return TranslatedFieldSerializer::class;
+    }
+
+    protected function getResolverClass(): ?string
+    {
+        return TranslationFieldResolver::class;
     }
 }

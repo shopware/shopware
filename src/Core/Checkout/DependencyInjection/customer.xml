@@ -58,7 +58,6 @@
             <argument type="service" id="Shopware\Core\Framework\Validation\DataValidator"/>
             <argument type="service" id="Shopware\Core\Checkout\Customer\Validation\CustomerValidationService"/>
             <argument type="service" id="Shopware\Core\Checkout\Customer\Validation\AddressValidationService"/>
-            <argument type="service" id="Shopware\Core\Checkout\Customer\CustomerDefinition"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Customer\SalesChannel\AddressService">

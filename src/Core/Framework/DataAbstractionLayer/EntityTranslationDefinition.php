@@ -19,23 +19,6 @@ abstract class EntityTranslationDefinition extends EntityDefinition
         return parent::getParentDefinition();
     }
 
-    public function getFields(): FieldCollection
-    {
-        if ($this->fields !== null) {
-            return $this->fields;
-        }
-
-        $fields = parent::getFields();
-        foreach ($this->getBaseFields() as $field) {
-            $fields->add($field);
-        }
-
-        $fields->compile($this->registry);
-        $this->fields = $fields;
-
-        return $this->fields;
-    }
-
     public function isVersionAware(): bool
     {
         return $this->getParentDefinition()->isVersionAware();
@@ -63,7 +46,7 @@ abstract class EntityTranslationDefinition extends EntityDefinition
     /**
      * @return Field[]
      */
-    private function getBaseFields(): array
+    protected function getBaseFields(): array
     {
         $translatedDefinition = $this->getParentDefinition();
         $entityName = $translatedDefinition->getEntityName();

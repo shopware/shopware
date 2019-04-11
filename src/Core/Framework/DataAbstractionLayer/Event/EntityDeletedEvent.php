@@ -15,7 +15,6 @@ class EntityDeletedEvent extends EntityWrittenEvent
     ) {
         parent::__construct($definition, $writeResult, $context, $errors);
 
-        /* @var string|EntityDefinition $definition */
         $this->name = $definition->getEntityName() . '.deleted';
     }
 }

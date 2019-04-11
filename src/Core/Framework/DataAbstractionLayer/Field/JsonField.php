@@ -2,6 +2,9 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Field;
 
+use Shopware\Core\Framework\DataAbstractionLayer\Dbal\FieldAccessorBuilder\JsonFieldAccessorBuilder;
+use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\JsonFieldSerializer;
+
 class JsonField extends Field implements StorageAware
 {
     /**
@@ -43,5 +46,15 @@ class JsonField extends Field implements StorageAware
     public function getDefault(): ?array
     {
         return $this->default;
+    }
+
+    protected function getSerializerClass(): string
+    {
+        return JsonFieldSerializer::class;
+    }
+
+    protected function getAccessorBuilderClass(): ?string
+    {
+        return JsonFieldAccessorBuilder::class;
     }
 }

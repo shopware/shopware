@@ -6,7 +6,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\ExtensionRegistry;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\ActionEventCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\EntityCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\FeatureFlagCompilerPass;
-use Shopware\Core\Framework\DependencyInjection\CompilerPass\SalesChannelEntityCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\FrameworkExtension;
 use Shopware\Core\Framework\Migration\MigrationCompilerPass;
 use Symfony\Component\Config\FileLocator;
@@ -55,7 +54,6 @@ class Framework extends Bundle
 
         $container->addCompilerPass(new FeatureFlagCompilerPass(), PassConfig::TYPE_BEFORE_OPTIMIZATION);
         $container->addCompilerPass(new EntityCompilerPass());
-        $container->addCompilerPass(new SalesChannelEntityCompilerPass());
         $container->addCompilerPass(new MigrationCompilerPass(), PassConfig::TYPE_AFTER_REMOVING);
         $container->addCompilerPass(new ActionEventCompilerPass());
 
@@ -66,7 +64,6 @@ class Framework extends Bundle
     {
         parent::boot();
 
-        // @todo@jp wastefull
         /** @var ExtensionRegistry $registry */
         $registry = $this->container->get(ExtensionRegistry::class);
         foreach ($registry->getExtensions() as $extension) {

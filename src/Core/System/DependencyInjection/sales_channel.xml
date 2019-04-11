@@ -30,7 +30,7 @@
         </service>
 
         <service id="Shopware\Core\System\SalesChannel\Aggregate\SalesChannelPaymentMethod\SalesChannelPaymentMethodDefinition">
-            <tag name="shopware.sales_channel.entity.definition" entity="sales_channel_payment_method"/>
+            <tag name="shopware.entity.definition" entity="sales_channel_payment_method"/>
         </service>
 
         <service id="Shopware\Core\System\SalesChannel\Aggregate\SalesChannelShippingMethod\SalesChannelShippingMethodDefinition">
@@ -93,6 +93,14 @@
             <argument type="service" id="snippet_set.repository"/>
 
             <tag name="console.command"/>
+        </service>
+
+        <service id="Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInstanceRegistry" public="true">
+            <argument type="string"/>
+            <argument type="collection"/>
+            <argument type="service" id="service_container" />
+            <argument type="collection"/>
+            <argument type="collection"/>
         </service>
 
     </services>

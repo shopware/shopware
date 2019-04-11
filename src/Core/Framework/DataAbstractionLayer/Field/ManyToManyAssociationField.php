@@ -2,8 +2,10 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Field;
 
+use Shopware\Core\Framework\DataAbstractionLayer\Dbal\FieldResolver\ManyToManyAssociationFieldResolver;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\ManyToManyAssociationFieldSerializer;
 
 class ManyToManyAssociationField extends AssociationField
 {
@@ -106,5 +108,15 @@ class ManyToManyAssociationField extends AssociationField
     public function getReferenceField(): string
     {
         return $this->referenceColumn;
+    }
+
+    protected function getSerializerClass(): string
+    {
+        return ManyToManyAssociationFieldSerializer::class;
+    }
+
+    protected function getResolverClass(): ?string
+    {
+        return ManyToManyAssociationFieldResolver::class;
     }
 }

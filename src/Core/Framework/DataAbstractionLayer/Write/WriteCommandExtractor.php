@@ -15,7 +15,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\WriteProtected;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StorageAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\UpdatedAtField;
-use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\FieldSerializerRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\InsertCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\JsonUpdateCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\UpdateCommand;
@@ -41,17 +40,9 @@ class WriteCommandExtractor
      */
     private $entityExistenceGateway;
 
-    /**
-     * @var FieldSerializerRegistry
-     */
-    private $fieldHandler;
-
-    public function __construct(
-        EntityWriteGatewayInterface $entityExistenceGateway,
-        FieldSerializerRegistry $fieldHandler
-    ) {
+    public function __construct(EntityWriteGatewayInterface $entityExistenceGateway)
+    {
         $this->entityExistenceGateway = $entityExistenceGateway;
-        $this->fieldHandler = $fieldHandler;
     }
 
     public function extract(array $rawData, WriteParameterBag $parameters): array
@@ -137,7 +128,7 @@ class WriteCommandExtractor
                     $this->validateContextHasPermission($field, $kvPair, $parameters);
                 }
 
-                $values = $this->fieldHandler->encode($field, $existence, $kvPair, $parameters);
+                $values = $field->getSerializer()->encode($field, $existence, $kvPair, $parameters);
 
                 foreach ($values as $fieldKey => $fieldValue) {
                     $stack->update($fieldKey, $fieldValue);

@@ -88,7 +88,6 @@ class DefinitionValidator
     {
         $violations = [];
 
-        /** @var string|EntityDefinition $definition */
         foreach ($this->registry->getDefinitions() as $definition) {
             // ignore definitions from a test namespace
             if (preg_match('/.*\\Test\\.*/', $definition->getClass())) {
@@ -315,7 +314,7 @@ class DefinitionValidator
         return array_merge($properties, $functionViolations);
     }
 
-    private function validateAssociations(EntityDefinition  $definition): array
+    private function validateAssociations(EntityDefinition $definition): array
     {
         $violations = [];
 
@@ -568,7 +567,7 @@ class DefinitionValidator
             $violations[$mapping->getClass()][] = sprintf('Field %s in definition %s has to be defined as FkField', $column, $mapping->getClass());
         }
 
-        if ($fk instanceof FkField && $fk->getReferenceDefinition()->getClass() !== $association->getToManyReferenceDefinition()->getClass()) {
+        if ($fk instanceof FkField && $fk->getReferenceDefinition() !== $association->getToManyReferenceDefinition()) {
             $violations[$definition->getClass()][] = sprintf(
                 'Reference column %s of field %s should map to definition %s',
                 $fk->getPropertyName(),
@@ -588,7 +587,7 @@ class DefinitionValidator
             );
         }
 
-        /** @var string|EntityDefinition $definition */
+        /** @var EntityDefinition $definition */
         if ($definition->isVersionAware() && $reference->isVersionAware()) {
             $versionField = $mapping->getFields()->filter(function (Field $field) use ($definition) {
                 return $field instanceof ReferenceVersionField && $field->getVersionReferenceDefinition() === $definition;

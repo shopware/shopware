@@ -2,10 +2,16 @@
 
 namespace Shopware\Core\Content\DeliveryTime\Aggregate\DeliveryTimeTranslation;
 
+use Shopware\Core\Content\DeliveryTime\DeliveryTimeEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\TranslationEntity;
 
 class DeliveryTimeTranslationEntity extends TranslationEntity
 {
+    /**
+     * @var DeliveryTimeEntity
+     */
+    protected $deliveryTime;
+
     /**
      * @var string
      */
@@ -30,6 +36,16 @@ class DeliveryTimeTranslationEntity extends TranslationEntity
      * @var array|null
      */
     protected $customFields;
+
+    public function getDeliveryTime(): DeliveryTimeEntity
+    {
+        return $this->deliveryTime;
+    }
+
+    public function setDeliveryTime(DeliveryTimeEntity $deliveryTime): void
+    {
+        $this->deliveryTime = $deliveryTime;
+    }
 
     public function getDeliveryTimeId(): string
     {

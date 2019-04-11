@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Field;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
+use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\VersionFieldSerializer;
 use Shopware\Core\Framework\Version\VersionDefinition;
 
 class VersionField extends FkField
@@ -13,5 +14,10 @@ class VersionField extends FkField
         parent::__construct('version_id', 'versionId', VersionDefinition::class);
 
         $this->addFlags(new PrimaryKey(), new Required());
+    }
+
+    protected function getSerializerClass(): string
+    {
+        return VersionFieldSerializer::class;
     }
 }

@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer\Field;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
+use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\CartPriceFieldSerializer;
 
 class CartPriceField extends JsonField
 {
@@ -18,5 +19,10 @@ class CartPriceField extends JsonField
         ];
 
         parent::__construct($storageName, $propertyName, $propertyMapping);
+    }
+
+    protected function getSerializerClass(): string
+    {
+        return CartPriceFieldSerializer::class;
     }
 }

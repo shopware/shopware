@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer;
 
+use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidSerializerFieldException;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ListField;
@@ -29,14 +30,14 @@ class ListFieldSerializer implements FieldSerializerInterface
     protected $validator;
 
     /**
-     * @var FieldSerializerRegistry
+     * @var DefinitionInstanceRegistry
      */
     protected $compositeHandler;
 
     public function __construct(
         ConstraintBuilder $constraintBuilder,
         ValidatorInterface $validator,
-        FieldSerializerRegistry $compositeHandler
+        DefinitionInstanceRegistry $compositeHandler
     ) {
         $this->constraintBuilder = $constraintBuilder;
         $this->validator = $validator;
@@ -98,6 +99,7 @@ class ListFieldSerializer implements FieldSerializerInterface
 
         /** @var Field $listField */
         $listField = new $fieldType('key', 'key');
+        $listField->compile($this->compositeHandler);
 
         $nestedParameters = $parameters->cloneForSubresource(
             $parameters->getDefinition(),
@@ -108,7 +110,7 @@ class ListFieldSerializer implements FieldSerializerInterface
             try {
                 $kvPair = new KeyValuePair((string) $i, $value, true);
 
-                $x = $this->compositeHandler->encode($listField, $existence, $kvPair, $nestedParameters);
+                $x = $listField->getSerializer()->encode($listField, $existence, $kvPair, $nestedParameters);
                 iterator_to_array($x);
             } catch (InvalidFieldException $exception) {
                 $exceptions[] = $exception;

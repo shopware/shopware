@@ -164,9 +164,8 @@ abstract class Collection extends Struct implements \IteratorAggregate, \Countab
             return;
         }
 
-        $elementClass = get_class($element);
-
         if (!$element instanceof $expectedClass) {
+            $elementClass = get_class($element);
             throw new \InvalidArgumentException(
                 sprintf('Expected collection element of type %s got %s', $expectedClass, $elementClass)
             );

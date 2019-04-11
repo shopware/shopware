@@ -149,7 +149,7 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
                 continue;
             }
 
-            /* @var string|EntityDefinition $definition */
+            /* @var EntityDefinition $definition */
             try {
                 $definition->getEntityName();
             } catch (\Exception $e) {

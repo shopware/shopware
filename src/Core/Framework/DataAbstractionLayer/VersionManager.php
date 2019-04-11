@@ -124,7 +124,6 @@ class VersionManager
     {
         $writtenEvent = $this->entityWriter->upsert($definition, $rawData, $writeContext);
 
-        /** @var string|EntityDefinition $definition */
         if ($definition->isVersionAware()) {
             $this->writeAuditLog($writtenEvent, $writeContext, __FUNCTION__);
         }
@@ -332,10 +331,6 @@ class VersionManager
         return $this->entityWriter->insert($definition, [$data], $versionContext);
     }
 
-    /**
-     * @todo@jp removed second EntityDefinition parameter
-     * @todo@jp move $keepIds as first check (bool is fast)
-     */
     private function filterPropertiesForClone(EntityDefinition $definition, array $data, bool $keepIds, string $cloneId, EntityDefinition $cloneDefinition, Context $context): array
     {
         $extensions = [];
@@ -369,7 +364,7 @@ class VersionManager
                 continue;
             }
 
-            if ($field instanceof ParentFkField && !$keepIds) {
+            if (!$keepIds && $field instanceof ParentFkField) {
                 continue;
             }
 

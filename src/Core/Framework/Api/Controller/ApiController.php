@@ -313,7 +313,7 @@ class ApiController extends AbstractController
 
         $first = array_shift($pathSegments);
 
-        /* @var string|EntityDefinition $definition */
+        /* @var EntityDefinition $definition */
         if (\count($pathSegments) === 0) {
             //first api level call /product/{id}
             $definition = $first['definition'];

@@ -128,7 +128,6 @@ EOF;
 
         $uses = [];
 
-        /** @var string|EntityDefinition $definition */
         foreach ($definition->getFields() as $field) {
             $property = $this->generateProperty($definition, $field);
             if (!$property) {
@@ -176,7 +175,6 @@ EOF;
 
         $uses = [];
 
-        /* @var string|EntityDefinition $definition */
         switch (true) {
             case $field instanceof ParentAssociationField:
                 $uses[] = $this->getUsage($definition->getEntityClass());

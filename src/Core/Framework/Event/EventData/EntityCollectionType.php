@@ -2,12 +2,10 @@
 
 namespace Shopware\Core\Framework\Event\EventData;
 
-use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
-
 class EntityCollectionType implements EventDataType
 {
     /**
-     * @var string|EntityDefinition
+     * @var string
      */
     private $definitionClass;
 

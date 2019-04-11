@@ -2,6 +2,8 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Field;
 
+use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\StringFieldSerializer;
+
 class StringField extends Field implements StorageAware
 {
     /**
@@ -29,5 +31,10 @@ class StringField extends Field implements StorageAware
     public function getMaxLength(): int
     {
         return $this->maxLength;
+    }
+
+    protected function getSerializerClass(): string
+    {
+        return StringFieldSerializer::class;
     }
 }

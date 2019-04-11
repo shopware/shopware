@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer;
 
+use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidSerializerFieldException;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
@@ -22,6 +23,9 @@ class JsonFieldSerializer implements FieldSerializerInterface
 {
     use FieldValidatorTrait;
 
+    /**
+     * @var DefinitionInstanceRegistry
+     */
     protected $fieldHandlerRegistry;
 
     /**
@@ -35,11 +39,11 @@ class JsonFieldSerializer implements FieldSerializerInterface
     protected $validator;
 
     public function __construct(
-        FieldSerializerRegistry $compositeHandler,
+        DefinitionInstanceRegistry $definitionRegistry,
         ConstraintBuilder $constraintBuilder,
         ValidatorInterface $validator
     ) {
-        $this->fieldHandlerRegistry = $compositeHandler;
+        $this->fieldHandlerRegistry = $definitionRegistry;
         $this->constraintBuilder = $constraintBuilder;
         $this->validator = $validator;
     }
@@ -113,7 +117,8 @@ class JsonFieldSerializer implements FieldSerializerInterface
                 ? self::encodeJson($raw[$key])
                 : $raw[$key];
 
-            $decodedValue = $this->fieldHandlerRegistry->decode($embedded, $value);
+            $embedded->compile($this->fieldHandlerRegistry);
+            $decodedValue = $embedded->getSerializer()->decode($embedded, $value);
             if ($decodedValue instanceof \DateTimeInterface) {
                 $decodedValue = $decodedValue->format(\DateTime::ATOM);
             }
@@ -191,7 +196,8 @@ class JsonFieldSerializer implements FieldSerializerInterface
             }
 
             try {
-                $encoded = $this->fieldHandlerRegistry->encode($nestedField, $existence, $kvPair, $nestedParams);
+                $nestedField->compile($this->fieldHandlerRegistry);
+                $encoded = $nestedField->getSerializer()->encode($nestedField, $existence, $kvPair, $nestedParams);
 
                 foreach ($encoded as $fieldKey => $fieldValue) {
                     if ($nestedField instanceof JsonField) {

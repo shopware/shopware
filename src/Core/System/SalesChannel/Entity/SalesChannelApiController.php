@@ -4,7 +4,6 @@ namespace Shopware\Core\System\SalesChannel\Entity;
 
 use Shopware\Core\Framework\Api\Exception\ResourceNotFoundException;
 use Shopware\Core\Framework\Api\Response\ResponseFactoryInterface;
-use Shopware\Core\Framework\DataAbstractionLayer\SalesChannelDefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
 use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
@@ -45,8 +44,7 @@ class SalesChannelApiController
     {
         $entity = $this->urlToSnakeCase($entity);
 
-        /** @var SalesChannelRepository $repository */
-        $repository = $this->registry->getRepository($entity);
+        $repository = $this->registry->getSalesChannelRepository($entity);
 
         /** @var SalesChannelDefinitionInterface $definition */
         $definition = $this->registry->getByEntityName($entity);
@@ -68,8 +66,7 @@ class SalesChannelApiController
     {
         $entity = $this->urlToSnakeCase($entity);
 
-        /** @var SalesChannelRepository $repository */
-        $repository = $this->registry->getRepository($entity);
+        $repository = $this->registry->getSalesChannelRepository($entity);
         $definition = $this->registry->getByEntityName($entity);
 
         if (!Uuid::isValid($id)) {
@@ -94,8 +91,7 @@ class SalesChannelApiController
     {
         $entity = $this->urlToSnakeCase($entity);
 
-        /** @var SalesChannelRepository $repository */
-        $repository = $this->registry->getRepository($entity);
+        $repository = $this->registry->getSalesChannelRepository($entity);
         $definition = $this->registry->getByEntityName($entity);
 
         $criteria = new Criteria();

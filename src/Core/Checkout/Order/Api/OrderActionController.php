@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Checkout\Order\Api;
 
-use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Order\OrderStates;
 use Shopware\Core\Framework\Api\Exception\ResourceNotFoundException;
@@ -30,19 +29,13 @@ class OrderActionController extends AbstractController
      * @var StateMachineRegistry
      */
     protected $stateMachineRegistry;
-    /**
-     * @var OrderDefinition
-     */
-    private $orderDefinition;
 
     public function __construct(
         EntityRepositoryInterface $orderRepository,
-        StateMachineRegistry $stateMachineRegistry,
-        OrderDefinition $orderDefinition
+        StateMachineRegistry $stateMachineRegistry
     ) {
         $this->orderRepository = $orderRepository;
         $this->stateMachineRegistry = $stateMachineRegistry;
-        $this->orderDefinition = $orderDefinition;
     }
 
     /**
@@ -61,10 +54,12 @@ class OrderActionController extends AbstractController
             'version' => $request->get('version'),
         ]);
 
-        return $this->stateMachineRegistry->buildAvailableTransitionsJsonResponse(OrderStates::STATE_MACHINE,
+        return $this->stateMachineRegistry->buildAvailableTransitionsJsonResponse(
+            OrderStates::STATE_MACHINE,
             $order->getStateMachineState()->getTechnicalName(),
             $baseUrl,
-            $context);
+            $context
+        );
     }
 
     /**
@@ -86,7 +81,7 @@ class OrderActionController extends AbstractController
 
         $toPlace = $this->stateMachineRegistry->transition($this->stateMachineRegistry->getStateMachine(OrderStates::STATE_MACHINE, $context),
             $order->getStateMachineState(),
-            $this->orderDefinition->getEntityName(),
+            $this->orderRepository->getDefinition()->getEntityName(),
             $order->getId(),
             $context,
             $transition);
@@ -99,7 +94,7 @@ class OrderActionController extends AbstractController
         $order->setStateMachineState($toPlace);
         $order->setStateId($toPlace->getId());
 
-        return $responseFactory->createDetailResponse($order, $this->orderDefinition, $request, $context);
+        return $responseFactory->createDetailResponse($order, $this->orderRepository->getDefinition(), $request, $context);
     }
 
     /**
@@ -111,7 +106,7 @@ class OrderActionController extends AbstractController
         $result = $this->orderRepository->search(new Criteria([$id]), $context);
 
         if ($result->count() === 0) {
-            throw new ResourceNotFoundException($this->orderDefinition->getEntityName(), ['id' => $id]);
+            throw new ResourceNotFoundException($this->orderRepository->getDefinition()->getEntityName(), ['id' => $id]);
         }
 
         return $result->first();

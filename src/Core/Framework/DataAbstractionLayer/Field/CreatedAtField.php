@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer\Field;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
+use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\CreatedAtFieldSerializer;
 
 class CreatedAtField extends DateField
 {
@@ -10,5 +11,10 @@ class CreatedAtField extends DateField
     {
         parent::__construct('created_at', 'createdAt');
         $this->addFlags(new Required());
+    }
+
+    protected function getSerializerClass(): string
+    {
+        return CreatedAtFieldSerializer::class;
     }
 }

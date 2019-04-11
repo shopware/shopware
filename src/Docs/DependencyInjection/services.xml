@@ -9,7 +9,7 @@
             <tag name="console.command"/>
         </service>
         <service id="Shopware\Docs\Command\DocsDumpErd">
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionRegistry"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
             <argument type="service" id="Shopware\Docs\Inspection\ErdGenerator"/>
             <tag name="console.command"/>
         </service>

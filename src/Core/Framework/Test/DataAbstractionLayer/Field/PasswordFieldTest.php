@@ -37,7 +37,7 @@ class PasswordFieldTest extends TestCase
     public function testNullableField(): void
     {
         $field = new PasswordField('password', 'password');
-        $existence = new EntityExistence(new UserDefinition(), [], false, false, false, []);
+        $existence = new EntityExistence($this->getContainer()->get(UserDefinition::class), [], false, false, false, []);
         $kvPair = new KeyValuePair('password', null, true);
 
         $passwordFieldHandler = new PasswordFieldSerializer(
@@ -46,7 +46,7 @@ class PasswordFieldTest extends TestCase
         );
 
         $payload = $passwordFieldHandler->encode($field, $existence, $kvPair, new WriteParameterBag(
-            new UserDefinition(),
+            $this->getContainer()->get(UserDefinition::class),
             WriteContext::createFromContext(Context::createDefaultContext()),
             '',
             new WriteCommandQueue(),
@@ -60,7 +60,7 @@ class PasswordFieldTest extends TestCase
     public function testEncoding(): void
     {
         $field = new PasswordField('password', 'password');
-        $existence = new EntityExistence(new UserDefinition(), [], false, false, false, []);
+        $existence = new EntityExistence($this->getContainer()->get(UserDefinition::class), [], false, false, false, []);
         $kvPair = new KeyValuePair('password', 'shopware', true);
 
         $passwordFieldHandler = new PasswordFieldSerializer(
@@ -69,7 +69,7 @@ class PasswordFieldTest extends TestCase
         );
 
         $payload = $passwordFieldHandler->encode($field, $existence, $kvPair, new WriteParameterBag(
-            new UserDefinition(),
+            $this->getContainer()->get(UserDefinition::class),
             WriteContext::createFromContext(Context::createDefaultContext()),
             '',
             new WriteCommandQueue(),
@@ -86,7 +86,7 @@ class PasswordFieldTest extends TestCase
         $field = new PasswordField('password', 'password');
         $field->addFlags(new Required());
 
-        $existence = new EntityExistence(new UserDefinition(), [], false, false, false, []);
+        $existence = new EntityExistence($this->getContainer()->get(UserDefinition::class), [], false, false, false, []);
         $kvPair = new KeyValuePair('password', null, true);
 
         $exception = null;
@@ -94,7 +94,7 @@ class PasswordFieldTest extends TestCase
             $handler = $this->getContainer()->get(PasswordFieldSerializer::class);
 
             $parameters = new WriteParameterBag(
-                new UserDefinition(),
+                $this->getContainer()->get(UserDefinition::class),
                 WriteContext::createFromContext(Context::createDefaultContext()),
                 '',
                 new WriteCommandQueue(),
@@ -115,7 +115,7 @@ class PasswordFieldTest extends TestCase
         $field = new PasswordField('password', 'password');
         $field->addFlags(new Required());
 
-        $existence = new EntityExistence(new UserDefinition(), [], true, false, false, []);
+        $existence = new EntityExistence($this->getContainer()->get(UserDefinition::class), [], true, false, false, []);
         $kvPair = new KeyValuePair('password', null, true);
 
         $exception = null;
@@ -123,7 +123,7 @@ class PasswordFieldTest extends TestCase
             $handler = $this->getContainer()->get(PasswordFieldSerializer::class);
 
             $x = $handler->encode($field, $existence, $kvPair, new WriteParameterBag(
-                new UserDefinition(),
+                $this->getContainer()->get(UserDefinition::class),
                 WriteContext::createFromContext(Context::createDefaultContext()),
                 '',
                 new WriteCommandQueue(),

@@ -25,6 +25,7 @@ class TranslationFieldResolver implements FieldResolverInterface
         }
 
         $chain = EntityDefinitionQueryHelper::buildTranslationChain($root, $context, $definition->isInheritanceAware() && $context->considerInheritance());
+
         foreach ($chain as $part) {
             $this->joinTranslationTable($part, $definition, $query);
         }

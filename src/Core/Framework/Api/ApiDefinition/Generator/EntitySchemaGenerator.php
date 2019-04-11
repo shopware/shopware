@@ -80,7 +80,7 @@ class EntitySchemaGenerator implements ApiDefinitionGeneratorInterface
         $definitions = $this->registry->getDefinitions();
         ksort($definitions);
 
-        /** @var string|EntityDefinition $definition */
+        /** @var EntityDefinition $definition */
         foreach ($definitions as $definition) {
             if (preg_match('/_translation$/', $definition->getEntityName())) {
                 continue;

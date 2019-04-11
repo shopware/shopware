@@ -8,7 +8,6 @@ use Faker\Generator;
 use Shopware\Core\Framework\CustomField\Aggregate\CustomFieldSet\CustomFieldSetDefinition;
 use Shopware\Core\Framework\CustomField\CustomFieldTypes;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
-use Shopware\Core\Framework\DataAbstractionLayer\DefinitionRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\Demodata\DemodataContext;
 use Shopware\Core\Framework\Demodata\DemodataGeneratorInterface;
@@ -29,7 +28,7 @@ class CustomFieldGenerator implements DemodataGeneratorInterface
     private $attributeSets = [];
 
     /**
-     * @var DefinitionRegistry
+     * @var DefinitionInstanceRegistry
      */
     private $definitionRegistry;
 

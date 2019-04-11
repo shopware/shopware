@@ -67,7 +67,7 @@ class SalesChannelCustomerController extends AbstractController
         AccountRegistrationService $accountRegisterService,
         AddressService $addressService,
         CustomerDefinition $customerDefinition
-        ) {
+    ) {
         $this->serializer = $serializer;
         $this->accountService = $accountService;
         $this->salesChannelContextService = $salesChannelContextService;

@@ -6,7 +6,6 @@ use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Media\Aggregate\MediaFolder\MediaFolderDefinition;
 use Shopware\Core\Content\Media\Aggregate\MediaFolder\MediaFolderEntity;
 use Shopware\Core\Content\Media\Aggregate\MediaFolderConfiguration\MediaFolderConfigurationCollection;
-use Shopware\Core\Content\Media\Aggregate\MediaFolderConfiguration\MediaFolderConfigurationDefinition;
 use Shopware\Core\Content\Media\Aggregate\MediaFolderConfigurationMediaThumbnailSize\MediaFolderConfigurationMediaThumbnailSizeDefinition;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
@@ -49,32 +48,18 @@ class MediaFolderConfigIndexer implements IndexerInterface
      */
     private $folderConfigRepository;
 
-    /**
-     * @var MediaFolderConfigurationDefinition
-     */
-    private $mediaFolderConfigurationDefinition;
-
-    /**
-     * @var MediaFolderDefinition
-     */
-    private $mediaFolderDefinition;
-
     public function __construct(
         Connection $connection,
         EntityRepositoryInterface $folderRepository,
         EntityRepositoryInterface $folderConfigRepository,
         EntityCacheKeyGenerator $cacheKeyGenerator,
-        TagAwareAdapter $cache,
-        MediaFolderDefinition $mediaFolderDefinition,
-        MediaFolderConfigurationDefinition $mediaFolderConfigurationDefinition
+        TagAwareAdapter $cache
     ) {
         $this->connection = $connection;
         $this->folderRepository = $folderRepository;
         $this->folderConfigRepository = $folderConfigRepository;
         $this->cacheKeyGenerator = $cacheKeyGenerator;
         $this->cache = $cache;
-        $this->mediaFolderConfigurationDefinition = $mediaFolderConfigurationDefinition;
-        $this->mediaFolderDefinition = $mediaFolderDefinition;
     }
 
     public function index(\DateTimeInterface $timestamp): void
@@ -180,7 +165,7 @@ class MediaFolderConfigIndexer implements IndexerInterface
 
         $tags = array_map(function ($id) {
             return $this->cacheKeyGenerator
-                ->getEntityTag(Uuid::fromBytesToHex($id), $this->mediaFolderDefinition);
+                ->getEntityTag(Uuid::fromBytesToHex($id), $this->folderRepository->getDefinition());
         }, $ids);
 
         $this->cache->invalidateTags($tags);
@@ -208,10 +193,11 @@ class MediaFolderConfigIndexer implements IndexerInterface
         /** @var MediaFolderConfigurationCollection $configs */
         $configs = $this->folderConfigRepository->search($criteria, $context);
         foreach ($configs as $config) {
-            $cacheIds[] = $this->cacheKeyGenerator->getEntityTag($config->getId(), $this->mediaFolderConfigurationDefinition);
+            $cacheIds[] = $this->cacheKeyGenerator
+                ->getEntityTag($config->getId(), $this->folderConfigRepository->getDefinition());
 
             $this->connection->update(
-                $this->mediaFolderConfigurationDefinition->getEntityName(),
+                $this->folderConfigRepository->getDefinition()->getEntityName(),
                 ['media_thumbnail_sizes_ro' => serialize($config->getMediaThumbnailSizes())],
                 ['id' => Uuid::fromHexToBytes($config->getId())]
             );

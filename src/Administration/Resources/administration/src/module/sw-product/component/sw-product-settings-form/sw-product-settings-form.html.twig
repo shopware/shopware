@@ -12,14 +12,27 @@
                     </sw-field>
                 {% endblock %}
 
-                {% block sw_product_settings_form_stock_field %}
-                        <sw-field type="number"
-                                numberType="int"
-                                :min="0"
-                                :label="$tc('sw-product.settingsForm.labelStock')"
-                                :placeholder="$tc('sw-product.settingsForm.placeholderStock')"
-                                v-model="product.stock">
-                        </sw-field>
+                {% block sw_product_settings_form_stock_fields %}
+                    <sw-container columns="1fr 1fr" gap="0px 30px">
+                        {% block sw_product_settings_form_stock_field %}
+                                <sw-field type="number"
+                                        numberType="int"
+                                        :min="0"
+                                        :label="$tc('sw-product.settingsForm.labelStock')"
+                                        :placeholder="$tc('sw-product.settingsForm.placeholderStock')"
+                                        v-model="product.stock">
+                                </sw-field>
+                        {% endblock %}
+                        {% block sw_product_settings_form_available_stock_field %}
+                                <sw-field type="number"
+                                        numberType="int"
+                                        :min="0"
+                                        :label="$tc('sw-product.settingsForm.labelAvailableStock')"
+                                        :disabled="true"
+                                        v-model="product.availableStock">
+                                </sw-field>
+                        {% endblock %}
+                    </sw-container>
                 {% endblock %}
             </sw-container>
 

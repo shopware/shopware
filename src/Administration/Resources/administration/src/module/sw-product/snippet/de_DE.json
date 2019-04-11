@@ -59,6 +59,7 @@
       "labelMaxPurchase": "Maximalabnahme",
       "labelEan": "EAN",
       "labelManufacturerNumber": "Herstellernummer",
+      "labelAvailableStock": "Verfügbarer Lagerbestand",
       "labelStock": "Lagerbestand",
       "labelActive": "Aktiv",
       "labelShippingFree": "Versandkostenfrei",

@@ -59,6 +59,7 @@
       "labelMaxPurchase": "Maximum order quantity",
       "labelEan": "EAN",
       "labelManufacturerNumber": "Manufacturer number",
+      "labelAvailableStock": "Available stock",
       "labelStock": "Stock",
       "labelActive": "Active",
       "labelShippingFree": "Free shipping",

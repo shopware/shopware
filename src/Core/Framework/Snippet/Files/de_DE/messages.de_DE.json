@@ -129,6 +129,8 @@
         "addressCreateWelcome": "Neue Adresse erstellen",
         "addressEditWelcome": "Adresse bearbeiten",
         "addressSaveChange": "Adresse speichern",
+        "addressDefaultChanged": "Standardadresse erfolgreich geändert.",
+        "addressDefaultNotChanged": "Standardadresse konnte nicht geändert werden.",
         "ordersWelcome": "Hier finden Sie ihre Bestellungen nach Datum sortiert.",
         "ordersInfoEmpty": "Sie haben noch keine Bestellung durchgeführt.",
         "orderItemColumnDate": "Datum",

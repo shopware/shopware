@@ -27,8 +27,22 @@
             </div>
         {% endblock %}
 
-        {% block page_account_address_success_messages %}{% endblock %}
-        {% block page_account_address_error_messages %}{% endblock %}
+        {% block page_account_address_success_messages %}
+            {% if app.request.get('changedDefaultAddress') == '1' %}
+                {% sw_include '@Storefront/base/_utilities/alert.html.twig' with {
+                    type:"success",
+                    content: "account.addressDefaultChanged"|trans
+                } %}
+            {% endif %}
+        {% endblock %}
+        {% block page_account_address_error_messages %}
+            {% if app.request.get('changedDefaultAddress') == '0' %}
+                {% sw_include '@Storefront/base/_utilities/alert.html.twig' with {
+                    type:"danger",
+                    content: "account.addressDefaultNotChanged"|trans
+                } %}
+            {% endif %}
+        {% endblock %}
 
         {% block page_account_address_main %}
             {% set defaultBillingAddress = page.context.customer.defaultBillingAddressId %}
@@ -67,11 +81,8 @@
                                                 <div class="address-actions-set-defaults">
                                                     {% block page_account_address_item_content_set_default_shipping %}
                                                         {% if defaultShippingAddress != address.id %}
-                                                            <form id="setDefaultShippingAddressForm-{{ loop.index }}"
-                                                                  action="{{ path('sales-channel-api.customer.address.set-default-shipping-address', {'version': 1, 'id': address.id}) }}"
-                                                                  method="post"
-                                                                  data-address-set-default="true">
-                                                                <input name="_method" type="hidden" value="PATCH">
+                                                            <form action="{{ path('frontend.account.address.set-default-address', {'type': 'shipping', 'addressId': address.id}) }}"
+                                                                  method="post">
                                                                 <button type="submit"
                                                                         title="{{ "account.addressesSetAsDefaultShippingAction"|trans }}"
                                                                         class="btn btn-sm">
@@ -83,11 +94,8 @@
 
                                                     {% block page_account_address_item_content_set_default_billing %}
                                                         {% if defaultBillingAddress != address.id %}
-                                                            <form id="setDefaultBillingAddressForm-{{ loop.index }}"
-                                                                  action="{{ path('sales-channel-api.customer.address.set-default-billing-address', {'version': 1, 'id': address.id}) }}"
-                                                                  method="post"
-                                                                  data-address-set-default="true">
-                                                                <input name="_method" type="hidden" value="PATCH">
+                                                            <form action="{{ path('frontend.account.address.set-default-address', {'type': 'billing', 'addressId': address.id}) }}"
+                                                                  method="post">
                                                                 <button type="submit"
                                                                         title="{{ "account.addressesSetAsDefaultBillingAction"|trans }}"
                                                                         class="btn btn-sm">

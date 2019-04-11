@@ -85,6 +85,14 @@
             <argument type="service" id="product.repository"/>
         </service>
 
+        <service id="Shopware\Core\Content\Product\DataAbstractionLayer\Indexing\ProductAvailableStockIndexer">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="Shopware\Core\Content\Product\Service\ProductAvailableStockCalculationService"/>
+            <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="Shopware\Core\Content\Product\Util\EventIdExtractor"/>
+            <tag name="shopware.dbal_indexing.indexer" priority="300"/>
+        </service>
+
         <service id="Shopware\Core\Content\Product\DataAbstractionLayer\Indexing\ProductOptionIndexer">
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\Content\Product\Util\EventIdExtractor"/>
@@ -111,6 +119,10 @@
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>
+        </service>
+
+        <service id="Shopware\Core\Content\Product\Service\ProductAvailableStockCalculationService">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
         </service>
 
         <service id="Shopware\Core\Content\Product\Util\EventIdExtractor"/>

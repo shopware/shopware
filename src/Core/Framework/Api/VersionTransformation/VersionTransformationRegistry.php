@@ -9,23 +9,14 @@ class VersionTransformationRegistry
      */
     private $transformationIndex = [];
 
+    public function __construct(iterable $transformations)
+    {
+        $this->buildTransformationIndex($transformations);
+    }
+
     public function getTransformationIndex(): array
     {
         return $this->transformationIndex;
-    }
-
-    public function buildTransformationIndex(array $transformationClasses): void
-    {
-        $this->transformationIndex = [];
-        foreach ($transformationClasses as $transformationClass) {
-            $version = $transformationClass::getVersion();
-            $this->transformationIndex[$version] = $this->transformationIndex[$version] ?? [];
-
-            $controllerAction = $transformationClass::getControllerAction();
-            $this->transformationIndex[$version][$controllerAction] = $this->transformationIndex[$version][$controllerAction] ?? [];
-            $this->transformationIndex[$version][$controllerAction][] = $transformationClass;
-        }
-        ksort($this->transformationIndex);
     }
 
     public function hasTransformationsForVersionAndAction(int $version, string $action): bool
@@ -53,5 +44,19 @@ class VersionTransformationRegistry
             },
             ARRAY_FILTER_USE_KEY
         );
+    }
+
+    private function buildTransformationIndex(iterable $transformations): void
+    {
+        $this->transformationIndex = [];
+        foreach ($transformations as $transformation) {
+            $version = $transformation->getVersion();
+            $this->transformationIndex[$version] = $this->transformationIndex[$version] ?? [];
+
+            $controllerAction = $transformation->getControllerAction();
+            $this->transformationIndex[$version][$controllerAction] = $this->transformationIndex[$version][$controllerAction] ?? [];
+            $this->transformationIndex[$version][$controllerAction][] = $transformation;
+        }
+        ksort($this->transformationIndex);
     }
 }

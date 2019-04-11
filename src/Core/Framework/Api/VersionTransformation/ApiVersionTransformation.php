@@ -4,7 +4,7 @@ namespace Shopware\Core\Framework\Api\VersionTransformation;
 
 interface ApiVersionTransformation
 {
-    public static function getVersion(): int;
+    public function getVersion(): int;
 
-    public static function getControllerAction(): string;
+    public function getControllerAction(): string;
 }

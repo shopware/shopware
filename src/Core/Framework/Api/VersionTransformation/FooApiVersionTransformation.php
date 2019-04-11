@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\Api\VersionTransformation;
 
-use Shopware\Core\Content\Product\ProductActionController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -16,11 +15,6 @@ class FooApiVersionTransformation implements ApiVersionTransformation
     public function getRoute(): string
     {
         return 'api.action.product.foo';
-    }
-
-    public function getControllerAction(): string
-    {
-        return ProductActionController::class . '::fooLatest';
     }
 
     public function transformRequest(Request $request): void

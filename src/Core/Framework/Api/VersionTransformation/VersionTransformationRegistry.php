@@ -22,17 +22,36 @@ class VersionTransformationRegistry
             $this->transformationIndex[$version] = $this->transformationIndex[$version] ?? [];
 
             $controllerAction = $transformationClass::getControllerAction();
-            $this->transformationIndex[$version][$controllerAction] = $transformationClass;
+            $this->transformationIndex[$version][$controllerAction] = $this->transformationIndex[$version][$controllerAction] ?? [];
+            $this->transformationIndex[$version][$controllerAction][] = $transformationClass;
         }
+        ksort($this->transformationIndex);
     }
 
-    public function hasTransformationsForVersion(string $version): bool
+    public function hasTransformationsForVersionAndAction(int $version, string $action): bool
     {
-        return count($this->getTransformationsForVersion($version)) > 0;
+        return count($this->getTransformationsForVersionAndAction($version, $action)) > 0;
     }
 
-    public function getTransformationsForVersion(string $version): array
+    public function getTransformationsForVersionAndAction(int $version, string $action): array
     {
-        return [];
+        return array_reduce(
+            $this->getTransformationsForVersion($version),
+            function (array $carry, array $item) use ($action) {
+                return array_merge($carry, $item[$action] ?? []);
+            },
+            []
+        );
+    }
+
+    public function getTransformationsForVersion(int $version): array
+    {
+        return array_filter(
+            $this->transformationIndex,
+            function (string $transformationVersion) use ($version) {
+                return $transformationVersion >= $version;
+            },
+            ARRAY_FILTER_USE_KEY
+        );
     }
 }

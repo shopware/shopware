@@ -171,8 +171,8 @@ export default class ImageSliderPlugin extends Plugin {
                     ...this._sliderSettings
                 });
 
-                PluginManager.executePlugin('ImageSlider','[data-magnifier]');
-
+                PluginManager.executePlugin('Magnifier','[data-magnifier]');
+                PluginManager.executePlugin('ZoomModal','[data-zoom-modal]');
             } else {
                 container.style.display = 'none';
             }

@@ -85,7 +85,39 @@ export default class ZoomModalPlugin extends Plugin {
             const parentSliderIndex = this._getParentSliderIndex();
 
             PluginManager.executePlugin('ImageSlider', slider, {
-                startIndex: parentSliderIndex,
+                slider: {
+                    startIndex: parentSliderIndex,
+                },
+                thumbnailSlider: {
+                    startIndex: parentSliderIndex,
+                    responsive: {
+                        xs: {
+                            enabled: true,
+                            center: true,
+                            axis: 'horizontal',
+                        },
+                        sm: {
+                            enabled: true,
+                            center: true,
+                            axis: 'horizontal',
+                        },
+                        md: {
+                            enabled: true,
+                            center: true,
+                            axis: 'horizontal',
+                        },
+                        lg: {
+                            enabled: true,
+                            center: true,
+                            axis: 'horizontal',
+                        },
+                        xl: {
+                            enabled: true,
+                            center: true,
+                            axis: 'horizontal',
+                        },
+                    },
+                }
             });
         }
     }
@@ -114,7 +146,7 @@ export default class ZoomModalPlugin extends Plugin {
         this._parentSliderElement = this._getParentSliderElement();
 
         if (this._parentSliderElement) {
-            this._parentSliderPlugin = PluginManager.getPluginInstance(this._parentSliderElement, 'ImageSlider');
+            this._parentSliderPlugin = PluginManager.getPluginInstanceFromElement(this._parentSliderElement, 'ImageSlider');
 
             if (this._parentSliderPlugin) {
                 sliderIndex = this._parentSliderPlugin.getCurrentSliderIndex();

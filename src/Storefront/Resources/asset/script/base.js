@@ -49,6 +49,9 @@ import FormSubmitLoaderPlugin from 'asset/script/plugin/forms/from-submit-loader
 import OffCanvasTabsPlugin from 'asset/script/plugin/off-canvas-tabs/offcanvas-tabs.plugin';
 import ImageSliderPlugin from 'asset/script/plugin/image-slider/image-slider.plugin';
 import ScrollToInvalidFieldPlugin from 'asset/script/plugin/forms/scroll-to-invalid-field.plugin';
+import ZoomModalPlugin from 'asset/script/plugin/zoom-modal/zoom-modal.plugin';
+import MagnifierPlugin from 'asset/script/plugin/magnifier/magnifier.plugin';
+import ImageZoomPlugin from 'asset/script/plugin/image-zoom/image-zoom.plugin';
 
 /*
 import static plugins
@@ -101,11 +104,13 @@ PluginManager.register('AccountMenu', AccountMenuPlugin, '[data-offcanvas-accoun
 PluginManager.register('OffCanvasTabs', OffCanvasTabsPlugin, '[data-offcanvas-tab]');
 PluginManager.register('ImageSlider', ImageSliderPlugin, '[data-image-slider="true"]');
 PluginManager.register('ScrollToInvalidField', ScrollToInvalidFieldPlugin, 'form');
+PluginManager.register('ZoomModal', ZoomModalPlugin, '[data-zoom-modal="true"]');
+PluginManager.register('Magnifier', MagnifierPlugin, '[data-magnify-lens="true"]');
+PluginManager.register('ImageZoom', ImageZoomPlugin, '[data-magnify-lens="true"]');
 
 /*
 pages
  */
-import 'asset/script/page/product-detail/product-detail.page';
 import 'asset/script/page/account/addressbook.page';
 import 'asset/script/page/account/profile.page';
 

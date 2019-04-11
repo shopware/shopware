@@ -11,9 +11,9 @@ export default class Plugin {
      *
      * @param {HTMLElement} el
      * @param {Object} options
-     * @param {string} instanceName
+     * @param {string} pluginName
      */
-    constructor(el, options = {}, instanceName = false) {
+    constructor(el, options = {}, pluginName = false) {
         if (!DomAccess.isNode(el)) {
             throw new Error('There is no valid element given.');
         }
@@ -21,7 +21,7 @@ export default class Plugin {
         this.el = el;
         this.options = this._mergeOptions(options);
 
-        this._instanceName = instanceName;
+        this._pluginName = pluginName;
 
         this._registerInstance();
         this.init();
@@ -59,14 +59,26 @@ export default class Plugin {
      * @private
      */
     _registerInstance() {
-        const plugins = window.PluginManager.getPluginInstances(this.el);
-        let instanceName = this._instanceName;
+        const pluginName = this._getPluginName();
 
-        if (!instanceName) {
-            instanceName = this.constructor.name;
-        }
+        const elementPluginInstances = window.PluginManager.getPluginInstancesFromElement(this.el);
+        elementPluginInstances.set(pluginName, this);
 
-        plugins.set(instanceName, this);
+        const plugin = window.PluginManager.getPlugin(pluginName);
+        plugin.get('instances').push(this);
+    }
+
+    /**
+     * returns the plugin name
+     *
+     * @returns {string}
+     * @private
+     */
+    _getPluginName() {
+        let pluginName = this._pluginName;
+        if (!pluginName) pluginName = this.constructor.name;
+
+        return pluginName;
     }
 
 }

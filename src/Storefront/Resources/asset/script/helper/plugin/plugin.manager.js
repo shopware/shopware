@@ -24,29 +24,35 @@ import DomAccess from 'asset/script/helper/dom-access.helper';
  * methods:
  *
  * // Registers a plugin to the plugin mananger.
- * PluginManager.register(name: String, pluginClass: Plugin, selector: String | NodeList | HTMLElement, options?: Object): *;
+ * PluginManager.register(pluginName: String, pluginClass: Plugin, selector: String | NodeList | HTMLElement, options?: Object): *;
  *
  * // Removes a plugin from the plugin manager.
- * PluginManager.deregister(name: String): *;
+ * PluginManager.deregister(pluginName: String): *;
  *
  * // Extends an already existing plugin with a new class or function.
  * // If both names are equal, the plugin will be overridden.
  * PluginManager.extend(fromName: String, newName: String, pluginClass: Plugin, selector: String | NodeList | HTMLElement, options?: Object): boolean;
  *
  * // Returns a list of all registered plugins.
- * PluginManager.getPlugins(): *;
+ * PluginManager.getPluginList(): *;
  *
- * // Returns the plugin instance from the passed element selected by plugin Name.
- * PluginManager.getPluginInstance(el: HTMLElement, name: String): Object | null;
+ * // Returns the definition of a plugin.
+ * PluginManager.getPlugin(pluginName: String): Map : null;
+ *
+ * // Returns all registered plugin instances for the passed plugin name.
+ * PluginManager.getPluginInstances(pluginName: String): Map : null;
+ *
+ * // Returns the plugin instance from the passed element selected by plugin mame.
+ * PluginManager.getPluginInstanceFromElement(el: HTMLElement, pluginName: String): Object | null;
  *
  * // Returns all plugin instances from the passed element.
- * PluginManager.getPluginInstances(el: HTMLElement): Map : null;
+ * PluginManager.getPluginInstancesFromElement(el: HTMLElement): Map : null;
  *
  * // Starts all plugins which are currently registered.
  * PluginManager.executePlugins(): *;
  *
  * // Starts a single plugin.
- * PluginManager.executePlugin(name: String|boolean, selector: String | NodeList | HTMLElement, options?: Object): *;
+ * PluginManager.executePlugin(pluginName: String|boolean, selector: String | NodeList | HTMLElement, options?: Object): *;
  *
  */
 class PluginManagerSingleton {
@@ -58,35 +64,35 @@ class PluginManagerSingleton {
     /**
      * Registers a plugin to the plugin mananger.
      *
-     * @param {string} name
+     * @param {string} pluginName
      * @param {Plugin} pluginClass
      * @param {string|NodeList|HTMLElement} selector
      * @param {Object} options
      *
      * @returns {*}
      */
-    register(name, pluginClass, selector = document, options = {}) {
-        if (this._registry.has(name, selector)) {
-            throw new Error(`Plugin "${name}" is already registered.`);
+    register(pluginName, pluginClass, selector = document, options = {}) {
+        if (this._registry.has(pluginName, selector)) {
+            throw new Error(`Plugin "${pluginName}" is already registered.`);
         }
 
-        return this._registry.set(name, pluginClass, selector, options);
+        return this._registry.set(pluginName, pluginClass, selector, options);
     }
 
     /**
      * Removes a plugin from the plugin manager.
      *
-     * @param {string} name
+     * @param {string} pluginName
      * @param {string} selector
      *
      * @returns {*}
      */
-    deregister(name, selector = document) {
-        if (!this._registry.has(name, selector)) {
-            throw new Error(`The plugin "${name}" is not registered.`);
+    deregister(pluginName, selector = document) {
+        if (!this._registry.has(pluginName, selector)) {
+            throw new Error(`The plugin "${pluginName}" is not registered.`);
         }
 
-        return this._registry.delete(name, selector);
+        return this._registry.delete(pluginName, selector);
     }
 
     /**
@@ -117,22 +123,53 @@ class PluginManagerSingleton {
      *
      * @returns {*}
      */
-    getPlugins() {
+    getPluginList() {
         return this._registry.keys();
+    }
+
+    /**
+     * Returns the definition of a plugin.
+     *
+     * @param {string} pluginName
+     *
+     * @returns {Map|null}
+     */
+    getPlugin(pluginName) {
+        if (!pluginName) {
+            throw new Error('A plugin name must be passed!');
+        }
+
+        if (!this._registry.has(pluginName)) {
+            throw new Error(`The plugin "${pluginName}" is not registered. You might need to register it first`);
+        }
+
+        return this._registry.get(pluginName);
+    }
+
+    /**
+     * Returns all registered plugin instances for the passed plugin name.
+     *
+     * @param {string} pluginName
+     * @returns {Map|null}
+     */
+    getPluginInstances(pluginName) {
+        const plugin = this.getPlugin(pluginName);
+
+        return plugin.get('instances');
     }
 
     /**
      * Returns the plugin instance from the passed element selected by plugin Name.
      *
      * @param {HTMLElement} el
-     * @param {String} name
+     * @param {String} pluginName
      *
      * @returns {Object|null}
      */
-    static getPluginInstance(el, name) {
-        const instances = PluginManagerSingleton.getPluginInstances(el);
+    static getPluginInstanceFromElement(el, pluginName) {
+        const instances = PluginManagerSingleton.getPluginInstancesFromElement(el);
 
-        return instances.get(name);
+        return instances.get(pluginName);
     }
 
     /**
@@ -142,7 +179,7 @@ class PluginManagerSingleton {
      *
      * @returns {Map|null}
      */
-    static getPluginInstances(el) {
+    static getPluginInstancesFromElement(el) {
         if (!DomAccess.isNode(el)) {
             throw new Error('Passed element is not an Html element!')
         }
@@ -156,7 +193,7 @@ class PluginManagerSingleton {
      * Starts all plugins which are currently registered.
      */
     executePlugins() {
-        const plugins = Object.keys(this.getPlugins());
+        const plugins = Object.keys(this.getPluginList());
         plugins.forEach((pluginName) => {
             if (pluginName) {
                 if (!this._registry.has(pluginName)) {
@@ -176,19 +213,25 @@ class PluginManagerSingleton {
     /**
      * Starts a single plugin.
      *
-     * @param {Object} name
+     * @param {Object} pluginName
      * @param {String|NodeList|HTMLElement} selector
      * @param {Object} options
      */
-    executePlugin(name, selector, options) {
-        if (!this._registry.has(name, selector)) {
-            throw new Error(`The plugin "${name}" for the selector "${selector}" is not registered.`);
-        }
+    executePlugin(pluginName, selector, options) {
+        let plugin;
+        let pluginClass;
+        let mergedOptions;
 
-        const plugin = this._registry.get(name, selector);
-        const selectorOptions = plugin.get('registrations').get(selector);
-        const pluginClass = plugin.get('class');
-        const mergedOptions = deepmerge(pluginClass.options || {}, deepmerge(selectorOptions.options || {}, options || {}));
+        if (this._registry.has(pluginName, selector)) {
+            plugin = this._registry.get(pluginName, selector);
+            const registrationOptions = plugin.get('registrations').get(selector);
+            pluginClass = plugin.get('class');
+            mergedOptions = deepmerge(pluginClass.options || {}, deepmerge(registrationOptions.options || {}, options || {}));
+        } else {
+            plugin = this._registry.get(pluginName);
+            pluginClass = plugin.get('class');
+            mergedOptions = deepmerge(pluginClass.options || {}, options || {});
+        }
 
         this._executePlugin(pluginClass, selector, mergedOptions, plugin.get('name'));
     }
@@ -199,11 +242,11 @@ class PluginManagerSingleton {
      * @param {Plugin} pluginClass
      * @param {String|NodeList|HTMLElement} selector
      * @param {Object} options
-     * @param {string} name
+     * @param {string} pluginName
      */
-    _executePlugin(pluginClass, selector, options, name = false) {
+    _executePlugin(pluginClass, selector, options, pluginName = false) {
         if (DomAccess.isNode(selector)) {
-            return PluginManagerSingleton._executePluginOnElement(selector, pluginClass, options, name);
+            return PluginManagerSingleton._executePluginOnElement(selector, pluginClass, options, pluginName);
         }
 
         if (typeof selector === 'string') {
@@ -211,7 +254,7 @@ class PluginManagerSingleton {
         }
 
         return selector.forEach((el) => {
-            PluginManagerSingleton._executePluginOnElement(el, pluginClass, options, name);
+            PluginManagerSingleton._executePluginOnElement(el, pluginClass, options, pluginName);
         });
     }
 
@@ -221,15 +264,15 @@ class PluginManagerSingleton {
      * @param {String|NodeList|HTMLElement} el
      * @param {Plugin} pluginClass
      * @param {Object} options
-     * @param {string} name
+     * @param {string} pluginName
      * @private
      */
-    static _executePluginOnElement(el, pluginClass, options, name) {
+    static _executePluginOnElement(el, pluginClass, options, pluginName) {
         if (typeof pluginClass !== 'function') {
             throw new Error('The passed plugin is not a function or a class.');
         }
 
-        new pluginClass(el, options, name); // eslint-disable-line no-new
+        new pluginClass(el, options, pluginName);
     }
 
     /**
@@ -283,27 +326,27 @@ export default class PluginManager {
     /**
      * Registers a plugin to the plugin mananger.
      *
-     * @param {string} name
+     * @param {string} pluginName
      * @param {Plugin} pluginClass
      * @param {string|NodeList|HTMLElement} selector
      * @param {Object} options
      *
      * @returns {*}
      */
-    static register(name, pluginClass, selector = document, options = {}) {
-        return PluginManagerInstance.register(name, pluginClass, selector, options);
+    static register(pluginName, pluginClass, selector = document, options = {}) {
+        return PluginManagerInstance.register(pluginName, pluginClass, selector, options);
     }
 
     /**
      * Removes a plugin from the plugin manager.
      *
-     * @param {string} name
+     * @param {string} pluginName
      * @param {string} selector
      *
      * @returns {*}
      */
-    static deregister(name, selector) {
-        return PluginManagerInstance.deregister(name, selector);
+    static deregister(pluginName, selector) {
+        return PluginManagerInstance.deregister(pluginName, selector);
     }
 
     /**
@@ -327,20 +370,40 @@ export default class PluginManager {
      *
      * @returns {*}
      */
-    static getPlugins() {
-        return PluginManagerInstance.getPlugins();
+    static getPluginList() {
+        return PluginManagerInstance.getPluginList();
+    }
+
+    /**
+     * Returns the definition of a plugin.
+     *
+     * @returns {*}
+     */
+    static getPlugin(pluginName) {
+        return PluginManagerInstance.getPlugin(pluginName);
+    }
+
+    /**
+     * Returns all registered plugin instances for the passed plugin name..
+     *
+     * @param {string} pluginName
+     *
+     * @returns {Map|null}
+     */
+    static getPluginInstances(pluginName) {
+        return PluginManagerInstance.getPluginInstances(pluginName);
     }
 
     /**
      * Returns the plugin instance from the passed element selected by plugin Name.
      *
      * @param {HTMLElement} el
-     * @param {String} name
+     * @param {String} pluginName
      *
      * @returns {Object|null}
      */
-    static getPluginInstance(el, name) {
-        return PluginManagerSingleton.getPluginInstance(el, name);
+    static getPluginInstanceFromElement(el, pluginName) {
+        return PluginManagerSingleton.getPluginInstanceFromElement(el, pluginName);
     }
 
     /**
@@ -350,8 +413,8 @@ export default class PluginManager {
      *
      * @returns {Map|null}
      */
-    static getPluginInstances(el) {
-        return PluginManagerSingleton.getPluginInstances(el);
+    static getPluginInstancesFromElement(el) {
+        return PluginManagerSingleton.getPluginInstancesFromElement(el);
     }
 
     /**
@@ -364,12 +427,12 @@ export default class PluginManager {
     /**
      * Starts a single plugin.
      *
-     * @param {Object} name
+     * @param {Object} pluginName
      * @param {String|NodeList|HTMLElement} selector
      * @param {Object} options
      */
-    static executePlugin(name, selector, options) {
-        PluginManagerInstance.executePlugin(name, selector, options);
+    static executePlugin(pluginName, selector, options) {
+        PluginManagerInstance.executePlugin(pluginName, selector, options);
     }
 }
 

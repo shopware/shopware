@@ -361,7 +361,7 @@ export default class ImageZoomPlugin extends Plugin {
     _getMaxZoomValue() {
         this._getElementSizes();
 
-        if (this._imageSize === 0) {
+        if (this._imageSize.x === 0 || this._imageSize.y === 0) {
             return 0;
         }
 

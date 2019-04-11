@@ -49,6 +49,7 @@ export default class PluginRegistry {
         pluginMap.set('name', name);
 
         if (!pluginMap.has('registrations')) pluginMap.set('registrations', new Map());
+        if (!pluginMap.has('instances')) pluginMap.set('instances', []);
         const registrationMap = pluginMap.get('registrations');
         registrationMap.set(selector, { selector, options });
 

@@ -1,6 +1,5 @@
 {% set imageCount = page.productMedia.elements|length %}
 
-
 {% block product_detail_zoom_modal %}
     <div class="modal is-fullscreen zoom-modal{% if imageCount is same as(1) %} no-thumbnails{% endif %}"
         tabindex="-1" role="dialog">
@@ -109,10 +108,12 @@
                                                 {% for image in page.productMedia.elements %}
                                                     {% block product_detail_zoom_modal_thumbnail_item %}
                                                         <div class="image-slider-thumbnails-item">
-                                                            {% block product_detail_zoom_modal_thumbnail_image %}
-                                                                <img class="image-slider-thumbnails-image"
-                                                                    src="{{ image.media.url }}"
-                                                                    alt="">
+                                                            {% block product_detail_zoom_modal_thumbnail_item_inner %}
+                                                                <div class="image-slider-thumbnails-item-inner">
+                                                                    <img src="{{ image.media.url }}"
+                                                                        class="image-slider-thumbnails-image"
+                                                                        alt="{{ page.product.name }}"/>
+                                                                </div>
                                                             {% endblock %}
                                                         </div>
                                                     {% endblock %}

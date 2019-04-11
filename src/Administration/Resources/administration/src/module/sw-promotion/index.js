@@ -11,13 +11,13 @@ import './component/sw-promotion-basic-form';
 import './component/sw-promotion-code-form';
 import './component/sw-promotion-order-condition-form';
 import './component/sw-promotion-persona-form';
-import './component/sw-promotion-rebate-form';
+import './component/sw-promotion-discount-component';
 import './component/sw-promotion-scope-form';
 
 
 import './view/sw-promotion-create-base';
 import './view/sw-promotion-detail-base';
-import './view/sw-promotion-detail-rebate';
+import './view/sw-promotion-detail-discounts';
 import './view/sw-promotion-detail-restrictions';
 
 import './page/sw-promotion-create';
@@ -86,9 +86,9 @@ Module.register('sw-promotion', {
                         parentPath: 'sw.promotion.index'
                     }
                 },
-                rebate: {
-                    component: 'sw-promotion-detail-rebate',
-                    path: 'rebate',
+                discounts: {
+                    component: 'sw-promotion-detail-discounts',
+                    path: 'discounts',
                     meta: {
                         parentPath: 'sw.promotion.index'
                     }

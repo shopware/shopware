@@ -1,0 +1,64 @@
+{% block sw_promotion_detail_discounts %}
+    <div class="sw-promotion-detail-discounts">
+        {% block sw_promotion_detail_discounts_card_add %}
+            <sw-card slot="content" :hero="true" :isLoading="isLoading">
+                <div>
+                    {% block sw_promotion_detail_discounts_actions_add %}
+                        <sw-button variant="ghost" @click="onAddDiscount()">
+                            {{ $tc('sw-promotion.detail.main.discounts.buttonAddDiscount') }}
+                        </sw-button>
+                    {% endblock %}
+                </div>
+            </sw-card>
+        {% endblock %}
+        {% block sw_promotion_detail_discounts_items %}
+            <div v-for="discount in discounts">
+                {% block sw_promotion_detail_discounts_item %}
+                    <sw-card class="sw-promotion-detail-discounts__item" :title="$tc('sw-promotion.detail.main.discounts.card')" :isLoading="promotion.isLoading">
+                        <sw-container columns="5fr 1fr" gap="0px" justify="end">
+                            <div></div>
+                            {% block sw_promotion_detail_discounts_item_context_button %}
+                                <sw-context-button :showMenuOnStartup="false" :menuWidth="220" menuHorizontalAlign="right" menuVerticalAlign="bottom" icon="small-more" :disabled="false" :autoClose="true">
+                                    {% block sw_promotion_detail_discounts_item_context_button_delete %}
+                                        <sw-button class="danger-ghost" size="small" :square="false" :block="true" @click="onStartDeleteDiscount(discount.id)">
+                                            {{ $tc('sw-promotion.detail.main.discounts.buttonDeleteDiscount') }}
+                                        </sw-button>
+                                    {% endblock %}
+                                </sw-context-button>
+                            {% endblock %}
+                        </sw-container>
+                        {% block sw_promotion_detail_discounts_item_form %}
+                            <sw-promotion-discount-component :discount="discount"></sw-promotion-discount-component>
+                        {% endblock %}
+                    </sw-card>
+                {% endblock %}
+            </div>
+        {% endblock %}
+        {% block sw_promotion_detail_discounts_modal_delete %}
+        <sw-modal v-if="isDeleting"
+                  @closeModal="onCancelDeleteDiscount()"
+                  variant="small"
+                  :title="$tc('sw-promotion.detail.main.discounts.delete.confirmTitle')">
+            {% block sw_promotion_detail_discounts_modal_delete_text %}
+                <p>
+                    {{ $tc('sw-promotion.detail.main.discounts.delete.confirmText') }}
+                </p>
+            {% endblock %}
+            {% block sw_promotion_detail_discounts_modal_delete_footer %}
+                <template slot="modal-footer">
+                    {% block sw_promotion_detail_discounts_modal_delete_action_cancel %}
+                        <sw-button @click="onCancelDeleteDiscount()" size="small">
+                            {{ $tc('sw-promotion.detail.main.discounts.delete.buttonCancel') }}
+                        </sw-button>
+                    {% endblock %}
+                    {% block sw_promotion_detail_discounts_modal_delete_action_delete %}
+                        <sw-button @click="onConfirmDeleteDiscount()" size="small" variant="primary">
+                            {{ $tc('sw-promotion.detail.main.discounts.delete.buttonDelete') }}
+                        </sw-button>
+                    {% endblock %}
+                </template>
+            {% endblock %}
+        </sw-modal>
+        {% endblock %}
+    </div>
+{% endblock %}

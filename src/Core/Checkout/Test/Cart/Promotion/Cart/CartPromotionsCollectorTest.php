@@ -11,6 +11,8 @@ use Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException;
 use Shopware\Core\Checkout\Cart\Exception\MixedLineItemTypeException;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
+use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountCollection;
+use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountEntity;
 use Shopware\Core\Checkout\Promotion\Cart\CartPromotionsCollector;
 use Shopware\Core\Checkout\Promotion\Cart\CartPromotionsDataDefinition;
 use Shopware\Core\Checkout\Promotion\PromotionEntity;
@@ -66,20 +68,32 @@ class CartPromotionsCollectorTest extends TestCase
 
         $this->promotionGlobal = new PromotionEntity();
         $this->promotionGlobal->setId('PROM-GLOBAL');
-        $this->promotionGlobal->setPercental(true);
-        $this->promotionGlobal->setValue(10);
+        $discount1 = new PromotionDiscountEntity();
+        $discount1->setId('D1');
+        $discount1->setValue(100);
+        $discount1->setType(PromotionDiscountEntity::TYPE_PERCENTAGE);
+        $discount1->setScope(PromotionDiscountEntity::SCOPE_CART);
+        $this->promotionGlobal->setDiscounts(new PromotionDiscountCollection([$discount1]));
 
         $this->promotionPersona = new PromotionEntity();
         $this->promotionPersona->setId('PROM-PERSONA');
-        $this->promotionPersona->setPercental(true);
-        $this->promotionPersona->setValue(10);
         $this->promotionPersona->setPersonaRules(new RuleCollection([$this->getFakeRule()]));
+        $discount2 = new PromotionDiscountEntity();
+        $discount2->setId('D2');
+        $discount2->setValue(100);
+        $discount2->setType(PromotionDiscountEntity::TYPE_PERCENTAGE);
+        $discount2->setScope(PromotionDiscountEntity::SCOPE_CART);
+        $this->promotionPersona->setDiscounts(new PromotionDiscountCollection([$discount2]));
 
         $this->promotionScope = new PromotionEntity();
         $this->promotionScope->setId('PROM-SCOPE');
-        $this->promotionScope->setPercental(true);
-        $this->promotionScope->setValue(10);
         $this->promotionScope->setScopeRule($this->getFakeRule());
+        $discount3 = new PromotionDiscountEntity();
+        $discount3->setId('D3');
+        $discount3->setValue(100);
+        $discount3->setType(PromotionDiscountEntity::TYPE_PERCENTAGE);
+        $discount3->setScope(PromotionDiscountEntity::SCOPE_CART);
+        $this->promotionScope->setDiscounts(new PromotionDiscountCollection([$discount3]));
     }
 
     /**
@@ -167,10 +181,12 @@ class CartPromotionsCollectorTest extends TestCase
 
         /** @var LineItemCollection $promoLineItem */
         $promoLineItem = $this->cart->getLineItems();
-        /** @var LineItem $item */
-        $item = $promoLineItem->getElements()['PROM-GLOBAL'];
 
-        static::assertEquals('PROM-GLOBAL', $item->getKey());
+        // discount of promotion 1 PROM-GLOBAL should exist (D1)
+        /** @var LineItem $item */
+        $item = $promoLineItem->getElements()['D1'];
+
+        static::assertEquals('D1', $item->getKey());
     }
 
     private function getFakeRule(): RuleEntity

@@ -53,6 +53,7 @@ class PromotionGateway implements PromotionGatewayInterface
 
         $criteria->addAssociation('personaRules');
         $criteria->addAssociation('personaCustomers');
+        $criteria->addAssociation('discounts');
 
         /* @var EntityCollection $result */
         $result = $this->promotionRepository->search($criteria, $context->getContext())->getEntities();
@@ -84,6 +85,7 @@ class PromotionGateway implements PromotionGatewayInterface
 
         $criteria->addAssociation('personaRules');
         $criteria->addAssociation('personaCustomers');
+        $criteria->addAssociation('discounts');
 
         /* @var EntityCollection $result */
         $result = $this->promotionRepository->search($criteria, $context->getContext())->getEntities();

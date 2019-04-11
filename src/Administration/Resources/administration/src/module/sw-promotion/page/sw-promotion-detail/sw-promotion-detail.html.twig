@@ -57,9 +57,9 @@
                         {% endblock %}
 
                         {% block sw_promotion_detail_content_tabs_rebate %}
-                            <sw-tabs-item :route="{ name: 'sw.promotion.detail.rebate', params: { id: $route.params.id } }"
-                                          :title="$tc('sw-promotion.detail.tabs.tabRebate')">
-                                {{ $tc('sw-promotion.detail.tabs.tabRebate') }}
+                            <sw-tabs-item :route="{ name: 'sw.promotion.detail.discounts', params: { id: $route.params.id } }"
+                                          :title="$tc('sw-promotion.detail.tabs.tabDiscounts')">
+                                {{ $tc('sw-promotion.detail.tabs.tabDiscounts') }}
                             </sw-tabs-item>
                         {% endblock %}
                     </sw-tabs>

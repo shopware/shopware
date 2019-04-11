@@ -26,6 +26,11 @@ class PromotionControllerTest extends TestCase
         $this->promotionRepository = $this->getContainer()->get('promotion.repository');
     }
 
+    /**
+     * @group promotions
+     *
+     * @throws \Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException
+     */
     public function testCreatePromotion(): void
     {
         $context = Context::createDefaultContext();
@@ -37,8 +42,6 @@ class PromotionControllerTest extends TestCase
             'id' => $id,
             'name' => 'My promotion',
             'active' => true,
-            'value' => 100,
-            'percental' => false,
             'validFrom' => '2019-01-01 00:00:00',
             'validUntil' => '2030-01-01 00:00:00',
             'redeemable' => 1000,
@@ -53,7 +56,7 @@ class PromotionControllerTest extends TestCase
                     'type' => 'absolute',
                     'value' => 100,
                     'graduated' => false,
-                    'applyTowards' => 'cart',
+                    'scope' => 'cart',
                 ],
             ],
         ];
@@ -81,9 +84,12 @@ class PromotionControllerTest extends TestCase
 
         static::assertEquals(100, $absoluteDiscount->getValue());
         static::assertEquals('absolute', $absoluteDiscount->getType());
-        static::assertEquals('cart', $absoluteDiscount->getApplyTowards());
+        static::assertEquals('cart', $absoluteDiscount->getScope());
     }
 
+    /**
+     * @group promotions
+     */
     public function testReadPromotionList(): void
     {
         $client = $this->getClient();
@@ -96,8 +102,6 @@ class PromotionControllerTest extends TestCase
                 'id' => $id,
                 'name' => 'My promotion',
                 'active' => true,
-                'value' => 100,
-                'percental' => false,
                 'validFrom' => '2019-01-01 00:00:00',
                 'validUntil' => '2030-01-01 00:00:00',
                 'redeemable' => 1000,
@@ -112,7 +116,7 @@ class PromotionControllerTest extends TestCase
                         'type' => 'absolute',
                         'value' => 100,
                         'graduated' => false,
-                        'applyTowards' => 'cart',
+                        'scope' => 'cart',
                     ],
                 ],
             ],
@@ -145,6 +149,9 @@ class PromotionControllerTest extends TestCase
         }
     }
 
+    /**
+     * @group promotions
+     */
     public function testReadPromotionDetail(): void
     {
         $client = $this->getClient();
@@ -158,8 +165,6 @@ class PromotionControllerTest extends TestCase
                     'id' => $id,
                     'name' => 'My promotion',
                     'active' => true,
-                    'value' => 100,
-                    'percental' => false,
                     'validFrom' => '2019-01-01 00:00:00',
                     'validUntil' => '2030-01-01 00:00:00',
                     'redeemable' => 1000,
@@ -174,7 +179,7 @@ class PromotionControllerTest extends TestCase
                             'type' => 'absolute',
                             'value' => 100,
                             'graduated' => false,
-                            'applyTowards' => 'cart',
+                            'scope' => 'cart',
                         ],
                     ],
                 ],
@@ -206,6 +211,9 @@ class PromotionControllerTest extends TestCase
         static::assertArrayHasKey('relationships', $promotion);
     }
 
+    /**
+     * @group promotions
+     */
     public function testPatchPromotion(): void
     {
         $client = $this->getClient();
@@ -219,8 +227,6 @@ class PromotionControllerTest extends TestCase
                     'id' => $id,
                     'name' => 'My promotion',
                     'active' => true,
-                    'value' => 100,
-                    'percental' => false,
                     'validFrom' => '2019-01-01 00:00:00',
                     'validUntil' => '2030-01-01 00:00:00',
                     'redeemable' => 1000,
@@ -235,7 +241,7 @@ class PromotionControllerTest extends TestCase
                             'type' => 'absolute',
                             'value' => 100,
                             'graduated' => false,
-                            'applyTowards' => 'cart',
+                            'scope' => 'cart',
                         ],
                     ],
                 ],
@@ -271,6 +277,9 @@ class PromotionControllerTest extends TestCase
         static::assertEquals(200, $discount->getValue());
     }
 
+    /**
+     * @group promotions
+     */
     public function testDeleteDiscount(): void
     {
         $client = $this->getClient();
@@ -284,8 +293,6 @@ class PromotionControllerTest extends TestCase
                     'id' => $id,
                     'name' => 'My promotion',
                     'active' => true,
-                    'value' => 100,
-                    'percental' => false,
                     'validFrom' => '2019-01-01 00:00:00',
                     'validUntil' => '2030-01-01 00:00:00',
                     'redeemable' => 1000,
@@ -300,7 +307,7 @@ class PromotionControllerTest extends TestCase
                             'type' => 'absolute',
                             'value' => 100,
                             'graduated' => false,
-                            'applyTowards' => 'cart',
+                            'scope' => 'cart',
                         ],
                     ],
                 ],
@@ -336,8 +343,6 @@ class PromotionControllerTest extends TestCase
                     'id' => $id,
                     'name' => 'My promotion',
                     'active' => true,
-                    'value' => 100,
-                    'percental' => false,
                     'validFrom' => '2019-01-01 00:00:00',
                     'validUntil' => '2030-01-01 00:00:00',
                     'redeemable' => 1000,
@@ -352,7 +357,7 @@ class PromotionControllerTest extends TestCase
                             'type' => 'absolute',
                             'value' => 100,
                             'graduated' => false,
-                            'applyTowards' => 'cart',
+                            'scope' => 'cart',
                         ],
                     ],
                 ],
@@ -361,7 +366,7 @@ class PromotionControllerTest extends TestCase
         );
 
         $data = [
-            'type' => 'percental',
+            'type' => 'percentage',
             'value' => 10,
         ];
 
@@ -379,10 +384,13 @@ class PromotionControllerTest extends TestCase
 
         $discount = $promotion->getDiscounts()->get($absoluteDiscountId);
 
-        static::assertEquals('percental', $discount->getType());
+        static::assertEquals('percentage', $discount->getType());
         static::assertSame(10, $discount->getValue());
     }
 
+    /**
+     * @group promotions
+     */
     public function testDeletePromotion(): void
     {
         $client = $this->getClient();
@@ -396,8 +404,6 @@ class PromotionControllerTest extends TestCase
                     'id' => $id,
                     'name' => 'My promotion',
                     'active' => true,
-                    'value' => 100,
-                    'percental' => false,
                     'validFrom' => '2019-01-01 00:00:00',
                     'validUntil' => '2030-01-01 00:00:00',
                     'redeemable' => 1000,
@@ -412,7 +418,7 @@ class PromotionControllerTest extends TestCase
                             'type' => 'absolute',
                             'value' => 100,
                             'graduated' => false,
-                            'applyTowards' => 'cart',
+                            'scope' => 'cart',
                         ],
                     ],
                 ],

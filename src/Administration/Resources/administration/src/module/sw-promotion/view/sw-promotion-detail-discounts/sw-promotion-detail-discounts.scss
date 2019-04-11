@@ -1,0 +1,24 @@
+@import "~scss/variables";
+
+.sw-button.danger-ghost {
+    border: none;
+    background: transparent;
+    color: $color-crimson;
+    text-align: left;
+
+    &:hover {
+        background: transparent;
+        color: $color-crimson;
+        border: none;
+    }
+}
+
+.danger-button .danger-button:hover {
+    background-color: transparent;
+}
+
+.sw-modal {
+    .sw-container {
+        margin-bottom: 25px;
+    }
+}

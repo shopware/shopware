@@ -64,9 +64,9 @@ class ConfigurationService
 
     private function getBundle(string $bundleName): ?BundleInterface
     {
-        [$last] = explode('\\', $bundleName);
+        $class = array_slice(explode('\\', $bundleName), -1)[0];
         foreach ($this->kernel->getBundles() as $bundle) {
-            if ($bundle->getName() === $last) {
+            if ($bundle->getName() === $class) {
                 return $bundle;
             }
         }

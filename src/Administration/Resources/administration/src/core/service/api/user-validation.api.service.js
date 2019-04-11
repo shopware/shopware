@@ -5,10 +5,10 @@ import ApiService from '../api.service';
  * @class
  * @extends ApiService
  */
-class CheckUserEmailApiService extends ApiService {
+class UserValidationApiService extends ApiService {
     constructor(httpClient, loginService, apiEndpoint = 'check-email-unique') {
         super(httpClient, loginService, apiEndpoint);
-        this.name = 'checkUserEmailService';
+        this.name = 'userValidationService';
     }
 
     checkUserEmail({ email, id }, additionalParams = {}, additionalHeaders = {}) {
@@ -28,6 +28,24 @@ class CheckUserEmailApiService extends ApiService {
                 return ApiService.handleResponse(response);
             });
     }
+
+    checkUserUsername({ username, id }, additionalParams = {}, additionalHeaders = {}) {
+        const params = additionalParams;
+        const headers = this.getBasicHeaders(additionalHeaders);
+        const payload = {
+            username,
+            id
+        };
+
+        return this.httpClient
+            .post('/_action/user/check-username-unique', payload, {
+                params,
+                headers
+            })
+            .then((response) => {
+                return ApiService.handleResponse(response);
+            });
+    }
 }
 
-export default CheckUserEmailApiService;
+export default UserValidationApiService;

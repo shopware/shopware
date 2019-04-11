@@ -6,7 +6,7 @@ import './sw-settings-user-detail.scss';
 Component.register('sw-settings-user-detail', {
     template,
 
-    inject: ['userService', 'checkUserEmailService'],
+    inject: ['userService', 'userValidationService'],
 
     mixins: [
         Mixin.getByName('notification')
@@ -24,7 +24,8 @@ Component.register('sw-settings-user-detail', {
             mediaItem: null,
             changePasswordModal: false,
             newPassword: '',
-            isEmailUsed: false
+            isEmailUsed: false,
+            isUsernameUsed: false
         };
     },
 
@@ -57,7 +58,7 @@ Component.register('sw-settings-user-detail', {
         },
 
         isError() {
-            return this.isEmailUsed;
+            return this.isEmailUsed || this.isUsernameUsed;
         },
 
         disableConfirm() {
@@ -92,11 +93,20 @@ Component.register('sw-settings-user-detail', {
         },
 
         checkEmail() {
-            return this.checkUserEmailService.checkUserEmail({
+            return this.userValidationService.checkUserEmail({
                 email: this.user.email,
                 id: this.user.id
             }).then(({ emailIsUnique }) => {
                 this.isEmailUsed = !emailIsUnique;
+            });
+        },
+
+        checkUsername() {
+            return this.userValidationService.checkUserUsername({
+                username: this.user.username,
+                id: this.user.id
+            }).then(({ usernameIsUnique }) => {
+                this.isUsernameUsed = !usernameIsUnique;
             });
         },
 

@@ -59,8 +59,10 @@
                                     {% block sw_settings_user_detail_content_username %}
                                         <sw-text-field
                                                 class="sw-settings-user-detail__grid-username"
+                                                :errorMessage="isUsernameUsed ? $tc('sw-settings-user.user-detail.errorUsernameUsed') : ''"
                                                 v-model="user.username"
-                                                :label="$tc('sw-settings-user.user-detail.labelUsername')">
+                                                :label="$tc('sw-settings-user.user-detail.labelUsername')"
+                                                @change="checkUsername()">
                                         </sw-text-field>
                                     {% endblock %}
 

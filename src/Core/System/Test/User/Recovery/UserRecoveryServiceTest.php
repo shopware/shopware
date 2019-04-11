@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\System\Test\UserRecovery;
+namespace Shopware\Core\System\Test\User\Recovery;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;

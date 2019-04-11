@@ -14,13 +14,16 @@
     {% endblock %}
 
     {% block page_checkout_confirm_errors %}
-        {% if formViolations.getViolations() %}
-            {% sw_include '@Storefront/base/_utilities/alert.html.twig' with {
-                type:"danger",
-                list: formViolations.getViolations()
-            } %}
-        {% endif %}
-    {% endblock %}
+		{% for violation in formViolations.getViolations() %}
+			{% set snippetName = "error.#{violation.code}" %}
+			{% set fieldName = violation.propertyPath|trim('/', 'left') %}
+
+			{% sw_include '@Storefront/base/_utilities/alert.html.twig' with {
+				type: "danger",
+				content: snippetName|trans({'%field%': fieldName})
+			} %}
+		{% endfor %}
+	{% endblock %}
 
     {% block page_checkout_confirm_tos %}
         <div class="card confirm-terms">
@@ -42,7 +45,7 @@
                     <div class="custom-control custom-checkbox">
 						{% block page_checkout_confirm_tos_control_checkbox %}
                             <input type="checkbox"
-                                   class="custom-control-input"
+                                   class="custom-control-input{% if formViolations.getViolations('/sAGB') %} is-invalid{% endif %}"
                                    required="required"
                                    id="tos"
                                    form="confirmOrderForm"
@@ -105,8 +108,6 @@
 		{% endblock %}
 	{% endblock %}
 {% endblock %}
-
-{#TODO: NEXT-1947 - messages (errors, laststock, invalid address)#}
 
 {% block page_checkout_sidebar_actions %}
     <form id="confirmOrderForm"

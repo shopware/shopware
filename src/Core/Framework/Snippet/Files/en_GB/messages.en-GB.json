@@ -44,6 +44,9 @@
         "revisit": "15 days",
         "robots": "index,follow"
     },
+    "error": {
+        "VIOLATION::IS_BLANK_ERROR": "%field% should not be empty."
+    },
     "account": {
         "myAccount": "My Account",
         "registerTitle": "Registration",

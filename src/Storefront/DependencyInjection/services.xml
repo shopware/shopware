@@ -166,6 +166,12 @@
             <argument type="service" id="Shopware\Core\Checkout\Cart\SalesChannel\CartService"/>
         </service>
 
+        <service id="Shopware\Storefront\Page\Checkout\Address\CheckoutAddressPageLoader">
+            <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="Shopware\Core\Checkout\Customer\Storefront\AddressService"/>
+            <argument type="service" id="Shopware\Core\Checkout\Customer\Storefront\AccountService"/>
+        </service>
+
         <service id="Shopware\Storefront\Page\Account\Profile\AccountProfilePageLoader">
             <argument type="service" id="Shopware\Storefront\Framework\Page\PageWithHeaderLoader"/>
             <argument type="service" id="event_dispatcher"/>
@@ -253,7 +259,9 @@
             <argument type="service" id="Shopware\Storefront\Page\Checkout\Confirm\CheckoutConfirmPageLoader"/>
             <argument type="service" id="Shopware\Storefront\Page\Checkout\Finish\CheckoutFinishPageLoader"/>
             <argument type="service" id="Shopware\Storefront\Page\Checkout\Register\CheckoutRegisterPageLoader"/>
+            <argument type="service" id="Shopware\Storefront\Page\Checkout\Address\CheckoutAddressPageLoader"/>
             <argument type="service" id="Shopware\Core\Checkout\Order\SalesChannel\OrderService"/>
+            <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\AddressService"/>
         </service>
 
         <service id="Shopware\Storefront\PageController\ErrorPageController" public="true">

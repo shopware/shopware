@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Shopware\Core\Framework\Api\VersionTransformation;
 
@@ -16,24 +16,20 @@ class ApiVersionTransformationResponseListener implements EventSubscriberInterfa
 
     public function __construct(VersionTransformationRegistry $versionTransformationRegistry)
     {
-
         $this->versionTransformationRegistry = $versionTransformationRegistry;
     }
 
     public function onFilterResponse(FilterResponseEvent $event)
     {
-        $version = $event->getRequest()->headers->get(PlatformRequest::HEADER_API_VERSION);
+        $version = (int) $event->getRequest()->headers->get(PlatformRequest::HEADER_API_VERSION);
 
         if ($version === null) {
             return;
         }
 
-        //Check if there is an available transformation
-        if ($this->versionTransformationRegistry->hasTransformationsForVersionAndRoute($version, $event->getRequest()->get('_route'))) {
-            /** @var ApiVersionTransformation $transformation */
-            foreach ($this->versionTransformationRegistry->getTransformationsForVersionAndRoute($version, $event->getRequest()->get('_route')) as $transformation) {
-                $transformation->transformResponse($event->getResponse());
-            }
+        /** @var ApiVersionTransformation $transformation */
+        foreach ($this->versionTransformationRegistry->getResponseTransformationsForVersionAndRoute($version, $event->getRequest()->get('_route')) as $transformation) {
+            $transformation->transformResponse($event->getResponse());
         }
     }
 

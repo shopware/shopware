@@ -1,10 +1,10 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Shopware\Core\Framework\Api\VersionTransformation;
 
 use Shopware\Core\PlatformRequest;
-use Symfony\Component\HttpKernel\Event\FilterControllerEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Component\HttpKernel\Event\FilterControllerEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
 
 class ApiVersionTransformationControllerListener implements EventSubscriberInterface
@@ -16,7 +16,6 @@ class ApiVersionTransformationControllerListener implements EventSubscriberInter
 
     public function __construct(VersionTransformationRegistry $versionTransformationRegistry)
     {
-
         $this->versionTransformationRegistry = $versionTransformationRegistry;
     }
 
@@ -31,19 +30,16 @@ class ApiVersionTransformationControllerListener implements EventSubscriberInter
             return;
         }
 
-        $version = $event->getRequest()->headers->get(PlatformRequest::HEADER_API_VERSION);
+        $version = (int) $event->getRequest()->headers->get(PlatformRequest::HEADER_API_VERSION);
 
         if ($version === null) {
             return;
         }
 
-        //Check if there is an available transformation
-        if ($this->versionTransformationRegistry->hasTransformationsForVersionAndRoute($version, $event->getRequest()->get('_route'))) {
-            /** @var ApiVersionTransformation $transformation */
-            foreach ($this->versionTransformationRegistry->getTransformationsForVersionAndRoute($version, $event->getRequest()->get('_route')) as $transformation) {
-                echo "1";
-                $transformation->transformRequest($event->getRequest());
-            }
+        /** @var ApiVersionTransformation $transformation */
+        foreach ($this->versionTransformationRegistry->getRequestTransformationsForVersionAndRoute($version, $event->getRequest()->get('_route')) as $transformation) {
+            echo '1';
+            $transformation->transformRequest($event->getRequest());
         }
     }
 

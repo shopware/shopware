@@ -32,13 +32,13 @@ LEFT JOIN (
     SELECT
         `product`.`id` AS `product_id`,
         (MIN(`product`.`stock`) - SUM(`order_delivery_position`.`quantity`)) AS `available_stock`
-    FROM `product`
-    LEFT JOIN `order_line_item`
-        ON TRIM(BOTH '"' FROM JSON_EXTRACT(`order_line_item`.`payload`, '$.id')) = LOWER(HEX(`product`.`id`))
+    FROM `order_delivery`
     LEFT JOIN `order_delivery_position`
-        ON `order_delivery_position`.`order_line_item_id` = `order_line_item`.`id`
-    LEFT JOIN `order_delivery`
-        ON `order_delivery`.`id` = `order_delivery_position`.`order_delivery_id`
+        ON `order_delivery_position`.`order_delivery_id` = `order_delivery`.`id`
+    LEFT JOIN `order_line_item`
+        ON `order_line_item`.`id` = `order_delivery_position`.`order_line_item_id`
+    LEFT JOIN `product`
+        ON LOWER(HEX(`product`.`id`)) = TRIM(BOTH '"' FROM JSON_EXTRACT(`order_line_item`.`payload`, '$.id'))
     WHERE
         `order_line_item`.`type` = 'product'
         AND `product`.`id` IN (:ids)
@@ -55,7 +55,7 @@ LEFT JOIN (
     GROUP BY `product`.`id`
 ) AS `calculated_available_stock`
     ON `calculated_available_stock`.`product_id` = `product`.`id`
-SET `product`.`available_stock` = IFNULL(`calculated_available_stock`.`available_stock`, 0)
+SET `product`.`available_stock` = IFNULL(`calculated_available_stock`.`available_stock`, `product`.`stock`)
 WHERE `product`.`id` IN (:ids)
 SQL;
 

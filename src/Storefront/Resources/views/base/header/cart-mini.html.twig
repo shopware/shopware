@@ -18,9 +18,9 @@
 									{% if lineItem.cover.url %}
 										{% set imgSrc = lineItem.cover.url %}
 									{% else %}
-										{% set imgSrc = shopware.theme.general.noPicture %}
+										{% set imgSrc = asset(shopware.theme.general.noPicture) %}
 									{% endif %}
-									<img src="{{ asset(imgSrc) }}"
+									<img src="{{ imgSrc }}"
 									     class="img-fluid"
 									     alt="{{ lineItem.label }}"
 									     title="{{ lineItem.label }}">

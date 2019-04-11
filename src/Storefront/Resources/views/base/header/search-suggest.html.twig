@@ -16,9 +16,9 @@
                                                 {% if product.cover.media.url %}
 													{% set imgSrc = product.cover.media.url %}
 												{% else %}
-													{% set imgSrc = shopware.theme.general.noPicture %}
+													{% set imgSrc = asset(shopware.theme.general.noPicture) %}
 												{% endif %}
-                                                <img src="{{ asset(imgSrc) }}"
+                                                <img src="{{ imgSrc }}"
 													 alt="{{ product.name }}">
                                             </span>
                                         {% endblock %}

@@ -45,11 +45,11 @@
 	                            {% if mediaItems %}
 		                            {% set imgSrc = mediaItems|first.media.url %}
 	                            {% else %}
-		                            {% set imgSrc = shopware.theme.general.noPicture %}
+		                            {% set imgSrc = asset(shopware.theme.general.noPicture) %}
 	                            {% endif %}
-                                <img src="{{ asset(imgSrc) }}"
+                                <img src="{{ imgSrc }}"
                                     class="img-fluid image-slider-image magnifier-image js-magnifier-image"
-                                    data-full-image="{{ asset(imgSrc) }}"
+                                    data-full-image="{{ imgSrc }}"
                                     alt="{{ page.product.name }}"/>
                             </div>
                         {% endblock %}

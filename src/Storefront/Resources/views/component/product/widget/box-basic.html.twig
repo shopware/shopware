@@ -14,10 +14,10 @@
 								{% if product.cover.media.url %}
 									{% set imgSrc = product.cover.media.url %}
 								{% else %}
-									{% set imgSrc = shopware.theme.general.noPicture %}
+									{% set imgSrc = asset(shopware.theme.general.noPicture) %}
 								{% endif %}
                                 <img class="product-image img-fluid"
-                                     src="{{ asset(imgSrc) }}"
+                                     src="{{ imgSrc }}"
                                      alt="{{ product.cover.media.alt }}">
                         </a>
                     </div>

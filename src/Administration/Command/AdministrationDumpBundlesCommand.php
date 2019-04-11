@@ -72,7 +72,7 @@ class AdministrationDumpBundlesCommand extends Command
             // return the path relative to the project dir
             $bundles[$bundleName] = [
                 'basePath' => rtrim($baseDirectory, '/') . '/',
-                'viewPath' => $this->locateResource($bundleName, '/' . $adminEntryPath),
+                'viewPath' => $this->locateResource($bundleName, '/' . $adminEntryPath) . '/',
                 'entry' => $this->getPathRelativeToProjectDir($indexFile),
                 'webpackConfig' => $customWebPackConfig ? $this->getPathRelativeToProjectDir($customWebPackConfig) : false,
             ];

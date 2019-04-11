@@ -456,11 +456,6 @@ class ProductEntity extends Entity
         return $this->availableStock;
     }
 
-    public function setAvailableStock(?int $availableStock): void
-    {
-        $this->availableStock = $availableStock;
-    }
-
     public function getIsCloseout(): bool
     {
         return (bool) $this->isCloseout;

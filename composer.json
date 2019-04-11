@@ -91,7 +91,8 @@
         "twig/extensions": "1.5.4",
         "twig/twig": "2.7.4",
         "voku/stop-words": "2.0.1",
-        "league/glide": "1.5.0"
+        "league/glide": "1.5.0",
+        "league/flysystem-memory": "1.0.1"
     },
     "require-dev": {
         "ext-tokenizer": "*",

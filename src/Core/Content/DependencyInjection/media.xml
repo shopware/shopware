@@ -267,5 +267,19 @@
             <argument type="service" id="Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface"/>
             <argument type="service" id="media_folder.repository"/>
         </service>
+
+        <service id="Shopware\Core\Content\Media\Resize\ServerFactory">
+            <argument type="service" id="shopware.filesystem.public"/>
+            <argument>%kernel.cache_dir%</argument>
+        </service>
+
+        <service id="League\Glide\Server">
+            <factory service="Shopware\Core\Content\Media\Resize\ServerFactory" method="create"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Media\Storefront\MediaResizeController" public="true">
+            <argument type="service" id="League\Glide\Server"/>
+            <argument type="service" id="shopware.filesystem.public"/>
+        </service>
     </services>
 </container>

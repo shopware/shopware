@@ -8,7 +8,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 class DeleteCommand implements WriteCommandInterface
 {
     /**
-     * @var EntityDefinition|string
+     * @var EntityDefinition
      */
     private $definition;
 
@@ -22,7 +22,7 @@ class DeleteCommand implements WriteCommandInterface
      */
     private $existence;
 
-    public function __construct($definition, array $pkData, EntityExistence $existence)
+    public function __construct(EntityDefinition $definition, array $pkData, EntityExistence $existence)
     {
         $this->definition = $definition;
         $this->primaryKey = $pkData;
@@ -34,7 +34,7 @@ class DeleteCommand implements WriteCommandInterface
         return (bool) \count($this->primaryKey);
     }
 
-    public function getDefinition(): string
+    public function getDefinition(): EntityDefinition
     {
         return $this->definition;
     }

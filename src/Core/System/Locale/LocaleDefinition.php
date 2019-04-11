@@ -19,7 +19,7 @@ use Shopware\Core\System\User\UserDefinition;
 
 class LocaleDefinition extends EntityDefinition
 {
-    public static function getEntityName(): string
+    public function getEntityName(): string
     {
         return 'locale';
     }

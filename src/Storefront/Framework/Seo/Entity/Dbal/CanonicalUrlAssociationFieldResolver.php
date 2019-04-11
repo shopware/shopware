@@ -8,6 +8,7 @@ use Shopware\Core\Framework\Context\SalesChannelApiSource;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\FieldResolver\FieldResolverInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\QueryBuilder;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Storefront\Framework\Seo\Entity\Field\CanonicalUrlAssociationField;
@@ -16,7 +17,7 @@ use Shopware\Storefront\Framework\Seo\SeoUrl\SeoUrlDefinition;
 class CanonicalUrlAssociationFieldResolver implements FieldResolverInterface
 {
     public function resolve(
-        string $definition,
+        EntityDefinition $definition,
         string $root,
         Field $field,
         QueryBuilder $query,

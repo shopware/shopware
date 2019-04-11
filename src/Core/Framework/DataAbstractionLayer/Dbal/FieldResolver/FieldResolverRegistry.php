@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Dbal\FieldResolver;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\QueryBuilder;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 
 class FieldResolverRegistry
@@ -20,7 +21,7 @@ class FieldResolverRegistry
     }
 
     public function resolve(
-        string $definition,
+        EntityDefinition $definition,
         string $root,
         Field $field,
         QueryBuilder $query,

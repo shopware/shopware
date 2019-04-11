@@ -12,7 +12,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 // TODO: Migrate to general settings when exists
 class StoreSettingsDefinition extends EntityDefinition
 {
-    public static function getEntityName(): string
+    public function getEntityName(): string
     {
         return 'store_settings';
     }

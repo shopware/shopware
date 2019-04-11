@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Dbal;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
@@ -58,23 +59,26 @@ class EntityReader implements EntityReaderInterface
      * @var SqlQueryParser
      */
     private $parser;
+    /**
+     * @var DefinitionInstanceRegistry
+     */
+    private $registry;
 
     public function __construct(
         Connection $connection,
         EntityHydrator $hydrator,
         EntityDefinitionQueryHelper $queryHelper,
-        SqlQueryParser $parser
+        SqlQueryParser $parser,
+        DefinitionInstanceRegistry $registry
     ) {
         $this->connection = $connection;
         $this->hydrator = $hydrator;
         $this->queryHelper = $queryHelper;
         $this->parser = $parser;
+        $this->registry = $registry;
     }
 
-    /**
-     * @param string|EntityDefinition $definition
-     */
-    public function read(string $definition, Criteria $criteria, Context $context): EntityCollection
+    public function read(EntityDefinition $definition, Criteria $criteria, Context $context): EntityCollection
     {
         $criteria->resetSorting();
         $criteria->resetQueries();
@@ -93,7 +97,7 @@ class EntityReader implements EntityReaderInterface
 
     private function _read(
         Criteria $criteria,
-        string $definition,
+        EntityDefinition $definition,
         Context $context,
         string $entity,
         EntityCollection $collection,
@@ -125,11 +129,8 @@ class EntityReader implements EntityReaderInterface
         return $collection;
     }
 
-    /**
-     * @param string|EntityDefinition $definition
-     */
     private function joinBasic(
-        string $definition,
+        EntityDefinition $definition,
         Context $context,
         string $root,
         QueryBuilder $query,
@@ -168,8 +169,7 @@ class EntityReader implements EntityReaderInterface
 
             //many to one associations can be directly fetched in same query
             if ($field instanceof ManyToOneAssociationField || $field instanceof OneToOneAssociationField) {
-                /** @var EntityDefinition|string $reference */
-                $reference = $field->getReferenceClass();
+                $reference = $this->registry->get($field->getReferenceClass());
 
                 $basics = $reference::getFields()->getBasicFields();
 
@@ -180,10 +180,10 @@ class EntityReader implements EntityReaderInterface
                 $joinCriteria = null;
                 if ($criteria && $criteria->hasAssociation($accessor, $definition)) {
                     $joinCriteria = $criteria->getAssociation($accessor, $definition);
-                    $basics = $this->addAssociationFieldsToCriteria($joinCriteria, $field->getReferenceClass(), $basics);
+                    $basics = $this->addAssociationFieldsToCriteria($joinCriteria, $reference, $basics);
                 }
 
-                $this->joinBasic($field->getReferenceClass(), $context, $alias, $query, $basics, $joinCriteria);
+                $this->joinBasic($reference, $context, $alias, $query, $basics, $joinCriteria);
 
                 continue;
             }
@@ -251,10 +251,7 @@ class EntityReader implements EntityReaderInterface
         $this->queryHelper->addTranslationSelect($root, $definition, $query, $context);
     }
 
-    /**
-     * @param string|EntityDefinition $definition
-     */
-    private function fetch(Criteria $criteria, string $definition, Context $context, FieldCollection $fields): array
+    private function fetch(Criteria $criteria, EntityDefinition $definition, Context $context, FieldCollection $fields): array
     {
         $table = $definition::getEntityName();
 
@@ -281,11 +278,8 @@ class EntityReader implements EntityReaderInterface
         return $query->execute()->fetchAll();
     }
 
-    /**
-     * @param string|EntityDefinition $definition
-     */
     private function loadManyToMany(
-        string $definition,
+        EntityDefinition $definition,
         Criteria $criteria,
         ManyToManyAssociationField $association,
         Context $context,
@@ -307,7 +301,7 @@ class EntityReader implements EntityReaderInterface
     }
 
     private function addManyToManySelect(
-        string $definition,
+        EntityDefinition $definition,
         string $root,
         ManyToManyAssociationField $field,
         QueryBuilder $query,
@@ -366,12 +360,9 @@ class EntityReader implements EntityReaderInterface
         return $ids;
     }
 
-    /**
-     * @param string|EntityDefinition $definition
-     */
     private function loadOneToMany(
         Criteria $criteria,
-        string $definition,
+        EntityDefinition $definition,
         OneToManyAssociationField $association,
         Context $context,
         EntityCollection $collection
@@ -392,11 +383,8 @@ class EntityReader implements EntityReaderInterface
         $this->loadOneToManyWithPagination($definition, $association, $context, $collection, $fieldCriteria);
     }
 
-    /**
-     * @param string|EntityDefinition $definition
-     */
     private function loadOneToManyWithoutPagination(
-        string $definition,
+        EntityDefinition $definition,
         OneToManyAssociationField $association,
         Context $context,
         EntityCollection $collection,
@@ -430,7 +418,7 @@ class EntityReader implements EntityReaderInterface
 
         $fieldCriteria->addFilter(new EqualsAnyFilter($propertyAccessor, $ids));
 
-        $referenceClass = $association->getReferenceClass();
+        $referenceClass = $this->registry->get($association->getReferenceClass());
         $collectionClass = $referenceClass::getCollectionClass();
 
         $data = $this->_read(
@@ -477,7 +465,7 @@ class EntityReader implements EntityReaderInterface
     }
 
     private function loadOneToManyWithPagination(
-        string $definition,
+        EntityDefinition $definition,
         OneToManyAssociationField $association,
         Context $context,
         EntityCollection $collection,
@@ -512,7 +500,7 @@ class EntityReader implements EntityReaderInterface
         $fieldCriteria->resetFilters();
         $fieldCriteria->resetPostFilters();
 
-        $referenceClass = $association->getReferenceClass();
+        $referenceClass = $this->registry->get($association->getReferenceClass());
         $collectionClass = $referenceClass::getCollectionClass();
         $data = $this->_read(
             $fieldCriteria,
@@ -568,7 +556,7 @@ class EntityReader implements EntityReaderInterface
         $ids = $this->collectManyToManyIds($collection, $association);
         $criteria->setIds($ids);
 
-        $referenceClass = $association->getReferenceDefinition();
+        $referenceClass = $this->registry->get($association->getReferenceDefinition());
         $collectionClass = $referenceClass::getCollectionClass();
 
         $data = $this->_read(
@@ -641,7 +629,7 @@ class EntityReader implements EntityReaderInterface
             new QueryBuilder($this->connection),
             $this->queryHelper,
             $this->parser,
-            $association->getReferenceDefinition(),
+            $this->registry->get($association->getReferenceDefinition()),
             $fieldCriteria,
             $context
         );
@@ -702,7 +690,7 @@ class EntityReader implements EntityReaderInterface
 
         $fieldCriteria->setIds($ids);
 
-        $referenceClass = $association->getReferenceDefinition();
+        $referenceClass = $this->registry->get($association->getReferenceDefinition());
         $collectionClass = $referenceClass::getCollectionClass();
         $data = $this->_read(
             $fieldCriteria,
@@ -748,7 +736,7 @@ class EntityReader implements EntityReaderInterface
      * @param string|EntityDefinition $definition
      */
     private function fetchPaginatedOneToManyMapping(
-        string $definition,
+        EntityDefinition $definition,
         OneToManyAssociationField $association,
         Context $context,
         EntityCollection $collection,
@@ -759,7 +747,7 @@ class EntityReader implements EntityReaderInterface
             new QueryBuilder($this->connection),
             $this->queryHelper,
             $this->parser,
-            $association->getReferenceClass(),
+            $this->registry->get($association->getReferenceClass()),
             $fieldCriteria,
             $context
         );
@@ -865,34 +853,38 @@ class EntityReader implements EntityReaderInterface
         return $query;
     }
 
-    private function buildOneToManyPropertyAccessor(string $definition, OneToManyAssociationField $association): string
+    private function buildOneToManyPropertyAccessor(EntityDefinition $definition, OneToManyAssociationField $association): string
     {
+        $reference = $this->registry->get($association->getReferenceClass());
+
         if ($association instanceof ChildrenAssociationField) {
-            return $association->getReferenceClass()::getEntityName() . '.parentId';
+            return $reference::getEntityName() . '.parentId';
         }
 
-        $fields = $association->getReferenceClass()::getFields();
+        $fields = $reference::getFields();
         foreach ($fields as $field) {
             if (!$field instanceof FkField) {
                 continue;
             }
-            if ($field->getReferenceClass() !== $definition) {
+
+            if ($field->getReferenceClass() !== $definition->getClass()) {
                 continue;
             }
 
-            return $association->getReferenceClass()::getEntityName() . '.' . $field->getPropertyName();
+            return $reference::getEntityName() . '.' . $field->getPropertyName();
         }
 
         throw new \RuntimeException(
             sprintf(
-                'Fk field for association %s not found in definition %s',
+                'Fk field for association %s not found in definition %s for definition %s',
                 $association->getPropertyName(),
-                $association->getReferenceClass()::getEntityName()
+                $reference::getEntityName(),
+                $definition::getEntityName()
             )
         );
     }
 
-    private function isAssociationRestricted(?Criteria $criteria, string $definition, string $accessor): bool
+    private function isAssociationRestricted(?Criteria $criteria, EntityDefinition $definition, string $accessor): bool
     {
         if ($criteria === null) {
             return false;
@@ -915,10 +907,9 @@ class EntityReader implements EntityReaderInterface
 
     private function addAssociationFieldsToCriteria(
         Criteria $criteria,
-        string $definition,
+        EntityDefinition $definition,
         FieldCollection $fields
     ): FieldCollection {
-        /* @var string|EntityDefinition $definition */
         foreach ($criteria->getAssociations() as $fieldName => $fieldCriteria) {
             $regex = sprintf('#^(%s\.)?(extensions\.)?#i', $definition::getEntityName());
             $fieldName = preg_replace($regex, '', $fieldName);
@@ -939,11 +930,8 @@ class EntityReader implements EntityReaderInterface
         return $fields;
     }
 
-    /**
-     * @param string|EntityDefinition $definition
-     */
     private function loadToOne(
-        string $definition,
+        EntityDefinition $definition,
         AssociationField $association,
         Context $context,
         EntityCollection $collection,
@@ -982,7 +970,7 @@ class EntityReader implements EntityReaderInterface
         );
     }
 
-    private function fetchAssociations(Criteria $criteria, string $definition, Context $context, EntityCollection $collection, FieldCollection $fields): EntityCollection
+    private function fetchAssociations(Criteria $criteria, EntityDefinition $definition, Context $context, EntityCollection $collection, FieldCollection $fields): EntityCollection
     {
         if ($collection->count() <= 0) {
             return $collection;

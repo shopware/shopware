@@ -13,7 +13,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 
 class CategoryTranslationDefinition extends EntityTranslationDefinition
 {
-    public static function getEntityName(): string
+    public function getEntityName(): string
     {
         return 'category_translation';
     }

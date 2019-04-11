@@ -7,6 +7,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Exception\UnmappedFieldException;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\FieldAccessorBuilder\FieldAccessorBuilderRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\FieldResolver\FieldResolverRegistry;
+use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
@@ -37,13 +38,19 @@ class EntityDefinitionQueryHelper
      * @var FieldAccessorBuilderRegistry
      */
     private $fieldAccessorBuilderRegistry;
+    /**
+     * @var DefinitionInstanceRegistry
+     */
+    private $registry;
 
     public function __construct(
         FieldResolverRegistry $fieldResolverRegistry,
-        FieldAccessorBuilderRegistry $fieldAccessorBuilderRegistry
+        FieldAccessorBuilderRegistry $fieldAccessorBuilderRegistry,
+        DefinitionInstanceRegistry $registry
     ) {
         $this->fieldResolverRegistry = $fieldResolverRegistry;
         $this->fieldAccessorBuilderRegistry = $fieldAccessorBuilderRegistry;
+        $this->registry = $registry;
     }
 
     public static function escape(string $string): string
@@ -55,14 +62,14 @@ class EntityDefinitionQueryHelper
         return '`' . $string . '`';
     }
 
-    public static function getFieldsOfAccessor(string $definition, string $accessor): array
+    public static function getFieldsOfAccessor(EntityDefinition $definition, string $accessor): array
     {
         $parts = explode('.', $accessor);
         array_shift($parts);
 
         $accessorFields = [];
 
-        /** @var string|EntityDefinition $source */
+        /** @var EntityDefinition $source */
         $source = $definition;
 
         foreach ($parts as $part) {
@@ -107,10 +114,8 @@ class EntityDefinitionQueryHelper
      *
      * fieldName => 'category.products.name'
      * Returns as well the above field definition
-     *
-     * @param string|EntityDefinition $definition
      */
-    public function getField(string $fieldName, string $definition, string $root): ?Field
+    public function getField(string $fieldName, EntityDefinition $definition, string $root): ?Field
     {
         $original = $fieldName;
         $prefix = $root . '.';
@@ -146,7 +151,7 @@ class EntityDefinitionQueryHelper
 
         return $this->getField(
             $original,
-            $referenceClass,
+            $this->registry->get($referenceClass),
             $root . '.' . $field->getPropertyName()
         );
     }
@@ -167,11 +172,9 @@ class EntityDefinitionQueryHelper
      * root      => product
      * return    => COALESCE(`product.translation`.`name`,`product.parent.translation`.`name`)
      *
-     * @param string|EntityDefinition $definition
-     *
      * @throws UnmappedFieldException
      */
-    public function getFieldAccessor(string $fieldName, string $definition, string $root, Context $context): string
+    public function getFieldAccessor(string $fieldName, EntityDefinition $definition, string $root, Context $context): string
     {
         $fieldName = str_replace('extensions.', '', $fieldName);
 
@@ -218,7 +221,7 @@ class EntityDefinitionQueryHelper
 
         return $this->getFieldAccessor(
             $original,
-            $referenceClass,
+            $this->registry->get($referenceClass),
             $root . '.' . $field->getPropertyName(),
             $context
         );
@@ -227,10 +230,8 @@ class EntityDefinitionQueryHelper
     /**
      * Creates the basic root query for the provided entity definition and application context.
      * It considers the current context version.
-     *
-     * @param string|EntityDefinition $definition
      */
-    public function getBaseQuery(QueryBuilder $query, string $definition, Context $context): QueryBuilder
+    public function getBaseQuery(QueryBuilder $query, EntityDefinition $definition, Context $context): QueryBuilder
     {
         $table = $definition::getEntityName();
 
@@ -271,11 +272,10 @@ class EntityDefinitionQueryHelper
         return $query;
     }
 
-    public function buildRuleCondition(string $definition, QueryBuilder $query, string $alias, Context $context): ?string
+    public function buildRuleCondition(EntityDefinition $definition, QueryBuilder $query, string $alias, Context $context): ?string
     {
         $conditions = [];
 
-        /** @var string|EntityDefinition $definition */
         if ($definition::isBlacklistAware() && $context->getRuleIds()) {
             $accessor = self::escape($alias) . '.' . self::escape('blacklist_ids');
 
@@ -330,12 +330,10 @@ class EntityDefinitionQueryHelper
     /**
      * Used for dynamic sql joins. In case that the given fieldName is unknown or event nested with multiple association
      * roots, the function can resolve each association part of the field name, even if one part of the fieldName contains a translation or event inherited data field.
-     *
-     * @param string|EntityDefinition $definition
      */
     public function resolveAccessor(
         string $fieldName,
-        string $definition,
+        EntityDefinition $definition,
         string $root,
         QueryBuilder $query,
         Context $context
@@ -383,14 +381,14 @@ class EntityDefinitionQueryHelper
 
         $this->resolveAccessor(
             $original,
-            $referenceClass,
+            $this->registry->get($referenceClass),
             $root . '.' . $field->getPropertyName(),
             $query,
             $context
         );
     }
 
-    public function resolveField(Field $field, string $definition, string $root, QueryBuilder $query, Context $context): void
+    public function resolveField(Field $field, EntityDefinition $definition, string $root, QueryBuilder $query, Context $context): void
     {
         $this->fieldResolverRegistry->resolve($definition, $root, $field, $query, $context, $this);
     }
@@ -404,7 +402,7 @@ class EntityDefinitionQueryHelper
      */
     public function addTranslationSelect(
         string $root,
-        string $definition,
+        EntityDefinition $definition,
         QueryBuilder $query,
         Context $context
     ): void {
@@ -440,10 +438,7 @@ class EntityDefinitionQueryHelper
         }
     }
 
-    /**
-     * @param string|EntityDefinition $definition
-     */
-    public function joinVersion(QueryBuilder $query, string $definition, string $root, Context $context): void
+    public function joinVersion(QueryBuilder $query, EntityDefinition $definition, string $root, Context $context): void
     {
         $table = $definition::getEntityName();
 
@@ -473,10 +468,7 @@ class EntityDefinitionQueryHelper
         );
     }
 
-    /**
-     * @param string|EntityDefinition $definition
-     */
-    public static function getTranslatedField(string $definition, TranslatedField $translatedField): Field
+    public static function getTranslatedField(EntityDefinition $definition, TranslatedField $translatedField): Field
     {
         $translationDefinition = $definition::getTranslationDefinitionClass();
         $field = $translationDefinition::getFields()->get($translatedField->getPropertyName());
@@ -534,9 +526,8 @@ class EntityDefinitionQueryHelper
      * Adds a blacklist and whitelist where condition to the provided query.
      * This function is only for internal usage for the root entity of the query.
      */
-    private function addRuleCondition(QueryBuilder $query, string $definition, Context $context): void
+    private function addRuleCondition(QueryBuilder $query, EntityDefinition $definition, Context $context): void
     {
-        /** @var string|EntityDefinition $definition */
         if ($definition::isBlacklistAware() && $context->getRuleIds()) {
             $wheres = [];
 
@@ -621,11 +612,10 @@ class EntityDefinitionQueryHelper
     private function buildInheritedAccessor(
         Field $field,
         string $root,
-        string $definition,
+        EntityDefinition $definition,
         Context $context,
         string $original
     ): string {
-        /* @var string|EntityDefinition $definition */
         if ($field instanceof TranslatedField) {
             $inheritedChain = self::buildTranslationChain($root, $context, $definition::isInheritanceAware() && $context->considerInheritance());
             /** @var Field|StorageAware $translatedField */

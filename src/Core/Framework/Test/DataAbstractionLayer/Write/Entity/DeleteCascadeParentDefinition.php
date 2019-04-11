@@ -18,7 +18,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 
 class DeleteCascadeParentDefinition extends EntityDefinition
 {
-    public static function getEntityName(): string
+    public function getEntityName(): string
     {
         return 'delete_cascade_parent';
     }
@@ -41,7 +41,7 @@ class DeleteCascadeParentDefinition extends EntityDefinition
 
 class DeleteCascadeChildDefinition extends EntityDefinition
 {
-    public static function getEntityName(): string
+    public function getEntityName(): string
     {
         return 'delete_cascade_child';
     }
@@ -62,7 +62,7 @@ class DeleteCascadeChildDefinition extends EntityDefinition
 
 class DeleteCascadeManyToOneDefinition extends EntityDefinition
 {
-    public static function getEntityName(): string
+    public function getEntityName(): string
     {
         return 'delete_cascade_many_to_one';
     }

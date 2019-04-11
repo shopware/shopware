@@ -60,7 +60,7 @@ EOF;
             'data' => null,
         ];
 
-        $this->getWriter()->insert(ListDefinition::class, [$data], $context);
+        $this->getWriter()->insert(new ListDefinition(), [$data], $context);
 
         $data = $this->connection->fetchAll('SELECT * FROM `_test_nullable`');
 
@@ -79,7 +79,7 @@ EOF;
             'data' => [],
         ];
 
-        $this->getWriter()->insert(ListDefinition::class, [$data], $context);
+        $this->getWriter()->insert(new ListDefinition(), [$data], $context);
 
         $data = $this->connection->fetchAll('SELECT * FROM `_test_nullable`');
 
@@ -98,7 +98,7 @@ EOF;
             'data' => ['foo', 'bar', 'loo'],
         ];
 
-        $this->getWriter()->insert(ListDefinition::class, [$data], $context);
+        $this->getWriter()->insert(new ListDefinition(), [$data], $context);
 
         $data = $this->connection->fetchAll('SELECT * FROM `_test_nullable`');
 
@@ -119,7 +119,7 @@ EOF;
 
         $ex = null;
         try {
-            $this->getWriter()->insert(ListDefinition::class, [$data], $context);
+            $this->getWriter()->insert(new ListDefinition(), [$data], $context);
         } catch (WriteStackException $ex) {
         }
 
@@ -146,7 +146,7 @@ EOF;
             'screenshotUrls' => ['😄'],
         ];
 
-        $written = $this->getWriter()->insert(SalesChannelTypeDefinition::class, [$type], $this->createWriteContext());
+        $written = $this->getWriter()->insert(new SalesChannelTypeDefinition(), [$type], $this->createWriteContext());
 
         static::assertArrayHasKey(SalesChannelTypeDefinition::class, $written);
         static::assertCount(1, $written[SalesChannelTypeDefinition::class]);

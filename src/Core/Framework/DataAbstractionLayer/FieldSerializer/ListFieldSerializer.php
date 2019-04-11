@@ -94,7 +94,7 @@ class ListFieldSerializer implements FieldSerializerInterface
     {
         $fieldType = $field->getFieldType();
         $exceptions = [];
-        $existence = new EntityExistence('', [], false, false, false, []);
+        $existence = new EntityExistence(null, [], false, false, false, []);
 
         /** @var Field $listField */
         $listField = new $fieldType('key', 'key');

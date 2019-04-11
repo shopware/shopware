@@ -50,7 +50,7 @@ class OneToOneAssociationFieldTest extends TestCase
         $this->connection = $this->getContainer()->get(Connection::class);
 
         $this->repository = new EntityRepository(
-            RootDefinition::class,
+            new RootDefinition(),
             $this->getContainer()->get(EntityReaderInterface::class),
             $this->getContainer()->get(VersionManager::class),
             $this->getContainer()->get(EntitySearcherInterface::class),
@@ -59,7 +59,7 @@ class OneToOneAssociationFieldTest extends TestCase
         );
 
         $this->subRepository = new EntityRepository(
-            SubDefinition::class,
+            new SubDefinition(),
             $this->getContainer()->get(EntityReaderInterface::class),
             $this->getContainer()->get(VersionManager::class),
             $this->getContainer()->get(EntitySearcherInterface::class),

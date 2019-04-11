@@ -43,11 +43,13 @@
 
         <service id="Shopware\Storefront\Framework\Seo\Entity\Serializer\SeoUrlFieldSerializer">
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Write\WriteCommandExtractor" />
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry" />
             <tag name="shopware.field_serializer"/>
         </service>
 
         <service id="Shopware\Storefront\Framework\Seo\Entity\Serializer\CanonicalUrlFieldSerializer">
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Write\WriteCommandExtractor" />
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry" />
             <tag name="shopware.field_serializer"/>
         </service>
 

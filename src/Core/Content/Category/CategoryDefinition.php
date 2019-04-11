@@ -47,7 +47,7 @@ class CategoryDefinition extends EntityDefinition
     public const TYPE_LINK = 'link';
     public const TYPE_FOLDER = 'folder';
 
-    public static function getEntityName(): string
+    public function getEntityName(): string
     {
         return 'category';
     }

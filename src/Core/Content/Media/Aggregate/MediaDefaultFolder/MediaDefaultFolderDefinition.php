@@ -15,7 +15,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 
 class MediaDefaultFolderDefinition extends EntityDefinition
 {
-    public static function getEntityName(): string
+    public function getEntityName(): string
     {
         return 'media_default_folder';
     }

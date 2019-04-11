@@ -25,7 +25,7 @@ use Shopware\Core\System\User\Aggregate\UserRecovery\UserRecoveryDefinition;
 
 class UserDefinition extends EntityDefinition
 {
-    public static function getEntityName(): string
+    public function getEntityName(): string
     {
         return 'user';
     }

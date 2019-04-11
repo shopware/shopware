@@ -28,7 +28,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 
 class CustomEntityDefinition extends EntityDefinition
 {
-    public static function getEntityName(): string
+    public function getEntityName(): string
     {
         return 'custom_entity';
     }
@@ -154,7 +154,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 
 class CustomEntityTranslationDefinition extends EntityTranslationDefinition
 {
-    public static function getEntityName(): string
+    public function getEntityName(): string
     {
         return 'custom_entity_translation';
     }
@@ -164,17 +164,17 @@ class CustomEntityTranslationDefinition extends EntityTranslationDefinition
         return CustomEntityTranslationCollection::class;
     }
 
-    public static function getEntityClass(): string
+    public function getEntityClass(): string
     {
         return CustomTranslationEntity::class;
     }
 
-    public static function getParentDefinitionClass(): string
+    public function getParentDefinitionClass(): string
     {
         return CustomEntityDefinition::class;
     }
 
-    protected static function defineFields(): FieldCollection
+    protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
             (new StringField('label', 'label')),

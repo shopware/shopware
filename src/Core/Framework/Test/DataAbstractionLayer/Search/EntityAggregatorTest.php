@@ -25,14 +25,14 @@ class EntityAggregatorTest extends TestCase
 
     public function testAggregateNonExistingShouldFail(): void
     {
-        $this->expectException(\RuntimeException::class);
-        $this->expectExceptionMessage('Aggregation of type Shopware\Core\Framework\Test\DataAbstractionLayer\Search\TestAggregation not supported');
-
         $context = Context::createDefaultContext();
 
         $criteria = new Criteria();
         $criteria->addAggregation(new TestAggregation('taxRate', 'foo'));
 
-        $this->aggregator->aggregate(TaxDefinition::class, $criteria, $context);
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage('Aggregation of type Shopware\Core\Framework\Test\DataAbstractionLayer\Search\TestAggregation not supported');
+
+        $this->aggregator->aggregate(new TaxDefinition(), $criteria, $context);
     }
 }

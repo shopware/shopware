@@ -100,7 +100,7 @@ class EntityScoreBuilderTest extends TestCase
 
 class ScoreBuilderTestDefinition extends EntityDefinition
 {
-    public static function getEntityName(): string
+    public function getEntityName(): string
     {
         return 'test';
     }
@@ -118,7 +118,7 @@ class ScoreBuilderTestDefinition extends EntityDefinition
 
 class NestedDefinition extends EntityDefinition
 {
-    public static function getEntityName(): string
+    public function getEntityName(): string
     {
         return 'nested';
     }
@@ -133,7 +133,7 @@ class NestedDefinition extends EntityDefinition
 
 class OnlyTranslatedFieldDefinition extends EntityDefinition
 {
-    public static function getEntityName(): string
+    public function getEntityName(): string
     {
         return 'translated';
     }

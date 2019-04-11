@@ -25,12 +25,12 @@ class EntityLoadedEventTest extends TestCase
         $root = new ArrayEntity(['id' => 'A', 'many_to_one' => $a]);
 
         $context = Context::createDefaultContext();
-        $event = new EntityLoadedEvent(TestDefinition::class, [$root], $context);
+        $event = new EntityLoadedEvent(new TestDefinition(), [$root], $context);
 
         static::assertEquals(
             new NestedEventCollection([
                 new EntityLoadedEvent(
-                    TestDefinition::class,
+                    new TestDefinition(),
                     [$a],
                     $context,
                     false
@@ -49,12 +49,12 @@ class EntityLoadedEventTest extends TestCase
         $root = new ArrayEntity(['id' => 'A', 'many_to_one' => $c]);
 
         $context = Context::createDefaultContext();
-        $event = new EntityLoadedEvent(TestDefinition::class, [$root], $context);
+        $event = new EntityLoadedEvent(new TestDefinition(), [$root], $context);
 
         static::assertEquals(
             new NestedEventCollection([
                 new EntityLoadedEvent(
-                    TestDefinition::class,
+                    new TestDefinition(),
                     [$c, $b, $a],
                     $context,
                     false
@@ -63,12 +63,12 @@ class EntityLoadedEventTest extends TestCase
             $event->getEvents()
         );
 
-        $event = new EntityLoadedEvent(TestDefinition::class, [$c], $context);
+        $event = new EntityLoadedEvent(new TestDefinition(), [$c], $context);
 
         static::assertEquals(
             new NestedEventCollection([
                 new EntityLoadedEvent(
-                    TestDefinition::class,
+                    new TestDefinition(),
                     [$b, $a],
                     $context,
                     false
@@ -86,12 +86,12 @@ class EntityLoadedEventTest extends TestCase
         $entity = new ArrayEntity(['id' => 'A', 'one_to_many' => [$a, $b]]);
 
         $context = Context::createDefaultContext();
-        $event = new EntityLoadedEvent(TestDefinition::class, [$entity], $context);
+        $event = new EntityLoadedEvent(new TestDefinition(), [$entity], $context);
 
         static::assertEquals(
             new NestedEventCollection([
                 new EntityLoadedEvent(
-                    TestDefinition::class,
+                    new TestDefinition(),
                     [$a, $b],
                     $context,
                     false
@@ -111,12 +111,12 @@ class EntityLoadedEventTest extends TestCase
         $entity = new ArrayEntity(['id' => 'A', 'one_to_many' => [$c]]);
 
         $context = Context::createDefaultContext();
-        $event = new EntityLoadedEvent(TestDefinition::class, [$entity], $context);
+        $event = new EntityLoadedEvent(new TestDefinition(), [$entity], $context);
 
         static::assertEquals(
             new NestedEventCollection([
                 new EntityLoadedEvent(
-                    TestDefinition::class,
+                    new TestDefinition(),
                     [$c, $a, $b],
                     $context,
                     false
@@ -134,12 +134,12 @@ class EntityLoadedEventTest extends TestCase
         $entity = new ArrayEntity(['id' => 'A', 'many_to_many' => [$a, $b]]);
 
         $context = Context::createDefaultContext();
-        $event = new EntityLoadedEvent(TestDefinition::class, [$entity], $context);
+        $event = new EntityLoadedEvent(new TestDefinition(), [$entity], $context);
 
         static::assertEquals(
             new NestedEventCollection([
                 new EntityLoadedEvent(
-                    TestDefinition::class,
+                    new TestDefinition(),
                     [$a, $b],
                     $context,
                     false
@@ -159,12 +159,12 @@ class EntityLoadedEventTest extends TestCase
         $entity = new ArrayEntity(['id' => 'A', 'many_to_many' => [$c]]);
 
         $context = Context::createDefaultContext();
-        $event = new EntityLoadedEvent(TestDefinition::class, [$entity], $context);
+        $event = new EntityLoadedEvent(new TestDefinition(), [$entity], $context);
 
         static::assertEquals(
             new NestedEventCollection([
                 new EntityLoadedEvent(
-                    TestDefinition::class,
+                    new TestDefinition(),
                     [$c, $a, $b],
                     $context,
                     false
@@ -182,12 +182,12 @@ class EntityLoadedEventTest extends TestCase
         $root = new ArrayEntity(['id' => 'A', 'many_to_one' => $a]);
 
         $context = Context::createDefaultContext();
-        $event = new EntityLoadedEvent(TestDefinition::class, [$root], $context);
+        $event = new EntityLoadedEvent(new TestDefinition(), [$root], $context);
 
         static::assertEquals(
             new NestedEventCollection([
                 new EntityLoadedEvent(
-                    TestDefinition::class,
+                    new TestDefinition(),
                     [$a, $aNested],
                     $context,
                     false
@@ -210,7 +210,7 @@ class EntityLoadedEventTest extends TestCase
 
 class TestDefinition extends EntityDefinition
 {
-    public static function getEntityName(): string
+    public function getEntityName(): string
     {
         return 'test';
     }

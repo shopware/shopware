@@ -11,7 +11,7 @@ use Shopware\Core\System\Locale\LocaleDefinition;
 
 class LocaleTranslationDefinition extends EntityTranslationDefinition
 {
-    public static function getEntityName(): string
+    public function getEntityName(): string
     {
         return 'locale_translation';
     }

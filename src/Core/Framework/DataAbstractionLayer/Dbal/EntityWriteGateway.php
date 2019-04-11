@@ -18,6 +18,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommandQueue
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
+use Shopware\Core\Framework\Uuid\Exception\InvalidUuidLengthException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\WriteCommandValidatorInterface;
 
@@ -42,7 +43,7 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
     /**
      * {@inheritdoc}
      */
-    public function getExistence(string $definition, array $primaryKey, array $data, WriteCommandQueue $commandQueue): EntityExistence
+    public function getExistence(EntityDefinition $definition, array $primaryKey, array $data, WriteCommandQueue $commandQueue): EntityExistence
     {
         $state = $this->getCurrentState($definition, $primaryKey, $commandQueue);
 
@@ -195,7 +196,7 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
     /**
      * @param string|EntityDefinition $definition
      */
-    private function getParentField(string $definition): ?FkField
+    private function getParentField(EntityDefinition $definition): ?FkField
     {
         if (!$definition::isInheritanceAware()) {
             return null;
@@ -251,10 +252,7 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
         return $fk;
     }
 
-    /**
-     * @param string|EntityDefinition $definition
-     */
-    private function getCurrentState(string $definition, array $primaryKey, WriteCommandQueue $commandQueue): array
+    private function getCurrentState(EntityDefinition $definition, array $primaryKey, WriteCommandQueue $commandQueue): array
     {
         $commands = $commandQueue->getCommandsForEntity($definition, $primaryKey);
 
@@ -296,10 +294,7 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
         return array_replace_recursive($database, $state);
     }
 
-    /**
-     * @param string|EntityDefinition $definition
-     */
-    private function fetchFromDatabase(string $definition, array $primaryKey): array
+    private function fetchFromDatabase(EntityDefinition $definition, array $primaryKey): array
     {
         $query = $this->connection->createQueryBuilder();
         $query->from(EntityDefinitionQueryHelper::escape($definition::getEntityName()));
@@ -351,9 +346,8 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
         return [];
     }
 
-    private function isChild(string $definition, array $data, array $state): bool
+    private function isChild(EntityDefinition $definition, array $data, array $state): bool
     {
-        /** @var EntityDefinition $definition */
         if (!$definition::isInheritanceAware()) {
             return false;
         }
@@ -372,9 +366,8 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
         return isset($state[$fk->getStorageName()]);
     }
 
-    private function wasChild(string $definition, array $state): bool
+    private function wasChild(EntityDefinition $definition, array $state): bool
     {
-        /** @var EntityDefinition $definition */
         if (!$definition::isInheritanceAware()) {
             return false;
         }

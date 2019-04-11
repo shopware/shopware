@@ -39,7 +39,7 @@ class SqlQueryParser
 
     public function parseRanking(
         array $queries,
-        string $definition,
+        EntityDefinition $definition,
         string $root,
         Context $context
     ): ParseResult {
@@ -82,7 +82,7 @@ class SqlQueryParser
      */
     public function parse(
         Filter $query,
-        string $definition,
+        EntityDefinition $definition,
         Context $context,
         ?string $root = null
     ): ParseResult {
@@ -110,7 +110,7 @@ class SqlQueryParser
 
     private function parseRangeFilter(
         RangeFilter $query,
-        string $definition,
+        EntityDefinition $definition,
         string $root,
         Context $context
     ): ParseResult {
@@ -146,7 +146,7 @@ class SqlQueryParser
         return $result;
     }
 
-    private function parseContainsFilter(ContainsFilter $query, string $definition, string $root, Context $context): ParseResult
+    private function parseContainsFilter(ContainsFilter $query, EntityDefinition $definition, string $root, Context $context): ParseResult
     {
         $key = $this->getKey();
 
@@ -161,7 +161,7 @@ class SqlQueryParser
         return $result;
     }
 
-    private function parseEqualsAnyFilter(EqualsAnyFilter $query, string $definition, string $root, Context $context): ParseResult
+    private function parseEqualsAnyFilter(EqualsAnyFilter $query, EntityDefinition $definition, string $root, Context $context): ParseResult
     {
         $key = $this->getKey();
         $select = $this->queryHelper->getFieldAccessor($query->getField(), $definition, $root, $context);
@@ -202,7 +202,7 @@ class SqlQueryParser
         return $result;
     }
 
-    private function parseEqualsFilter(EqualsFilter $query, string $definition, string $root, Context $context): ParseResult
+    private function parseEqualsFilter(EqualsFilter $query, EntityDefinition $definition, string $root, Context $context): ParseResult
     {
         $key = $this->getKey();
         $select = $this->queryHelper->getFieldAccessor($query->getField(), $definition, $root, $context);
@@ -234,7 +234,7 @@ class SqlQueryParser
         return $result;
     }
 
-    private function parseMultiFilter(MultiFilter $query, string $definition, string $root, Context $context): ParseResult
+    private function parseMultiFilter(MultiFilter $query, EntityDefinition $definition, string $root, Context $context): ParseResult
     {
         $result = $this->iterateNested($query, $definition, $root, $context);
 
@@ -250,7 +250,7 @@ class SqlQueryParser
         return $result;
     }
 
-    private function parseNotFilter(NotFilter $query, string $definition, string $root, Context $context): ParseResult
+    private function parseNotFilter(NotFilter $query, EntityDefinition $definition, string $root, Context $context): ParseResult
     {
         $result = $this->iterateNested($query, $definition, $root, $context);
 
@@ -267,7 +267,7 @@ class SqlQueryParser
         return $result;
     }
 
-    private function iterateNested(MultiFilter $query, string $definition, string $root, Context $context): ParseResult
+    private function iterateNested(MultiFilter $query, EntityDefinition $definition, string $root, Context $context): ParseResult
     {
         $result = new ParseResult();
         foreach ($query->getQueries() as $multiFilter) {

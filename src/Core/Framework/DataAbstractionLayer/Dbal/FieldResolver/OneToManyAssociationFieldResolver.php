@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Dbal\FieldResolver;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\QueryBuilder;
+use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\CascadeDelete;
@@ -14,8 +15,18 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField
 
 class OneToManyAssociationFieldResolver implements FieldResolverInterface
 {
+    /**
+     * @var DefinitionInstanceRegistry
+     */
+    private $registry;
+
+    public function __construct(DefinitionInstanceRegistry $registry)
+    {
+        $this->registry = $registry;
+    }
+
     public function resolve(
-        string $definition,
+        EntityDefinition $definition,
         string $root,
         Field $field,
         QueryBuilder $query,
@@ -28,8 +39,7 @@ class OneToManyAssociationFieldResolver implements FieldResolverInterface
 
         $query->addState(EntityDefinitionQueryHelper::HAS_TO_MANY_JOIN);
 
-        /** @var EntityDefinition|string $reference */
-        $reference = $field->getReferenceClass();
+        $reference = $this->registry->get($field->getReferenceClass());
 
         $table = $reference::getEntityName();
 

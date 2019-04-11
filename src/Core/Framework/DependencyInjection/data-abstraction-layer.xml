@@ -22,6 +22,11 @@
             <tag name="console.command"/>
         </service>
 
+        <service id="Shopware\Core\Framework\DataAbstractionLayer\Command\DebugViewGenerator">
+            <argument type="service" id="Doctrine\DBAL\Connection" />
+            <tag name="console.command"/>
+        </service>
+
         <service id="Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator" public="true"/>
 
         <service id="Shopware\Core\Framework\DataAbstractionLayer\Cache\InvalidateCacheSubscriber">
@@ -30,46 +35,48 @@
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator"/>
         </service>
 
-        <service id="Shopware\Core\Framework\DataAbstractionLayer\Cache\CachedEntitySearcher"
-                 decorates="Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface"
-                 decoration-priority="-1000">
+<!--        <service id="Shopware\Core\Framework\DataAbstractionLayer\Cache\CachedEntitySearcher"-->
+<!--                 decorates="Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface"-->
+<!--                 decoration-priority="-1000">-->
 
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator"/>
-            <argument type="service" id="shopware.cache"/>
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Cache\CachedEntitySearcher.inner"/>
-            <argument>%shopware.cache.entity_cache.enabled%</argument>
-            <argument>%shopware.cache.entity_cache.expiration_time%</argument>
-        </service>
+<!--            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator"/>-->
+<!--            <argument type="service" id="shopware.cache"/>-->
+<!--            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Cache\CachedEntitySearcher.inner"/>-->
+<!--            <argument>%shopware.cache.entity_cache.enabled%</argument>-->
+<!--            <argument>%shopware.cache.entity_cache.expiration_time%</argument>-->
+<!--        </service>-->
 
-        <service id="Shopware\Core\Framework\DataAbstractionLayer\Cache\CachedEntityReader"
-                 decorates="Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface"
-                 decoration-priority="-1000">
+<!--        <service id="Shopware\Core\Framework\DataAbstractionLayer\Cache\CachedEntityReader"-->
+<!--                 decorates="Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface"-->
+<!--                 decoration-priority="-1000">-->
 
-            <argument type="service" id="shopware.cache"/>
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Cache\CachedEntityReader.inner"/>
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator"/>
-            <argument>%shopware.cache.entity_cache.enabled%</argument>
-            <argument>%shopware.cache.entity_cache.expiration_time%</argument>
-        </service>
+<!--            <argument type="service" id="shopware.cache"/>-->
+<!--            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Cache\CachedEntityReader.inner"/>-->
+<!--            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator"/>-->
+<!--            <argument>%shopware.cache.entity_cache.enabled%</argument>-->
+<!--            <argument>%shopware.cache.entity_cache.expiration_time%</argument>-->
+<!--        </service>-->
 
-        <service id="Shopware\Core\Framework\DataAbstractionLayer\Cache\CachedEntityAggregator"
-                 decorates="Shopware\Core\Framework\DataAbstractionLayer\Search\EntityAggregatorInterface"
-                 decoration-priority="-1000">
+<!--        <service id="Shopware\Core\Framework\DataAbstractionLayer\Cache\CachedEntityAggregator"-->
+<!--                 decorates="Shopware\Core\Framework\DataAbstractionLayer\Search\EntityAggregatorInterface"-->
+<!--                 decoration-priority="-1000">-->
 
-            <argument type="service" id="shopware.cache"/>
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Cache\CachedEntityAggregator.inner"/>
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator"/>
-            <argument>%shopware.cache.entity_cache.enabled%</argument>
-            <argument>%shopware.cache.entity_cache.expiration_time%</argument>
-        </service>
+<!--            <argument type="service" id="shopware.cache"/>-->
+<!--            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Cache\CachedEntityAggregator.inner"/>-->
+<!--            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator"/>-->
+<!--            <argument>%shopware.cache.entity_cache.enabled%</argument>-->
+<!--            <argument>%shopware.cache.entity_cache.expiration_time%</argument>-->
+<!--        </service>-->
 
         <service id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper">
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\FieldResolver\FieldResolverRegistry"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\FieldAccessorBuilder\FieldAccessorBuilderRegistry"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
         </service>
 
         <service id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityHydrator" public="true">
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\FieldSerializerRegistry"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
         </service>
 
         <service id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionValidator">
@@ -127,6 +134,7 @@
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityHydrator"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\Parser\SqlQueryParser"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
         </service>
 
         <service class="Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityAggregator" id="Shopware\Core\Framework\DataAbstractionLayer\Search\EntityAggregatorInterface">
@@ -135,6 +143,8 @@
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\Parser\SqlQueryParser"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\FieldSerializerRegistry"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
+            <tag name="shopware.traceable" label="entity.aggregator"/>
         </service>
 
         <service class="Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntitySearcher" id="Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface">
@@ -178,14 +188,17 @@
         </service>
 
         <service id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\FieldResolver\ManyToOneAssociationFieldResolver">
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
             <tag name="shopware.field_resolver" priority="-50"/>
         </service>
 
         <service id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\FieldResolver\OneToManyAssociationFieldResolver">
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
             <tag name="shopware.field_resolver" priority="-50"/>
         </service>
 
         <service id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\FieldResolver\ManyToManyAssociationFieldResolver">
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry" />
             <tag name="shopware.field_resolver" priority="-50"/>
         </service>
 
@@ -294,6 +307,10 @@
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface"/>
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="serializer"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
+            <argument type="service" id="Shopware\Core\Framework\Version\Aggregate\VersionCommit\VersionCommitDefinition"/>
+            <argument type="service" id="Shopware\Core\Framework\Version\Aggregate\VersionCommitData\VersionCommitDataDefinition"/>
+            <argument type="service" id="Shopware\Core\Framework\Version\VersionDefinition"/>
         </service>
 
         <service id="Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\FieldSerializerRegistry">
@@ -403,16 +420,19 @@
 
         <service id="Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\ManyToManyAssociationFieldSerializer">
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Write\WriteCommandExtractor"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
             <tag name="shopware.field_serializer"/>
         </service>
 
         <service id="Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\ManyToOneAssociationFieldSerializer">
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Write\WriteCommandExtractor"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
             <tag name="shopware.field_serializer"/>
         </service>
 
         <service id="Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\OneToOneAssociationFieldSerializer">
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Write\WriteCommandExtractor"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
             <tag name="shopware.field_serializer"/>
         </service>
 
@@ -422,6 +442,7 @@
 
         <service id="Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\OneToManyAssociationFieldSerializer">
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Write\WriteCommandExtractor"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
             <tag name="shopware.field_serializer"/>
         </service>
 
@@ -461,6 +482,7 @@
 
         <service id="Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\TranslationsAssociationFieldSerializer">
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Write\WriteCommandExtractor"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
             <tag name="shopware.field_serializer" />
         </service>
 
@@ -506,5 +528,9 @@
             <argument type="service" id="event_dispatcher"/>
         </service>
 
+        <service id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry">
+            <argument type="service" id="service_container" />
+            <argument type="collection"/>
+        </service>
     </services>
 </container>

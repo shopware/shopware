@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Dbal\FieldResolver;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\QueryBuilder;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -12,7 +13,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 class TranslationFieldResolver implements FieldResolverInterface
 {
     public function resolve(
-        string $definition,
+        EntityDefinition $definition,
         string $root,
         Field $field,
         QueryBuilder $query,
@@ -31,7 +32,7 @@ class TranslationFieldResolver implements FieldResolverInterface
         return true;
     }
 
-    private function joinTranslationTable(array $part, string $definition, QueryBuilder $query): void
+    private function joinTranslationTable(array $part, EntityDefinition $definition, QueryBuilder $query): void
     {
         $table = $definition::getEntityName() . '_translation';
         $parameterName = str_replace('.', '_', $part['name']) . 'LanguageId';

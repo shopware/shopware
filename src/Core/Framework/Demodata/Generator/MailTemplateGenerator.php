@@ -78,7 +78,7 @@ class MailTemplateGenerator implements DemodataGeneratorInterface
     {
         $writeContext = WriteContext::createFromContext($context->getContext());
 
-        $this->writer->upsert(MailTemplateDefinition::class, $payload, $writeContext);
+        $this->writer->upsert(new MailTemplateDefinition(), $payload, $writeContext);
 
         $context->add(MailTemplateDefinition::class, ...array_column($payload, 'id'));
     }

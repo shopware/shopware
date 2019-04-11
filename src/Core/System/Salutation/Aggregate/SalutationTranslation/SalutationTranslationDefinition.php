@@ -10,7 +10,7 @@ use Shopware\Core\System\Salutation\SalutationDefinition;
 
 class SalutationTranslationDefinition extends EntityTranslationDefinition
 {
-    public static function getEntityName(): string
+    public function getEntityName(): string
     {
         return 'salutation_translation';
     }

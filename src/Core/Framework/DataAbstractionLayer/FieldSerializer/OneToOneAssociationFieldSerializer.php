@@ -2,6 +2,8 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer;
 
+use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\DecodeByHydratorException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidSerializerFieldException;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
@@ -21,9 +23,17 @@ class OneToOneAssociationFieldSerializer implements FieldSerializerInterface
      */
     protected $writeExtractor;
 
-    public function __construct(WriteCommandExtractor $writeExtractor)
-    {
+    /**
+     * @var DefinitionInstanceRegistry
+     */
+    private $registry;
+
+    public function __construct(
+        WriteCommandExtractor $writeExtractor,
+        DefinitionInstanceRegistry $registry
+    ) {
         $this->writeExtractor = $writeExtractor;
+        $this->registry = $registry;
     }
 
     public function getFieldClass(): string
@@ -46,10 +56,11 @@ class OneToOneAssociationFieldSerializer implements FieldSerializerInterface
         }
 
         $keyField = $parameters->getDefinition()::getFields()->getByStorageName($field->getStorageName());
+        $reference = $this->registry->get($field->getReferenceClass());
 
         //owning side?
         if ($keyField instanceof FkField) {
-            $id = $this->mapOwningSide($field->getReferenceClass(), $field->getReferenceField(), $data, $parameters);
+            $id = $this->mapOwningSide($reference, $field->getReferenceField(), $data, $parameters);
 
             yield $keyField->getPropertyName() => $id;
 
@@ -57,7 +68,7 @@ class OneToOneAssociationFieldSerializer implements FieldSerializerInterface
         }
 
         /* @var OneToOneAssociationField $field */
-        $id = $parameters->getContext()->get($parameters->getDefinition(), $field->getStorageName());
+        $id = $parameters->getContext()->get($parameters->getDefinition()->getClass(), $field->getStorageName());
 
         $value = $data->getValue();
 
@@ -65,7 +76,7 @@ class OneToOneAssociationFieldSerializer implements FieldSerializerInterface
             throw new ExpectedArrayException($parameters->getPath() . '/' . $data->getKey());
         }
 
-        $keyField = $field->getReferenceClass()::getFields()->getByStorageName(
+        $keyField = $reference::getFields()->getByStorageName(
             $field->getReferenceField()
         );
 
@@ -74,7 +85,7 @@ class OneToOneAssociationFieldSerializer implements FieldSerializerInterface
         $this->writeExtractor->extract(
             $value,
             $parameters->cloneForSubresource(
-                $field->getReferenceClass(),
+                $reference,
                 $parameters->getPath() . '/' . $data->getKey()
             )
         );
@@ -86,14 +97,14 @@ class OneToOneAssociationFieldSerializer implements FieldSerializerInterface
     }
 
     private function mapOwningSide(
-        string $referenceClass,
+        EntityDefinition $reference,
         string $referenceField,
         KeyValuePair $data,
         WriteParameterBag $parameters
     ) {
         $value = $data->getValue();
 
-        $pkField = $referenceClass::getFields()->getByStorageName($referenceField);
+        $pkField = $reference::getFields()->getByStorageName($referenceField);
 
         //id provided? otherwise set new one to return it and yield the id into the FkField
         if (isset($value[$pkField->getPropertyName()])) {
@@ -106,7 +117,7 @@ class OneToOneAssociationFieldSerializer implements FieldSerializerInterface
         $this->writeExtractor->extract(
             $value,
             $parameters->cloneForSubresource(
-                $referenceClass,
+                $reference,
                 $parameters->getPath() . '/' . $data->getKey()
             )
         );

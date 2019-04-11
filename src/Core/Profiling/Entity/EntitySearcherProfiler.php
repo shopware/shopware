@@ -27,7 +27,7 @@ class EntitySearcherProfiler implements EntitySearcherInterface
         $this->stopwatch = $stopwatch;
     }
 
-    public function search(string $definition, Criteria $criteria, Context $context): IdSearchResult
+    public function search(EntityDefinition $definition, Criteria $criteria, Context $context): IdSearchResult
     {
         /* @var string|EntityDefinition $definition */
         $this->stopwatch->start('search.' . $definition::getEntityName());

@@ -34,7 +34,7 @@ CREATE TABLE `calculated_price_field_test` (
         ';
     }
 
-    public static function getEntityName(): string
+    public function getEntityName(): string
     {
         return 'calculated_price_field_test';
     }

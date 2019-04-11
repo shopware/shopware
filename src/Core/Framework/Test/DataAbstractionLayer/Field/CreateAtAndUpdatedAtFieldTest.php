@@ -35,7 +35,7 @@ class CreateAtAndUpdatedAtFieldTest extends TestCase
     {
         $this->connection = $this->getContainer()->get(Connection::class);
         $this->repo = new EntityRepository(
-            DateTimeDefinition::class,
+            new DateTimeDefinition(),
             $this->getContainer()->get(EntityReaderInterface::class),
             $this->getContainer()->get(VersionManager::class),
             $this->getContainer()->get(EntitySearcherInterface::class),

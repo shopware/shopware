@@ -261,7 +261,7 @@ class VersioningTest extends TestCase
         );
 
         $repository = new EntityRepository(
-            CalculatedPriceFieldTestDefinition::class,
+            new CalculatedPriceFieldTestDefinition(),
             $this->getContainer()->get(EntityReaderInterface::class),
             $this->getContainer()->get(VersionManager::class),
             $this->getContainer()->get(EntitySearcherInterface::class),

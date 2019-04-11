@@ -13,7 +13,7 @@ use Shopware\Core\Framework\Plugin\PluginDefinition;
 
 class PluginTranslationDefinition extends EntityTranslationDefinition
 {
-    public static function getEntityName(): string
+    public function getEntityName(): string
     {
         return 'plugin_translation';
     }

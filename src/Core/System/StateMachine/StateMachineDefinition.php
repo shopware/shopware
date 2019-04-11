@@ -20,7 +20,7 @@ use Shopware\Core\System\StateMachine\Aggregation\StateMachineTransition\StateMa
 
 class StateMachineDefinition extends EntityDefinition
 {
-    public static function getEntityName(): string
+    public function getEntityName(): string
     {
         return 'state_machine';
     }

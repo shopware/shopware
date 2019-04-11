@@ -21,7 +21,7 @@ use Shopware\Core\System\Salutation\SalutationDefinition;
 
 class OrderCustomerDefinition extends EntityDefinition
 {
-    public static function getEntityName(): string
+    public function getEntityName(): string
     {
         return 'order_customer';
     }

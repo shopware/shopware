@@ -798,7 +798,7 @@ class EntityRepositoryTest extends TestCase
     protected function createRepository(string $definition): EntityRepository
     {
         return new EntityRepository(
-            $definition,
+            $this->getContainer()->get($definition),
             $this->getContainer()->get(EntityReaderInterface::class),
             $this->getContainer()->get(VersionManager::class),
             $this->getContainer()->get(EntitySearcherInterface::class),

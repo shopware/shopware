@@ -22,7 +22,7 @@ class ProductVisibilityDefinition extends EntityDefinition
 
     public const VISIBILITY_ALL = 30;
 
-    public static function getEntityName(): string
+    public function getEntityName(): string
     {
         return 'product_visibility';
     }

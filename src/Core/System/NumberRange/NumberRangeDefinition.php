@@ -24,7 +24,7 @@ use Shopware\Core\System\NumberRange\Aggregate\NumberRangeType\NumberRangeTypeDe
 
 class NumberRangeDefinition extends EntityDefinition
 {
-    public static function getEntityName(): string
+    public function getEntityName(): string
     {
         return 'number_range';
     }

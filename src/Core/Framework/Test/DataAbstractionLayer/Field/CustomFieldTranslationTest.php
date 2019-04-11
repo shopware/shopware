@@ -533,8 +533,11 @@ class CustomFieldTranslationTest extends TestCase
 
     protected function getTestRepository(): EntityRepository
     {
+        $this->getContainer()->set(CustomFieldTestDefinition::class, new CustomFieldTestDefinition());
+        $this->getContainer()->set(CustomFieldTestTranslationDefinition::class, new CustomFieldTestTranslationDefinition());
+
         return new EntityRepository(
-            CustomFieldTestDefinition::class,
+            new CustomFieldTestDefinition(),
             $this->getContainer()->get(EntityReaderInterface::class),
             $this->getContainer()->get(VersionManager::class),
             $this->getContainer()->get(EntitySearcherInterface::class),

@@ -11,7 +11,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 
 class SalesChannelTranslationDefinition extends EntityTranslationDefinition
 {
-    public static function getEntityName(): string
+    public function getEntityName(): string
     {
         return 'sales_channel_translation';
     }

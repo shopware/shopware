@@ -4,6 +4,8 @@ declare(strict_types=1);
 namespace Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer;
 
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\DecodeByHydratorException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidSerializerFieldException;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
@@ -24,9 +26,17 @@ class ManyToManyAssociationFieldSerializer implements FieldSerializerInterface
      */
     protected $writeExtrator;
 
-    public function __construct(WriteCommandExtractor $writeExtrator)
-    {
+    /**
+     * @var DefinitionInstanceRegistry
+     */
+    private $registry;
+
+    public function __construct(
+        WriteCommandExtractor $writeExtrator,
+        DefinitionInstanceRegistry $registry
+    ) {
         $this->writeExtrator = $writeExtrator;
+        $this->registry = $registry;
     }
 
     public function getFieldClass(): string
@@ -45,17 +55,18 @@ class ManyToManyAssociationFieldSerializer implements FieldSerializerInterface
         }
         $key = $data->getKey();
         $value = $data->getValue();
+        $referencedDefinition = $this->registry->get($field->getReferenceClass());
 
         if (!\is_array($value)) {
             throw new ExpectedArrayException($parameters->getPath() . '/' . $key);
         }
 
-        $mappingAssociation = $this->getMappingAssociation($field);
+        $mappingAssociation = $this->getMappingAssociation($referencedDefinition, $field);
 
         foreach ($value as $keyValue => $subresources) {
             $mapped = $subresources;
             if ($mappingAssociation) {
-                $mapped = $this->map($field, $mappingAssociation, $subresources);
+                $mapped = $this->map($referencedDefinition, $field, $mappingAssociation, $subresources);
             }
 
             if (!\is_array($mapped)) {
@@ -65,7 +76,7 @@ class ManyToManyAssociationFieldSerializer implements FieldSerializerInterface
             $this->writeExtrator->extract(
                 $mapped,
                 $parameters->cloneForSubresource(
-                    $field->getReferenceClass(),
+                    $referencedDefinition,
                     $parameters->getPath() . '/' . $key . '/' . $keyValue
                 )
             );
@@ -79,9 +90,9 @@ class ManyToManyAssociationFieldSerializer implements FieldSerializerInterface
         throw new DecodeByHydratorException($field);
     }
 
-    protected function getMappingAssociation(ManyToManyAssociationField $field): ?ManyToOneAssociationField
+    protected function getMappingAssociation(EntityDefinition $referencedDefinition, ManyToManyAssociationField $field): ?ManyToOneAssociationField
     {
-        $associations = $field->getReferenceClass()::getFields()->filterInstance(ManyToOneAssociationField::class);
+        $associations = $referencedDefinition::getFields()->filterInstance(ManyToOneAssociationField::class);
 
         /** @var ManyToOneAssociationField $association */
         foreach ($associations as $association) {
@@ -93,7 +104,7 @@ class ManyToManyAssociationFieldSerializer implements FieldSerializerInterface
         return null;
     }
 
-    protected function map(ManyToManyAssociationField $field, ManyToOneAssociationField $association, $data): array
+    protected function map(EntityDefinition $referencedDefinition, ManyToManyAssociationField $field, ManyToOneAssociationField $association, $data): array
     {
         // not only foreign key provided? data is provided as insert or update command
         if (\count($data) > 1) {
@@ -120,7 +131,7 @@ class ManyToManyAssociationFieldSerializer implements FieldSerializerInterface
                 ]
             ]
         */
-        $fk = $field->getReferenceClass()::getFields()->getByStorageName(
+        $fk = $referencedDefinition::getFields()->getByStorageName(
             $association->getStorageName()
         );
 
@@ -137,7 +148,7 @@ class ManyToManyAssociationFieldSerializer implements FieldSerializerInterface
             $fk->getPropertyName() => $data[$association->getReferenceField()],
 
             //break versioning at many to many relations
-            $association->getReferenceClass()::getEntityName() . '_version_id' => Defaults::LIVE_VERSION,
+            $referencedDefinition::getEntityName() . '_version_id' => Defaults::LIVE_VERSION,
         ];
     }
 }

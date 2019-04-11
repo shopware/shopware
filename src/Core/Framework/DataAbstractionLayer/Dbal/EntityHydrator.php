@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer\Dbal;
 
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationField;
@@ -35,16 +36,20 @@ class EntityHydrator
      * @var Entity[] internal object cache to prevent duplicate hydration for exact same objects
      */
     private $objects = [];
+    /**
+     * @var DefinitionInstanceRegistry
+     */
+    private $registry;
 
-    public function __construct(FieldSerializerRegistry $fieldHandler)
-    {
+    public function __construct(
+        FieldSerializerRegistry $fieldHandler,
+        DefinitionInstanceRegistry $registry
+    ) {
         $this->fieldHandler = $fieldHandler;
+        $this->registry = $registry;
     }
 
-    /**
-     * @param string|EntityDefinition $definition
-     */
-    public function hydrate(string $entity, string $definition, array $rows, string $root, Context $context): array
+    public function hydrate(string $entity, EntityDefinition $definition, array $rows, string $root, Context $context): array
     {
         $collection = [];
         $this->objects = [];
@@ -56,10 +61,7 @@ class EntityHydrator
         return $collection;
     }
 
-    /**
-     * @param string|EntityDefinition $definition
-     */
-    private function hydrateEntity(Entity $entity, string $definition, array $row, string $root, Context $context): Entity
+    private function hydrateEntity(Entity $entity, EntityDefinition $definition, array $row, string $root, Context $context): Entity
     {
         $fields = $definition::getFields();
 
@@ -196,10 +198,7 @@ class EntityHydrator
         return array_map('strtolower', array_filter($ids));
     }
 
-    /**
-     * @param string|EntityDefinition $definition
-     */
-    private function buildPrimaryKey($definition, array $row, string $root): array
+    private function buildPrimaryKey(EntityDefinition $definition, array $row, string $root): array
     {
         $primaryKeyFields = $definition::getPrimaryKeys();
         $primaryKey = [];
@@ -224,7 +223,9 @@ class EntityHydrator
             return null;
         }
 
-        $pkField = $field->getReferenceClass()::getFields()->getByStorageName(
+        $reference = $this->registry->get($field->getReferenceClass());
+
+        $pkField = $reference::getFields()->getByStorageName(
             $field->getReferenceField()
         );
 
@@ -235,11 +236,11 @@ class EntityHydrator
             return null;
         }
 
-        $structClass = $field->getReferenceClass()::getEntityClass();
+        $structClass = $reference::getEntityClass();
 
         return $this->hydrateEntity(
             new $structClass(),
-            $field->getReferenceClass(),
+            $reference,
             $row,
             $root . '.' . $field->getPropertyName(),
             $context

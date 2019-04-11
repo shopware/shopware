@@ -46,13 +46,28 @@ abstract class EntityDefinition
      */
     protected static $primaryKeys = [];
 
+    final public function __construct()
+    {
+        //echo 'CONSTRUCTING: ' . get_class($this) . PHP_EOL;
+    }
+
+    final public function getClass(): string
+    {
+        return get_class($this);
+    }
+
+    final public function equals(EntityDefinition $definition): bool
+    {
+        return $definition->getClass() === $this->getClass();
+    }
+
     public static function addExtension(EntityExtensionInterface $extension): void
     {
         static::$extensions[static::class][\get_class($extension)] = $extension;
         static::$fields[static::class] = null;
     }
 
-    abstract public static function getEntityName(): string;
+    abstract public function getEntityName(): string;
 
     public static function getFields(): FieldCollection
     {

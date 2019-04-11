@@ -13,7 +13,7 @@ class InsertCommand implements WriteCommandInterface
     private $payload;
 
     /**
-     * @var string|EntityDefinition
+     * @var EntityDefinition
      */
     private $definition;
 
@@ -26,7 +26,7 @@ class InsertCommand implements WriteCommandInterface
      */
     private $existence;
 
-    public function __construct(string $definition, array $payload, array $primaryKey, EntityExistence $existence)
+    public function __construct(EntityDefinition $definition, array $payload, array $primaryKey, EntityExistence $existence)
     {
         $this->payload = $payload;
         $this->definition = $definition;
@@ -44,7 +44,7 @@ class InsertCommand implements WriteCommandInterface
         return $this->payload;
     }
 
-    public function getDefinition(): string
+    public function getDefinition(): EntityDefinition
     {
         return $this->definition;
     }

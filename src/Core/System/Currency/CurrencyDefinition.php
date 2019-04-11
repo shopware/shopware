@@ -29,7 +29,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 
 class CurrencyDefinition extends EntityDefinition
 {
-    public static function getEntityName(): string
+    public function getEntityName(): string
     {
         return 'currency';
     }

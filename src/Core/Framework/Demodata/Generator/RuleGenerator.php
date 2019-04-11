@@ -145,7 +145,7 @@ class RuleGenerator implements DemodataGeneratorInterface
 
         $writeContext = WriteContext::createFromContext($context->getContext());
 
-        $this->writer->insert(RuleDefinition::class, $payload, $writeContext);
+        $this->writer->insert(new RuleDefinition(), $payload, $writeContext);
 
         $context->add(RuleDefinition::class, ...array_column($payload, 'id'));
     }

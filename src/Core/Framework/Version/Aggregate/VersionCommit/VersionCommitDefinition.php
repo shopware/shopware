@@ -23,7 +23,7 @@ use Shopware\Core\Framework\Version\VersionDefinition;
 
 class VersionCommitDefinition extends EntityDefinition
 {
-    public static function getEntityName(): string
+    public function getEntityName(): string
     {
         return 'version_commit';
     }

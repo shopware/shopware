@@ -26,7 +26,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 
 class MediaFolderDefinition extends EntityDefinition
 {
-    public static function getEntityName(): string
+    public function getEntityName(): string
     {
         return 'media_folder';
     }

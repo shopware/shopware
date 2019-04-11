@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Dbal\FieldResolver;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\QueryBuilder;
+use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\CascadeDelete;
@@ -15,8 +16,18 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField
 
 class ManyToManyAssociationFieldResolver implements FieldResolverInterface
 {
+    /**
+     * @var DefinitionInstanceRegistry
+     */
+    private $registry;
+
+    public function __construct(DefinitionInstanceRegistry $registry)
+    {
+        $this->registry = $registry;
+    }
+
     public function resolve(
-        string $definition,
+        EntityDefinition $definition,
         string $root,
         Field $field,
         QueryBuilder $query,
@@ -69,14 +80,12 @@ class ManyToManyAssociationFieldResolver implements FieldResolverInterface
             )
         );
 
-        /** @var EntityDefinition|string $reference */
-        $reference = $field->getReferenceDefinition();
+        $reference = $this->registry->get($field->getReferenceDefinition());
         $table = $reference::getEntityName();
 
         $alias = $root . '.' . $field->getPropertyName();
 
         $versionJoinCondition = '';
-        /* @var string|EntityDefinition $definition */
         if ($reference::isVersionAware()) {
             $versionField = '`' . $reference::getEntityName() . '_version_id`';
             $versionJoinCondition = ' AND #alias#.`version_id` = #mapping#.' . $versionField;
@@ -114,7 +123,7 @@ class ManyToManyAssociationFieldResolver implements FieldResolverInterface
             )
         );
 
-        if ($definition === $reference) {
+        if ($definition->getClass() === $reference->getClass()) {
             return true;
         }
 

@@ -2,8 +2,6 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Field;
 
-use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
-
 class AssociationField extends Field
 {
     /**
@@ -16,9 +14,6 @@ class AssociationField extends Field
      */
     protected $autoload = false;
 
-    /**
-     * @return string|EntityDefinition
-     */
     public function getReferenceClass(): string
     {
         return $this->referenceClass;

@@ -27,9 +27,8 @@ class EntityAggregatorProfiler implements EntityAggregatorInterface
         $this->stopwatch = $stopwatch;
     }
 
-    public function aggregate(string $definition, Criteria $criteria, Context $context): AggregatorResult
+    public function aggregate(EntityDefinition $definition, Criteria $criteria, Context $context): AggregatorResult
     {
-        /* @var string|EntityDefinition $definition */
         $this->stopwatch->start('aggregate.' . $definition::getEntityName());
 
         $data = $this->decorated->aggregate($definition, $criteria, $context);

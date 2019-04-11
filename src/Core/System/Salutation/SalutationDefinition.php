@@ -23,7 +23,7 @@ use Shopware\Core\System\Salutation\SalesChannel\SalesChannelSalutationDefinitio
 
 class SalutationDefinition extends EntityDefinition
 {
-    public static function getEntityName(): string
+    public function getEntityName(): string
     {
         return 'salutation';
     }

@@ -35,7 +35,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 
 class RuleDefinition extends EntityDefinition
 {
-    public static function getEntityName(): string
+    public function getEntityName(): string
     {
         return 'rule';
     }

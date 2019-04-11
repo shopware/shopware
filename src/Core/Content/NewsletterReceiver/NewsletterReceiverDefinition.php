@@ -18,7 +18,7 @@ use Shopware\Core\System\Salutation\SalutationDefinition;
 
 class NewsletterReceiverDefinition extends EntityDefinition
 {
-    public static function getEntityName(): string
+    public function getEntityName(): string
     {
         return 'newsletter_receiver';
     }

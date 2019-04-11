@@ -15,7 +15,7 @@ use Shopware\Core\Framework\Language\LanguageDefinition;
 
 class ProductKeywordDictionaryDefinition extends EntityDefinition
 {
-    public static function getEntityName(): string
+    public function getEntityName(): string
     {
         return 'product_keyword_dictionary';
     }

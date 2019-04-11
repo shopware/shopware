@@ -180,7 +180,7 @@ class ProductGenerator implements DemodataGeneratorInterface
     {
         $writeContext = WriteContext::createFromContext($context->getContext());
 
-        $this->writer->upsert(ProductDefinition::class, $payload, $writeContext);
+        $this->writer->upsert(new ProductDefinition(), $payload, $writeContext);
         $this->importImages($context);
 
         $context->add(ProductDefinition::class, ...array_column($payload, 'id'));

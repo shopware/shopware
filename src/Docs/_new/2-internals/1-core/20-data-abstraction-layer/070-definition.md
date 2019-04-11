@@ -23,7 +23,7 @@ Every definition must be extended from `Shopware\Core\Framework\DataAbstractionL
 ### Method: getEntityName()
 
 ```php
-public static function getEntityName(): string
+public function getEntityName(): string
 {
     return 'product';
 }

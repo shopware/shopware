@@ -74,7 +74,7 @@ trait FieldValidatorTrait
             return false;
         }
 
-        if (\is_subclass_of($existence->getDefinition(), EntityTranslationDefinition::class)
+        if ($existence->hasDefinition() && $existence->getDefinition() instanceof EntityTranslationDefinition
             && $parameters->getCurrentWriteLanguageId() !== Defaults::LANGUAGE_SYSTEM
         ) {
             return false;

@@ -74,7 +74,7 @@ class ProductStreamGenerator implements DemodataGeneratorInterface
             ];
         }
 
-        $this->writer->insert(ProductStreamDefinition::class, $payload, WriteContext::createFromContext($context->getContext()));
+        $this->writer->insert(new ProductStreamDefinition(), $payload, WriteContext::createFromContext($context->getContext()));
 
         $context->add(ProductStreamDefinition::class, ...array_column($payload, 'id'));
 

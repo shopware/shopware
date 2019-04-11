@@ -16,7 +16,7 @@ class DeliveryTimeTranslationDefinition extends EntityTranslationDefinition
         return DeliveryTimeDefinition::class;
     }
 
-    public static function getEntityName(): string
+    public function getEntityName(): string
     {
         return 'delivery_time_translation';
     }

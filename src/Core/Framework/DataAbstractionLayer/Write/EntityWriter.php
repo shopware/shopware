@@ -72,17 +72,17 @@ class EntityWriter implements EntityWriterInterface
         $this->languageLoader = $languageLoader;
     }
 
-    public function upsert(string $definition, array $rawData, WriteContext $writeContext): array
+    public function upsert(EntityDefinition $definition, array $rawData, WriteContext $writeContext): array
     {
         return $this->write($definition, $rawData, $writeContext);
     }
 
-    public function insert(string $definition, array $rawData, WriteContext $writeContext): array
+    public function insert(EntityDefinition $definition, array $rawData, WriteContext $writeContext): array
     {
         return $this->write($definition, $rawData, $writeContext, InsertCommand::class);
     }
 
-    public function update(string $definition, array $rawData, WriteContext $writeContext): array
+    public function update(EntityDefinition $definition, array $rawData, WriteContext $writeContext): array
     {
         return $this->write($definition, $rawData, $writeContext, UpdateCommand::class);
     }
@@ -95,7 +95,7 @@ class EntityWriter implements EntityWriterInterface
      * @throws IncompletePrimaryKeyException
      * @throws ImpossibleWriteOrderException
      */
-    public function delete(string $definition, array $ids, WriteContext $writeContext): DeleteResult
+    public function delete(EntityDefinition $definition, array $ids, WriteContext $writeContext): DeleteResult
     {
         $this->validateWriteInput($ids);
 
@@ -187,7 +187,7 @@ class EntityWriter implements EntityWriterInterface
             $existence = $this->gateway->getExistence($definition, $mappedBytes, [], $commandQueue);
 
             if (!$existence->exists()) {
-                $skipped[$definition][] = new EntityWriteResult($mapped, $mapped, $existence);
+                $skipped[$definition->getClass()][] = new EntityWriteResult($mapped, $mapped, $existence);
                 continue;
             }
 
@@ -276,7 +276,7 @@ class EntityWriter implements EntityWriterInterface
     }
 
     private function write(
-        string $definition,
+        EntityDefinition $definition,
         array $rawData,
         WriteContext $writeContext,
         ?string $ensure = null

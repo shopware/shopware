@@ -52,7 +52,7 @@ class WriteParameterBag
     private $currentWriteLanguageId;
 
     public function __construct(
-        string $definition,
+        EntityDefinition $definition,
         WriteContext $context,
         string $path,
         WriteCommandQueue $commandQueue,
@@ -65,10 +65,7 @@ class WriteParameterBag
         $this->exceptionStack = $exceptionStack;
     }
 
-    /**
-     * @return string|EntityDefinition
-     */
-    public function getDefinition(): string
+    public function getDefinition(): EntityDefinition
     {
         return $this->definition;
     }
@@ -93,7 +90,7 @@ class WriteParameterBag
         return $this->exceptionStack;
     }
 
-    public function cloneForSubresource(string $definition, string $path): self
+    public function cloneForSubresource(EntityDefinition $definition, string $path): self
     {
         return new self(
             $definition,

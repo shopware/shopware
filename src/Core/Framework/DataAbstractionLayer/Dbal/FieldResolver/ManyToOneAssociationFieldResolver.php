@@ -6,6 +6,7 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\QueryBuilder;
+use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
@@ -17,8 +18,18 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToOneAssociationField;
 
 class ManyToOneAssociationFieldResolver implements FieldResolverInterface
 {
+    /**
+     * @var DefinitionInstanceRegistry
+     */
+    private $registry;
+
+    public function __construct(DefinitionInstanceRegistry $registry)
+    {
+        $this->registry = $registry;
+    }
+
     public function resolve(
-        string $definition,
+        EntityDefinition $definition,
         string $root,
         Field $field,
         QueryBuilder $query,
@@ -29,8 +40,7 @@ class ManyToOneAssociationFieldResolver implements FieldResolverInterface
             return false;
         }
 
-        /** @var EntityDefinition|string $reference */
-        $reference = $field->getReferenceClass();
+        $reference = $this->registry->get($field->getReferenceClass());
         $alias = $root . '.' . $field->getPropertyName();
         if ($query->hasState($alias)) {
             return true;
@@ -39,7 +49,7 @@ class ManyToOneAssociationFieldResolver implements FieldResolverInterface
 
         $this->join($definition, $root, $field, $query, $context, $queryHelper);
 
-        if ($definition === $reference) {
+        if ($definition->equals($reference)) {
             return true;
         }
 
@@ -56,7 +66,7 @@ class ManyToOneAssociationFieldResolver implements FieldResolverInterface
     }
 
     private function join(
-        string $definition,
+        EntityDefinition $definition,
         string $root,
         AssociationField $field,
         QueryBuilder $query,
@@ -105,7 +115,7 @@ class ManyToOneAssociationFieldResolver implements FieldResolverInterface
 
         //specified version requested, use sub version call to solve live version or specified
         if ($versionAware && $context->getVersionId() !== Defaults::LIVE_VERSION) {
-            $versionQuery = $this->createSubVersionQuery($field, $query, $context, $queryHelper);
+            $versionQuery = $this->createSubVersionQuery($definition, $field, $query, $context, $queryHelper);
 
             $parameters = [
                 '#source#' => $source,
@@ -174,7 +184,7 @@ class ManyToOneAssociationFieldResolver implements FieldResolverInterface
         );
     }
 
-    private function createSubVersionQuery(AssociationField $field, QueryBuilder $query, Context $context, EntityDefinitionQueryHelper $queryHelper): QueryBuilder
+    private function createSubVersionQuery(EntityDefinition $definition, AssociationField $field, QueryBuilder $query, Context $context, EntityDefinitionQueryHelper $queryHelper): QueryBuilder
     {
         $subRoot = $field->getReferenceClass()::getEntityName();
 
@@ -184,7 +194,7 @@ class ManyToOneAssociationFieldResolver implements FieldResolverInterface
             EntityDefinitionQueryHelper::escape($subRoot),
             EntityDefinitionQueryHelper::escape($subRoot)
         );
-        $queryHelper->joinVersion($versionQuery, $field->getReferenceClass(), $subRoot, $context);
+        $queryHelper->joinVersion($versionQuery, $definition, $subRoot, $context);
 
         return $versionQuery;
     }

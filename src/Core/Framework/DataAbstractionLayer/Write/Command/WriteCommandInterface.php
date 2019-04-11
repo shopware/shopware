@@ -9,10 +9,7 @@ interface WriteCommandInterface
 {
     public function isValid(): bool;
 
-    /**
-     * @return string|EntityDefinition
-     */
-    public function getDefinition(): string;
+    public function getDefinition(): EntityDefinition;
 
     public function getPrimaryKey(): array;
 

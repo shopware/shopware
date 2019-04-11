@@ -49,12 +49,12 @@ class EntityRepository implements EntityRepositoryInterface
     private $versionManager;
 
     /**
-     * @var string|EntityDefinition
+     * @var EntityDefinition
      */
     private $definition;
 
     public function __construct(
-        string $definition,
+        EntityDefinition $definition,
         EntityReaderInterface $reader,
         VersionManager $versionManager,
         EntitySearcherInterface $searcher,

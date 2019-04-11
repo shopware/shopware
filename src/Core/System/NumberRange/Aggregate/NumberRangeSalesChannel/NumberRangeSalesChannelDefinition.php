@@ -15,7 +15,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 
 class NumberRangeSalesChannelDefinition extends EntityDefinition
 {
-    public static function getEntityName(): string
+    public function getEntityName(): string
     {
         return 'number_range_sales_channel';
     }

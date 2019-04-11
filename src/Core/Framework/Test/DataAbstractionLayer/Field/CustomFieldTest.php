@@ -1093,8 +1093,10 @@ class CustomFieldTest extends TestCase
 
     private function getTestRepository(): EntityRepository
     {
+        $this->getContainer()->set(AttributesTestDefinition::class, new AttributesTestDefinition());
+
         return new EntityRepository(
-            CustomFieldTestDefinition::class,
+            new CustomFieldTestDefinition(),
             $this->getContainer()->get(EntityReaderInterface::class),
             $this->getContainer()->get(VersionManager::class),
             $this->getContainer()->get(EntitySearcherInterface::class),

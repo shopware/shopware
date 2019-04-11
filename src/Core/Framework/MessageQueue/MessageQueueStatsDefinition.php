@@ -15,7 +15,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 
 class MessageQueueStatsDefinition extends EntityDefinition
 {
-    public static function getEntityName(): string
+    public function getEntityName(): string
     {
         return 'message_queue_stats';
     }

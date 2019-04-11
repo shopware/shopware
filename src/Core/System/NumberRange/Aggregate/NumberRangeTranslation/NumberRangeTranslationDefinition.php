@@ -11,7 +11,7 @@ use Shopware\Core\System\NumberRange\NumberRangeDefinition;
 
 class NumberRangeTranslationDefinition extends EntityTranslationDefinition
 {
-    public static function getEntityName(): string
+    public function getEntityName(): string
     {
         return 'number_range_translation';
     }

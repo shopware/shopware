@@ -14,7 +14,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\MappingEntityDefinition;
 
 class ProductCategoryTreeDefinition extends MappingEntityDefinition
 {
-    public static function getEntityName(): string
+    public function getEntityName(): string
     {
         return 'product_category_tree';
     }

@@ -40,7 +40,7 @@ class ReferenceVersionFieldSerializer implements FieldSerializerInterface
             // if the current entity is a sub entity (e.g. order -> line-item)
             // and the version id isn't set, use the same version id of the own entity
             // this is the case, if a entity is created over a sub api call
-            $value = $parameters->getContext()->get($parameters->getDefinition(), 'versionId');
+            $value = $parameters->getContext()->get($parameters->getDefinition()->getClass(), 'versionId');
         } else {
             $value = Defaults::LIVE_VERSION;
         }

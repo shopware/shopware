@@ -39,7 +39,7 @@ use Shopware\Core\System\Tag\TagDefinition;
 
 class OrderDefinition extends EntityDefinition
 {
-    public static function getEntityName(): string
+    public function getEntityName(): string
     {
         return 'order';
     }

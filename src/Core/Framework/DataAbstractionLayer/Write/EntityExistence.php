@@ -21,7 +21,7 @@ class EntityExistence
     private $exists;
 
     /**
-     * @var string|EntityDefinition
+     * @var EntityDefinition
      */
     private $definition;
 
@@ -41,16 +41,16 @@ class EntityExistence
     private $state;
 
     public function __construct(
-        string $definition,
+        ?EntityDefinition $definition = null, // @see a hack in \Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\JsonFieldSerializer
         array $primaryKey,
         bool $exists,
         bool $isChild,
         bool $wasChild,
         array $state
     ) {
+        $this->definition = $definition;
         $this->primaryKey = $primaryKey;
         $this->exists = $exists;
-        $this->definition = $definition;
         $this->isChild = $isChild;
         $this->wasChild = $wasChild;
         $this->state = $state;
@@ -76,7 +76,12 @@ class EntityExistence
         return $this->wasChild;
     }
 
-    public function getDefinition(): string
+    public function hasDefinition(): bool
+    {
+        return $this->definition !== null;
+    }
+
+    public function getDefinition(): EntityDefinition
     {
         return $this->definition;
     }

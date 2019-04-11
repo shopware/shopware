@@ -155,10 +155,7 @@ class WriteCommandExtractor
         return $stack->getResultAsArray();
     }
 
-    /**
-     * @param string|EntityDefinition $definition
-     */
-    private function integrateDefaults(string $definition, array $rawData, EntityExistence $existence): array
+    private function integrateDefaults(EntityDefinition $definition, array $rawData, EntityExistence $existence): array
     {
         $defaults = $definition::getDefaults($existence);
 
@@ -173,7 +170,7 @@ class WriteCommandExtractor
         return $rawData;
     }
 
-    private function updateCommandQueue(string $definition, WriteCommandQueue $queue, EntityExistence $existence, array $pkData, array $data): void
+    private function updateCommandQueue(EntityDefinition $definition, WriteCommandQueue $queue, EntityExistence $existence, array $pkData, array $data): void
     {
         /* @var EntityDefinition $definition */
         if ($existence->exists()) {
@@ -186,11 +183,9 @@ class WriteCommandExtractor
     }
 
     /**
-     * @param EntityDefinition|string $definition
-     *
      * @return Field[]
      */
-    private function getFieldsInWriteOrder(string $definition): array
+    private function getFieldsInWriteOrder(EntityDefinition $definition): array
     {
         $fields = $definition::getFields();
 

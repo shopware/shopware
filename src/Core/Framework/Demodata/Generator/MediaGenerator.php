@@ -53,7 +53,7 @@ class MediaGenerator implements DemodataGeneratorInterface
 
             $mediaId = Uuid::randomHex();
             $this->writer->insert(
-                MediaDefinition::class,
+                new MediaDefinition(),
                 [['id' => $mediaId, 'name' => "File #{$i}: {$file}"]],
                 $writeContext
             );

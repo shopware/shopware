@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Search;
 
+use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Aggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\Filter;
@@ -165,7 +166,7 @@ class Criteria extends Struct
         return $this->associations;
     }
 
-    public function getAssociation(string $field, ?string $definition = null): ?Criteria
+    public function getAssociation(string $field, ?EntityDefinition $definition = null): ?Criteria
     {
         if (isset($this->associations[$field])) {
             return $this->associations[$field];
@@ -252,7 +253,7 @@ class Criteria extends Struct
         return $this;
     }
 
-    public function hasAssociation(string $field, ?string $definition = null): bool
+    public function hasAssociation(string $field, ?EntityDefinition $definition = null): bool
     {
         if (isset($this->associations[$field])) {
             return true;

@@ -56,6 +56,8 @@ class ManyToManyAssociationField extends AssociationField
     }
 
     /**
+     * @todo inverstigate getReferenceDefinition vs getReferenceClass
+     *
      * @return string|EntityDefinition
      */
     public function getReferenceDefinition(): string

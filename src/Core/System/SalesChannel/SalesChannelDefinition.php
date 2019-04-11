@@ -47,7 +47,7 @@ use Shopware\Core\System\SystemConfig\SystemConfigDefinition;
 
 class SalesChannelDefinition extends EntityDefinition
 {
-    public static function getEntityName(): string
+    public function getEntityName(): string
     {
         return 'sales_channel';
     }

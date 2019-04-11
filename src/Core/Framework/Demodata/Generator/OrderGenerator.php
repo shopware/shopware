@@ -132,7 +132,7 @@ SQL;
             $payload[] = $this->orderConverter->convertToOrder($cart, $salesChannelContext, new OrderConversionContext());
 
             if (\count($payload) >= 20) {
-                $this->writer->upsert(OrderDefinition::class, $payload, $writeContext);
+                $this->writer->upsert(new OrderDefinition(), $payload, $writeContext);
                 $context->getConsole()->progressAdvance(\count($payload));
                 $payload = [];
             }

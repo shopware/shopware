@@ -11,7 +11,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\MappingEntityDefinition;
 
 class WriteProtectedReferenceDefinition extends MappingEntityDefinition
 {
-    public static function getEntityName(): string
+    public function getEntityName(): string
     {
         return '_test_nullable_reference';
     }

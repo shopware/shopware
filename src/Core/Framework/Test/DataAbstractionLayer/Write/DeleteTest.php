@@ -7,6 +7,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriter;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
+use Shopware\Core\Framework\Test\DataAbstractionLayer\Write\Entity\DeleteCascadeChildDefinition;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Write\Entity\DeleteCascadeManyToOneDefinition;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Write\Entity\DeleteCascadeParentDefinition;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -24,6 +25,10 @@ class DeleteTest extends TestCase
     protected function setUp(): void
     {
         $this->writer = $this->getContainer()->get(EntityWriter::class);
+
+        $this->getContainer()->set(DeleteCascadeParentDefinition::class, new DeleteCascadeParentDefinition());
+        $this->getContainer()->set(DeleteCascadeManyToOneDefinition::class, new DeleteCascadeManyToOneDefinition());
+        $this->getContainer()->set(DeleteCascadeChildDefinition::class, new DeleteCascadeChildDefinition());
 
         $this->getContainer()->get(Connection::class)->executeUpdate('
 DROP TABLE IF EXISTS delete_cascade_child;
@@ -70,7 +75,7 @@ ADD FOREIGN KEY (`delete_cascade_many_to_one_id`) REFERENCES `delete_cascade_man
         $id = Uuid::randomHex();
 
         $this->writer->insert(
-            DeleteCascadeParentDefinition::class,
+            new DeleteCascadeParentDefinition(),
             [
                 [
                     'id' => $id,
@@ -95,7 +100,7 @@ ADD FOREIGN KEY (`delete_cascade_many_to_one_id`) REFERENCES `delete_cascade_man
         static::assertCount(1, $children);
 
         $this->writer->delete(
-            DeleteCascadeParentDefinition::class,
+            new DeleteCascadeParentDefinition(),
             [
                 ['id' => $id],
             ],
@@ -114,7 +119,7 @@ ADD FOREIGN KEY (`delete_cascade_many_to_one_id`) REFERENCES `delete_cascade_man
         $id = Uuid::randomHex();
 
         $this->writer->insert(
-            DeleteCascadeParentDefinition::class,
+            new DeleteCascadeParentDefinition(),
             [
                 [
                     'id' => $id,
@@ -142,7 +147,7 @@ ADD FOREIGN KEY (`delete_cascade_many_to_one_id`) REFERENCES `delete_cascade_man
         static::assertCount(1, $manyToOne);
 
         $this->writer->delete(
-            DeleteCascadeManyToOneDefinition::class,
+            new DeleteCascadeManyToOneDefinition(),
             [
                 ['id' => $id],
             ],

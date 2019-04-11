@@ -11,8 +11,10 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException\Insufficie
 use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException\WriteStackException;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\WriteProtectedDefinition;
+use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\WriteProtectedReferenceDefinition;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\WriteProtectedRelationDefinition;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\WriteProtectedTranslatedDefinition;
+use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\WriteProtectedTranslationDefinition;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 
@@ -84,6 +86,7 @@ EOF;
     {
         $id = Uuid::randomHex();
         $context = $this->createWriteContext();
+        $definition = new WriteProtectedDefinition();
 
         $data = [
             'id' => $id,
@@ -92,7 +95,7 @@ EOF;
 
         $ex = null;
         try {
-            $this->getWriter()->insert(WriteProtectedDefinition::class, [$data], $context);
+            $this->getWriter()->insert($definition, [$data], $context);
         } catch (WriteStackException $ex) {
         }
 
@@ -109,12 +112,13 @@ EOF;
     {
         $id = Uuid::randomHex();
         $context = $this->createWriteContext();
+        $definition = new WriteProtectedDefinition();
 
         $data = [
             'id' => $id,
         ];
 
-        $this->getWriter()->insert(WriteProtectedDefinition::class, [$data], $context);
+        $this->getWriter()->insert($definition, [$data], $context);
 
         $data = $this->connection->fetchAll('SELECT * FROM `_test_nullable`');
 
@@ -127,13 +131,14 @@ EOF;
     {
         $id = Uuid::randomHex();
         $context = $this->createWriteContext();
+        $definition = new WriteProtectedDefinition();
 
         $data = [
             'id' => $id,
             'systemProtected' => 'foobar',
         ];
 
-        $this->getWriter()->insert(WriteProtectedDefinition::class, [$data], $context);
+        $this->getWriter()->insert($definition, [$data], $context);
 
         $data = $this->connection->fetchAll('SELECT * FROM `_test_nullable`');
 
@@ -146,6 +151,7 @@ EOF;
     {
         $id = Uuid::randomHex();
         $context = $this->createWriteContext();
+        $definition = new WriteProtectedDefinition();
 
         $data = [
             'id' => $id,
@@ -156,7 +162,7 @@ EOF;
 
         $ex = null;
         try {
-            $this->getWriter()->insert(WriteProtectedDefinition::class, [$data], $context);
+            $this->getWriter()->insert($definition, [$data], $context);
         } catch (WriteStackException $ex) {
         }
 
@@ -173,6 +179,7 @@ EOF;
     {
         $id = Uuid::randomHex();
         $context = $this->createWriteContext();
+        $definition = new WriteProtectedDefinition();
 
         $data = [
             'id' => $id,
@@ -181,7 +188,9 @@ EOF;
             ],
         ];
 
-        $this->getWriter()->insert(WriteProtectedDefinition::class, [$data], $context);
+        $this->getContainer()->set(WriteProtectedDefinition::class, $definition);
+        $this->getContainer()->set(WriteProtectedRelationDefinition::class, new WriteProtectedRelationDefinition());
+        $this->getWriter()->insert($definition, [$data], $context);
 
         $data = $this->connection->fetchAll('SELECT * FROM `_test_nullable`');
 
@@ -194,6 +203,7 @@ EOF;
     {
         $id = Uuid::randomHex();
         $context = $this->createWriteContext();
+        $definition = new WriteProtectedRelationDefinition();
 
         $data = [
             'id' => $id,
@@ -206,7 +216,7 @@ EOF;
 
         $ex = null;
         try {
-            $this->getWriter()->insert(WriteProtectedRelationDefinition::class, [$data], $context);
+            $this->getWriter()->insert($definition, [$data], $context);
         } catch (WriteStackException $ex) {
         }
 
@@ -223,6 +233,7 @@ EOF;
     {
         $id = Uuid::randomHex();
         $context = $this->createWriteContext();
+        $definition = new WriteProtectedRelationDefinition();
 
         $data = [
             'id' => $id,
@@ -234,7 +245,7 @@ EOF;
             ],
         ];
 
-        $this->getWriter()->insert(WriteProtectedRelationDefinition::class, [$data], $context);
+        $this->getWriter()->insert($definition, [$data], $context);
 
         $data = $this->connection->fetchAll('SELECT * FROM `_test_nullable`');
 
@@ -247,6 +258,7 @@ EOF;
         $id = Uuid::randomHex();
         $id2 = Uuid::randomHex();
         $context = $this->createWriteContext();
+        $definition = new WriteProtectedDefinition();
 
         $data = [
             'id' => $id,
@@ -259,7 +271,7 @@ EOF;
 
         $ex = null;
         try {
-            $this->getWriter()->insert(WriteProtectedDefinition::class, [$data], $context);
+            $this->getWriter()->insert($definition, [$data], $context);
         } catch (WriteStackException $ex) {
         }
 
@@ -277,6 +289,8 @@ EOF;
         $id = Uuid::randomHex();
         $id2 = Uuid::randomHex();
         $context = $this->createWriteContext();
+        $definition = new WriteProtectedDefinition();
+        $this->getContainer()->set(WriteProtectedReferenceDefinition::class, new WriteProtectedReferenceDefinition());
 
         $data = [
             'id' => $id,
@@ -287,7 +301,7 @@ EOF;
             ],
         ];
 
-        $this->getWriter()->insert(WriteProtectedDefinition::class, [$data], $context);
+        $this->getWriter()->insert($definition, [$data], $context);
 
         $data = $this->connection->fetchAll('SELECT * FROM `_test_nullable_reference`');
 
@@ -300,6 +314,7 @@ EOF;
     {
         $id = Uuid::randomHex();
         $context = $this->createWriteContext();
+        $definition = new WriteProtectedTranslatedDefinition();
 
         $data = [
             'id' => $id,
@@ -308,7 +323,7 @@ EOF;
 
         $ex = null;
         try {
-            $this->getWriter()->insert(WriteProtectedTranslatedDefinition::class, [$data], $context);
+            $this->getWriter()->insert($definition, [$data], $context);
         } catch (WriteStackException $ex) {
         }
 
@@ -325,13 +340,15 @@ EOF;
     {
         $id = Uuid::randomHex();
         $context = $this->createWriteContext();
+        $definition = new WriteProtectedTranslatedDefinition();
+        $this->getContainer()->set(WriteProtectedTranslationDefinition::class, new WriteProtectedTranslationDefinition());
 
         $data = [
             'id' => $id,
             'systemProtected' => 'foobar',
         ];
 
-        $this->getWriter()->insert(WriteProtectedTranslatedDefinition::class, [$data], $context);
+        $this->getWriter()->insert($definition, [$data], $context);
 
         $data = $this->connection->fetchAll('SELECT * FROM `_test_nullable_translation`');
 

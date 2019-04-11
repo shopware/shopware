@@ -22,7 +22,7 @@ class EntityLoadedEvent extends NestedEvent
     protected $entities;
 
     /**
-     * @var string|EntityDefinition
+     * @var EntityDefinition
      */
     protected $definition;
 
@@ -41,7 +41,7 @@ class EntityLoadedEvent extends NestedEvent
      */
     protected $nested = true;
 
-    public function __construct(string $definition, array $entities, Context $context, bool $nested = true)
+    public function __construct(EntityDefinition $definition, array $entities, Context $context, bool $nested = true)
     {
         $this->entities = $entities;
         $this->definition = $definition;
@@ -55,7 +55,7 @@ class EntityLoadedEvent extends NestedEvent
         return $this->entities;
     }
 
-    public function getDefinition(): string
+    public function getDefinition(): EntityDefinition
     {
         return $this->definition;
     }
@@ -80,7 +80,7 @@ class EntityLoadedEvent extends NestedEvent
 
         $events = [];
 
-        /** @var string|EntityDefinition $definition */
+        /** @var EntityDefinition $definition */
         foreach ($associations as $definition => $entities) {
             $events[] = $this->createNested($definition, $entities);
         }
@@ -88,10 +88,7 @@ class EntityLoadedEvent extends NestedEvent
         return new NestedEventCollection($events);
     }
 
-    /**
-     * @param string|EntityDefinition $definition
-     */
-    protected function extractAssociations(string $definition, iterable $entities): array
+    protected function extractAssociations(EntityDefinition $definition, iterable $entities): array
     {
         $associations = $definition::getFields();
 
@@ -163,7 +160,7 @@ class EntityLoadedEvent extends NestedEvent
              *      ]
              * ]
              */
-            $recursive[] = $this->extractAssociations($nestedDefinition, $nested);
+            $recursive[] = $this->extractAssociations(new $nestedDefinition(), $nested); // @todo argh!!
         }
 
         foreach ($recursive as $nested) {
@@ -181,7 +178,7 @@ class EntityLoadedEvent extends NestedEvent
         return $events;
     }
 
-    protected function createNested(string $definition, array $entities): EntityLoadedEvent
+    protected function createNested(EntityDefinition $definition, array $entities): EntityLoadedEvent
     {
         return new EntityLoadedEvent($definition, $entities, $this->context, false);
     }

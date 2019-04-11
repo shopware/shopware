@@ -41,7 +41,7 @@ Table(ShopwareCoreFrameworkPlugin, "Shopware\Core\Framework\Plugin\n(Plugins)") 
 Table(ShopwareCoreFrameworkScheduledTask, "Shopware\Core\Framework\ScheduledTask\n(Scheduled messages)") {
    scheduled_task Table
 }
-Table(ShopwareCoreFrameworkTag, "Shopware\Core\Framework\Tag\n(Tags)") {
+Table(ShopwareCoreFrameworkTag, "Shopware\Core\System\Tag\n(Tags)") {
    tag Table
 }
 Table(ShopwareCoreFrameworkLanguage, "Shopware\Core\Framework\Language\n(Languages)") {

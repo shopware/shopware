@@ -11,7 +11,7 @@ use Shopware\Core\System\Country\Aggregate\CountryState\CountryStateDefinition;
 
 class CountryStateTranslationDefinition extends EntityTranslationDefinition
 {
-    public static function getEntityName(): string
+    public function getEntityName(): string
     {
         return 'country_state_translation';
     }

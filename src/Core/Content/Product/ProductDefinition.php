@@ -57,7 +57,7 @@ use Shopware\Core\System\Unit\UnitDefinition;
 
 class ProductDefinition extends EntityDefinition
 {
-    public static function getEntityName(): string
+    public function getEntityName(): string
     {
         return 'product';
     }

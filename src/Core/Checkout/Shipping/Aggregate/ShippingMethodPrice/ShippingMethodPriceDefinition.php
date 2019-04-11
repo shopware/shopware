@@ -18,7 +18,7 @@ use Shopware\Core\System\Currency\CurrencyDefinition;
 
 class ShippingMethodPriceDefinition extends EntityDefinition
 {
-    public static function getEntityName(): string
+    public function getEntityName(): string
     {
         return 'shipping_method_price';
     }

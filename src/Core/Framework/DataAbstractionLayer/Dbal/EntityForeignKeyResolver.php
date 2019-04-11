@@ -57,11 +57,10 @@ class EntityForeignKeyResolver
      *      ]
      *  ]
      *
-     * @param EntityDefinition|string $definition
      *
      * @throws \RuntimeException
      */
-    public function getAffectedDeleteRestrictions(string $definition, array $ids, Context $context): array
+    public function getAffectedDeleteRestrictions(EntityDefinition $definition, array $ids, Context $context): array
     {
         return $this->fetch($definition, $ids, RestrictDelete::class, $context);
     }
@@ -81,21 +80,18 @@ class EntityForeignKeyResolver
      *      ]
      *  ]
      *
-     * @param EntityDefinition|string $definition
      *
      * @throws \RuntimeException
      */
-    public function getAffectedDeletes(string $definition, array $ids, Context $context): array
+    public function getAffectedDeletes(EntityDefinition $definition, array $ids, Context $context): array
     {
         return $this->fetch($definition, $ids, CascadeDelete::class, $context);
     }
 
     /**
-     * @param EntityDefinition|string $definition
-     *
      * @throws InvalidUuidException
      */
-    private function fetch(string $definition, array $ids, string $class, Context $context): array
+    private function fetch(EntityDefinition $definition, array $ids, string $class, Context $context): array
     {
         if ($context->getVersionId() !== Defaults::LIVE_VERSION) {
             return [];
@@ -133,7 +129,7 @@ class EntityForeignKeyResolver
         return $this->extractValues($definition, $result, $root);
     }
 
-    private function joinCascades(string $definition, FieldCollection $cascades, string $root, QueryBuilder $query, string $class, Context $context): void
+    private function joinCascades(EntityDefinition $definition, FieldCollection $cascades, string $root, QueryBuilder $query, string $class, Context $context): void
     {
         /** @var AssociationField $cascade */
         foreach ($cascades as $cascade) {
@@ -228,7 +224,7 @@ class EntityForeignKeyResolver
         }
     }
 
-    private function extractValues(string $definition, array $result, string $root): array
+    private function extractValues(EntityDefinition $definition, array $result, string $root): array
     {
         $mapped = [];
 

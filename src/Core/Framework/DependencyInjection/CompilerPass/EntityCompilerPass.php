@@ -32,6 +32,8 @@ class EntityCompilerPass implements CompilerPassInterface
             $service = $container->getDefinition($serviceId);
             $entity = $serviceId::getEntityName();
 
+            $service->setPublic(true);
+
             $repositoryId = $entity . '.repository';
             try {
                 $container->getDefinition($repositoryId);
@@ -39,7 +41,7 @@ class EntityCompilerPass implements CompilerPassInterface
                 $repository = new Definition(
                     EntityRepository::class,
                     [
-                        $service->getClass(),
+                        new Reference($service->getClass()),
                         new Reference(EntityReaderInterface::class),
                         new Reference(VersionManager::class),
                         new Reference(EntitySearcherInterface::class),

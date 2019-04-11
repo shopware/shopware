@@ -18,7 +18,7 @@ use Shopware\Core\System\Unit\Aggregate\UnitTranslation\UnitTranslationDefinitio
 
 class UnitDefinition extends EntityDefinition
 {
-    public static function getEntityName(): string
+    public function getEntityName(): string
     {
         return 'unit';
     }

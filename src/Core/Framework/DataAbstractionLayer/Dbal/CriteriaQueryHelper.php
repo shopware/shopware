@@ -13,10 +13,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 
 trait CriteriaQueryHelper
 {
-    /**
-     * @param string|EntityDefinition $definition
-     */
-    protected function buildQueryByCriteria(QueryBuilder $query, EntityDefinitionQueryHelper $queryHelper, SqlQueryParser $parser, string $definition, Criteria $criteria, Context $context): QueryBuilder
+    protected function buildQueryByCriteria(QueryBuilder $query, EntityDefinitionQueryHelper $queryHelper, SqlQueryParser $parser, EntityDefinition $definition, Criteria $criteria, Context $context): QueryBuilder
     {
         $table = $definition::getEntityName();
 
@@ -46,7 +43,7 @@ trait CriteriaQueryHelper
         return $query;
     }
 
-    protected function addFilters(SqlQueryParser $parser, string $definition, Criteria $criteria, QueryBuilder $query, Context $context): void
+    protected function addFilters(SqlQueryParser $parser, EntityDefinition $definition, Criteria $criteria, QueryBuilder $query, Context $context): void
     {
         $filters = new MultiFilter(
             MultiFilter::CONNECTION_AND,
@@ -68,10 +65,7 @@ trait CriteriaQueryHelper
         }
     }
 
-    /**
-     * @param string|EntityDefinition $definition
-     */
-    protected function addQueries(SqlQueryParser $parser, string $definition, Criteria $criteria, QueryBuilder $query, Context $context): void
+    protected function addQueries(SqlQueryParser $parser, EntityDefinition $definition, Criteria $criteria, QueryBuilder $query, Context $context): void
     {
         $queries = $parser->parseRanking(
             $criteria->getQueries(),
@@ -107,7 +101,7 @@ trait CriteriaQueryHelper
         }
     }
 
-    protected function addSortings(EntityDefinitionQueryHelper $queryHelper, string $definition, Criteria $criteria, QueryBuilder $query, Context $context): void
+    protected function addSortings(EntityDefinitionQueryHelper $queryHelper, EntityDefinition $definition, Criteria $criteria, QueryBuilder $query, Context $context): void
     {
         /* @var string|EntityDefinition $definition */
         foreach ($criteria->getSorting() as $sorting) {

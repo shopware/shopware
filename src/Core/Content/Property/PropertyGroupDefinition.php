@@ -27,7 +27,7 @@ class PropertyGroupDefinition extends EntityDefinition
     public const SORTING_TYPE_ALPHANUMERIC = 'alphanumeric';
     public const SORTING_TYPE_POSITION = 'position';
 
-    public static function getEntityName(): string
+    public function getEntityName(): string
     {
         return 'property_group';
     }

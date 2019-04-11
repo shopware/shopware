@@ -142,7 +142,7 @@ class JsonFieldSerializer implements FieldSerializerInterface
 
         $exceptions = [];
         $stack = new DataStack($data);
-        $existence = new EntityExistence('', [], false, false, false, []);
+        $existence = new EntityExistence(null, [], false, false, false, []);
         $fieldPath = $parameters->getPath() . '/' . $field->getPropertyName();
 
         $propertyKeys = array_map(function (Field $field) {

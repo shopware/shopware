@@ -14,6 +14,16 @@
             <tag name="shopware.api.version_transformation" />
         </service>
 
+        <service id="Shopware\Core\Framework\Api\VersionTransformation\ApiVersionTransformationControllerListener">
+            <argument type="service" id="Shopware\Core\Framework\Api\VersionTransformation\VersionTransformationRegistry" />
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Api\VersionTransformation\ApiVersionTransformationResponseListener">
+            <argument type="service" id="Shopware\Core\Framework\Api\VersionTransformation\VersionTransformationRegistry" />
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
         <service id="Shopware\Core\Framework\Api\EventListener\CorsListener">
             <tag name="kernel.event_subscriber"/>
         </service>

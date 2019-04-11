@@ -21,12 +21,25 @@ class ProductActionController extends AbstractController
     }
 
     /**
+     * @Route("/api/v{version}/_action/product/foo", name="api.action.product.foo", methods={"GET"})
+     *
+     * @return JsonResponse
+     */
+    public function fooLatest(Context $context)
+    {
+        return new JsonResponse(
+            'testaaa'
+        );
+    }
+
+    /**
      * @Route("/api/v{version}/_action/product/{productId}/combinations", name="api.action.product.combinations", methods={"GET"})
      *
      * @return JsonResponse
      */
     public function getCombinations(string $productId, Context $context)
     {
+        print_r('test');
         return new JsonResponse(
             $this->combinationLoader->load($productId, $context)
         );

@@ -67,6 +67,7 @@ class ApiRequestContextResolver implements RequestContextResolverInterface
             'currencyFactory' => 1.0,
             'currencyPrecision' => 2,
             'versionId' => $master->headers->get(PlatformRequest::HEADER_VERSION_ID),
+            'apiVersion' => $master->headers->get(PlatformRequest::HEADER_API_VERSION),
             'considerInheritance' => false,
         ];
 

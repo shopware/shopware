@@ -15,6 +15,7 @@ final class PlatformRequest
     public const HEADER_LANGUAGE_ID = 'x-sw-language-id';
     public const HEADER_INHERITANCE = 'x-sw-inheritance';
     public const HEADER_VERSION_ID = 'x-sw-version-id';
+    public const HEADER_API_VERSION = 'x-sw-api-version';
 
     /**
      * Context attributes

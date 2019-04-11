@@ -18,7 +18,6 @@ class FooApiVersionTransformation implements ApiVersionTransformation
         return 'api.action.product.foo';
     }
 
-
     public function getControllerAction(): string
     {
         return ProductActionController::class . '::fooLatest';
@@ -31,7 +30,6 @@ class FooApiVersionTransformation implements ApiVersionTransformation
 
     public function transformResponse(Response $response): void
     {
-        echo "2";
         $response->setContent(str_replace('a', 'e', $response->getContent()));
     }
 }

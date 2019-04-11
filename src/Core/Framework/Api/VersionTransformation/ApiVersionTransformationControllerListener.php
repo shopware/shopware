@@ -38,7 +38,6 @@ class ApiVersionTransformationControllerListener implements EventSubscriberInter
 
         /** @var ApiVersionTransformation $transformation */
         foreach ($this->versionTransformationRegistry->getRequestTransformationsForVersionAndRoute($version, $event->getRequest()->get('_route')) as $transformation) {
-            echo '1';
             $transformation->transformRequest($event->getRequest());
         }
     }

@@ -1,10 +1,10 @@
 import Plugin from 'asset/script/helper/plugin/plugin.class';
+import PluginManager from 'asset/script/helper/plugin/plugin.manager';
 import DomAccess from 'asset/script/helper/dom-access.helper';
 import HttpClient from 'asset/script/service/http-client.service';
 import OffCanvas from 'asset/script/plugin/off-canvas/offcanvas.plugin';
 import LoadingIndicator from 'asset/script/util/loading-indicator/loading-indicator.util';
 import DeviceDetection from 'asset/script/helper/device-detection.helper';
-import CartWidget from 'asset/script/plugin/header/cart-widget.plugin';
 
 const CART_MINI_REMOVE_PRODUCT_TRIGGER_SELECTOR = '[data-cart-mini-remove-product]';
 const CART_MINI_FORM_SELECTOR = 'form[data-add-to-cart=true]';
@@ -71,7 +71,7 @@ export default class CartMiniPlugin extends Plugin {
             // Fire POST request for adding the product to cart
             this.client.post(requestUrl.toLowerCase(), this._convertFormDataToJSON(new FormData(form)), () => {
                 // Update the CartWidget in the header
-                CartWidget.fetch();
+                this._fetchCartWidgets();
                 // Fetch the current cart template and replace the OffCanvas content
                 this._fetchCartMini();
             });
@@ -122,10 +122,22 @@ export default class CartMiniPlugin extends Plugin {
 
         this.client.delete(requestUrl.toLowerCase(), () => {
             // Update the CartWidget in the header
-            CartWidget.fetch();
+            this._fetchCartWidgets();
             // Fetch the current cart template and replace the OffCanvas content
             this._fetchCartMini();
         });
+    }
+
+    /**
+     * updates all registered cart widgets
+     *
+     * @private
+     */
+    _fetchCartWidgets() {
+        const CartWidgetPluginInstances = PluginManager.getPluginInstances('CartWidget');
+        CartWidgetPluginInstances.forEach(instance => {
+            instance.fetch();
+        })
     }
 
     /**

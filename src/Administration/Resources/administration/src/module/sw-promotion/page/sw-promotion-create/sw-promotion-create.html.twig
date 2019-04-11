@@ -3,8 +3,8 @@
 {% block sw_promotion_detail_content_tabs %}
     <sw-tabs class="sw-promotion-detail-page__tabs">
         <sw-tabs-item :route="{ name: 'sw.promotion.create', params: { id: $route.params.id } }"
-                      :title="$tc('sw-promotion.detail.tabGeneral')">
-            {{ $tc('sw-promotion.detail.tabGeneral') }}
+                      :title="$tc('sw-promotion.detail.tabs.tabGeneral')">
+            {{ $tc('sw-promotion.detail.tabs.tabGeneral') }}
         </sw-tabs-item>
     </sw-tabs>
 {% endblock %}
@@ -17,7 +17,13 @@
 
 {% block sw_promotion_detail_content_language_info %}
     <sw-language-info
-            :entityDescription="placeholder(promotion, 'name', $tc('sw-promotion.detail.textHeadline'))"
+            :entityDescription="placeholder(promotion, 'name', $tc('sw-promotion.detail.header.titleCreate'))"
             isNewEntity>
     </sw-language-info>
+{% endblock %}
+
+{% block sw_promotion_detail_header %}
+<template slot="smart-bar-header">
+    <h2>{{ placeholder(promotion, 'name', $tc('sw-promotion.detail.header.titleCreate')) }}</h2>
+</template>
 {% endblock %}

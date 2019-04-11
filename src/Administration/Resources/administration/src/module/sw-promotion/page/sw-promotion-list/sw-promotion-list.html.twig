@@ -16,7 +16,7 @@
                 {% block sw_promotion_list_smart_bar_header_title %}
                     <h2>
                         {% block sw_promotion_list_smart_bar_header_title_text %}
-                            {{ $tc('sw-promotion.list.textPromotionOverview') }}
+                            {{ $tc('sw-promotion.list.textTitle') }}
                         {% endblock %}
 
                         {% block sw_promotion_list_smart_bar_header_amount %}
@@ -63,11 +63,24 @@
                                       @inline-edit-cancel="onInlineEditCancel">
 
                             {% block sw_promotion_list_grid_columns %}
+
                                 {% block sw_promotion_list_grid_columns_active %}
                                     <template slot="column-active" slot-scope="{ item }">
                                         <sw-icon v-if="item.active" name="small-default-checkmark-line-medium" small class="is--active"></sw-icon>
                                         <sw-icon v-else name="small-default-x-line-medium" small class="is--inactive"></sw-icon>
                                     </template>
+                                {% endblock %}
+
+                                {% block sw_promotion_list_grid_columns_valid_from %}
+                                <template slot="column-validFrom" slot-scope="{ item }">
+                                    {{ item.validFrom | date({year: '2-digit', hour:'2-digit', minute:'2-digit'}) }}
+                                </template>
+                                {% endblock %}
+
+                                {% block sw_promotion_list_grid_columns_valid_until %}
+                                <template slot="column-validUntil" slot-scope="{ item }">
+                                    {{ item.validUntil | date({year: '2-digit', hour:'2-digit', minute:'2-digit'}) }}
+                                </template>
                                 {% endblock %}
 
 

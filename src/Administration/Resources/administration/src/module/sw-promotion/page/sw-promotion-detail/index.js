@@ -70,8 +70,8 @@ Component.register('sw-promotion-detail', {
 
         onSave() {
             const promotionName = this.promotion.name;
-            const titleSaveSuccess = this.$tc('sw-promotion.detail.titleSaveSuccess');
-            const messageSaveSuccess = this.$tc('sw-promotion.detail.messageSaveSuccess', 0, { name: promotionName });
+            const titleSaveSuccess = this.$tc('sw-promotion.detail.header.titleSaveSuccess');
+            const messageSaveSuccess = this.$tc('sw-promotion.detail.header.messageSaveSuccess', 0, { name: promotionName });
             const titleSaveError = this.$tc('global.notification.notificationSaveErrorTitle');
             const messageSaveError = this.$tc(
                 'global.notification.notificationSaveErrorMessage', 0, { entityName: promotionName }

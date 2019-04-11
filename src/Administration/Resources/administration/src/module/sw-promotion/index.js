@@ -27,11 +27,11 @@ import './page/sw-promotion-list';
 Module.register('sw-promotion', {
     flag: NEXT700,
     type: 'core',
-    name: 'sw-promotion.general.mainMenuItemGeneral',
-    description: 'sw-promotion.general.descriptionModule',
+    name: 'sw-promotion.general.module',
+    description: 'sw-promotion.general.description',
     version: '1.0.0',
     targetVersion: '1.0.0',
-    color: '#de94de',
+    color: '#DE94DE',
     icon: 'default-package-gift',
     entity: 'promotion',
 
@@ -99,14 +99,14 @@ Module.register('sw-promotion', {
 
     navigation: [{
         id: 'sw-promotion',
-        label: 'sw-promotion.general.mainMenuItemGeneral',
-        color: '#57D9A3',
         path: 'sw.promotion.index',
-        icon: 'default-symbol-promotions',
+        label: 'sw-promotion.general.mainMenu.root',
+        color: '#DE94DE',
+        icon: 'default-package-gift',
         position: 20
     }, {
         path: 'sw.promotion.index',
-        label: 'sw-promotion.general.mainMenuItemList',
+        label: 'sw-promotion.general.mainMenu.list',
         parent: 'sw-promotion'
     }]
 });

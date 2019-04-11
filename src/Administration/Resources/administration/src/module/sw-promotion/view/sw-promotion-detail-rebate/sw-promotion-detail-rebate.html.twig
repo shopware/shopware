@@ -1,7 +1,7 @@
 {% block sw_promotion_detail_rebate %}
     <div class="sw-promotion-detail-rebate">
         {% block sw_promotion_detail_rebate_card %}
-            <sw-card :title="$tc('sw-promotion.detailRebate.cardTitleRebate')" :isLoading="promotion.isLoading">
+            <sw-card :title="$tc('sw-promotion.detail.main.discounts.cardTitleRebate')" :isLoading="promotion.isLoading">
                 {% block sw_promotion_detail_rebate_form %}
                     <sw-promotion-rebate-form :promotion="promotion"></sw-promotion-rebate-form>
                 {% endblock %}

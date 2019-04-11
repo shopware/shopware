@@ -1,10 +1,10 @@
 {% block sw_promotion_persona_form %}
 <div class="sw-promotion-persona-form">
-    <h4>{{ $tc('sw-promotion.personaForm.descriptionTitlePersona') }}</h4>
+    <h4>{{ $tc('sw-promotion.detail.main.preconditions.persona.title') }}</h4>
     <p>
-        {{ $tc('sw-promotion.personaForm.descriptionTextPersona') }}
+        {{ $tc('sw-promotion.detail.main.preconditions.persona.text') }}
         <router-link :to="{ name: 'sw.settings.rule.index' }">
-            {{ $tc('sw-promotion.personaForm.ruleModuleLink') }}
+            {{ $tc('sw-promotion.detail.main.preconditions.ruleModuleLink') }}
         </router-link>
     </p>
 
@@ -12,8 +12,8 @@
         <sw-select id="personaRuleIds"
                    multi
                    class="sw-promotion-persona-form__persona-rules"
-                   :label="$tc('sw-promotion.personaForm.labelPersonaRule')"
-                   :placeholder="$tc('sw-promotion.personaForm.placeholderPersonaRules')"
+                   :label="$tc('sw-promotion.detail.main.preconditions.persona.labelRules')"
+                   :placeholder="$tc('sw-promotion.detail.main.preconditions.persona.placeholderRules')"
                    :store="ruleStore"
                    :associationStore="personaRulesAssociationStore">
             <template slot="result_items" slot-scope="{ item, index }">
@@ -28,8 +28,8 @@
         <sw-select id="personaCustomerIds"
                    multi
                    class="sw-promotion-persona-form__persona-customers"
-                   :label="$tc('sw-promotion.personaForm.labelCustomer')"
-                   :placeholder="$tc('sw-promotion.personaForm.placeholderPersonaCustomers')"
+                   :label="$tc('sw-promotion.detail.main.preconditions.persona.labelCustomers')"
+                   :placeholder="$tc('sw-promotion.detail.main.preconditions.persona.placeholderCustomers')"
                    :store="customerStore"
                    :associationStore="personaCustomerAssociationStore"
                    displayName="lastName">

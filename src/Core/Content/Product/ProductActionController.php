@@ -39,7 +39,6 @@ class ProductActionController extends AbstractController
      */
     public function getCombinations(string $productId, Context $context)
     {
-        print_r('test');
         return new JsonResponse(
             $this->combinationLoader->load($productId, $context)
         );

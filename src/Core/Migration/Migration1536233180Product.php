@@ -46,6 +46,7 @@ class Migration1536233180Product extends MigrationStep
               `manufacturer_number` VARCHAR(255) COLLATE utf8mb4_unicode_ci NULL,
               `ean` VARCHAR(255) COLLATE utf8mb4_unicode_ci NULL,
               `stock` INT(11) NULL,
+              `available_stock` INT(11) NULL,
               `min_delivery_time` INT(11) NULL,
               `max_delivery_time` INT(11) NULL,
               `restock_time` INT(11) NULL,

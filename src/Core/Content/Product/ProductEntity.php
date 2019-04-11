@@ -87,6 +87,11 @@ class ProductEntity extends Entity
     protected $stock;
 
     /**
+     * @var int|null
+     */
+    protected $availableStock;
+
+    /**
      * @var int
      */
     protected $minDeliveryTime;
@@ -444,6 +449,16 @@ class ProductEntity extends Entity
     public function setStock(?int $stock): void
     {
         $this->stock = $stock;
+    }
+
+    public function getAvailableStock(): ?int
+    {
+        return $this->availableStock;
+    }
+
+    public function setAvailableStock(?int $availableStock): void
+    {
+        $this->availableStock = $availableStock;
     }
 
     public function getIsCloseout(): bool

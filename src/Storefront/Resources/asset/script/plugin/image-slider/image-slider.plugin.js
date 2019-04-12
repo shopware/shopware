@@ -61,7 +61,7 @@ export default class ImageSliderPlugin extends Plugin {
                     axis: 'vertical',
                 },
             },
-        }
+        },
     };
 
     init() {
@@ -72,12 +72,27 @@ export default class ImageSliderPlugin extends Plugin {
         if (!this.el.classList.contains(this.initializedCls)) {
             this.options.slider = SliderSettingsHelper.prepareBreakpointPxValues(this.options.slider);
             this.options.thumbnailSlider = SliderSettingsHelper.prepareBreakpointPxValues(this.options.thumbnailSlider);
+            this._correctIndexSettings();
 
             this._getSettings(ViewportDetection.getCurrentViewport());
 
             this._initSlider();
             this._registerEvents();
         }
+    }
+
+    /**
+     * since the tns slider indexes internally with 0
+     * but the setting starts at 1 we have to subtract 1
+     * to have the correct index
+     *
+     * @private
+     */
+    _correctIndexSettings() {
+        this.options.slider.startIndex -= 1;
+        this.options.thumbnailSlider.startIndex -= 1;
+        this.options.slider.startIndex = (this.options.slider.startIndex < 0) ? 0 : this.options.slider.startIndex;
+        this.options.thumbnailSlider.startIndex = (this.options.thumbnailSlider.startIndex < 0) ? 0 : this.options.thumbnailSlider.startIndex;
     }
 
     /**
@@ -168,11 +183,11 @@ export default class ImageSliderPlugin extends Plugin {
                     container,
                     controlsContainer,
                     navContainer,
-                    ...this._sliderSettings
+                    ...this._sliderSettings,
                 });
 
-                PluginManager.executePlugin('Magnifier','[data-magnifier]');
-                PluginManager.executePlugin('ZoomModal','[data-zoom-modal]');
+                PluginManager.executePlugin('Magnifier', '[data-magnifier]');
+                PluginManager.executePlugin('ZoomModal', '[data-zoom-modal]');
             } else {
                 container.style.display = 'none';
             }
@@ -183,11 +198,11 @@ export default class ImageSliderPlugin extends Plugin {
                 navContainer.style.display = '';
                 this._thumbnailSlider = tns({
                     container: navContainer,
-                    ...this._thumbnailSliderSettings
+                    ...this._thumbnailSliderSettings,
                 });
 
                 this._slideThumbnails();
-                this._activateThumbnailNavigationItem();
+                this._activateThumbnailNavigationItem(this._thumbnailSliderSettings.startIndex);
 
             } else {
                 navContainer.style.display = 'none';
@@ -214,12 +229,14 @@ export default class ImageSliderPlugin extends Plugin {
      * activates the currently active
      * navigation thumbnail
      *
+     * @param {number} index
+     *
      * @private
      */
-    _activateThumbnailNavigationItem() {
+    _activateThumbnailNavigationItem(index = false) {
         const thumbnailSliderInfo = this._thumbnailSlider.getInfo();
         const thumbnailSlides = thumbnailSliderInfo.slideItems;
-        const currentIndex = thumbnailSliderInfo.index;
+        const currentIndex = (index) ? index : thumbnailSliderInfo.index;
         const activeClass = 'tns-nav-active';
 
         Object.values(thumbnailSlides).forEach((slide) => slide.classList.remove(activeClass));

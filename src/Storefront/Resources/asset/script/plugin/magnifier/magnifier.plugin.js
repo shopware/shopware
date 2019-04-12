@@ -170,7 +170,7 @@ export default class MagnifierPlugin extends Plugin {
     _setZoomImagePosition(overlayPos, imageOffset, imageSize) {
         const zoomImagePos = overlayPos.subtract(imageOffset).multiply(this.options.zoomFactor).floor();
         const zoomImageBackgroundSize = imageSize.multiply(this.options.zoomFactor).floor();
-        this._zoomImage.style.backgroundImage = `url(${this._imageUrl})`;
+        this._zoomImage.style.backgroundImage = `url('${this._imageUrl}')`;
         this._zoomImage.style.backgroundSize = `${zoomImageBackgroundSize.x}px ${zoomImageBackgroundSize.y}px`;
         this._zoomImage.style.backgroundPosition = `-${zoomImagePos.x}px -${zoomImagePos.y}px`;
     }

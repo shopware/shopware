@@ -58,20 +58,22 @@ export default class ZoomModalPlugin extends Plugin {
         // append the temporarily created ajax modal content to the end of the DOM
         const pseudoModal = ZoomModalPlugin._createPseudoModal(content);
         document.body.insertAdjacentElement('beforeend', pseudoModal);
-        const modal = DomAccess.querySelector(pseudoModal, '.modal');
+        const modal = DomAccess.querySelector(pseudoModal, '.modal', false);
 
-        // execute all needed scripts for the slider
-        $(modal).on('shown.bs.modal', () => {
-            this._initSlider(modal);
-            this._initZoom(modal);
-        });
+        if (modal) {
+            // execute all needed scripts for the slider
+            $(modal).on('shown.bs.modal', () => {
+                this._initSlider(modal);
+                this._initZoom(modal);
+            });
 
-        // remove ajax modal wrapper
-        $(modal).on('hidden.bs.modal', pseudoModal.remove);
+            // remove ajax modal wrapper
+            $(modal).on('hidden.bs.modal', pseudoModal.remove);
 
-        // close the loading indicator and show the modal
-        PageLoadingIndicator.close();
-        $(modal).modal('show');
+            // close the loading indicator and show the modal
+            PageLoadingIndicator.close();
+            $(modal).modal('show');
+        }
     }
 
     /**
@@ -117,7 +119,7 @@ export default class ZoomModalPlugin extends Plugin {
                             axis: 'horizontal',
                         },
                     },
-                }
+                },
             });
         }
     }

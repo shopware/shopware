@@ -102,11 +102,11 @@ PluginManager.register('FormValidation', FormValidationPlugin, '[data-form-valid
 PluginManager.register('FormSubmitLoader', FormSubmitLoaderPlugin, '[data-form-submit-loader]');
 PluginManager.register('AccountMenu', AccountMenuPlugin, '[data-offcanvas-account-menu]');
 PluginManager.register('OffCanvasTabs', OffCanvasTabsPlugin, '[data-offcanvas-tab]');
-PluginManager.register('ImageSlider', ImageSliderPlugin, '[data-image-slider="true"]');
+PluginManager.register('ImageSlider', ImageSliderPlugin, '[data-image-slider]');
 PluginManager.register('ScrollToInvalidField', ScrollToInvalidFieldPlugin, 'form');
-PluginManager.register('ZoomModal', ZoomModalPlugin, '[data-zoom-modal="true"]');
-PluginManager.register('Magnifier', MagnifierPlugin, '[data-magnify-lens="true"]');
-PluginManager.register('ImageZoom', ImageZoomPlugin, '[data-magnify-lens="true"]');
+PluginManager.register('ZoomModal', ZoomModalPlugin, '[data-zoom-modal]');
+PluginManager.register('Magnifier', MagnifierPlugin, '[data-magnifier]');
+PluginManager.register('ImageZoom', ImageZoomPlugin, '[data-image-zoom]');
 
 /*
 pages

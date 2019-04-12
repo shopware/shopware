@@ -46,11 +46,16 @@ trait EntityFixturesBase
         return $container->get(DefinitionRegistry::class)->getRepository($fixtureName);
     }
 
-    public function createFixture(string $fixtureName, array $fixtureData, EntityRepositoryInterface $repository): Entity
-    {
+    public function createFixture(
+        string $fixtureName,
+        array $fixtureData,
+        EntityRepositoryInterface $repository,
+        array $overrideData = []
+    ): Entity {
         self::ensureATransactionIsActive();
 
-        $repository->create([$fixtureData[$fixtureName]], $this->entityFixtureContext);
+        $mergedFixtureData = array_replace_recursive($fixtureData[$fixtureName], $overrideData);
+        $repository->create([$mergedFixtureData], $this->entityFixtureContext);
 
         if (array_key_exists('mediaType', $fixtureData[$fixtureName])) {
             $connection = KernelLifecycleManager::getKernel()

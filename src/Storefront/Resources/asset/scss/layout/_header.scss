@@ -1,4 +1,4 @@
-.top-bar {
+.top-bar-nav-name {
     display: none;
 }
 
@@ -17,15 +17,16 @@
     }
 }
 
-.top-bar-select {
-    max-width: 100px;
-    display: flex;
+.top-bar-list-input {
+    position: absolute;
+    clip: rect(0 0 0 0);
+    pointer-events: none;
 }
 
-.top-bar-select-field {
+.top-bar-list-label {
+    display: inline-block;
     width: 100%;
-    white-space: nowrap;
-    overflow: hidden;
+    margin-bottom: 0;
 }
 
 .language-flag {
@@ -84,8 +85,8 @@
 }
 
 @include media-breakpoint-up(md) {
-    .top-bar {
-        display: block;
+    .top-bar-nav-name {
+        display: inline;
     }
 
     .header-row {

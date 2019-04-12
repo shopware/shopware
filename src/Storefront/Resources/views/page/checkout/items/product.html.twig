@@ -63,10 +63,13 @@
 			{% block page_checkout_item_product_quantity %}
 				<div class="col-12 col-sm-4 col-md-auto cart-item-quantity">
 					{% block page_checkout_item_product_quantity_form %}
-						{#TODO: NEXT-1946 - quantity select (check laststock and instock?)#}
-						<form action="#"
+						<form action="{{ path('frontend.checkout.line-item.update', {'id': productId}) }}"
 							  class="cart-item-quantity-container"
 							  method="post">
+							{% block page_checkout_item_quantity_redirect %}
+								<input type="hidden" name="redirectTo" value="frontend.checkout.cart.page">
+							{% endblock %}
+
 							<div class="row cart-item-quantity-row">
 								{% block page_checkout_item_product_quantity_label %}
 									<div class="col-8 col-sm-12 cart-item-quantity-label">
@@ -125,9 +128,12 @@
 				<div class="col-2 col-md-1 cart-item-remove">
 					{% block page_checkout_item_product_remove_form %}
 						{% if lineItem.isRemovable() %}
-							{#TODO: NEXT-1946 - remove functionality#}
-							<form action="#"
+							<form action="{{ path('frontend.checkout.line-item.delete', {'id': productId}) }}"
 								  method="post">
+								{% block page_checkout_item_remove_redirect %}
+									<input type="hidden" name="redirectTo" value="frontend.checkout.cart.page">
+								{% endblock %}
+
 								{% block page_checkout_item_product_remove_submit %}
 									<button type="submit"
 											title="{{ "checkout.removeLineItem"|trans }}"

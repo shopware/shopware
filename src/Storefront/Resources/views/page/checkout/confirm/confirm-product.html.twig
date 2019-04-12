@@ -26,3 +26,11 @@
 {% endblock %}
 
 {% block page_checkout_item_product_total_price_tax_symbol %}{% endblock %}
+
+{% block page_checkout_item_quantity_redirect %}
+	<input type="hidden" name="redirectTo" value="frontend.checkout.confirm.page">
+{% endblock %}
+
+{% block page_checkout_item_remove_redirect %}
+	<input type="hidden" name="redirectTo" value="frontend.checkout.confirm.page">
+{% endblock %}

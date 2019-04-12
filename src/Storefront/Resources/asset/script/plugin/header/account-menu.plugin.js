@@ -1,6 +1,6 @@
 import Plugin from 'asset/script/helper/plugin/plugin.class';
 import DomAccess from 'asset/script/helper/dom-access.helper';
-import OffCanvas from 'asset/script/plugin/off-canvas/offcanvas.plugin';
+import OffCanvas from 'asset/script/plugin/offcanvas/offcanvas.plugin';
 import DeviceDetection from 'asset/script/helper/device-detection.helper';
 import ViewportDetection from 'asset/script/helper/viewport-detection.helper';
 

@@ -1,11 +1,11 @@
-import OffCanvas from 'asset/script/plugin/off-canvas/offcanvas.plugin';
+import OffCanvas from 'asset/script/plugin/offcanvas/offcanvas.plugin';
 import HttpClient from 'asset/script/service/http-client.service';
 import LoadingIndicator from 'asset/script/util/loading-indicator/loading-indicator.util';
 
 export default class AjaxOffCanvas extends OffCanvas {
 
     /**
-     * Fire AJAX request to get the off-canvas content
+     * Fire AJAX request to get the offcanvas content
      * @param {string} url
      * @param {function|null} callback
      * @param {'left'|'right'} position

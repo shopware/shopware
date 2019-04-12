@@ -3,7 +3,7 @@ import OffCanvas from 'asst/script/plugin/offcanvas.plugin';
 export default class HtmlOffCanvas extends OffCanvas {
 
     /**
-     * Open an off-canvas with HTML content from any given selector
+     * Open an offcanvas with HTML content from any given selector
      * @param {string} selector
      * @param {'left'|'right'} position
      * @param {boolean} closable

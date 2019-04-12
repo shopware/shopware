@@ -1,18 +1,18 @@
 import DeviceDetection from 'asset/script/helper/device-detection.helper';
 import Backdrop, { BACKDROP_EVENT } from 'asset/script/util/backdrop/backdrop.util';
 
-const OFF_CANVAS_CLASS = 'js-off-canvas';
+const OFF_CANVAS_CLASS = 'js-offcanvas';
 const OFF_CANVAS_OPEN_CLASS = 'is-open';
 const OFF_CANVAS_POSITION_LEFT_CLASS = 'is-left';
 const OFF_CANVAS_POSITION_RIGHT_CLASS = 'is-right';
 const OFF_CANVAS_FULLWIDTH_CLASS = 'is-fullwidth';
-const OFF_CANVAS_CLOSE_TRIGGER_CLASS = 'js-off-canvas-close';
+const OFF_CANVAS_CLOSE_TRIGGER_CLASS = 'js-offcanvas-close';
 const REMOVE_OFF_CANVAS_DELAY = 350;
 
 class OffCanvasSingleton {
 
     /**
-     * Open the off-canvas and its backdrop
+     * Open the offcanvas and its backdrop
      * @param {string} content
      * @param {function|null} callback
      * @param {'left'|'right'} position
@@ -66,7 +66,7 @@ class OffCanvasSingleton {
     }
 
     /**
-     * Determine list of existing off-canvas
+     * Determine list of existing offcanvas
      * @returns {NodeListOf<Element>}
      * @private
      */
@@ -75,7 +75,7 @@ class OffCanvasSingleton {
     }
 
     /**
-     * Close the off-canvas and its backdrop
+     * Close the offcanvas and its backdrop
      * @param {number} delay
      */
     close(delay) {
@@ -123,7 +123,7 @@ class OffCanvasSingleton {
     }
 
     /**
-     * Remove all existing off-canvas from DOM
+     * Remove all existing offcanvas from DOM
      * @private
      */
     _removeExistingOffCanvas() {
@@ -131,7 +131,7 @@ class OffCanvasSingleton {
     }
 
     /**
-     * Defines the position of the off-canvas by setting css class
+     * Defines the position of the offcanvas by setting css class
      * @param {'left'|'right'} position
      * @returns {string}
      * @private
@@ -141,7 +141,7 @@ class OffCanvasSingleton {
     }
 
     /**
-     * Creates the off-canvas element prototype including all relevant settings,
+     * Creates the offcanvas element prototype including all relevant settings,
      * appends it to the DOM and returns the HTMLElement for further processing
      * @param {'left'|'right'} position
      * @param {boolean} fullwidth

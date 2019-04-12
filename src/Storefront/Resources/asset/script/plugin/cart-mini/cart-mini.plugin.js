@@ -2,7 +2,7 @@ import Plugin from 'asset/script/helper/plugin/plugin.class';
 import PluginManager from 'asset/script/helper/plugin/plugin.manager';
 import DomAccess from 'asset/script/helper/dom-access.helper';
 import HttpClient from 'asset/script/service/http-client.service';
-import OffCanvas from 'asset/script/plugin/off-canvas/offcanvas.plugin';
+import OffCanvas from 'asset/script/plugin/offcanvas/offcanvas.plugin';
 import LoadingIndicator from 'asset/script/util/loading-indicator/loading-indicator.util';
 import DeviceDetection from 'asset/script/helper/device-detection.helper';
 

@@ -22,7 +22,7 @@
                     {% block base_header_main_navigation_toggle %}
                         <div class="nav-main-toggle">
 	                        {% block base_header_main_navigation_toggle_button %}
-                                <button class="btn btn-light nav-main-toggle-btn"
+                                <button class="btn btn-light nav-main-toggle-btn header-actions-btn"
                                         type="button"
                                         data-offcanvas-menu="true"
                                         aria-label="{{ "general.menuLink"|trans }}">
@@ -31,6 +31,20 @@
 	                        {% endblock %}
                         </div>
                     {% endblock %}
+
+					{% block base_header_search_toggle %}
+                        <div class="search-toggle">
+                            <button class="btn btn-light search-toggle-btn header-actions-btn collapsed"
+                                    type="button"
+                                    data-toggle="collapse"
+                                    data-target="#searchCollapse"
+                                    aria-expanded="false"
+                                    aria-controls="searchCollapse"
+                                    aria-label="{{ "header.searchButton"|trans }}">
+                                <i class="fas fa-search"></i>
+                            </button>
+                        </div>
+					{% endblock %}
 
                     {% block base_header_actions_account %}
                         <div class="account-widget">

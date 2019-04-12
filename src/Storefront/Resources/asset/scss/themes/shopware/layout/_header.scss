@@ -28,8 +28,7 @@
     align-items: center;
 }
 
-// Service Menu
-.btn.service-menu-btn {
+.service-menu-btn.btn {
     color: $gray-600;
     font-weight: normal;
     padding: 0;
@@ -37,28 +36,28 @@
     &::after {
         content: none;
     }
-}
 
-.service-menu-btn:hover {
-    color: $secondary;
-
-    .select-arrow-down {
+    &:hover {
         color: $secondary;
+
+        .select-arrow-down {
+            color: $secondary;
+        }
     }
 }
 
-.service-menu-item:hover {
-    color: $secondary;
-    background: initial;
+.service-menu-item {
+    &:hover {
+        color: $secondary;
+        background: initial;
+    }
 }
 
 .header-main {
     background: $white;
 }
 
-.nav-main-toggle-btn,
-.account-widget-btn,
-.cart-widget-btn {
+.header-actions-btn {
     width: 40px;
     height: 40px;
 }
@@ -68,8 +67,7 @@
 }
 
 @include media-breakpoint-up(md) {
-    .account-widget-btn,
-    .cart-widget-btn {
+    .header-actions-btn {
         width: auto;
         height: auto;
     }

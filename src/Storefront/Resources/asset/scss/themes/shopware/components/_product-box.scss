@@ -18,7 +18,10 @@
     font-weight: $font-weight-bold;
 }
 
-// badges
+.product-description {
+    height: 65px;
+}
+
 .product-badges {
     .badge {
         float: left;

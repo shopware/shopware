@@ -33,7 +33,8 @@
         "searchAllResults": "Show all search results",
         "searchResults": "Results",
         "supportInfo": "<strong>Questions about your order?</strong><br /><strong><a href='tel:+4912345-123456789'>12345-123456789</a></strong> <small>Daily from 7:30 am to 10:00 pm</small>",
-        "indexLinkService": "Service/Help"
+        "indexLinkService": "Service/Help",
+        "searchNoResult": "No results found"
     },
     "meta": {
         "xmlLang": "en-GB",

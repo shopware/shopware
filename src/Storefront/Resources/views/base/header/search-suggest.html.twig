@@ -39,19 +39,30 @@
 
                 {# Total results link #}
                 {% block base_search_suggest_result_total %}
-                    <li class="js-result result-total">
-                        {% block base_search_suggest_result_total_link %}
-                            <a href="{{ path('frontend.search.page') }}?search={{ page.searchTerm }}"
-                               title="{{ "header.searchAllResults"|trans }}"
-                               class="total-link">
-                                <i class="fas fa-chevron-right total-link-icon"></i> {{ "header.searchAllResults"|trans }}
-                            </a>
+                    {% if page.listing.total == 0 %}
+                        {% block base_search_suggest_no_result %}
+                            <li class="js-result no-search-result">
+                                {{ "header.searchNoResult"|trans }}
+                            </li>                        
                         {% endblock %}
+                    {% else %}
 
-                        {% block base_search_suggest_result_total_count %}
-                            <span class="total-count">{{ page.listing.total }} {{ "header.searchResults"|trans }}</span>
+                        {% block base_search_suggest_result_total_result %}
+                            {% block base_search_suggest_result_total_link %}
+                                <li class="js-result result-total">
+                                    <a href="{{ path('frontend.search.page') }}?search={{ page.searchTerm }}"
+                                       title="{{ "header.searchAllResults"|trans }}"
+                                       class="total-link">
+                                        <i class="fas fa-chevron-right total-link-icon"></i> {{ "header.searchAllResults"|trans }}
+                                    </a>
+                            {% endblock %}
+
+                                {% block base_search_suggest_result_total_count %}
+                                    <span class="total-count">{{ page.listing.total }} {{ "header.searchResults"|trans }}</span>
+                                {% endblock %}
+                                </li>
                         {% endblock %}
-                    </li>
+                    {% endif %}
                 {% endblock %}
             </ul>
         {% endblock %}

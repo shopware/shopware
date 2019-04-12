@@ -19,6 +19,7 @@ use Shopware\Core\System\Country\Aggregate\CountryState\CountryStateDefinition;
 use Shopware\Core\System\Country\CountryDefinition;
 use Shopware\Core\System\Currency\CurrencyDefinition;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\System\Salutation\SalutationDefinition;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -55,6 +56,10 @@ class StorefrontSalesChannelController extends AbstractController
      * @var EntityRepositoryInterface
      */
     private $shippingMethodRepository;
+    /**
+     * @var EntityRepositoryInterface
+     */
+    private $salutationRepository;
 
     public function __construct(
         EntityRepositoryInterface $currencyRepository,
@@ -62,7 +67,8 @@ class StorefrontSalesChannelController extends AbstractController
         EntityRepositoryInterface $countryRepository,
         EntityRepositoryInterface $countryStateRepository,
         EntityRepositoryInterface $paymentMethodRepository,
-        EntityRepositoryInterface $shippingMethodRepository
+        EntityRepositoryInterface $shippingMethodRepository,
+        EntityRepositoryInterface $salutationRepository
     ) {
         $this->currencyRepository = $currencyRepository;
         $this->languageRepository = $languageRepository;
@@ -70,6 +76,7 @@ class StorefrontSalesChannelController extends AbstractController
         $this->countryStateRepository = $countryStateRepository;
         $this->paymentMethodRepository = $paymentMethodRepository;
         $this->shippingMethodRepository = $shippingMethodRepository;
+        $this->salutationRepository = $salutationRepository;
     }
 
     /**
@@ -179,6 +186,29 @@ class StorefrontSalesChannelController extends AbstractController
         return $responseFactory->createListingResponse(
             $shippingMethods,
             ShippingMethodDefinition::class,
+            $request,
+            $context->getContext()
+        );
+    }
+
+    /**
+     * @Route("/storefront-api/v{version}/salutation", name="storefront-api.salutation.list", methods={"GET"})
+     */
+    public function getSalutations(Request $request, SalesChannelContext $context, ResponseFactoryInterface $responseFactory): Response
+    {
+        $limit = $request->query->getInt('limit', 10);
+        $page = $request->query->getInt('page', 1);
+
+        --$page;
+
+        $criteria = new Criteria();
+        $criteria->setLimit($limit);
+        $criteria->setOffset($page * $limit);
+        $criteria->setTotalCountMode(Criteria::TOTAL_COUNT_MODE_NEXT_PAGES);
+
+        return $responseFactory->createListingResponse(
+            $this->salutationRepository->search($criteria, $context->getContext()),
+            SalutationDefinition::class,
             $request,
             $context->getContext()
         );

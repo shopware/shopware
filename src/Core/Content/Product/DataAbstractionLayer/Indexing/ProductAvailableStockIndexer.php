@@ -3,6 +3,8 @@
 namespace Shopware\Core\Content\Product\DataAbstractionLayer\Indexing;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryDefinition;
+use Shopware\Core\Checkout\Order\Aggregate\OrderDeliveryPosition\OrderDeliveryPositionDefinition;
 use Shopware\Core\Content\Product\Service\ProductAvailableStockCalculationService;
 use Shopware\Core\Content\Product\Util\EventIdExtractor;
 use Shopware\Core\Framework\Context;
@@ -81,9 +83,61 @@ class ProductAvailableStockIndexer implements IndexerInterface
 
     public function refresh(EntityWrittenContainerEvent $event): void
     {
-        $ids = $this->eventIdExtractor->getProductIds($event);
+        $this->productAvailableStockCalculationService->recalculate(
+            $this->getAffectedProductIds($event),
+            $event->getContext()
+        );
+    }
 
-        $this->productAvailableStockCalculationService->recalculate($ids, $event->getContext());
+    private function getAffectedProductIds(EntityWrittenContainerEvent $event): array
+    {
+        $productIds = $this->eventIdExtractor->getProductIds($event);
+
+        // Collect product IDs affected by any changed order deliveries
+        $deliveryEvent = $event->getEventByDefinition(OrderDeliveryDefinition::class);
+        if ($deliveryEvent && count($deliveryEvent->getIds()) > 0) {
+            $sql = <<<SQL
+SELECT TRIM(BOTH '"' FROM JSON_EXTRACT(`order_line_item`.`payload`, '$.id')) AS `product_id`
+FROM `order_delivery`
+LEFT JOIN `order_delivery_position`
+    ON `order_delivery_position`.`order_delivery_id` = `order_delivery`.`id`
+LEFT JOIN `order_line_item`
+    ON `order_line_item`.`id` = `order_delivery_position`.`order_line_item_id`
+WHERE
+    `order_delivery`.`id` IN (:ids)
+    AND `order_line_item`.`type` = 'product'
+SQL;
+
+            $deliveryProductIds = $this->connection->fetchAll(
+                $sql,
+                ['ids' => array_map([Uuid::class, 'fromHexToBytes'], $deliveryEvent->getIds())],
+                ['ids' => Connection::PARAM_STR_ARRAY]
+            );
+            $productIds = array_merge($productIds, array_column($deliveryProductIds, 'product_id'));
+        }
+
+        // Collect product IDs affected by any changed order delivery products
+        $deliveryPositionEvent = $event->getEventByDefinition(OrderDeliveryPositionDefinition::class);
+        if ($deliveryPositionEvent && count($deliveryPositionEvent->getIds()) > 0) {
+            $sql = <<<SQL
+SELECT TRIM(BOTH '"' FROM JSON_EXTRACT(`order_line_item`.`payload`, '$.id')) AS `product_id`
+FROM `order_delivery_position`
+LEFT JOIN `order_line_item`
+    ON `order_line_item`.`id` = `order_delivery_position`.`order_line_item_id`
+WHERE
+    `order_delivery_position`.`id` IN (:ids)
+    AND `order_line_item`.`type` = 'product'
+SQL;
+
+            $deliveryPositionProductIds = $this->connection->fetchAll(
+                $sql,
+                ['ids' => array_map([Uuid::class, 'fromHexToBytes'], $deliveryPositionEvent->getIds())],
+                ['ids' => Connection::PARAM_STR_ARRAY]
+            );
+            $productIds = array_merge($productIds, array_column($deliveryPositionProductIds, 'product_id'));
+        }
+
+        return $productIds;
     }
 
     private function createIterator(): LastIdQuery

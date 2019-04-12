@@ -137,9 +137,9 @@ Component.register('sw-product-variants-overview', {
                     inlineEdit: 'number'
                 },
                 {
-                    property: 'stock',
-                    dataIndex: 'stock',
-                    label: this.$tc('sw-product.variations.generatedListColumnStock'),
+                    property: 'availableStock',
+                    dataIndex: 'availableStock',
+                    label: this.$tc('sw-product.variations.generatedListColumnAvailableStock'),
                     allowResize: true,
                     inlineEdit: 'number'
                 },

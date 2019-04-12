@@ -62,7 +62,7 @@
 				<div class="col-12 col-sm-4 col-md-auto cart-item-quantity">
 					{% block page_checkout_item_quantity_form %}
 						{#TODO: NEXT-1946 - form action#}
-						{#TODO: NEXT-1946 - check laststock and instock?#}
+						{#TODO: NEXT-1946 - check laststock and availableStock?#}
 						<form action="{{ path('storefront-api.checkout.cart.line-item.update', {'version': 1, 'id': lineItem.key}) }}"
 						      class="cart-item-quantity-container"
 						      method="post">

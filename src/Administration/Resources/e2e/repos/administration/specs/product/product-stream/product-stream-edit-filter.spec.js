@@ -103,7 +103,7 @@ module.exports = {
             value: '14.05.2019'
         });
     },
-    'create another subcondition with stock condition': (browser) => {
+    'create another subcondition with available stock condition': (browser) => {
         const page = productStreamPage(browser);
 
         browser
@@ -111,7 +111,7 @@ module.exports = {
             .waitForElementVisible(`${page.elements.conditionOrContainer}--1 ${page.elements.orSpacer}`);
 
         page.createBasicInputCondition({
-            type: 'Stock',
+            type: 'Available stock',
             inputName: 'sw-field--actualCondition-value',
             operator: 'Not equals',
             ruleSelector: `${page.elements.conditionOrContainer}--1 ${page.elements.conditionAndContainer}--1`,

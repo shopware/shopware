@@ -24,12 +24,12 @@
             {% endblock %}
 
 {#TODO: NEXT-1946 - check "cart item type" and "quantity" #}
-        {% elseif shopware.config.checkout.instockinfo and page.product.stock > 0 %}
+        {% elseif shopware.config.checkout.instockinfo and page.product.availableStock > 0 %}
             {% block component_delivery_information_partial_stock %}
                 <link itemprop="availability" href="http://schema.org/LimitedAvailability" />
                 <p class="delivery-information text-warning">
                     {{ "general.deliveryPartialStock"|trans({
-                        '%inStock%': page.product.stock,
+                        '%availableStock%': page.product.availableStock,
                         '%quantity%': quantity
                     }) }}
                     {% if page.product.shippingtime %}
@@ -39,7 +39,7 @@
                     {% endif %}
                 </p>
             {% endblock %}
-        {% elseif page.product.stock >= page.product.minpurchase %}
+        {% elseif page.product.availableStock >= page.product.minpurchase %}
             {% block component_delivery_information_instock %}
                 <link itemprop="availability" href="http://schema.org/InStock" />
                 <p class="delivery-information text-success">

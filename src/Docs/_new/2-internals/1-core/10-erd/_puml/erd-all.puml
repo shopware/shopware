@@ -647,6 +647,7 @@ Table(ShopwareCoreContentProductProductDefinition, "product\n(Product)") {
    autoIncrement int
    active bool
    not_null(stock) int
+   not_null(availableStock) int
    not_null(createdAt) createdAt
    not_null(updatedAt) updatedAt
    not_null(manufacturerId) foreignKey

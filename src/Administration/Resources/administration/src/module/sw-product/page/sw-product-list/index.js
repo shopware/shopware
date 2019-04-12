@@ -38,8 +38,8 @@ Component.register('sw-product-list', {
                 criteria: { type: 'range', field: 'product.price', options: { '>': 50 } }
             }, {
                 active: false,
-                label: 'Lagerbestand unter 10',
-                criteria: { type: 'range', field: 'product.stock', options: { '<': 10 } }
+                label: 'Verfügbarer Lagerbestand unter 10',
+                criteria: { type: 'range', field: 'product.availableStock', options: { '<': 10 } }
             }];
         }
     },
@@ -172,9 +172,9 @@ Component.register('sw-product-list', {
                 allowResize: true,
                 align: 'right'
             }, {
-                property: 'stock',
-                dataIndex: 'stock',
-                label: this.$tc('sw-product.list.columnInStock'),
+                property: 'availableStock',
+                dataIndex: 'availableStock',
+                label: this.$tc('sw-product.list.columnAvailableStock'),
                 inlineEdit: 'number',
                 allowResize: true,
                 align: 'right'

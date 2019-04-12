@@ -57,7 +57,7 @@ class DeliveryBuilder
             );
 
             //completely in stock?
-            if ($item->getDeliveryInformation()->getStock() >= $quantity || $allowSplitting === false) {
+            if ($item->getDeliveryInformation()->getAvailableStock() >= $quantity || $allowSplitting === false) {
                 $this->addGoodsToDelivery(
                     $deliveries,
                     $position,
@@ -68,7 +68,7 @@ class DeliveryBuilder
             }
 
             //completely out of stock? add full quantity to a delivery with same of out stock delivery date
-            if ($item->getDeliveryInformation()->getStock() <= 0) {
+            if ($item->getDeliveryInformation()->getAvailableStock() <= 0) {
                 $position = new DeliveryPosition(
                     $item->getKey(),
                     clone $item,
@@ -86,11 +86,11 @@ class DeliveryBuilder
                 continue;
             }
 
-            $outOfStock = abs($item->getDeliveryInformation()->getStock() - $quantity);
+            $outOfStock = abs($item->getDeliveryInformation()->getAvailableStock() - $quantity);
 
             $position = $this->recalculatePosition(
                 $item,
-                $item->getDeliveryInformation()->getStock(),
+                $item->getDeliveryInformation()->getAvailableStock(),
                 $item->getDeliveryInformation()->getInStockDeliveryDate(),
                 $context
             );

@@ -29,7 +29,7 @@ class StorefrontProductEntity extends ApiStruct
             return true;
         }
 
-        return $this->getStock() >= $this->getMinPurchase();
+        return $this->getAvailableStock() >= $this->getMinPurchase();
     }
 
     public function getCalculatedListingPrice(): CalculatedPrice

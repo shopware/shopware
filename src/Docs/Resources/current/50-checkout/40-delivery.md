@@ -22,7 +22,7 @@ class DeliveryInformation extends Struct
     /**
      * @var int
      */
-    protected $stock;
+    protected $availableStock;
 
     /**
      * @var float
@@ -41,7 +41,7 @@ class DeliveryInformation extends Struct
 }
 ```
 
-- `stock`: the quantity which is currently in stock.
+- `availableStock`: the quantity which is currently in stock.
 - `weight`: weight of the line item in kg
 - `inStockDeliveryDate`: `Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryDate` object
 which contains the earliest and latest in stock delivery date as `DateTime`

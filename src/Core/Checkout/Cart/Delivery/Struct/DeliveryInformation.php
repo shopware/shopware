@@ -9,7 +9,7 @@ class DeliveryInformation extends Struct
     /**
      * @var int
      */
-    protected $stock;
+    protected $availableStock;
 
     /**
      * @var float
@@ -32,27 +32,27 @@ class DeliveryInformation extends Struct
     protected $freeDelivery;
 
     public function __construct(
-        int $stock,
+        int $availableStock,
         float $weight,
         DeliveryDate $inStockDeliveryDate,
         DeliveryDate $outOfStockDeliveryDate,
         bool $freeDelivery
     ) {
-        $this->stock = $stock;
+        $this->availableStock = $availableStock;
         $this->weight = $weight;
         $this->inStockDeliveryDate = $inStockDeliveryDate;
         $this->outOfStockDeliveryDate = $outOfStockDeliveryDate;
         $this->freeDelivery = $freeDelivery;
     }
 
-    public function getStock(): int
+    public function getAvailableStock(): int
     {
-        return $this->stock;
+        return $this->availableStock;
     }
 
-    public function setStock(int $stock): void
+    public function setAvailableStock(int $availableStock): void
     {
-        $this->stock = $stock;
+        $this->availableStock = $availableStock;
     }
 
     public function getWeight(): float

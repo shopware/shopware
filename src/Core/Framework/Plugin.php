@@ -9,23 +9,9 @@ use Shopware\Core\Framework\Plugin\Context\UninstallContext;
 use Shopware\Core\Framework\Plugin\Context\UpdateContext;
 use Symfony\Component\Routing\RouteCollectionBuilder;
 
-abstract class Plugin extends Bundle
+abstract class Plugin extends Bundle implements PluginLifecycleInterface
 {
-    /**
-     * @var bool
-     */
-    private $active;
-
-    final public function __construct(bool $active = true, ?string $path = null)
-    {
-        $this->active = $active;
-        $this->path = $path;
-    }
-
-    final public function isActive(): bool
-    {
-        return $this->active;
-    }
+    use PluginTrait;
 
     public function install(InstallContext $context): void
     {

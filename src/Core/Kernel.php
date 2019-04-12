@@ -7,18 +7,21 @@ use Doctrine\DBAL\Configuration;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\FetchMode;
+use Shopware\Core\Framework\BundleRouteInterface;
+use Shopware\Core\Framework\DummyPlugin;
 use Shopware\Core\Framework\Framework;
 use Shopware\Core\Framework\Migration\MigrationStep;
-use Shopware\Core\Framework\Plugin;
 use Shopware\Core\Framework\Plugin\KernelPluginCollection;
+use Shopware\Core\Framework\PluginInterface;
 use Symfony\Bundle\FrameworkBundle\Kernel\MicroKernelTrait;
 use Symfony\Component\Config\ConfigCache;
 use Symfony\Component\Config\Loader\LoaderInterface;
 use Symfony\Component\Config\Resource\FileResource;
-use Symfony\Component\DependencyInjection\ContainerAwareTrait;
+use Symfony\Component\DependencyInjection\ContainerAwareInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\HttpKernel\Bundle\Bundle;
+use Symfony\Component\HttpKernel\Bundle\BundleInterface;
 use Symfony\Component\HttpKernel\Kernel as HttpKernel;
 use Symfony\Component\Routing\RouteCollectionBuilder;
 
@@ -67,7 +70,9 @@ class Kernel extends HttpKernel
             }
         }
 
-        yield from self::$plugins->getActives();
+        foreach (self::$plugins->getActives() as $plugin) {
+            yield from $plugin->registerBundles();
+        }
     }
 
     public function boot($withPlugins = true): void
@@ -102,7 +107,7 @@ class Kernel extends HttpKernel
         // init container
         $this->initializeContainer();
 
-        /** @var Bundle|ContainerAwareTrait $bundle */
+        /** @var Bundle|ContainerAwareInterface $bundle */
         foreach ($this->getBundles() as $bundle) {
             $bundle->setContainer($this->container);
             $bundle->boot();
@@ -198,11 +203,13 @@ class Kernel extends HttpKernel
         $activePluginMeta = [];
 
         foreach (self::getPlugins()->getActives() as $namespace => $plugin) {
-            $pluginName = $plugin->getName();
-            $activePluginMeta[$pluginName] = [
-                'name' => $pluginName,
-                'path' => $plugin->getPath(),
-            ];
+            if ($plugin instanceof BundleInterface) {
+                $pluginName = $plugin->getName();
+                $activePluginMeta[$pluginName] = [
+                    'name' => $pluginName,
+                    'path' => $plugin->getPath(),
+                ];
+            }
         }
 
         return array_merge(
@@ -272,9 +279,9 @@ SQL;
 
     private function addBundleRoutes(RouteCollectionBuilder $routes): void
     {
-        foreach ($this->getBundles() as $bundle) {
-            if ($bundle instanceof \Shopware\Core\Framework\Bundle) {
-                $bundle->configureRoutes($routes, (string) $this->environment);
+        foreach ($this->getBundles() as $plugin) {
+            if ($plugin instanceof BundleRouteInterface) {
+                $plugin->configureRoutes($routes, (string) $this->environment);
             }
         }
     }
@@ -342,15 +349,14 @@ SQL;
             $className = $pluginData['name'];
 
             if (!class_exists($className)) {
-                throw new \RuntimeException(sprintf('Unable to load plugin class "%s"', $className));
+                $plugin = new DummyPlugin((bool) $pluginData['active'], $this->getProjectDir() . $pluginData['path'], $pluginData['name']);
+            } else {
+                $plugin = new $className((bool) $pluginData['active']);
             }
 
-            /** @var Plugin $plugin */
-            $plugin = new $className((bool) $pluginData['active']);
-
-            if (!$plugin instanceof Plugin) {
+            if (!$plugin instanceof PluginInterface) {
                 throw new \RuntimeException(
-                    sprintf('Plugin class "%s" must extend "%s"', \get_class($plugin), Plugin::class)
+                    sprintf('Plugin class "%s" must extend "%s"', \get_class($plugin), PluginInterface::class)
                 );
             }
 

@@ -3,7 +3,7 @@
 namespace Shopware\Administration\Command;
 
 use Shopware\Core\Framework\Bundle;
-use Shopware\Core\Framework\Plugin;
+use Shopware\Core\Framework\PluginInterface;
 use Shopware\Core\Kernel;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -52,7 +52,7 @@ class AdministrationDumpBundlesCommand extends Command
                 continue;
             }
             // dont include deactivated plugins
-            if ($bundle instanceof Plugin && !$bundle->isActive()) {
+            if ($bundle instanceof PluginInterface && !$bundle->isActive()) {
                 continue;
             }
             $bundleName = $bundle->getName();

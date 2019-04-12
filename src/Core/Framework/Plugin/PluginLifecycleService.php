@@ -5,13 +5,13 @@ namespace Shopware\Core\Framework\Plugin;
 use Doctrine\DBAL\Connection;
 use function Flag\next1797;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Bundle;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\Framework;
 use Shopware\Core\Framework\Migration\MigrationCollection;
 use Shopware\Core\Framework\Migration\MigrationCollectionLoader;
 use Shopware\Core\Framework\Migration\MigrationRuntime;
-use Shopware\Core\Framework\Plugin;
 use Shopware\Core\Framework\Plugin\Composer\CommandExecutor;
 use Shopware\Core\Framework\Plugin\Context\ActivateContext;
 use Shopware\Core\Framework\Plugin\Context\DeactivateContext;
@@ -34,7 +34,9 @@ use Shopware\Core\Framework\Plugin\Exception\PluginNotInstalledException;
 use Shopware\Core\Framework\Plugin\Requirement\Exception\RequirementStackException;
 use Shopware\Core\Framework\Plugin\Requirement\RequirementsValidator;
 use Shopware\Core\Framework\Plugin\Util\AssetService;
-use Symfony\Component\DependencyInjection\ContainerAwareTrait;
+use Shopware\Core\Framework\PluginInterface;
+use Shopware\Core\Framework\PluginLifecycleInterface;
+use Symfony\Component\DependencyInjection\ContainerAwareInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
@@ -167,17 +169,22 @@ class PluginLifecycleService
             new PluginPreInstallEvent($plugin, $installContext)
         );
 
-        $pluginBaseClass->install($installContext);
+        if ($pluginBaseClass instanceof PluginLifecycleInterface) {
+            $pluginBaseClass->install($installContext);
+        }
 
-        $this->runMigrations($pluginBaseClass);
-
+        if ($pluginBaseClass instanceof Bundle) {
+            $this->runMigrations($pluginBaseClass);
+        }
         $installDate = new \DateTime();
         $pluginData['installedAt'] = $installDate->format(Defaults::STORAGE_DATE_FORMAT);
         $plugin->setInstalledAt($installDate);
 
         $this->updatePluginData($pluginData, $shopwareContext);
 
-        $pluginBaseClass->postInstall($installContext);
+        if ($pluginBaseClass instanceof PluginLifecycleInterface) {
+            $pluginBaseClass->postInstall($installContext);
+        }
 
         $this->eventDispatcher->dispatch(
             PluginPostInstallEvent::NAME,
@@ -215,10 +222,14 @@ class PluginLifecycleService
             new PluginPreUninstallEvent($plugin, $uninstallContext)
         );
 
-        $pluginBaseClass->uninstall($uninstallContext);
+        if ($pluginBaseClass instanceof PluginLifecycleInterface) {
+            $pluginBaseClass->uninstall($uninstallContext);
+        }
 
         if ($keepUserData === false) {
-            $this->removeMigrations($pluginBaseClass);
+            if ($pluginBaseClass instanceof Bundle) {
+                $this->removeMigrations($pluginBaseClass);
+            }
         }
 
         $this->updatePluginData(
@@ -268,9 +279,13 @@ class PluginLifecycleService
             new PluginPreUpdateEvent($plugin, $updateContext)
         );
 
-        $pluginBaseClass->update($updateContext);
+        if ($pluginBaseClass instanceof PluginLifecycleInterface) {
+            $pluginBaseClass->update($updateContext);
+        }
 
-        $this->runMigrations($pluginBaseClass);
+        if ($pluginBaseClass instanceof Bundle) {
+            $this->runMigrations($pluginBaseClass);
+        }
 
         $updateVersion = $updateContext->getUpdatePluginVersion();
         $updateDate = new \DateTime();
@@ -287,7 +302,9 @@ class PluginLifecycleService
         $plugin->setUpgradeVersion(null);
         $plugin->setUpgradedAt($updateDate);
 
-        $pluginBaseClass->postUpdate($updateContext);
+        if ($pluginBaseClass instanceof PluginLifecycleInterface) {
+            $pluginBaseClass->postUpdate($updateContext);
+        }
 
         $this->eventDispatcher->dispatch(
             PluginPostUpdateEvent::NAME,
@@ -325,8 +342,13 @@ class PluginLifecycleService
             new PluginPreActivateEvent($plugin, $activateContext)
         );
 
-        $pluginBaseClass->activate($activateContext);
-        $this->assetInstaller->copyAssetsFromBundle($pluginName);
+        if ($pluginBaseClass instanceof PluginLifecycleInterface) {
+            $pluginBaseClass->activate($activateContext);
+        }
+
+        if ($pluginBaseClass instanceof Bundle) {
+            $this->assetInstaller->copyAssetsFromBundle($pluginBaseClass);
+        }
 
         $this->updatePluginData(
             [
@@ -374,8 +396,13 @@ class PluginLifecycleService
             new PluginPreDeactivateEvent($plugin, $deactivateContext)
         );
 
-        $pluginBaseClass->deactivate($deactivateContext);
-        $this->assetInstaller->removeAssetsOfBundle($pluginName);
+        if ($pluginBaseClass instanceof PluginLifecycleInterface) {
+            $pluginBaseClass->deactivate($deactivateContext);
+        }
+
+        if ($pluginBaseClass instanceof Bundle) {
+            $this->assetInstaller->removeAssetsOfBundle($pluginBaseClass);
+        }
 
         $this->updatePluginData(
             [
@@ -394,17 +421,18 @@ class PluginLifecycleService
         return $deactivateContext;
     }
 
-    private function getPluginBaseClass(string $pluginName): Plugin
+    private function getPluginBaseClass(string $pluginName): PluginInterface
     {
-        /** @var Plugin|ContainerAwareTrait $baseClass */
         $baseClass = $this->pluginCollection->get($pluginName);
         // set container because the plugin has not been initialized yet and therefore has no container set
-        $baseClass->setContainer($this->container);
+        if ($baseClass instanceof ContainerAwareInterface) {
+            $baseClass->setContainer($this->container);
+        }
 
         return $baseClass;
     }
 
-    private function runMigrations(Plugin $pluginBaseClass): void
+    private function runMigrations(Bundle $pluginBaseClass): void
     {
         $migrationPath = str_replace(
             '\\',
@@ -425,7 +453,7 @@ class PluginLifecycleService
         iterator_to_array($this->migrationRunner->migrate());
     }
 
-    private function removeMigrations(Plugin $pluginBaseClass): void
+    private function removeMigrations(Bundle $pluginBaseClass): void
     {
         $class = $pluginBaseClass->getMigrationNamespace() . '\%';
         $class = str_replace('\\', '\\\\', $class);

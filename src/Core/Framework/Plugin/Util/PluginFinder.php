@@ -73,14 +73,16 @@ class PluginFinder
 
     private function isShopwarePluginPackage(PackageInterface $package): bool
     {
-        return $package->getType() === self::COMPOSER_TYPE
-            && isset($package->getExtra()[self::SHOPWARE_PLUGIN_CLASS_EXTRA_IDENTIFIER])
-            && $package->getExtra()[self::SHOPWARE_PLUGIN_CLASS_EXTRA_IDENTIFIER] !== '';
+        return $package->getType() === self::COMPOSER_TYPE;
     }
 
-    private function getPluginNameFromPackage(PackageInterface $pluginPackage): string
+    private function getPluginNameFromPackage(PackageInterface $pluginPackage, string $pluginPath): string
     {
-        return $pluginPackage->getExtra()[self::SHOPWARE_PLUGIN_CLASS_EXTRA_IDENTIFIER];
+        if (isset($pluginPackage->getExtra()[self::SHOPWARE_PLUGIN_CLASS_EXTRA_IDENTIFIER])) {
+            return $pluginPackage->getExtra()[self::SHOPWARE_PLUGIN_CLASS_EXTRA_IDENTIFIER];
+        }
+
+        return basename($pluginPath);
     }
 
     private function getVendorPluginPath(PackageInterface $pluginPackage, Composer $composer): string
@@ -110,6 +112,6 @@ class PluginFinder
             );
         }
 
-        return $this->getPluginNameFromPackage($rootPackage);
+        return $this->getPluginNameFromPackage($rootPackage, $pluginPath);
     }
 }

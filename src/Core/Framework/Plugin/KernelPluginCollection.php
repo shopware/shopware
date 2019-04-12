@@ -2,27 +2,32 @@
 
 namespace Shopware\Core\Framework\Plugin;
 
-use Shopware\Core\Framework\Plugin;
+use Shopware\Core\Framework\DummyPlugin;
+use Shopware\Core\Framework\PluginInterface;
 
 class KernelPluginCollection
 {
     /**
-     * @var Plugin[]
+     * @var PluginInterface[]
      */
     private $bundles;
 
     /**
-     * @param Plugin[] $bundles
+     * @param PluginInterface[] $bundles
      */
     public function __construct(array $bundles = [])
     {
         $this->bundles = $bundles;
     }
 
-    public function add(Plugin $bundle): void
+    public function add(PluginInterface $bundle): void
     {
-        /** @var string|false $class */
-        $class = \get_class($bundle);
+        if ($bundle instanceof DummyPlugin) {
+            $class = $bundle->getName();
+        } else {
+            /** @var string|false $class */
+            $class = \get_class($bundle);
+        }
 
         if ($class === false) {
             return;
@@ -36,7 +41,7 @@ class KernelPluginCollection
     }
 
     /**
-     * @param Plugin[] $bundle
+     * @param PluginInterface[] $bundle
      */
     public function addList(array $bundle): void
     {
@@ -48,13 +53,13 @@ class KernelPluginCollection
         return array_key_exists($name, $this->bundles);
     }
 
-    public function get($name): ?Plugin
+    public function get($name): ?PluginInterface
     {
         return $this->has($name) ? $this->bundles[$name] : null;
     }
 
     /**
-     * @return Plugin[]
+     * @return PluginInterface[]
      */
     public function all(): array
     {
@@ -62,11 +67,11 @@ class KernelPluginCollection
     }
 
     /**
-     * @return Plugin[]
+     * @return PluginInterface[]
      */
     public function getActives(): array
     {
-        return array_filter($this->bundles, function (Plugin $plugin) {
+        return array_filter($this->bundles, function (PluginInterface $plugin) {
             return $plugin->isActive();
         });
     }

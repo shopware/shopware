@@ -3,12 +3,12 @@
 namespace Shopware\Core\Framework\Plugin\Context;
 
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Plugin;
+use Shopware\Core\Framework\PluginInterface;
 
 class InstallContext
 {
     /**
-     * @var Plugin
+     * @var PluginInterface
      */
     private $plugin;
 
@@ -28,7 +28,7 @@ class InstallContext
     private $currentPluginVersion;
 
     public function __construct(
-        Plugin $plugin,
+        PluginInterface $plugin,
         Context $context,
         string $currentShopwareVersion,
         string $currentPluginVersion
@@ -39,7 +39,7 @@ class InstallContext
         $this->currentPluginVersion = $currentPluginVersion;
     }
 
-    public function getPlugin(): Plugin
+    public function getPlugin(): PluginInterface
     {
         return $this->plugin;
     }

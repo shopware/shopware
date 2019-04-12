@@ -16,7 +16,7 @@ use Symfony\Component\HttpKernel\Bundle\Bundle as SymfonyBundle;
 use Symfony\Component\Routing\RouteCollectionBuilder;
 use Symfony\Component\Serializer\NameConverter\CamelCaseToSnakeCaseNameConverter;
 
-abstract class Bundle extends SymfonyBundle
+abstract class Bundle extends SymfonyBundle implements BundleRouteInterface
 {
     public function build(ContainerBuilder $container): void
     {

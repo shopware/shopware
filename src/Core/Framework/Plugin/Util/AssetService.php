@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\Plugin\Util;
 
-use Shopware\Core\Framework\Plugin\Exception\PluginNotFoundException;
 use Shopware\Core\Framework\Plugin\KernelPluginCollection;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Finder\Finder;
@@ -36,13 +35,8 @@ class AssetService
         $this->pluginCollection = $pluginCollection;
     }
 
-    /**
-     * @throws PluginNotFoundException
-     */
-    public function copyAssetsFromBundle(string $bundleName): void
+    public function copyAssetsFromBundle(BundleInterface $bundle): void
     {
-        $bundle = $this->getBundle($bundleName);
-
         $originDir = $bundle->getPath() . '/Resources/public';
         if (!is_dir($originDir)) {
             return;
@@ -55,13 +49,8 @@ class AssetService
         $this->copy($originDir, $targetDirectory);
     }
 
-    /**
-     * @throws PluginNotFoundException
-     */
-    public function removeAssetsOfBundle(string $bundleName): void
+    public function removeAssetsOfBundle(BundleInterface $bundle): void
     {
-        $bundle = $this->getBundle($bundleName);
-
         $targetDirectory = $this->getTargetDirectory($bundle);
 
         $this->filesystem->remove($targetDirectory);
@@ -78,23 +67,5 @@ class AssetService
     {
         $this->filesystem->mkdir($targetDir, 0777);
         $this->filesystem->mirror($originDir, $targetDir, Finder::create()->ignoreDotFiles(false)->in($originDir));
-    }
-
-    /**
-     * @throws PluginNotFoundException
-     */
-    private function getBundle(string $bundleName): BundleInterface
-    {
-        try {
-            $bundle = $this->kernel->getBundle($bundleName);
-        } catch (\InvalidArgumentException $e) {
-            $bundle = $this->pluginCollection->get($bundleName);
-        }
-
-        if ($bundle === null) {
-            throw new PluginNotFoundException($bundleName);
-        }
-
-        return $bundle;
     }
 }

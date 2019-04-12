@@ -3,7 +3,7 @@
 namespace Shopware\Core\Framework\Plugin\Context;
 
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Plugin;
+use Shopware\Core\Framework\PluginInterface;
 
 class UpdateContext extends InstallContext
 {
@@ -13,7 +13,7 @@ class UpdateContext extends InstallContext
     private $updatePluginVersion;
 
     public function __construct(
-        Plugin $plugin,
+        PluginInterface $plugin,
         Context $context,
         string $currentShopwareVersion,
         string $currentPluginVersion,

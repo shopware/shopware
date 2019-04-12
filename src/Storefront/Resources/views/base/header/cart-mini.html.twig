@@ -12,18 +12,22 @@
 			{% if isCartNotEmpty %}
 				{% for lineItem in page.cart.lineItems %}
 					{% block base_cart_mini_item %}
-						<div class="cart-item">
+						<div class="cart-item cart-item-{{ lineItem.type }}">
 							{% block base_cart_mini_item_image %}
 								<div class="cart-item-image">
-									{% if lineItem.cover.url %}
-										{% set imgSrc = lineItem.cover.url %}
-									{% else %}
-										{% set imgSrc = asset(shopware.theme.general.noPicture) %}
+									{% if lineItem.type == 'product' %}
+										{% if lineItem.cover.url %}
+											{% set imgSrc = lineItem.cover.url %}
+										{% else %}
+											{% set imgSrc = asset(shopware.theme.general.noPicture) %}
+										{% endif %}
+										<img src="{{ imgSrc }}"
+											 class="img-fluid"
+											 alt="{{ lineItem.label }}"
+											 title="{{ lineItem.label }}">
+									{% elseif lineItem.type == 'promotion' %}
+										<i class="fas fa-percentage fa-2x"></i>
 									{% endif %}
-									<img src="{{ imgSrc }}"
-									     class="img-fluid"
-									     alt="{{ lineItem.label }}"
-									     title="{{ lineItem.label }}">
 								</div>
 							{% endblock %}
 

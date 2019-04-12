@@ -82,4 +82,12 @@
     .cart-tax {
         font-size: $font-size-sm;
     }
+
+    .cart-item-promotion {
+        .cart-item-image {
+            text-align: center;
+            height: auto;
+            color: $success;
+        }
+    }
 }

@@ -25,8 +25,11 @@
 }
 
 .cart-item-img-container {
-    max-width: 70px;
-    max-height: 70px;
+    width: 70px;
+}
+
+.cart-item-img-link {
+    display: block;
 }
 
 .cart-item-info {
@@ -55,6 +58,17 @@
 .cart-item-quantity-row {
     align-items: center;
     margin-bottom: $spacer-sm;
+}
+
+.cart-item-promotion {
+    .cart-item-img-container {
+        text-align: center;
+    }
+
+    .cart-item-img-container,
+    .cart-item-total-price {
+        color: $success;
+    }
 }
 
 @include media-breakpoint-up(sm) {

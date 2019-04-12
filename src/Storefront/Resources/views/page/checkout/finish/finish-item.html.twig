@@ -1,32 +1,5 @@
-{% sw_extends '@Storefront/page/checkout/confirm/confirm-item.html.twig' %}
+{% sw_extends '@Storefront/page/checkout/checkout-item.html.twig' %}
 
-{% block page_checkout_item_info_image_link %}
-    <a href="{{ path('frontend.detail.page', {'productId': lineItem.identifier}) }}" class="cart-item-img-link" title="{{ lineItem.label }}">
-        {% block page_checkout_item_info_image_element %}
-            {% if lineItem.cover.url %}
-                {% set imgSrc = lineItem.cover.url %}
-            {% else %}
-                {% set imgSrc = shopware.theme.general.noPicture %}
-            {% endif %}
-
-            <img src="{{ asset(imgSrc) }}"
-                 class="img-fluid cart-item-img"
-                 alt="{{ lineItem.cover.fileName }}">
-        {% endblock %}
-    </a>
-{% endblock %}
-
-{% block page_checkout_item_info_label %}
-    {% set url = '' %}
-    {% if lineItem.type == 'product' %}
-        {% set url = path('frontend.detail.page', {'productId': lineItem.identifier}) %}
-    {% endif %}
-
-    <a href="{{ url }}" class="cart-item-label" title="{{ lineItem.label }}">
-        {{ lineItem.label|truncate(60) }}
-    </a>
-{% endblock %}
-
-{% block page_checkout_item_quantity_form %}
-    {{ lineItem.quantity }}
+{% block page_checkout_item_product %}
+	{% sw_include '@Storefront/page/checkout/finish/finish-product.html.twig' %}
 {% endblock %}

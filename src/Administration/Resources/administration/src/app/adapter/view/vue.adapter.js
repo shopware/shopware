@@ -2,11 +2,12 @@
  * @module app/adapter/view/vue
  */
 import Vue from 'vue';
+import Vuex from 'vuex';
 import VueRouter from 'vue-router';
 import VueI18n from 'vue-i18n';
 import VueMeta from 'vue-meta';
 import DeviceHelper from 'src/core/plugins/device-helper.plugin';
-import { Component, Mixin } from 'src/core/shopware';
+import { Component, State, Mixin } from 'src/core/shopware';
 import { warn } from 'src/core/service/utils/debug.utils';
 
 /**
@@ -69,10 +70,16 @@ export default function VueAdapter(context, componentFactory, stateFactory, filt
             }
         });
 
+        const store = new Vuex.Store({
+            modules: State.getStore('vuex'),
+            strict: process.env.NODE_ENV !== 'production'
+        });
+
         return new Vue({
             el: renderElement,
             template: '<sw-admin />',
             router,
+            store,
             i18n,
             components,
             data() {
@@ -166,6 +173,7 @@ export default function VueAdapter(context, componentFactory, stateFactory, filt
      * @memberOf module:app/adapter/view/vue
      */
     function initPlugins() {
+        Vue.use(Vuex);
         Vue.use(VueRouter);
         Vue.use(VueI18n);
         Vue.use(DeviceHelper);
@@ -238,6 +246,10 @@ export default function VueAdapter(context, componentFactory, stateFactory, filt
      * @memberOf module:app/adapter/view/vue
      */
     function initInheritance() {
+        if (Vue.prototype.hasOwnProperty('$super')) {
+            return;
+        }
+
         Object.defineProperties(Vue.prototype, {
             $super: {
                 get() {

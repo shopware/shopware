@@ -89,7 +89,6 @@ class ProductDefinition extends EntityDefinition
             'minPurchase' => 1,
             'purchaseSteps' => 1,
             'shippingFree' => false,
-            'availableStock' => 0,
             'restockTime' => 1,
             'minDeliveryTime' => 1,
             'maxDeliveryTime' => 2,

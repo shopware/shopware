@@ -21,22 +21,22 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 
 class DocumentTypeDefinition extends EntityDefinition
 {
-    public static function getEntityName(): string
+    public function getEntityName(): string
     {
         return 'document_type';
     }
 
-    public static function getCollectionClass(): string
+    public function getCollectionClass(): string
     {
         return DocumentTypeCollection::class;
     }
 
-    public static function getEntityClass(): string
+    public function getEntityClass(): string
     {
         return DocumentTypeEntity::class;
     }
 
-    protected static function defineFields(): FieldCollection
+    protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
             (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),

@@ -77,9 +77,6 @@ class SqlQueryParser
         return $result;
     }
 
-    /**
-     * @param string|EntityDefinition $definition
-     */
     public function parse(
         Filter $query,
         EntityDefinition $definition,
@@ -87,7 +84,7 @@ class SqlQueryParser
         ?string $root = null
     ): ParseResult {
         if ($root === null) {
-            $root = $definition::getEntityName();
+            $root = $definition->getEntityName();
         }
 
         switch (true) {

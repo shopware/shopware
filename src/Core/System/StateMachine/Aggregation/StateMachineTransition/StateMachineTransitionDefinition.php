@@ -21,17 +21,17 @@ class StateMachineTransitionDefinition extends EntityDefinition
         return 'state_machine_transition';
     }
 
-    public static function getEntityClass(): string
+    public function getEntityClass(): string
     {
         return StateMachineTransitionEntity::class;
     }
 
-    public static function getCollectionClass(): string
+    public function getCollectionClass(): string
     {
         return StateMachineTransitionCollection::class;
     }
 
-    protected static function defineFields(): FieldCollection
+    protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),

@@ -16,7 +16,7 @@ class WriteProtectedReferenceDefinition extends MappingEntityDefinition
         return '_test_nullable_reference';
     }
 
-    protected static function defineFields(): FieldCollection
+    protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
             (new FkField('wp_id', 'wpId', WriteProtectedDefinition::class))->addFlags(new PrimaryKey(), new Required()),

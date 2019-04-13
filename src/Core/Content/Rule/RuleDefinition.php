@@ -40,17 +40,17 @@ class RuleDefinition extends EntityDefinition
         return 'rule';
     }
 
-    public static function getCollectionClass(): string
+    public function getCollectionClass(): string
     {
         return RuleCollection::class;
     }
 
-    public static function getEntityClass(): string
+    public function getEntityClass(): string
     {
         return RuleEntity::class;
     }
 
-    protected static function defineFields(): FieldCollection
+    protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
             (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),

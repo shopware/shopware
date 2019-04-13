@@ -28,7 +28,7 @@ class EntitySearchResultLoadedEvent extends NestedEvent
     {
         $this->result = $result;
         $this->definition = $definition;
-        $this->name = $this->definition::getEntityName() . '.search.result.loaded';
+        $this->name = $this->definition->getEntityName() . '.search.result.loaded';
     }
 
     public function getName(): string

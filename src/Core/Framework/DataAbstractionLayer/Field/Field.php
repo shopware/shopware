@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Field;
 
+use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Flag;
 use Shopware\Core\Framework\Struct\Struct;
 
@@ -20,6 +21,11 @@ abstract class Field extends Struct
     public function __construct(string $propertyName)
     {
         $this->propertyName = $propertyName;
+    }
+
+    public function compile(DefinitionInstanceRegistry $registry): void
+    {
+        // nth
     }
 
     public function getPropertyName(): string

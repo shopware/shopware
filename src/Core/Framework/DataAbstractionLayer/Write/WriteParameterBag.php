@@ -14,7 +14,7 @@ class WriteParameterBag
     /**
      * Defines the entity definition where the field placed in
      *
-     * @var string
+     * @var EntityDefinition
      */
     private $definition;
 

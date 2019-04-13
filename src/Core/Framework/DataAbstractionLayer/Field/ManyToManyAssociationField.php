@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Field;
 
+use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 
 class ManyToManyAssociationField extends AssociationField
@@ -9,10 +10,10 @@ class ManyToManyAssociationField extends AssociationField
     /**
      * @var string
      */
-    private $referenceDefinition;
+    private $mappingDefinitionClass;
 
     /**
-     * @var string
+     * @var EntityDefinition
      */
     private $mappingDefinition;
 
@@ -36,6 +37,16 @@ class ManyToManyAssociationField extends AssociationField
      */
     private $referenceColumn;
 
+    /**
+     * @var string
+     */
+    private $toManyDefinitionClass;
+
+    /**
+     * @var EntityDefinition
+     */
+    private $toManyDefinition;
+
     public function __construct(
         string $propertyName,
         string $referenceDefinition,
@@ -46,29 +57,33 @@ class ManyToManyAssociationField extends AssociationField
         string $referenceColumn = 'id'
     ) {
         parent::__construct($propertyName);
-        $this->referenceDefinition = $referenceDefinition;
+        $this->toManyDefinitionClass = $referenceDefinition;
         $this->referenceClass = $mappingDefinition;
-        $this->mappingDefinition = $mappingDefinition;
+        $this->mappingDefinitionClass = $mappingDefinition;
         $this->mappingLocalColumn = $mappingLocalColumn;
         $this->mappingReferenceColumn = $mappingReferenceColumn;
         $this->sourceColumn = $sourceColumn;
         $this->referenceColumn = $referenceColumn;
     }
 
-    /**
-     * @todo inverstigate getReferenceDefinition vs getReferenceClass
-     *
-     * @return string|EntityDefinition
-     */
-    public function getReferenceDefinition(): string
+    public function compile(DefinitionInstanceRegistry $registry): void
     {
-        return $this->referenceDefinition;
+        if ($this->mappingDefinition !== null) {
+            return;
+        }
+
+        parent::compile($registry);
+
+        $this->toManyDefinition = $registry->get($this->toManyDefinitionClass);
+        $this->mappingDefinition = $registry->get($this->mappingDefinitionClass);
     }
 
-    /**
-     * @return string|EntityDefinition
-     */
-    public function getMappingDefinition(): string
+    public function getToManyReferenceDefinition(): EntityDefinition
+    {
+        return $this->toManyDefinition;
+    }
+
+    public function getMappingDefinition(): EntityDefinition
     {
         return $this->mappingDefinition;
     }
@@ -91,10 +106,5 @@ class ManyToManyAssociationField extends AssociationField
     public function getReferenceField(): string
     {
         return $this->referenceColumn;
-    }
-
-    public function setReferenceDefinition(string $referenceDefinition): void
-    {
-        $this->referenceDefinition = $referenceDefinition;
     }
 }

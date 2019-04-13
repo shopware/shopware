@@ -39,13 +39,13 @@ class TranslatorCacheInvalidate implements EventSubscriberInterface
 
     public function invalidate(EntityWrittenEvent $event): void
     {
-        if ($event->getDefinition() === SnippetSetDefinition::class) {
+        if ($event->getDefinition()->getClass() === SnippetSetDefinition::class) {
             $this->clearCache($event->getIds());
 
             return;
         }
 
-        if ($event->getDefinition() === SnippetDefinition::class) {
+        if ($event->getDefinition()->getClass() === SnippetDefinition::class) {
             $snippetIds = $event->getIds();
 
             $rows = $this->connection->fetchAll(

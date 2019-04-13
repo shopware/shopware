@@ -79,6 +79,10 @@ class ProductGenerator implements DemodataGeneratorInterface
      * @var NumberRangeValueGeneratorInterface
      */
     private $numberRangeValueGenerator;
+    /**
+     * @var ProductDefinition
+     */
+    private $productDefinition;
 
     public function __construct(
         EntityWriterInterface $writer,
@@ -88,7 +92,8 @@ class ProductGenerator implements DemodataGeneratorInterface
         FileSaver $fileSaver,
         FileNameProvider $fileNameProvider,
         Connection $connection,
-        NumberRangeValueGeneratorInterface $numberRangeValueGenerator
+        NumberRangeValueGeneratorInterface $numberRangeValueGenerator,
+        ProductDefinition $productDefinition
     ) {
         $this->writer = $writer;
         $this->defaultFolderRepository = $defaultFolderRepository;
@@ -98,6 +103,7 @@ class ProductGenerator implements DemodataGeneratorInterface
         $this->fileNameProvider = $fileNameProvider;
         $this->connection = $connection;
         $this->numberRangeValueGenerator = $numberRangeValueGenerator;
+        $this->productDefinition = $productDefinition;
     }
 
     public function getDefinition(): string
@@ -180,7 +186,7 @@ class ProductGenerator implements DemodataGeneratorInterface
     {
         $writeContext = WriteContext::createFromContext($context->getContext());
 
-        $this->writer->upsert(new ProductDefinition(), $payload, $writeContext);
+        $this->writer->upsert($this->productDefinition, $payload, $writeContext);
         $this->importImages($context);
 
         $context->add(ProductDefinition::class, ...array_column($payload, 'id'));

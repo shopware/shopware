@@ -117,19 +117,16 @@ class WriteContext
         return isset($this->paths[$path]);
     }
 
-    /**
-     * @param EntityDefinition|string $definition
-     */
-    public function isChild(string $definition, array $raw): bool
+    public function isChild(EntityDefinition $definition, array $raw): bool
     {
         if (array_key_exists('parent', $raw)) {
             return true;
         }
 
         /** @var ManyToOneAssociationField $parent */
-        $parent = $definition::getFields()->get('parent');
+        $parent = $definition->getFields()->get('parent');
 
-        $fk = $definition::getFields()->getByStorageName(
+        $fk = $definition->getFields()->getByStorageName(
             $parent->getStorageName()
         );
 
@@ -137,11 +134,11 @@ class WriteContext
             return true;
         }
 
-        if (!array_key_exists($definition, $this->inheritance)) {
+        if (!array_key_exists($definition->getClass(), $this->inheritance)) {
             return false;
         }
 
-        $inheritance = $this->inheritance[$definition];
+        $inheritance = $this->inheritance[$definition->getClass()];
 
         return isset($inheritance[$raw['id']]);
     }

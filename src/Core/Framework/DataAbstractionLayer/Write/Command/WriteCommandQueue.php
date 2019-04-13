@@ -23,6 +23,9 @@ class WriteCommandQueue
      */
     private $entityCommands = [];
 
+    /**
+     * @var EntityDefinition[]
+     */
     private $definitions = [];
 
     /**
@@ -127,7 +130,7 @@ class WriteCommandQueue
 
     private function hasDependencies(EntityDefinition $definition, array $commands): array
     {
-        $fields = $definition::getFields()
+        $fields = $definition->getFields()
             ->filter(function (Field $field) use ($definition) {
                 if ($field instanceof ManyToOneAssociationField) {
                     return true;
@@ -137,15 +140,16 @@ class WriteCommandQueue
                     return false;
                 }
 
-                $storage = $definition::getFields()->getByStorageName($field->getStorageName());
+                // @todo@jp is $storage === $field always?
+                $storage = $definition->getFields()->getByStorageName($field->getStorageName());
 
                 return $storage instanceof FkField;
             });
 
-        $toManyDefinitions = $definition::getFields()
+        $toManyDefinitions = $definition->getFields()
             ->filterInstance(OneToManyAssociationField::class)
             ->fmap(function (OneToManyAssociationField $field) {
-                return $field->getReferenceClass();
+                return $field->getReferenceDefinition()->getClass();
             });
 
         $toManyDefinitions = array_flip($toManyDefinitions);
@@ -154,12 +158,14 @@ class WriteCommandQueue
 
         /** @var ManyToOneAssociationField $dependency */
         foreach ($fields as $dependency) {
-            $class = $dependency->getReferenceClass();
+            $referenceDefinition = $dependency->getReferenceDefinition();
 
             //skip self references, this dependencies are resolved by the ChildrenAssociationField
-            if ($class === $definition) {
+            if ($referenceDefinition === $definition) {
                 continue;
             }
+
+            $class = $referenceDefinition->getClass();
 
             //check if many to one has pending commands
             if (!array_key_exists($class, $commands)) {

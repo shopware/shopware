@@ -17,7 +17,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 
 class PriceFieldTest extends TestCase
 {
-    use IntegrationTestBehaviour;
+    use IntegrationTestBehaviour, DataAbstractionLayerFieldTestBehaviour;
 
     /**
      * @var Connection
@@ -59,17 +59,17 @@ EOF;
             ['id' => $smallId, 'data' => ['gross' => 1.000000001, 'net' => 1.000000001]],
             ['id' => $bigId, 'data' => ['gross' => 1.000000009, 'net' => 1.000000009]],
         ];
-        $this->getWriter()->insert(new PriceFieldDefinition(), $data, $context);
+        $this->getWriter()->insert($this->registerDefinition(PriceFieldDefinition::class), $data, $context);
 
         $criteria = new Criteria();
         $criteria->addSorting(new FieldSorting('data', FieldSorting::ASCENDING));
-        $result = $this->getRepository()->search(new PriceFieldDefinition(), $criteria, $context->getContext());
+        $result = $this->getRepository()->search($this->registerDefinition(PriceFieldDefinition::class), $criteria, $context->getContext());
         static::assertEquals(2, $result->getTotal());
         static::assertEquals([$smallId, $bigId], $result->getIds(), 'smallId should be sorted to the first position');
 
         $criteria = new Criteria();
         $criteria->addSorting(new FieldSorting('data', FieldSorting::DESCENDING));
-        $result = $this->getRepository()->search(new PriceFieldDefinition(), $criteria, $context->getContext());
+        $result = $this->getRepository()->search($this->registerDefinition(PriceFieldDefinition::class), $criteria, $context->getContext());
         static::assertEquals(2, $result->getTotal());
         static::assertEquals([$bigId, $smallId], $result->getIds(), 'bigId should be sorted to the first position');
     }

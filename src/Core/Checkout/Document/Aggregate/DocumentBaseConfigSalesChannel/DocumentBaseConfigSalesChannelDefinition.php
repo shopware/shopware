@@ -15,12 +15,12 @@ use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 
 class DocumentBaseConfigSalesChannelDefinition extends EntityDefinition
 {
-    public static function getEntityName(): string
+    public function getEntityName(): string
     {
         return 'document_base_config_sales_channel';
     }
 
-    protected static function defineFields(): FieldCollection
+    protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
             (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),

@@ -25,17 +25,17 @@ class CmsBlockDefinition extends EntityDefinition
         return 'cms_block';
     }
 
-    public static function getEntityClass(): string
+    public function getEntityClass(): string
     {
         return CmsBlockEntity::class;
     }
 
-    public static function getCollectionClass(): string
+    public function getCollectionClass(): string
     {
         return CmsBlockCollection::class;
     }
 
-    protected static function defineFields(): FieldCollection
+    protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),

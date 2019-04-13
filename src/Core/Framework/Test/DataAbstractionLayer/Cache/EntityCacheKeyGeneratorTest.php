@@ -14,12 +14,16 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Language\LanguageDefinition;
+use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Currency\CurrencyEntity;
 use Shopware\Core\System\Tax\TaxEntity;
 
 class EntityCacheKeyGeneratorTest extends TestCase
 {
+    use KernelTestBehaviour;
+
     /**
      * @var EntityCacheKeyGenerator
      */
@@ -28,7 +32,7 @@ class EntityCacheKeyGeneratorTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->generator = new EntityCacheKeyGenerator();
+        $this->generator = new EntityCacheKeyGenerator($this->getContainer()->get(LanguageDefinition::class));
     }
 
     public function testGenerateAssociationCacheTags(): void
@@ -84,7 +88,7 @@ class EntityCacheKeyGeneratorTest extends TestCase
             ]),
         ]);
 
-        $tags = $this->generator->getAssociatedTags(ProductDefinition::class, $product, $context);
+        $tags = $this->generator->getAssociatedTags($this->getContainer()->get(ProductDefinition::class), $product, $context);
 
         static::assertContains('product_translation.language_id', $tags, print_r($tags, true));
         static::assertContains('tax-' . $id, $tags);
@@ -111,9 +115,8 @@ class EntityCacheKeyGeneratorTest extends TestCase
         $criteria->addSorting(new FieldSorting('product.categories.name'));
         $criteria->addSorting(new FieldSorting('product.categories.media.title'));
 
-        $tags = $this->generator->getSearchTags(ProductDefinition::class, $criteria);
+        $tags = $this->generator->getSearchTags($this->getContainer()->get(ProductDefinition::class), $criteria);
 
-        static::assertCount(9, $tags, print_r($tags, true));
         static::assertContains('product.id', $tags);
         static::assertContains('product_translation.name', $tags);
         static::assertContains('product.product_manufacturer_id', $tags);
@@ -122,5 +125,6 @@ class EntityCacheKeyGeneratorTest extends TestCase
         static::assertContains('category_translation.name', $tags);
         static::assertContains('category.media_id', $tags);
         static::assertContains('media_translation.title', $tags);
+        static::assertCount(9, $tags, print_r($tags, true));
     }
 }

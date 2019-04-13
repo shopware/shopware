@@ -102,13 +102,12 @@ class #entity#Collection extends EntityCollection
 }
 EOF;
 
-    public function generate(string $definition): ?array
+    public function generate(EntityDefinition $definition): ?array
     {
-        $instance = new $definition();
-        if ($instance instanceof MappingEntityDefinition) {
+        if ($definition instanceof MappingEntityDefinition) {
             return null;
         }
-        $entity = $definition::getEntityName();
+        $entity = $definition->getEntityName();
         $entity = explode('_', $entity);
         $entity = array_map('ucfirst', $entity);
         $entity = implode('', $entity);
@@ -123,14 +122,14 @@ EOF;
         ];
     }
 
-    private function generateEntity(string $definition)
+    private function generateEntity(EntityDefinition $definition)
     {
         $properties = [];
 
         $uses = [];
 
         /** @var string|EntityDefinition $definition */
-        foreach ($definition::getFields() as $field) {
+        foreach ($definition->getFields() as $field) {
             $property = $this->generateProperty($definition, $field);
             if (!$property) {
                 continue;
@@ -144,11 +143,11 @@ EOF;
         $functions = array_column($properties, 'functions');
         $properties = array_column($properties, 'property');
 
-        $domain = explode('\\', $definition);
+        $domain = explode('\\', $definition->getClass());
         $domain = array_slice($domain, 0, count($domain) - 1);
         $domain = implode('\\', $domain);
 
-        $entity = $definition::getEntityName();
+        $entity = $definition->getEntityName();
         $entity = explode('_', $entity);
         $entity = array_map('ucfirst', $entity);
         $entity = implode('', $entity);
@@ -168,7 +167,7 @@ EOF;
         );
     }
 
-    private function generateProperty(string $definition, Field $field): ?array
+    private function generateProperty(EntityDefinition $definition, Field $field): ?array
     {
         $nullable = '|null';
         if ($field->is(Required::class)) {
@@ -180,28 +179,28 @@ EOF;
         /* @var string|EntityDefinition $definition */
         switch (true) {
             case $field instanceof ParentAssociationField:
-                $uses[] = $this->getUsage($definition::getEntityClass());
-                $type = $this->getClassTypeHint($definition::getEntityClass());
+                $uses[] = $this->getUsage($definition->getEntityClass());
+                $type = $this->getClassTypeHint($definition->getEntityClass());
                 break;
             case $field instanceof ChildrenAssociationField:
-                $uses[] = $this->getUsage($definition::getCollectionClass());
-                $type = $this->getClassTypeHint($definition::getCollectionClass());
+                $uses[] = $this->getUsage($definition->getCollectionClass());
+                $type = $this->getClassTypeHint($definition->getCollectionClass());
                 break;
             case $field instanceof ManyToOneAssociationField:
-                $uses[] = $this->getUsage($field->getReferenceClass()::getEntityClass());
-                $type = $this->getClassTypeHint($field->getReferenceClass()::getEntityClass());
+                $uses[] = $this->getUsage($field->getReferenceDefinition()->getEntityClass());
+                $type = $this->getClassTypeHint($field->getReferenceDefinition()->getEntityClass());
                 break;
             case $field instanceof OneToManyAssociationField:
-                $uses[] = $this->getUsage($field->getReferenceClass()::getCollectionClass());
-                $type = $this->getClassTypeHint($field->getReferenceClass()::getCollectionClass());
+                $uses[] = $this->getUsage($field->getReferenceDefinition()->getCollectionClass());
+                $type = $this->getClassTypeHint($field->getReferenceDefinition()->getCollectionClass());
                 break;
             case $field instanceof ManyToManyAssociationField:
-                $uses[] = $this->getUsage($field->getReferenceDefinition()::getCollectionClass());
-                $type = $this->getClassTypeHint($field->getReferenceDefinition()::getCollectionClass());
+                $uses[] = $this->getUsage($field->getToManyReferenceDefinition()->getCollectionClass());
+                $type = $this->getClassTypeHint($field->getToManyReferenceDefinition()->getCollectionClass());
                 break;
             case $field instanceof OneToOneAssociationField:
-                $uses[] = $this->getUsage($field->getReferenceClass()::getEntityClass());
-                $type = $this->getClassTypeHint($field->getReferenceClass()::getEntityClass());
+                $uses[] = $this->getUsage($field->getReferenceDefinition()->getEntityClass());
+                $type = $this->getClassTypeHint($field->getReferenceDefinition()->getEntityClass());
                 break;
             case $field instanceof VersionField:
                 return null;
@@ -294,18 +293,18 @@ EOF;
         ];
     }
 
-    private function generateCollection(string $definition)
+    private function generateCollection(EntityDefinition $definition)
     {
-        $entityClass = $definition::getEntityClass();
+        $entityClass = $definition->getEntityClass();
         $entityClass = explode('\\', $entityClass);
         $entityClass = array_pop($entityClass);
 
-        $entity = $definition::getEntityName();
+        $entity = $definition->getEntityName();
         $entity = explode('_', $entity);
         $entity = array_map('ucfirst', $entity);
         $entity = implode('', $entity);
 
-        $domain = explode('\\', $definition);
+        $domain = explode('\\', $definition->getClass());
         $domain = array_slice($domain, 0, count($domain) - 1);
         $domain = implode('\\', $domain);
 

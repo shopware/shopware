@@ -33,12 +33,21 @@ class MediaUploadController extends AbstractController
      * @var FileNameProvider
      */
     private $fileNameProvider;
+    /**
+     * @var MediaDefinition
+     */
+    private $mediaDefinition;
 
-    public function __construct(FileFetcher $fileFetcher, FileSaver $fileSaver, FileNameProvider $fileNameProvider)
-    {
+    public function __construct(
+        FileFetcher $fileFetcher,
+        FileSaver $fileSaver,
+        FileNameProvider $fileNameProvider,
+        MediaDefinition $mediaDefinition
+    ) {
         $this->fileFetcher = $fileFetcher;
         $this->fileSaver = $fileSaver;
         $this->fileNameProvider = $fileNameProvider;
+        $this->mediaDefinition = $mediaDefinition;
     }
 
     /**
@@ -62,7 +71,7 @@ class MediaUploadController extends AbstractController
             unlink($tempFile);
         }
 
-        return $responseFactory->createRedirectResponse(MediaDefinition::class, $mediaId, $request, $context);
+        return $responseFactory->createRedirectResponse($this->mediaDefinition, $mediaId, $request, $context);
     }
 
     /**
@@ -77,7 +86,7 @@ class MediaUploadController extends AbstractController
 
         $this->fileSaver->renameMedia($mediaId, $destination, $context);
 
-        return $responseFactory->createRedirectResponse(MediaDefinition::class, $mediaId, $request, $context);
+        return $responseFactory->createRedirectResponse($this->mediaDefinition, $mediaId, $request, $context);
     }
 
     /**

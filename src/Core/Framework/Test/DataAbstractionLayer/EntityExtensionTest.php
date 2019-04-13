@@ -56,7 +56,6 @@ class EntityExtensionTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-
         $this->connection = $this->getContainer()->get(Connection::class);
         $this->productRepository = $this->getContainer()->get('product.repository');
         $this->priceRepository = $this->getContainer()->get('product_price.repository');
@@ -68,8 +67,8 @@ class EntityExtensionTest extends TestCase
     protected function tearDown(): void
     {
         parent::tearDown();
-        ProductDefinition::getFields()->remove('myPrices');
-        ProductDefinition::getFields()->remove('myCategories');
+        $this->getContainer()->get(ProductDefinition::class)->getFields()->remove('myPrices');
+        $this->getContainer()->get(ProductDefinition::class)->getFields()->remove('myCategories');
     }
 
     public function testICanWriteOneToManyAssociationsExtensions(): void
@@ -77,7 +76,7 @@ class EntityExtensionTest extends TestCase
         $field = (new OneToManyAssociationField('myPrices', ProductPriceDefinition::class, 'product_id'))
             ->addFlags(new Extension());
 
-        ProductDefinition::getFields()->add($field);
+        $this->getContainer()->get(ProductDefinition::class)->getFields()->add($field);
 
         $id = Uuid::randomHex();
 
@@ -114,7 +113,7 @@ class EntityExtensionTest extends TestCase
         $field = (new OneToManyAssociationField('myPrices', ProductPriceDefinition::class, 'product_id'))
             ->addFlags(new Extension());
 
-        ProductDefinition::getFields()->add($field);
+        $this->getContainer()->get(ProductDefinition::class)->getFields()->add($field);
 
         $id = Uuid::randomHex();
 
@@ -140,7 +139,7 @@ class EntityExtensionTest extends TestCase
         $field = (new OneToManyAssociationField('myPrices', ProductPriceDefinition::class, 'product_id'))
             ->addFlags(new Extension());
 
-        ProductDefinition::getFields()->add($field);
+        $this->getContainer()->get(ProductDefinition::class)->getFields()->add($field);
 
         $id = Uuid::randomHex();
 
@@ -185,7 +184,7 @@ class EntityExtensionTest extends TestCase
         $field = (new OneToManyAssociationField('myPrices', ProductPriceDefinition::class, 'product_id'))
             ->addFlags(new Extension());
 
-        ProductDefinition::getFields()->add($field);
+        $this->getContainer()->get(ProductDefinition::class)->getFields()->add($field);
 
         $id = Uuid::randomHex();
 
@@ -221,7 +220,7 @@ class EntityExtensionTest extends TestCase
         $field = (new OneToManyAssociationField('myPrices', ProductPriceDefinition::class, 'product_id'))
             ->addFlags(new Extension());
 
-        ProductDefinition::getFields()->add($field);
+        $this->getContainer()->get(ProductDefinition::class)->getFields()->add($field);
 
         $id = Uuid::randomHex();
 
@@ -256,7 +255,7 @@ class EntityExtensionTest extends TestCase
             ProductCategoryDefinition::class, 'product_id', 'category_id'
         ))->addFlags(new Extension());
 
-        ProductDefinition::getFields()->add($field);
+        $this->getContainer()->get(ProductDefinition::class)->getFields()->add($field);
 
         $id = Uuid::randomHex();
 
@@ -295,7 +294,7 @@ class EntityExtensionTest extends TestCase
             ProductCategoryDefinition::class, 'product_id', 'category_id'
         ))->addFlags(new Extension());
 
-        ProductDefinition::getFields()->add($field);
+        $this->getContainer()->get(ProductDefinition::class)->getFields()->add($field);
 
         $id = Uuid::randomHex();
 
@@ -323,7 +322,7 @@ class EntityExtensionTest extends TestCase
             ProductCategoryDefinition::class, 'product_id', 'category_id'
         ))->addFlags(new Extension());
 
-        ProductDefinition::getFields()->add($field);
+        $this->getContainer()->get(ProductDefinition::class)->getFields()->add($field);
 
         $id = Uuid::randomHex();
 
@@ -370,7 +369,7 @@ class EntityExtensionTest extends TestCase
             ProductCategoryDefinition::class, 'product_id', 'category_id'
         ))->addFlags(new Extension());
 
-        ProductDefinition::getFields()->add($field);
+        $this->getContainer()->get(ProductDefinition::class)->getFields()->add($field);
 
         $id = Uuid::randomHex();
 
@@ -408,7 +407,7 @@ class EntityExtensionTest extends TestCase
             ProductCategoryDefinition::class, 'product_id', 'category_id'
         ))->addFlags(new Extension());
 
-        ProductDefinition::getFields()->add($field);
+        $this->getContainer()->get(ProductDefinition::class)->getFields()->add($field);
 
         $id = Uuid::randomHex();
 

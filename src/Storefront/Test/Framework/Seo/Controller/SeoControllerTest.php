@@ -29,7 +29,7 @@ class SeoControllerTest extends TestCase
         $template = new SeoUrlTemplateEntity();
         $template->setRouteName('frontend.detail.page');
         $template->setTemplate('{{ product.name }');
-        $template->setEntityName(ProductDefinition::getEntityName());
+        $template->setEntityName($this->getContainer()->get(ProductDefinition::class)->getEntityName());
         $template->setSalesChannelId(Defaults::SALES_CHANNEL);
 
         $this->getClient()->request('POST', '/api/v1/_action/seo-url-template/validate', $template->jsonSerialize());
@@ -45,7 +45,7 @@ class SeoControllerTest extends TestCase
         $template = new SeoUrlTemplateEntity();
         $template->setRouteName('frontend.detail.page');
         $template->setTemplate('{{ product.name }}');
-        $template->setEntityName(ProductDefinition::getEntityName());
+        $template->setEntityName($this->getContainer()->get(ProductDefinition::class)->getEntityName());
         $template->setSalesChannelId(Defaults::SALES_CHANNEL);
 
         $this->getClient()->request('POST', '/api/v1/_action/seo-url-template/validate', $template->jsonSerialize());
@@ -78,7 +78,7 @@ class SeoControllerTest extends TestCase
 
         $data = [
             'routeName' => ProductDetailPageSeoUrlGenerator::ROUTE_NAME,
-            'entityName' => ProductDefinition::getEntityName(),
+            'entityName' => $this->getContainer()->get(ProductDefinition::class)->getEntityName(),
         ];
         $this->getClient()->request('POST', '/api/v1/_action/seo-url-template/context', $data);
 

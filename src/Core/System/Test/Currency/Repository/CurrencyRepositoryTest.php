@@ -12,7 +12,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\SearchTermInterpret
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\System\Currency\CurrencyDefinition;
 
 class CurrencyRepositoryTest extends TestCase
 {
@@ -51,7 +50,7 @@ class CurrencyRepositoryTest extends TestCase
 
         $builder = $this->getContainer()->get(EntityScoreQueryBuilder::class);
         $pattern = $this->getContainer()->get(SearchTermInterpreter::class)->interpret('match');
-        $queries = $builder->buildScoreQueries($pattern, CurrencyDefinition::class, CurrencyDefinition::getEntityName());
+        $queries = $builder->buildScoreQueries($pattern, $this->currencyRepository->getDefinition(), $this->currencyRepository->getDefinition()->getEntityName());
         $criteria->addQuery(...$queries);
 
         $result = $this->currencyRepository->searchIds($criteria, Context::createDefaultContext());

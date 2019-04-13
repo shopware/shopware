@@ -20,7 +20,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 
 class WriteProtectedFieldTest extends TestCase
 {
-    use KernelTestBehaviour;
+    use KernelTestBehaviour, DataAbstractionLayerFieldTestBehaviour;
 
     /**
      * @var Connection
@@ -68,6 +68,14 @@ CREATE TABLE `_test_nullable` (
 EOF;
         $this->connection->executeUpdate($nullableTable);
         $this->connection->beginTransaction();
+
+        $this->registerDefinition(
+            WriteProtectedTranslatedDefinition::class,
+            WriteProtectedTranslationDefinition::class,
+            WriteProtectedDefinition::class,
+            WriteProtectedReferenceDefinition::class,
+            WriteProtectedRelationDefinition::class
+        );
     }
 
     public function tearDown(): void
@@ -86,7 +94,7 @@ EOF;
     {
         $id = Uuid::randomHex();
         $context = $this->createWriteContext();
-        $definition = new WriteProtectedDefinition();
+        $definition = $this->getContainer()->get(WriteProtectedDefinition::class);
 
         $data = [
             'id' => $id,
@@ -112,7 +120,7 @@ EOF;
     {
         $id = Uuid::randomHex();
         $context = $this->createWriteContext();
-        $definition = new WriteProtectedDefinition();
+        $definition = $this->getContainer()->get(WriteProtectedDefinition::class);
 
         $data = [
             'id' => $id,
@@ -131,7 +139,7 @@ EOF;
     {
         $id = Uuid::randomHex();
         $context = $this->createWriteContext();
-        $definition = new WriteProtectedDefinition();
+        $definition = $this->getContainer()->get(WriteProtectedDefinition::class);
 
         $data = [
             'id' => $id,
@@ -151,7 +159,7 @@ EOF;
     {
         $id = Uuid::randomHex();
         $context = $this->createWriteContext();
-        $definition = new WriteProtectedDefinition();
+        $definition = $this->getContainer()->get(WriteProtectedDefinition::class);
 
         $data = [
             'id' => $id,
@@ -179,7 +187,7 @@ EOF;
     {
         $id = Uuid::randomHex();
         $context = $this->createWriteContext();
-        $definition = new WriteProtectedDefinition();
+        $definition = $this->getContainer()->get(WriteProtectedDefinition::class);
 
         $data = [
             'id' => $id,
@@ -188,8 +196,6 @@ EOF;
             ],
         ];
 
-        $this->getContainer()->set(WriteProtectedDefinition::class, $definition);
-        $this->getContainer()->set(WriteProtectedRelationDefinition::class, new WriteProtectedRelationDefinition());
         $this->getWriter()->insert($definition, [$data], $context);
 
         $data = $this->connection->fetchAll('SELECT * FROM `_test_nullable`');
@@ -203,7 +209,7 @@ EOF;
     {
         $id = Uuid::randomHex();
         $context = $this->createWriteContext();
-        $definition = new WriteProtectedRelationDefinition();
+        $definition = $this->getContainer()->get(WriteProtectedRelationDefinition::class);
 
         $data = [
             'id' => $id,
@@ -233,7 +239,7 @@ EOF;
     {
         $id = Uuid::randomHex();
         $context = $this->createWriteContext();
-        $definition = new WriteProtectedRelationDefinition();
+        $definition = $this->getContainer()->get(WriteProtectedRelationDefinition::class);
 
         $data = [
             'id' => $id,
@@ -258,7 +264,7 @@ EOF;
         $id = Uuid::randomHex();
         $id2 = Uuid::randomHex();
         $context = $this->createWriteContext();
-        $definition = new WriteProtectedDefinition();
+        $definition = $this->getContainer()->get(WriteProtectedDefinition::class);
 
         $data = [
             'id' => $id,
@@ -289,8 +295,7 @@ EOF;
         $id = Uuid::randomHex();
         $id2 = Uuid::randomHex();
         $context = $this->createWriteContext();
-        $definition = new WriteProtectedDefinition();
-        $this->getContainer()->set(WriteProtectedReferenceDefinition::class, new WriteProtectedReferenceDefinition());
+        $definition = $this->getContainer()->get(WriteProtectedDefinition::class);
 
         $data = [
             'id' => $id,
@@ -314,7 +319,7 @@ EOF;
     {
         $id = Uuid::randomHex();
         $context = $this->createWriteContext();
-        $definition = new WriteProtectedTranslatedDefinition();
+        $definition = $this->getContainer()->get(WriteProtectedTranslatedDefinition::class);
 
         $data = [
             'id' => $id,
@@ -340,8 +345,7 @@ EOF;
     {
         $id = Uuid::randomHex();
         $context = $this->createWriteContext();
-        $definition = new WriteProtectedTranslatedDefinition();
-        $this->getContainer()->set(WriteProtectedTranslationDefinition::class, new WriteProtectedTranslationDefinition());
+        $definition = $this->getContainer()->get(WriteProtectedTranslatedDefinition::class);
 
         $data = [
             'id' => $id,

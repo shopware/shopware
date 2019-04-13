@@ -97,7 +97,7 @@ EOF;
         static::assertEquals('http://localhost/api/v' . PlatformRequest::API_VERSION . '/product/' . $id, $response->headers->get('Location'));
 
         $this->getClient()->request('GET', '/api/v' . PlatformRequest::API_VERSION . '/product/' . $id);
-        static::assertSame(Response::HTTP_OK, $this->getClient()->getResponse()->getStatusCode());
+        static::assertSame(Response::HTTP_OK, $this->getClient()->getResponse()->getStatusCode(), $this->getClient()->getResponse()->getContent());
     }
 
     public function testOneToManyInsert(): void

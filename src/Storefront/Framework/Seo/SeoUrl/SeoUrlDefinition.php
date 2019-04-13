@@ -24,17 +24,17 @@ class SeoUrlDefinition extends EntityDefinition
         return 'seo_url';
     }
 
-    public static function getCollectionClass(): string
+    public function getCollectionClass(): string
     {
         return SeoUrlCollection::class;
     }
 
-    public static function getEntityClass(): string
+    public function getEntityClass(): string
     {
         return SeoUrlEntity::class;
     }
 
-    protected static function defineFields(): FieldCollection
+    protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
             (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),

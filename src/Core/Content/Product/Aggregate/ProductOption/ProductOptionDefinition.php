@@ -19,7 +19,7 @@ class ProductOptionDefinition extends MappingEntityDefinition
         return 'product_option';
     }
 
-    protected static function defineFields(): FieldCollection
+    protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
             (new FkField('product_id', 'productId', ProductDefinition::class))->addFlags(new PrimaryKey(), new Required()),

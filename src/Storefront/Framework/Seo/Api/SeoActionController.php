@@ -3,7 +3,7 @@
 namespace Shopware\Storefront\Framework\Seo\Api;
 
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\DefinitionRegistry;
+use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
@@ -23,11 +23,11 @@ class SeoActionController extends AbstractController
     private $seoService;
 
     /**
-     * @var DefinitionRegistry
+     * @var DefinitionInstanceRegistry
      */
     private $definitionRegistry;
 
-    public function __construct(SeoService $seoService, DefinitionRegistry $definitionRegistry)
+    public function __construct(SeoService $seoService, DefinitionInstanceRegistry $definitionRegistry)
     {
         $this->seoService = $seoService;
         $this->definitionRegistry = $definitionRegistry;

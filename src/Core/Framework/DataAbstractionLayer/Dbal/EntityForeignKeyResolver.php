@@ -97,24 +97,24 @@ class EntityForeignKeyResolver
             return [];
         }
 
-        if (!$definition::getFields()->has('id')) {
+        if (!$definition->getFields()->has('id')) {
             return [];
         }
 
         //prevent foreign key check for language definition, otherwise all ids of language translations has to be checked
-        if ($definition === LanguageDefinition::class) {
+        if ($definition->getClass() === LanguageDefinition::class) {
             return [];
         }
 
         $query = new QueryBuilder($this->connection);
 
-        $root = $definition::getEntityName();
-        $rootAlias = EntityDefinitionQueryHelper::escape($definition::getEntityName());
+        $root = $definition->getEntityName();
+        $rootAlias = EntityDefinitionQueryHelper::escape($definition->getEntityName());
 
-        $query->from(EntityDefinitionQueryHelper::escape($definition::getEntityName()), $rootAlias);
+        $query->from(EntityDefinitionQueryHelper::escape($definition->getEntityName()), $rootAlias);
         $query->addSelect($rootAlias . '.id as root');
 
-        $cascades = $definition::getFields()->filterByFlag($class);
+        $cascades = $definition->getFields()->filterByFlag($class);
 
         $this->joinCascades($definition, $cascades, $root, $query, $class, $context);
 
@@ -187,12 +187,12 @@ class EntityForeignKeyResolver
             }
 
             // avoid infinite recursive call
-            if ($cascade->getReferenceClass() === $definition) {
+            if ($cascade->getReferenceDefinition() === $definition) {
                 continue;
             }
-            $nested = $cascade->getReferenceClass()::getFields()->filterByFlag($class);
+            $nested = $cascade->getReferenceDefinition()->getFields()->filterByFlag($class);
 
-            $this->joinCascades($cascade->getReferenceClass(), $nested, $alias, $query, $class, $context);
+            $this->joinCascades($cascade->getReferenceDefinition(), $nested, $alias, $query, $class, $context);
         }
     }
 
@@ -249,21 +249,21 @@ class EntityForeignKeyResolver
                 }
 
                 if ($field instanceof ManyToManyAssociationField) {
-                    $class = $field->getMappingDefinition();
+                    $referenceDefinition = $field->getReferenceDefinition();
 
-                    if (!array_key_exists($class, $restrictions)) {
-                        $restrictions[$class] = [];
+                    if (!array_key_exists($referenceDefinition->getClass(), $restrictions)) {
+                        $restrictions[$referenceDefinition->getClass()] = [];
                     }
 
-                    $sourceProperty = $class::getFields()->getByStorageName(
+                    $sourceProperty = $referenceDefinition->getFields()->getByStorageName(
                         $field->getMappingLocalColumn()
                     );
-                    $targetProperty = $class::getFields()->getByStorageName(
+                    $targetProperty = $referenceDefinition->getFields()->getByStorageName(
                         $field->getMappingReferenceColumn()
                     );
 
                     foreach ($value as $nested) {
-                        $restrictions[$class][] = [
+                        $restrictions[$referenceDefinition->getClass()][] = [
                             $sourceProperty->getPropertyName() => $pk,
                             $targetProperty->getPropertyName() => $nested,
                         ];
@@ -276,7 +276,7 @@ class EntityForeignKeyResolver
                     continue;
                 }
 
-                $class = $field->getReferenceClass();
+                $class = $field->getReferenceDefinition()->getClass();
 
                 if (!array_key_exists($class, $restrictions)) {
                     $restrictions[$class] = [];

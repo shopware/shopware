@@ -23,17 +23,17 @@ class NewsletterReceiverDefinition extends EntityDefinition
         return 'newsletter_receiver';
     }
 
-    public static function getCollectionClass(): string
+    public function getCollectionClass(): string
     {
         return NewsletterReceiverCollection::class;
     }
 
-    public static function getEntityClass(): string
+    public function getEntityClass(): string
     {
         return NewsletterReceiverEntity::class;
     }
 
-    protected static function defineFields(): FieldCollection
+    protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
             (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),

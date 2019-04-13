@@ -25,17 +25,17 @@ class ProductStreamDefinition extends EntityDefinition
         return 'product_stream';
     }
 
-    public static function getCollectionClass(): string
+    public function getCollectionClass(): string
     {
         return ProductStreamCollection::class;
     }
 
-    public static function getEntityClass(): string
+    public function getEntityClass(): string
     {
         return ProductStreamEntity::class;
     }
 
-    protected static function defineFields(): FieldCollection
+    protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),

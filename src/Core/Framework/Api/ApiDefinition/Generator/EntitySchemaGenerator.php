@@ -4,7 +4,7 @@ namespace Shopware\Core\Framework\Api\ApiDefinition\Generator;
 
 use Shopware\Core\Framework\Api\ApiDefinition\ApiDefinitionGeneratorInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
-use Shopware\Core\Framework\DataAbstractionLayer\DefinitionRegistry;
+use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BlacklistRuleField;
@@ -54,11 +54,11 @@ class EntitySchemaGenerator implements ApiDefinitionGeneratorInterface
     public const FORMAT = 'entity-schema';
 
     /**
-     * @var DefinitionRegistry
+     * @var DefinitionInstanceRegistry
      */
     private $registry;
 
-    public function __construct(DefinitionRegistry $registry)
+    public function __construct(DefinitionInstanceRegistry $registry)
     {
         $this->registry = $registry;
     }
@@ -82,11 +82,11 @@ class EntitySchemaGenerator implements ApiDefinitionGeneratorInterface
 
         /** @var string|EntityDefinition $definition */
         foreach ($definitions as $definition) {
-            if (preg_match('/_translation$/', $definition::getEntityName())) {
+            if (preg_match('/_translation$/', $definition->getEntityName())) {
                 continue;
             }
 
-            $entity = $definition::getEntityName();
+            $entity = $definition->getEntityName();
 
             $schema[$entity] = $this->getEntitySchema($definition);
         }
@@ -94,9 +94,9 @@ class EntitySchemaGenerator implements ApiDefinitionGeneratorInterface
         return $schema;
     }
 
-    private function getEntitySchema(string $definition): array
+    private function getEntitySchema(EntityDefinition $definition): array
     {
-        $fields = $definition::getFields();
+        $fields = $definition->getFields();
 
         $properties = [];
         foreach ($fields as $field) {
@@ -104,12 +104,12 @@ class EntitySchemaGenerator implements ApiDefinitionGeneratorInterface
         }
 
         return [
-            'entity' => $definition::getEntityName(),
+            'entity' => $definition->getEntityName(),
             'properties' => $properties,
         ];
     }
 
-    private function parseField(string $definition, Field $field): array
+    private function parseField(EntityDefinition $definition, Field $field): array
     {
         $flags = [];
         /** @var Flag $flag */
@@ -174,7 +174,7 @@ class EntitySchemaGenerator implements ApiDefinitionGeneratorInterface
                 return [
                     'type' => 'association',
                     'relation' => 'one_to_many',
-                    'entity' => $field->getReferenceClass()::getEntityName(),
+                    'entity' => $field->getReferenceDefinition()->getEntityName(),
                     'flags' => $flags,
                 ];
 
@@ -187,7 +187,7 @@ class EntitySchemaGenerator implements ApiDefinitionGeneratorInterface
                 return [
                     'type' => 'association',
                     'relation' => 'many_to_one',
-                    'entity' => $field->getReferenceClass()::getEntityName(),
+                    'entity' => $field->getReferenceDefinition()->getEntityName(),
                     'flags' => $flags,
                 ];
 
@@ -195,7 +195,7 @@ class EntitySchemaGenerator implements ApiDefinitionGeneratorInterface
                 return [
                     'type' => 'association',
                     'relation' => 'many_to_many',
-                    'entity' => $field->getReferenceDefinition()::getEntityName(),
+                    'entity' => $field->getToManyReferenceDefinition()->getEntityName(),
                     'flags' => $flags,
                 ];
 
@@ -203,7 +203,7 @@ class EntitySchemaGenerator implements ApiDefinitionGeneratorInterface
                 return [
                     'type' => 'association',
                     'relation' => 'one_to_one',
-                    'entity' => $field->getReferenceClass()::getEntityName(),
+                    'entity' => $field->getReferenceDefinition()->getEntityName(),
                     'flags' => $flags,
                 ];
 

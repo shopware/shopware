@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer\Cache;
 
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
@@ -63,13 +64,13 @@ class CachedEntitySearcher implements EntitySearcherInterface
         $this->expirationTime = $expirationTime;
     }
 
-    public function search(string $definition, Criteria $criteria, Context $context): IdSearchResult
+    public function search(EntityDefinition $definition, Criteria $criteria, Context $context): IdSearchResult
     {
         if (!$this->enabled) {
             return $this->decorated->search($definition, $criteria, $context);
         }
 
-        if (in_array($definition, self::BLACKLIST, true)) {
+        if (in_array($definition->getClass(), self::BLACKLIST, true)) {
             return $this->decorated->search($definition, $criteria, $context);
         }
 

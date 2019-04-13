@@ -20,7 +20,7 @@ class SimpleDefinition extends EntityDefinition
         return 'simple';
     }
 
-    protected static function defineFields(): FieldCollection
+    protected function defineFields(): FieldCollection
     {
         return new FieldCollection(
             [

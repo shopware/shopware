@@ -16,22 +16,22 @@ class MailHeaderFooterTranslationDefinition extends EntityTranslationDefinition
         return 'mail_header_footer_translation';
     }
 
-    public static function getParentDefinitionClass(): string
-    {
-        return MailHeaderFooterDefinition::class;
-    }
-
-    public static function getEntityClass(): string
+    public function getEntityClass(): string
     {
         return MailHeaderFooterTranslationEntity::class;
     }
 
-    public static function getCollectionClass(): string
+    public function getCollectionClass(): string
     {
         return MailHeaderFooterTranslationCollection::class;
     }
 
-    protected static function defineFields(): FieldCollection
+    protected function getParentDefinitionClass(): string
+    {
+        return MailHeaderFooterDefinition::class;
+    }
+
+    protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
             new StringField('name', 'name'),

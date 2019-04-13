@@ -52,13 +52,19 @@ class AccountRegistrationService
      */
     private $accountValidationService;
 
+    /**
+     * @var CustomerDefinition
+     */
+    private $customerDefinition;
+
     public function __construct(
         EntityRepositoryInterface $customerRepository,
         EventDispatcherInterface $eventDispatcher,
         NumberRangeValueGeneratorInterface $numberRangeValueGenerator,
         DataValidator $validator,
         ValidationServiceInterface $accountValidationService,
-        ValidationServiceInterface $addressValidationService
+        ValidationServiceInterface $addressValidationService,
+        CustomerDefinition $customerDefinition
     ) {
         $this->customerRepository = $customerRepository;
         $this->eventDispatcher = $eventDispatcher;
@@ -66,6 +72,7 @@ class AccountRegistrationService
         $this->validator = $validator;
         $this->accountValidationService = $accountValidationService;
         $this->addressValidationService = $addressValidationService;
+        $this->customerDefinition = $customerDefinition;
     }
 
     public function register(DataBag $data, bool $isGuest, SalesChannelContext $context): string
@@ -189,7 +196,7 @@ class AccountRegistrationService
     {
         $customer = [
             'customerNumber' => $this->numberRangeValueGenerator->getValue(
-                CustomerDefinition::getEntityName(), $context->getContext(),
+                $this->customerDefinition->getEntityName(), $context->getContext(),
                 $context->getSalesChannel()->getId()
             ),
             'salesChannelId' => $context->getSalesChannel()->getId(),

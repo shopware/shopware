@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Validation;
 
-use Shopware\Core\Framework\DataAbstractionLayer\DefinitionRegistry;
+use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Symfony\Component\Validator\Constraint;
@@ -12,7 +12,7 @@ use Symfony\Component\Validator\Exception\UnexpectedTypeException;
 class EntityExistsValidator extends ConstraintValidator
 {
     /**
-     * @var DefinitionRegistry
+     * @var DefinitionInstanceRegistry
      */
     private $definitionRegistry;
 
@@ -21,7 +21,7 @@ class EntityExistsValidator extends ConstraintValidator
      */
     private $entitySearcher;
 
-    public function __construct(DefinitionRegistry $definitionRegistry, EntitySearcherInterface $entitySearcher)
+    public function __construct(DefinitionInstanceRegistry $definitionRegistry, EntitySearcherInterface $entitySearcher)
     {
         $this->definitionRegistry = $definitionRegistry;
         $this->entitySearcher = $entitySearcher;
@@ -37,7 +37,7 @@ class EntityExistsValidator extends ConstraintValidator
             return;
         }
 
-        $definition = $this->definitionRegistry->get($constraint->getEntity());
+        $definition = $this->definitionRegistry->getByEntityName($constraint->getEntity());
 
         $criteria = $constraint->getCriteria();
         $criteria->addFilter(new EqualsFilter('id', $value));

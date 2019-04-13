@@ -458,7 +458,7 @@ class DetailPageSeoUrlIndexerTest extends TestCase
     {
         $seoUrlTemplateDefaults = [
             'salesChannelId' => Defaults::SALES_CHANNEL,
-            'entityName' => ProductDefinition::getEntityName(),
+            'entityName' => $this->getContainer()->get(ProductDefinition::class)->getEntityName(),
             'routeName' => ProductDetailPageSeoUrlIndexer::ROUTE_NAME,
         ];
         $seoUrlTemplate = array_merge($seoUrlTemplateDefaults, $data);

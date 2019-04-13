@@ -26,22 +26,22 @@ class ProductStreamFilterDefinition extends EntityDefinition
         return 'product_stream_filter';
     }
 
-    public static function getEntityClass(): string
+    public function getEntityClass(): string
     {
         return ProductStreamFilterEntity::class;
     }
 
-    public static function getCollectionClass(): string
+    public function getCollectionClass(): string
     {
         return ProductStreamFilterCollection::class;
     }
 
-    public static function getParentDefinitionClass(): ?string
+    protected function getParentDefinitionClass(): ?string
     {
         return ProductStreamDefinition::class;
     }
 
-    protected static function defineFields(): FieldCollection
+    protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),

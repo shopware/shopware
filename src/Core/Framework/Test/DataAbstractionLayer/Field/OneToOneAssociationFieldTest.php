@@ -26,7 +26,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 
 class OneToOneAssociationFieldTest extends TestCase
 {
-    use IntegrationTestBehaviour;
+    use IntegrationTestBehaviour, DataAbstractionLayerFieldTestBehaviour;
 
     /**
      * @var Connection
@@ -50,7 +50,7 @@ class OneToOneAssociationFieldTest extends TestCase
         $this->connection = $this->getContainer()->get(Connection::class);
 
         $this->repository = new EntityRepository(
-            new RootDefinition(),
+            $this->registerDefinition(RootDefinition::class),
             $this->getContainer()->get(EntityReaderInterface::class),
             $this->getContainer()->get(VersionManager::class),
             $this->getContainer()->get(EntitySearcherInterface::class),
@@ -59,7 +59,7 @@ class OneToOneAssociationFieldTest extends TestCase
         );
 
         $this->subRepository = new EntityRepository(
-            new SubDefinition(),
+            $this->registerDefinition(SubDefinition::class),
             $this->getContainer()->get(EntityReaderInterface::class),
             $this->getContainer()->get(VersionManager::class),
             $this->getContainer()->get(EntitySearcherInterface::class),

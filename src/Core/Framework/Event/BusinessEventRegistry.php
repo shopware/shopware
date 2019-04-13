@@ -2,12 +2,25 @@
 
 namespace Shopware\Core\Framework\Event;
 
+use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
+
 class BusinessEventRegistry
 {
+    private $rawEventData = [];
+
     /**
      * @var array
      */
     private $events = [];
+    /**
+     * @var DefinitionInstanceRegistry
+     */
+    private $definitionRegistry;
+
+    public function __construct(DefinitionInstanceRegistry $definitionRegistry)
+    {
+        $this->definitionRegistry = $definitionRegistry;
+    }
 
     public function getEvents(): array
     {
@@ -26,7 +39,9 @@ class BusinessEventRegistry
 
     public function add(string $event, array $availableData): void
     {
-        $this->events[$event] = $availableData;
+        $this->rawEventData[$event] = $availableData;
+
+        $this->compile();
     }
 
     public function addMultiple(array $events): void
@@ -35,6 +50,30 @@ class BusinessEventRegistry
             $this->add($event, $data);
         }
 
+        $this->compile();
+    }
+
+    private function compile(): void
+    {
+        foreach ($this->rawEventData as $eventName => $eventData) {
+            $compiledEventData = [];
+
+            foreach ($eventData as $key => $data) {
+                if (!in_array($data['type'], ['collection', 'entity'], true)) {
+                    $compiledEventData[$key] = $data;
+                    continue;
+                }
+
+                $compiledEventData[$key] = [
+                    'type' => $data['type'],
+                    'entity' => $this->definitionRegistry->get($data['entityClass'])->getEntityName(),
+                ];
+            }
+
+            $this->events[$eventName] = $compiledEventData;
+        }
+
+        $this->rawEventData = [];
         ksort($this->events);
     }
 }

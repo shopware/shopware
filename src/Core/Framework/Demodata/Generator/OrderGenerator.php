@@ -45,19 +45,25 @@ class OrderGenerator implements DemodataGeneratorInterface
      * @var EntityWriterInterface
      */
     private $writer;
+    /**
+     * @var OrderDefinition
+     */
+    private $orderDefinition;
 
     public function __construct(
         Connection $connection,
         SalesChannelContextFactory $contextFactory,
         CartService $cartService,
         OrderConverter $orderConverter,
-        EntityWriterInterface $writer
+        EntityWriterInterface $writer,
+        OrderDefinition $orderDefinition
     ) {
         $this->connection = $connection;
         $this->contextFactory = $contextFactory;
         $this->cartService = $cartService;
         $this->orderConverter = $orderConverter;
         $this->writer = $writer;
+        $this->orderDefinition = $orderDefinition;
     }
 
     public function getDefinition(): string
@@ -132,14 +138,14 @@ SQL;
             $payload[] = $this->orderConverter->convertToOrder($cart, $salesChannelContext, new OrderConversionContext());
 
             if (\count($payload) >= 20) {
-                $this->writer->upsert(new OrderDefinition(), $payload, $writeContext);
+                $this->writer->upsert($this->orderDefinition, $payload, $writeContext);
                 $context->getConsole()->progressAdvance(\count($payload));
                 $payload = [];
             }
         }
 
         if (!empty($payload)) {
-            $this->writer->upsert(OrderDefinition::class, $payload, $writeContext);
+            $this->writer->upsert($this->orderDefinition, $payload, $writeContext);
         }
 
         $context->getConsole()->progressFinish();

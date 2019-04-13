@@ -46,7 +46,7 @@ class EntityLoadedEvent extends NestedEvent
         $this->entities = $entities;
         $this->definition = $definition;
         $this->context = $context;
-        $this->name = $this->definition::getEntityName() . '.loaded';
+        $this->name = $this->definition->getEntityName() . '.loaded';
         $this->nested = $nested;
     }
 
@@ -76,13 +76,13 @@ class EntityLoadedEvent extends NestedEvent
             return null;
         }
 
-        $associations = $this->extractAssociations($this->definition, $this->entities);
+        // @todo@jp fix data format
+        [$definitions, $associations] = $this->extractAssociations($this->definition, $this->entities);
 
         $events = [];
 
-        /** @var EntityDefinition $definition */
-        foreach ($associations as $definition => $entities) {
-            $events[] = $this->createNested($definition, $entities);
+        foreach ($associations as $definitionClass => $entities) {
+            $events[] = $this->createNested($definitions[$definitionClass], $entities);
         }
 
         return new NestedEventCollection($events);
@@ -90,9 +90,10 @@ class EntityLoadedEvent extends NestedEvent
 
     protected function extractAssociations(EntityDefinition $definition, iterable $entities): array
     {
-        $associations = $definition::getFields();
+        $associations = $definition->getFields();
 
         $events = [];
+        $definitions = [];
         /** @var Field $association */
         foreach ($associations as $association) {
             if (!$association instanceof AssociationField) {
@@ -115,16 +116,17 @@ class EntityLoadedEvent extends NestedEvent
                     }
 
                     if ($reference) {
-                        $events[$association->getReferenceClass()][] = $reference;
+                        $events[$association->getReferenceDefinition()->getClass()][] = $reference;
+                        $definitions[$association->getReferenceDefinition()->getClass()] = $association->getReferenceDefinition();
                     }
                 }
 
                 continue;
             }
 
-            $referenceClass = $association->getReferenceClass();
+            $referenceDefinition = $association->getReferenceDefinition();
             if ($association instanceof ManyToManyAssociationField) {
-                $referenceClass = $association->getReferenceDefinition();
+                $referenceDefinition = $association->getToManyReferenceDefinition();
             }
 
             foreach ($entities as $entity) {
@@ -143,8 +145,9 @@ class EntityLoadedEvent extends NestedEvent
                 }
 
                 foreach ($references as $reference) {
-                    $events[$referenceClass][] = $reference;
+                    $events[$referenceDefinition->getClass()][] = $reference;
                 }
+                $definitions[$referenceDefinition->getClass()] = $referenceDefinition;
             }
         }
 
@@ -160,7 +163,10 @@ class EntityLoadedEvent extends NestedEvent
              *      ]
              * ]
              */
-            $recursive[] = $this->extractAssociations(new $nestedDefinition(), $nested); // @todo argh!!
+            [$associationDefinitions, $associationEvents] = $this->extractAssociations($definitions[$nestedDefinition], $nested);
+
+            $recursive[] = $associationEvents;
+            $definitions = array_merge($definitions, $associationDefinitions);
         }
 
         foreach ($recursive as $nested) {
@@ -175,7 +181,7 @@ class EntityLoadedEvent extends NestedEvent
             }
         }
 
-        return $events;
+        return [$definitions, $events];
     }
 
     protected function createNested(EntityDefinition $definition, array $entities): EntityLoadedEvent

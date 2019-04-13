@@ -13,13 +13,14 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException\FieldExceptionStack;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
+use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\DataAbstractionLayerFieldTestBehaviour;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\JsonDefinition;
 use Shopware\Core\Framework\Test\TestCaseBase\CacheTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 
 class ConfigJsonFieldSerializerTest extends TestCase
 {
-    use KernelTestBehaviour, CacheTestBehaviour;
+    use KernelTestBehaviour, CacheTestBehaviour, DataAbstractionLayerFieldTestBehaviour;
 
     /**
      * @var ConfigJsonFieldSerializer
@@ -47,10 +48,11 @@ class ConfigJsonFieldSerializerTest extends TestCase
         $this->field = new ConfigJsonField('data', 'data');
         $this->field->addFlags(new Required());
 
-        $this->existence = new EntityExistence(JsonDefinition::class, [], false, false, false, []);
+        $definition = $this->registerDefinition(JsonDefinition::class);
+        $this->existence = new EntityExistence($definition, [], false, false, false, []);
 
         $this->parameters = new WriteParameterBag(
-            JsonDefinition::class,
+            $definition,
             WriteContext::createFromContext(Context::createDefaultContext()),
             '',
             new WriteCommandQueue(),

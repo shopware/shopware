@@ -55,14 +55,11 @@ abstract class TypeDataResolver implements SlotTypeDataResolverInterface
         return $value;
     }
 
-    /**
-     * @param string|EntityDefinition $definition
-     */
-    protected function resolveDefinitionField(string $definition, string $path): ?Field
+    protected function resolveDefinitionField(EntityDefinition $definition, string $path): ?Field
     {
         $value = null;
         $parts = explode('.', $path);
-        $fields = $definition::getFields();
+        $fields = $definition->getFields();
 
         // if property does not exist, try to omit the first key as it may contains the entity name.
         // E.g. `product.description` does not exist, but will be found if the first part is omitted.
@@ -79,7 +76,7 @@ abstract class TypeDataResolver implements SlotTypeDataResolverInterface
             $smartDetect = false;
 
             if ($value instanceof AssociationField) {
-                $fields = $value->getReferenceClass()::getFields();
+                $fields = $value->getReferenceDefinition()->getFields();
             }
         }
 
@@ -98,17 +95,17 @@ abstract class TypeDataResolver implements SlotTypeDataResolverInterface
         // resolve reverse side to fetch data afterwards
         if ($field instanceof ManyToManyAssociationField) {
             $key = $this->getKeyByManyToMany($field);
-            $refDef = $field->getReferenceDefinition();
+            $refDef = $field->getToManyReferenceDefinition();
         } elseif ($field instanceof OneToManyAssociationField) {
             $key = $this->getKeyByOneToMany($field);
-            $refDef = $field->getReferenceClass();
+            $refDef = $field->getReferenceDefinition();
         }
 
         if (!$key || !$refDef) {
             return null;
         }
 
-        $key = $refDef::getEntityName() . '.' . $key;
+        $key = $refDef->getEntityName() . '.' . $key;
 
         $criteria = new Criteria();
         $criteria->addFilter(
@@ -120,13 +117,13 @@ abstract class TypeDataResolver implements SlotTypeDataResolverInterface
 
     private function getKeyByManyToMany(ManyToManyAssociationField $field): ?string
     {
-        $referenceClass = $field->getReferenceClass();
+        $referenceDefinition = $field->getReferenceDefinition();
 
         /** @var ManyToManyAssociationField|null $manyToMany */
-        $manyToMany = $field->getReferenceDefinition()::getFields()
+        $manyToMany = $field->getToManyReferenceDefinition()->getFields()
             ->filterInstance(ManyToManyAssociationField::class)
-            ->filter(function (ManyToManyAssociationField $field) use ($referenceClass) {
-                return $field->getReferenceClass() === $referenceClass;
+            ->filter(function (ManyToManyAssociationField $field) use ($referenceDefinition) {
+                return $field->getReferenceDefinition() === $referenceDefinition;
             })
             ->first();
 
@@ -139,13 +136,13 @@ abstract class TypeDataResolver implements SlotTypeDataResolverInterface
 
     private function getKeyByOneToMany(OneToManyAssociationField $field): ?string
     {
-        $referenceClass = $field->getReferenceClass();
+        $referenceDefinition = $field->getReferenceDefinition();
 
         /** @var ManyToOneAssociationField|null $manyToOne */
-        $manyToOne = $field->getReferenceClass()::getFields()
+        $manyToOne = $field->getReferenceDefinition()->getFields()
             ->filterInstance(ManyToOneAssociationField::class)
-            ->filter(function (ManyToOneAssociationField $field) use ($referenceClass) {
-                return $field->getReferenceClass() === $referenceClass;
+            ->filter(function (ManyToOneAssociationField $field) use ($referenceDefinition) {
+                return $field->getReferenceDefinition() === $referenceDefinition;
             })
             ->first()
         ;

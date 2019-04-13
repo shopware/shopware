@@ -63,6 +63,7 @@
         <service id="Shopware\Storefront\Pagelet\Suggest\ProductSuggestGateway">
             <argument type="service" id="sales_channel.product.repository"/>
             <argument type="service" id="Shopware\Core\Content\Product\SearchKeyword\ProductSearchTermInterpreter"/>
+            <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\SalesChannelProductDefinition"/>
         </service>
 
         <service id="Shopware\Storefront\Pagelet\Header\HeaderPageletLoader">
@@ -110,6 +111,7 @@
         <service id="Shopware\Storefront\Page\Search\ProductSearchGateway">
             <argument type="service" id="sales_channel.product.repository"/>
             <argument type="service" id="Shopware\Core\Content\Product\SearchKeyword\ProductSearchTermInterpreter"/>
+            <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\SalesChannelProductDefinition"/>
         </service>
 
         <service id="Shopware\Storefront\Page\Product\ProductPageLoader">
@@ -287,10 +289,6 @@
             <argument type="service" id="session.flash_bag"/>
             <argument type="service" id="translator"/>
             <argument type="service" id="Shopware\Storefront\Pagelet\Header\HeaderPageletLoader"/>
-        </service>
-
-        <service id="Shopware\Storefront\PageController\HomePageController" public="true">
-            <argument type="service" id="Shopware\Storefront\Page\Home\HomePageLoader"/>
         </service>
 
         <service id="Shopware\Storefront\PageletController\AccountPageletController" public="true">

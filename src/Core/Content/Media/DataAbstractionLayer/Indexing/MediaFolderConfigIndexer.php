@@ -49,18 +49,32 @@ class MediaFolderConfigIndexer implements IndexerInterface
      */
     private $folderConfigRepository;
 
+    /**
+     * @var MediaFolderConfigurationDefinition
+     */
+    private $mediaFolderConfigurationDefinition;
+
+    /**
+     * @var MediaFolderDefinition
+     */
+    private $mediaFolderDefinition;
+
     public function __construct(
         Connection $connection,
         EntityRepositoryInterface $folderRepository,
         EntityRepositoryInterface $folderConfigRepository,
         EntityCacheKeyGenerator $cacheKeyGenerator,
-        TagAwareAdapter $cache
+        TagAwareAdapter $cache,
+        MediaFolderDefinition $mediaFolderDefinition,
+        MediaFolderConfigurationDefinition $mediaFolderConfigurationDefinition
     ) {
         $this->connection = $connection;
         $this->folderRepository = $folderRepository;
         $this->folderConfigRepository = $folderConfigRepository;
         $this->cacheKeyGenerator = $cacheKeyGenerator;
         $this->cache = $cache;
+        $this->mediaFolderConfigurationDefinition = $mediaFolderConfigurationDefinition;
+        $this->mediaFolderDefinition = $mediaFolderDefinition;
     }
 
     public function index(\DateTimeInterface $timestamp): void
@@ -166,7 +180,7 @@ class MediaFolderConfigIndexer implements IndexerInterface
 
         $tags = array_map(function ($id) {
             return $this->cacheKeyGenerator
-                ->getEntityTag(Uuid::fromBytesToHex($id), MediaFolderDefinition::class);
+                ->getEntityTag(Uuid::fromBytesToHex($id), $this->mediaFolderDefinition);
         }, $ids);
 
         $this->cache->invalidateTags($tags);
@@ -194,10 +208,10 @@ class MediaFolderConfigIndexer implements IndexerInterface
         /** @var MediaFolderConfigurationCollection $configs */
         $configs = $this->folderConfigRepository->search($criteria, $context);
         foreach ($configs as $config) {
-            $cacheIds[] = $this->cacheKeyGenerator->getEntityTag($config->getId(), MediaFolderConfigurationDefinition::class);
+            $cacheIds[] = $this->cacheKeyGenerator->getEntityTag($config->getId(), $this->mediaFolderConfigurationDefinition);
 
             $this->connection->update(
-                MediaFolderConfigurationDefinition::getEntityName(),
+                $this->mediaFolderConfigurationDefinition->getEntityName(),
                 ['media_thumbnail_sizes_ro' => serialize($config->getMediaThumbnailSizes())],
                 ['id' => Uuid::fromHexToBytes($config->getId())]
             );

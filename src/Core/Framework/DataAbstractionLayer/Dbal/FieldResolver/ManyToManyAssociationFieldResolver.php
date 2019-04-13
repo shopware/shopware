@@ -5,7 +5,6 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Dbal\FieldResolver;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\QueryBuilder;
-use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\CascadeDelete;
@@ -16,16 +15,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField
 
 class ManyToManyAssociationFieldResolver implements FieldResolverInterface
 {
-    /**
-     * @var DefinitionInstanceRegistry
-     */
-    private $registry;
-
-    public function __construct(DefinitionInstanceRegistry $registry)
-    {
-        $this->registry = $registry;
-    }
-
     public function resolve(
         EntityDefinition $definition,
         string $root,
@@ -41,7 +30,7 @@ class ManyToManyAssociationFieldResolver implements FieldResolverInterface
 
         /** @var EntityDefinition $mapping */
         $mapping = $field->getMappingDefinition();
-        $table = $mapping::getEntityName();
+        $table = $mapping->getEntityName();
 
         $mappingAlias = $root . '.' . $field->getPropertyName() . '.mapping';
 
@@ -52,8 +41,8 @@ class ManyToManyAssociationFieldResolver implements FieldResolverInterface
 
         $versionJoinCondition = '';
         /** @var string|EntityDefinition $definition */
-        if ($definition::isVersionAware() && $field->is(CascadeDelete::class)) {
-            $versionField = $definition::getEntityName() . '_version_id';
+        if ($definition->isVersionAware() && $field->is(CascadeDelete::class)) {
+            $versionField = $definition->getEntityName() . '_version_id';
             $versionJoinCondition = ' AND #root#.version_id = #alias#.' . $versionField;
         }
 
@@ -80,14 +69,14 @@ class ManyToManyAssociationFieldResolver implements FieldResolverInterface
             )
         );
 
-        $reference = $this->registry->get($field->getReferenceDefinition());
-        $table = $reference::getEntityName();
+        $reference = $field->getToManyReferenceDefinition();
+        $table = $reference->getEntityName();
 
         $alias = $root . '.' . $field->getPropertyName();
 
         $versionJoinCondition = '';
-        if ($reference::isVersionAware()) {
-            $versionField = '`' . $reference::getEntityName() . '_version_id`';
+        if ($reference->isVersionAware()) {
+            $versionField = '`' . $reference->getEntityName() . '_version_id`';
             $versionJoinCondition = ' AND #alias#.`version_id` = #mapping#.' . $versionField;
         }
 
@@ -127,12 +116,12 @@ class ManyToManyAssociationFieldResolver implements FieldResolverInterface
             return true;
         }
 
-        if (!$reference::isInheritanceAware() || !$context->considerInheritance()) {
+        if (!$reference->isInheritanceAware() || !$context->considerInheritance()) {
             return true;
         }
 
         /** @var ManyToOneAssociationField $parent */
-        $parent = $reference::getFields()->get('parent');
+        $parent = $reference->getFields()->get('parent');
 
         $queryHelper->resolveField($parent, $reference, $alias, $query, $context);
 

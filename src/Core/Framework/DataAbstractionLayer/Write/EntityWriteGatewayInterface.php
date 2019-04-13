@@ -11,8 +11,6 @@ interface EntityWriteGatewayInterface
     /**
      * Used to validate if the provided primary key already exists in the storage.
      * Also used to verify if the provided entity is a parent or child element.
-     *
-     * @param string|EntityDefinition $definition
      */
     public function getExistence(EntityDefinition $definition, array $primaryKey, array $data, WriteCommandQueue $commandQueue): EntityExistence;
 

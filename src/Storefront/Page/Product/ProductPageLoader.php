@@ -54,6 +54,11 @@ class ProductPageLoader implements PageLoaderInterface
     private $slotDataResolver;
 
     /**
+     * @var ProductDefinition
+     */
+    private $productDefinition;
+
+    /**
      * @var ProductPageConfiguratorLoader
      */
     private $configuratorLoader;
@@ -64,7 +69,8 @@ class ProductPageLoader implements PageLoaderInterface
         EventDispatcherInterface $eventDispatcher,
         SalesChannelCmsPageRepository $cmsPageRepository,
         SlotDataResolver $slotDataResolver,
-        ProductPageConfiguratorLoader $configuratorLoader
+        ProductPageConfiguratorLoader $configuratorLoader,
+        ProductDefinition $productDefinition
     ) {
         $this->eventDispatcher = $eventDispatcher;
         $this->pageWithHeaderLoader = $pageWithHeaderLoader;
@@ -72,6 +78,7 @@ class ProductPageLoader implements PageLoaderInterface
         $this->cmsPageRepository = $cmsPageRepository;
         $this->slotDataResolver = $slotDataResolver;
         $this->configuratorLoader = $configuratorLoader;
+        $this->productDefinition = $productDefinition;
     }
 
     public function load(Request $request, SalesChannelContext $context): ProductPage
@@ -115,7 +122,7 @@ class ProductPageLoader implements PageLoaderInterface
         // replace actual request in NEXT-1539
         $request = new Request();
 
-        $resolverContext = new EntityResolverContext($context, $request, ProductDefinition::class, $product);
+        $resolverContext = new EntityResolverContext($context, $request, $this->productDefinition, $product);
         $slots = $this->slotDataResolver->resolve($page->getBlocks()->getSlots(), $resolverContext);
 
         $page->getBlocks()->setSlots($slots);

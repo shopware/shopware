@@ -10,6 +10,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface;
 use Shopware\Core\Framework\Event\BusinessEventDispatcher;
 use Shopware\Core\Framework\Event\BusinessEvents;
 use Shopware\Core\Framework\Event\EventAction\EventActionCollection;
+use Shopware\Core\Framework\Event\EventAction\EventActionDefinition;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
@@ -64,7 +65,7 @@ class BusinessEventDispatcherTest extends TestCase
             ->method('read')
             ->willReturn(new EventActionCollection());
 
-        $dispatcher = new BusinessEventDispatcher($eventDispatcherMock, $searcher, $reader);
+        $dispatcher = new BusinessEventDispatcher($eventDispatcherMock, $searcher, $reader, $this->getContainer()->get(EventActionDefinition::class));
         $dispatcher->dispatch($event->getName(), $event);
     }
 

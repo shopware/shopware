@@ -15,7 +15,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
 
 class QueryStringParser
 {
-    public static function fromArray(string $definition, array $query, SearchRequestException $exception, string $path = ''): Filter
+    public static function fromArray(EntityDefinition $definition, array $query, SearchRequestException $exception, string $path = ''): Filter
     {
         if (empty($query['type'])) {
             throw new InvalidFilterQueryException('Value for filter type is required.');
@@ -145,12 +145,9 @@ class QueryStringParser
         }
     }
 
-    /**
-     * @param string|EntityDefinition $definition
-     */
-    private static function buildFieldName(string $definition, string $fieldName): string
+    private static function buildFieldName(EntityDefinition $definition, string $fieldName): string
     {
-        $prefix = $definition::getEntityName() . '.';
+        $prefix = $definition->getEntityName() . '.';
 
         if (strpos($fieldName, $prefix) === false) {
             return $prefix . $fieldName;

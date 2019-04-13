@@ -39,7 +39,7 @@ CREATE TABLE `calculated_price_field_test` (
         return 'calculated_price_field_test';
     }
 
-    protected static function defineFields(): FieldCollection
+    protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
             (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),

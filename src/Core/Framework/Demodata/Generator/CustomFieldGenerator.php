@@ -7,6 +7,7 @@ use Doctrine\DBAL\FetchMode;
 use Faker\Generator;
 use Shopware\Core\Framework\CustomField\Aggregate\CustomFieldSet\CustomFieldSetDefinition;
 use Shopware\Core\Framework\CustomField\CustomFieldTypes;
+use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\Demodata\DemodataContext;
@@ -32,7 +33,7 @@ class CustomFieldGenerator implements DemodataGeneratorInterface
      */
     private $definitionRegistry;
 
-    public function __construct(EntityRepositoryInterface $attributeSetRepository, Connection $connection, DefinitionRegistry $definitionRegistry)
+    public function __construct(EntityRepositoryInterface $attributeSetRepository, Connection $connection, DefinitionInstanceRegistry $definitionRegistry)
     {
         $this->attributeSetRepository = $attributeSetRepository;
         $this->connection = $connection;

@@ -52,13 +52,13 @@ class CachedEntityReader implements EntityReaderInterface
         $this->expirationTime = $expirationTime;
     }
 
-    public function read(string $definition, Criteria $criteria, Context $context): EntityCollection
+    public function read(EntityDefinition $definition, Criteria $criteria, Context $context): EntityCollection
     {
         if (!$this->enabled) {
             return $this->decorated->read($definition, $criteria, $context);
         }
 
-        if (in_array($definition, CachedEntitySearcher::BLACKLIST, true)) {
+        if (in_array($definition->getClass(), CachedEntitySearcher::BLACKLIST, true)) {
             return $this->decorated->read($definition, $criteria, $context);
         }
 
@@ -69,7 +69,7 @@ class CachedEntityReader implements EntityReaderInterface
         return $this->loadResultByIds($definition, $criteria, $context);
     }
 
-    private function loadFilterResult(string $definition, Criteria $criteria, Context $context)
+    private function loadFilterResult(EntityDefinition $definition, Criteria $criteria, Context $context)
     {
         //generate cache key for full read result
         $key = $this->cacheKeyGenerator->getReadCriteriaCacheKey($definition, $criteria, $context);
@@ -96,10 +96,7 @@ class CachedEntityReader implements EntityReaderInterface
         return $collection;
     }
 
-    /**
-     * @param string|EntityDefinition $definition
-     */
-    private function loadResultByIds(string $definition, Criteria $criteria, Context $context): EntityCollection
+    private function loadResultByIds(EntityDefinition $definition, Criteria $criteria, Context $context): EntityCollection
     {
         //generate cache key list for multi cache get
         $keys = [];
@@ -123,7 +120,7 @@ class CachedEntityReader implements EntityReaderInterface
             }
         }
 
-        $collection = $definition::getCollectionClass();
+        $collection = $definition->getCollectionClass();
 
         /* @var EntityCollection $collection */
         $collection = new $collection(array_filter($mapped));
@@ -167,7 +164,7 @@ class CachedEntityReader implements EntityReaderInterface
         return $collection;
     }
 
-    private function cacheEntity(string $definition, Context $context, Criteria $criteria, Entity $entity): void
+    private function cacheEntity(EntityDefinition $definition, Context $context, Criteria $criteria, Entity $entity): void
     {
         $key = $this->cacheKeyGenerator->getEntityContextCacheKey(
             $entity->getUniqueIdentifier(), $definition, $context, $criteria
@@ -181,7 +178,7 @@ class CachedEntityReader implements EntityReaderInterface
         $tags = $this->cacheKeyGenerator->getAssociatedTags($definition, $entity, $context);
 
         /* @var string|EntityDefinition $definition */
-        $tags[] = 'entity_' . $definition::getEntityName();
+        $tags[] = 'entity_' . $definition->getEntityName();
 
         //add cache keys for associated data
         $item->tag($tags);
@@ -190,7 +187,7 @@ class CachedEntityReader implements EntityReaderInterface
         $this->cache->saveDeferred($item);
     }
 
-    private function cacheNull(string $definition, Context $context, string $id): void
+    private function cacheNull(EntityDefinition $definition, Context $context, string $id): void
     {
         $key = $this->cacheKeyGenerator->getEntityContextCacheKey(
             $id, $definition, $context
@@ -206,7 +203,7 @@ class CachedEntityReader implements EntityReaderInterface
         $this->cache->saveDeferred($item);
     }
 
-    private function cacheCollection(string $definition, Criteria $criteria, Context $context, EntityCollection $entityCollection): void
+    private function cacheCollection(EntityDefinition $definition, Criteria $criteria, Context $context, EntityCollection $entityCollection): void
     {
         $key = $this->cacheKeyGenerator->getReadCriteriaCacheKey($definition, $criteria, $context);
 

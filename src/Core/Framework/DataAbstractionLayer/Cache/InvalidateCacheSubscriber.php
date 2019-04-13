@@ -86,11 +86,11 @@ class InvalidateCacheSubscriber implements EventSubscriberInterface
                 $keys[] = $this->cacheKeyGenerator->getEntityTag($id, $writtenEvent->getDefinition());
 
                 foreach ($result->getPayload() as $propertyName => $value) {
-                    $field = $definition::getFields()->get($propertyName);
+                    $field = $definition->getFields()->get($propertyName);
 
                     if ($field instanceof FkField) {
                         if ($value !== null) {
-                            $keys[] = $field->getReferenceClass()::getEntityName() . '-' . $value;
+                            $keys[] = $field->getReferenceDefinition()->getEntityName() . '-' . $value;
                         }
                     }
 
@@ -101,7 +101,7 @@ class InvalidateCacheSubscriber implements EventSubscriberInterface
                     if (!$field instanceof StorageAware) {
                         continue;
                     }
-                    $keys[] = $writtenEvent->getDefinition()::getEntityName() . '.' . $field->getStorageName();
+                    $keys[] = $writtenEvent->getDefinition()->getEntityName() . '.' . $field->getStorageName();
                 }
             }
         }

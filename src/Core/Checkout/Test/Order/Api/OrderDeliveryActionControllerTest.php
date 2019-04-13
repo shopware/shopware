@@ -124,7 +124,7 @@ class OrderDeliveryActionControllerTest extends TestCase
         $destinationStateTechnicalName = null;
 
         foreach ($response['included'] as $relationship) {
-            if ($relationship['type'] === StateMachineStateDefinition::getEntityName()) {
+            if ($relationship['type'] === $this->getContainer()->get(StateMachineStateDefinition::class)->getEntityName()) {
                 $destinationStateTechnicalName = $relationship['attributes']['technicalName'];
                 break;
             }
@@ -143,7 +143,7 @@ class OrderDeliveryActionControllerTest extends TestCase
         static::assertEquals($startStateTechnicalName, $historyEntry->getFromStateMachineState()->getTechnicalName());
         static::assertEquals($destinationStateTechnicalName, $historyEntry->getToStateMachineState()->getTechnicalName());
 
-        static::assertEquals(OrderDeliveryDefinition::getEntityName(), $historyEntry->getEntityName());
+        static::assertEquals($this->getContainer()->get(OrderDeliveryDefinition::class)->getEntityName(), $historyEntry->getEntityName());
         static::assertEquals($deliveryId, $historyEntry->getEntityId()['id']);
         static::assertEquals(Defaults::LIVE_VERSION, $historyEntry->getEntityId()['version_id']);
     }

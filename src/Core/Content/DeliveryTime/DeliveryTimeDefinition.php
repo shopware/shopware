@@ -23,17 +23,17 @@ class DeliveryTimeDefinition extends EntityDefinition
         return 'delivery_time';
     }
 
-    public static function getEntityClass(): string
+    public function getEntityClass(): string
     {
         return DeliveryTimeEntity::class;
     }
 
-    public static function getCollectionClass(): string
+    public function getCollectionClass(): string
     {
         return DeliveryTimeCollection::class;
     }
 
-    protected static function defineFields(): FieldCollection
+    protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
             (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),

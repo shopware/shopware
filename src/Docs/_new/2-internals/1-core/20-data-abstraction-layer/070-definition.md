@@ -36,7 +36,7 @@ The method should return the name of the definition, which will be used in the s
 ### Method: defineFields()
 
 ```php
-protected static function defineFields(): FieldCollection
+protected function defineFields(): FieldCollection
 {
     return new FieldCollection([
         (new IdField('id', 'id'))->addFlags(new Required(), new PrimaryKey()),

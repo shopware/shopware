@@ -173,8 +173,8 @@ class Criteria extends Struct
         }
 
         if ($definition) {
-            $key = $definition::getEntityName() . '.' . $field;
-            $extensionKey = $definition::getEntityName() . '.extensions.' . $field;
+            $key = $definition->getEntityName() . '.' . $field;
+            $extensionKey = $definition->getEntityName() . '.extensions.' . $field;
 
             return $this->associations[$key] ?? $this->associations[$extensionKey] ?? null;
         }
@@ -259,9 +259,9 @@ class Criteria extends Struct
             return true;
         }
 
-        if ($definition) {
-            return isset($this->associations[$definition::getEntityName() . '.' . $field])
-                || isset($this->associations[$definition::getEntityName() . '.extensions.' . $field]);
+        if ($definition !== null) {
+            return isset($this->associations[$definition->getEntityName() . '.' . $field])
+                || isset($this->associations[$definition->getEntityName() . '.extensions.' . $field]);
         }
 
         return false;

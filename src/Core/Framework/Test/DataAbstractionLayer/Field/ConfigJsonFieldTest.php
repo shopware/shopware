@@ -11,6 +11,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriter;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriterInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
+use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\DataAbstractionLayerFieldTestBehaviour;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\ConfigJsonDefinition;
 use Shopware\Core\Framework\Test\TestCaseBase\CacheTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
@@ -18,12 +19,17 @@ use Shopware\Core\Framework\Uuid\Uuid;
 
 class ConfigJsonFieldTest extends TestCase
 {
-    use KernelTestBehaviour, CacheTestBehaviour;
+    use KernelTestBehaviour, CacheTestBehaviour, DataAbstractionLayerFieldTestBehaviour;
 
     /**
      * @var Connection
      */
     private $connection;
+
+    /**
+     * @var ConfigJsonDefinition
+     */
+    private $configJsonDefinition;
 
     protected function setUp(): void
     {
@@ -41,6 +47,7 @@ CREATE TABLE `_test_nullable` (
 EOF;
         $this->connection->executeUpdate($nullableTable);
         $this->connection->beginTransaction();
+        $this->configJsonDefinition = $this->registerDefinition(ConfigJsonDefinition::class);
     }
 
     protected function tearDown(): void
@@ -71,28 +78,28 @@ EOF;
                 'data' => $object,
             ],
         ];
-        $this->getWriter()->insert(ConfigJsonDefinition::class, $data, $context);
+        $this->getWriter()->insert($this->configJsonDefinition, $data, $context);
 
         $searcher = $this->getSearcher();
         $context = $context->getContext();
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('data', $string));
-        $result = $searcher->search(ConfigJsonDefinition::class, $criteria, $context);
+        $result = $searcher->search($this->configJsonDefinition, $criteria, $context);
 
         static::assertCount(1, $result->getIds());
         static::assertEquals([$stringId], $result->getIds());
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('data.foo', 'bar'));
-        $result = $searcher->search(ConfigJsonDefinition::class, $criteria, $context);
+        $result = $searcher->search($this->configJsonDefinition, $criteria, $context);
 
         static::assertCount(1, $result->getIds());
         static::assertEquals([$objectId], $result->getIds());
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('data', 'not found'));
-        $result = $searcher->search(ConfigJsonDefinition::class, $criteria, $context);
+        $result = $searcher->search($this->configJsonDefinition, $criteria, $context);
 
         static::assertCount(0, $result->getIds());
     }

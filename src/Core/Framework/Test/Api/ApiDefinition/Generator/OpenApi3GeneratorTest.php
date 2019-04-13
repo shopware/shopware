@@ -4,14 +4,15 @@ namespace Shopware\Core\Framework\Test\Api\ApiDefinition\Generator;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi3Generator;
-use Shopware\Core\Framework\DataAbstractionLayer\DefinitionRegistry;
+use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\Test\Api\ApiDefinition\EntityDefinition\SimpleDefinition;
+use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\DataAbstractionLayerFieldTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\AssertArraySubsetBehaviour;
-use Symfony\Component\DependencyInjection\ContainerInterface;
+use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
 class OpenApi3GeneratorTest extends TestCase
 {
-    use AssertArraySubsetBehaviour;
+    use AssertArraySubsetBehaviour, IntegrationTestBehaviour, DataAbstractionLayerFieldTestBehaviour;
 
     /**
      * @var array
@@ -23,20 +24,23 @@ class OpenApi3GeneratorTest extends TestCase
      */
     private $entityName;
 
-    public function __construct()
+    protected function setUp(): void
     {
-        parent::__construct();
+        $this->registerDefinition(SimpleDefinition::class);
 
-        $containerMock = $this->createMock(ContainerInterface::class);
-        $definitionRegistry = new DefinitionRegistry([SimpleDefinition::class => 'simple.repository'], $containerMock);
+        $definitionRegistry = new DefinitionInstanceRegistry(
+            $this->getContainer(),
+            ['simple' => SimpleDefinition::class],
+            ['simple' => 'simple.repository']
+        );
         $openApiGenerator = new OpenApi3Generator($definitionRegistry);
         $this->schema = $openApiGenerator->getSchema();
-        $this->entityName = SimpleDefinition::getEntityName();
+        $this->entityName = 'simple';
     }
 
     public function testEntityNameConversion(): void
     {
-        static::assertArrayHasKey(SimpleDefinition::getEntityName(), $this->schema);
+        static::assertArrayHasKey($this->entityName, $this->schema);
         static::assertEquals($this->entityName, $this->schema[$this->entityName]['name']);
     }
 

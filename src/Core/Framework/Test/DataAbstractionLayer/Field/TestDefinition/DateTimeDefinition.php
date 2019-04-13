@@ -17,7 +17,7 @@ class DateTimeDefinition extends EntityDefinition
         return 'date_time_test';
     }
 
-    protected static function defineFields(): FieldCollection
+    protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
             (new IdField('id', 'id'))->addFlags(new PrimaryKey()),

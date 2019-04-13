@@ -69,6 +69,11 @@ class EntityRepository implements EntityRepositoryInterface
         $this->definition = $definition;
     }
 
+    public function getDefinition(): EntityDefinition
+    {
+        return $this->definition;
+    }
+
     public function search(Criteria $criteria, Context $context): EntitySearchResult
     {
         $aggregations = null;
@@ -175,8 +180,8 @@ class EntityRepository implements EntityRepositoryInterface
 
     public function createVersion(string $id, Context $context, ?string $name = null, ?string $versionId = null): string
     {
-        if (!$this->definition::isVersionAware()) {
-            throw new \RuntimeException(sprintf('Entity %s is not version aware', $this->definition::getEntityName()));
+        if (!$this->definition->isVersionAware()) {
+            throw new \RuntimeException(sprintf('Entity %s is not version aware', $this->definition->getEntityName()));
         }
 
         return $this->versionManager->createVersion($this->definition, $id, WriteContext::createFromContext($context), $name, $versionId);
@@ -184,8 +189,8 @@ class EntityRepository implements EntityRepositoryInterface
 
     public function merge(string $versionId, Context $context): void
     {
-        if (!$this->definition::isVersionAware()) {
-            throw new \RuntimeException(sprintf('Entity %s is not version aware', $this->definition::getEntityName()));
+        if (!$this->definition->isVersionAware()) {
+            throw new \RuntimeException(sprintf('Entity %s is not version aware', $this->definition->getEntityName()));
         }
         $this->versionManager->merge($versionId, WriteContext::createFromContext($context));
     }

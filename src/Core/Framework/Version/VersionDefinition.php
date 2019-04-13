@@ -21,22 +21,22 @@ class VersionDefinition extends EntityDefinition
         return 'version';
     }
 
-    public static function isVersionAware(): bool
+    public function isVersionAware(): bool
     {
         return false;
     }
 
-    public static function getCollectionClass(): string
+    public function getCollectionClass(): string
     {
         return VersionCollection::class;
     }
 
-    public static function getEntityClass(): string
+    public function getEntityClass(): string
     {
         return VersionEntity::class;
     }
 
-    public static function getDefaults(EntityExistence $existence): array
+    public function getDefaults(EntityExistence $existence): array
     {
         return [
             'name' => sprintf('Draft %s', date(Defaults::STORAGE_DATE_FORMAT)),
@@ -44,7 +44,7 @@ class VersionDefinition extends EntityDefinition
         ];
     }
 
-    protected static function defineFields(): FieldCollection
+    protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
             (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),

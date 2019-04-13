@@ -90,13 +90,10 @@ class DemodataContext
         return $this->faker;
     }
 
-    /**
-     * @param string|EntityDefinition $definition
-     */
-    public function setTiming(string $definition, int $numberOfItems, float $end): void
+    public function setTiming(EntityDefinition $definition, int $numberOfItems, float $end): void
     {
-        $this->timings[$definition] = [
-            'definition' => $definition::getEntityName(),
+        $this->timings[$definition->getClass()] = [
+            'definition' => $definition->getEntityName(),
             'items' => $numberOfItems,
             'time' => $end,
         ];

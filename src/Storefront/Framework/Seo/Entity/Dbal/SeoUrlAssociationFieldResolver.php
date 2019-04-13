@@ -10,7 +10,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Storefront\Framework\Seo\Entity\Field\SeoUrlAssociationField;
-use Shopware\Storefront\Framework\Seo\SeoUrl\SeoUrlDefinition;
 
 class SeoUrlAssociationFieldResolver implements FieldResolverInterface
 {
@@ -26,7 +25,7 @@ class SeoUrlAssociationFieldResolver implements FieldResolverInterface
             return false;
         }
 
-        $table = SeoUrlDefinition::getEntityName();
+        $table = $field->getReferenceDefinition()->getEntityName();
         $alias = $root . '.' . $field->getPropertyName();
 
         if ($query->hasState($alias)) {

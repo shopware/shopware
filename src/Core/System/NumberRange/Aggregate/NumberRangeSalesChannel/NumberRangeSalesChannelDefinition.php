@@ -20,7 +20,7 @@ class NumberRangeSalesChannelDefinition extends EntityDefinition
         return 'number_range_sales_channel';
     }
 
-    protected static function defineFields(): FieldCollection
+    protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
             (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),

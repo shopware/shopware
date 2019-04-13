@@ -20,24 +20,24 @@ class MessageQueueStatsDefinition extends EntityDefinition
         return 'message_queue_stats';
     }
 
-    public static function getCollectionClass(): string
+    public function getCollectionClass(): string
     {
         return MessageQueueStatsCollection::class;
     }
 
-    public static function getEntityClass(): string
+    public function getEntityClass(): string
     {
         return MessageQueueStatsEntity::class;
     }
 
-    public static function getDefaults(EntityExistence $existence): array
+    public function getDefaults(EntityExistence $existence): array
     {
         return [
             'size' => 0,
         ];
     }
 
-    protected static function defineFields(): FieldCollection
+    protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required(), new WriteProtected(Context::SYSTEM_SCOPE)),

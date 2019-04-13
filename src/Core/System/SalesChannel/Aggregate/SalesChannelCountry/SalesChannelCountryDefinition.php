@@ -18,7 +18,7 @@ class SalesChannelCountryDefinition extends MappingEntityDefinition
         return 'sales_channel_country';
     }
 
-    protected static function defineFields(): FieldCollection
+    protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
             (new FkField('sales_channel_id', 'salesChannelId', SalesChannelDefinition::class))->addFlags(new PrimaryKey(), new Required()),

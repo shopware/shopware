@@ -18,22 +18,22 @@ class CategoryTranslationDefinition extends EntityTranslationDefinition
         return 'category_translation';
     }
 
-    public static function getParentDefinitionClass(): string
-    {
-        return CategoryDefinition::class;
-    }
-
-    public static function getEntityClass(): string
+    public function getEntityClass(): string
     {
         return CategoryTranslationEntity::class;
     }
 
-    public static function getCollectionClass(): string
+    public function getCollectionClass(): string
     {
         return CategoryTranslationCollection::class;
     }
 
-    protected static function defineFields(): FieldCollection
+    protected function getParentDefinitionClass(): string
+    {
+        return CategoryDefinition::class;
+    }
+
+    protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
             (new StringField('name', 'name'))->addFlags(new Required()),

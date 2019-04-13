@@ -28,7 +28,7 @@ class EntityAggregationResultLoadedEvent extends NestedEvent
     {
         $this->result = $result;
         $this->definition = $definition;
-        $this->name = $this->definition::getEntityName() . '.aggregation.result.loaded';
+        $this->name = $this->definition->getEntityName() . '.aggregation.result.loaded';
     }
 
     public function getName(): string

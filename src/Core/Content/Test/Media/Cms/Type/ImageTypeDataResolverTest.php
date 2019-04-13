@@ -274,7 +274,7 @@ class ImageTypeDataResolverTest extends TestCase
         $product = new ProductEntity();
         $product->setCover($productMedia);
 
-        $resolverContext = new EntityResolverContext($this->createMock(SalesChannelContext::class), new Request(), ProductDefinition::class, $product);
+        $resolverContext = new EntityResolverContext($this->createMock(SalesChannelContext::class), new Request(), $this->createMock(ProductDefinition::class), $product);
 
         $mediaSearchResult = new EntitySearchResult(
             0,
@@ -311,7 +311,7 @@ class ImageTypeDataResolverTest extends TestCase
         $product = new ProductEntity();
         $product->setManufacturer($manufacturer);
 
-        $resolverContext = new EntityResolverContext($this->createMock(SalesChannelContext::class), new Request(), ProductDefinition::class, $product);
+        $resolverContext = new EntityResolverContext($this->createMock(SalesChannelContext::class), new Request(), $this->createMock(ProductDefinition::class), $product);
 
         $result = new SlotDataResolveResult();
 

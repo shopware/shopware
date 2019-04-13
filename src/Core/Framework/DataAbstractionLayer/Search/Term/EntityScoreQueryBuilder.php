@@ -19,7 +19,7 @@ class EntityScoreQueryBuilder
     /**
      * @return ScoreQuery[]
      */
-    public function buildScoreQueries(SearchPattern $term, string $definition, string $root, float $multiplier = 1.0): array
+    public function buildScoreQueries(SearchPattern $term, EntityDefinition $definition, string $root, float $multiplier = 1.0): array
     {
         static $counter = 0;
         ++$counter;
@@ -42,7 +42,7 @@ class EntityScoreQueryBuilder
             if ($field instanceof ManyToManyAssociationField) {
                 $queries = array_merge(
                     $queries,
-                    $this->buildScoreQueries($term, $field->getReferenceDefinition(), $select, $ranking)
+                    $this->buildScoreQueries($term, $field->getToManyReferenceDefinition(), $select, $ranking)
                 );
                 continue;
             }
@@ -50,7 +50,7 @@ class EntityScoreQueryBuilder
             if ($field instanceof AssociationField) {
                 $queries = array_merge(
                     $queries,
-                    $this->buildScoreQueries($term, $field->getReferenceClass(), $select, $ranking)
+                    $this->buildScoreQueries($term, $field->getReferenceDefinition(), $select, $ranking)
                 );
                 continue;
             }
@@ -81,25 +81,22 @@ class EntityScoreQueryBuilder
         return $queries;
     }
 
-    /**
-     * @param string|EntityDefinition $definition
-     */
-    private function getQueryFields(string $definition): FieldCollection
+    private function getQueryFields(EntityDefinition $definition): FieldCollection
     {
         /** @var FieldCollection $fields */
-        $fields = $definition::getFields()->filterByFlag(SearchRanking::class);
+        $fields = $definition->getFields()->filterByFlag(SearchRanking::class);
 
         if ($fields->count() > 0) {
             return $fields;
         }
 
-        $fields = $definition::getFields()->filterInstance(TranslatedField::class);
+        $fields = $definition->getFields()->filterInstance(TranslatedField::class);
         if ($fields->count() > 0) {
             return $fields;
         }
 
         /** @var FieldCollection $field */
-        $field = $definition::getFields()->filterInstance(StringField::class);
+        $field = $definition->getFields()->filterInstance(StringField::class);
 
         return $field;
     }

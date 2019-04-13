@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer;
 
-use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\DecodeByHydratorException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidSerializerFieldException;
@@ -23,17 +22,10 @@ class OneToOneAssociationFieldSerializer implements FieldSerializerInterface
      */
     protected $writeExtractor;
 
-    /**
-     * @var DefinitionInstanceRegistry
-     */
-    private $registry;
-
     public function __construct(
-        WriteCommandExtractor $writeExtractor,
-        DefinitionInstanceRegistry $registry
+        WriteCommandExtractor $writeExtractor
     ) {
         $this->writeExtractor = $writeExtractor;
-        $this->registry = $registry;
     }
 
     public function getFieldClass(): string
@@ -55,8 +47,8 @@ class OneToOneAssociationFieldSerializer implements FieldSerializerInterface
             throw new ExpectedArrayException($parameters->getPath());
         }
 
-        $keyField = $parameters->getDefinition()::getFields()->getByStorageName($field->getStorageName());
-        $reference = $this->registry->get($field->getReferenceClass());
+        $keyField = $parameters->getDefinition()->getFields()->getByStorageName($field->getStorageName());
+        $reference = $field->getReferenceDefinition();
 
         //owning side?
         if ($keyField instanceof FkField) {
@@ -76,7 +68,7 @@ class OneToOneAssociationFieldSerializer implements FieldSerializerInterface
             throw new ExpectedArrayException($parameters->getPath() . '/' . $data->getKey());
         }
 
-        $keyField = $reference::getFields()->getByStorageName(
+        $keyField = $reference->getFields()->getByStorageName(
             $field->getReferenceField()
         );
 
@@ -104,7 +96,7 @@ class OneToOneAssociationFieldSerializer implements FieldSerializerInterface
     ) {
         $value = $data->getValue();
 
-        $pkField = $reference::getFields()->getByStorageName($referenceField);
+        $pkField = $reference->getFields()->getByStorageName($referenceField);
 
         //id provided? otherwise set new one to return it and yield the id into the FkField
         if (isset($value[$pkField->getPropertyName()])) {

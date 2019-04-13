@@ -19,7 +19,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\System\Salutation\Aggregate\SalutationTranslation\SalutationTranslationDefinition;
-use Shopware\Core\System\Salutation\SalesChannel\SalesChannelSalutationDefinition;
 
 class SalutationDefinition extends EntityDefinition
 {
@@ -28,22 +27,17 @@ class SalutationDefinition extends EntityDefinition
         return 'salutation';
     }
 
-    public static function getSalesChannelDecorationDefinition(): string
-    {
-        return SalesChannelSalutationDefinition::class;
-    }
-
-    public static function getCollectionClass(): string
+    public function getCollectionClass(): string
     {
         return SalutationCollection::class;
     }
 
-    public static function getEntityClass(): string
+    public function getEntityClass(): string
     {
         return SalutationEntity::class;
     }
 
-    protected static function defineFields(): FieldCollection
+    protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
             (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),

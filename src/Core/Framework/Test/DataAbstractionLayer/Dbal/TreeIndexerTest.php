@@ -179,7 +179,6 @@ class TreeIndexerTest extends TestCase
 
     public function testRefreshTreeWithDifferentVersion(): void
     {
-        static::markTestSkipped('Really dont know');
         /*
         Category A
         ├── Category B
@@ -204,9 +203,6 @@ class TreeIndexerTest extends TestCase
         static::assertEquals(2, $categories->get($categoryB)->getLevel());
         static::assertEquals(2, $categories->get($categoryC)->getLevel());
         static::assertEquals(3, $categories->get($categoryD)->getLevel());
-
-        var_dump($this->getContainer()->get(Connection::class)->fetchAll('SELECT * FROM debug_category'));
-        var_dump(['all' => [$categoryA, $categoryB, $categoryC, $categoryD], 'root' => $categoryA, 'SEARCH FOR' => $categoryD]);
 
         $versionId = $this->categoryRepository->createVersion($categoryD, $this->context);
         $versionContext = $this->context->createWithVersionId($versionId);

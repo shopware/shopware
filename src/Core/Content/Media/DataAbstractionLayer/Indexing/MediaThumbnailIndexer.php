@@ -37,17 +37,23 @@ class MediaThumbnailIndexer implements IndexerInterface, EventSubscriberInterfac
      * @var TagAwareAdapter
      */
     private $cache;
+    /**
+     * @var MediaDefinition
+     */
+    private $mediaDefinition;
 
     public function __construct(
         Connection $connection,
         EntityRepositoryInterface $mediaRepository,
         EntityCacheKeyGenerator $cacheKeyGenerator,
-        TagAwareAdapter $cache
+        TagAwareAdapter $cache,
+        MediaDefinition $mediaDefinition
     ) {
         $this->connection = $connection;
         $this->mediaRepository = $mediaRepository;
         $this->cacheKeyGenerator = $cacheKeyGenerator;
         $this->cache = $cache;
+        $this->mediaDefinition = $mediaDefinition;
     }
 
     public static function getSubscribedEvents()
@@ -99,10 +105,10 @@ class MediaThumbnailIndexer implements IndexerInterface, EventSubscriberInterfac
         /** @var MediaCollection $medias */
         $medias = $this->mediaRepository->search($criteria, $context);
         foreach ($medias as $media) {
-            $cacheIds[] = $this->cacheKeyGenerator->getEntityTag($media->getId(), MediaDefinition::class);
+            $cacheIds[] = $this->cacheKeyGenerator->getEntityTag($media->getId(), $this->mediaDefinition);
 
             $this->connection->update(
-                MediaDefinition::getEntityName(),
+                $this->mediaDefinition->getEntityName(),
                 ['thumbnails_ro' => serialize($media->getThumbnails())],
                 ['id' => Uuid::fromHexToBytes($media->getId())]
             );

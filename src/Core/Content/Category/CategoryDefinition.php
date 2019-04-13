@@ -52,22 +52,17 @@ class CategoryDefinition extends EntityDefinition
         return 'category';
     }
 
-    public static function getSalesChannelDecorationDefinition(): string
-    {
-        return SalesChannelCategoryDefinition::class;
-    }
-
-    public static function getCollectionClass(): string
+    public function getCollectionClass(): string
     {
         return CategoryCollection::class;
     }
 
-    public static function getEntityClass(): string
+    public function getEntityClass(): string
     {
         return CategoryEntity::class;
     }
 
-    public static function getDefaults(EntityExistence $existence): array
+    public function getDefaults(EntityExistence $existence): array
     {
         $defaults = parent::getDefaults($existence);
 
@@ -79,7 +74,7 @@ class CategoryDefinition extends EntityDefinition
         return $defaults;
     }
 
-    protected static function defineFields(): FieldCollection
+    protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
             (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),

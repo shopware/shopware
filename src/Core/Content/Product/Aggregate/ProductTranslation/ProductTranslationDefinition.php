@@ -17,27 +17,27 @@ class ProductTranslationDefinition extends EntityTranslationDefinition
         return 'product_translation';
     }
 
-    public static function isVersionAware(): bool
+    public function isVersionAware(): bool
     {
         return true;
     }
 
-    public static function getCollectionClass(): string
+    public function getCollectionClass(): string
     {
         return ProductTranslationCollection::class;
     }
 
-    public static function getEntityClass(): string
+    public function getEntityClass(): string
     {
         return ProductTranslationEntity::class;
     }
 
-    public static function getParentDefinitionClass(): string
+    protected function getParentDefinitionClass(): string
     {
         return ProductDefinition::class;
     }
 
-    protected static function defineFields(): FieldCollection
+    protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
             new StringField('additional_text', 'additionalText'),

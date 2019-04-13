@@ -19,7 +19,7 @@ class WriteProtectedRelationDefinition extends EntityDefinition
         return '_test_relation';
     }
 
-    protected static function defineFields(): FieldCollection
+    protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
             (new IdField('id', 'id'))->addFlags(new Required(), new PrimaryKey()),
@@ -32,7 +32,7 @@ class WriteProtectedRelationDefinition extends EntityDefinition
         ]);
     }
 
-    protected static function defaultFields(): array
+    protected function defaultFields(): array
     {
         return [];
     }

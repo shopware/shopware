@@ -22,17 +22,17 @@ class SnippetSetDefinition extends EntityDefinition
         return 'snippet_set';
     }
 
-    public static function getCollectionClass(): string
+    public function getCollectionClass(): string
     {
         return SnippetSetCollection::class;
     }
 
-    public static function getEntityClass(): string
+    public function getEntityClass(): string
     {
         return SnippetSetEntity::class;
     }
 
-    protected static function defineFields(): FieldCollection
+    protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
             (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),

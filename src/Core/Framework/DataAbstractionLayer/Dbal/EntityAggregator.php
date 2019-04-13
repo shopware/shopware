@@ -93,13 +93,13 @@ class EntityAggregator implements EntityAggregatorInterface
 
     private function createAggregationQuery(Aggregation $aggregation, EntityDefinition $definition, Criteria $criteria, Context $context): QueryBuilder
     {
-        $table = $definition::getEntityName();
+        $table = $definition->getEntityName();
 
         $query = $this->queryHelper->getBaseQuery(new QueryBuilder($this->connection), $definition, $context);
 
-        if ($definition::isInheritanceAware()) {
-            $parent = $definition::getFields()->get('parent');
-            $this->queryHelper->resolveField($parent, $definition, $definition::getEntityName(), $query, $context);
+        if ($definition->isInheritanceAware()) {
+            $parent = $definition->getFields()->get('parent');
+            $this->queryHelper->resolveField($parent, $definition, $definition->getEntityName(), $query, $context);
         }
 
         $fields = array_merge(
@@ -113,8 +113,8 @@ class EntityAggregator implements EntityAggregatorInterface
             $this->queryHelper->resolveAccessor($fieldName, $definition, $table, $query, $context);
         }
 
-        if ($definition::isInheritanceAware()) {
-            $parent = $definition::getFields()->get('parent');
+        if ($definition->isInheritanceAware()) {
+            $parent = $definition->getFields()->get('parent');
             $this->queryHelper->resolveField($parent, $definition, $table, $query, $context);
         }
 
@@ -131,7 +131,7 @@ class EntityAggregator implements EntityAggregatorInterface
             $accessor = $this->queryHelper->getFieldAccessor(
                 $groupByField,
                 $definition,
-                $definition::getEntityName(),
+                $definition->getEntityName(),
                 $context
             );
 
@@ -151,7 +151,7 @@ class EntityAggregator implements EntityAggregatorInterface
         $accessor = $this->queryHelper->getFieldAccessor(
             $aggregation->getField(),
             $definition,
-            $definition::getEntityName(),
+            $definition->getEntityName(),
             $context
         );
 
@@ -230,7 +230,7 @@ class EntityAggregator implements EntityAggregatorInterface
         $query->addGroupBy($accessor);
 
         $data = $query->execute()->fetchAll(FetchMode::ASSOCIATIVE);
-        $field = $this->queryHelper->getField($aggregation->getField(), $definition, $definition::getEntityName());
+        $field = $this->queryHelper->getField($aggregation->getField(), $definition, $definition->getEntityName());
         $data = $this->mapResult($definition, $aggregation, $data, function (array $current, array $row) use ($field) {
             $value = $row['key'];
             try {
@@ -307,7 +307,7 @@ class EntityAggregator implements EntityAggregatorInterface
         $query->addGroupBy($accessor);
 
         $data = $query->execute()->fetchAll(FetchMode::ASSOCIATIVE);
-        $field = $this->queryHelper->getField($aggregation->getField(), $definition, $definition::getEntityName());
+        $field = $this->queryHelper->getField($aggregation->getField(), $definition, $definition->getEntityName());
         $data = $this->mapResult($definition, $aggregation, $data, function (array $current, array $row) use ($field) {
             $value = $row['value'];
             try {
@@ -406,7 +406,7 @@ class EntityAggregator implements EntityAggregatorInterface
             $key = null;
             $id = '';
             foreach ($aggregation->getGroupByFields() as $groupByField) {
-                $field = $this->queryHelper->getField($groupByField, $definition, $definition::getEntityName());
+                $field = $this->queryHelper->getField($groupByField, $definition, $definition->getEntityName());
                 $key[$groupByField] = $this->fieldSerializerRegistry->decode($field, $row[$groupByField]);
                 $id .= $row[$groupByField];
                 unset($row[$groupByField]);

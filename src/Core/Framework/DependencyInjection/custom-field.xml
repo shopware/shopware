@@ -7,19 +7,19 @@
     <services>
 
         <service id="Shopware\Core\Framework\CustomField\CustomFieldDefinition">
-            <tag name="shopware.entity.definition"/>
+            <tag name="shopware.entity.definition" entity="custom_field"/>
         </service>
 
         <service id="Shopware\Core\Framework\CustomField\Aggregate\CustomFieldSet\CustomFieldSetDefinition">
-            <tag name="shopware.entity.definition"/>
+            <tag name="shopware.entity.definition" entity="custom_field_set"/>
         </service>
 
         <service id="Shopware\Core\Framework\CustomField\Aggregate\CustomFieldSetRelation\CustomFieldSetRelationDefinition">
-            <tag name="shopware.entity.definition"/>
+            <tag name="shopware.entity.definition" entity="custom_field_set_relation"/>
         </service>
 
         <service id="Shopware\Core\Framework\CustomField\Api\CustomFieldSetActionController" public="true">
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionRegistry"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
             <call method="setContainer">
                 <argument type="service" id="service_container" />
             </call>

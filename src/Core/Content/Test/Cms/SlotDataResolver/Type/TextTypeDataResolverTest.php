@@ -90,7 +90,7 @@ class TextTypeDataResolverTest extends TestCase
         $product = new ProductEntity();
         $product->setDescription('foobar loo');
 
-        $resolverContext = new EntityResolverContext($this->createMock(SalesChannelContext::class), new Request(), ProductDefinition::class, $product);
+        $resolverContext = new EntityResolverContext($this->createMock(SalesChannelContext::class), new Request(), $this->createMock(ProductDefinition::class), $product);
         $result = new SlotDataResolveResult();
 
         $fieldConfig = new FieldConfigCollection();

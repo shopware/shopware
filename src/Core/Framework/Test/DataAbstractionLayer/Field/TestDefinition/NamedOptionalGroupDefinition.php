@@ -17,7 +17,7 @@ class NamedOptionalGroupDefinition extends EntityDefinition
         return 'named_optional_group';
     }
 
-    protected static function defineFields(): FieldCollection
+    protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
             (new IdField('id', 'id'))->addFlags(new Required(), new PrimaryKey()),

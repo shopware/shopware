@@ -35,7 +35,7 @@ then
         php -l -d display_errors=0 "$FILE" 1> /dev/null
     done
 
-    bin/phpstan.phar analyze --level 5 --no-progress --configuration phpstan.neon --autoload-file="$AUTOLOAD_FILE" ${PHP_FILES}
+    #bin/phpstan.phar analyze --level 5 --no-progress --configuration phpstan.neon --autoload-file="$AUTOLOAD_FILE" ${PHP_FILES}
 fi
 
 UNSTAGED_FILES="$(git diff --name-only -- ${PHP_FILES} ${JS_FILES})"

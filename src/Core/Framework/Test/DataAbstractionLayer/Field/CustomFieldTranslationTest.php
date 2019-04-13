@@ -28,7 +28,8 @@ class CustomFieldTranslationTest extends TestCase
 {
     use KernelTestBehaviour,
         CacheTestBehaviour,
-        BasicTestDataBehaviour;
+        BasicTestDataBehaviour,
+        DataAbstractionLayerFieldTestBehaviour;
 
     /**
      * @var Connection
@@ -533,11 +534,13 @@ class CustomFieldTranslationTest extends TestCase
 
     protected function getTestRepository(): EntityRepository
     {
-        $this->getContainer()->set(CustomFieldTestDefinition::class, new CustomFieldTestDefinition());
-        $this->getContainer()->set(CustomFieldTestTranslationDefinition::class, new CustomFieldTestTranslationDefinition());
+        $definition = $this->registerDefinition(
+            CustomFieldTestDefinition::class,
+            CustomFieldTestTranslationDefinition::class
+        );
 
         return new EntityRepository(
-            new CustomFieldTestDefinition(),
+            $definition,
             $this->getContainer()->get(EntityReaderInterface::class),
             $this->getContainer()->get(VersionManager::class),
             $this->getContainer()->get(EntitySearcherInterface::class),

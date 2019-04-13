@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\SalesChannel\Entity;
 
+use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntitySearchResultLoadedEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -13,7 +14,7 @@ class SalesChannelEntitySearchResultLoadedEvent extends EntitySearchResultLoaded
      */
     private $salesChannelContext;
 
-    public function __construct(string $definition, EntitySearchResult $result, SalesChannelContext $salesChannelContext)
+    public function __construct(EntityDefinition $definition, EntitySearchResult $result, SalesChannelContext $salesChannelContext)
     {
         parent::__construct($definition, $result);
         $this->salesChannelContext = $salesChannelContext;

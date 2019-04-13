@@ -20,17 +20,17 @@ class MailTemplateMediaDefinition extends MappingEntityDefinition
         return 'mail_template_media';
     }
 
-    public static function getCollectionClass(): string
+    public function getCollectionClass(): string
     {
         return MailTemplateMediaCollection::class;
     }
 
-    public static function getEntityClass(): string
+    public function getEntityClass(): string
     {
         return MailTemplateMediaEntity::class;
     }
 
-    protected static function defineFields(): FieldCollection
+    protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
             (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),

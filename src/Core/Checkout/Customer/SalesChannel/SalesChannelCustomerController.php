@@ -54,6 +54,10 @@ class SalesChannelCustomerController extends AbstractController
      * @var AddressService
      */
     private $addressService;
+    /**
+     * @var CustomerDefinition
+     */
+    private $customerDefinition;
 
     public function __construct(
         Serializer $serializer,
@@ -61,14 +65,16 @@ class SalesChannelCustomerController extends AbstractController
         SalesChannelContextServiceInterface $salesChannelContextService,
         EntityRepositoryInterface $orderRepository,
         AccountRegistrationService $accountRegisterService,
-        AddressService $addressService
-    ) {
+        AddressService $addressService,
+        CustomerDefinition $customerDefinition
+        ) {
         $this->serializer = $serializer;
         $this->accountService = $accountService;
         $this->salesChannelContextService = $salesChannelContextService;
         $this->orderRepository = $orderRepository;
         $this->accountRegisterService = $accountRegisterService;
         $this->addressService = $addressService;
+        $this->customerDefinition = $customerDefinition;
     }
 
     /**
@@ -174,7 +180,7 @@ class SalesChannelCustomerController extends AbstractController
     {
         return $responseFactory->createDetailResponse(
             $this->accountService->getCustomerByContext($context),
-            CustomerDefinition::class,
+            $this->customerDefinition,
             $request,
             $context->getContext()
         );

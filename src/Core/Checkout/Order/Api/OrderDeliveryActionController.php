@@ -31,11 +31,19 @@ class OrderDeliveryActionController extends AbstractController
      * @var StateMachineRegistry
      */
     protected $stateMachineRegistry;
+    /**
+     * @var OrderDeliveryDefinition
+     */
+    private $orderDeliveryDefinition;
 
-    public function __construct(EntityRepositoryInterface $orderDeliveryRepository, StateMachineRegistry $stateMachineRegistry)
-    {
+    public function __construct(
+        EntityRepositoryInterface $orderDeliveryRepository,
+        StateMachineRegistry $stateMachineRegistry,
+        OrderDeliveryDefinition $orderDeliveryDefinition
+    ) {
         $this->orderDeliveryRepository = $orderDeliveryRepository;
         $this->stateMachineRegistry = $stateMachineRegistry;
+        $this->orderDeliveryDefinition = $orderDeliveryDefinition;
     }
 
     /**
@@ -79,7 +87,7 @@ class OrderDeliveryActionController extends AbstractController
 
         $toPlace = $this->stateMachineRegistry->transition($this->stateMachineRegistry->getStateMachine(OrderTransactionStates::STATE_MACHINE, $context),
             $delivery->getStateMachineState(),
-            OrderDeliveryDefinition::getEntityName(),
+            $this->orderDeliveryDefinition->getEntityName(),
             $delivery->getId(),
             $context,
             $transition);
@@ -93,7 +101,7 @@ class OrderDeliveryActionController extends AbstractController
         $delivery->setStateMachineState($toPlace);
         $delivery->setStateId($toPlace->getId());
 
-        return $responseFactory->createDetailResponse($delivery, OrderDeliveryDefinition::class, $request, $context);
+        return $responseFactory->createDetailResponse($delivery, $this->orderDeliveryDefinition, $request, $context);
     }
 
     /**
@@ -105,7 +113,7 @@ class OrderDeliveryActionController extends AbstractController
         $result = $this->orderDeliveryRepository->search(new Criteria([$id]), $context);
 
         if ($result->count() === 0) {
-            throw new ResourceNotFoundException(OrderDeliveryDefinition::getEntityName(), ['id' => $id]);
+            throw new ResourceNotFoundException($this->orderDeliveryDefinition->getEntityName(), ['id' => $id]);
         }
 
         return $result->first();

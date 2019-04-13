@@ -41,7 +41,7 @@ class CanonicalUrlFieldResolver implements FieldResolverInterface
 
         $query->leftJoin(
             EntityDefinitionQueryHelper::escape($root),
-            EntityDefinitionQueryHelper::escape(SeoUrlDefinition::getEntityName()),
+            EntityDefinitionQueryHelper::escape(SeoUrlDefinition->getEntityName()),
             EntityDefinitionQueryHelper::escape($seoUrlAlias),
             $condition
         );

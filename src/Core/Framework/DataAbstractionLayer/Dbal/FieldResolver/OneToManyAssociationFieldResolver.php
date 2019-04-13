@@ -5,7 +5,6 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Dbal\FieldResolver;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\QueryBuilder;
-use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\CascadeDelete;
@@ -15,16 +14,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField
 
 class OneToManyAssociationFieldResolver implements FieldResolverInterface
 {
-    /**
-     * @var DefinitionInstanceRegistry
-     */
-    private $registry;
-
-    public function __construct(DefinitionInstanceRegistry $registry)
-    {
-        $this->registry = $registry;
-    }
-
     public function resolve(
         EntityDefinition $definition,
         string $root,
@@ -39,9 +28,9 @@ class OneToManyAssociationFieldResolver implements FieldResolverInterface
 
         $query->addState(EntityDefinitionQueryHelper::HAS_TO_MANY_JOIN);
 
-        $reference = $this->registry->get($field->getReferenceClass());
+        $reference = $field->getReferenceDefinition();
 
-        $table = $reference::getEntityName();
+        $table = $reference->getEntityName();
 
         $alias = $root . '.' . $field->getPropertyName();
         if ($query->hasState($alias)) {
@@ -51,10 +40,10 @@ class OneToManyAssociationFieldResolver implements FieldResolverInterface
 
         $versionJoin = '';
         /** @var string|EntityDefinition $definition */
-        if ($definition::isVersionAware() && $field->is(CascadeDelete::class)) {
-            $fkVersionId = $definition::getEntityName() . '_version_id';
+        if ($definition->isVersionAware() && $field->is(CascadeDelete::class)) {
+            $fkVersionId = $definition->getEntityName() . '_version_id';
 
-            if ($reference::getFields()->getByStorageName($fkVersionId) === null) {
+            if ($reference->getFields()->getByStorageName($fkVersionId) === null) {
                 $fkVersionId = 'version_id';
             }
 
@@ -97,15 +86,15 @@ class OneToManyAssociationFieldResolver implements FieldResolverInterface
             )
         );
 
-        if ($definition === $reference) {
+        if ($definition->getClass() === $reference->getClass()) {
             return true;
         }
 
-        if (!$reference::isInheritanceAware() || !$context->considerInheritance()) {
+        if (!$reference->isInheritanceAware() || !$context->considerInheritance()) {
             return true;
         }
 
-        $parent = $reference::getFields()->get('parent');
+        $parent = $reference->getFields()->get('parent');
         $queryHelper->resolveField($parent, $reference, $alias, $query, $context);
 
         return true;

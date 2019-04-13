@@ -18,7 +18,7 @@ class ShippingMethodTagDefinition extends MappingEntityDefinition
         return 'shipping_method_tag';
     }
 
-    protected static function defineFields(): FieldCollection
+    protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
             (new FkField('shipping_method_id', 'shippingMethodId', ShippingMethodDefinition::class))->addFlags(new PrimaryKey(), new Required()),

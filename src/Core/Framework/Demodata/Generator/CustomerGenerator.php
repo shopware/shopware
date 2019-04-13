@@ -39,17 +39,23 @@ class CustomerGenerator implements DemodataGeneratorInterface
      * @var array
      */
     private $salutationIds;
+    /**
+     * @var CustomerDefinition
+     */
+    private $customerDefinition;
 
     public function __construct(
         EntityWriterInterface $writer,
         Connection $connection,
         EntityRepositoryInterface $customerGroupRepository,
-        NumberRangeValueGeneratorInterface $numberRangeValueGenerator)
-    {
+        NumberRangeValueGeneratorInterface $numberRangeValueGenerator,
+        CustomerDefinition $customerDefinition
+    ) {
         $this->writer = $writer;
         $this->customerGroupRepository = $customerGroupRepository;
         $this->numberRangeValueGenerator = $numberRangeValueGenerator;
         $this->connection = $connection;
+        $this->customerDefinition = $customerDefinition;
     }
 
     public function getDefinition(): string
@@ -142,7 +148,7 @@ class CustomerGenerator implements DemodataGeneratorInterface
 
         $writeContext = WriteContext::createFromContext($context);
 
-        $this->writer->upsert(new CustomerDefinition(), [$customer], $writeContext);
+        $this->writer->upsert($this->customerDefinition, [$customer], $writeContext);
     }
 
     private function createCustomers(int $numberOfItems, DemodataContext $context): void
@@ -202,7 +208,7 @@ class CustomerGenerator implements DemodataGeneratorInterface
             $payload[] = $customer;
 
             if (\count($payload) >= 100) {
-                $this->writer->upsert(new CustomerDefinition(), $payload, $writeContext);
+                $this->writer->upsert($this->customerDefinition, $payload, $writeContext);
 
                 $context->getConsole()->progressAdvance(\count($payload));
                 $context->add(CustomerDefinition::class, ...array_column($payload, 'id'));
@@ -212,7 +218,7 @@ class CustomerGenerator implements DemodataGeneratorInterface
         }
 
         if (!empty($payload)) {
-            $this->writer->upsert(new CustomerDefinition(), $payload, $writeContext);
+            $this->writer->upsert($this->customerDefinition, $payload, $writeContext);
 
             $context->getConsole()->progressAdvance(\count($payload));
             $context->add(CustomerDefinition::class, ...array_column($payload, 'id'));

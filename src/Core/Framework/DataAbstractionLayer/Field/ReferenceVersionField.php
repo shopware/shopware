@@ -2,35 +2,57 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Field;
 
+use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\Version\VersionDefinition;
 
 class ReferenceVersionField extends FkField
 {
     /**
-     * @var EntityDefinition|string
+     * @var string
      */
-    protected $versionReference;
+    protected $versionReferenceClass;
 
     /**
-     * @param string|EntityDefinition $definition
+     * @var EntityDefinition
      */
+    protected $versionReferenceDefinition;
+
     public function __construct(string $definition, ?string $storageName = null)
     {
-        $entity = $definition::getEntityName();
-        $storageName = $storageName ?? $entity . '_version_id';
+        parent::__construct('', '', VersionDefinition::class);
+
+        $this->versionReferenceClass = $definition;
+        $this->storageName = $storageName;
+    }
+
+    public function compile(DefinitionInstanceRegistry $registry): void
+    {
+        if ($this->versionReferenceDefinition !== null) {
+            return;
+        }
+
+        parent::compile($registry);
+
+        $this->versionReferenceDefinition = $registry->get($this->versionReferenceClass);
+        $entity = $this->versionReferenceDefinition->getEntityName();
+        $storageName = $this->storageName ?? $entity . '_version_id';
 
         $propertyName = explode('_', $storageName);
         $propertyName = array_map('ucfirst', $propertyName);
         $propertyName = lcfirst(implode($propertyName));
 
-        parent::__construct($storageName, $propertyName, VersionDefinition::class);
-
-        $this->versionReference = $definition;
+        $this->storageName = $storageName;
+        $this->propertyName = $propertyName;
     }
 
-    public function getVersionReference(): string
+    public function getStorageName(): string
     {
-        return $this->versionReference;
+        return $this->storageName;
+    }
+
+    public function getVersionReferenceDefinition(): EntityDefinition
+    {
+        return $this->versionReferenceDefinition;
     }
 }

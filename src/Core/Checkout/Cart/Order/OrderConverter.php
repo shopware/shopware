@@ -81,19 +81,25 @@ class OrderConverter
      * @var NumberRangeValueGeneratorInterface
      */
     private $numberRangeValueGenerator;
+    /**
+     * @var OrderDefinition
+     */
+    private $orderDefinition;
 
     public function __construct(
         EntityRepositoryInterface $customerRepository,
         SalesChannelContextFactory $salesChannelContextFactory,
         StateMachineRegistry $stateMachineRegistry,
         EventDispatcherInterface $eventDispatcher,
-        NumberRangeValueGeneratorInterface $numberRangeValueGenerator
+        NumberRangeValueGeneratorInterface $numberRangeValueGenerator,
+        OrderDefinition $orderDefinition
     ) {
         $this->customerRepository = $customerRepository;
         $this->salesChannelContextFactory = $salesChannelContextFactory;
         $this->stateMachineRegistry = $stateMachineRegistry;
         $this->eventDispatcher = $eventDispatcher;
         $this->numberRangeValueGenerator = $numberRangeValueGenerator;
+        $this->orderDefinition = $orderDefinition;
     }
 
     /**
@@ -165,7 +171,7 @@ class OrderConverter
             $data['orderNumber'] = $orderNumberStruct->getId();
         } else {
             $data['orderNumber'] = $this->numberRangeValueGenerator->getValue(
-                OrderDefinition::getEntityName(), $context->getContext(), $context->getSalesChannel()->getId()
+                $this->orderDefinition->getEntityName(), $context->getContext(), $context->getSalesChannel()->getId()
             );
         }
 

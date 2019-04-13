@@ -16,11 +16,14 @@ use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 
 class ProductSliderTypeDataResolverTest extends TestCase
 {
+    use KernelTestBehaviour;
+
     /**
      * @var ProductSliderTypeDataResolver
      */
@@ -108,7 +111,7 @@ class ProductSliderTypeDataResolverTest extends TestCase
         $category = new CategoryEntity();
         $category->setUniqueIdentifier('category1');
 
-        $resolverContext = new EntityResolverContext($this->createMock(SalesChannelContext::class), new Request(), CategoryDefinition::class, $category);
+        $resolverContext = new EntityResolverContext($this->createMock(SalesChannelContext::class), new Request(), $this->getContainer()->get(CategoryDefinition::class), $category);
 
         $fieldConfig = new FieldConfigCollection();
         $fieldConfig->add(new FieldConfig('products', FieldConfig::SOURCE_MAPPED, 'category.foo'));
@@ -138,7 +141,7 @@ class ProductSliderTypeDataResolverTest extends TestCase
         $category->setUniqueIdentifier('category1');
         $category->setProducts($products);
 
-        $resolverContext = new EntityResolverContext($this->createMock(SalesChannelContext::class), new Request(), CategoryDefinition::class, $category);
+        $resolverContext = new EntityResolverContext($this->createMock(SalesChannelContext::class), new Request(), $this->getContainer()->get(CategoryDefinition::class), $category);
 
         $fieldConfig = new FieldConfigCollection();
         $fieldConfig->add(new FieldConfig('products', FieldConfig::SOURCE_MAPPED, 'category.products'));
@@ -158,7 +161,7 @@ class ProductSliderTypeDataResolverTest extends TestCase
         $category = new CategoryEntity();
         $category->setUniqueIdentifier('category1');
 
-        $resolverContext = new EntityResolverContext($this->createMock(SalesChannelContext::class), new Request(), CategoryDefinition::class, $category);
+        $resolverContext = new EntityResolverContext($this->createMock(SalesChannelContext::class), new Request(), $this->getContainer()->get(CategoryDefinition::class), $category);
 
         $fieldConfig = new FieldConfigCollection();
         $fieldConfig->add(new FieldConfig('products', FieldConfig::SOURCE_MAPPED, 'category.products'));
@@ -182,7 +185,7 @@ class ProductSliderTypeDataResolverTest extends TestCase
         $product = new SalesChannelProductEntity();
         $product->setUniqueIdentifier('product1');
 
-        $resolverContext = new EntityResolverContext($this->createMock(SalesChannelContext::class), new Request(), ProductDefinition::class, $product);
+        $resolverContext = new EntityResolverContext($this->createMock(SalesChannelContext::class), new Request(), $this->getContainer()->get(ProductDefinition::class), $product);
 
         $fieldConfig = new FieldConfigCollection();
         $fieldConfig->add(new FieldConfig('products', FieldConfig::SOURCE_MAPPED, 'product.children'));

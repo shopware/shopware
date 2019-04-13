@@ -81,6 +81,8 @@
             <argument type="service" id="media_folder_configuration.repository"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator"/>
             <argument type="service" id="shopware.cache"/>
+            <argument type="service" id="Shopware\Core\Content\Media\Aggregate\MediaFolder\MediaFolderDefinition"/>
+            <argument type="service" id="Shopware\Core\Content\Media\Aggregate\MediaFolderConfiguration\MediaFolderConfigurationDefinition"/>
             <tag name="shopware.dbal_indexing.indexer" priority="500"/>
         </service>
 
@@ -89,6 +91,7 @@
             <argument type="service" id="media.repository"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator"/>
             <argument type="service" id="shopware.cache"/>
+            <argument type="service" id="Shopware\Core\Content\Media\MediaDefinition"/>
             <tag name="shopware.dbal_indexing.indexer"/>
             <tag name="kernel.event_subscriber"/>
         </service>
@@ -185,6 +188,7 @@
             <argument type="service" id="Shopware\Core\Content\Media\File\FileFetcher"/>
             <argument type="service" id="Shopware\Core\Content\Media\File\FileSaver"/>
             <argument type="service" id="Shopware\Core\Content\Media\File\FileNameProvider"/>
+            <argument type="service" id="Shopware\Core\Content\Media\MediaDefinition"/>
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>
@@ -192,13 +196,6 @@
 
         <service id="Shopware\Core\Content\Media\Api\MediaFolderController" public="true">
             <argument type="service" id="Shopware\Core\Content\Media\MediaFolderService"/>
-            <call method="setContainer">
-                <argument type="service" id="service_container"/>
-            </call>
-        </service>
-
-        <service id="Shopware\Core\Content\Media\Api\MediaDeleteController" public="true">
-            <argument type="service" id="media.repository"/>
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>

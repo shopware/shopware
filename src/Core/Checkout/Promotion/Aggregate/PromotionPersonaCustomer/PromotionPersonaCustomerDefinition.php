@@ -18,12 +18,12 @@ class PromotionPersonaCustomerDefinition extends MappingEntityDefinition
      * It gives the option to assign what customers may use this
      * promotion based on a whitelist algorithm.
      */
-    public static function getEntityName(): string
+    public function getEntityName(): string
     {
         return 'promotion_persona_customer';
     }
 
-    protected static function defineFields(): FieldCollection
+    protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
             (new FkField('promotion_id', 'promotionId', PromotionDefinition::class))->addFlags(new PrimaryKey(), new Required()),

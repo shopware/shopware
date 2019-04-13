@@ -33,6 +33,6 @@ class EntityAggregatorTest extends TestCase
         $this->expectException(\RuntimeException::class);
         $this->expectExceptionMessage('Aggregation of type Shopware\Core\Framework\Test\DataAbstractionLayer\Search\TestAggregation not supported');
 
-        $this->aggregator->aggregate(new TaxDefinition(), $criteria, $context);
+        $this->aggregator->aggregate($this->getContainer()->get(TaxDefinition::class), $criteria, $context);
     }
 }

@@ -100,7 +100,6 @@ class VersionManager
         EntityWriterInterface $entityWriter,
         EntityReaderInterface $entityReader,
         EntitySearcherInterface $entitySearcher,
-        DefinitionRegistry $entityDefinitionRegistry,
         EntityWriteGatewayInterface $entityWriteGateway,
         EventDispatcherInterface $eventDispatcher,
         SerializerInterface $serializer,
@@ -112,7 +111,6 @@ class VersionManager
         $this->entityWriter = $entityWriter;
         $this->entityReader = $entityReader;
         $this->entitySearcher = $entitySearcher;
-        $this->entityDefinitionRegistry = $entityDefinitionRegistry;
         $this->entityWriteGateway = $entityWriteGateway;
         $this->eventDispatcher = $eventDispatcher;
         $this->serializer = $serializer;
@@ -127,7 +125,7 @@ class VersionManager
         $writtenEvent = $this->entityWriter->upsert($definition, $rawData, $writeContext);
 
         /** @var string|EntityDefinition $definition */
-        if ($definition::isVersionAware()) {
+        if ($definition->isVersionAware()) {
             $this->writeAuditLog($writtenEvent, $writeContext, __FUNCTION__);
         }
 
@@ -213,7 +211,7 @@ class VersionManager
         // merge all commits into a single write operation
         foreach ($commits as $commit) {
             foreach ($commit->getData() as $data) {
-                $dataDefinition = $this->registry->get($this->entityDefinitionRegistry->get($data->getEntityName()));
+                $dataDefinition = $this->registry->getByEntityName($data->getEntityName());
 
                 // skip clone action, otherwise the payload would contain all data
                 if ($data->getAction() !== 'clone') {
@@ -254,7 +252,7 @@ class VersionManager
         }
 
         $newData = array_map(function (VersionCommitDataEntity $data) {
-            $definition = $this->registry->get($this->entityDefinitionRegistry->get($data->getEntityName()));
+            $definition = $this->registry->getByEntityName($data->getEntityName());
 
             $id = $data->getEntityId();
             $id = $this->addVersionToPayload($id, $definition, Defaults::LIVE_VERSION);
@@ -319,7 +317,7 @@ class VersionManager
         $detail = $this->entityReader->read($definition, $criteria, $context->getContext())->first();
 
         if ($detail === null) {
-            throw new \RuntimeException(sprintf('Cannot create new version. %s by id (%s) not found.', $definition::getEntityName(), $id));
+            throw new \RuntimeException(sprintf('Cannot create new version. %s by id (%s) not found.', $definition->getEntityName(), $id));
         }
 
         $data = json_decode($this->serializer->serialize($detail, 'json'), true);
@@ -335,15 +333,15 @@ class VersionManager
     }
 
     /**
-     * @todo removed second EntityDefinition parameter
-     * @todo move $keepIds as first check (bool is fast)
+     * @todo@jp removed second EntityDefinition parameter
+     * @todo@jp move $keepIds as first check (bool is fast)
      */
     private function filterPropertiesForClone(EntityDefinition $definition, array $data, bool $keepIds, string $cloneId, EntityDefinition $cloneDefinition, Context $context): array
     {
         $extensions = [];
         $payload = [];
 
-        $fields = $definition::getFields();
+        $fields = $definition->getFields();
 
         /** @var Field $field */
         foreach ($fields as $field) {
@@ -378,7 +376,7 @@ class VersionManager
             $value = $dataCursor[$field->getPropertyName()];
 
             // remove reference of cloned entity in all sub entity routes. Appears in a parent-child nested data tree
-            if ($field instanceof FkField && !$keepIds && $value === $cloneId && $cloneDefinition->getClass() === $field->getReferenceClass()) {
+            if ($field instanceof FkField && !$keepIds && $value === $cloneId && $cloneDefinition === $field->getReferenceDefinition()) {
                 continue;
             }
 
@@ -403,7 +401,7 @@ class VersionManager
             }
 
             if ($field instanceof OneToManyAssociationField) {
-                $reference = $this->registry->get($field->getReferenceClass());
+                $reference = $field->getReferenceDefinition();
 
                 $nested = [];
                 foreach ($value as $item) {
@@ -444,7 +442,7 @@ class VersionManager
             }
 
             if ($field instanceof OneToOneAssociationField && $value) {
-                $reference = $this->registry->get($field->getReferenceClass());
+                $reference = $field->getReferenceDefinition();
 
                 $nestedItem = $this->filterPropertiesForClone($reference, $value, $keepIds, $cloneId, $cloneDefinition, $context);
 
@@ -495,12 +493,17 @@ class VersionManager
 
         $commands = [$insert];
 
-        foreach ($writtenEvents as $definition => $items) {
-            /** @var EntityDefinition|string $definition */
-            $definition = (string) $definition;
-            $entityName = $definition::getEntityName();
+        foreach ($writtenEvents as $items) {
+            if (count($items) === 0) {
+                continue;
+            }
 
-            if (!$definition::isVersionAware()) {
+            //@todo@jp fix data format
+            /** @var EntityDefinition $definition */
+            $definition = $items[0]->getDefinition();
+            $entityName = $definition->getEntityName();
+
+            if (!$definition->isVersionAware()) {
                 continue;
             }
 
@@ -553,7 +556,7 @@ class VersionManager
 
     private function addVersionToPayload(array $payload, EntityDefinition $definition, string $versionId): array
     {
-        $fields = $definition::getFields()->filter(function (Field $field) {
+        $fields = $definition->getFields()->filter(function (Field $field) {
             return $field instanceof VersionField || $field instanceof ReferenceVersionField;
         });
 
@@ -567,7 +570,7 @@ class VersionManager
 
     private function removePrimaryKey(AssociationField $field, array $nestedItem): array
     {
-        $pkFields = $field->getReferenceClass()::getPrimaryKeys();
+        $pkFields = $field->getReferenceDefinition()->getPrimaryKeys();
 
         /** @var Field|StorageAware $pkField */
         foreach ($pkFields as $pkField) {
@@ -594,13 +597,13 @@ class VersionManager
         int $childCounter = 1
     ): void {
         //add all cascade delete associations
-        $cascades = $definition::getFields()->filterByFlag(CascadeDelete::class);
+        $cascades = $definition->getFields()->filterByFlag(CascadeDelete::class);
 
         /** @var AssociationField $cascade */
         foreach ($cascades as $cascade) {
             $nested = new Criteria();
 
-            $criteria->addAssociation($definition::getEntityName() . '.' . $cascade->getPropertyName(), $nested);
+            $criteria->addAssociation($definition->getEntityName() . '.' . $cascade->getPropertyName(), $nested);
 
             if ($cascade instanceof ManyToManyAssociationField) {
                 continue;
@@ -611,14 +614,14 @@ class VersionManager
                 continue;
             }
 
-            $reference = $this->registry->get($cascade->getReferenceClass());
+            $reference = $cascade->getReferenceDefinition();
 
-            $childrenAware = $reference::isChildrenAware();
+            $childrenAware = $reference->isChildrenAware();
 
             //first level of parent-child tree?
             if ($childrenAware && !$reference->equals($definition)) {
                 //where product.children.parentId IS NULL
-                $nested->addFilter(new EqualsFilter($reference::getEntityName() . '.parentId', null));
+                $nested->addFilter(new EqualsFilter($reference->getEntityName() . '.parentId', null));
             }
 
             if ($cascade instanceof ChildrenAssociationField) {

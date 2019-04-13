@@ -15,17 +15,17 @@ class StateMachineStateTranslationDefinition extends EntityTranslationDefinition
         return 'state_machine_state_translation';
     }
 
-    public static function getEntityClass(): string
+    public function getEntityClass(): string
     {
         return StateMachineStateTranslationEntity::class;
     }
 
-    public static function getParentDefinitionClass(): string
+    protected function getParentDefinitionClass(): string
     {
         return StateMachineStateDefinition::class;
     }
 
-    protected static function defineFields(): FieldCollection
+    protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
             (new StringField('name', 'name'))->setFlags(new Required()),

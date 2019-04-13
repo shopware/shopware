@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Write;
 
 use Shopware\Core\Framework\Api\Exception\IncompletePrimaryKeyException;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityForeignKeyResolver;
+use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\ImpossibleWriteOrderException;
@@ -58,18 +59,25 @@ class EntityWriter implements EntityWriterInterface
      */
     private $languageLoader;
 
+    /**
+     * @var DefinitionInstanceRegistry
+     */
+    private $registry;
+
     public function __construct(
         WriteCommandExtractor $writeResource,
         EntityForeignKeyResolver $foreignKeyResolver,
         EntityWriteGatewayInterface $gateway,
         FieldSerializerRegistry $fieldHandler,
-        LanguageLoaderInterface $languageLoader
+        LanguageLoaderInterface $languageLoader,
+        DefinitionInstanceRegistry $registry
     ) {
         $this->foreignKeyResolver = $foreignKeyResolver;
         $this->writeResource = $writeResource;
         $this->gateway = $gateway;
         $this->fieldHandler = $fieldHandler;
         $this->languageLoader = $languageLoader;
+        $this->registry = $registry;
     }
 
     public function upsert(EntityDefinition $definition, array $rawData, WriteContext $writeContext): array
@@ -88,8 +96,7 @@ class EntityWriter implements EntityWriterInterface
     }
 
     /**
-     * @param EntityDefinition|string $definition
-     * @param array[]                 $ids
+     * @param array[] $ids
      *
      * @throws RestrictDeleteViolationException
      * @throws IncompletePrimaryKeyException
@@ -101,8 +108,7 @@ class EntityWriter implements EntityWriterInterface
 
         $commandQueue = new WriteCommandQueue();
 
-        /** @var FieldCollection $fields */
-        $fields = new FieldCollection($definition::getPrimaryKeys());
+        $fields = $definition->getPrimaryKeys();
 
         $resolved = [];
         foreach ($ids as $raw) {
@@ -143,8 +149,7 @@ class EntityWriter implements EntityWriterInterface
             $resolved[] = $mapped;
         }
 
-        $instance = new $definition();
-        if (!$instance instanceof MappingEntityDefinition) {
+        if (!$definition instanceof MappingEntityDefinition) {
             $restrictions = $this->foreignKeyResolver->getAffectedDeleteRestrictions($definition, $resolved, $writeContext->getContext());
 
             if (!empty($restrictions)) {
@@ -157,7 +162,7 @@ class EntityWriter implements EntityWriterInterface
         }
 
         $cascades = [];
-        if (!$instance instanceof MappingEntityDefinition) {
+        if (!$definition instanceof MappingEntityDefinition) {
             $cascadeDeletes = $this->foreignKeyResolver->getAffectedDeletes($definition, $resolved, $writeContext->getContext());
 
             $cascadeDeletes = array_column($cascadeDeletes, 'restrictions');
@@ -165,15 +170,17 @@ class EntityWriter implements EntityWriterInterface
                 $cascades = array_merge_recursive($cascades, $cascadeDelete);
             }
 
-            foreach ($cascades as &$cascade) {
-                $cascade = array_map(function ($key) {
+            foreach ($cascades as $affectedDefinitionClass => &$cascade) {
+                $affactedDefinition = $this->registry->get($affectedDefinitionClass);
+
+                $cascade = array_map(function ($key) use ($affactedDefinition) {
                     $payload = $key;
 
                     if (!\is_array($key)) {
                         $payload = ['id' => $key];
                     }
 
-                    return new EntityWriteResult($key, $payload, null);
+                    return new EntityWriteResult($key, $payload, $affactedDefinition, null);
                 }, $cascade);
             }
         }
@@ -187,7 +194,7 @@ class EntityWriter implements EntityWriterInterface
             $existence = $this->gateway->getExistence($definition, $mappedBytes, [], $commandQueue);
 
             if (!$existence->exists()) {
-                $skipped[$definition->getClass()][] = new EntityWriteResult($mapped, $mapped, $existence);
+                $skipped[$definition->getClass()][] = new EntityWriteResult($mapped, $mapped, $definition, $existence);
                 continue;
             }
 
@@ -215,18 +222,21 @@ class EntityWriter implements EntityWriterInterface
     {
         $identifiers = [];
 
-        /** @var EntityDefinition|string $definition */
-        foreach ($queue->getCommands() as $definition => $commands) {
+        /** @var WriteCommandInterface[] $commands */
+        foreach ($queue->getCommands() as $commands) {
             if (\count($commands) === 0) {
                 continue;
             }
 
-            $primaryKeys = (new FieldCollection($definition::getPrimaryKeys()))
+            //@todo@jp fix data format
+            $definition = $commands[0]->getDefinition();
+
+            $primaryKeys = $definition->getPrimaryKeys()
                 ->filter(function (Field $field) {
                     return !$field instanceof VersionField && !$field instanceof ReferenceVersionField;
                 });
 
-            $identifiers[$definition] = [];
+            $identifiers[$definition->getClass()] = [];
 
             $jsonUpdateCommands = [];
             $writeResults = [];
@@ -242,7 +252,12 @@ class EntityWriter implements EntityWriterInterface
                 }
 
                 $payload = $this->getCommandPayload($command);
-                $writeResults[$uniqueId] = new EntityWriteResult($primaryKey, $payload, $command->getEntityExistence());
+                $writeResults[$uniqueId] = new EntityWriteResult(
+                    $primaryKey,
+                    $payload,
+                    $command->getDefinition(),
+                    $command->getEntityExistence()
+                );
             }
 
             /*
@@ -255,7 +270,7 @@ class EntityWriter implements EntityWriterInterface
                     $payload = $writeResults[$uniqueId]->getPayload();
                 }
 
-                $field = $command->getDefinition()::getFields()->getByStorageName($command->getStorageName());
+                $field = $command->getDefinition()->getFields()->getByStorageName($command->getStorageName());
                 $decodedPayload = $this->fieldHandler->decode(
                     $field,
                     json_encode($command->getPayload(), JSON_PRESERVE_ZERO_FRACTION)
@@ -265,11 +280,12 @@ class EntityWriter implements EntityWriterInterface
                 $writeResults[$uniqueId] = new EntityWriteResult(
                     $this->getCommandPrimaryKey($command, $primaryKeys),
                     $mergedPayload,
+                    $command->getDefinition(),
                     $command->getEntityExistence()
                 );
             }
 
-            $identifiers[$definition] = array_values($writeResults);
+            $identifiers[$definition->getClass()] = array_values($writeResults);
         }
 
         return $identifiers;
@@ -330,7 +346,7 @@ class EntityWriter implements EntityWriterInterface
             return Uuid::fromBytesToHex($primaryKey[$field->getStorageName()]);
         }
 
-        /** @var StorageAware[]|Field[] $fields */
+        /** @var StorageAware|Field $field */
         foreach ($fields as $field) {
             $data[$field->getPropertyName()] = Uuid::fromBytesToHex($primaryKey[$field->getStorageName()]);
         }
@@ -345,7 +361,7 @@ class EntityWriter implements EntityWriterInterface
             $payload = $command->getPayload();
         }
 
-        $fields = $command->getDefinition()::getFields();
+        $fields = $command->getDefinition()->getFields();
 
         $convertedPayload = [];
         foreach ($payload as $key => $value) {
@@ -358,7 +374,7 @@ class EntityWriter implements EntityWriterInterface
             $convertedPayload[$field->getPropertyName()] = $this->fieldHandler->decode($field, $value);
         }
 
-        $primaryKeys = $command->getDefinition()::getPrimaryKeys();
+        $primaryKeys = $command->getDefinition()->getPrimaryKeys();
 
         /** @var Field|StorageAware $primaryKey */
         foreach ($primaryKeys as $primaryKey) {
@@ -370,7 +386,7 @@ class EntityWriter implements EntityWriterInterface
                 throw new \RuntimeException(
                     sprintf(
                         'Primary key field %s::%s not found in payload or command primary key',
-                        $command->getDefinition(),
+                        $command->getDefinition()->getClass(),
                         $primaryKey->getStorageName()
                     )
                 );

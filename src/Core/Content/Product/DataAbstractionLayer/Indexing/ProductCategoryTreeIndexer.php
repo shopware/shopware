@@ -38,24 +38,30 @@ class ProductCategoryTreeIndexer implements IndexerInterface
      * @var IteratorFactory
      */
     private $iteratorFactory;
+    /**
+     * @var ProductDefinition
+     */
+    private $productDefinition;
 
     public function __construct(
         Connection $connection,
         EventDispatcherInterface $eventDispatcher,
         EventIdExtractor $eventIdExtractor,
-        IteratorFactory $iteratorFactory
+        IteratorFactory $iteratorFactory,
+        ProductDefinition $productDefinition
     ) {
         $this->eventDispatcher = $eventDispatcher;
         $this->eventIdExtractor = $eventIdExtractor;
         $this->connection = $connection;
         $this->iteratorFactory = $iteratorFactory;
+        $this->productDefinition = $productDefinition;
     }
 
     public function index(\DateTimeInterface $timestamp): void
     {
         $context = Context::createDefaultContext();
 
-        $query = $this->iteratorFactory->createIterator(ProductDefinition::class);
+        $query = $this->iteratorFactory->createIterator($this->productDefinition);
 
         $this->eventDispatcher->dispatch(
             ProgressStartedEvent::NAME,

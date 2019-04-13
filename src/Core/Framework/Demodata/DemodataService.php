@@ -6,6 +6,7 @@ use bheller\ImagesGenerator\ImagesGeneratorProvider;
 use Faker\Factory;
 use Faker\Generator;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\Faker\Commerce;
 use Symfony\Component\Console\Input\ArgvInput;
@@ -23,17 +24,25 @@ class DemodataService
      * @var string
      */
     private $projectDir;
+    /**
+     * @var DefinitionInstanceRegistry
+     */
+    private $registry;
 
     /**
      * @param DemodataGeneratorInterface[] $generators
      */
-    public function __construct(iterable $generators, string $projectDir)
-    {
+    public function __construct(
+        iterable $generators,
+        string $projectDir,
+        DefinitionInstanceRegistry   $registry
+    ) {
         $this->projectDir = $projectDir;
 
         foreach ($generators as $generator) {
             $this->generators[$generator->getDefinition()] = $generator;
         }
+        $this->registry = $registry;
     }
 
     public function generate(DemodataRequest $request, Context $context, ?SymfonyStyle $console): DemodataContext
@@ -46,22 +55,24 @@ class DemodataService
 
         $demodataContext = new DemodataContext($context, $faker, $this->projectDir, $console);
 
-        /** @var EntityDefinition|string $definition */
-        foreach ($request->all() as $definition => $numberOfItems) {
+        /** @var EntityDefinition|string $definitionClass */
+        foreach ($request->all() as $definitionClass => $numberOfItems) {
             if ($numberOfItems === 0) {
                 continue;
             }
 
-            $console->section(sprintf('Generating %d items for %s', $numberOfItems, $definition::getEntityName()));
+            $definition = $this->registry->get($definitionClass);
 
-            $generator = $this->generators[$definition] ?? null;
+            $console->section(sprintf('Generating %d items for %s', $numberOfItems, $definition->getEntityName()));
+
+            $generator = $this->generators[$definitionClass] ?? null;
 
             if (!$generator) {
-                throw new \RuntimeException(sprintf('Could not generate demodata for "%s" because no generator is registered.', $definition));
+                throw new \RuntimeException(sprintf('Could not generate demodata for "%s" because no generator is registered.', $definitionClass));
             }
 
             $start = microtime(true);
-            $generator->generate($numberOfItems, $demodataContext, $request->getOptions($definition));
+            $generator->generate($numberOfItems, $demodataContext, $request->getOptions($definitionClass));
             $end = microtime(true) - $start;
 
             $console->note(sprintf('Took %f seconds', (float) $end));

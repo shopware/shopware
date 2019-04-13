@@ -15,11 +15,11 @@ class EntityResolverContext extends ResolverContext
     private $entity;
 
     /**
-     * @var EntityDefinition|string
+     * @var EntityDefinition
      */
     private $definition;
 
-    public function __construct(SalesChannelContext $context, Request $request, string $definition, Entity $entity)
+    public function __construct(SalesChannelContext $context, Request $request, EntityDefinition $definition, Entity $entity)
     {
         parent::__construct($context, $request);
 
@@ -32,7 +32,7 @@ class EntityResolverContext extends ResolverContext
         return $this->entity;
     }
 
-    public function getDefinition()
+    public function getDefinition(): EntityDefinition
     {
         return $this->definition;
     }

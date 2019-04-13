@@ -5,7 +5,6 @@ namespace Shopware\Core\Content\Product\SearchKeyword;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Product\Aggregate\ProductKeywordDictionary\ProductKeywordDictionaryDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductSearchKeyword\ProductSearchKeywordDefinition;
-use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Product\Util\EventIdExtractor;
 use Shopware\Core\Defaults;
@@ -59,6 +58,14 @@ class ProductSearchKeywordIndexer implements IndexerInterface
      * @var ProductSearchKeywordAnalyzerInterface
      */
     private $analyzer;
+    /**
+     * @var ProductSearchKeywordDefinition
+     */
+    private $productSearchKeywordDefinition;
+    /**
+     * @var ProductKeywordDictionaryDefinition
+     */
+    private $productKeywordDictionaryDefinition;
 
     public function __construct(
         EventDispatcherInterface $eventDispatcher,
@@ -67,7 +74,9 @@ class ProductSearchKeywordIndexer implements IndexerInterface
         IteratorFactory $iteratorFactory,
         EntityRepositoryInterface $languageRepository,
         EntityRepositoryInterface $productRepository,
-        ProductSearchKeywordAnalyzerInterface $analyzer
+        ProductSearchKeywordAnalyzerInterface $analyzer,
+        ProductSearchKeywordDefinition $productSearchKeywordDefinition,
+        ProductKeywordDictionaryDefinition $productKeywordDictionaryDefinition
     ) {
         $this->eventDispatcher = $eventDispatcher;
         $this->eventIdExtractor = $eventIdExtractor;
@@ -76,6 +85,8 @@ class ProductSearchKeywordIndexer implements IndexerInterface
         $this->languageRepository = $languageRepository;
         $this->productRepository = $productRepository;
         $this->analyzer = $analyzer;
+        $this->productSearchKeywordDefinition = $productSearchKeywordDefinition;
+        $this->productKeywordDictionaryDefinition = $productKeywordDictionaryDefinition;
     }
 
     public function index(\DateTimeInterface $timestamp): void
@@ -92,7 +103,7 @@ class ProductSearchKeywordIndexer implements IndexerInterface
                 Defaults::LIVE_VERSION
             );
 
-            $iterator = $this->iteratorFactory->createIterator(ProductDefinition::class);
+            $iterator = $this->iteratorFactory->createIterator($this->productRepository->getDefinition());
 
             $this->eventDispatcher->dispatch(
                 ProgressStartedEvent::NAME,
@@ -153,7 +164,7 @@ class ProductSearchKeywordIndexer implements IndexerInterface
 
             foreach ($keywords as $keyword) {
                 $insert->addInsert(
-                    ProductSearchKeywordDefinition::getEntityName(),
+                    $this->productSearchKeywordDefinition->getEntityName(),
                     [
                         'id' => Uuid::randomBytes(),
                         'version_id' => $versionId,
@@ -167,7 +178,7 @@ class ProductSearchKeywordIndexer implements IndexerInterface
                 );
 
                 $insert->addInsert(
-                    ProductKeywordDictionaryDefinition::getEntityName(),
+                    $this->productKeywordDictionaryDefinition->getEntityName(),
                     [
                         'id' => Uuid::randomBytes(),
                         'language_id' => $languageId,

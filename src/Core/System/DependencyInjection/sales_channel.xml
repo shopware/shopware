@@ -30,7 +30,7 @@
         </service>
 
         <service id="Shopware\Core\System\SalesChannel\Aggregate\SalesChannelPaymentMethod\SalesChannelPaymentMethodDefinition">
-            <tag name="shopware.sales_entity.definition" entity="sales_channel_payment_method"/>
+            <tag name="shopware.sales_channel.entity.definition" entity="sales_channel_payment_method"/>
         </service>
 
         <service id="Shopware\Core\System\SalesChannel\Aggregate\SalesChannelShippingMethod\SalesChannelShippingMethodDefinition">

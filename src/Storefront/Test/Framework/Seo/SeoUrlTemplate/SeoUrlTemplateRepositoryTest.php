@@ -26,7 +26,7 @@ class SeoUrlTemplateRepositoryTest extends TestCase
             'id' => $id,
             'salesChannelId' => Defaults::SALES_CHANNEL,
             'routeName' => ProductDetailPageSeoUrlIndexer::ROUTE_NAME,
-            'entityName' => ProductDefinition::getEntityName(),
+            'entityName' => $this->getContainer()->get(ProductDefinition::class)->getEntityName(),
             'template' => ProductDetailPageSeoUrlGenerator::DEFAULT_TEMPLATE,
         ];
 
@@ -48,7 +48,7 @@ class SeoUrlTemplateRepositoryTest extends TestCase
             'id' => $id,
             'salesChannelId' => Defaults::SALES_CHANNEL,
             'routeName' => ProductDetailPageSeoUrlIndexer::ROUTE_NAME,
-            'entityName' => ProductDefinition::getEntityName(),
+            'entityName' => $this->getContainer()->get(ProductDefinition::class)->getEntityName(),
             'template' => ProductDetailPageSeoUrlGenerator::DEFAULT_TEMPLATE,
         ];
 
@@ -79,7 +79,7 @@ class SeoUrlTemplateRepositoryTest extends TestCase
             'id' => $id,
             'salesChannelId' => Defaults::SALES_CHANNEL,
             'routeName' => ProductDetailPageSeoUrlIndexer::ROUTE_NAME,
-            'entityName' => ProductDefinition::getEntityName(),
+            'entityName' => $this->getContainer()->get(ProductDefinition::class)->getEntityName(),
             'template' => ProductDetailPageSeoUrlGenerator::DEFAULT_TEMPLATE,
         ];
 

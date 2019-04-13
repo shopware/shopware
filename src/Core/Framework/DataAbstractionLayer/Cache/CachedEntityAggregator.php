@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer\Cache;
 
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Aggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\AggregationResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\AggregationResultCollection;
@@ -53,7 +54,7 @@ class CachedEntityAggregator implements EntityAggregatorInterface
         $this->expirationTime = $expirationTime;
     }
 
-    public function aggregate(string $definition, Criteria $criteria, Context $context): AggregatorResult
+    public function aggregate(EntityDefinition $definition, Criteria $criteria, Context $context): AggregatorResult
     {
         if (!$this->enabled) {
             return $this->decorated->aggregate($definition, $criteria, $context);
@@ -95,7 +96,7 @@ class CachedEntityAggregator implements EntityAggregatorInterface
         return new AggregatorResult($result, $context, $criteria);
     }
 
-    private function cacheResult(string $definition, Context $context, Criteria $criteria, AggregatorResult $result): void
+    private function cacheResult(EntityDefinition $definition, Context $context, Criteria $criteria, AggregatorResult $result): void
     {
         /** @var AggregationResult $aggregationResult */
         foreach ($result->getAggregations() as $aggregationResult) {
@@ -119,7 +120,7 @@ class CachedEntityAggregator implements EntityAggregatorInterface
         }
     }
 
-    private function loadFromCache(string $definition, Criteria $criteria, Context $context): AggregationResultCollection
+    private function loadFromCache(EntityDefinition $definition, Criteria $criteria, Context $context): AggregationResultCollection
     {
         //create key list for all aggregations
         $keys = [];

@@ -16,17 +16,17 @@ class CmsSlotTranslationDefinition extends EntityTranslationDefinition
         return 'cms_slot_translation';
     }
 
-    public static function getParentDefinitionClass(): string
-    {
-        return CmsSlotDefinition::class;
-    }
-
-    public static function getEntityClass(): string
+    public function getEntityClass(): string
     {
         return CmsSlotTranslationEntity::class;
     }
 
-    protected static function defineFields(): FieldCollection
+    protected function getParentDefinitionClass(): string
+    {
+        return CmsSlotDefinition::class;
+    }
+
+    protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
             (new SlotConfigField('config', 'config'))->setFlags(new Required()),

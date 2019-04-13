@@ -9,18 +9,18 @@ class EntityCollectionType implements EventDataType
     /**
      * @var string|EntityDefinition
      */
-    private $definition;
+    private $definitionClass;
 
-    public function __construct(string $definition)
+    public function __construct(string $definitionClass)
     {
-        $this->definition = $definition;
+        $this->definitionClass = $definitionClass;
     }
 
     public function toArray(): array
     {
         return [
             'type' => 'collection',
-            'entity' => $this->definition::getEntityName(),
+            'entityClass' => $this->definitionClass,
         ];
     }
 }

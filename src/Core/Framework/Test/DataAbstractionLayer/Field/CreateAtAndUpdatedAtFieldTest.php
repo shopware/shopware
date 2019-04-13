@@ -19,7 +19,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 
 class CreateAtAndUpdatedAtFieldTest extends TestCase
 {
-    use KernelTestBehaviour;
+    use KernelTestBehaviour, DataAbstractionLayerFieldTestBehaviour;
 
     /**
      * @var Connection
@@ -33,9 +33,10 @@ class CreateAtAndUpdatedAtFieldTest extends TestCase
 
     protected function setUp(): void
     {
+        $definition = $this->registerDefinition(DateTimeDefinition::class);
         $this->connection = $this->getContainer()->get(Connection::class);
         $this->repo = new EntityRepository(
-            new DateTimeDefinition(),
+            $definition,
             $this->getContainer()->get(EntityReaderInterface::class),
             $this->getContainer()->get(VersionManager::class),
             $this->getContainer()->get(EntitySearcherInterface::class),

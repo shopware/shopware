@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework;
 
-use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\ExtensionRegistry;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\ActionEventCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\EntityCompilerPass;
@@ -67,12 +66,13 @@ class Framework extends Bundle
     {
         parent::boot();
 
+        // @todo@jp wastefull
         /** @var ExtensionRegistry $registry */
         $registry = $this->container->get(ExtensionRegistry::class);
         foreach ($registry->getExtensions() as $extension) {
-            /** @var EntityDefinition $definition */
+            /** @var string $definition */
             $definition = $extension->getDefinitionClass();
-            $definition::addExtension($extension);
+            $this->container->get($definition)->addExtension($extension);
         }
     }
 

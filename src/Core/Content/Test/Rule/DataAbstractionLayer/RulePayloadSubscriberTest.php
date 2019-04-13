@@ -40,6 +40,10 @@ class RulePayloadSubscriberTest extends TestCase
      * @var RulePayloadIndexer
      */
     private $indexer;
+    /**
+     * @var RuleDefinition
+     */
+    private $ruleDefinition;
 
     protected function setUp(): void
     {
@@ -47,13 +51,14 @@ class RulePayloadSubscriberTest extends TestCase
         $this->connection = $this->getContainer()->get(Connection::class);
         $this->indexer = $this->createMock(RulePayloadIndexer::class);
         $this->rulePayloadSubscriber = new RulePayloadSubscriber($this->indexer);
+        $this->ruleDefinition = $this->getContainer()->get(RuleDefinition::class);
     }
 
     public function testLoadValidRuleWithoutPayload(): void
     {
         $id = Uuid::randomHex();
         $rule = (new RuleEntity())->assign(['id' => $id, 'payload' => null, 'invalid' => false, '_uniqueIdentifier' => $id]);
-        $loadedEvent = new EntityLoadedEvent(RuleDefinition::class, [$rule], $this->context);
+        $loadedEvent = new EntityLoadedEvent($this->ruleDefinition, [$rule], $this->context);
 
         static::assertNull($rule->getPayload());
 
@@ -69,7 +74,7 @@ class RulePayloadSubscriberTest extends TestCase
     {
         $id = Uuid::randomHex();
         $rule = (new RuleEntity())->assign(['id' => $id, 'payload' => null, 'invalid' => true, '_uniqueIdentifier' => $id]);
-        $loadedEvent = new EntityLoadedEvent(RuleDefinition::class, [$rule], $this->context);
+        $loadedEvent = new EntityLoadedEvent($this->ruleDefinition, [$rule], $this->context);
 
         static::assertNull($rule->getPayload());
         static::assertTrue($rule->isInvalid());
@@ -85,7 +90,7 @@ class RulePayloadSubscriberTest extends TestCase
     {
         $id = Uuid::randomHex();
         $rule = (new RuleEntity())->assign(['id' => $id, 'payload' => serialize(new AndRule()), 'invalid' => false, '_uniqueIdentifier' => $id]);
-        $loadedEvent = new EntityLoadedEvent(RuleDefinition::class, [$rule], $this->context);
+        $loadedEvent = new EntityLoadedEvent($this->ruleDefinition, [$rule], $this->context);
 
         static::assertNotNull($rule->getPayload());
 
@@ -102,7 +107,7 @@ class RulePayloadSubscriberTest extends TestCase
         $id2 = Uuid::randomHex();
         $rule = (new RuleEntity())->assign(['id' => $id, 'payload' => null, 'invalid' => false, '_uniqueIdentifier' => $id]);
         $rule2 = (new RuleEntity())->assign(['id' => $id2, 'payload' => null, 'invalid' => false, '_uniqueIdentifier' => $id2]);
-        $loadedEvent = new EntityLoadedEvent(RuleDefinition::class, [$rule, $rule2], $this->context);
+        $loadedEvent = new EntityLoadedEvent($this->ruleDefinition, [$rule, $rule2], $this->context);
 
         static::assertNull($rule->getPayload());
 
@@ -128,7 +133,7 @@ class RulePayloadSubscriberTest extends TestCase
         $id2 = Uuid::randomHex();
         $rule = (new RuleEntity())->assign(['id' => $id, 'payload' => null, 'invalid' => false, '_uniqueIdentifier' => $id]);
         $rule2 = (new RuleEntity())->assign(['id' => $id2, 'payload' => null, 'invalid' => true, '_uniqueIdentifier' => $id2]);
-        $loadedEvent = new EntityLoadedEvent(RuleDefinition::class, [$rule, $rule2], $this->context);
+        $loadedEvent = new EntityLoadedEvent($this->ruleDefinition, [$rule, $rule2], $this->context);
 
         static::assertNull($rule->getPayload());
 

@@ -18,7 +18,7 @@ class MailTemplateSalesChannelDefinition extends MappingEntityDefinition
         return 'mail_template_sales_channel';
     }
 
-    protected static function defineFields(): FieldCollection
+    protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
             (new FkField('mail_template_id', 'mailTemplateId', MailTemplateDefinition::class))->addFlags(new PrimaryKey(), new Required()),

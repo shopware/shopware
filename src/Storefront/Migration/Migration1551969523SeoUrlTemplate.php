@@ -3,7 +3,6 @@
 namespace Shopware\Storefront\Migration;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -42,7 +41,7 @@ class Migration1551969523SeoUrlTemplate extends MigrationStep
             'id' => Uuid::randomBytes(),
             'sales_channel_id' => null,
             'route_name' => ProductDetailPageSeoUrlIndexer::ROUTE_NAME,
-            'entity_name' => ProductDefinition::getEntityName(),
+            'entity_name' => 'product',
             'template' => ProductDetailPageSeoUrlGenerator::DEFAULT_TEMPLATE,
             'created_at' => (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_FORMAT),
         ]);

@@ -26,12 +26,11 @@ class JsonApiEncoder
     private $serializeCache = [];
 
     /**
-     * @param string|EntityDefinition      $definition
      * @param EntityCollection|Entity|null $data
      *
      * @throws UnsupportedEncoderInputException
      */
-    public function encode(string $definition, $data, string $baseUrl, array $metaData = []): string
+    public function encode(EntityDefinition $definition, $data, string $baseUrl, array $metaData = []): string
     {
         $result = new JsonApiEncodingResult($baseUrl);
 
@@ -47,17 +46,14 @@ class JsonApiEncoder
         return $this->formatToJson($result);
     }
 
-    /**
-     * @param string|EntityDefinition $definition
-     */
-    protected function serializeEntity(Entity $entity, string $definition, JsonApiEncodingResult $result, bool $isRelationship = false): void
+    protected function serializeEntity(Entity $entity, EntityDefinition $definition, JsonApiEncodingResult $result, bool $isRelationship = false): void
     {
-        $included = $result->contains($entity->getUniqueIdentifier(), $definition::getEntityName());
+        $included = $result->contains($entity->getUniqueIdentifier(), $definition->getEntityName());
         if ($included) {
             return;
         }
 
-        $self = $result->getBaseUrl() . '/' . $this->camelCaseToSnailCase($definition::getEntityName()) . '/' . $entity->getUniqueIdentifier();
+        $self = $result->getBaseUrl() . '/' . $this->camelCaseToSnailCase($definition->getEntityName()) . '/' . $entity->getUniqueIdentifier();
 
         $serialized = clone $this->createSerializedEntity($definition);
         $serialized->addLink('self', $self);
@@ -116,10 +112,7 @@ class JsonApiEncoder
         return $this->caseCache[$input] = \ltrim(\strtolower(\preg_replace('/[A-Z]/', '-$0', $input)), '-');
     }
 
-    /**
-     * @param EntityCollection|Entity|null $data
-     */
-    private function encodeData(string $definition, $data, JsonApiEncodingResult $result): void
+    private function encodeData(EntityDefinition $definition, $data, JsonApiEncodingResult $result): void
     {
         if ($data === null) {
             return;
@@ -136,19 +129,16 @@ class JsonApiEncoder
         }
     }
 
-    /**
-     * @param string|EntityDefinition $definition
-     */
-    private function createSerializedEntity(string $definition): Record
+    private function createSerializedEntity(EntityDefinition $definition): Record
     {
-        if (isset($this->serializeCache[$definition])) {
-            return clone $this->serializeCache[$definition];
+        if (isset($this->serializeCache[$definition->getClass()])) {
+            return clone $this->serializeCache[$definition->getClass()];
         }
 
         $serialized = new Record();
-        $serialized->setType($definition::getEntityName());
+        $serialized->setType($definition->getEntityName());
 
-        foreach ($definition::getFields() as $propertyName => $field) {
+        foreach ($definition->getFields() as $propertyName => $field) {
             if ($propertyName === 'id' || $field->is(Internal::class)) {
                 continue;
             }
@@ -156,9 +146,9 @@ class JsonApiEncoder
             if ($field instanceof AssociationField) {
                 $isSingle = $field instanceof ManyToOneAssociationField || $field instanceof OneToOneAssociationField;
 
-                $reference = $field->getReferenceClass();
+                $reference = $field->getReferenceDefinition();
                 if ($field instanceof ManyToManyAssociationField) {
-                    $reference = $field->getReferenceDefinition();
+                    $reference = $field->getToManyReferenceDefinition();
                 }
 
                 $serialized->addRelationship(
@@ -181,7 +171,7 @@ class JsonApiEncoder
             }
         }
 
-        return $this->serializeCache[$definition] = $serialized;
+        return $this->serializeCache[$definition->getClass()] = $serialized;
     }
 
     private function formatToJson(JsonApiEncodingResult $result): string

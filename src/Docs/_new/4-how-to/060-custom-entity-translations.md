@@ -33,7 +33,7 @@ class CustomEntityDefinition extends EntityDefinition
         return 'custom_entity';
     }
 
-    protected static function defineFields(): FieldCollection
+    protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
             (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
@@ -43,12 +43,12 @@ class CustomEntityDefinition extends EntityDefinition
         ]);
     }
 
-    public static function getCollectionClass(): string
+    public function getCollectionClass(): string
     {
         return CustomEntityCollection::class;
     }
 
-    public static function getEntityClass(): string
+    public function getEntityClass(): string
     {
         return CustomEntity::class;
     }
@@ -61,7 +61,7 @@ Simply adding a `StringField` here is tempting, isn't it?
 Since a `label` should be translatable, you have to add a `TranslatedField` instead.
 
 ```php
-protected static function defineFields(): FieldCollection
+protected function defineFields(): FieldCollection
 {
     return new FieldCollection([
         (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
@@ -159,7 +159,7 @@ class CustomEntityTranslationDefinition extends EntityTranslationDefinition
         return 'custom_entity_translation';
     }
 
-    public static function getCollectionClass(): string
+    public function getCollectionClass(): string
     {
         return CustomEntityTranslationCollection::class;
     }
@@ -169,7 +169,7 @@ class CustomEntityTranslationDefinition extends EntityTranslationDefinition
         return CustomTranslationEntity::class;
     }
 
-    public function getParentDefinitionClass(): string
+    protected function getParentDefinitionClass(): string
     {
         return CustomEntityDefinition::class;
     }

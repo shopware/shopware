@@ -12,7 +12,7 @@ use Shopware\Core\Framework\Event\NestedEventCollection;
 class EntityWrittenEvent extends NestedEvent
 {
     /**
-     * @var string
+     * @var EntityDefinition
      */
     protected $definition;
 
@@ -57,7 +57,7 @@ class EntityWrittenEvent extends NestedEvent
     protected $name;
 
     public function __construct(
-        string $definition,
+        EntityDefinition $definition,
         array $writeResults,
         Context $context,
         array $errors = []
@@ -68,8 +68,7 @@ class EntityWrittenEvent extends NestedEvent
         $this->definition = $definition;
         $this->writeResults = $writeResults;
 
-        /* @var string|EntityDefinition $definition */
-        $this->name = $definition::getEntityName() . '.written';
+        $this->name = $definition->getEntityName() . '.written';
     }
 
     public function getName(): string
@@ -77,10 +76,7 @@ class EntityWrittenEvent extends NestedEvent
         return $this->name;
     }
 
-    /**
-     * @return string|EntityDefinition
-     */
-    public function getDefinition(): string
+    public function getDefinition(): EntityDefinition
     {
         return $this->definition;
     }

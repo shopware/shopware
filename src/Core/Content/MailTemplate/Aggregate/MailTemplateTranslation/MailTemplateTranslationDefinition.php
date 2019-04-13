@@ -16,22 +16,22 @@ class MailTemplateTranslationDefinition extends EntityTranslationDefinition
         return 'mail_template_translation';
     }
 
-    public static function getParentDefinitionClass(): string
-    {
-        return MailTemplateDefinition::class;
-    }
-
-    public static function getEntityClass(): string
+    public function getEntityClass(): string
     {
         return MailTemplateTranslationEntity::class;
     }
 
-    public static function getCollectionClass(): string
+    public function getCollectionClass(): string
     {
         return MailTemplateTranslationCollection::class;
     }
 
-    protected static function defineFields(): FieldCollection
+    protected function getParentDefinitionClass(): string
+    {
+        return MailTemplateDefinition::class;
+    }
+
+    protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
             new StringField('sender_name', 'senderName'),

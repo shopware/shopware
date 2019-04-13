@@ -44,9 +44,18 @@ class SeoService
      * @var Environment
      */
     private $twig;
+    /**
+     * @var SeoUrlDefinition
+     */
+    private $seoUrlDefinition;
 
-    public function __construct(Connection $connection, EntityRepositoryInterface $seoUrlTemplateRepository, Slugify $slugify, iterable $seoUrlGenerators)
-    {
+    public function __construct(
+        Connection $connection,
+        EntityRepositoryInterface $seoUrlTemplateRepository,
+        Slugify $slugify,
+        iterable $seoUrlGenerators,
+        SeoUrlDefinition $seoUrlDefinition
+    ) {
         $this->connection = $connection;
         $this->seoUrlTemplateRepository = $seoUrlTemplateRepository;
 
@@ -56,6 +65,7 @@ class SeoService
         $this->twig->addExtension(new SlugifyExtension($slugify));
 
         $this->seoUrlGenerators = $seoUrlGenerators;
+        $this->seoUrlDefinition = $seoUrlDefinition;
     }
 
     public function getSeoUrlContext(string $routeName, Entity $entity): array
@@ -120,10 +130,9 @@ class SeoService
 
             $insert['is_valid'] = true;
             $insert['created_at'] = $dateTime;
-            $insertQuery->addInsert(SeoUrlDefinition::getEntityName(), $insert);
+            $insertQuery->addInsert($this->seoUrlDefinition->getEntityName(), $insert);
         }
         $insertQuery->execute();
-
         $this->obsoleteIds($obsoleted, $dateTime);
 
         $deletedIds = array_diff($foreignKeys, $updatedFks);

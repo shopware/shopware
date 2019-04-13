@@ -19,79 +19,101 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\UpdatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\Struct\ArrayEntity;
 
+/**
+ * @todo@jp move getFields()->get('special') to FieldCollection
+ */
 abstract class EntityDefinition
 {
     /**
-     * @var FieldCollection[]|null[]
+     * @var FieldCollection|null
      */
-    protected static $fields = [];
+    protected $fields;
 
     /**
-     * @var EntityExtensionInterface[][]
+     * @var EntityExtensionInterface[]
      */
-    protected static $extensions = [];
+    protected $extensions = [];
 
     /**
-     * @var string[]|null[]
+     * @var EntityDefinition|null
      */
-    protected static $translationDefinitions = [];
+    protected $translationDefinition;
 
     /**
-     * @var bool[]
+     * @var bool|null
      */
-    protected static $keywordSearchDefinitions = [];
+    protected $keywordSearchDefinition;
 
     /**
-     * @var Field[][]
+     * @var FieldCollection|null
      */
-    protected static $primaryKeys = [];
+    protected $primaryKeys;
+
+    /**
+     * @var DefinitionInstanceRegistry
+     */
+    protected $registry;
+
+    /**
+     * @var EntityDefinition|false|null
+     */
+    private $parentDefinition = false;
+
+    /**
+     * @var string
+     */
+    private $className;
 
     final public function __construct()
     {
-        //echo 'CONSTRUCTING: ' . get_class($this) . PHP_EOL;
+        $this->className = get_class($this);
+    }
+
+    public function __debugInfo()
+    {
+        return [];
     }
 
     final public function getClass(): string
     {
-        return get_class($this);
+        return $this->className;
     }
 
     final public function equals(EntityDefinition $definition): bool
     {
-        return $definition->getClass() === $this->getClass();
+        return $definition === $this;
     }
 
-    public static function addExtension(EntityExtensionInterface $extension): void
+    public function compile(DefinitionInstanceRegistry $registry): void
     {
-        static::$extensions[static::class][\get_class($extension)] = $extension;
-        static::$fields[static::class] = null;
+        $this->registry = $registry;
+    }
+
+    final public function addExtension(EntityExtensionInterface $extension): void
+    {
+        $this->extensions[] = $extension;
+        $this->fields = null;
     }
 
     abstract public function getEntityName(): string;
 
-    public static function getFields(): FieldCollection
+    public function getFields(): FieldCollection
     {
-        if (isset(static::$fields[static::class])) {
-            return static::$fields[static::class];
+        if ($this->fields !== null) {
+            return $this->fields;
         }
 
-        $fields = static::defineFields();
+        $fields = $this->defineFields();
 
-        foreach (static::defaultFields() as $field) {
+        foreach ($this->defaultFields() as $field) {
             $fields->add($field);
         }
 
-        if (static::getTranslationDefinitionClass()) {
-            $fields->add(
-                (new JsonField('translated', 'translated'))->addFlags(new Computed(), new Deferred())
-            );
-        }
-
-        $extensions = static::$extensions[static::class] ?? [];
-        foreach ($extensions as $extension) {
+        foreach ($this->extensions as $extension) {
             $new = new FieldCollection();
 
             $extension->extendFields($new);
+            $new->compile($this->registry);
 
             /** @var Field $field */
             foreach ($new as $field) {
@@ -100,115 +122,125 @@ abstract class EntityDefinition
             }
         }
 
-        static::$fields[static::class] = $fields;
+        $fields->compile($this->registry);
 
-        return static::$fields[static::class];
+        foreach ($fields as $field) {
+            if ($field instanceof TranslationsAssociationField) {
+                $this->translationDefinition = $field->getReferenceDefinition();
+                $fields->add(
+                    (new JsonField('translated', 'translated'))->addFlags(new Computed(), new Deferred())
+                );
+                break;
+            }
+        }
+
+        $this->fields = $fields;
+
+        return $this->fields;
     }
 
-    public static function getCollectionClass(): string
+    public function getCollectionClass(): string
     {
         return EntityCollection::class;
     }
 
-    public static function getEntityClass(): string
+    public function getEntityClass(): string
     {
         return ArrayEntity::class;
     }
 
-    public static function getParentDefinitionClass(): ?string
+    public function getParentDefinition(): ?EntityDefinition
+    {
+        if ($this->parentDefinition !== false) {
+            return $this->parentDefinition;
+        }
+
+        $parentDefinitionClass = $this->getParentDefinitionClass();
+
+        if ($parentDefinitionClass === null) {
+            return $this->parentDefinition = null;
+        }
+
+        return $this->parentDefinition = $this->registry->get($parentDefinitionClass);
+    }
+
+    final public function getTranslationDefinition(): ?EntityDefinition
+    {
+        // value is initialized from this method
+        $this->getFields();
+
+        return $this->translationDefinition;
+    }
+
+    final public function getPrimaryKeys(): FieldCollection
+    {
+        if ($this->primaryKeys !== null) {
+            return $this->primaryKeys;
+        }
+
+        $fields = $this->getFields()->filter(function (Field $field): bool {
+            return $field->is(PrimaryKey::class);
+        });
+
+        return $this->primaryKeys = $fields;
+    }
+
+    public function getDefaults(EntityExistence $existence): array
+    {
+        return [];
+    }
+
+    public function isChildrenAware(): bool
+    {
+        return $this->getFields()->filterInstance(ChildrenAssociationField::class)->count() > 0;
+    }
+
+    public function isChildCountAware(): bool
+    {
+        return $this->getFields()->get('childCount') instanceof ChildCountField;
+    }
+
+    public function isParentAware(): bool
+    {
+        return $this->getFields()->get('parent') instanceof ParentAssociationField;
+    }
+
+    public function isInheritanceAware(): bool
+    {
+        return false;
+    }
+
+    public function isVersionAware(): bool
+    {
+        return $this->getFields()->has('versionId');
+    }
+
+    public function isBlacklistAware(): bool
+    {
+        return $this->getFields()->has('blacklistIds');
+    }
+
+    public function isWhitelistAware(): bool
+    {
+        return $this->getFields()->has('whitelistIds');
+    }
+
+    public function isTreeAware(): bool
+    {
+        return $this->isParentAware()
+            && ($this->getFields()->filterInstance(TreePathField::class)->count() > 0
+                || $this->getFields()->filterInstance(TreeLevelField::class)->count() > 0);
+    }
+
+    protected function getParentDefinitionClass(): ?string
     {
         return null;
     }
 
     /**
-     * @return string|EntityDefinition|null
-     */
-    public static function getTranslationDefinitionClass(): ?string
-    {
-        if (array_key_exists(static::class, static::$translationDefinitions)) {
-            return static::$translationDefinitions[static::class];
-        }
-        static::$translationDefinitions[static::class] = null;
-
-        foreach (static::getFields() as $field) {
-            if ($field instanceof TranslationsAssociationField) {
-                static::$translationDefinitions[static::class] = $field->getReferenceClass();
-                break;
-            }
-        }
-
-        return static::$translationDefinitions[static::class];
-    }
-
-    public static function getPrimaryKeys(): array
-    {
-        if (array_key_exists(static::class, static::$primaryKeys)) {
-            return static::$primaryKeys[static::class];
-        }
-
-        $fields = array_filter(static::getFields()->getElements(), function (Field $field) {
-            return $field->is(PrimaryKey::class);
-        });
-
-        return static::$primaryKeys[static::class] = $fields;
-    }
-
-    public static function getDefaults(EntityExistence $existence): array
-    {
-        return [];
-    }
-
-    public static function isChildrenAware(): bool
-    {
-        return static::getFields()->filterInstance(ChildrenAssociationField::class)->count() > 0;
-    }
-
-    public static function isChildCountAware(): bool
-    {
-        return static::getFields()->get('childCount') instanceof ChildCountField;
-    }
-
-    public static function isParentAware(): bool
-    {
-        return static::getFields()->get('parent') instanceof ParentAssociationField;
-    }
-
-    public static function isInheritanceAware(): bool
-    {
-        return false;
-    }
-
-    public static function isVersionAware(): bool
-    {
-        return static::getFields()->has('versionId');
-    }
-
-    public static function isBlacklistAware(): bool
-    {
-        return static::getFields()->has('blacklistIds');
-    }
-
-    public static function isWhitelistAware(): bool
-    {
-        return static::getFields()->has('whitelistIds');
-    }
-
-    public static function isTreeAware(): bool
-    {
-        return static::isParentAware()
-            && (static::getFields()->filterInstance(TreePathField::class)->count() > 0
-                || static::getFields()->filterInstance(TreeLevelField::class)->count() > 0);
-    }
-
-    public static function getSalesChannelDecorationDefinition(): string
-    {
-        return static::class;
-    }
-
-    /**
      * @return Field[]
      */
-    protected static function defaultFields(): array
+    protected function defaultFields(): array
     {
         return [
             new CreatedAtField(),
@@ -216,5 +248,5 @@ abstract class EntityDefinition
         ];
     }
 
-    abstract protected static function defineFields(): FieldCollection;
+    abstract protected function defineFields(): FieldCollection;
 }

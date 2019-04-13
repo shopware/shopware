@@ -22,12 +22,12 @@ class CustomFieldTestDefinition extends EntityDefinition
         return 'attribute_test';
     }
 
-    public static function isInheritanceAware(): bool
+    public function isInheritanceAware(): bool
     {
         return true;
     }
 
-    protected static function defineFields(): FieldCollection
+    protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
             (new IdField('id', 'id'))->addFlags(new PrimaryKey()),

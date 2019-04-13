@@ -30,12 +30,12 @@ class MailTemplateDefinition extends EntityDefinition
         return 'mail_template';
     }
 
-    public static function getEntityClass(): string
+    public function getEntityClass(): string
     {
         return MailTemplateEntity::class;
     }
 
-    protected static function defineFields(): FieldCollection
+    protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),

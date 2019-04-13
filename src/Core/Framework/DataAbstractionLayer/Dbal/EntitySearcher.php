@@ -49,7 +49,7 @@ class EntitySearcher implements EntitySearcherInterface
 
     public function search(EntityDefinition $definition, Criteria $criteria, Context $context): IdSearchResult
     {
-        $table = $definition::getEntityName();
+        $table = $definition->getEntityName();
 
         $query = new QueryBuilder($this->connection);
         $query->select([

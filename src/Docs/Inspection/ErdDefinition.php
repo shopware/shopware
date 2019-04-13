@@ -51,12 +51,12 @@ class ErdDefinition
 
     public function entityName(): string
     {
-        return $this->definitionClass::getEntityName();
+        return $this->definitionClass->getEntityName();
     }
 
     public function fields(): FieldCollection
     {
-        return $this->definitionClass::getFields();
+        return $this->definitionClass->getFields();
     }
 
     public function toModuleName(): string

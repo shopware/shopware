@@ -10,11 +10,13 @@ class EntityTypeTest extends TestCase
 {
     public function testToArray()
     {
+        $definition = CustomerDefinition::class;
+
         $expected = [
             'type' => 'entity',
-            'entity' => CustomerDefinition::getEntityName(),
+            'entityClass' => CustomerDefinition::class,
         ];
 
-        static::assertEquals($expected, (new EntityType(CustomerDefinition::class))->toArray());
+        static::assertEquals($expected, (new EntityType($definition))->toArray());
     }
 }

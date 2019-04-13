@@ -86,7 +86,7 @@ class CompositeEntitySearcherTest extends TestCase
         $result = $this->search->search("${filterId}_test ${filterId}_product", 20, $this->context, $this->userId);
 
         $productResult = @current(array_filter($result, function ($item) {
-            return $item['entity'] === ProductDefinition::getEntityName();
+            return $item['entity'] === $this->getContainer()->get(ProductDefinition::class)->getEntityName();
         }));
 
         static::assertNotEmpty($productResult);

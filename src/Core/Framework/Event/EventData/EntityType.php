@@ -2,25 +2,23 @@
 
 namespace Shopware\Core\Framework\Event\EventData;
 
-use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
-
 class EntityType implements EventDataType
 {
     /**
-     * @var string|EntityDefinition
+     * @var string
      */
-    private $definition;
+    private $definitionClass;
 
-    public function __construct(string $definition)
+    public function __construct(string $definitionClass)
     {
-        $this->definition = $definition;
+        $this->definitionClass = $definitionClass;
     }
 
     public function toArray(): array
     {
         return [
             'type' => 'entity',
-            'entity' => $this->definition::getEntityName(),
+            'entityClass' => $this->definitionClass,
         ];
     }
 }

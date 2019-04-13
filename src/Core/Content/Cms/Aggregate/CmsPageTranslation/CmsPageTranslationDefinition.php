@@ -16,17 +16,17 @@ class CmsPageTranslationDefinition extends EntityTranslationDefinition
         return 'cms_page_translation';
     }
 
-    public static function getEntityClass(): string
+    public function getEntityClass(): string
     {
         return CmsPageTranslationEntity::class;
     }
 
-    public static function getParentDefinitionClass(): string
+    protected function getParentDefinitionClass(): string
     {
         return CmsPageDefinition::class;
     }
 
-    protected static function defineFields(): FieldCollection
+    protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
             (new StringField('name', 'name'))->setFlags(new Required()),

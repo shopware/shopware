@@ -40,6 +40,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\VersionManager;
 use Shopware\Core\Framework\Rule\Collector\RuleConditionRegistry;
 use Shopware\Core\Framework\Struct\ArrayEntity;
+use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\DataAbstractionLayerFieldTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -49,7 +50,7 @@ use Shopware\Core\System\Tax\TaxDefinition;
 
 class VersioningTest extends TestCase
 {
-    use IntegrationTestBehaviour;
+    use IntegrationTestBehaviour, DataAbstractionLayerFieldTestBehaviour;
 
     /**
      * @var EntityRepositoryInterface
@@ -107,6 +108,8 @@ class VersioningTest extends TestCase
         $this->processor = $this->getContainer()->get(Processor::class);
         $this->orderPersister = $this->getContainer()->get(OrderPersister::class);
         $this->context = Context::createDefaultContext();
+
+        $this->registerDefinition(CalculatedPriceFieldTestDefinition::class);
     }
 
     public function testChangelogOnlyWrittenForVersionAwareEntities(): void
@@ -123,7 +126,7 @@ class VersioningTest extends TestCase
 
         $this->getContainer()->get('tax.repository')->create([$data], $context);
 
-        $changelog = $this->getVersionData(TaxDefinition::getEntityName(), $id, Defaults::LIVE_VERSION);
+        $changelog = $this->getVersionData($this->getContainer()->get(TaxDefinition::class)->getEntityName(), $id, Defaults::LIVE_VERSION);
         static::assertCount(0, $changelog);
 
         $product = [
@@ -137,13 +140,13 @@ class VersioningTest extends TestCase
 
         $this->productRepository->upsert([$product], $context);
 
-        $changelog = $this->getVersionData(TaxDefinition::getEntityName(), $id, Defaults::LIVE_VERSION);
+        $changelog = $this->getVersionData($this->getContainer()->get(TaxDefinition::class)->getEntityName(), $id, Defaults::LIVE_VERSION);
         static::assertCount(0, $changelog);
 
-        $changelog = $this->getVersionData(ProductDefinition::getEntityName(), $id, Defaults::LIVE_VERSION);
+        $changelog = $this->getVersionData($this->getContainer()->get(ProductDefinition::class)->getEntityName(), $id, Defaults::LIVE_VERSION);
         static::assertCount(1, $changelog);
 
-        $changelog = $this->getVersionData(ProductManufacturerDefinition::getEntityName(), $id, Defaults::LIVE_VERSION);
+        $changelog = $this->getVersionData($this->getContainer()->get(ProductManufacturerDefinition::class)->getEntityName(), $id, Defaults::LIVE_VERSION);
         static::assertCount(1, $changelog);
     }
 
@@ -261,7 +264,7 @@ class VersioningTest extends TestCase
         );
 
         $repository = new EntityRepository(
-            new CalculatedPriceFieldTestDefinition(),
+            $this->getContainer()->get(CalculatedPriceFieldTestDefinition::class),
             $this->getContainer()->get(EntityReaderInterface::class),
             $this->getContainer()->get(VersionManager::class),
             $this->getContainer()->get(EntitySearcherInterface::class),
@@ -428,13 +431,13 @@ class VersioningTest extends TestCase
         $context = Context::createDefaultContext();
         $this->productRepository->create([$data], $context);
 
-        $changelog = $this->getTranslationVersionData(ProductTranslationDefinition::getEntityName(), Defaults::LANGUAGE_SYSTEM, 'productId', $id, $context->getVersionId());
+        $changelog = $this->getTranslationVersionData($this->getContainer()->get(ProductTranslationDefinition::class)->getEntityName(), Defaults::LANGUAGE_SYSTEM, 'productId', $id, $context->getVersionId());
         static::assertCount(1, $changelog);
         static::assertArrayHasKey('name', $changelog[0]['payload']);
         static::assertEquals('test', $changelog[0]['payload']['name']);
 
         $this->productRepository->update([['id' => $id, 'name' => 'updated']], $context);
-        $changelog = $this->getTranslationVersionData(ProductTranslationDefinition::getEntityName(), Defaults::LANGUAGE_SYSTEM, 'productId', $id, $context->getVersionId());
+        $changelog = $this->getTranslationVersionData($this->getContainer()->get(ProductTranslationDefinition::class)->getEntityName(), Defaults::LANGUAGE_SYSTEM, 'productId', $id, $context->getVersionId());
         static::assertCount(2, $changelog);
         static::assertArrayHasKey('name', $changelog[1]['payload']);
         static::assertEquals('updated', $changelog[1]['payload']['name']);

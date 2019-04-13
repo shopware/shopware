@@ -58,7 +58,7 @@ class RequestCriteriaBuilderTest extends TestCase
         $this->requestCriteriaBuilder->handleRequest(
             $request,
             $criteria,
-            ProductDefinition::class,
+            $this->getContainer()->get(ProductDefinition::class),
             Context::createDefaultContext()
         );
 

@@ -57,13 +57,13 @@ EOL;
     `#name#` #type# #nullable# #default#
 EOL;
 
-    public function generate(string $definition)
+    public function generate(EntityDefinition $definition)
     {
-        $table = $definition::getEntityName();
+        $table = $definition->getEntityName();
 
         $columns = [];
 
-        foreach ($definition::getFields() as $field) {
+        foreach ($definition->getFields() as $field) {
             $columns[] = $this->generateFieldColumn($definition, $field);
         }
         $columns = array_filter($columns);
@@ -86,7 +86,7 @@ EOL;
         return $template;
     }
 
-    private function generateFieldColumn(string $definition, Field $field): ?string
+    private function generateFieldColumn(EntityDefinition $definition, Field $field): ?string
     {
         if ($field->is(Deferred::class)) {
             return null;
@@ -183,26 +183,25 @@ EOL;
         return trim($template);
     }
 
-    private function generatePrimaryKey($definition): string
+    private function generatePrimaryKey(EntityDefinition $definition): string
     {
         $keys = [];
 
-        /** @var string|EntityDefinition $definition */
-        foreach ($definition::getPrimaryKeys() as $primaryKey) {
-            /* @var StorageAware $primaryKey */
+        /** @var StorageAware $primaryKey */
+        foreach ($definition->getPrimaryKeys() as $primaryKey) {
             $keys[] = sprintf('`%s`', $primaryKey->getStorageName());
         }
 
         if (empty($keys)) {
-            throw new \RuntimeException(sprintf('No primary key detected for entity: %s', $definition::getEntityName()));
+            throw new \RuntimeException(sprintf('No primary key detected for entity: %s', $definition->getEntityName()));
         }
 
         return 'PRIMARY KEY (' . implode(',', $keys) . ')';
     }
 
-    private function generateForeignKeys(string $definition): string
+    private function generateForeignKeys(EntityDefinition $definition): string
     {
-        $fields = $definition::getFields()->filter(
+        $fields = $definition->getFields()->filter(
             function (Field $field) {
                 if (!$field instanceof ManyToOneAssociationField) {
                     return false;
@@ -212,16 +211,16 @@ EOL;
             }
         );
 
-        $referenceVersionFields = $definition::getFields()->filterInstance(ReferenceVersionField::class);
+        $referenceVersionFields = $definition->getFields()->filterInstance(ReferenceVersionField::class);
 
         $indices = [];
         $constraints = [];
 
         /** @var ManyToOneAssociationField $field */
         foreach ($fields as $field) {
-            $reference = $field->getReferenceClass();
+            $reference = $field->getReferenceDefinition();
 
-            $hasOneToMany = $definition::getFields()->filter(function (Field $field) use ($reference) {
+            $hasOneToMany = $definition->getFields()->filter(function (Field $field) use ($reference) {
                 if (!$field instanceof OneToManyAssociationField) {
                     return false;
                 }
@@ -229,7 +228,7 @@ EOL;
                     return false;
                 }
 
-                return $field->getReferenceClass() === $reference;
+                return $field->getReferenceDefinition() === $reference;
             })->count() > 0;
 
             $columns = [
@@ -240,12 +239,12 @@ EOL;
                 EntityDefinitionQueryHelper::escape($field->getReferenceField()),
             ];
 
-            if ($reference::isVersionAware()) {
+            if ($reference->isVersionAware()) {
                 $versionField = null;
 
                 /** @var ReferenceVersionField $referenceVersionField */
                 foreach ($referenceVersionFields as $referenceVersionField) {
-                    if ($referenceVersionField->getVersionReference() === $reference) {
+                    if ($referenceVersionField->getVersionReferenceDefinition() === $reference) {
                         $versionField = $referenceVersionField;
                         break;
                     }
@@ -263,7 +262,7 @@ EOL;
             $update = 'CASCADE';
 
             $parameters = [
-                '#entity#' => $definition::getEntityName(),
+                '#entity#' => $definition->getEntityName(),
                 '#column#' => $field->getStorageName(),
                 '#columns#' => implode(',', $columns),
             ];
@@ -285,10 +284,10 @@ EOL;
             }
 
             $parameters = [
-                '#entity#' => $definition::getEntityName(),
+                '#entity#' => $definition->getEntityName(),
                 '#column#' => $field->getStorageName(),
                 '#columns#' => implode(',', $columns),
-                '#refEntity#' => $reference::getEntityName(),
+                '#refEntity#' => $reference->getEntityName(),
                 '#refColumns#' => implode(',', $referenceColumns),
                 '#delete#' => $delete,
                 '#update#' => $update,
@@ -307,9 +306,9 @@ EOL;
         return implode(",\n", array_filter([$indices, $constraints]));
     }
 
-    private function generateJsonChecks(string $definition): string
+    private function generateJsonChecks(EntityDefinition $definition): string
     {
-        $fields = $definition::getFields()->filterInstance(JsonField::class);
+        $fields = $definition->getFields()->filterInstance(JsonField::class);
 
         $template = '    CONSTRAINT `json.#entity#.#column#` CHECK (JSON_VALID(`#column#`))';
         $checks = [];
@@ -317,7 +316,7 @@ EOL;
         /** @var JsonField $field */
         foreach ($fields as $field) {
             $parameters = [
-                '#entity#' => $definition::getEntityName(),
+                '#entity#' => $definition->getEntityName(),
                 '#column#' => $field->getStorageName(),
             ];
 

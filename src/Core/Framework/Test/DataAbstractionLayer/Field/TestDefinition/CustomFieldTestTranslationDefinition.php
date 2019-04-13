@@ -13,12 +13,12 @@ class CustomFieldTestTranslationDefinition extends EntityTranslationDefinition
         return 'attribute_test_translation';
     }
 
-    public static function getParentDefinitionClass(): string
+    protected function getParentDefinitionClass(): string
     {
         return CustomFieldTestDefinition::class;
     }
 
-    protected static function defineFields(): FieldCollection
+    protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
             new CustomFields('custom_translated', 'customTranslated'),

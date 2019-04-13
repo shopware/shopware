@@ -16,6 +16,16 @@ use Shopware\Storefront\Framework\Seo\SeoUrl\SeoUrlDefinition;
 
 class CanonicalUrlAssociationFieldResolver implements FieldResolverInterface
 {
+    /**
+     * @var SeoUrlDefinition
+     */
+    private $seoUrlDefinition;
+
+    public function __construct(SeoUrlDefinition $seoUrlDefinition)
+    {
+        $this->seoUrlDefinition = $seoUrlDefinition;
+    }
+
     public function resolve(
         EntityDefinition $definition,
         string $root,
@@ -35,7 +45,7 @@ class CanonicalUrlAssociationFieldResolver implements FieldResolverInterface
             $salesChannelId = Uuid::fromHexToBytes(Defaults::SALES_CHANNEL);
         }
 
-        $table = SeoUrlDefinition::getEntityName();
+        $table = $this->seoUrlDefinition->getEntityName();
         $alias = $root . '.' . $field->getPropertyName();
 
         if ($query->hasState($alias)) {

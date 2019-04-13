@@ -19,7 +19,7 @@ For the translation concept, you need two classes:
 Your entity definition must override the `getTranslationDefinitionClass()` method and provide a class reference to the translation definition, in this case `ProductTranslationDefinition::class`.
 
 ```php
-public static function getTranslationDefinitionClass(): ?string
+public function getTranslationDefinitionClass(): ?string
 {
     return ProductTranslationDefinition::class;
 }
@@ -56,7 +56,7 @@ The `additionalText` field will now be written to the translation definition ins
 Additionally, your entity translation definition must override the `getParentDefinitionClass` method.
 
 ```php
-public static function getParentDefinitionClass(): string
+protected function getParentDefinitionClass(): string
 {
     return ProductDefinition::class;
 }

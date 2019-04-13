@@ -42,11 +42,9 @@ class EntityHydrator
     private $registry;
 
     public function __construct(
-        FieldSerializerRegistry $fieldHandler,
-        DefinitionInstanceRegistry $registry
+        FieldSerializerRegistry $fieldHandler
     ) {
         $this->fieldHandler = $fieldHandler;
-        $this->registry = $registry;
     }
 
     public function hydrate(string $entity, EntityDefinition $definition, array $rows, string $root, Context $context): array
@@ -63,14 +61,14 @@ class EntityHydrator
 
     private function hydrateEntity(Entity $entity, EntityDefinition $definition, array $row, string $root, Context $context): Entity
     {
-        $fields = $definition::getFields();
+        $fields = $definition->getFields();
 
         $identifier = $this->buildPrimaryKey($definition, $row, $root);
         $identifier = implode('-', $identifier);
 
         $entity->setUniqueIdentifier($identifier);
 
-        $cacheKey = $definition::getEntityName() . '::' . $identifier;
+        $cacheKey = $definition->getEntityName() . '::' . $identifier;
         if (isset($this->objects[$cacheKey])) {
             return $this->objects[$cacheKey];
         }
@@ -200,7 +198,7 @@ class EntityHydrator
 
     private function buildPrimaryKey(EntityDefinition $definition, array $row, string $root): array
     {
-        $primaryKeyFields = $definition::getPrimaryKeys();
+        $primaryKeyFields = $definition->getPrimaryKeys();
         $primaryKey = [];
 
         /** @var Field $field */
@@ -223,9 +221,9 @@ class EntityHydrator
             return null;
         }
 
-        $reference = $this->registry->get($field->getReferenceClass());
+        $reference = $field->getReferenceDefinition();
 
-        $pkField = $reference::getFields()->getByStorageName(
+        $pkField = $reference->getFields()->getByStorageName(
             $field->getReferenceField()
         );
 
@@ -236,7 +234,7 @@ class EntityHydrator
             return null;
         }
 
-        $structClass = $reference::getEntityClass();
+        $structClass = $reference->getEntityClass();
 
         return $this->hydrateEntity(
             new $structClass(),

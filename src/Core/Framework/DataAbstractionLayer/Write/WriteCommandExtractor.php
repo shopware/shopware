@@ -56,7 +56,6 @@ class WriteCommandExtractor
 
     public function extract(array $rawData, WriteParameterBag $parameters): array
     {
-        /* @var EntityDefinition|string $definition */
         $definition = $parameters->getDefinition();
 
         $fields = $this->getFieldsInWriteOrder($definition);
@@ -157,7 +156,7 @@ class WriteCommandExtractor
 
     private function integrateDefaults(EntityDefinition $definition, array $rawData, EntityExistence $existence): array
     {
-        $defaults = $definition::getDefaults($existence);
+        $defaults = $definition->getDefaults($existence);
 
         foreach ($defaults as $key => $value) {
             if (array_key_exists($key, $rawData)) {
@@ -187,7 +186,7 @@ class WriteCommandExtractor
      */
     private function getFieldsInWriteOrder(EntityDefinition $definition): array
     {
-        $fields = $definition::getFields();
+        $fields = $definition->getFields();
 
         $filtered = [];
 

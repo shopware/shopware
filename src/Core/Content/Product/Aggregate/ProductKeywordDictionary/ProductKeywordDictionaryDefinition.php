@@ -20,17 +20,17 @@ class ProductKeywordDictionaryDefinition extends EntityDefinition
         return 'product_keyword_dictionary';
     }
 
-    public static function getCollectionClass(): string
+    public function getCollectionClass(): string
     {
         return ProductKeywordDictionaryCollection::class;
     }
 
-    public static function getEntityClass(): string
+    public function getEntityClass(): string
     {
         return ProductKeywordDictionaryEntity::class;
     }
 
-    protected static function defineFields(): FieldCollection
+    protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
             (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
@@ -43,7 +43,7 @@ class ProductKeywordDictionaryDefinition extends EntityDefinition
         ]);
     }
 
-    protected static function defaultFields(): array
+    protected function defaultFields(): array
     {
         return [];
     }

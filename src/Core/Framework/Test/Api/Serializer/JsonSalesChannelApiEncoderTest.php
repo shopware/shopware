@@ -8,10 +8,13 @@ use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\Api\Exception\UnsupportedEncoderInputException;
 use Shopware\Core\Framework\Api\Serializer\JsonSalesChannelApiEncoder;
+use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\System\User\UserDefinition;
 
 class JsonSalesChannelApiEncoderTest extends TestCase
 {
+    use KernelTestBehaviour;
+
     /**
      * @var JsonSalesChannelApiEncoder
      */
@@ -43,7 +46,7 @@ class JsonSalesChannelApiEncoderTest extends TestCase
     {
         $this->expectException(UnsupportedEncoderInputException::class);
 
-        $this->encoder->encode(ProductDefinition::class, $input, '/sales-channel-api');
+        $this->encoder->encode($this->getContainer()->get(ProductDefinition::class), $input, '/sales-channel-api');
     }
 
     public function testEncodeStruct(): void
@@ -89,7 +92,7 @@ class JsonSalesChannelApiEncoderTest extends TestCase
             'included' => [],
         ];
 
-        $actual = $this->encoder->encode(MediaDefinition::class, $struct, '/api');
+        $actual = $this->encoder->encode($this->getContainer()->get(MediaDefinition::class), $struct, '/api');
         static::assertEquals($expected, json_decode($actual, true));
     }
 
@@ -99,7 +102,7 @@ class JsonSalesChannelApiEncoderTest extends TestCase
         $expected = include __DIR__ . '/fixtures/testBasicWithToOneRelationshipExpectation.php';
         $expected = $this->removeRelationships($expected);
 
-        $actual = $this->encoder->encode(MediaDefinition::class, $struct, '/api');
+        $actual = $this->encoder->encode($this->getContainer()->get(MediaDefinition::class), $struct, '/api');
         static::assertEquals($expected, json_decode($actual, true));
     }
 
@@ -109,7 +112,7 @@ class JsonSalesChannelApiEncoderTest extends TestCase
         $expected = include __DIR__ . '/fixtures/testBasicWithToManyRelationshipsExpectation.php';
         $expected = $this->removeRelationships($expected);
 
-        $actual = $this->encoder->encode(UserDefinition::class, $struct, '/api');
+        $actual = $this->encoder->encode($this->getContainer()->get(UserDefinition::class), $struct, '/api');
 
         static::assertEquals($expected, json_decode($actual, true));
     }
@@ -120,7 +123,7 @@ class JsonSalesChannelApiEncoderTest extends TestCase
         $expected = include __DIR__ . '/fixtures/testCollectionWithToOneRelationshipExpectation.php';
         $expected = $this->removeRelationships($expected);
 
-        $actual = $this->encoder->encode(MediaDefinition::class, $collection, '/api');
+        $actual = $this->encoder->encode($this->getContainer()->get(MediaDefinition::class), $collection, '/api');
         static::assertEquals($expected, json_decode($actual, true));
     }
 
@@ -130,7 +133,7 @@ class JsonSalesChannelApiEncoderTest extends TestCase
         $expected = include __DIR__ . '/fixtures/testMainResourceShouldNotBeInIncludedExpectation.php';
         $expected = $this->removeRelationships($expected);
 
-        $actual = $this->encoder->encode(UserDefinition::class, $struct, '/api');
+        $actual = $this->encoder->encode($this->getContainer()->get(UserDefinition::class), $struct, '/api');
 
         static::assertEquals($expected, json_decode($actual, true));
     }

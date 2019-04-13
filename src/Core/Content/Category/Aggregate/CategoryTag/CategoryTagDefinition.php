@@ -19,12 +19,12 @@ class CategoryTagDefinition extends MappingEntityDefinition
         return 'category_tag';
     }
 
-    public static function isVersionAware(): bool
+    public function isVersionAware(): bool
     {
         return true;
     }
 
-    protected static function defineFields(): FieldCollection
+    protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
             (new FkField('category_id', 'categoryId', CategoryDefinition::class))->addFlags(new PrimaryKey(), new Required()),

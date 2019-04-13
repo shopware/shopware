@@ -29,7 +29,7 @@ namespace Test;
 
 class HumanDefinition extends EntityDefinition
 {
-    public static function getFields(): FieldCollection
+    public function getFields(): FieldCollection
     {
         return new FieldCollection([
             (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
@@ -118,7 +118,7 @@ namespace Test;
 
 class HumanDefinition extends EntityDefinition
 {
-    public static function getFields(): FieldCollection
+    public function getFields(): FieldCollection
     {
         return new FieldCollection([
             (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),

@@ -14,11 +14,15 @@ use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEve
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\Event\NestedEventCollection;
+use Shopware\Core\Framework\Language\LanguageDefinition;
+use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\Cache\Adapter\TagAwareAdapter;
 
 class InvalidateCacheSubscriberTest extends TestCase
 {
+    use KernelTestBehaviour;
+
     public function testInvalidate(): void
     {
         $id = Uuid::randomHex();
@@ -27,29 +31,32 @@ class InvalidateCacheSubscriberTest extends TestCase
 
         $events = new NestedEventCollection([
             new EntityWrittenEvent(
-                ProductDefinition::class,
+                $this->getContainer()->get(ProductDefinition::class),
                 [new EntityWriteResult(
                     $id,
                     ['name' => 'test', 'id' => $id, 'stock' => 15, 'manufacturerId' => $id],
-                    new EntityExistence(ProductDefinition::class, ['id' => $id], true, false, false, [])
+                    $this->getContainer()->get(ProductDefinition::class),
+                    new EntityExistence($this->getContainer()->get(ProductDefinition::class), ['id' => $id], true, false, false, [])
                 )],
                 $context
             ),
             new EntityWrittenEvent(
-                ProductManufacturerDefinition::class,
+                $this->getContainer()->get(ProductManufacturerDefinition::class),
                 [new EntityWriteResult(
                     $id,
                     ['name' => 'test', 'id' => $id, 'active' => true],
-                    new EntityExistence(ProductDefinition::class, ['id' => $id], true, false, false, [])
+                    $this->getContainer()->get(ProductDefinition::class),
+                    new EntityExistence($this->getContainer()->get(ProductDefinition::class), ['id' => $id], true, false, false, [])
                 )],
                 $context
             ),
             new EntityWrittenEvent(
-                ProductCategoryDefinition::class,
+                $this->getContainer()->get(ProductCategoryDefinition::class),
                 [new EntityWriteResult(
                     $id,
                     ['productId' => $id, 'categoryId' => $id],
-                    new EntityExistence(ProductDefinition::class, ['id' => $id], true, false, false, [])
+                    $this->getContainer()->get(ProductDefinition::class),
+                    new EntityExistence($this->getContainer()->get(ProductDefinition::class), ['id' => $id], true, false, false, [])
                 )],
                 $context
             ),
@@ -79,7 +86,7 @@ class InvalidateCacheSubscriberTest extends TestCase
             ->method('invalidateTags')
             ->with($tags);
 
-        $generator = new EntityCacheKeyGenerator();
+        $generator = new EntityCacheKeyGenerator($this->getContainer()->get(LanguageDefinition::class));
         $subscriber = new InvalidateCacheSubscriber($cache, $generator);
 
         $subscriber->entitiesWritten($event);

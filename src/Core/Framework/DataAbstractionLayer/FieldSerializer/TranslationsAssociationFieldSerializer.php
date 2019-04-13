@@ -3,7 +3,7 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer;
 
 use Shopware\Core\Defaults;
-use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityTranslationDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\DecodeByHydratorException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidSerializerFieldException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\MissingSystemTranslationException;
@@ -25,17 +25,10 @@ class TranslationsAssociationFieldSerializer implements FieldSerializerInterface
      */
     protected $writeExtractor;
 
-    /**
-     * @var DefinitionInstanceRegistry
-     */
-    private $registry;
-
     public function __construct(
-        WriteCommandExtractor $writeExtractor,
-        DefinitionInstanceRegistry $registry
+        WriteCommandExtractor $writeExtractor
     ) {
         $this->writeExtractor = $writeExtractor;
-        $this->registry = $registry;
     }
 
     public function getFieldClass(): string
@@ -108,13 +101,15 @@ class TranslationsAssociationFieldSerializer implements FieldSerializerInterface
     ): \Generator {
         $key = $data->getKey();
         $value = $data->getValue();
-        $referenceDefinition = $this->registry->get($field->getReferenceClass());
+
+        /** @var EntityTranslationDefinition $referenceDefinition */
+        $referenceDefinition = $field->getReferenceDefinition();
 
         if (!\is_array($value)) {
             throw new ExpectedArrayException($parameters->getPath() . '/' . $key);
         }
 
-        $languageField = $referenceDefinition::getFields()->getByStorageName($field->getLanguageField());
+        $languageField = $referenceDefinition->getFields()->getByStorageName($field->getLanguageField());
         $languagePropName = $languageField->getPropertyName();
 
         $translations = [];
@@ -159,7 +154,7 @@ class TranslationsAssociationFieldSerializer implements FieldSerializerInterface
         $languageIds = array_keys($translations);
         // the translation in the system language is always required for new entities,
         // if there is at least one required translated field
-        if ($referenceDefinition::hasRequiredField()
+        if ($referenceDefinition->hasRequiredField()
             && !\in_array(Defaults::LANGUAGE_SYSTEM, $languageIds, true)
         ) {
             $path = $parameters->getPath() . '/' . $key . '/' . Defaults::LANGUAGE_SYSTEM;

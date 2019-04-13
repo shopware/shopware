@@ -3,11 +3,11 @@
 namespace Shopware\Core\Framework\Api\Route;
 
 use Shopware\Core\Framework\Api\Controller\ApiController;
-use Shopware\Core\Framework\DataAbstractionLayer\DefinitionRegistry;
+use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityTranslationDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\SalesChannelDefinitionInstanceRegistry;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelApiController;
-use Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionRegistry;
 use Symfony\Component\Config\Loader\Loader;
 use Symfony\Component\Routing\Route;
 use Symfony\Component\Routing\RouteCollection;
@@ -18,13 +18,13 @@ class ApiRouteLoader extends Loader
 
     private $isLoaded = false;
     /**
-     * @var SalesChannelDefinitionRegistry
+     * @var SalesChannelDefinitionInstanceRegistry
      */
     private $salesChannelDefinitionRegistry;
 
     public function __construct(
-        DefinitionRegistry $definitionRegistry,
-        SalesChannelDefinitionRegistry $salesChannelDefinitionRegistry
+        DefinitionInstanceRegistry $definitionRegistry,
+        SalesChannelDefinitionInstanceRegistry $salesChannelDefinitionRegistry
     ) {
         $this->definitionRegistry = $definitionRegistry;
         $this->salesChannelDefinitionRegistry = $salesChannelDefinitionRegistry;
@@ -37,6 +37,60 @@ class ApiRouteLoader extends Loader
         }
 
         $routes = new RouteCollection();
+
+        $this->loadAdminRoutes($routes);
+
+        $this->loadSalesChannelRoutes($routes);
+
+        $this->isLoaded = true;
+
+        return $routes;
+    }
+
+    public function supports($resource, $type = null): bool
+    {
+        return $type === 'api';
+    }
+
+    private function loadSalesChannelRoutes(RouteCollection $routes): void
+    {
+        $class = SalesChannelApiController::class;
+
+        $elements = $this->salesChannelDefinitionRegistry->getSalesChannelDefinitions();
+        usort($elements, function (EntityDefinition $a, EntityDefinition $b) {
+            return $a->getEntityName() <=> $b->getEntityName();
+        });
+
+        /** @var EntityDefinition $definition */
+        foreach ($elements as $definition) {
+            $entityName = $definition->getEntityName();
+            $resourceName = str_replace('_', '-', $definition->getEntityName());
+
+            $route = new Route('/sales-channel-api/v{version}/' . $resourceName . '/{id}');
+            $route->setMethods(['GET']);
+            $route->setDefault('_controller', $class . '::detail');
+            $route->setDefault('entity', $resourceName);
+            $route->addRequirements(['version' => '\d+']);
+            $routes->add('sales-channel-api.' . $entityName . '.detail', $route);
+
+            $route = new Route('/sales-channel-api/v{version}/search-ids/' . $resourceName);
+            $route->setMethods(['POST']);
+            $route->setDefault('_controller', $class . '::searchIds');
+            $route->setDefault('entity', $resourceName);
+            $route->addRequirements(['version' => '\d+']);
+            $routes->add('sales-channel-api.' . $entityName . '.search-ids', $route);
+
+            $route = new Route('/sales-channel-api/v{version}/' . $resourceName);
+            $route->setMethods(['POST', 'GET']);
+            $route->setDefault('_controller', $class . '::search');
+            $route->setDefault('entity', $resourceName);
+            $route->addRequirements(['version' => '\d+']);
+            $routes->add('sales-channel-api.' . $entityName . '.search', $route);
+        }
+    }
+
+    private function loadAdminRoutes(RouteCollection $routes): void
+    {
         $class = ApiController::class;
 
         // uuid followed by any number of '/{entity-name}/{uuid}' pairs followed by an optional slash
@@ -46,19 +100,17 @@ class ApiRouteLoader extends Loader
         $listSuffix = '(\/[0-9a-f]{32}\/[a-zA-Z-]+)*\/?$';
 
         $elements = $this->definitionRegistry->getDefinitions();
-        usort($elements, function ($a, $b) {
-            /* @var string|EntityDefinition $a */
-            /* @var string|EntityDefinition $b */
-            return $a::getEntityName() <=> $b::getEntityName();
+        usort($elements, function (EntityDefinition $a, EntityDefinition $b) {
+            return $a->getEntityName() <=> $b->getEntityName();
         });
 
-        /** @var string|EntityDefinition $definition */
+        /** @var EntityDefinition $definition */
         foreach ($elements as $definition) {
             if (is_subclass_of($definition, EntityTranslationDefinition::class)) {
                 continue;
             }
-            $entityName = $definition::getEntityName();
-            $resourceName = str_replace('_', '-', $definition::getEntityName());
+            $entityName = $definition->getEntityName();
+            $resourceName = str_replace('_', '-', $definition->getEntityName());
 
             // detail routes
             $route = new Route('/api/v{version}/' . $resourceName . '/{path}');
@@ -111,50 +163,5 @@ class ApiRouteLoader extends Loader
             $route->addRequirements(['path' => $listSuffix, 'version' => '\d+']);
             $routes->add('api.' . $entityName . '.create', $route);
         }
-
-        $class = SalesChannelApiController::class;
-
-        $elements = $this->salesChannelDefinitionRegistry->getDefinitions();
-        usort($elements, function ($a, $b) {
-            /* @var string|EntityDefinition $a */
-            /* @var string|EntityDefinition $b */
-            return $a::getEntityName() <=> $b::getEntityName();
-        });
-
-        /** @var string|EntityDefinition $definition */
-        foreach ($elements as $definition) {
-            $entityName = $definition::getEntityName();
-            $resourceName = str_replace('_', '-', $definition::getEntityName());
-
-            $route = new Route('/sales-channel-api/v{version}/' . $resourceName . '/{id}');
-            $route->setMethods(['GET']);
-            $route->setDefault('_controller', $class . '::detail');
-            $route->setDefault('entity', $resourceName);
-            $route->addRequirements(['version' => '\d+']);
-            $routes->add('sales-channel-api.' . $entityName . '.detail', $route);
-
-            $route = new Route('/sales-channel-api/v{version}/search-ids/' . $resourceName);
-            $route->setMethods(['POST']);
-            $route->setDefault('_controller', $class . '::searchIds');
-            $route->setDefault('entity', $resourceName);
-            $route->addRequirements(['version' => '\d+']);
-            $routes->add('sales-channel-api.' . $entityName . '.search-ids', $route);
-
-            $route = new Route('/sales-channel-api/v{version}/' . $resourceName);
-            $route->setMethods(['POST', 'GET']);
-            $route->setDefault('_controller', $class . '::search');
-            $route->setDefault('entity', $resourceName);
-            $route->addRequirements(['version' => '\d+']);
-            $routes->add('sales-channel-api.' . $entityName . '.search', $route);
-        }
-
-        $this->isLoaded = true;
-
-        return $routes;
-    }
-
-    public function supports($resource, $type = null): bool
-    {
-        return $type === 'api';
     }
 }

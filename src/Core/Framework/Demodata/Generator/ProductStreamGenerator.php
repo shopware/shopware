@@ -19,10 +19,15 @@ class ProductStreamGenerator implements DemodataGeneratorInterface
      * @var EntityWriterInterface
      */
     private $writer;
+    /**
+     * @var ProductStreamDefinition
+     */
+    private $productStreamDefinition;
 
-    public function __construct(EntityWriterInterface $writer)
+    public function __construct(EntityWriterInterface $writer, ProductStreamDefinition $productStreamDefinition)
     {
         $this->writer = $writer;
+        $this->productStreamDefinition = $productStreamDefinition;
     }
 
     public function getDefinition(): string
@@ -74,7 +79,7 @@ class ProductStreamGenerator implements DemodataGeneratorInterface
             ];
         }
 
-        $this->writer->insert(new ProductStreamDefinition(), $payload, WriteContext::createFromContext($context->getContext()));
+        $this->writer->insert($this->productStreamDefinition, $payload, WriteContext::createFromContext($context->getContext()));
 
         $context->add(ProductStreamDefinition::class, ...array_column($payload, 'id'));
 

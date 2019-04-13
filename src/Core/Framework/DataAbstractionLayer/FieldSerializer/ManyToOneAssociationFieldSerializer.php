@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer;
 
-use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\DecodeByHydratorException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidSerializerFieldException;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
@@ -21,17 +20,11 @@ class ManyToOneAssociationFieldSerializer implements FieldSerializerInterface
      * @var WriteCommandExtractor
      */
     protected $writeExtractor;
-    /**
-     * @var DefinitionInstanceRegistry
-     */
-    private $registry;
 
     public function __construct(
-        WriteCommandExtractor $writeExtractor,
-        DefinitionInstanceRegistry $registry
+        WriteCommandExtractor $writeExtractor
     ) {
         $this->writeExtractor = $writeExtractor;
-        $this->registry = $registry;
     }
 
     public function getFieldClass(): string
@@ -53,7 +46,7 @@ class ManyToOneAssociationFieldSerializer implements FieldSerializerInterface
             throw new ExpectedArrayException($parameters->getPath());
         }
 
-        $referenceField = $field->getReferenceClass()::getFields()->getByStorageName($field->getReferenceField());
+        $referenceField = $field->getReferenceDefinition()->getFields()->getByStorageName($field->getReferenceField());
         $value = $data->getValue();
         if (isset($value[$referenceField->getPropertyName()])) {
             $id = $value[$referenceField->getPropertyName()];
@@ -65,12 +58,12 @@ class ManyToOneAssociationFieldSerializer implements FieldSerializerInterface
         $this->writeExtractor->extract(
             $value,
             $parameters->cloneForSubresource(
-                $this->registry->get($field->getReferenceClass()),
+                $field->getReferenceDefinition(),
                 $parameters->getPath() . '/' . $data->getKey()
             )
         );
 
-        $fkField = $parameters->getDefinition()::getFields()->getByStorageName($field->getStorageName());
+        $fkField = $parameters->getDefinition()->getFields()->getByStorageName($field->getStorageName());
 
         /* @var FkField $fkField */
         yield $fkField->getPropertyName() => $id;

@@ -23,7 +23,7 @@ class DeleteCascadeParentDefinition extends EntityDefinition
         return 'delete_cascade_parent';
     }
 
-    protected static function defineFields(): FieldCollection
+    protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
             (new IdField('id', 'id'))->addFlags(new PrimaryKey()),
@@ -46,7 +46,7 @@ class DeleteCascadeChildDefinition extends EntityDefinition
         return 'delete_cascade_child';
     }
 
-    protected static function defineFields(): FieldCollection
+    protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
             (new IdField('id', 'id'))->addFlags(new PrimaryKey()),
@@ -67,7 +67,7 @@ class DeleteCascadeManyToOneDefinition extends EntityDefinition
         return 'delete_cascade_many_to_one';
     }
 
-    protected static function defineFields(): FieldCollection
+    protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
             (new IdField('id', 'id'))->addFlags(new PrimaryKey()),

@@ -10,19 +10,22 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\ContainsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Parser\QueryStringParser;
+use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 
 class QueryStringParserTest extends TestCase
 {
+    use KernelTestBehaviour;
+
     public function testWithUnsupportedFormat(): void
     {
         $this->expectException(InvalidFilterQueryException::class);
-        QueryStringParser::fromArray(ProductDefinition::class, ['type' => 'foo'], new SearchRequestException());
+        QueryStringParser::fromArray($this->getContainer()->get(ProductDefinition::class), ['type' => 'foo'], new SearchRequestException());
     }
 
     public function testInvalidParameters(): void
     {
         $this->expectException(InvalidFilterQueryException::class);
-        QueryStringParser::fromArray(ProductDefinition::class, ['foo' => 'bar'], new SearchRequestException());
+        QueryStringParser::fromArray($this->getContainer()->get(ProductDefinition::class), ['foo' => 'bar'], new SearchRequestException());
     }
 
     /**
@@ -35,7 +38,7 @@ class QueryStringParserTest extends TestCase
         }
 
         /** @var EqualsFilter $result */
-        $result = QueryStringParser::fromArray(ProductDefinition::class, $filter, new SearchRequestException());
+        $result = QueryStringParser::fromArray($this->getContainer()->get(ProductDefinition::class), $filter, new SearchRequestException());
 
         static::assertInstanceOf(EqualsFilter::class, $result);
 
@@ -68,7 +71,7 @@ class QueryStringParserTest extends TestCase
         }
 
         /** @var EqualsFilter $result */
-        $result = QueryStringParser::fromArray(ProductDefinition::class, $filter, new SearchRequestException());
+        $result = QueryStringParser::fromArray($this->getContainer()->get(ProductDefinition::class), $filter, new SearchRequestException());
 
         static::assertInstanceOf(ContainsFilter::class, $result);
 
@@ -101,7 +104,7 @@ class QueryStringParserTest extends TestCase
         }
 
         /** @var EqualsAnyFilter $result */
-        $result = QueryStringParser::fromArray(ProductDefinition::class, $filter, new SearchRequestException());
+        $result = QueryStringParser::fromArray($this->getContainer()->get(ProductDefinition::class), $filter, new SearchRequestException());
 
         static::assertInstanceOf(EqualsAnyFilter::class, $result);
 

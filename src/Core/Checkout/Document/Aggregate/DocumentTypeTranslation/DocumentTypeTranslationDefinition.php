@@ -16,17 +16,17 @@ class DocumentTypeTranslationDefinition extends EntityTranslationDefinition
         return 'document_type_translation';
     }
 
-    public static function getEntityClass(): string
+    public function getEntityClass(): string
     {
         return DocumentTypeTranslationEntity::class;
     }
 
-    public static function getParentDefinitionClass(): string
+    public function getParentDefinitionClass(): string
     {
         return DocumentTypeDefinition::class;
     }
 
-    protected static function defineFields(): FieldCollection
+    protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
             (new StringField('name', 'name'))->setFlags(new Required()),

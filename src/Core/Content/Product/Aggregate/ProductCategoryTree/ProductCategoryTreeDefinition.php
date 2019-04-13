@@ -19,12 +19,12 @@ class ProductCategoryTreeDefinition extends MappingEntityDefinition
         return 'product_category_tree';
     }
 
-    public static function isVersionAware(): bool
+    public function isVersionAware(): bool
     {
         return true;
     }
 
-    protected static function defineFields(): FieldCollection
+    protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
             (new FkField('product_id', 'productId', ProductDefinition::class))->addFlags(new PrimaryKey(), new Required()),

@@ -15,6 +15,7 @@
         <service id="Shopware\Core\Framework\Demodata\DemodataService">
             <argument type="tagged" tag="shopware.demodata_generator" />
             <argument>%kernel.project_dir%</argument>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
         </service>
 
         <!-- Generators -->
@@ -23,6 +24,7 @@
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriter" />
             <argument type="service" id="payment_method.repository"/>
             <argument type="service" id="shipping_method.repository"/>
+            <argument type="service" id="Shopware\Core\Content\Rule\RuleDefinition"/>
             <tag name="shopware.demodata_generator" />
         </service>
 
@@ -31,6 +33,7 @@
             <argument type="service" id="Doctrine\DBAL\Connection" />
             <argument type="service" id="customer_group.repository" />
             <argument type="service" id="Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInterface" />
+            <argument type="service" id="Shopware\Core\Checkout\Customer\CustomerDefinition"/>
             <tag name="shopware.demodata_generator"/>
         </service>
 
@@ -53,6 +56,7 @@
 
         <service id="Shopware\Core\Framework\Demodata\Generator\ProductManufacturerGenerator">
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriter" />
+            <argument type="service" id="Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerDefinition" />
             <tag name="shopware.demodata_generator"/>
         </service>
 
@@ -65,6 +69,7 @@
             <argument type="service" id="Shopware\Core\Content\Media\File\FileNameProvider" />
             <argument type="service" id="Doctrine\DBAL\Connection" />
             <argument type="service" id="Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInterface" />
+            <argument type="service" id="Shopware\Core\Content\Product\ProductDefinition" />
             <tag name="shopware.demodata_generator"/>
         </service>
 
@@ -72,11 +77,13 @@
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriter" />
             <argument type="service" id="Shopware\Core\Content\Media\File\FileSaver" />
             <argument type="service" id="Shopware\Core\Content\Media\File\FileNameProvider" />
+            <argument type="service" id="Shopware\Core\Content\Media\MediaDefinition" />
             <tag name="shopware.demodata_generator"/>
         </service>
 
         <service id="Shopware\Core\Framework\Demodata\Generator\ProductStreamGenerator">
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriter" />
+            <argument type="service" id="Shopware\Core\Content\ProductStream\ProductStreamDefinition" />
             <tag name="shopware.demodata_generator"/>
         </service>
 
@@ -86,6 +93,7 @@
             <argument type="service" id="Shopware\Core\Checkout\Cart\SalesChannel\CartService" />
             <argument type="service" id="Shopware\Core\Checkout\Cart\Order\OrderConverter" />
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriter" />
+            <argument type="service" id="Shopware\Core\Checkout\Order\OrderDefinition" />
             <tag name="shopware.demodata_generator"/>
         </service>
 
@@ -100,18 +108,20 @@
         <service id="Shopware\Core\Framework\Demodata\Generator\CustomFieldGenerator">
             <argument type="service" id="custom_field_set.repository"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionRegistry"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
             <tag name="shopware.demodata_generator" />
         </service>
 
         <service id="Shopware\Core\Framework\Demodata\Generator\MailTemplateGenerator">
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriter" />
             <argument type="service" id="mail_template_type.repository" />
+            <argument type="service" id="Shopware\Core\Content\MailTemplate\MailTemplateDefinition" />
             <tag name="shopware.demodata_generator"/>
         </service>
 
         <service id="Shopware\Core\Framework\Demodata\Generator\MailHeaderFooterGenerator">
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriter" />
+            <argument type="service" id="Shopware\Core\Content\MailTemplate\Aggregate\MailHeaderFooter\MailHeaderFooterDefinition" />
             <tag name="shopware.demodata_generator"/>
         </service>
     </services>

@@ -2,8 +2,7 @@
 
 namespace Shopware\Core\Framework\DependencyInjection\CompilerPass;
 
-use Shopware\Core\Framework\DataAbstractionLayer\DefinitionRegistry;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntityAggregatorInterface;
@@ -24,15 +23,25 @@ class EntityCompilerPass implements CompilerPassInterface
 
     private function collectDefinitions(ContainerBuilder $container): void
     {
-        $classes = [];
-        $services = array_keys($container->findTaggedServiceIds('shopware.entity.definition'));
+        $entityNameMap = [];
+        $repositoryNameMap = [];
+        $services = $container->findTaggedServiceIds('shopware.entity.definition');
 
-        /** @var string|EntityDefinition $serviceId */
-        foreach ($services as $serviceId) {
+        /** @var string $serviceId */
+        foreach ($services as $serviceId => $tag) {
             $service = $container->getDefinition($serviceId);
-            $entity = $serviceId::getEntityName();
 
+            if (!isset($tag[0]['entity'])) {
+                throw new \RuntimeException(sprintf('Malformed configuration found for "%s"', $serviceId));
+            }
+
+            $service->addMethodCall('compile', [
+                new Reference(DefinitionInstanceRegistry::class),
+            ]);
             $service->setPublic(true);
+
+            $entity = $tag[0]['entity'];
+            $entityNameMap[$entity] = $serviceId;
 
             $repositoryId = $entity . '.repository';
             try {
@@ -53,11 +62,11 @@ class EntityCompilerPass implements CompilerPassInterface
 
                 $container->setDefinition($repositoryId, $repository);
             }
-
-            $classes[$serviceId] = $repositoryId;
+            $repositoryNameMap[$entity] = $repositoryId;
         }
 
-        $registry = $container->getDefinition(DefinitionRegistry::class);
-        $registry->replaceArgument(0, $classes);
+        $definitionRegistry = $container->getDefinition(DefinitionInstanceRegistry::class);
+        $definitionRegistry->replaceArgument(1, $entityNameMap);
+        $definitionRegistry->replaceArgument(2, $repositoryNameMap);
     }
 }

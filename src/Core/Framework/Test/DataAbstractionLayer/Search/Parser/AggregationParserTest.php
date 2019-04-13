@@ -10,15 +10,18 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\AvgAggregati
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\MaxAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Parser\AggregationParser;
+use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 
 class AggregationParserTest extends TestCase
 {
+    use KernelTestBehaviour;
+
     public function testWithUnsupportedFormat(): void
     {
         $this->expectException(InvalidAggregationQueryException::class);
         $criteria = new Criteria();
         AggregationParser::buildAggregations(
-            ProductDefinition::class,
+            $this->getContainer()->get(ProductDefinition::class),
             ['aggregations' => 'foo'],
             $criteria,
             new SearchRequestException()
@@ -30,7 +33,7 @@ class AggregationParserTest extends TestCase
         $criteria = new Criteria();
         $exception = new SearchRequestException();
         AggregationParser::buildAggregations(
-            ProductDefinition::class,
+            $this->getContainer()->get(ProductDefinition::class),
             [
                 'aggregations' => [
                     [
@@ -67,7 +70,7 @@ class AggregationParserTest extends TestCase
         $criteria = new Criteria();
         $exception = new SearchRequestException();
         AggregationParser::buildAggregations(
-            ProductDefinition::class,
+            $this->getContainer()->get(ProductDefinition::class),
             [
                 'aggregations' => [
                     [
@@ -104,7 +107,7 @@ class AggregationParserTest extends TestCase
         $criteria = new Criteria();
         $exception = new SearchRequestException();
         AggregationParser::buildAggregations(
-            ProductDefinition::class,
+            $this->getContainer()->get(ProductDefinition::class),
             [
                 'aggregations' => [
                     [

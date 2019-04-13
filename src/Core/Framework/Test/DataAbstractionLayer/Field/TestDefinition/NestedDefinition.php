@@ -19,7 +19,7 @@ class NestedDefinition extends EntityDefinition
         return '_test_nullable';
     }
 
-    protected static function defineFields(): FieldCollection
+    protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
             (new IdField('id', 'id'))->addFlags(new Required(), new PrimaryKey()),

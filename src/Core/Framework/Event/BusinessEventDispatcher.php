@@ -29,12 +29,17 @@ class BusinessEventDispatcher implements EventDispatcherInterface
      * @var EntityReaderInterface
      */
     private $reader;
+    /**
+     * @var EventActionDefinition
+     */
+    private $eventActionDefinition;
 
-    public function __construct(EventDispatcherInterface $dispatcher, EntitySearcherInterface $searcher, EntityReaderInterface $reader)
+    public function __construct(EventDispatcherInterface $dispatcher, EntitySearcherInterface $searcher, EntityReaderInterface $reader, EventActionDefinition $eventActionDefinition)
     {
         $this->dispatcher = $dispatcher;
         $this->searcher = $searcher;
         $this->reader = $reader;
+        $this->eventActionDefinition = $eventActionDefinition;
     }
 
     public function dispatch($eventName, ?Event $event = null)
@@ -88,10 +93,10 @@ class BusinessEventDispatcher implements EventDispatcherInterface
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('event_action.eventName', $eventName));
 
-        $actionIds = $this->searcher->search(EventActionDefinition::class, $criteria, $context);
+        $actionIds = $this->searcher->search($this->eventActionDefinition, $criteria, $context);
 
         /** @var EventActionCollection $actions */
-        $actions = $this->reader->read(EventActionDefinition::class, new Criteria($actionIds->getIds()), $context);
+        $actions = $this->reader->read($this->eventActionDefinition, new Criteria($actionIds->getIds()), $context);
 
         return $actions;
     }

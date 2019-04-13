@@ -11,22 +11,22 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 
 class DeliveryTimeTranslationDefinition extends EntityTranslationDefinition
 {
-    public static function getParentDefinitionClass(): string
-    {
-        return DeliveryTimeDefinition::class;
-    }
-
     public function getEntityName(): string
     {
         return 'delivery_time_translation';
     }
 
-    public static function getEntityClass(): string
+    public function getEntityClass(): string
     {
         return DeliveryTimeTranslationEntity::class;
     }
 
-    protected static function defineFields(): FieldCollection
+    protected function getParentDefinitionClass(): string
+    {
+        return DeliveryTimeDefinition::class;
+    }
+
+    protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
             (new StringField('name', 'name'))->addFlags(new Required()),

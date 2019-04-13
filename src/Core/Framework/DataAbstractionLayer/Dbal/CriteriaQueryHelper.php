@@ -15,13 +15,13 @@ trait CriteriaQueryHelper
 {
     protected function buildQueryByCriteria(QueryBuilder $query, EntityDefinitionQueryHelper $queryHelper, SqlQueryParser $parser, EntityDefinition $definition, Criteria $criteria, Context $context): QueryBuilder
     {
-        $table = $definition::getEntityName();
+        $table = $definition->getEntityName();
 
         $query = $queryHelper->getBaseQuery($query, $definition, $context);
 
-        if ($definition::isInheritanceAware() && $context->considerInheritance()) {
-            $parent = $definition::getFields()->get('parent');
-            $queryHelper->resolveField($parent, $definition, $definition::getEntityName(), $query, $context);
+        if ($definition->isInheritanceAware() && $context->considerInheritance()) {
+            $parent = $definition->getFields()->get('parent');
+            $queryHelper->resolveField($parent, $definition, $definition->getEntityName(), $query, $context);
         }
 
         $fields = $this->getFieldsByCriteria($criteria);
@@ -70,7 +70,7 @@ trait CriteriaQueryHelper
         $queries = $parser->parseRanking(
             $criteria->getQueries(),
             $definition,
-            $definition::getEntityName(),
+            $definition->getEntityName(),
             $context
         );
         if (empty($queries->getWheres())) {
@@ -113,7 +113,7 @@ trait CriteriaQueryHelper
                 continue;
             }
 
-            $accessor = $queryHelper->getFieldAccessor($sorting->getField(), $definition, $definition::getEntityName(), $context);
+            $accessor = $queryHelper->getFieldAccessor($sorting->getField(), $definition, $definition->getEntityName(), $context);
 
             if ($sorting->getNaturalSorting()) {
                 $query->addOrderBy('LENGTH(' . $accessor . ')', $sorting->getDirection());

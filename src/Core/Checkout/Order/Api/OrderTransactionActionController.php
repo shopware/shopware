@@ -30,13 +30,19 @@ class OrderTransactionActionController extends AbstractController
      * @var StateMachineRegistry
      */
     protected $stateMachineRegistry;
+    /**
+     * @var OrderTransactionDefinition
+     */
+    private $orderTransactionDefinition;
 
     public function __construct(
         EntityRepositoryInterface $orderTransactionRepository,
-        StateMachineRegistry $stateMachineRegistry
+        StateMachineRegistry $stateMachineRegistry,
+        OrderTransactionDefinition $orderTransactionDefinition
     ) {
         $this->orderTransactionRepository = $orderTransactionRepository;
         $this->stateMachineRegistry = $stateMachineRegistry;
+        $this->orderTransactionDefinition = $orderTransactionDefinition;
     }
 
     /**
@@ -80,7 +86,7 @@ class OrderTransactionActionController extends AbstractController
 
         $toPlace = $this->stateMachineRegistry->transition($this->stateMachineRegistry->getStateMachine(OrderTransactionStates::STATE_MACHINE, $context),
             $transaction->getStateMachineState(),
-            OrderTransactionDefinition::getEntityName(),
+            $this->orderTransactionDefinition->getEntityName(),
             $transaction->getId(),
             $context,
             $transition);
@@ -93,7 +99,7 @@ class OrderTransactionActionController extends AbstractController
         $transaction->setStateMachineState($toPlace);
         $transaction->setStateId($toPlace->getId());
 
-        return $responseFactory->createDetailResponse($transaction, OrderTransactionDefinition::class, $request, $context);
+        return $responseFactory->createDetailResponse($transaction, $this->orderTransactionDefinition, $request, $context);
     }
 
     /**
@@ -105,7 +111,7 @@ class OrderTransactionActionController extends AbstractController
         $result = $this->orderTransactionRepository->search(new Criteria([$id]), $context);
 
         if ($result->count() === 0) {
-            throw new ResourceNotFoundException(OrderTransactionDefinition::getEntityName(), ['id' => $id]);
+            throw new ResourceNotFoundException($this->orderTransactionDefinition->getEntityName(), ['id' => $id]);
         }
 
         return $result->first();

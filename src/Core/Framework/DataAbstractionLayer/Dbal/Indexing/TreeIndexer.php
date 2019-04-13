@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
-use Shopware\Core\Framework\DataAbstractionLayer\DefinitionRegistry;
+use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
@@ -26,7 +26,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 class TreeIndexer implements IndexerInterface
 {
     /**
-     * @var DefinitionRegistry
+     * @var DefinitionInstanceRegistry
      */
     private $definitionRegistry;
 
@@ -58,7 +58,7 @@ class TreeIndexer implements IndexerInterface
     public function __construct(
         Connection $connection,
         EventDispatcherInterface $eventDispatcher,
-        DefinitionRegistry $definitionRegistry,
+        DefinitionInstanceRegistry $definitionRegistry,
         EntityCacheKeyGenerator $cacheKeyGenerator,
         TagAwareAdapter $cache,
         IteratorFactory $iteratorFactory
@@ -75,13 +75,13 @@ class TreeIndexer implements IndexerInterface
     {
         $context = Context::createDefaultContext();
 
-        /** @var EntityDefinition|string $definition */
+        /** @var EntityDefinition $definition */
         foreach ($this->definitionRegistry->getDefinitions() as $definition) {
-            if (!$definition::isTreeAware()) {
+            if (!$definition->isTreeAware()) {
                 continue;
             }
 
-            $entityName = $definition::getEntityName();
+            $entityName = $definition->getEntityName();
             $iterator = $this->iteratorFactory->createIterator($definition);
 
             $this->eventDispatcher->dispatch(
@@ -111,7 +111,7 @@ class TreeIndexer implements IndexerInterface
         foreach ($event->getEvents() as $nested) {
             $definition = $nested->getDefinition();
 
-            if ($definition::isTreeAware()) {
+            if ($definition->isTreeAware()) {
                 $this->updateIds($nested->getIds(), $definition, $nested->getContext());
             }
         }
@@ -165,7 +165,7 @@ class TreeIndexer implements IndexerInterface
         Context $context
     ): array {
         $query = $this->connection->createQueryBuilder();
-        $escaped = EntityDefinitionQueryHelper::escape($definition::getEntityName());
+        $escaped = EntityDefinitionQueryHelper::escape($definition->getEntityName());
         $query->from($escaped);
 
         $query->select($this->getFieldsToSelect($definition));
@@ -176,14 +176,14 @@ class TreeIndexer implements IndexerInterface
         return $query->execute()->fetchAll();
     }
 
-    private function updateTree(array $entity, $definition, Context $context): string
+    private function updateTree(array $entity, EntityDefinition $definition, Context $context): string
     {
         $query = $this->connection->createQueryBuilder();
-        $escaped = EntityDefinitionQueryHelper::escape($definition::getEntityName());
+        $escaped = EntityDefinitionQueryHelper::escape($definition->getEntityName());
         $query->update($escaped);
 
         /** @var TreePathField $pathField */
-        foreach ($definition::getFields()->filterInstance(TreePathField::class) as $pathField) {
+        foreach ($definition->getFields()->filterInstance(TreePathField::class) as $pathField) {
             $path = 'null';
 
             if (array_key_exists('parent', $entity)) {
@@ -194,7 +194,7 @@ class TreeIndexer implements IndexerInterface
         }
 
         /** @var TreeLevelField $field */
-        foreach ($definition::getFields()->filterInstance(TreeLevelField::class) as $field) {
+        foreach ($definition->getFields()->filterInstance(TreeLevelField::class) as $field) {
             $level = 1;
 
             if (array_key_exists('parent', $entity)) {
@@ -244,7 +244,7 @@ class TreeIndexer implements IndexerInterface
         $result['parentCount'] = 1;
 
         if ($result['parent_id']) {
-            if ($definition::isVersionAware()) {
+            if ($definition->isVersionAware()) {
                 $versionId = $result['parent_version_id'];
             }
             $result['parent'] = $this->loadParents($result['parent_id'], $definition, $versionId);
@@ -254,16 +254,16 @@ class TreeIndexer implements IndexerInterface
         return $result;
     }
 
-    private function getFieldsToSelect($definition): array
+    private function getFieldsToSelect(EntityDefinition $definition): array
     {
         $fields = ['id', 'parent_id'];
 
-        if ($definition::isVersionAware()) {
+        if ($definition->isVersionAware()) {
             $fields[] = 'version_id';
             $fields[] = 'parent_version_id';
         }
 
-        $fields = $definition::getFields()
+        $fields = $definition->getFields()
             ->filterInstance(TreePathField::class)
             ->reduce(function (array $fields, TreePathField $field) {
                 if (!in_array($field->getPathField(), $fields, true)) {
@@ -276,18 +276,18 @@ class TreeIndexer implements IndexerInterface
         return $fields;
     }
 
-    private function makeQueryVersionAware($definition, string $versionId, QueryBuilder $query): void
+    private function makeQueryVersionAware(EntityDefinition $definition, string $versionId, QueryBuilder $query): void
     {
-        if ($definition::isVersionAware()) {
+        if ($definition->isVersionAware()) {
             $query->andWhere('version_id = :versionId');
             $query->setParameter('versionId', $versionId);
         }
     }
 
-    private function getEntityByIdQuery(string $parentId, $definition): QueryBuilder
+    private function getEntityByIdQuery(string $parentId, EntityDefinition $definition): QueryBuilder
     {
         $query = $this->connection->createQueryBuilder();
-        $escaped = EntityDefinitionQueryHelper::escape($definition::getEntityName());
+        $escaped = EntityDefinitionQueryHelper::escape($definition->getEntityName());
 
         $query->from($escaped);
 

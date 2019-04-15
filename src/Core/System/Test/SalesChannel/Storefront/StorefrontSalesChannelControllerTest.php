@@ -289,6 +289,22 @@ class StorefrontSalesChannelControllerTest extends TestCase
         static::fail('Unable to find payment method');
     }
 
+    public function testGetSalutations(): void
+    {
+        $this->getStorefrontClient()->request('GET', '/storefront-api/v1/salutation');
+        $response = $this->getStorefrontClient()->getResponse();
+        static::assertEquals(200, $response->getStatusCode());
+
+        $content = json_decode($response->getContent(), true);
+
+        static::assertGreaterThanOrEqual(5, count($content['data']));
+        static::assertCount($content['total'], $content['data']);
+
+        foreach ($content['data'] as $salutation) {
+            static::assertArrayHasKey('salutationKey', $salutation);
+        }
+    }
+
     private function sortById(&$array): void
     {
         usort($array, function ($a, $b) {

@@ -12,6 +12,8 @@ use Shopware\Core\Framework\Plugin\PluginLifecycleService;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
+use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Input\StringInput;
 use Symfony\Component\Console\Output\NullOutput;
 use Symfony\Component\Console\Style\SymfonyStyle;
@@ -38,19 +40,6 @@ abstract class AbstractPluginLifecycleCommand extends Command
         $this->pluginRepo = $pluginRepo;
     }
 
-    /**
-     * @return string[]
-     */
-    public function formatPluginList(PluginCollection $plugins): array
-    {
-        $pluginList = [];
-        foreach ($plugins as $plugin) {
-            $pluginList[] = sprintf('%s (v%s)', $plugin->getLabel(), $plugin->getVersion());
-        }
-
-        return $pluginList;
-    }
-
     protected function configureCommand(string $lifecycleMethod): void
     {
         $this
@@ -60,20 +49,36 @@ abstract class AbstractPluginLifecycleCommand extends Command
                 'plugins',
                 InputArgument::REQUIRED | InputArgument::IS_ARRAY,
                 'List of plugins'
+            )
+            ->addOption(
+                'refresh',
+                'r',
+                InputOption::VALUE_NONE,
+                'Use this option to refresh the plugins before executing the command'
             );
     }
 
     protected function prepareExecution(
         string $lifecycleMethod,
         SymfonyStyle $io,
-        array $pluginsArgument,
+        InputInterface $input,
         Context $context
     ): PluginCollection {
         $io->title('Shopware Plugin Lifecycle Service');
-        $io->note('Refreshing plugin list');
-        $this->refreshPlugins();
 
-        $plugins = $this->parsePluginArgument($pluginsArgument, $context);
+        $plugins = $this->parsePluginArgument($input->getArgument('plugins'), $context);
+
+        if ($plugins->count() === 0) {
+            $io->warning('No plugins found');
+            $io->text('Try the plugin:refresh command first, or change your search term');
+
+            return $plugins;
+        }
+
+        if ($input->getOption('refresh')) {
+            $io->note('Refreshing plugin list');
+            $this->refreshPlugins();
+        }
 
         $io->text(sprintf('%s %d plugin(s):', ucfirst($lifecycleMethod), \count($plugins)));
         $io->listing($this->formatPluginList($plugins));
@@ -83,10 +88,10 @@ abstract class AbstractPluginLifecycleCommand extends Command
 
     protected function refreshPlugins(): void
     {
-        $listInput = new StringInput('plugin:refresh -s');
+        $input = new StringInput('plugin:refresh -s');
         /** @var Application $application */
         $application = $this->getApplication();
-        $application->doRun($listInput, new NullOutput());
+        $application->doRun($input, new NullOutput());
     }
 
     private function parsePluginArgument(array $arguments, Context $context): PluginCollection
@@ -104,5 +109,18 @@ abstract class AbstractPluginLifecycleCommand extends Command
         $pluginCollection = $this->pluginRepo->search($criteria, $context)->getEntities();
 
         return $pluginCollection;
+    }
+
+    /**
+     * @return string[]
+     */
+    private function formatPluginList(PluginCollection $plugins): array
+    {
+        $pluginList = [];
+        foreach ($plugins as $plugin) {
+            $pluginList[] = sprintf('%s (v%s)', $plugin->getLabel(), $plugin->getVersion());
+        }
+
+        return $pluginList;
     }
 }

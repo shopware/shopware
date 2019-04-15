@@ -34,6 +34,8 @@
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\Framework\Validation\DataValidator"/>
             <argument type="service" id="Shopware\Core\Checkout\Customer\Validation\CustomerValidationService"/>
+            <argument type="service" id="Shopware\Core\Checkout\Customer\Validation\CustomerProfileValidationService"/>
+            <argument type="service" id="Shopware\Core\Checkout\Customer\Validation\CustomerEmailValidationService"/>
             <argument type="service" id="Shopware\Core\Checkout\Customer\Password\LegacyPasswordVerifier"/>
         </service>
 
@@ -67,10 +69,22 @@
         </service>
 
         <service id="Shopware\Core\Checkout\Customer\Validation\AddressValidationService"/>
-        <service id="Shopware\Core\Checkout\Customer\Validation\CustomerValidationService"/>
+
+        <service id="Shopware\Core\Checkout\Customer\Validation\CustomerProfileValidationService"/>
+        <service id="Shopware\Core\Checkout\Customer\Validation\CustomerEmailValidationService"/>
+        <service id="Shopware\Core\Checkout\Customer\Validation\CustomerPasswordValidationService"/>
+
+        <service id="Shopware\Core\Checkout\Customer\Validation\CustomerValidationService">
+            <argument type="service" id="Shopware\Core\Checkout\Customer\Validation\CustomerProfileValidationService"/>
+        </service>
 
         <service id="Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerEmailUniqueValidator">
             <argument type="service" id="customer.repository"/>
+            <tag name="validator.constraint_validator"/>
+        </service>
+
+        <service id="Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerPasswordMatchesValidator">
+            <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\AccountService"/>
             <tag name="validator.constraint_validator"/>
         </service>
 

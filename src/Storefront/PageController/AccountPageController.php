@@ -4,9 +4,6 @@ namespace Shopware\Storefront\PageController;
 
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException as CustomerNotLoggedInExceptionAlias;
-use Shopware\Core\Checkout\CheckoutContext;
-use Shopware\Core\Checkout\Context\CheckoutContextService;
-use Shopware\Core\Checkout\Context\CheckoutContextServiceInterface;
 use Shopware\Core\Checkout\Customer\Exception\AddressNotFoundException;
 use Shopware\Core\Checkout\Customer\Exception\BadCredentialsException;
 use Shopware\Core\Checkout\Customer\Exception\CannotDeleteDefaultAddressException;
@@ -17,6 +14,7 @@ use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
+use Shopware\Core\Framework\Validation\DataValidator;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -93,9 +91,9 @@ class AccountPageController extends StorefrontController
     private $salesChannelContextService;
 
     /**
-     * @var CheckoutContextService|CheckoutContextServiceInterface
+     * @var DataValidator
      */
-    private $checkoutContextService;
+    private $dataValidator;
 
     public function __construct(
         PageLoaderInterface $accountLoginPageLoader,
@@ -107,9 +105,9 @@ class AccountPageController extends StorefrontController
         PageLoaderInterface $addressPageLoader,
         AccountService $accountService,
         AccountRegistrationService $accountRegistrationService,
-        CheckoutContextServiceInterface $checkoutContextService,
         SalesChannelContextServiceInterface $salesChannelContextService,
-        AddressService $addressService
+        AddressService $addressService,
+        DataValidator $dataValidator    //todo check if correct to inject here or extract usage into facade
     ) {
         $this->loginPageLoader = $accountLoginPageLoader;
         $this->addressListPageLoader = $accountAddressPageLoader;
@@ -120,9 +118,9 @@ class AccountPageController extends StorefrontController
         $this->addressPageLoader = $addressPageLoader;
         $this->accountService = $accountService;
         $this->accountRegistrationService = $accountRegistrationService;
-        $this->checkoutContextService = $checkoutContextService;
         $this->salesChannelContextService = $salesChannelContextService;
         $this->addressService = $addressService;
+        $this->dataValidator = $dataValidator;
     }
 
     /**
@@ -206,13 +204,13 @@ class AccountPageController extends StorefrontController
     /**
      * @Route("/account/logout", name="frontend.account.logout", options={"seo"="false"}, methods={"GET"})
      */
-    public function logout(CheckoutContext $context): Response
+    public function logout(SalesChannelContext $context): Response
     {
         try {
             $this->denyAccessUnlessLoggedIn();
             $parameters = [];
             $this->accountService->logout($context);
-            $this->checkoutContextService->refresh(
+            $this->salesChannelContextService->refresh(
                 $context->getSalesChannel()->getId(),
                 $context->getToken(),
                 $context->getContext()->getLanguageId()
@@ -311,33 +309,26 @@ class AccountPageController extends StorefrontController
     }
 
     /**
-     * @Route("/account/profile/email", name="frontend.account.profile.save", methods={"POST"})
+     * @Route("/account/profile", name="frontend.account.profile.save", methods={"POST"})
      *
      * @throws CustomerNotLoggedInExceptionAlias
      */
-    public function saveProfile(RequestDataBag $data, CheckoutContext $context): Response
+    public function saveProfile(RequestDataBag $data, SalesChannelContext $context): Response
     {
         $this->denyAccessUnlessLoggedIn();
 
-        /*
-         * @todo validate:
-         * firstName not blank
-         * lastName not blank
-         */
-
         try {
-            $parameters = [];
             $this->accountService->saveProfile($data, $context);
-            $this->checkoutContextService->refresh(
+            $this->salesChannelContextService->refresh(
                 $context->getSalesChannel()->getId(),
                 $context->getToken(),
                 $context->getContext()->getLanguageId()
             );
         } catch (ConstraintViolationException $formViolations) {
-            $parameters = ['formViolations' => $formViolations];
+            return $this->forward(__CLASS__ . '::profileOverview', ['formViolations' => $formViolations]);
         }
 
-        return $this->redirectToRoute('frontend.account.profile.page', $parameters);
+        return $this->forward(__CLASS__ . '::profileOverview', []);
     }
 
     /**
@@ -345,30 +336,22 @@ class AccountPageController extends StorefrontController
      *
      * @throws CustomerNotLoggedInExceptionAlias
      */
-    public function saveEmail(RequestDataBag $data, CheckoutContext $context): Response
+    public function saveEmail(RequestDataBag $data, SalesChannelContext $context): Response
     {
         $this->denyAccessUnlessLoggedIn();
 
-        /*
-         * @todo validate:
-         * email and email_confirm are identical
-         * current password is valid
-         * email is not already existing (except being the user's current email)
-         */
-
         try {
-            $parameters = [];
             $this->accountService->saveEmail($data, $context);
-            $this->checkoutContextService->refresh(
+            $this->salesChannelContextService->refresh(
                 $context->getSalesChannel()->getId(),
                 $context->getToken(),
                 $context->getContext()->getLanguageId()
             );
         } catch (ConstraintViolationException $formViolations) {
-            $parameters = ['formViolations' => $formViolations];
+            return $this->forward(__CLASS__ . '::profileOverview', ['formViolations' => $formViolations]);
         }
 
-        return $this->redirectToRoute('frontend.account.profile.page', $parameters);
+        return $this->forward(__CLASS__ . '::profileOverview', []);
     }
 
     /**
@@ -376,12 +359,12 @@ class AccountPageController extends StorefrontController
      *
      * @throws CustomerNotLoggedInExceptionAlias
      */
-    public function savePassword(RequestDataBag $data, CheckoutContext $context): Response
+    public function savePassword(RequestDataBag $data, SalesChannelContext $context): Response
     {
         $this->denyAccessUnlessLoggedIn();
 
         /*
-         * @todo validate:
+         * @todo az validate:
          * password and password_confirm are identical
          * current password is valid
          */
@@ -389,7 +372,7 @@ class AccountPageController extends StorefrontController
         try {
             $parameters = [];
             $this->accountService->savePassword($data, $context);
-            $this->checkoutContextService->refresh(
+            $this->salesChannelContextService->refresh(
                 $context->getSalesChannel()->getId(),
                 $context->getToken(),
                 $context->getContext()->getLanguageId()
@@ -449,7 +432,7 @@ class AccountPageController extends StorefrontController
     public function password(Request $request): Response
     {
         if ($request->isMethod(Request::METHOD_POST)) {
-            // @todo: send recovery email
+            // @todo az : send recovery email
             return $this->renderStorefront('@Storefront/page/account/password-reset/hash-sent.html.twig', ['page' => []]);
         }
 
@@ -461,10 +444,10 @@ class AccountPageController extends StorefrontController
      */
     public function resetPassword(Request $request): Response
     {
-        // @todo verify hash and if not valid show error page with message
+        // @todo az verify hash and if not valid show error page with message
 
         if ($request->isMethod(Request::METHOD_POST)) {
-            // @todo: update password, login customer and redirect to account and show success message
+            // @todo az: update password, login customer and redirect to account and show success message
             return $this->redirectToRoute('frontend.account.home.page', []);
         }
 
@@ -480,7 +463,7 @@ class AccountPageController extends StorefrontController
     {
         $this->denyAccessUnlessLoggedIn();
 
-        // @todo update newsletter field in customer entity
+        // @todo az update newsletter field in customer entity
 
         return $this->redirectToRoute('frontend.account.home.page', []);
     }

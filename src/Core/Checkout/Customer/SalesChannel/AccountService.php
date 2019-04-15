@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Customer\SalesChannel;
 
+use Composer\Semver\Constraint\ConstraintInterface;
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
@@ -12,6 +13,8 @@ use Shopware\Core\Checkout\Customer\Exception\AddressNotFoundException;
 use Shopware\Core\Checkout\Customer\Exception\BadCredentialsException;
 use Shopware\Core\Checkout\Customer\Exception\CustomerNotFoundException;
 use Shopware\Core\Checkout\Customer\Password\LegacyPasswordVerifier;
+use Shopware\Core\Checkout\Customer\Validation\CustomerEmailValidationService;
+use Shopware\Core\Checkout\Customer\Validation\CustomerProfileValidationService;
 use Shopware\Core\Checkout\Customer\Validation\CustomerValidationService;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
@@ -26,12 +29,16 @@ use Shopware\Core\Framework\Validation\BuildValidationEvent;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
 use Shopware\Core\Framework\Validation\DataValidationDefinition;
 use Shopware\Core\Framework\Validation\DataValidator;
+use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\Salutation\SalutationCollection;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
+use Symfony\Component\Validator\Constraints\EqualTo;
 use Symfony\Component\Validator\Constraints\NotBlank;
+use Symfony\Component\Validator\ConstraintViolation;
+use Symfony\Component\Validator\ConstraintViolationList;
 
 class AccountService
 {
@@ -74,6 +81,16 @@ class AccountService
      */
     private $legacyPasswordVerifier;
 
+    /**
+     * @var CustomerProfileValidationService
+     */
+    private $customerProfileValidationService;
+
+    /**
+     * @var CustomerEmailValidationService
+     */
+    private $customerEmailValidationService;
+
     public function __construct(
         EntityRepositoryInterface $customerAddressRepository,
         EntityRepositoryInterface $customerRepository,
@@ -82,6 +99,8 @@ class AccountService
         EventDispatcherInterface $eventDispatcher,
         DataValidator $validator,
         CustomerValidationService $customerValidationService,
+        CustomerProfileValidationService $customerProfileValidationService,
+        CustomerEmailValidationService $customerEmailValidationService,
         LegacyPasswordVerifier $legacyPasswordVerifier
     ) {
         $this->customerAddressRepository = $customerAddressRepository;
@@ -92,6 +111,8 @@ class AccountService
         $this->validator = $validator;
         $this->customerValidationService = $customerValidationService;
         $this->legacyPasswordVerifier = $legacyPasswordVerifier;
+        $this->customerProfileValidationService = $customerProfileValidationService;
+        $this->customerEmailValidationService = $customerEmailValidationService;
     }
 
     /**
@@ -142,7 +163,11 @@ class AccountService
 
     public function saveProfile(DataBag $data, SalesChannelContext $context): void
     {
-        $validation = $this->getUpdateValidationDefinition($context->getContext());
+        /** @var DataValidationDefinition $validation */
+        $validation = $this->customerProfileValidationService->buildUpdateValidation($context->getContext());
+
+        $this->dispatchValidationEvent($validation, $context->getContext());
+
         $this->validator->validate($data->all(), $validation);
 
         $customer = $data->only('firstName', 'lastName', 'salutationId', 'title');
@@ -193,10 +218,13 @@ class AccountService
     {
         $this->validateCustomer($context);
 
-        $this->validator->validate(
-            $data->only('email'),
-            $this->getUpdateValidationDefinition($context->getContext())
-        );
+        $validation = $this->customerEmailValidationService->buildUpdateValidation($context);
+
+        $this->dispatchValidationEvent($validation, $context->getContext());
+
+        $this->validator->validate($data->all(), $validation);
+
+        $this->validateEmailConfirmation($data->all(), $validation);
 
         $customerData = [
             'id' => $context->getCustomer()->getId(),
@@ -403,14 +431,10 @@ class AccountService
         ));
     }
 
-    private function getUpdateValidationDefinition(Context $context): DataValidationDefinition
+    private function dispatchValidationEvent(DataValidationDefinition $definition, Context $context): void
     {
-        $validation = $this->customerValidationService->buildUpdateValidation($context);
-
-        $validationEvent = new BuildValidationEvent($validation, $context);
+        $validationEvent = new BuildValidationEvent($definition, $context);
         $this->eventDispatcher->dispatch($validationEvent->getName(), $validationEvent);
-
-        return $validation;
     }
 
     private function updatePasswordHash(string $password, CustomerEntity $customer, Context $context): void
@@ -423,5 +447,47 @@ class AccountService
                 'legacyEncoder' => null,
             ],
         ], $context);
+    }
+
+    /**
+     * @throws ConstraintViolationException
+     */
+    private function validateEmailConfirmation(array $data, DataValidationDefinition $validation): void
+    {
+        /** @var array $validations */
+        $validations = $validation->getProperties();
+
+        if (!array_key_exists('email', $validations)) {
+            return;
+        }
+
+        /** @var array $emailValidations */
+        $emailValidations = $validations['email'];
+
+        /** @var EqualTo|null $emailEqualityValidation */
+        $emailEqualityValidation = null;
+
+        /** @var ConstraintInterface $emailValidation */
+        foreach ($emailValidations as $emailValidation) {
+            if ($emailValidation instanceof EqualTo) {
+                $emailEqualityValidation = $emailValidation;
+                break;
+            }
+        }
+
+        if (!$emailEqualityValidation instanceof EqualTo) {
+            return;
+        }
+
+        if ($data['email'] === $data['emailConfirmation']) {
+            return;
+        }
+
+        $message = str_replace('{{ compared_value }}', $data['emailConfirmation'], $emailEqualityValidation->message);
+
+        $violations = new ConstraintViolationList();
+        $violations->add(new ConstraintViolation($message, $emailEqualityValidation->message, [], '', 'email', $data['email']));
+
+        throw new ConstraintViolationException($violations, $data);
     }
 }

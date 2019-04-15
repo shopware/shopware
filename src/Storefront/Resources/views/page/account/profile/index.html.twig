@@ -19,6 +19,12 @@
 {% block page_account_profile_error_messages %}{% endblock %}
 
 {% block page_account_main_content %}
+        {% if formViolations.getViolations() %}
+                {% sw_include '@Storefront/base/_utilities/alert.html.twig' with {
+                        type:"danger",
+                        list: formViolations.getViolations()
+                } %}
+        {% endif %}
 	{% block page_account_profile %}
         <div class="account-profile">
 			{% block page_account_profile_welcome %}{% endblock %}
@@ -35,7 +41,7 @@
 							{% block page_account_profile_personal_form %}
                                 <form id="profilePersonalForm"
                                       method="post"
-                                      action="{{ path('sales-channel-api.customer.update', {'version': 1}) }}">
+                                      action="{{ path('frontend.account.profile.save') }}">
 									{% block page_account_profile_personal_fields %}
 										{% sw_include '@Storefront/page/account/profile/personal.html.twig' with {
 											'showBirthdayField': shopware.config.register.birthdayField,
@@ -52,7 +58,6 @@
 									{% block page_account_profile_personal_action_buttons %}
                                         <div class="profile-form-actions">
 											{% block page_account_profile_personal_action_button_send %}
-                                                <input name="_method" type="hidden" value="PATCH">
                                                 <button type="submit"
                                                         class="profile-form-submit btn btn-primary btn-sm"
                                                         title="{{ "account.profileSaveChanges"|trans }}">
@@ -88,7 +93,7 @@
                                             <form id="profileMailForm"
                                                   class="profile-item-form"
                                                   method="post"
-                                                  action="{{ path('sales-channel-api.customer.email.update', {'version': 1}) }}">
+                                                  action="{{ path('frontend.account.profile.email.save') }}">
 												{% block page_account_profile_current_mail %}
                                                     <div class="form-group">
 														{% block page_account_profile_mail_label %}
@@ -158,7 +163,6 @@
 												{% block page_account_profile_mail_action_buttons %}
                                                     <div class="profile-form-actions">
 														{% block page_account_profile_mail_action_button_send %}
-                                                            <input name="_method" type="hidden" value="PATCH">
                                                             <button type="submit"
                                                                     class="profile-form-submit btn btn-primary btn-sm"
                                                                     title="{{ "account.profileSaveChanges"|trans }}">

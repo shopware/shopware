@@ -12,15 +12,29 @@
                     </sw-field>
                 {% endblock %}
 
-                {% block sw_product_settings_form_stock_field %}
+                <sw-container columns="1fr 1fr" gap="0px 30px">
+                    {% block sw_product_settings_form_stock_field %}
                         <sw-field type="number"
-                                numberType="int"
-                                :min="0"
-                                :label="$tc('sw-product.settingsForm.labelStock')"
-                                :placeholder="$tc('sw-product.settingsForm.placeholderStock')"
-                                v-model="product.stock">
+                              numberType="int"
+                              :min="0"
+                              :disabled="true"
+                              :label="$tc('sw-product.settingsForm.labelStock')"
+                              :placeholder="$tc('sw-product.settingsForm.placeholderStock')"
+                              v-model="product.stock">
                         </sw-field>
-                {% endblock %}
+                    {% endblock %}
+
+
+                    {% block sw_product_settings_form_stock_field %}
+                        <sw-field type="number"
+                              numberType="int"
+                              :min="0"
+                              :label="$tc('sw-product.settingsForm.labelStock')"
+                              :placeholder="$tc('sw-product.settingsForm.placeholderStock')"
+                              v-model="product.stock">
+                        </sw-field>
+                    {% endblock %}
+                </sw-container>
             </sw-container>
 
             <sw-container columns="repeat(auto-fit, minmax(250px, 1fr)" gap="0px 30px">

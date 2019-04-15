@@ -142,5 +142,14 @@
             <tag name="shopware.entity.definition" entity="delivery_time"/>
         </service>
 
+        <service id="Shopware\Core\Content\Product\DataAbstractionLayer\Subscriber\AvailableStockSubscriber">
+            <argument type="service" id="Shopware\Core\Content\Product\Stock\AvailableStockCalculator" />
+
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Product\Stock\AvailableStockCalculator">
+            <argument type="service" id="Doctrine\DBAL\Connection" />
+        </service>
     </services>
 </container>                

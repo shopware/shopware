@@ -5,9 +5,7 @@
                           gap="0px 30px"
                           class="sw-plugin-box__container">
                 {% block sw_plugin_box_container_plugin_data %}
-                    <sw-container columns="48px 1fr"
-                                  :class="{ 'has--no-icon' : !plugin.icon }"
-                                  gap="0px 10px">
+                    <sw-container :class="{ 'has--no-icon' : !plugin.icon }">
                         {% block sw_plugin_box_container_plugin_data_icon %}
                             <img v-if="!!plugin.icon"
                                  class="sw-plugin-box__icon"

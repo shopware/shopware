@@ -14,10 +14,14 @@ $sw-plugin-box-color-container-description-author-color:      $color-gray;
         padding: 8px 16px;
         margin-bottom: 22px;
 
-        .sw-container.has--no-icon {
-            // overwrite element style from sw-container
-            grid-template-columns: 1fr !important;
-            gap: 0 !important;
+        .sw-container {
+            grid-template-columns: 48px 1fr;
+            gap: 0 10px;
+
+            &.has--no-icon {
+                grid-template-columns: 1fr;
+                gap: 0;
+            }
         }
 
         .sw-plugin-box__icon {

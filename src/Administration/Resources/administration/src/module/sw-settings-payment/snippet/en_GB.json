@@ -40,7 +40,7 @@
       "buttonSave": "Save"
     }
   },
-  "sw-plugin-field": {
+  "sw-plugin-box": {
     "buttonPluginSettings": "Plugin Settings"
   }
 }

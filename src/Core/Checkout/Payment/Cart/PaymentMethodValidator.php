@@ -18,9 +18,7 @@ class PaymentMethodValidator implements CartValidatorInterface
         }
 
         $errors->add(new PaymentMethodBlockedError(
-            $context->getPaymentMethod()->getName()
-                ? $context->getPaymentMethod()->getName()
-                : $context->getPaymentMethod()->getId()
+            $context->getPaymentMethod()->getName() ?: $context->getPaymentMethod()->getId()
         ));
     }
 }

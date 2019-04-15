@@ -502,7 +502,7 @@ class MediaEntity extends Entity
         return $this->paymentMethods;
     }
 
-    public function setPaymentMethods(?PaymentMethodCollection $paymentMethods): void
+    public function setPaymentMethods(PaymentMethodCollection $paymentMethods): void
     {
         $this->paymentMethods = $paymentMethods;
     }

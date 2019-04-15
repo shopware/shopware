@@ -192,7 +192,7 @@ class SalesChannelController extends AbstractController
     }
 
     /**
-     * @Route("/storefront-api/v{version}/salutation", name="storefront-api.salutation.list", methods={"GET"})
+     * @Route("/sales-channel-api/v{version}/salutation", name="sales-channel-api.salutation.list", methods={"GET"})
      */
     public function getSalutations(Request $request, SalesChannelContext $context, ResponseFactoryInterface $responseFactory): Response
     {

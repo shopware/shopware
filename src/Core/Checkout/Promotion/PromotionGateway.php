@@ -157,6 +157,7 @@ class PromotionGateway implements PromotionGatewayInterface
                     [
                         new EqualsFilter('personaRuleId', null),
                         new EqualsFilter('scopeRuleId', null),
+                        new EqualsFilter('promotion.orderRules.id', null),
                     ]
                 ),
                 new MultiFilter(
@@ -164,6 +165,7 @@ class PromotionGateway implements PromotionGatewayInterface
                     [
                         new EqualsAnyFilter('personaRuleId', $contextRuleIds),
                         new EqualsAnyFilter('scopeRuleId', $contextRuleIds),
+                        new EqualsAnyFilter('promotion.orderRules.id', $contextRuleIds),
                     ]
                 ),
             ]

@@ -4,6 +4,7 @@ namespace Shopware\Core\Checkout\Promotion;
 
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountCollection;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionSalesChannel\PromotionSalesChannelCollection;
+use Shopware\Core\Content\Rule\RuleCollection;
 use Shopware\Core\Content\Rule\RuleEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
@@ -112,6 +113,11 @@ class PromotionEntity extends Entity
      * @var PromotionDiscountCollection|null
      */
     protected $discounts;
+
+    /**
+     * @var RuleCollection|null
+     */
+    protected $orderRules;
 
     public function getName(): ?string
     {
@@ -320,6 +326,24 @@ class PromotionEntity extends Entity
     public function setCode(?string $code): void
     {
         $this->code = $code;
+    }
+
+    /**
+     * Gets a list of "order" related rules that need to
+     * be valid for this promotion.
+     */
+    public function getOrderRules(): ?RuleCollection
+    {
+        return $this->orderRules;
+    }
+
+    /**
+     * Sets what products are affected by the applied
+     * order conditions for this promotion.
+     */
+    public function setOrderRules(?RuleCollection $orderRules): void
+    {
+        $this->orderRules = $orderRules;
     }
 
     /**

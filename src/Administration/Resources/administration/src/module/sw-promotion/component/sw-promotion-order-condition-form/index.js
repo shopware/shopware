@@ -1,7 +1,8 @@
 import { Component, Mixin, State } from 'src/core/shopware';
-import template from './sw-promotion-discount-form.html.twig';
+import template from './sw-promotion-order-condition-form.html.twig';
+import './sw-promotion-order-condition-form.scss';
 
-Component.register('sw-promotion-discount-form', {
+Component.register('sw-promotion-order-condition-form', {
     template,
 
     mixins: [
@@ -17,14 +18,15 @@ Component.register('sw-promotion-discount-form', {
     },
 
     computed: {
-        ruleStore() {
-            return State.getStore('rule');
-        }
-    },
 
-    methods: {
-        onDiscountRuleChange(ruleId) {
-            this.promotion.discountRuleId = ruleId;
+        rulesStore() {
+            return State.getStore('rule');
+        },
+
+        orderRulesAssociationStore() {
+            return this.promotion.getAssociation('orderRules');
         }
+
     }
+
 });

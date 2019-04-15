@@ -19,7 +19,7 @@
         {% block sw_promotion_detail_restrictions_discount_rule_card %}
             <sw-card :title="$tc('sw-promotion.detailRestrictions.cardTitleDiscountRules')" :isLoading="promotion.isLoading">
                     {% block sw_promotion_detail_restrictions_discount_rule_form %}
-                    <sw-promotion-discount-form :promotion="promotion"></sw-promotion-discount-form>
+                    <sw-promotion-order-condition-form :promotion="promotion"></sw-promotion-order-condition-form>
                 {% endblock %}
             </sw-card>
         {% endblock %}

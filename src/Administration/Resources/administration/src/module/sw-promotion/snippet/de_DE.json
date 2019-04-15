@@ -51,11 +51,14 @@
             "cardTitleScopeRules": "Warenkorb"
         },
 
-        "discountForm": {
-            "descriptionTextDiscount": "Bavaria ipsum dolor sit amet hallelujah sog i, luja Biazelt wos mei Meidromml oa wolln Biazelt, woaß? Etza Milli Sauakraud, Engelgwand Watschnbaam a bissal liberalitas Bavariae zünftig Schmankal heid gfoids ma sagrisch guad.",
-            "descriptionTitleDiscount": "Bestimme welche Eigenschaften eine Bestellung zusätzlich für diese Rabattaktion aufweisen muss",
-            "labelDiscountRule": "Discount Regel",
-            "ruleModuleLink": "Regelmodul öffnen"
+        "orderCondition": {
+            "title": "Bestimme welche Eigenschaften eine Bestellung zusätzlich für diese Rabattaktion aufweisen muss.",
+            "subheading": "Nutze Regeln des Typs 'Bestellung' um zu definieren, welche Bediungen erfüllt sein müssen, damit diese Rabattaktion angewendet wird.",
+            "linkRuleBuilder": "Regelmodul öffnen",
+            "rules": {
+                "caption" : "Bestellregeln",
+                "placeholder" : "Bestellregel zuweisen..."
+            }
         },
 
         "general": {

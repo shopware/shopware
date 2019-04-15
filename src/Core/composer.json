@@ -13,11 +13,11 @@
         "proprietary"
     ],
     "autoload": {
+        "exclude-from-classmap": [
+            "*/Test/"
+        ],
         "psr-4": {
-            "Shopware\\Core\\": "",
-            "exclude-from-classmap": [
-                "*/Test/"
-            ]
+            "Shopware\\Core\\": ""
         }
     },
     "require": {
@@ -114,23 +114,5 @@
             "*": "dist"
         },
         "sort-packages": true
-    },
-    "scripts": {
-        "auto-scripts": {
-            "cache:clear": "symfony-cmd",
-            "assets:install --symlink --relative %PUBLIC_DIR%": "symfony-cmd"
-        },
-        "post-install-cmd": [
-            "@auto-scripts"
-        ],
-        "post-update-cmd": [
-            "@auto-scripts"
-        ]
-    },
-    "extra": {
-        "symfony": {
-            "id": "01C8DASE0Z4QQC3MT9KQYSTVX5",
-            "allow-contrib": false
-        }
     }
 }

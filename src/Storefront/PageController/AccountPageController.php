@@ -89,11 +89,6 @@ class AccountPageController extends StorefrontController
      */
     private $salesChannelContextService;
 
-    /**
-     * @var AddressService
-     */
-    private $addressService;
-
     public function __construct(
         PageLoaderInterface $accountLoginPageLoader,
         PageLoaderInterface $accountOverviewPageLoader,

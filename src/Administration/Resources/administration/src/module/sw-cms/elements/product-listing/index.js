@@ -4,17 +4,17 @@ import './config';
 import './preview';
 
 Application.getContainer('service').cmsService.registerCmsElement({
-    name: 'product-box',
-    label: 'Product box',
-    component: 'sw-cms-el-product-box',
-    previewComponent: 'sw-cms-el-preview-product-box',
-    configComponent: 'sw-cms-el-config-product-box',
+    name: 'product-listing',
+    label: 'Product listing',
+    component: 'sw-cms-el-product-listing',
+    previewComponent: 'sw-cms-el-preview-product-listing',
+    configComponent: 'sw-cms-el-config-product-listing',
     defaultConfig: {
-        product: {
+        products: {
             source: 'static',
             value: null
         },
-        boxLayout: {
+        layout: {
             source: 'static',
             value: 'standard'
         }

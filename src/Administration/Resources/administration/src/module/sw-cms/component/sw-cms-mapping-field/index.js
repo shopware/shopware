@@ -1,11 +1,11 @@
-import { Component } from 'src/core/shopware';
-import cmsService from 'src/module/sw-cms/service/cms.service';
-import cmsState from 'src/module/sw-cms/state/cms-page.state';
+import { Component, State } from 'src/core/shopware';
 import template from './sw-cms-mapping-field.html.twig';
 import './sw-cms-mapping-field.scss';
 
 Component.register('sw-cms-mapping-field', {
     template,
+
+    inject: ['cmsService'],
 
     model: {
         prop: 'config',
@@ -41,19 +41,19 @@ Component.register('sw-cms-mapping-field', {
         return {
             initialStaticValue: null,
             currentMapping: null,
-            currentDemoValue: null,
             mappingTypes: {},
-            allowedMappingTypes: []
+            allowedMappingTypes: [],
+            demoValue: null
         };
     },
 
     computed: {
-        cmsState() {
-            return cmsState;
+        cmsPageState() {
+            return State.getStore('cmsPageState');
         },
 
         isMapped() {
-            return this.config.source === 'entity';
+            return this.config.source === 'mapped';
         },
 
         hasPreview() {
@@ -62,10 +62,18 @@ Component.register('sw-cms-mapping-field', {
     },
 
     watch: {
-        'cmsState.currentPage.type': {
+        'cmsPageState.currentPage.type': {
             handler() {
-                this.mappingTypes = this.cmsState.currentMappingTypes;
+                this.mappingTypes = this.cmsPageState.currentMappingTypes;
                 this.getAllowedMappingTypes();
+            }
+        },
+
+        'cmsPageState.currentDemoEntity': {
+            handler() {
+                if (this.config.source === 'mapped') {
+                    this.demoValue = this.getDemoValue(this.config.value);
+                }
             }
         }
     },
@@ -80,20 +88,24 @@ Component.register('sw-cms-mapping-field', {
                 this.initialStaticValue = this.config.value;
             }
 
-            this.mappingTypes = this.cmsState.currentMappingTypes;
+            if (this.config.source === 'mapped') {
+                this.demoValue = this.getDemoValue(this.config.value);
+            }
+
+            this.mappingTypes = this.cmsPageState.currentMappingTypes;
             this.getAllowedMappingTypes();
         },
 
         onMappingSelect(property) {
-            this.config.source = 'entity';
+            this.config.source = 'mapped';
             this.config.value = property;
-            this.currentDemoValue = this.getDemoValue(property);
+            this.demoValue = this.getDemoValue(property);
         },
 
         onMappingRemove() {
             this.config.source = 'static';
             this.config.value = this.initialStaticValue;
-            this.currentDemoValue = null;
+            this.demoValue = null;
         },
 
         getAllowedMappingTypes() {
@@ -109,7 +121,7 @@ Component.register('sw-cms-mapping-field', {
         },
 
         getDemoValue(mappingPath) {
-            return cmsService.getPropertyByMappingPath(cmsState.currentDemoEntity, mappingPath);
+            return this.cmsService.getPropertyByMappingPath(this.cmsPageState.currentDemoEntity, mappingPath);
         }
     }
 });

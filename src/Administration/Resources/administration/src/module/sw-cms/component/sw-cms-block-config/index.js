@@ -1,10 +1,11 @@
 import { Component, Entity } from 'src/core/shopware';
-import cmsService from 'src/module/sw-cms/service/cms.service';
 import template from './sw-cms-block-config.html.twig';
 import './sw-cms-block-config.scss';
 
 Component.register('sw-cms-block-config', {
     template,
+
+    inject: ['cmsService'],
 
     model: {
         prop: 'block',
@@ -27,7 +28,7 @@ Component.register('sw-cms-block-config', {
 
     computed: {
         cmsBlocks() {
-            return cmsService.getCmsBlockRegistry();
+            return this.cmsService.getCmsBlockRegistry();
         }
     },
 

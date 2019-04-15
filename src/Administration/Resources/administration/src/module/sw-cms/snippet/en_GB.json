@@ -57,7 +57,12 @@
     },
     "elements": {
       "captionMediaUpload": "Upload an image",
-      "labelTextElementContent": "Text content"
+      "labelTextElementContent": "Text content",
+      "labelProductActionDetail": "Details",
+      "labelProductActionBuy": "Add to cart",
+      "labelProductBadgeTopseller": "Topseller",
+      "labelProductBadgeNew": "New",
+      "labelProductPriceUnitContent": "Content:"
     }
   }
 }

@@ -2,15 +2,13 @@ import { Component, State, Application, Mixin } from 'src/core/shopware';
 import { warn } from 'src/core/service/utils/debug.utils';
 import EntityProxy from 'src/core/data/EntityProxy';
 import CriteriaFactory from 'src/core/factory/criteria.factory';
-import cmsService from 'src/module/sw-cms/service/cms.service';
-import cmsState from 'src/module/sw-cms/state/cms-page.state';
 import template from './sw-cms-detail.html.twig';
 import './sw-cms-detail.scss';
 
 Component.register('sw-cms-detail', {
     template,
 
-    inject: ['loginService', 'cmsPageService'],
+    inject: ['loginService', 'cmsPageService', 'cmsService'],
 
     mixins: [
         Mixin.getByName('notification'),
@@ -31,8 +29,7 @@ Component.register('sw-cms-detail', {
             currentSkin: 'default',
             currentMappingEntity: null,
             currentMappingEntityStore: null,
-            demoEntityId: null,
-            styleElement: null
+            demoEntityId: null
         };
     },
 
@@ -45,18 +42,21 @@ Component.register('sw-cms-detail', {
             return State.getStore('media_default_folder');
         },
 
+        cmsPageState() {
+            return State.getStore('cmsPageState');
+        },
+
         cmsBlocks() {
-            return cmsService.getCmsBlockRegistry();
+            return this.cmsService.getCmsBlockRegistry();
         },
 
         cmsElements() {
-            return cmsService.getCmsElementRegistry();
+            return this.cmsService.getCmsElementRegistry();
         },
 
         cmsStageClasses() {
             return [
-                `is--${this.currentDeviceView}`,
-                `sw-cms-skin__${this.currentSkin}`
+                `is--${this.currentDeviceView}`
             ];
         },
 
@@ -77,14 +77,6 @@ Component.register('sw-cms-detail', {
             return {
                 entity: null,
                 mode: 'static'
-            };
-        },
-
-        cmsSkins() {
-            return {
-                '06476486f70c499eb8bdd65482a24f63': 'default',
-                '20080911ffff4fffafffffff19830531': 'fancy',
-                '9a00221baf80421f9383f4fcc7b9457d': 'crazy'
             };
         },
 
@@ -120,7 +112,7 @@ Component.register('sw-cms-detail', {
 
     methods: {
         createdComponent() {
-            cmsState.currentPage = null;
+            this.cmsPageState.currentPage = null;
 
             if (this.$route.params.id) {
                 this.pageId = this.$route.params.id;
@@ -131,7 +123,6 @@ Component.register('sw-cms-detail', {
 
                     if (this.salesChannels.length > 0) {
                         this.currentSalesChannelKey = this.salesChannels[0].id;
-                        this.loadSkin(this.currentSalesChannelKey);
                         this.loadPage(this.pageId);
                     }
                 });
@@ -142,14 +133,14 @@ Component.register('sw-cms-detail', {
 
         setPageContext() {
             this.getDefaultFolderId().then((folderId) => {
-                cmsState.defaultMediaFolderId = folderId;
+                this.cmsPageState.defaultMediaFolderId = folderId;
             });
         },
 
         getDefaultFolderId() {
             return this.defaultFolderStore.getList({
                 limit: 1,
-                criteria: CriteriaFactory.equals('entity', cmsState.pageEntityName),
+                criteria: CriteriaFactory.equals('entity', this.cmsPageState.pageEntityName),
                 associations: {
                     folder: {}
                 }
@@ -168,11 +159,7 @@ Component.register('sw-cms-detail', {
         },
 
         beforeDestroyedComponent() {
-            cmsState.currentPage = null;
-
-            if (this.styleElement !== null) {
-                this.styleElement.remove();
-            }
+            this.cmsPageState.currentPage = null;
         },
 
         loadPage(pageId) {
@@ -201,7 +188,7 @@ Component.register('sw-cms-detail', {
                         }
                     });
 
-                    cmsState.currentPage = this.page;
+                    this.cmsPageState.currentPage = this.page;
 
                     this.updateDataMapping();
                     this.isLoading = false;
@@ -218,41 +205,20 @@ Component.register('sw-cms-detail', {
             });
         },
 
-        loadSkin(salesChannelId) {
-            let skinType = 'default';
-
-            if (this.cmsSkins[salesChannelId]) {
-                skinType = this.cmsSkins[salesChannelId];
-            }
-
-            if (this.styleElement === null) {
-                this.styleElement = document.createElement('link');
-                this.styleElement.rel = 'stylesheet';
-                this.styleElement.type = 'text/css';
-                this.styleElement.media = 'all';
-
-                const head = document.getElementsByTagName('head')[0];
-                head.appendChild(this.styleElement);
-            }
-
-            this.styleElement.href = `/administration/static/skins/${skinType}.css`;
-            this.currentSkin = skinType;
-        },
-
         updateDataMapping() {
             const mappingEntity = this.cmsPageTypeSettings.entity;
 
             if (!mappingEntity) {
-                cmsState.currentMappingEntity = null;
-                cmsState.currentMappingTypes = {};
+                this.cmsPageState.currentMappingEntity = null;
+                this.cmsPageState.currentMappingTypes = {};
 
                 this.currentMappingEntity = null;
                 this.currentMappingEntityStore = null;
                 return;
             }
 
-            cmsState.currentMappingEntity = mappingEntity;
-            cmsState.currentMappingTypes = cmsService.getEntityMappingTypes(mappingEntity);
+            this.cmsPageState.currentMappingEntity = mappingEntity;
+            this.cmsPageState.currentMappingTypes = this.cmsService.getEntityMappingTypes(mappingEntity);
 
             this.currentMappingEntity = mappingEntity;
             this.currentMappingEntityStore = State.getStore(mappingEntity);
@@ -285,7 +251,6 @@ Component.register('sw-cms-detail', {
         },
 
         onSalesChannelChange() {
-            this.loadSkin(this.currentSalesChannelKey);
             this.loadPage(this.pageId);
         },
 
@@ -296,12 +261,13 @@ Component.register('sw-cms-detail', {
         onDemoEntityChange(demoEntityId) {
             const demoEntity = this.currentMappingEntityStore.getById(demoEntityId);
 
+            this.cmsPageState.currentDemoEntity = null;
+
             if (!demoEntity) {
-                cmsState.currentDemoEntity = null;
                 return;
             }
 
-            cmsState.currentDemoEntity = demoEntity;
+            this.cmsPageState.currentDemoEntity = demoEntity;
         },
 
         onAddBlockSection() {

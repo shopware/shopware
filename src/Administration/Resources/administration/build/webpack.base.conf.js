@@ -61,7 +61,7 @@ module.exports = {
                 include: includeDirectories,
                 options: {
                     configFile: resolve('.eslintrc.js'),
-                    formatter: require('eslint-friendly-formatter')
+                    formatter: require('eslint-friendly-formatter') // eslint-disable-line global-require
                 }
             }),
             {
@@ -83,7 +83,8 @@ module.exports = {
                         '@babel/preset-env', {
                             modules: false,
                             targets: {
-                                node: 'current'
+                                node: 'current',
+                                ie: 11
                             }
                         }
                     ]]

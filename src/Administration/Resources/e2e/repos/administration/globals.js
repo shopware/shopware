@@ -2,7 +2,7 @@
 require('./../../common/helper/cliOutputHelper');
 require('./../../common/flags.js');
 require('../../common/service/administration/fixture.service');
-require('../../common/service/storefront/fixture.service');
+require('../../common/service/saleschannel/fixture.service');
 
 const util = require('util');
 const exec = util.promisify(require('child_process').exec);

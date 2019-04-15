@@ -92,6 +92,21 @@ class NewsletterReceiverEntity extends Entity
      */
     protected $confirmedAt;
 
+    /**
+     * @var \DateTimeInterface
+     */
+    protected $createdAt;
+
+    /**
+     * @var \DateTimeInterface|null
+     */
+    protected $updatedAt;
+
+    /**
+     * @var TagCollection|null
+     */
+    protected $tags;
+
     public function getEmail(): string
     {
         return $this->email;
@@ -250,5 +265,35 @@ class NewsletterReceiverEntity extends Entity
     public function setCustomFields(?array $customFields): void
     {
         $this->customFields = $customFields;
+    }
+
+    public function getCreatedAt(): \DateTimeInterface
+    {
+        return $this->createdAt;
+    }
+
+    public function setCreatedAt(\DateTimeInterface $createdAt): void
+    {
+        $this->createdAt = $createdAt;
+    }
+
+    public function getUpdatedAt(): ?\DateTimeInterface
+    {
+        return $this->updatedAt;
+    }
+
+    public function setUpdatedAt(\DateTimeInterface $updatedAt): void
+    {
+        $this->updatedAt = $updatedAt;
+    }
+
+    public function getTags(): ?TagCollection
+    {
+        return $this->tags;
+    }
+
+    public function setTags(TagCollection $tags): void
+    {
+        $this->tags = $tags;
     }
 }

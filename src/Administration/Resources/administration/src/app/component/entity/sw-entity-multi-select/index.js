@@ -48,6 +48,10 @@ export default {
 
     methods: {
         initData() {
+            // TODO: Remove after debug
+            console.dir(this.collection.entity);
+            console.dir(this.collection.source);
+            // TODO: Remove after debug
             this.repository = this.repositoryFactory.create(this.collection.entity, this.collection.source);
             this.searchRepository = this.repositoryFactory.create(this.collection.entity);
 

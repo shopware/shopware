@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\NewsletterReceiver;
 
+use Shopware\Core\Content\NewsletterReceiver\Aggregate\NewsletterReceiverTag\NewsletterReceiverTagDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CustomFields;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\DateField;
@@ -9,12 +10,14 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\Language\LanguageDefinition;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 use Shopware\Core\System\Salutation\SalutationDefinition;
+use Shopware\Core\System\Tag\TagDefinition;
 
 class NewsletterReceiverDefinition extends EntityDefinition
 {
@@ -48,6 +51,8 @@ class NewsletterReceiverDefinition extends EntityDefinition
             new CustomFields(),
 
             new DateField('confirmed_at', 'confirmedAt'),
+
+            new ManyToManyAssociationField('tags', TagDefinition::class, NewsletterReceiverTagDefinition::class, 'newsletter_receiver_id', 'tag_id'),
 
             (new FkField('salutation_id', 'salutationId', SalutationDefinition::class))->addFlags(new Required()),
             new ManyToOneAssociationField('salutation', 'salutation_id', SalutationDefinition::class, 'id', true),

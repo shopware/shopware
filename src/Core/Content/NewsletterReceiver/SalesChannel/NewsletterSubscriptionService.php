@@ -10,7 +10,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Validation\EntityExists;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
 use Shopware\Core\Framework\Validation\DataValidationDefinition;
@@ -52,7 +52,7 @@ class NewsletterSubscriptionService implements NewsletterSubscriptionServiceInte
 
     public function subscribe(DataBag $dataBag, SalesChannelContext $context): void
     {
-        $validator = $this->getOptInValidator($context->getContext());
+        $validator = $this->getOptInValidator($context);
         $this->validator->validate($dataBag->all(), $validator);
 
         $data = $this->completeData($dataBag->all(), $context);
@@ -122,12 +122,11 @@ class NewsletterSubscriptionService implements NewsletterSubscriptionServiceInte
         ];
     }
 
-    private function getOptInValidator(Context $context): DataValidationDefinition
+    private function getOptInValidator(): DataValidationDefinition
     {
         $definition = new DataValidationDefinition('newsletter_receiver.create');
         $definition->add('email', new NotBlank(), new Email())
-            ->add('option', new NotBlank(), new Choice(array_keys($this->getOptionSelection())))
-            ->add('salutationId', new NotBlank(), new EntityExists(['entity' => 'salutation', 'context' => $context]));
+            ->add('option', new NotBlank(), new Choice(array_keys($this->getOptionSelection())));
 
         return $definition;
     }
@@ -175,7 +174,10 @@ class NewsletterSubscriptionService implements NewsletterSubscriptionServiceInte
     private function getNewsletterReceiverId(string $email, Context $context): ?string
     {
         $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('email', $email));
+        $criteria->addFilter(new MultiFilter(MultiFilter::CONNECTION_AND),
+            new EqualsFilter('email', $email),
+            new EqualsFilter('salesChannelId', $context->getSalesChannelId())
+        );
         $criteria->setLimit(1);
 
         $ids = $this->newsletterReceiverRepository->searchIds($criteria, $context)->getIds();

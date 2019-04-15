@@ -61,10 +61,6 @@ class NewsletterReceiverServiceTest extends TestCase
         $testDataOption3 = ['option' => 'unitTest', 'email' => 'valid@email.foo', 'salutationId' => 'AD165C1FAAC14059832B6258AC0A7339'];
         $testDataOption4 = ['option' => 'otherValue', 'email' => 'valid@email.foo', 'salutationId' => 'AD165C1FAAC14059832B6258AC0A7339'];
 
-        // test not valid salutationId
-        $notExistentSalutationId = 'AD165C1FAAC14059832B6258AC0A1111';
-        $testDataSalutationId = ['salutationId' => $notExistentSalutationId, 'email' => 'valid@email.foo', 'option' => 'subscribe'];
-
         return [
             [$testData1],
             [$testData2],
@@ -80,7 +76,6 @@ class NewsletterReceiverServiceTest extends TestCase
             [$testDataOption2],
             [$testDataOption3],
             [$testDataOption4],
-            [$testDataSalutationId],
         ];
     }
 

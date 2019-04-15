@@ -281,8 +281,14 @@ export default {
         },
 
         enableInlineEdit() {
-            this.isInlineEditActive = true;
+            this.isInlineEditActive = this.hasColumnWithInlineEdit();
             this.setAllColumnElementWidths();
+        },
+
+        hasColumnWithInlineEdit() {
+            return this.currentColumns.some((item) => {
+                return item.hasOwnProperty('inlineEdit');
+            });
         },
 
         isInlineEdit(item) {

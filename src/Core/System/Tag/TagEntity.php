@@ -7,6 +7,7 @@ use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Checkout\Shipping\ShippingMethodCollection;
 use Shopware\Core\Content\Category\CategoryCollection;
 use Shopware\Core\Content\Media\MediaCollection;
+use Shopware\Core\Content\NewsletterReceiver\NewsletterReceiverCollection;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
@@ -49,6 +50,11 @@ class TagEntity extends Entity
      * @var ShippingMethodCollection|null
      */
     protected $shippingMethods;
+
+    /**
+     * @var NewsletterReceiverCollection|null
+     */
+    protected $newsletterReceivers;
 
     public function getName(): string
     {
@@ -118,5 +124,15 @@ class TagEntity extends Entity
     public function setShippingMethods(ShippingMethodCollection $shippingMethods): void
     {
         $this->shippingMethods = $shippingMethods;
+    }
+
+    public function getNewsletterReceivers(): ?NewsletterReceiverCollection
+    {
+        return $this->newsletterReceivers;
+    }
+
+    public function setNewsletterReceivers(NewsletterReceiverCollection $newsletterReceivers): void
+    {
+        $this->newsletterReceivers = $newsletterReceivers;
     }
 }

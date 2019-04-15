@@ -44,21 +44,3 @@ deleteForms.forEach(form => {
         });
     });
 });
-
-// basic js to set default billing and shipping address
-const ACC_ADDRESS_SET_DEFAULT_SELECTOR = 'form[data-address-set-default=true]';
-const setDefaultForms = document.querySelectorAll(ACC_ADDRESS_SET_DEFAULT_SELECTOR);
-
-setDefaultForms.forEach(form => {
-    form.addEventListener('submit', function (e) {
-        e.preventDefault();
-
-        const form = e.target;
-        const requestUrl = DomAccess.getAttribute(form, 'action');
-
-        client.patch(requestUrl.toLowerCase(), (response) => {
-            console.log('set default address', response);
-            location.reload(true);
-        });
-    });
-});

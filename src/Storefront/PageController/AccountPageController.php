@@ -2,13 +2,18 @@
 
 namespace Shopware\Storefront\PageController;
 
+use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException as CustomerNotLoggedInExceptionAlias;
+use Shopware\Core\Checkout\Customer\Exception\AddressNotFoundException;
 use Shopware\Core\Checkout\Customer\Exception\BadCredentialsException;
 use Shopware\Core\Checkout\Customer\SalesChannel\AccountRegistrationService;
 use Shopware\Core\Checkout\Customer\SalesChannel\AccountService;
 use Shopware\Core\Framework\Routing\InternalRequest;
+use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Framework\Controller\StorefrontController;
 use Shopware\Storefront\Framework\Page\PageLoaderInterface;
@@ -72,6 +77,11 @@ class AccountPageController extends StorefrontController
      */
     private $accountRegistrationService;
 
+    /**
+     * @var SalesChannelContextServiceInterface
+     */
+    private $salesChannelContextService;
+
     public function __construct(
         PageLoaderInterface $accountLoginPageLoader,
         PageLoaderInterface $accountOverviewPageLoader,
@@ -81,7 +91,8 @@ class AccountPageController extends StorefrontController
         PageLoaderInterface $accountOrderPageLoader,
         PageLoaderInterface $addressPageLoader,
         AccountService $accountService,
-        AccountRegistrationService $accountRegistrationService
+        AccountRegistrationService $accountRegistrationService,
+        SalesChannelContextServiceInterface $salesChannelContextService
     ) {
         $this->loginPageLoader = $accountLoginPageLoader;
         $this->addressListPageLoader = $accountAddressPageLoader;
@@ -92,6 +103,7 @@ class AccountPageController extends StorefrontController
         $this->addressPageLoader = $addressPageLoader;
         $this->accountService = $accountService;
         $this->accountRegistrationService = $accountRegistrationService;
+        $this->salesChannelContextService = $salesChannelContextService;
     }
 
     /**
@@ -269,5 +281,41 @@ class AccountPageController extends StorefrontController
         $page = $this->addressPageLoader->load($request, $context);
 
         return $this->renderStorefront('@Storefront/page/account/addressbook/edit.html.twig', ['page' => $page]);
+    }
+
+    /**
+     * @Route("/account/address/default-{type}/{addressId}", name="frontend.account.address.set-default-address", methods={"POST"})
+     *
+     * @throws CustomerNotLoggedInException
+     * @throws InvalidUuidException
+     */
+    public function setDefaultShippingAddress(string $type, string $addressId, SalesChannelContext $context): RedirectResponse
+    {
+        if (!Uuid::isValid($addressId)) {
+            throw new InvalidUuidException($addressId);
+        }
+
+        $success = true;
+        try {
+            if ($type === 'shipping') {
+                $this->accountService->setDefaultShippingAddress($addressId, $context);
+            } elseif ($type === 'billing') {
+                $this->accountService->setDefaultBillingAddress($addressId, $context);
+            } else {
+                $success = false;
+            }
+        } catch (AddressNotFoundException $exception) {
+            $success = false;
+        }
+
+        $this->salesChannelContextService->refresh(
+            $context->getSalesChannel()->getId(),
+            $context->getToken(),
+            $context->getContext()->getLanguageId()
+        );
+
+        return new RedirectResponse($this->generateUrl('frontend.account.address.page', [
+            'changedDefaultAddress' => $success,
+        ]));
     }
 }

@@ -8,7 +8,7 @@ const fixture = {
 module.exports = {
     '@tags': ['sales-channel-delete', 'sales-channel', 'delete'],
     before: (browser, done) => {
-        global.SalesChannelFixtureService.setSalesChannelFixture(fixture).then(() => {
+        global.AdminSalesChannelFixtureService.setSalesChannelFixture(fixture).then(() => {
             done();
         });
     },

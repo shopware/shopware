@@ -40,9 +40,7 @@ exports.command = function fillSwSelectComponent(
         this
             .waitForElementPresent(selector)
             .waitForElementVisible(selector)
-            .click(selector, function() {
-                console.log('fsadsahdioashdoi aoidhoashd sahidosha iodhasio dhiasoh dioashiodhaiso hdio hasodh ');
-            })
+            .click(selector)
             .waitForElementVisible(`${selector} ${swSelectResultsCssSelector}`)
             .waitForElementVisible(`${selector} ${inputCssSelector}`);
     }

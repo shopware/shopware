@@ -1,6 +1,6 @@
 const AdminFixtureService = require('./../fixture.service.js').default;
 
-export default class SalesChannelFixtureService extends AdminFixtureService {
+export default class AdminSalesChannelFixtureService extends AdminFixtureService {
     constructor() {
         super();
 
@@ -130,4 +130,4 @@ export default class SalesChannelFixtureService extends AdminFixtureService {
     }
 }
 
-global.SalesChannelFixtureService = new SalesChannelFixtureService();
+global.AdminSalesChannelFixtureService = new AdminSalesChannelFixtureService();

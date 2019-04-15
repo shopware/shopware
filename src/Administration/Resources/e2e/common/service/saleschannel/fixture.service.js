@@ -17,10 +17,6 @@ export default class SalesChannelFixtureService {
         });
     }
 
-    setBasicFixture(json) {
-        this.basicFixture = this.loadJson(json);
-    }
-
     createUuid() {
         return uuid();
     }

@@ -3,7 +3,7 @@
 namespace Shopware\Storefront\Pagelet\Detail\Images;
 
 use Shopware\Core\Content\Product\Exception\ProductNotFoundException;
-use Shopware\Core\Content\Product\Storefront\StorefrontProductRepository;
+use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Routing\InternalRequest;
 use Shopware\Core\Framework\Struct\Struct;
@@ -19,11 +19,11 @@ class DetailImagesPageletLoader implements PageLoaderInterface
     private $eventDispatcher;
 
     /**
-     * @var StorefrontProductRepository
+     * @var SalesChannelProductRepository
      */
     private $productRepository;
 
-    public function __construct(StorefrontProductRepository $productRepository, EventDispatcherInterface $eventDispatcher)
+    public function __construct(SalesChannelProductRepository $productRepository, EventDispatcherInterface $eventDispatcher)
     {
         $this->productRepository = $productRepository;
         $this->eventDispatcher = $eventDispatcher;

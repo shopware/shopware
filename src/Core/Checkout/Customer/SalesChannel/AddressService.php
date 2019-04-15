@@ -5,8 +5,10 @@ namespace Shopware\Core\Checkout\Customer\SalesChannel;
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressCollection;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
+use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\CustomerEvents;
 use Shopware\Core\Checkout\Customer\Exception\AddressNotFoundException;
+use Shopware\Core\Checkout\Customer\Exception\CannotDeleteDefaultAddressException;
 use Shopware\Core\Checkout\Customer\Validation\AddressValidationService;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
@@ -155,11 +157,21 @@ class AddressService
      * @throws CustomerNotLoggedInException
      * @throws InvalidUuidException
      * @throws AddressNotFoundException
+     * @throws CannotDeleteDefaultAddressException
      */
     public function delete(string $addressId, SalesChannelContext $context): void
     {
         $this->validateCustomerIsLoggedIn($context);
         $this->validateAddressId($addressId, $context);
+
+        /** @var CustomerEntity $customer */
+        $customer = $context->getCustomer();
+
+        if ($addressId === $customer->getDefaultBillingAddressId()
+            || $addressId === $customer->getDefaultShippingAddressId()) {
+            throw new CannotDeleteDefaultAddressException($addressId);
+        }
+
         $this->customerAddressRepository->delete([['id' => $addressId]], $context->getContext());
     }
 

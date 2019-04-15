@@ -6,11 +6,14 @@ use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException as CustomerNotLoggedInExceptionAlias;
 use Shopware\Core\Checkout\Customer\Exception\AddressNotFoundException;
 use Shopware\Core\Checkout\Customer\Exception\BadCredentialsException;
+use Shopware\Core\Checkout\Customer\Exception\CannotDeleteDefaultAddressException;
 use Shopware\Core\Checkout\Customer\SalesChannel\AccountRegistrationService;
 use Shopware\Core\Checkout\Customer\SalesChannel\AccountService;
+use Shopware\Core\Checkout\Customer\SalesChannel\AddressService;
 use Shopware\Core\Framework\Routing\InternalRequest;
 use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceInterface;
@@ -78,6 +81,11 @@ class AccountPageController extends StorefrontController
     private $accountRegistrationService;
 
     /**
+     * @var AddressService
+     */
+    private $addressService;
+
+    /**
      * @var SalesChannelContextServiceInterface
      */
     private $salesChannelContextService;
@@ -92,7 +100,8 @@ class AccountPageController extends StorefrontController
         PageLoaderInterface $addressPageLoader,
         AccountService $accountService,
         AccountRegistrationService $accountRegistrationService,
-        SalesChannelContextServiceInterface $salesChannelContextService
+        SalesChannelContextServiceInterface $salesChannelContextService,
+        AddressService $addressService
     ) {
         $this->loginPageLoader = $accountLoginPageLoader;
         $this->addressListPageLoader = $accountAddressPageLoader;
@@ -104,6 +113,7 @@ class AccountPageController extends StorefrontController
         $this->accountService = $accountService;
         $this->accountRegistrationService = $accountRegistrationService;
         $this->salesChannelContextService = $salesChannelContextService;
+        $this->addressService = $addressService;
     }
 
     /**
@@ -247,12 +257,12 @@ class AccountPageController extends StorefrontController
 
     /**
      * @Route("/account/address", name="frontend.account.address.page", options={"seo"="false"}, methods={"GET"})
-     *
-     * @throws CustomerNotLoggedInExceptionAlias
      */
     public function addressOverview(InternalRequest $request, SalesChannelContext $context): Response
     {
-        $this->denyAccessUnlessLoggedIn();
+        if (!$context->getCustomer()) {
+            return $this->redirectToRoute('frontend.account.login.page');
+        }
 
         $page = $this->addressListPageLoader->load($request, $context);
 
@@ -317,5 +327,24 @@ class AccountPageController extends StorefrontController
         return new RedirectResponse($this->generateUrl('frontend.account.address.page', [
             'changedDefaultAddress' => $success,
         ]));
+    }
+
+    /**
+     * @Route("/account/address/delete/{addressId}", name="frontend.account.address.delete", options={"seo"="false"}, methods={"POST"})
+     */
+    public function deleteAddress(InternalRequest $request, SalesChannelContext $context): Response
+    {
+        if (!$context->getCustomer()) {
+            return $this->redirectToRoute('frontend.account.login.page');
+        }
+
+        try {
+            $success = true;
+            $this->addressService->delete($request->requireGet('addressId'), $context);
+        } catch (InvalidUuidException | AddressNotFoundException | CannotDeleteDefaultAddressException $exception) {
+            $success = false;
+        }
+
+        return new RedirectResponse($this->generateUrl('frontend.account.address.page', ['addressDeleted' => $success]));
     }
 }

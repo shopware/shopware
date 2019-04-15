@@ -29,13 +29,17 @@ final class ExtendsTokenParser extends AbstractTokenParser
         //get full token stream to inject extends token for inheritance
         $stream = $this->parser->getStream();
 
+        $source = $stream->getSourceContext()->getName();
+
+        $source = explode('/', $source);
+        $source = array_shift($source);
+        $source = ltrim($source, '@');
+
+        $template = $this->finder->getTemplateName($stream->next()->getValue());
+
         //resolves parent template
-        $parent = $this->finder->find(
-            //set pointer to next value (contains the template file name)
-            $this->finder->getTemplateName(
-                $stream->next()->getValue()
-            )
-        );
+        //set pointer to next value (contains the template file name)
+        $parent = $this->finder->find($template, false, $source);
 
         //set pointer to end of line - BLOCK_END_TYPE
         $stream->next();

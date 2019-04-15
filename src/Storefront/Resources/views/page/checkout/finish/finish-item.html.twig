@@ -1,4 +1,4 @@
-{% extends '@Storefront/page/checkout/confirm/confirm-item.html.twig' %}
+{% sw_extends '@Storefront/page/checkout/confirm/confirm-item.html.twig' %}
 
 {% block page_checkout_item_info_image_link %}
     <a href="{{ path('frontend.detail.page', {'productId': lineItem.identifier}) }}" class="cart-item-img-link" title="{{ lineItem.label }}">

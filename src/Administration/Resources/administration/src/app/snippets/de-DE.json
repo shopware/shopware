@@ -459,6 +459,14 @@
       "sunday": "Sonntag"
     }
   },
+  "sw-text-editor-toolbar": {
+    "link": {
+      "openInNewTab": "Open link in new window",
+      "placeholder": "Enter URL",
+      "linkTo": "Link to",
+      "insert": "Insert"
+    }
+  },
   "sw-tree": {
     "general": {
       "placeholderSearch": "Suche",

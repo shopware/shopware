@@ -1,0 +1,24 @@
+@import "~scss/variables";
+
+$sw-text-editor-boxed-mode-color: $color-light-gray;
+
+.sw-text-editor {
+
+    &.is--boxed {
+        position: relative;
+        border: 1px solid $sw-text-editor-boxed-mode-color;
+        border-radius: 5px;
+        padding-top: 28px;
+
+        .sw-text-editor__content {
+
+            .sw-text-editor__content-editor {
+                padding: 10px;
+            }
+        }
+    }
+
+    .sw-text-editor__content-editor {
+        outline: 0 solid transparent;
+    }
+}

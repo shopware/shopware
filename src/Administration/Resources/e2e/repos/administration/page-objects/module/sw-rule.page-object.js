@@ -39,11 +39,6 @@ class RuleBuilderPageObject extends GeneralPageObject {
                 value: ruleData.type,
                 isMulti: false,
                 searchTerm: ruleData.type
-            })
-            .fillSwSelectComponent(`${ruleData.ruleSelector} .field--main`, {
-                value: ruleData.value,
-                isMulti: ruleData.isMulti,
-                searchTerm: ruleData.value
             });
 
         if (ruleData.operator) {
@@ -54,6 +49,12 @@ class RuleBuilderPageObject extends GeneralPageObject {
                     searchTerm: ruleData.operator
                 });
         }
+        this.browser
+            .fillSwSelectComponent(`${ruleData.ruleSelector} .field--main`, {
+                value: ruleData.value,
+                isMulti: ruleData.isMulti,
+                searchTerm: ruleData.value
+            });
     }
 
     createBasicInputCondition(ruleData) {
@@ -62,8 +63,7 @@ class RuleBuilderPageObject extends GeneralPageObject {
                 value: ruleData.type,
                 isMulti: false,
                 searchTerm: ruleData.type
-            })
-            .fillField(`input[name=${ruleData.inputName}]`, ruleData.value);
+            });
 
         if (ruleData.operator) {
             this.browser
@@ -73,6 +73,8 @@ class RuleBuilderPageObject extends GeneralPageObject {
                     searchTerm: ruleData.operator
                 });
         }
+
+        this.browser.fillField(`input[name=${ruleData.inputName}]`, ruleData.value);
     }
 
     createCombinedInputSelectCondition(ruleData) {

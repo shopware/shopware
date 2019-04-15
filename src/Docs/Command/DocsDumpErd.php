@@ -16,7 +16,7 @@ use Shopware\Core\Content\MailTemplate\Aggregate\MailHeaderFooter\MailHeaderFoot
 use Shopware\Core\Content\MailTemplate\Aggregate\MailHeaderFooterTranslation\MailHeaderFooterTranslationDefinition;
 use Shopware\Core\Content\MailTemplate\Aggregate\MailTemplateMedia\MailTemplateMediaDefinition;
 use Shopware\Core\Content\MailTemplate\Aggregate\MailTemplateSalesChannel\MailTemplateSalesChannelDefinition;
-use Shopware\Core\Content\MailTemplate\Aggregate\MailTemplateTranslation\MailTemplateTranslationDefinition;
+use Shopware\Core\Content\MailTemplate\Aggregate\MailTemplateTranslation\MailTemplateTypeTranslationDefinition;
 use Shopware\Core\Content\MailTemplate\MailTemplateDefinition;
 use Shopware\Core\Content\NewsletterReceiver\NewsletterReceiverDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionRegistry;
@@ -52,7 +52,7 @@ class DocsDumpErd extends Command
         MailHeaderFooterDefinition::class,
         MailTemplateDefinition::class,
         MailTemplateSalesChannelDefinition::class,
-        MailTemplateTranslationDefinition::class,
+        MailTemplateTypeTranslationDefinition::class,
         MailTemplateDefinition::class,
         MailTemplateMediaDefinition::class,
 

@@ -27,16 +27,11 @@ Component.register('sw-mail-template-list', {
         getList() {
             this.isLoading = true;
             const params = this.getListingParams();
-
             params.associations = {
-                salesChannels: {
-                    page: 1,
-                    limit: 5
-                }
+                salesChannels: {}
             };
 
             this.mailTemplates = [];
-
             this.mailTemplateStore.getList(params, true).then((response) => {
                 this.total = response.total;
                 this.mailTemplates = response.items;

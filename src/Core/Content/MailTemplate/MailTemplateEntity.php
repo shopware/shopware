@@ -4,6 +4,7 @@ namespace Shopware\Core\Content\MailTemplate;
 
 use Shopware\Core\Content\MailTemplate\Aggregate\MailTemplateMedia\MailTemplateMediaCollection;
 use Shopware\Core\Content\MailTemplate\Aggregate\MailTemplateTranslation\MailTemplateTranslationCollection;
+use Shopware\Core\Content\MailTemplate\Aggregate\MailTemplateType\MailTemplateTypeEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
@@ -20,7 +21,12 @@ class MailTemplateEntity extends Entity
     /**
      * @var string|null
      */
-    protected $mailType;
+    protected $mailTemplateTypeId;
+
+    /**
+     * @var MailTemplateTypeEntity|null
+     */
+    protected $mailTemplateType;
 
     /**
      * @var bool
@@ -87,14 +93,14 @@ class MailTemplateEntity extends Entity
         $this->senderMail = $senderMail;
     }
 
-    public function getMailType(): ?string
+    public function getMailTemplateType(): ?MailTemplateTypeEntity
     {
-        return $this->mailType;
+        return $this->mailTemplateType;
     }
 
-    public function setMailType(string $mailType): void
+    public function setMailTemplateType(MailTemplateTypeEntity $mailTemplateType): void
     {
-        $this->mailType = $mailType;
+        $this->mailTemplateType = $mailTemplateType;
     }
 
     public function getSystemDefault(): bool
@@ -205,5 +211,15 @@ class MailTemplateEntity extends Entity
     public function setMedia(MailTemplateMediaCollection $media): void
     {
         $this->media = $media;
+    }
+
+    public function getMailTemplateTypeId(): ?string
+    {
+        return $this->mailTemplateTypeId;
+    }
+
+    public function setMailTemplateTypeId(?string $mailTemplateTypeId): void
+    {
+        $this->mailTemplateTypeId = $mailTemplateTypeId;
     }
 }

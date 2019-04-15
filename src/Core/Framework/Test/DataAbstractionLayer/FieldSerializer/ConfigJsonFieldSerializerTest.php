@@ -21,7 +21,9 @@ class ConfigJsonFieldSerializerTest extends TestCase
 {
     use KernelTestBehaviour, CacheTestBehaviour;
 
-    /** @var ConfigJsonFieldSerializer */
+    /**
+     * @var ConfigJsonFieldSerializer
+     */
     private $serializer;
 
     /**

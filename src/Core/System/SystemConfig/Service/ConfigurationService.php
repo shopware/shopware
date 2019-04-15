@@ -47,7 +47,7 @@ class ConfigurationService
             throw new BundleNotFoundException($bundleName);
         }
 
-        // TODO: allow custom config loading
+        // TODO: NEXT-2809 - allow custom config loading
         $config = $this->configReader->getConfigFromBundle($bundle);
         $domain = $scope . '.' . $bundle->getName() . '.';
 

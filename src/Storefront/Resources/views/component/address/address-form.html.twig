@@ -1,4 +1,10 @@
 {% block component_address_form %}
+	{% block component_address_form_addressId %}
+		{% if data.get('id') %}
+			<input type="hidden" name="{{ prefix }}[id]" value="{{ data.get('id') }}">
+		{% endif %}
+	{% endblock %}
+
 	{% block component_address_form_company %}
 		{#TODO: NEXT-1938 - company#}
 	{% endblock %}

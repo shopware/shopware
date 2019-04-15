@@ -3,11 +3,24 @@
 $sw-context-button-color-text:    $color-gutenberg;
 $sw-context-button-border-radius: $border-radius-default;
 $sw-context-button-color-border:  $color-steam-cloud;
+$sw-context-button-color-disabled:  $color-light-gray;
 
 .sw-context-button {
     display: inline-block;
     position: relative;
     color: $sw-context-button-color-text;
+
+    &.is--disabled {
+        .sw-context-button__button {
+            color: lighten($sw-context-button-color-text, 20%);
+            cursor: initial;
+
+            &:hover,
+            &.is--active {
+                border: none;
+            }
+        }
+    }
 
     .sw-context-button__button {
         color: $sw-context-button-color-text;

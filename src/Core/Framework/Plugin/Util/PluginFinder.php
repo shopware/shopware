@@ -38,7 +38,7 @@ class PluginFinder
         foreach ($filesystemPlugins as $filesystemPlugin) {
             $pluginName = $this->determinePluginName($filesystemPlugin->getRealPath());
 
-            $plugins[] = (new PluginFromFileSystemStruct())->assign([
+            $plugins[$pluginName] = (new PluginFromFileSystemStruct())->assign([
                 'name' => $pluginName,
                 'path' => $filesystemPlugin->getPathname(),
                 'managedByComposer' => false,
@@ -60,8 +60,9 @@ class PluginFinder
 
         foreach ($composerPackages as $composerPackage) {
             if ($this->isShopwarePluginPackage($composerPackage)) {
-                $plugins[] = (new PluginFromFileSystemStruct())->assign([
-                    'name' => $this->getPluginNameFromPackage($composerPackage),
+                $pluginName = $this->getPluginNameFromPackage($composerPackage);
+                $plugins[$pluginName] = (new PluginFromFileSystemStruct())->assign([
+                    'name' => $pluginName,
                     'path' => $this->getVendorPluginPath($composerPackage, $composer),
                     'managedByComposer' => true,
                 ]);

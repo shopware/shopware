@@ -83,6 +83,7 @@ export default {
                 showPrintMargin: false,
                 wrap: this.softWraps
             });
+            this.editor.setValue(this.value);
         },
         destroyedComponent() {
             delete this.editor;

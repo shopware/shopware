@@ -60,6 +60,7 @@ class ClassNamespaceTest extends TestCase
                     'Framework/DataAbstractionLayer/SchemaGenerator.php',
                     'Defaults.php',
                     'Framework/Snippet/SnippetService.php',
+                    'System/Test/NumberRange/NumberRangeValueGeneratorTest.php',
                     'Framework/Snippet/SnippetServiceInterface.php',
                     'Framework/Test/Api/Controller/SalesChannelProxyControllerTest.php',
                     'Framework/Test/Api/ResponseTypeRegistryTest.php',

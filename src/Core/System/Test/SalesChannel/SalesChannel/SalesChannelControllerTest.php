@@ -290,8 +290,8 @@ class SalesChannelControllerTest extends TestCase
 
     public function testGetSalutations(): void
     {
-        $this->getStorefrontClient()->request('GET', '/storefront-api/v1/salutation');
-        $response = $this->getStorefrontClient()->getResponse();
+        $this->getSalesChannelClient()->request('GET', '/sales-channel-api/v1/salutation');
+        $response = $this->getSalesChannelClient()->getResponse();
         static::assertEquals(200, $response->getStatusCode());
 
         $content = json_decode($response->getContent(), true);

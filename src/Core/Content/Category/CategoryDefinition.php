@@ -37,7 +37,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\UpdatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
-use Shopware\Core\Framework\Tag\TagDefinition;
+use Shopware\Core\System\Tag\TagDefinition;
 
 class CategoryDefinition extends EntityDefinition
 {

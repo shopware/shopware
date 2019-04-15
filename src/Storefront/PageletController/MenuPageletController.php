@@ -5,12 +5,13 @@ namespace Shopware\Storefront\PageletController;
 use Shopware\Core\Framework\Routing\InternalRequest;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Framework\Controller\StorefrontController;
+use Shopware\Storefront\Framework\Controller\XmlHttpRequestableInterface;
 use Shopware\Storefront\Framework\Page\PageLoaderInterface;
 use Shopware\Storefront\Pagelet\Menu\Offcanvas\MenuOffcanvasPageletLoader;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
-class MenuPageletController extends StorefrontController
+class MenuPageletController extends StorefrontController implements XmlHttpRequestableInterface
 {
     /**
      * @var MenuOffcanvasPageletLoader|PageLoaderInterface

@@ -55,6 +55,10 @@ class PaymentMethodRepositoryTest extends TestCase
             $paymentMethod[0]['availabilityRule']['id'],
             $resultSet->first()->getAvailabilityRule()->getId()
         );
+        static::assertSame(
+            'handler_shopware_asynctestpaymenthandler',
+            $resultSet->first()->getFormattedHandlerIdentifier()
+        );
     }
 
     public function testUpdatePaymentMethod(): void

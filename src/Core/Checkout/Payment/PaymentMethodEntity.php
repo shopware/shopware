@@ -117,6 +117,11 @@ class PaymentMethodEntity extends Entity
      */
     protected $attributes;
 
+    /**
+     * @var string
+     */
+    protected $formattedHandlerIdentifier;
+
     public function getPluginId(): ?string
     {
         return $this->pluginId;
@@ -135,6 +140,16 @@ class PaymentMethodEntity extends Entity
     public function setHandlerIdentifier(string $handlerIdentifier): void
     {
         $this->handlerIdentifier = $handlerIdentifier;
+    }
+
+    public function setFormattedHandlerIdentifier(string $formattedHandlerIdentifier): void
+    {
+        $this->formattedHandlerIdentifier = $formattedHandlerIdentifier;
+    }
+
+    public function getFormattedHandlerIdentifier(): string
+    {
+        return $this->formattedHandlerIdentifier;
     }
 
     public function getName(): ?string

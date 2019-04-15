@@ -12,6 +12,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CreatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Deferred;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Internal;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\RestrictDelete;
@@ -53,7 +55,7 @@ class PaymentMethodDefinition extends EntityDefinition
         return new FieldCollection([
             (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
             new FkField('plugin_id', 'pluginId', PluginDefinition::class),
-            (new StringField('handler_identifier', 'handlerIdentifier'))->addFlags(new WriteProtected(Context::SYSTEM_SCOPE)),
+            (new StringField('handler_identifier', 'handlerIdentifier'))->addFlags(new Internal(), new WriteProtected(Context::SYSTEM_SCOPE)),
             (new TranslatedField('name'))->addFlags(new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
             new TranslatedField('description'),
             new IntField('position', 'position'),
@@ -63,6 +65,7 @@ class PaymentMethodDefinition extends EntityDefinition
             new FkField('media_id', 'mediaId', MediaDefinition::class),
             new CreatedAtField(),
             new UpdatedAtField(),
+            (new StringField('handler_identifier', 'formattedHandlerIdentifier'))->addFlags(new WriteProtected(), new Deferred()),
             (new OneToManyAssociationField('salesChannelDefaultAssignments', SalesChannelDefinition::class, 'payment_method_id', 'id'))->addFlags(new RestrictDelete()),
             new ManyToOneAssociationField('plugin', 'plugin_id', PluginDefinition::class, 'id', false),
             (new OneToManyAssociationField('customers', CustomerDefinition::class, 'default_payment_method_id', 'id'))->addFlags(new RestrictDelete()),

@@ -3,23 +3,13 @@
 namespace Shopware\Core\System\SystemConfig\Service;
 
 use Shopware\Core\Framework\Bundle;
-use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\System\SystemConfig\Exception\BundleNotFoundException;
-use Shopware\Core\System\SystemConfig\SystemConfigCollection;
 use Shopware\Core\System\SystemConfig\Util\ConfigReader;
 use Symfony\Component\HttpKernel\Bundle\BundleInterface;
 use Symfony\Component\HttpKernel\KernelInterface;
 
 class ConfigurationService
 {
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $configurationRepository;
-
     /**
      * @var KernelInterface
      */
@@ -30,12 +20,8 @@ class ConfigurationService
      */
     private $configReader;
 
-    public function __construct(
-        EntityRepositoryInterface $configurationRepository,
-        KernelInterface $kernel,
-        ConfigReader $configReader
-    ) {
-        $this->configurationRepository = $configurationRepository;
+    public function __construct(KernelInterface $kernel, ConfigReader $configReader)
+    {
         $this->kernel = $kernel;
         $this->configReader = $configReader;
     }
@@ -43,75 +29,45 @@ class ConfigurationService
     /**
      * @throws BundleNotFoundException
      */
-    public function getConfiguration(string $namespace, Context $context, ?string $salesChannelId = null): array
+    public function getConfiguration(string $domain): array
     {
-        $bundle = $this->getBundle($namespace);
+        $parts = explode('.', $domain, 2);
+        if (count($parts) === 1 && $parts[0] !== '') {
+            $scope = 'bundle';
+            [$bundleName] = $parts;
+        } elseif (count($parts) === 2) {
+            [$scope, $bundleName] = $parts;
+        } else {
+            throw new \InvalidArgumentException('Expected domain');
+        }
+
+        $bundle = $this->getBundle($bundleName);
 
         if (!($bundle instanceof Bundle)) {
-            throw new BundleNotFoundException($namespace);
+            throw new BundleNotFoundException($bundleName);
         }
 
+        // TODO: NEXT-2809 - allow custom config loading
         $config = $this->configReader->getConfigFromBundle($bundle);
+        $domain = $scope . '.' . $bundle->getName() . '.';
 
-        return $this->patchValuesIntoConfig($config, $namespace, $salesChannelId, $context);
-    }
-
-    /**
-     * @param array[][] $config
-     */
-    private function patchValuesIntoConfig(
-        array $config,
-        string $namespace,
-        ?string $salesChannelId,
-        Context $context
-    ): array {
-        $systemConfigCollection = $this->getSystemConfigCollection($namespace, $salesChannelId, $context);
-
-        $configValues = [];
-        foreach ($systemConfigCollection as $systemConfig) {
-            $configValues[$systemConfig->getConfigurationKey()] = $systemConfig->getConfigurationValue();
-        }
-
-        if (!$configValues) {
-            return $config;
-        }
-
-        foreach ($config as &$card) {
-            foreach ($card['fields'] as &$field) {
-                if ($systemConfigCollection->fieldNameInCollection($field['name'])) {
-                    $field['value'] = $configValues[$field['name']];
-                }
+        foreach ($config as $i => $card) {
+            foreach ($card['elements'] as $j => $field) {
+                $field['name'] = $domain . $field['name'];
+                $card['elements'][$j] = $field;
             }
-            unset($field);
+            $config[$i] = $card;
         }
-        unset($card);
 
         return $config;
     }
 
-    private function getSystemConfigCollection(
-        string $namespace,
-        ?string $salesChannelId,
-        Context $context
-    ): SystemConfigCollection {
-        $criteria = new Criteria([]);
-
-        $criteria->addFilter(
-            new EqualsFilter('system_config.namespace', $namespace),
-            new EqualsFilter('system_config.salesChannelId', $salesChannelId)
-        );
-
-        /** @var SystemConfigCollection $configurations */
-        $configurations = $this->configurationRepository->search($criteria, $context)->getEntities();
-
-        return $configurations;
-    }
-
-    private function getBundle(string $namespace): ?BundleInterface
+    private function getBundle(string $bundleName): ?BundleInterface
     {
-        foreach ($this->kernel->getBundles() as $activeBundle) {
-            if ($activeBundle->getNamespace() === $namespace) {
-                return $activeBundle;
+        $class = array_slice(explode('\\', $bundleName), -1)[0];
+        foreach ($this->kernel->getBundles() as $bundle) {
+            if ($bundle->getName() === $class) {
+                return $bundle;
             }
         }
 

@@ -26,7 +26,9 @@ module.exports = {
                 mainMenuId: 'sw-order'
             })
             .expect.element(page.elements.smartBarAmount).to.have.text.that.equals('(1)');
-        browser.expect.element(`${page.elements.dataGridRow}--0`).to.have.text.that.contains(`${global.OrderFixtureService.customerStorefrontFixture.firstName} ${global.OrderFixtureService.customerStorefrontFixture.lastName}`);
+        browser
+            .expect.element(`${page.elements.dataGridRow}--0`)
+            .to.have.text.that.contains(`${global.OrderFixtureService.customerStorefrontFixture.firstName} ${global.OrderFixtureService.customerStorefrontFixture.lastName}`);
     },
     'open existing order': (browser) => {
         const page = orderPage(browser);

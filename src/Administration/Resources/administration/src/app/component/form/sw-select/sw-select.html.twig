@@ -39,10 +39,10 @@
                                                 <span class="sw-select__selection-item">
                                                     <slot name="displayName" :item="selection">
                                                         <span v-if="selection.translated && selection.translated.hasOwnProperty(displayName)">
-                                                            {{ selection.translated[displayName] }}
+                                                            {{ getInlineSnippet(selection.translated[displayName]) }}
                                                         </span>
                                                         <span v-else>
-                                                            {{ selection[displayName] }}
+                                                            {{ getInlineSnippet(selection[displayName]) }}
                                                         </span>
                                                     </slot>
                                                 </span>
@@ -98,10 +98,10 @@
                                     {% block sw_select_single_selection_slot_label %}
                                         <slot name="displayName" :item="singleSelection">
                                             <span v-if="singleSelection.translated && singleSelection.translated.hasOwnProperty(displayName)">
-                                                {{ singleSelection.translated[displayName] }}
+                                                {{ getInlineSnippet(singleSelection.translated[displayName]) }}
                                             </span>
                                             <span v-else>
-                                                {{ singleSelection[displayName] }}
+                                                {{ getInlineSnippet(singleSelection[displayName]) }}
                                             </span>
                                         </slot>
                                     {% endblock %}

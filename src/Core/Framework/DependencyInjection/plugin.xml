@@ -119,7 +119,6 @@
             <argument type="service" id="Shopware\Core\Framework\Plugin\PluginService"/>
             <argument type="service" id="Shopware\Core\Framework\Plugin\PluginLifecycleService"/>
             <argument type="service" id="Shopware\Core\Framework\Plugin\PluginManagementService"/>
-            <argument type="service" id="plugin.repository"/>
             <tag name="shopware.feature" flag="next1223"/>
         </service>
 

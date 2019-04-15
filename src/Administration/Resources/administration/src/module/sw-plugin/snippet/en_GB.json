@@ -30,8 +30,8 @@
       "messageUploadFailureNotAZipFile": "The uploaded file is not a zip file",
       "messageUploadFailureUnzipFailed": "The zip file could not be extracted.",
       "messageUploadFailureNoPluginFoundInZipFile": "No plugin found in the uploaded zip file",
-      "titleLoginDataInvalid": "Logindaten unvollständig",
-      "messageLoginDataInvalid": "Logindaten wurden nicht vollständig angegeben",
+      "titleLoginDataInvalid": "Login data incomplete",
+      "messageLoginDataInvalid": "Login data is incomplete.",
       "titleStoreHostMissing": "Login failed",
       "messageStoreHostMissing": "To be able to log in, you must first set your licensing host in the settings"
     },
@@ -93,7 +93,8 @@
       "titleUpdateSuccess":"Plugin updated",
       "messageUpdateSuccess":"The plugin was successfully updated",
       "deactivated": "Deactivated",
-      "activated": "Activated"
+      "activated": "Activated",
+      "config": "Config"
     },
     "license-list":{
       "textMyPurchases":"Purchases",
@@ -122,5 +123,12 @@
       "messageUpdatesSuccess":"The plugins have been updated successfully",
       "cancelUpdates": "Cancel"
     }
+  },
+  "sw-plugin-config": {
+    "buttonSave": "Save",
+    "buttonCancel": "Abort",
+    "titleSaveSuccess": "Configuration saved",
+    "messageSaveSuccess": "The configuration has been saved successful.",
+    "titleSaveError": "The configuration could not be saved"
   }
 }

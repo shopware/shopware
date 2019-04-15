@@ -21,12 +21,12 @@ class SystemConfigEntity extends Entity
     protected $configurationKey;
 
     /**
-     * @var string
+     * @var mixed
      */
     protected $configurationValue;
 
     /**
-     * @var string
+     * @var string|null
      */
     protected $salesChannelId;
 
@@ -65,22 +65,22 @@ class SystemConfigEntity extends Entity
         $this->configurationKey = $configurationKey;
     }
 
-    public function getConfigurationValue(): string
+    public function getConfigurationValue()
     {
         return $this->configurationValue;
     }
 
-    public function setConfigurationValue(string $configurationValue): void
+    public function setConfigurationValue($configurationValue): void
     {
         $this->configurationValue = $configurationValue;
     }
 
-    public function getSalesChannelId(): string
+    public function getSalesChannelId(): ?string
     {
         return $this->salesChannelId;
     }
 
-    public function setSalesChannelId(string $salesChannelId): void
+    public function setSalesChannelId(?string $salesChannelId): void
     {
         $this->salesChannelId = $salesChannelId;
     }

@@ -44,50 +44,48 @@ class ConfigReaderTest extends TestCase
         return [
             0 => [
                 'title' => [
-                    'en_GB' => 'Basic configuration',
-                    'de_DE' => 'Grundeinstellungen',
+                    'en-GB' => 'Basic configuration',
+                    'de-DE' => 'Grundeinstellungen',
                 ],
-                'fields' => [
+                'elements' => [
                     0 => [
                         'type' => 'text',
                         'name' => 'email',
                         'copyable' => true,
                         'label' => [
-                            'en_GB' => 'eMail',
-                            'de_DE' => 'E-Mail',
+                            'en-GB' => 'eMail',
+                            'de-DE' => 'E-Mail',
                         ],
                         'placeholder' => [
-                            'en_GB' => 'Enter your eMail address',
-                            'de_DE' => 'Bitte gib deine E-Mail Adresse ein',
+                            'en-GB' => 'Enter your eMail address',
+                            'de-DE' => 'Bitte gib deine E-Mail Adresse ein',
                         ],
-                        'value' => null,
                     ],
                     1 => [
                         'type' => 'select',
                         'name' => 'mailMethod',
                         'options' => [
                             0 => [
-                                'value' => 'smtp',
-                                'label' => [
-                                    'en_GB' => 'SMTP',
+                                'id' => 'smtp',
+                                'name' => [
+                                    'en-GB' => 'SMTP',
                                 ],
                             ],
                             1 => [
-                                'value' => 'pop3',
-                                'label' => [
-                                    'en_GB' => 'POP3',
+                                'id' => 'pop3',
+                                'name' => [
+                                    'en-GB' => 'POP3',
                                 ],
                             ],
                         ],
                         'label' => [
-                            'en_GB' => 'Mailing protocol',
-                            'de_DE' => 'E-Mail Versand Protokoll',
+                            'en-GB' => 'Mailing protocol',
+                            'de-DE' => 'E-Mail Versand Protokoll',
                         ],
                         'placeholder' => [
-                            'en_GB' => 'Choose your preferred transfer method',
-                            'de_DE' => 'Bitte wähle dein bevorzugtes Versand Protokoll',
+                            'en-GB' => 'Choose your preferred transfer method',
+                            'de-DE' => 'Bitte wähle dein bevorzugtes Versand Protokoll',
                         ],
-                        'value' => null,
                     ],
                 ],
             ],

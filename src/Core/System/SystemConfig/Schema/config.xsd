@@ -15,7 +15,15 @@
         <xs:sequence>
             <xs:element name="title" type="translatableString" maxOccurs="unbounded"/>
             <xs:element name="input-field" type="input-field" maxOccurs="unbounded"/>
+            <xs:element name="component" type="component" minOccurs="0" maxOccurs="unbounded"/>
         </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="component">
+        <xs:sequence>
+            <xs:element name="name" type="name"/>
+            <xs:any processContents="skip" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+        <xs:attribute name="name" type="xs:string" use="required"/>
     </xs:complexType>
     <xs:complexType name="input-field">
         <xs:sequence>
@@ -32,29 +40,25 @@
     </xs:complexType>
     <xs:simpleType name="type">
         <xs:restriction base="xs:string">
+            <xs:enumeration value="int"/>
             <xs:enumeration value="text"/>
-            <xs:enumeration value="select"/>
-            <xs:enumeration value="boolean"/>
-            <xs:enumeration value="checkbox"/>
-            <xs:enumeration value="switch"/>
-            <xs:enumeration value="number"/>
-            <xs:enumeration value="radio"/>
-            <xs:enumeration value="textarea"/>
+            <xs:enumeration value="bool"/>
+            <xs:enumeration value="float"/>
             <xs:enumeration value="datetime"/>
             <xs:enumeration value="password"/>
-            <xs:enumeration value="colorpicker"/>
+            <xs:enumeration value="select"/>
         </xs:restriction>
     </xs:simpleType>
     <xs:complexType name="translatableString">
         <xs:simpleContent>
             <xs:extension base="xs:string">
-                <xs:attribute name="lang" type="languageCode" default="en_GB"/>
+                <xs:attribute name="lang" type="languageCode" default="en-GB"/>
             </xs:extension>
         </xs:simpleContent>
     </xs:complexType>
     <xs:simpleType name="languageCode">
         <xs:restriction base="xs:string">
-            <xs:pattern value="[a-z]{2}_[A-Z]{2}"/>
+            <xs:pattern value="[a-z]{2}-[A-Z]{2}"/>
         </xs:restriction>
     </xs:simpleType>
     <xs:complexType name="option-collection">
@@ -64,13 +68,13 @@
     </xs:complexType>
     <xs:complexType name="option">
         <xs:sequence>
-            <xs:element name="value" type="xs:string"/>
-            <xs:element name="label" type="translatableString" maxOccurs="unbounded"/>
+            <xs:element name="id" type="xs:string"/>
+            <xs:element name="name" type="translatableString" maxOccurs="unbounded"/>
         </xs:sequence>
     </xs:complexType>
     <xs:simpleType name="name">
         <xs:restriction base="xs:string">
-            <xs:pattern value="[a-zA-Z]{4,}"/>
+            <xs:pattern value="[a-zA-Z0-9]{4,}"/>
         </xs:restriction>
     </xs:simpleType>
 </xs:schema>

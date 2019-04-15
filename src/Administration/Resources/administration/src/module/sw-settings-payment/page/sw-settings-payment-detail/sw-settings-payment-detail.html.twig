@@ -44,7 +44,7 @@
                     <sw-card :title="$tc('sw-settings-payment.detail.titleCard')">
                         {% block sw_settings_payment_detail_content_field_plugin %}
                             <sw-plugin-box v-if="!!paymentMethod.pluginId"
-                                             :pluginId="paymentMethod.pluginId">
+                                           :pluginId="paymentMethod.pluginId">
                             </sw-plugin-box>
                         {% endblock %}
 

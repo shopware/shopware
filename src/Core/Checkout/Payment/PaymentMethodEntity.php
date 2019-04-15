@@ -98,7 +98,7 @@ class PaymentMethodEntity extends Entity
     protected $availabilityRule;
 
     /**
-     * @var string
+     * @var string|null
      */
     protected $availabilityRuleId;
 

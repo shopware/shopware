@@ -10,42 +10,31 @@ class QuantityInformation extends Struct
      * @var int|null
      */
     protected $minPurchase;
+
     /**
      * @var int|null
      */
     protected $maxPurchase;
+
     /**
      * @var int|null
      */
     protected $purchaseSteps;
+
     /**
      * @var string|null
      */
     protected $packUnit;
+
     /**
      * @var float|null
      */
     protected $referenceUnit;
+
     /**
      * @var float|null
      */
     protected $purchaseUnit;
-
-    public function __construct(
-        ?int $minPurchase = null,
-        ?int $maxPurchase = null,
-        ?int $purchaseSteps = null,
-        ?string $packUnit = null,
-        ?float $referenceUnit = null,
-        ?float $purchaseUnit = null
-    ) {
-        $this->minPurchase = $minPurchase;
-        $this->maxPurchase = $maxPurchase;
-        $this->purchaseSteps = $purchaseSteps;
-        $this->packUnit = $packUnit;
-        $this->referenceUnit = $referenceUnit;
-        $this->purchaseUnit = $purchaseUnit;
-    }
 
     public function getMinPurchase(): ?int
     {

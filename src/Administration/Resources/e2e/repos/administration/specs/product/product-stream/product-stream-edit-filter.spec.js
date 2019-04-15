@@ -41,10 +41,10 @@ module.exports = {
     'create first filter for active state': (browser) => {
         const page = productStreamPage(browser);
 
-        page.createBasicSwitchCondition({
+        page.createBasicSelectCondition({
             type: 'Active',
             ruleSelector: `${page.elements.baseCondition}`,
-            value: true
+            value: 'Yes'
         });
     },
     'create and-filter for products before active-filter': (browser) => {
@@ -58,10 +58,10 @@ module.exports = {
 
         page.createBasicSelectCondition({
             type: 'Product',
-            operator: 'Equals any',
+            operator: 'Is equal to any of',
             ruleSelector: `${page.elements.conditionOrContainer}--0 ${page.elements.conditionAndContainer}--0 ${page.elements.baseCondition}`,
             value: 'Product name',
-            isMulti: false
+            isMulti: true
         });
 
         browser.expect.element(`${page.elements.conditionAndContainer}--0 .sw-select__single-selection`).to.have.text.that.equals('Product');
@@ -80,8 +80,8 @@ module.exports = {
             type: 'Price',
             secondValue: '100',
             firstValue: 'Gross',
-            inputName: 'sw-field--actualCondition-value',
-            operator: 'Not equals',
+            inputName: 'sw-field--filterValue',
+            operator: 'Is not equal to',
             isMulti: false,
             ruleSelector: `${page.elements.conditionOrContainer}--0 ${page.elements.conditionAndContainer}--2 ${page.elements.baseCondition}`
         });
@@ -97,8 +97,8 @@ module.exports = {
 
         page.createBasicInputCondition({
             type: 'Release date',
-            inputName: 'sw-field--actualCondition-value',
-            operator: 'Equals',
+            inputName: 'sw-field--filterValue',
+            operator: 'Is equal to',
             ruleSelector: `${page.elements.conditionOrContainer}--1 ${page.elements.conditionAndContainer}--0`,
             value: '14.05.2019'
         });
@@ -112,8 +112,8 @@ module.exports = {
 
         page.createBasicInputCondition({
             type: 'Stock',
-            inputName: 'sw-field--actualCondition-value',
-            operator: 'Not equals',
+            inputName: 'sw-field--filterValue',
+            operator: 'Is not equal to',
             ruleSelector: `${page.elements.conditionOrContainer}--1 ${page.elements.conditionAndContainer}--1`,
             value: '10'
         });
@@ -126,9 +126,9 @@ module.exports = {
             .waitForElementVisible(`${page.elements.conditionOrContainer}--1 ${page.elements.orSpacer}`);
 
         page.createBasicInputCondition({
-            type: 'Sales',
-            inputName: 'sw-field--actualCondition-value',
-            operator: 'Not equals',
+            type: 'Stock',
+            inputName: 'sw-field--filterValue',
+            operator: 'Is not equal to',
             ruleSelector: `${page.elements.conditionOrContainer}--1 ${page.elements.conditionAndContainer}--1 ${page.elements.conditionOrContainer}--1`,
             value: '10'
         });

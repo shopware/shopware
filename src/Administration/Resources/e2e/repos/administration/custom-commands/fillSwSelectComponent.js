@@ -36,9 +36,15 @@ exports.command = function fillSwSelectComponent(
 
     if (!isMulti) {
         // open results list
-        this.moveToElement(`${selector}`, 3, 3)
-            .mouseButtonClick('left')
-            .waitForElementVisible(`${selector} ${swSelectResultsCssSelector}`);
+        // open results list
+        this
+            .waitForElementPresent(selector)
+            .waitForElementVisible(selector)
+            .click(selector, function() {
+                console.log('fsadsahdioashdoi aoidhoashd sahidosha iodhasio dhiasoh dioashiodhaiso hdio hasodh ');
+            })
+            .waitForElementVisible(`${selector} ${swSelectResultsCssSelector}`)
+            .waitForElementVisible(`${selector} ${inputCssSelector}`);
     }
 
     // type in the search term if available

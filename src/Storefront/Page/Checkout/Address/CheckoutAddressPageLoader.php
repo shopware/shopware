@@ -3,8 +3,8 @@
 namespace Shopware\Storefront\Page\Checkout\Address;
 
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
-use Shopware\Core\Checkout\Customer\Storefront\AccountService;
-use Shopware\Core\Checkout\Customer\Storefront\AddressService;
+use Shopware\Core\Checkout\Customer\SalesChannel\AccountService;
+use Shopware\Core\Checkout\Customer\SalesChannel\AddressService;
 use Shopware\Core\Framework\Routing\InternalRequest;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Framework\Page\PageLoaderInterface;

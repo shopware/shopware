@@ -6,8 +6,8 @@ use Shopware\Core\Checkout\Cart\Exception\CartTokenNotFoundException;
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Checkout\Cart\Exception\OrderNotFoundException;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
-use Shopware\Core\Checkout\Order\SalesChannel\OrderService;
 use Shopware\Core\Checkout\Customer\SalesChannel\AddressService;
+use Shopware\Core\Checkout\Order\SalesChannel\OrderService;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\Framework\Routing\InternalRequest;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
@@ -15,6 +15,7 @@ use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Framework\Controller\StorefrontController;
 use Shopware\Storefront\Framework\Page\PageLoaderInterface;
+use Shopware\Storefront\Page\Checkout\AddressList\CheckoutAddressListPageLoader;
 use Shopware\Storefront\Page\Checkout\Cart\CheckoutCartPageLoader;
 use Shopware\Storefront\Page\Checkout\Confirm\CheckoutConfirmPageLoader;
 use Shopware\Storefront\Page\Checkout\Finish\CheckoutFinishPageLoader;
@@ -53,6 +54,11 @@ class CheckoutPageController extends StorefrontController
     private $registerPageLoader;
 
     /**
+     * @var CheckoutAddressListPageLoader|PageLoaderInterface
+     */
+    private $addressListPageLoader;
+
+    /**
      * @var PageLoaderInterface
      */
     private $addressPageLoader;
@@ -73,15 +79,17 @@ class CheckoutPageController extends StorefrontController
         PageLoaderInterface $confirmPageLoader,
         PageLoaderInterface $finishPageLoader,
         PageLoaderInterface $registerPageLoader,
+        PageLoaderInterface $addressListPageLoader,
         PageLoaderInterface $addressPageLoader,
-        OrderService $orderService,
-        AddressService $addressService
+        AddressService $addressService,
+        OrderService $orderService
     ) {
         $this->cartService = $cartService;
         $this->cartPageLoader = $cartPageLoader;
         $this->confirmPageLoader = $confirmPageLoader;
         $this->finishPageLoader = $finishPageLoader;
         $this->registerPageLoader = $registerPageLoader;
+        $this->addressListPageLoader = $addressListPageLoader;
         $this->addressPageLoader = $addressPageLoader;
         $this->orderService = $orderService;
         $this->addressService = $addressService;
@@ -235,5 +243,17 @@ class CheckoutPageController extends StorefrontController
             ['formViolations' => $formViolations],
             ['addressId' => $address->get('id')]
         );
+    }
+
+    /**
+     * @Route("/checkout/address", name="frontend.checkout.address.page", options={"seo"="false"}, methods={"GET"})
+     */
+    public function address(InternalRequest $internal, SalesChannelContext $context): Response
+    {
+        $this->denyAccessUnlessLoggedIn();
+
+        $page = $this->addressListPageLoader->load($internal, $context);
+
+        return $this->renderStorefront('@Storefront/component/address/address-selection.html.twig', ['page' => $page]);
     }
 }

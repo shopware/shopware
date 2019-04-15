@@ -3,6 +3,7 @@
 namespace Shopware\Storefront\Event;
 
 use Shopware\Storefront\Page\Checkout\Address\CheckoutAddressPageLoadedEvent;
+use Shopware\Storefront\Page\Checkout\AddressList\CheckoutAddressListPageLoadedEvent;
 use Shopware\Storefront\Page\Checkout\Cart\CheckoutCartPageLoadedEvent;
 use Shopware\Storefront\Page\Checkout\Confirm\CheckoutConfirmPageLoadedEvent;
 use Shopware\Storefront\Page\Checkout\Finish\CheckoutFinishPageLoadedEvent;
@@ -46,4 +47,9 @@ class CheckoutEvents
      * @Event("Shopware\Storefront\Page\Checkout\Address\CheckoutAddressPageLoadedEvent")
      */
     public const CHECKOUT_ADDRESS_PAGE_LOADED_EVENT = CheckoutAddressPageLoadedEvent::NAME;
+
+    /**
+     * @Event("Shopware\Storefront\Page\Checkout\AddressList\CheckoutAddressListPageLoadedEvent")
+     */
+    public const CHECKOUT_ADDRESS_LIST_PAGE_LOADED_EVENT = CheckoutAddressListPageLoadedEvent::NAME;
 }

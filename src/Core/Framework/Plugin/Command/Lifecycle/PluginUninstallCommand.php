@@ -29,7 +29,7 @@ class PluginUninstallCommand extends AbstractPluginLifecycleCommand
     {
         $io = new SymfonyStyle($input, $output);
         $context = Context::createDefaultContext();
-        $plugins = $this->prepareExecution(self::LIFECYCLE_METHOD, $io, $input->getArgument('plugins'), $context);
+        $plugins = $this->prepareExecution(self::LIFECYCLE_METHOD, $io, $input, $context);
 
         $keepUserData = (bool) $input->getOption('keep-user-data');
 

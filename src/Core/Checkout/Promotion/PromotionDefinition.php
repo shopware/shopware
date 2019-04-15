@@ -59,7 +59,7 @@ class PromotionDefinition extends EntityDefinition
             new ManyToOneAssociationField('discountRule', 'discount_rule_id', RuleDefinition::class, 'id', true),
             new StringField('code_type', 'codeType'),
             new StringField('code', 'code'),
-            new OneToManyAssociationField('promotionSalesChannels', PromotionSalesChannelDefinition::class, 'promotion_id', 'id'),
+            new OneToManyAssociationField('salesChannels', PromotionSalesChannelDefinition::class, 'promotion_id', 'id'),
             new OneToManyAssociationField('discounts', PromotionDiscountDefinition::class, 'promotion_id'),
         ]);
     }

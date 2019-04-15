@@ -103,7 +103,7 @@ class PromotionEntity extends Entity
     /**
      * @var PromotionSalesChannelCollection|null
      */
-    protected $promotionSalesChannels;
+    protected $salesChannels;
 
     /** @var string|null */
     protected $code;
@@ -293,14 +293,23 @@ class PromotionEntity extends Entity
         $this->discounts = $discounts;
     }
 
-    public function getPromotionSalesChannels(): ?PromotionSalesChannelCollection
+    /**
+     * Gets a list of all assigned sales channels for this promotion.
+     * Only customers within these channels are allowed
+     * to use this promotion.
+     */
+    public function getSalesChannels(): ?PromotionSalesChannelCollection
     {
-        return $this->promotionSalesChannels;
+        return $this->salesChannels;
     }
 
-    public function setPromotionSalesChannels(PromotionSalesChannelCollection $promotionSalesChannels): void
+    /**
+     * Sets a list of permitted sales channels for this promotion.
+     * Only customers within these channels are allowed to use this promotion.
+     */
+    public function setSalesChannels(?PromotionSalesChannelCollection $salesChannels): void
     {
-        $this->promotionSalesChannels = $promotionSalesChannels;
+        $this->salesChannels = $salesChannels;
     }
 
     public function getCode(): ?string

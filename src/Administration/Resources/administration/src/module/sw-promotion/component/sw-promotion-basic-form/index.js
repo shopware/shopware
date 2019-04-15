@@ -1,5 +1,6 @@
-import { Component, Mixin } from 'src/core/shopware';
+import { Component, Mixin, State } from 'src/core/shopware';
 import template from './sw-promotion-basic-form.html.twig';
+import './sw-promotion-basic-form.scss';
 
 Component.register('sw-promotion-basic-form', {
     template,
@@ -14,5 +15,15 @@ Component.register('sw-promotion-basic-form', {
             required: true,
             default: {}
         }
+    },
+
+    computed: {
+        salesChannelStore() {
+            return State.getStore('sales_channel');
+        },
+        salesChannelAssociationStore() {
+            return this.promotion.getAssociation('salesChannels');
+        }
     }
+
 });

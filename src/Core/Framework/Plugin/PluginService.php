@@ -117,7 +117,7 @@ class PluginService
             $pluginData = [
                 'name' => $pluginName,
                 'composerName' => $info->getName(),
-                'path' => str_replace($this->projectDir, '', $pluginPath),
+                'path' => str_replace($this->projectDir . '/', '', $pluginPath),
                 'author' => $authors,
                 'copyright' => $extra['copyright'] ?? null,
                 'license' => implode(', ', $license),

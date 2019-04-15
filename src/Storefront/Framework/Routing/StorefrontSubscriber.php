@@ -5,7 +5,7 @@ namespace Shopware\Storefront\Framework\Routing;
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
-use Shopware\Core\StorefrontRequest;
+use Shopware\Core\SalesChannelRequest;
 use Shopware\Storefront\PageController\ErrorPageController;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -57,7 +57,7 @@ class StorefrontSubscriber implements EventSubscriberInterface
         if (!$master) {
             return;
         }
-        if (!$master->attributes->get(StorefrontRequest::ATTRIBUTE_IS_STOREFRONT_REQUEST)) {
+        if (!$master->attributes->get(SalesChannelRequest::ATTRIBUTE_IS_SALES_CHANNEL_REQUEST)) {
             return;
         }
 
@@ -87,7 +87,7 @@ class StorefrontSubscriber implements EventSubscriberInterface
 
     public function showHtmlExceptionResponse(GetResponseForExceptionEvent $event): void
     {
-        if ($event->getRequest()->attributes->has(StorefrontRequest::ATTRIBUTE_IS_STOREFRONT_REQUEST)) {
+        if ($event->getRequest()->attributes->has(SalesChannelRequest::ATTRIBUTE_IS_SALES_CHANNEL_REQUEST)) {
             $event->stopPropagation();
             $content = $this->errorController->error($event->getException(), $this->requestStack->getMasterRequest());
             $event->setResponse($content);
@@ -96,7 +96,7 @@ class StorefrontSubscriber implements EventSubscriberInterface
 
     public function customerNotLoggedInHandler(GetResponseForExceptionEvent $event): void
     {
-        if (!$event->getRequest()->attributes->has(StorefrontRequest::ATTRIBUTE_IS_STOREFRONT_REQUEST)) {
+        if (!$event->getRequest()->attributes->has(SalesChannelRequest::ATTRIBUTE_IS_SALES_CHANNEL_REQUEST)) {
             return;
         }
 

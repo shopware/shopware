@@ -216,7 +216,7 @@ do not just always use the lowest/highest priority.
 
 ## Cart service
 
-To simplify the cart process, Shopware has the `Shopware\Core\Checkout\Cart\Storefront\CartService`
+To simplify the cart process, Shopware has the `Shopware\Core\Checkout\Cart\SalesChannel\CartService`
 which contains a collection of common cart operations.
 
 ### Create a new cart
@@ -224,7 +224,7 @@ which contains a collection of common cart operations.
 ```php
 <?php
 
-use Shopware\Core\Checkout\Cart\Storefront\CartService;
+use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\System\SalesChannel\CheckoutContext;
 
 /**
@@ -242,7 +242,7 @@ public function createNewCart(CheckoutContext $checkoutContext)
 ```php
 <?php
 
-use Shopware\Core\Checkout\Cart\Storefront\CartService;
+use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\System\SalesChannel\CheckoutContext;
 
 /**
@@ -262,7 +262,7 @@ public function getCart(CheckoutContext $checkoutContext)
 <?php
 
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
-use Shopware\Core\Checkout\Cart\Storefront\CartService;
+use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\System\SalesChannel\CheckoutContext;
 use Shopware\Core\Content\Product\Cart\ProductCollector;
 
@@ -287,7 +287,7 @@ If you add multiple line items, please consider the following code example:
 
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
-use Shopware\Core\Checkout\Cart\Storefront\CartService;
+use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\System\SalesChannel\CheckoutContext;
 use Shopware\Core\Content\Product\Cart\ProductCollector;
 
@@ -310,7 +310,7 @@ public function addMultipleLineItems(CheckoutContext $checkoutContext)
 ```php
 <?php
 
-use Shopware\Core\Checkout\Cart\Storefront\CartService;
+use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\System\SalesChannel\CheckoutContext;
 
 
@@ -331,7 +331,7 @@ public function changeLineItemQuantity(CheckoutContext $checkoutContext)
 ```php
 <?php
 
-use Shopware\Core\Checkout\Cart\Storefront\CartService;
+use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\System\SalesChannel\CheckoutContext;
 
 
@@ -352,7 +352,7 @@ public function removeLineItem(CheckoutContext $checkoutContext)
 ```php
 <?php
 
-use Shopware\Core\Checkout\Cart\Storefront\CartService;
+use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\System\SalesChannel\CheckoutContext;
 
 
@@ -373,7 +373,7 @@ public function getDeliveries(CheckoutContext $checkoutContext)
 ```php
 <?php
 
-use Shopware\Core\Checkout\Cart\Storefront\CartService;
+use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\System\SalesChannel\CheckoutContext;
 
 

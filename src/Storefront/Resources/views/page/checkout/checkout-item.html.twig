@@ -63,7 +63,7 @@
 					{% block page_checkout_item_quantity_form %}
 						{#TODO: NEXT-1946 - form action#}
 						{#TODO: NEXT-1946 - check laststock and instock?#}
-						<form action="{{ path('storefront-api.checkout.cart.line-item.update', {'version': 1, 'id': lineItem.key}) }}"
+						<form action="{{ path('sales-channel-api.checkout.cart.line-item.update', {'version': 1, 'id': lineItem.key}) }}"
 						      class="cart-item-quantity-container"
 						      method="post">
 							<div class="row cart-item-quantity-row">
@@ -122,7 +122,7 @@
 					{% block page_checkout_item_remove_form %}
 						{% if lineItem.isRemovable() %}
 							{#TODO: NEXT-1946 - remove functionality#}
-							<form action="{{ path('storefront-api.checkout.cart.line-item.delete', {'version': 1, 'id': lineItem.key}) }}"
+							<form action="{{ path('sales-channel-api.checkout.cart.line-item.delete', {'version': 1, 'id': lineItem.key}) }}"
 							      method="post">
 								{% block page_checkout_item_remove_submit %}
 									<button type="submit"

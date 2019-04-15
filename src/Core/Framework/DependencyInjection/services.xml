@@ -238,7 +238,7 @@
             <argument type="tagged" tag="shopware.validator"/>
         </service>
 
-        <service id="Shopware\Core\Framework\Api\Controller\StorefrontProxyController" public="true">
+        <service id="Shopware\Core\Framework\Api\Controller\SalesChannelProxyController" public="true">
             <argument type="service" id="kernel"/>
             <argument type="service" id="sales_channel.repository"/>
             <argument type="service" id="Shopware\Core\Framework\Routing\SalesChannelRequestContextResolver"/>

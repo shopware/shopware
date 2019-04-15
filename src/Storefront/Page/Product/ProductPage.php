@@ -3,13 +3,13 @@
 namespace Shopware\Storefront\Page\Product;
 
 use Shopware\Core\Content\Cms\CmsPageEntity;
-use Shopware\Core\Content\Product\Storefront\StorefrontProductEntity;
+use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Storefront\Framework\Page\PageWithHeader;
 
 class ProductPage extends PageWithHeader
 {
     /**
-     * @var StorefrontProductEntity
+     * @var SalesChannelProductEntity
      */
     protected $product;
 
@@ -18,12 +18,12 @@ class ProductPage extends PageWithHeader
      */
     protected $cmsPage;
 
-    public function getProduct(): StorefrontProductEntity
+    public function getProduct(): SalesChannelProductEntity
     {
         return $this->product;
     }
 
-    public function setProduct(StorefrontProductEntity $product): void
+    public function setProduct(SalesChannelProductEntity $product): void
     {
         $this->product = $product;
     }

@@ -89,7 +89,7 @@
         <service id="Shopware\Core\Framework\Demodata\Generator\OrderGenerator">
             <argument type="service" id="Doctrine\DBAL\Connection" />
             <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory" />
-            <argument type="service" id="Shopware\Core\Checkout\Cart\Storefront\CartService" />
+            <argument type="service" id="Shopware\Core\Checkout\Cart\SalesChannel\CartService" />
             <argument type="service" id="Shopware\Core\Checkout\Cart\Order\OrderConverter" />
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriter" />
             <tag name="shopware.demodata_generator"/>

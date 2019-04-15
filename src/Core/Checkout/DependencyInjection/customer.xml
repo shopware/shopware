@@ -26,7 +26,7 @@
             <tag name="shopware.entity.definition" entity="customer_tag"/>
         </service>
 
-        <service id="Shopware\Core\Checkout\Customer\Storefront\AccountService">
+        <service id="Shopware\Core\Checkout\Customer\SalesChannel\AccountService">
             <argument type="service" id="customer_address.repository"/>
             <argument type="service" id="customer.repository"/>
             <argument type="service" id="salutation.repository"/>
@@ -37,19 +37,19 @@
             <argument type="service" id="Shopware\Core\Checkout\Customer\Password\LegacyPasswordVerifier"/>
         </service>
 
-        <service id="Shopware\Core\Checkout\Customer\Storefront\StorefrontCustomerController" public="true">
+        <service id="Shopware\Core\Checkout\Customer\SalesChannel\SalesChannelCustomerController" public="true">
             <argument type="service" id="serializer"/>
-            <argument type="service" id="Shopware\Core\Checkout\Customer\Storefront\AccountService"/>
+            <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\AccountService"/>
             <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextService"/>
             <argument type="service" id="order.repository"/>
-            <argument type="service" id="Shopware\Core\Checkout\Customer\Storefront\AccountRegistrationService"/>
-            <argument type="service" id="Shopware\Core\Checkout\Customer\Storefront\AddressService"/>
+            <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\AccountRegistrationService"/>
+            <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\AddressService"/>
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>
         </service>
 
-        <service id="Shopware\Core\Checkout\Customer\Storefront\AccountRegistrationService">
+        <service id="Shopware\Core\Checkout\Customer\SalesChannel\AccountRegistrationService">
             <argument type="service" id="customer.repository"/>
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInterface"/>
@@ -58,7 +58,7 @@
             <argument type="service" id="Shopware\Core\Checkout\Customer\Validation\AddressValidationService"/>
         </service>
 
-        <service id="Shopware\Core\Checkout\Customer\Storefront\AddressService">
+        <service id="Shopware\Core\Checkout\Customer\SalesChannel\AddressService">
             <argument type="service" id="country.repository" />
             <argument type="service" id="customer_address.repository"/>
             <argument type="service" id="Shopware\Core\Checkout\Customer\Validation\AddressValidationService"/>

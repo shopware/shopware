@@ -5,7 +5,7 @@ sales channel.
 
 ## Get currencies
 
-**GET  /storefront-api/v1/context/currencies**
+**GET  /sales-channel-api/v1/context/currencies**
 
 **Header:** x-sw-context-token is required  
 **Response:** Returns a list of currencies assigned to the sales channel.
@@ -14,7 +14,7 @@ You find more information about these operations [here](./50-filter-search-limit
 
 ## Get languages
 
-**GET  /storefront-api/v1/sales-channel/languages**
+**GET  /sales-channel-api/v1/sales-channel/languages**
 
 **Header:** x-sw-context-token is required  
 **Response:** Returns a list of languages assigned to the sales channel.
@@ -23,7 +23,7 @@ You find more information about these operations [here](./50-filter-search-limit
 
 ## Get countries
 
-**GET  /storefront-api/v1/sales-channel/countries**
+**GET  /sales-channel-api/v1/sales-channel/countries**
 
 **Header:** x-sw-context-token is required  
 **Response:** Returns a list of countries assigned to the sales channel.
@@ -32,7 +32,7 @@ You find more information about these operations [here](./50-filter-search-limit
 
 ## Get country states
 
-**GET  /storefront-api/v1/sales-channel/country/states**
+**GET  /sales-channel-api/v1/sales-channel/country/states**
 
 **Header:** x-sw-context-token is required  
 **Response:** Returns a list of country states assigned to the sales channel.
@@ -41,7 +41,7 @@ You find more information about these operations [here](./50-filter-search-limit
 
 ## Get payment methods
 
-**GET  /storefront-api/v1/sales-channel/payment-methods**
+**GET  /sales-channel-api/v1/sales-channel/payment-methods**
 
 **Header:** x-sw-context-token is required  
 **Response:** Returns a list of payment methods assigned to the sales channel.
@@ -50,7 +50,7 @@ You find more information about these operations [here](./50-filter-search-limit
 
 ## Get shipping methods
 
-**GET  /storefront-api/v1/sales-channel/shipping-methods**
+**GET  /sales-channel-api/v1/sales-channel/shipping-methods**
 
 **Header:** x-sw-context-token is required  
 **Response:** Returns a list of shipping methods assigned to the sales channel.

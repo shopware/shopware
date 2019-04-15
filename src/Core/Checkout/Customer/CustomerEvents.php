@@ -157,25 +157,25 @@ class CustomerEvents
     /**
      * @Event("Shopware\Core\Framework\Event\DataMappingEvent")
      */
-    public const MAPPING_REGISTER_ADDRESS_BILLING = 'checkout.customer.storefront.register.billing_address';
+    public const MAPPING_REGISTER_ADDRESS_BILLING = 'checkout.customer.sales_channel.register.billing_address';
 
     /**
      * @Event("Shopware\Core\Framework\Event\DataMappingEvent")
      */
-    public const MAPPING_REGISTER_ADDRESS_SHIPPING = 'checkout.customer.storefront.register.shipping_address';
+    public const MAPPING_REGISTER_ADDRESS_SHIPPING = 'checkout.customer.sales_channel.register.shipping_address';
 
     /**
      * @Event("Shopware\Core\Framework\Event\DataMappingEvent")
      */
-    public const MAPPING_REGISTER_CUSTOMER = 'checkout.customer.storefront.register.customer';
+    public const MAPPING_REGISTER_CUSTOMER = 'checkout.customer.sales_channel.register.customer';
 
     /**
      * @Event("Shopware\Core\Framework\Event\DataMappingEvent")
      */
-    public const MAPPING_CUSTOMER_PROFILE_SAVE = 'checkout.customer.storefront.profile.update';
+    public const MAPPING_CUSTOMER_PROFILE_SAVE = 'checkout.customer.sales_channel.profile.update';
 
     /**
      * @Event("Shopware\Core\Framework\Event\DataMappingEvent")
      */
-    public const MAPPING_ADDRESS_CREATE = 'checkout.customer.storefront.address.create';
+    public const MAPPING_ADDRESS_CREATE = 'checkout.customer.sales_channel.address.create';
 }

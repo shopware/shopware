@@ -69,11 +69,11 @@
             <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\CartRuleLoader"/>
             <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister"/>
-            <argument type="service" id="Shopware\Core\Checkout\Cart\Storefront\CartService"/>
+            <argument type="service" id="Shopware\Core\Checkout\Cart\SalesChannel\CartService"/>
             <tag name="shopware.traceable"/>
         </service>
 
-        <service id="Shopware\Core\System\SalesChannel\Storefront\StorefrontSalesChannelContextController" public="true">
+        <service id="Shopware\Core\System\SalesChannel\SalesChannel\SalesChannelContextController" public="true">
             <argument type="service" id="payment_method.repository"/>
             <argument type="service" id="shipping_method.repository"/>
             <argument type="service" id="customer_address.repository"/>
@@ -94,7 +94,7 @@
             <tag name="console.command"/>
         </service>
 
-        <service id="Shopware\Core\System\SalesChannel\Storefront\StorefrontSalesChannelController" public="true">
+        <service id="Shopware\Core\System\SalesChannel\SalesChannel\SalesChannelController" public="true">
             <argument type="service" id="currency.repository"/>
             <argument type="service" id="language.repository"/>
             <argument type="service" id="country.repository"/>

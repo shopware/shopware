@@ -25,14 +25,14 @@
             <tag name="shopware.entity.definition" entity="cms_slot_translation"/>
         </service>
 
-        <service id="Shopware\Core\Content\Cms\Storefront\StorefrontCmsPageRepository" public="true">
+        <service id="Shopware\Core\Content\Cms\SalesChannel\SalesChannelCmsPageRepository" public="true">
             <argument type="service" id="cms_page.repository" />
         </service>
 
         <service id="Shopware\Core\Content\Cms\SlotDataResolver\SlotDataResolver" public="true">
             <argument type="tagged" tag="shopware.cms.data_resolver"/>
             <argument type="collection">
-                <argument type="service" key="product" id="Shopware\Core\Content\Product\Storefront\StorefrontProductRepository" />
+                <argument type="service" key="product" id="Shopware\Core\Content\Product\SalesChannel\SalesChannelProductRepository" />
             </argument>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionRegistry"/>
         </service>
@@ -57,8 +57,8 @@
             <tag name="shopware.cms.data_resolver"/>
         </service>
 
-        <service id="Shopware\Core\Content\Cms\Storefront\StorefrontCmsPageController" public="true">
-            <argument type="service" id="Shopware\Core\Content\Cms\Storefront\StorefrontCmsPageRepository" />
+        <service id="Shopware\Core\Content\Cms\SalesChannel\SalesChannelCmsPageController" public="true">
+            <argument type="service" id="Shopware\Core\Content\Cms\SalesChannel\SalesChannelCmsPageRepository" />
             <argument type="service" id="Shopware\Core\Content\Cms\SlotDataResolver\SlotDataResolver" />
             <call method="setContainer">
                 <argument type="service" id="service_container" />

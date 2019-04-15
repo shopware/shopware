@@ -6,12 +6,12 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\CartRuleLoader;
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
-use Shopware\Core\Checkout\Cart\Storefront\CartService;
+use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\Cart\ProductCollector;
 use Shopware\Core\Content\Product\ProductEntity;
-use Shopware\Core\Content\Product\Storefront\StorefrontProductRepository;
+use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductRepository;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\Context;
@@ -116,8 +116,8 @@ trait StorefrontPageTestBehaviour
             'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL,
         ]], $context->getContext());
 
-        /** @var StorefrontProductRepository $storefrontProductRepository */
-        $storefrontProductRepository = $this->getContainer()->get(StorefrontProductRepository::class);
+        /** @var SalesChannelProductRepository $storefrontProductRepository */
+        $storefrontProductRepository = $this->getContainer()->get(SalesChannelProductRepository::class);
         $searchResult = $storefrontProductRepository->search(new Criteria([$id]), $context);
 
         return $searchResult->first();

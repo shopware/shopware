@@ -3,13 +3,13 @@
 namespace Shopware\Core\Content\Cms\SlotDataResolver\Type;
 
 use Shopware\Core\Content\Cms\Aggregate\CmsSlot\CmsSlotEntity;
+use Shopware\Core\Content\Cms\SalesChannel\Struct\ProductBoxStruct;
 use Shopware\Core\Content\Cms\SlotDataResolver\CriteriaCollection;
 use Shopware\Core\Content\Cms\SlotDataResolver\ResolverContext\EntityResolverContext;
 use Shopware\Core\Content\Cms\SlotDataResolver\ResolverContext\ResolverContext;
 use Shopware\Core\Content\Cms\SlotDataResolver\SlotDataResolveResult;
-use Shopware\Core\Content\Cms\Storefront\Struct\ProductBoxStruct;
 use Shopware\Core\Content\Product\ProductDefinition;
-use Shopware\Core\Content\Product\Storefront\StorefrontProductEntity;
+use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 
 class ProductBoxTypeDataResolver extends TypeDataResolver
@@ -68,7 +68,7 @@ class ProductBoxTypeDataResolver extends TypeDataResolver
             return;
         }
 
-        /** @var StorefrontProductEntity|null $product */
+        /** @var SalesChannelProductEntity|null $product */
         $product = $searchResult->get($productId);
         if (!$product) {
             return;

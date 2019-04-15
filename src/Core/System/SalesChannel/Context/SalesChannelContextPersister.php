@@ -23,7 +23,7 @@ class SalesChannelContextPersister
         $parameters = array_replace_recursive($existing, $parameters);
 
         $this->connection->executeUpdate(
-            'REPLACE INTO storefront_api_context (`token`, `payload`) VALUES (:token, :payload)',
+            'REPLACE INTO sales_channel_api_context (`token`, `payload`) VALUES (:token, :payload)',
             [
                 'token' => $token,
                 'payload' => json_encode($parameters),
@@ -34,7 +34,7 @@ class SalesChannelContextPersister
     public function load(string $token): array
     {
         $parameter = $this->connection->fetchColumn(
-            'SELECT `payload` FROM storefront_api_context WHERE token = :token',
+            'SELECT `payload` FROM sales_channel_api_context WHERE token = :token',
             ['token' => $token]
         );
 

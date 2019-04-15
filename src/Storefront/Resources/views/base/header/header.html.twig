@@ -21,18 +21,18 @@
                 <div class="col-12 col-md-auto header-actions-col">
                     {% block base_header_main_navigation_toggle %}
                         <div class="nav-main-toggle">
-	                        {% block base_header_main_navigation_toggle_button %}
+                            {% block base_header_main_navigation_toggle_button %}
                                 <button class="btn btn-light nav-main-toggle-btn header-actions-btn"
                                         type="button"
                                         data-offcanvas-menu="true"
                                         aria-label="{{ "general.menuLink"|trans }}">
                                     <i class="fas fa-bars"></i>
                                 </button>
-	                        {% endblock %}
+                            {% endblock %}
                         </div>
                     {% endblock %}
 
-					{% block base_header_search_toggle %}
+                    {% block base_header_search_toggle %}
                         <div class="search-toggle">
                             <button class="btn btn-light search-toggle-btn header-actions-btn collapsed"
                                     type="button"
@@ -44,7 +44,7 @@
                                 <i class="fas fa-search"></i>
                             </button>
                         </div>
-					{% endblock %}
+                    {% endblock %}
 
                     {% block base_header_actions_account %}
                         <div class="account-widget">
@@ -55,6 +55,19 @@
                     {% block base_header_actions_cart %}
                         <div class="cart-widget" data-cart-mini="true">
                             {% sw_include '@Storefront/base/header/actions/cart-widget.html.twig' %}
+                        </div>
+                    {% endblock %}
+
+                    {% block base_header_tablet_main_navigation_toggle_button %}
+                        <div class="menu-button">
+                            {% block base_header_tablet_main_navigation_toggle_button_inner %}
+                                <button class="btn btn-light nav-main-toggle-btn header-actions-btn" type="button"
+                                        data-offcanvas-menu="true" aria-label="{{ "general.menuLink"|trans }}">
+                                    {% block base_header_tablet_main_navigation_toggle_button_icon %}
+                                        <i class="fas fa-bars"></i>
+                                    {% endblock %}
+                                </button>
+                            {% endblock %}
                         </div>
                     {% endblock %}
                 </div>

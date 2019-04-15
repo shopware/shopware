@@ -63,6 +63,11 @@
     margin-right: $spacer-sm;
 }
 
+.menu-button {
+    margin-left: $spacer-sm;
+    display: none;
+}
+
 .account-widget-title,
 .account-widget-btn::after,
 .cart-widget-total {
@@ -82,6 +87,12 @@
 
 .cart-widget-btn {
     position: relative;
+}
+
+@include media-breakpoint-only(md) {
+    .menu-button {
+        display: block;
+    }
 }
 
 @include media-breakpoint-up(md) {
@@ -107,7 +118,7 @@
         max-width: 350px;
         margin: auto;
     }
-    
+
     .nav-main-toggle,
     .search-toggle {
         display: none;

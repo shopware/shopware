@@ -125,9 +125,8 @@
         border-radius: 4px;
 
         &:hover {
-
             color: #465462;
-            border-color: #bcbfc5;
+            background: linear-gradient(to bottom, #f8f8fa 0%, #f2f2f2 100%);
         }
     }
 

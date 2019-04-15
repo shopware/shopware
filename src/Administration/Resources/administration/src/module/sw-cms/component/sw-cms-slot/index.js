@@ -1,10 +1,11 @@
 import { Component } from 'src/core/shopware';
-import cmsService from 'src/module/sw-cms/service/cms.service';
 import template from './sw-cms-slot.html.twig';
 import './sw-cms-slot.scss';
 
 Component.register('sw-cms-slot', {
     template,
+
+    inject: ['cmsService'],
 
     props: {
         element: {
@@ -31,11 +32,11 @@ Component.register('sw-cms-slot', {
 
     computed: {
         elementConfig() {
-            return cmsService.getCmsElementConfigByName(this.element.type);
+            return this.cmsService.getCmsElementConfigByName(this.element.type);
         },
 
         cmsElements() {
-            return cmsService.getCmsElementRegistry();
+            return this.cmsService.getCmsElementRegistry();
         }
     },
 

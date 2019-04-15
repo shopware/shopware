@@ -1,9 +1,9 @@
-import cmsService from 'src/module/sw-cms/service/cms.service';
+import { Application } from 'src/core/shopware';
 import './component';
 import './config';
 import './preview';
 
-cmsService.registerCmsElement({
+Application.getContainer('service').cmsService.registerCmsElement({
     name: 'product-box',
     label: 'Product box',
     component: 'sw-cms-el-product-box',

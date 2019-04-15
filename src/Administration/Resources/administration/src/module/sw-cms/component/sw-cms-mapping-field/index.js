@@ -1,11 +1,11 @@
-import { Component } from 'src/core/shopware';
-import cmsService from 'src/module/sw-cms/service/cms.service';
-import cmsState from 'src/module/sw-cms/state/cms-page.state';
+import { Component, State } from 'src/core/shopware';
 import template from './sw-cms-mapping-field.html.twig';
 import './sw-cms-mapping-field.scss';
 
 Component.register('sw-cms-mapping-field', {
     template,
+
+    inject: ['cmsService'],
 
     model: {
         prop: 'config',
@@ -48,8 +48,8 @@ Component.register('sw-cms-mapping-field', {
     },
 
     computed: {
-        cmsState() {
-            return cmsState;
+        cmsPageState() {
+            return State.getStore('cmsPageState');
         },
 
         isMapped() {
@@ -62,14 +62,14 @@ Component.register('sw-cms-mapping-field', {
     },
 
     watch: {
-        'cmsState.currentPage.type': {
+        'cmsPageState.currentPage.type': {
             handler() {
-                this.mappingTypes = this.cmsState.currentMappingTypes;
+                this.mappingTypes = this.cmsPageState.currentMappingTypes;
                 this.getAllowedMappingTypes();
             }
         },
 
-        'cmsState.currentDemoEntity': {
+        'cmsPageState.currentDemoEntity': {
             handler() {
                 if (this.config.source === 'mapped') {
                     this.demoValue = this.getDemoValue(this.config.value);
@@ -92,7 +92,7 @@ Component.register('sw-cms-mapping-field', {
                 this.demoValue = this.getDemoValue(this.config.value);
             }
 
-            this.mappingTypes = this.cmsState.currentMappingTypes;
+            this.mappingTypes = this.cmsPageState.currentMappingTypes;
             this.getAllowedMappingTypes();
         },
 
@@ -121,7 +121,7 @@ Component.register('sw-cms-mapping-field', {
         },
 
         getDemoValue(mappingPath) {
-            return cmsService.getPropertyByMappingPath(cmsState.currentDemoEntity, mappingPath);
+            return this.cmsService.getPropertyByMappingPath(this.cmsPageState.currentDemoEntity, mappingPath);
         }
     }
 });

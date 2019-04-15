@@ -21,6 +21,7 @@ use Shopware\Core\Framework\Validation\BuildValidationEvent;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
 use Shopware\Core\Framework\Validation\DataValidationDefinition;
 use Shopware\Core\Framework\Validation\DataValidator;
+use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
 use Shopware\Core\System\Country\CountryCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -110,6 +111,7 @@ class AddressService
      * @throws AddressNotFoundException
      * @throws CustomerNotLoggedInException
      * @throws InvalidUuidException
+     * @throws ConstraintViolationException
      */
     public function create(DataBag $data, SalesChannelContext $context): string
     {

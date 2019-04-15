@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Framework\Routing;
 
-use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -37,7 +37,7 @@ class SalesChannelRequestContextResolver implements RequestContextResolverInterf
         }
 
         if (!$master->headers->has(PlatformRequest::HEADER_CONTEXT_TOKEN)) {
-            $master->headers->set(PlatformRequest::HEADER_CONTEXT_TOKEN, Uuid::randomHex());
+            $master->headers->set(PlatformRequest::HEADER_CONTEXT_TOKEN, Random::getAlphanumericString(32));
         }
 
         $contextToken = $master->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN);

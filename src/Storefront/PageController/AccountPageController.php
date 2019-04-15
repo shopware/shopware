@@ -16,6 +16,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceInterface;
+use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Framework\Controller\StorefrontController;
 use Shopware\Storefront\Framework\Page\PageLoaderInterface;
@@ -166,6 +167,8 @@ class AccountPageController extends StorefrontController
         try {
             $token = $this->accountService->loginWithPassword($data, $context);
             if (!empty($token)) {
+                $request->headers->set(PlatformRequest::HEADER_CONTEXT_TOKEN, $token);
+
                 return new RedirectResponse($redirect);
             }
         } catch (BadCredentialsException | UnauthorizedHttpException $e) {
@@ -195,7 +198,7 @@ class AccountPageController extends StorefrontController
     /**
      * @Route("/account/register", name="frontend.account.register.save", methods={"POST"})
      */
-    public function saveRegister(RequestDataBag $data, SalesChannelContext $context): Response
+    public function saveRegister(Request $request, RequestDataBag $data, SalesChannelContext $context): Response
     {
         if ($context->getCustomer()) {
             return $this->redirectToRoute('frontend.account.home.page');
@@ -207,7 +210,8 @@ class AccountPageController extends StorefrontController
             return $this->forward('Shopware\Storefront\PageController\AccountPageController::register', ['formViolations' => $formViolations]);
         }
 
-        $this->accountService->login($data->get('email'), $context);
+        $token = $this->accountService->login($data->get('email'), $context);
+        $request->headers->set(PlatformRequest::HEADER_CONTEXT_TOKEN, $token);
 
         return new RedirectResponse($this->generateUrl('frontend.account.home.page'));
     }

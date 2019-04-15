@@ -3,6 +3,7 @@
 namespace Shopware\Core\System\SalesChannel\Context;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Framework\Util\Random;
 
 class SalesChannelContextPersister
 {
@@ -29,6 +30,40 @@ class SalesChannelContextPersister
                 'payload' => json_encode($parameters),
             ]
         );
+    }
+
+    public function replace(string $oldToken): string
+    {
+        $newToken = Random::getAlphanumericString(32);
+
+        $affected = $this->connection->executeUpdate(
+            'UPDATE `sales_channel_api_context`
+                   SET `token` = :newToken
+                   WHERE `token` = :oldToken',
+            [
+                'newToken' => $newToken,
+                'oldToken' => $oldToken,
+            ]
+        );
+
+        if ($affected === 0) {
+            $this->connection->insert('sales_channel_api_context', [
+                'token' => $newToken,
+                'payload' => json_encode([]),
+            ]);
+        }
+
+        $this->connection->executeUpdate(
+            'UPDATE `cart`
+                   SET `token` = :newToken
+                   WHERE `token` = :oldToken',
+            [
+                'newToken' => $newToken,
+                'oldToken' => $oldToken,
+            ]
+        );
+
+        return $newToken;
     }
 
     public function load(string $token): array

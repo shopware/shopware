@@ -880,6 +880,10 @@ class SalesChannelCheckoutControllerTest extends TestCase
             'username' => $email,
             'password' => $password,
         ]);
+        $response = $client->getResponse();
+        $content = json_decode($response->getContent(), true);
+
+        $client->setServerParameter('HTTP_X_SW_CONTEXT_TOKEN', $content[PlatformRequest::HEADER_CONTEXT_TOKEN]);
     }
 
     private function setShippingMethod(string $shippingId, Client $client): void

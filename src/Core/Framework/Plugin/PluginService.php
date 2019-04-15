@@ -14,6 +14,7 @@ use Shopware\Core\Framework\Plugin\Exception\PluginChangelogInvalidException;
 use Shopware\Core\Framework\Plugin\Exception\PluginComposerJsonInvalidException;
 use Shopware\Core\Framework\Plugin\Exception\PluginNotFoundException;
 use Shopware\Core\Framework\Plugin\Util\PluginFinder;
+use Shopware\Core\Framework\Plugin\Util\VersionSanitizer;
 use Shopware\Core\Framework\ShopwareHttpException;
 
 class PluginService
@@ -53,6 +54,11 @@ class PluginService
      */
     private $pluginFinder;
 
+    /**
+     * @var VersionSanitizer
+     */
+    private $versionSanitizer;
+
     public function __construct(
         string $pluginDir,
         string $projectDir,
@@ -60,7 +66,8 @@ class PluginService
         EntityRepositoryInterface $languageRepo,
         PackageProvider $composerPackageProvider,
         ChangelogService $changelogService,
-        PluginFinder $pluginFinder
+        PluginFinder $pluginFinder,
+        VersionSanitizer $versionSanitizer
     ) {
         $this->pluginDir = $pluginDir;
         $this->projectDir = $projectDir;
@@ -69,6 +76,7 @@ class PluginService
         $this->composerPackageProvider = $composerPackageProvider;
         $this->changelogService = $changelogService;
         $this->pluginFinder = $pluginFinder;
+        $this->versionSanitizer = $versionSanitizer;
     }
 
     /**
@@ -101,7 +109,7 @@ class PluginService
                 continue;
             }
 
-            $pluginVersion = $info->getVersion();
+            $pluginVersion = $this->versionSanitizer->sanitizePluginVersion($info->getVersion());
             /** @var array $extra */
             $extra = $info->getExtra();
 

@@ -84,7 +84,7 @@ class NumberRangeValueGenerator implements NumberRangeValueGeneratorInterface
                 [
                     new MultiFilter(
                         MultiFilter::CONNECTION_AND, [
-                            new EqualsFilter('number_range.numberRangeSalesChannels.id', $salesChannelId),
+                            new EqualsFilter('number_range.numberRangeSalesChannels.salesChannelId', $salesChannelId),
                             new EqualsFilter('number_range.type.technicalName', $definition),
                         ]
                     ),
@@ -111,7 +111,7 @@ class NumberRangeValueGenerator implements NumberRangeValueGeneratorInterface
             $criteria->addFilter(
                 new MultiFilter(
                     MultiFilter::CONNECTION_AND, [
-                        new EqualsFilter('number_range.numberRangeSalesChannels.id', null),
+                        new EqualsFilter('number_range.global', 1),
                         new EqualsFilter('number_range.type.technicalName', $definition),
                     ]
                 )

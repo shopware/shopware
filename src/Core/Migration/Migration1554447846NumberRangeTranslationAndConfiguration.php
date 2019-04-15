@@ -46,8 +46,8 @@ class Migration1554447846NumberRangeTranslationAndConfiguration extends Migratio
                 'nameDe' => 'Produkte',
                 'global' => 1,
                 'typeId' => $definitionNumberRangeTypes['product']['id'],
-                'pattern' => '{n}',
-                'start' => 1,
+                'pattern' => 'SW{n}',
+                'start' => 10000,
             ],
             'order' => [
                 'id' => Uuid::randomHex(),
@@ -56,7 +56,7 @@ class Migration1554447846NumberRangeTranslationAndConfiguration extends Migratio
                 'global' => 1,
                 'typeId' => $definitionNumberRangeTypes['order']['id'],
                 'pattern' => '{n}',
-                'start' => 1,
+                'start' => 10000,
             ],
             'customer' => [
                 'id' => Uuid::randomHex(),
@@ -65,7 +65,7 @@ class Migration1554447846NumberRangeTranslationAndConfiguration extends Migratio
                 'global' => 1,
                 'typeId' => $definitionNumberRangeTypes['customer']['id'],
                 'pattern' => '{n}',
-                'start' => 1,
+                'start' => 10000,
             ],
         ];
 
@@ -127,7 +127,8 @@ SQL;
               `id` BINARY(16) NOT NULL,
               `number_range_id` BINARY(16) NOT NULL,
               `last_value` INTEGER(8) NOT NULL,
-              PRIMARY KEY (`id`),
+              PRIMARY KEY (`number_range_id`),
+              UNIQUE `uniq.id` (`id`),
               INDEX `idx.number_range_id` (`number_range_id`)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 SQL;

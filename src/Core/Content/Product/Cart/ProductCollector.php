@@ -150,12 +150,15 @@ class ProductCollector implements CollectorInterface
 
             if (!$lineItem->getQuantityInformation()) {
                 $quantityInformation = (new QuantityInformation())
-                    ->setMinPurchase($product->getMinPurchase())
-                    ->setMaxPurchase($product->getMaxPurchase())
-                    ->setPurchaseSteps($product->getPurchaseSteps())
-                    ->setPackUnit($product->getPackUnit())
-                    ->setReferenceUnit($product->getReferenceUnit())
-                    ->setPurchaseUnit($product->getPurchaseUnit());
+                    ->setMaxPurchase($product->getMaxPurchase());
+
+                if ($product->getMinPurchase() > 0) {
+                    $quantityInformation->setMinPurchase($product->getMinPurchase());
+                }
+
+                if ($product->getPurchaseSteps() > 0) {
+                    $quantityInformation->setPurchaseSteps($product->getPurchaseSteps());
+                }
 
                 $lineItem->setQuantityInformation($quantityInformation);
             }

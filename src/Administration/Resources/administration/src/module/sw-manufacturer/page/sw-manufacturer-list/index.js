@@ -17,6 +17,12 @@ Component.register('sw-manufacturer-list', {
         };
     },
 
+    metaInfo() {
+        return {
+            title: this.$createTitle()
+        };
+    },
+
     computed: {
         manufacturerStore() {
             return State.getStore('product_manufacturer');

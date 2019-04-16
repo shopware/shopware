@@ -826,13 +826,17 @@ class BlacklistRuleFieldTest extends TestCase
             'manufacturer' => ['name' => 'test', 'id' => $manufacturerId],
         ];
 
-        $withRules = array_merge($default, ['blacklistIds' => [$ruleId]]);
+        $default2 = array_merge($default, ['productNumber' => Uuid::randomHex()]);
+
+        $withRules = array_merge($default, ['blacklistIds' => [$ruleId], 'productNumber' => Uuid::randomHex()]);
+
+        $withRules2 = array_merge($default, ['blacklistIds' => [$ruleId], 'productNumber' => Uuid::randomHex()]);
 
         $products = [
             $default,
             $withRules,
-            $withRules,
-            $default,
+            $withRules2,
+            $default2,
         ];
 
         $this->repository->create($products, Context::createDefaultContext());

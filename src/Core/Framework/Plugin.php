@@ -12,19 +12,20 @@ use Symfony\Component\Routing\RouteCollectionBuilder;
 abstract class Plugin extends Bundle
 {
     /**
-     * @var string
-     */
-    protected $pluginPath;
-    /**
      * @var bool
      */
     private $active;
 
-    final public function __construct(bool $active = true, ?string $pluginPath = null)
+    /**
+     * @var string
+     */
+    private $basePath;
+
+    final public function __construct(bool $active = true, ?string $basePath = null)
     {
         $this->active = $active;
-        $this->pluginPath = $pluginPath;
-        $this->path = $this->computePluginClassPath($pluginPath);
+        $this->basePath = $basePath;
+        $this->path = $this->computePluginClassPath();
     }
 
     final public function isActive(): bool
@@ -69,24 +70,24 @@ abstract class Plugin extends Bundle
         parent::configureRoutes($routes, $environment);
     }
 
-    public function getPluginPath(): string
+    public function getBasePath(): ?string
     {
-        return $this->pluginPath;
+        return $this->basePath;
     }
 
-    private function computePluginClassPath(?string $pluginPath)
+    private function computePluginClassPath()
     {
-        if ($pluginPath === null) {
+        if ($this->basePath === null) {
             return parent::getPath();
         }
 
         $canonicalizedPluginClassPath = parent::getPath();
-        $canonicalizedPluginPath = realpath($pluginPath);
+        $canonicalizedPluginPath = realpath($this->basePath);
 
         if (mb_strpos($canonicalizedPluginClassPath, $canonicalizedPluginPath) === 0) {
             $relativePluginClassPath = mb_substr($canonicalizedPluginClassPath, mb_strlen($canonicalizedPluginPath));
 
-            return $pluginPath . $relativePluginClassPath;
+            return $this->basePath . $relativePluginClassPath;
         }
 
         return parent::getPath();

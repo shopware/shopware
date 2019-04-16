@@ -41,7 +41,7 @@ import CookiePermissionPlugin from 'asset/script/plugin/cookie-permission/cookie
 import CollapseFooterColumnsPlugin from 'asset/script/plugin/collapse/collapse-footer-columns.plugin';
 import FlyoutMenuPlugin from 'asset/script/plugin/main-menu/flyout-menu.plugin';
 import OffcanvasMenuPlugin from 'asset/script/plugin/main-menu/offcanvas-menu.plugin';
-import FormValidationPlugin from 'asset/script/plugin/register/form-validation.plugin';
+import FormValidationPlugin from 'asset/script/plugin/forms/form-validation.plugin';
 import FormSubmitLoaderPlugin from 'asset/script/plugin/forms/from-submit-loader.plugin';
 import FieldTogglePlugin from 'asset/script/plugin/forms/field-toggle.plugin';
 import OffCanvasTabsPlugin from 'asset/script/plugin/offcanvas-tabs/offcanvas-tabs.plugin';
@@ -95,12 +95,12 @@ PluginManager.register('CollapseFooterColumns', CollapseFooterColumnsPlugin, '[d
 PluginManager.register('FlyoutMenu', FlyoutMenuPlugin, '[data-offcanvas-menu]');
 PluginManager.register('OffcanvasMenu', OffcanvasMenuPlugin, '[data-offcanvas-menu]');
 PluginManager.register('FormValidation', FormValidationPlugin, '[data-form-validation]');
+PluginManager.register('ScrollToInvalidField', ScrollToInvalidFieldPlugin, 'form');
 PluginManager.register('FormSubmitLoader', FormSubmitLoaderPlugin, '[data-form-submit-loader]');
 PluginManager.register('FieldToggle', FieldTogglePlugin, '[data-field-toggle]');
 PluginManager.register('AccountMenu', AccountMenuPlugin, '[data-offcanvas-account-menu]');
 PluginManager.register('OffCanvasTabs', OffCanvasTabsPlugin, '[data-offcanvas-tab]');
 PluginManager.register('ImageSlider', ImageSliderPlugin, '[data-image-slider]');
-PluginManager.register('ScrollToInvalidField', ScrollToInvalidFieldPlugin, 'form');
 PluginManager.register('ZoomModal', ZoomModalPlugin, '[data-zoom-modal]');
 PluginManager.register('Magnifier', MagnifierPlugin, '[data-magnifier]');
 PluginManager.register('ImageZoom', ImageZoomPlugin, '[data-image-zoom]');

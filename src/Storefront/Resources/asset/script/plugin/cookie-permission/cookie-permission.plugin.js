@@ -66,7 +66,7 @@ export default class CookiePermissionPlugin extends Plugin {
             });
         }
 
-        window.addEventListener('resize', Debouncer.debounce(this._setBodyPadding.bind(this), RESIZE_DEBOUNCE_TIME, false), {
+        window.addEventListener('resize', Debouncer.debounce(this._setBodyPadding.bind(this), RESIZE_DEBOUNCE_TIME), {
             capture: true,
             passive: true
         });

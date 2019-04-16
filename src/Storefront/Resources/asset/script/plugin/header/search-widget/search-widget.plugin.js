@@ -46,7 +46,7 @@ export default class SearchWidgetPlugin extends Plugin {
         // add listener to the form's input event
         this._inputField.addEventListener(
             'input',
-            Debouncer.debounce(this._handleInputEvent.bind(this), SEARCH_WIDGET_DELAY, false),
+            Debouncer.debounce(this._handleInputEvent.bind(this), SEARCH_WIDGET_DELAY),
             {
                 capture: true,
                 passive: true

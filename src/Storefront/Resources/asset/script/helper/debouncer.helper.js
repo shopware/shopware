@@ -5,24 +5,20 @@ export default class Debouncer {
 
     /**
      * Debounce any given function
-     * @param {Function} func
-     * @param {int} wait
+     *
+     * @param {Function} callback
+     * @param {int} delay
      * @param {boolean} immediate
+     *
      * @returns {Function}
      */
-    static debounce(func, wait, immediate) {
+    static debounce(callback, delay, immediate = false) {
         let timeout;
 
-        return () => {
-            const context = this, args = arguments;
-            const later = () => {
-                timeout = null;
-                if (!immediate) func.apply(context, args);
-            };
-            const callNow = immediate && !timeout;
+        return (...args) => {
             clearTimeout(timeout);
-            timeout = setTimeout(later, wait);
-            if (callNow) func.apply(context, args);
+            timeout = setTimeout(callback.bind(callback, ...args), delay);
+            if (immediate && !timeout) callback.call(callback, ...args);
         };
     }
 }

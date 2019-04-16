@@ -34,7 +34,7 @@ export default class ViewportDetection {
         // add listener to the window resize events
         window.addEventListener(
             'resize',
-            Debouncer.debounce(this._onResize.bind(this), RESIZE_DEBOUNCE_TIME, false),
+            Debouncer.debounce(this._onResize.bind(this), RESIZE_DEBOUNCE_TIME),
             {
                 capture: true,
                 passive: true

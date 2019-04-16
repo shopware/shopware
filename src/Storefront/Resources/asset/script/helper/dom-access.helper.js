@@ -68,10 +68,12 @@ export default class DomAccess {
         const parsedKey = StringHelper.toLowerCamelCase(keyWithoutData, '-');
         const attribute = element.dataset[parsedKey];
 
-        if (strict && typeof attribute === 'undefined') {
-            throw new Error(`The required data attribute "${key}" does not exist on ${element}!`);
-        } else if (typeof attribute === 'undefined') {
-            return attribute;
+        if (typeof attribute === 'undefined') {
+            if (strict) {
+                throw new Error(`The required data attribute "${key}" does not exist on ${element}!`);
+            } else {
+                return attribute;
+            }
         }
 
         return StringHelper.parsePrimitive(attribute);

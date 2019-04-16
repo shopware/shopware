@@ -12,7 +12,7 @@ export default class CartWidgetPlugin extends Plugin {
     }
 
     /**
-     * Fetch the current cart widget template by calling the storefront-api
+     * Fetch the current cart widget template by calling the sales-channel-api
      * and persist the response to the browser's session storage
      */
     static fetch() {

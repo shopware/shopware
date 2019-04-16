@@ -145,11 +145,11 @@ For this tutorial, a simple configuration containing a single text field is used
     
     <card>
         <title>Minimal configuration</title>
-        <title lang="de_DE">Minimale Konfiguration</title>
+        <title lang="de-DE">Minimale Konfiguration</title>
         <input-field>
             <name>example</name>
             <label>Example Label EN</label>
-            <label lang="de_DE">Beispiel Label DE</label>
+            <label lang="de-DE">Beispiel Label DE</label>
         </input-field>
     </card>
 </config>

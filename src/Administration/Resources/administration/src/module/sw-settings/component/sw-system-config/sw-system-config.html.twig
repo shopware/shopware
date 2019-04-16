@@ -1,0 +1,20 @@
+{% block sw_system_config %}
+    <div class="sw-system-config">
+        {% block sw_system_config_content_card %}
+            <sw-card v-for="card, index in config"
+                     :key="index"
+                     :isLoading="isLoading"
+                     :title="getInlineSnippet(card.title)">
+                <template v-for="element in card.elements">
+                    {% block sw_system_config_content_card_field %}
+                        <sw-form-field-renderer :config="element"
+                                                :key="element.name"
+                                                v-model="actualConfigData[element.name]"
+                                                v-bind="element">
+                        </sw-form-field-renderer>
+                    {% endblock %}
+                </template>
+            </sw-card>
+        {% endblock %}
+    </div>
+{% endblock %}

@@ -62,10 +62,12 @@ class EnrichmentTest extends TestCase
     public function testMissingProductData(): void
     {
         $id = Uuid::randomHex();
+        $productNumber = Uuid::randomHex();
 
         $this->productRepository->create([
             [
                 'id' => $id,
+                'productNumber' => $productNumber,
                 'name' => 'Missing label',
                 'stock' => 1,
                 'description' => 'Missing description',
@@ -115,10 +117,12 @@ class EnrichmentTest extends TestCase
     public function testProductCollectorDoNotOverrideData(): void
     {
         $id = Uuid::randomHex();
+        $productNumber = Uuid::randomHex();
 
         $this->productRepository->create([
             [
                 'id' => $id,
+                'productNumber' => $productNumber,
                 'stock' => 1,
                 'name' => 'Missing label',
                 'description' => 'Missing description',

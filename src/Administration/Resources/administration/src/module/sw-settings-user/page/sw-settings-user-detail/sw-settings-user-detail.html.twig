@@ -9,13 +9,13 @@
         {% block sw_settings_user_detail_actions %}
             <template slot="smart-bar-actions">
                 {% block sw_settings_user_detail_actions_cancel %}
-                    <sw-button :disabled="isLoading" :routerLink="{ name: 'sw.settings.user.list' }">
+                    <sw-button :routerLink="{ name: 'sw.settings.user.list' }">
                         {{ $tc('sw-manufacturer.detail.buttonCancel') }}
                     </sw-button>
                 {% endblock %}
 
                 {% block sw_settings_user_detail_actions_save %}
-                    <sw-button class="sw-settings-user-detail__save-action" variant="primary" :disabled="isLoading"
+                    <sw-button :disabled="isLoading || isError" class="sw-settings-user-detail__save-action" variant="primary"
                                @click.prevent="onSave">
                         {{ $tc('sw-manufacturer.detail.buttonSave') }}
                     </sw-button>
@@ -49,16 +49,20 @@
                                     {% block sw_settings_user_detail_content_email %}
                                         <sw-text-field
                                                 class="sw-settings-user-detail__grid-eMail"
+                                                :errorMessage="isEmailUsed ? $tc('sw-settings-user.user-detail.errorEmailUsed') : ''"
                                                 v-model="user.email"
-                                                :label="$tc('sw-settings-user.user-detail.labelEmail')">
+                                                :label="$tc('sw-settings-user.user-detail.labelEmail')"
+                                                @change="checkEmail()">
                                         </sw-text-field>
                                     {% endblock %}
 
                                     {% block sw_settings_user_detail_content_username %}
                                         <sw-text-field
                                                 class="sw-settings-user-detail__grid-username"
+                                                :errorMessage="isUsernameUsed ? $tc('sw-settings-user.user-detail.errorUsernameUsed') : ''"
                                                 v-model="user.username"
-                                                :label="$tc('sw-settings-user.user-detail.labelUsername')">
+                                                :label="$tc('sw-settings-user.user-detail.labelUsername')"
+                                                @change="checkUsername()">
                                         </sw-text-field>
                                     {% endblock %}
 

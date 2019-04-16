@@ -14,7 +14,7 @@ use Shopware\Core\Framework\Context\SystemSource;
 use Shopware\Core\Framework\Routing\Exception\LanguageNotFoundException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
-use Shopware\Core\StorefrontRequest;
+use Shopware\Core\SalesChannelRequest;
 use Symfony\Component\HttpFoundation\Request;
 
 class ApiRequestContextResolver implements RequestContextResolverInterface
@@ -97,7 +97,7 @@ class ApiRequestContextResolver implements RequestContextResolverInterface
 
     private function resolveContextOrigin(Request $request): ContextSource
     {
-        if ($request->attributes->has(StorefrontRequest::ATTRIBUTE_IS_STOREFRONT_REQUEST)) {
+        if ($request->attributes->has(SalesChannelRequest::ATTRIBUTE_IS_SALES_CHANNEL_REQUEST)) {
             return new SalesChannelApiSource(Defaults::SALES_CHANNEL);
         }
 

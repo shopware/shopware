@@ -10,8 +10,8 @@ class AddressNotFoundException extends ShopwareHttpException
     public function __construct(string $id)
     {
         parent::__construct(
-            'Customer address with id "{{ customerId }}" not found.',
-            ['customerId' => $id]
+            'Customer address with id "{{ addressId }}" not found.',
+            ['addressId' => $id]
         );
     }
 

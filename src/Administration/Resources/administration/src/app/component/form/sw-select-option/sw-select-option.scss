@@ -17,7 +17,7 @@ $sw-select-option-disabled-color-text: darken($color-steam-cloud, 15%);
     justify-content: space-between;
 
     .sw-select-option__result-item-text {
-        word-break: break-all;
+        word-break: break-word;
         display: flex;
     }
 

@@ -1,8 +1,8 @@
-import { Mixin } from 'src/core/shopware';
-import cmsService from 'src/module/sw-cms/service/cms.service';
-import cmsPageState from 'src/module/sw-cms/state/cms-page.state';
+import { Mixin, State } from 'src/core/shopware';
 
 Mixin.register('cms-element', {
+    inject: ['cmsService'],
+
     model: {
         prop: 'element',
         event: 'element-update'
@@ -17,11 +17,11 @@ Mixin.register('cms-element', {
 
     computed: {
         cmsPageState() {
-            return cmsPageState;
+            return State.getStore('cmsPageState');
         },
 
         cmsElements() {
-            return cmsService.getCmsElementRegistry();
+            return this.cmsService.getCmsElementRegistry();
         }
     },
 
@@ -32,6 +32,10 @@ Mixin.register('cms-element', {
             if (!this.element.config || this.element.config === null || !Object.keys(this.element.config).length) {
                 this.element.config = elementConfig.defaultConfig || {};
             }
+        },
+
+        getDemoValue(mappingPath) {
+            return this.cmsService.getPropertyByMappingPath(this.cmsPageState.currentDemoEntity, mappingPath);
         }
     }
 });

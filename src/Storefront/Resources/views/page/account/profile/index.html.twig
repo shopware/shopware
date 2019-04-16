@@ -1,4 +1,4 @@
-{% extends '@Storefront/page/account/_page.html.twig' %}
+{% sw_extends '@Storefront/page/account/_page.html.twig' %}
 
 {% block base_breadcrumb %}
 	{% set breadcrumbList = [
@@ -35,7 +35,7 @@
 							{% block page_account_profile_personal_form %}
                                 <form id="profilePersonalForm"
                                       method="post"
-                                      action="{{ path('storefront-api.customer.update', {'version': 1}) }}">
+                                      action="{{ path('sales-channel-api.customer.update', {'version': 1}) }}">
 									{% block page_account_profile_personal_fields %}
 										{% sw_include '@Storefront/page/account/profile/personal.html.twig' with {
 											'showBirthdayField': shopware.config.register.birthdayField,
@@ -88,7 +88,7 @@
                                             <form id="profileMailForm"
                                                   class="profile-item-form"
                                                   method="post"
-                                                  action="{{ path('storefront-api.customer.email.update', {'version': 1}) }}">
+                                                  action="{{ path('sales-channel-api.customer.email.update', {'version': 1}) }}">
 												{% block page_account_profile_current_mail %}
                                                     <div class="form-group">
 														{% block page_account_profile_mail_label %}
@@ -188,7 +188,7 @@
                                             <form id="profilePasswordForm"
                                                   class="profile-item-form"
                                                   method="post"
-                                                  action="{{ path('storefront-api.customer.password.update', {'version': 1}) }}">
+                                                  action="{{ path('sales-channel-api.customer.password.update', {'version': 1}) }}">
 												{% block page_account_profile_new_password %}
                                                     <div class="form-group">
 														{% block page_account_profile_new_password_label %}

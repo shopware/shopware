@@ -68,18 +68,16 @@ class PluginManagementService
         $tempFileName = tempnam(sys_get_temp_dir(), $file->getClientOriginalName());
         $tempDirectory = dirname(realpath($tempFileName));
 
-        $file = $file->move($tempDirectory, $tempFileName);
+        $tempFile = $file->move($tempDirectory, $tempFileName);
 
-        $this->extractPluginZip($file->getPathname());
+        $this->extractPluginZip($tempFile->getPathname());
     }
 
     public function downloadStorePlugin(string $location, Context $context): int
     {
         $tempFileName = tempnam(sys_get_temp_dir(), 'store-plugin');
 
-        $client = new Client();
-        $response = $client->request('GET', $location, ['sink' => $tempFileName]);
-        $statusCode = $response->getStatusCode();
+        $statusCode = (new Client())->request('GET', $location, ['sink' => $tempFileName])->getStatusCode();
 
         if ($statusCode !== Response::HTTP_OK) {
             return $statusCode;
@@ -93,7 +91,7 @@ class PluginManagementService
 
     public function deletePlugin(PluginEntity $plugin): void
     {
-        $path = $this->projectDir . $plugin->getPath();
+        $path = $this->projectDir . '/' . $plugin->getPath();
         $this->filesystem->remove($path);
     }
 }

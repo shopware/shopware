@@ -152,15 +152,15 @@ class EntityAggregationTest extends TestCase
         ];
 
         $productPayload = [
-            ['taxId' => $payload[0]['id'], 'stock' => 1, 'name' => 'Test product #1', 'manufacturer' => $manufacturer, 'price' => ['net' => 10, 'gross' => 20, 'linked' => false], 'categories' => [['id' => $category1], ['id' => $category2]]],
-            ['taxId' => $payload[0]['id'], 'stock' => 1, 'name' => 'Test product #2', 'manufacturer' => $manufacturer, 'price' => ['net' => 10, 'gross' => 20, 'linked' => false], 'categories' => [['id' => $category2], ['id' => $category3]]],
-            ['taxId' => $payload[1]['id'], 'stock' => 1, 'name' => 'Test product #3', 'manufacturer' => $manufacturer, 'price' => ['net' => 10, 'gross' => 20, 'linked' => false], 'categories' => [['id' => $category3]]],
-            ['taxId' => $payload[4]['id'], 'stock' => 1, 'name' => 'Test product #4', 'manufacturer' => $manufacturer, 'price' => ['net' => 10, 'gross' => 20, 'linked' => false], 'categories' => [['id' => $category1], ['id' => $category4]]],
-            ['taxId' => $payload[4]['id'], 'stock' => 1, 'name' => 'Test product #5', 'manufacturer' => $manufacturer, 'price' => ['net' => 10, 'gross' => 20, 'linked' => false], 'categories' => [['id' => $category2], ['id' => $category3]]],
-            ['taxId' => $payload[5]['id'], 'stock' => 1, 'name' => 'Test product #6', 'manufacturer' => $manufacturer, 'price' => ['net' => 10, 'gross' => 20, 'linked' => false], 'categories' => [['id' => $category4]]],
-            ['taxId' => $payload[5]['id'], 'stock' => 1, 'name' => 'Test product #7', 'manufacturer' => $manufacturer, 'price' => ['net' => 10, 'gross' => 20, 'linked' => false], 'categories' => [['id' => $category3], ['id' => $category4]]],
-            ['taxId' => $payload[5]['id'], 'stock' => 1, 'name' => 'Test product #8', 'manufacturer' => $manufacturer, 'price' => ['net' => 10, 'gross' => 20, 'linked' => false], 'categories' => [['id' => $category1], ['id' => $category2]]],
-            ['taxId' => $payload[5]['id'], 'stock' => 1, 'name' => 'Test product #9', 'manufacturer' => $manufacturer, 'price' => ['net' => 10, 'gross' => 20, 'linked' => false], 'categories' => [['id' => $category1], ['id' => $category3]]],
+            ['productNumber' => Uuid::randomHex(), 'taxId' => $payload[0]['id'], 'stock' => 1, 'name' => 'Test product #1', 'manufacturer' => $manufacturer, 'price' => ['net' => 10, 'gross' => 20, 'linked' => false], 'categories' => [['id' => $category1], ['id' => $category2]]],
+            ['productNumber' => Uuid::randomHex(), 'taxId' => $payload[0]['id'], 'stock' => 1, 'name' => 'Test product #2', 'manufacturer' => $manufacturer, 'price' => ['net' => 10, 'gross' => 20, 'linked' => false], 'categories' => [['id' => $category2], ['id' => $category3]]],
+            ['productNumber' => Uuid::randomHex(), 'taxId' => $payload[1]['id'], 'stock' => 1, 'name' => 'Test product #3', 'manufacturer' => $manufacturer, 'price' => ['net' => 10, 'gross' => 20, 'linked' => false], 'categories' => [['id' => $category3]]],
+            ['productNumber' => Uuid::randomHex(), 'taxId' => $payload[4]['id'], 'stock' => 1, 'name' => 'Test product #4', 'manufacturer' => $manufacturer, 'price' => ['net' => 10, 'gross' => 20, 'linked' => false], 'categories' => [['id' => $category1], ['id' => $category4]]],
+            ['productNumber' => Uuid::randomHex(), 'taxId' => $payload[4]['id'], 'stock' => 1, 'name' => 'Test product #5', 'manufacturer' => $manufacturer, 'price' => ['net' => 10, 'gross' => 20, 'linked' => false], 'categories' => [['id' => $category2], ['id' => $category3]]],
+            ['productNumber' => Uuid::randomHex(), 'taxId' => $payload[5]['id'], 'stock' => 1, 'name' => 'Test product #6', 'manufacturer' => $manufacturer, 'price' => ['net' => 10, 'gross' => 20, 'linked' => false], 'categories' => [['id' => $category4]]],
+            ['productNumber' => Uuid::randomHex(), 'taxId' => $payload[5]['id'], 'stock' => 1, 'name' => 'Test product #7', 'manufacturer' => $manufacturer, 'price' => ['net' => 10, 'gross' => 20, 'linked' => false], 'categories' => [['id' => $category3], ['id' => $category4]]],
+            ['productNumber' => Uuid::randomHex(), 'taxId' => $payload[5]['id'], 'stock' => 1, 'name' => 'Test product #8', 'manufacturer' => $manufacturer, 'price' => ['net' => 10, 'gross' => 20, 'linked' => false], 'categories' => [['id' => $category1], ['id' => $category2]]],
+            ['productNumber' => Uuid::randomHex(), 'taxId' => $payload[5]['id'], 'stock' => 1, 'name' => 'Test product #9', 'manufacturer' => $manufacturer, 'price' => ['net' => 10, 'gross' => 20, 'linked' => false], 'categories' => [['id' => $category1], ['id' => $category3]]],
         ];
 
         $this->productRepository->create($productPayload, $context);

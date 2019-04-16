@@ -9,6 +9,7 @@ use Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException;
 use Shopware\Core\Checkout\Cart\Exception\LineItemNotStackableException;
 use Shopware\Core\Checkout\Cart\Exception\MixedLineItemTypeException;
 use Shopware\Core\Checkout\Cart\Exception\PayloadKeyNotFoundException;
+use Shopware\Core\Checkout\Cart\LineItem\Struct\QuantityInformation;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\PriceDefinitionInterface;
 use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
@@ -103,6 +104,11 @@ class LineItem extends Struct
      * @var bool
      */
     protected $stackable = false;
+
+    /**
+     * @var QuantityInformation|null
+     */
+    protected $quantityInformation;
 
     /**
      * @throws InvalidQuantityException
@@ -420,6 +426,18 @@ class LineItem extends Struct
     public function setStackable(bool $stackable): LineItem
     {
         $this->stackable = $stackable;
+
+        return $this;
+    }
+
+    public function getQuantityInformation(): ?QuantityInformation
+    {
+        return $this->quantityInformation;
+    }
+
+    public function setQuantityInformation(QuantityInformation $quantityInformation): LineItem
+    {
+        $this->quantityInformation = $quantityInformation;
 
         return $this;
     }

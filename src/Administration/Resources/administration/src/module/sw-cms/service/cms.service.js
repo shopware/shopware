@@ -1,15 +1,17 @@
-import { Entity } from 'src/core/shopware';
+import { Application, Entity } from 'src/core/shopware';
 
-export default {
-    registerCmsElement,
-    registerCmsBlock,
-    getCmsElementConfigByName,
-    getCmsBlockConfigByName,
-    getCmsElementRegistry,
-    getCmsBlockRegistry,
-    getEntityMappingTypes,
-    getPropertyByMappingPath
-};
+Application.addServiceProvider('cmsService', () => {
+    return {
+        registerCmsElement,
+        registerCmsBlock,
+        getCmsElementConfigByName,
+        getCmsBlockConfigByName,
+        getCmsElementRegistry,
+        getCmsBlockRegistry,
+        getEntityMappingTypes,
+        getPropertyByMappingPath
+    };
+});
 
 const elementRegistry = {};
 const blockRegistry = {};

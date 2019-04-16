@@ -43,6 +43,7 @@ class EntitySearcherTest extends TestCase
         $products = [
             [
                 'id' => $id1,
+                'productNumber' => Uuid::randomHex(),
                 'name' => 'test matching product',
                 'stock' => 10,
                 'price' => ['gross' => 15, 'net' => 10, 'linked' => false],
@@ -51,6 +52,7 @@ class EntitySearcherTest extends TestCase
             ],
             [
                 'id' => $id2,
+                'productNumber' => Uuid::randomHex(),
                 'name' => 'test matching',
                 'stock' => 10,
                 'price' => ['gross' => 15, 'net' => 10, 'linked' => false],
@@ -128,6 +130,7 @@ class EntitySearcherTest extends TestCase
         $products = [
             [
                 'id' => $id,
+                'productNumber' => Uuid::randomHex(),
                 'name' => 'test',
                 'stock' => 10,
                 'price' => ['gross' => 15, 'net' => 10, 'linked' => false],
@@ -136,36 +139,42 @@ class EntitySearcherTest extends TestCase
             ],
             [
                 'id' => $variant1,
+                'productNumber' => Uuid::randomHex(),
                 'parentId' => $id,
                 'stock' => 10,
                 'options' => [['id' => $redId], ['id' => $bigId]],
             ],
             [
                 'id' => $variant2,
+                'productNumber' => Uuid::randomHex(),
                 'parentId' => $id,
                 'stock' => 10,
                 'options' => [['id' => $redId], ['id' => $smallId]],
             ],
             [
                 'id' => $variant3,
+                'productNumber' => Uuid::randomHex(),
                 'parentId' => $id,
                 'stock' => 10,
                 'options' => [['id' => $greenId], ['id' => $bigId]],
             ],
             [
                 'id' => $variant4,
+                'productNumber' => Uuid::randomHex(),
                 'parentId' => $id,
                 'stock' => 10,
                 'options' => [['id' => $greenId], ['id' => $smallId]],
             ],
             [
                 'id' => $variant5,
+                'productNumber' => Uuid::randomHex(),
                 'parentId' => $id,
                 'stock' => 10,
                 'options' => [['id' => $yellowId], ['id' => $bigId]],
             ],
             [
                 'id' => $variant6,
+                'productNumber' => Uuid::randomHex(),
                 'parentId' => $id,
                 'stock' => 10,
                 'options' => [['id' => $yellowId], ['id' => $smallId]],

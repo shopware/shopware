@@ -4,7 +4,7 @@ The customer endpoint is used to register and log in customers. It can also be u
 
 ## Register a customer
 
-**POST  /storefront-api/v1/customer**
+**POST  /sales-channel-api/v1/customer**
 
 **Description:** Register a new customer. 
 
@@ -56,7 +56,7 @@ The customer endpoint is used to register and log in customers. It can also be u
 
 ### Log in a customer
 
-**POST  /storefront-api/v1/customer/login**
+**POST  /sales-channel-api/v1/customer/login**
 
 **Description:** Log in a customer. 
 
@@ -71,7 +71,7 @@ The customer endpoint is used to register and log in customers. It can also be u
 
 ### Log out a customer
 
-**POST  /storefront-api/v1/customer/logout**
+**POST  /sales-channel-api/v1/customer/logout**
 
 **Header:** x-sw-context-token is required
 
@@ -79,7 +79,7 @@ The customer endpoint is used to register and log in customers. It can also be u
 
 ## Get a order overview
 
-**GET  /storefront-api/v1/customer/order**
+**GET  /sales-channel-api/v1/customer/order**
 
 **Parameter:**
 
@@ -94,7 +94,7 @@ The customer endpoint is used to register and log in customers. It can also be u
 
 ## Update email address
 
-**PUT  /storefront-api/v1/customer/email**
+**PUT  /sales-channel-api/v1/customer/email**
 
 **Parameter:**
 
@@ -110,7 +110,7 @@ The customer endpoint is used to register and log in customers. It can also be u
 ## Update profile information
 
 **PUT 
-/storefront-api/v1/customer/profile**
+/sales-channel-api/v1/customer/profile**
 
 **Parameter:**
 
@@ -130,7 +130,7 @@ The customer endpoint is used to register and log in customers. It can also be u
 
 ## Get detailed customer information
 
-**GET  /storefront-api/v1/customer**
+**GET  /sales-channel-api/v1/customer**
 
 **Header:** x-sw-context-token is required
 
@@ -140,7 +140,7 @@ The customer endpoint is used to register and log in customers. It can also be u
 
 ### Get customer addresses
 
-**GET /storefront-api/v1/customer/address**
+**GET /sales-channel-api/v1/customer/address**
 
 **Header:** x-sw-context-token is required
 
@@ -148,7 +148,7 @@ The customer endpoint is used to register and log in customers. It can also be u
 
 ### Get customer address
 
-**GET /storefront-api/v1/customer/address/{id}**
+**GET /sales-channel-api/v1/customer/address/{id}**
 
 **Header:** x-sw-context-token is required
 
@@ -157,7 +157,7 @@ Note: The address id must be assigned with the customer currently logged in.
 
 ### Create customer address
 
-**POST /storefront-api/v1/customer/address**
+**POST /sales-channel-api/v1/customer/address**
 
 **Header:** x-sw-context-token is required
 
@@ -175,7 +175,7 @@ Note: The address id must be assigned with the customer currently logged in.
 
 ### Set default billing address
 
-**POST  /storefront-api/v1/customer/default-billing-address/{id}**
+**POST  /sales-channel-api/v1/customer/default-billing-address/{id}**
 
 **Header:** x-sw-context-token is required
 
@@ -183,7 +183,7 @@ Note: The address id must be assigned with the customer currently logged in.
 
 ### Set default shipping address
 
-**POST  /storefront-api/v1/customer/default-shipping-address/{id}**
+**POST  /sales-channel-api/v1/customer/default-shipping-address/{id}**
 
 **Header:** x-sw-context-token is required
 
@@ -191,7 +191,7 @@ Note: The address id must be assigned with the customer currently logged in.
 
 ### Delete customer address
 
-**DELETE /storefront-api/v1/customer/address/{id}**
+**DELETE /sales-channel-api/v1/customer/address/{id}**
 
 **Note:** You can not delete a default shipping or billing address.
 
@@ -221,14 +221,14 @@ Note: The address id must be assigned with the customer currently logged in.
     };
     
     function getCountry(iso3) {
-        const url = `${baseUrl}/storefront-api/v1/sales-channel/countries?filter[iso3]=${iso3}`;
+        const url = `${baseUrl}/sales-channel-api/v1/sales-channel/countries?filter[iso3]=${iso3}`;
         return fetch(url, { method: 'GET', headers })
             .then((resp) => resp.json())
             .then((json) => json.data[0]);
     }
     
     function registerCustomer(customer) {
-        const url = `${baseUrl}/storefront-api/v1/customer`;
+        const url = `${baseUrl}/sales-channel-api/v1/customer`;
         const body = JSON.stringify(customer);
         return fetch(url, { method: 'POST', headers, body })
             .then((resp) => resp.json())
@@ -236,7 +236,7 @@ Note: The address id must be assigned with the customer currently logged in.
     }
     
     function login(username, password) {
-        const url = `${baseUrl}/storefront-api/v1/customer/login`;
+        const url = `${baseUrl}/sales-channel-api/v1/customer/login`;
         const body = JSON.stringify({ username, password });
         return fetch(url, { method: 'POST', headers, body })
             .then((resp) => resp.json())
@@ -246,14 +246,14 @@ Note: The address id must be assigned with the customer currently logged in.
     }
     
     function logout() {
-        const url = `${baseUrl}/storefront-api/v1/customer/logout`;
+        const url = `${baseUrl}/sales-channel-api/v1/customer/logout`;
         return fetch(url, { method: 'POST', headers })
             .then((resp) => resp.text())
             .then(() => { headers['x-sw-context-token'] = null });
     }
     
     function getProfile() {
-        const url = `${baseUrl}/storefront-api/v1/customer`;
+        const url = `${baseUrl}/sales-channel-api/v1/customer`;
         return fetch(url, { method: 'GET', headers })
             .then((resp) => resp.json())
             .then(({ data }) => data);

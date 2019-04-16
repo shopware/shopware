@@ -2,13 +2,21 @@
 
 namespace Shopware\Storefront\PageController;
 
+use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException as CustomerNotLoggedInExceptionAlias;
+use Shopware\Core\Checkout\Customer\Exception\AddressNotFoundException;
 use Shopware\Core\Checkout\Customer\Exception\BadCredentialsException;
-use Shopware\Core\Checkout\Customer\Storefront\AccountRegistrationService;
-use Shopware\Core\Checkout\Customer\Storefront\AccountService;
+use Shopware\Core\Checkout\Customer\Exception\CannotDeleteDefaultAddressException;
+use Shopware\Core\Checkout\Customer\SalesChannel\AccountRegistrationService;
+use Shopware\Core\Checkout\Customer\SalesChannel\AccountService;
+use Shopware\Core\Checkout\Customer\SalesChannel\AddressService;
 use Shopware\Core\Framework\Routing\InternalRequest;
+use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
+use Shopware\Core\PlatformRequest;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Framework\Controller\StorefrontController;
 use Shopware\Storefront\Framework\Page\PageLoaderInterface;
@@ -72,6 +80,16 @@ class AccountPageController extends StorefrontController
      */
     private $accountRegistrationService;
 
+    /**
+     * @var AddressService
+     */
+    private $addressService;
+
+    /**
+     * @var SalesChannelContextServiceInterface
+     */
+    private $salesChannelContextService;
+
     public function __construct(
         PageLoaderInterface $accountLoginPageLoader,
         PageLoaderInterface $accountOverviewPageLoader,
@@ -81,7 +99,9 @@ class AccountPageController extends StorefrontController
         PageLoaderInterface $accountOrderPageLoader,
         PageLoaderInterface $addressPageLoader,
         AccountService $accountService,
-        AccountRegistrationService $accountRegistrationService
+        AccountRegistrationService $accountRegistrationService,
+        SalesChannelContextServiceInterface $salesChannelContextService,
+        AddressService $addressService
     ) {
         $this->loginPageLoader = $accountLoginPageLoader;
         $this->addressListPageLoader = $accountAddressPageLoader;
@@ -92,6 +112,8 @@ class AccountPageController extends StorefrontController
         $this->addressPageLoader = $addressPageLoader;
         $this->accountService = $accountService;
         $this->accountRegistrationService = $accountRegistrationService;
+        $this->salesChannelContextService = $salesChannelContextService;
+        $this->addressService = $addressService;
     }
 
     /**
@@ -145,6 +167,8 @@ class AccountPageController extends StorefrontController
         try {
             $token = $this->accountService->loginWithPassword($data, $context);
             if (!empty($token)) {
+                $request->headers->set(PlatformRequest::HEADER_CONTEXT_TOKEN, $token);
+
                 return new RedirectResponse($redirect);
             }
         } catch (BadCredentialsException | UnauthorizedHttpException $e) {
@@ -174,7 +198,7 @@ class AccountPageController extends StorefrontController
     /**
      * @Route("/account/register", name="frontend.account.register.save", methods={"POST"})
      */
-    public function saveRegister(RequestDataBag $data, SalesChannelContext $context): Response
+    public function saveRegister(Request $request, RequestDataBag $data, SalesChannelContext $context): Response
     {
         if ($context->getCustomer()) {
             return $this->redirectToRoute('frontend.account.home.page');
@@ -186,7 +210,8 @@ class AccountPageController extends StorefrontController
             return $this->forward('Shopware\Storefront\PageController\AccountPageController::register', ['formViolations' => $formViolations]);
         }
 
-        $this->accountService->login($data->get('email'), $context);
+        $token = $this->accountService->login($data->get('email'), $context);
+        $request->headers->set(PlatformRequest::HEADER_CONTEXT_TOKEN, $token);
 
         return new RedirectResponse($this->generateUrl('frontend.account.home.page'));
     }
@@ -235,12 +260,12 @@ class AccountPageController extends StorefrontController
 
     /**
      * @Route("/account/address", name="frontend.account.address.page", options={"seo"="false"}, methods={"GET"})
-     *
-     * @throws CustomerNotLoggedInExceptionAlias
      */
     public function addressOverview(InternalRequest $request, SalesChannelContext $context): Response
     {
-        $this->denyAccessUnlessLoggedIn();
+        if (!$context->getCustomer()) {
+            return $this->redirectToRoute('frontend.account.login.page');
+        }
 
         $page = $this->addressListPageLoader->load($request, $context);
 
@@ -252,6 +277,10 @@ class AccountPageController extends StorefrontController
      */
     public function createAddress(InternalRequest $request, SalesChannelContext $context): Response
     {
+        if (!$context->getCustomer()) {
+            return $this->redirectToRoute('frontend.account.login.page');
+        }
+
         $page = $this->addressPageLoader->load($request, $context);
 
         return $this->renderStorefront('@Storefront/page/account/addressbook/create.html.twig', ['page' => $page]);
@@ -259,15 +288,98 @@ class AccountPageController extends StorefrontController
 
     /**
      * @Route("/account/address/{addressId}", name="frontend.account.address.edit.page", options={"seo"="false"}, methods={"GET"})
-     *
-     * @throws CustomerNotLoggedInExceptionAlias
      */
     public function editAddress(InternalRequest $request, SalesChannelContext $context): Response
     {
-        $this->denyAccessUnlessLoggedIn();
+        if (!$context->getCustomer()) {
+            return $this->redirectToRoute('frontend.account.login.page');
+        }
 
         $page = $this->addressPageLoader->load($request, $context);
 
         return $this->renderStorefront('@Storefront/page/account/addressbook/edit.html.twig', ['page' => $page]);
+    }
+
+    /**
+     * @Route("/account/address/default-{type}/{addressId}", name="frontend.account.address.set-default-address", methods={"POST"})
+     *
+     * @throws CustomerNotLoggedInException
+     * @throws InvalidUuidException
+     */
+    public function setDefaultShippingAddress(string $type, string $addressId, SalesChannelContext $context): RedirectResponse
+    {
+        if (!Uuid::isValid($addressId)) {
+            throw new InvalidUuidException($addressId);
+        }
+
+        $success = true;
+        try {
+            if ($type === 'shipping') {
+                $this->accountService->setDefaultShippingAddress($addressId, $context);
+            } elseif ($type === 'billing') {
+                $this->accountService->setDefaultBillingAddress($addressId, $context);
+            } else {
+                $success = false;
+            }
+        } catch (AddressNotFoundException $exception) {
+            $success = false;
+        }
+
+        $this->salesChannelContextService->refresh(
+            $context->getSalesChannel()->getId(),
+            $context->getToken(),
+            $context->getContext()->getLanguageId()
+        );
+
+        return new RedirectResponse($this->generateUrl('frontend.account.address.page', [
+            'changedDefaultAddress' => $success,
+        ]));
+    }
+
+    /**
+     * @Route("/account/address/delete/{addressId}", name="frontend.account.address.delete", options={"seo"="false"}, methods={"POST"})
+     */
+    public function deleteAddress(InternalRequest $request, SalesChannelContext $context): Response
+    {
+        if (!$context->getCustomer()) {
+            return $this->redirectToRoute('frontend.account.login.page');
+        }
+
+        try {
+            $success = true;
+            $this->addressService->delete($request->requireGet('addressId'), $context);
+        } catch (InvalidUuidException | AddressNotFoundException | CannotDeleteDefaultAddressException $exception) {
+            $success = false;
+        }
+
+        return new RedirectResponse($this->generateUrl('frontend.account.address.page', ['addressDeleted' => $success]));
+    }
+
+    /**
+     * @Route("/account/address/{addressId}", name="frontend.account.address.edit.save", options={"seo"="false"}, methods={"POST"})
+     * @Route("/account/address/create", name="frontend.account.address.create", options={"seo"="false"}, methods={"POST"})
+     */
+    public function saveAddress(RequestDataBag $data, SalesChannelContext $context): Response
+    {
+        if (!$context->getCustomer()) {
+            return $this->redirectToRoute('frontend.account.login.page');
+        }
+
+        /** @var RequestDataBag $address */
+        $address = $data->get('address');
+        try {
+            $this->addressService->create($address, $context);
+
+            return new RedirectResponse($this->generateUrl('frontend.account.address.page', ['addressSaved' => true]));
+        } catch (ConstraintViolationException $formViolations) {
+        }
+
+        $forwardAction = $address->get('id') ? 'editAddress' : 'createAddress';
+
+        return $this->forward(
+            'Shopware\Storefront\PageController\AccountPageController::' . $forwardAction,
+            ['formViolations' => $formViolations],
+            ['addressId' => $address->get('id')]
+        );
     }
 }

@@ -4,13 +4,13 @@ namespace Shopware\Core\Content\Test\Cms\SlotDataResolver\Type;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Cms\Aggregate\CmsSlot\CmsSlotEntity;
+use Shopware\Core\Content\Cms\SalesChannel\Struct\TextStruct;
 use Shopware\Core\Content\Cms\SlotDataResolver\FieldConfig;
 use Shopware\Core\Content\Cms\SlotDataResolver\FieldConfigCollection;
 use Shopware\Core\Content\Cms\SlotDataResolver\ResolverContext\EntityResolverContext;
 use Shopware\Core\Content\Cms\SlotDataResolver\ResolverContext\ResolverContext;
 use Shopware\Core\Content\Cms\SlotDataResolver\SlotDataResolveResult;
 use Shopware\Core\Content\Cms\SlotDataResolver\Type\TextTypeDataResolver;
-use Shopware\Core\Content\Cms\Storefront\Struct\TextStruct;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;

@@ -38,6 +38,8 @@
       "labelFirstName": "First name",
       "labelLastName": "Last name",
       "labelEmail": "E-Mail",
+      "errorEmailUsed": "This E-Mail is already used.",
+      "errorUsernameUsed": "This Username is already used.",
       "labelUsername": "Username",
       "labelPassword": "Password",
       "labelProfilePicture": "Profile picture",

@@ -12,7 +12,7 @@ function onExit {
 }
 trap onExit EXIT
 
-PHP_FILES="$(git diff --cached --name-only --diff-filter=ACMR HEAD | grep -E '\.(php)$')"
+PHP_FILES="$(git diff --cached --name-only --diff-filter=ACMR HEAD | grep -E '^src/.*\.(php)$')"
 JS_ADMIN_FILES="$(git diff --cached --name-only --diff-filter=ACMR HEAD | grep -E '^src/Administration/Resources/administration/.*\.(js)$')"
 JS_E2E_FILES="$(git diff --cached --name-only --diff-filter=ACMR HEAD | grep -E '^src/Administration/Resources/e2e/.*\.(js)$')"
 JS_STOREFRONT_FILES="$(git diff --cached --name-only --diff-filter=ACMR HEAD | grep -E '^src/Storefront/Resources/.*\.(js)$')"
@@ -20,6 +20,8 @@ JS_FILES="$(git diff --cached --name-only --diff-filter=ACMR HEAD | grep -E '\.(
 
 # exit on non-zero return code
 set -e
+
+php bin/generate-composer.php
 
 if [[ -z "$PHP_FILES" && -z "$JS_FILES" ]]
 then

@@ -4,6 +4,7 @@ namespace Shopware\Core\Checkout\Promotion;
 
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountCollection;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionSalesChannel\PromotionSalesChannelCollection;
+use Shopware\Core\Content\Rule\RuleCollection;
 use Shopware\Core\Content\Rule\RuleEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
@@ -103,7 +104,7 @@ class PromotionEntity extends Entity
     /**
      * @var PromotionSalesChannelCollection|null
      */
-    protected $promotionSalesChannels;
+    protected $salesChannels;
 
     /** @var string|null */
     protected $code;
@@ -112,6 +113,11 @@ class PromotionEntity extends Entity
      * @var PromotionDiscountCollection|null
      */
     protected $discounts;
+
+    /**
+     * @var RuleCollection|null
+     */
+    protected $orderRules;
 
     public function getName(): ?string
     {
@@ -293,14 +299,23 @@ class PromotionEntity extends Entity
         $this->discounts = $discounts;
     }
 
-    public function getPromotionSalesChannels(): ?PromotionSalesChannelCollection
+    /**
+     * Gets a list of all assigned sales channels for this promotion.
+     * Only customers within these channels are allowed
+     * to use this promotion.
+     */
+    public function getSalesChannels(): ?PromotionSalesChannelCollection
     {
-        return $this->promotionSalesChannels;
+        return $this->salesChannels;
     }
 
-    public function setPromotionSalesChannels(PromotionSalesChannelCollection $promotionSalesChannels): void
+    /**
+     * Sets a list of permitted sales channels for this promotion.
+     * Only customers within these channels are allowed to use this promotion.
+     */
+    public function setSalesChannels(?PromotionSalesChannelCollection $salesChannels): void
     {
-        $this->promotionSalesChannels = $promotionSalesChannels;
+        $this->salesChannels = $salesChannels;
     }
 
     public function getCode(): ?string
@@ -311,6 +326,24 @@ class PromotionEntity extends Entity
     public function setCode(?string $code): void
     {
         $this->code = $code;
+    }
+
+    /**
+     * Gets a list of "order" related rules that need to
+     * be valid for this promotion.
+     */
+    public function getOrderRules(): ?RuleCollection
+    {
+        return $this->orderRules;
+    }
+
+    /**
+     * Sets what products are affected by the applied
+     * order conditions for this promotion.
+     */
+    public function setOrderRules(?RuleCollection $orderRules): void
+    {
+        $this->orderRules = $orderRules;
     }
 
     /**

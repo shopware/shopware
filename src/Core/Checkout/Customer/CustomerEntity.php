@@ -11,9 +11,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\Language\LanguageEntity;
 use Shopware\Core\Framework\Search\SearchDocumentCollection;
-use Shopware\Core\Framework\Tag\TagCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Core\System\Salutation\SalutationEntity;
+use Shopware\Core\System\Tag\TagCollection;
 
 class CustomerEntity extends Entity
 {

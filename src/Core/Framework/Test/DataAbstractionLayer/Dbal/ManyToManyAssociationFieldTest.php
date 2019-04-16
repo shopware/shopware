@@ -56,6 +56,7 @@ class ManyToManyAssociationFieldTest extends TestCase
         $productId = Uuid::randomHex();
         $data = [
             'id' => $productId,
+            'productNumber' => Uuid::randomHex(),
             'stock' => 1,
             'name' => 'test',
             'price' => ['gross' => 15, 'net' => 10, 'linked' => false],
@@ -83,6 +84,7 @@ class ManyToManyAssociationFieldTest extends TestCase
         $id = Uuid::randomHex();
         $data = [
             'id' => $id,
+            'productNumber' => Uuid::randomHex(),
             'stock' => 1,
             'name' => 'test',
             'price' => ['gross' => 15, 'net' => 10, 'linked' => false],

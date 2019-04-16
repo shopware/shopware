@@ -10,8 +10,8 @@ use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Rule\RuleEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
-use Shopware\Core\Framework\Tag\TagCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
+use Shopware\Core\System\Tag\TagCollection;
 
 class ShippingMethodEntity extends Entity
 {
@@ -63,7 +63,7 @@ class ShippingMethodEntity extends Entity
     protected $deliveryTimeId;
 
     /**
-     * @var DeliveryTimeEntity|null
+     * @var DeliveryTimeEntity
      */
     protected $deliveryTime;
 
@@ -217,12 +217,12 @@ class ShippingMethodEntity extends Entity
         $this->deliveryTimeId = $deliveryTimeId;
     }
 
-    public function getDeliveryTime(): ?DeliveryTimeEntity
+    public function getDeliveryTime(): DeliveryTimeEntity
     {
         return $this->deliveryTime;
     }
 
-    public function setDeliveryTime(?DeliveryTimeEntity $deliveryTime): void
+    public function setDeliveryTime(DeliveryTimeEntity $deliveryTime): void
     {
         $this->deliveryTime = $deliveryTime;
     }

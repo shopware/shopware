@@ -68,6 +68,7 @@ ADD FOREIGN KEY (`delete_cascade_many_to_one_id`) REFERENCES `delete_cascade_man
             [
                 [
                     'id' => $id,
+                    'productNumber' => Uuid::randomHex(),
                     'name' => 'test',
                     'manyToOne' => [
                         'id' => $id,
@@ -111,6 +112,7 @@ ADD FOREIGN KEY (`delete_cascade_many_to_one_id`) REFERENCES `delete_cascade_man
             [
                 [
                     'id' => $id,
+                    'productNumber' => Uuid::randomHex(),
                     'name' => 'test',
                     'manyToOne' => [
                         'id' => $id,

@@ -4,14 +4,14 @@ namespace Shopware\Core\Content\Test\Cms\SlotDataResolver\Type;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Cms\Aggregate\CmsSlot\CmsSlotEntity;
+use Shopware\Core\Content\Cms\SalesChannel\Struct\ProductListingStruct;
 use Shopware\Core\Content\Cms\SlotDataResolver\ResolverContext\ListingResolverContext;
 use Shopware\Core\Content\Cms\SlotDataResolver\ResolverContext\ResolverContext;
 use Shopware\Core\Content\Cms\SlotDataResolver\SlotDataResolveResult;
 use Shopware\Core\Content\Cms\SlotDataResolver\Type\ProductListingTypeDataResolver;
-use Shopware\Core\Content\Cms\Storefront\Struct\ProductListingStruct;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductDefinition;
-use Shopware\Core\Content\Product\Storefront\StorefrontProductEntity;
+use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
@@ -64,7 +64,7 @@ class ProductListingTypeDataResolverTest extends TestCase
 
     public function testEnrichWithListingContext(): void
     {
-        $product = new StorefrontProductEntity();
+        $product = new SalesChannelProductEntity();
         $product->setUniqueIdentifier('product1');
 
         $searchResult = new EntitySearchResult(

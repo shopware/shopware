@@ -5,9 +5,9 @@ namespace Shopware\Storefront\Page\Navigation;
 use Shopware\Core\Content\Cms\Aggregate\CmsSlot\CmsSlotEntity;
 use Shopware\Core\Content\Cms\CmsPageEntity;
 use Shopware\Core\Content\Cms\Exception\PageNotFoundException;
+use Shopware\Core\Content\Cms\SalesChannel\SalesChannelCmsPageRepository;
 use Shopware\Core\Content\Cms\SlotDataResolver\ResolverContext\ResolverContext;
 use Shopware\Core\Content\Cms\SlotDataResolver\SlotDataResolver;
-use Shopware\Core\Content\Cms\Storefront\StorefrontCmsPageRepository;
 use Shopware\Core\Content\Navigation\NavigationEntity;
 use Shopware\Core\Framework\Routing\InternalRequest;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -18,7 +18,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 class NavigationPageLoader implements PageLoaderInterface
 {
     /**
-     * @var StorefrontCmsPageRepository
+     * @var SalesChannelCmsPageRepository
      */
     private $cmsPageRepository;
 
@@ -40,7 +40,7 @@ class NavigationPageLoader implements PageLoaderInterface
     public function __construct(
         PageLoaderInterface $genericLoader,
         EventDispatcherInterface $eventDispatcher,
-        StorefrontCmsPageRepository $storefrontCmsPageRepository,
+        SalesChannelCmsPageRepository $storefrontCmsPageRepository,
         SlotDataResolver $slotDataResolver
     ) {
         $this->genericLoader = $genericLoader;

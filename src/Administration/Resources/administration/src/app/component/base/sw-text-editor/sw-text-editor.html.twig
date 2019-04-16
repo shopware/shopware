@@ -1,0 +1,30 @@
+{% block sw_text_editor %}
+    <div class="sw-text-editor" :class="classes" @click="onClick">
+
+        {% block sw_text_editor_toolbar %}
+            <sw-text-editor-toolbar v-if="hasSelection || !isInlineEdit"
+                                    :parentIsActive="isActive"
+                                    :isInlineEdit="isInlineEdit"
+                                    :selection="selection"
+                                    :buttonConfig="buttonConfig"
+                                    @created-el="onToolbarCreated"
+                                    @destroyed-el="onToolbarDestroyed"
+                                    @on-set-link="onSetLink"
+                                    @text-style-change="onTextStyleChange">
+            </sw-text-editor-toolbar>
+        {% endblock %}
+
+        {% block sw_text_editor_content %}
+            <div class="sw-text-editor__content">
+                <div class="sw-text-editor__content-editor"
+                     ref="contentEditor"
+                     :contenteditable="true"
+                     spellcheck="false"
+                     @focus="onFocus"
+                     tabindex="-1"
+                     v-html="value">
+                </div>
+            </div>
+        {% endblock %}
+    </div>
+{% endblock %}

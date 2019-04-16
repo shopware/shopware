@@ -174,7 +174,7 @@ class RecalculationServiceTest extends TestCase
         $client->request(
             'GET',
             sprintf(
-                '/api/v%s/_proxy/storefront-api/%s/v%s/checkout/cart',
+                '/api/v%s/_proxy/sales-channel-api/%s/v%s/checkout/cart',
                 PlatformRequest::API_VERSION,
                 Defaults::SALES_CHANNEL,
                 PlatformRequest::API_VERSION
@@ -200,7 +200,7 @@ class RecalculationServiceTest extends TestCase
         $client->request(
             'PATCH',
             sprintf(
-                '/api/v%s/_proxy/storefront-api/%s/v%s/checkout/cart/line-item/%s',
+                '/api/v%s/_proxy/sales-channel-api/%s/v%s/checkout/cart/line-item/%s',
                 PlatformRequest::API_VERSION,
                 Defaults::SALES_CHANNEL,
                 PlatformRequest::API_VERSION,
@@ -749,8 +749,10 @@ class RecalculationServiceTest extends TestCase
     private function createProduct(string $name, float $price, float $taxRate): string
     {
         $productId = Uuid::randomHex();
+        $productNumber = Uuid::randomHex();
         $data = [
             'id' => $productId,
+            'productNumber' => $productNumber,
             'stock' => 1,
             'name' => $name,
             'price' => ['gross' => $price + ($price * $taxRate / 100), 'net' => $price, 'linked' => false],

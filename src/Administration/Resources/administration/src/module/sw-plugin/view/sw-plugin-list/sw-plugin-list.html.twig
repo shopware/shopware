@@ -119,6 +119,14 @@
                                                             {{ $tc('sw-plugin.list.contextDelete') }}
                                                         </sw-context-menu-item>
                                                     {% endblock %}
+
+                                                    <template v-if="item.attributes">
+                                                        {% block sw_plugin_list_grid_columns_actions_settings %}
+                                                        <sw-context-menu-item v-if="item.attributes.config" @click="onPluginSettings(item)">
+                                                            {{ $tc('sw-plugin.list.config') }}
+                                                        </sw-context-menu-item>
+                                                        {% endblock %}
+                                                    </template>
                                                 </sw-context-button>
                                             {% endblock %}
                                         </sw-grid-column>

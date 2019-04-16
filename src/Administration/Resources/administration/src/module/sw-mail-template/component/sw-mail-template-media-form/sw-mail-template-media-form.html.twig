@@ -27,7 +27,7 @@
                          :class="{'is--placeholder' : mediaItem.isPlaceholder}">
                         {% block sw_mail_template_image_preview %}
                             <template v-if="!mediaItem.isPlaceholder">
-                                <sw-media-preview class="sw-mail-template-media__image"
+                                <sw-media-preview class="sw-mail-template-media sw-mail-template-media__image"
                                                   :source="mediaItem.mediaId"
                                                   :hideTooltip="false">
                                 </sw-media-preview>

@@ -411,6 +411,7 @@ class TranslationTest extends TestCase
         $data = [
             [
                 'id' => '79dc5e0b5bd1404a9dec7841f6254c7e',
+                'productNumber' => Uuid::randomHex(),
                 'manufacturer' => [
                     'id' => 'e4e8988334a34bb48d397b41a611084f',
                     'name' => 'Das blaue Haus',
@@ -507,6 +508,7 @@ class TranslationTest extends TestCase
         $data = [
             [
                 'id' => '79dc5e0b5bd1404a9dec7841f6254c7e',
+                'productNumber' => Uuid::randomHex(),
                 'manufacturer' => [
                     'id' => 'e4e8988334a34bb48d397b41a611084f',
                     'name' => 'Das blaue Haus',

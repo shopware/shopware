@@ -69,7 +69,7 @@ class DefinitionValidator
         'search_dictionary',
         'cart',
         'migration',
-        'storefront_api_context',
+        'sales_channel_api_context',
     ];
 
     /**

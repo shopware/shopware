@@ -19,12 +19,12 @@
             <placeholder lang="de_DE">Bitte wähle dein bevorzugtes Versand Protokoll</placeholder>
             <options>
                 <option>
-                    <value>smtp</value>
-                    <label>SMTP</label>
+                    <id>smtp</id>
+                    <name>SMTP</name>
                 </option>
                 <option>
-                    <value>pop3</value>
-                    <label>POP3</label>
+                    <id>pop3</id>
+                    <name>POP3</name>
                 </option>
             </options>
         </sw-field>

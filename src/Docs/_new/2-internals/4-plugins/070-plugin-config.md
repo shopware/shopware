@@ -47,7 +47,7 @@ By default the `lang` attribute is set to `en_GB`, to change the locale of a `<t
     ...
     <card>
         <title>English Title</title>
-        <title lang="de_DE">German Titel</title>
+        <title lang="de-DE">German Titel</title>
     </card>
     ...
 ```
@@ -66,16 +66,12 @@ Below you'll find a list of all available `<input-field type="?">`.
 
 | Type        | Options                                          | Renders                | 
 |-------------|--------------------------------------------------|------------------------|
+| int         | disabled, label, helpText                        | Integer field          |
 | text        | copyable, disabled, label, placeholder, helpText | Text field             |
-| textarea    | disabled, label, placeholder, helpText           | Text area              |
 | select      | options, disabled, label, placeholder, helpText  | Select box             |
 | password    | disabled, label, placeholder, helpText           | Password field         |
-| boolean     | disabled, label, helpText                        | Switch                 |
-| switch      | disabled, label, helpText                        | Switch                 |
-| checkbox    | disabled, label, helpText                        | Select box             |
-| radio       | disabled, options, label, helpText               | Group of radio buttons |
-| number      | disabled, label, helpText                        | Number field           |
-| colorpicker | disabled, label                                  | Colorpicker            |
+| bool        | disabled, label, helpText                        | Switch                 |
+| float       | disabled, label, helpText                        | Float field            |
 | datetime    | disabled, label, helpText                        | Date-time picker       |
 
 
@@ -127,14 +123,14 @@ Below you"ll find an example.
     <name>mailMethod</name>
     <options>
         <option>
-            <value>smtp</value>
-            <label>English label</label>
-            <label lang="de_DE">German label</label>
+            <id>smtp</id>
+            <name>English label</name>
+            <name lang="de-DE">German label</name>
         </option>
         <option>
-            <value>pop3</value>
-            <label>English label</label>
-            <label lang="de_DE">German label</label>
+            <id>pop3</id>
+            <name>English label</name>
+            <name lang="de-DE">German label</name>
         </option>
     </options>
 </input-field>
@@ -155,11 +151,11 @@ Below you'll find an example.
 <input-field>
     <name>test</name>
     <label>English label</label>
-    <label lang="de_DE">German Label</label>          
+    <label lang="de-DE">German Label</label>          
     <placeholder>English placeholder</placeholder>
-    <placeholder lang="de_DE">German placeholder</placeholder>
+    <placeholder lang="de-DE">German placeholder</placeholder>
     <helpText>English help text</helpText>
-    <helpText lang="de_DE">German help text</helpText>
+    <helpText lang="de-DE">German help text</helpText>
 </input-field>
 ```
 
@@ -174,44 +170,47 @@ Now all that's left to do is to present you a working example `config.xml` and s
 
     <card>
         <title>Basic Configuration</title>
-        <title lang="de_DE">Grundeinstellungen</title>
+        <title lang="de-DE">Grundeinstellungen</title>
+
         <input-field>
             <name>email</name>
             <copyable>true</copyable>
             <label>eMail address</label>
-            <label lang="de_DE">E-Mail Adresse</label>
+            <label lang="de-DE">E-Mail Adresse</label>
             <placeholder>you@example.com</placeholder>
-            <placeholder lang="de_DE">du@beispiel.de</placeholder>
+            <placeholder lang="de-DE">du@beispiel.de</placeholder>
             <helpText>Please fill in your personal eMail address</helpText>
-            <helpText lang="de_DE">Bitte trage deine persönliche E-Mail Adresse ein</helpText>
+            <helpText lang="de-DE">Bitte trage deine persönliche E-Mail Adresse ein</helpText>
         </input-field>
+
         <input-field type="select">
             <name>mailMethod</name>
             <options>
                 <option>
-                    <value>smtp</value>
-                    <label>English smtp</label>
-                    <label lang="de_DE">German smtp</label>
+                    <id>smtp</id>
+                    <name>English smtp</name>
+                    <name lang="de-DE">German smtp</name>
                 </option>
                 <option>
-                    <value>pop3</value>
-                    <label>English pop3</label>
-                    <label lang="de_DE">German pop3</label>
+                    <id>pop3</id>
+                    <name>English pop3</name>
+                    <name lang="de-DE">German pop3</name>
                 </option>
             </options>
             <label>Mail method</label>
-            <label lang="de_DE">Versand Protokoll</label>
+            <label lang="de-DE">Versand Protokoll</label>
         </input-field>
     </card>
+
     <card>
         <title>Advanced Configuration</title>
-        <title lang="de_DE">Erweiterte Einstellungen</title>
+        <title lang="de-DE">Erweiterte Einstellungen</title>
         <input-field type="password">
             <name>secret</name>
             <label>Secret token</label>
-            <label lang="de_DE">Geheim Schlüssel</label>
+            <label lang="de-DE">Geheim Schlüssel</label>
             <helpText>Your secret token for xyz...</helpText>
-            <helpText lang="de_DE">Dein geheimer Schlüssel für xyz...</helpText>
+            <helpText lang="de-DE">Dein geheimer Schlüssel für xyz...</helpText>
         </input-field>
     </card>
 </config>

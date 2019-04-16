@@ -77,10 +77,10 @@ class CompositeEntitySearcherTest extends TestCase
         $filterId = Uuid::randomHex();
 
         $this->productRepository->upsert([
-            ['id' => $productId1, 'stock' => 1, 'name' => "${filterId}_test ${filterId}_product 1", 'price' => ['gross' => 10, 'net' => 9, 'linked' => false], 'tax' => ['name' => 'test', 'taxRate' => 5], 'manufacturer' => ['name' => 'test']],
-            ['id' => $productId2, 'stock' => 1, 'name' => "${filterId}_test ${filterId}_product 2", 'price' => ['gross' => 10, 'net' => 9, 'linked' => false], 'tax' => ['name' => 'test', 'taxRate' => 5], 'manufacturer' => ['name' => 'test']],
-            ['id' => Uuid::randomHex(), 'stock' => 1, 'name' => 'notmatch', 'price' => ['gross' => 10, 'net' => 9, 'linked' => false], 'tax' => ['name' => 'notmatch', 'taxRate' => 5], 'manufacturer' => ['name' => 'notmatch']],
-            ['id' => Uuid::randomHex(), 'stock' => 1, 'name' => 'notmatch', 'price' => ['gross' => 10, 'net' => 9, 'linked' => false], 'tax' => ['name' => 'notmatch', 'taxRate' => 5], 'manufacturer' => ['name' => 'notmatch']],
+            ['id' => $productId1, 'productNumber' => Uuid::randomHex(), 'stock' => 1, 'name' => "${filterId}_test ${filterId}_product 1", 'price' => ['gross' => 10, 'net' => 9, 'linked' => false], 'tax' => ['name' => 'test', 'taxRate' => 5], 'manufacturer' => ['name' => 'test']],
+            ['id' => $productId2, 'productNumber' => Uuid::randomHex(), 'stock' => 1, 'name' => "${filterId}_test ${filterId}_product 2", 'price' => ['gross' => 10, 'net' => 9, 'linked' => false], 'tax' => ['name' => 'test', 'taxRate' => 5], 'manufacturer' => ['name' => 'test']],
+            ['id' => Uuid::randomHex(), 'productNumber' => Uuid::randomHex(), 'stock' => 1, 'name' => 'notmatch', 'price' => ['gross' => 10, 'net' => 9, 'linked' => false], 'tax' => ['name' => 'notmatch', 'taxRate' => 5], 'manufacturer' => ['name' => 'notmatch']],
+            ['id' => Uuid::randomHex(), 'productNumber' => Uuid::randomHex(), 'stock' => 1, 'name' => 'notmatch', 'price' => ['gross' => 10, 'net' => 9, 'linked' => false], 'tax' => ['name' => 'notmatch', 'taxRate' => 5], 'manufacturer' => ['name' => 'notmatch']],
         ], $this->context);
 
         $result = $this->search->search("${filterId}_test ${filterId}_product", 20, $this->context, $this->userId);

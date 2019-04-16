@@ -55,6 +55,7 @@ trait AggregationTestBehaviour
 
         $products = [
             [
+                'productNumber' => Uuid::randomHex(),
                 'name' => 'product 1',
                 'stock' => 1,
                 'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
@@ -66,6 +67,7 @@ trait AggregationTestBehaviour
                 ],
             ],
             [
+                'productNumber' => Uuid::randomHex(),
                 'name' => 'product 2',
                 'stock' => 1,
                 'price' => ['gross' => 20, 'net' => 19, 'linked' => false],
@@ -77,6 +79,7 @@ trait AggregationTestBehaviour
                 ],
             ],
             [
+                'productNumber' => Uuid::randomHex(),
                 'name' => 'product 3',
                 'stock' => 1,
                 'price' => ['gross' => 50, 'net' => 49, 'linked' => false],
@@ -87,6 +90,7 @@ trait AggregationTestBehaviour
                 ],
             ],
             [
+                'productNumber' => Uuid::randomHex(),
                 'name' => 'product 4',
                 'stock' => 1,
                 'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
@@ -98,6 +102,7 @@ trait AggregationTestBehaviour
                 ],
             ],
             [
+                'productNumber' => Uuid::randomHex(),
                 'name' => 'product 5',
                 'stock' => 1,
                 'price' => ['gross' => 90, 'net' => 99, 'linked' => false],
@@ -109,6 +114,7 @@ trait AggregationTestBehaviour
                 ],
             ],
             [
+                'productNumber' => Uuid::randomHex(),
                 'name' => 'product 6',
                 'stock' => 1,
                 'price' => ['gross' => 50, 'net' => 49, 'linked' => false],
@@ -119,6 +125,7 @@ trait AggregationTestBehaviour
                 ],
             ],
             [
+                'productNumber' => Uuid::randomHex(),
                 'name' => 'product 6',
                 'stock' => 1,
                 'price' => ['gross' => 20, 'net' => 19, 'linked' => false],

@@ -21,7 +21,7 @@ EOD
 Cron jobs based on the message queue.
 EOD
     ,
-    'Shopware\\Core\\Framework\\Tag' => <<<'EOD'
+    'Shopware\\Core\\System\\Tag' => <<<'EOD'
 Additionally to categories tagging is used throughout Shopware to flag contents with different properties. In contrast to categories tags are a more lightweight alternative that can easily be created, discarded and assigned.
 EOD
     ,
@@ -169,7 +169,7 @@ EOD
 Like cron jobs. Contains named messages and a an interval to execute them in. 
 EOD
     ,
-    Shopware\Core\Framework\Tag\TagDefinition::class => <<<'EOD'
+    Shopware\Core\System\Tag\TagDefinition::class => <<<'EOD'
 A tag as known from blogging systems. Used to quickly categorize related entities.
 EOD
     ,

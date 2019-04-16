@@ -1,8 +1,8 @@
-import cmsService from 'src/module/sw-cms/service/cms.service';
+import { Application } from 'src/core/shopware';
 import './component';
 import './preview';
 
-cmsService.registerCmsBlock({
+Application.getContainer('service').cmsService.registerCmsBlock({
     name: 'image',
     label: 'Image',
     component: 'sw-cms-block-image',

@@ -41,10 +41,10 @@ class IncrementSqlStorage implements IncrementStorageInterface
 
         $lastNumber = $stmt->fetchColumn();
 
-        if ($lastNumber === false) {
+        if ($lastNumber === null || $lastNumber === false) {
             $nextNumber = $configuration->getStart();
         } else {
-            $nextNumber = $lastNumber + 1;
+            $nextNumber = $lastNumber;
         }
 
         return (string) $nextNumber;

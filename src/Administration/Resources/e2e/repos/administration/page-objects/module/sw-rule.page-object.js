@@ -39,11 +39,6 @@ class RuleBuilderPageObject extends GeneralPageObject {
                 value: ruleData.type,
                 isMulti: false,
                 searchTerm: ruleData.type
-            })
-            .fillSwSelectComponent(`${ruleData.ruleSelector} .field--main`, {
-                value: ruleData.value,
-                isMulti: ruleData.isMulti,
-                searchTerm: ruleData.value
             });
 
         if (ruleData.operator) {
@@ -54,6 +49,12 @@ class RuleBuilderPageObject extends GeneralPageObject {
                     searchTerm: ruleData.operator
                 });
         }
+        this.browser
+            .fillSwSelectComponent(`${ruleData.ruleSelector} .field--main`, {
+                value: ruleData.value,
+                isMulti: ruleData.isMulti,
+                searchTerm: ruleData.value
+            });
     }
 
     createBasicInputCondition(ruleData) {
@@ -62,8 +63,7 @@ class RuleBuilderPageObject extends GeneralPageObject {
                 value: ruleData.type,
                 isMulti: false,
                 searchTerm: ruleData.type
-            })
-            .fillField(`input[name=${ruleData.inputName}]`, ruleData.value);
+            });
 
         if (ruleData.operator) {
             this.browser
@@ -73,6 +73,8 @@ class RuleBuilderPageObject extends GeneralPageObject {
                     searchTerm: ruleData.operator
                 });
         }
+
+        this.browser.fillField(`input[name=${ruleData.inputName}]`, ruleData.value);
     }
 
     createCombinedInputSelectCondition(ruleData) {
@@ -82,15 +84,15 @@ class RuleBuilderPageObject extends GeneralPageObject {
                 isMulti: false,
                 searchTerm: ruleData.type
             })
-            .fillSwSelectComponent(`${ruleData.ruleSelector} .sw-select[name=id]`, {
-                value: ruleData.firstValue,
-                isMulti: ruleData.isMulti,
-                searchTerm: ruleData.firstValue
-            })
             .fillSwSelectComponent(`${ruleData.ruleSelector} .sw-condition-operator-select`, {
                 value: ruleData.operator,
                 isMulti: ruleData.isMulti,
                 searchTerm: ruleData.operator
+            })
+            .fillSwSelectComponent(`${ruleData.ruleSelector} .sw-select[name=id]`, {
+                value: ruleData.firstValue,
+                isMulti: ruleData.isMulti,
+                searchTerm: ruleData.firstValue
             })
             .fillField(`${ruleData.ruleSelector} input[name=${ruleData.inputName}]`, ruleData.secondValue);
     }

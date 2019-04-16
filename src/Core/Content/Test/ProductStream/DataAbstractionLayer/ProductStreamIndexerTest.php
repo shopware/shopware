@@ -81,6 +81,7 @@ class ProductStreamIndexerTest extends TestCase
             [
                 [
                     'id' => $productId,
+                    'productNumber' => Uuid::randomHex(),
                     'stock' => 10,
                     'name' => 'Test',
                     'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
@@ -124,6 +125,7 @@ class ProductStreamIndexerTest extends TestCase
             [
                 [
                     'id' => $productId,
+                    'productNumber' => Uuid::randomHex(),
                     'stock' => 10,
                     'name' => 'Test',
                     'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
@@ -177,6 +179,7 @@ class ProductStreamIndexerTest extends TestCase
             [
                 [
                     'id' => $productId,
+                    'productNumber' => Uuid::randomHex(),
                     'stock' => 10,
                     'name' => 'Test',
                     'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
@@ -218,6 +221,7 @@ class ProductStreamIndexerTest extends TestCase
             [
                 [
                     'id' => $productId,
+                    'productNumber' => Uuid::randomHex(),
                     'stock' => 10,
                     'name' => 'Test',
                     'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
@@ -259,6 +263,7 @@ class ProductStreamIndexerTest extends TestCase
             [
                 [
                     'id' => $productId,
+                    'productNumber' => Uuid::randomHex(),
                     'stock' => 10,
                     'name' => 'Test',
                     'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
@@ -300,6 +305,7 @@ class ProductStreamIndexerTest extends TestCase
             [
                 [
                     'id' => $productId,
+                    'productNumber' => Uuid::randomHex(),
                     'stock' => 10,
                     'name' => 'Test',
                     'price' => ['gross' => 10, 'net' => 9, 'linked' => false],

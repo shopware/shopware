@@ -9,6 +9,7 @@ use Shopware\Core\Content\Test\Media\MediaFixtures;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 
@@ -36,15 +37,6 @@ class MailTemplateRepositoryTest extends TestCase
         $this->repository = $this->getContainer()->get('mail_template.repository');
         $this->connection = $this->getContainer()->get(Connection::class);
         $this->context = Context::createDefaultContext();
-    }
-
-    protected function tearDown(): void
-    {
-        try {
-            $this->connection->executeUpdate('DELETE FROM mail_template');
-        } catch (\Exception $e) {
-            static::assertTrue(false, 'Failed to remove testdata: ' . $e->getMessage());
-        }
     }
 
     /**
@@ -86,21 +78,48 @@ class MailTemplateRepositoryTest extends TestCase
      */
     public function testMailTemplateMultiCreate(): void
     {
-        $num = 10;
-        $data = $this->prepareTemplateTestData($num);
+        $id1 = Uuid::randomHex();
+        $id2 = Uuid::randomHex();
+        $data = [
+            $id1 => [
+                'id' => $id1,
+                'systemDefault' => true,
+                'mailType' => 'default',
+                'description' => 'unit test description',
+                'senderName' => 'foo Bar',
+                'senderMail' => 'foo@bar.com',
+                'subject' => 'unit test',
+                'contentPlain' => 'unit test',
+                'contentHtml' => 'unit test',
+            ],
+            $id2 => [
+                'id' => $id2,
+                'systemDefault' => false,
+                'mailType' => 'notDefault',
+                'description' => 'unit test description',
+                'senderName' => 'foo Bar',
+                'senderMail' => 'foo@bar.com',
+                'subject' => 'unit test',
+                'contentPlain' => 'unit test',
+                'contentHtml' => 'unit test',
+            ],
+        ];
 
         $this->repository->create(array_values($data), $this->context);
 
+        $ids = array_column($data, 'id');
         $records = $this->connection->fetchAll(
             'SELECT * 
                         FROM mail_template mt
-                        JOIN mail_template_translation mtt ON mt.id=mtt.mail_template_id'
+                        JOIN mail_template_translation mtt ON mt.id=mtt.mail_template_id
+                      '
         );
 
-        static::assertEquals($num, count($records));
+        $records = array_filter($records, function ($record) use ($ids) { return in_array(Uuid::fromBytesToHex($record['id']), $ids, true); });
 
+        static::assertEquals(count($data), count($records));
         foreach ($records as $record) {
-            $expect = $data[$record['id']];
+            $expect = $data[Uuid::fromBytesToHex($record['id'])];
             static::assertEquals($expect['systemDefault'], (bool) $record['system_default']);
             static::assertEquals($expect['mailType'], $record['mail_type']);
             static::assertEquals($expect['description'], $record['description']);
@@ -147,6 +166,7 @@ class MailTemplateRepositoryTest extends TestCase
     {
         $num = 10;
         $data = $this->prepareTemplateTestData($num);
+        $ids = array_column($data, 'id');
 
         $this->repository->create(array_values($data), $this->context);
 
@@ -160,25 +180,22 @@ class MailTemplateRepositoryTest extends TestCase
 
         $this->repository->upsert(array_values($data), $this->context);
 
-        $records = $this->connection->fetchAll(
-            'SELECT * 
-                        FROM mail_template mt
-                        JOIN mail_template_translation mtt ON mt.id=mtt.mail_template_id'
-        );
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsAnyFilter('id', $ids));
+        $records = $this->repository->search($criteria, Context::createDefaultContext())->getEntities();
 
-        static::assertEquals($num, count($records));
-
+        /** @var MailTemplateEntity $record */
         foreach ($records as $record) {
-            $expect = $data[$record['id']];
-            static::assertEquals($expect['systemDefault'], (bool) $record['system_default']);
-            static::assertEquals($expect['mailType'], $record['mail_type']);
-            static::assertEquals($expect['description'], $record['description']);
-            static::assertEquals($expect['senderName'], $record['sender_name']);
-            static::assertEquals($expect['senderMail'], $record['sender_mail']);
-            static::assertEquals($expect['subject'], $record['subject']);
-            static::assertEquals($expect['contentHtml'], $record['content_html']);
-            static::assertEquals($expect['contentPlain'], $record['content_plain']);
-            unset($data[$record['id']]);
+            $expect = $data[Uuid::fromHexToBytes($record->getId())];
+            static::assertEquals($expect['systemDefault'], $record->getSystemDefault());
+            static::assertEquals($expect['mailType'], $record->getMailType());
+            static::assertEquals($expect['description'], $record->getDescription());
+            static::assertEquals($expect['senderName'], $record->getSenderName());
+            static::assertEquals($expect['senderMail'], $record->getSenderMail());
+            static::assertEquals($expect['subject'], $record->getSubject());
+            static::assertEquals($expect['contentHtml'], $record->getContentHtml());
+            static::assertEquals($expect['contentPlain'], $record->getContentPlain());
+            unset($data[Uuid::fromHexToBytes($record->getId())]);
         }
     }
 

@@ -275,7 +275,7 @@ Component.extend('sw-product-stream-filter', 'sw-condition-base', {
 
             return this.definitionBlacklist
                    && this.definitionBlacklist[definitionName]
-                   && this.definitionBlacklist[definitionName].includes(field);
+                   && this.definitionBlacklist[definitionName].includes(property);
         },
 
         getDefinitionStore(definition) {

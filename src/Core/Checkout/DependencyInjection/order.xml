@@ -38,11 +38,11 @@
             <tag name="shopware.entity.definition" entity="order_transaction"/>
         </service>
 
-        <service id="Shopware\Core\Checkout\Order\Storefront\OrderService">
+        <service id="Shopware\Core\Checkout\Order\SalesChannel\OrderService">
             <argument type="service" id="Shopware\Core\Framework\Validation\DataValidator"/>
             <argument type="service" id="Shopware\Core\Checkout\Order\Validation\OrderValidationService"/>
             <argument type="service" id="event_dispatcher"/>
-            <argument type="service" id="Shopware\Core\Checkout\Cart\Storefront\CartService"/>
+            <argument type="service" id="Shopware\Core\Checkout\Cart\SalesChannel\CartService"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Order\Validation\OrderValidationService">

@@ -81,15 +81,15 @@
         </service>
 
 
-        <service id="Shopware\Core\Framework\Api\Response\Type\Storefront\JsonApiType">
-            <argument type="service" id="Shopware\Core\Framework\Api\Serializer\JsonStorefrontApiEncoder"/>
-            <!-- deactivated, the current storefront api design does not match the json api requirements -->
+        <service id="Shopware\Core\Framework\Api\Response\Type\SalesChannel\JsonApiType">
+            <argument type="service" id="Shopware\Core\Framework\Api\Serializer\JsonSalesChannelApiEncoder"/>
+            <!-- deactivated, the current sales channel api design does not match the json api requirements -->
             <!-- <tag name="shopware.rest.response_type"/> -->
         </service>
 
         <service id="Shopware\Core\Framework\Api\Serializer\JsonApiEncoder" />
 
-        <service id="Shopware\Core\Framework\Api\Serializer\JsonStorefrontApiEncoder" public="true">
+        <service id="Shopware\Core\Framework\Api\Serializer\JsonSalesChannelApiEncoder" public="true">
             <argument type="service" id="serializer"/>
         </service>
 
@@ -98,7 +98,7 @@
             <tag name="shopware.rest.response_type"/>
         </service>
 
-        <service id="Shopware\Core\Framework\Api\Response\Type\Storefront\JsonType">
+        <service id="Shopware\Core\Framework\Api\Response\Type\SalesChannel\JsonType">
             <argument type="service" id="serializer"/>
             <tag name="shopware.rest.response_type"/>
         </service>
@@ -198,7 +198,7 @@
             <tag name="kernel.event_subscriber"/>
         </service>
 
-        <service id="Shopware\Core\Framework\Api\EventListener\Authentication\StorefrontAuthenticationListener">
+        <service id="Shopware\Core\Framework\Api\EventListener\Authentication\SalesChannelAuthenticationListener">
             <tag name="kernel.event_subscriber"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
         </service>

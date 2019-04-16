@@ -9,6 +9,12 @@ Component.register('sw-cms-el-product-box', {
         Mixin.getByName('cms-element')
     ],
 
+    computed: {
+        product() {
+            return this.element.data.product;
+        }
+    },
+
     created() {
         this.createdComponent();
     },

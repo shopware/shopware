@@ -33,6 +33,6 @@ class SalesChannelContextValueResolver implements ArgumentValueResolverInterface
             $master = $request;
         }
 
-        yield $master->attributes->get(PlatformRequest::ATTRIBUTE_STOREFRONT_CONTEXT_OBJECT);
+        yield $master->attributes->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT);
     }
 }

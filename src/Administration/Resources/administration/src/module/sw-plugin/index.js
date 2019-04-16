@@ -12,6 +12,7 @@ import './component/sw-plugin-updates-grid';
 import './component/sw-plugin-last-updates-grid';
 import './component/sw-plugin-table-entry';
 import './extension/sw-settings-index';
+import pluginSettings from './component/sw-plugin-config';
 
 import deDE from './snippet/de_DE.json';
 import enGB from './snippet/en_GB.json';
@@ -63,6 +64,13 @@ Module.register('sw-plugin', {
                         parentPath: 'sw.settings.index'
                     }
                 }
+            }
+        },
+        settings: {
+            component: pluginSettings,
+            path: 'settings/:namespace',
+            meta: {
+                parentPath: 'sw.plugin.index'
             }
         }
     },

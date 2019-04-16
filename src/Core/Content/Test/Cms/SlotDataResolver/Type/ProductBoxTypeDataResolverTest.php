@@ -4,16 +4,16 @@ namespace Shopware\Core\Content\Test\Cms\SlotDataResolver\Type;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Cms\Aggregate\CmsSlot\CmsSlotEntity;
+use Shopware\Core\Content\Cms\SalesChannel\Struct\ProductBoxStruct;
 use Shopware\Core\Content\Cms\SlotDataResolver\FieldConfig;
 use Shopware\Core\Content\Cms\SlotDataResolver\FieldConfigCollection;
 use Shopware\Core\Content\Cms\SlotDataResolver\ResolverContext\EntityResolverContext;
 use Shopware\Core\Content\Cms\SlotDataResolver\ResolverContext\ResolverContext;
 use Shopware\Core\Content\Cms\SlotDataResolver\SlotDataResolveResult;
 use Shopware\Core\Content\Cms\SlotDataResolver\Type\ProductBoxTypeDataResolver;
-use Shopware\Core\Content\Cms\Storefront\Struct\ProductBoxStruct;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductDefinition;
-use Shopware\Core\Content\Product\Storefront\StorefrontProductEntity;
+use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -105,7 +105,7 @@ class ProductBoxTypeDataResolverTest extends TestCase
 
     public function testEnrichWithStaticConfig(): void
     {
-        $product = new StorefrontProductEntity();
+        $product = new SalesChannelProductEntity();
         $product->setId('product123');
 
         $resolverContext = new ResolverContext($this->createMock(SalesChannelContext::class));
@@ -162,10 +162,10 @@ class ProductBoxTypeDataResolverTest extends TestCase
 
     public function testEnrichWithMappedConfig(): void
     {
-        $parent = new StorefrontProductEntity();
+        $parent = new SalesChannelProductEntity();
         $parent->setId('product_parent');
 
-        $product = new StorefrontProductEntity();
+        $product = new SalesChannelProductEntity();
         $product->setId('product123');
         $product->setParent($parent);
 
@@ -189,7 +189,7 @@ class ProductBoxTypeDataResolverTest extends TestCase
 
     public function testEnrichWithMappedConfigButInvalidProperty(): void
     {
-        $product = new StorefrontProductEntity();
+        $product = new SalesChannelProductEntity();
         $product->setId('product123');
 
         $resolverContext = new EntityResolverContext($this->createMock(SalesChannelContext::class), ProductDefinition::class, $product);
@@ -204,7 +204,7 @@ class ProductBoxTypeDataResolverTest extends TestCase
         $slot->setFieldConfig($fieldConfig);
 
         $this->expectException(\InvalidArgumentException::class);
-        $this->expectExceptionMessage('Property foo do not exist in class ' . StorefrontProductEntity::class);
+        $this->expectExceptionMessage('Property foo do not exist in class ' . SalesChannelProductEntity::class);
 
         $this->productBoxResolver->enrich($slot, $resolverContext, $result);
     }

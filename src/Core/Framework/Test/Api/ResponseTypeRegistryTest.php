@@ -14,7 +14,7 @@ use Shopware\Core\Framework\Context\SalesChannelApiSource;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
-use Shopware\Core\Framework\Test\TestCaseBase\StorefrontFunctionalTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelFunctionalTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
 use Symfony\Component\HttpFoundation\ParameterBag;
@@ -24,7 +24,7 @@ use Symfony\Component\HttpKernel\Exception\UnsupportedMediaTypeHttpException;
 
 class ResponseTypeRegistryTest extends TestCase
 {
-    use StorefrontFunctionalTestBehaviour;
+    use SalesChannelFunctionalTestBehaviour;
 
     /**
      * @var ResponseFactoryRegistry
@@ -97,27 +97,27 @@ class ResponseTypeRegistryTest extends TestCase
         $this->getDetailResponse($context, $id, $self, 1, $accept, false);
     }
 
-    public function testStorefrontApi(): void
+    public function testSalesChannelApi(): void
     {
         $id = Uuid::randomHex();
         $accept = 'application/json';
-        $context = $this->getStorefrontContext();
-        $response = $this->getDetailResponse($context, $id, '/storefront-api/category/' . $id, '', $accept, false);
+        $context = $this->getSalesChannelContext();
+        $response = $this->getDetailResponse($context, $id, '/sales-channel-api/category/' . $id, '', $accept, false);
 
         static::assertEquals($accept, $response->headers->get('content-type'));
         $content = json_decode($response->getContent(), true);
         static::assertEquals($id, $content['data']['name']);
     }
 
-    public function testStorefrontJsonApi(): void
+    public function testSalesChannelJsonApi(): void
     {
-        // jsonapi support for storefront is deactivated
+        // jsonapi support for sales channel is deactivated
         $this->expectException(UnsupportedMediaTypeHttpException::class);
 
         $id = Uuid::randomHex();
         $accept = 'application/vnd.api+json';
-        $self = 'http://localhost/storefront-api/category/' . $id;
-        $context = $this->getStorefrontContext();
+        $self = 'http://localhost/sales-channel-api/category/' . $id;
+        $context = $this->getSalesChannelContext();
         $response = $this->getDetailResponse($context, $id, $self, '', $accept, false);
 
         static::assertEquals($accept, $response->headers->get('content-type'));
@@ -131,12 +131,12 @@ class ResponseTypeRegistryTest extends TestCase
         $this->assertEmptyRelationships($content);
     }
 
-    public function testStorefrontDefaultContentType(): void
+    public function testSSalesChannelDefaultContentType(): void
     {
         $id = Uuid::randomHex();
         $accept = '*/*';
-        $self = 'http://localhost/storefront-api/category/' . $id;
-        $context = $this->getStorefrontContext();
+        $self = 'http://localhost/sales-channel-api/category/' . $id;
+        $context = $this->getSalesChannelContext();
         $response = $this->getDetailResponse($context, $id, $self, '', $accept, false);
 
         static::assertEquals('application/json', $response->headers->get('content-type'));
@@ -144,25 +144,25 @@ class ResponseTypeRegistryTest extends TestCase
         static::assertEquals($id, $content['data']['name']);
     }
 
-    public function testStorefrontApiUnsupportedContentType(): void
+    public function testSalesChannelApiUnsupportedContentType(): void
     {
         $this->expectException(UnsupportedMediaTypeHttpException::class);
         $id = Uuid::randomHex();
         $accept = 'text/plain';
-        $self = 'http://localhost/storefront-api/category/' . $id;
-        $context = $this->getStorefrontContext();
+        $self = 'http://localhost/sales-channel-api/category/' . $id;
+        $context = $this->getSalesChannelContext();
         $this->getDetailResponse($context, $id, $self, '', $accept, false);
     }
 
-    public function testStorefrontJsonApiList(): void
+    public function testSalesChannelJsonApiList(): void
     {
         // jsonapi support for storefront is deactivated
         $this->expectException(UnsupportedMediaTypeHttpException::class);
 
         $id = Uuid::randomHex();
         $accept = 'application/vnd.api+json';
-        $self = 'http://localhost/storefront-api/category';
-        $context = $this->getStorefrontContext();
+        $self = 'http://localhost/sales-channel-api/category';
+        $context = $this->getSalesChannelContext();
         $response = $this->getListResponse($context, $id, $self, '', $accept);
 
         static::assertEquals($accept, $response->headers->get('content-type'));
@@ -211,7 +211,7 @@ class ResponseTypeRegistryTest extends TestCase
         static::assertArrayHasKey('included', $content);
     }
 
-    private function getStorefrontContext(): Context
+    private function getSalesChannelContext(): Context
     {
         return new Context(new SalesChannelApiSource(Defaults::SALES_CHANNEL));
     }

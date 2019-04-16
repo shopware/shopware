@@ -61,8 +61,8 @@ available via this API.
 2. Storefront API: Create, update and login customers, add line items to the cart, handle
 payments, place orders and do various other storefront operations.
     Examples:
-    * GET /storefront-api/checkout/cart
-    * POST /storefront-api/checkout/cart/product/64346348967843eb9638aed6fd0fee46
+    * GET /sales-channel-api/checkout/cart
+    * POST /sales-channel-api/checkout/cart/product/64346348967843eb9638aed6fd0fee46
 3. Sync API: Create or update multiple entities at once.
     Examples:
     * POST /api/sync

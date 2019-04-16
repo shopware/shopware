@@ -1,1 +1,14 @@
-.sw-cms-el-preview-product-box {}
+@import "~scss/variables";
+
+.sw-cms-el-preview-product-box {
+    min-height: 200px;
+    padding: 10px;
+    display: grid;
+    align-items: center;
+    align-content: center;
+    justify-items: center;
+    justify-content: center;
+    background: $color-light-gray;
+    border: 1px dashed $color-steam-cloud;
+    border-radius: 4px;
+}

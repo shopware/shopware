@@ -2,8 +2,20 @@
 
 $sw-mail-template-media-form-border-radius: $border-radius-default;
 $sw-mail-template-image-placeholder-color: lighten($color-steam-cloud, 5%);
+$sw-mail-template-media-form-z-index-hover-image: $z-index-hover-image;
 
 .sw-mail-template-media-form {
+
+    .sw-mail-template-media-form__grid-item {
+        position: relative;
+
+        &:hover {
+            .sw-media-preview__item {
+                position: fixed;
+                z-index: $sw-mail-template-media-form-z-index-hover-image;
+            }
+        }
+    }
 
     .sw-media-upload__file-input {
         display: none;
@@ -24,55 +36,46 @@ $sw-mail-template-image-placeholder-color: lighten($color-steam-cloud, 5%);
         grid-gap: 10px;
         grid-auto-flow: dense;
         margin-top: 20px;
-    }
 
-    .sw-mail-template-media {
-        position: relative;
-        border-radius: $sw-mail-template-media-form-border-radius;
-        border: 2px solid $sw-mail-template-image-placeholder-color;
-
-        &.is--placeholder {
-            border: 2px dashed $sw-mail-template-image-placeholder-color;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-
-            &:hover {
-                background-color: transparent;
-            }
-        }
-
-        .sw-mail-template-media__image {
+        .sw-mail-template-media {
+            position: relative;
+            border-radius: $sw-mail-template-media-form-border-radius;
+            border: 2px solid $sw-mail-template-image-placeholder-color;
             width: 100%;
             height: 100%;
 
-            .sw-media-preview__item {
-                border-radius: $sw-mail-template-media-form-border-radius;
-                width: 100%;
-                height: 100%;
-                object-fit: cover;
-                max-height: 100%;
-                max-width: 100%;
-            }
-        }
+            &.is--placeholder {
+                border: 2px dashed $sw-mail-template-image-placeholder-color;
+                display: flex;
+                align-items: center;
+                justify-content: center;
 
-        &:hover {
-            background-color: $color-black;
-
-            .sw-mail-template-media__image {
-                opacity: 0.7;
+                &:hover {
+                    background-color: transparent;
+                }
             }
 
-            .sw-context-button__button {
-                visibility: visible;
-                border: none;
+            &:hover {
+                background-color: $color-black;
+
+                .sw-mail-template-media__image {
+                    opacity: 0.7;
+                }
+
+                .sw-context-button__button {
+                    visibility: visible;
+                    border: none;
+                }
+            }
+
+            .sw-mail-template-media__placeholder-icon {
+                color: $sw-mail-template-image-placeholder-color;
             }
         }
 
         .sw-mail-template-media__context-button {
             position: absolute;
-            top: 9px;
-            right: 9px;
+            top: 0px;
         }
 
         .sw-context-button__button {
@@ -88,10 +91,5 @@ $sw-mail-template-image-placeholder-color: lighten($color-steam-cloud, 5%);
                 height: 100%;
             }
         }
-
-        .sw-mail-template-media__placeholder-icon {
-            color: $sw-mail-template-image-placeholder-color;
-        }
     }
-
 }

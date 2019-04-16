@@ -6,21 +6,18 @@
 
         {% block sw_login_login_user_field %}
             <sw-text-field
-                    :class="{ 'has--error' : loginError }"
-                    v-model="authStore.username"
+                    v-autofocus
+                    v-model="username"
                     :label="$tc('sw-login.index.labelUsername')"
-                    :placeholder="$tc('sw-login.index.placeholderUsername')"
-                    ref="swLoginUsernameField">
+                    :placeholder="$tc('sw-login.index.placeholderUsername')">
             </sw-text-field>
         {% endblock %}
 
         {% block sw_login_login_password_field %}
             <sw-password-field
-                    :class="{ 'has--error' : loginError }"
-                    v-model="authStore.password"
+                    v-model="password"
                     :label="$tc('sw-login.index.labelPassword')"
-                    :placeholder="$tc('sw-login.index.placeholderPassword')"
-                    ref="swLoginPasswordField">
+                    :placeholder="$tc('sw-login.index.placeholderPassword')">
             </sw-password-field>
         {% endblock %}
 
@@ -33,7 +30,7 @@
                 {% endblock %}
 
                 {% block sw_login_login_submit_button %}
-                    <sw-button class="sw-login__login-action" variant="primary" @submit="loginUserWithPassword">
+                    <sw-button class="sw-login__login-action" variant="primary">
                         {{ $tc('sw-login.index.buttonLogin') }}
                     </sw-button>
                 {% endblock %}

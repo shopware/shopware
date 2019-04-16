@@ -220,10 +220,15 @@ export default function VueAdapter(context, componentFactory, stateFactory, filt
      * @returns {Store<any>}
      */
     function initStore() {
-        return new Vuex.Store({
+        const store = new Vuex.Store({
             modules: State.getStore('vuex'),
             strict: process.env.NODE_ENV !== 'production'
         });
+
+        // remove unnecessary objects from state.factory
+        State.getStoreRegistry().delete('vuex');
+
+        return store;
     }
 
     /**

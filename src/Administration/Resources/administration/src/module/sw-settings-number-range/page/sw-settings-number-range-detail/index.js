@@ -245,6 +245,7 @@ Component.register('sw-settings-number-range-detail', {
         onSave() {
             this.onChangeSalesChannel();
             const numberRangeName = this.numberRange.name;
+            this.onChange();
             if (this.noSalesChannelSelected()) {
                 this.createNotificationError(
                     {

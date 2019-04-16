@@ -70,6 +70,8 @@ export default class DomAccess {
 
         if (strict && typeof attribute === 'undefined') {
             throw new Error(`The required data attribute "${key}" does not exist on ${element}!`);
+        } else if (typeof attribute === 'undefined') {
+            return attribute;
         }
 
         return StringHelper.parsePrimitive(attribute);

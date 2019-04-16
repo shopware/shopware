@@ -13,7 +13,7 @@
 				<div class="form-group col-md-4">
 					<select id="personalBirthday"
 					        name="birthdayDay"
-					        class="custom-select js-required"
+					        class="custom-select"
 					        required="required">
 						{% if not birthday %}
 							<option selected="selected"
@@ -34,7 +34,7 @@
 			{% block page_account_profile_personal_fields_birthday_select_month %}
 				<div class="form-group col-md-4">
 					<select name="birthdayMonth"
-					        class="custom-select js-required"
+					        class="custom-select"
 					        required="required">
 						{% if not birthmonth %}
 							<option selected="selected"
@@ -58,7 +58,7 @@
 					{% set startYear = currentYear - 120 %}
 
 					<select name="birthdayYear"
-					        class="custom-select js-required"
+					        class="custom-select"
 					        required="required">
 						{% if not birthyear %}
 							<option selected="selected"

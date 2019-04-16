@@ -14,7 +14,7 @@
 				{% endblock %}
 
 				{% block component_address_form_salutation_select %}
-                    <select class="custom-select js-required"
+                    <select class="custom-select"
                             id="{{ prefix }}personalSalutation"
                             name="{% if prefix %}{{ prefix }}[salutationId]{% else %}salutationId{% endif %}"
                             required="required">
@@ -71,7 +71,7 @@
 
 			{% block component_address_personal_fields_first_name_input %}
                 <input type="text"
-                       class="form-control js-required"
+                       class="form-control"
                        autocomplete="section-personal given-name"
                        id="{{ prefix }}personalFirstName"
                        placeholder="{{ "account.personalFirstNamePlaceholder"|trans }}{{ "account.required"|trans }}"
@@ -92,7 +92,7 @@
 
 			{% block component_address_personal_fields_last_name_input %}
                 <input type="text"
-                       class="form-control js-required"
+                       class="form-control"
                        autocomplete="section-personal family-name"
                        id="{{ prefix }}personalLastName"
                        placeholder="{{ "account.personalLastNamePlaceholder"|trans }}{{ "account.required"|trans }}"
@@ -117,7 +117,7 @@
                         <div class="form-group col-md-4">
                             <select id="{{ prefix }}personalBirthday"
                                     name="{% if prefix %}{{ prefix }}[birthdayDay]{% else %}birthdayDay{% endif %}"
-                                    class="custom-select js-required"
+                                    class="custom-select"
                                     required="required">
 	                            {% if not data.get('birthdayDay') %}
 		                            <option selected="selected"
@@ -138,7 +138,7 @@
 					{% block component_address_personal_fields_birthday_select_month %}
                         <div class="form-group col-md-4">
                             <select name="{% if prefix %}{{ prefix }}[birthdayMonth]{% else %}birthdayMonth{% endif %}"
-                                    class="custom-select js-required"
+                                    class="custom-select"
                                     required="required">
 	                            {% if not data.get('birthdayMonth') %}
 		                            <option selected="selected"
@@ -162,7 +162,7 @@
 							{% set startYear = currentYear - 120 %}
 
                             <select name="{% if prefix %}{{ prefix }}[birthdayYear]{% else %}birthdayYear{% endif %}"
-                                    class="custom-select js-required"
+                                    class="custom-select"
                                     required="required">
 	                            {% if not data.get('birthdayYear') %}
 		                            <option selected="selected"

@@ -19,7 +19,7 @@
 
 			{% block component_address_form_street_input %}
 				<input type="text"
-				       class="form-control js-required"
+				       class="form-control"
 				       id="{{ prefix }}AddressStreet"
 				       placeholder="{{ "address.streetPlaceholder"|trans }}{{ "account.required"|trans }}"
 				       name="{{ prefix }}[street]"
@@ -79,7 +79,7 @@
 				</label>
 
 				<input type="text"
-				       class="form-control js-required"
+				       class="form-control "
 				       id="{{ prefix }}AddressZipcode"
 				       placeholder="{{ "address.zipcodePlaceholder"|trans }}{{ "account.required"|trans }}"
 				       name="{{ prefix }}[zipcode]"
@@ -93,7 +93,7 @@
 				</label>
 
 				<input type="text"
-				       class="form-control js-required"
+				       class="form-control "
 				       id="{{ prefix }}AddressCity"
 				       placeholder="{{ "address.cityPlaceholder"|trans }}{{ "account.required"|trans }}"
 				       name="{{ prefix }}[city]"
@@ -130,7 +130,7 @@
 			{% endblock %}
 
 			{% block component_address_form_country_select %}
-				<select class="custom-select js-required"
+				<select class="custom-select "
 				        id="{{ prefix }}AddressCountry"
 				        name="{{ prefix }}[countryId]">
 					{% if not data.get('countryId') %}

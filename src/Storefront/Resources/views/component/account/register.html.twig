@@ -48,7 +48,7 @@
 
 											{% block component_account_register_personal_mail_input %}
 												<input type="email"
-												       class="form-control js-required"
+												       class="form-control "
 												       autocomplete="section-personal email"
 												       id="personalMail"
 												       placeholder="{{ "account.personalMailPlaceholder"|trans }}{{ "account.required"|trans }}"
@@ -59,7 +59,7 @@
 										</div>
 									{% endblock %}
 
-									<div class="js-guest-mode-hide">
+									<div class="js-field-toggle-guest-mode">
 										{% block component_account_register_personal_mail_confirmation %}
 											{% if shopware.config.register.emailConfirmation %}
 												<div class="form-group">
@@ -71,7 +71,7 @@
 
 													{% block component_account_register_personal_mail_confirmation_input %}
 														<input type="email"
-														       class="form-control js-required"
+														       class="form-control "
 														       autocomplete="section-personal email"
 														       id="personalMailConfirmation"
 														       placeholder="{{ "account.personalMailConfirmationPlaceholder"|trans }}{{ "account.required"|trans }}"
@@ -93,7 +93,7 @@
 
 												{% block component_account_register_personal_password_input %}
 													<input type="password"
-													       class="form-control js-required"
+													       class="form-control "
 													       autocomplete="new-password"
 													       id="personalPassword"
 													       placeholder="{{ "account.personalPasswordPlaceholder"|trans }}{{ "account.required"|trans }}"
@@ -114,7 +114,7 @@
 
 													{% block component_account_register_personal_password_confirmation_input %}
 														<input type="password"
-														       class="form-control js-required"
+														       class="form-control "
 														       autocomplete="new-password"
 														       id="personalPasswordConfirmation"
 														       placeholder="{{ "account.personalPasswordConfirmationPlaceholder"|trans }}{{ "account.required"|trans }}"
@@ -159,7 +159,7 @@
 								{% endblock %}
 
 								{% block component_account_register_address_different_shipping %}
-									<div data-different-shipping="true">
+									<div>
 										{% block component_account_register_address_different_shipping_control %}
 											<div class="custom-control custom-checkbox register-different-shipping">
 												{% block component_account_register_address_different_shipping_input %}
@@ -168,7 +168,10 @@
 													       name="differentShippingAddress"
 													       value="1"
 													       id="differentShippingAddress"
-														   {% if data.get('differentShippingAddress') %}checked="checked"{% endif %}>
+														   {% if data.get('differentShippingAddress') %}checked="checked"{% endif %}
+                                                           data-field-toggle="true"
+                                                           data-field-toggle-target=".js-field-toggle-shipping-address"
+                                                           data-field-toggle-value="false">
 												{% endblock %}
 
 												{% block component_account_register_address_different_shipping_label %}
@@ -181,7 +184,7 @@
 										{% endblock %}
 
 										{% block component_account_register_address_shipping %}
-											<div class="register-shipping js-different-shipping-container">
+											<div class="register-shipping d-none js-field-toggle-shipping-address">
 												{% block component_account_register_address_shipping_header %}
 													<h2 class="card-title">
 														{{ "account.registerAddressShippingHeader"|trans }}

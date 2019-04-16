@@ -472,6 +472,7 @@ class DetailPageSeoUrlIndexerTest extends TestCase
                 'id' => Uuid::randomHex(),
                 'name' => 'amazing brand',
             ],
+            'productNumber' => Uuid::randomHex(),
             'tax' => ['id' => Uuid::randomHex(), 'taxRate' => 19, 'name' => 'tax'],
             'price' => ['gross' => 10, 'net' => 12, 'linked' => false],
             'stock' => 0,

@@ -679,11 +679,13 @@ class SalesChannelCustomerControllerTest extends TestCase
     private function createOrder(): void
     {
         $productId = Uuid::randomHex();
+        $productNumber = Uuid::randomHex();
         $context = Context::createDefaultContext();
 
         $this->productRepository->create([
             [
                 'id' => $productId,
+                'productNumber' => $productNumber,
                 'stock' => 1,
                 'name' => 'Test',
                 'price' => ['gross' => 10, 'net' => 9, 'linked' => false],

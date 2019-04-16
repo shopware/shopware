@@ -284,10 +284,12 @@ class DiscountSurchargeTest extends TestCase
     private function createProduct(string $name, float $netPrice, float $grossPrice, float $taxRate): string
     {
         $id = Uuid::randomHex();
+        $productNumber = Uuid::randomHex();
 
         self::$productRepository->upsert([
             [
                 'id' => $id,
+                'productNumber' => $productNumber,
                 'stock' => 1,
                 'name' => $name,
                 'manufacturer' => ['name' => 'test'],

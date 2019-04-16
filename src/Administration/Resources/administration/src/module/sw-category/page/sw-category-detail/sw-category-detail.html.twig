@@ -1,16 +1,17 @@
 {% block sw_category %}
     <sw-page class="sw-category" :class="pageClasses">
 
-        {% block sw_order_list_search_bar %}
-            <template slot="search-bar">
-                <sw-search-bar initialSearchType="category"
-                               :initialSearch="term"
-                               typeSearchAlwaysInContainer
-                               ref="searchBar"
-                               @search="onSearch">
+        <template slot="search-bar">
+            {% block sw_category_search_bar %}
+                <sw-search-bar
+                    initialSearchType="category"
+                    :initialSearch="term"
+                    typeSearchAlwaysInContainer
+                    ref="searchBar"
+                    @search="onSearch">
                 </sw-search-bar>
-            </template>
-        {% endblock %}
+            {% endblock %}
+        </template>
 
         <template slot="smart-bar-header">
             {% block sw_category_smart_bar_header %}

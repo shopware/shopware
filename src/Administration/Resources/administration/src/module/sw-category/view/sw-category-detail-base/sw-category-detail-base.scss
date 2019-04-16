@@ -1,0 +1,121 @@
+ @import "~scss/variables";
+
+.sw-category-detail__base {
+
+    // .sw-tag-field,
+    // .sw-category-detail__base-link.sw-field,
+    // .sw-category-detail__base-subcategories.sw-field {
+    //     margin-top: 16px;
+    // }
+
+    .sw-category-detail__base-mount {
+        .base-mount__link {
+            text-decoration: none;
+            font-style: italic;
+            line-height: 2.2;
+        }
+
+        .base-mount__options {
+            margin-top: 12px;
+
+            .sw-field:nth-child(2) {
+                margin-top: 16px;
+            }
+
+            .sw-field {
+                margin-bottom: 0;
+            }
+        }
+    }
+
+    .sw-category-detail__layout {
+        display: grid;
+        grid-template-columns: 148px 1fr;
+        align-items: center;
+        gap: 32px;
+    }
+
+    .sw-category-detail__layout-image {
+        border: 1px solid $color-steam-cloud;
+        border-radius: $border-radius-default;
+        background: $color-iron;
+        display: flex;
+        height: 128px;
+        width: 128px;
+    }
+
+    .sw-category-detail__description {
+        margin-top: 22px;
+    }
+
+    .sw-category-detail__layout-desc {
+        .layout-desc__headline {
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+        .layout-desc__actions {
+            display: grid;
+            grid-auto-flow: column dense;
+            justify-items: flex-start;
+            width: min-content;
+            gap: 12px;
+        }
+        .layout-desc__link {
+            text-decoration: none;
+            margin-top: 8px;
+            display: flex;
+        }
+    }
+
+    .sw-category-detail__seo-preview {
+        background: $color-light-gray;
+        border-radius: $border-radius-default;
+        border: 1px solid $color-steam-cloud;
+        margin-top: 32px;
+        display: flex;
+        height: 140px;
+    }
+
+    &.sw-card-detail .sw-card-detail__content {
+        padding: 30px;
+    }
+
+    .sw-text-editor {
+        margin-bottom: 0;
+    }
+
+    .sw-category-detail__product-search {
+        padding: 30px;
+    }
+
+    .sw-empty-state {
+        position: relative;
+    }
+
+    .sw-category-detail__multi-delete {
+        z-index: 5;
+        position: absolute;
+        right: 20px;
+        top: 122px;
+    }
+
+    .sw-tag-field {
+        margin-top: 20px;
+    }
+
+    .sw-category-detail__menu {
+        .sw-category-detail__menu-clickable {
+            margin-top: 16px;
+        }
+    }
+
+    @media screen and (min-width: 1580px) {
+        .sw-card .sw-card__title {
+            width: inherit;
+            position: inherit;
+            left: inherit;
+            top: inherit;
+            text-align: inherit;
+        }
+    }
+}

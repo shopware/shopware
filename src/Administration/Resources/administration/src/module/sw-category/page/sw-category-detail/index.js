@@ -217,7 +217,6 @@ Component.register('sw-category-detail', {
         },
 
         onSave() {
-            const categoryView = this.$refs.categoryView;
             const categoryName = this.category.name || this.category.translated.name;
             const titleSaveSuccess = this.$tc('sw-category.general.titleSaveSuccess');
             const messageSaveSuccess = this.$tc('sw-category.general.messageSaveSuccess', 0, { name: categoryName });
@@ -227,8 +226,6 @@ Component.register('sw-category-detail', {
 
             this.isLoading = true;
             return this.category.save().then(() => {
-                categoryView.getList();
-                categoryView.onResetAssociations();
                 this.isLoading = false;
                 this.createNotificationSuccess({
                     title: titleSaveSuccess,

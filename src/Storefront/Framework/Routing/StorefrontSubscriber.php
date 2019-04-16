@@ -3,7 +3,8 @@
 namespace Shopware\Storefront\Framework\Routing;
 
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
-use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Checkout\Customer\Event\CustomerLoginEvent;
+use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\SalesChannelRequest;
 use Shopware\Storefront\Framework\Controller\XmlHttpRequestableInterface;
@@ -58,6 +59,9 @@ class StorefrontSubscriber implements EventSubscriberInterface
             KernelEvents::RESPONSE => [
                 ['setCanonicalUrl'],
             ],
+            CustomerLoginEvent::EVENT_NAME => [
+                'updateSession',
+            ],
         ];
     }
 
@@ -85,13 +89,36 @@ class StorefrontSubscriber implements EventSubscriberInterface
         }
 
         if (!$session->has(PlatformRequest::HEADER_CONTEXT_TOKEN)) {
-            $token = Uuid::randomHex();
+            $token = Random::getAlphanumericString(32);
             $session->set(PlatformRequest::HEADER_CONTEXT_TOKEN, $token);
         }
 
         $master->headers->set(
             PlatformRequest::HEADER_CONTEXT_TOKEN,
             $session->get(PlatformRequest::HEADER_CONTEXT_TOKEN)
+        );
+    }
+
+    public function updateSession(CustomerLoginEvent $event): void
+    {
+        $master = $this->requestStack->getMasterRequest();
+        if (!$master) {
+            return;
+        }
+        if (!$master->attributes->get(SalesChannelRequest::ATTRIBUTE_IS_SALES_CHANNEL_REQUEST)) {
+            return;
+        }
+
+        $session = $master->getSession();
+        if (!$session) {
+            return;
+        }
+
+        $token = $event->getContextToken();
+        $session->set(PlatformRequest::HEADER_CONTEXT_TOKEN, $token);
+        $master->headers->set(
+            PlatformRequest::HEADER_CONTEXT_TOKEN,
+            $token
         );
     }
 

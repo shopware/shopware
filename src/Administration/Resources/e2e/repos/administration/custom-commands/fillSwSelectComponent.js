@@ -27,6 +27,8 @@ exports.command = function fillSwSelectComponent(
     { value, clearField = false, isMulti = false, searchTerm = '' }
 ) {
     const inputCssSelector = (isMulti) ? swMultiSelectInputCssSelector : swSelectInputCssSelector;
+    const me = this;
+
     this.waitForElementVisible(selector);
 
     if (clearField && isMulti) {
@@ -36,15 +38,14 @@ exports.command = function fillSwSelectComponent(
 
     if (!isMulti) {
         // open results list
-        // open results list
         this
             .waitForElementPresent(selector)
             .waitForElementVisible(selector)
-            .click(selector, function() {
-                console.log('fsadsahdioashdoi aoidhoashd sahidosha iodhasio dhiasoh dioashiodhaiso hdio hasodh ');
+            .click(selector, function waitForResults(clickResult) {
+                me.click(selector);
+                global.logger.error(`Element click: "${clickResult.status}" / Retry.`);
             })
-            .waitForElementVisible(`${selector} ${swSelectResultsCssSelector}`)
-            .waitForElementVisible(`${selector} ${inputCssSelector}`);
+            .waitForElementVisible(`${selector} ${swSelectResultsCssSelector}`);
     }
 
     // type in the search term if available

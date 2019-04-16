@@ -1,6 +1,6 @@
-const StorefrontFixtureService = require('../../storefront/fixture.service.js').default;
+const SalesChannelFixtureService = require('../../saleschannel/fixture.service.js').default;
 
-export default class OrderFixtureService extends StorefrontFixtureService {
+export default class OrderFixtureService extends SalesChannelFixtureService {
     constructor() {
         super();
 

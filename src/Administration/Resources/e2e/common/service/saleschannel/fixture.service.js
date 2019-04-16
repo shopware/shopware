@@ -1,9 +1,9 @@
-const AdminApiService = require('./../administration/admin-api.service');
-const SalesChannelApiService = require('./sales-channel-api.service');
 const _ = require('lodash');
 const glob = require('glob');
 const path = require('path');
 const uuid = require('uuid/v4');
+const SalesChannelApiService = require('./sales-channel-api.service');
+const AdminApiService = require('./../administration/admin-api.service');
 
 export default class SalesChannelFixtureService {
     constructor() {
@@ -15,10 +15,6 @@ export default class SalesChannelFixtureService {
         glob.sync(path.join(__dirname, './fixture/*.js')).forEach((fileName) => {
             require(fileName);
         });
-    }
-
-    setBasicFixture(json) {
-        this.basicFixture = this.loadJson(json);
     }
 
     createUuid() {
@@ -39,4 +35,4 @@ export default class SalesChannelFixtureService {
     }
 }
 
-global.StorefrontFixtureService = new StorefrontFixtureService();
+global.SalesChannelFixtureService = new SalesChannelFixtureService();

@@ -1,12 +1,7 @@
 const settingsPage = require('administration/page-objects/module/sw-settings.page-object.js');
 
 module.exports = {
-    '@tags': ['settings', 'snippet-delete', 'snippets', 'delete'],
-    before: (browser, done) => {
-        global.SnippetFixtureService.setSnippetFixtures().then(() => {
-            done();
-        });
-    },
+    '@tags': ['settings', 'snippet-reset', 'snippets', 'reset'],
     'open snippet module': (browser) => {
         browser
             .openMainMenuEntry({
@@ -28,23 +23,37 @@ module.exports = {
             .click('.sw-settings-snippet-set-list__edit-set-action')
             .expect.element(page.elements.smartBarHeader).to.have.text.that.contains('Snippets of "BASE en_GB"');
     },
-    'verify snippet to be deleted': (browser) => {
+    'inline edit first snippet': (browser) => {
         const page = settingsPage(browser);
 
         browser
-            .expect.element(`${page.elements.gridRow}--0 .sw-settings-snippet-list__column-name`).to.have.text.that.equals(global.SnippetFixtureService.snippetFixture.translationKey);
+            .waitForElementVisible(`${page.elements.gridRow}--0`)
+            .moveToElement(`${page.elements.gridRow}--0`, 1, 1)
+            .doubleClick()
+            .waitForElementPresent('.is--inline-editing ')
+            .fillField(
+                '.sw-grid__row--0 .sw-field__input input',
+                '- some more'
+            )
+            .waitForElementVisible(`${page.elements.gridRow}--0 ${page.elements.gridRowInlineEdit}`)
+            .click(` ${page.elements.gridRowInlineEdit}`)
+            .expect.element(`${page.elements.gridRow}--0`).to.have.text.that.contains('- some more');
+
+        browser
+            .waitForElementNotPresent(page.elements.loader)
+            .checkNotification('has been saved successfully.');
     },
-    'delete snippet': (browser) => {
+    'reset first snippet': (browser) => {
         const page = settingsPage(browser);
 
         browser
             .clickContextMenuItem('.sw-context-menu-item--danger', page.elements.contextMenuButton, `${page.elements.gridRow}--0`)
-            .expect.element(`${page.elements.modal}__body`).to.have.text.that.contains(`the snippets for "${global.SnippetFixtureService.snippetFixture.translationKey}"?`);
+            .expect.element(`${page.elements.modal}__body`).to.have.text.that.contains('Are you sure you want to reset the snippet');
 
         browser
             .click(`${page.elements.modalFooter} button${page.elements.primaryButton}`)
             .waitForElementNotPresent(page.elements.modal)
-            .checkNotification(`to "${global.SnippetFixtureService.snippetFixture.value}" successfully.`);
+            .checkNotification('has been reset to');
     },
     'verify deletion of snippet': (browser) => {
         const page = settingsPage(browser);

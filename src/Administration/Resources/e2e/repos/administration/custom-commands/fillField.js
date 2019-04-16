@@ -18,11 +18,11 @@ exports.command = function fillField(selector, value, clearField = false, type =
     this.setValue(selector, value);
 
     if (type === 'editor') {
-        this.expect.element(selector).to.have.text.that.equals(value);
+        this.expect.element(selector).to.have.text.that.contains(value);
         return this;
     }
 
-    this.expect.element(selector).to.have.value.that.equals(value);
+    this.expect.element(selector).to.have.value.that.contains(value);
 
     return this;
 };

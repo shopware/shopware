@@ -74,8 +74,12 @@ abstract class Plugin extends Bundle
         return $this->pluginPath;
     }
 
-    private function computePluginClassPath(string $pluginPath)
+    private function computePluginClassPath(?string $pluginPath)
     {
+        if ($pluginPath === null) {
+            return parent::getPath();
+        }
+
         $canonicalizedPluginClassPath = parent::getPath();
         $canonicalizedPluginPath = realpath($pluginPath);
 

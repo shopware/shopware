@@ -115,7 +115,6 @@ class ApiRouteLoader extends Loader
         $class = SalesChannelApiController::class;
 
         $elements = $this->salesChannelDefinitionRegistry->getDefinitions();
-        error_log(print_r($elements, true) . "\n", 3, '/var/log/test.log');
         usort($elements, function ($a, $b) {
             /* @var string|EntityDefinition $a */
             /* @var string|EntityDefinition $b */
@@ -133,7 +132,7 @@ class ApiRouteLoader extends Loader
 //            $route->setDefault('entityName', $resourceName);
 //            $route->addRequirements(['version' => '\d+']);
 //            $routes->add('sales-channel-api.' . $entityName . '.detail', $route);
-
+//
 //            $route = new Route('/sales-channel-api/v{version}/search-ids/' . $resourceName);
 //            $route->setMethods(['POST']);
 //            $route->setDefault('_controller', $class . '::searchIds');

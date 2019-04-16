@@ -14,6 +14,7 @@ use Shopware\Core\Content\Product\Aggregate\ProductProperty\ProductPropertyDefin
 use Shopware\Core\Content\Product\Aggregate\ProductTag\ProductTagDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductTranslation\ProductTranslationDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
+use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductDefinition;
 use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOptionDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BlacklistRuleField;
@@ -59,6 +60,11 @@ class ProductDefinition extends EntityDefinition
     public static function getEntityName(): string
     {
         return 'product';
+    }
+
+    public static function getSalesChannelDecorationDefinition(): string
+    {
+        return SalesChannelProductDefinition::class;
     }
 
     public static function isInheritanceAware(): bool

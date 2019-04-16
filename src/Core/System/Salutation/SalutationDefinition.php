@@ -21,12 +21,18 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationFi
 use Shopware\Core\Framework\DataAbstractionLayer\Field\UpdatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\System\Salutation\Aggregate\SalutationTranslation\SalutationTranslationDefinition;
+use Shopware\Core\System\Salutation\SalesChannel\SalesChannelSalutationDefinition;
 
 class SalutationDefinition extends EntityDefinition
 {
     public static function getEntityName(): string
     {
         return 'salutation';
+    }
+
+    public static function getSalesChannelDecorationDefinition(): string
+    {
+        return SalesChannelSalutationDefinition::class;
     }
 
     public static function getCollectionClass(): string

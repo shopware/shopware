@@ -9,7 +9,7 @@
             <tag name="shopware.entity.definition" entity="salutation"/>
         </service>
 
-        <service id="Shopware\Core\Checkout\Shipping\SalesChannel\SalesChannelSalutationDefinition">
+        <service id="Shopware\Core\System\Salutation\SalesChannel\SalesChannelSalutationDefinition">
             <tag name="shopware.sales_channel.entity.definition" entity="salutation"/>
         </service>
 

@@ -5,7 +5,6 @@ namespace Shopware\Core\System\Test\SalesChannel\Entity;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Category\SalesChannel\SalesChannelCategoryDefinition;
-use Shopware\Core\Content\Category\SalesChannel\SalesChannelCategoryEntity;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductDefinition;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
@@ -118,9 +117,6 @@ class SalesChannelDefinitionTest extends TestCase
         static::assertInstanceOf(SalesChannelProductEntity::class, $product);
 
         static::assertCount(1, $product->getCategories());
-
-        $category = $product->getCategories()->first();
-        static::assertInstanceOf(SalesChannelCategoryEntity::class, $category);
     }
 }
 

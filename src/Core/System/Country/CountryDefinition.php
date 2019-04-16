@@ -23,6 +23,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\UpdatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\System\Country\Aggregate\CountryState\CountryStateDefinition;
 use Shopware\Core\System\Country\Aggregate\CountryTranslation\CountryTranslationDefinition;
+use Shopware\Core\System\Country\SalesChannel\SalesChannelCountryDefinition as SalesChannelApiCountryDefinition;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelCountry\SalesChannelCountryDefinition;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 
@@ -31,6 +32,11 @@ class CountryDefinition extends EntityDefinition
     public static function getEntityName(): string
     {
         return 'country';
+    }
+
+    public static function getSalesChannelDecorationDefinition(): string
+    {
+        return SalesChannelApiCountryDefinition::class;
     }
 
     public static function getCollectionClass(): string

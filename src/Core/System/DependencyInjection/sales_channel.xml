@@ -93,19 +93,5 @@
             <tag name="console.command"/>
         </service>
 
-        <service id="Shopware\Core\System\SalesChannel\SalesChannel\SalesChannelController" public="true">
-            <argument type="service" id="currency.repository"/>
-            <argument type="service" id="language.repository"/>
-            <argument type="service" id="country.repository"/>
-            <argument type="service" id="country_state.repository"/>
-            <argument type="service" id="payment_method.repository"/>
-            <argument type="service" id="shipping_method.repository"/>
-            <argument type="service" id="salutation.repository"/>
-
-            <call method="setContainer">
-                <argument type="service" id="service_container"/>
-            </call>
-        </service>
-
     </services>
 </container>                

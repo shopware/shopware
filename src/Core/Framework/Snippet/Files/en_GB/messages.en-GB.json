@@ -22,7 +22,9 @@
         "back": "back",
         "categories": "Categories",
         "showCategory": "show %category%",
-        "requiredFields": "The fields marked with * are required"
+        "requiredFields": "The fields marked with * are required",
+        "mailSendButton": "Send e-mail",
+        "backButton": "Back"
     },
     "header": {
         "logoLink": "Switch to homepage",
@@ -98,6 +100,7 @@
         "paymentTitle": "Payment methods",
         "ordersTitle": "Orders",
         "logout": "Logout",
+        "logoutSucceeded": "You have successfully logged off",
         "overviewWelcome": "Welcome, ",
         "overviewInfo": "This is your account dashboard which enables you to view your account activities.",
         "overviewPaymentHeader": "Selected payment method",
@@ -161,7 +164,12 @@
         "orderItemInfoNotAvailable": "Product is no longer available for a follow-up order",
         "orderActionSlide": "View",
         "orderInfoNoDispatch": "No stated",
-        "orderLinkRepeat": "Repeat order"
+        "orderLinkRepeat": "Repeat order",
+        "passwordResetTitle": "Forgot your password?",
+        "passwordResetInfo": "If you have forgotten your accounts password, you can enter a new one here. If you save it, your old password will become invalid.",
+        "passwordOptInInfo": "We will send you a confirmation e-mail. Click on the link to change your password.",
+        "optInSuccessAlert": "We have sent you a confirmation e-mail if the e-mail address you entered is registered."
+
     },
     "address": {
         "streetLabel": "Street and number",

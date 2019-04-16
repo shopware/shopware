@@ -192,7 +192,7 @@
                                             <form id="profilePasswordForm"
                                                   class="profile-item-form"
                                                   method="post"
-                                                  action="{{ path('sales-channel-api.customer.password.update', {'version': 1}) }}">
+                                                  action="{{ path('frontend.account.profile.password.save') }}">
 												{% block page_account_profile_new_password %}
                                                     <div class="form-group">
 														{% block page_account_profile_new_password_label %}
@@ -262,7 +262,6 @@
 												{% block page_account_profile_password_action_buttons %}
                                                     <div class="profile-form-actions">
 														{% block page_account_profile_password_action_button_send %}
-                                                            <input name="_method" type="hidden" value="PATCH">
                                                             <button type="submit"
                                                                     class="profile-form-submit btn btn-primary btn-sm"
                                                                     title="{{ "account.profileSaveChanges"|trans }}">

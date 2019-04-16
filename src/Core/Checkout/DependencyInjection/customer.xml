@@ -35,7 +35,6 @@
             <argument type="service" id="Shopware\Core\Framework\Validation\DataValidator"/>
             <argument type="service" id="Shopware\Core\Checkout\Customer\Validation\CustomerValidationService"/>
             <argument type="service" id="Shopware\Core\Checkout\Customer\Validation\CustomerProfileValidationService"/>
-            <argument type="service" id="Shopware\Core\Checkout\Customer\Validation\CustomerEmailValidationService"/>
             <argument type="service" id="Shopware\Core\Checkout\Customer\Password\LegacyPasswordVerifier"/>
         </service>
 
@@ -71,8 +70,6 @@
         <service id="Shopware\Core\Checkout\Customer\Validation\AddressValidationService"/>
 
         <service id="Shopware\Core\Checkout\Customer\Validation\CustomerProfileValidationService"/>
-        <service id="Shopware\Core\Checkout\Customer\Validation\CustomerEmailValidationService"/>
-        <service id="Shopware\Core\Checkout\Customer\Validation\CustomerPasswordValidationService"/>
 
         <service id="Shopware\Core\Checkout\Customer\Validation\CustomerValidationService">
             <argument type="service" id="Shopware\Core\Checkout\Customer\Validation\CustomerProfileValidationService"/>

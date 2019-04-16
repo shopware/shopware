@@ -8,9 +8,6 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\ConstraintValidator;
 
-/**
- * @copyright 2019 dasistweb GmbH (https://www.dasistweb.de)
- */
 class CustomerPasswordMatchesValidator extends ConstraintValidator
 {
     /**

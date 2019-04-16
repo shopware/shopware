@@ -4,24 +4,24 @@
     <div class="account-password">
         <div class="card">
             <div class="card-body">
-                <h2 class="card-title">Passwort vergessen?</h2>
+                <h2 class="card-title">{{ 'account.passwordResetTitle' }}</h2>
                 <form action="{{ path('frontend.account.password.page') }}"
                       method="post">
                     <div class="form-group">
                         <input type="email"
-                               placeholder="Ihre E-Mail-Adresse"
+                               placeholder="{{ 'account.personalMailPlaceholder'|trans }}"
                                required="required"
                                class="form-control">
                     </div>
                     <p>
-                        Wir senden Ihnen eine Bestätigungs-E-Mail. Klicken Sie auf den darin enthaltenen Link, um Ihr Passwort zu ändern.
+                        {{ 'account.passwordOptInInfo'|trans }}
                     </p>
                     <div class="form-group">
                         <a href="{{ path('frontend.account.login.page') }}" class="btn btn-dark">
-                            <i class="fas fa-chevron-left"></i> Zurück
+                            <i class="fas fa-chevron-left"></i> {{ 'general.backButton'|trans }}
                         </a>
                         <button class="btn btn-primary">
-                            E-Mail senden <i class="fas fa-chevron-right"></i>
+                            {{ 'general.mailSendButton'|trans }} <i class="fas fa-chevron-right"></i>
                         </button>
                     </div>
                 </form>

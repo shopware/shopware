@@ -12,7 +12,6 @@ use Symfony\Component\Validator\Exception\MissingOptionsException;
  */
 class CustomerEmailUnique extends Constraint
 {
-    //todo get a valid value for this constant
     public const CUSTOMER_EMAIL_NOT_UNIQUE = '79d30fe0-febf-421e-ac9b-1bfd5c9007f7';
 
     public $message = 'The email address {{ email }} is already in use.';

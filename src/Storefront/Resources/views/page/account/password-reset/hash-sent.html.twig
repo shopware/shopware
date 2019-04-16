@@ -4,10 +4,10 @@
     <div class="account-password-reset">
         {% sw_include '@Storefront/base/_utilities/alert.html.twig' with {
             type: "success",
-            content: "Wir haben Ihnen eine Bestätigungs-E-Mail gesendet, sofern die von Ihnen eingegebene E-Mail Adresse registriert ist."
+            content: 'account.optInSuccessAlert'|trans
         } %}
         <a href="{{ path('frontend.account.password.page') }}" class="btn btn-dark">
-            <i class="fas fa-chevron-left"></i> Zurück
+            <i class="fas fa-chevron-left"></i> {{ 'general.backButton'|trans }}
         </a>
     </div>
 {% endblock %}

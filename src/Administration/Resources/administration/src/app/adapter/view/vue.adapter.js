@@ -8,6 +8,7 @@ import VueI18n from 'vue-i18n';
 import VueMeta from 'vue-meta';
 import DeviceHelper from 'src/core/plugins/device-helper.plugin';
 import { Component, State, Mixin } from 'src/core/shopware';
+import EntityStore from 'src/core/data/EntityStore';
 import { warn } from 'src/core/service/utils/debug.utils';
 
 /**
@@ -57,7 +58,9 @@ export default function VueAdapter(context, componentFactory, stateFactory, filt
         initInheritance();
         initTitle();
 
-        const i18n = initLocales();
+        const store = initStore();
+        const i18n = initLocales(store);
+
         const components = getComponents();
 
         // Enable performance measurements in development mode
@@ -68,11 +71,6 @@ export default function VueAdapter(context, componentFactory, stateFactory, filt
             data() {
                 return Shopware.FeatureConfig.getAll();
             }
-        });
-
-        const store = new Vuex.Store({
-            modules: State.getStore('vuex'),
-            strict: process.env.NODE_ENV !== 'production'
         });
 
         return new Vue({
@@ -215,28 +213,50 @@ export default function VueAdapter(context, componentFactory, stateFactory, filt
     }
 
     /**
+     * Initializes the Vuex store for local state management
+     *
+     * @private
+     * @memberOf module:app/adapter/view/vue
+     * @returns {Store<any>}
+     */
+    function initStore() {
+        return new Vuex.Store({
+            modules: State.getStore('vuex'),
+            strict: process.env.NODE_ENV !== 'production'
+        });
+    }
+
+    /**
      * Initialises the standard locales.
      *
      * @private
      * @memberOf module:app/adapter/view/vue
      * @return {VueI18n}
      */
-    function initLocales() {
+    function initLocales(store) {
         const registry = localeFactory.getLocaleRegistry();
         const messages = {};
 
         registry.forEach((localeMessages, key) => {
+            store.commit('registerAdminLocale', key);
             messages[key] = localeMessages;
         });
 
-        const currentLocale = localeFactory.getLastKnownLocale();
-        localeFactory.setLocale(currentLocale);
+        store.commit('setAdminLocale', localeFactory.getLastKnownLocale());
 
-        return new VueI18n({
-            locale: currentLocale,
+        const i18n = new VueI18n({
+            locale: store.state.adminLocale.currentLocale,
             fallbackLocale: 'en-GB',
             messages
         });
+
+        store.subscribe(({ type }, state) => {
+            if (type === 'setAdminLocale') {
+                i18n.locale = state.adminLocale.currentLocale;
+            }
+        });
+
+        return i18n;
     }
 
     /**

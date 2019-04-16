@@ -6,7 +6,6 @@ use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\SalesChannelRequest;
-use Shopware\Storefront\Framework\Controller\StorefrontController;
 use Shopware\Storefront\Framework\Controller\XmlHttpRequestableInterface;
 use Shopware\Storefront\PageController\ErrorPageController;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -126,14 +125,14 @@ class StorefrontSubscriber implements EventSubscriberInterface
             return;
         }
 
+        if (!$event->getRequest()->attributes->has(SalesChannelRequest::ATTRIBUTE_IS_SALES_CHANNEL_REQUEST)) {
+            return;
+        }
+
         $controller = $event->getController();
 
         // happens if Controller is a closure
         if (!is_array($controller)) {
-            return;
-        }
-
-        if (!$controller[0] instanceof StorefrontController) {
             return;
         }
 

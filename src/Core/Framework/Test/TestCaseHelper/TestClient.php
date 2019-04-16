@@ -3,7 +3,7 @@
 namespace Shopware\Core\Framework\Test\TestCaseHelper;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Development\RequestTransformer;
+use Shopware\Storefront\Framework\Routing\RequestTransformer;
 use Symfony\Bundle\FrameworkBundle\Client;
 use Symfony\Component\BrowserKit\CookieJar;
 use Symfony\Component\BrowserKit\History;

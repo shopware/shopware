@@ -32,6 +32,7 @@
 /*
  * Layout-related sections
  * ----------------------- */
+@import 'layout/grid';
 @import 'layout/header';
 @import 'layout/header-minimal';
 @import 'layout/footer';
@@ -58,6 +59,7 @@
 @import 'components/magnifier';
 @import 'components/account-dropdown';
 @import 'components/account-offcanvas';
+@import 'components/flags';
 
 /*
  * Page-specific styles

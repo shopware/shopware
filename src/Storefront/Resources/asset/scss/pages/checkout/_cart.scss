@@ -1,7 +1,5 @@
 // general
 .checkout {
-    padding-top: $spacer-sm;
-
     &.is-cart {
         .checkout-main-left {
             @extend .col-12;
@@ -82,10 +80,6 @@ $cart-grid-gutter-width: $spacer-sm;
 }
 
 @include media-breakpoint-up(lg) {
-    .checkout {
-        padding-top: $spacer-xl;
-    }
-
     .cart-header {
         display: block;
     }

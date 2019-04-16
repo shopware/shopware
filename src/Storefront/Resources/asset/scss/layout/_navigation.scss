@@ -12,12 +12,12 @@ https://getbootstrap.com/docs/4.3/components/navbar/
     }
 }
 
-.navigation-menu {
+.main-navigation {
     display: none;
 }
 
 @include media-breakpoint-up(lg) {
-    .navigation-menu {
+    .main-navigation {
         display: inherit;
     }
 }

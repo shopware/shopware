@@ -2,32 +2,28 @@
     max-width: 1260px;
 }
 
-.content-main {
-    margin-bottom: 50px;
-
-    .container {
-        padding: 0;
-    }
+.content-main > .container {
+    padding: 0;
 }
 
 .content-main-inner {
     background: $white;
     min-height: 200px;
-    padding: 0 ($grid-gutter-width / 2) 16px;
+    padding: 20px ($grid-gutter-width / 2);
 }
 
 @include media-breakpoint-up(md) {
     .content-main-inner {
-        padding: 0 30px 16px;
+        padding: 30px;
     }
 }
 
 @include media-breakpoint-up(xl) {
     .content-main {
-        margin-top: 20px;
+        margin: 20px 0 50px;
 
         // reapply bootstrap container padding on large desktops
-        .container {
+        > .container {
             padding-left: $grid-gutter-width / 2;
             padding-right: $grid-gutter-width / 2;
         }
@@ -36,6 +32,6 @@
     .content-main-inner {
         box-shadow: 0 0 4px 1px $gray-300;
         min-height: 700px;
-        padding: 0 50px 50px;
+        padding: 50px;
     }
 }

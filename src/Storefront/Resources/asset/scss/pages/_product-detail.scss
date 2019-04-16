@@ -1,7 +1,3 @@
-.product-detail {
-    padding: $spacer-sm 0;
-}
-
 .product-detail-headline {
     margin-bottom: $spacer-xl;
 }
@@ -129,10 +125,6 @@
 }
 
 @include media-breakpoint-up(lg) {
-    .product-detail {
-        padding: $spacer-xl 0;
-    }
-
     .product-detail-media-image-container {
         margin-bottom: 0;
     }

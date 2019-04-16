@@ -132,7 +132,6 @@
         display: none;
     }
 
-    .account-widget-title,
     .account-widget-btn::after,
     .cart-widget-total {
         display: inline-block;
@@ -140,5 +139,11 @@
 
     .cart-widget-total {
         margin-left: $spacer-sm;
+    }
+}
+
+@include media-breakpoint-up(lg) {
+    .account-widget-title {
+        display: inline-block;
     }
 }

@@ -291,5 +291,35 @@
         <service id="Shopware\Storefront\PageController\NavigationPageController" public="true">
             <argument type="service" id="Shopware\Storefront\Page\Navigation\NavigationPageLoader"/>
         </service>
+
+        <service id="Shopware\Storefront\Page\NewsletterReceiver\Register\NewsletterReceiverLoader">
+            <argument type="service" id="Shopware\Storefront\Framework\Page\PageWithHeaderLoader"/>
+            <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="salutation.repository"/>
+        </service>
+
+        <service id="Shopware\Storefront\Page\NewsletterReceiver\Confirm\NewsletterReceiverConfirmPageLoader">
+            <argument type="service" id="Shopware\Storefront\Framework\Page\PageWithHeaderLoader"/>
+            <argument type="service" id="event_dispatcher"/>
+        </service>
+
+        <service id="Shopware\Storefront\Page\NewsletterReceiver\ConfirmSubscribe\NewsletterReceiverConfirmSubscribePageLoader">
+            <argument type="service" id="Shopware\Storefront\Framework\Page\PageWithHeaderLoader"/>
+            <argument type="service" id="event_dispatcher"/>
+        </service>
+
+        <service id="Shopware\Storefront\Page\NewsletterReceiver\Error\NewsletterReceiverErrorPageLoader">
+            <argument type="service" id="Shopware\Storefront\Framework\Page\PageWithHeaderLoader"/>
+            <argument type="service" id="event_dispatcher"/>
+        </service>
+
+        <service id="Shopware\Storefront\PageController\NewsletterController" public="true">
+            <argument type="service" id="Shopware\Storefront\Page\NewsletterReceiver\Register\NewsletterReceiverLoader"/>
+            <argument type="service" id="Shopware\Storefront\Page\NewsletterReceiver\Confirm\NewsletterReceiverConfirmPageLoader"/>
+            <argument type="service" id="Shopware\Storefront\Page\NewsletterReceiver\ConfirmSubscribe\NewsletterReceiverConfirmSubscribePageLoader"/>
+            <argument type="service" id="Shopware\Storefront\Page\NewsletterReceiver\Error\NewsletterReceiverErrorPageLoader"/>
+            <argument type="service" id="Shopware\Core\Content\NewsletterReceiver\Service\NewsletterSubscriptionService" />
+            <argument type="service" id="request_stack"/>
+        </service>
     </services>
 </container>

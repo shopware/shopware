@@ -1,0 +1,19 @@
+{% sw_extends '@Storefront/base.html.twig' %}
+
+{% block base_content %}
+    {# TODO: @Benjamin_Ott (content ersetzen) #}
+
+    {% if app.request.get('subscribe') %}
+        <p>
+            You have just subscribed to our newsletter.
+            To complete the registration look in your e-mail box for a confirmation mail.
+        </p>
+        <p>
+            If you have not received a mail please repeat the process or contact the shop operator.
+        </p>
+    {% else %}
+        <p>
+            You have successfully unsubscribed from the newsletter.
+        </p>
+    {% endif %}
+{% endblock %}

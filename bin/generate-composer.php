@@ -62,7 +62,7 @@ function make_comparator(string $prefix): callable
     $platformComposer = json_decode(file_get_contents($composerFile), true);
 
     $hasChanges = false;
-    if (array_diff($dependencies, $platformComposer['require']) || array_diff($devDependencies, $platformComposer['require-dev'])) {
+    if (array_diff_assoc($dependencies, $platformComposer['require']) || array_diff_assoc($devDependencies, $platformComposer['require-dev'])) {
         $hasChanges = true;
     }
 

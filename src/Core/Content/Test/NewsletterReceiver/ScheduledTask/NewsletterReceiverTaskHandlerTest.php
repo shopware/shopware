@@ -33,7 +33,7 @@ class NewsletterReceiverTaskHandlerTest extends TestCase
         static::assertInstanceOf(EqualsFilter::class, $equalsFilter);
 
         static::assertSame('createdAt', $dateFilter->getField());
-        static::assertNotEmpty($dateFilter->getParameter(RangeFilter::LT));
+        static::assertNotEmpty($dateFilter->getParameter(RangeFilter::LTE));
 
         static::assertSame('status', $equalsFilter->getField());
         static::assertSame('notSet', $equalsFilter->getValue());

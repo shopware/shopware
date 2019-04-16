@@ -1,0 +1,7 @@
+{% for violation in formViolations.getViolations(violationPath) %}
+    {% set snippetName = "error.#{violation.code}" %}
+    {% set fieldName = violation.propertyPath|split('/')|last|trim('/', 'left')|capitalize %}
+    <div class="invalid-feedback">
+        {{ snippetName|trans({'%field%': fieldName}) }}
+    </div>
+{% endfor %}

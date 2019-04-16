@@ -46,7 +46,9 @@
         "robots": "index,follow"
     },
     "error": {
-        "VIOLATION::IS_BLANK_ERROR": "%field% darf nicht leer sein."
+        "VIOLATION::IS_BLANK_ERROR": "%field% darf nicht leer sein.",
+        "VIOLATION::TOO_LOW_ERROR": "%field% darf nicht leer sein.",
+        "VIOLATION::STRICT_CHECK_FAILED_ERROR": "%field% ist ungültig"
     },
     "account": {
         "myAccount": "Mein Konto",

@@ -34,15 +34,6 @@
         {% block page_account_address_form_main %}
             <div class="card">
                 <div class="card-body">
-                    {% block page_account_address_form_create_errors %}
-                        {% if formViolations.getViolations() %}
-                            {% sw_include '@Storefront/base/_utilities/alert.html.twig' with {
-                                type:"danger",
-                                list: formViolations.getViolations()
-                            } %}
-                        {% endif %}
-                    {% endblock %}
-
                     {% block page_account_address_form_create %}
                         <form method="post"
                               action="{{ path('frontend.account.address.create.page') }}"

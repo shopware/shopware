@@ -14,16 +14,6 @@
 
 					{% block component_account_register_personal %}
 						<div class="register-personal">
-							{% block component_account_register_personal_errors %}
-								{% set errors = formViolations.getViolations() %}
-								{% if errors %}
-									{% sw_include '@Storefront/base/_utilities/alert.html.twig' with {
-										type: "danger",
-										list: errors
-									} %}
-								{% endif %}
-							{% endblock %}
-
 							{% block component_account_register_personal_header %}
 								<h2 class="card-title">
 									{{ "account.registerPersonalHeader"|trans }}
@@ -48,13 +38,21 @@
 
 											{% block component_account_register_personal_mail_input %}
 												<input type="email"
-												       class="form-control "
+												       class="form-control{% if formViolations.getViolations('/email') is not empty %} is-invalid{% endif %}"
 												       autocomplete="section-personal email"
 												       id="personalMail"
 												       placeholder="{{ "account.personalMailPlaceholder"|trans }}{{ "account.required"|trans }}"
 												       name="email"
 												       value="{{ data.get('email') }}"
 												       required="required">
+											{% endblock %}
+
+											{% block component_account_register_personal_mail_input_error %}
+												{% if formViolations.getViolations('/email') is not empty %}
+													{% sw_include '@Storefront/base/_utilities/form-violation.html.twig' with {
+														violationPath: '/email'
+													} %}
+												{% endif %}
 											{% endblock %}
 										</div>
 									{% endblock %}
@@ -71,13 +69,21 @@
 
 													{% block component_account_register_personal_mail_confirmation_input %}
 														<input type="email"
-														       class="form-control "
+														       class="form-control{% if formViolations.getViolations('/email') is not empty %} is-invalid{% endif %}"
 														       autocomplete="section-personal email"
 														       id="personalMailConfirmation"
 														       placeholder="{{ "account.personalMailConfirmationPlaceholder"|trans }}{{ "account.required"|trans }}"
 														       name="emailConfirmation"
 														       value="{{ data.get('emailConfirmation') }}"
 														       required="required">
+													{% endblock %}
+
+													{% block component_account_register_personal_mail_confirmation_input_error %}
+														{% if formViolations.getViolations('/email') is not empty %}
+															{% sw_include '@Storefront/base/_utilities/form-violation.html.twig' with {
+																violationPath: '/email'
+															} %}
+														{% endif %}
 													{% endblock %}
 												</div>
 											{% endif %}
@@ -93,12 +99,20 @@
 
 												{% block component_account_register_personal_password_input %}
 													<input type="password"
-													       class="form-control "
+													       class="form-control{% if formViolations.getViolations('/password') is not empty %} is-invalid{% endif %}"
 													       autocomplete="new-password"
 													       id="personalPassword"
 													       placeholder="{{ "account.personalPasswordPlaceholder"|trans }}{{ "account.required"|trans }}"
 													       name="password"
 													       required="required">
+												{% endblock %}
+
+												{% block component_account_register_personal_password_input_error %}
+													{% if formViolations.getViolations('/password') is not empty %}
+														{% sw_include '@Storefront/base/_utilities/form-violation.html.twig' with {
+															violationPath: '/password'
+														} %}
+													{% endif %}
 												{% endblock %}
 											</div>
 										{% endblock %}
@@ -114,12 +128,20 @@
 
 													{% block component_account_register_personal_password_confirmation_input %}
 														<input type="password"
-														       class="form-control "
+														       class="form-control{% if formViolations.getViolations('/password') is not empty %} is-invalid{% endif %}"
 														       autocomplete="new-password"
 														       id="personalPasswordConfirmation"
 														       placeholder="{{ "account.personalPasswordConfirmationPlaceholder"|trans }}{{ "account.required"|trans }}"
 														       name="passwordConfirmation"
 														       required="required">
+													{% endblock %}
+
+													{% block component_account_register_personal_password_confirmation_input_error %}
+														{% if formViolations.getViolations('/password') is not empty %}
+															{% sw_include '@Storefront/base/_utilities/form-violation.html.twig' with {
+																violationPath: '/password'
+															} %}
+														{% endif %}
 													{% endblock %}
 												</div>
 											{% endif %}

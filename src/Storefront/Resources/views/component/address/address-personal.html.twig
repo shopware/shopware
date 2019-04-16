@@ -14,7 +14,7 @@
 				{% endblock %}
 
 				{% block component_address_form_salutation_select %}
-                    <select class="custom-select"
+                    <select class="custom-select{% if formViolations.getViolations('/salutationId') is not empty %} is-invalid{% endif %}"
                             id="{{ prefix }}personalSalutation"
                             name="{% if prefix %}{{ prefix }}[salutationId]{% else %}salutationId{% endif %}"
                             required="required">
@@ -35,6 +35,14 @@
 						{% endfor %}
                     </select>
 				{% endblock %}
+
+                {% block component_address_form_salutation_select_error %}
+                    {% if formViolations.getViolations('/salutationId') is not empty %}
+                        {% sw_include '@Storefront/base/_utilities/form-violation.html.twig' with {
+                            violationPath: '/salutationId'
+                        } %}
+                    {% endif %}
+                {% endblock %}
             </div>
         </div>
 	{% endblock %}
@@ -71,7 +79,7 @@
 
 			{% block component_address_personal_fields_first_name_input %}
                 <input type="text"
-                       class="form-control"
+                       class="form-control{% if formViolations.getViolations('/firstName') is not empty %} is-invalid{% endif %}"
                        autocomplete="section-personal given-name"
                        id="{{ prefix }}personalFirstName"
                        placeholder="{{ "account.personalFirstNamePlaceholder"|trans }}{{ "account.required"|trans }}"
@@ -79,6 +87,14 @@
                        value="{{ data.get('firstName') }}"
                        required="required">
 			{% endblock %}
+
+            {% block component_address_personal_fields_first_name_input_error %}
+                {% if formViolations.getViolations('/firstName') is not empty %}
+                    {% sw_include '@Storefront/base/_utilities/form-violation.html.twig' with {
+                        violationPath: '/firstName'
+                    } %}
+                {% endif %}
+            {% endblock %}
         </div>
 	{% endblock %}
 
@@ -92,7 +108,7 @@
 
 			{% block component_address_personal_fields_last_name_input %}
                 <input type="text"
-                       class="form-control"
+                       class="form-control{% if formViolations.getViolations('/lastName') is not empty %} is-invalid{% endif %}"
                        autocomplete="section-personal family-name"
                        id="{{ prefix }}personalLastName"
                        placeholder="{{ "account.personalLastNamePlaceholder"|trans }}{{ "account.required"|trans }}"
@@ -100,6 +116,14 @@
                        value="{{ data.get('lastName') }}"
                        required="required">
 			{% endblock %}
+
+            {% block component_address_personal_fields_last_name_input_error %}
+                {% if formViolations.getViolations('/lastName') is not empty %}
+                    {% sw_include '@Storefront/base/_utilities/form-violation.html.twig' with {
+                        violationPath: '/lastName'
+                    } %}
+                {% endif %}
+            {% endblock %}
         </div>
 	{% endblock %}
 
@@ -117,7 +141,7 @@
                         <div class="form-group col-md-4">
                             <select id="{{ prefix }}personalBirthday"
                                     name="{% if prefix %}{{ prefix }}[birthdayDay]{% else %}birthdayDay{% endif %}"
-                                    class="custom-select"
+                                    class="custom-select{% if formViolations.getViolations('/birthdayDay') is not empty %} is-invalid{% endif %}"
                                     required="required">
 	                            {% if not data.get('birthdayDay') %}
 		                            <option selected="selected"
@@ -132,13 +156,21 @@
                                     </option>
 								{% endfor %}
                             </select>
+
+                            {% block component_address_personal_fields_birthday_select_day_error %}
+                                {% if formViolations.getViolations('/birthdayDay') is not empty %}
+                                    {% sw_include '@Storefront/base/_utilities/form-violation.html.twig' with {
+                                        violationPath: '/birthdayDay'
+                                    } %}
+                                {% endif %}
+                            {% endblock %}
                         </div>
 					{% endblock %}
 
 					{% block component_address_personal_fields_birthday_select_month %}
                         <div class="form-group col-md-4">
                             <select name="{% if prefix %}{{ prefix }}[birthdayMonth]{% else %}birthdayMonth{% endif %}"
-                                    class="custom-select"
+                                    class="custom-select{% if formViolations.getViolations('/birthdayMonth') is not empty %} is-invalid{% endif %}"
                                     required="required">
 	                            {% if not data.get('birthdayMonth') %}
 		                            <option selected="selected"
@@ -153,6 +185,14 @@
                                     </option>
 								{% endfor %}
                             </select>
+
+                            {% block component_address_personal_fields_birthday_select_month_error %}
+                                {% if formViolations.getViolations('/birthdayMonth') is not empty %}
+                                    {% sw_include '@Storefront/base/_utilities/form-violation.html.twig' with {
+                                        violationPath: '/birthdayMonth'
+                                    } %}
+                                {% endif %}
+                            {% endblock %}
                         </div>
 					{% endblock %}
 
@@ -162,7 +202,7 @@
 							{% set startYear = currentYear - 120 %}
 
                             <select name="{% if prefix %}{{ prefix }}[birthdayYear]{% else %}birthdayYear{% endif %}"
-                                    class="custom-select"
+                                    class="custom-select{% if formViolations.getViolations('/birthdayYear') is not empty %} is-invalid{% endif %}"
                                     required="required">
 	                            {% if not data.get('birthdayYear') %}
 		                            <option selected="selected"
@@ -177,6 +217,14 @@
                                     </option>
 								{% endfor %}
                             </select>
+
+                            {% block component_address_personal_fields_birthday_select_year_error %}
+                                {% if formViolations.getViolations('/birthdayYear') is not empty %}
+                                    {% sw_include '@Storefront/base/_utilities/form-violation.html.twig' with {
+                                        violationPath: '/birthdayYear'
+                                    } %}
+                                {% endif %}
+                            {% endblock %}
                         </div>
 					{% endblock %}
                 </div>

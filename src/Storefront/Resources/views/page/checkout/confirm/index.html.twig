@@ -45,7 +45,7 @@
                     <div class="custom-control custom-checkbox">
 						{% block page_checkout_confirm_tos_control_checkbox %}
                             <input type="checkbox"
-                                   class="custom-control-input{% if formViolations.getViolations('/sAGB') %} is-invalid{% endif %}"
+                                   class="custom-control-input{% if formViolations.getViolations('/tos') is not empty %} is-invalid{% endif %}"
                                    required="required"
                                    id="tos"
                                    form="confirmOrderForm"

@@ -14,14 +14,14 @@
 								{% set maxQuantity = page.product.maxPurchase %}
 							{% endif %}
 						{% else %}
-							{% set maxQuantity = 100 %}
+							{% set maxQuantity = shopware.config.checkout.maxQuantity %}
 						{% endif %}
 
 						{% block page_product_detail_buy_quantity %}
 							<select name="quantity" class="custom-select quantity-select">
-								{% for i in range(page.product.minPurchase, maxQuantity, page.product.purchaseSteps) %}
-									<option value="{{ i }}">
-										{{ i }}{% if page.product.packUnit %} {{ page.product.packUnit }}{% endif %}
+								{% for quantity in range(page.product.minPurchase, maxQuantity, page.product.purchaseSteps) %}
+									<option value="{{ quantity }}">
+										{{ quantity }}{% if page.product.packUnit %} {{ page.product.packUnit }}{% endif %}
 									</option>
 								{% endfor %}
 							</select>

@@ -110,6 +110,7 @@ class TemplateDataExtension extends AbstractExtension implements GlobalsInterfac
             ],
             'checkout' => [
                 'instockinfo' => false,
+                'maxQuantity' => 100,
             ],
         ];
     }

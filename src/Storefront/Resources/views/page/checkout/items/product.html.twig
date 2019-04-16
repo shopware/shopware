@@ -79,11 +79,26 @@
 
 								{% block page_checkout_item_product_quantity_select %}
 									<div class="col-4 col-sm-12">
-										<select class="custom-select cart-item-quantity-select" name="quantity">
-											<option value="{{ lineItem.quantity }}" selected="selected">
-												{{ lineItem.quantity }}
-											</option>
-										</select>
+										{% if lineItem.quantityInformation.maxPurchase %}
+											{% if lineItem.deliveryInformation.stock < lineItem.quantityInformation.maxPurchase %}
+												{% set maxQuantity = lineItem.deliveryInformation.stock %}
+											{% else %}
+												{% set maxQuantity = lineItem.quantityInformation.maxPurchase %}
+											{% endif %}
+										{% else %}
+											{% set maxQuantity = shopware.config.checkout.maxQuantity %}
+										{% endif %}
+
+										{% block page_product_detail_buy_quantity %}
+											<select name="quantity" class="custom-select quantity-select">
+												{% for quantity in range(lineItem.quantityInformation.minPurchase, maxQuantity, lineItem.quantityInformation.purchaseSteps) %}
+													<option value="{{ i }}"
+															{% if quantity == lineItem.quantity %} selected="selected"{% endif %}>
+														{{ quantity }}
+													</option>
+												{% endfor %}
+											</select>
+										{% endblock %}
 									</div>
 								{% endblock %}
 							</div>

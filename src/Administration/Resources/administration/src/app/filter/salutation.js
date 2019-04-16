@@ -5,11 +5,11 @@ Filter.register('salutation', (entity, fallbackSnippet = '') => {
         return fallbackSnippet;
     }
 
-    const hasBinaryGender = ['mr', 'mrs', 'miss']
+    const hideSalutation = ['not_specified']
         .some((item) => item === entity.salutation.salutationKey);
 
     const params = {
-        salutation: hasBinaryGender ? entity.salutation.displayName : '',
+        salutation: !hideSalutation ? entity.salutation.displayName : '',
         title: entity.title || '',
         firstName: entity.firstName || '',
         lastName: entity.lastName || ''

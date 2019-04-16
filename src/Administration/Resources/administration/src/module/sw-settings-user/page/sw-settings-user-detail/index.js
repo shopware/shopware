@@ -6,7 +6,7 @@ import './sw-settings-user-detail.scss';
 Component.register('sw-settings-user-detail', {
     template,
 
-    inject: ['userService'],
+    inject: ['userService', 'userValidationService'],
 
     mixins: [
         Mixin.getByName('notification')
@@ -23,7 +23,9 @@ Component.register('sw-settings-user-detail', {
             user: null,
             mediaItem: null,
             changePasswordModal: false,
-            newPassword: ''
+            newPassword: '',
+            isEmailUsed: false,
+            isUsernameUsed: false
         };
     },
 
@@ -53,6 +55,10 @@ Component.register('sw-settings-user-detail', {
                 return true;
             }
             return this.user.isLoading;
+        },
+
+        isError() {
+            return this.isEmailUsed || this.isUsernameUsed;
         },
 
         disableConfirm() {
@@ -86,6 +92,24 @@ Component.register('sw-settings-user-detail', {
             });
         },
 
+        checkEmail() {
+            return this.userValidationService.checkUserEmail({
+                email: this.user.email,
+                id: this.user.id
+            }).then(({ emailIsUnique }) => {
+                this.isEmailUsed = !emailIsUnique;
+            });
+        },
+
+        checkUsername() {
+            return this.userValidationService.checkUserUsername({
+                username: this.user.username,
+                id: this.user.id
+            }).then(({ usernameIsUnique }) => {
+                this.isUsernameUsed = !usernameIsUnique;
+            });
+        },
+
         setMediaItem({ targetId }) {
             this.mediaStore.getByIdAsync(targetId).then((updatedMedia) => {
                 this.mediaItem = updatedMedia;
@@ -104,28 +128,33 @@ Component.register('sw-settings-user-detail', {
         },
 
         onSave() {
-            const userName = this.username;
-            const titleSaveSuccess = this.$tc('sw-settings-user.user-detail.notification.saveSuccess.title');
-            const messageSaveSuccess = this.$tc('sw-settings-user.user-detail.notification.saveSuccess.message',
-                0,
-                { name: userName });
-            const titleSaveError = this.$tc('sw-settings-user.user-detail.notification.saveError.title');
-            const messageSaveError = this.$tc(
-                'sw-settings-user.user-detail.notification.saveError.message', 0, { name: userName }
-            );
+            this.checkEmail().then(() => {
+                if (!this.isEmailUsed) {
+                    const userName = this.username;
+                    const titleSaveSuccess = this.$tc('sw-settings-user.user-detail.notification.saveSuccess.title');
+                    const messageSaveSuccess = this.$tc('sw-settings-user.user-detail.notification.saveSuccess.message',
+                        0,
+                        { name: userName });
+                    const titleSaveError = this.$tc('sw-settings-user.user-detail.notification.saveError.title');
+                    const messageSaveError = this.$tc(
+                        'sw-settings-user.user-detail.notification.saveError.message', 0, { name: userName }
+                    );
 
-            return this.user.save().then(() => {
-                this.createNotificationSuccess({
-                    title: titleSaveSuccess,
-                    message: messageSaveSuccess
-                });
-            }).catch((exception) => {
-                this.createNotificationError({
-                    title: titleSaveError,
-                    message: messageSaveError
-                });
-                warn(this._name, exception.message, exception.response);
-                throw exception;
+                    return this.user.save().then(() => {
+                        this.createNotificationSuccess({
+                            title: titleSaveSuccess,
+                            message: messageSaveSuccess
+                        });
+                    }).catch((exception) => {
+                        this.createNotificationError({
+                            title: titleSaveError,
+                            message: messageSaveError
+                        });
+                        warn(this._name, exception.message, exception.response);
+                        throw exception;
+                    });
+                }
+                return Promise.resolve();
             });
         },
 

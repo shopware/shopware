@@ -1,8 +1,9 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\System\User\Recovery;
+namespace Shopware\Core\System\User\Api;
 
 use Shopware\Core\Framework\Context;
+use Shopware\Core\System\User\Recovery\UserRecoveryService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;

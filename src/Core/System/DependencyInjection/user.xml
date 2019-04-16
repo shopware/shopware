@@ -29,8 +29,16 @@
             <argument type="service" id="Shopware\Core\Framework\Event\BusinessEventDispatcher"/>
         </service>
 
-        <service id="Shopware\Core\System\User\Recovery\UserRecoveryController" public="true">
+        <service id="Shopware\Core\System\User\Api\UserRecoveryController" public="true">
             <argument type="service" id="Shopware\Core\System\User\Recovery\UserRecoveryService"/>
+        </service>
+
+        <service id="Shopware\Core\System\User\Service\UserValidationService">
+            <argument type="service" id="user.repository"/>
+        </service>
+
+        <service id="Shopware\Core\System\User\Api\UserValidationController" public="true">
+            <argument type="service" id="Shopware\Core\System\User\Service\UserValidationService"/>
         </service>
     </services>
 </container>                

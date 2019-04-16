@@ -6,11 +6,14 @@ use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\SalesChannelRequest;
+use Shopware\Storefront\Framework\Controller\XmlHttpRequestableInterface;
 use Shopware\Storefront\PageController\ErrorPageController;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\RequestStack;
+use Symfony\Component\HttpKernel\Event\FilterControllerEvent;
 use Symfony\Component\HttpKernel\Event\GetResponseForExceptionEvent;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\KernelEvents;
 use Symfony\Component\Routing\RouterInterface;
 
@@ -47,6 +50,9 @@ class StorefrontSubscriber implements EventSubscriberInterface
             KernelEvents::EXCEPTION => [
                 ['showHtmlExceptionResponse', -100],
                 ['customerNotLoggedInHandler'],
+            ],
+            KernelEvents::CONTROLLER => [
+                ['preventPageLoadingFromXmlHttpRequest'],
             ],
         ];
     }
@@ -111,5 +117,29 @@ class StorefrontSubscriber implements EventSubscriberInterface
         $redirectResponse = new RedirectResponse($this->router->generate('frontend.account.login.page', $parameters));
 
         $event->setResponse($redirectResponse);
+    }
+
+    public function preventPageLoadingFromXmlHttpRequest(FilterControllerEvent $event): void
+    {
+        if (!$event->getRequest()->isXmlHttpRequest()) {
+            return;
+        }
+
+        if (!$event->getRequest()->attributes->has(SalesChannelRequest::ATTRIBUTE_IS_SALES_CHANNEL_REQUEST)) {
+            return;
+        }
+
+        $controller = $event->getController();
+
+        // happens if Controller is a closure
+        if (!is_array($controller)) {
+            return;
+        }
+
+        if ($controller[0] instanceof XmlHttpRequestableInterface) {
+            return;
+        }
+
+        throw new AccessDeniedHttpException('PageController can\'t be requested via XmlHttpRequest.');
     }
 }

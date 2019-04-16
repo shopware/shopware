@@ -31,5 +31,10 @@ class ResponseHeaderListener implements EventSubscriberInterface
                 false
             );
         }
+        $event->getResponse()->headers->set(
+            PlatformRequest::HEADER_FRAME_OPTIONS,
+            'deny',
+            false
+        );
     }
 }

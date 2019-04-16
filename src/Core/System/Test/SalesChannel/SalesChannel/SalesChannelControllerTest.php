@@ -291,6 +291,7 @@ class SalesChannelControllerTest extends TestCase
     public function testGetSalutations(): void
     {
         $this->getSalesChannelClient()->request('GET', '/sales-channel-api/v1/salutation');
+
         $response = $this->getSalesChannelClient()->getResponse();
         static::assertEquals(200, $response->getStatusCode());
 

@@ -86,7 +86,7 @@ staticPaths.forEach((paths) => {
 
 const uri = `http://${host}:${port}`;
 
-app.use('/api', proxy({ target: process.argv[2], changeOrigin: true }));
+app.use('/api', proxy({ target: process.argv[2], changeOrigin: true, secure: false }));
 
 console.log('# Compiling Webpack configuration');
 console.log(`Environment: ${process.env.NODE_ENV}`);

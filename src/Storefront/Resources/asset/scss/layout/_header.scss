@@ -89,6 +89,14 @@
     position: relative;
 }
 
+@include media-breakpoint-up(sm) {
+    .account-widget {
+        .js-offcanvas-close {
+            display: none;
+        }
+    }
+}
+
 @include media-breakpoint-only(md) {
     .menu-button {
         display: block;

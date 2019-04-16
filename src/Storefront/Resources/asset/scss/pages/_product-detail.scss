@@ -111,11 +111,11 @@
 }
 
 @include media-breakpoint-up(sm) {
-    .js-offcanvas-close {
-        display: none;
-    }
-
     .product-detail-tabs {
+        .js-offcanvas-close {
+            display: none;
+        }
+
         .card-tabs .nav-link-icon {
             display: none;
         }

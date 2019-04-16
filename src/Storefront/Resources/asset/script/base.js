@@ -1,7 +1,6 @@
 /*
 import polyfills
  */
-import '@babel/polyfill';
 import 'asset/script/helper/polyfill-loader.helper';
 
 /*

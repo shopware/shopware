@@ -44,7 +44,7 @@ const context = getPath('asset/script');
  * @type {{main: string}}
  */
 const entries = {
-    main: './base.js'
+    main: './base.js',
 };
 
 /**
@@ -55,7 +55,7 @@ const entries = {
 const output = {
     path: buildDirectory,
     filename: 'js/main.bundle.js',
-    publicPath: publicPath
+    publicPath: publicPath,
 };
 
 /**
@@ -76,10 +76,10 @@ const modules = {
                 {
                     loader: 'eslint-loader',
                     options: {
-                        fix: true
-                    }
-                }
-            ]
+                        fix: true,
+                    },
+                },
+            ],
         },
         {
             test: /\.(woff(2)?|ttf|eot|svg)(\?v=\d+\.\d+\.\d+)?$/,
@@ -89,12 +89,12 @@ const modules = {
                     options: {
                         name: '[name].[ext]',
                         outputPath: 'fonts',
-                        publicPath: './../fonts'
-                    }
-                }
-            ]
-        }
-    ]
+                        publicPath: './../fonts',
+                    },
+                },
+            ],
+        },
+    ],
 };
 
 /**
@@ -105,23 +105,23 @@ const modules = {
 const plugins = [
     new webpack.NoEmitOnErrorsPlugin(),
     new WebpackBar({
-        name: 'Shopware Next Storefront'
+        name: 'Shopware Next Storefront',
     }),
     new StyleLintPlugin({
         context: getPath('asset/scss'),
         syntax: 'scss',
-        fix: true
+        fix: true,
     }),
     new CopyPlugin([
         {
             from: getPath('asset/img'),
-            to: 'img'
-        }
+            to: 'img',
+        },
     ]),
     new MiniCssExtractPlugin({
         filename: 'css/main.bundle.css',
-        chunkFilename: 'css/main.bundle.css'
-    })
+        chunkFilename: 'css/main.bundle.css',
+    }),
 ];
 
 /**
@@ -147,7 +147,7 @@ const resolve = {
     extensions: ['.js', '.jsx', '.json', '.less', '.sass', '.scss', '.twig'],
     alias: {
         asset: getPath('asset'),
-    }
+    },
 };
 
 
@@ -166,12 +166,12 @@ module.exports = {
     optimization: optimization,
     output: output,
     performance: {
-        hints: false
+        hints: false,
     },
     plugins: plugins,
     resolve: resolve,
     stats: {
-        colors: true
+        colors: true,
     },
-    target: 'web'
+    target: 'web',
 };

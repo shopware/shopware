@@ -80,7 +80,7 @@ class PluginLifecycleServiceTest extends TestCase
         $this->pluginCollection = $this->container->get(KernelPluginCollection::class);
         $this->connection = $this->container->get(Connection::class);
         $this->pluginLifecycleService = $this->createPluginLifecycleService();
-        require_once __DIR__ . '/_fixture/plugins/SwagTest/Migration/Migration1536761533Test.php';
+        require_once __DIR__ . '/_fixture/plugins/SwagTest/src/Migration/Migration1536761533Test.php';
         $this->addTestPluginToKernel();
         $this->context = Context::createDefaultContext();
     }
@@ -333,7 +333,7 @@ class PluginLifecycleServiceTest extends TestCase
 
     private function addTestPluginToKernel(): void
     {
-        require_once __DIR__ . '/_fixture/plugins/SwagTest/SwagTest.php';
+        require_once __DIR__ . '/_fixture/plugins/SwagTest/src/SwagTest.php';
         $this->pluginCollection->add(new \SwagTest\SwagTest(false));
     }
 

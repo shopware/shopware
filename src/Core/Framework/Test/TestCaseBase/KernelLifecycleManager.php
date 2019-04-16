@@ -10,12 +10,25 @@ use Symfony\Component\HttpKernel\KernelInterface;
 
 class KernelLifecycleManager
 {
+    /**
+     * @var string
+     */
     protected static $class;
 
     /**
      * @var KernelInterface|null
      */
     protected static $kernel;
+
+    /**
+     * @var ClassLoader
+     */
+    protected static $loader;
+
+    public static function prepare(ClassLoader $loader): void
+    {
+        self::$loader = $loader;
+    }
 
     /**
      * Get the currently active kernel
@@ -67,11 +80,22 @@ class KernelLifecycleManager
     private static function getKernelClass(): string
     {
         if (!isset($_SERVER['KERNEL_CLASS']) && !isset($_ENV['KERNEL_CLASS'])) {
-            throw new \LogicException(sprintf('You must set the KERNEL_CLASS environment variable to the fully-qualified class name of your Kernel in phpunit.xml / phpunit.xml.dist or override the %1$s::createKernel() or %1$s::getKernelClass() method.', static::class));
+            throw new \LogicException(
+                sprintf(
+                    'You must set the KERNEL_CLASS environment variable to the fully-qualified class name of your Kernel in phpunit.xml / phpunit.xml.dist or override the %1$s::createKernel() or %1$s::getKernelClass() method.',
+                    static::class
+                )
+            );
         }
 
         if (!class_exists($class = $_ENV['KERNEL_CLASS'] ?? $_SERVER['KERNEL_CLASS'])) {
-            throw new \RuntimeException(sprintf('Class "%s" doesn\'t exist or cannot be autoloaded. Check that the KERNEL_CLASS value in phpunit.xml matches the fully-qualified class name of your Kernel or override the %s::createKernel() method.', $class, static::class));
+            throw new \RuntimeException(
+                sprintf(
+                    'Class "%s" doesn\'t exist or cannot be autoloaded. Check that the KERNEL_CLASS value in phpunit.xml matches the fully-qualified class name of your Kernel or override the %s::createKernel() method.',
+                    $class,
+                    static::class
+                )
+            );
         }
 
         return $class;
@@ -99,7 +123,11 @@ class KernelLifecycleManager
             $debug = true;
         }
 
-        return new static::$class($env, $debug, new ClassLoader());
+        if (self::$loader === null) {
+            throw new \InvalidArgumentException('No class loader set. Please call KernelLifecycleManager::prepare');
+        }
+
+        return new static::$class($env, $debug, self::$loader);
     }
 
     /**

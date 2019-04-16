@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<routes xmlns="http://symfony.com/schema/routing"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://symfony.com/schema/routing
+        https://symfony.com/schema/routing/routing-1.0.xsd">
+
+    <import resource="../../Product/SalesChannel/" type="annotation" />
+    <import resource="../../Category/SalesChannel/" type="annotation" />
+    <import resource="../../Cms/SalesChannel/" type="annotation" />
+    <import resource="../../Product/" type="annotation" />
+    <import resource="../../Media/" type="annotation" />
+    <import resource="../../MailTemplate/" type="annotation" />
+</routes>

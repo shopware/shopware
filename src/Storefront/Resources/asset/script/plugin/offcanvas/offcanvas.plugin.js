@@ -25,20 +25,8 @@ class OffCanvasSingleton {
         this._removeExistingOffCanvas();
 
         const offCanvas = this._createOffCanvas(position, fullwidth);
-
         this.setContent(content, closable, delay);
-
-        // the timeout allows to apply the animation effects
-        setTimeout(function () {
-            Backdrop.open(function () {
-                offCanvas.classList.add(OFF_CANVAS_OPEN_CLASS);
-
-                // if a callback function is being injected execute it after opening the OffCanvas
-                if (typeof callback === 'function') {
-                    callback();
-                }
-            });
-        }, 1);
+        this._openOffcanvas(offCanvas, callback);
     }
 
     /**
@@ -94,6 +82,27 @@ class OffCanvasSingleton {
      */
     exists() {
         return (this.getOffCanvas().length > 0);
+    }
+
+    /**
+     * opens the offcanvas and its backdrop
+     *
+     * @param {HTMLElement} offCanvas
+     * @param {function} callback
+     * @private
+     */
+    _openOffcanvas(offCanvas, callback) {
+        // the timeout allows to apply the animation effects
+        setTimeout(function () {
+            Backdrop.open(function () {
+                offCanvas.classList.add(OFF_CANVAS_OPEN_CLASS);
+
+                // if a callback function is being injected execute it after opening the OffCanvas
+                if (typeof callback === 'function') {
+                    callback();
+                }
+            });
+        }, 1);
     }
 
     /**
@@ -168,8 +177,8 @@ class OffCanvasSingleton {
  * Make the OffCanvas being a Singleton
  * @type {OffCanvasSingleton}
  */
-const instance = new OffCanvasSingleton();
-Object.freeze(instance);
+export const OffcanvasInstance = new OffCanvasSingleton();
+Object.freeze(OffcanvasInstance);
 
 export default class OffCanvas {
 
@@ -183,7 +192,7 @@ export default class OffCanvas {
      * @param {boolean} fullwidth
      */
     static open(content, callback = null, position = 'left', closable = true, delay = REMOVE_OFF_CANVAS_DELAY, fullwidth = false) {
-        instance.open(content, callback, position, closable, delay, fullwidth);
+        OffcanvasInstance.open(content, callback, position, closable, delay, fullwidth);
     }
 
     /**
@@ -193,7 +202,7 @@ export default class OffCanvas {
      * @param {number} delay
      */
     static setContent(content, closable = true, delay = REMOVE_OFF_CANVAS_DELAY) {
-        instance.setContent(content, closable, delay);
+        OffcanvasInstance.setContent(content, closable, delay);
     }
 
     /**
@@ -202,7 +211,7 @@ export default class OffCanvas {
      * @param {string} className
      */
     static setAdditionalClassName(className) {
-        instance.setAdditionalClassName(className);
+        OffcanvasInstance.setAdditionalClassName(className);
     }
 
     /**
@@ -210,7 +219,7 @@ export default class OffCanvas {
      * @param {number} delay
      */
     static close(delay = REMOVE_OFF_CANVAS_DELAY) {
-        instance.close(delay);
+        OffcanvasInstance.close(delay);
     }
 
     /**
@@ -218,7 +227,7 @@ export default class OffCanvas {
      * @returns {boolean}
      */
     static exists() {
-        return instance.exists();
+        return OffcanvasInstance.exists();
     }
 
     /**
@@ -227,7 +236,7 @@ export default class OffCanvas {
      * @returns {NodeListOf<Element>}
      */
     static getOffCanvas() {
-        return instance.getOffCanvas();
+        return OffcanvasInstance.getOffCanvas();
     }
 
     /**

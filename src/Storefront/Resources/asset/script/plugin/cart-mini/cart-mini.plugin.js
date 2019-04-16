@@ -3,6 +3,7 @@ import PluginManager from 'asset/script/helper/plugin/plugin.manager';
 import DomAccess from 'asset/script/helper/dom-access.helper';
 import HttpClient from 'asset/script/service/http-client.service';
 import OffCanvas from 'asset/script/plugin/offcanvas/offcanvas.plugin';
+import AjaxOffCanvas from 'asset/script/plugin/offcanvas/ajax-offcanvas.plugin';
 import LoadingIndicator from 'asset/script/util/loading-indicator/loading-indicator.util';
 import DeviceDetection from 'asset/script/helper/device-detection.helper';
 
@@ -38,7 +39,7 @@ export default class CartMiniPlugin extends Plugin {
     _onOpenCartMini(e) {
         e.preventDefault();
 
-        OffCanvas.open(LoadingIndicator.getTemplate(), this._fetchCartMini.bind(this), CART_MINI_POSITION);
+        AjaxOffCanvas.open(window.router['frontend.cart.detail'], false, this._registerRemoveProductTriggerEvents.bind(this), CART_MINI_POSITION);
     }
 
     /**
@@ -64,17 +65,11 @@ export default class CartMiniPlugin extends Plugin {
         e.preventDefault();
 
         const form = e.target;
-        const requestUrl = DomAccess.getAttribute(form, 'action');
+        const requestUrl = DomAccess.getAttribute(form, 'action').toLowerCase();
+        const formData = this._convertFormDataToJSON(new FormData(form));
 
-        // Open the OffCanvas first
         OffCanvas.open(LoadingIndicator.getTemplate(), () => {
-            // Fire POST request for adding the product to cart
-            this.client.post(requestUrl.toLowerCase(), this._convertFormDataToJSON(new FormData(form)), () => {
-                // Update the CartWidget in the header
-                this._fetchCartWidgets();
-                // Fetch the current cart template and replace the OffCanvas content
-                this._fetchCartMini();
-            });
+            this.client.post(requestUrl, formData,this._updateCart.bind(this));
         }, CART_MINI_POSITION);
     }
 
@@ -120,12 +115,14 @@ export default class CartMiniPlugin extends Plugin {
         // Show loading indicator immediately after submitting
         form.innerHTML = LoadingIndicator.getTemplate();
 
-        this.client.delete(requestUrl.toLowerCase(), () => {
-            // Update the CartWidget in the header
-            this._fetchCartWidgets();
-            // Fetch the current cart template and replace the OffCanvas content
-            this._fetchCartMini();
-        });
+        this.client.delete(requestUrl.toLowerCase(), this._updateCart.bind(this));
+    }
+
+    _updateCart() {
+        // Update the CartWidget in the header
+        this._fetchCartWidgets();
+        // Fetch the current cart template and replace the OffCanvas content
+        this._fetchCartMini();
     }
 
     /**
@@ -137,7 +134,7 @@ export default class CartMiniPlugin extends Plugin {
         const CartWidgetPluginInstances = PluginManager.getPluginInstances('CartWidget');
         CartWidgetPluginInstances.forEach(instance => {
             instance.fetch();
-        })
+        });
     }
 
     /**
@@ -145,10 +142,7 @@ export default class CartMiniPlugin extends Plugin {
      * @private
      */
     _fetchCartMini() {
-        this.client.get(window.router['frontend.cart.detail'], (response) => {
-            OffCanvas.setContent(response);
-            this._registerRemoveProductTriggerEvents();
-        });
+        AjaxOffCanvas.setContent(window.router['frontend.cart.detail'], false, this._registerRemoveProductTriggerEvents.bind(this));
     }
 
 }

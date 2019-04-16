@@ -26,8 +26,11 @@ export default class HttpClient {
 
     /**
      * Request GET
+     *
      * @param {string} url
      * @param {function} callback
+     *
+     * @returns {XMLHttpRequest}
      */
     get(url, callback) {
         const request = this._createPreparedRequest('GET', url);
@@ -37,13 +40,18 @@ export default class HttpClient {
         });
 
         request.send();
+
+        return request;
     }
 
     /**
      * Request POST
+     *
      * @param {string} url
      * @param {object} data
      * @param {function} callback
+     *
+     * @returns {XMLHttpRequest}
      */
     post(url, data, callback) {
         const request = this._createPreparedRequest('POST', url);
@@ -53,12 +61,17 @@ export default class HttpClient {
         });
 
         request.send(data);
+
+        return request;
     }
 
     /**
      * Request DELETE
+     *
      * @param {string} url
      * @param {function} callback
+     *
+     * @returns {XMLHttpRequest}
      */
     delete(url, callback) {
         const request = this._createPreparedRequest('DELETE', url);
@@ -68,12 +81,16 @@ export default class HttpClient {
         });
 
         request.send();
+
+        return request;
     }
 
     /**
      * Request PATCH
      * @param {string} url
      * @param {function} callback
+     *
+     * @returns {XMLHttpRequest}
      */
     patch(url, callback) {
         const request = this._createPreparedRequest('PATCH', url);

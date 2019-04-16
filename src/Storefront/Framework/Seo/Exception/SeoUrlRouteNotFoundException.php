@@ -5,18 +5,18 @@ namespace Shopware\Storefront\Framework\Seo\Exception;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
-class InvalidTemplateException extends ShopwareHttpException
+class SeoUrlRouteNotFoundException extends ShopwareHttpException
 {
-    public const ERROR_CODE = 'FRAMEWORK__INVALID_SEO_TEMPLATE';
+    public const ERROR_CODE = 'FRAMEWORK__SEO_URL_ROUTE_NOT_FOUND';
 
-    public function __construct(string $message)
+    public function __construct(string $routeName)
     {
-        parent::__construct($message);
+        parent::__construct('seo url route"{{ routeName }}" not found.', ['routeName' => $routeName]);
     }
 
     public function getStatusCode(): int
     {
-        return Response::HTTP_BAD_REQUEST;
+        return Response::HTTP_NOT_FOUND;
     }
 
     public function getErrorCode(): string

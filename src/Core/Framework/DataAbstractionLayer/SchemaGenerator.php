@@ -42,7 +42,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\TreePathField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\UpdatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\WhitelistRuleField;
-use Shopware\Storefront\Framework\Seo\Entity\Field\CanonicalUrlAssociationField;
 
 class SchemaGenerator
 {
@@ -207,7 +206,7 @@ EOL;
                     return false;
                 }
 
-                return !$field instanceof CanonicalUrlAssociationField;
+                return true;
             }
         );
 

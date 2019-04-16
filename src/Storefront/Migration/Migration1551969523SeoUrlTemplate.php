@@ -6,8 +6,8 @@ use Doctrine\DBAL\Connection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Storefront\Framework\Seo\DbalIndexing\SeoUrl\ProductDetailPageSeoUrlIndexer;
-use Shopware\Storefront\Framework\Seo\SeoUrlGenerator\ProductDetailPageSeoUrlGenerator;
+use Shopware\Storefront\Framework\Seo\SeoUrlRoute\NavigationPageSeoUrlRoute;
+use Shopware\Storefront\Framework\Seo\SeoUrlRoute\ProductPageSeoUrlRoute;
 
 class Migration1551969523SeoUrlTemplate extends MigrationStep
 {
@@ -40,9 +40,18 @@ class Migration1551969523SeoUrlTemplate extends MigrationStep
         $connection->insert('seo_url_template', [
             'id' => Uuid::randomBytes(),
             'sales_channel_id' => null,
-            'route_name' => ProductDetailPageSeoUrlIndexer::ROUTE_NAME,
+            'route_name' => ProductPageSeoUrlRoute::ROUTE_NAME,
             'entity_name' => 'product',
-            'template' => ProductDetailPageSeoUrlGenerator::DEFAULT_TEMPLATE,
+            'template' => ProductPageSeoUrlRoute::DEFAULT_TEMPLATE,
+            'created_at' => (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_FORMAT),
+        ]);
+
+        $connection->insert('seo_url_template', [
+            'id' => Uuid::randomBytes(),
+            'sales_channel_id' => null,
+            'route_name' => NavigationPageSeoUrlRoute::ROUTE_NAME,
+            'entity_name' => 'category',
+            'template' => NavigationPageSeoUrlRoute::DEFAULT_TEMPLATE,
             'created_at' => (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_FORMAT),
         ]);
     }

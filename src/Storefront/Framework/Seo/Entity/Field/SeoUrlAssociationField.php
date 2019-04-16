@@ -4,6 +4,7 @@ namespace Shopware\Storefront\Framework\Seo\Entity\Field;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Extension;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
+use Shopware\Storefront\Framework\Seo\Entity\Dbal\SeoUrlAssociationFieldResolver;
 use Shopware\Storefront\Framework\Seo\Entity\Serializer\SeoUrlFieldSerializer;
 use Shopware\Storefront\Framework\Seo\SeoUrl\SeoUrlDefinition;
 
@@ -32,5 +33,10 @@ class SeoUrlAssociationField extends OneToManyAssociationField
     protected function getSerializerClass(): string
     {
         return SeoUrlFieldSerializer::class;
+    }
+
+    protected function getResolverClass(): string
+    {
+        return SeoUrlAssociationFieldResolver::class;
     }
 }

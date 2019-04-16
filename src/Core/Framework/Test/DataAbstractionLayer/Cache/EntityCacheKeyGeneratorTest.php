@@ -125,6 +125,7 @@ class EntityCacheKeyGeneratorTest extends TestCase
         static::assertContains('category_translation.name', $tags);
         static::assertContains('category.media_id', $tags);
         static::assertContains('media_translation.title', $tags);
+
         static::assertCount(9, $tags, print_r($tags, true));
     }
 }

@@ -66,6 +66,12 @@ abstract class EntityDefinition
         return $this->className;
     }
 
+    final public function equals(EntityDefinition $other): bool
+    {
+        // same reference or same class name
+        return $this === $other || $this->getClass() === $other->getClass();
+    }
+
     public function compile(DefinitionInstanceRegistry $registry): void
     {
         $this->registry = $registry;

@@ -5,10 +5,15 @@ namespace Shopware\Storefront\Framework\Seo\Api;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Storefront\Framework\Seo\Exception\InvalidTemplateException;
-use Shopware\Storefront\Framework\Seo\SeoService;
+use Shopware\Storefront\Framework\Seo\Exception\SeoUrlRouteNotFoundException;
+use Shopware\Storefront\Framework\Seo\SeoUrlGenerator;
+use Shopware\Storefront\Framework\Seo\SeoUrlRoute\SeoUrlRouteConfig;
+use Shopware\Storefront\Framework\Seo\SeoUrlRoute\SeoUrlRouteRegistry;
+use Shopware\Storefront\Framework\Seo\SeoUrlTemplate\TemplateGroup;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -18,19 +23,24 @@ use Symfony\Component\Routing\Annotation\Route;
 class SeoActionController extends AbstractController
 {
     /**
-     * @var SeoService
+     * @var SeoUrlGenerator
      */
-    private $seoService;
+    private $seoUrlGenerator;
 
     /**
      * @var DefinitionInstanceRegistry
      */
     private $definitionRegistry;
+    /**
+     * @var SeoUrlRouteRegistry
+     */
+    private $seoUrlRouteRegistry;
 
-    public function __construct(SeoService $seoService, DefinitionInstanceRegistry $definitionRegistry)
+    public function __construct(SeoUrlGenerator $seoUrlGenerator, DefinitionInstanceRegistry $definitionRegistry, SeoUrlRouteRegistry $seoUrlRouteRegistry)
     {
-        $this->seoService = $seoService;
+        $this->seoUrlGenerator = $seoUrlGenerator;
         $this->definitionRegistry = $definitionRegistry;
+        $this->seoUrlRouteRegistry = $seoUrlRouteRegistry;
     }
 
     /**
@@ -65,20 +75,27 @@ class SeoActionController extends AbstractController
     public function getSeoUrlContext(RequestDataBag $data, Context $context): JsonResponse
     {
         $routeName = $data->get('routeName');
-        $entityName = $data->get('entityName');
         $fk = $data->get('foreignKey');
+        $seoUrlRoute = $this->seoUrlRouteRegistry->findByRouteName($routeName);
+        if (!$seoUrlRoute) {
+            throw new SeoUrlRouteNotFoundException($routeName);
+        }
 
-        $repo = $this->definitionRegistry->getRepository($entityName);
+        $config = $seoUrlRoute->getConfig();
+        $repository = $this->getRepository($config);
 
         /** @var Entity|null $entity */
-        $entity = $repo->search((new Criteria($fk ? [$fk] : []))->setLimit(1), $context)->first();
+        $entity = $repository
+            ->search((new Criteria($fk ? [$fk] : []))->setLimit(1), $context)
+            ->first();
+
         if (!$entity) {
             return new JsonResponse(null, Response::HTTP_NOT_FOUND);
         }
 
-        $context = $this->seoService->getSeoUrlContext($routeName, $entity);
+        $mapping = $seoUrlRoute->getMapping($entity);
 
-        return new JsonResponse($context);
+        return new JsonResponse($mapping->getSeoPathInfoContext());
     }
 
     private function validateSeoUrlTemplate(Request $request): void
@@ -93,18 +110,29 @@ class SeoActionController extends AbstractController
 
     private function getPreview(array $seoUrlTemplate, Context $context): array
     {
-        $repo = $this->definitionRegistry->getRepository($seoUrlTemplate['entityName']);
+        $seoUrlRoute = $this->seoUrlRouteRegistry->findByRouteName($seoUrlTemplate['routeName']);
+
+        if (!$seoUrlRoute) {
+            throw new SeoUrlRouteNotFoundException($seoUrlTemplate['routeName']);
+        }
+
+        $config = $seoUrlRoute->getConfig();
+        $config->setSkipInvalid(false);
+        $repository = $this->getRepository($config);
 
         $criteria = new Criteria();
         $criteria->setLimit(10);
-        $ids = $repo->searchIds($criteria, $context)->getIds();
+        $ids = $repository->searchIds($criteria, $context)->getIds();
 
-        return iterator_to_array($this->seoService->generateSeoUrls(
-            $seoUrlTemplate['salesChannelId'] ?? null,
-            $seoUrlTemplate['routeName'],
-            $ids,
-            $seoUrlTemplate['template'],
-            false
-        ));
+        $templateString = $seoUrlTemplate['template'];
+        $groups = [new TemplateGroup($context->getLanguageId(), $templateString, [$seoUrlTemplate['salesChannelId'] ?? null])];
+        $result = $this->seoUrlGenerator->generateSeoUrls($context, $seoUrlRoute, $ids, $groups, $config);
+
+        return iterator_to_array($result);
+    }
+
+    private function getRepository(SeoUrlRouteConfig $config): EntityRepositoryInterface
+    {
+        return $this->definitionRegistry->getRepository($config->getDefinition()->getEntityName());
     }
 }

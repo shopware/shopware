@@ -1,7 +1,7 @@
 [titleEn]: <>(Management API usage)
 
 This guide describes the default usage with the default schema, which almost all resources are using.
-There are extended read possibilities for a few entities. Read [here](40-management-extended-read.md) for more information about that.
+There are extended read possibilities for a few entities. Read [here](./40-management-extended-read.md) for more information about that.
 
 ## Usage
 

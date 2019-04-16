@@ -4,7 +4,7 @@
 
 List of available salutations, readily consumed by other components.
 
-![Solutations](./dist/erm-shopware-core-system-salutation.svg)
+![Solutations](./dist/erd-shopware-core-system-salutation.png)
 
 
 ### Table `salutation`

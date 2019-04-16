@@ -1,4 +1,4 @@
-[titleEn]: <>(Shopware Platform Administration)
+[titleEn]: <>(Administration)
 
 Repository Link: `https://github.com/shopware/platform/tree/master/src/Adminitration/Resources/administration/source`
 
@@ -28,7 +28,7 @@ Contrary to the backend the administration contains no business logic. Therefore
 
 The dependency structure is: 
 
-![Shopware Administration](./dist/admin-component.svg)
+![Shopware Administration](./dist/admin-component.png)
 
 
 ## Spreading of functionality
@@ -37,7 +37,7 @@ One module represents a navigation entry in the administrations main menu. Since
 
 A `component` is the combination of *styling*, *markup* and *logic*. What a component does will not surprise you, if you already are familiar with the MVC-Pattern. The role of the model and controller collapses into a single class though. 
 
-![Shopware Administration Component](./dist/admin-component-parts.svg)
+![Shopware Administration Component](./dist/admin-component-parts.png)
 
 Components can be and often are nested.
 
@@ -87,4 +87,4 @@ State-Management
 So a more accurate representation of a typical module is this diagram:
 
 
-![Shopware Administration Cross Cuttiong Concerns](./dist/admin-component-cross-cutting.svg)
+![Shopware Administration Cross Cuttiong Concerns](./dist/admin-component-cross-cutting.png)

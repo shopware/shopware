@@ -4,7 +4,7 @@
 
 Snippets are translatble placeholders.
 
-![Custom placeholder translations](./dist/erm-shopware-core-framework-snippet.svg)
+![Custom placeholder translations](./dist/erd-shopware-core-framework-snippet.png)
 
 
 ### Table `snippet_set`

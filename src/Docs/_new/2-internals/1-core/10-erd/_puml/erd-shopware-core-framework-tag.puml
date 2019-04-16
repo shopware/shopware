@@ -38,6 +38,8 @@ ForeignTable(ShopwareCoreCheckoutCustomerAggregateCustomerTagCustomerTagDefiniti
 }
 ForeignTable(ShopwareCoreCheckoutOrderAggregateOrderTagOrderTagDefinition, "order_tag") {
 }
+ForeignTable(ShopwareCoreCheckoutShippingAggregateShippingMethodTagShippingMethodTagDefinition, "shipping_method_tag") {
+}
 
 ' relationshipd
 
@@ -46,4 +48,5 @@ ShopwareCoreFrameworkTagTagDefinition --> ShopwareCoreContentMediaAggregateMedia
 ShopwareCoreFrameworkTagTagDefinition --> ShopwareCoreContentCategoryAggregateCategoryTagCategoryTagDefinition
 ShopwareCoreFrameworkTagTagDefinition --> ShopwareCoreCheckoutCustomerAggregateCustomerTagCustomerTagDefinition
 ShopwareCoreFrameworkTagTagDefinition --> ShopwareCoreCheckoutOrderAggregateOrderTagOrderTagDefinition
+ShopwareCoreFrameworkTagTagDefinition --> ShopwareCoreCheckoutShippingAggregateShippingMethodTagShippingMethodTagDefinition
 @enduml

@@ -4,7 +4,7 @@
 
 Although themselves fairly simple currencies are a central building block in Shopware. Currencies allow source to target calculation of prices based on original currencies in the product to target currency of the cart.
 
-![Currencies](./dist/erm-shopware-core-system-currency.svg)
+![Currencies](./dist/erd-shopware-core-system-currency.png)
 
 
 ### Table `currency`

@@ -4,7 +4,7 @@
 
 Cron jobs based on the message queue.
 
-![Scheduled messages](./dist/erm-shopware-core-framework-scheduledtask.svg)
+![Scheduled messages](./dist/erd-shopware-core-framework-scheduledtask.png)
 
 
 ### Table `scheduled_task`

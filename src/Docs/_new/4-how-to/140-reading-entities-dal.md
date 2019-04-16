@@ -1,10 +1,11 @@
 [titleEn]: <>(Reading entities via DAL)
+[metaDescriptionEn]: <>(Very often one wants to read data from the database and therefore has to write his own queries using PDO. In the Shopware platform, it's highly recommended to not write custom queries in order to fetch data, but to use the methods from our data abstraction layer, in short DAL.)
 
 ## Overview
 
 Very often one wants to read data from the database and therefore has to write his own queries using PDO.
 In the Shopware platform, it's **highly recommended** to not write custom queries in order to fetch data, but
-to use the methods from our [data abstraction layer](../2-internals/1-core/20-data-abstraction-layer/__categoryInfo.md), in short `DAL`.
+to use the methods from our [data abstraction layer](./../2-internals/1-core/20-data-abstraction-layer/__categoryInfo.md), in short `DAL`.
 
 Here's a few examples on how to read your entity data using the DAL.
 All of the following methods are to be executed on the entities' respective repository.
@@ -38,7 +39,7 @@ The return value will be a collection containing all found entities as hydrated 
 
 In many cases you don't even know the ID of the entity you're looking for.
 In order to search for entities using something else than the ID, you'll have to use filters.
-[Read here](../2-internals/1-core/20-data-abstraction-layer/020-search.md#Filter) for more information about the DAL filter types and how to use them.
+[Read here](./../2-internals/1-core/20-data-abstraction-layer/020-search.md#Filter) for more information about the DAL filter types and how to use them.
 
 The following example code will be looking for a product whose `name` equals 'Example product':
 

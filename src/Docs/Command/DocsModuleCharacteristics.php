@@ -48,7 +48,8 @@ All core modules encapsulate domain concepts and provide a varying number of ext
 EOD;
 
     const TEMPLATE_MODULE = <<<EOD
-### [%s](https://github.com/shopware/platform/tree/master/src/Core/%s) %s
+### [%s](https://github.com/shopware/platform/tree/master/src/Core/%s) 
+%s
 
 %s
 
@@ -149,6 +150,7 @@ EOD;
                     'Checkout/Promotion',
                     'Framework/Version',
                     'Content/MailTemplate',
+                    'Content/DeliveryTime',
                 ], true);
             })
             ->depth('1');

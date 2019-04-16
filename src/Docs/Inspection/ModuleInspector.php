@@ -53,7 +53,7 @@ class ModuleInspector
             },
         ];
 
-        $ModuleTags = [];
+        $moduleTags = [];
 
         foreach ($inspectors as $ModuleTagName => $inspector) {
             $ModuleTag = new ModuleTag($ModuleTagName);
@@ -61,11 +61,11 @@ class ModuleInspector
             $inspector($ModuleTag, $module);
 
             if ($ModuleTag->valid()) {
-                $ModuleTags[] = '*[' . $ModuleTagName . ']*';
+                $moduleTags[] = '*[' . $ModuleTagName . ']*';
             }
         }
 
-        return $ModuleTags;
+        return $moduleTags;
     }
 
     private function findFiles(SplFileInfo $in, string $pattern): Finder

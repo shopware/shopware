@@ -4,7 +4,7 @@
 
 The central customer entity of the platform. Is created through SalesChannel processes and used in the order and cart workflow.
 
-![Customer](./dist/erm-shopware-core-checkout-customer.svg)
+![Customer](./dist/erd-shopware-core-checkout-customer.png)
 
 
 ### Table `customer`

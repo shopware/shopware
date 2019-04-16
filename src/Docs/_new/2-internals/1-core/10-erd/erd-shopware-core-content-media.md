@@ -4,7 +4,7 @@
 
 Central file management of the system. The media component provides a rich set of services to analyze, modify and store rich media content. Thumbnails, videos and the like will be managed and stored by this component.
 
-![Media/File management](./dist/erm-shopware-core-content-media.svg)
+![Media/File management](./dist/erd-shopware-core-content-media.png)
 
 
 ### Table `media`

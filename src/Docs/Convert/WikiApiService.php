@@ -1,41 +1,34 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Docs\Command;
+namespace Shopware\Docs\Convert;
 
 use GuzzleHttp\Client;
-use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Console\Input\InputArgument;
-use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Output\OutputInterface;
 
-class SyncDocsCommand extends Command
+class WikiApiService
 {
-    public const INITIAL_VERSION = '6.0.0';
-    public const DOC_VERSION = '1.0.0';
-    public const CATEGORY_SITE_FILENAME = '__categoryInfo';
-    private const CREDENTIAL_PATH = __DIR__ . '/wiki.secret';
-    private const META_TITLE_PREFIX = 'Shopware Platform: ';
+    private const INITIAL_VERSION = '6.0.0';
+    private const DOC_VERSION = '1.0.0';
 
+    /**
+     * @var string
+     */
     private $sbpToken;
+    /**
+     * @var string
+     */
     private $serverAddress;
+    /**
+     * @var string
+     */
     private $rootCategoryId;
 
-    /** @var \GuzzleHttp\Client $client */
-    private $client;
-
-    public function __construct()
+    public function __construct(string $sbpToken, string $serverAddress, int $rootCategoryId)
     {
-        parent::__construct();
+        $this->sbpToken = $sbpToken;
+        $this->serverAddress = $serverAddress;
+        $this->rootCategoryId = $rootCategoryId;
 
-        if (file_exists(self::CREDENTIAL_PATH)) {
-            $credentialsContents = (file_get_contents(self::CREDENTIAL_PATH));
-            $credentials = json_decode($credentialsContents, true);
-            $this->sbpToken = $credentials['token'];
-            $this->serverAddress = $credentials['url'];
-            $this->rootCategoryId = $credentials['rootCategoryId'];
-
-            $this->client = new Client(['base_uri' => $this->serverAddress]);
-        }
+        $this->client = new Client(['base_uri' => $this->serverAddress]);
     }
 
     public function getRootCategoryId()
@@ -43,11 +36,10 @@ class SyncDocsCommand extends Command
         return $this->rootCategoryId;
     }
 
-    public function syncFilesWithServer(array $convertedFiles): void
+    public function syncFilesWithServer(DocumentTree $tree): void
     {
         echo 'Syncing markdownfiles ...' . PHP_EOL;
         [$globalCategoryList, $articleList] = $this->gatherCategoryChildrenAndArticles($this->rootCategoryId, $this->getAllCategories());
-        $categoryFiles = [];
 
         echo 'Deleting ' . count($articleList) . ' old articles ...' . PHP_EOL;
         foreach ($articleList as $article) {
@@ -56,146 +48,37 @@ class SyncDocsCommand extends Command
         }
 
         $this->deleteCategoryChildren();
-        $globalCategoryList = [];
 
-        $i = 0;
-        foreach ($convertedFiles as $file => $information) {
-            ++$i;
-            if (strpos($file, self::CATEGORY_SITE_FILENAME) !== false) {
-                // we handle category sites below
-                $categoryFiles[$file] = $information;
-                echo 'Postponing sync of categoryfile ' . $file . PHP_EOL;
-                continue;
-            }
-
-            if (strpos($file, '_') !== false) {
-                continue;
-            }
-
-            echo 'Syncing file ' . $i . ' ' . $file . ' of ' . count($convertedFiles) . PHP_EOL;
-
-            $fileMetadata = $information['metadata'];
-            $html = $information['content'];
-
-            $articleInfo = $this->createLocalizedVersionedArticle($file, $file . '-de');
-            $categoryId = $this->getOrCreateMissingCategoryTree($this->getCategoryTreeFromPath($file), $globalCategoryList);
-
-            $this->addArticleToCategory($articleInfo['en_GB'], $categoryId);
-
-            // handle media files
-            if (key_exists('media', $fileMetadata)) {
-                echo '=> Uploading ' . count($fileMetadata['media']) . ' mediafile(s) ...' . PHP_EOL;
-                foreach ($fileMetadata['media'] as $key => $mediaFile) {
-                    $mediaLink = $this->uploadMedia($articleInfo['en_GB'], $mediaFile);
-                    $html = str_replace($key, $mediaLink, $html);
-                }
-            }
-
-            $this->updateArticleLocale($articleInfo['en_GB'],
-                [
-                    'seoUrl' => $fileMetadata['wikiUrl'],
-                    'searchableInAllLanguages' => true,
-                ]
-            );
-
-            $this->updateArticleVersion($articleInfo['en_GB'],
-                [
-                    'content' => $html,
-                    'title' => $fileMetadata['titleEn'],
-                    'navigationTitle' => $fileMetadata['titleEn'],
-                    'searchableInAllLanguages' => true,
-                    'active' => $this->getArticleActive($fileMetadata),
-                    'fromProductVersion' => self::INITIAL_VERSION,
-                    'metaTitle' => self::META_TITLE_PREFIX . $fileMetadata['titleEn'],
-                    'metaDescription' => array_key_exists('metaDescription', $fileMetadata) ? $fileMetadata['metaDescription'] : '',
-                ]
-            );
-
-            if (array_key_exists('priority', $fileMetadata)) {
-                $this->updateArticlePriority($articleInfo['en_GB'], $fileMetadata['priority']);
-            }
-
-            $this->insertGermanStubArticle($articleInfo['de_DE'], $fileMetadata);
-        }
-
-        echo 'Syncing ' . count($categoryFiles) . ' category files ...' . PHP_EOL;
-        $oldCategories = $this->getAllCategories();
-        $categoryIds = array_column($oldCategories, 'id');
-
-        foreach ($categoryFiles as $file => $information) {
-            echo 'Syncing ' . $file . ' ... ' . PHP_EOL;
-            $categoryPath = $this->getCategoryTreeFromPath($file);
-            $parentId = $this->rootCategoryId;
-            $categoryId = $parentId;
-            $invertedCategoryTree = array_combine(array_values($globalCategoryList), array_keys($globalCategoryList));
-
-            $categoryString = '';
-            foreach ($categoryPath as $category) {
-                $parentId = $categoryId;
-                $categoryString .= '/' . $category;
-                $categoryId = $invertedCategoryTree[$categoryString];
-            }
-
-            $fileMetadata = $information['metadata'];
-            $html = $information['content'];
-
-            $categoryPriority = null;
-            if (array_key_exists('priority', $fileMetadata)) {
-                $categoryPriority = $fileMetadata['priority'];
-            }
-
-            $this->updateCategory($categoryId,
-                $parentId,
-                $oldCategories[array_search($categoryId, $categoryIds, true)],
-                [
-                    'orderPriority' => $categoryPriority,
-                    'active' => $this->getArticleActive($fileMetadata),
-                ],
-                [
-                    'title' => $fileMetadata['titleEn'],
-                    'navigationTitle' => $fileMetadata['titleEn'],
-                    'content' => $html,
-                    'searchableInAllLanguages' => true,
-                    'seoUrl' => $fileMetadata['wikiUrl'],
-                ],
-                [
-                    'title' => $fileMetadata['titleDe'],
-                    'navigationTitle' => $fileMetadata['titleDe'],
-                    'content' => '<p>Die Entwicklerdokumentation ist nur auf Englisch verfügbar.</p>',
-                    'searchableInAllLanguages' => true,
-                    'seoUrl' => $fileMetadata['wikiUrlDe'],
-                ]
-            );
-        }
+        $this->syncArticles($tree);
+        $this->syncCategories($tree);
+        $this->syncRoot($tree);
     }
 
-    public function insertGermanStubArticle(array $articleInfoDe, array $fileMetadata): void
+    private function insertGermanStubArticle(array $articleInfoDe, Document $document): void
     {
         $this->updateArticleLocale($articleInfoDe,
             [
-                'seoUrl' => $fileMetadata['wikiUrlDe'],
+                'seoUrl' => $document->getMetadata()->getUrlDe(),
                 'searchableInAllLanguages' => true,
             ]
         );
 
-        $title = array_key_exists('titleDe', $fileMetadata) ? $fileMetadata['titleDe'] : $fileMetadata['titleEn'];
         $this->updateArticleVersion($articleInfoDe,
             [
-                'title' => $title,
-                'navigationTitle' => $title,
+                'title' => $document->getMetadata()->getTitleDe(),
+                'navigationTitle' => $document->getMetadata()->getTitleDe(),
                 'content' => '<p>Die Entwicklerdokumentation ist nur auf Englisch verfügbar.</p>',
                 'searchableInAllLanguages' => true,
                 'fromProductVersion' => self::INITIAL_VERSION,
-                'active' => $this->getArticleActive($fileMetadata),
-                'metaTitle' => self::META_TITLE_PREFIX . $title,
+                'active' => $document->getMetadata()->isActive(),
+                'metaTitle' => $document->getMetadata()->getMetaTitleDe(),
+                'metaDescription' => $document->getMetadata()->getMetaDescriptionDe(),
             ]);
 
-        if (array_key_exists('priority', $fileMetadata)) {
-            $this->updateArticlePriority($articleInfoDe, $fileMetadata['priority']);
-        }
+        $this->updateArticlePriority($articleInfoDe, $document->getPriority());
     }
 
-    public function buildArticleVersionUrl(array $articleInfo)
+    private function buildArticleVersionUrl(array $articleInfo)
     {
         return vsprintf('/wiki/entries/%d/localizations/%d/versions/%d',
             [
@@ -205,7 +88,7 @@ class SyncDocsCommand extends Command
             ]);
     }
 
-    public function getLocalizedVersionedArticle(array $articleInfo): array
+    private function getLocalizedVersionedArticle(array $articleInfo): array
     {
         $articleInLocaleWithVersionUrl = $this->buildArticleVersionUrl($articleInfo);
         $response = $this->client->get($articleInLocaleWithVersionUrl, ['headers' => $this->getBasicHeaders()]);
@@ -214,18 +97,7 @@ class SyncDocsCommand extends Command
         return json_decode($responseContents, true);
     }
 
-    public function getArticle(int $articleId): array
-    {
-        $response = $this->client->get(
-            vsprintf('/wiki/entries/%d', [$articleId]),
-            ['headers' => $this->getBasicHeaders()]
-        );
-        $responseContents = $response->getBody()->getContents();
-
-        return json_decode($responseContents, true);
-    }
-
-    public function updateArticleVersion(array $articleInfo, array $payload): void
+    private function updateArticleVersion(array $articleInfo, array $payload): void
     {
         $currentArticleVersionContents = $this->getLocalizedVersionedArticle($articleInfo);
         $articleInLocaleWithVersionUrl = $this->buildArticleVersionUrl($articleInfo);
@@ -249,7 +121,7 @@ class SyncDocsCommand extends Command
         );
     }
 
-    public function updateArticleLocale(array $articleInfo, array $payload): void
+    private function updateArticleLocale(array $articleInfo, array $payload): void
     {
         // create english lang
         $articleLocalUrl = vsprintf('/wiki/entries/%d/localizations/%d',
@@ -275,14 +147,14 @@ class SyncDocsCommand extends Command
         );
     }
 
-    public function updateArticlePriority(array $articleInfo, int $priority): void
+    private function updateArticlePriority(array $articleInfo, int $priority): void
     {
         $priorityUrl = vsprintf('/wiki/entries/%d/orderPriority/%d', [$articleInfo['articleId'], $priority]);
 
         $this->client->put($priorityUrl, ['headers' => $this->getBasicHeaders()]);
     }
 
-    public function uploadMedia(array $articleInfo, string $filePath): string
+    private function uploadArticleMedia(array $articleInfo, string $filePath): string
     {
         $mediaEndpoint = $this->buildArticleVersionUrl($articleInfo) . '/media';
 
@@ -305,7 +177,30 @@ class SyncDocsCommand extends Command
         return json_decode($responseContents, true)[0]['fileLink'];
     }
 
-    public function getAllCategories(): array
+    private function uploadCategoryMedia(int $categoryId, int $localizationId, string $filePath): string
+    {
+        $mediaEndpoint = vsprintf('wiki/categories/%d/localizations/%d/media', [$categoryId, $localizationId]);
+
+        $body = fopen($filePath, 'rb');
+        $response = $this->client->post(
+            $mediaEndpoint,
+            [
+                'multipart' => [
+                    [
+                        'name' => $filePath,
+                        'contents' => $body,
+                    ],
+                ],
+                'headers' => $this->getBasicHeaders(),
+            ]
+        );
+
+        $responseContents = $response->getBody()->getContents();
+
+        return json_decode($responseContents, true)[0]['fileLink'];
+    }
+
+    private function getAllCategories(): array
     {
         $response = $this->client->get('/wiki/categories',
             ['headers' => $this->getBasicHeaders()]
@@ -314,13 +209,13 @@ class SyncDocsCommand extends Command
         return json_decode($response, true);
     }
 
-    public function updateCategory(int $categoryId,
-                                   int $parentId,
-                                   array $oldContents,
-                                   array $payloadGlobal,
-                                   array $payloadEn,
-                                   array $payloadDe): void
-    {
+    private function updateCategory(
+        int $categoryId,
+        int $parentId,
+        array $oldContents,
+        Document $document,
+        DocumentTree $tree
+    ): void {
         $oldLocalizations = $oldContents['localizations'];
         $oldContentDe = [];
         $oldContentEn = [];
@@ -332,8 +227,40 @@ class SyncDocsCommand extends Command
             }
         }
 
-        $payloadDe = array_merge($oldContentDe, $payloadDe);
+        $images = $document->getHtml()->render($tree)->getImages();
+        $imageMap = [];
+        if (count($images)) {
+            echo '=> Uploading ' . count($images) . ' mediafile(s) ...' . PHP_EOL;
+            foreach ($images as $key => $mediaFile) {
+                $mediaLink = $this->uploadCategoryMedia($categoryId, $oldContentEn['id'], $mediaFile);
+                $imageMap[$key] = $mediaLink;
+            }
+        }
 
+        $payloadGlobal = [
+            'orderPriority' => $document->getPriority(),
+            'active' => $document->getMetadata()->isActive(),
+        ];
+
+        $payloadEn = [
+            'title' => $document->getMetadata()->getTitleEn(),
+            'navigationTitle' => $document->getMetadata()->getTitleEn(),
+            'content' => $document->getHtml()->render($tree)->getContents($imageMap),
+            'searchableInAllLanguages' => true,
+            'seoUrl' => $document->getMetadata()->getUrlEn(),
+            'metaDescription' => $document->getMetadata()->getMetaDescriptionEn(),
+        ];
+
+        $payloadDe = [
+            'title' => $document->getMetadata()->getTitleDe(),
+            'navigationTitle' => $document->getMetadata()->getTitleDe(),
+            'content' => '<p>Die Entwicklerdokumentation ist nur auf Englisch verfügbar.</p>',
+            'searchableInAllLanguages' => true,
+            'seoUrl' => $document->getMetadata()->getUrlDe(),
+            'metaDescription' => $document->getMetadata()->getMetaDescriptionDe(),
+        ];
+
+        $payloadDe = array_merge($oldContentDe, $payloadDe);
         $payloadEn = array_merge($oldContentEn, $payloadEn);
 
         $contents = [
@@ -356,12 +283,12 @@ class SyncDocsCommand extends Command
         );
     }
 
-    public function getBasicHeaders(): array
+    private function getBasicHeaders(): array
     {
         return ['X-Shopware-Token' => $this->sbpToken];
     }
 
-    public function addArticleToCategory(array $articleInfo, int $categoryId): void
+    private function addArticleToCategory(array $articleInfo, int $categoryId): void
     {
         $this->client->post(
             vsprintf('/wiki/categories/%s/entries', [$categoryId]),
@@ -377,29 +304,35 @@ class SyncDocsCommand extends Command
         );
     }
 
-    public function getOrCreateMissingCategoryTree($pathList, &$categoryList): int
+    private function getOrCreateMissingCategoryTree(Document $document): int
     {
         $prevEntryId = $this->rootCategoryId;
 
-        $title = '';
+        $chain = array_filter($document->createParentChain(), function (Document $document): bool {
+            return $document->isCategory();
+        });
 
-        while (count($pathList) !== 0) {
-            $entry = array_shift($pathList);
-            $title = $title . '/' . $entry;
-
-            $invertedCategoryList = array_combine(array_values($categoryList), array_keys($categoryList));
-            if (array_key_exists($title, $invertedCategoryList)) {
-                $prevEntryId = $invertedCategoryList[$title];
-            } else {
-                $prevEntryId = $this->createCategory($title, $title, $title, $title . '-de', $prevEntryId);
-                $categoryList[$prevEntryId] = $title;
+        /** @var Document $parentCategory */
+        foreach ($chain as $parentCategory) {
+            if ($parentCategory->getCategoryId()) {
+                $prevEntryId = $parentCategory->getCategoryId();
+                continue;
             }
+
+            $prevEntryId = $this->createCategory(
+                $parentCategory->getMetadata()->getTitleEn(),
+                $parentCategory->getMetadata()->getUrlEn(),
+                $parentCategory->getMetadata()->getTitleDe(),
+                $parentCategory->getMetadata()->getUrlDe(),
+                $prevEntryId
+            );
+            $parentCategory->setCategoryId($prevEntryId);
         }
 
         return $prevEntryId;
     }
 
-    public function createCategory($titleEn, $seoEn, $titleDe, $seoDe, $parentCategoryId = 50): int
+    private function createCategory($titleEn, $seoEn, $titleDe, $seoDe, $parentCategoryId = 50): int
     {
         $response = $this->client->post(
             '/wiki/categories',
@@ -450,7 +383,7 @@ class SyncDocsCommand extends Command
         return $responseJson['id'];
     }
 
-    public function createLocalizedVersionedArticle($seoEn, $seoDe): array
+    private function createLocalizedVersionedArticle($seoEn, $seoDe): array
     {
         $response = $this->client->post(
             '/wiki/entries',
@@ -486,7 +419,7 @@ class SyncDocsCommand extends Command
         ];
     }
 
-    public function createArticleLocale($seo, $articleLocalizationUrl, $locale): array
+    private function createArticleLocale($seo, $articleLocalizationUrl, $locale): array
     {
         $response = $this->client->post(
             $articleLocalizationUrl,
@@ -521,7 +454,7 @@ class SyncDocsCommand extends Command
         return [$localeId, $versionId, $articleInLocaleWithVersionUrl];
     }
 
-    public function deleteCategoryChildren(int $categoryId = -1): void
+    private function deleteCategoryChildren(int $categoryId = -1): void
     {
         if ($categoryId === -1) {
             $categoryId = $this->rootCategoryId;
@@ -543,7 +476,7 @@ class SyncDocsCommand extends Command
         }
     }
 
-    public function gatherCategoryChildrenAndArticles($rootId, $categoryJson): array
+    private function gatherCategoryChildrenAndArticles($rootId, $categoryJson): array
     {
         $articleList = [];
         $categoryList = [];
@@ -585,7 +518,7 @@ class SyncDocsCommand extends Command
         return [$categoryList, $articleList];
     }
 
-    public function deleteArticle($articleId): void
+    private function deleteArticle($articleId): void
     {
         $this->client->delete(
             vsprintf('/wiki/entries/%s', [$articleId]),
@@ -593,7 +526,7 @@ class SyncDocsCommand extends Command
         );
     }
 
-    public function disableArticle($articleId): void
+    private function disableArticle($articleId): void
     {
         $response = $this->client->get(
             vsprintf('/wiki/entries/%s', [$articleId]),
@@ -601,14 +534,14 @@ class SyncDocsCommand extends Command
         )->getBody()->getContents();
         $reponseJson = json_decode($response, true);
 
-        if (!key_exists('localizations', $reponseJson) && $reponseJson['localizations'] === null) {
+        if (!array_key_exists('localizations', $reponseJson) && $reponseJson['localizations'] === null) {
             return;
         }
 
         foreach ($reponseJson['localizations'] as $locale) {
             $localId = $locale['id'];
 
-            if (!key_exists('versions', $locale) && $locale['versions'] === null) {
+            if (!array_key_exists('versions', $locale) && $locale['versions'] === null) {
                 continue;
             }
 
@@ -620,7 +553,7 @@ class SyncDocsCommand extends Command
         }
     }
 
-    public function deleteCategory($categoryId): void
+    private function deleteCategory($categoryId): void
     {
         $this->client->delete(
             vsprintf('/wiki/categories/%s', [$categoryId]),
@@ -628,39 +561,139 @@ class SyncDocsCommand extends Command
         );
     }
 
-    protected function configure(): void
+    private function syncArticles(DocumentTree $tree)
     {
-        $this->setName('docs:sync')
-            ->addArgument('content', InputArgument::REQUIRED, 'Json encoded contents to sync')
-            ->setDescription('Synchronize Wiki');
+        $i = 0;
+        /** @var Document $document */
+        foreach ($tree->getArticles() as $document) {
+            ++$i;
+            echo 'Syncing article (' . $i . '/' . count($tree->getArticles()) . ') ' . $document->getFile()->getRelativePathname() . ' with prio ' . $document->getPriority() . PHP_EOL;
+
+            $articleInfo = $this->createLocalizedVersionedArticle($document->getMetadata()->getUrlEn(), $document->getMetadata()->getUrlDe());
+            $categoryId = $this->getOrCreateMissingCategoryTree($document);
+            $this->addArticleToCategory($articleInfo['en_GB'], $categoryId);
+
+            // handle media files for articles
+            $images = $document->getHtml()->render($tree)->getImages();
+            $imageMap = [];
+            if (count($images)) {
+                echo '=> Uploading ' . count($images) . ' mediafile(s) ...' . PHP_EOL;
+                foreach ($images as $key => $mediaFile) {
+                    $mediaLink = $this->uploadArticleMedia($articleInfo['en_GB'], $mediaFile);
+                    $imageMap[$key] = $mediaLink;
+                }
+            }
+
+            $this->updateArticleLocale($articleInfo['en_GB'],
+                [
+                    'seoUrl' => $document->getMetadata()->getUrlEn(),
+                    'searchableInAllLanguages' => true,
+                ]
+            );
+            $this->updateArticleVersion($articleInfo['en_GB'],
+                [
+                    'content' => $document->getHtml()->render($tree)->getContents($imageMap),
+                    'title' => $document->getMetadata()->getTitleEn(),
+                    'navigationTitle' => $document->getMetadata()->getTitleEn(),
+                    'searchableInAllLanguages' => true,
+                    'active' => $document->getMetadata()->isActive(),
+                    'fromProductVersion' => self::INITIAL_VERSION,
+                    'metaTitle' => $document->getMetadata()->getMetaTitleEn(),
+                    'metaDescription' => $document->getMetadata()->getMetaDescriptionEn(),
+                ]
+            );
+
+            $this->updateArticlePriority($articleInfo['en_GB'], $document->getPriority());
+            $this->insertGermanStubArticle($articleInfo['de_DE'], $document);
+        }
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output)
+    private function syncCategories(DocumentTree $tree): void
     {
-        $jsonContent = $input->getArgument('content');
-        $content = json_decode($jsonContent, true);
+        echo 'Syncing ' . count($tree->getCategories()) . ' categories ...' . PHP_EOL;
 
-        $this->syncFilesWithServer($content);
+        $this->addEmptyCategories($tree);
+        $this->syncCategoryContents($tree);
     }
 
-    protected function getCategoryTreeFromPath(string $path): array
+    private function addEmptyCategories(DocumentTree $tree)
     {
-        $parts = explode('/', $path);
-        $categories = array_slice($parts, 0, count($parts) - 1);
+        foreach ($tree->getCategories() as $document) {
+            if ($document->getCategoryId()) {
+                continue;
+            }
 
-        $categoriesFlat = array_values(array_filter($categories, function (string $value) {
-            return !($value === '.' || $value === '..' || strlen($value) === 0);
-        }));
-
-        return $categoriesFlat;
+            $this->getOrCreateMissingCategoryTree($document);
+        }
     }
 
-    private function getArticleActive(array $fileMetadata): bool
+    private function syncCategoryContents(DocumentTree $tree): void
     {
-        if (array_key_exists('isActive', $fileMetadata)) {
-            return filter_var($fileMetadata['isActive'], FILTER_VALIDATE_BOOLEAN);
+        $oldCategories = $this->getAllCategories();
+        $categoryIds = array_column($oldCategories, 'id');
+
+        /** @var Document $document */
+        foreach ($tree->getCategories() as $document) {
+            echo 'Syncing category ' . $document->getFile()->getRelativePathname() . ' with prio ' . $document->getPriority() . ' ... ' . PHP_EOL;
+            $parentId = $this->rootCategoryId;
+            $categoryId = $document->getCategoryId();
+
+            if ($document->getParent()) {
+                $parentId = $document->getParent()->getCategoryId();
+            }
+
+            if (!$categoryId) {
+                echo 'Skipping category ' . $document->getFile()->getRelativePathname() . " - no sync reason found\n";
+                continue;
+            }
+
+            if (!$parentId) {
+                echo 'Skipping category ' . $document->getFile()->getRelativePathname() . " - parent not synced\n";
+                continue;
+            }
+
+            $baseContents = $oldCategories[array_search($categoryId, $categoryIds, true)];
+
+            if (!$baseContents) {
+                throw new \RuntimeException('Unable to update category, no contents found');
+            }
+
+            $this->updateCategory(
+                $categoryId,
+                $parentId,
+                $baseContents,
+                $document,
+                $tree
+            );
+        }
+    }
+
+    private function syncRoot(DocumentTree $tree)
+    {
+        $root = $tree->getRoot();
+
+        $oldCategories = $this->getAllCategories();
+        $categoryIds = array_column($oldCategories, 'id');
+
+        $index = array_search($this->rootCategoryId, $categoryIds, true);
+        $category = $oldCategories[$index];
+
+        $enIndex = -1;
+
+        foreach ($category['localizations'] as $index => $localization) {
+            if ($localization['locale']['name'] === 'en_GB') {
+                $enIndex = $index;
+            }
         }
 
-        return true;
+        $category['localizations'][$enIndex]['content'] = $root->getHtml()->render($tree)->getContents();
+
+        $this->client->put(
+            vsprintf('/wiki/categories/%d', [$this->rootCategoryId]),
+            [
+                'json' => $category,
+                'headers' => $this->getBasicHeaders(),
+            ]
+        );
     }
 }

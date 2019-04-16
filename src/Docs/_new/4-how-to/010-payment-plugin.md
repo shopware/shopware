@@ -1,4 +1,5 @@
 [titleEn]: <>(Payment plugin)
+[metaDescriptionEn]: <>(Payments are an essential part of the checkout process. That's the reason why Shopware offers an easy platform on which you can build payment plugins. Learn here, how that's done.)
 
 Payments are an essential part of the checkout process.
 That's the reason why Shopware offers an easy platform on which you can build payment plugins.
@@ -335,3 +336,8 @@ class PaymentPlugin extends Plugin
     }
 }
 ```
+
+## Source
+
+There's a GitHub repository available, containing this example source.
+Check it out [here](https://github.com/shopware/swag-docs-payment-plugin).

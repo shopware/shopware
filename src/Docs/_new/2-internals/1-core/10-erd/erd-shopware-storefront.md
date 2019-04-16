@@ -4,7 +4,7 @@
 
 The storefront application of the Shopware Platform. Therefore contains Storefront specific entities that do not need to be part of the core and just support inner workings of this particular Storefront.
 
-![Storefront](./dist/erm-shopware-storefront.svg)
+![Storefront](./dist/erd-shopware-storefront.png)
 
 
 ### Table `seo_url`

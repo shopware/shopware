@@ -1,13 +1,13 @@
-[titleEn]: <>(Product configuration)
+[titleEn]: <>(__EMPTY__)
 
 [Back to modules](./../10-modules.md)
 
 Contains the configuration options for product variants.
 
-![Product configuration](./dist/erm-shopware-core-content-configuration.svg)
+![__EMPTY__](./dist/erd-shopware-core-content-property.png)
 
 
-### Table `configuration_group`
+### Table `property_group`
 
 Is the basis for the product variant generation. A group can be assigned to a product to generate product variants according to the contained settings.
 

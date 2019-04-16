@@ -9,6 +9,10 @@
             <tag name="shopware.entity.definition" entity="country"/>
         </service>
 
+        <service id="Shopware\Core\System\Country\SalesChannel\SalesChannelCountryDefinition">
+            <tag name="shopware.sales_channel.entity.definition" entity="country"/>
+        </service>
+
         <service id="Shopware\Core\System\Country\Aggregate\CountryState\CountryStateDefinition">
             <tag name="shopware.entity.definition" entity="country_state"/>
         </service>

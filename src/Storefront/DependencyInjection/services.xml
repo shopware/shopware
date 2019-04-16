@@ -71,7 +71,7 @@
         </service>
 
         <service id="Shopware\Storefront\Pagelet\Listing\ListingPageletLoader">
-            <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\SalesChannelProductRepository"/>
+            <argument type="service" id="sales_channel.product.repository"/>
             <argument type="service" id="event_dispatcher"/>
         </service>
 

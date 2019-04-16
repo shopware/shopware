@@ -56,6 +56,7 @@ class SalesChannelController extends AbstractController
      * @var EntityRepositoryInterface
      */
     private $shippingMethodRepository;
+
     /**
      * @var EntityRepositoryInterface
      */

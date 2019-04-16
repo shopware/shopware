@@ -45,6 +45,11 @@ class CurrencyDefinition extends EntityDefinition
         return CurrencyEntity::class;
     }
 
+    public static function getSalesChannelDecorationDefinition(): string
+    {
+        return SalesChannelCurrencyDefinition::class;
+    }
+
     protected static function defineFields(): FieldCollection
     {
         return new FieldCollection([

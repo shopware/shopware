@@ -10,25 +10,18 @@
             <argument type="service" id="Shopware\Core\Checkout\Cart\Price\QuantityPriceCalculator"/>
         </service>
 
-        <service id="Shopware\Core\Content\Product\SalesChannel\SalesChannelProductController" public="true">
-            <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\SalesChannelProductRepository"/>
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder"/>
-            <call method="setContainer">
-                <argument type="service" id="service_container"/>
-            </call>
-        </service>
-
-        <service id="Shopware\Core\Content\Category\SalesChannel\SalesChannelCategoryController" public="true">
-            <argument type="service" id="category.repository"/>
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder"/>
-            <call method="setContainer">
-                <argument type="service" id="service_container"/>
-            </call>
+        <service id="Shopware\Core\Content\Product\SalesChannel\SalesChannelProductSubscriber">
+            <tag name="kernel.event_subscriber"/>
+            <argument type="service" id="Shopware\Core\Checkout\Cart\Price\QuantityPriceCalculator"/>
         </service>
 
         <service id="Shopware\Core\Content\Product\ProductDefinition">
             <tag name="shopware.entity.definition" entity="product"/>
             <tag name="shopware.composite_search.definition"  priority="600"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Product\SalesChannel\SalesChannelProductDefinition">
+            <tag name="shopware.sales_channel.entity.definition" entity="product"/>
         </service>
 
         <service id="Shopware\Core\Content\Product\Aggregate\ProductCategory\ProductCategoryDefinition">

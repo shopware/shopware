@@ -9,6 +9,10 @@
             <tag name="shopware.entity.definition" entity="currency"/>
         </service>
 
+        <service id="Shopware\Core\System\Currency\SalesChannel\SalesChannelCurrencyDefinition">
+            <tag name="shopware.sales_channel.entity.definition" entity="currency"/>
+        </service>
+
         <service id="Shopware\Core\System\Currency\Aggregate\CurrencyTranslation\CurrencyTranslationDefinition">
             <tag name="shopware.entity.definition" entity="currency_translation"/>
         </service>

@@ -16,8 +16,6 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 class SalesChannelProductRepository
 {
-    public const VISIBILITY_FILTERED = 'product-visibility';
-
     /**
      * @var EntityRepositoryInterface
      */
@@ -112,7 +110,7 @@ class SalesChannelProductRepository
     {
         $criteria->addFilter(new EqualsFilter('product.active', true));
 
-        if ($criteria->hasState(self::VISIBILITY_FILTERED)) {
+        if ($criteria->hasState(SalesChannelProductEntity::VISIBILITY_FILTERED)) {
             return;
         }
 

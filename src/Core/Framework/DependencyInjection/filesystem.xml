@@ -7,7 +7,7 @@
     <services>
         <!-- Filesystem -->
         <service id="Shopware\Core\Framework\Filesystem\FilesystemFactory">
-            <argument type="tagged" tag="Shopware\Core\Framework\Filesystem\FilesystemFactory"/>
+            <argument type="tagged" tag="shopware.filesystem.factory"/>
         </service>
 
         <service class="League\Flysystem\FilesystemInterface" id="shopware.filesystem.public">
@@ -21,15 +21,15 @@
         </service>
 
         <service class="Shopware\Core\Framework\Filesystem\Adapter\LocalFactory" id="Shopware\Core\Framework\Filesystem\FilesystemFactory.local">
-            <tag name="Shopware\Core\Framework\Filesystem\FilesystemFactory"/>
+            <tag name="shopware.filesystem.factory"/>
         </service>
 
         <service class="Shopware\Core\Framework\Filesystem\Adapter\AwsS3v3Factory" id="Shopware\Core\Framework\Filesystem\FilesystemFactory.amazon_s3">
-            <tag name="Shopware\Core\Framework\Filesystem\FilesystemFactory"/>
+            <tag name="shopware.filesystem.factory"/>
         </service>
 
         <service class="Shopware\Core\Framework\Filesystem\Adapter\GoogleStorageFactory" id="Shopware\Core\Framework\Filesystem\FilesystemFactory.google_storage">
-            <tag name="Shopware\Core\Framework\Filesystem\FilesystemFactory"/>
+            <tag name="shopware.filesystem.factory"/>
         </service>
 
         <service id="Shopware\Core\Framework\Filesystem\PrefixFilesystem">

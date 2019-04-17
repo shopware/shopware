@@ -9,7 +9,7 @@ class DefinitionService
      */
     private $generators;
 
-    public function __construct(iterable $generators)
+    public function __construct(ApiDefinitionGeneratorInterface ...$generators)
     {
         $this->generators = $generators;
     }

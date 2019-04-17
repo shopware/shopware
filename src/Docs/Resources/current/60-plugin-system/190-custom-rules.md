@@ -40,7 +40,7 @@ class ExampleRule extends Rule
 }
 ```
 
-Tag this new rule as a "rule.definition" in the DI-Container.
+Tag this new rule as a "shopware.rule.definition" in the DI-Container.
 
 ```xml
 <?xml version="1.0" ?>
@@ -51,7 +51,7 @@ Tag this new rule as a "rule.definition" in the DI-Container.
     <services>
         ...
         <service id="SwagCustomRule\Core\Rule\ExampleRule">
-            <tag name="rule.definition"/>
+            <tag name="shopware.rule.definition"/>
         </service>
         ...
     </services>

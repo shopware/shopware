@@ -14,7 +14,7 @@ Shopware has a few default payment handler which can be found under
 
 You can create your own payment handler by implementing the 
 `Shopware\Core\Checkout\Payment\Cart\PaymentHandler\PaymentHandlerInterface` 
-and adding the `payment.method` tag.
+and adding the `shopware.payment.method` tag.
 
 The interface contains two methods:
 

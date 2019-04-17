@@ -77,19 +77,19 @@
 
         <!-- Response types -->
         <service id="Shopware\Core\Framework\Api\Response\ResponseFactoryRegistry">
-            <argument type="tagged" tag="shopware.rest.response_type"/>
+            <argument type="service" id="Shopware\Core\Framework\Api\Response\Type\Api\JsonApiType"/>
+            <!-- deactivated, the current sales channel api design does not match the json api requirements -->
+            <!-- <argument type="service" id="Shopware\Core\Framework\Api\Response\Type\SalesChannel\JsonApiType"/>-->
+            <argument type="service" id="Shopware\Core\Framework\Api\Response\Type\Api\JsonType"/>
+            <argument type="service" id="Shopware\Core\Framework\Api\Response\Type\SalesChannel\JsonType"/>
         </service>
 
         <service id="Shopware\Core\Framework\Api\Response\Type\Api\JsonApiType">
             <argument type="service" id="Shopware\Core\Framework\Api\Serializer\JsonApiEncoder"/>
-            <tag name="shopware.rest.response_type"/>
         </service>
-
 
         <service id="Shopware\Core\Framework\Api\Response\Type\SalesChannel\JsonApiType">
             <argument type="service" id="Shopware\Core\Framework\Api\Serializer\JsonSalesChannelApiEncoder"/>
-            <!-- deactivated, the current sales channel api design does not match the json api requirements -->
-            <!-- <tag name="shopware.rest.response_type"/> -->
         </service>
 
         <service id="Shopware\Core\Framework\Api\Serializer\JsonApiEncoder" />
@@ -100,27 +100,24 @@
 
         <service id="Shopware\Core\Framework\Api\Response\Type\Api\JsonType">
             <argument type="service" id="serializer"/>
-            <tag name="shopware.rest.response_type"/>
         </service>
 
         <service id="Shopware\Core\Framework\Api\Response\Type\SalesChannel\JsonType">
             <argument type="service" id="serializer"/>
-            <tag name="shopware.rest.response_type"/>
         </service>
 
         <!-- API Docs -->
         <service id="Shopware\Core\Framework\Api\ApiDefinition\DefinitionService">
-            <argument type="tagged" tag="shopware.rest.definition_generator"/>
+            <argument type="service" id="Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi3Generator"/>
+            <argument type="service" id="Shopware\Core\Framework\Api\ApiDefinition\Generator\EntitySchemaGenerator"/>
         </service>
 
         <service id="Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi3Generator">
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionRegistry"/>
-            <tag name="shopware.rest.definition_generator"/>
         </service>
 
         <service id="Shopware\Core\Framework\Api\ApiDefinition\Generator\EntitySchemaGenerator">
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionRegistry"/>
-            <tag name="shopware.rest.definition_generator"/>
         </service>
 
         <service id="Shopware\Core\Framework\Api\Controller\InfoController" public="true">

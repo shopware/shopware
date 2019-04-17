@@ -154,6 +154,20 @@ class AccountPageController extends StorefrontController
     }
 
     /**
+     * @Route("/account/logout", name="frontend.account.logout.page", methods={"GET"})
+     */
+    public function logout(InternalRequest $request, SalesChannelContext $context): Response
+    {
+        if ($context->getCustomer() === null) {
+            return $this->redirectToRoute('frontend.account.login.page');
+        }
+
+        $this->accountService->logout($context);
+
+        return $this->redirectToRoute('frontend.account.login.page');
+    }
+
+    /**
      * @Route("/account/login", name="frontend.account.login", methods={"POST"})
      */
     public function loginCustomer(Request $request, RequestDataBag $data, SalesChannelContext $context): Response

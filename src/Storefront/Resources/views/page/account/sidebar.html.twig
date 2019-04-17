@@ -59,15 +59,10 @@
                 {% if context.customer %}
 					<div class="card-footer account-sidebar-footer">
 						{% block page_account_sidebar_logout %}
-							<form action="{{ path('sales-channel-api.customer.logout', {'version': 1}) }}"
-								  data-logout="true"
-								  data-redirect="{{ path('frontend.home.page') }}"
-								  method="post">
-								<button class="btn btn-link" type="submit">
+								<a href="{{ path('frontend.account.logout.page') }}" class="btn btn-link">
 									<i class="fas fa-sign-out-alt"></i>
 									{{ "account.logout"|trans }}
-								</button>
-							</form>
+								</a>
 						{% endblock %}
 					</div>
 				{% endif %}

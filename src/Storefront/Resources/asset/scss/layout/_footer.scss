@@ -27,6 +27,7 @@
     padding: $spacer-sm 0;
 
     .toggle-icon {
+        pointer-events: none;
         color: $gray-600;
         float: right;
         font-size: 12px;

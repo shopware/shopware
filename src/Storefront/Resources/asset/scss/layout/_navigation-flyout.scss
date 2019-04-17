@@ -15,6 +15,7 @@ $navigation-flyout-padding: 40px;
     position: absolute;
     opacity: 0;
     height: 0;
+    margin-right: $grid-gutter-width / 2;
 
     &.is-open {
         pointer-events: all;

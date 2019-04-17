@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Cart\Rule;
 
+use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Framework\Rule\Exception\UnsupportedOperatorException;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleScope;
@@ -15,6 +16,11 @@ class GoodsPriceRule extends Rule
      * @var float
      */
     protected $amount;
+
+    /**
+     * @var Rule|null
+     */
+    protected $filter;
 
     /**
      * @var string
@@ -37,7 +43,18 @@ class GoodsPriceRule extends Rule
         if (!$scope instanceof CartRuleScope) {
             return false;
         }
+
         $goods = $scope->getCart()->getLineItems()->filterGoods();
+
+        if ($this->filter) {
+            $context = $scope->getSalesChannelContext();
+
+            $goods = $goods->filter(function (LineItem $lineItem) use ($context) {
+                $scope = new LineItemScope($lineItem, $context);
+
+                return $this->filter->match($scope);
+            });
+        }
 
         $goodsAmount = $goods->getPrices()->sum()->getTotalPrice();
 

@@ -8,6 +8,7 @@ const fixture = {
 
 module.exports = {
     '@tags': ['media', 'media-usage', 'media-usage-in-product'],
+    '@disabled': true,
     before: (browser, done) => {
         global.ProductFixtureService.setProductFixture(fixture).then(() => {
             done();

@@ -37,14 +37,6 @@ class MediaPageObject extends GeneralPageObject {
             .waitForElementVisible(this.elements.previewItem);
     }
 
-    deleteImage() {
-        this.browser
-            .clickContextMenuItem(`${this.elements.contextMenu}-item--danger`, this.elements.contextMenuButton)
-            .waitForElementVisible(`div.${this.elements.modal}.${this.elements.modal}--small.sw-media-modal-delete`)
-            .click('.sw-media-modal-delete__confirm')
-            .waitForElementNotPresent(`${this.elements.modal}__footer`);
-    }
-
     openMediaIndex() {
         this.browser
             .openMainMenuEntry({
@@ -64,15 +56,18 @@ class MediaPageObject extends GeneralPageObject {
     }
 
     moveMediaItem(name, itemType, position = 0) {
+        let mediaItem = `${this.elements.gridItem}--${position}`;
+
         let contextMenuItemSelector = '.sw-media-context-item__move-media-action';
 
         if (itemType === 'folder') {
+            mediaItem = `${this.elements.gridItem}--${position}`;
             contextMenuItemSelector = '.sw-media-context-item__move-folder-action';
         }
 
         this.browser
-            .waitForElementVisible(`${this.elements.gridItem}--${position}`)
-            .clickContextMenuItem(contextMenuItemSelector, this.elements.contextMenuButton, `${this.elements.gridItem}--${position} `)
+            .waitForElementVisible(mediaItem)
+            .clickContextMenuItem(contextMenuItemSelector, this.elements.contextMenuButton, mediaItem)
             .expect.element(this.elements.modalTitle).to.have.text.that.equals(`Move "${name}"`);
         this.browser.expect.element('.sw-media-modal-move__confirm').to.not.be.enabled;
 

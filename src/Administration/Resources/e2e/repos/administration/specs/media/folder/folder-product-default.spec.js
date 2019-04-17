@@ -2,7 +2,7 @@ const mediaPage = require('administration/page-objects/module/sw-media.page-obje
 const productPage = require('administration/page-objects/module/sw-product.page-object.js');
 
 const fixtures = {
-    name: 'Products for the good'
+    name: 'A Product for the good'
 };
 
 module.exports = {
@@ -23,7 +23,7 @@ module.exports = {
 
         page.openMediaModal(page.elements.showSettingsAction, 0);
 
-        browser.expect.element(`${page.elements.modal}__title`).to.have.text.that.equals('Products for the good');
+        browser.expect.element(`${page.elements.modal}__title`).to.have.text.that.equals('A Product for the good');
     },
     'set as default for products': (browser) => {
         const page = mediaPage(browser);
@@ -72,11 +72,7 @@ module.exports = {
 
         browser
             .click('.sw-sidebar-navigation-item')
-            .expect.element(mediaPageObject.elements.folderNameLabel).to.have.text.that.equals(fixtures.name);
-
-        browser
-            .click(mediaPageObject.elements.folderNameLabel)
-            .expect.element(mediaPageObject.elements.mediaNameLabel).to.have.text.that.equals('sw-login-background.png');
+            .expect.element('.sw-sidebar-media-item__content').to.have.text.that.contains(fixtures.name);
     },
     'verify if the product image is located in its corresponding media folder': (browser) => {
         const page = mediaPage(browser);

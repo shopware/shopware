@@ -80,21 +80,14 @@
                             {% endblock %}
                         </sw-container>
 
-                        <sw-container columns="repeat(auto-fit, minmax(250px, 1fr)" gap="0px 30px">
-                            {% block sw_settings_shipping_detail_base_content_field_min_delivery_time %}
-                                <sw-field type="number"
-                                          :label="$tc('sw-settings-shipping.detail.labelMinDeliveryTime')"
-                                          v-model="shippingMethod.minDeliveryTime">
-                                </sw-field>
-                            {% endblock %}
-
-                            {% block sw_settings_shipping_detail_base_content_field_max_delivery_time %}
-                                <sw-field type="number"
-                                          :label="$tc('sw-settings-shipping.detail.labelMaxDeliveryTime')"
-                                          v-model="shippingMethod.maxDeliveryTime">
-                                </sw-field>
-                            {% endblock %}
-                        </sw-container>
+                        {% block sw_settings_shipping_detail_base_content_field_delivery_time %}
+                            <sw-select :store="deliveryTimeStore"
+                                       :label="$tc('sw-settings-shipping.detail.labelDeliveryTime')"
+                                       v-model="shippingMethod.deliveryTimeId"
+                                       id="deliveryTime"
+                                       class="sw-settings-shipping-detail__delivery-time">
+                            </sw-select>
+                        {% endblock %}
 
                         {% block sw_settings_shipping_detail_base_content_tags_field %}
                             <sw-tag-field :entity="shippingMethod"></sw-tag-field>

@@ -43,6 +43,9 @@ Component.register('sw-settings-shipping-detail', {
         mediaStore() {
             return State.getStore('media');
         },
+        deliveryTimeStore() {
+            return State.getStore('delivery_time');
+        },
         isLoading() {
             return Object.keys(this.shippingMethod).length === 0
                 || this.shippingMethod.isLoading;

@@ -270,7 +270,7 @@ class AccountService
         }
 
         try {
-            $user = $this->getCustomerByEmail($email, $context);
+            $customer = $this->getCustomerByEmail($email, $context);
         } catch (CustomerNotFoundException | BadCredentialsException $exception) {
             throw new UnauthorizedHttpException('json', $exception->getMessage());
         }
@@ -279,13 +279,13 @@ class AccountService
         $this->contextPersister->save(
             $newToken,
             [
-                'customerId' => $user->getId(),
+                'customerId' => $customer->getId(),
                 'billingAddressId' => null,
                 'shippingAddressId' => null,
             ]
         );
 
-        $event = new CustomerLoginEvent($context->getContext(), $user);
+        $event = new CustomerLoginEvent($context->getContext(), $customer, $newToken);
         $this->eventDispatcher->dispatch($event->getName(), $event);
 
         return $newToken;
@@ -328,7 +328,7 @@ class AccountService
             ],
         ], $context->getContext());
 
-        $event = new CustomerLoginEvent($context->getContext(), $customer);
+        $event = new CustomerLoginEvent($context->getContext(), $customer, $newToken);
         $this->eventDispatcher->dispatch($event->getName(), $event);
 
         return $newToken;

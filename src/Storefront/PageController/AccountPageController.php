@@ -15,7 +15,6 @@ use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
-use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Framework\Controller\StorefrontController;
@@ -167,8 +166,6 @@ class AccountPageController extends StorefrontController
         try {
             $token = $this->accountService->loginWithPassword($data, $context);
             if (!empty($token)) {
-                $request->headers->set(PlatformRequest::HEADER_CONTEXT_TOKEN, $token);
-
                 return new RedirectResponse($redirect);
             }
         } catch (BadCredentialsException | UnauthorizedHttpException $e) {
@@ -210,8 +207,7 @@ class AccountPageController extends StorefrontController
             return $this->forward('Shopware\Storefront\PageController\AccountPageController::register', ['formViolations' => $formViolations]);
         }
 
-        $token = $this->accountService->login($data->get('email'), $context);
-        $request->headers->set(PlatformRequest::HEADER_CONTEXT_TOKEN, $token);
+        $this->accountService->login($data->get('email'), $context);
 
         return new RedirectResponse($this->generateUrl('frontend.account.home.page'));
     }

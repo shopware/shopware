@@ -1,5 +1,5 @@
 {% block sw_modal %}
-    <transition name="sw-modal-fade">
+    <transition name="sw-modal-fade" appear>
         {% block sw_modal_element %}
             <div class="sw-modal" :class="modalClasses" @mousedown="closeModalOnClickOutside" @keyup.esc="closeModalOnEscapeKey">
                 {% block sw_modal_dialog %}

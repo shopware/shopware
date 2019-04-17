@@ -4,11 +4,14 @@
   "version": "1.0.0",
   "description": "Storefront Building Pipeline for Shopware Next",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "jest --config jest.config.js --ci && npm run lint",
+    "test-watch": "jest --config jest.config.js --watch",
     "production": "NODE_ENV=production webpack --config webpack.config.js",
     "development": "NODE_ENV=development webpack --config webpack.config.js",
     "watch": "NODE_ENV=development MODE=watch webpack --watch --config webpack.config.js",
-    "hot": "NODE_ENV=development MODE=hot webpack-dev-server --config webpack.config.js"
+    "hot": "NODE_ENV=development MODE=hot webpack-dev-server --config webpack.config.js",
+    "lint": "eslint --config .eslintrc.js ./asset/script && stylelint --config stylelint.config.js ./asset/scss",
+    "lint-fix": "eslint --fix --config .eslintrc.js ./asset/script && stylelint --fix --config stylelint.config.js ./asset/scss"
   },
   "keywords": [
     "sw",
@@ -17,6 +20,9 @@
     "pipeline"
   ],
   "license": "MIT",
+  "jestWebpackResolver": {
+    "webpackConfig": "./webpack.config.js"
+  },
   "devDependencies": {
     "@babel/cli": "7.2.3",
     "@babel/core": "7.2.2",
@@ -53,7 +59,9 @@
     "webpack-cli": "3.2.1",
     "webpack-dev-server": "3.1.14",
     "webpack-merge": "4.2.1",
-    "webpackbar": "3.1.5"
+    "webpackbar": "3.1.5",
+    "jest": "24.7.1",
+    "jest-webpack-resolver": "^0.3.0"
   },
   "dependencies": {
     "@fortawesome/fontawesome-free": "5.7.2",

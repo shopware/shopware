@@ -1,3 +1,7 @@
+if (!process.env.PROJECT_ROOT) {
+    process.env.PROJECT_ROOT = '../../../../..';
+}
+
 const webpack = require('webpack');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const WebpackBar = require('webpackbar');

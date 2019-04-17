@@ -50,6 +50,7 @@ Component.extend('sw-product-create', 'sw-product-detail', {
         onSave() {
             if (this.productNumberPreview === this.product.productNumber) {
                 this.numberRangeService.reserve('product').then((response) => {
+                    this.productNumberPreview = 'reserved';
                     this.product.productNumber = response.number;
                     this.$super.onSave().then(() => {
                         this.$router.push({ name: 'sw.product.detail', params: { id: this.product.id } });

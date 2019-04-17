@@ -55,7 +55,7 @@ class SalesChannelContextControllerTest extends TestCase
         $content = json_decode($this->getSalesChannelClient()->getResponse()->getContent(), true);
 
         static::assertEquals(
-            sprintf('Shipping method with id "%s" not found.', $testId),
+            sprintf('The "shipping_method" entity with id "%s" does not exists.', $testId),
             $content['errors'][0]['detail'] ?? null
         );
 
@@ -63,11 +63,11 @@ class SalesChannelContextControllerTest extends TestCase
          * Payment method
          */
         $this->getSalesChannelClient()->request('PATCH', '/sales-channel-api/v1/context', ['paymentMethodId' => $testId]);
-        static::assertSame(Response::HTTP_NOT_FOUND, $this->getSalesChannelClient()->getResponse()->getStatusCode());
         $content = json_decode($this->getSalesChannelClient()->getResponse()->getContent(), true);
+        static::assertSame(Response::HTTP_BAD_REQUEST, $this->getSalesChannelClient()->getResponse()->getStatusCode());
 
         static::assertEquals(
-            sprintf('The payment method %s could not be found.', $testId),
+            sprintf('The "payment_method" entity with id "%s" does not exists.', $testId),
             $content['errors'][0]['detail'] ?? null
         );
     }
@@ -80,8 +80,8 @@ class SalesChannelContextControllerTest extends TestCase
          * Billing address
          */
         $this->getSalesChannelClient()->request('PATCH', '/sales-channel-api/v1/context', ['billingAddressId' => $testId]);
-        static::assertSame(Response::HTTP_FORBIDDEN, $this->getSalesChannelClient()->getResponse()->getStatusCode());
         $content = json_decode($this->getSalesChannelClient()->getResponse()->getContent(), true);
+        static::assertSame(Response::HTTP_FORBIDDEN, $this->getSalesChannelClient()->getResponse()->getStatusCode());
 
         static::assertEquals(
             'Customer is not logged in.',
@@ -92,8 +92,8 @@ class SalesChannelContextControllerTest extends TestCase
          * Shipping address
          */
         $this->getSalesChannelClient()->request('PATCH', '/sales-channel-api/v1/context', ['shippingAddressId' => $testId]);
-        static::assertSame(Response::HTTP_FORBIDDEN, $this->getSalesChannelClient()->getResponse()->getStatusCode());
         $content = json_decode($this->getSalesChannelClient()->getResponse()->getContent(), true);
+        static::assertSame(Response::HTTP_FORBIDDEN, $this->getSalesChannelClient()->getResponse()->getStatusCode());
 
         static::assertEquals(
             'Customer is not logged in.',
@@ -116,7 +116,7 @@ class SalesChannelContextControllerTest extends TestCase
         $content = json_decode($this->getSalesChannelClient()->getResponse()->getContent(), true);
 
         static::assertEquals(
-            sprintf('Customer address with id "%s" not found.', $testId),
+            sprintf('The "customer_address" entity with id "%s" does not exists.', $testId),
             $content['errors'][0]['detail'] ?? null
         );
 
@@ -128,7 +128,7 @@ class SalesChannelContextControllerTest extends TestCase
         $content = json_decode($this->getSalesChannelClient()->getResponse()->getContent(), true);
 
         static::assertEquals(
-            sprintf('Customer address with id "%s" not found.', $testId),
+            sprintf('The "customer_address" entity with id "%s" does not exists.', $testId),
             $content['errors'][0]['detail'] ?? null
         );
     }

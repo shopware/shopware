@@ -1,6 +1,6 @@
 {% block sw_cms_element_image %}
-    <div class="sw-cms-el-image">
+    <div class="sw-cms-el-image" :class="classes">
         <img :src="element.data.media.url" v-if="element.data.media">
-        <img :src="'/administration/static/img/cms/image_preview_large.jpg' | asset" v-else>
+        <img :src="'/administration/static/img/cms/preview_mountain_large.jpg' | asset" v-else>
     </div>
 {% endblock %}

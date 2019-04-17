@@ -1,4 +1,5 @@
 import { Component, State, Application, Mixin } from 'src/core/shopware';
+import { cloneDeep } from 'src/core/service/utils/object.utils';
 import { warn } from 'src/core/service/utils/debug.utils';
 import EntityProxy from 'src/core/data/EntityProxy';
 import CriteriaFactory from 'src/core/factory/criteria.factory';
@@ -26,6 +27,7 @@ Component.register('sw-cms-detail', {
             currentSalesChannelKey: null,
             currentDeviceView: 'desktop',
             currentBlock: null,
+            currentBlockCategory: 'standard',
             currentSkin: 'default',
             currentMappingEntity: null,
             currentMappingEntityStore: null,
@@ -52,6 +54,18 @@ Component.register('sw-cms-detail', {
 
         cmsElements() {
             return this.cmsService.getCmsElementRegistry();
+        },
+
+        cmsBlockCategories() {
+            const categories = [];
+
+            this.cmsBlocks.forEach((block) => {
+                if (!categories.includes(block.category)) {
+                    categories.push(block.category);
+                }
+            });
+
+            return categories;
         },
 
         cmsStageClasses() {
@@ -294,6 +308,32 @@ Component.register('sw-cms-detail', {
             this.updateBlockPositions();
         },
 
+        onBlockDuplicate(block) {
+            const blockStore = this.page.getAssociation('blocks');
+            const newBlock = blockStore.create();
+
+            newBlock.type = block.type;
+            newBlock.position = block.position + 1;
+            newBlock.pageId = this.page.id;
+
+            newBlock.config = cloneDeep(block.config);
+
+            const slotStore = newBlock.getAssociation('slots');
+            block.slots.forEach((slot) => {
+                const element = slotStore.create();
+                element.blockId = newBlock.id;
+                element.slot = slot.slot;
+                element.type = slot.type;
+                element.config = cloneDeep(slot.config);
+                element.data = cloneDeep(slot.data);
+
+                newBlock.slots.push(element);
+            });
+
+            this.page.blocks.splice(newBlock.position, 0, newBlock);
+            this.updateBlockPositions();
+        },
+
         onBlockStageDrop(dragData, dropData) {
             if (!dropData || !dragData.block || dropData.dropIndex < 0) {
                 return;
@@ -305,15 +345,25 @@ Component.register('sw-cms-detail', {
             newBlock.position = dropData.dropIndex;
             newBlock.pageId = this.page.id;
 
-            Object.assign(newBlock.config, this.blockConfigDefaults);
+            Object.assign(newBlock.config, cloneDeep(this.blockConfigDefaults));
 
             const slotStore = newBlock.getAssociation('slots');
             const blockConfig = this.cmsBlocks[newBlock.type];
             Object.keys(blockConfig.slots).forEach((slotName) => {
+                const slotConfig = blockConfig.slots[slotName];
                 const element = slotStore.create();
                 element.blockId = newBlock.id;
                 element.slot = slotName;
-                element.type = blockConfig.slots[slotName];
+
+                if (typeof slotConfig === 'string') {
+                    element.type = slotConfig;
+                } else if (typeof slotConfig === 'object') {
+                    element.type = slotConfig.type;
+
+                    if (slotConfig.default && typeof slotConfig.default === 'object') {
+                        Object.assign(element, cloneDeep(slotConfig.default));
+                    }
+                }
 
                 newBlock.slots.push(element);
             });

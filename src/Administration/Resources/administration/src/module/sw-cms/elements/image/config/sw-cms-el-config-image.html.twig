@@ -3,7 +3,7 @@
         {% block sw_cms_element_image_config_media_upload %}
             <sw-media-upload variant="regular"
                              :uploadTag="uploadTag"
-                             :source="element.data.media"
+                             :source="element.data.media && element.data.media.id ? element.data.media : null"
                              :allowMultiSelect="false"
                              :defaultFolder="cmsPageState.pageEntityName"
                              :caption="$tc('sw-cms.elements.captionMediaUpload')"
@@ -15,6 +15,13 @@
                 @sw-media-upload-added="onChangeMedia"
                 @sw-media-upload-finished="onImageUpload">
             </sw-upload-store-listener>
+        {% endblock %}
+
+        {% block sw_cms_element_image_config_display_mode %}
+            <sw-select-field label="Display mode" v-model="element.config.displayMode.value">
+                <option value="standard">Standard</option>
+                <option value="cover">Cover</option>
+            </sw-select-field>
         {% endblock %}
 
         {% block sw_cms_element_image_config_media_modal %}

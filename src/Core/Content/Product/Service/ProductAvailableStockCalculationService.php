@@ -31,7 +31,7 @@ UPDATE `product`
 LEFT JOIN (
     SELECT
         `product`.`id` AS `product_id`,
-        (MIN(`product`.`stock`) - SUM(`order_delivery_position`.`quantity`)) AS `available_stock`
+        GREATEST((MIN(`product`.`stock`) - SUM(`order_delivery_position`.`quantity`)), 0) AS `available_stock`
     FROM `order_delivery`
     LEFT JOIN `order_delivery_position`
         ON `order_delivery_position`.`order_delivery_id` = `order_delivery`.`id`

@@ -21,15 +21,17 @@ class ErrorPageController extends StorefrontController
 
     public function error(\Exception $exception, Request $request): Response
     {
-        try {
-            $errorTemplate = $this->errorTemplateResolver->resolve($exception, $request);
+        $response = $this->forward("Shopware\Storefront\PageController\HomePageController:index");
 
-            return $this->renderStorefront($errorTemplate->getTemplateName(), $errorTemplate->getArguments());
-        } catch (\Exception $e) { //final Fallback
-            return $this->renderStorefront(
-                '@Storefront/page/error/index.html.twig',
-                ['exception' => $exception, 'followingException' => $e]
-            );
+        switch ((int) $exception->getCode()) {
+            case 404:
+                $code = 404;
+                break;
+            default: $code = 500;
         }
+
+        $response->setStatusCode($code);
+
+        return $response;
     }
 }

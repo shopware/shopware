@@ -18,9 +18,9 @@
                         </button>
                     </li>
 
-                    <li v-for="folder in subFolders"
+                    <li v-for="(folder, index) in subFolders"
                         :key="folder.id"
-                        :class="{'is--selected': folder.id === selectedId}"
+                        :class="[{'is--selected': folder.id === selectedId}, 'sw-media-folder-content__list-item--' + index ]"
                         @click="emitInput(folder)"
                         class="sw-media-folder-content__list-item">
 
